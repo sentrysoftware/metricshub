@@ -75,14 +75,22 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BU
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_WARNING;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAX_AVAILABLE_PATH_COUNT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SNMP_UP_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SSH_UP_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WMI_UP_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WBEM_UP_PARAMETER;
 
 import java.math.RoundingMode;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 import org.springframework.util.Assert;
 
+import com.sentrysoftware.matrix.common.exception.MatsyaException;
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 import com.sentrysoftware.matrix.common.meta.monitor.Battery;
 import com.sentrysoftware.matrix.common.meta.monitor.Blade;
@@ -116,12 +124,19 @@ import com.sentrysoftware.matrix.common.meta.parameter.state.LedColorStatus;
 import com.sentrysoftware.matrix.common.meta.parameter.state.LedIndicator;
 import com.sentrysoftware.matrix.common.meta.parameter.state.LinkStatus;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
+import com.sentrysoftware.matrix.common.meta.parameter.state.Up;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
+import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
 import com.sentrysoftware.matrix.model.parameter.IParameter;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
+
 
 import lombok.Getter;
 import lombok.NonNull;
@@ -130,6 +145,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MonitorCollectVisitor implements IMonitorVisitor {
 
+	private static final String SNMP_UP_TEST_OID = "1.3.6.1";
 	private static final String VALUE_TABLE_CANNOT_BE_NULL = "valueTable cannot be null";
 	private static final String DATA_CANNOT_BE_NULL = "row cannot be null.";
 	private static final String CONNECTOR_NAME_CANNOT_BE_NULL = "connectorName cannot be null.";
@@ -158,7 +174,10 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 
 	private void checkCollectInfo(MonitorCollectInfo monitorCollectInfo) {
+
 		Assert.notNull(monitorCollectInfo.getMonitor(), MONITOR_CANNOT_BE_NULL);
+
+		if (monitorCollectInfo.getMonitor().getMonitorType() == null) {
 		Assert.notNull(monitorCollectInfo.getConnectorName(), CONNECTOR_NAME_CANNOT_BE_NULL);
 		Assert.notNull(monitorCollectInfo.getRow(), DATA_CANNOT_BE_NULL);
 		Assert.notNull(monitorCollectInfo.getHostMonitoring(), HOST_MONITORING_CANNOT_BE_NULL);
@@ -166,6 +185,19 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		Assert.notNull(monitorCollectInfo.getMapping(), MAPPING_CANNOT_BE_NULL);
 		Assert.notNull(monitorCollectInfo.getValueTable(), VALUE_TABLE_CANNOT_BE_NULL);
 		Assert.notNull(monitorCollectInfo.getCollectTime(), COLLECT_TIME_CANNOT_BE_NULL);
+		} else {
+			Assert.isTrue(monitorCollectInfo.getMonitor().getMonitorType().equals(MonitorType.TARGET)
+					|| monitorCollectInfo.getConnectorName() != null, CONNECTOR_NAME_CANNOT_BE_NULL);
+			Assert.isTrue(monitorCollectInfo.getMonitor().getMonitorType().equals(MonitorType.TARGET)
+					|| monitorCollectInfo.getRow() != null, DATA_CANNOT_BE_NULL);
+			Assert.notNull(monitorCollectInfo.getHostMonitoring(), HOST_MONITORING_CANNOT_BE_NULL);
+			Assert.notNull(monitorCollectInfo.getHostname(), HOSTNAME_CANNOT_BE_NULL);
+			Assert.isTrue(monitorCollectInfo.getMonitor().getMonitorType().equals(MonitorType.TARGET)
+					|| monitorCollectInfo.getMapping() != null, MAPPING_CANNOT_BE_NULL);
+			Assert.isTrue(monitorCollectInfo.getMonitor().getMonitorType().equals(MonitorType.TARGET)
+					|| monitorCollectInfo.getValueTable() != null, VALUE_TABLE_CANNOT_BE_NULL);
+			Assert.notNull(monitorCollectInfo.getCollectTime(), COLLECT_TIME_CANNOT_BE_NULL);
+		}
 	}
 
 	@Override
@@ -175,7 +207,184 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 	@Override
 	public void visit(Target target) {
-		// Not implemented yet
+
+		final String hostName = monitorCollectInfo.getHostname();
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		// No engine configuration means no protocols to check if they are up.
+		if (monitorCollectInfo.getEngineConfiguration() == null) {
+			return;
+		}
+
+		updateSnmpUpParameter(hostName, monitor);
+		updateWbemUpParameter(hostName, monitor);
+		updateSshUpParameter(hostName, monitor);
+		updateWmiUpParameter(hostName, monitor);
+	
+	}
+
+	private void updateWmiUpParameter(final String hostName, final Monitor monitor) {
+		// Get WMI Configuration if it exists
+		final WMIProtocol wmi = (WMIProtocol) monitorCollectInfo.getEngineConfiguration().getProtocolConfigurations()
+				.get(WMIProtocol.class);
+
+		// Update the WMI_UP_PARAMETER
+		if (wmi != null) {
+
+			List<List<String>> wmiResult = null;
+
+			final String wbemQuery = "Select Name FROM Win32_ComputerSystem";
+			final String nameSpace = "root\\cimv2";
+
+			try {
+
+				// Query to test for response.
+				wmiResult = monitorCollectInfo.getMatsyaClientsExecutor().executeWmi(hostName,
+						wmi, wbemQuery, nameSpace);
+
+			} catch (MatsyaException e) {
+				log.debug("Exception: ", e);
+			} finally {
+				// Update status
+				final IState status = CollectHelper.translateState(
+						wmiResult != null ? "1" : "0",
+						Up::interpret,
+						WMI_UP_PARAMETER,
+						monitor.getId(),
+						hostName);
+
+				CollectHelper.updateDiscreteParameter(monitor, WMI_UP_PARAMETER, monitorCollectInfo.getCollectTime(),
+						status);
+			}
+		}
+	}
+
+	private void updateSshUpParameter(final String hostName, final Monitor monitor) {
+		// Get SSH Configuration if it exists
+		final SSHProtocol ssh = (SSHProtocol) monitorCollectInfo.getEngineConfiguration().getProtocolConfigurations()
+				.get(SSHProtocol.class);
+
+		IState status = null;
+
+		// Update the SSH_UP_PARAMETER
+		if (ssh != null) {
+			try {
+				final String sshResult = OsCommandHelper.runSshCommand("echo SSH_UP_TEST", hostName, ssh,
+						Math.toIntExact(ssh.getTimeout()), null, null);
+				if (sshResult != null) {
+					status = CollectHelper.translateState(
+							sshResult.startsWith("SSH_UP_TEST") ? "1" : "0",
+							Up::interpret,
+							SSH_UP_PARAMETER,
+							monitor.getId(),
+							hostName);
+				} else {
+					status = CollectHelper.translateState(
+							"0",
+							Up::interpret,
+							SSH_UP_PARAMETER,
+							monitor.getId(),
+							hostName);
+				}
+			} catch (MatsyaException e) {
+				log.debug("Exception: ", e);
+				status = CollectHelper.translateState(
+						"0",
+						Up::interpret,
+						SSH_UP_PARAMETER,
+						monitor.getId(),
+						hostName);
+			} finally {
+				CollectHelper.updateDiscreteParameter(monitor, SSH_UP_PARAMETER,
+						monitorCollectInfo.getCollectTime(), status);
+			}
+		}
+	}
+
+	private void updateWbemUpParameter(final String hostName, final Monitor monitor) {
+
+		// Get WBEM Configuration if it exists
+		final WBEMProtocol wbem = (WBEMProtocol) monitorCollectInfo.getEngineConfiguration().getProtocolConfigurations()
+				.get(WBEMProtocol.class);
+
+		// Configuration expects WBEM
+		if (wbem != null) {
+
+			List<List<String>> wbemResult = null;
+			IState status = null;
+
+			// one of these namespaces must respond.
+			final List<String> wbemNamespaceList = Collections.unmodifiableList(List.of(
+					"root/Interop",
+					"interop",
+					"root/PG_Interop",
+					"PG_Interop"));
+
+			for (String wbemNamespace : wbemNamespaceList) {
+				try {
+					if (status == null) {
+						// Execute wbem query
+						wbemResult = monitorCollectInfo.getMatsyaClientsExecutor().executeWbem(hostName, wbem,
+								"SELECT Name FROM CIM_NameSpace", wbemNamespace);
+					}
+				} catch (MatsyaException e) {
+					log.debug("Exception: ", e);
+				} finally {
+					// update the status only if wbemResult is not null
+					if (wbemResult != null) {
+						status = CollectHelper.translateState(
+								wbemResult != null ? "1" : "0",
+								Up::interpret,
+								WBEM_UP_PARAMETER,
+								monitor.getId(),
+								hostName);
+					}
+				}
+			}
+
+			// All namespaces checked, update the status
+			if (status == null) {
+				// Protocol never responded.
+				// Set status to DOWN
+				status = CollectHelper.translateState(
+						"0",
+						Up::interpret,
+						WBEM_UP_PARAMETER,
+						monitor.getId(),
+						hostName);
+			}
+
+			CollectHelper.updateDiscreteParameter(monitor, WBEM_UP_PARAMETER,
+					monitorCollectInfo.getCollectTime(), status);
+		}
+	}
+
+	private void updateSnmpUpParameter(final String hostName, final Monitor monitor) {
+		// Get SNMP Configuration if it exists
+		final SNMPProtocol snmp = (SNMPProtocol) monitorCollectInfo.getEngineConfiguration().getProtocolConfigurations()
+				.get(SNMPProtocol.class);
+
+		// Update the SNMP_UP_PARAMETER.
+		if (snmp != null) {
+
+			String snmpGetNext = null;
+			try {
+				snmpGetNext = monitorCollectInfo.getMatsyaClientsExecutor()
+						.executeSNMPGetNext(SNMP_UP_TEST_OID, snmp, hostName, true);
+
+			} catch (InterruptedException | ExecutionException | TimeoutException e) {
+				log.debug("Exception: ", e);
+			} finally {
+				final IState status = CollectHelper.translateState(
+						snmpGetNext != null ? "1" : "0",
+						Up::interpret,
+						SNMP_UP_PARAMETER,
+						monitor.getId(),
+						hostName);
+				CollectHelper.updateDiscreteParameter(monitor, SNMP_UP_PARAMETER,
+						monitorCollectInfo.getCollectTime(), status);
+			}
+		}
 	}
 
 	@Override

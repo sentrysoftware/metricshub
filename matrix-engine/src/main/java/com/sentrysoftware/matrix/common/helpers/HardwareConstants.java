@@ -146,6 +146,10 @@ public class HardwareConstants {
 	public static final String DECODER_USED_TIME_PARAMETER = "decoderUsedTime";
 	public static final String DECODER_USED_TIME_PERCENT_PARAMETER = "decoderUsedTimePercent";
 	public static final String POWER_SHARE_PARAMETER = "powerShare";
+	public static final String SNMP_UP_PARAMETER = "snmpUp";
+	public static final String SSH_UP_PARAMETER = "sshUp";
+	public static final String WBEM_UP_PARAMETER = "wbemUp";
+	public static final String WMI_UP_PARAMETER = "wmiUp";
 
 	///////////////////////////////////////////////////////////////////////////////
 	//                                                                           //
@@ -311,6 +315,7 @@ public class HardwareConstants {
 	public static final String ZERO_BUFFER_CREDIT_COUNT_PARAMETER_UNIT = "buffer credits";
 	public static final String CONNECTED_PORTS_PARAMETER_UNIT = "ports";
 	public static final String COLOR_PARAMETER_UNIT = "{ 0 = OK ; 1 = Degraded ; 2 = Failed }";
+	public static final String UP_PARAMETER_UNIT  = "{ 0 = Down ; 1 = Up }";
 	public static final String DEFAULT = "default";
 
 	public static final String USERNAME_MACRO = "%{USERNAME}";

@@ -5,7 +5,9 @@ import com.sentrysoftware.matrix.common.meta.monitor.Gpu;
 import com.sentrysoftware.matrix.common.meta.monitor.OtherDevice;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
 import com.sentrysoftware.matrix.common.meta.monitor.Vm;
+import com.sentrysoftware.matrix.common.meta.parameter.state.Up;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.engine.strategy.collect.CollectHelper;
 import com.sentrysoftware.matrix.model.alert.AlertCondition;
 import com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder;
 import com.sentrysoftware.matrix.model.alert.AlertRule;
@@ -33,7 +35,13 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VALUE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VOLTAGE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SNMP_UP_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SSH_UP_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WMI_UP_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WBEM_UP_PARAMETER;
+
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -52,6 +60,74 @@ class MonitorAlertRulesVisitorTest {
 		assertNotNull(monitor.getAlertRules().get(SPEED_PARAMETER));
 		assertNotNull(monitor.getAlertRules().get(SPEED_PERCENT_PARAMETER));
 
+	}
+
+	@Test 
+	void testProcessTargetProtocolAlertRulesCase1() {
+		final Monitor monitor = new Monitor();
+
+		CollectHelper.updateDiscreteParameter(monitor, SNMP_UP_PARAMETER, monitor.getDiscoveryTime(), Up.UP);
+		CollectHelper.updateDiscreteParameter(monitor, SSH_UP_PARAMETER, monitor.getDiscoveryTime(), Up.UP);
+		CollectHelper.updateDiscreteParameter(monitor, WMI_UP_PARAMETER, monitor.getDiscoveryTime(), Up.UP);
+		CollectHelper.updateDiscreteParameter(monitor, WBEM_UP_PARAMETER, monitor.getDiscoveryTime(), Up.UP);
+
+		final Set<String> result = MonitorAlertRulesVisitor.processTargetProtocolAlertRules(monitor);
+		assertEquals(Set.of(SNMP_UP_PARAMETER, SSH_UP_PARAMETER, WMI_UP_PARAMETER, WBEM_UP_PARAMETER), result);
+	}
+
+	@Test 
+	void testProcessTargetProtocolAlertRulesCase2() {
+		final Monitor monitor = new Monitor();
+
+		CollectHelper.updateDiscreteParameter(monitor, SNMP_UP_PARAMETER, monitor.getDiscoveryTime(), Up.DOWN);
+		CollectHelper.updateDiscreteParameter(monitor, SSH_UP_PARAMETER, monitor.getDiscoveryTime(), Up.DOWN);
+		CollectHelper.updateDiscreteParameter(monitor, WMI_UP_PARAMETER, monitor.getDiscoveryTime(), Up.DOWN);
+		CollectHelper.updateDiscreteParameter(monitor, WBEM_UP_PARAMETER, monitor.getDiscoveryTime(), Up.DOWN);
+
+		final Set<String> result = MonitorAlertRulesVisitor.processTargetProtocolAlertRules(monitor);
+		assertNull(result);
+	}
+
+	@Test 
+	void testProcessTargetProtocolAlertRulesCase3() {
+		final Monitor monitor = new Monitor();
+
+		CollectHelper.updateDiscreteParameter(monitor, SNMP_UP_PARAMETER, monitor.getDiscoveryTime(), Up.UP);
+		CollectHelper.updateDiscreteParameter(monitor, SSH_UP_PARAMETER, monitor.getDiscoveryTime(), Up.DOWN);
+		CollectHelper.updateDiscreteParameter(monitor, WMI_UP_PARAMETER, monitor.getDiscoveryTime(), Up.DOWN);
+		CollectHelper.updateDiscreteParameter(monitor, WBEM_UP_PARAMETER, monitor.getDiscoveryTime(), Up.DOWN);
+
+		final Set<String> result = MonitorAlertRulesVisitor.processTargetProtocolAlertRules(monitor);
+		final Set<String> expected = Collections.singleton(SNMP_UP_PARAMETER);
+		assertEquals(expected, result);
+	}
+
+	@Test 
+	void testProcessTargetProtocolAlertRulesCase4() {
+		final Monitor monitor = new Monitor();
+
+		CollectHelper.updateDiscreteParameter(monitor, SNMP_UP_PARAMETER, monitor.getDiscoveryTime(), Up.UP);
+		CollectHelper.updateDiscreteParameter(monitor, SSH_UP_PARAMETER, monitor.getDiscoveryTime(), Up.UP);
+		CollectHelper.updateDiscreteParameter(monitor, WMI_UP_PARAMETER, monitor.getDiscoveryTime(), Up.DOWN);
+		CollectHelper.updateDiscreteParameter(monitor, WBEM_UP_PARAMETER, monitor.getDiscoveryTime(), Up.DOWN);
+
+		final Set<String> result = MonitorAlertRulesVisitor.processTargetProtocolAlertRules(monitor);
+		final Set<String> expected = Set.of(SNMP_UP_PARAMETER, SSH_UP_PARAMETER);
+		assertEquals(expected, result);
+	}
+
+	@Test 
+	void testProcessTargetProtocolAlertRulesCase5() {
+		final Monitor monitor = new Monitor();
+
+		CollectHelper.updateDiscreteParameter(monitor, SNMP_UP_PARAMETER, monitor.getDiscoveryTime(), Up.UP);
+		CollectHelper.updateDiscreteParameter(monitor, SSH_UP_PARAMETER, monitor.getDiscoveryTime(), Up.UP);
+		CollectHelper.updateDiscreteParameter(monitor, WMI_UP_PARAMETER, monitor.getDiscoveryTime(), Up.UP);
+		CollectHelper.updateDiscreteParameter(monitor, WBEM_UP_PARAMETER, monitor.getDiscoveryTime(), Up.DOWN);
+
+		final Set<String> result = MonitorAlertRulesVisitor.processTargetProtocolAlertRules(monitor);
+		final Set<String> expected = Set.of(SNMP_UP_PARAMETER, SSH_UP_PARAMETER, WMI_UP_PARAMETER);
+		assertEquals(expected, result);
 	}
 
 	@Test
