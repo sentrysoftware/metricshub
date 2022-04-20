@@ -39,9 +39,9 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 	private final String inPrompt;
 	private final String currentSourceTag;
 
-	private static final String LOG_BEGIN_OPERATION_TEMPLATE = "Executing Step [{}]:\n{}\n";
-	private static final String LOG_BEGIN_OPERATION_TEMPLATE_WITH_TIMEOUT = "Executing Step [{} with timeout={}]:\n{}\n";
-	private static final String LOG_RESULT_TEMPLATE = "{}: Got:\n{}\nhostname: {}";
+	private static final String LOG_BEGIN_OPERATION_TEMPLATE = "Hostname {} - Executing Step [{}]:\n{}\n";
+	private static final String LOG_BEGIN_OPERATION_TEMPLATE_WITH_TIMEOUT = "Hostname {} - Executing Step [{} with timeout={}]:\n{}\n";
+	private static final String LOG_RESULT_TEMPLATE = "Hostname {} - {}: Got:\n{}";
 
 	@Getter
 	private Optional<String> result = Optional.empty();
@@ -55,11 +55,11 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 		final String stepName = buildStepName(step);
 		final int timeout = getTimeout(null);
 
-		log.info(LOG_BEGIN_OPERATION_TEMPLATE_WITH_TIMEOUT, stepName, timeout, step.toString());
+		log.info(LOG_BEGIN_OPERATION_TEMPLATE_WITH_TIMEOUT, hostname, stepName, timeout, step.toString());
 
 		final Optional<String> maybe = readAll(stepName, timeout);
 
-		log.info(LOG_RESULT_TEMPLATE, stepName, maybe, hostname);
+		log.info(LOG_RESULT_TEMPLATE, hostname, stepName, maybe);
 
 		if (step.isCapture()) {
 			result = maybe;
@@ -72,17 +72,17 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 		final String stepName = buildStepName(step);
 
 		if (inPrompt == null || inPrompt.isEmpty()) {
-			log.warn("{}: Cannot wait for prompt. Haven't got one yet. hostname: {}", stepName, hostname);
+			log.warn("Hostname {} - {}: Cannot wait for prompt. Haven't got one yet. hostname: {}", hostname, stepName);
 			return;
 		}
 
 		final int timeout = getTimeout(step.getTimeout());
 
-		log.info(LOG_BEGIN_OPERATION_TEMPLATE_WITH_TIMEOUT, stepName, timeout, step.toString());
+		log.info(LOG_BEGIN_OPERATION_TEMPLATE_WITH_TIMEOUT, hostname, stepName, timeout, step.toString());
 
 		final Optional<String> maybe = getUntil(stepName, inPrompt, timeout);
 
-		log.info(LOG_RESULT_TEMPLATE, stepName, maybe, hostname);
+		log.info(LOG_RESULT_TEMPLATE, hostname, stepName, maybe);
 
 		if (maybe.isEmpty()) {
 			throw new StepException(String.format("%s - Disconnected or timeout while waiting for the prompt (\"%s\") in SSH session",
@@ -101,7 +101,7 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 
 		final String stepName = buildStepName(step);
 
-		log.info(LOG_BEGIN_OPERATION_TEMPLATE, stepName, step.toString());
+		log.info(LOG_BEGIN_OPERATION_TEMPLATE, hostname, stepName, step.toString());
 
 		final String message = String.format("%s - Couldn't send the password (********) through SSH", stepName);
 
@@ -118,11 +118,11 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 		final String stepName = buildStepName(step);
 
 		if (step.getText() == null || step.getText().isEmpty()) {
-			log.warn("{}: No text to send in step. hostname: {}", stepName, hostname);
+			log.warn("Hostname {} - {}: No text to send in step", hostname, stepName);
 			return;
 		}
 
-		log.info(LOG_BEGIN_OPERATION_TEMPLATE, stepName, step.toString());
+		log.info(LOG_BEGIN_OPERATION_TEMPLATE, hostname, stepName, step.toString());
 
 		final String message = String.format("%s - Couldn't send the following text through SSH:\n%s", // NOSONAR
 				stepName,
@@ -136,7 +136,8 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 
 		final String stepName = buildStepName(step);
 
-		log.info("Executing Step [{} with username={}]:\n{}\n", stepName, sshProtocol.getUsername(), step.toString());
+		log.info("Hostname {} - Executing Step [{} with username={}]:\n{}\n", 
+				hostname, stepName, sshProtocol.getUsername(), step.toString());
 
 		final String message = String.format("%s - Couldn't send the username (%s) through SSH",
 				stepName,
@@ -154,7 +155,7 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 
 		final String stepName = buildStepName(step);
 
-		log.info(LOG_BEGIN_OPERATION_TEMPLATE, stepName, step.toString());
+		log.info(LOG_BEGIN_OPERATION_TEMPLATE, hostname, stepName, step.toString());
 
 		sleep(stepName, step.getDuration());
 	}
@@ -165,13 +166,13 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 		final String stepName = buildStepName(step);
 
 		if (step.getText() == null || step.getText().isEmpty()) {
-			log.warn("{}: No specified text to wait for in step. hostname: {}", stepName, hostname);
+			log.warn("Hostname {} - {}: No specified text to wait for in step", hostname, stepName);
 			return;
 		}
 
 		final int timeout = getTimeout(step.getTimeout());
 
-		log.info(LOG_BEGIN_OPERATION_TEMPLATE_WITH_TIMEOUT, stepName, timeout, step.toString());
+		log.info(LOG_BEGIN_OPERATION_TEMPLATE_WITH_TIMEOUT, hostname, stepName, timeout, step.toString());
 
 		final Optional<String> maybe = getUntil(stepName, step.getText(), timeout);
 		if (maybe.isEmpty()) {
@@ -180,7 +181,7 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 					step.getText().replaceAll("\\R", HardwareConstants.EMPTY)));
 		}
 
-		log.info(LOG_RESULT_TEMPLATE, stepName, maybe, hostname);
+		log.info(LOG_RESULT_TEMPLATE, hostname, stepName, maybe);
 
 		if (step.isCapture()) {
 			result = maybe;
@@ -193,7 +194,7 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 		final String stepName = buildStepName(step);
 		final int timeout = getTimeout(step.getTimeout());
 
-		log.info(LOG_BEGIN_OPERATION_TEMPLATE_WITH_TIMEOUT, stepName, timeout, step.toString());
+		log.info(LOG_BEGIN_OPERATION_TEMPLATE_WITH_TIMEOUT, hostname, stepName, timeout, step.toString());
 
 		final String message = String.format("%s - Disconnected or timeout while waiting for the prompt in SSH session.", stepName);
 
@@ -229,7 +230,7 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 			throw new StepException(message);
 		} else {
 
-			log.info(LOG_RESULT_TEMPLATE, stepName, maybePrompt, hostname);
+			log.info(LOG_RESULT_TEMPLATE, hostname, stepName, maybePrompt);
 
 			prompt = maybePrompt;
 		}

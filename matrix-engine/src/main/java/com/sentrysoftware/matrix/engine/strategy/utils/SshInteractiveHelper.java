@@ -99,9 +99,9 @@ public class SshInteractiveHelper {
 				prompt = visitor.getPrompt().orElse(prompt);
 			}
 
-			log.debug("runSshInteractive: Result for {} on {}:\n {}",
-					currentSourceTag,
+			log.debug("Hostname {} - Run SSH Interactive: Result for {}:\n {}",
 					hostname,
+					currentSourceTag,
 					results.stream().collect(Collectors.joining("\",\n\"", "[\"", "\"]")));
 			return results;
 		}

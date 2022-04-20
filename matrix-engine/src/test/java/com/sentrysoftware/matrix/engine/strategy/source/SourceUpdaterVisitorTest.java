@@ -36,7 +36,11 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tableun
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ucs.UCSSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
+import com.sentrysoftware.matrix.engine.EngineConfiguration;
+import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
+import com.sentrysoftware.matrix.engine.target.HardwareTarget;
+import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.ConnectorNamespace;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
@@ -67,6 +71,8 @@ class SourceUpdaterVisitorTest {
 
 	@Mock
 	private HostMonitoring hostMonitoring;
+	
+	private static EngineConfiguration engineConfiguration;
 
 	@InjectMocks
 	private SourceUpdaterVisitor sourceUpdaterVisitor;
@@ -75,6 +81,10 @@ class SourceUpdaterVisitorTest {
 
 	@BeforeAll
 	public static void setUp() {
+		
+		engineConfiguration = EngineConfiguration.builder()
+				.target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.LINUX).build())
+				.protocolConfigurations(Map.of(SNMPProtocol.class, SNMPProtocol.builder().build())).build();
 
 		metadata.put(DEVICE_ID, ENCLOSURE_DEVICE_ID);
 
@@ -113,6 +123,7 @@ class SourceUpdaterVisitorTest {
 		ConnectorNamespace namespace = ConnectorNamespace.builder().sourceTables(
 				Map.of(VALUE_TABLE, sourceTable)).build();
 		
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(namespace).when(hostMonitoring).getConnectorNamespace(connector);
 
@@ -356,6 +367,7 @@ class SourceUpdaterVisitorTest {
 
 		{
 			// No foreign source table
+			doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 			doReturn(ConnectorNamespace.builder().build())
 				.when(hostMonitoring).getConnectorNamespace(connector);
@@ -367,6 +379,7 @@ class SourceUpdaterVisitorTest {
 
 		{
 			// Foreign source table empty
+			doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 			doReturn(ConnectorNamespace.builder().sourceTables(
 						Map.of(ENCLOSURE_DISCOVERY_SOURCE_1_KEY, SourceTable.empty())).build())
@@ -483,7 +496,7 @@ class SourceUpdaterVisitorTest {
 				.build();
 
 		doReturn(resultQuery1, resultQuery2).when(sourceVisitor).visit(any(WMISource.class));
-
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		final SourceTable actual = new SourceUpdaterVisitor(sourceVisitor, connector, null, strategyConfig).visit(wmiSource);
 
 		final SourceTable expected = SourceTable
