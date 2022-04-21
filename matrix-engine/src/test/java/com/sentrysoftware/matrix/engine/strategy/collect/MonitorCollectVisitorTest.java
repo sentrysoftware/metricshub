@@ -130,6 +130,9 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WBEM_UP
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SSH_UP_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WMI_UP_PARAMETER;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ECHO_SSH_UP_TEST;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SSH_UP_TEST_RESPONSE;
+
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -478,23 +481,26 @@ class MonitorCollectVisitorTest {
 				.build();
 
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+		final SSHProtocol ssh = SSHProtocol.builder().username("username").timeout(30L).build();
 
 		monitorCollectVisitor.getMonitorCollectInfo().setHostname("localhost");
 		monitorCollectVisitor.getMonitorCollectInfo().setEngineConfiguration(
 				EngineConfiguration.builder()
-						.protocolConfigurations(Collections.singletonMap(SSHProtocol.class,
-								SSHProtocol.builder()
-										.useSudo(false)
-										.username("root")
-										.password("nationale".toCharArray())
-										.timeout(30L)
-										.build()))
-						.build());
+						.protocolConfigurations(Collections.singletonMap(SSHProtocol.class, ssh)).build());
+
+		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
+
+			hostMonitoring.setLocalhost(true);
+
+			oscmd.when(() -> OsCommandHelper.runSshCommand(ECHO_SSH_UP_TEST,
+					monitorCollectVisitor.getMonitorCollectInfo().getHostname(), ssh, Math.toIntExact(ssh.getTimeout()),
+					null, null)).thenReturn(SSH_UP_TEST_RESPONSE);
 
 		monitorCollectVisitor.visit(new Target());
 
 		final IParameter actual = monitor.getParameters().get(SSH_UP_PARAMETER);
 		assertEquals(sshUpParam, actual);
+	}
 	}
 
 	@Test
@@ -506,24 +512,26 @@ class MonitorCollectVisitorTest {
 				.build();
 
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+		final SSHProtocol ssh = SSHProtocol.builder().username("username").timeout(30L).build();
 
 		monitorCollectVisitor.getMonitorCollectInfo().setHostname("localhost");
 		monitorCollectVisitor.getMonitorCollectInfo().setEngineConfiguration(
 				EngineConfiguration.builder()
-						.protocolConfigurations(Collections.singletonMap(SSHProtocol.class,
-								SSHProtocol.builder()
-										.useSudo(false)
-										.username("root")
-										.password("national".toCharArray()) // expected failure: wrong pass
-										.timeout(10L)
-										.build()))
-						.build());
+						.protocolConfigurations(Collections.singletonMap(SSHProtocol.class, ssh)).build());
 
-		monitorCollectVisitor.getMonitorCollectInfo().setMatsyaClientsExecutor(matsyaClientsExecutor);
+		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
+
+			hostMonitoring.setLocalhost(true);
+
+			oscmd.when(() -> OsCommandHelper.runSshCommand(ECHO_SSH_UP_TEST,
+					monitorCollectVisitor.getMonitorCollectInfo().getHostname(), ssh, Math.toIntExact(ssh.getTimeout()),
+					null, null)).thenReturn(null);
+
 		monitorCollectVisitor.visit(new Target());
 
 		final IParameter actual = monitor.getParameters().get(SSH_UP_PARAMETER);
 		assertEquals(sshDownParam, actual);
+	}
 	}
 
 	@Test

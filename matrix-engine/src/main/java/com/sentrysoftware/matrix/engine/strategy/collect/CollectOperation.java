@@ -106,11 +106,11 @@ public class CollectOperation extends AbstractStrategy {
 
 		Map<String, Monitor> targetMonitors = hostMonitoring.selectFromType(MonitorType.TARGET);
 
-		if(targetMonitors != null && !targetMonitors.isEmpty()) {
+		if (targetMonitors != null && !targetMonitors.isEmpty()) {
 		
 			Optional<Monitor> targetMonitor = targetMonitors.values().stream().findAny();
 
-			if(targetMonitor.isPresent()){
+			if (targetMonitor.isPresent()) {
 	
 				MonitorCollectVisitor visitor = new MonitorCollectVisitor(
 					MonitorCollectInfo.builder()
@@ -126,7 +126,9 @@ public class CollectOperation extends AbstractStrategy {
 		}
 
 		if (connectorMonitors == null || connectorMonitors.isEmpty()) {
-			log.error("Hostname {} - Collect - No connector detected in the detection operation. Stop collect operation", hostname);
+			log.error(
+					"Hostname {} - Collect - No connector detected in the detection operation. Stop collect operation",
+					hostname);
 			return false;
 		}
 

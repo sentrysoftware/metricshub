@@ -332,6 +332,9 @@ public class HardwareConstants {
 
 	public static final int ID_MAXLENGTH = 10;
 
+	public static final String ECHO_SSH_UP_TEST = "echo SSH_UP_TEST";
+	public static final String SSH_UP_TEST_RESPONSE = "SSH_UP_TEST";
+
 	/**
 	 * Pattern to remove MS_HW_ from the compiled file name
 	 */

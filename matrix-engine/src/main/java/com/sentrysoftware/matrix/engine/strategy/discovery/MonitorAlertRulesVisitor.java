@@ -24,10 +24,6 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_C
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_COUNT_WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VALUE_ALARM_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VALUE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SNMP_UP_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SSH_UP_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WMI_UP_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WBEM_UP_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VALUE_WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VOLTAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
@@ -69,7 +65,6 @@ import com.sentrysoftware.matrix.common.meta.monitor.Target;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
 import com.sentrysoftware.matrix.common.meta.monitor.Vm;
 import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
-import com.sentrysoftware.matrix.common.meta.parameter.state.Up;
 import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
 import com.sentrysoftware.matrix.model.alert.AlertCondition;
 import com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder;
@@ -78,7 +73,6 @@ import com.sentrysoftware.matrix.model.alert.AlertRule;
 import com.sentrysoftware.matrix.model.alert.AlertRule.AlertRuleType;
 import com.sentrysoftware.matrix.model.alert.Severity;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
-import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
 
 public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
@@ -105,11 +99,8 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 			return;
 		}
 
-		// Process the ProtocolUp Alert Rules
-		final Set<String> parametersToSkip = processTargetProtocolAlertRules(monitor);
-
 		// Process the static alert rules
-		processStaticAlertRules(monitor, target, parametersToSkip);
+		processStaticAlertRules(monitor, target);
 	}
 
 	@Override
@@ -630,44 +621,6 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 				alarmThreshold,
 				warnConditionsChecker,
 				alarmConditionsChecker);
-	}
-
-	static Set<String> processTargetProtocolAlertRules(Monitor monitor) {
-
-		Set<String> resultSet = new HashSet<String>();
-
-		resultSet.add(updateUpAlarmParameter(Target::checkSnmpStatusAlarmCondition, SNMP_UP_PARAMETER, monitor));
-		resultSet.add(updateUpAlarmParameter(Target::checkSshStatusAlarmCondition, SSH_UP_PARAMETER, monitor));
-		resultSet.add(updateUpAlarmParameter(Target::checkWmiStatusAlarmCondition, WMI_UP_PARAMETER, monitor));
-		resultSet.add(updateUpAlarmParameter(Target::checkWbemStatusAlarmCondition, WBEM_UP_PARAMETER, monitor));
-
-		resultSet.remove(null);
-
-		if(resultSet.isEmpty()){
-			return null;
-		}
-		
-		return resultSet;
-	}
-
-	private static String updateUpAlarmParameter(BiFunction<Monitor, Set<AlertCondition>, AlertDetails> sBiFunction,
-			final String parameter, final Monitor monitor) {
-
-		// Get specified parameter to update
-		final DiscreteParam upParam = monitor.getParameter(parameter, DiscreteParam.class);
-
-		// Only add threshold if protocol is UP
-		if (upParam != null && Up.UP.equals(upParam.getState())) {
-			final AlertRule alarmAlertRule = new AlertRule(sBiFunction, Target.ALERT_CONDITIONS,
-					Severity.ALARM, AlertRuleType.INSTANCE);
-
-			// add new alert rule
-			monitor.addAlertRules(parameter, Collections.singletonList(alarmAlertRule));
-
-			return parameter;
-		}
-
-		return null;
 	}
 
 	/**

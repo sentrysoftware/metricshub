@@ -13,9 +13,9 @@ import com.sentrysoftware.matrix.common.meta.parameter.state.Up;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
 import com.sentrysoftware.matrix.model.alert.AlertCondition;
-import com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder;
 import com.sentrysoftware.matrix.model.alert.AlertDetails;
 import com.sentrysoftware.matrix.model.alert.AlertRule;
+import com.sentrysoftware.matrix.model.alert.Severity;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitor.Monitor.AssertedParameter;
 import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
@@ -35,8 +35,9 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SNMP_UP
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WBEM_UP_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SSH_UP_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WMI_UP_PARAMETER;
-
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UP_PARAMETER_UNIT;
+
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.UP_ALARM_CONDITION;
 
 public class Target implements IMetaMonitor {
 
@@ -91,9 +92,26 @@ public class Target implements IMetaMonitor {
 			.type(new DiscreteParamType(Up::interpret))
 			.build();
 
-	public static final Set<AlertCondition> ALERT_CONDITIONS = AlertConditionsBuilder.newInstance().lt(1D).build();
+	public static final AlertRule SNMP_UP_ALERT_RULE = new AlertRule(Target::checkSnmpStatusAlarmCondition,
+            UP_ALARM_CONDITION,
+            Severity.ALARM);
+
+    public static final AlertRule WBEM_UP_ALERT_RULE = new AlertRule(Target::checkWbemStatusAlarmCondition,
+            UP_ALARM_CONDITION,
+            Severity.ALARM);
+
+
+    public static final AlertRule SSH_UP_ALERT_RULE = new AlertRule(Target::checkSshStatusAlarmCondition,
+            UP_ALARM_CONDITION,
+            Severity.ALARM);
+
+    public static final AlertRule WMI_UP_ALERT_RULE = new AlertRule(Target::checkWmiStatusAlarmCondition,
+            UP_ALARM_CONDITION,
+            Severity.ALARM);		
 
 	private static final Map<String, MetaParameter> META_PARAMETERS;
+
+    private static final Map<String, List<AlertRule>> ALERT_RULES;
 
 	static {
 		final Map<String, MetaParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -113,6 +131,15 @@ public class Target implements IMetaMonitor {
 		map.put(WMI_UP_PARAMETER, WMI_UP);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
+
+		final Map<String, List<AlertRule>> alertRulesMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+        alertRulesMap.put(SNMP_UP_PARAMETER, Collections.singletonList(SNMP_UP_ALERT_RULE));
+        alertRulesMap.put(WBEM_UP_PARAMETER, Collections.singletonList(WBEM_UP_ALERT_RULE));
+        alertRulesMap.put(SSH_UP_PARAMETER, Collections.singletonList(SSH_UP_ALERT_RULE));
+        alertRulesMap.put(WMI_UP_PARAMETER, Collections.singletonList(WMI_UP_ALERT_RULE));
+
+        ALERT_RULES = Collections.unmodifiableMap(alertRulesMap);
 	}
 
 	/**
@@ -130,6 +157,8 @@ public class Target implements IMetaMonitor {
 			String problem = "SNMP Connection has been lost.";
 			return AlertDetails.builder()
 					.problem(problem)
+					.consequence("SNMP monitoring not available.")
+					.recommendedAction("Check SNMP is configured correctly on target host.")
 					.build();
 
 		}
@@ -151,6 +180,8 @@ public class Target implements IMetaMonitor {
 			String problem = "WBEM Connection has been lost.";
 			return AlertDetails.builder()
 					.problem(problem)
+					.consequence("WBEM monitoring not available.")
+					.recommendedAction("Check WBEM is configured correctly on target host.")
 					.build();
 		}
 		return null;
@@ -172,6 +203,8 @@ public class Target implements IMetaMonitor {
 			String problem = "SSH Connection has been lost.";
 			return AlertDetails.builder()
 					.problem(problem)
+					.consequence("SSH monitoring not available.")
+					.recommendedAction("Check SSH is configured correctly on target host.")
 					.build();
 		}
 		return null;
@@ -193,6 +226,8 @@ public class Target implements IMetaMonitor {
 			String problem = "WMI Connection has been lost.";
 			return AlertDetails.builder()
 					.problem(problem)
+					.consequence("WMI monitoring not available.")
+					.recommendedAction("Check WMI is configured correctly on target host.")
 					.build();
 		}
 		return null;
@@ -220,6 +255,6 @@ public class Target implements IMetaMonitor {
 
 	@Override
 	public Map<String, List<AlertRule>> getStaticAlertRules() {
-		return Collections.emptyMap();
+		return ALERT_RULES;
 	}
 }

@@ -80,6 +80,9 @@ public class AlertConditionsBuilder {
 	public static final Set<AlertCondition> MEMORY_UTILIZATION_WARN_CONDITION = Collections
 		.unmodifiableSet(AlertConditionsBuilder.newInstance().gte(90D).build());
 
+	public static final Set<AlertCondition> UP_ALARM_CONDITION = Collections
+			.unmodifiableSet(AlertConditionsBuilder.newInstance().eq(0D).build());
+
 	private Set<AlertCondition> alertConditions = new HashSet<>();
 
 	public static AlertConditionsBuilder newInstance() {
