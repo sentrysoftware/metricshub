@@ -873,7 +873,7 @@ class MonitorCollectVisitorTest {
 	void testCollectDiscreteParameterStatus() {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = Monitor.builder().id(MONITOR_ID).build();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.TARGET).build();
 		final MonitorCollectVisitor monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
 				mapping,
@@ -908,7 +908,7 @@ class MonitorCollectVisitorTest {
 	@Test
 	void testCollectDiscreteParameterStatusButCannotExtractValue() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = Monitor.builder().id(MONITOR_ID).build();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.TARGET).build();
 		final MonitorCollectVisitor monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
 				mapping,
@@ -953,7 +953,7 @@ class MonitorCollectVisitorTest {
 	@Test
 	void testCollectNumberParameterIncorrectValue() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = new Monitor();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.TARGET).build();
 		final MonitorCollectVisitor monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
 				mapping,
@@ -974,7 +974,7 @@ class MonitorCollectVisitorTest {
 	@Test
 	void testCollectNumberParameterValueNotFound() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = new Monitor();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.TARGET).build();
 		final MonitorCollectVisitor monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
 				Collections.emptyMap(),
@@ -995,7 +995,7 @@ class MonitorCollectVisitorTest {
 	@Test
 	void testCollectNumberParameter() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = new Monitor();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.TARGET).build();
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
 		monitorCollectVisitor.collectNumberParameter(MonitorType.ENCLOSURE,
