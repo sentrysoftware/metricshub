@@ -209,6 +209,8 @@ public class SourceVisitor implements ISourceVisitor {
 				.getProtocolConfigurations().get(SSHProtocol.class);
 		final OSCommandConfig osCommandConfig = (OSCommandConfig) strategyConfig.getEngineConfiguration()
 				.getProtocolConfigurations().get(OSCommandConfig.class);
+		final WinRMProtocol winRMProtocol = (WinRMProtocol) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(WinRMProtocol.class);
 
 		final int defaultTimeout = osCommandConfig != null ? osCommandConfig.getTimeout().intValue()
 				: AbstractCommand.DEFAULT_TIMEOUT.intValue();
@@ -221,6 +223,8 @@ public class SourceVisitor implements ISourceVisitor {
 				fruResult = OsCommandHelper.runLocalCommand(fruCommand, defaultTimeout, null);
 			} else if (sshProtocol != null){
 				fruResult = OsCommandHelper.runSshCommand(fruCommand, hostname, sshProtocol, defaultTimeout, null, null);
+			} else if (winRMProtocol != null) {
+				fruResult = OsCommandHelper.runWinRMCommand(hostname, winRMProtocol);
 			} else {
 				log.warn("Couldn't process unix IPMI Source. SSH Protocol credentials missing.");
 				return SourceTable.empty();
@@ -991,11 +995,6 @@ public class SourceVisitor implements ISourceVisitor {
 	@Override
 	public SourceTable visit(final WinRMSource winRMSource) {
 
-		if (winRMSource == null || winRMSource.getWbemQuery() == null) {
-			log.warn("Malformed WinRMSource {}. Returning an empty table.", winRMSource);
-			return SourceTable.empty();
-		}
-
 		final WinRMProtocol protocol = (WinRMProtocol) strategyConfig.getEngineConfiguration()
 				.getProtocolConfigurations().get(WinRMProtocol.class);
 
@@ -1009,12 +1008,12 @@ public class SourceVisitor implements ISourceVisitor {
 
 		try {
 
-			final String csvResult =
-					matsyaClientsExecutor.executeWqlThroughWinRM(hostname, protocol);
+			final List<List<String>> result =
+					MatsyaClientsExecutor.executeWqlThroughWinRM(hostname, protocol);
 
 			return SourceTable
 					.builder()
-					.table(SourceTable.csvToTable(csvResult, ";"))
+					.table(result)
 					.build();
 
 

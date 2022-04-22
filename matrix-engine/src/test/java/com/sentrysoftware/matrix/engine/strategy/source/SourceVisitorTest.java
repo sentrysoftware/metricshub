@@ -53,6 +53,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tablejo
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tableunion.TableUnionSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ucs.UCSSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.winrm.WinRMSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
@@ -63,6 +64,7 @@ import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
 import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WinRMProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
@@ -1133,6 +1135,32 @@ class SourceVisitorTest {
 		doReturn(hostMonitoring2).when(strategyConfig).getHostMonitoring();
 		ipmiResultEmpty = sourceVisitor.processUnixIpmiSource(null);
 		assertEquals(SourceTable.empty(), ipmiResultEmpty);
+	}
+
+	@Test
+	void testVisitWinRMSource() throws Exception {
+		final WinRMSource winRMSource = WinRMSource.builder().wbemQuery(WQL).wbemNamespace("automatic").build();
+		final WinRMProtocol winRMProtocol = WinRMProtocol.builder()
+				.username(PC14 + "\\" + "Administrator")
+				.password("password".toCharArray())
+				.build();
+		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
+				.target(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.MS_WINDOWS).build())
+				.protocolConfigurations(Map.of(WinRMProtocol.class,
+						winRMProtocol))
+				.build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		final List<List<String>> expected = Arrays.asList(
+				Arrays.asList("1.1", "0|4587"),
+				Arrays.asList("1.2", "2|4587"),
+				Arrays.asList("1.3", "1|4587"));
+		try (final MockedStatic<MatsyaClientsExecutor> matsyaClientsExecutor = mockStatic(MatsyaClientsExecutor.class)) {
+			matsyaClientsExecutor.when(() -> MatsyaClientsExecutor.executeWqlThroughWinRM(
+					PC14,
+					winRMProtocol)).thenReturn(expected);
+
+			assertEquals(SourceTable.builder().table(expected).build(), sourceVisitor.visit(winRMSource));
+		}
 	}
 
 }

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -56,6 +57,7 @@ import com.sentrysoftware.matsya.wbem2.WbemQueryResult;
 import com.sentrysoftware.matsya.windows.remote.WindowsRemoteCommandResult;
 import com.sentrysoftware.matsya.winrm.command.WinRMCommandExecutor;
 import com.sentrysoftware.matsya.winrm.service.client.auth.AuthenticationEnum;
+import com.sentrysoftware.matsya.winrm.wql.WinRMWqlExecutor;
 import com.sentrysoftware.matsya.wmi.WmiStringConverter;
 import com.sentrysoftware.matsya.wmi.remotecommand.WinRemoteCommandExecutor;
 import com.sentrysoftware.matsya.wmi.wbem.WmiWbemServices;
@@ -1191,13 +1193,12 @@ public class MatsyaClientsExecutor {
 	 * @return The result of the query
 	 * @throws MatsyaException when anything goes wrong (details in cause)
 	 */
-	public String executeWqlThroughWinRM(
+	public static List<List<String>> executeWqlThroughWinRM(
 			@NonNull final String hostname,
-			@NonNull final WinRMProtocol winRMProtocol
-			) throws MatsyaException {
+			@NonNull final WinRMProtocol winRMProtocol)
+					throws MatsyaException {
 		final String username = winRMProtocol.getUsername();
 		final String command = winRMProtocol.getCommand();
-		final String workingDirectory = winRMProtocol.getWorkingDirectory();
 		final HttpProtocolEnum httpProtocol = winRMProtocol.getProtocol() == null ?
 				HttpProtocolEnum.HTTP : HttpProtocolEnum.valueOf(winRMProtocol.getProtocol());
 		final Integer port = winRMProtocol.getPort();
@@ -1205,13 +1206,12 @@ public class MatsyaClientsExecutor {
 		final List<AuthenticationEnum> authentications = winRMProtocol.getAuthentications();
 		final Long timeout = winRMProtocol.getTimeout();
 
-		trace(() -> log.trace("Executing WMI request:\n- hostname: {}\n- username: {}\n- command: {}\n- workingDirectory: {}\n"
-				+ "- protocol: {}\n- port: {}\n- ticketCache: {}\n- forceNtlm: {}\n"
-				+ "- kerberosOnly: {}\n- timeout: {}\n",
+		trace(() -> log.trace("Executing WMI request:\n- hostname: {}\n- username: {}\n- command: {}\n"
+				+ "- protocol: {}\n- port: {}\n- ticket cache: {}\n- force Ntlm: {}\n"
+				+ "- kerberos only: {}\n- timeout: {}\n",
 				hostname,
 				username,
 				command,
-				workingDirectory,
 				httpProtocol.toString(),
 				port,
 				ticketCache,
@@ -1222,6 +1222,70 @@ public class MatsyaClientsExecutor {
 
 		// launching the request
 		try {
+			WinRMWqlExecutor result = WinRMWqlExecutor.executeWql(
+					httpProtocol,
+					hostname,
+					port,
+					username,
+					winRMProtocol.getPassword(),
+					winRMProtocol.getNamespace(),
+					command,
+					timeout * 1000L,
+					ticketCache,
+					authentications);
+			return result.getRows();
+		} catch (Exception e) {
+			log.error("WinRM query failed on " + hostname + ". Error : " + e);
+			throw new MatsyaException("WinRM query failed on " + hostname, e);
+		}
+	}
+
+	/**
+	 * Execute a WinRM remote command through Matsya
+	 *
+	 * @param hostname  The hostname of the device where the WinRM service is running (<code>null</code> for localhost)
+	 * @param winRMProtocol WinRM Protocol configuration (credentials, timeout)
+	 * @return The result of the query
+	 * @throws MatsyaException when anything goes wrong (details in cause)
+	 */
+	public static String executeRemoteWinRMCommand(
+			@NonNull final String hostname,
+			@NonNull final WinRMProtocol winRMProtocol)
+					throws MatsyaException {
+		final String username = winRMProtocol.getUsername();
+		final String command = winRMProtocol.getCommand();
+		final HttpProtocolEnum httpProtocol = winRMProtocol.getProtocol() == null ?
+				HttpProtocolEnum.HTTP : HttpProtocolEnum.valueOf(winRMProtocol.getProtocol());
+		final Integer port = winRMProtocol.getPort();
+		final Path ticketCache = winRMProtocol.getTicketCache();
+		final List<AuthenticationEnum> authentications = winRMProtocol.getAuthentications();
+		final Long timeout = winRMProtocol.getTimeout();
+		final List<String> localFileToCopyList = winRMProtocol.getLocalFileToCopyList();
+		final String workingDirectory = winRMProtocol.getWorkingDirectory();
+
+		StringJoiner strJoiner = new StringJoiner(",");
+		if (localFileToCopyList != null && !localFileToCopyList.isEmpty()) {
+			localFileToCopyList.stream().forEach(key -> strJoiner.add(key));
+		}
+		
+		trace(() -> log.trace("Executing WMI request:\n- hostname: {}\n- username: {}\n- command: {}\n"
+				+ "- protocol: {}\n- port: {}\n- ticket cache: {}\n- force Ntlm: {}\n"
+				+ "- kerberos only: {}\n- timeout: {}\n- local file to copy: {}\n- workingDirectory: {}\n",
+				hostname,
+				username,
+				command,
+				httpProtocol.toString(),
+				port,
+				ticketCache,
+				authentications != null && authentications.contains(AuthenticationEnum.NTLM),
+				authentications != null && authentications.contains(AuthenticationEnum.KERBEROS),
+				timeout,
+				"[" + strJoiner.toString() + "]",
+				workingDirectory
+		));
+
+		// launching the command
+		try {
 			WindowsRemoteCommandResult result = WinRMCommandExecutor.execute(
 					command,
 					httpProtocol,
@@ -1231,19 +1295,19 @@ public class MatsyaClientsExecutor {
 					winRMProtocol.getPassword(),
 					workingDirectory,
 					timeout * 1000L,
-					null,
+					localFileToCopyList,
 					ticketCache,
 					authentications);
-			String stderr = result.getStderr();
 
-			if (stderr != null && !stderr.isEmpty()) {
-				log.error("WinRM query failed on {}: status code: {}, error: {}", hostname, result.getStatusCode(), stderr);
+			// If the command returns an error
+			if (result.getStatusCode() != 0) {
+				throw new MatsyaException("WinRM remote command failed on " + hostname + ": " + result.getStderr());
 			}
 
 			return result.getStdout();
 		} catch (Exception e) {
-			log.error("WinRM query failed on " + hostname + ". Error : " + e);
-			throw new MatsyaException("WinRM query failed on " + hostname, e);
+			log.error("WinRM remote command failed on " + hostname + ". Error : " + e);
+			throw new MatsyaException("WinRM remote command failed on " + hostname, e);
 		}
 	}
 

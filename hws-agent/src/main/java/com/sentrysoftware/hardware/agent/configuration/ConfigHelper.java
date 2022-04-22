@@ -42,6 +42,8 @@ import lombok.extern.slf4j.Slf4j;
 public class ConfigHelper {
 
 	public static final Path DEFAULT_OUTPUT_DIRECTORY = getSubDirectory("logs", true);
+	private static final String COMMAND_ERROR = "Command invalid for hostname: %s";
+
 
 	/**
 	 * Deserialize YAML configuration file.
@@ -116,8 +118,7 @@ public class ConfigHelper {
 								hostConfigurationDto.getWmi(),
 								hostConfigurationDto.getOsCommand(),
 								hostConfigurationDto.getIpmi(),
-								hostConfigurationDto.getWinRM()
-						)
+								hostConfigurationDto.getWinRM())
 						.filter(Objects::nonNull)
 						.map(IProtocolConfigDTO::toProtocol)
 						.filter(Objects::nonNull)
@@ -265,6 +266,15 @@ public class ConfigHelper {
 
 		try {
 			validateTarget(hostConfigurationDto.getTarget().getType(), hostname);
+			
+//			if (hostConfigurationDto.getOsCommand() != null) {
+//				WinRMProtocolDTO winRMDTO = hostConfigurationDto.getWinRM();
+//				 validateWinRM(hostname,
+//						winRMDTO.getPort(),
+//						winRMDTO.getTimeout(),
+//						winRMDTO.getUsername(),
+//						winRMDTO.getCommand());
+//			}
 
 			final Set<String> selectedConnectors = validateAndGetConnectors(
 					acceptedConnectorNames,
@@ -384,4 +394,42 @@ public class ConfigHelper {
 			return crypted;
 		}
 	}
+	
+	/**
+	 * Validate the given WinRM information (hostname, port, timeout, username and command)
+	 *
+	 * @param hostname  hostname of the target
+	 * @param port      port of the target
+	 * @param timeout   timeout of the target
+	 * @param username	username used to authenticate to the target
+	 * @param command	wql command to execute
+	 * @throws BusinessException
+	 */
+	static void validateWinRM(final String hostname, final Integer port, final Long timeout, final String username, final String command)
+			throws BusinessException {
+//		if (port == null || port < 1 || port > 65535) {
+//			String message = String.format(PORT_ERROR, hostname);
+//			log.error(message);
+//			throw new BusinessException(ErrorCode.INVALID_PORT, message);
+//		}
+//
+//		if (timeout == null || timeout < 0L) {
+//			String message = String.format(TIMEOUT_ERROR, hostname);
+//			log.error(message);
+//			throw new BusinessException(ErrorCode.INVALID_TIMEOUT, message);
+//		}
+//
+//		if (username == null || username.isEmpty()) {
+//			String message = String.format(USERNAME_ERROR, hostname);
+//			log.error(message);
+//			throw new BusinessException(ErrorCode.NO_USERNAME, message);
+//		}
+//
+//		if (command == null || command.isEmpty()) {
+//			String message = String.format(COMMAND_ERROR, hostname);
+//			log.error(message);
+//			throw new BusinessException(ErrorCode.NO_COMMAND, message);
+//		}
+	}
+
 }

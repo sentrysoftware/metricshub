@@ -28,6 +28,7 @@ public class WinRMProtocol implements IProtocolConfiguration {
 	private List<AuthenticationEnum> authentications;
 	@Default
 	private Long timeout = 120L;
+	private List<String> localFileToCopyList;
 
 	@Override
 	public String toString() {

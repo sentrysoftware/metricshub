@@ -18,7 +18,8 @@ public enum ErrorCode {
 	BAD_CONNECTOR_CONFIGURATION(HttpStatus.FORBIDDEN),
 	NO_TARGET_TYPE(HttpStatus.FORBIDDEN),
 	INVALID_HOSTNAME(HttpStatus.FORBIDDEN),
-	TARGET_NOT_FOUND(HttpStatus.NOT_FOUND);
+	TARGET_NOT_FOUND(HttpStatus.NOT_FOUND),
+	NO_COMMAND(HttpStatus.FORBIDDEN);
 
 	@Getter
 	private HttpStatus httpStatus;

@@ -1,6 +1,6 @@
 package com.sentrysoftware.hardware.cli.component.cli.protocols;
 
-import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +13,9 @@ import picocli.CommandLine.Option;
 @Data
 public class WinRMConfigCli implements IProtocolConfigCli {
 	public static final int DEFAULT_TIMEOUT = 30;
+	public static final String DEFAULT_PROTOCOL = "HTTP";
+	public static final Integer DEFAULT_HTTP_PORT = 5985;
+	public static final Integer DEFAULT_HTTPS_PORT = 5986;
 
 	@Option(
 			names = "--winrm",
@@ -52,7 +55,7 @@ public class WinRMConfigCli implements IProtocolConfigCli {
 			names = "--winrm-namespace",
 			order = 5,
 			paramLabel = "NAMESPACE",
-			description = "Force a specific namespace for connectors that perform namespace auto-detection (advanced)"
+			description = "Namespace for a WinRM query"
 	)
 	private String namespace;
 
@@ -60,23 +63,15 @@ public class WinRMConfigCli implements IProtocolConfigCli {
 			names = "--winrm-command",
 			order = 5,
 			paramLabel = "COMMAND",
-			description = "Force a specific command for connectors that perform command auto-detection (advanced)"
+			description = "WinRM query to execute"
 	)
 	private String command;
 
 	@Option(
-			names = "--winrm-workingdirectory",
-			order = 5,
-			paramLabel = "WORKINGDIRECTORY",
-			description = "Force a specific workingDirectory for connectors that perform workingDirectory auto-detection (advanced)"
-	)
-	private String workingDirectory;
-
-	@Option(
-			names = "--winrm-force-port",
+			names = "--winrm-port",
 			order = 5,
 			paramLabel = "PORT",
-			description = "Force a specific port for connectors that perform port auto-detection (advanced)"
+			description = "Specific port on which execute the WinRM query. By default : 5985 for HTTP and 5986 fr HTTPS."
 	)
 	private Integer port;
 
@@ -84,7 +79,8 @@ public class WinRMConfigCli implements IProtocolConfigCli {
 			names = "--winrm-protocol",
 			order = 5,
 			paramLabel = "PROTOCOL",
-			description = "Force a specific protocol for connectors that perform protocol auto-detection (advanced)"
+			defaultValue = DEFAULT_PROTOCOL,
+			description = "Protocol to use to execute the query (default: ${DEFAULT-VALUE})"
 	)
 	private String protocol;
 
@@ -92,15 +88,15 @@ public class WinRMConfigCli implements IProtocolConfigCli {
 			names = "--winrm-ticketcache",
 			order = 5,
 			paramLabel = "TICKETCACHE",
-			description = "Force a specific ticketCache for connectors that perform ticketCache auto-detection (advanced)"
+			description = "Force a specific ticket cache"
 	)
-	private Path ticketCache;
+	private String ticketCache;
 
 	@Option(
 			names = "--winrm-forcentlm",
 			order = 5,
 			paramLabel = "FORCENTLM",
-			description = "Force Ntlm"
+			description = "Force the use of Ntlm"
 	)
 	private boolean forceNtlm;
 
@@ -108,9 +104,25 @@ public class WinRMConfigCli implements IProtocolConfigCli {
 			names = "--winrm-kerberosonly",
 			order = 5,
 			paramLabel = "kerberosOnly",
-			description = "Force kerberos only"
+			description = "Force the use of kerberos only"
 	)
 	private boolean kerberosOnly;
+
+	@Option(
+			names = "--winrm-workingDirectory",
+			order = 5,
+			paramLabel = "workingDirectory",
+			description = "Specify the working directory"
+	)
+	private String workingDirectory;
+
+	@Option(
+			names = "--winrm-localFilesToCopy",
+			order = 5,
+			paramLabel = "localFilesToCopy",
+			description = "Specify the local files to copy, separated by a coma"
+	)
+	private String localFilesToCopy;
 
 	/**
 	 * @param defaultUsername Username specified at the top level of the CLI (with the --username option)
@@ -128,19 +140,27 @@ public class WinRMConfigCli implements IProtocolConfigCli {
 			authentications = null;
 		}
 		
+		if (port == null) {
+			if (protocol == null || "HTTP".equals(protocol)) {
+				port = 5985;
+			} else if ("HTTPS".equals(protocol)) {
+				port = 5986;
+			} 
+		}
+		
 		return WinRMProtocol
 		.builder()
 		.username(username == null ? defaultUsername : username)
 		.password(username == null ? defaultPassword : password)
 		.namespace(namespace)
 		.command(command)
-		.workingDirectory(workingDirectory)
 		.port(port)
 		.protocol(protocol)
-		.ticketCache(ticketCache)
+		.ticketCache(ticketCache != null ? Paths.get(ticketCache) : null)
 		.authentications(authentications)
 		.timeout(timeout)
+		.workingDirectory(workingDirectory)
+		.localFileToCopyList(localFilesToCopy != null ? List.of(localFilesToCopy.split(",")) : null)
 		.build();
-
 	}
 }

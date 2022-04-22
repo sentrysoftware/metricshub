@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Test;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.HttpConfigCli;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.SnmpConfigCli;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WbemConfigCli;
-import com.sentrysoftware.hardware.cli.component.cli.protocols.WinRMConfigCli;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WmiConfigCli;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
@@ -276,31 +275,42 @@ class HardwareSentryCliTest {
 					"--winrm-namespace", "root\\cimv2",
 					"--winrm-username", "admin",
 					"--winrm-password", "password",
-					"-f", "hdfs1,hdfs2,hdfs3" };
+					"--winrm-timeout", "160",
+					"--winrm-command", "SELECT * FROM myTable",
+					"--winrm-port", "1234",
+					"--winrm-protocol", "HTTPS",
+					"--winrm-ticketcache", "opt",
+					"--winrm-kerberosonly",
+					"--winrm-workingDirectory", "MyFolder",
+					"--winrm-localFilesToCopy", "file.txt,file2.jpg" };
 			HardwareSentryCli sentryCli = new HardwareSentryCli();
 			new CommandLine(sentryCli).parseArgs(args_hdfs);
 
 			assertEquals("hostaa", sentryCli.getHostname());
 			assertEquals(TargetType.MS_WINDOWS, sentryCli.getDeviceType());
 			assertEquals("root\\cimv2", sentryCli.getWinRMConfigCli().getNamespace());
-			assertEquals(WinRMConfigCli.DEFAULT_TIMEOUT, sentryCli.getWinRMConfigCli().getTimeout());
 			assertEquals("admin", sentryCli.getWinRMConfigCli().getUsername());
 			assertArrayEquals("password".toCharArray(), sentryCli.getWinRMConfigCli().getPassword());
-			assertEquals(sentryCli.getConnectors(), new HashSet<>(Arrays.asList("hdfs1", "hdfs2", "hdfs3")));
+			assertEquals(160, sentryCli.getWinRMConfigCli().getTimeout());
+			assertEquals("SELECT * FROM myTable", sentryCli.getWinRMConfigCli().getCommand());
+			assertEquals(1234, sentryCli.getWinRMConfigCli().getPort());
+			assertEquals("HTTPS", sentryCli.getWinRMConfigCli().getProtocol());
+			assertEquals("opt", sentryCli.getWinRMConfigCli().getTicketCache());
+			assertEquals(true, sentryCli.getWinRMConfigCli().isKerberosOnly());
+			assertEquals(false, sentryCli.getWinRMConfigCli().isForceNtlm());
+			assertEquals("MyFolder", sentryCli.getWinRMConfigCli().getWorkingDirectory());
+			assertEquals("file.txt,file2.jpg", sentryCli.getWinRMConfigCli().getLocalFilesToCopy());
 		}
 
 		{
-			String[] args_hdfs = {
-					"localhost",
-					"-t", "windows",
-					"--winrm"
-			};
+			String[] args_hdfs = { "hostaa",
+					"-t", "win",
+					"--winrm-forcentlm" };
 			HardwareSentryCli sentryCli = new HardwareSentryCli();
 			new CommandLine(sentryCli).parseArgs(args_hdfs);
 
-			assertEquals("localhost", sentryCli.getHostname());
-			assertEquals(TargetType.MS_WINDOWS, sentryCli.getDeviceType());
-			assertNotNull(sentryCli.getWinRMConfigCli());
+			assertEquals(false, sentryCli.getWinRMConfigCli().isKerberosOnly());
+			assertEquals(true, sentryCli.getWinRMConfigCli().isForceNtlm());
 		}
 
 	}

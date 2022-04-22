@@ -108,10 +108,9 @@ public class EngineConfiguration {
 
 		// Add IPMI and WinRM through OSCommand remote (SSH)
 		if (TargetType.LINUX.equals(targetType) || TargetType.SUN_SOLARIS.equals(targetType)) {
-			sources.add(WinRMSource.class);
-			
 			if (protocolTypes.contains(SSHProtocol.class) && !isLocalhost) {
 				sources.add(IPMI.class);
+				sources.add(WinRMSource.class);
 			}
 		}
 

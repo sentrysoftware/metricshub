@@ -44,9 +44,14 @@ public class StrategyTask implements Runnable {
 
 	@Override
 	public void run() {
+		
+		System.out.println("StrategyTask run");
 
 		// Configure Logger
 		final IHostMonitoring hostMonitoring = strategyTaskInfo.getHostMonitoring();
+		
+		System.out.println("hostMonitoring.getEngineConfiguration().getProtocolConfigurations().isEmpty() : " + hostMonitoring.getEngineConfiguration().getProtocolConfigurations().isEmpty());
+		
 		final int discoveryCycle = strategyTaskInfo.getDiscoveryCycle();
 
 		final String targetId = hostMonitoring.getEngineConfiguration().getTarget().getId();

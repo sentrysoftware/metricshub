@@ -39,19 +39,22 @@ import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.OSType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.winrm.WinRMSource;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParser;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.EngineResult;
 import com.sentrysoftware.matrix.engine.OperationStatus;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
+import com.sentrysoftware.matrix.engine.protocol.WinRMProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
-import com.sentrysoftware.matrix.engine.protocol.WinRMProtocol;
+import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
 import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
 import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
+import com.sentrysoftware.matrix.engine.strategy.source.SourceVisitor;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
@@ -220,6 +223,8 @@ public class HardwareSentryCli implements Callable<Integer> {
 	@Override
 	public Integer call() throws IOException {
 
+		System.out.println("HardwareSentryCli call");
+
 		// First, process special "help" options
 		if (listConnectors) {
 			return listConnectors();
@@ -261,24 +266,30 @@ public class HardwareSentryCli implements Callable<Integer> {
 		IHostMonitoring hostMonitoring =
 				HostMonitoringFactory.getInstance().createHostMonitoring(hostname, engineConf);
 
-		MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor();
-		String res = "";
-		try {
-			res = matsyaClientsExecutor.executeWqlThroughWinRM(hostname, (WinRMProtocol) engineConf.getProtocolConfigurations().get(WinRMProtocol.class));
-		} catch (Exception e) {
-			spec.commandLine().getOut().println(e.getMessage());
+		// WinRM query
+		if (protocols.containsKey(WinRMProtocol.class)) {
+			MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor();
+			SourceVisitor sourceVisitor = new SourceVisitor(
+					StrategyConfig.builder().engineConfiguration(engineConf).build(), 
+					matsyaClientsExecutor, 
+					null);
+			WinRMSource winRMSource = new WinRMSource();
+			SourceTable sourceTable = sourceVisitor.visit(winRMSource);
+			
+			for (List<String> col : sourceTable.getTable()) {
+				for (String val : col) {
+					spec.commandLine().getOut().print(val + "|");
+				}
+				spec.commandLine().getOut().print("\n");
+			}
 			spec.commandLine().getOut().flush();
-		}
-		spec.commandLine().getOut().println(res);
-		spec.commandLine().getOut().flush();
-		List<List<String>> table = SourceTable.csvToTable(res, ";");
-		for (List<String> line : table) {
-			for (String value : line) {
-				spec.commandLine().getOut().println(value + ";");
-				spec.commandLine().getOut().flush();
+
+			// If only a WinRM query was asked, no need to try the other jobs
+			if (hostMonitoring.selectFromType(MonitorType.CONNECTOR) == null || hostMonitoring.selectFromType(MonitorType.CONNECTOR).isEmpty()) {
+				return 0;
 			}
 		}
-		
+
 		// Detection
 		if (ConsoleService.hasConsole()) {
 			String protocolDisplay = protocols.values()

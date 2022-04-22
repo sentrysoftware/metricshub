@@ -13,6 +13,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IP
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.sshinteractive.SshInteractiveSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.winrm.WinRMSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
 import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
@@ -39,7 +40,7 @@ class EngineConfigurationTest {
 			engineConfiguration.setTarget(HardwareTarget.builder().type(TargetType.MS_WINDOWS).build());
 
 			final Set<Class<? extends Source>> actual = engineConfiguration.determineAcceptedSources(false);
-			final Set<Class<? extends Source>> expected = Set.of(IPMI.class, WMISource.class);
+			final Set<Class<? extends Source>> expected = Set.of(IPMI.class, WMISource.class, WinRMSource.class);
 			assertEquals(expected, actual);
 		}
 
@@ -57,7 +58,7 @@ class EngineConfigurationTest {
 			engineConfiguration.setTarget(HardwareTarget.builder().type(TargetType.LINUX).build());
 
 			final Set<Class<? extends Source>> actual = engineConfiguration.determineAcceptedSources(false);
-			final Set<Class<? extends Source>> expected = Set.of(OSCommandSource.class, IPMI.class,
+			final Set<Class<? extends Source>> expected = Set.of(OSCommandSource.class, IPMI.class, WinRMSource.class,
 					SshInteractiveSource.class);
 			assertEquals(expected, actual);
 		}
@@ -67,7 +68,7 @@ class EngineConfigurationTest {
 			engineConfiguration.setTarget(HardwareTarget.builder().type(TargetType.SUN_SOLARIS).build());
 
 			final Set<Class<? extends Source>> actual = engineConfiguration.determineAcceptedSources(false);
-			final Set<Class<? extends Source>> expected = Set.of(OSCommandSource.class, IPMI.class,
+			final Set<Class<? extends Source>> expected = Set.of(OSCommandSource.class, IPMI.class, WinRMSource.class,
 					SshInteractiveSource.class);
 			assertEquals(expected, actual);
 		}

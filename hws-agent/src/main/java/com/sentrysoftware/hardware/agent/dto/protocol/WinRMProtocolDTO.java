@@ -32,6 +32,7 @@ public class WinRMProtocolDTO extends AbstractProtocolDTO {
 	private String protocol; // HTTP or HTTPS
 	private Path ticketCache;
 	private List<AuthenticationEnum> authentications;
+	private List<String> localFileToCopyList;
 
 	@Default
 	@JsonDeserialize(using = TimeDeserializer.class)
@@ -56,6 +57,7 @@ public class WinRMProtocolDTO extends AbstractProtocolDTO {
 				.ticketCache(ticketCache)
 				.authentications(authentications)
 				.timeout(timeout)
+				.localFileToCopyList(localFileToCopyList)
 				.build();
 	}
 
