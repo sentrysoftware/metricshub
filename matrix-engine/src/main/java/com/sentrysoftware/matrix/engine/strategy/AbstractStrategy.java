@@ -116,7 +116,7 @@ public abstract class AbstractStrategy implements IStrategy {
 			final String hostname, final Monitor monitor) {
 
 		if (sources == null || sources.isEmpty()) {
-			log.debug("No source found from connector {} with monitor {}. System {}", connector.getCompiledFilename(), monitorType, hostname);
+			log.debug("Hostname {} - No source found from connector {} with monitor {}", hostname, connector.getCompiledFilename(), monitorType);
 			return;
 		}
 
@@ -126,7 +126,7 @@ public abstract class AbstractStrategy implements IStrategy {
 
 			final String sourceKey = source.getKey();
 
-			logBeginOperation(SOURCE, source, sourceKey, connector.getCompiledFilename());
+			logBeginOperation(SOURCE, source, sourceKey, connector.getCompiledFilename(), hostname);
 
 			final ISourceVisitor sourceVisitor = new SourceVisitor(strategyConfig, matsyaClientsExecutor, connector);
 			final SourceTable sourceTable;
@@ -141,24 +141,24 @@ public abstract class AbstractStrategy implements IStrategy {
 			}
 
 			if (sourceTable == null) {
-				log.warn("Received null source table for source key {}. Connector {}. Monitor {}. System {}",
+				log.warn("Hostname {} - Received null source table for source key {}. Connector {}. Monitor {}",
+						hostname,
 						sourceKey,
 						connector.getCompiledFilename(),
-						monitorType,
-						hostname);
+						monitorType);
 				continue;
 			}
 
 			// log the source table
 			logSourceTable(SOURCE, source.getClass().getSimpleName(),
-					sourceKey, connector.getCompiledFilename(), sourceTable);
+					sourceKey, connector.getCompiledFilename(), sourceTable, hostname);
 
 			final List<Compute> computes = source.getComputes();
 
 			if (computes != null) {
 
 				final ComputeVisitor computeVisitor = new ComputeVisitor(sourceKey, sourceTable, connector,
-					matsyaClientsExecutor);
+						strategyConfig.getEngineConfiguration().getTarget().getHostname(), matsyaClientsExecutor);
 
 				final ComputeUpdaterVisitor computeUpdaterVisitor = new ComputeUpdaterVisitor(computeVisitor, monitor);
 
@@ -168,13 +168,13 @@ public abstract class AbstractStrategy implements IStrategy {
 					final String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey,
 							compute.getIndex());
 
-					logBeginOperation(COMPUTE, compute, computeKey, connector.getCompiledFilename());
+					logBeginOperation(COMPUTE, compute, computeKey, connector.getCompiledFilename(), hostname);
 
 					compute.accept(computeUpdaterVisitor);
 
 					// log the updated source table
 					logSourceTable(COMPUTE, compute.getClass().getSimpleName(), computeKey,
-							connector.getCompiledFilename(), computeVisitor.getSourceTable());
+							connector.getCompiledFilename(), computeVisitor.getSourceTable(), hostname);
 				}
 
 				hostMonitoring
@@ -197,15 +197,17 @@ public abstract class AbstractStrategy implements IStrategy {
 	 * @param execution     the source or the compute we want to log
 	 * @param executionKey  the source or the compute unique key
 	 * @param connectorName the connector file name
+	 * @param hostname      the hostname
 	 */
 	private static <T> void logBeginOperation(final String operationTag, final T execution, final String executionKey,
-			final String connectorName) {
+			final String connectorName, final String hostname) {
 
 		if (!log.isInfoEnabled()) {
 			return;
 		}
 
-		log.info("Begin {} [{} {}] for hardware connector [{}]:\n{}\n", 
+		log.info("Hostname {} - Begin {} [{} {}] for hardware connector [{}]:\n{}\n", 
+				hostname,
 				operationTag,
 				execution.getClass().getSimpleName(),
 				executionKey,
@@ -223,9 +225,10 @@ public abstract class AbstractStrategy implements IStrategy {
 	 * @param executionKey   the key of the source or the compute we want to log
 	 * @param connectorName  the compiled file name of the connector
 	 * @param sourceTable    the source's result we wish to log
+	 * @param hostname       the hostname of the source we wish to log
 	 */
 	private static void logSourceTable(final String operationTag, final String executionClassName,
-			final String executionKey, final String connectorName, final SourceTable sourceTable) {
+			final String executionKey, final String connectorName, final SourceTable sourceTable, final String hostname) {
 
 		if (!log.isInfoEnabled()) {
 			return;
@@ -233,7 +236,8 @@ public abstract class AbstractStrategy implements IStrategy {
 
 		// Is there any raw data to log?
 		if (sourceTable.getRawData() != null && (sourceTable.getTable() == null || sourceTable.getTable().isEmpty())) {
-			log.info("End of {} [{} {}] for hardware connector [{}].\nRaw result:\n{}\n",
+			log.info("Hostname {} - End of {} [{} {}] for hardware connector [{}].\nRaw result:\n{}\n",
+					hostname,
 					operationTag,
 					executionClassName,
 					executionKey,
@@ -243,7 +247,8 @@ public abstract class AbstractStrategy implements IStrategy {
 		}
 
 		if (sourceTable.getRawData() == null) {
-			log.info("End of {} [{} {}] for hardware connector [{}].\nTable result:\n{}\n",
+			log.info("Hostname {} - End of {} [{} {}] for hardware connector [{}].\nTable result:\n{}\n",
+					hostname,
 					operationTag,
 					executionClassName,
 					executionKey,
@@ -252,7 +257,8 @@ public abstract class AbstractStrategy implements IStrategy {
 			return;
 		}
 
-		log.info("End of {} [{} {}] for hardware connector [{}].\nRaw result:\n{}\nTable result:\n{}\n",
+		log.info("Hostname {} - End of {} [{} {}] for hardware connector [{}].\nRaw result:\n{}\nTable result:\n{}\n",
+				hostname,
 				operationTag,
 				executionClassName,
 				executionKey,
@@ -295,25 +301,25 @@ public abstract class AbstractStrategy implements IStrategy {
 		final TestedConnector testedConnector = TestedConnector.builder().connector(connector).build();
 
 		if (detection == null) {
-			log.warn("The connector {} DOES NOT match {}'s platform as it has no detection to test.",
-					connector.getCompiledFilename(), hostname);
+			log.warn("Hostname {} - The connector {} DOES NOT match the platform as it has no detection to test.",
+					hostname, connector.getCompiledFilename());
 			return testedConnector;
 		}
 
 		final List<Criterion> criteria = detection.getCriteria();
 
 		if (criteria == null || criteria.isEmpty()) {
-			log.warn("The connector {} DOES NOT match {}'s platform as it has no criteria to test.",
-					connector.getCompiledFilename(), hostname);
+			log.warn("Hostname {} - The connector {} DOES NOT match the platform as it has no criteria to test.",
+					hostname, connector.getCompiledFilename());
 			return testedConnector;
 		}
 
 		for (Criterion criterion : criteria) {
 			final CriterionTestResult critetionTestResult = processCriterion(criterion, connector);
 			if (!critetionTestResult.isSuccess()) {
-				log.debug("Detected failed criterion for connector {} on platform: {}. Message: {}.",
-						connector.getCompiledFilename(),
+				log.debug("Hostname {} - Detected failed criterion for connector {}. Message: {}.",
 						hostname,
+						connector.getCompiledFilename(),
 						critetionTestResult.getMessage());
 			}
 
@@ -373,17 +379,19 @@ public abstract class AbstractStrategy implements IStrategy {
 			final Object objToProcess, @NonNull final String description, @NonNull final T defaultValue) {
 
 		final ReentrantLock forceSerializationLock = getForceSerializationLock(connector);
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
 		final boolean isLockAcquired;
 		try {
 			// Try to get the lock
 			isLockAcquired = forceSerializationLock.tryLock(DEFAULT_LOCK_TIMEOUT, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
-			log.error("Interrupted exception detected when trying to acquire the force serialization lock to process {} {}. Connector: {}.",
+			log.error("Hostname {} - Interrupted exception detected when trying to acquire the force serialization lock to process {} {}. Connector: {}.",
+					hostname, 
 					description,
 					objToProcess,
 					connector.getCompiledFilename());
-			log.debug("Exception: ", e);
+			log.debug("Hostname {} - Exception: ", hostname, e);
 
 			Thread.currentThread().interrupt();
 
@@ -399,7 +407,8 @@ public abstract class AbstractStrategy implements IStrategy {
 				forceSerializationLock.unlock();
 			}
 		} else {
-			log.error("Could not acquire the force serialization lock to process {} {}. Connector: {}.",
+			log.error("Hostname {} - Could not acquire the force serialization lock to process {} {}. Connector: {}.",
+					hostname,
 					description,
 					objToProcess,
 					connector.getCompiledFilename());

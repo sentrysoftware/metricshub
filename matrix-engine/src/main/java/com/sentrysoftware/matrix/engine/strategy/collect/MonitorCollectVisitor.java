@@ -473,7 +473,8 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				parameterName,
 				monitorType,
 				row,
-				mapping.get(parameterName));
+				mapping.get(parameterName),
+				hostname);
 
 		// Translate the state raw value
 		final IState state = CollectHelper.translateState(
@@ -484,7 +485,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				hostname);
 
 		if (state == null) {
-			log.warn("Could not collect {} for monitor id {}. Hostname {}", parameterName, monitor.getId(), hostname);
+			log.warn("Hostname {} - Could not collect {} for monitor id {}", hostname, parameterName, monitor.getId());
 			return;
 		}
 
@@ -566,7 +567,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		final Map<String, String> mapping = monitorCollectInfo.getMapping();
 		final String hostname = monitorCollectInfo.getHostname();
 		final String valueTable = monitorCollectInfo.getValueTable();
-
+		
 		// Making sure the parameter is not in the parameterActivation Set
 		if (EMPTY.equals(monitor.getMetadata(String.format("ParameterActivation.%s", parameterName)))) {
 			return null;
@@ -577,19 +578,20 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				parameterName,
 				monitorType,
 				row,
-				mapping.get(parameterName));
+				mapping.get(parameterName),
+				hostname);
 
 
 		if (stringValue == null) {
-			log.debug("No {} to collect for monitor id {}. Hostname {}", parameterName, monitor.getId(), hostname);
+			log.debug("Hostname {} - No {} to collect for monitor id {}", hostname, parameterName, monitor.getId());
 			return null;
 		}
 
 		try {
 			return Double.parseDouble(stringValue);
 		} catch(NumberFormatException e) {
-			log.warn("Cannot parse the {} value '{}' for monitor id {}. {} won't be collected",
-					parameterName, stringValue, monitor.getId(), parameterName);
+			log.warn("Hostname {} - Cannot parse the {} value '{}' for monitor id {}. {} won't be collected",
+					hostname, parameterName, stringValue, monitor.getId(), parameterName);
 		}
 
 		return null;
@@ -612,7 +614,8 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				parameterName,
 				monitorType,
 				monitorCollectInfo.getRow(),
-				monitorCollectInfo.getMapping().get(parameterName));
+				monitorCollectInfo.getMapping().get(parameterName),
+				monitorCollectInfo.getHostname());
 	}
 
 	/**
@@ -740,6 +743,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	void collectCpuCoreUsedTimePercent() {
 
 		final Monitor monitor = monitorCollectInfo.getMonitor();
+		final String hostname = monitorCollectInfo.getHostname();
 
 		// Getting the current value
 		final Double usedTimePercentRaw = extractParameterValue(monitor.getMonitorType(),
@@ -778,18 +782,18 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		if (collectTimePrevious == null) {
 
 			// This should never happen
-			log.warn("Found previous usedTimePercent value, but could not find previous collect time.");
+			log.warn("Hostname {} - Found previous usedTimePercent value, but could not find previous collect time.", hostname);
 
 			return;
 		}
 
 		// Computing the value delta
 		final Double usedTimePercentDelta = CollectHelper.subtract(USED_TIME_PERCENT_PARAMETER,
-			usedTimePercentRaw, usedTimePercentPrevious);
+			usedTimePercentRaw, usedTimePercentPrevious, hostname);
 
 		// Computing the time delta
 		final double timeDeltaInSeconds = CollectHelper.subtract(USED_TIME_PERCENT_PARAMETER,
-			collectTime.doubleValue(), collectTimePrevious) / 1000.0;
+			collectTime.doubleValue(), collectTimePrevious, hostname) / 1000.0;
 
 		if (timeDeltaInSeconds == 0.0) {
 			return;
@@ -948,8 +952,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				USED_WATTS_PARAMETER);
 
 			// Getting the power
-			final Double power = extractParameterValue(monitor.getMonitorType(),
-				POWER_SUPPLY_POWER);
+			final Double power = NumberHelper.parseDouble(monitor.getMetadata(POWER_SUPPLY_POWER), null);
 
 			if (powerSupplyUsedWatts  != null && power != null && power > 0) {
 				usedPercent = 100.0 * powerSupplyUsedWatts / power;
@@ -1211,7 +1214,8 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			COLOR_PARAMETER,
 			MonitorType.LED,
 			monitorCollectInfo.getRow(),
-			monitorCollectInfo.getMapping().get(COLOR_PARAMETER));
+			monitorCollectInfo.getMapping().get(COLOR_PARAMETER),
+			monitorCollectInfo.getHostname());
 
 		if (colorRaw != null) {
 
@@ -1256,7 +1260,8 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				STATUS_PARAMETER,
 				MonitorType.LED,
 				monitorCollectInfo.getRow(),
-				monitorCollectInfo.getMapping().get(STATUS_PARAMETER)
+				monitorCollectInfo.getMapping().get(STATUS_PARAMETER),
+				monitorCollectInfo.getHostname()
 		);
 
 		if (statusRaw != null) {
@@ -1386,6 +1391,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	Double collectNetworkCardBytesRate(final String bytesParameterName, final String byteRateParameterName, final String usageReportParameterName) {
 
 		final Monitor monitor = monitorCollectInfo.getMonitor();
+		final String hostname = monitorCollectInfo.getHostname();
 
 		// Getting the current value
 		final Double bytesValue = extractParameterValue(monitor.getMonitorType(), bytesParameterName);
@@ -1409,7 +1415,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		// Getting the previous value
 		Double lastBytesValue = CollectHelper.getNumberParamRawValue(monitor, bytesParameterName, true);
 		if (lastBytesValue == null) {
-			log.warn("No last bytes value to calculate the byte rate or usage.");
+			log.warn("Hostname {} - No last bytes value to calculate the byte rate or usage.", hostname);
 			return null;
 		}
 
@@ -1417,14 +1423,14 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		final Double collectTimePrevious = CollectHelper.getNumberParamCollectTime(monitor, bytesParameterName, true);
 		if (collectTimePrevious == null) {
 			// This should never happen
-			log.warn("Found previous bytes value, but could not find previous collect time.");
+			log.warn("Hostname {} - Found previous bytes value, but could not find previous collect time.", hostname);
 			return null;
 		}
 
 		// Computing the value delta (in MBytes)
-		final Double bytesDelta = CollectHelper.subtract(bytesParameterName, bytesValue, lastBytesValue);
+		final Double bytesDelta = CollectHelper.subtract(bytesParameterName, bytesValue, lastBytesValue, hostname);
 		if (bytesDelta == null) {
-			log.warn("Found decreasing bytes count - must have been reset.");
+			log.warn("Hostname {} - Found decreasing bytes count - must have been reset.", hostname);
 			return null;
 		}
 		final double bytesDeltaMb = bytesDelta / 1048576.0;
@@ -1433,9 +1439,9 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		Double bytesRate = null;
 
 		// Computing the time delta (in seconds)
-		final Double timeDeltaMs = CollectHelper.subtract(bytesParameterName, collectTime.doubleValue(), collectTimePrevious);
+		final Double timeDeltaMs = CollectHelper.subtract(bytesParameterName, collectTime.doubleValue(), collectTimePrevious, hostname);
 		if (timeDeltaMs == null || timeDeltaMs == 0.0) {
-			log.warn("No denominator for collect time difference to calculate the byte rate.");
+			log.warn("Hostname {} - No denominator for collect time difference to calculate the byte rate.", hostname);
 		} else {
 			final double timeDelta = timeDeltaMs / 1000.0;
 
@@ -1476,6 +1482,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	Double collectNetworkCardPacketsRate(final String packetsParameterName, final String packetRateParameterName, final String usageReportParameterName) {
 
 		final Monitor monitor = monitorCollectInfo.getMonitor();
+		final String hostname = monitorCollectInfo.getHostname();
 
 		// Getting the current value
 		final Double packetsValue = extractParameterValue(monitor.getMonitorType(),
@@ -1509,19 +1516,19 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		if (collectTimePrevious == null) {
 			// This should never happen
-			log.warn("Found previous packets value, but could not find previous collect time.");
+			log.warn("Hostname {} - Found previous packets value, but could not find previous collect time.", hostname);
 			return packetsValue;
 		}
 
 		// Computing the packets delta
-		final Double packetsDelta = CollectHelper.subtract(packetsParameterName, packetsValue, lastPacketsValue);
+		final Double packetsDelta = CollectHelper.subtract(packetsParameterName, packetsValue, lastPacketsValue, hostname);
 		if (packetsDelta == null) {
-			log.warn("Found decreasing packets count - must have been reset.");
+			log.warn("Hostname {} - Found decreasing packets count - must have been reset.", hostname);
 			return packetsValue;
 		}
 
 		// Computing the time delta (in seconds)
-		Double timeDelta = CollectHelper.subtract(packetsParameterName, collectTime.doubleValue(), collectTimePrevious);
+		Double timeDelta = CollectHelper.subtract(packetsParameterName, collectTime.doubleValue(), collectTimePrevious, hostname);
 		if (timeDelta == null || timeDelta == 0.0) {
 			return packetsValue;
 		}
@@ -1605,6 +1612,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		}
 
 		final Monitor monitor = monitorCollectInfo.getMonitor();
+		final String hostname = monitorCollectInfo.getHostname();
 
 		// Getting the current error count
 		final Double errorCount = extractParameterValue(monitor.getMonitorType(),
@@ -1653,14 +1661,14 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		// Computing the total packets delta
 		final Double totalPacketsDelta = CollectHelper.subtract(TOTAL_PACKETS_PARAMETER,
-				totalPackets, lastTotalPackets);
+				totalPackets, lastTotalPackets, hostname);
 
 		// Setting the error percent
 		if (totalPacketsDelta != null && totalPacketsDelta > 10) {
 
 			// Computing the error count delta
 			final Double errorCountDelta = CollectHelper.subtract(ERROR_COUNT_PARAMETER,
-				errorCount, lastErrorCount);
+				errorCount, lastErrorCount, hostname);
 
 			if (errorCountDelta != null) {
 				// Computing the error percent
@@ -1683,6 +1691,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	 */
 	void collectNetworkCardZeroBufferCreditPercent() {
 		final Monitor monitor = monitorCollectInfo.getMonitor();
+		final String hostname = monitorCollectInfo.getHostname();
 
 		// Getting the current zero buffer credit count
 		final Double zeroBufferCreditCount = extractParameterValue(monitor.getMonitorType(),
@@ -1716,7 +1725,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		// Computing the zero buffer credit delta delta
 		final Double zeroBufferCreditDelta = CollectHelper.subtract(ZERO_BUFFER_CREDIT_COUNT_PARAMETER,
-				zeroBufferCreditCount, lastZeroBufferCreditCount);
+				zeroBufferCreditCount, lastZeroBufferCreditCount, hostname);
 
 		if (zeroBufferCreditDelta != null) {
 			// Setting the zero buffer credit percent
@@ -1742,6 +1751,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	void collectGpuUsedTimeRatioParameters() {
 
 		final Monitor monitor = monitorCollectInfo.getMonitor();
+		final String hostname = monitorCollectInfo.getHostname();
 
 		for (Map.Entry<String, String> entry : GPU_USED_TIME_PARAMETERS.entrySet()) {
 
@@ -1753,7 +1763,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 				// Computing the used time percent value in the [0;1] range, based on the used time value
 				usedTimePercentValue = CollectHelper.rate(entry.getKey(), usedTimeCurrentRawValue,
-					monitorCollectInfo.getCollectTime(), monitor);
+					monitorCollectInfo.getCollectTime(), monitor, hostname);
 			}
 
 			if (usedTimePercentValue != null) {
@@ -1791,6 +1801,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	void collectGpuTransferredBytesParameters() {
 
 		final Monitor monitor = monitorCollectInfo.getMonitor();
+		final String hostname = monitorCollectInfo.getHostname();
 
 		Double transferredBytesRawValue;
 
@@ -1845,7 +1856,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			if (transferredBytesRateInBytesPerSecond == null && transferredBytesRawValue != null) {
 
 				transferredBytesRateInBytesPerSecond = CollectHelper.rate(entry.getKey(), transferredBytesRawValue,
-					monitorCollectInfo.getCollectTime(), monitor);
+					monitorCollectInfo.getCollectTime(), monitor, hostname);
 
 				if (transferredBytesRateInBytesPerSecond != null) {
 
@@ -1890,7 +1901,8 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				STATUS_INFORMATION_PARAMETER,
 				monitor.getMonitorType(),
 				row,
-				mapping.get(STATUS_INFORMATION_PARAMETER)
+				mapping.get(STATUS_INFORMATION_PARAMETER),
+				monitorCollectInfo.getHostname()
 		);
 
 		CollectHelper.updateStatusInformation(
@@ -1954,8 +1966,8 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		if (maxAvailablePathCount == null || availablePathCount > maxAvailablePathCount) {
 
-			log.info("Number of paths increased to {} for LUN instance [id: {}, name: {}] on host {}",
-					availablePathCount, monitor.getId(), monitor.getName(), monitorCollectInfo.getHostname());
+			log.info("Hostname {} - Number of paths increased to {} for LUN instance [id: {}, name: {}]",
+					monitorCollectInfo.getHostname(), availablePathCount, monitor.getId(), monitor.getName());
 
 			CollectHelper.updateNumberParameter(
 					monitor,

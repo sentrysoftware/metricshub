@@ -22,6 +22,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
@@ -39,6 +40,7 @@ import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WinRMProtocol;
+import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.matsya.HttpProtocolEnum;
 import com.sentrysoftware.matsya.WmiHelper;
@@ -64,6 +66,7 @@ import com.sentrysoftware.matsya.wmi.wbem.WmiWbemServices;
 import com.sentrysoftware.matsya.xflat.XFlat;
 import com.sentrysoftware.matsya.xflat.exceptions.XFlatException;
 
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
@@ -83,6 +86,10 @@ public class MatsyaClientsExecutor {
 
 	private static final String SSH_FILE_MODE = "0700";
 	private static final String SSH_REMOTE_DIRECTORY = "/var/tmp/";
+
+	@Autowired
+	@Getter
+	private StrategyConfig strategyConfig;
 
 	/**
 	 * Run the given {@link Callable} using the passed timeout in seconds.
@@ -264,7 +271,8 @@ public class MatsyaClientsExecutor {
 			} catch (Exception e) {
 
 				if (logMode) {
-					log.warn("Error detected when running SNMP {} query OID: {} on HOST: {}. Error message: {}", request, oid, hostname, e.getMessage());
+					log.warn("Hostname {} - Error detected when running SNMP {} query OID: {}. Error message: {}", 
+							hostname, request, oid, e.getMessage());
 				}
 				return null;
 
@@ -359,6 +367,8 @@ public class MatsyaClientsExecutor {
 					separator
 			)
 		);
+		
+		final String hostname = getStrategyConfig().getEngineConfiguration().getTarget().getHostname();
 
 		final Callable<String> jflatToCSV = () -> {
 
@@ -370,9 +380,10 @@ public class MatsyaClientsExecutor {
 				// Get the CSV
 				return jsonFlat.toCSV(jsonEntryKey, propertyList.toArray(new String[0]), separator).toString();
 			} catch (IllegalArgumentException e) {
-				log.error("Error detected in the arguments when translating the JSON structure into CSV.");
+				log.error("Hostname {} - Error detected in the arguments when translating the JSON structure into CSV.", hostname);
 			} catch (Exception e) {
-				log.warn("Error detected when running jsonFlat parsing:\n{}", jsonSource);
+				log.warn("Hostname {} - Error detected when running jsonFlat parsing:\n{}", hostname, jsonSource);
+				log.debug("Hostname {} - Exception detected when running jsonFlat parsing: ", hostname, e);
 			}
 
 			return null;
@@ -770,7 +781,7 @@ public class MatsyaClientsExecutor {
 
 			// The request returned an error
 			if (httpResponse.getStatusCode() >= HTTP_BAD_REQUEST) {
-				log.warn("Bad response for HTTP request {} {}: {}", method, fullUrl, httpResponse.getStatusCode());
+				log.warn("Hostname {} - Bad response for HTTP request {} {}: {}", hostname, method, fullUrl, httpResponse.getStatusCode());
 				return "";
 			}
 
@@ -812,8 +823,9 @@ public class MatsyaClientsExecutor {
 
 			if (logMode) {
 
-				log.error("Error detected when running HTTP request {} {} : {}\nReturning null.", method, fullUrl,
+				log.error("Hostname {} - Error detected when running HTTP request {} {}: {}\nReturning null.", hostname, method, fullUrl,
 					e.getMessage());
+				log.debug("Hostname {} - Exception detected when running HTTP request {} {}:", hostname, method, fullUrl, e);
 			}
 		}
 
@@ -907,7 +919,7 @@ public class MatsyaClientsExecutor {
 			sshClient.connect(timeoutInMilliseconds);
 
 			if (password == null) {
-				log.warn("Could not read password. Using an empty password instead.");
+				log.warn("Hostname {} - Could not read password. Using an empty password instead.", hostname);
 			}
 
 			authenticateSsh(sshClient, hostname, username, password, keyFilePath);
@@ -927,7 +939,8 @@ public class MatsyaClientsExecutor {
 					updatedCommand,
 					timeoutInMilliseconds);
 			if (!commandResult.success) {
-				final String message = String.format("command \"%s\" failed with result %s",
+				final String message = String.format("Hostname %s - Command \"%s\" failed with result %s",
+						hostname,
 						noPasswordUpdatedCommand,
 						commandResult.result);
 				log.error(message);
@@ -958,7 +971,7 @@ public class MatsyaClientsExecutor {
 					noPasswordUpdatedCommand,
 					username,
 					hostname);
-			log.error("{}. Exception : {}.", message, e.getMessage());
+			log.error("Hostname {} - {}. Exception : {}.", hostname, message, e.getMessage());
 			throw new MatsyaException(message, (Exception) e.getCause());
 		}
 	}
@@ -993,18 +1006,18 @@ public class MatsyaClientsExecutor {
 				authenticated = sshClient.authenticate(username);
 			}
 		} catch (final Exception e) {
-			final String message = String.format("authentication failed as %s with %s on %s.", 
+			final String message = String.format("Hostname %s - Authentication failed as %s with %s.", 
+					hostname,
 					username, 
-					privateKey != null ? privateKey.getAbsolutePath() : null, 
-					hostname);
-			log.error("{}. Exception : {}.", message, e.getMessage());
+					privateKey != null ? privateKey.getAbsolutePath() : null);
+			log.error("Hostname {} - {}. Exception : {}.", hostname, message, e.getMessage());
 			throw new MatsyaException(message, e);
 		}
 		if (!authenticated) {
-			final String message = String.format("authentication failed as %s with %s on %s.", 
+			final String message = String.format("Hostname %s - Authentication failed as %s with %s.", 
+					hostname,
 					username, 
-					privateKey != null ? privateKey.getAbsolutePath() : null, 
-					hostname);
+					privateKey != null ? privateKey.getAbsolutePath() : null);
 			log.error(message);
 			throw new MatsyaException(message);
 		}

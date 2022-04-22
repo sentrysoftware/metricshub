@@ -73,8 +73,9 @@ public class SourceVisitor implements ISourceVisitor {
 	@Override
 	public SourceTable visit(final HTTPSource httpSource) {
 
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 		if (httpSource == null) {
-			log.error("HTTPSource cannot be null, the HTTPSource operation will return an empty result.");
+			log.error("Hostname {} - HTTPSource cannot be null, the HTTPSource operation will return an empty result.", hostname);
 			return SourceTable.empty();
 		}
 
@@ -83,13 +84,11 @@ public class SourceVisitor implements ISourceVisitor {
 
 		if (protocol == null) {
 
-			log.debug("The HTTP Credentials are not configured. Returning an empty table for HTTPSource {}.",
-					httpSource);
+			log.debug("Hostname {} - The HTTP Credentials are not configured. Returning an empty table for HTTPSource {}.",
+					hostname, httpSource);
 
 			return SourceTable.empty();
 		}
-
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
 		try {
 
@@ -138,7 +137,7 @@ public class SourceVisitor implements ISourceVisitor {
 			return processOutOfBandIpmiSource(sourceKey);
 		}
 
-		log.info("Failed to process IPMI source on system: {}. {} is an unsupported OS for IPMI. Returning an empty table.",
+		log.info("Hostname {} - Failed to process IPMI source. {} is an unsupported OS for IPMI. Returning an empty table.",
 			target.getHostname(), targetType.name());
 
 		return SourceTable.empty();
@@ -156,12 +155,12 @@ public class SourceVisitor implements ISourceVisitor {
 		final IPMIOverLanProtocol protocol = (IPMIOverLanProtocol) strategyConfig.getEngineConfiguration()
 				.getProtocolConfigurations().get(IPMIOverLanProtocol.class);
 
+		String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		
 		if (protocol == null) {
-			log.warn("The IPMI Credentials are not configured. Cannot process IPMI-over-LAN source.");
+			log.warn("Hostname {} - The IPMI Credentials are not configured. Cannot process IPMI-over-LAN source.", hostname);
 			return SourceTable.empty();
 		}
-
-		String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
 		try {
 			String result = matsyaClientsExecutor.executeIpmiGetSensors(hostname, protocol);
@@ -174,7 +173,7 @@ public class SourceVisitor implements ISourceVisitor {
 					.build();
 
 			} else {
-				log.error("IPMI-over-LAN request on system {} returned <null> result. Returning an empty table.", hostname);
+				log.error("Hostname {} - IPMI-over-LAN request returned <null> result. Returning an empty table.", hostname);
 			}
 		} catch (Exception e) {
 			logSourceError(connector.getCompiledFilename(), sourceKey, "IPMI-over-LAN", hostname, e);
@@ -197,7 +196,7 @@ public class SourceVisitor implements ISourceVisitor {
 		// get the ipmiTool command to execute
 		String ipmitoolCommand = strategyConfig.getHostMonitoring().getIpmitoolCommand();
 		if (ipmitoolCommand == null || ipmitoolCommand.isEmpty()) {
-			final String message = String.format("IPMI Tool Command cannot be found for %s. Return empty result.",
+			final String message = String.format("Hostname %s - IPMI Tool Command cannot be found. Return empty result.",
 					hostname);
 			log.error(message);
 			return SourceTable.empty();
@@ -226,11 +225,11 @@ public class SourceVisitor implements ISourceVisitor {
 			} else if (winRMProtocol != null) {
 				fruResult = OsCommandHelper.runWinRMCommand(hostname, winRMProtocol);
 			} else {
-				log.warn("Couldn't process unix IPMI Source. SSH Protocol credentials missing.");
+				log.warn("Hostname %s - Couldn't process unix IPMI Source. SSH Protocol credentials missing.", hostname);
 				return SourceTable.empty();
 			}
 
-			log.debug("processUnixIpmiSource({}): OS Command: {}:\n{}", hostname, fruCommand, fruResult);
+			log.debug("Hostname {} - IPMI OS Command: {}:\n{}", hostname, fruCommand, fruResult);
 
 		} catch (Exception e) {
 
@@ -251,7 +250,7 @@ public class SourceVisitor implements ISourceVisitor {
 			} else {
 				sensorResult = OsCommandHelper.runSshCommand(sdrCommand, hostname, sshProtocol, defaultTimeout,	null, null);
 			}
-			log.debug("processUnixIpmiSource({}): OS Command: {}:\n{}", hostname, sdrCommand, sensorResult);
+			log.debug("Hostname {} - IPMI OS Command: {}:\n{}", hostname, sdrCommand, sensorResult);
 		} catch (Exception e) {
 
 			logSourceError(connector.getCompiledFilename(), 
@@ -309,9 +308,11 @@ public class SourceVisitor implements ISourceVisitor {
 	@Override
 	public SourceTable visit(final OSCommandSource osCommandSource) {
 
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		
 		if (osCommandSource == null ||
 				osCommandSource.getCommandLine() == null || osCommandSource.getCommandLine().isEmpty()) {
-			log.error("OSCommandSource Malformed OSCommand source.");
+			log.error("Hostname {} - Malformed OS Command source.", hostname);
 			return SourceTable.empty();
 		}
 
@@ -354,7 +355,7 @@ public class SourceVisitor implements ISourceVisitor {
 
 			logSourceError(connector.getCompiledFilename(), osCommandSource.getKey(),
 					String.format("OS Command: %s", osCommandSource.getCommandLine()),
-					strategyConfig.getEngineConfiguration().getTarget().getHostname(), e);
+					hostname, e);
 
 			return SourceTable.empty();
 		}
@@ -363,15 +364,19 @@ public class SourceVisitor implements ISourceVisitor {
 	@Override
 	public SourceTable visit(final ReferenceSource referenceSource) {
 
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		
 		if (referenceSource == null) {
-			log.error("ReferenceSource cannot be null, the ReferenceSource operation will return an empty result.");
+			log.error("Hostname {} - ReferenceSource cannot be null, the ReferenceSource operation will return an empty result.", 
+					hostname);
 			return SourceTable.empty();
 		}
 
 		final String reference = referenceSource.getReference();
 
 		if (reference == null || reference.isEmpty()) {
-			log.error("ReferenceSource reference cannot be null. Returning an empty table for source {}.", referenceSource);
+			log.error("Hostname {} - ReferenceSource reference cannot be null. Returning an empty table for source {}.", 
+					hostname, referenceSource);
 			return SourceTable.empty();
 		}
 
@@ -395,7 +400,7 @@ public class SourceVisitor implements ISourceVisitor {
 			sourceTable.setRawData(origin.getRawData());
 		}
 
-		logSourceReference(connector.getCompiledFilename(), reference, referenceSource.getKey(), sourceTable);
+		logSourceReference(connector.getCompiledFilename(), reference, referenceSource.getKey(), sourceTable, hostname);
 
 		return sourceTable;
 	}
@@ -403,19 +408,22 @@ public class SourceVisitor implements ISourceVisitor {
 	@Override
 	public SourceTable visit(final StaticSource staticSource) {
 
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		
 		if (staticSource == null) {
-			log.error("StaticSource cannot be null, the StaticSource operation will return an empty result.");
+			log.error("Hostname {} - Static Source cannot be null, the StaticSource operation will return an empty result.", hostname);
 			return SourceTable.empty();
 		}
 
 		final String staticValue = staticSource.getStaticValue();
 
 		if (staticValue == null || staticValue.isEmpty()) {
-			log.error("StaticSource reference cannot be null. Returning an empty table for source {}.", staticSource);
+			log.error("Hostname {} - Static Source reference cannot be null. Returning an empty table for source {}.", hostname, staticSource);
 			return SourceTable.empty();
 		}
 
-		log.debug("Got Static Source Value [{}] referenced in Source [{}].",
+		log.debug("Hostname {} - Got Static Source Value [{}] referenced in Source [{}].",
+				hostname,
 				staticValue,
 				staticSource.getKey());
 
@@ -437,13 +445,16 @@ public class SourceVisitor implements ISourceVisitor {
 	@Override
 	public SourceTable visit(final SNMPGetSource snmpGetSource) {
 
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		
 		if (snmpGetSource == null) {
-			log.error("SNMPGetSource cannot be null, the SNMP Get operation will return an empty result.");
+			log.error("Hostname {} - SNMP Get Source cannot be null, the SNMP Get operation will return an empty result.", hostname);
 			return SourceTable.empty();
 		}
 
 		if (snmpGetSource.getOid() == null) {
-			log.error("SNMPGetSource OID cannot be null. Returning an empty table for source {}.", snmpGetSource);
+			log.error("Hostname {} - SNMP Get Source OID cannot be null. Returning an empty table for source {}.", 
+					hostname, snmpGetSource);
 			return SourceTable.empty();
 		}
 
@@ -451,12 +462,10 @@ public class SourceVisitor implements ISourceVisitor {
 				.getProtocolConfigurations().get(SNMPProtocol.class);
 
 		if (protocol == null) {
-			log.debug("The SNMP Credentials are not configured. Returning an empty table for SNMPGetSource {}.",
-					snmpGetSource);
+			log.debug("Hostname {} - The SNMP Credentials are not configured. Returning an empty table for SNMP Get Source {}.",
+					hostname, snmpGetSource);
 			return SourceTable.empty();
 		}
-
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
 		try {
 
@@ -488,13 +497,17 @@ public class SourceVisitor implements ISourceVisitor {
 	@Override
 	public SourceTable visit(final SNMPGetTableSource snmpGetTableSource) {
 
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		
 		if (snmpGetTableSource == null) {
-			log.error("SNMPGetTableSource cannot be null, the SNMP GetTable operation will return an empty result.");
+			log.error("Hostname {} - SNMP Get Table Source cannot be null, the SNMP Get Table operation will return an empty result.",
+					hostname);
 			return SourceTable.empty();
 		}
 
 		if (snmpGetTableSource.getOid() == null) {
-			log.error("SNMPGetTableSource OID cannot be null. Returning an empty table for source {}.", snmpGetTableSource);
+			log.error("Hostname {} - SNMP Get Table Source OID cannot be null. Returning an empty table for source {}.", 
+					hostname, snmpGetTableSource);
 			return SourceTable.empty();
 		}
 
@@ -513,12 +526,10 @@ public class SourceVisitor implements ISourceVisitor {
 				.getProtocolConfigurations().get(SNMPProtocol.class);
 
 		if (protocol == null) {
-			log.debug("The SNMP Credentials are not configured. Returning an empty table for SNMPGetTableSource {}.",
-					snmpGetTableSource);
+			log.debug("Hostname {} - The SNMP Credentials are not configured. Returning an empty table for SNMP Get Table Source {}.",
+					hostname, snmpGetTableSource);
 			return SourceTable.empty();
 		}
-
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
 		try {
 
@@ -547,8 +558,10 @@ public class SourceVisitor implements ISourceVisitor {
 	@Override
 	public SourceTable visit(final TableJoinSource tableJoinSource) {
 
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		
 		if (tableJoinSource == null) {
-			log.error("TableJoinSource cannot be null, the Table Join will return an empty result.");
+			log.error("Hostname {} - Table Join Source cannot be null, the Table Join will return an empty result.", hostname);
 			return SourceTable.empty();
 		}
 
@@ -557,30 +570,31 @@ public class SourceVisitor implements ISourceVisitor {
 				.getSourceTables();
 
 		if (sources == null ) {
-			log.warn("SourceTable Map cannot be null, the Table Join {} will return an empty result.", tableJoinSource);
+			log.warn("Hostname {} - Source Table Map cannot be null, the Table Join {} will return an empty result.", 
+					hostname, tableJoinSource);
 			return SourceTable.empty();
 		}
 
 		final SourceTable leftTable = sources.get(tableJoinSource.getLeftTable());
 		if (tableJoinSource.getLeftTable() == null || leftTable == null ||  leftTable.getTable() == null) {
-			log.debug("LeftTable cannot be null, the Join {} will return an empty result.", tableJoinSource);
+			log.debug("Hostname {} - Left Table cannot be null, the Join {} will return an empty result.", hostname, tableJoinSource);
 			return SourceTable.empty();
 		}
 
 		final SourceTable rightTable = sources.get(tableJoinSource.getRightTable());
 		if (tableJoinSource.getRightTable() == null || rightTable == null || rightTable.getTable() == null) {
-			log.debug("RightTable cannot be null, the Join {} will return an empty result.", tableJoinSource);
+			log.debug("Hostname {} - Right Table cannot be null, the Join {} will return an empty result.", hostname, tableJoinSource);
 			return SourceTable.empty();
 		}
 
 		if (tableJoinSource.getLeftKeyColumn() < 1 || tableJoinSource.getRightKeyColumn() < 1) {
-			log.error("Invalid key column number (leftKeyColumnNumber=" + tableJoinSource.getLeftKeyColumn()
-			+ ", rightKeyColumnNumber=" + tableJoinSource.getDefaultRightLine() + ")");
+			log.error("Hostname {} - Invalid key column number (leftKeyColumnNumber=" + tableJoinSource.getLeftKeyColumn()
+			+ ", rightKeyColumnNumber=" + tableJoinSource.getDefaultRightLine() + ")", hostname);
 			return SourceTable.empty();
 		}
 
 		logTableJoin(tableJoinSource.getKey(), tableJoinSource.getLeftTable(), tableJoinSource.getRightTable(),
-				leftTable, rightTable);
+				leftTable, rightTable, hostname);
 
 		final List<List<String>> executeTableJoin = matsyaClientsExecutor.executeTableJoin(
 				leftTable.getTable(),
@@ -602,15 +616,17 @@ public class SourceVisitor implements ISourceVisitor {
 	@Override
 	public SourceTable visit(final TableUnionSource tableUnionSource) {
 
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		
 		if (tableUnionSource == null) {
-			log.warn("TableUnionSource cannot be null, the Table Union operation will return an empty result.");
+			log.warn("Hostname {} - Table Union Source cannot be null, the Table Union operation will return an empty result.", hostname);
 			return SourceTable.empty();
 		}
 
 		final List<String> unionTables = tableUnionSource.getTables();
 		if (unionTables == null) {
-			log.debug("Table list in the Union cannot be null, the Union operation {} will return an empty result.",
-					tableUnionSource);
+			log.debug("Hostname {} - Table list in the Union cannot be null, the Union operation {} will return an empty result.",
+					hostname, tableUnionSource);
 			return SourceTable.empty();
 		}
 
@@ -655,7 +671,8 @@ public class SourceVisitor implements ISourceVisitor {
 					.getConnectorNamespace(connector)
 					.getSourceTable(key);
 			if (sourceTable == null) {
-				log.warn("The following source table {} cannot be found.", key);
+				log.warn("Hostname {} - The following source table {} cannot be found.", 
+						strategyConfig.getEngineConfiguration().getTarget().getHostname(), key);
 			}
 			return sourceTable;
 		}
@@ -711,8 +728,10 @@ public class SourceVisitor implements ISourceVisitor {
 	@Override
 	public SourceTable visit(final WBEMSource wbemSource) {
 
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		
 		if (wbemSource == null || wbemSource.getWbemQuery() == null) {
-			log.error("Malformed WBEMSource {}. Returning an empty table.", wbemSource);
+			log.error("Hostname {} - Malformed WBEM Source {}. Returning an empty table.", hostname, wbemSource);
 			return SourceTable.empty();
 		}
 
@@ -720,8 +739,8 @@ public class SourceVisitor implements ISourceVisitor {
 				.getProtocolConfigurations().get(WBEMProtocol.class);
 
 		if (protocol == null) {
-			log.debug("The WBEM Credentials are not configured. Returning an empty table for WBEM source {}.",
-					wbemSource.getKey());
+			log.debug("Hostname {} - The WBEM Credentials are not configured. Returning an empty table for WBEM source {}.",
+					hostname, wbemSource.getKey());
 			return SourceTable.empty();
 		}
 
@@ -747,15 +766,13 @@ public class SourceVisitor implements ISourceVisitor {
 			namespace = cachedNamespace;
 		}
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-
 		try {
 			if (hostname == null) {
-				log.error("No hostname indicated, the URL cannot be built.");
+				log.error("Hostname {} - No hostname indicated, the URL cannot be built.", hostname);
 				return SourceTable.empty();
 			}
 			if (protocol.getPort() == null || protocol.getPort() == 0) {
-				log.error("No port indicated to connect to the following hostname : {}", hostname);
+				log.error("Hostname {} - No port indicated to connect to the host", hostname);
 				return SourceTable.empty();
 			}
 
@@ -778,8 +795,10 @@ public class SourceVisitor implements ISourceVisitor {
 	@Override
 	public SourceTable visit(final WMISource wmiSource) {
 
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		
 		if (wmiSource == null || wmiSource.getWbemQuery() == null) {
-			log.warn("Malformed WMISource {}. Returning an empty table.", wmiSource);
+			log.warn("Hostname {} - Malformed WMI Source {}. Returning an empty table.", hostname, wmiSource);
 			return SourceTable.empty();
 		}
 
@@ -787,8 +806,8 @@ public class SourceVisitor implements ISourceVisitor {
 				.getProtocolConfigurations().get(WMIProtocol.class);
 
 		if (protocol == null) {
-			log.debug("The WMI Credentials are not configured. Returning an empty table for WMI source {}.",
-					wmiSource.getKey());
+			log.debug("Hostname {} - The WMI Credentials are not configured. Returning an empty table for WMI source {}.",
+					hostname, wmiSource.getKey());
 			return SourceTable.empty();
 		}
 
@@ -796,11 +815,10 @@ public class SourceVisitor implements ISourceVisitor {
 		final String namespace = getNamespace(wmiSource);
 
 		if (namespace == null) {
-			log.error("Failed to retrieve the WMI namespace to run the WMI source {}. Returning an empty table.", wmiSource.getKey());
+			log.error("Hostname {} - Failed to retrieve the WMI namespace to run the WMI source {}. Returning an empty table.", 
+					hostname, wmiSource.getKey());
 			return SourceTable.empty();
 		}
-
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
 		try {
 
@@ -867,7 +885,7 @@ public class SourceVisitor implements ISourceVisitor {
 	private List<List<String>> executeIpmiWmiRequest(final String hostname, final WMIProtocol wmiProtocol,
 			final String wmiQuery, final String namespace, final String sourceKey) {
 
-		log.info("Executing IPMI Query for [{}] on {}:\nWMI Query: {}:\n", sourceKey, hostname, wmiQuery);
+		log.info("Hostname {} - Executing IPMI Query for source [{}]:\nWMI Query: {}:\n", hostname, sourceKey, wmiQuery);
 
 		List<List<String>> result;
 
@@ -893,7 +911,7 @@ public class SourceVisitor implements ISourceVisitor {
 			result = Collections.emptyList();
 		}
 
-		log.info("IPMI query for [{}] result:\n{}\n", sourceKey, TextTableHelper.generateTextTable(result));
+		log.info("Hostname {} - IPMI query for [{}] result:\n{}\n", hostname, sourceKey, TextTableHelper.generateTextTable(result));
 
 		return result;
 	}
@@ -908,13 +926,14 @@ public class SourceVisitor implements ISourceVisitor {
 	 * @param rightTable     the right table
 	 */
 	private static void logTableJoin(final String sourceKey, final String leftSourceKey, final String rightSourceKey,
-			final SourceTable leftTable, final SourceTable rightTable) {
+			final SourceTable leftTable, final SourceTable rightTable, final String hostname) {
 
 		if (!log.isDebugEnabled()) {
 			return;
 		}
 
-		log.debug("Table Join Source [{}]:\nLeft table [{}]:\n{}\nRight table [{}]:\n{}\n",
+		log.debug("Hostname {} - Table Join Source [{}]:\nLeft table [{}]:\n{}\nRight table [{}]:\n{}\n",
+				hostname,
 				sourceKey,
 				leftSourceKey,
 				TextTableHelper.generateTextTable(leftTable.getHeaders(), leftTable.getTable()),
@@ -932,7 +951,7 @@ public class SourceVisitor implements ISourceVisitor {
 	 * @param sourceTable     the source's result we wish to log
 	 */
 	private static void logSourceReference(final String connectorName, final String parentSourceKey,
-			final String childSourceKey, final SourceTable sourceTable) {
+			final String childSourceKey, final SourceTable sourceTable, final String hostname) {
 
 		if (!log.isDebugEnabled()) {
 			return;
@@ -940,7 +959,8 @@ public class SourceVisitor implements ISourceVisitor {
 
 		// Is there any raw data to log?
 		if (sourceTable.getRawData() != null && (sourceTable.getTable() == null || sourceTable.getTable().isEmpty())) {
-			log.debug("Got Source [{}] referenced in Source [{}]. Connector: [{}].\nRaw result:\n{}\n",
+			log.debug("Hostname {} - Got Source [{}] referenced in Source [{}]. Connector: [{}].\nRaw result:\n{}\n",
+					hostname,
 					parentSourceKey,
 					childSourceKey,
 					connectorName,
@@ -949,7 +969,8 @@ public class SourceVisitor implements ISourceVisitor {
 		}
 
 		if (sourceTable.getRawData() == null) {
-			log.debug("Got Source [{}] referenced in Source [{}]. Connector: [{}].\nTable result:\n{}\n",
+			log.debug("Hostname {} - Got Source [{}] referenced in Source [{}]. Connector: [{}].\nTable result:\n{}\n",
+					hostname,
 					parentSourceKey,
 					childSourceKey,
 					connectorName,
@@ -957,7 +978,8 @@ public class SourceVisitor implements ISourceVisitor {
 			return;
 		}
 
-		log.debug("Got Source [{}] referenced in Source [{}]. Connector: [{}].\nRaw result:\n{}\nTable result:\n{}\n",
+		log.debug("Hostname {} - Got Source [{}] referenced in Source [{}]. Connector: [{}].\nRaw result:\n{}\nTable result:\n{}\n",
+				hostname,
 				parentSourceKey,
 				childSourceKey,
 				connectorName,
@@ -980,15 +1002,15 @@ public class SourceVisitor implements ISourceVisitor {
 
 		if (log.isErrorEnabled()) {
 			log.error(
-					"Source [{}] on {} was unsuccessful due to an exception."
+					"Hostname {} - Source [{}] was unsuccessful due to an exception."
 					+ " Context [{}]. Connector: [{}]. Returning an empty table. Errors:\n{}\n",
-					sourceKey, hostname, context, connectorName, StringHelper.getStackMessages(throwable));
+					hostname, sourceKey, context, connectorName, StringHelper.getStackMessages(throwable));
 		}
 
 		if (log.isDebugEnabled()) {
 			log.debug(String.format(
-					"Source [%s] on %s was unsuccessful due to an exception. Context [%s]. Connector: [%s]. Returning an empty table. Stack trace:",
-					sourceKey, hostname, context, connectorName), throwable);
+					"Hostname %s - Source [%s] was unsuccessful due to an exception. Context [%s]. Connector: [%s]. Returning an empty table. Stack trace:",
+					hostname, sourceKey, context, connectorName), throwable);
 		}
 	}
 

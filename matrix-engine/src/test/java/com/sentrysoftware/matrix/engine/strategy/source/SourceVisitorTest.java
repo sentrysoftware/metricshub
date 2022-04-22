@@ -235,6 +235,7 @@ class SourceVisitorTest {
 
 	@Test
 	void testVisitOSCommandSource() {
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		assertEquals(SourceTable.empty(), sourceVisitor.visit((OSCommandSource) null));
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(new OSCommandSource()));
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(OSCommandSource.builder().commandLine("").build()));
@@ -309,6 +310,7 @@ class SourceVisitorTest {
 
 	@Test
 	void testVisitReferenceSource() {
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		ReferenceSource referenceSource = null;
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(referenceSource));
 		referenceSource = new ReferenceSource();
@@ -338,6 +340,7 @@ class SourceVisitorTest {
 
 	@Test
 	void testVisitStaticSourceSingleValue() {
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		StaticSource staticSource = null;
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(staticSource));
 		staticSource = new StaticSource();
@@ -356,6 +359,7 @@ class SourceVisitorTest {
 
 	@Test
 	void testVisitStaticSourceMultipleValues() {
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(new StaticSource()));
 
 		List<List<String>> expectedTable = Arrays.asList(
@@ -371,6 +375,7 @@ class SourceVisitorTest {
 
 	@Test
 	void testVisitSNMPGetSource() throws InterruptedException, ExecutionException, TimeoutException {
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		assertEquals(SourceTable.empty(), sourceVisitor.visit( SNMPGetSource.builder().oid(null).build()));
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(SNMPGetSource.builder().oid(OID).build()));
@@ -403,6 +408,7 @@ class SourceVisitorTest {
 
 	@Test
 	void testVisitSNMPGetTableNullArgs() throws Exception {
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		assertEquals(SourceTable.empty(), sourceVisitor.visit( SNMPGetTableSource.builder().oid(null).snmpTableSelectColumns(null).build()));
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(SNMPGetTableSource.builder().snmpTableSelectColumns(SNMP_SELECTED_COLUMNS).build()));
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(SNMPGetTableSource.builder().oid(OID).build()));
@@ -470,6 +476,7 @@ class SourceVisitorTest {
 				Arrays.asList("val1", "val2", "val3", "VaL1", "B2", "C2"),
 				Arrays.asList("V1", "V2", "V3", "VaL1", "B2", "C2"),
 				Arrays.asList("x","y", "z", "a1","b1", "c1"));
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(namespace).when(hostMonitoring).getConnectorNamespace(connector);
 		doReturn(matsyaReturn).when(matsyaClientsExecutor).executeTableJoin(tabl1.getTable(), tabl2.getTable(), 1, 1, Arrays.asList("a1","b1", "c1"), false, true);
@@ -616,6 +623,7 @@ class SourceVisitorTest {
 				Arrays.asList("v1", "v2", "v3"));
 
 		TableUnionSource tableUnionExample = TableUnionSource.builder().build();
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(tableUnionExample));
 
 		tableUnionExample = TableUnionSource.builder().tables(Arrays.asList()).build();
@@ -729,6 +737,7 @@ class SourceVisitorTest {
 
 	@Test
 	void testVisitWBEMSource() throws MatsyaException {
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		assertEquals(SourceTable.empty(), sourceVisitor.visit((WBEMSource) null));
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(WBEMSource.builder().build()));
 
@@ -737,6 +746,7 @@ class SourceVisitorTest {
 				.target(HardwareTarget.builder().hostname(EMC_HOSTNAME).id(EMC_HOSTNAME).type(TargetType.MS_WINDOWS).build())
 				.protocolConfigurations(Collections.emptyMap()).build();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		
 		// no wbem protocol
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(wbemSource));
 
@@ -747,10 +757,10 @@ class SourceVisitorTest {
 						WBEMProtocol.builder()
 						.build()))
 				.build();
-		// empty protocol
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		
+		// empty protocol
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(wbemSource));
-
 
 		engineConfiguration = EngineConfiguration.builder()
 				.target(HardwareTarget.builder().id(EMC_HOSTNAME).type(TargetType.MS_WINDOWS).build())
@@ -760,8 +770,9 @@ class SourceVisitorTest {
 						.password("password".toCharArray())
 						.build()))
 				.build();
-		// no namespace
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		// no namespace
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(wbemSource));
 
 
@@ -774,10 +785,10 @@ class SourceVisitorTest {
 						.password("password".toCharArray())
 						.build()))
 				.build();
-		// unable to build URL : no port
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+		
+		// unable to build URL : no port
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(wbemSource));
-
 
 		engineConfiguration = EngineConfiguration.builder()
 				.target(HardwareTarget.builder().type(TargetType.MS_WINDOWS).build())
@@ -789,11 +800,10 @@ class SourceVisitorTest {
 						.password("password".toCharArray())
 						.build()))
 				.build();
-		// unable to build URL : no hostname
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		// unable to build URL : no hostname
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(wbemSource));
-
-
 
 		engineConfiguration = EngineConfiguration.builder()
 				.target(HardwareTarget.builder().id(EMC_HOSTNAME).hostname(EMC_HOSTNAME).type(TargetType.MS_WINDOWS).build())
@@ -813,7 +823,6 @@ class SourceVisitorTest {
 				Arrays.asList("v1", "v2", "v3"));
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
-
 		doReturn(listValues).when(matsyaClientsExecutor).executeWbem(any(), any(), any(), any());
 		assertEquals(listValues, sourceVisitor.visit(wbemSource).getTable());
 
@@ -824,6 +833,7 @@ class SourceVisitorTest {
 
 	@Test
 	void testVisitWMISourceMalformed() {
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		assertEquals(SourceTable.empty(), sourceVisitor.visit((WMISource) null));
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(WMISource.builder().build()));
 	}
@@ -943,6 +953,7 @@ class SourceVisitorTest {
 	@Test
 	void testGetSourceTable() {
 		{
+			doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 			doReturn(ConnectorNamespace.builder().build()).when(hostMonitoring).getConnectorNamespace(connector);
 			assertNull(sourceVisitor.getSourceTable("Temperature.Collect.Source(1)"));

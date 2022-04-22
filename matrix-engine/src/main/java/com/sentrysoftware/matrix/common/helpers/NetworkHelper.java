@@ -51,12 +51,12 @@ public class NetworkHelper {
 		try {
 			inetAddress = InetAddress.getByName(hostname);
 		} catch (UnknownHostException e) {
-			log.warn("Unknown host %s. Assuming non-local.", hostname);
+			log.warn("Hostname {} - Unknown host. Assuming non-local.", hostname);
 			return false;
 		}
 
 		if (inetAddress == null) {
-			log.warn("Could not resolve %s into an IP addrress. Assuming non-local.", hostname);
+			log.warn("Hostname {} - Could not resolve into an IP addrress. Assuming non-local.", hostname);
 			return false;
 		}
 
@@ -68,11 +68,38 @@ public class NetworkHelper {
 		try {
 			return NetworkInterface.getByInetAddress(inetAddress) != null;
 		} catch (SocketException e) {
-			log.warn("Error while checking network interfaces. Assuming non-local.", e);
+			log.warn("Hostname {} - Error while checking network interfaces. Assuming non-local.", hostname);
+			log.debug("Hostname {} - Exception while checking network interfaces: ", hostname, e);
 			return false;
 		}
 	}
 
+	/**
+	 * @param hostname					The hostname whose IP is being searched for.
+	 *
+	 * @return							The IP Address of the given hostname
+	 */
+	
+	public static String resolveDns(final String hostname) {	
+		
+		String ipAddress = null;
+		InetAddress inetAddress = null;
+		
+		if (hostname != null && !hostname.isBlank()) {	
+			try { 
+				inetAddress = InetAddress.getByName(hostname);
+				
+				if (inetAddress != null) {
+					ipAddress = inetAddress.getHostAddress();
+				}
+			} catch (UnknownHostException e) {
+				log.warn("Could not resolve {} into an IP address.", hostname);
+				log.debug("UnknownHostException: ", e);
+			}
+		}
+		
+		return ipAddress;
+	}
 
 	/**
 	 * @param hostname					The hostname whose FQDN is being searched for.
@@ -89,7 +116,7 @@ public class NetworkHelper {
 			try {
 				inetAddress = InetAddress.getByName(hostname);
 			} catch (UnknownHostException e) {
-				log.error("Unknown host: {}", hostname);
+				log.error("Hostname {} - Unknown host", hostname);
 				throw e;
 			}
 		}

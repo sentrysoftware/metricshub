@@ -2,6 +2,7 @@ package com.sentrysoftware.matrix.engine.strategy.discovery;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
+import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.common.meta.monitor.Battery;
 import com.sentrysoftware.matrix.common.meta.monitor.Blade;
 import com.sentrysoftware.matrix.common.meta.monitor.Cpu;
@@ -51,7 +52,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_P
 @Slf4j
 public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 
-	private static final String CANNOT_CREATE_MONITOR_NULL_NAME_MSG = "Cannot create monitor {} with null name. Connector {}. System {}.";
+	private static final String CANNOT_CREATE_MONITOR_NULL_NAME_MSG = "Hostname {} - Cannot create monitor {} with null name. Connector {}";
 	private static final String HOSTNAME_CANNOT_BE_NULL = "hostname cannot be null.";
 	private static final String HOST_MONITORING_CANNOT_BE_NULL = "hostMonitoring cannot be null.";
 	private static final String CONNECTOR_NAME_CANNOT_BE_NULL = "connectorName cannot be null.";
@@ -61,7 +62,7 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 	private static final String TARGET_TYPE_CANNOT_BE_NULL = "targetType cannot be null.";
 	private static final String MONITOR_TYPE_CANNOT_BE_NULL = "monitorType cannot be null.";
 	public static final String METADATA_CANNOT_BE_NULL = "metadata cannot be null.";
-	private static final String CANNOT_CREATE_MONITOR_ERROR_MSG = "Cannot create {} with deviceId {}. Connector {}. System {}";
+	private static final String CANNOT_CREATE_MONITOR_ERROR_MSG = "Hostname {} - Cannot create {} with deviceId {}. Connector {}";
 
 	private final MonitorBuildingInfo monitorBuildingInfo;
 
@@ -128,7 +129,17 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 		final String id = targetMonitor.getId();
 		Assert.notNull(id, TARGET_ID_CANNOT_BE_NULL);
 
-		createMonitor(MonitorNameBuilder.buildEnclosureName(monitorBuildingInfo), null);
+		Monitor enclosureMonitor = createMonitor(MonitorNameBuilder.buildEnclosureName(monitorBuildingInfo), null);
+
+		discoverEnclosureIpAddress(enclosureMonitor);
+	}
+	
+	private void discoverEnclosureIpAddress(Monitor enclosureMonitor) {
+		final String enclosureHostname = enclosureMonitor.getMetadata("DeviceHostname");
+		String ipAddress = NetworkHelper.resolveDns(enclosureHostname);
+		if (ipAddress != null) {
+			enclosureMonitor.addMetadata("ipAddress", ipAddress);
+		}
 	}
 
 	@Override
@@ -160,7 +171,10 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 
 		final Monitor lunMonitor = createMonitor(MonitorNameBuilder.buildLunName(monitorBuildingInfo), null);
 
-		setExpectedPathCount(lunMonitor);
+		if (lunMonitor != null) {
+			setExpectedPathCount(lunMonitor);
+		}
+
 	}
 
 	@Override
@@ -174,7 +188,9 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 
 		final Monitor networkCardMonitor = createMonitor(MonitorNameBuilder.buildNetworkCardName(monitorBuildingInfo), null);
 
-		normalizeErrorPercentThresholds(networkCardMonitor);
+		if (networkCardMonitor != null) {
+			normalizeErrorPercentThresholds(networkCardMonitor);
+		}
 	}
 
 	@Override
@@ -249,9 +265,9 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 
 		if (monitorName == null) {
 			log.error(CANNOT_CREATE_MONITOR_NULL_NAME_MSG,
+					hostname, 
 					monitorType.getNameInConnector(),
-					connectorName,
-					hostname);
+					connectorName);
 			return null;
 		}
 
@@ -260,10 +276,10 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 		final String id = metadata.get(DEVICE_ID);
 		if (!checkNotBlankDataValue(id)) {
 			log.error(CANNOT_CREATE_MONITOR_ERROR_MSG,
+					hostname,
 					monitorType.getNameInConnector(),
 					id,
-					connectorName,
-					hostname);
+					connectorName);
 			return null;
 		}
 
@@ -364,7 +380,7 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 	 * @param networkCard The monitor we wish to update its {@value HardwareConstants#ERROR_PERCENT_WARNING_THRESHOLD}
 	 *                    and {@value HardwareConstants#ERROR_PERCENT_ALARM_THRESHOLD} metadata
 	 */
-	void normalizeErrorPercentThresholds(final Monitor networkCard) {
+	void normalizeErrorPercentThresholds(@NonNull final Monitor networkCard) {
 		final Double errorPercentWarningThreshold = NumberHelper.parseDouble(networkCard.getMetadata(ERROR_PERCENT_WARNING_THRESHOLD), null);
 		final Double errorPercentAlarmThreshold = NumberHelper.parseDouble(networkCard.getMetadata(ERROR_PERCENT_ALARM_THRESHOLD), null);
 

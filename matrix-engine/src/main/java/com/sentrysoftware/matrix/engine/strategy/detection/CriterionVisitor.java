@@ -96,15 +96,14 @@ public class CriterionVisitor implements ICriterionVisitor {
 				.getProtocolConfigurations()
 				.get(HTTPProtocol.class);
 
-		if (protocol == null) {
-			log.debug("The HTTP Credentials are not configured. Cannot process HTTP detection {}.",
-					criterion);
-			return CriterionTestResult.empty();
-		}
-
 		final String hostname = engineConfiguration
 				.getTarget()
 				.getHostname();
+		
+		if (protocol == null) {
+			log.debug("Hostname {} - The HTTP Credentials are not configured. Cannot process HTTP detection {}.", hostname, criterion);
+			return CriterionTestResult.empty();
+		}
 
 		final String result = matsyaClientsExecutor.executeHttp(HTTPRequest.builder()
 				.hostname(hostname)
@@ -143,11 +142,11 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 			if (result == null || result.isEmpty()) {
 
-				message = String.format("HTTP Test Failed - the HTTP Test on %s did not return any result.", hostname);
+				message = String.format("Hostname %s - HTTP Test Failed - the HTTP Test did not return any result.", hostname);
 
 			} else {
 
-				message = String.format("Successful HTTP Test on %s. Returned result: %s", hostname, result);
+				message = String.format("Hostname %s - Successful HTTP Test. Returned result: %s", hostname, result);
 				success = true;
 			}
 
@@ -156,15 +155,15 @@ public class CriterionVisitor implements ICriterionVisitor {
 			final Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(expectedResult));
 			if (result != null && pattern.matcher(result).find()) {
 
-				message = String.format("Successful HTTP Test on %s. Returned result: %s", hostname, result);
+				message = String.format("Hostname %s - Successful HTTP Test. Returned result: %s", hostname, result);
 				success = true;
 
 			} else {
 
 				message = String
-						.format("HTTP Test Failed - "
-								+"the returned result (%s) of the HTTP Test on %s did not match the expected result (%s).",
-								result, hostname, expectedResult);
+						.format("Hostname %s - HTTP Test Failed - "
+								+"the returned result (%s) of the HTTP Test did not match the expected result (%s).",
+								hostname, result, expectedResult);
 				message += String.format(EXPECTED_VALUE_RETURNED_VALUE, expectedResult, result);
 			}
 		}
@@ -192,7 +191,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 			return processOutOfBandIpmiDetection();
 		}
 
-		final String message = String.format("Failed to perform IPMI detection on system: %s. %s is an unsupported OS for IPMI.", target.getHostname(),
+		final String message = String.format("Hostname %s - Failed to perform IPMI detection. %s is an unsupported OS for IPMI.", target.getHostname(),
 				targetType.name());
 
 		return CriterionTestResult.builder()
@@ -211,12 +210,12 @@ public class CriterionVisitor implements ICriterionVisitor {
 		final IPMIOverLanProtocol protocol = (IPMIOverLanProtocol) strategyConfig.getEngineConfiguration()
 				.getProtocolConfigurations().get(IPMIOverLanProtocol.class);
 
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		
 		if (protocol == null) {
-			log.debug("The IPMI Credentials are not configured. Cannot process IPMI-over-LAN detection.");
+			log.debug("Hostname {} - The IPMI Credentials are not configured. Cannot process IPMI-over-LAN detection.", hostname);
 			return CriterionTestResult.empty();
 		}
-
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
 		try {
 			final String result = matsyaClientsExecutor.executeIpmiDetection(hostname, protocol);
@@ -235,7 +234,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 					.build();
 
 		} catch (final Exception e) {
-			final String message = String.format("Cannot execute IPMI-over-LAN command to get the chassis status on %s. Exception: %s",
+			final String message = String.format("Hostname %s - Cannot execute IPMI-over-LAN command to get the chassis status. Exception: %s",
 					hostname, e.getMessage());
 			log.debug(message, e);
 			return CriterionTestResult
@@ -265,8 +264,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 				: sshProtocol;
 
 		if (osCommandConfig == null) {
-			final String message = String.format("No OS Command Configuration for %s. Return empty result.",
-					hostname);
+			final String message = String.format("Hostname %s - No OS Command Configuration. Return empty result.", hostname);
 			log.warn(message);
 			return CriterionTestResult.builder().success(false).result("").message(message).build();
 		}
@@ -297,8 +295,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 			}
 
 		} catch (final Exception e) {
-			final String message = String.format("Cannot execute IPMI Tool Command %s on %s. Exception: %s",
-					ipmitoolCommand, hostname, e.getMessage());
+			final String message = String.format("Hostname %s - Cannot execute IPMI Tool Command %s. Exception: %s",
+					hostname, ipmitoolCommand, e.getMessage());
 			log.debug(message, e);
 			return CriterionTestResult.builder().success(false).message(message).build();
 		}
@@ -337,8 +335,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 				// (Solaris)
 				solarisOsVersion = runOsCommand(SOLARIS_VERSION_COMMAND, hostname, sshProtocol, defaultTimeout);
 			} catch (final Exception e) {
-				final String message = String.format("Couldn't identify Solaris version %s on %s. Exception: %s",
-						ipmitoolCommand, hostname, e.getMessage());
+				final String message = String.format("Hostname %s - Couldn't identify Solaris version %s. Exception: %s",
+						hostname, ipmitoolCommand, e.getMessage());
 				log.debug(message, e);
 				return message;
 			}
@@ -347,8 +345,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 				try {
 					ipmitoolCommand = getIpmiCommandForSolaris(ipmitoolCommand, hostname, solarisOsVersion);
 				} catch (final IpmiCommandForSolarisException e) {
-					final String message = String.format("Couldn't identify Solaris version %s on %s. Exception: %s",
-							ipmitoolCommand, hostname, e.getMessage());
+					final String message = String.format("Hostname %s - Couldn't identify Solaris version %s. Exception: %s",
+							hostname, ipmitoolCommand, e.getMessage());
 					log.debug(message, e);
 					return message;
 				}
@@ -464,7 +462,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 	@Override
 	public CriterionTestResult visit(final OS os) {
 		if (os == null) {
-			log.error("Malformed os criterion {}. Cannot process OS detection.", os);
+			log.error("Hostname {} - Malformed os criterion {}. Cannot process OS detection.", 
+					strategyConfig.getEngineConfiguration().getTarget().getHostname(), os);
 			return CriterionTestResult.empty();
 		}
 
@@ -556,13 +555,15 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 	@Override
 	public CriterionTestResult visit(final Process process) {
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		
 		if (process == null || process.getProcessCommandLine() == null) {
-			log.error("Malformed Process Criterion {}. Cannot process Process detection.", process);
+			log.error("Hostname {} - Malformed Process Criterion {}. Cannot process Process detection.", hostname, process);
 			return CriterionTestResult.empty();
 		}
 
 		if (process.getProcessCommandLine().isEmpty()) {
-			log.debug("Process Criterion, Process Command Line is empty.");
+			log.debug("Hostname {} - Process Criterion, Process Command Line is empty.", hostname);
 			return CriterionTestResult.builder()
 					.success(true)
 					.message("Process presence check: actually no test were performed.")
@@ -571,7 +572,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 		}
 
 		if (!strategyConfig.getHostMonitoring().isLocalhost()) {
-			log.debug("Process Criterion, Not Localhost.");
+			log.debug("Hostname {} - Process Criterion, Not Localhost.", hostname);
 			return CriterionTestResult.builder()
 					.success(true)
 					.message("Process presence check: no test will be performed remotely.")
@@ -581,7 +582,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 		final Optional<ILocalOS> maybeLocalOS = LocalOSHandler.getOS();
 		if (maybeLocalOS.isEmpty()) {
-			log.debug("Process Criterion, Unknown Local OS.");
+			log.debug("Hostname {} - Process Criterion, Unknown Local OS.", hostname);
 			return CriterionTestResult.builder()
 					.success(true)
 					.message("Process presence check: OS unknown, no test will be performed.")
@@ -591,7 +592,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 		final CriterionProcessVisitor localOSVisitor = new CriterionProcessVisitor(
 				process.getProcessCommandLine(),
-				wqlDetectionHelper
+				wqlDetectionHelper,
+				hostname
 		);
 		maybeLocalOS.get().accept(localOSVisitor);
 		return localOSVisitor.getCriterionTestResult();
@@ -660,8 +662,9 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 	@Override
 	public CriterionTestResult visit(final SNMPGet snmpGet) {
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 		if (null == snmpGet || snmpGet.getOid() == null) {
-			log.error("Malformed SNMPGet criterion {}. Cannot process SNMPGet detection.", snmpGet);
+			log.error("Hostname {} - Malformed SNMPGet criterion {}. Cannot process SNMPGet detection.", hostname, snmpGet);
 			return CriterionTestResult.empty();
 		}
 
@@ -669,12 +672,9 @@ public class CriterionVisitor implements ICriterionVisitor {
 				.getProtocolConfigurations().get(SNMPProtocol.class);
 
 		if (protocol == null) {
-			log.debug("The SNMP Credentials are not configured. Cannot process SNMP detection {}.",
-					snmpGet);
+			log.debug("Hostname {} - The SNMP Credentials are not configured. Cannot process SNMP detection {}.", hostname, snmpGet);
 			return CriterionTestResult.empty();
 		}
-
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
 		try {
 
@@ -699,8 +699,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 		} catch (final Exception e) {
 			final String message = String.format(
-					"SNMP Test Failed - SNMP Get of %s on %s was unsuccessful due to an exception. Message: %s.",
-					snmpGet.getOid(), hostname, e.getMessage());
+					"Hostname %s - SNMP Test Failed - SNMP Get of %s was unsuccessful due to an exception. Message: %s.",
+					hostname, snmpGet.getOid(), e.getMessage());
 			log.debug(message, e);
 			return CriterionTestResult.builder().message(message).build();
 		}
@@ -742,11 +742,11 @@ public class CriterionVisitor implements ICriterionVisitor {
 		final Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(expected), Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 		if (result == null || !pattern.matcher(result).find()) {
 			message = String.format(
-					"SNMP Test Failed - SNMP Get of %s on %s was successful but the value of the returned OID did not match with the expected result. ",
-					oid, hostname);
+					"Hostname %s - SNMP Test Failed - SNMP Get of %s was successful but the value of the returned OID did not match with the expected result. ",
+					hostname, oid);
 			message += String.format(EXPECTED_VALUE_RETURNED_VALUE, expected, result);
 		} else {
-			message = String.format("Successful SNMP Get of %s on %s. Returned Result: %s.", oid, hostname, result);
+			message = String.format("Hostname %s - Successful SNMP Get of %s. Returned Result: %s.", hostname, oid, result);
 			success = true;
 		}
 
@@ -768,13 +768,13 @@ public class CriterionVisitor implements ICriterionVisitor {
 		String message;
 		boolean success = false;
 		if (result == null) {
-			message = String.format("SNMP Test Failed - SNMP Get of %s on %s was unsuccessful due to a null result.",
-					oid, hostname);
+			message = String.format("Hostname %s - SNMP Test Failed - SNMP Get of %s was unsuccessful due to a null result.",
+					hostname, oid);
 		} else if (result.trim().isEmpty()) {
-			message = String.format("SNMP Test Failed - SNMP Get of %s on %s was unsuccessful due to an empty result.",
-					oid, hostname);
+			message = String.format("Hostname %s - SNMP Test Failed - SNMP Get of %s was unsuccessful due to an empty result.",
+					hostname, oid);
 		} else {
-			message = String.format("Successful SNMP Get of %s on %s. Returned Result: %s.", oid, hostname, result);
+			message = String.format("Hostname %s - Successful SNMP Get of %s. Returned Result: %s.", hostname, oid, result);
 			success = true;
 		}
 
@@ -1066,8 +1066,10 @@ public class CriterionVisitor implements ICriterionVisitor {
 	@Override
 	public CriterionTestResult visit(final SNMPGetNext snmpGetNext) {
 
+		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		
 		if (snmpGetNext == null || snmpGetNext.getOid() == null) {
-			log.error("Malformed SNMPGetNext criterion {}. Cannot process SNMPGetNext detection.", snmpGetNext);
+			log.error("Hostname {} - Malformed SNMPGetNext criterion {}. Cannot process SNMPGetNext detection.", hostname, snmpGetNext);
 			return CriterionTestResult.empty();
 		}
 
@@ -1075,12 +1077,9 @@ public class CriterionVisitor implements ICriterionVisitor {
 				.getProtocolConfigurations().get(SNMPProtocol.class);
 
 		if (protocol == null) {
-			log.debug("The SNMP Credentials are not configured. Cannot process SNMP detection {}.",
-					snmpGetNext);
+			log.debug("Hostname {} - The SNMP Credentials are not configured. Cannot process SNMP detection {}.", hostname, snmpGetNext);
 			return CriterionTestResult.empty();
 		}
-
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
 		try {
 
@@ -1104,8 +1103,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 		} catch (final Exception e) {
 			final String message = String.format(
-					"SNMP Test Failed - SNMP GetNext of %s on %s was unsuccessful due to an exception. Message: %s.",
-					snmpGetNext.getOid(), hostname, e.getMessage());
+					"Hostname %s - SNMP Test Failed - SNMP GetNext of %s was unsuccessful due to an exception. Message: %s.",
+					hostname, snmpGetNext.getOid(), e.getMessage());
 			log.debug(message, e);
 			return CriterionTestResult.builder().message(message).build();
 		}
@@ -1150,17 +1149,17 @@ public class CriterionVisitor implements ICriterionVisitor {
 			final Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(expected), Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 			if (!pattern.matcher(value).find()) {
 				message = String.format(
-						"SNMP Test Failed - SNMP GetNext of %s on %s was successful but the value of the returned OID did not match with the expected result. ",
-						oid, hostname);
+						"Hostname %s - SNMP Test Failed - SNMP GetNext of %s was successful but the value of the returned OID did not match with the expected result. ",
+						hostname, oid);
 				message += String.format(EXPECTED_VALUE_RETURNED_VALUE, expected, value);
 				success = false;
 			} else {
-				message = String.format("Successful SNMP GetNext of %s on %s. Returned Result: %s.", oid, hostname, result);
+				message = String.format("Hostname %s - Successful SNMP GetNext of %s. Returned Result: %s.", hostname, oid, result);
 			}
 		} else {
 			message = String.format(
-					"SNMP Test Failed - SNMP GetNext of %s on %s was successful but the value cannot be extracted. ",
-					oid, hostname);
+					"Hostname %s - SNMP Test Failed - SNMP GetNext of %s was successful but the value cannot be extracted. ",
+					hostname, oid);
 			message += String.format("Returned Result: %s.", result);
 			success = false;
 		}
@@ -1184,18 +1183,16 @@ public class CriterionVisitor implements ICriterionVisitor {
 		boolean success = false;
 		if (result == null) {
 			message = String.format(
-					"SNMP Test Failed - SNMP GetNext of %s on %s was unsuccessful due to a null result.", oid,
-					hostname);
+					"Hostname %s - SNMP Test Failed - SNMP GetNext of %s was unsuccessful due to a null result.", hostname, oid);
 		} else if (result.trim().isEmpty()) {
 			message = String.format(
-					"SNMP Test Failed - SNMP GetNext of %s on %s was unsuccessful due to an empty result.", oid,
-					hostname);
+					"Hostname %s - SNMP Test Failed - SNMP GetNext of %s was unsuccessful due to an empty result.", hostname, oid);
 		} else if (!result.startsWith(oid)) {
 			message = String.format(
-					"SNMP Test Failed - SNMP GetNext of %s on %s was successful but the returned OID is not under the same tree. Returned OID: %s.",
-					oid, hostname, result.split("\\s")[0]);
+					"Hostname %s - SNMP Test Failed - SNMP GetNext of %s was successful but the returned OID is not under the same tree. Returned OID: %s.",
+					hostname, oid, result.split("\\s")[0]);
 		} else {
-			message = String.format("Successful SNMP GetNext of %s on %s. Returned Result: %s.", oid, hostname, result);
+			message = String.format("Hostname %s - Successful SNMP GetNext of %s. Returned Result: %s.", hostname, oid, result);
 			success = true;
 		}
 
