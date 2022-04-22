@@ -203,11 +203,11 @@ The following table lists **${project.name}**'s alert rules:
 | Voltage         | hw.voltage.status                           | WARN     | hw.voltage.status == 1                             |
 | Voltage         | hw.voltage.status                           | ALARM    | hw.voltage.status == 2                             |
 
-## Customizing Alert Body 
+## Customizing Alert Content 
 
-**${project.name}** allows you to customize the body of alerts with macros, you need to configure these macros in the `hardwareProblemTemplate` parameter in the `config/hws-config.yaml` file. The procedure is detailed in the [Hardware Problem Template](configuration/configure-agent.md#Hardware_Problem_Template) section.
+**${project.name}** allows you to customize the content of alerts with macros, you need to configure these macros in the `hardwareProblemTemplate` parameter in the `config/hws-config.yaml` file. The procedure is detailed in the [Hardware Problem Template](configuration/configure-agent.md#Hardware_Problem_Template) section.
 
-The default alert body template is the following:
+The default alert content template is the following:
 
 ```
 Hardware problem on ${FQDN} with ${MONITOR_NAME}.${NEWLINE}${NEWLINE}${ALERT_DETAILS}${NEWLINE}${NEWLINE}${FULLREPORT}
