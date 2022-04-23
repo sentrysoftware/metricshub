@@ -141,7 +141,7 @@ You must define at least one site. You can add as many sites as needed. Note tha
 
 Also, you need to provide the electricity rate and the estimated CO₂ emissions that **${project.name}** will use as a reference to calculate the cost of electricity and the carbon footprint of your monitored environment:
 
-* **The electricity price (in dollar per kiloWattHour)**: This is the price of the kWh of electricity used to calculate the energy cost of the physical systems in your monitored infrastructure. Refer to your energy contract to know the tariff by kilowatt per hour charged by your supplier.
+* **The electricity price (in dollar per kiloWattHour)**: This is the price of the kWh of electricity used to calculate the energy cost of the physical systems in your monitored infrastructure. Refer to your energy contract to know the tariff by kilowatt per hour charged by your supplier or refer to the [GlobalPetrolPrices Web site](https://www.globalpetrolprices.com/electricity_prices/#:~:text=The%20world%20average%20price%20is,1%2C000%2C000%20kWh%20consumption%20per%20year).
 * **The carbon density (in grams per kiloWattHour)**: This is the	CO₂ emissions in kg per kWh used to calculate the total carbon emissions based on the electricity consumed by physical systems in your monitored infrastructure. See the [electricityMap Web site](https://app.electricitymap.org/map) for reference. This information is required to evaluate the carbon footprint of your IT infrastructure based on the energy source you are using.
 * **The Power Usage Effectiveness (PUE)**: This is the metric used to determine the energy efficiency of a data center. PUE is determined by dividing the amount of power entering a data center by the power used to run the computer infrastructure. The typical PUE in data centers worldwide ranges between 1 to 2.5. By default, the **Hardware Sentry - Observability and Sustainability** dashboards use a PUE of 1.8, which is the average value for typical data centers.
 
@@ -153,6 +153,8 @@ extraMetrics:
   hw_electricity_cost_dollars: `0.12` # in $/kWh
   hw_pue_ratio: `1.8`
 ```
+The information is also translated into histograms that classify the sites by electricity cost and carbon emissions by kilowatts per hour, from the most consumer to the least. They help you immediately identify the most economical and sustainable sites.
+
 ![Identifying the Most Efficient Sites](../images/dashboard_cost_co2_sites_efficiency_list.png)
 
 ### Identifying the most power consuming sites
@@ -167,7 +169,7 @@ Use the **Annual Consumption**, **Annual Cost** and **Annual CO₂** graphs to i
 
 ### Spotting the top consumer devices
 
-On average, and apart from the cooling systems, servers account for the greatest shares of direct electricity use in data centers, followed by storage drives and network devices.
+On average, and apart from the cooling systems, servers account for the greatest shares of direct electricity use in data centers, followed by storage and network devices.
 
 The **Host Types** panel shows the composition of your infrastructure distributed among storage, compute and network dedicated devices, while the **Total Power by Host Type** panel displays the electricity consumption and distribution per type. This information indicates the power consumption ratio to sustain computing devices activity, data storage, and IP traffic in your data center.
 
