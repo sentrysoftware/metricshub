@@ -193,7 +193,7 @@ An increase of 2°C represents a saving of 10% on the energy just dedicated to a
 
 The **Ambient Temperature** and **Hosts Ambient Temperature** panels expose metrics that pinpoint the sites and hosts emitting the less and the most heat, while the **Hosts Highest Temperature Sensors** panel reports the value of the temperature sensors of every monitored host. The dashboard uses colors, from blue to red, to help you immediately visualize where the temperature may be critical.
 
-![Observing the Ambiant Temperature of Hosts](../images/dashboard_host_ambient_temp.png)
+![Observing the Ambient Temperature of Hosts](../images/dashboard_host_ambient_temp.png)
 
 The **Heating Margin** gauges represent the number of degrees Celsius (°C) remaining before the temperature reaches the closest warning threshold for each monitored site. **${project.name}** collects one day of heating margin measurements for each hardware device and exposes the minimum (critical) value of all the hardware devices in the site.
 
