@@ -22,11 +22,11 @@ An alert is a notification that a hardware problem has occurred, such as a criti
 - The alert rule.
 - The date at which the alert is triggered.
 - The metric that triggered the alert.
-- Status information of the component.
-- Encountered problem, consequence and recommended action.
-- A full hardware health report of the faulty component.
+- The status information of the component.
+- The encountered problem, consequence and recommended action.
+- A complete hardware health report on the faulty component.
 
-Here is an example of an alert record which has been triggered due to an unplugged link on a network interface. This alert log has been captured using the OpenTelemetry [Logging Exporter](https://github.com/open-telemetry/opentelemetry-collector/tree/main/exporter/loggingexporter): 
+Here is an example of an alert record which has been triggered due to an unplugged cable on a network interface. This alert log has been captured using the OpenTelemetry [Logging Exporter](https://github.com/open-telemetry/opentelemetry-collector/tree/main/exporter/loggingexporter): 
 
 ```
 2022-04-21T14:37:57.034+0200	DEBUG	loggingexporter/logging_exporter.go:81	ResourceLog #0
@@ -205,7 +205,7 @@ The following table lists **${project.name}**'s alert rules:
 
 ## Customizing Alert Content 
 
-**${project.name}** allows you to customize the content of alerts with macros, you need to configure these macros in the `hardwareProblemTemplate` parameter in the `config/hws-config.yaml` file. The procedure is detailed in the [Hardware Problem Template](configuration/configure-agent.md#Hardware_Problem_Template) section.
+**${project.name}** You can customize the content of alerts by configuring macros in the `hardwareProblemTemplate` parameter in the `config/hws-config.yaml` file. See the procedure detailed in the [Hardware Problem Template](configuration/configure-agent.md#Hardware_Problem_Template) section.
 
 The default alert content template is the following:
 
