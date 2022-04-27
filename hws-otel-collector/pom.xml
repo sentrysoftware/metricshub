@@ -276,6 +276,20 @@
 						</configuration>
 					</execution>
 
+					<!-- MacOS-ARM64 -->
+					<execution>
+						<id>dist-darwin-arm64</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>src/assembly/macos-arm64.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+
 				</executions>
 			</plugin>
 		</plugins>
