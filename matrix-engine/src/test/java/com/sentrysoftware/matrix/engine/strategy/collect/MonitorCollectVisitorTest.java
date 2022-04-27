@@ -331,7 +331,7 @@ class MonitorCollectVisitorTest {
 						.protocolConfigurations(Collections.singletonMap(SNMPProtocol.class, new SNMPProtocol()))
 						.build());
 
-		final String snmpResult = "SNMP UP TEST Success";
+		final String snmpResult = "SNMP up test successful";
 
 		doReturn(snmpResult).when(matsyaClientsExecutor)
 				.executeSNMPGetNext(eq("1.3.6.1"), any(), any(), anyBoolean());

@@ -241,7 +241,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 							Up.UP);
 					return;
 				}
-				log.debug("Hostname {} - WMI Exception: ", hostName, e);
+				log.debug("Hostname {} - Checking WMI protocol status. WMI exception when performing a test WMI query: ", hostName, e);
 			}
 
 			CollectHelper.updateDiscreteParameter(
@@ -272,7 +272,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 						Math.toIntExact(ssh.getTimeout()), null, null);
 
 			} catch (Exception e) {
-				log.debug("Hostname {} - SSH Exception: ", hostName, e);
+				log.debug("Hostname {} - Checking SSH protocol status. SSH exception when performing a test SSH command: ", hostName, e);
 			} finally {
 				CollectHelper.updateDiscreteParameter(
 						monitor,
@@ -330,7 +330,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 								Up.UP);
 						return;
 					}
-					log.debug("Hostname {} - WBEM Exception: ", hostName, e);
+					log.debug("Hostname {} - Checking WBEM protocol status. WBEM exception when performing a test WBEM query: ", hostName, e);
 				}
 			}
 
@@ -361,7 +361,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 						.executeSNMPGetNext(SNMP_UP_TEST_OID, snmp, hostName, true);
 
 			} catch (Exception e) {
-                log.debug("Hostname {} - SNMP Exception: ", hostName, e);
+                log.debug("Hostname {} - Checking SNMP protocol status. SNMP exception when performing a test SNMP Get Next: ", hostName, e);
 			} finally {
 				CollectHelper.updateDiscreteParameter(monitor, SNMP_UP_PARAMETER,
 						monitorCollectInfo.getCollectTime(), snmpGetNext != null ? Up.UP : Up.DOWN);

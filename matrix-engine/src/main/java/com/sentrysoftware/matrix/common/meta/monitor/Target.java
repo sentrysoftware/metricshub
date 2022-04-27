@@ -41,6 +41,8 @@ import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.UP_AL
 
 public class Target implements IMetaMonitor {
 
+	private static final String CONSEQUENCE_MESSAGE = "All connectors relying on this protocol to collect data will not work anymore. The components detected through these connectors will no longer be monitored.";
+	
 	private static final List<String> METADATA = Collections.singletonList(LOCATION);
 
 	public static final MetaParameter AMBIENT_TEMPERATURE = MetaParameter.builder()
@@ -154,11 +156,15 @@ public class Target implements IMetaMonitor {
 				conditions);
 		if (assertedStatus.isAbnormal()) {
 
-			String problem = "SNMP Connection has been lost.";
+			// TODO: Get error message from SNMP protocol and append to problem.
+			String problem = "The SNMP protocol is no longer available."; 
+	 		String consequence = CONSEQUENCE_MESSAGE;
+	 		String recommendedAction = "Check that the provided credentials or community and port number are correct. Verify that no firewall is blocking the access. Also, make sure the SNMP service/daemon is started.";
+
 			return AlertDetails.builder()
 					.problem(problem)
-					.consequence("SNMP monitoring not available.")
-					.recommendedAction("Check SNMP is configured correctly on target host.")
+					.consequence(consequence)
+					.recommendedAction(recommendedAction)
 					.build();
 
 		}
@@ -177,11 +183,15 @@ public class Target implements IMetaMonitor {
 				conditions);
 		if (assertedStatus.isAbnormal()) {
 
-			String problem = "WBEM Connection has been lost.";
+			// TODO: Get error message from WBEM protocol and append to problem.
+	 		String problem = "The WBEM protocol is no longer available.";
+	 		String consequence = CONSEQUENCE_MESSAGE;
+	 		String recommendedAction = "Check that the provided credentials and port number are correct. Verify that no firewall is blocking the access. Also, make sure the service is started and the provider available.";
+
 			return AlertDetails.builder()
 					.problem(problem)
-					.consequence("WBEM monitoring not available.")
-					.recommendedAction("Check WBEM is configured correctly on target host.")
+					.consequence(consequence)
+					.recommendedAction(recommendedAction)
 					.build();
 		}
 		return null;
@@ -200,11 +210,15 @@ public class Target implements IMetaMonitor {
 				conditions);
 		if (assertedStatus.isAbnormal()) {
 
-			String problem = "SSH Connection has been lost.";
+			// TODO: Get error message from SSH protocol and append to problem.
+			String problem = "The SSH protocol is no longer available.";
+			String consequence = CONSEQUENCE_MESSAGE;
+			String recommendedAction = "Check that the provided credentials have access to the server and no firewall is blocking the access.";
+	
 			return AlertDetails.builder()
 					.problem(problem)
-					.consequence("SSH monitoring not available.")
-					.recommendedAction("Check SSH is configured correctly on target host.")
+					.consequence(consequence)
+					.recommendedAction(recommendedAction)
 					.build();
 		}
 		return null;
@@ -223,11 +237,15 @@ public class Target implements IMetaMonitor {
 				conditions);
 		if (assertedStatus.isAbnormal()) {
 
-			String problem = "WMI Connection has been lost.";
+			// TODO: Get error message from WMI protocol and append to problem.
+			String problem = "The WMI protocol is no longer available.";
+			String consequence = CONSEQUENCE_MESSAGE;
+			String recommendedAction = "Make sure the provided credentials have Administrator privileges and the Winmgmt service is started. In addition, verify that no firewall is blocking the access.";
+
 			return AlertDetails.builder()
 					.problem(problem)
-					.consequence("WMI monitoring not available.")
-					.recommendedAction("Check WMI is configured correctly on target host.")
+					.consequence(consequence)
+					.recommendedAction(recommendedAction)
 					.build();
 		}
 		return null;
