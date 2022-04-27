@@ -20,6 +20,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.sentrysoftware.hardware.agent.dto.HostConfigurationDTO;
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
 import com.sentrysoftware.hardware.agent.exception.BusinessException;
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
@@ -148,78 +151,101 @@ class ConfigHelperTest {
 	}
 	
 	@Test
-	void testValidateSnmp() {
+	void testValidateEngineConfiguration() {
+		
+		
+		
+		EngineConfiguration engineConfiguration = EngineConfiguration.builder()
+				.target(HardwareTarget
+				.builder()
+				.hostname("localhost")
+				.id("localhost")
+				.type(TargetType.LINUX)
+				.build())
+		.protocolConfigurations(Map.of(SNMPProtocol.class, SNMPProtocol.builder().build()))
+		.build();
+		Set<String> selectedConnectors = Set.of(SUN_F15K);
+		engineConfiguration.setSelectedConnectors(selectedConnectors);
+		
+		Connector connector = new Connector();
+		connector.setCompiledFilename(SUN_F15K);
+		
+		connector.setSourceTypes(Collections.singleton(WMISource.class));
+
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateEngineConfiguration(engineConfiguration, Collections.singletonList(connector)));
+		
+		connector.setSourceTypes(Collections.singleton(SNMPGetTableSource.class));
+		
+		assertDoesNotThrow(() -> ConfigHelper.validateEngineConfiguration(engineConfiguration, Collections.singletonList(connector)));
+	}
+	
+	@Test
+	void testValidateSnmpInfo() {
 		final char[] community = new char[] { 'p', 'u', 'b', 'l', 'i', 'c' };
 		final char[] emptyCommunity = new char[] {};
 		
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateSnmp("hostname", emptyCommunity, 1234, 60L));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateSnmp("hostname", null, 1234, 60L));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateSnmp("hostname", community, -1, 60L));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateSnmp("hostname", community, null, 60L));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateSnmp("hostname", community, 66666, 60L));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateSnmp("hostname", community, 1234, -60L));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateSnmp("hostname", community, 1234, null));
-		assertDoesNotThrow(() -> ConfigHelper.validateSnmp("hostname", community, 1234, 60L));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateSnmpInfo("hostname", emptyCommunity, 1234, 60L, 1, null, null, "SNMP v1"));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateSnmpInfo("hostname", null, 1234, 60L, 1, null, null, "SNMP v1"));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateSnmpInfo("hostname", community, -1, 60L, 1, null, null, "SNMP v1"));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateSnmpInfo("hostname", community, null, 60L, 1, null, null, "SNMP v1"));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateSnmpInfo("hostname", community, 66666, 60L, 1, null, null, "SNMP v1"));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateSnmpInfo("hostname", community, 1234, -60L, 1, null, null, "SNMP v1"));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateSnmpInfo("hostname", community, 1234, null, 1, null, null, "SNMP v1"));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateSnmpInfo("hostname", null, 1234, null, 3, "SHA", "", "SNMP v3 with SHA auth"));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateSnmpInfo("hostname", null, 1234, null, 3, "SHA", null, "SNMP v3 with SHA auth"));
+		assertDoesNotThrow(() -> ConfigHelper.validateSnmpInfo("hostname", community, 1234, 60L, 1, null, null, "SNMP v1"));
+		assertDoesNotThrow(() -> ConfigHelper.validateSnmpInfo("hostname", community, 1234, 60L, 3, "SHA", "username", "SNMP v3 with SHA auth"));
 	}
 	
 	@Test
-	void testValidateIpmi() {
-		final char[] password = new char[] { 'p', 'w'};
-		final char[] emptyPassword = new char[] {};
-		
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateIpmi("hostname", "", password, 60L));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateIpmi("hostname", null, password, 60L));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateIpmi("hostname", "username", emptyPassword, 60L));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateIpmi("hostname", "username", null, 60L));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateIpmi("hostname", "username", password, -60L));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateIpmi("hostname", "username", password, null));
-		assertDoesNotThrow(() -> ConfigHelper.validateIpmi("hostname", "username", password, 60L));
+	void testValidateIpmiInfo() {		
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateIpmiInfo("hostname", "", 60L));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateIpmiInfo("hostname", null, 60L));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateIpmiInfo("hostname", "username", -60L));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateIpmiInfo("hostname", "username", null));
+		assertDoesNotThrow(() -> ConfigHelper.validateIpmiInfo("hostname", "username", 60L));
 	}
 	
 	@Test
-	void testValidateSsh() {		
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateSsh("hostname", "", 60L, "sudo"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateSsh("hostname", null, 60L, "sudo"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateSsh("hostname", "username", -60L, "sudo"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateSsh("hostname", "username", null, "sudo"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateSsh("hostname", "username", 60L, ""));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateSsh("hostname", "username", 60L, null));
-		assertDoesNotThrow(() -> ConfigHelper.validateSsh("hostname", "username", 60L, "sudo"));
+	void testValidateSshInfo() {		
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateSshInfo("hostname", "", 60L));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateSshInfo("hostname", null, 60L));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateSshInfo("hostname", "username", -60L));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateSshInfo("hostname", "username", null));
+		assertDoesNotThrow(() -> ConfigHelper.validateSshInfo("hostname", "username", 60L));
 	}
 	
 	@Test
-	void testValidateWbem() {		
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", -60L, 1234));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", null, 1234));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", 60L, -1));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", 60L, null));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbem("hostname", 60L, 66666));
-		assertDoesNotThrow(() -> ConfigHelper.validateWbem("hostname", 60L, 1234));
+	void testValidateWbemInfo() {		
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbemInfo("hostname", -60L, 1234));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbemInfo("hostname", null, 1234));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbemInfo("hostname", 60L, -1));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbemInfo("hostname", 60L, null));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbemInfo("hostname", 60L, 66666));
+		assertDoesNotThrow(() -> ConfigHelper.validateWbemInfo("hostname", 60L, 1234));
 	}
 	
 	@Test
-	void testValidateWmi() {		
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWmi("hostname", -60L));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWmi("hostname", null));
-		assertDoesNotThrow(() -> ConfigHelper.validateWmi("hostname", 60L));
+	void testValidateWmiInfo() {		
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWmiInfo("hostname", -60L));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWmiInfo("hostname", null));
+		assertDoesNotThrow(() -> ConfigHelper.validateWmiInfo("hostname", 60L));
 	}
 	
 	@Test
-	void testValidateHttp() {		
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateHttp("hostname", -60L, 1234));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateHttp("hostname", null, 1234));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateHttp("hostname", 60L, -1));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateHttp("hostname", 60L, null));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateHttp("hostname", 60L, 66666));
-		assertDoesNotThrow(() -> ConfigHelper.validateHttp("hostname", 60L, 1234));
+	void testValidateHttpInfo() {		
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateHttpInfo("hostname", -60L, 1234));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateHttpInfo("hostname", null, 1234));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateHttpInfo("hostname", 60L, -1));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateHttpInfo("hostname", 60L, null));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateHttpInfo("hostname", 60L, 66666));
+		assertDoesNotThrow(() -> ConfigHelper.validateHttpInfo("hostname", 60L, 1234));
 	}
 	
 	@Test
-	void testValidateOsCommand() {
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateOsCommand("hostname", -60L, "sudo"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateOsCommand("hostname", null, "sudo"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateOsCommand("hostname", 60L, ""));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateOsCommand("hostname", 60L, null));
-		assertDoesNotThrow(() -> ConfigHelper.validateOsCommand("hostname", 60L, "sudo"));
+	void testValidateOsCommandInfo() {
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateOsCommandInfo("hostname", -60L));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateOsCommandInfo("hostname", null));
+		assertDoesNotThrow(() -> ConfigHelper.validateOsCommandInfo("hostname", 60L));
 	}
 }

@@ -26,7 +26,8 @@ public enum ErrorCode {
 	NO_BMC_KEY(HttpStatus.FORBIDDEN),
 	NO_NAMESPACE(HttpStatus.FORBIDDEN),
 	NO_SUDO_COMMAND(HttpStatus.FORBIDDEN),
-	TARGET_NOT_FOUND(HttpStatus.NOT_FOUND);
+	TARGET_NOT_FOUND(HttpStatus.NOT_FOUND),
+	UNSUPPORTED_PROTOCOL(HttpStatus.FORBIDDEN);
 
 	@Getter
 	private HttpStatus httpStatus;
