@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.sentrysoftware.hardware.agent.dto.HostConfigurationDTO;
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
+import com.sentrysoftware.hardware.agent.dto.protocol.SnmpProtocolDTO;
 import com.sentrysoftware.hardware.agent.exception.BusinessException;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
@@ -26,6 +28,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMI
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
@@ -44,8 +47,8 @@ class ConfigHelperTest {
 		final Set<String> connectors = Set.of(DELL_OPEN_MANAGE_CONNECTOR, SUN_F15K);
 
 		{
-			assertTrue(ConfigHelper.validateAndGetConnectors(connectors, null, "hostname").isEmpty());
-			assertTrue(ConfigHelper.validateAndGetConnectors(connectors, Collections.emptySet(), "hostname").isEmpty());
+			assertTrue(ConfigHelper.validateAndGetConnectors(connectors, null, "hostname",false).isEmpty());
+			assertTrue(ConfigHelper.validateAndGetConnectors(connectors, Collections.emptySet(), "hostname",false).isEmpty());
 		}
 
 		{
@@ -54,12 +57,13 @@ class ConfigHelperTest {
 					ConfigHelper.validateAndGetConnectors(
 						connectors,
 						Set.of(DELL_OPEN_MANAGE_CONNECTOR, SUN_F15K),
-						"hostname"
+						"hostname",
+						false
 					)
 			);
 
 			assertEquals(Set.of(SUN_F15K),
-					ConfigHelper.validateAndGetConnectors(connectors, Set.of(SUN_F15K), "hostname"));
+					ConfigHelper.validateAndGetConnectors(connectors, Set.of(SUN_F15K), "hostname", false));
 		}
 
 		{
@@ -67,13 +71,27 @@ class ConfigHelperTest {
 				ConfigHelper.validateAndGetConnectors(
 					connectors,
 					Set.of("BadConnector", DELL_OPEN_MANAGE_CONNECTOR),
-					"hostname"
+					"hostname",
+					false
 				)
 			);
 			assertThrows(Exception.class,
-					() -> ConfigHelper.validateAndGetConnectors(null, Collections.emptySet(), "hostname"));
+					() -> ConfigHelper.validateAndGetConnectors(null, Collections.emptySet(), "hostname", false));
 		}
-
+		
+		{
+			HashSet<String> configConnectors = new HashSet<>(Set.of("BadConnector", DELL_OPEN_MANAGE_CONNECTOR));
+			
+			assertDoesNotThrow(() -> ConfigHelper.validateAndGetConnectors(
+					connectors,
+					configConnectors,
+					"hostname",
+					true
+				)
+			);
+			
+			assertEquals(Collections.singleton(DELL_OPEN_MANAGE_CONNECTOR), configConnectors);
+		}
 	}
 
 	@Test
@@ -184,17 +202,149 @@ class ConfigHelperTest {
 		final char[] community = new char[] { 'p', 'u', 'b', 'l', 'i', 'c' };
 		final char[] emptyCommunity = new char[] {};
 		
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateSnmpInfo("hostname", emptyCommunity, 1234, 60L, 1, null, null, "SNMP v1"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateSnmpInfo("hostname", null, 1234, 60L, 1, null, null, "SNMP v1"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateSnmpInfo("hostname", community, -1, 60L, 1, null, null, "SNMP v1"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateSnmpInfo("hostname", community, null, 60L, 1, null, null, "SNMP v1"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateSnmpInfo("hostname", community, 66666, 60L, 1, null, null, "SNMP v1"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateSnmpInfo("hostname", community, 1234, -60L, 1, null, null, "SNMP v1"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateSnmpInfo("hostname", community, 1234, null, 1, null, null, "SNMP v1"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateSnmpInfo("hostname", null, 1234, null, 3, "SHA", "", "SNMP v3 with SHA auth"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateSnmpInfo("hostname", null, 1234, null, 3, "SHA", null, "SNMP v3 with SHA auth"));
-		assertDoesNotThrow(() -> ConfigHelper.validateSnmpInfo("hostname", community, 1234, 60L, 1, null, null, "SNMP v1"));
-		assertDoesNotThrow(() -> ConfigHelper.validateSnmpInfo("hostname", community, 1234, 60L, 3, "SHA", "username", "SNMP v3 with SHA auth"));
+		{ 
+			SnmpProtocolDTO snmpDto = SnmpProtocolDTO
+				.builder()
+				.community(emptyCommunity)
+				.port(1234)
+				.timeout(60L)
+				.version(SNMPVersion.V1)
+				.username(null)
+				.build();
+
+			assertThrows(BusinessException.class, () -> ConfigHelper.validateSnmpInfo("hostname", snmpDto));
+		}
+		
+		{
+			SnmpProtocolDTO snmpDto = SnmpProtocolDTO
+				.builder()
+				.community(null)
+				.port(1234)
+				.timeout(60L)
+				.version(SNMPVersion.V1)
+				.username(null)
+				.build();
+		
+			assertThrows(BusinessException.class, () -> ConfigHelper.validateSnmpInfo("hostname", snmpDto));
+		}
+		
+		{
+			SnmpProtocolDTO snmpDto = SnmpProtocolDTO
+				.builder()
+				.community(community)
+				.port(-1)
+				.timeout(60L)
+				.version(SNMPVersion.V1)
+				.username(null)
+				.build();
+		
+			assertThrows(BusinessException.class, () -> ConfigHelper.validateSnmpInfo("hostname", snmpDto));
+		}
+		
+		{
+			SnmpProtocolDTO snmpDto = SnmpProtocolDTO
+				.builder()
+				.community(community)
+				.port(66666)
+				.timeout(60L)
+				.version(SNMPVersion.V1)
+				.username(null)
+				.build();
+		
+			assertThrows(BusinessException.class, () -> ConfigHelper.validateSnmpInfo("hostname", snmpDto));
+		}
+		
+		{
+			SnmpProtocolDTO snmpDto = SnmpProtocolDTO
+				.builder()
+				.community(community)
+				.port(null)
+				.timeout(60L)
+				.version(SNMPVersion.V1)
+				.username(null)
+				.build();
+
+			assertThrows(BusinessException.class, () -> ConfigHelper.validateSnmpInfo("hostname", snmpDto));
+		}
+		
+		{
+			SnmpProtocolDTO snmpDto = SnmpProtocolDTO
+				.builder()
+				.community(community)
+				.port(1234)
+				.timeout(-60L)
+				.version(SNMPVersion.V1)
+				.username(null)
+				.build();
+		
+			assertThrows(BusinessException.class, () -> ConfigHelper.validateSnmpInfo("hostname", snmpDto));
+		}
+		
+		{
+			SnmpProtocolDTO snmpDto = SnmpProtocolDTO
+				.builder()
+				.community(community)
+				.port(1234)
+				.timeout(null)
+				.version(SNMPVersion.V1)
+				.username(null)
+				.build();		
+		
+			assertThrows(BusinessException.class, () -> ConfigHelper.validateSnmpInfo("hostname", snmpDto));
+		}
+		
+		{
+			SnmpProtocolDTO snmpDto = SnmpProtocolDTO
+				.builder()
+				.community(community)
+				.port(1234)
+				.timeout(60L)
+				.version(SNMPVersion.V3_SHA)
+				.username(null)
+				.build();		
+		
+		
+			assertThrows(BusinessException.class, () -> ConfigHelper.validateSnmpInfo("hostname", snmpDto));
+		}
+		
+		{
+			SnmpProtocolDTO snmpDto = SnmpProtocolDTO
+				.builder()
+				.community(community)
+				.port(1234)
+				.timeout(60L)
+				.version(SNMPVersion.V3_SHA)
+				.username("")
+				.build();		
+		
+			assertThrows(BusinessException.class, () -> ConfigHelper.validateSnmpInfo("hostname", snmpDto));
+		}
+		
+		{
+			SnmpProtocolDTO snmpDto = SnmpProtocolDTO
+				.builder()
+				.community(community)
+				.port(1234)
+				.timeout(60L)
+				.version(SNMPVersion.V3_SHA)
+				.username("username")
+				.build();		
+		
+			assertDoesNotThrow(() -> ConfigHelper.validateSnmpInfo("hostname", snmpDto));
+		}
+		
+		{
+			SnmpProtocolDTO snmpDto = SnmpProtocolDTO
+				.builder()
+				.community(community)
+				.port(1234)
+				.timeout(60L)
+				.version(SNMPVersion.V3_NO_AUTH)
+				.username(null)
+				.build();		
+		
+			assertDoesNotThrow(() -> ConfigHelper.validateSnmpInfo("hostname", snmpDto));
+		}
 	}
 	
 	@Test

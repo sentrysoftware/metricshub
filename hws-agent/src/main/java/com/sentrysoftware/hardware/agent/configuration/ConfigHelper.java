@@ -25,6 +25,7 @@ import com.sentrysoftware.hardware.agent.dto.HardwareTargetDTO;
 import com.sentrysoftware.hardware.agent.dto.HostConfigurationDTO;
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
 import com.sentrysoftware.hardware.agent.dto.protocol.IProtocolConfigDTO;
+import com.sentrysoftware.hardware.agent.dto.protocol.SnmpProtocolDTO;
 import com.sentrysoftware.hardware.agent.exception.BusinessException;
 import com.sentrysoftware.hardware.agent.security.PasswordEncrypt;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
@@ -111,7 +112,7 @@ public class ConfigHelper {
 				ErrorCode.INVALID_HOSTNAME);
 
 		validateAttribute(targetType, 
-				attr -> attr == null,
+				Objects::isNull,
 				() -> String.format("No target type configured for hostname: %s", hostname), 
 				ErrorCode.NO_TARGET_TYPE);
 	}
@@ -151,21 +152,17 @@ public class ConfigHelper {
 	 * Validate the given SNMP information (hostname, community, port and timeout)
 	 *
 	 * @param hostname    hostname of the target
-	 * @param community   community string of the target
-	 * @param port        port of the target
-	 * @param timeout     timeout of the target
-	 * @param intVersion  snmp version
-	 * @param authType    authentication type for SNMP V3
-	 * @param username    snmp username for SNMP V3
-	 * @param displayName snmp version description
+	 * @param snmp   	  Snmp object of the target (configuration)
 	 * @throws BusinessException
 	 */
-	static void validateSnmpInfo(final String hostname, final char[] community, final Integer port, final Long timeout,
-			final int intVersion, final String authType, final String username, final String displayName)
+	static void validateSnmpInfo(final String hostname, SnmpProtocolDTO snmpDto)
 			throws BusinessException {
 		
+		final String displayName = snmpDto.getVersion().getDisplayName();
+		final int intVersion = snmpDto.getVersion().getIntVersion();
+		
 		if (intVersion != 3) {
-			validateAttribute(community, 
+			validateAttribute(snmpDto.getCommunity(), 
 				attr -> attr == null || attr.length == 0, 
 				() -> String.format(
 						"No community string configured for hostname %s for protocol %s. Host will not be monitored.",
@@ -173,18 +170,18 @@ public class ConfigHelper {
 				ErrorCode.NO_COMMUNITY_STRING);
 		}
 		
-		validateAttribute(port, 
+		validateAttribute(snmpDto.getPort(), 
 				INVALID_PORT_CHECKER,
 				() -> String.format(PORT_ERROR, hostname, displayName), 
 				ErrorCode.INVALID_PORT);
 
-		validateAttribute(timeout, 
+		validateAttribute(snmpDto.getTimeout(), 
 				INVALID_TIMEOUT_CHECKER,
 				() -> String.format(TIMEOUT_ERROR, hostname, displayName), 
 				ErrorCode.INVALID_TIMEOUT);
 
-		if (intVersion == 3 && authType != null) {
-			validateAttribute(username, 
+		if (intVersion == 3 && snmpDto.getVersion().getAuthType() != null) {
+			validateAttribute(snmpDto.getUsername(), 
 					INVALID_STRING_CHECKER, 
 					() -> String.format(USERNAME_ERROR, hostname, displayName),
 					ErrorCode.NO_USERNAME);
@@ -386,7 +383,7 @@ public class ConfigHelper {
 	 * @throws BusinessException
 	 */
 	static Set<String> validateAndGetConnectors(final @NonNull Set<String> acceptedConnectorNames,
-			final Set<String> configConnectors, final String hostname) throws BusinessException {
+			final Set<String> configConnectors, final String hostname, final boolean isExcluded) throws BusinessException {
 
 		if (configConnectors == null || configConnectors.isEmpty()) {
 			return Collections.emptySet();
@@ -402,17 +399,32 @@ public class ConfigHelper {
 		if (unknownConnectors.isEmpty()) {
 			return configConnectors;
 		}
-
+		
 		// Throw the bad configuration exception
-		String message = String.format(
-				"Configured unknown connector(s): %s. Hostname: %s",
-				String.join(", ", unknownConnectors),
-				hostname
-		);
+		
+		if (isExcluded) {
+			String message = String.format(
+					"Configured unknown selected connector(s): %s. Hostname: %s. This target will be monitored, but the unknown connectors will be ignored.",
+					String.join(", ", unknownConnectors),
+					hostname
+			);
+	
+			log.error(message);
+			configConnectors.removeAll(unknownConnectors);
+			return configConnectors;
+		} else {
+			String message = String.format(
+					"Configured unknown selected connector(s): %s. Hostname: %s. This target will not be monitored.",
+					String.join(", ", unknownConnectors),
+					hostname
+			);
+	
+			log.error(message);
+	
+			throw new BusinessException(ErrorCode.BAD_CONNECTOR_CONFIGURATION, message);
+		}
+		
 
-		log.error(message);
-
-		throw new BusinessException(ErrorCode.BAD_CONNECTOR_CONFIGURATION, message);
 	}
 
 	/**
@@ -508,13 +520,7 @@ public class ConfigHelper {
 
 			if (hostConfigurationDto.getSnmp() != null)
 				validateSnmpInfo(hostname, 
-						hostConfigurationDto.getSnmp().getCommunity(),
-						hostConfigurationDto.getSnmp().getPort(), 
-						hostConfigurationDto.getSnmp().getTimeout(),
-						hostConfigurationDto.getSnmp().getVersion().getIntVersion(),
-						hostConfigurationDto.getSnmp().getVersion().getAuthType(),
-						hostConfigurationDto.getSnmp().getVersion().getDisplayName(),
-						hostConfigurationDto.getSnmp().getUsername());
+						hostConfigurationDto.getSnmp());
 
 			if (hostConfigurationDto.getIpmi() != null)
 				validateIpmiInfo(hostname, 
@@ -546,9 +552,9 @@ public class ConfigHelper {
 						hostConfigurationDto.getOsCommand().getTimeout());
 
 			final Set<String> selectedConnectors = validateAndGetConnectors(acceptedConnectorNames,
-					hostConfigurationDto.getSelectedConnectors(), hostname);
+					hostConfigurationDto.getSelectedConnectors(), hostname, false);
 			final Set<String> excludedConnectors = validateAndGetConnectors(acceptedConnectorNames,
-					hostConfigurationDto.getExcludedConnectors(), hostname);
+					hostConfigurationDto.getExcludedConnectors(), hostname, true);
 
 			final EngineConfiguration engineConfiguration = buildEngineConfiguration(hostConfigurationDto,
 					selectedConnectors, excludedConnectors);
