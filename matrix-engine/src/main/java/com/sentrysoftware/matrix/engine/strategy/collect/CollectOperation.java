@@ -104,15 +104,15 @@ public class CollectOperation extends AbstractStrategy {
 
 		final Map<String, Monitor> connectorMonitors = hostMonitoring.selectFromType(MonitorType.CONNECTOR);
 
-		Map<String, Monitor> targetMonitors = hostMonitoring.selectFromType(MonitorType.TARGET);
+		final Map<String, Monitor> targetMonitors = hostMonitoring.selectFromType(MonitorType.TARGET);
 
 		if (targetMonitors != null && !targetMonitors.isEmpty()) {
-		
-			Optional<Monitor> targetMonitor = targetMonitors.values().stream().findAny();
+
+			final Optional<Monitor> targetMonitor = targetMonitors.values().stream().findAny();
 
 			if (targetMonitor.isPresent()) {
-	
-				MonitorCollectVisitor visitor = new MonitorCollectVisitor(
+
+				final MonitorCollectVisitor visitor = new MonitorCollectVisitor(
 					MonitorCollectInfo.builder()
 						.engineConfiguration(strategyConfig.getEngineConfiguration())
 						.collectTime(strategyTime)

@@ -173,18 +173,25 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		Assert.notNull(monitorCollectInfo.getMonitor(), MONITOR_CANNOT_BE_NULL);
 
-			Assert.isTrue(monitorCollectInfo.getMonitor().getMonitorType().equals(MonitorType.TARGET)
+		Assert.isTrue(monitorCollectInfo.getMonitor().getMonitorType().equals(MonitorType.TARGET)
 					|| monitorCollectInfo.getConnectorName() != null, CONNECTOR_NAME_CANNOT_BE_NULL);
-			Assert.isTrue(monitorCollectInfo.getMonitor().getMonitorType().equals(MonitorType.TARGET)
+
+		Assert.isTrue(monitorCollectInfo.getMonitor().getMonitorType().equals(MonitorType.TARGET)
 					|| monitorCollectInfo.getRow() != null, DATA_CANNOT_BE_NULL);
-			Assert.notNull(monitorCollectInfo.getHostMonitoring(), HOST_MONITORING_CANNOT_BE_NULL);
-			Assert.notNull(monitorCollectInfo.getHostname(), HOSTNAME_CANNOT_BE_NULL);
-			Assert.isTrue(monitorCollectInfo.getMonitor().getMonitorType().equals(MonitorType.TARGET)
+
+		Assert.notNull(monitorCollectInfo.getHostMonitoring(), HOST_MONITORING_CANNOT_BE_NULL);
+
+		Assert.notNull(monitorCollectInfo.getHostname(), HOSTNAME_CANNOT_BE_NULL);
+
+		Assert.isTrue(monitorCollectInfo.getMonitor().getMonitorType().equals(MonitorType.TARGET)
 					|| monitorCollectInfo.getMapping() != null, MAPPING_CANNOT_BE_NULL);
-			Assert.isTrue(monitorCollectInfo.getMonitor().getMonitorType().equals(MonitorType.TARGET)
+
+		Assert.isTrue(monitorCollectInfo.getMonitor().getMonitorType().equals(MonitorType.TARGET)
 					|| monitorCollectInfo.getValueTable() != null, VALUE_TABLE_CANNOT_BE_NULL);
-			Assert.notNull(monitorCollectInfo.getCollectTime(), COLLECT_TIME_CANNOT_BE_NULL);
-		}
+
+		Assert.notNull(monitorCollectInfo.getCollectTime(), COLLECT_TIME_CANNOT_BE_NULL);
+
+	}
 
 	@Override
 	public void visit(MetaConnector metaConnector) {
@@ -361,7 +368,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 						.executeSNMPGetNext(SNMP_UP_TEST_OID, snmp, hostName, true);
 
 			} catch (Exception e) {
-                log.debug("Hostname {} - Checking SNMP protocol status. SNMP exception when performing a test SNMP Get Next: ", hostName, e);
+				log.debug("Hostname {} - Checking SNMP protocol status. SNMP exception when performing a test SNMP Get Next: ", hostName, e);
 			} finally {
 				CollectHelper.updateDiscreteParameter(monitor, SNMP_UP_PARAMETER,
 						monitorCollectInfo.getCollectTime(), snmpGetNext != null ? Up.UP : Up.DOWN);

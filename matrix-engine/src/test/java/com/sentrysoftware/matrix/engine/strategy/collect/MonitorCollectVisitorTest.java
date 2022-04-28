@@ -496,11 +496,11 @@ class MonitorCollectVisitorTest {
 					monitorCollectVisitor.getMonitorCollectInfo().getHostname(), ssh, Math.toIntExact(ssh.getTimeout()),
 					null, null)).thenReturn(SSH_UP_TEST_RESPONSE);
 
-		monitorCollectVisitor.visit(new Target());
+			monitorCollectVisitor.visit(new Target());
 
-		final IParameter actual = monitor.getParameters().get(SSH_UP_PARAMETER);
-		assertEquals(sshUpParam, actual);
-	}
+			final IParameter actual = monitor.getParameters().get(SSH_UP_PARAMETER);
+			assertEquals(sshUpParam, actual);
+		}
 	}
 
 	@Test
@@ -527,11 +527,11 @@ class MonitorCollectVisitorTest {
 					monitorCollectVisitor.getMonitorCollectInfo().getHostname(), ssh, Math.toIntExact(ssh.getTimeout()),
 					null, null)).thenReturn(null);
 
-		monitorCollectVisitor.visit(new Target());
+			monitorCollectVisitor.visit(new Target());
 
-		final IParameter actual = monitor.getParameters().get(SSH_UP_PARAMETER);
-		assertEquals(sshDownParam, actual);
-	}
+			final IParameter actual = monitor.getParameters().get(SSH_UP_PARAMETER);
+			assertEquals(sshDownParam, actual);
+		}
 	}
 
 	@Test
