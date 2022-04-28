@@ -32,7 +32,7 @@
 
 	<files>
 		<file>
-			<source>${project.build.directory}/macos-arm64/${project.artifactId}</source>
+			<source>${project.build.directory}/darwin-arm64/${project.artifactId}</source>
 			<outputDirectory>bin</outputDirectory>
 			<fileMode>0755</fileMode>
 		</file>

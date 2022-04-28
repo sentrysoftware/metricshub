@@ -174,17 +174,17 @@
 						</configuration>
 					</execution>
 
-					<!-- go build -buildmode=default -ldflags -s -w -o target/macos-arm64/hws-otel-collector -trimpath -->
-					<!-- Build the MacOS-ARM64 collector -->
+					<!-- go build -buildmode=default -ldflags -s -w -o target/darwin-arm64/hws-otel-collector -trimpath -->
+					<!-- Build the Darwin-ARM64 collector -->
 					<execution>
 						<phase>compile</phase>
-						<id>build-macos</id>
+						<id>build-darwin</id>
 						<goals>
 							<goal>build</goal>
 						</goals>
 						<configuration>
 							<sources>${project.build.directory}/hws-otel-collector/collector</sources>
-							<resultFolder>${project.build.directory}/macos-arm64</resultFolder>
+							<resultFolder>${project.build.directory}/darwin-arm64</resultFolder>
 							<resultName>${project.artifactId}</resultName>
 							<ldFlags>
 								<ldFlag>-s</ldFlag>

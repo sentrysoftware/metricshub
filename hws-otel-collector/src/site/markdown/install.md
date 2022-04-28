@@ -90,15 +90,15 @@ Example:
 
 From [Sentry Software's Web site](https://www.sentrysoftware.com/downloads/), download:
 
-- **${project.artifactId}-${project.version}-macos-arm64.tar.gz**
+- **${project.artifactId}-${project.version}-darwin-arm64.tar.gz**
 
 ### Install
 
-Unzip and untar the content of **${project.artifactId}-${project.version}-macos-arm64.tar.gz** into a program directory, like **/usr/local** or **/opt**. There is no need to create a specific subdirectory for `hws-otel-collector` as the zip archive already contains an **hws-otel-collector** directory.
+Unzip and untar the content of **${project.artifactId}-${project.version}-darwin-arm64.tar.gz** into a program directory, like **/usr/local** or **/opt**. There is no need to create a specific subdirectory for `hws-otel-collector` as the zip archive already contains an **hws-otel-collector** directory.
 
 ```shell-session
 / $ cd /usr/local
-/usr/local $ sudo tar xf /tmp/${project.artifactId}-${project.version}-macos-arm64.tar.gz
+/usr/local $ sudo tar xf /tmp/${project.artifactId}-${project.version}-darwin-arm64.tar.gz
 ```
 
 ### Configure
