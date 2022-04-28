@@ -207,38 +207,38 @@ public class MetricsMapping {
 			.name("hw.target.energy_joules")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
-			.description("Amount of joules dissipated by all the discovered components on the monitored target")
+			.description("Energy dissipated by all the components discovered for the monitored target. Expressed in joules.")
 			.build());
 		map.put(IMetaMonitor.POWER_CONSUMPTION.getName(), MetricInfo
 			.builder()
 			.name("hw.target.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("Amount of watts consumed by all the discovered components on the monitored target")
+			.description("Energy consumed by all the components discovered for the monitored target. Expressed in watt.")
 			.build());
 		map.put(IMetaMonitor.HEATING_MARGIN.getName(), MetricInfo
 			.builder()
 			.name("hw.target.heating_margin_celsius")
 			.unit(CELSIUS)
-			.description("Number of degrees before reaching the closest warning threshold")
+			.description("Number of degrees Celsius (°C) remaining before the temperature reaches the closest warning threshold.")
 			.build());
 		map.put(Target.AMBIENT_TEMPERATURE.getName(), MetricInfo
 			.builder()
 			.name("hw.target.ambient_temperature_celsius")
 			.unit(CELSIUS)
-			.description("Target ambient temperature")
+			.description("Target current ambient temperature in degrees Celsius (°C).")
 			.build());
 		map.put(Target.CPU_TEMPERATURE.getName(), MetricInfo
 			.builder()
 			.name("hw.target.cpu_temperature_celsius")
 			.unit(CELSIUS)
-			.description("Target CPU temperature")
+			.description("Target CPU temperature in degrees Celsius (°C).")
 			.build());
 		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo
 				.builder()
 				.name("hw.target.present")
 				.unit(IMetaMonitor.PRESENT.getUnit())
-				.description("Whether the target is present or not")
+				.description("Whether the target is found or not.")
 				.build());
 
 		return map;
@@ -255,13 +255,13 @@ public class MetricsMapping {
 		map.put(ERROR_COUNT_WARNING_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.robotics.errors_warning")
-			.description("Warning thresholds of the encountered errors")
+			.description("Number of errors that will generate a warning when reached.")
 			.build());
 
 		map.put(ERROR_COUNT_ALARM_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.robotics.errors_alarm")
-			.description("Alarm thresholds of the encountered errors")
+			.description("Number of errors that will generate an alarm when reached.")
 			.build());
 
 		return map;
@@ -280,7 +280,7 @@ public class MetricsMapping {
 			.name("hw.voltage.voltage_volts_upper")
 			.unit(VOLTS)
 			.factor(0.001)
-			.description("Upper threshold of the voltage")
+			.description("Minimum voltage that will generate an alert when reached.")
 			.build());
 
 		map.put(LOWER_THRESHOLD, MetricInfo
@@ -288,7 +288,7 @@ public class MetricsMapping {
 			.name("hw.voltage.voltage_volts_lower")
 			.unit(VOLTS)
 			.factor(0.001)
-			.description("Lower threshold of the voltage")
+			.description("Maximum voltage that will generate an alert when reached.")
 			.build());
 
 		return map;
@@ -306,14 +306,14 @@ public class MetricsMapping {
 			.builder()
 			.name("hw.temperature.temperature_celsius_warning")
 			.unit(CELSIUS)
-			.description("Warning threshold of the current temperature reading")
+			.description("Current temperature in degrees Celsius (°C) that will generate a warning when reached.")
 			.build());
 
 		map.put(ALARM_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.temperature.temperature_celsius_alarm")
 			.unit(CELSIUS)
-			.description("Alarm threshold of the current temperature reading")
+			.description("Current temperature in degrees Celsius (°C) that will generate an alarm when reached.")
 			.build());
 
 		return map;
@@ -330,13 +330,13 @@ public class MetricsMapping {
 		map.put(ERROR_COUNT_WARNING_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.tape_drive.errors_warning")
-			.description(WARNING_THRESHOLD_OF_ERRORS)
+			.description("Number of errors that will generate a warning when reached.")
 			.build());
 
 		map.put(ERROR_COUNT_ALARM_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.tape_drive.errors_alarm")
-			.description(ALARM_THRESHOLD_OF_ERRORS)
+			.description("Number of errors that will generate an alarm when reached.")
 			.build());
 
 		return map;
@@ -353,23 +353,23 @@ public class MetricsMapping {
 		map.put(USAGE_COUNT_WARNING_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.other_device.usage_times_warning")
-			.description("Warning threshold of thetimes the device has been used")
+			.description("Number of times the device has been used which will generate a warning when reached.")
 			.build());
 		map.put(USAGE_COUNT_ALARM_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.other_device.usage_times_alarm")
-			.description("Alarm threshold of the times the device has been used")
+			.description("Number of times the device has been used which will generate an alarm when reached.")
 			.build());
 
 		map.put(VALUE_WARNING_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.other_device.value_warning")
-			.description("Warning threshold of the reported value")
+			.description("Device reported value that will generate a warning when reached.")
 			.build());
 		map.put(VALUE_ALARM_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.other_device.value_alarm")
-			.description("Alarm threshold of the reported value")
+			.description("Device reported value that will generate an alarm when reached.")
 			.build());
 
 		return map;
@@ -387,14 +387,14 @@ public class MetricsMapping {
 			.builder()
 			.name("hw.network_card.error_ratio_warning")
 			.factor(0.01)
-			.description("Warning threshold of the network card error ratio")
+			.description("Network card error ratio that will generate a warning when reached.")
 			.build());
 
 		map.put(ERROR_PERCENT_ALARM_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.network_card.error_ratio_alarm")
 			.factor(0.01)
-			.description("Alarm threshold of the network card error ratio")
+			.description("Network card error ratio that will generate an alarm when reached.")
 			.build());
 
 		return map;
@@ -411,13 +411,13 @@ public class MetricsMapping {
 		map.put(AVAILABLE_PATH_WARNING, MetricInfo
 			.builder()
 			.name("hw.lun.available_paths_warning")
-			.description("Warning threshold of the available paths")
+			.description("Number of available paths that will generate a warning when reached.")
 			.build());
 
 		map.put(EXPECTED_PATH_COUNT, MetricInfo
 			.builder()
 			.name("hw.lun.expected_paths")
-			.description("Number of paths that are expected to be available to the remote volume")
+			.description("Number of paths that are expected to be available to the remote volume.")
 			.build());
 
 		return map;
@@ -435,28 +435,28 @@ public class MetricsMapping {
 			.builder()
 			.name("hw.fan.speed_rpm_warning")
 			.unit(RPM)
-			.description("Warning threshold of the fan speed")
+			.description("Speed of the corresponding fan (in revolutions/minute) that will generate a warning when reached.")
 			.build());
 
 		map.put(ALARM_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.fan.speed_rpm_alarm")
 			.unit(RPM)
-			.description("Alarm threshold of the fan speed")
+			.description("Speed of the corresponding fan (in revolutions/minute) that will generate an alarm when reached.")
 			.build());
 
 		map.put(PERCENT_WARNING_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.fan.speed_ratio_warning")
 			.factor(0.01)
-			.description("Warning threshold of the fan speed ratio")
+			.description("Fan speed ratio that will generate a warning when reached.")
 			.build());
 
 		map.put(PERCENT_ALARM_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.fan.speed_ratio_alarm")
 			.factor(0.01)
-			.description("Alarm threshold of the fan speed ratio")
+			.description("Fan speed ratio that will generate an alarm when reached.")
 			.build());
 
 		return map;
@@ -474,19 +474,19 @@ public class MetricsMapping {
 			.builder()
 			.name("hw.physical_disk.size_bytes")
 			.unit(BYTES)
-			.description("Physical disk size")
+			.description("Physical disk size in bytes.")
 			.build());
 
 		map.put(ERROR_COUNT_WARNING_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.physical_disk.errors_warning")
-			.description(WARNING_THRESHOLD_OF_ERRORS)
+			.description("Number of errors encountered by the physical disk that will generate a warning when reached.")
 			.build());
 
 		map.put(ERROR_COUNT_ALARM_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.physical_disk.errors_alarm")
-			.description(ALARM_THRESHOLD_OF_ERRORS)
+			.description("Number of errors encountered by the physical disk that will generate an alarm when reached.")
 			.build());
 
 		return map;
@@ -505,19 +505,19 @@ public class MetricsMapping {
 			.name("hw.memory.size_bytes")
 			.unit(BYTES)
 			.factor(1000000.0) // MB to Bytes
-			.description("Memory module size")
+			.description("Memory module size in bytes.")
 			.build());
 
 		map.put(ERROR_COUNT_WARNING_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.memory.errors_warning")
-			.description(WARNING_THRESHOLD_OF_ERRORS)
+			.description("Number of errors encountered that will generate a warning when reached.")
 			.build());
 
 		map.put(ERROR_COUNT_ALARM_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.memory.errors_alarm")
-			.description(ALARM_THRESHOLD_OF_ERRORS)
+			.description("Number of errors encountered that will generate an alarm when reached.")
 			.build());
 
 		return map;
@@ -535,19 +535,19 @@ public class MetricsMapping {
 			.builder()
 			.name("hw.logical_disk.size_bytes")
 			.unit(BYTES)
-			.description("Logical disk size")
+			.description("Logical disk size in bytes")
 			.build());
 
 		map.put(ERROR_COUNT_WARNING_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.logical_disk.errors_warning")
-			.description("Warning threshold of the errors encountered by the logical disk")
+			.description("Number of errors encountered by the logical disk that will generate an alarm when reached.")
 			.build());
 
 		map.put(ERROR_COUNT_ALARM_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.logical_disk.errors_alarm")
-			.description("Alarm threshold of the errors encountered by the logical disk")
+			.description("Alarm threshold of the errors encountered by the logical disk.")
 			.build());
 
 		return map;
@@ -566,19 +566,19 @@ public class MetricsMapping {
 			.name("hw.cpu.maximum_speed_hertz")
 			.unit(HERTZ)
 			.factor(1000000.0)
-			.description("CPU maximum speed")
+			.description("CPU maximum speed in hertz.")
 			.build());
 
 		map.put(CORRECTED_ERROR_WARNING_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.cpu.corrected_errors_warning")
-			.description("Warning threshold of detected and corrected errors")
+			.description("Number of detected and corrected errors that will generate a warning.")
 			.build());
 
 		map.put(CORRECTED_ERROR_ALARM_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.cpu.corrected_errors_alarm")
-			.description("Alarm threshold of detected and corrected errors")
+			.description("Number of detected and corrected errors that will generate an alarm.")
 			.build());
 
 		return map;
@@ -597,19 +597,19 @@ public class MetricsMapping {
 			.name("hw.gpu.size_bytes")
 			.unit(BYTES)
 			.factor(1000000.0) // MB to Bytes
-			.description("GPU memory size")
+			.description("GPU memory size in bytes")
 			.build());
 
 		map.put(CORRECTED_ERROR_WARNING_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.gpu.corrected_errors_warning")
-			.description("Warning threshold of detected and corrected errors")
+			.description("Number of detected and corrected errors that will generate a warning.")
 			.build());
 
 		map.put(CORRECTED_ERROR_ALARM_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.gpu.corrected_errors_alarm")
-			.description("Alarm threshold of detected and corrected errors")
+			.description("Number of detected and corrected errors that will generate an alarm.")
 			.build());
 
 		return map;
@@ -627,7 +627,7 @@ public class MetricsMapping {
 				.builder()
 				.name("hw.power_supply.power_watts")
 				.unit(WATTS)
-				.description("Maximum power output")
+				.description("Maximum power output in watts.")
 				.build());
 
 		return map;
@@ -652,13 +652,13 @@ public class MetricsMapping {
 			.name("hw.voltage.voltage_volts")
 			.unit(VOLTS)
 			.factor(0.001)
-			.description("Voltage output")
+			.description("Voltage output in volts.")
 			.build());
 		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo
 			.builder()
 			.name("hw.voltage.present")
 			.unit(IMetaMonitor.PRESENT.getUnit())
-			.description("Whether the voltage sensor is present or not")
+			.description("Whether the voltage sensor is found or not.")
 			.build());
 
 		return map;
@@ -688,7 +688,7 @@ public class MetricsMapping {
 			.builder()
 			.name("hw.temperature.present")
 			.unit(IMetaMonitor.PRESENT.getUnit())
-			.description("Whether the temperature is present or not")
+			.description("Whether the temperature sensor is found or not.")
 			.build());
 
 		return map;
@@ -712,46 +712,46 @@ public class MetricsMapping {
 			.builder()
 			.name("hw.tape_drive.present")
 			.unit(IMetaMonitor.PRESENT.getUnit())
-			.description("Whether the tape drive is present or not")
+			.description("Whether the tape drive is found or not.")
 			.build());
 		map.put(IMetaMonitor.ERROR_COUNT.getName(), MetricInfo
 			.builder()
 			.name("hw.tape_drive.errors")
 			.type(MetricType.COUNTER)
-			.description("Number of errors encountered by the tape drive since the last reinitialization")
+			.description("Number of errors encountered by the tape drive since the last reinitialization.")
 			.build());
 		map.put(TapeDrive.MOUNT_COUNT.getName(), MetricInfo
 			.builder()
 			.name("hw.tape_drive.mounts")
 			.type(MetricType.COUNTER)
-			.description("Number of mount operations that happened during the last collect interval")
+			.description("Number of mount operations that occurred during the last collect interval.")
 			.build());
 		map.put(TapeDrive.NEEDS_CLEANING.getName(), MetricInfo
 			.builder()
 			.name("hw.tape_drive.needs_cleaning")
 			.unit(TapeDrive.NEEDS_CLEANING.getUnit())
-			.description("Whether the tape drive needs cleaning")
+			.description("Whether the tape drive needs cleaning.")
 			.build());
 		map.put(TapeDrive.UNMOUNT_COUNT.getName(), MetricInfo
 			.builder()
 			.name("hw.tape_drive.unmounts")
 			.unit("unmounts")
 			.type(MetricType.COUNTER)
-			.description("Number of unmount operations that happened during the last collect interval")
+			.description("Number of unmount operations that occurred during the last collect interval")
 			.build());
 		map.put(IMetaMonitor.ENERGY.getName(), MetricInfo
 			.builder()
 			.name("hw.tape_drive.energy_joules")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
-			.description("Tape drive total dissipated energy")
+			.description("Total energy dissipated by all the tape drive expressed in joules.")
 			.build());
 		map.put(IMetaMonitor.POWER_CONSUMPTION.getName(), MetricInfo
 			.builder()
 			.name("hw.tape_drive.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("Tape drive power consumption")
+			.description("Energy consumed by the tape drive expressed in watt.")
 			.build());
 
 		return map;
@@ -769,40 +769,40 @@ public class MetricsMapping {
 			.builder()
 			.name("hw.robotics.status")
 			.unit(IMetaMonitor.STATUS.getUnit())
-			.description("Robotics status")
+			.description("Robotic device status")
 			.build());
 		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo
 			.builder()
 			.name("hw.robotics.present")
 			.unit(IMetaMonitor.PRESENT.getUnit())
-			.description("Whether the robotics is present or not")
+			.description("Whether the robotic device is found or not.")
 			.build());
 		map.put(IMetaMonitor.ERROR_COUNT.getName(), MetricInfo
 			.builder()
 			.name("hw.robotics.errors")
 			.type(MetricType.COUNTER)
-			.description("Number of errors encountered by the robotic device since the last reinitialization")
+			.description("Number of errors encountered by the robotic device since the last reinitialization.")
 			.build());
 		map.put(Robotics.MOVE_COUNT.getName(), MetricInfo
 			.builder()
 			.name("hw.robotics.moves")
 			.unit("moves")
 			.type(MetricType.COUNTER)
-			.description("Number of moves operations that happened during the last collect interval")
+			.description("Number of moves operations that occurred during the last collect interval.")
 			.build());
 		map.put(IMetaMonitor.ENERGY.getName(), MetricInfo
 			.builder()
 			.name("hw.robotics.energy_joules")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
-			.description("Robotics total dissipated energy")
+			.description("Total energy dissipated by the robotic device expressed in joules.")
 			.build());
 		map.put(IMetaMonitor.POWER_CONSUMPTION.getName(), MetricInfo
 			.builder()
 			.name("hw.robotics.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("Robotics power consumption")
+			.description("Energy consumed by the robotic device expressed in watt.")
 			.build());
 
 		return map;
@@ -826,7 +826,7 @@ public class MetricsMapping {
 			.builder()
 			.name("hw.power_supply.present")
 			.unit(IMetaMonitor.PRESENT.getUnit())
-			.description("Whether the power supply is present or not")
+			.description("Whether the power supply is found or not.")
 			.build());
 		map.put(PowerSupply.USED_CAPACITY.getName(), MetricInfo
 			.builder()
@@ -856,39 +856,39 @@ public class MetricsMapping {
 			.builder()
 			.name("hw.physical_disk.present")
 			.unit(IMetaMonitor.PRESENT.getUnit())
-			.description("Whether the physical disk is present or not")
+			.description("Whether the physical disk is found or not.")
 			.build());
 		map.put(PhysicalDisk.ENDURANCE_REMAINING.getName(), MetricInfo
 			.builder()
 			.name("hw.physical_disk.endurance_remaining_ratio")
 			.factor(0.01)
-			.description("Physical disk remaining endurance ratio")
+			.description("Physical disk remaining endurance ratio.")
 			.build());
 		map.put(IMetaMonitor.ERROR_COUNT.getName(), MetricInfo
 			.builder()
 			.name("hw.physical_disk.errors")
 			.type(MetricType.COUNTER)
-			.description("Number of errors encountered by the physical disk since the last reinitialization")
+			.description("Number of errors encountered by the physical disk since the last reinitialization.")
 			.build());
 		map.put(IMetaMonitor.PREDICTED_FAILURE.getName(), MetricInfo
 			.builder()
 			.name("hw.physical_disk.predicted_failure")
 			.unit(IMetaMonitor.PREDICTED_FAILURE.getUnit())
-			.description("Informs if a failure is predicted")
+			.description("Informs if a failure is predicted.")
 			.build());
 		map.put(IMetaMonitor.ENERGY.getName(), MetricInfo
 			.builder()
 			.name("hw.physical_disk.energy_joules")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
-			.description("Physical disk total dissipated energy")
+			.description("Total energy dissipated by the physical disk expressed in joules.")
 			.build());
 		map.put(IMetaMonitor.POWER_CONSUMPTION.getName(), MetricInfo
 			.builder()
 			.name("hw.physical_disk.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("Physical disk power consumption")
+			.description("Energy consumed by the physical disk expressed in watt.")
 			.build());
 
 		return map;
@@ -912,18 +912,18 @@ public class MetricsMapping {
 			.builder()
 			.name("hw.other_device.present")
 			.unit(IMetaMonitor.PRESENT.getUnit())
-			.description("Whether the other device is present or not")
+			.description("Whether the other device is found or not.")
 			.build());
 		map.put(OtherDevice.USAGE_COUNT.getName(), MetricInfo
 			.builder()
 			.name("hw.other_device.usage_times")
 			.type(MetricType.COUNTER)
-			.description("Number of times the device has been used")
+			.description("Number of times the device has been used.")
 			.build());
 		map.put(OtherDevice.VALUE.getName(), MetricInfo
 			.builder()
 			.name("hw.other_device.value")
-			.description("Currently reported value of the device")
+			.description("Currently reported value of the device.")
 			.build());
 
 		return map;
@@ -945,79 +945,79 @@ public class MetricsMapping {
 		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo.builder()
 			.name("hw.network_card.present")
 			.unit(IMetaMonitor.PRESENT.getUnit())
-			.description("Whether the network card is present or not")
+			.description("Whether the network card is found or not.")
 			.build());
 		map.put(NetworkCard.BANDWIDTH_UTILIZATION.getName(), MetricInfo.builder()
 			.name("hw.network_card.bandwidth_utilization_ratio")
 			.factor(0.01)
-			.description("Ratio of the available bandwidth utilization")
+			.description("Ratio used of the available bandwidth. ")
 			.build());
 		map.put(NetworkCard.DUPLEX_MODE.getName(), MetricInfo.builder()
 			.name("hw.network_card.duplex_mode")
 			.unit(NetworkCard.DUPLEX_MODE.getUnit())
-			.description("Whether the port is configured to operate in half-duplex or full-duplex mode")
+			.description("Whether the port is configured to operate in half-duplex or full-duplex mode.")
 			.build());
 		map.put(IMetaMonitor.ERROR_COUNT.getName(), MetricInfo.builder()
 			.name("hw.network_card.errors")
 			.type(MetricType.COUNTER)
-			.description("Number of sent and received packets that were in error")
+			.description("Number of sent and received packets that were in error.")
 			.build());
 		map.put(NetworkCard.LINK_SPEED.getName(), MetricInfo.builder()
 			.name("hw.network_card.link_speed_bytes_per_second")
 			.unit(BYTES_PER_SECOND)
 			.factor(125000.0)
-			.description("Speed that the network adapter and its remote counterpart currently use to communicate with each other")
+			.description("Speed that the network adapter and its remote counterpart currently use to communicate with each other.")
 			.build());
 		map.put(NetworkCard.LINK_STATUS.getName(), MetricInfo.builder()
 			.name("hw.network_card.link_status")
 			.unit(NetworkCard.LINK_STATUS.getUnit())
-			.description("Whether the network card is plugged-in to the network or not")
+			.description("Whether the network card is plugged-in to the network or not.")
 			.build());
 		map.put(NetworkCard.RECEIVED_BYTES.getName(), MetricInfo.builder()
 			.name("hw.network_card.received_bytes")
 			.unit(BYTES)
 			.type(MetricType.COUNTER)
-			.description("Network card total received bytes")
+			.description("Total number of bytes received through the network card." )
 			.build());
 		map.put(NetworkCard.RECEIVED_PACKETS.getName(), MetricInfo.builder()
 			.name("hw.network_card.received_packets")
 			.unit(PACKETS)
 			.type(MetricType.COUNTER)
-			.description("Network card total received packets")
+			.description("Total number of packets received through the network card.")
 			.build());
 		map.put(NetworkCard.TRANSMITTED_BYTES.getName(), MetricInfo.builder()
 			.name("hw.network_card.transmitted_bytes")
 			.unit(BYTES)
 			.type(MetricType.COUNTER)
-			.description("Network card total transmitted bytes")
+			.description("Total number of bytes transmitted through the network card.")
 			.build());
 		map.put(NetworkCard.TRANSMITTED_PACKETS.getName(), MetricInfo.builder()
 			.name("hw.network_card.transmitted_packets")
 			.unit(PACKETS)
 			.type(MetricType.COUNTER)
-			.description("Network card total transmitted packets")
+			.description("Total number of packets transmitted through the network card.")
 			.build());
 		map.put(NetworkCard.ZERO_BUFFER_CREDIT_COUNT.getName(), MetricInfo.builder()
 			.name("hw.network_card.zero_buffer_credits")
 			.type(MetricType.COUNTER)
-			.description("Total zero buffer credits occurred")
+			.description("Total number of zero buffer credits that occurred.")
 			.build());
 		map.put(IMetaMonitor.ENERGY.getName(), MetricInfo.builder()
 			.name("hw.network_card.energy_joules")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
-			.description("Network card total dissipated energy")
+			.description("Total energy dissipated by the network card expressed in joules.)
 			.build());
 		map.put(IMetaMonitor.POWER_CONSUMPTION.getName(), MetricInfo.builder()
 			.name("hw.network_card.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("Network card power consumption")
+			.description("Energy consumed by the network card expressed in watt.")
 			.build());
 		map.put(NetworkCard.ERROR_PERCENT.getName(), MetricInfo.builder()
 			.name("hw.network_card.error_ratio")
 			.factor(0.01)
-			.description("Ratio of sent and received packets that were in error")
+			.description("Ratio of sent and received packets that were in error.")
 			.build());
 		return map;
 	}
@@ -1038,34 +1038,34 @@ public class MetricsMapping {
 		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo.builder()
 			.name("hw.memory.present")
 			.unit(IMetaMonitor.PRESENT.getUnit())
-			.description("Availability of the memory module")
+			.description("Whether the memory module is found or not.")
 			.build());
 		map.put(IMetaMonitor.ERROR_COUNT.getName(), MetricInfo.builder()
 			.name("hw.memory.errors")
 			.type(MetricType.COUNTER)
-			.description("Number of errors encountered by the memory module since the last reinitialization")
+			.description("Number of errors encountered by the memory module since the last reinitialization.")
 			.build());
 		map.put(Memory.ERROR_STATUS.getName(),  MetricInfo.builder()
 			.name("hw.memory.error_status")
 			.unit(Memory.ERROR_STATUS.getUnit())
-			.description("Memory module error status")
+			.description("Error status of the memory module")
 			.build());
 		map.put(IMetaMonitor.PREDICTED_FAILURE.getName(), MetricInfo.builder()
 			.name("hw.memory.predicted_failure")
 			.unit(IMetaMonitor.PREDICTED_FAILURE.getUnit())
-			.description("Predicted failure set by analyzing the trend of the number of detected/corrected errors with the ECC technology")
+			.description("Predicted failure set by analyzing the trend of the number of detected/corrected errors with the ECC technology.")
 			.build());
 		map.put(IMetaMonitor.ENERGY.getName(), MetricInfo.builder()
 			.name("hw.memory.energy_joules")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
-			.description("Memory module total dissipated energy")
+			.description("Total energy dissipated by the memory module expressed in joules.")
 			.build());
 		map.put(IMetaMonitor.POWER_CONSUMPTION.getName(), MetricInfo.builder()
 			.name("hw.memory.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("Memory module power consumption")
+			.description("Energy consumed by the robotic device expressed in watt")
 			.build());
 
 		return map;
@@ -1088,13 +1088,13 @@ public class MetricsMapping {
 		map.put(Lun.AVAILABLE_PATH_COUNT.getName(), MetricInfo
 			.builder()
 			.name("hw.lun.available_paths")
-			.description("Number of distinct paths available to the remote volume")
+			.description("Number of distinct paths available to the remote volume.")
 			.build());
 		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo
 			.builder()
 			.name("hw.lun.present")
 			.unit(IMetaMonitor.PRESENT.getUnit())
-			.description("Whether the LUN is present or not")
+			.description("Whether the LUN is found or not.")
 			.build());
 
 		return map;
@@ -1116,19 +1116,19 @@ public class MetricsMapping {
 		map.put(IMetaMonitor.ERROR_COUNT.getName(), MetricInfo.builder()
 			.name("hw.logical_disk.errors")
 			.type(MetricType.COUNTER)
-			.description("Number of errors encountered by the logical disk since the last reinitialization")
+			.description("Number of errors encountered by the logical disk since the last reinitialization.")
 			.build());
 		map.put(LogicalDisk.UNALLOCATED_SPACE.getName(), MetricInfo.builder()
 			.name("hw.logical_disk.unallocated_space_bytes")
 			.unit(BYTES)
 			.factor(1073741824.0)
-			.description("Amount of unused disk space in the logical disk")
+			.description("Amount of unused disk space in the logical disk.")
 			.build());
 		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo
 			.builder()
 			.name("hw.logical_disk.present")
 			.unit(IMetaMonitor.PRESENT.getUnit())
-			.description("Whether the logical disk is present or not")
+			.description("Whether the logical disk is found or not.")
 			.build());
 
 		return map;
@@ -1161,7 +1161,7 @@ public class MetricsMapping {
 			.builder()
 			.name("hw.led.present")
 			.unit(IMetaMonitor.PRESENT.getUnit())
-			.description("Whether the LED is present or not")
+			.description("Whether the LED is found or not.")
 			.build());
 		return map;
 	}
@@ -1182,7 +1182,7 @@ public class MetricsMapping {
 		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo.builder()
 			.name("hw.fan.present")
 			.unit(IMetaMonitor.PRESENT.getUnit())
-			.description("Whether the fan is present or not")
+			.description("Whether the fan is found or not.")
 			.build());
 		map.put(Fan.SPEED.getName(), MetricInfo.builder()
 			.name("hw.fan.speed_rpm")
@@ -1198,13 +1198,13 @@ public class MetricsMapping {
 			.name("hw.fan.energy_joules")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
-			.description("Fan total dissipated energy")
+			.description("Total energy dissipated by the fan expressed in joules.")
 			.build());
 		map.put(IMetaMonitor.POWER_CONSUMPTION.getName(), MetricInfo.builder()
 			.name("hw.fan.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("Fan power consumption")
+			.description("Energy consumed by the fan expressed in watt.")
 			.build());
 
 		return map;
@@ -1226,24 +1226,24 @@ public class MetricsMapping {
 		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo.builder()
 			.name("hw.enclosure.present")
 			.unit(IMetaMonitor.PRESENT.getUnit())
-			.description("Whether the enclosure is found or not")
+			.description("Whether the enclosure is found or not.")
 			.build());
 		map.put(Enclosure.INTRUSION_STATUS.getName(), MetricInfo.builder()
 			.name("hw.enclosure.intrusion_status")
 			.unit(Enclosure.INTRUSION_STATUS.getUnit())
-			.description("Enclosure intrusion status. If the enclosure is open or not properly closed, it is set to 1")
+			.description("Enclosure intrusion status. If the enclosure is open or not properly closed, it is set to 1.")
 			.build());
 		map.put(IMetaMonitor.ENERGY.getName(), MetricInfo.builder()
 			.name("hw.enclosure.energy_joules")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
-			.description("Enclosure total dissipated energy")
+			.description("Total energy dissipated by the enclosure expressed in joules.")
 			.build());
 		map.put(IMetaMonitor.POWER_CONSUMPTION.getName(), MetricInfo.builder()
 			.name("hw.enclosure.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("Enclosure power consumption")
+			.description("Energy consumed by the enclosure expressed in watt.")
 			.build());
 
 		return map;
@@ -1265,7 +1265,7 @@ public class MetricsMapping {
 		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo.builder()
 			.name("hw.disk_controller.present")
 			.unit(IMetaMonitor.PRESENT.getUnit())
-			.description("Whether the disk controller is found or not")
+			.description("Whether the disk controller is found or not.")
 			.build());
 		map.put(DiskController.BATTERY_STATUS.getName(), MetricInfo.builder()
 			.name("hw.disk_controller.battery_status")
@@ -1281,13 +1281,13 @@ public class MetricsMapping {
 			.name("hw.disk_controller.energy_joules")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
-			.description("Disk controller total dissipated energy")
+			.description("Total energy dissipated by the robotic device expressed in joules.")
 			.build());
 		map.put(IMetaMonitor.POWER_CONSUMPTION.getName(), MetricInfo.builder()
 			.name("hw.disk_controller.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("Disk controller power consumption")
+			.description("Energy consumed by the disk controller expressed in watt.")
 			.build());
 
 		return map;
@@ -1309,18 +1309,18 @@ public class MetricsMapping {
 		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo.builder()
 			.name("hw.cpu_core.present")
 			.unit(IMetaMonitor.PRESENT.getUnit())
-			.description("Whether the CPU core is found or not")
+			.description("Whether the CPU core is found or not.")
 			.build());
 		map.put(CpuCore.CURRENT_SPEED.getName(), MetricInfo.builder()
 			.name("hw.cpu_core.current_speed_hertz")
 			.unit(HERTZ)
 			.factor(1000000.0)
-			.description("CPU core current speed")
+			.description("Current speed of the CPU core.")
 			.build());
 		map.put(CpuCore.USED_TIME_PERCENT.getName(), MetricInfo.builder()
 			.name("hw.cpu_core.used_time_ratio")
 			.factor(0.01)
-			.description("CPU core used time ratio")
+			.description("Ratio of the CPU core usage.")
 			.build());
 
 		return map;
@@ -1342,12 +1342,12 @@ public class MetricsMapping {
 		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo.builder()
 			.name("hw.cpu.present")
 			.unit(IMetaMonitor.PRESENT.getUnit())
-			.description("Whether the CPU is found or not")
+			.description("Whether the CPU is found or not.")
 			.build());
 		map.put(Cpu.CORRECTED_ERROR_COUNT.getName(), MetricInfo.builder()
 			.name("hw.cpu.corrected_errors")
 			.type(MetricType.COUNTER)
-			.description("Number of detected and corrected errors")
+			.description("Number of detected and corrected errors.")
 			.build());
 		map.put(Cpu.CURRENT_SPEED.getName(), MetricInfo.builder()
 			.name("hw.cpu.current_speed_hertz")
@@ -1358,19 +1358,19 @@ public class MetricsMapping {
 		map.put(IMetaMonitor.PREDICTED_FAILURE.getName(), MetricInfo.builder()
 			.name("hw.cpu.predicted_failure")
 			.unit(IMetaMonitor.PREDICTED_FAILURE.getUnit())
-			.description("Predicted failure analysis performed by the CPU itself")
+			.description("Predicted failure analysis performed by the CPU itself.")
 			.build());
 		map.put(IMetaMonitor.ENERGY.getName(), MetricInfo.builder()
 			.name("hw.cpu.energy_joules")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
-			.description("CPU total dissipated energy")
+			.description("Total energy dissipated by the CPU expressed in joules.")
 			.build());
 		map.put(IMetaMonitor.POWER_CONSUMPTION.getName(), MetricInfo.builder()
 			.name("hw.cpu.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("CPU power consumption")
+			.description("Energy consumed by the CPU expressed in watt.")
 			.build());
 
 		return map;
@@ -1409,12 +1409,12 @@ public class MetricsMapping {
 		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo.builder()
 			.name("hw.blade.present")
 			.unit(IMetaMonitor.PRESENT.getUnit())
-			.description("Whether the blade is found or not")
+			.description("Whether the blade is found or not.")
 			.build());
 		map.put(Blade.POWER_STATE.getName(), MetricInfo.builder()
 			.name("hw.blade.power_state")
 			.unit(Blade.POWER_STATE.getUnit())
-			.description("Whether the blade is currently on or off")
+			.description("Whether the blade is currently on or off.")
 			.build());
 
 		return map;
@@ -1436,7 +1436,7 @@ public class MetricsMapping {
 		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo.builder()
 			.name("hw.battery.present")
 			.unit(IMetaMonitor.PRESENT.getUnit())
-			.description("Whether the battery is found or not")
+			.description("Whether the battery is found or not.")
 			.build());
 		map.put(Battery.CHARGE.getName(), MetricInfo.builder()
 			.name("hw.battery.charge_ratio")
@@ -1446,7 +1446,7 @@ public class MetricsMapping {
 		map.put(Battery.TIME_LEFT.getName(), MetricInfo.builder()
 			.name("hw.battery.time_left_seconds")
 			.unit(SECONDS)
-			.description("Battery time left")
+			.description("Number of seconds left before recharging the battery.")
 			.build());
 
 		return map;
@@ -1469,24 +1469,24 @@ public class MetricsMapping {
 		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo.builder()
 			.name("hw.vm.present")
 			.unit(IMetaMonitor.PRESENT.getUnit())
-			.description("Whether the virtual machine is present or not")
+			.description("Whether the virtual machine is found or not.")
 			.build());
 		map.put(Vm.POWER_STATE.getName(), MetricInfo.builder()
 			.name("hw.vm.power_state")
 			.unit(Vm.POWER_STATE.getUnit())
-			.description("Whether the virtual machine is currently on, off or standby")
+			.description("Whether the state of the virtual machine is currently on, off or standby.")
 			.build());
 		map.put(IMetaMonitor.ENERGY.getName(), MetricInfo.builder()
 			.name("hw.vm.energy_joules")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
-			.description("Virtual machine total dissipated energy")
+			.description("Total energy dissipated by the virtual machine expressed in joules.")
 			.build());
 		map.put(IMetaMonitor.POWER_CONSUMPTION.getName(), MetricInfo.builder()
 			.name("hw.vm.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("Virtual machine power consumption")
+			.description("Energy consumed by the virtual machine expressed in watt.")
 			.build());
 
 		return map;
@@ -1509,66 +1509,66 @@ public class MetricsMapping {
 		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo.builder()
 			.name("hw.gpu.present")
 			.unit(IMetaMonitor.PRESENT.getUnit())
-			.description("Whether the GPU is found or not")
+			.description("Whether the GPU is found or not.")
 			.build());
 		map.put(Gpu.CORRECTED_ERROR_COUNT.getName(), MetricInfo.builder()
 			.name("hw.gpu.corrected_errors")
 			.type(MetricType.COUNTER)
-			.description("Number of detected and corrected errors")
+			.description("Number of detected and corrected errors.")
 			.build());
 		map.put(IMetaMonitor.PREDICTED_FAILURE.getName(), MetricInfo.builder()
 			.name("hw.gpu.predicted_failure")
 			.unit(IMetaMonitor.PREDICTED_FAILURE.getUnit())
-			.description("Predicted failure analysis performed by the GPU itself")
+			.description("Predicted failure analysis performed by the GPU itself.")
 			.build());
 		map.put(Gpu.USED_TIME_PERCENT.getName(), MetricInfo.builder()
 			.name("hw.gpu.used_time_ratio")
 			.factor(0.01)
-			.description("Ratio of time spent by the GPU doing any work")
+			.description("Ratio of time spent by the GPU doing any work.")
 			.build());
 		map.put(Gpu.DECODER_USED_TIME_PERCENT.getName(), MetricInfo.builder()
 			.name("hw.gpu.decoder_used_time_ratio")
 			.factor(0.01)
-			.description("Ratio of time spent by the GPU decoding videos")
+			.description("Ratio of time spent by the GPU decoding videos.")
 			.build());
 		map.put(Gpu.ENCODER_USED_TIME_PERCENT.getName(), MetricInfo.builder()
 			.name("hw.gpu.encoder_used_time_ratio")
 			.factor(0.01)
-			.description("Ratio of time spent by the GPU encoding videos")
+			.description("Ratio of time spent by the GPU encoding videos.")
 			.build());
 		map.put(Gpu.MEMORY_UTILIZATION.getName(), MetricInfo.builder()
 			.name("hw.gpu.memory_utilization_ratio")
 			.factor(0.01)
-			.description("GPU memory utilisation ratio")
+			.description("GPU memory utilization ratio")
 			.build());
 		map.put(Gpu.RECEIVED_BYTES.getName(), MetricInfo.builder()
 			.name("hw.gpu.received_bytes")
 			.unit(BYTES)
 			.type(MetricType.COUNTER)
-			.description("GPU received bytes")
+			.description("Number of bytes received through the GPU.")
 			.build());
 		map.put(Gpu.TRANSMITTED_BYTES.getName(), MetricInfo.builder()
 			.name("hw.gpu.transmitted_bytes")
 			.unit(BYTES)
 			.type(MetricType.COUNTER)
-			.description("GPU transmitted bytes")
+			.description("Number of bytes transmitted through the GPU.")
 			.build());
 		map.put(IMetaMonitor.ENERGY.getName(), MetricInfo.builder()
 			.name("hw.gpu.energy_joules")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
-			.description("GPU total dissipated energy")
+			.description("Total energy dissipated by the GPU expressed in joules.")
 			.build());
 		map.put(IMetaMonitor.POWER_CONSUMPTION.getName(), MetricInfo.builder()
 			.name("hw.gpu.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("GPU power consumption")
+			.description("Energy consumed by the robotic device expressed in watt.")
 			.build());
 		map.put(Gpu.ERROR_COUNT.getName(), MetricInfo.builder()
 				.name("hw.gpu.errors")
 				.type(MetricType.COUNTER)
-				.description("Number of errors encountered by the GPU since the last reinitialization")
+				.description("Number of errors encountered by the GPU since the last reinitialization.")
 				.build());
 
 		return map;
