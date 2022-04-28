@@ -135,12 +135,12 @@ public class Target implements IMetaMonitor {
 
 		final Map<String, List<AlertRule>> alertRulesMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-        alertRulesMap.put(SNMP_UP_PARAMETER, Collections.singletonList(SNMP_UP_ALERT_RULE));
-        alertRulesMap.put(WBEM_UP_PARAMETER, Collections.singletonList(WBEM_UP_ALERT_RULE));
-        alertRulesMap.put(SSH_UP_PARAMETER, Collections.singletonList(SSH_UP_ALERT_RULE));
-        alertRulesMap.put(WMI_UP_PARAMETER, Collections.singletonList(WMI_UP_ALERT_RULE));
+		alertRulesMap.put(SNMP_UP_PARAMETER, Collections.singletonList(SNMP_UP_ALERT_RULE));
+		alertRulesMap.put(WBEM_UP_PARAMETER, Collections.singletonList(WBEM_UP_ALERT_RULE));
+		alertRulesMap.put(SSH_UP_PARAMETER, Collections.singletonList(SSH_UP_ALERT_RULE));
+		alertRulesMap.put(WMI_UP_PARAMETER, Collections.singletonList(WMI_UP_ALERT_RULE));
 
-        ALERT_RULES = Collections.unmodifiableMap(alertRulesMap);
+		ALERT_RULES = Collections.unmodifiableMap(alertRulesMap);
 	}
 
 	/**
