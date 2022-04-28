@@ -95,25 +95,24 @@ public class Target implements IMetaMonitor {
 			.build();
 
 	public static final AlertRule SNMP_UP_ALERT_RULE = new AlertRule(Target::checkSnmpStatusAlarmCondition,
-            UP_ALARM_CONDITION,
-            Severity.ALARM);
+			UP_ALARM_CONDITION,
+			Severity.ALARM);
 
-    public static final AlertRule WBEM_UP_ALERT_RULE = new AlertRule(Target::checkWbemStatusAlarmCondition,
-            UP_ALARM_CONDITION,
-            Severity.ALARM);
+	public static final AlertRule WBEM_UP_ALERT_RULE = new AlertRule(Target::checkWbemStatusAlarmCondition,
+			UP_ALARM_CONDITION,
+			Severity.ALARM);
 
+	public static final AlertRule SSH_UP_ALERT_RULE = new AlertRule(Target::checkSshStatusAlarmCondition,
+			UP_ALARM_CONDITION,
+			Severity.ALARM);
 
-    public static final AlertRule SSH_UP_ALERT_RULE = new AlertRule(Target::checkSshStatusAlarmCondition,
-            UP_ALARM_CONDITION,
-            Severity.ALARM);
-
-    public static final AlertRule WMI_UP_ALERT_RULE = new AlertRule(Target::checkWmiStatusAlarmCondition,
-            UP_ALARM_CONDITION,
-            Severity.ALARM);		
+	public static final AlertRule WMI_UP_ALERT_RULE = new AlertRule(Target::checkWmiStatusAlarmCondition,
+			UP_ALARM_CONDITION,
+			Severity.ALARM);
 
 	private static final Map<String, MetaParameter> META_PARAMETERS;
 
-    private static final Map<String, List<AlertRule>> ALERT_RULES;
+	private static final Map<String, List<AlertRule>> ALERT_RULES;
 
 	static {
 		final Map<String, MetaParameter> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
