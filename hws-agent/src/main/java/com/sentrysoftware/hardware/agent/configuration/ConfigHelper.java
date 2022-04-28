@@ -247,6 +247,7 @@ public class ConfigHelper {
 	 * Validate the given WBEM information (timeout and port)
 	 *
 	 * @param hostname hostname of the target
+	 * @param username username of the target
 	 * @param timeout  timeout of the target
 	 * @param port     port of the target
 	 * @throws BusinessException
