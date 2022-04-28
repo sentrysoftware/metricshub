@@ -139,7 +139,7 @@ public class ConfigHelper {
 		for (Connector connector : connectors) {
 			if (acceptedSources.stream().noneMatch(source -> connector.getSourceTypes().contains(source))) {
 				String message = String.format(
-						"Hostname %s - Selected connected %s couldn't be processed due to unsupported protocol",
+						"Hostname %s - Selected connector %s couldn't be processed due to unsupported protocol",
 						hostname, connector.getCompiledFilename());
 				log.error(message);
 				throw new BusinessException(ErrorCode.UNSUPPORTED_PROTOCOL, message);
@@ -164,13 +164,15 @@ public class ConfigHelper {
 			final int intVersion, final String authType, final String username, final String displayName)
 			throws BusinessException {
 		
-		validateAttribute(community, 
-				attr -> attr == null || attr.length == 0,
+		if (intVersion != 3) {
+			validateAttribute(community, 
+				attr -> attr == null || attr.length == 0, 
 				() -> String.format(
 						"No community string configured for hostname %s for protocol %s. Host will not be monitored.",
-						hostname, displayName),
+						hostname, displayName), 
 				ErrorCode.NO_COMMUNITY_STRING);
-
+		}
+		
 		validateAttribute(port, 
 				INVALID_PORT_CHECKER,
 				() -> String.format(PORT_ERROR, hostname, displayName), 
@@ -249,7 +251,7 @@ public class ConfigHelper {
 	 * @param port     port of the target
 	 * @throws BusinessException
 	 */
-	static void validateWbemInfo(final String hostname, final Long timeout, final Integer port)
+	static void validateWbemInfo(final String hostname, final String username, final Long timeout, final Integer port)
 			throws BusinessException {
 
 		final String protocol = "WBEM";
@@ -263,8 +265,13 @@ public class ConfigHelper {
 				INVALID_PORT_CHECKER,
 				() -> String.format(PORT_ERROR, hostname, protocol), 
 				ErrorCode.INVALID_PORT);
+	
+		validateAttribute(username, 
+				INVALID_STRING_CHECKER, 
+				() -> String.format(USERNAME_ERROR, hostname, protocol),
+				ErrorCode.NO_USERNAME);	
 	}
-
+	
 	/**
 	 * Validate the given WMI information (username and namespace)
 	 *
@@ -520,6 +527,7 @@ public class ConfigHelper {
 
 			if (hostConfigurationDto.getWbem() != null)
 				validateWbemInfo(hostname, 
+						hostConfigurationDto.getWbem().getUsername(),
 						hostConfigurationDto.getWbem().getTimeout(),
 						hostConfigurationDto.getWbem().getPort());
 
