@@ -82,8 +82,6 @@ public class MetricsMapping {
 	private static final String CELSIUS = "°C";
 	private static final String SECONDS = "s";
 	private static final String RPM = "rpm";
-	private static final String ALARM_THRESHOLD_OF_ERRORS = "Alarm threshold of the encountered errors";
-	private static final String WARNING_THRESHOLD_OF_ERRORS = "Warning threshold of the encountered errors";
 	static final String VM_HOST_NAME = "vm.host.name";
 
 	protected static final Set<String> DEFAULT_ATTRIBUTE_NAMES = Set.of(ID, LABEL, PARENT);
@@ -1006,7 +1004,7 @@ public class MetricsMapping {
 			.name("hw.network_card.energy_joules")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
-			.description("Total energy dissipated by the network card expressed in joules.)
+			.description("Total energy dissipated by the network card expressed in joules.")
 			.build());
 		map.put(IMetaMonitor.POWER_CONSUMPTION.getName(), MetricInfo.builder()
 			.name("hw.network_card.power_watts")
