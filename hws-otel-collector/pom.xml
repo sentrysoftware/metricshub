@@ -285,7 +285,7 @@
 						</goals>
 						<configuration>
 							<descriptors>
-								<descriptor>src/assembly/macos-arm64.xml</descriptor>
+								<descriptor>src/assembly/darwin-arm64.xml</descriptor>
 							</descriptors>
 						</configuration>
 					</execution>
