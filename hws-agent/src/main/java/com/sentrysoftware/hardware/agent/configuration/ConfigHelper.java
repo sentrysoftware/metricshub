@@ -141,7 +141,7 @@ public class ConfigHelper {
 		for (Connector connector : connectors) {
 			if (acceptedSources.stream().noneMatch(source -> connector.getSourceTypes().contains(source))) {
 				String message = String.format(
-						"Hostname %s - Selected connector %s couldn't be processed due to unsupported protocol",
+						"Hostname %s - Selected connector %s couldn't be processed due to unsupported protocol.",
 						hostname, connector.getCompiledFilename());
 				log.error(message);
 				throw new BusinessException(ErrorCode.UNSUPPORTED_PROTOCOL, message);
@@ -375,8 +375,7 @@ public class ConfigHelper {
 	 *                               names)
 	 * @param configConnectors       user's selected or excluded connectors
 	 * @param hostname               target hostname
-	 * @param isExcluded             specifies if the connector is Excluded or
-	 *                               Selected
+	 * @param isExcluded             specifies if we are validating excluded or selected connectors
 	 *
 	 * @return {@link Set} containing the selected connector names
 	 * @throws BusinessException
@@ -399,20 +398,20 @@ public class ConfigHelper {
 			return configConnectors;
 		}
 
-		// Throw the bad configuration exception
-
+		final String message;
 		if (isExcluded) {
-			String message = String.format(
-					"Configured unknown selected connector(s): %s. Hostname: %s. This target will be monitored, but the unknown connectors will be ignored.",
+			message = String.format(
+					"Configured unknown excluded connector(s): %s. Hostname: %s. This target will be monitored, but the unknown connectors will be ignored.",
 					String.join(", ", unknownConnectors),
 					hostname
 					);
 
 			log.error(message);
 			configConnectors.removeAll(unknownConnectors);
+
 			return configConnectors;
 		} else {
-			String message = String.format(
+			message = String.format(
 					"Configured unknown selected connector(s): %s. Hostname: %s. This target will not be monitored.",
 					String.join(", ", unknownConnectors),
 					hostname
@@ -420,6 +419,7 @@ public class ConfigHelper {
 
 			log.error(message);
 
+			// Throw the bad configuration exception
 			throw new BusinessException(ErrorCode.BAD_CONNECTOR_CONFIGURATION, message);
 		}
 
