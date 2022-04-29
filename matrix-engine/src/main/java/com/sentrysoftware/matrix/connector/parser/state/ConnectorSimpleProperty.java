@@ -2,12 +2,14 @@ package com.sentrysoftware.matrix.connector.parser.state;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.OSType;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
 
 public class ConnectorSimpleProperty {
@@ -26,7 +28,8 @@ public class ConnectorSimpleProperty {
 					new AppliesToOSProcessor(),
 					new SupersedesProcessor(),
 					new CommentsProcessor(),
-					new NoAutoDetectionProcessor())
+					new NoAutoDetectionProcessor(),
+					new OnLastResortProcessor())
 				.collect(Collectors.toSet());
 	}
 
@@ -191,6 +194,24 @@ public class ConnectorSimpleProperty {
 
 			if (connector != null) {
 				connector.setNoAutoDetection(Boolean.valueOf(value));
+			}
+		}
+	}
+	
+	public static class OnLastResortProcessor implements IConnectorStateParser {
+
+		@Override
+		public boolean detect(final String key, final String value, final Connector connector) {
+			return ConnectorSimpleProperty.detect(key, value, "hdf.onLastResort");
+		}
+
+		@Override
+		public void parse(final String key, final String value, final Connector connector) {
+			if (connector != null && value != null) {
+				Optional<MonitorType> monitorTypeOpt = MonitorType.getByNameInConnectorOptional(value.trim());
+				if (monitorTypeOpt.isPresent()) {
+					connector.setOnLastResort(monitorTypeOpt.get());
+				}
 			}
 		}
 	}
