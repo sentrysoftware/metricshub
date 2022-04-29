@@ -69,7 +69,7 @@ public class MonitorNameBuilder {
 	public static final String NETWORK_SWITCH_ENCLOSURE = "Network Switch";
 	public static final String STORAGE_ENCLOSURE = "Storage System";
 	public static final String SUN_SOLARIS_COMPUTER = "Oracle Solaris Computer";
-	public static final String LOCALHOST_ENCLOSURE = "Localhost Enclosure";
+	public static final String LOCALHOST_ENCLOSURE = System.getProperty("os.name") + " " + System.getProperty("os.arch");
 
 	// Error messages
 	private static final String TARGET_MONITOR_CANNOT_BE_NULL = "targetMonitor cannot be null.";
@@ -260,7 +260,6 @@ public class MonitorNameBuilder {
 	 */
 	public static String handleComputerDisplayName(@NonNull final Monitor targetMonitor, @NonNull final TargetType targetType) {
 		if (isLocalhost(targetMonitor.getMetadata())) {
-			// TODO Handle localhost machine type, processor architecture detection
 			return LOCALHOST_ENCLOSURE;
 		} else {
 			return COMPUTE_DISPLAY_NAMES.get(targetType);
