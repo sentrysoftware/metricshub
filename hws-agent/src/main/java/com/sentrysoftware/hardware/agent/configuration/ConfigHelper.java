@@ -56,7 +56,7 @@ public class ConfigHelper {
 	private static final Predicate<String> INVALID_STRING_CHECKER = attr -> attr == null || attr.isBlank();
 	private static final Predicate<Integer> INVALID_PORT_CHECKER = attr -> attr == null || attr < 1 || attr > 65535;
 	private static final Predicate<Long> INVALID_TIMEOUT_CHECKER = attr -> attr == null || attr < 0L;
-	
+
 	/**
 	 * Deserialize YAML configuration file.
 	 * 
@@ -81,7 +81,7 @@ public class ConfigHelper {
 
 	/**
 	 * Validate the attribute against a predetermined test
-	 * 
+	 *
 	 * @param attribute       value getting compared
 	 * @param errorChecker    logic test comparing our value
 	 * @param messageSupplier error message being generated
@@ -106,23 +106,24 @@ public class ConfigHelper {
 	 */
 	static void validateTarget(final TargetType targetType, final String hostname) throws BusinessException {
 
-		validateAttribute(hostname, 
-				INVALID_STRING_CHECKER, 
+		validateAttribute(hostname,
+				INVALID_STRING_CHECKER,
 				() -> String.format("Invalid hostname: %s", hostname),
 				ErrorCode.INVALID_HOSTNAME);
 
-		validateAttribute(targetType, 
+		validateAttribute(targetType,
 				Objects::isNull,
-				() -> String.format("No target type configured for hostname: %s", hostname), 
+				() -> String.format("No target type configured for hostname: %s", hostname),
 				ErrorCode.NO_TARGET_TYPE);
 	}
 
 	/**
 	 * Validate that the given protocol specified is valid for the selected
 	 * connectors.
-	 * 
+	 *
 	 * @param engineConfiguration
 	 * @param connectorStore
+	 * @throws BusinessException
 	 */
 	static void validateEngineConfiguration(@NonNull final EngineConfiguration engineConfiguration,
 			@NonNull final Collection<Connector> connectorStore) throws BusinessException {
@@ -149,99 +150,95 @@ public class ConfigHelper {
 	}
 
 	/**
-	 * Validate the given SNMP information (hostname, community, port and timeout)
+	 * Validate the given SNMP information (hostname, SnmpDto)
 	 *
-	 * @param hostname    hostname of the target
-	 * @param snmp   	  Snmp object of the target (configuration)
+	 * @param hostname hostname of the target
+	 * @param snmpDto  Snmp object of the target (configuration)
 	 * @throws BusinessException
 	 */
 	static void validateSnmpInfo(final String hostname, SnmpProtocolDTO snmpDto)
 			throws BusinessException {
-		
+
 		final String displayName = snmpDto.getVersion().getDisplayName();
 		final int intVersion = snmpDto.getVersion().getIntVersion();
-		
+
 		if (intVersion != 3) {
-			validateAttribute(snmpDto.getCommunity(), 
-				attr -> attr == null || attr.length == 0, 
-				() -> String.format(
-						"No community string configured for hostname %s for protocol %s. Host will not be monitored.",
-						hostname, displayName), 
-				ErrorCode.NO_COMMUNITY_STRING);
+			validateAttribute(snmpDto.getCommunity(),
+					attr -> attr == null || attr.length == 0,
+					() -> String.format(
+							"No community string configured for hostname %s for protocol %s. Host will not be monitored.",
+							hostname, displayName),
+					ErrorCode.NO_COMMUNITY_STRING);
 		}
-		
-		validateAttribute(snmpDto.getPort(), 
+
+		validateAttribute(snmpDto.getPort(),
 				INVALID_PORT_CHECKER,
-				() -> String.format(PORT_ERROR, hostname, displayName), 
+				() -> String.format(PORT_ERROR, hostname, displayName),
 				ErrorCode.INVALID_PORT);
 
-		validateAttribute(snmpDto.getTimeout(), 
+		validateAttribute(snmpDto.getTimeout(),
 				INVALID_TIMEOUT_CHECKER,
-				() -> String.format(TIMEOUT_ERROR, hostname, displayName), 
+				() -> String.format(TIMEOUT_ERROR, hostname, displayName),
 				ErrorCode.INVALID_TIMEOUT);
 
 		if (intVersion == 3 && snmpDto.getVersion().getAuthType() != null) {
-			validateAttribute(snmpDto.getUsername(), 
-					INVALID_STRING_CHECKER, 
+			validateAttribute(snmpDto.getUsername(),
+					INVALID_STRING_CHECKER,
 					() -> String.format(USERNAME_ERROR, hostname, displayName),
 					ErrorCode.NO_USERNAME);
 		}
 	}
 
 	/**
-	 * Validate the given IPMI information (hostname, username, password and
-	 * timeout)
+	 * Validate the given IPMI information (hostname, username and timeout)
 	 *
 	 * @param hostname hostname of the target
 	 * @param username username of the target
-	 * @param password password of the target
 	 * @param timeout  timeout of the target
 	 * @throws BusinessException
 	 */
 	static void validateIpmiInfo(final String hostname, final String username, final Long timeout)
 			throws BusinessException {
-		
+
 		final String protocol = "IPMI";
 
-		validateAttribute(username, 
-				INVALID_STRING_CHECKER, 
+		validateAttribute(username,
+				INVALID_STRING_CHECKER,
 				() -> String.format(USERNAME_ERROR, hostname, protocol),
 				ErrorCode.NO_USERNAME);
 
-		validateAttribute(timeout, 
+		validateAttribute(timeout,
 				INVALID_TIMEOUT_CHECKER,
-				() -> String.format(TIMEOUT_ERROR, hostname, protocol), 
+				() -> String.format(TIMEOUT_ERROR, hostname, protocol),
 				ErrorCode.INVALID_TIMEOUT);
 	}
 
 	/**
-	 * Validate the given SSH information (hostname, username, timeout and
-	 * sudoCommand)
+	 * Validate the given SSH information (hostname, username, timeout)
 	 *
 	 * @param hostname    hostname of the target
 	 * @param username    username of the target
 	 * @param timeout     timeout of the target
-	 * @param sudoCommand sudo command of the target
 	 * @throws BusinessException
 	 */
 	static void validateSshInfo(final String hostname, final String username, final Long timeout)
 			throws BusinessException {
-		
+
 		final String protocol = "SSH";
 
-		validateAttribute(username, 
-				INVALID_STRING_CHECKER, 
+		validateAttribute(username,
+				INVALID_STRING_CHECKER,
 				() -> String.format(USERNAME_ERROR, hostname, protocol),
 				ErrorCode.NO_USERNAME);
 
-		validateAttribute(timeout, 
+		validateAttribute(timeout,
 				INVALID_TIMEOUT_CHECKER,
-				() -> String.format(TIMEOUT_ERROR, hostname, protocol), 
+				() -> String.format(TIMEOUT_ERROR, hostname, protocol),
 				ErrorCode.INVALID_TIMEOUT);
 	}
 
 	/**
-	 * Validate the given WBEM information (timeout and port)
+	 * Validate the given WBEM information (hostname, username, timeout and port)
 	 *
 	 * @param hostname hostname of the target
 	 * @param username username of the target
@@ -253,25 +250,25 @@ public class ConfigHelper {
 			throws BusinessException {
 
 		final String protocol = "WBEM";
-		
-		validateAttribute(timeout, 
+
+		validateAttribute(timeout,
 				INVALID_TIMEOUT_CHECKER,
-				() -> String.format(TIMEOUT_ERROR, hostname, protocol), 
+				() -> String.format(TIMEOUT_ERROR, hostname, protocol),
 				ErrorCode.INVALID_TIMEOUT);
 
-		validateAttribute(port, 
+		validateAttribute(port,
 				INVALID_PORT_CHECKER,
-				() -> String.format(PORT_ERROR, hostname, protocol), 
+				() -> String.format(PORT_ERROR, hostname, protocol),
 				ErrorCode.INVALID_PORT);
-	
-		validateAttribute(username, 
-				INVALID_STRING_CHECKER, 
+
+		validateAttribute(username,
+				INVALID_STRING_CHECKER,
 				() -> String.format(USERNAME_ERROR, hostname, protocol),
-				ErrorCode.NO_USERNAME);	
+				ErrorCode.NO_USERNAME);
 	}
-	
+
 	/**
-	 * Validate the given WMI information (username and namespace)
+	 * Validate the given WMI information (hostname and timeout)
 	 *
 	 * @param hostname hostname of the target
 	 * @param timeout  timeout of the target
@@ -280,10 +277,10 @@ public class ConfigHelper {
 	static void validateWmiInfo(final String hostname, final Long timeout) throws BusinessException {
 
 		final String protocol = "WMI";
-		
-		validateAttribute(timeout, 
+
+		validateAttribute(timeout,
 				INVALID_TIMEOUT_CHECKER,
-				() -> String.format(TIMEOUT_ERROR, hostname, protocol), 
+				() -> String.format(TIMEOUT_ERROR, hostname, protocol),
 				ErrorCode.INVALID_TIMEOUT);
 	}
 
@@ -299,33 +296,32 @@ public class ConfigHelper {
 			throws BusinessException {
 
 		final String protocol = "HTTP";
-		
-		validateAttribute(timeout, 
+
+		validateAttribute(timeout,
 				INVALID_TIMEOUT_CHECKER,
-				() -> String.format(TIMEOUT_ERROR, hostname, protocol), 
+				() -> String.format(TIMEOUT_ERROR, hostname, protocol),
 				ErrorCode.INVALID_TIMEOUT);
 
-		validateAttribute(port, 
+		validateAttribute(port,
 				INVALID_PORT_CHECKER,
-				() -> String.format(PORT_ERROR, hostname, protocol), 
+				() -> String.format(PORT_ERROR, hostname, protocol),
 				ErrorCode.INVALID_PORT);
 	}
 
 	/**
-	 * Validate the given OS Command information (timeout and sudoCommand)
+	 * Validate the given OS Command information (hostname and timeout)
 	 *
 	 * @param hostname    hostname of the target
 	 * @param timeout     timeout of the target
-	 * @param sudoCommand sudo command of the target
 	 * @throws BusinessException
 	 */
 	static void validateOsCommandInfo(final String hostname, final Long timeout) throws BusinessException {
 
 		final String protocol = "OSCommand";
-		
-		validateAttribute(timeout, 
+
+		validateAttribute(timeout,
 				INVALID_TIMEOUT_CHECKER,
-				() -> String.format(TIMEOUT_ERROR, hostname, protocol), 
+				() -> String.format(TIMEOUT_ERROR, hostname, protocol),
 				ErrorCode.INVALID_TIMEOUT);
 	}
 
@@ -344,7 +340,7 @@ public class ConfigHelper {
 
 		final HardwareTargetDTO target = hostConfigurationDto.getTarget();
 
-		final Map<Class<? extends IProtocolConfiguration>, IProtocolConfiguration> protocolConfigurations = 
+		final Map<Class<? extends IProtocolConfiguration>, IProtocolConfiguration> protocolConfigurations =
 				new HashMap<>(
 						Stream.of(
 								hostConfigurationDto.getSnmp(),
@@ -375,9 +371,12 @@ public class ConfigHelper {
 	 * Return configured connector names. This method throws a BusinessException if
 	 * we encounter an unknown connector
 	 *
-	 * @param acceptedConnectorNames Known connector names (connector compiled file names)
+	 * @param acceptedConnectorNames Known connector names (connector compiled file
+	 *                               names)
 	 * @param configConnectors       user's selected or excluded connectors
 	 * @param hostname               target hostname
+	 * @param isExcluded             specifies if the connector is Excluded or
+	 *                               Selected
 	 *
 	 * @return {@link Set} containing the selected connector names
 	 * @throws BusinessException
@@ -399,16 +398,16 @@ public class ConfigHelper {
 		if (unknownConnectors.isEmpty()) {
 			return configConnectors;
 		}
-		
+
 		// Throw the bad configuration exception
-		
+
 		if (isExcluded) {
 			String message = String.format(
 					"Configured unknown selected connector(s): %s. Hostname: %s. This target will be monitored, but the unknown connectors will be ignored.",
 					String.join(", ", unknownConnectors),
 					hostname
-			);
-	
+					);
+
 			log.error(message);
 			configConnectors.removeAll(unknownConnectors);
 			return configConnectors;
@@ -417,13 +416,13 @@ public class ConfigHelper {
 					"Configured unknown selected connector(s): %s. Hostname: %s. This target will not be monitored.",
 					String.join(", ", unknownConnectors),
 					hostname
-			);
-	
+					);
+
 			log.error(message);
-	
+
 			throw new BusinessException(ErrorCode.BAD_CONNECTOR_CONFIGURATION, message);
 		}
-		
+
 
 	}
 
@@ -519,36 +518,36 @@ public class ConfigHelper {
 			validateTarget(hostConfigurationDto.getTarget().getType(), hostname);
 
 			if (hostConfigurationDto.getSnmp() != null)
-				validateSnmpInfo(hostname, 
+				validateSnmpInfo(hostname,
 						hostConfigurationDto.getSnmp());
 
 			if (hostConfigurationDto.getIpmi() != null)
-				validateIpmiInfo(hostname, 
+				validateIpmiInfo(hostname,
 						hostConfigurationDto.getIpmi().getUsername(),
 						hostConfigurationDto.getIpmi().getTimeout());
 
 			if (hostConfigurationDto.getSsh() != null)
-				validateSshInfo(hostname, 
+				validateSshInfo(hostname,
 						hostConfigurationDto.getSsh().getUsername(),
 						hostConfigurationDto.getSsh().getTimeout());
 
 			if (hostConfigurationDto.getWbem() != null)
-				validateWbemInfo(hostname, 
+				validateWbemInfo(hostname,
 						hostConfigurationDto.getWbem().getUsername(),
 						hostConfigurationDto.getWbem().getTimeout(),
 						hostConfigurationDto.getWbem().getPort());
 
 			if (hostConfigurationDto.getWmi() != null)
-				validateWmiInfo(hostname, 
+				validateWmiInfo(hostname,
 						hostConfigurationDto.getWmi().getTimeout());
 
 			if (hostConfigurationDto.getHttp() != null)
-				validateHttpInfo(hostname, 
+				validateHttpInfo(hostname,
 						hostConfigurationDto.getHttp().getTimeout(),
 						hostConfigurationDto.getHttp().getPort());
 
 			if (hostConfigurationDto.getOsCommand() != null)
-				validateOsCommandInfo(hostname, 
+				validateOsCommandInfo(hostname,
 						hostConfigurationDto.getOsCommand().getTimeout());
 
 			final Set<String> selectedConnectors = validateAndGetConnectors(acceptedConnectorNames,
