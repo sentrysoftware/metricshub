@@ -212,7 +212,7 @@ public class MetricsMapping {
 			.name("hw.target.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("Energy consumed by all the components discovered for the monitored target. Expressed in watt.")
+			.description("Energy consumed by all the components discovered for the monitored target. Expressed in watts.")
 			.build());
 		map.put(IMetaMonitor.HEATING_MARGIN.getName(), MetricInfo
 			.builder()
@@ -749,7 +749,7 @@ public class MetricsMapping {
 			.name("hw.tape_drive.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("Energy consumed by the tape drive expressed in watt.")
+			.description("Energy consumed by the tape drive expressed in watts.")
 			.build());
 
 		return map;
@@ -800,7 +800,7 @@ public class MetricsMapping {
 			.name("hw.robotics.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("Energy consumed by the robotic device expressed in watt.")
+			.description("Energy consumed by the robotic device expressed in watts.")
 			.build());
 
 		return map;
@@ -886,7 +886,7 @@ public class MetricsMapping {
 			.name("hw.physical_disk.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("Energy consumed by the physical disk expressed in watt.")
+			.description("Energy consumed by the physical disk expressed in watts.")
 			.build());
 
 		return map;
@@ -1010,7 +1010,7 @@ public class MetricsMapping {
 			.name("hw.network_card.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("Energy consumed by the network card expressed in watt.")
+			.description("Energy consumed by the network card expressed in watts.")
 			.build());
 		map.put(NetworkCard.ERROR_PERCENT.getName(), MetricInfo.builder()
 			.name("hw.network_card.error_ratio")
@@ -1063,7 +1063,7 @@ public class MetricsMapping {
 			.name("hw.memory.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("Energy consumed by the robotic device expressed in watt")
+			.description("Energy consumed by the memory module expressed in watts.")
 			.build());
 
 		return map;
@@ -1202,7 +1202,7 @@ public class MetricsMapping {
 			.name("hw.fan.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("Energy consumed by the fan expressed in watt.")
+			.description("Energy consumed by the fan expressed in watts.")
 			.build());
 
 		return map;
@@ -1241,7 +1241,7 @@ public class MetricsMapping {
 			.name("hw.enclosure.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("Energy consumed by the enclosure expressed in watt.")
+			.description("Energy consumed by the enclosure expressed in watts.")
 			.build());
 
 		return map;
@@ -1279,13 +1279,13 @@ public class MetricsMapping {
 			.name("hw.disk_controller.energy_joules")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
-			.description("Total energy dissipated by the robotic device expressed in joules.")
+			.description("Total energy dissipated by the disk controller expressed in joules.")
 			.build());
 		map.put(IMetaMonitor.POWER_CONSUMPTION.getName(), MetricInfo.builder()
 			.name("hw.disk_controller.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("Energy consumed by the disk controller expressed in watt.")
+			.description("Energy consumed by the disk controller expressed in watts.")
 			.build());
 
 		return map;
@@ -1368,7 +1368,7 @@ public class MetricsMapping {
 			.name("hw.cpu.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("Energy consumed by the CPU expressed in watt.")
+			.description("Energy consumed by the CPU expressed in watts.")
 			.build());
 
 		return map;
@@ -1484,7 +1484,7 @@ public class MetricsMapping {
 			.name("hw.vm.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("Energy consumed by the virtual machine expressed in watt.")
+			.description("Energy consumed by the virtual machine expressed in watts.")
 			.build());
 
 		return map;
@@ -1561,7 +1561,7 @@ public class MetricsMapping {
 			.name("hw.gpu.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("Energy consumed by the robotic device expressed in watt.")
+			.description("Energy consumed by the GPU expressed in watts.")
 			.build());
 		map.put(Gpu.ERROR_COUNT.getName(), MetricInfo.builder()
 				.name("hw.gpu.errors")
