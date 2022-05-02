@@ -7,18 +7,19 @@ description: How ${project.name} triggers alerts and how you can customize the a
 
 ## Overview
 
-An alert is a notification that a hardware problem has occurred, such as a critical low speed on a fan that leads to a high CPU temperature. 
+An alert is a notification that a hardware problem has occurred, such as a critical low speed on a fan leading to an increase in CPU temperature.
 
-**${project.name}** defines a set of trigger conditions used to emit alerts when failures are detected. These alerts are sent as OpenTelemetry `logs` from the **Hardware Sentry Agent**'s internal `OTLP Exporter` to the **OpenTelemetry Collector**'s internal `OTLP Receiver`.
+**${project.name}** defines a set of conditions that trigger alerts when failures are detected. These alerts are sent as OpenTelemetry `logs` from the **Hardware Sentry Agent**'s internal `OTLP Exporter` to the **OpenTelemetry Collector**'s internal `OTLP Receiver`.
 
 ## Alert Content
 
 **${project.name}**'s alert reports the following information:
+
 - The host's Fully Qualified Domain Name.
 - The resource's attributes.
 - The faulty component with its identifying information (Serial Number, Model, Manufacturer, Bios Version, Driver Version, Physical Address).
 - The parent dependency and its identifying information.
-- The alert severity (INFO, WARN, ALARM).
+- The alert severity (WARN, ALARM).
 - The alert rule.
 - The date at which the alert is triggered.
 - The metric that triggered the alert.
@@ -26,7 +27,7 @@ An alert is a notification that a hardware problem has occurred, such as a criti
 - The encountered problem, consequence and recommended action.
 - A complete hardware health report on the faulty component.
 
-Here is an example of an alert record which has been triggered due to an unplugged cable on a network interface. This alert log has been captured using the OpenTelemetry [Logging Exporter](https://github.com/open-telemetry/opentelemetry-collector/tree/main/exporter/loggingexporter): 
+Here is an example of an alert triggered by an unplugged cable on a network interface. This alert log has been captured using the OpenTelemetry [Logging Exporter](https://github.com/open-telemetry/opentelemetry-collector/tree/main/exporter/loggingexporter):
 
 ```
 2022-04-21T14:37:57.034+0200	DEBUG	loggingexporter/logging_exporter.go:81	ResourceLog #0
@@ -101,11 +102,11 @@ Flags: 0
 
 ## Alert Rules
 
-An alert rule is a set of conditions used to identify the severity of the alert and whether the alert should be triggered or not. 
+Alert rules are sets of conditions used to identify the alert's severity and whether the alert should be triggered or not.
 
 The following table lists **${project.name}**'s alert rules:
 
-| Monitor         | Metric                                      | Severity | Alert Rule                                         |
+| Monitor         | Metric                                      | Severity | Default Alert Conditions                                         |
 | --------------- | ------------------------------------------- | -------- | -------------------------------------------------- |
 | Connector       | hw.connector.status                         | ALARM    | hw.connector.status == 2                           |
 | Battery         | hw.battery.charge_ratio                     | WARN     | hw.battery.charge_ratio <= 0.5                     |
@@ -203,11 +204,11 @@ The following table lists **${project.name}**'s alert rules:
 | Voltage         | hw.voltage.status                           | WARN     | hw.voltage.status == 1                             |
 | Voltage         | hw.voltage.status                           | ALARM    | hw.voltage.status == 2                             |
 
-## Customizing Alert Content 
+## Customizing Alert Content
 
-**${project.name}** You can customize the content of alerts by configuring macros in the `hardwareProblemTemplate` parameter in the `config/hws-config.yaml` file. See the procedure detailed in the [Hardware Problem Template](configuration/configure-agent.md#Hardware_Problem_Template) section.
+You can customize the content of alerts by configuring macros in the `hardwareProblemTemplate` parameter in the `config/hws-config.yaml` file. See the procedure detailed in the [Hardware Problem Template](configuration/configure-agent.md#Hardware_Problem_Template) section.
 
-The default alert content template is the following:
+The default alert content template is:
 
 ```
 Hardware problem on ${FQDN} with ${MONITOR_NAME}.${NEWLINE}${NEWLINE}${ALERT_DETAILS}${NEWLINE}${NEWLINE}${FULLREPORT}
@@ -217,25 +218,25 @@ The following macros can be used to obtain more details about the problem. They 
 
 | Macro                   | Description                                                                                                                                                                                                                             |
 | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `${MONITOR_NAME}`       | Display name of the monitor that triggered the alert. Example: Fan: 1.1 (CPU1)                                                                                                                                                          |
+| `${MONITOR_NAME}`       | Name of the monitor that triggered the alert. Example: Fan: 1.1 (CPU1)                                                                                                                                                          |
 | `${MONITOR_ID}`         | Unique identifier of the monitor that triggered the alert.                                                                                                                                                                              |
 | `${MONITOR_TYPE}`       | Type of the monitor that triggered the alert. Example: Physical Disk                                                                                                                                                                    |
-| `${PARENT_ID}`          | The identifier of the parent that the faulty instance is attached to.                                                                                                                                                                   |
+| `${PARENT_ID}`          | Identifier of the parent that the faulty instance is attached to.                                                                                                                                                                   |
 | `${METRIC_NAME}`        | Name of the metric that triggered the alert. Example: hw.battery.status                                                                                                                                                                 |
-| `${METRIC_VALUE}`       | The value of the metric that triggered the alert. Example: 2 (ALARM)                                                                                                                                                                    |
-| `${SEVERITY}`           | The severity of the alert (ALARM, WARN, INFO)                                                                                                                                                                                           |
-| `${ALERT_RULE}`         | The alert conditions that triggered the alert. Example: hw.battery.status == 2                                                                                                                                                          |
-| `${ALERT_DATE}`         | The ISO date time at which the alert triggered.                                                                                                                                                                                         |
+| `${METRIC_VALUE}`       | Value of the metric that triggered the alert. Example: 2 (ALARM)                                                                                                                                                                    |
+| `${SEVERITY}`           | Severity of the alert (ALARM, WARN, INFO)                                                                                                                                                                                           |
+| `${ALERT_RULE}`         | Alert conditions that triggered the alert. Example: hw.battery.status == 2                                                                                                                                                          |
+| `${ALERT_DATE}`         | ISO date time at which the alert triggered.                                                                                                                                                                                         |
 | `${CONSEQUENCE}`        | Description of the possible consequence of the detected problem. Example: The temperature of the chip, component or device that was cooled by this fan should grow quickly. This can lead to severe hardware damage and system crashes. |
-| `${RECOMMENDED_ACTION}` | Recommended action to solve the problem. Example: Check if the fan is really no more cooling the system. If so, replace the fan.                                                                                                        |
-| `${PROBLEM}`            | Description of the problem encountered by the monitor. Example: The speed of this fan is critically low (1503 rpm).                                                                                                                     |
-| `${ALERT_DETAILS}`      | Provides the severity, alert rule, problem, consequence and the recommended action.                                                                                                                                                     |
+| `${RECOMMENDED_ACTION}` | Recommended action to solve the problem. Example: Check if the fan is no longer cooling the system. If so, replace the fan.                                                                                                        |
+| `${PROBLEM}`            | Description of the problem encountered by the monitor. Example: The speed of this fan is critically low (1503 rpm).       |
+| `${ALERT_DETAILS}`      | Severity, alert rule, problem, consequence and recommended action.                                          |
 | `${FULLREPORT}`         | Full hardware health report about the monitor that triggered the alert.                                                                                                                                                                 |
 | `${NEWLINE}`            | Linefeed. This is useful to produce multi-line information.                                                                                                                                                                             |
 
 ## Receiving Alerts
 
-To receive **${project.name}**'s alerts, your `Exporter` must support the OpenTelemetry `logs` pipeline, and needs to be declared in the `service:pipelines:logs:exporters` list in the `config/otel-config.yaml` file:
+To receive **${project.name}**'s alerts, your `Exporter` must support the OpenTelemetry `logs` pipeline and needs to be declared in the `service:pipelines:logs:exporters` list in the `config/otel-config.yaml` file:
 
 ```yaml
 
