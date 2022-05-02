@@ -8,12 +8,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.StringJoiner;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -463,9 +461,45 @@ public class MatsyaClientsExecutor {
 			return executeWbem(hostname, (WBEMProtocol) protoConfig, query, namespace);
 		} else if (protoConfig instanceof WMIProtocol) {
 			return executeWmi(hostname, (WMIProtocol) protoConfig, query, namespace);
+		} else if (protoConfig instanceof WinRMProtocol) {
+			return executeWqlThroughWinRM(hostname, (WinRMProtocol) protoConfig, query, namespace);
 		}
 
-		throw new IllegalStateException("WQL queries can be executed only in WBEM and WMI protocols.");
+		throw new IllegalStateException("WQL queries can be executed only in WBEM, WMI and WinRM protocols.");
+	}
+
+	/**
+	 * Perform a WQL remote command query, either against a CIM server (WBEM) or WMI
+	 * <p>
+	 * @param hostname Hostname
+	 * @param protoConfig The WBEMProtocol or WMIProtocol object specifying how to connect to specified host
+	 * @param query WQL query to execute
+	 * @param embeddedFiles The list of embedded files used in the wql remote command query
+	 *
+	 * @return A table (as a {@link List} of {@link List} of {@link String}s)
+	 * resulting from the execution of the query.
+	 * @throws MatsyaException when anything wrong happens with the Matsya library
+	 */
+	public static String executeWqlRemoteCommand(
+		final String hostname,
+		final IProtocolConfiguration protoConfig,
+		final String query,
+		final List<String> embeddedFiles
+	) throws MatsyaException {
+
+		if (protoConfig instanceof WMIProtocol) {
+			return executeWmiRemoteCommand(
+					query,
+					hostname,
+					((WMIProtocol) protoConfig).getUsername(),
+					((WMIProtocol) protoConfig).getPassword(),
+					((WMIProtocol) protoConfig).getTimeout().intValue(),
+					embeddedFiles);
+		} else if (protoConfig instanceof WinRMProtocol) {
+			return executeRemoteWinRMCommand(hostname, (WinRMProtocol) protoConfig, ((WinRMProtocol) protoConfig).getNamespace());
+		}
+
+		throw new IllegalStateException("WQL queries can be executed only in WMI and WinRM protocols.");
 	}
 
 	/**
@@ -1201,33 +1235,32 @@ public class MatsyaClientsExecutor {
 	/**
 	 * Execute a WinRM query through Matsya
 	 *
-	 * @param hostname  The hostname of the device where the WinRM service is running (<code>null</code> for localhost)
+	 * @param hostname The hostname of the device where the WinRM service is running (<code>null</code> for localhost)
 	 * @param winRMProtocol WinRM Protocol configuration (credentials, timeout)
+	 * @param namespace The namespace on which to execute the quer
 	 * @return The result of the query
 	 * @throws MatsyaException when anything goes wrong (details in cause)
 	 */
 	public static List<List<String>> executeWqlThroughWinRM(
 			@NonNull final String hostname,
-			@NonNull final WinRMProtocol winRMProtocol)
+			@NonNull final WinRMProtocol winRMProtocol,
+			@NonNull final String query,
+			@NonNull final String namespace)
 					throws MatsyaException {
 		final String username = winRMProtocol.getUsername();
-		final String command = winRMProtocol.getCommand();
-		final HttpProtocolEnum httpProtocol = winRMProtocol.getProtocol() == null ?
-				HttpProtocolEnum.HTTP : HttpProtocolEnum.valueOf(winRMProtocol.getProtocol());
+		final HttpProtocolEnum httpProtocol = winRMProtocol.isHttps() ?
+				HttpProtocolEnum.HTTPS : HttpProtocolEnum.HTTP;
 		final Integer port = winRMProtocol.getPort();
-		final Path ticketCache = winRMProtocol.getTicketCache();
 		final List<AuthenticationEnum> authentications = winRMProtocol.getAuthentications();
 		final Long timeout = winRMProtocol.getTimeout();
 
-		trace(() -> log.trace("Executing WMI request:\n- hostname: {}\n- username: {}\n- command: {}\n"
-				+ "- protocol: {}\n- port: {}\n- ticket cache: {}\n- force Ntlm: {}\n"
-				+ "- kerberos only: {}\n- timeout: {}\n",
+		trace(() -> log.trace("Executing WMI request:\n- hostname: {}\n- username: {}\n- query: {}\n"
+				+ "- protocol: {}\n- port: {}\n- force Ntlm: {}\n- kerberos only: {}\n- timeout: {}\n",
 				hostname,
 				username,
-				command,
+				query,
 				httpProtocol.toString(),
 				port,
-				ticketCache,
 				authentications != null && authentications.contains(AuthenticationEnum.NTLM),
 				authentications != null && authentications.contains(AuthenticationEnum.KERBEROS),
 				timeout
@@ -1241,10 +1274,10 @@ public class MatsyaClientsExecutor {
 					port,
 					username,
 					winRMProtocol.getPassword(),
-					winRMProtocol.getNamespace(),
-					command,
+					namespace,
+					query,
 					timeout * 1000L,
-					ticketCache,
+					null,
 					authentications);
 			return result.getRows();
 		} catch (Exception e) {
@@ -1258,43 +1291,34 @@ public class MatsyaClientsExecutor {
 	 *
 	 * @param hostname  The hostname of the device where the WinRM service is running (<code>null</code> for localhost)
 	 * @param winRMProtocol WinRM Protocol configuration (credentials, timeout)
+	 * @param namespace
 	 * @return The result of the query
 	 * @throws MatsyaException when anything goes wrong (details in cause)
 	 */
 	public static String executeRemoteWinRMCommand(
 			@NonNull final String hostname,
-			@NonNull final WinRMProtocol winRMProtocol)
+			@NonNull final WinRMProtocol winRMProtocol,
+			@NonNull final String namespace)
 					throws MatsyaException {
 		final String username = winRMProtocol.getUsername();
 		final String command = winRMProtocol.getCommand();
-		final HttpProtocolEnum httpProtocol = winRMProtocol.getProtocol() == null ?
-				HttpProtocolEnum.HTTP : HttpProtocolEnum.valueOf(winRMProtocol.getProtocol());
+		final HttpProtocolEnum httpProtocol = winRMProtocol.isHttps() ?
+				HttpProtocolEnum.HTTPS : HttpProtocolEnum.HTTP;
 		final Integer port = winRMProtocol.getPort();
-		final Path ticketCache = winRMProtocol.getTicketCache();
 		final List<AuthenticationEnum> authentications = winRMProtocol.getAuthentications();
 		final Long timeout = winRMProtocol.getTimeout();
-		final List<String> localFileToCopyList = winRMProtocol.getLocalFileToCopyList();
-		final String workingDirectory = winRMProtocol.getWorkingDirectory();
 
-		StringJoiner strJoiner = new StringJoiner(",");
-		if (localFileToCopyList != null && !localFileToCopyList.isEmpty()) {
-			localFileToCopyList.stream().forEach(key -> strJoiner.add(key));
-		}
-		
 		trace(() -> log.trace("Executing WMI request:\n- hostname: {}\n- username: {}\n- command: {}\n"
-				+ "- protocol: {}\n- port: {}\n- ticket cache: {}\n- force Ntlm: {}\n"
-				+ "- kerberos only: {}\n- timeout: {}\n- local file to copy: {}\n- workingDirectory: {}\n",
+				+ "- protocol: {}\n- port: {}\n- force Ntlm: {}\n"
+				+ "- kerberos only: {}\n- timeout: {}\n",
 				hostname,
 				username,
 				command,
 				httpProtocol.toString(),
 				port,
-				ticketCache,
 				authentications != null && authentications.contains(AuthenticationEnum.NTLM),
 				authentications != null && authentications.contains(AuthenticationEnum.KERBEROS),
-				timeout,
-				"[" + strJoiner.toString() + "]",
-				workingDirectory
+				timeout
 		));
 
 		// launching the command
@@ -1306,10 +1330,10 @@ public class MatsyaClientsExecutor {
 					port,
 					username,
 					winRMProtocol.getPassword(),
-					workingDirectory,
+					null,
 					timeout * 1000L,
-					localFileToCopyList,
-					ticketCache,
+					null,
+					null,
 					authentications);
 
 			// If the command returns an error

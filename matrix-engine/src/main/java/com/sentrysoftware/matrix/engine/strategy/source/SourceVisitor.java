@@ -30,11 +30,11 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tablejo
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tableunion.TableUnionSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ucs.UCSSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.winrm.WinRMSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
 import com.sentrysoftware.matrix.engine.protocol.AbstractCommand;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
+import com.sentrysoftware.matrix.engine.protocol.IWqlProtocol;
 import com.sentrysoftware.matrix.engine.protocol.OSCommandConfig;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
@@ -208,8 +208,6 @@ public class SourceVisitor implements ISourceVisitor {
 				.getProtocolConfigurations().get(SSHProtocol.class);
 		final OSCommandConfig osCommandConfig = (OSCommandConfig) strategyConfig.getEngineConfiguration()
 				.getProtocolConfigurations().get(OSCommandConfig.class);
-		final WinRMProtocol winRMProtocol = (WinRMProtocol) strategyConfig.getEngineConfiguration()
-				.getProtocolConfigurations().get(WinRMProtocol.class);
 
 		final int defaultTimeout = osCommandConfig != null ? osCommandConfig.getTimeout().intValue()
 				: AbstractCommand.DEFAULT_TIMEOUT.intValue();
@@ -222,8 +220,6 @@ public class SourceVisitor implements ISourceVisitor {
 				fruResult = OsCommandHelper.runLocalCommand(fruCommand, defaultTimeout, null);
 			} else if (sshProtocol != null){
 				fruResult = OsCommandHelper.runSshCommand(fruCommand, hostname, sshProtocol, defaultTimeout, null, null);
-			} else if (winRMProtocol != null) {
-				fruResult = OsCommandHelper.runWinRMCommand(hostname, winRMProtocol);
 			} else {
 				log.warn("Hostname %s - Couldn't process unix IPMI Source. SSH Protocol credentials missing.", hostname);
 				return SourceTable.empty();
@@ -796,14 +792,19 @@ public class SourceVisitor implements ISourceVisitor {
 	public SourceTable visit(final WMISource wmiSource) {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-		
+
 		if (wmiSource == null || wmiSource.getWbemQuery() == null) {
 			log.warn("Hostname {} - Malformed WMI Source {}. Returning an empty table.", hostname, wmiSource);
 			return SourceTable.empty();
 		}
 
-		final WMIProtocol protocol = (WMIProtocol) strategyConfig.getEngineConfiguration()
+		IWqlProtocol protocol = (WMIProtocol) strategyConfig.getEngineConfiguration()
 				.getProtocolConfigurations().get(WMIProtocol.class);
+
+		if (protocol == null) {
+			protocol = (WinRMProtocol) strategyConfig.getEngineConfiguration()
+					.getProtocolConfigurations().get(WinRMProtocol.class);
+		}
 
 		if (protocol == null) {
 			log.debug("Hostname {} - The WMI Credentials are not configured. Returning an empty table for WMI source {}.",
@@ -823,7 +824,7 @@ public class SourceVisitor implements ISourceVisitor {
 		try {
 
 			final List<List<String>> table =
-					matsyaClientsExecutor.executeWmi(hostname, protocol, wmiSource.getWbemQuery(), namespace);
+					matsyaClientsExecutor.executeWql(hostname, protocol, wmiSource.getWbemQuery(), namespace);
 
 			return SourceTable
 					.builder()
@@ -1011,42 +1012,6 @@ public class SourceVisitor implements ISourceVisitor {
 			log.debug(String.format(
 					"Hostname %s - Source [%s] was unsuccessful due to an exception. Context [%s]. Connector: [%s]. Returning an empty table. Stack trace:",
 					hostname, sourceKey, context, connectorName), throwable);
-		}
-	}
-
-	@Override
-	public SourceTable visit(final WinRMSource winRMSource) {
-
-		final WinRMProtocol protocol = (WinRMProtocol) strategyConfig.getEngineConfiguration()
-				.getProtocolConfigurations().get(WinRMProtocol.class);
-
-		if (protocol == null) {
-			log.debug("The WinRM Credentials are not configured. Returning an empty table for WinRM source {}.",
-					winRMSource.getKey());
-			return SourceTable.empty();
-		}
-
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-
-		try {
-
-			final List<List<String>> result =
-					MatsyaClientsExecutor.executeWqlThroughWinRM(hostname, protocol);
-
-			return SourceTable
-					.builder()
-					.table(result)
-					.build();
-
-
-		} catch (Exception e) {
-
-			logSourceError(connector.getCompiledFilename(), winRMSource.getKey(),
-					String.format("WinRMQuery=%s, username=%s, timeout=%d",
-							winRMSource.getWbemQuery(), protocol.getUsername(), protocol.getTimeout()),
-					hostname, e);
-
-			return SourceTable.empty();
 		}
 	}
 }

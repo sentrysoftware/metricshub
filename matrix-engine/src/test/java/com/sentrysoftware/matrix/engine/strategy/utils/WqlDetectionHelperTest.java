@@ -152,7 +152,7 @@ class WqlDetectionHelperTest {
 		// No response from the target
 		doThrow(new MatsyaException("no response", new TimeoutException("very long")))
 			.when(matsyaClientsExecutor)
-			.executeWmi(any(), eq(wmiConfig), any(), any());
+			.executeWql(any(), eq(wmiConfig), any(), any());
 
 		PossibleNamespacesResult result = wqlDetectionHelper.findPossibleNamespaces(HOSTNAME, wmiConfig);
 		assertFalse(result.isSuccess());
@@ -171,7 +171,7 @@ class WqlDetectionHelperTest {
 		// We return an empty list
 		doReturn(Collections.emptyList())
 		.when(matsyaClientsExecutor)
-		.executeWmi(any(), eq(wmiConfig), any(), eq("root"));
+		.executeWql(any(), eq(wmiConfig), any(), eq("root"));
 
 		PossibleNamespacesResult result = wqlDetectionHelper.findPossibleNamespaces(HOSTNAME, wmiConfig);
 		assertFalse(result.isSuccess());
@@ -189,7 +189,7 @@ class WqlDetectionHelperTest {
 
 		doReturn(List.of(List.of("namespace1"), List.of("namespace2")))
 				.when(matsyaClientsExecutor)
-				.executeWmi(any(), eq(wmiConfig), any(), any());
+				.executeWql(any(), eq(wmiConfig), any(), any());
 
 		PossibleNamespacesResult result = wqlDetectionHelper.findPossibleNamespaces(HOSTNAME, wmiConfig);
 		assertTrue(result.isSuccess());

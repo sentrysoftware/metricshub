@@ -38,7 +38,6 @@ import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.OSCommandConfig;
 import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WinRMProtocol;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 
@@ -485,13 +484,10 @@ public class OsCommandHelper {
 
 			// Case Windows Remote
 			} else if (engineConfiguration.getTarget().getType() == TargetType.MS_WINDOWS) {
-				final WMIProtocol  wmiProtocol = (WMIProtocol) protocolConfiguration;
-				commandResult = MatsyaClientsExecutor.executeWmiRemoteCommand(
+				commandResult = MatsyaClientsExecutor.executeWqlRemoteCommand(
 						command,
+						protocolConfiguration,
 						hostname,
-						wmiProtocol.getUsername(),
-						wmiProtocol.getPassword(),
-						timeout,
 						embeddedTempFiles.values().stream().map(File::getAbsolutePath).collect(Collectors.toList()));
 
 			// Case others (Linux) Remote
@@ -510,21 +506,5 @@ public class OsCommandHelper {
 			//noinspection ResultOfMethodCallIgnored
 			embeddedTempFiles.values().forEach(File::delete);
 		}
-	}
-	
-	/**
-	 * Run WinRM command. Check if we can execute on localhost or remote
-	 *
-	 * @param hostname
-	 * @param winRMProtocol
-	 * @return
-	 * @throws MatsyaException
-	 */
-	public static String runWinRMCommand(
-			@NonNull
-			final String hostname,
-			@NonNull
-			final WinRMProtocol winRMProtocol) throws MatsyaException {
-		return MatsyaClientsExecutor.executeRemoteWinRMCommand(hostname, winRMProtocol);
 	}
 }

@@ -279,10 +279,7 @@ class HardwareSentryCliTest {
 					"--winrm-command", "SELECT * FROM myTable",
 					"--winrm-port", "1234",
 					"--winrm-protocol", "HTTPS",
-					"--winrm-ticketcache", "opt",
-					"--winrm-kerberosonly",
-					"--winrm-workingDirectory", "MyFolder",
-					"--winrm-localFilesToCopy", "file.txt,file2.jpg" };
+					"--winrm-kerberosonly"};
 			HardwareSentryCli sentryCli = new HardwareSentryCli();
 			new CommandLine(sentryCli).parseArgs(args_hdfs);
 
@@ -295,11 +292,8 @@ class HardwareSentryCliTest {
 			assertEquals("SELECT * FROM myTable", sentryCli.getWinRMConfigCli().getCommand());
 			assertEquals(1234, sentryCli.getWinRMConfigCli().getPort());
 			assertEquals("HTTPS", sentryCli.getWinRMConfigCli().getProtocol());
-			assertEquals("opt", sentryCli.getWinRMConfigCli().getTicketCache());
 			assertEquals(true, sentryCli.getWinRMConfigCli().isKerberosOnly());
 			assertEquals(false, sentryCli.getWinRMConfigCli().isForceNtlm());
-			assertEquals("MyFolder", sentryCli.getWinRMConfigCli().getWorkingDirectory());
-			assertEquals("file.txt,file2.jpg", sentryCli.getWinRMConfigCli().getLocalFilesToCopy());
 		}
 
 		{

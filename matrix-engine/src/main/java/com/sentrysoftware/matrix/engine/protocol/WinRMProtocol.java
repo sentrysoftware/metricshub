@@ -1,6 +1,5 @@
 package com.sentrysoftware.matrix.engine.protocol;
 
-import java.nio.file.Path;
 import java.util.List;
 
 import com.sentrysoftware.matsya.winrm.service.client.auth.AuthenticationEnum;
@@ -15,20 +14,19 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class WinRMProtocol implements IProtocolConfiguration {
-	
+public class WinRMProtocol implements IWqlProtocol {
+
 	private String username;
 	private char[] password;
 	private String namespace;
 	private String command;
-	private String workingDirectory;
-	private Integer port;
-	private String protocol; // HTTP or HTTPS
-	private Path ticketCache;
+	@Default
+	private Integer port = 5985;
+	@Default
+	private boolean https = false;
 	private List<AuthenticationEnum> authentications;
 	@Default
 	private Long timeout = 120L;
-	private List<String> localFileToCopyList;
 
 	@Override
 	public String toString() {

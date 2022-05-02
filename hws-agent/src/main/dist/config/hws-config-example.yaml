@@ -149,3 +149,22 @@ targets:
 #      useSudo: true
 #      useSudoCommands: [ ]
 #      sudoCommand: sudo
+
+####################################################
+# WinRM configuration                              #
+####################################################
+
+#  - target:
+#      hostname: server-11
+#      type: win
+#    winRM:
+#      timeout: 120
+#      username: myusername
+#      password: mypwd
+#      namespace: mynamespace
+#      command: SELECT * FROM TABLENAME
+#      port: 5986                     #optional
+#      protocol: http                 #optional
+#      forcentlm: true                #optional
+#      kerberosOnly: false            #optional
+

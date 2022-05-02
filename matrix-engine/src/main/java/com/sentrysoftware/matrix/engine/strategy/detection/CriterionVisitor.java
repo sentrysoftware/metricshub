@@ -41,11 +41,13 @@ import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.AbstractCommand;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
+import com.sentrysoftware.matrix.engine.protocol.IWqlProtocol;
 import com.sentrysoftware.matrix.engine.protocol.OSCommandConfig;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WinRMProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.HTTPRequest;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
@@ -937,7 +939,6 @@ public class CriterionVisitor implements ICriterionVisitor {
 		return namespaceResult.getResult();
 	}
 
-
 	@Override
 	public CriterionTestResult visit(final WMI wmiCriterion) {
 
@@ -951,9 +952,14 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 		final String hostname = engineConfiguration.getTarget().getHostname();
 
-		final WMIProtocol wmiConfig =
+		IWqlProtocol protocol =
 				(WMIProtocol) engineConfiguration.getProtocolConfigurations().get(WMIProtocol.class);
-		if (wmiConfig == null) {
+
+		if (protocol == null) {
+			protocol = (WinRMProtocol) engineConfiguration.getProtocolConfigurations().get(WinRMProtocol.class);
+		}
+
+		if (protocol == null) {
 			return CriterionTestResult.error(wmiCriterion, "The WBEM Credentials are not configured");
 		}
 
@@ -967,7 +973,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 			// If not detected already, find the namespace
 			if (cachedNamespace == null) {
-				return findNamespace(hostname, wmiConfig, wmiCriterion);
+				return findNamespace(hostname, protocol, wmiCriterion);
 			}
 
 			// Update the criterion with the cached namespace
@@ -975,24 +981,23 @@ public class CriterionVisitor implements ICriterionVisitor {
 			cachedNamespaceCriterion.setWbemNamespace(cachedNamespace);
 
 			// Run the test
-			return wqlDetectionHelper.performDetectionTest(hostname, wmiConfig, cachedNamespaceCriterion);
+			return wqlDetectionHelper.performDetectionTest(hostname, protocol, cachedNamespaceCriterion);
 		}
 
 		// Run the test
-		return wqlDetectionHelper.performDetectionTest(hostname, wmiConfig, wmiCriterion);
+		return wqlDetectionHelper.performDetectionTest(hostname, protocol, wmiCriterion);
 	}
-
 
 	/**
 	 * Find the namespace to use for the execution of the given {@link WMI} {@link Criterion}.
 	 *
 	 * @param hostname The hostname of the target device
-	 * @param wmiConfig The WMI protocol configuration (credentials, etc.)
+	 * @param wqlConfig The WQL protocol configuration (credentials, etc.)
 	 * @param criterion The WQL criterion with an "Automatic" namespace
 	 *
 	 * @return A {@link CriterionTestResult} telling whether we found the proper namespace for the specified WQL
 	 */
-	CriterionTestResult findNamespace(final String hostname, final WMIProtocol wmiConfig, final WMI criterion) {
+	CriterionTestResult findNamespace(final String hostname, final IWqlProtocol wqlConfig, final WMI criterion) {
 
 		// Get the list of possible namespaces on this host
 		Set<String> possibleWmiNamespaces = strategyConfig.getHostMonitoring().getPossibleWmiNamespaces();
@@ -1004,7 +1009,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 				// If we don't have this list already, figure it out now
 				final PossibleNamespacesResult possibleWmiNamespacesResult =
-						wqlDetectionHelper.findPossibleNamespaces(hostname, wmiConfig);
+						wqlDetectionHelper.findPossibleNamespaces(hostname, wqlConfig);
 
 				// If we can't detect the namespace then we must stop
 				if (!possibleWmiNamespacesResult.isSuccess()) {
@@ -1020,7 +1025,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 		// Perform a namespace detection
 		NamespaceResult namespaceResult =
-				wqlDetectionHelper.detectNamespace(hostname, wmiConfig, criterion, Collections.unmodifiableSet(possibleWmiNamespaces));
+				wqlDetectionHelper.detectNamespace(hostname, wqlConfig, criterion, Collections.unmodifiableSet(possibleWmiNamespaces));
 
 		// If that was successful, remember it in HostMonitoring, so we don't perform this
 		// (costly) detection again

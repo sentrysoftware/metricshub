@@ -805,7 +805,7 @@ class MatsyaClientsExecutorTest {
 		final String namespace = "namespace";
 		final String command ="SELECT BootDevice,BuildNumber FROM Win32_OperatingSystem";
 		final WinRMProtocol winRMProtocol = WinRMProtocol.builder()
-				.protocol("HTTP")
+				.https(false)
 				.port(port)
 				.username(username)
 				.password(password)
@@ -838,7 +838,7 @@ class MatsyaClientsExecutorTest {
 					null,
 					null)).thenReturn(winRMWqlExecutorResult);
 
-			List<List<String>> result = MatsyaClientsExecutor.executeWqlThroughWinRM(PUREM_SAN, winRMProtocol);
+			List<List<String>> result = MatsyaClientsExecutor.executeWqlThroughWinRM(PUREM_SAN, winRMProtocol, command, namespace);
 			assertNotNull(result);
 			assertEquals(1, result.size());
 			assertLinesMatch(expectedResult.get(0), result.get(0));
@@ -853,7 +853,7 @@ class MatsyaClientsExecutorTest {
 		final String namespace = "namespace";
 		final String command ="SELECT BootDevice,BuildNumber FROM Win32_OperatingSystem";
 		final WinRMProtocol winRMProtocol = WinRMProtocol.builder()
-				.protocol("HTTP")
+				.https(false)
 				.port(port)
 				.username(username)
 				.password(password)
@@ -878,7 +878,7 @@ class MatsyaClientsExecutorTest {
 					null,
 					null)).thenReturn(windowsRemoteCommandResult);
 
-			String result = MatsyaClientsExecutor.executeRemoteWinRMCommand(PUREM_SAN, winRMProtocol);
+			String result = MatsyaClientsExecutor.executeRemoteWinRMCommand(PUREM_SAN, winRMProtocol, namespace);
 			assertEquals(expectedResult, result);
 		}
 	}

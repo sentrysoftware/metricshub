@@ -20,8 +20,8 @@ import com.sentrysoftware.javax.wbem.WBEMException;
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.WqlCriterion;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
+import com.sentrysoftware.matrix.engine.protocol.IWqlProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.detection.CriterionTestResult;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
@@ -171,19 +171,19 @@ public class WqlDetectionHelper {
 	 * Find the possible WMI namespaces on specified hostname with specified credentials.
 	 *
 	 * @param hostname	The hostname of the target device.
-	 * @param wmiConfig	WMI configuration (credentials, timeout)
+	 * @param wqlConfig	WQL configuration (credentials, timeout)
 	 *
 	 * @return A {@link PossibleNamespacesResult} wrapping the success state, the message in case of errors
 	 * and the possibleWmiNamespaces {@link Set}.
 	 */
-	public PossibleNamespacesResult findPossibleNamespaces(final String hostname, final WMIProtocol wmiConfig) {
+	public PossibleNamespacesResult findPossibleNamespaces(final String hostname, final IWqlProtocol wqlConfig) {
 
 		// If the user specified a namespace, we return it as if it was the only namespace available
 		// and for which we're going to test our connector
-		if (wmiConfig.getNamespace() != null && !wmiConfig.getNamespace().isBlank()) {
+		if (wqlConfig.getNamespace() != null && !wqlConfig.getNamespace().isBlank()) {
 			return PossibleNamespacesResult
 					.builder()
-					.possibleNamespaces(Collections.singleton(wmiConfig.getNamespace()))
+					.possibleNamespaces(Collections.singleton(wqlConfig.getNamespace()))
 					.success(true)
 					.build();
 		}
@@ -193,9 +193,9 @@ public class WqlDetectionHelper {
 
 		try {
 
-			matsyaClientsExecutor.executeWmi(
+			matsyaClientsExecutor.executeWql(
 					hostname,
-					wmiConfig,
+					wqlConfig,
 					"SELECT Name FROM __NAMESPACE",
 					"root"
 			).stream()

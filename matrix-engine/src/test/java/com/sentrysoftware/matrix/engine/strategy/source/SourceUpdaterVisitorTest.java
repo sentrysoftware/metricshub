@@ -35,7 +35,6 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tablejo
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tableunion.TableUnionSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ucs.UCSSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.winrm.WinRMSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
@@ -520,12 +519,6 @@ class SourceUpdaterVisitorTest {
 				.key(VALUE_TABLE)
 				.computes(Collections.emptyList())
 				.build();
-	}
-
-	@Test
-	void testVisitWinRMSource() {
-		doReturn(SourceTable.empty()).when(sourceVisitor).visit(any(WinRMSource.class));
-		assertEquals(SourceTable.empty(), new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig).visit(WinRMSource.builder().build()));
 	}
 
 }

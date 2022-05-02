@@ -26,6 +26,7 @@ import com.sentrysoftware.hardware.agent.dto.HostConfigurationDTO;
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
 import com.sentrysoftware.hardware.agent.dto.protocol.IProtocolConfigDTO;
 import com.sentrysoftware.hardware.agent.dto.protocol.SnmpProtocolDTO;
+import com.sentrysoftware.hardware.agent.dto.protocol.WinRMProtocolDTO;
 import com.sentrysoftware.hardware.agent.exception.BusinessException;
 import com.sentrysoftware.hardware.agent.security.PasswordEncrypt;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
@@ -57,7 +58,7 @@ public class ConfigHelper {
 	private static final Predicate<Integer> INVALID_PORT_CHECKER = attr -> attr == null || attr < 1 || attr > 65535;
 	private static final Predicate<Long> INVALID_TIMEOUT_CHECKER = attr -> attr == null || attr < 0L;
 	private static final String COMMAND_ERROR = "Command invalid for hostname: %s";
-	
+
 	/**
 	 * Deserialize YAML configuration file.
 	 * 
@@ -517,15 +518,15 @@ public class ConfigHelper {
 
 		try {
 			validateTarget(hostConfigurationDto.getTarget().getType(), hostname);
-			
-//			if (hostConfigurationDto.getOsCommand() != null) {
-//				WinRMProtocolDTO winRMDTO = hostConfigurationDto.getWinRM();
-//				 validateWinRM(hostname,
-//						winRMDTO.getPort(),
-//						winRMDTO.getTimeout(),
-//						winRMDTO.getUsername(),
-//						winRMDTO.getCommand());
-//			}
+
+			if (hostConfigurationDto.getOsCommand() != null) {
+				WinRMProtocolDTO winRMDTO = hostConfigurationDto.getWinRM();
+				 validateWinRMInfo(hostname,
+						winRMDTO.getPort(),
+						winRMDTO.getTimeout(),
+						winRMDTO.getUsername(),
+						winRMDTO.getCommand());
+			}
 
 			if (hostConfigurationDto.getSnmp() != null)
 				validateSnmpInfo(hostname,
@@ -673,7 +674,7 @@ public class ConfigHelper {
 			return crypted;
 		}
 	}
-	
+
 	/**
 	 * Validate the given WinRM information (hostname, port, timeout, username and command)
 	 *
@@ -684,31 +685,34 @@ public class ConfigHelper {
 	 * @param command	wql command to execute
 	 * @throws BusinessException
 	 */
-	static void validateWinRM(final String hostname, final Integer port, final Long timeout, final String username, final String command)
+	static void validateWinRMInfo(final String hostname, final Integer port, final Long timeout, final String username, final String command)
 			throws BusinessException {
-		if (port == null || port < 1 || port > 65535) {
-			String message = String.format(PORT_ERROR, hostname);
-			log.error(message);
-			throw new BusinessException(ErrorCode.INVALID_PORT, message);
-		}
 
-		if (timeout == null || timeout < 0L) {
-			String message = String.format(TIMEOUT_ERROR, hostname);
-			log.error(message);
-			throw new BusinessException(ErrorCode.INVALID_TIMEOUT, message);
-		}
+		final String protocol = "WinRM";
 
-		if (username == null || username.isEmpty()) {
-			String message = String.format(USERNAME_ERROR, hostname);
-			log.error(message);
-			throw new BusinessException(ErrorCode.NO_USERNAME, message);
-		}
+		validateAttribute(hostname,
+				INVALID_STRING_CHECKER,
+				() -> String.format(USERNAME_ERROR, hostname, protocol),
+				ErrorCode.INVALID_HOSTNAME);
 
-		if (command == null || command.isEmpty()) {
-			String message = String.format(COMMAND_ERROR, hostname);
-			log.error(message);
-			throw new BusinessException(ErrorCode.NO_COMMAND, message);
-		}
+		validateAttribute(port,
+				INVALID_PORT_CHECKER,
+				() -> String.format(PORT_ERROR, hostname, protocol),
+				ErrorCode.INVALID_PORT);
+
+		validateAttribute(timeout,
+				INVALID_TIMEOUT_CHECKER,
+				() -> String.format(TIMEOUT_ERROR, hostname, protocol),
+				ErrorCode.INVALID_TIMEOUT);
+
+		validateAttribute(username,
+				INVALID_STRING_CHECKER,
+				() -> String.format(USERNAME_ERROR, hostname, protocol),
+				ErrorCode.NO_USERNAME);
+
+		validateAttribute(command,
+				INVALID_STRING_CHECKER,
+				() -> String.format(COMMAND_ERROR, hostname, protocol),
+				ErrorCode.NO_COMMAND);
 	}
-
 }

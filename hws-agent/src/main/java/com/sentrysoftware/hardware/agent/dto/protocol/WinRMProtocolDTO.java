@@ -1,6 +1,5 @@
 package com.sentrysoftware.hardware.agent.dto.protocol;
 
-import java.nio.file.Path;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -27,13 +26,11 @@ public class WinRMProtocolDTO extends AbstractProtocolDTO {
 	private char[] password;
 	private String namespace;
 	private String command;
-	private String workingDirectory;
-	private Integer port;
-	private String protocol; // HTTP or HTTPS
-	private Path ticketCache;
+	@Default
+	private Integer port = 5985;
+	@Default
+	private Boolean https = false;
 	private List<AuthenticationEnum> authentications;
-	private List<String> localFileToCopyList;
-
 	@Default
 	@JsonDeserialize(using = TimeDeserializer.class)
 	private Long timeout = 120L;
@@ -51,13 +48,10 @@ public class WinRMProtocolDTO extends AbstractProtocolDTO {
 				.password(super.decrypt(password))
 				.namespace(namespace)
 				.command(command)
-				.workingDirectory(workingDirectory)
 				.port(port)
-				.protocol(protocol)
-				.ticketCache(ticketCache)
+				.https(https)
 				.authentications(authentications)
 				.timeout(timeout)
-				.localFileToCopyList(localFileToCopyList)
 				.build();
 	}
 

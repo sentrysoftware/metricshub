@@ -39,22 +39,16 @@ import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.OSType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.winrm.WinRMSource;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParser;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.EngineResult;
 import com.sentrysoftware.matrix.engine.OperationStatus;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
-import com.sentrysoftware.matrix.engine.protocol.WinRMProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
 import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
-import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
 import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
 import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
-import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
-import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
-import com.sentrysoftware.matrix.engine.strategy.source.SourceVisitor;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
@@ -219,11 +213,9 @@ public class HardwareSentryCli implements Callable<Integer> {
 			description = "Verbose mode (repeat the option to increase verbosity)"
 	)
 	private boolean[] verbose;
-	
+
 	@Override
 	public Integer call() throws IOException {
-
-		System.out.println("HardwareSentryCli call");
 
 		// First, process special "help" options
 		if (listConnectors) {
@@ -265,30 +257,6 @@ public class HardwareSentryCli implements Callable<Integer> {
 		// Create a new HostMonitoring
 		IHostMonitoring hostMonitoring =
 				HostMonitoringFactory.getInstance().createHostMonitoring(hostname, engineConf);
-
-		// WinRM query
-		if (protocols.containsKey(WinRMProtocol.class)) {
-			MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor();
-			SourceVisitor sourceVisitor = new SourceVisitor(
-					StrategyConfig.builder().engineConfiguration(engineConf).build(), 
-					matsyaClientsExecutor, 
-					null);
-			WinRMSource winRMSource = new WinRMSource();
-			SourceTable sourceTable = sourceVisitor.visit(winRMSource);
-			
-			for (List<String> col : sourceTable.getTable()) {
-				for (String val : col) {
-					spec.commandLine().getOut().print(val + "|");
-				}
-				spec.commandLine().getOut().print("\n");
-			}
-			spec.commandLine().getOut().flush();
-
-			// If only a WinRM query was asked, no need to try the other jobs
-			if (hostMonitoring.selectFromType(MonitorType.CONNECTOR) == null || hostMonitoring.selectFromType(MonitorType.CONNECTOR).isEmpty()) {
-				return 0;
-			}
-		}
 
 		// Detection
 		if (ConsoleService.hasConsole()) {
