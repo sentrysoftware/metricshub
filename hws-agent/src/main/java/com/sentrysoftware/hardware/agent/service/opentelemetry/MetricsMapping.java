@@ -245,25 +245,25 @@ public class MetricsMapping {
 				.builder()
 				.name("hw.target.snmp.up")
 				.unit(UP_PARAMETER_UNIT)
-				.description("Indicates whether the SNMP protocol is up or not")
+				.description("Whether the SNMP protocol is up or not")
 				.build());
 		map.put(Target.WMI_UP.getName(), MetricInfo
 				.builder()
 				.name("hw.target.wmi.up")
 				.unit(UP_PARAMETER_UNIT)
-				.description("Indicates whether the WMI protocol is up or not")
+				.description("Whether the WMI protocol is up or not")
 				.build());
 		map.put(Target.WBEM_UP.getName(), MetricInfo
 				.builder()
 				.name("hw.target.wbem.up")
 				.unit(UP_PARAMETER_UNIT)
-				.description("Indicates whether the WBEM protocol is up or not")
+				.description("Whether the WBEM protocol is up or not")
 				.build());
 		map.put(Target.SSH_UP.getName(), MetricInfo
 				.builder()
 				.name("hw.target.ssh.up")
 				.unit(UP_PARAMETER_UNIT)
-				.description("Indicates whether the SSH protocol is up or not")
+				.description("Whether the SSH protocol is up or not")
 				.build());
 
 		return map;
