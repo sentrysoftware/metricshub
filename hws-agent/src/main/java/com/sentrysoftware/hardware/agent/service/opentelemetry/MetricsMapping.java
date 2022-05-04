@@ -793,7 +793,7 @@ public class MetricsMapping {
 			.name("hw.robotics.energy_joules")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
-			.description("Energy consumed by the robotic drive since the start of the Hardware Sentry Agent.")
+			.description("Energy consumed by the robotic device since the start of the Hardware Sentry Agent.")
 			.build());
 		map.put(IMetaMonitor.POWER_CONSUMPTION.getName(), MetricInfo
 			.builder()
