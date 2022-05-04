@@ -205,14 +205,14 @@ public class MetricsMapping {
 			.name("hw.target.energy_joules")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
-			.description("Energy dissipated by all the components discovered for the monitored target. Expressed in joules.")
+			.description("Energy consumed by the components since the start of the Hardware Sentry agent.")
 			.build());
 		map.put(IMetaMonitor.POWER_CONSUMPTION.getName(), MetricInfo
 			.builder()
 			.name("hw.target.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("Energy consumed by all the components discovered for the monitored target. Expressed in watts.")
+			.description("Energy consumed by all the components discovered for the monitored target.")
 			.build());
 		map.put(IMetaMonitor.HEATING_MARGIN.getName(), MetricInfo
 			.builder()
@@ -224,13 +224,13 @@ public class MetricsMapping {
 			.builder()
 			.name("hw.target.ambient_temperature_celsius")
 			.unit(CELSIUS)
-			.description("Target current ambient temperature in degrees Celsius (°C).")
+			.description("Target's current ambient temperature in degrees Celsius (°C).")
 			.build());
 		map.put(Target.CPU_TEMPERATURE.getName(), MetricInfo
 			.builder()
 			.name("hw.target.cpu_temperature_celsius")
 			.unit(CELSIUS)
-			.description("Target CPU temperature in degrees Celsius (°C).")
+			.description("Target's CPU temperature in degrees Celsius (°C).")
 			.build());
 		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo
 				.builder()
@@ -253,13 +253,13 @@ public class MetricsMapping {
 		map.put(ERROR_COUNT_WARNING_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.robotics.errors_warning")
-			.description("Number of errors that will generate a warning when reached.")
+			.description("WARNING_THRESHOLD_OF_ERRORS")
 			.build());
 
 		map.put(ERROR_COUNT_ALARM_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.robotics.errors_alarm")
-			.description("Number of errors that will generate an alarm when reached.")
+			.description("ALARM_THRESHOLD_OF_ERRORS")
 			.build());
 
 		return map;
@@ -278,7 +278,7 @@ public class MetricsMapping {
 			.name("hw.voltage.voltage_volts_upper")
 			.unit(VOLTS)
 			.factor(0.001)
-			.description("Minimum voltage that will generate an alert when reached.")
+			.description("Upper threshold of the voltage.")
 			.build());
 
 		map.put(LOWER_THRESHOLD, MetricInfo
@@ -286,7 +286,7 @@ public class MetricsMapping {
 			.name("hw.voltage.voltage_volts_lower")
 			.unit(VOLTS)
 			.factor(0.001)
-			.description("Maximum voltage that will generate an alert when reached.")
+			.description("Lower threshold of the voltage.")
 			.build());
 
 		return map;
@@ -328,13 +328,13 @@ public class MetricsMapping {
 		map.put(ERROR_COUNT_WARNING_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.tape_drive.errors_warning")
-			.description("Number of errors that will generate a warning when reached.")
+			.description("WARNING_THRESHOLD_OF_ERRORS")
 			.build());
 
 		map.put(ERROR_COUNT_ALARM_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.tape_drive.errors_alarm")
-			.description("Number of errors that will generate an alarm when reached.")
+			.description("ALARM_THRESHOLD_OF_ERRORS")
 			.build());
 
 		return map;
@@ -385,14 +385,14 @@ public class MetricsMapping {
 			.builder()
 			.name("hw.network_card.error_ratio_warning")
 			.factor(0.01)
-			.description("Network card error ratio that will generate a warning when reached.")
+			.description("Network interface error ratio that will generate a warning when reached.")
 			.build());
 
 		map.put(ERROR_PERCENT_ALARM_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.network_card.error_ratio_alarm")
 			.factor(0.01)
-			.description("Network card error ratio that will generate an alarm when reached.")
+			.description("Network interface error ratio that will generate an alarm when reached.")
 			.build());
 
 		return map;
@@ -472,19 +472,19 @@ public class MetricsMapping {
 			.builder()
 			.name("hw.physical_disk.size_bytes")
 			.unit(BYTES)
-			.description("Physical disk size in bytes.")
+			.description("Physical disk size.")
 			.build());
 
 		map.put(ERROR_COUNT_WARNING_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.physical_disk.errors_warning")
-			.description("Number of errors encountered by the physical disk that will generate a warning when reached.")
+			.description("WARNING_THRESHOLD_OF_ERRORS")
 			.build());
 
 		map.put(ERROR_COUNT_ALARM_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.physical_disk.errors_alarm")
-			.description("Number of errors encountered by the physical disk that will generate an alarm when reached.")
+			.description("ALARM_THRESHOLD_OF_ERRORS")
 			.build());
 
 		return map;
@@ -503,19 +503,19 @@ public class MetricsMapping {
 			.name("hw.memory.size_bytes")
 			.unit(BYTES)
 			.factor(1000000.0) // MB to Bytes
-			.description("Memory module size in bytes.")
+			.description("Memory module size.")
 			.build());
 
 		map.put(ERROR_COUNT_WARNING_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.memory.errors_warning")
-			.description("Number of errors encountered that will generate a warning when reached.")
+			.description("WARNING_THRESHOLD_OF_ERRORS")
 			.build());
 
 		map.put(ERROR_COUNT_ALARM_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.memory.errors_alarm")
-			.description("Number of errors encountered that will generate an alarm when reached.")
+			.description("ALARM_THRESHOLD_OF_ERRORS")
 			.build());
 
 		return map;
@@ -533,19 +533,19 @@ public class MetricsMapping {
 			.builder()
 			.name("hw.logical_disk.size_bytes")
 			.unit(BYTES)
-			.description("Logical disk size in bytes")
+			.description("Logical disk size")
 			.build());
 
 		map.put(ERROR_COUNT_WARNING_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.logical_disk.errors_warning")
-			.description("Number of errors encountered by the logical disk that will generate an alarm when reached.")
+			.description("WARNING_THRESHOLD_OF_ERRORS")
 			.build());
 
 		map.put(ERROR_COUNT_ALARM_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.logical_disk.errors_alarm")
-			.description("Alarm threshold of the errors encountered by the logical disk.")
+			.description("ALARM_THRESHOLD_OF_ERRORS")
 			.build());
 
 		return map;
@@ -564,7 +564,7 @@ public class MetricsMapping {
 			.name("hw.cpu.maximum_speed_hertz")
 			.unit(HERTZ)
 			.factor(1000000.0)
-			.description("CPU maximum speed in hertz.")
+			.description("CPU maximum speed.")
 			.build());
 
 		map.put(CORRECTED_ERROR_WARNING_THRESHOLD, MetricInfo
@@ -595,7 +595,7 @@ public class MetricsMapping {
 			.name("hw.gpu.size_bytes")
 			.unit(BYTES)
 			.factor(1000000.0) // MB to Bytes
-			.description("GPU memory size in bytes")
+			.description("GPU memory size")
 			.build());
 
 		map.put(CORRECTED_ERROR_WARNING_THRESHOLD, MetricInfo
@@ -625,7 +625,7 @@ public class MetricsMapping {
 				.builder()
 				.name("hw.power_supply.power_watts")
 				.unit(WATTS)
-				.description("Maximum power output in watts.")
+				.description("Maximum power output.")
 				.build());
 
 		return map;
@@ -650,7 +650,7 @@ public class MetricsMapping {
 			.name("hw.voltage.voltage_volts")
 			.unit(VOLTS)
 			.factor(0.001)
-			.description("Voltage output in volts.")
+			.description("Voltage output.")
 			.build());
 		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo
 			.builder()
@@ -716,7 +716,7 @@ public class MetricsMapping {
 			.builder()
 			.name("hw.tape_drive.errors")
 			.type(MetricType.COUNTER)
-			.description("Number of errors encountered by the tape drive since the last reinitialization.")
+			.description("Number of errors encountered by the tape drive since the start of the Hardware Sentry agent.")
 			.build());
 		map.put(TapeDrive.MOUNT_COUNT.getName(), MetricInfo
 			.builder()
@@ -742,14 +742,14 @@ public class MetricsMapping {
 			.name("hw.tape_drive.energy_joules")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
-			.description("Total energy dissipated by all the tape drive expressed in joules.")
+			.description("Energy consumed by the tape drive since the start of the Hardware Sentry agent.")
 			.build());
 		map.put(IMetaMonitor.POWER_CONSUMPTION.getName(), MetricInfo
 			.builder()
 			.name("hw.tape_drive.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("Energy consumed by the tape drive expressed in watts.")
+			.description("Energy consumed by the tape drive.")
 			.build());
 
 		return map;
@@ -779,7 +779,7 @@ public class MetricsMapping {
 			.builder()
 			.name("hw.robotics.errors")
 			.type(MetricType.COUNTER)
-			.description("Number of errors encountered by the robotic device since the last reinitialization.")
+			.description("Number of errors encountered by the robotic device since the start of the Hardware Sentry agent.")
 			.build());
 		map.put(Robotics.MOVE_COUNT.getName(), MetricInfo
 			.builder()
@@ -793,14 +793,14 @@ public class MetricsMapping {
 			.name("hw.robotics.energy_joules")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
-			.description("Total energy dissipated by the robotic device expressed in joules.")
+			.description("Energy consumed by the robotic drive since the start of the Hardware Sentry Agent.")
 			.build());
 		map.put(IMetaMonitor.POWER_CONSUMPTION.getName(), MetricInfo
 			.builder()
 			.name("hw.robotics.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("Energy consumed by the robotic device expressed in watts.")
+			.description("Energy consumed by the robotic device.")
 			.build());
 
 		return map;
@@ -866,7 +866,7 @@ public class MetricsMapping {
 			.builder()
 			.name("hw.physical_disk.errors")
 			.type(MetricType.COUNTER)
-			.description("Number of errors encountered by the physical disk since the last reinitialization.")
+			.description("Number of errors encountered by the physical disk since the start of the Hardware Sentry Agent.")
 			.build());
 		map.put(IMetaMonitor.PREDICTED_FAILURE.getName(), MetricInfo
 			.builder()
@@ -879,14 +879,14 @@ public class MetricsMapping {
 			.name("hw.physical_disk.energy_joules")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
-			.description("Total energy dissipated by the physical disk expressed in joules.")
+			.description("Energy consumed by the physical disk since the start of the Hardware Sentry Agent.")
 			.build());
 		map.put(IMetaMonitor.POWER_CONSUMPTION.getName(), MetricInfo
 			.builder()
 			.name("hw.physical_disk.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("Energy consumed by the physical disk expressed in watts.")
+			.description("Energy consumed by the physical disk.")
 			.build());
 
 		return map;
@@ -910,7 +910,7 @@ public class MetricsMapping {
 			.builder()
 			.name("hw.other_device.present")
 			.unit(IMetaMonitor.PRESENT.getUnit())
-			.description("Whether the other device is found or not.")
+			.description("Whether the device is found or not.")
 			.build());
 		map.put(OtherDevice.USAGE_COUNT.getName(), MetricInfo
 			.builder()
@@ -938,17 +938,17 @@ public class MetricsMapping {
 		map.put(IMetaMonitor.STATUS.getName(), MetricInfo.builder()
 			.name("hw.network_card.status")
 			.unit(IMetaMonitor.STATUS.getUnit())
-			.description("Network card status")
+			.description("Network interface status")
 			.build());
 		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo.builder()
 			.name("hw.network_card.present")
 			.unit(IMetaMonitor.PRESENT.getUnit())
-			.description("Whether the network card is found or not.")
+			.description("Whether the network interface is found or not.")
 			.build());
 		map.put(NetworkCard.BANDWIDTH_UTILIZATION.getName(), MetricInfo.builder()
 			.name("hw.network_card.bandwidth_utilization_ratio")
 			.factor(0.01)
-			.description("Ratio used of the available bandwidth. ")
+			.description("Ratio of the available bandwidth utilization. ")
 			.build());
 		map.put(NetworkCard.DUPLEX_MODE.getName(), MetricInfo.builder()
 			.name("hw.network_card.duplex_mode")
@@ -969,31 +969,31 @@ public class MetricsMapping {
 		map.put(NetworkCard.LINK_STATUS.getName(), MetricInfo.builder()
 			.name("hw.network_card.link_status")
 			.unit(NetworkCard.LINK_STATUS.getUnit())
-			.description("Whether the network card is plugged-in to the network or not.")
+			.description("Whether the network interface is plugged-in to the network or not.")
 			.build());
 		map.put(NetworkCard.RECEIVED_BYTES.getName(), MetricInfo.builder()
 			.name("hw.network_card.received_bytes")
 			.unit(BYTES)
 			.type(MetricType.COUNTER)
-			.description("Total number of bytes received through the network card." )
+			.description("Total number of bytes received through the network interface." )
 			.build());
 		map.put(NetworkCard.RECEIVED_PACKETS.getName(), MetricInfo.builder()
 			.name("hw.network_card.received_packets")
 			.unit(PACKETS)
 			.type(MetricType.COUNTER)
-			.description("Total number of packets received through the network card.")
+			.description("Total number of packets received through the network interface.")
 			.build());
 		map.put(NetworkCard.TRANSMITTED_BYTES.getName(), MetricInfo.builder()
 			.name("hw.network_card.transmitted_bytes")
 			.unit(BYTES)
 			.type(MetricType.COUNTER)
-			.description("Total number of bytes transmitted through the network card.")
+			.description("Total number of bytes transmitted through the network interface.")
 			.build());
 		map.put(NetworkCard.TRANSMITTED_PACKETS.getName(), MetricInfo.builder()
 			.name("hw.network_card.transmitted_packets")
 			.unit(PACKETS)
 			.type(MetricType.COUNTER)
-			.description("Total number of packets transmitted through the network card.")
+			.description("Total number of packets transmitted through the network interface.")
 			.build());
 		map.put(NetworkCard.ZERO_BUFFER_CREDIT_COUNT.getName(), MetricInfo.builder()
 			.name("hw.network_card.zero_buffer_credits")
@@ -1004,13 +1004,13 @@ public class MetricsMapping {
 			.name("hw.network_card.energy_joules")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
-			.description("Total energy dissipated by the network card expressed in joules.")
+			.description("Energy consumed by the network interface since the start of the Hardware Sentry Agent.")
 			.build());
 		map.put(IMetaMonitor.POWER_CONSUMPTION.getName(), MetricInfo.builder()
 			.name("hw.network_card.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("Energy consumed by the network card expressed in watts.")
+			.description("Energy consumed by the network interface.")
 			.build());
 		map.put(NetworkCard.ERROR_PERCENT.getName(), MetricInfo.builder()
 			.name("hw.network_card.error_ratio")
@@ -1041,7 +1041,7 @@ public class MetricsMapping {
 		map.put(IMetaMonitor.ERROR_COUNT.getName(), MetricInfo.builder()
 			.name("hw.memory.errors")
 			.type(MetricType.COUNTER)
-			.description("Number of errors encountered by the memory module since the last reinitialization.")
+			.description("Number of errors encountered by the memory module since the start of the Hardware Sentry Agent.")
 			.build());
 		map.put(Memory.ERROR_STATUS.getName(),  MetricInfo.builder()
 			.name("hw.memory.error_status")
@@ -1057,13 +1057,13 @@ public class MetricsMapping {
 			.name("hw.memory.energy_joules")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
-			.description("Total energy dissipated by the memory module expressed in joules.")
+			.description("Energy consumed by the memory module since the start of the Hardware Sentry Agent.")
 			.build());
 		map.put(IMetaMonitor.POWER_CONSUMPTION.getName(), MetricInfo.builder()
 			.name("hw.memory.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("Energy consumed by the memory module expressed in watts.")
+			.description("Energy consumed by the memory module.")
 			.build());
 
 		return map;
@@ -1114,7 +1114,7 @@ public class MetricsMapping {
 		map.put(IMetaMonitor.ERROR_COUNT.getName(), MetricInfo.builder()
 			.name("hw.logical_disk.errors")
 			.type(MetricType.COUNTER)
-			.description("Number of errors encountered by the logical disk since the last reinitialization.")
+			.description("Number of errors encountered by the logical disk since the start of the Hardware Sentry Agent.")
 			.build());
 		map.put(LogicalDisk.UNALLOCATED_SPACE.getName(), MetricInfo.builder()
 			.name("hw.logical_disk.unallocated_space_bytes")
@@ -1196,13 +1196,13 @@ public class MetricsMapping {
 			.name("hw.fan.energy_joules")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
-			.description("Total energy dissipated by the fan expressed in joules.")
+			.description("Energy consumed by the fan since the start of the Hardware Sentry Agent.")
 			.build());
 		map.put(IMetaMonitor.POWER_CONSUMPTION.getName(), MetricInfo.builder()
 			.name("hw.fan.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("Energy consumed by the fan expressed in watts.")
+			.description("Energy consumed by the fan.")
 			.build());
 
 		return map;
@@ -1235,13 +1235,13 @@ public class MetricsMapping {
 			.name("hw.enclosure.energy_joules")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
-			.description("Total energy dissipated by the enclosure expressed in joules.")
+			.description("Energy consumed by the enclosure since the start of the Hardware Sentry Agent.")
 			.build());
 		map.put(IMetaMonitor.POWER_CONSUMPTION.getName(), MetricInfo.builder()
 			.name("hw.enclosure.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("Energy consumed by the enclosure expressed in watts.")
+			.description("Energy consumed by the enclosure.")
 			.build());
 
 		return map;
@@ -1279,13 +1279,13 @@ public class MetricsMapping {
 			.name("hw.disk_controller.energy_joules")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
-			.description("Total energy dissipated by the disk controller expressed in joules.")
+			.description("Energy consumed by the disk controller since the start of the Hardware Sentry Agent.")
 			.build());
 		map.put(IMetaMonitor.POWER_CONSUMPTION.getName(), MetricInfo.builder()
 			.name("hw.disk_controller.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("Energy consumed by the disk controller expressed in watts.")
+			.description("Energy consumed by the disk controller.")
 			.build());
 
 		return map;
@@ -1362,13 +1362,13 @@ public class MetricsMapping {
 			.name("hw.cpu.energy_joules")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
-			.description("Total energy dissipated by the CPU expressed in joules.")
+			.description("Energy consumed by the CPU since the start of the Hardware Sentry Agent.")
 			.build());
 		map.put(IMetaMonitor.POWER_CONSUMPTION.getName(), MetricInfo.builder()
 			.name("hw.cpu.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("Energy consumed by the CPU expressed in watts.")
+			.description("Energy consumed by the CPU.")
 			.build());
 
 		return map;
@@ -1478,13 +1478,13 @@ public class MetricsMapping {
 			.name("hw.vm.energy_joules")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
-			.description("Total energy dissipated by the virtual machine expressed in joules.")
+			.description("Energy consumed by the virtual machine since the start of the Hardware Sentry Agent.")
 			.build());
 		map.put(IMetaMonitor.POWER_CONSUMPTION.getName(), MetricInfo.builder()
 			.name("hw.vm.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("Energy consumed by the virtual machine expressed in watts.")
+			.description("Energy consumed by the virtual machine.")
 			.build());
 
 		return map;
@@ -1555,18 +1555,18 @@ public class MetricsMapping {
 			.name("hw.gpu.energy_joules")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
-			.description("Total energy dissipated by the GPU expressed in joules.")
+			.description("Energy consumed by the GPU since the start of the Hardware Sentry Agent.")
 			.build());
 		map.put(IMetaMonitor.POWER_CONSUMPTION.getName(), MetricInfo.builder()
 			.name("hw.gpu.power_watts")
 			.unit(WATTS)
 			.type(MetricType.GAUGE)
-			.description("Energy consumed by the GPU expressed in watts.")
+			.description("Energy consumed by the GPU.")
 			.build());
 		map.put(Gpu.ERROR_COUNT.getName(), MetricInfo.builder()
 				.name("hw.gpu.errors")
 				.type(MetricType.COUNTER)
-				.description("Number of errors encountered by the GPU since the last reinitialization.")
+				.description("Number of errors encountered by the GPU since the start of the Hardware Sentry Agent.")
 				.build());
 
 		return map;
