@@ -993,7 +993,7 @@ class CriterionVisitorTest {
 		assertNotNull(criterionTestResult);
 		assertFalse(criterionTestResult.isSuccess());
 		assertEquals(
-				"OSCommand test ran but failed:\n" + osCommand.toString() +
+				"OsCommand test ran but failed:\n" + osCommand.toString() +
 						"\n\n" +
 						"Actual result:\n" + result,
 						criterionTestResult.getMessage());
