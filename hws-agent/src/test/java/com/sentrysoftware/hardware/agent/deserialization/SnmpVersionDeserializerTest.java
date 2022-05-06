@@ -13,7 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.fasterxml.jackson.dataformat.yaml.YAMLParser;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
+import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.SNMPVersion;
 
 @ExtendWith(MockitoExtension.class)
 class SnmpVersionDeserializerTest {

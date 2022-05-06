@@ -5,9 +5,9 @@ import com.sentrysoftware.hardware.agent.deserialization.SnmpPrivacyDeserializer
 import com.sentrysoftware.hardware.agent.deserialization.SnmpVersionDeserializer;
 import com.sentrysoftware.hardware.agent.deserialization.TimeDeserializer;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
+import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.Privacy;
+import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.SNMPVersion;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class SnmpProtocolDTO extends AbstractProtocolDTO {
+public class SnmpProtocolDto extends AbstractProtocolDto {
 
 	@Default
 	@JsonDeserialize(using = SnmpVersionDeserializer.class)
@@ -40,13 +40,13 @@ public class SnmpProtocolDTO extends AbstractProtocolDTO {
 	private char[] password;
 
 	/**
-	 * Create a new {@link SNMPProtocol} instance based on the current members
+	 * Create a new {@link SnmpProtocol} instance based on the current members
 	 * 
-	 * @return The {@link SNMPProtocol} instance
+	 * @return The {@link SnmpProtocol} instance
 	 */
 	@Override
 	public IProtocolConfiguration toProtocol() {
-		return SNMPProtocol
+		return SnmpProtocol
 				.builder()
 				.version(version)
 				.community(String.valueOf(decrypt(community)))

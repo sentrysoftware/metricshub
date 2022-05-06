@@ -18,17 +18,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.sentrysoftware.hardware.agent.dto.HostConfigurationDTO;
-import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
-import com.sentrysoftware.hardware.agent.dto.protocol.SnmpProtocolDTO;
+import com.sentrysoftware.hardware.agent.dto.HostConfigurationDto;
+import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
+import com.sentrysoftware.hardware.agent.dto.protocol.SnmpProtocolDto;
 import com.sentrysoftware.hardware.agent.exception.BusinessException;
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WmiSource;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
+import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.SNMPVersion;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
@@ -97,20 +97,20 @@ class ConfigHelperTest {
 	@Test
 	void testBuildEngineConfiguration() throws BusinessException {
 
-		final MultiHostsConfigurationDTO hostsConfigurations = ConfigHelper
+		final MultiHostsConfigurationDto hostsConfigurations = ConfigHelper
 				.readConfigurationSafe(configFile);
 
 		final Set<String> selectedConnectors = Collections.singleton(DELL_OPEN_MANAGE_CONNECTOR);
 
-		for (HostConfigurationDTO hostConfigurationDTO : hostsConfigurations.getTargets()) {
+		for (HostConfigurationDto hostConfigurationDto : hostsConfigurations.getTargets()) {
 
-			EngineConfiguration actual = ConfigHelper.buildEngineConfiguration(hostConfigurationDTO, selectedConnectors,
+			EngineConfiguration actual = ConfigHelper.buildEngineConfiguration(hostConfigurationDto, selectedConnectors,
 					Collections.emptySet());
 
 			Map<Class<? extends IProtocolConfiguration>, IProtocolConfiguration> protocolConfigurations = Map
-					.of(SNMPProtocol.class, hostConfigurationDTO.getSnmp().toProtocol());
+					.of(SnmpProtocol.class, hostConfigurationDto.getSnmp().toProtocol());
 
-			HardwareTarget target = hostConfigurationDTO.getTarget().toHardwareTarget();
+			HardwareTarget target = hostConfigurationDto.getTarget().toHardwareTarget();
 			if ("357306c9-07e9-431b-bc71-b7712daabbbf-1".equals(target.getId())) {
 				target.setId("357306c9-07e9-431b-bc71-b7712daabbbf-1");
 			} else {
@@ -119,7 +119,7 @@ class ConfigHelperTest {
 
 			EngineConfiguration expected = EngineConfiguration
 					.builder()
-					.operationTimeout(hostConfigurationDTO.getOperationTimeout())
+					.operationTimeout(hostConfigurationDto.getOperationTimeout())
 					.protocolConfigurations(protocolConfigurations).selectedConnectors(selectedConnectors)
 					.target(target)
 					.build();
@@ -135,20 +135,20 @@ class ConfigHelperTest {
 
 	@Test
 	void testBuildHostMonitoringMap() throws IOException {
-		final MultiHostsConfigurationDTO multiHostsConfigurationDTO = ConfigHelper.deserializeYamlFile(configFile,
-				MultiHostsConfigurationDTO.class);
+		final MultiHostsConfigurationDto multiHostsConfigurationDto = ConfigHelper.deserializeYamlFile(configFile,
+				MultiHostsConfigurationDto.class);
 		final Map<String, IHostMonitoring> hostMonitoringMap = ConfigHelper
-				.buildHostMonitoringMap(multiHostsConfigurationDTO, Collections.singleton(DELL_OPEN_MANAGE_CONNECTOR));
+				.buildHostMonitoringMap(multiHostsConfigurationDto, Collections.singleton(DELL_OPEN_MANAGE_CONNECTOR));
 
 		assertFalse(hostMonitoringMap.isEmpty());
 	}
 
 	@Test
 	void testBuildHostMonitoringMapBadConfig() throws IOException {
-		final MultiHostsConfigurationDTO multiHostsConfigurationDTO = ConfigHelper.deserializeYamlFile(configFile,
-				MultiHostsConfigurationDTO.class);
+		final MultiHostsConfigurationDto multiHostsConfigurationDto = ConfigHelper.deserializeYamlFile(configFile,
+				MultiHostsConfigurationDto.class);
 		final Map<String, IHostMonitoring> hostMonitoringMap = ConfigHelper.buildHostMonitoringMap(
-				multiHostsConfigurationDTO, Collections.singleton("StoreAcceptsOnlyThisConnector"));
+				multiHostsConfigurationDto, Collections.singleton("StoreAcceptsOnlyThisConnector"));
 
 		assertTrue(hostMonitoringMap.isEmpty());
 	}
@@ -156,7 +156,7 @@ class ConfigHelperTest {
 	@Test
 	void testDeserializeYamlFile() throws IOException {
 		assertNotNull(
-				ConfigHelper.deserializeYamlFile(configFile, MultiHostsConfigurationDTO.class));
+				ConfigHelper.deserializeYamlFile(configFile, MultiHostsConfigurationDto.class));
 	}
 
 	@Test
@@ -180,7 +180,7 @@ class ConfigHelperTest {
 						.id("localhost")
 						.type(TargetType.LINUX)
 						.build())
-				.protocolConfigurations(Map.of(SNMPProtocol.class, SNMPProtocol.builder().build()))
+				.protocolConfigurations(Map.of(SnmpProtocol.class, SnmpProtocol.builder().build()))
 				.build();
 		Set<String> selectedConnectors = Set.of(SUN_F15K);
 		engineConfiguration.setSelectedConnectors(selectedConnectors);
@@ -188,11 +188,11 @@ class ConfigHelperTest {
 		Connector connector = new Connector();
 		connector.setCompiledFilename(SUN_F15K);
 
-		connector.setSourceTypes(Collections.singleton(WMISource.class));
+		connector.setSourceTypes(Collections.singleton(WmiSource.class));
 
 		assertThrows(BusinessException.class, () -> ConfigHelper.validateEngineConfiguration(engineConfiguration, Collections.singletonList(connector)));
 
-		connector.setSourceTypes(Collections.singleton(SNMPGetTableSource.class));
+		connector.setSourceTypes(Collections.singleton(SnmpGetTableSource.class));
 
 		assertDoesNotThrow(() -> ConfigHelper.validateEngineConfiguration(engineConfiguration, Collections.singletonList(connector)));
 	}
@@ -203,7 +203,7 @@ class ConfigHelperTest {
 		final char[] emptyCommunity = new char[] {};
 
 		{ 
-			SnmpProtocolDTO snmpDto = SnmpProtocolDTO
+			SnmpProtocolDto snmpDto = SnmpProtocolDto
 					.builder()
 					.community(emptyCommunity)
 					.port(1234)
@@ -216,7 +216,7 @@ class ConfigHelperTest {
 		}
 
 		{
-			SnmpProtocolDTO snmpDto = SnmpProtocolDTO
+			SnmpProtocolDto snmpDto = SnmpProtocolDto
 					.builder()
 					.community(null)
 					.port(1234)
@@ -229,7 +229,7 @@ class ConfigHelperTest {
 		}
 
 		{
-			SnmpProtocolDTO snmpDto = SnmpProtocolDTO
+			SnmpProtocolDto snmpDto = SnmpProtocolDto
 					.builder()
 					.community(community)
 					.port(-1)
@@ -242,7 +242,7 @@ class ConfigHelperTest {
 		}
 
 		{
-			SnmpProtocolDTO snmpDto = SnmpProtocolDTO
+			SnmpProtocolDto snmpDto = SnmpProtocolDto
 					.builder()
 					.community(community)
 					.port(66666)
@@ -255,7 +255,7 @@ class ConfigHelperTest {
 		}
 
 		{
-			SnmpProtocolDTO snmpDto = SnmpProtocolDTO
+			SnmpProtocolDto snmpDto = SnmpProtocolDto
 					.builder()
 					.community(community)
 					.port(null)
@@ -268,7 +268,7 @@ class ConfigHelperTest {
 		}
 
 		{
-			SnmpProtocolDTO snmpDto = SnmpProtocolDTO
+			SnmpProtocolDto snmpDto = SnmpProtocolDto
 					.builder()
 					.community(community)
 					.port(1234)
@@ -281,7 +281,7 @@ class ConfigHelperTest {
 		}
 
 		{
-			SnmpProtocolDTO snmpDto = SnmpProtocolDTO
+			SnmpProtocolDto snmpDto = SnmpProtocolDto
 					.builder()
 					.community(community)
 					.port(1234)
@@ -294,7 +294,7 @@ class ConfigHelperTest {
 		}
 
 		{
-			SnmpProtocolDTO snmpDto = SnmpProtocolDTO
+			SnmpProtocolDto snmpDto = SnmpProtocolDto
 					.builder()
 					.community(community)
 					.port(1234)
@@ -308,7 +308,7 @@ class ConfigHelperTest {
 		}
 
 		{
-			SnmpProtocolDTO snmpDto = SnmpProtocolDTO
+			SnmpProtocolDto snmpDto = SnmpProtocolDto
 					.builder()
 					.community(community)
 					.port(1234)
@@ -321,7 +321,7 @@ class ConfigHelperTest {
 		}
 
 		{
-			SnmpProtocolDTO snmpDto = SnmpProtocolDTO
+			SnmpProtocolDto snmpDto = SnmpProtocolDto
 					.builder()
 					.community(community)
 					.port(1234)
@@ -334,7 +334,7 @@ class ConfigHelperTest {
 		}
 
 		{
-			SnmpProtocolDTO snmpDto = SnmpProtocolDTO
+			SnmpProtocolDto snmpDto = SnmpProtocolDto
 					.builder()
 					.community(community)
 					.port(1234)

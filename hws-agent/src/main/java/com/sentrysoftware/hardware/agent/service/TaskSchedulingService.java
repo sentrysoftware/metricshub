@@ -21,8 +21,8 @@ import org.springframework.stereotype.Service;
 
 import com.sentrysoftware.hardware.agent.configuration.ConfigHelper;
 import com.sentrysoftware.hardware.agent.configuration.OtelConfig;
-import com.sentrysoftware.hardware.agent.dto.HostConfigurationDTO;
-import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
+import com.sentrysoftware.hardware.agent.dto.HostConfigurationDto;
+import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
 import com.sentrysoftware.hardware.agent.dto.UserConfiguration;
 import com.sentrysoftware.hardware.agent.service.opentelemetry.OtelHelper;
 import com.sentrysoftware.hardware.agent.service.opentelemetry.OtelSelfObserver;
@@ -55,7 +55,7 @@ public class TaskSchedulingService {
 	private ThreadPoolTaskScheduler taskScheduler;
 
 	@Autowired
-	private MultiHostsConfigurationDTO multiHostsConfigurationDto;
+	private MultiHostsConfigurationDto multiHostsConfigurationDto;
 
 	@Autowired
 	private Map<String, IHostMonitoring> hostMonitoringMap;
@@ -111,7 +111,7 @@ public class TaskSchedulingService {
 			.builder()
 			.agentInfo(agentInfo)
 			.sdkMeterProvider(meterProvider)
-			.multiHostsConfigurationDTO(multiHostsConfigurationDto)
+			.multiHostsConfigurationDto(multiHostsConfigurationDto)
 			.build()
 			.init();
 
@@ -155,7 +155,7 @@ public class TaskSchedulingService {
 	 */
 	synchronized void updateConfiguration(final File configFile) {
 
-		final MultiHostsConfigurationDTO newMultiHostsConfigurationDto = ConfigHelper
+		final MultiHostsConfigurationDto newMultiHostsConfigurationDto = ConfigHelper
 				.readConfigurationSafe(configFile);
 
 		// Update global settings
@@ -183,7 +183,7 @@ public class TaskSchedulingService {
 		}
 
 		// Do we have new targets?
-		final Set<HostConfigurationDTO> newTargets = newMultiHostsConfigurationDto
+		final Set<HostConfigurationDto> newTargets = newMultiHostsConfigurationDto
 				.getTargets()
 				.stream()
 				.filter(target -> multiHostsConfigurationDto
@@ -193,7 +193,7 @@ public class TaskSchedulingService {
 				.collect(Collectors.toSet());
 
 		// Any target to remove?
-		final Set<HostConfigurationDTO> targetsToRemove = multiHostsConfigurationDto
+		final Set<HostConfigurationDto> targetsToRemove = multiHostsConfigurationDto
 				.getTargets()
 				.stream()
 				.filter(existing -> newMultiHostsConfigurationDto
@@ -212,16 +212,16 @@ public class TaskSchedulingService {
 	 * @param newOtelSdkConfiguration       The new SDK configuration
 	 * @param newMultiHostsConfigurationDto The new configuration
 	 */
-	void restartAll(final Map<String, String> newOtelSdkConfiguration, final MultiHostsConfigurationDTO newMultiHostsConfigurationDto) {
+	void restartAll(final Map<String, String> newOtelSdkConfiguration, final MultiHostsConfigurationDto newMultiHostsConfigurationDto) {
 
 		// Update the SDK configuration
 		otelSdkConfiguration.putAll(newOtelSdkConfiguration);
 
 		// All the targets are considered as new
-		final Set<HostConfigurationDTO> newTargets = newMultiHostsConfigurationDto.getTargets();
+		final Set<HostConfigurationDto> newTargets = newMultiHostsConfigurationDto.getTargets();
 
 		// All the existing targets are considered as old
-		final Set<HostConfigurationDTO> targetsToRemove = multiHostsConfigurationDto.getTargets();
+		final Set<HostConfigurationDto> targetsToRemove = multiHostsConfigurationDto.getTargets();
 
 		// Now reschedule the new targets
 		rescheduleNewTargets(newMultiHostsConfigurationDto, newTargets, targetsToRemove);
@@ -234,8 +234,8 @@ public class TaskSchedulingService {
 	 * @param newTargets                    The new configured targets
 	 * @param targetsToRemove               The targets to remove from the scheduler
 	 */
-	private void rescheduleNewTargets(final MultiHostsConfigurationDTO newMultiHostsConfigurationDto,
-			final Set<HostConfigurationDTO> newTargets, final Set<HostConfigurationDTO> targetsToRemove) {
+	private void rescheduleNewTargets(final MultiHostsConfigurationDto newMultiHostsConfigurationDto,
+			final Set<HostConfigurationDto> newTargets, final Set<HostConfigurationDto> targetsToRemove) {
 
 		targetsToRemove
 			.stream()
@@ -277,11 +277,11 @@ public class TaskSchedulingService {
 	}
 
 	/**
-	 * Schedule a task for the given {@link HostConfigurationDTO}
+	 * Schedule a task for the given {@link HostConfigurationDto}
 	 *
 	 * @param hostConfigDto The user's host configuration
 	 */
-	void scheduleTargetTask(final HostConfigurationDTO hostConfigDto) {
+	void scheduleTargetTask(final HostConfigurationDto hostConfigDto) {
 		final String targetId = hostConfigDto.getTarget().getId();
 		final IHostMonitoring hostMonitoring = hostMonitoringMap.get(targetId);
 

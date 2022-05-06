@@ -5,19 +5,19 @@ import java.util.stream.Collectors;
 
 import org.springframework.util.Assert;
 
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Aix;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.FreeBSD;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Hp;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Linux;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.MacOSX;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.NetBSD;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.OpenBSD;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Solaris;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Sun;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Windows;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.wmi.WMI;
-import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.Aix;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.FreeBSD;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.Hp;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.Linux;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.MacOSX;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.NetBSD;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.OpenBSD;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.Solaris;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.Sun;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.Windows;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.wmi.Wmi;
+import com.sentrysoftware.matrix.engine.protocol.WmiProtocol;
 import com.sentrysoftware.matrix.engine.strategy.utils.WqlDetectionHelper;
 
 import lombok.Getter;
@@ -30,7 +30,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_S
 
 @Slf4j
 @RequiredArgsConstructor
-public class CriterionProcessVisitor implements LocalOSHandler.ILocalOSVisitor {
+public class CriterionProcessVisitor implements LocalOsHandler.ILocalOSVisitor {
 
 	@NonNull
 	private final String command;
@@ -45,14 +45,14 @@ public class CriterionProcessVisitor implements LocalOSHandler.ILocalOSVisitor {
 
 		Assert.state(wqlDetectionHelper != null, "wqlDetectionHelper mustn't be null.");
 
-		final WMIProtocol localWmiConfig = WMIProtocol
+		final WmiProtocol localWmiConfig = WmiProtocol
 				.builder()
 				.username(null)
 				.password(null)
 				.timeout(30L)
 				.build();
 
-		final WMI criterion = WMI
+		final Wmi criterion = Wmi
 				.builder()
 				.wbemQuery("SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process")
 				.wbemNamespace("root\\cimv2")
@@ -71,42 +71,42 @@ public class CriterionProcessVisitor implements LocalOSHandler.ILocalOSVisitor {
 
 	@Override
 	public void visit(final Hp os) {
-		notImplemented(LocalOSHandler.HP.getOsTag());
+		notImplemented(LocalOsHandler.HP.getOsTag());
 	}
 
 	@Override
 	public void visit(final Sun os) {
-		notImplemented(LocalOSHandler.SUN.getOsTag());
+		notImplemented(LocalOsHandler.SUN.getOsTag());
 	}
 
 	@Override
 	public void visit(final Solaris os) {
-		notImplemented(LocalOSHandler.SOLARIS.getOsTag());
+		notImplemented(LocalOsHandler.SOLARIS.getOsTag());
 	}
 
 	@Override
 	public void visit(final FreeBSD os) {
-		notImplemented(LocalOSHandler.FREE_BSD.getOsTag());
+		notImplemented(LocalOsHandler.FREE_BSD.getOsTag());
 	}
 
 	@Override
 	public void visit(final OpenBSD os) {
-		notImplemented(LocalOSHandler.OPEN_BSD.getOsTag());
+		notImplemented(LocalOsHandler.OPEN_BSD.getOsTag());
 	}
 
 	@Override
 	public void visit(final NetBSD os) {
-		notImplemented(LocalOSHandler.NET_BSD.getOsTag());
+		notImplemented(LocalOsHandler.NET_BSD.getOsTag());
 	}
 
 	@Override
 	public void visit(final Aix os) {
-		notImplemented(LocalOSHandler.AIX.getOsTag());
+		notImplemented(LocalOsHandler.AIX.getOsTag());
 	}
 
 	@Override
 	public void visit(final MacOSX os) {
-		notImplemented(LocalOSHandler.MAC_OS_X.getOsTag());
+		notImplemented(LocalOsHandler.MAC_OS_X.getOsTag());
 	}
 
 	/**

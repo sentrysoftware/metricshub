@@ -6,17 +6,17 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Builder.Default;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ExporterConfigDTO {
+public class ExporterConfigDto {
 
 	@Default
 	@JsonSetter(nulls = SKIP)
-	private OtlpConfigDTO otlp = OtlpConfigDTO.builder().build();
+	private OtlpConfigDto otlp = OtlpConfigDto.builder().build();
 }

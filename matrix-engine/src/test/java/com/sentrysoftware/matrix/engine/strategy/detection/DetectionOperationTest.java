@@ -5,18 +5,18 @@ import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.common.OSType;
+import com.sentrysoftware.matrix.connector.model.common.OsType;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGetNext;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SnmpGetNext;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.TextInstanceTable;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OsCommandSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetTableSource;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
+import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.SNMPVersion;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
@@ -98,20 +98,20 @@ class DetectionOperationTest {
 	private static EngineConfiguration engineConfigurationAuto;
 	private static EngineConfiguration engineConfigurationAutoSequential;
 	private static EngineConfiguration engineConfigurationSelection;
-	private static SNMPGetNext criterion1;
+	private static SnmpGetNext criterion1;
 	private static Connector connector1;
-	private static SNMPGetNext criterion2;
+	private static SnmpGetNext criterion2;
 	private static Connector connector2;
-	private static SNMPGetNext criterion3;
+	private static SnmpGetNext criterion3;
 	private static Connector connector3;
-	private static SNMPGetNext criterion4;
+	private static SnmpGetNext criterion4;
 	private static Connector connector4;
-	private static SNMPGetNext criterion5;
+	private static SnmpGetNext criterion5;
 	private static Connector connector5;
 
 	@BeforeAll
 	public static void setUp() {
-		final SNMPProtocol protocol = SNMPProtocol.builder().community(COMMUNITY).version(SNMPVersion.V1).port(161)
+		final SnmpProtocol protocol = SnmpProtocol.builder().community(COMMUNITY).version(SNMPVersion.V1).port(161)
 				.timeout(120L).build();
 		engineConfigurationAuto = EngineConfiguration
 				.builder()
@@ -121,7 +121,7 @@ class DetectionOperationTest {
 						.id(TARGET_HOSTNAME)
 						.type(TargetType.LINUX)
 						.build())
-				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol))
+				.protocolConfigurations(Map.of(SnmpProtocol.class, protocol))
 				.build();
 
 		engineConfigurationAutoSequential = EngineConfiguration
@@ -132,60 +132,60 @@ class DetectionOperationTest {
 						.id(TARGET_HOSTNAME)
 						.type(TargetType.LINUX)
 						.build())
-				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol))
+				.protocolConfigurations(Map.of(SnmpProtocol.class, protocol))
 				.sequential(true)
 				.build();
 
-		criterion1 = SNMPGetNext.builder().oid(OID1).build();
+		criterion1 = SnmpGetNext.builder().oid(OID1).build();
 		connector1 = Connector.builder()
 				.compiledFilename(CONNECTOR1_ID)
 				.displayName(CONNECTOR1_ID)
-				.appliesToOS(Stream.of(OSType.NT, OSType.LINUX).collect(Collectors.toSet())).remoteSupport(true)
+				.appliesToOS(Stream.of(OsType.NT, OsType.LINUX).collect(Collectors.toSet())).remoteSupport(true)
 				.supersedes(Collections.singleton("connector2.hdf"))
 				.detection(Detection.builder().criteria(Collections.singletonList(criterion1)).build())
-				.sourceTypes(Collections.singleton(SNMPGetTableSource.class))
+				.sourceTypes(Collections.singleton(SnmpGetTableSource.class))
 				.build();
 
-		criterion2 = SNMPGetNext.builder().oid(OID2).build();
+		criterion2 = SnmpGetNext.builder().oid(OID2).build();
 		connector2 = Connector.builder()
 				.compiledFilename(CONNECTOR2_ID)
 				.displayName(CONNECTOR2_ID)
-				.appliesToOS(Stream.of(OSType.NT, OSType.LINUX).collect(Collectors.toSet())).remoteSupport(true)
+				.appliesToOS(Stream.of(OsType.NT, OsType.LINUX).collect(Collectors.toSet())).remoteSupport(true)
 				.detection(Detection.builder().criteria(Collections.singletonList(criterion2)).build())
-				.sourceTypes(Collections.singleton(SNMPGetTableSource.class))
+				.sourceTypes(Collections.singleton(SnmpGetTableSource.class))
 				.build();
 
-		criterion3 = SNMPGetNext.builder().oid(OID3).build();
+		criterion3 = SnmpGetNext.builder().oid(OID3).build();
 		connector3 = Connector.builder()
 				.compiledFilename(CONNECTOR3_ID)
 				.displayName(CONNECTOR3_ID)
-				.appliesToOS(Stream.of(OSType.HP, OSType.STORAGE).collect(Collectors.toSet())).remoteSupport(true)
+				.appliesToOS(Stream.of(OsType.HP, OsType.STORAGE).collect(Collectors.toSet())).remoteSupport(true)
 				.detection(Detection.builder().criteria(Collections.singletonList(criterion3)).build())
-				.sourceTypes(Collections.singleton(SNMPGetTableSource.class))
+				.sourceTypes(Collections.singleton(SnmpGetTableSource.class))
 				.build();
 
-		criterion4 = SNMPGetNext.builder().oid(OID4).build();
+		criterion4 = SnmpGetNext.builder().oid(OID4).build();
 		connector4 = Connector.builder()
 				.compiledFilename(CONNECTOR4_ID)
 				.displayName(CONNECTOR4_ID)
-				.appliesToOS(Stream.of(OSType.NT, OSType.LINUX).collect(Collectors.toSet())).localSupport(true)
+				.appliesToOS(Stream.of(OsType.NT, OsType.LINUX).collect(Collectors.toSet())).localSupport(true)
 				.remoteSupport(false)
 				.detection(Detection.builder().criteria(Collections.singletonList(criterion4)).build())
-				.sourceTypes(Collections.singleton(SNMPGetTableSource.class))
+				.sourceTypes(Collections.singleton(SnmpGetTableSource.class))
 				.build();
 
-		criterion5 = SNMPGetNext.builder().oid(OID5).build();
+		criterion5 = SnmpGetNext.builder().oid(OID5).build();
 		connector5 = Connector.builder()
 				.compiledFilename(CONNECTOR5_ID)
 				.displayName(CONNECTOR5_ID)
-				.appliesToOS(Stream.of(OSType.NT, OSType.LINUX).collect(Collectors.toSet())).remoteSupport(true)
+				.appliesToOS(Stream.of(OsType.NT, OsType.LINUX).collect(Collectors.toSet())).remoteSupport(true)
 				.detection(Detection.builder().criteria(Collections.singletonList(criterion5)).build())
-				.sourceTypes(Collections.singleton(SNMPGetTableSource.class))
+				.sourceTypes(Collections.singleton(SnmpGetTableSource.class))
 				.build();
 
 		engineConfigurationSelection = EngineConfiguration.builder()
 				.target(HardwareTarget.builder().hostname(TARGET_HOSTNAME).id(TARGET_HOSTNAME).type(TargetType.LINUX).build())
-				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol)).selectedConnectors(Stream
+				.protocolConfigurations(Map.of(SnmpProtocol.class, protocol)).selectedConnectors(Stream
 						.of(connector1, connector2).map(Connector::getCompiledFilename).collect(Collectors.toSet()))
 				.build();
 
@@ -441,13 +441,13 @@ class DetectionOperationTest {
 
 	@Test
 	void testFilterConnectorsByAcceptedProtocols() {
-		Stream<Connector> result = detectionOperation.filterConnectorsByAcceptedSources(Stream.of(connector1, connector2), Set.of(SNMPGetTableSource.class));
+		Stream<Connector> result = detectionOperation.filterConnectorsByAcceptedSources(Stream.of(connector1, connector2), Set.of(SnmpGetTableSource.class));
 		assertEquals(Set.of(connector1, connector2), result.collect(Collectors.toSet()));
 
-		result = detectionOperation.filterConnectorsByAcceptedSources(Stream.of(connector1, connector2, Connector.builder().build()), Set.of(SNMPGetTableSource.class));
+		result = detectionOperation.filterConnectorsByAcceptedSources(Stream.of(connector1, connector2, Connector.builder().build()), Set.of(SnmpGetTableSource.class));
 		assertEquals(Set.of(connector1, connector2), result.collect(Collectors.toSet()));
 
-		result = detectionOperation.filterConnectorsByAcceptedSources(Stream.of(connector1, connector2, Connector.builder().build()), Set.of(OSCommandSource.class));
+		result = detectionOperation.filterConnectorsByAcceptedSources(Stream.of(connector1, connector2, Connector.builder().build()), Set.of(OsCommandSource.class));
 		assertEquals(Collections.emptySet(), result.collect(Collectors.toSet()));
 	}
 

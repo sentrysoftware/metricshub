@@ -8,22 +8,22 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HttpSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.Ipmi;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OsCommandSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetTableSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.sshinteractive.SshInteractiveSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
-import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
-import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WbemSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WmiSource;
+import com.sentrysoftware.matrix.engine.protocol.HttpProtocol;
+import com.sentrysoftware.matrix.engine.protocol.IpmiOverLanProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
-import com.sentrysoftware.matrix.engine.protocol.OSCommandConfig;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
-import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
+import com.sentrysoftware.matrix.engine.protocol.OsCommandConfig;
+import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WmiProtocol;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 
@@ -44,13 +44,13 @@ public class EngineConfiguration {
 	static {
 
 		PROTOCOL_TO_SOURCES_MAP = Map.of(
-				SNMPProtocol.class, Set.of(SNMPGetSource.class, SNMPGetTableSource.class),
-				WMIProtocol.class, Collections.singleton(WMISource.class),
-				WBEMProtocol.class, Collections.singleton(WBEMSource.class),
-				SSHProtocol.class, Set.of(OSCommandSource.class, SshInteractiveSource.class),
-				HTTPProtocol.class, Collections.singleton(HTTPSource.class),
-				IPMIOverLanProtocol.class, Collections.singleton(IPMI.class),
-				OSCommandConfig.class, Collections.singleton(OSCommandSource.class));
+				SnmpProtocol.class, Set.of(SnmpGetSource.class, SnmpGetTableSource.class),
+				WmiProtocol.class, Collections.singleton(WmiSource.class),
+				WbemProtocol.class, Collections.singleton(WbemSource.class),
+				SshProtocol.class, Set.of(OsCommandSource.class, SshInteractiveSource.class),
+				HttpProtocol.class, Collections.singleton(HttpSource.class),
+				IpmiOverLanProtocol.class, Collections.singleton(Ipmi.class),
+				OsCommandConfig.class, Collections.singleton(OsCommandSource.class));
 
 	}
 
@@ -94,28 +94,28 @@ public class EngineConfiguration {
 
 		// Remove WMI for non-windows target
 		if (!TargetType.MS_WINDOWS.equals(targetType)) {
-			sources.remove(WMISource.class);
+			sources.remove(WmiSource.class);
 		}
 
 		// Add IPMI through WMI
-		if (TargetType.MS_WINDOWS.equals(targetType) && sources.contains(WMISource.class)) {
-			sources.add(IPMI.class);
+		if (TargetType.MS_WINDOWS.equals(targetType) && sources.contains(WmiSource.class)) {
+			sources.add(Ipmi.class);
 		}
 
 		// Add IPMI through OSCommand remote (SSH)
 		if ((TargetType.LINUX.equals(targetType) || TargetType.SUN_SOLARIS.equals(targetType))
-				&& protocolTypes.contains(SSHProtocol.class) && !isLocalhost) {
-			sources.add(IPMI.class);
+				&& protocolTypes.contains(SshProtocol.class) && !isLocalhost) {
+			sources.add(Ipmi.class);
 		}
 
 		// Handle localhost protocols
 		if (isLocalhost) {
 			// OS Command always enabled locally
-			sources.add(OSCommandSource.class);
+			sources.add(OsCommandSource.class);
 
 			// IPMI executed locally on Linux through OS Command
 			if (TargetType.LINUX.equals(targetType) || TargetType.SUN_SOLARIS.equals(targetType)) {
-				sources.add(IPMI.class);
+				sources.add(Ipmi.class);
 			}
 		}
 

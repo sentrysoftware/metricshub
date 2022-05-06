@@ -13,12 +13,12 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParser;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
-import com.sentrysoftware.matrix.engine.protocol.OSCommandConfig;
+import com.sentrysoftware.matrix.engine.protocol.OsCommandConfig;
 import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
 import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
 import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
@@ -50,16 +50,16 @@ class SuperConnectorIT {
 		ConnectorStore.getInstance().getConnectors().put(CONNECTOR_NAME, connector);
 
 		// Configure the engine
-		final OSCommandConfig protocol = OSCommandConfig.builder().build();
+		final OsCommandConfig protocol = OsCommandConfig.builder().build();
 
 		engineConfiguration = EngineConfiguration.builder()
 				.target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.STORAGE).build())
 				.selectedConnectors(Set.of(CONNECTOR_NAME))
-				.protocolConfigurations(Map.of(OSCommandConfig.class, protocol)).build();
+				.protocolConfigurations(Map.of(OsCommandConfig.class, protocol)).build();
 
 		// Create the MSHW directory under the system's temporary directory
 		// Detect windows
-		if (LocalOSHandler.isWindows()) {
+		if (LocalOsHandler.isWindows()) {
 			mshwTmp = Files.createDirectories(new File(System.getenv("TEMP") + "/MSHW").toPath())
 					.toFile();
 		} else {

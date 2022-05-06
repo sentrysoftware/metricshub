@@ -2,7 +2,7 @@ package com.sentrysoftware.hardware.agent.dto.protocol;
 
 import com.sentrysoftware.hardware.agent.configuration.ConfigHelper;
 
-public abstract class AbstractProtocolDTO implements IProtocolConfigDTO {
+public abstract class AbstractProtocolDto implements IProtocolConfigDto {
 
 	/**
 	 * Decrypt the given crypted password.

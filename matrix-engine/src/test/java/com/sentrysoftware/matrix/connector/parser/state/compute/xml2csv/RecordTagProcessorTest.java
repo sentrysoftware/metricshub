@@ -12,11 +12,11 @@ import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Xml2Csv;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetTableSource;
 
-class RecordtTagProcessorTest {
+class RecordTagProcessorTest {
 
-	private static final RecordtTagProcessor RECORD_TAG_PROCESSOR = new RecordtTagProcessor();
+	private static final RecordTagProcessor RECORD_TAG_PROCESSOR = new RecordTagProcessor();
 	private static final String KEY = "enclosure.collect.source(1).compute(1).RecordTag";
 	private static final String VALUE = "Document/Datas";
 	private static final Connector CONNECTOR = new Connector();
@@ -43,8 +43,8 @@ class RecordtTagProcessorTest {
 
 		final Xml2Csv xml2Csv = Xml2Csv.builder().index(1).build();
 
-		final SNMPGetTableSource snmpGetTableSource =
-				SNMPGetTableSource.builder().index(1).computes(Collections.singletonList(xml2Csv)).build();
+		final SnmpGetTableSource snmpGetTableSource =
+				SnmpGetTableSource.builder().index(1).computes(Collections.singletonList(xml2Csv)).build();
 
 		final Collect collect = Collect.builder().sources(Collections.singletonList(snmpGetTableSource)).build();
 

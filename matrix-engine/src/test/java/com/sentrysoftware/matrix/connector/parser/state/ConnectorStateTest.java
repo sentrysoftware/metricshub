@@ -3,7 +3,7 @@ package com.sentrysoftware.matrix.connector.parser.state;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGetNext;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SnmpGetNext;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -58,8 +58,8 @@ class ConnectorStateTest {
 		List<Criterion> criteria = detection.getCriteria();
 		assertEquals(1, criteria.size());
 		Criterion criterion = criteria.get(0);
-		assertTrue(criterion instanceof SNMPGetNext);
-		SNMPGetNext snmpGetNextCriterion = (SNMPGetNext) criterion;
+		assertTrue(criterion instanceof SnmpGetNext);
+		SnmpGetNext snmpGetNextCriterion = (SnmpGetNext) criterion;
 		assertEquals(FOO, snmpGetNextCriterion.getOid());
 	}
 

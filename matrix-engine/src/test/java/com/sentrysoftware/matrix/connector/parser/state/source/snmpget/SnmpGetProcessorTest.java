@@ -4,12 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetSource;
 
 class SnmpGetProcessorTest {
 	@Test
 	void testGetType() {
-		assertEquals(SNMPGetSource.class, new SnmpGetOidProcessor().getType());
+		assertEquals(SnmpGetSource.class, new SnmpGetOidProcessor().getType());
 	}
 
 	@Test

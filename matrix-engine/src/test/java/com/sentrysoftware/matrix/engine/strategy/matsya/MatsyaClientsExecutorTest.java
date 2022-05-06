@@ -20,10 +20,10 @@ import com.sentrysoftware.matrix.common.exception.MatsyaException;
 import com.sentrysoftware.matrix.connector.model.common.http.ResultContent;
 import com.sentrysoftware.matrix.connector.model.common.http.body.StringBody;
 import com.sentrysoftware.matrix.connector.model.common.http.header.StringHeader;
-import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
-import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol.WBEMProtocols;
+import com.sentrysoftware.matrix.engine.protocol.HttpProtocol;
+import com.sentrysoftware.matrix.engine.protocol.IpmiOverLanProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WbemProtocol.WBEMProtocols;
 import com.sentrysoftware.matsya.http.HttpClient;
 import com.sentrysoftware.matsya.http.HttpResponse;
 import com.sentrysoftware.matsya.ipmi.IpmiConfiguration;
@@ -105,11 +105,11 @@ class MatsyaClientsExecutorTest {
 		assertThrows(IllegalArgumentException.class, () -> matsyaClientsExecutor.executeHttp(null, false));
 
 		// http is not null, protocol is null
-		HTTPRequest httpRequest = new HTTPRequest();
+		HttpRequest httpRequest = new HttpRequest();
 		assertThrows(IllegalArgumentException.class, () -> matsyaClientsExecutor.executeHttp(httpRequest, false));
 
 		// http is not null, protocol is not null, hostname is null
-		HTTPProtocol httpProtocol = new HTTPProtocol();
+		HttpProtocol httpProtocol = new HttpProtocol();
 		httpRequest.setHttpProtocol(httpProtocol);
 		assertThrows(IllegalArgumentException.class,
 			() -> matsyaClientsExecutor.executeHttp(httpRequest, false));
@@ -147,13 +147,13 @@ class MatsyaClientsExecutorTest {
 	@Test
 	void testExecuteHttpWithSendHttpRequest() {
 
-		HTTPRequest httpRequest = new HTTPRequest();
+		HttpRequest httpRequest = new HttpRequest();
 		httpRequest.setHeader(StringHeader.builder().header(FOO + ":" + FOO).build());
 		httpRequest.setBody(StringBody.builder().body(FOO).build());
 		httpRequest.setUrl(FOO);
 		httpRequest.setHostname(PUREM_SAN);
 
-		HTTPProtocol httpProtocol = new HTTPProtocol();
+		HttpProtocol httpProtocol = new HttpProtocol();
 		httpProtocol.setHttps(false);
 		httpProtocol.setUsername(FOO);
 		httpProtocol.setPassword(FOO.toCharArray());
@@ -310,7 +310,7 @@ class MatsyaClientsExecutorTest {
 				.thenReturn(wbemQueryResult);
 
 			String url = "https://" + DEV_HV_01 + ":5989";
-			assertEquals(Collections.emptyList(), matsyaClientsExecutor.executeWbem(url, WBEMProtocol.builder()
+			assertEquals(Collections.emptyList(), matsyaClientsExecutor.executeWbem(url, WbemProtocol.builder()
 					.protocol(WBEMProtocols.HTTPS)
 					.build(), "SELECT Name FROM EMC_StorageSystem", "root/emc"));
 
@@ -322,7 +322,7 @@ class MatsyaClientsExecutorTest {
 	@Test
 	void testExecuteIpmiDetection() throws Exception {
 
-		IPMIOverLanProtocol ipmiOverLanProtocol = new IPMIOverLanProtocol();
+		IpmiOverLanProtocol ipmiOverLanProtocol = new IpmiOverLanProtocol();
 		assertThrows(IllegalArgumentException.class,
 				() -> matsyaClientsExecutor.executeIpmiDetection(null, ipmiOverLanProtocol));
 

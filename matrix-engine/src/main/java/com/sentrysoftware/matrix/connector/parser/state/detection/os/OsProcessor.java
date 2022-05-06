@@ -6,8 +6,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.sentrysoftware.matrix.connector.model.common.OSType;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.os.OS;
+import com.sentrysoftware.matrix.connector.model.common.OsType;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.os.Os;
 import com.sentrysoftware.matrix.connector.parser.state.AbstractStateParser;
 
 public abstract class OsProcessor extends AbstractStateParser {
@@ -15,8 +15,8 @@ public abstract class OsProcessor extends AbstractStateParser {
 	protected static final String OS_TYPE_VALUE = "OS";
 
 	@Override
-	public Class<OS> getType() {
-		return OS.class;
+	public Class<Os> getType() {
+		return Os.class;
 	}
 
 	@Override
@@ -25,16 +25,16 @@ public abstract class OsProcessor extends AbstractStateParser {
 	}
 
 	/**
-	 * Parse the given value to extract a set of {@link OSType} instances
+	 * Parse the given value to extract a set of {@link OsType} instances
 	 * 
 	 * @param value the value to parse
-	 * @return Set of {@link OSType} instances
+	 * @return Set of {@link OsType} instances
 	 */
-	protected Set<OSType> getOsTypes(final String value) {
-		Set<OSType> osTypes = new HashSet<>();
+	protected Set<OsType> getOsTypes(final String value) {
+		Set<OsType> osTypes = new HashSet<>();
 		try {
 			Arrays.stream(value.split(COMMA))
-			.forEach(os -> osTypes.add(OSType.valueOf(os.trim().toUpperCase())));
+			.forEach(os -> osTypes.add(OsType.valueOf(os.trim().toUpperCase())));
 
 			return osTypes;
 		} catch (Exception e) {

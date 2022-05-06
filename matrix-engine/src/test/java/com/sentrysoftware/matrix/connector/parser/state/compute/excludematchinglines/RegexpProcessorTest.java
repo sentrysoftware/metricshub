@@ -5,7 +5,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.ExcludeMatchingLines;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetTableSource;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -28,7 +28,7 @@ class RegexpProcessorTest {
 			.index(1)
 			.build();
 
-		SNMPGetTableSource snmpGetTableSource = SNMPGetTableSource
+		SnmpGetTableSource snmpGetTableSource = SnmpGetTableSource
 			.builder()
 			.index(1)
 			.computes(Collections.singletonList(excludeMatchingLines))

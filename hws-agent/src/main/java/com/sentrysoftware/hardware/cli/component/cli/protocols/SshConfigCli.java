@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.Set;
 
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
-import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
 
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Spec;
@@ -81,7 +81,7 @@ public class SshConfigCli implements IProtocolConfigCli {
 
 	@Override
 	public IProtocolConfiguration toProtocol(String defaultUsername, char[] defaultPassword) {
-		return SSHProtocol
+		return SshProtocol
 				.builder()
 				.username(username == null ? defaultUsername : username)
 				.password(username == null ? defaultPassword : password)

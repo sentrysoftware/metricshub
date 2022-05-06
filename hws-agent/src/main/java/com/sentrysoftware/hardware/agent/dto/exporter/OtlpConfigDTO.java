@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class OtlpConfigDTO {
+public class OtlpConfigDto {
 
 	private String trustedCertificatesFile;
 

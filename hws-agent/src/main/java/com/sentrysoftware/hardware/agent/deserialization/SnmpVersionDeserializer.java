@@ -5,7 +5,7 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
+import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.SNMPVersion;
 
 public class SnmpVersionDeserializer extends JsonDeserializer<SNMPVersion> {
 

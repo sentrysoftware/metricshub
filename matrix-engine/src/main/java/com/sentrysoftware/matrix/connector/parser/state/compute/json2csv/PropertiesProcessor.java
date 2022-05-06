@@ -9,9 +9,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Json2CSV;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Json2Csv;
 
-public class PropertiesProcessor extends Json2CSVProcessor {
+public class PropertiesProcessor extends Json2CsvProcessor {
 	private static final Pattern PROPERTIES_KEY_PATTERN = Pattern.compile(
 			"^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\))\\.compute\\(([1-9]\\d*)\\)\\.properties\\s*$",
 			Pattern.CASE_INSENSITIVE);
@@ -39,6 +39,6 @@ public class PropertiesProcessor extends Json2CSVProcessor {
 							+ e.getMessage());
 		}
 
-		((Json2CSV) getCompute(key, connector)).setProperties(selectColumns);
+		((Json2Csv) getCompute(key, connector)).setProperties(selectColumns);
 	}
 }

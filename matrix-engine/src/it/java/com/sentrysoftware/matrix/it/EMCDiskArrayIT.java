@@ -5,8 +5,8 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParser;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
-import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol.WBEMProtocols;
+import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WbemProtocol.WBEMProtocols;
 import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
 import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
 import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
@@ -32,8 +32,8 @@ class EMCDiskArrayIT {
 	private static final String CONNECTOR_PATH = Paths.get("src", "it", "resources", "wbem", "emcDiskArray", CONNECTOR_NAME + ".hdfs").toAbsolutePath().toString();
 
 	private static final Map<Class<? extends IProtocolConfiguration>, IProtocolConfiguration> PROTOCOL_CONFIGURATIONS = Map.of(
-			WBEMProtocol.class,
-			WBEMProtocol.builder()
+			WbemProtocol.class,
+			WbemProtocol.builder()
 				.protocol(WBEMProtocols.HTTPS)
 				.port(5900)
 				.username("username")

@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class HardwareTargetDTO {
+public class HardwareTargetDto {
 
 	private String id;
 	private String hostname;

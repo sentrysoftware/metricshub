@@ -27,17 +27,17 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Aix;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.FreeBSD;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Hp;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Linux;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.MacOSX;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.NetBSD;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.OpenBSD;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Solaris;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Sun;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.Windows;
-import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.Aix;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.FreeBSD;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.Hp;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.Linux;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.MacOSX;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.NetBSD;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.OpenBSD;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.Solaris;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.Sun;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.Windows;
+import com.sentrysoftware.matrix.engine.protocol.WmiProtocol;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.utils.WqlDetectionHelper;
 
@@ -65,7 +65,7 @@ class CriterionProcessVisitorTest {
 
 		doThrow(new MatsyaException("over")).when(matsyaClientsExecutor).executeWql(
 				eq("localhost"),
-				any(WMIProtocol.class),
+				any(WmiProtocol.class),
 				eq("SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process"),
 				eq("root\\cimv2"));
 
@@ -83,7 +83,7 @@ class CriterionProcessVisitorTest {
 	void testVisitWindowsEmptyResult() throws Exception {
 		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper, "localhost");
 
-		final WMIProtocol wmiConfig = WMIProtocol
+		final WmiProtocol wmiConfig = WmiProtocol
 				.builder()
 				.username(null)
 				.password(null)
@@ -110,7 +110,7 @@ class CriterionProcessVisitorTest {
 	void testVisitWindowsResultWithoutSearchedProcess() throws Exception {
 		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper, "localhost");
 
-		final WMIProtocol wmiConfig = WMIProtocol
+		final WmiProtocol wmiConfig = WmiProtocol
 				.builder()
 				.username(null)
 				.password(null)
@@ -141,7 +141,7 @@ class CriterionProcessVisitorTest {
 	void testVisitWindowsOK() throws Exception {
 		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper, "localhost");
 
-		final WMIProtocol wmiConfig = WMIProtocol
+		final WmiProtocol wmiConfig = WmiProtocol
 				.builder()
 				.username(null)
 				.password(null)

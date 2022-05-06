@@ -10,8 +10,8 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Json2CSV;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Json2Csv;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetTableSource;
 
 public class SeparatorProcessorTest {
 	private final SeparatorProcessor separatorProcessor = new SeparatorProcessor();
@@ -24,15 +24,15 @@ public class SeparatorProcessorTest {
 	@Test
 	void testParse() {
 
-		Json2CSV json2CSV = Json2CSV
+		Json2Csv json2Csv = Json2Csv
 				.builder()
 				.index(1)
 				.build();
 
-		SNMPGetTableSource snmpGetTableSource = SNMPGetTableSource
+		SnmpGetTableSource snmpGetTableSource = SnmpGetTableSource
 				.builder()
 				.index(1)
-				.computes(Collections.singletonList(json2CSV))
+				.computes(Collections.singletonList(json2Csv))
 				.build();
 
 		Collect collect = Collect
@@ -51,6 +51,6 @@ public class SeparatorProcessorTest {
 		.add(hardwareMonitor);
 
 		separatorProcessor.parse(SEPARATOR_KEY, VALUE, connector);
-		assertEquals(VALUE, json2CSV.getSeparator());
+		assertEquals(VALUE, json2Csv.getSeparator());
 	}
 }

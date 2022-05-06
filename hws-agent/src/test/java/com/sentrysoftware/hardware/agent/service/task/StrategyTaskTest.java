@@ -21,14 +21,14 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.sentrysoftware.hardware.agent.dto.HardwareTargetDTO;
-import com.sentrysoftware.hardware.agent.dto.HostConfigurationDTO;
-import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
+import com.sentrysoftware.hardware.agent.dto.HardwareTargetDto;
+import com.sentrysoftware.hardware.agent.dto.HostConfigurationDto;
+import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
 import com.sentrysoftware.hardware.agent.dto.UserConfiguration;
 import com.sentrysoftware.hardware.agent.service.opentelemetry.OtelHelper;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.EngineResult;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
 import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
 import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
 import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
@@ -68,7 +68,7 @@ class StrategyTaskTest {
 						.id("host")
 						.type(TargetType.LINUX)
 						.build())
-				.protocolConfigurations(Map.of(SNMPProtocol.class, SNMPProtocol.builder().build()))
+				.protocolConfigurations(Map.of(SnmpProtocol.class, SnmpProtocol.builder().build()))
 				.build();
 	}
 
@@ -99,17 +99,17 @@ class StrategyTaskTest {
 		doReturn("OFF").when(strategyTaskInfo).getLoggerLevel();
 		doReturn(engineConfiguration).when(hostMonitoring).getEngineConfiguration();
 		doReturn(EngineResult.builder().build()).when(hostMonitoring).run(any());
-		doReturn(MultiHostsConfigurationDTO.builder().build()).when(userConfiguration).getMultiHostsConfigurationDTO();
-		doReturn(HostConfigurationDTO
+		doReturn(MultiHostsConfigurationDto.builder().build()).when(userConfiguration).getMultiHostsConfigurationDto();
+		doReturn(HostConfigurationDto
 				.builder()
-				.target(HardwareTargetDTO
+				.target(HardwareTargetDto
 						.builder()
 						.hostname("target")
 						.id("id")
 						.type(TargetType.LINUX)
 						.build())
 				.build())
-				.when(userConfiguration).getHostConfigurationDTO();
+				.when(userConfiguration).getHostConfigurationDto();
 
 		doReturn(4).when(strategyTaskInfo).getDiscoveryCycle();
 

@@ -15,7 +15,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.sentrysoftware.matrix.connector.model.common.OSType;
+import com.sentrysoftware.matrix.connector.model.common.OsType;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.ThreadContext;
@@ -43,8 +43,8 @@ import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.EngineResult;
 import com.sentrysoftware.matrix.engine.OperationStatus;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
+import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.Privacy;
+import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.SNMPVersion;
 import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
 import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
 import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
@@ -480,7 +480,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 
 			String connectorName = connectorEntry.getKey();
 			Connector connector = connectorEntry.getValue();
-			String osList = connector.getAppliesToOS().stream().map(OSType::getDisplayName).collect(Collectors.joining(", "));
+			String osList = connector.getAppliesToOS().stream().map(OsType::getDisplayName).collect(Collectors.joining(", "));
 
 			spec.commandLine().getOut().println(
 					Ansi.ansi()

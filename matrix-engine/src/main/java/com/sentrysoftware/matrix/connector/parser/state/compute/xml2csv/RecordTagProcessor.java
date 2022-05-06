@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Xml2Csv;
 
-public class RecordtTagProcessor extends Xml2CsvProcessor {
+public class RecordTagProcessor extends Xml2CsvProcessor {
 
 	private static final Pattern RECORD_TAG_PATTERN = Pattern.compile(
 			"^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\))\\.compute\\(([1-9]\\d*)\\)\\.RecordTag\\s*$",
