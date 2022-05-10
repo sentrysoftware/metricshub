@@ -6,6 +6,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LIN
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PASSWORD_BASE64_MACRO;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PASSWORD_MACRO;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USERNAME_MACRO;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HOSTNAME_MACRO;
 import static org.springframework.util.Assert.isTrue;
 
 import java.util.Base64;
@@ -32,7 +33,7 @@ public class EmbeddedFileHeader implements Header {
 	private EmbeddedFile header;
 
 	@Override
-	public Map<String, String> getContent(@NonNull String username, @NonNull char[] password, String authenticationToken) {
+	public Map<String, String> getContent(@NonNull String username, @NonNull char[] password, String authenticationToken, String hostname) {
 
 		if (header == null) {
 			return null;
@@ -44,6 +45,7 @@ public class EmbeddedFileHeader implements Header {
 
 		String resolvedContent = content
 			.replace(USERNAME_MACRO, username)
+			.replace(HOSTNAME_MACRO, hostname)
 			.replace(AUTHENTICATION_TOKEN_MACRO, authenticationToken == null ? "" : authenticationToken)
 			.replace(PASSWORD_MACRO, passwordAsString)
 			.replace(PASSWORD_BASE64_MACRO, Base64.getEncoder().encodeToString(passwordAsString.getBytes()))

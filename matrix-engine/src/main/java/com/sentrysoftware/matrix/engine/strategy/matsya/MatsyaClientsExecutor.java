@@ -31,6 +31,7 @@ import com.sentrysoftware.matrix.common.helpers.StringHelper;
 import com.sentrysoftware.matrix.common.helpers.TextTableHelper;
 import com.sentrysoftware.matrix.connector.model.common.http.body.Body;
 import com.sentrysoftware.matrix.connector.model.common.http.header.Header;
+import com.sentrysoftware.matrix.connector.model.common.http.url.Url;
 import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
@@ -714,6 +715,7 @@ public class MatsyaClientsExecutor {
 
 		HTTPProtocol httpProtocol = httpRequest.getHttpProtocol();
 		String hostname = httpRequest.getHostname();
+		int port = httpProtocol.getPort();
 		notNull(httpProtocol, PROTOCOL_CANNOT_BE_NULL);
 		notNull(hostname, HOSTNAME_CANNOT_BE_NULL);
 
@@ -724,29 +726,20 @@ public class MatsyaClientsExecutor {
 		String authenticationToken = httpRequest.getAuthenticationToken();
 
 		Header header = httpRequest.getHeader();
-		Map<String, String> headerContent = header == null ? null : header.getContent(username, password, authenticationToken);
+		Map<String, String> headerContent = header == null ? null : header.getContent(username, password, authenticationToken, hostname);
 
-		Map<String, String> headerContentProtected = header == null ? null : header.getContent(username, CHAR_ARRAY_MASK, MASK);
+		Map<String, String> headerContentProtected = header == null ? null : header.getContent(username, CHAR_ARRAY_MASK, MASK, hostname);
 
 		Body body = httpRequest.getBody();
-		String bodyContent = body == null ? null : body.getContent(username, password, authenticationToken);
+		String bodyContent = body == null ? null : body.getContent(username, password, authenticationToken, hostname);
 		String bodyContentProtected = body == null ? HardwareConstants.EMPTY
-				: body.getContent(username, CHAR_ARRAY_MASK, MASK);
+				: body.getContent(username, CHAR_ARRAY_MASK, MASK, hostname);
 
-		// Building the full URL
 		String url = httpRequest.getUrl();
 		notNull(url, "URL cannot be null");
-
+		
 		String protocol = httpProtocol.getHttps() != null && httpProtocol.getHttps() ? "https" : "http";
-
-		String fullUrl = String.format(
-				"%s://%s:%d%s%s",
-				protocol,
-				hostname,
-				httpProtocol.getPort(),
-				url.startsWith("/") ? "" : "/",
-				url
-		);
+		String fullUrl = Url.getContent(hostname, port, url, protocol);
 
 		trace(() -> 
 			log.trace(
@@ -757,7 +750,7 @@ public class MatsyaClientsExecutor {
 					hostname,
 					url,
 					protocol,
-					httpProtocol.getPort(),
+					port,
 					StringHelper.prettyHttpHeaders(headerContentProtected),
 					bodyContentProtected,
 					httpProtocol.getTimeout().intValue(),
