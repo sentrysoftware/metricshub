@@ -14,197 +14,197 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.mockito.MockedStatic;
 
-import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.FreeBSD;
-import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.ILocalOS;
-import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.NetBSD;
-import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.OpenBSD;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.FreeBsd;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.ILocalOs;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.NetBsd;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.OpenBsd;
 
 class LocalOsHandlerTest {
 
 	@Test
-	void testDetectOSNotFoundlSystemOSName() {
-		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class)) {
-			mockedLocalOSHandler.when(LocalOsHandler::getSystemOSName).thenReturn(Optional.empty());
-			mockedLocalOSHandler.when(LocalOsHandler::detectOS).thenCallRealMethod();
+	void testDetectOsNotFoundlSystemOsName() {
+		try (final MockedStatic<LocalOsHandler> mockedLocalOsHandler = mockStatic(LocalOsHandler.class)) {
+			mockedLocalOsHandler.when(LocalOsHandler::getSystemOsName).thenReturn(Optional.empty());
+			mockedLocalOsHandler.when(LocalOsHandler::detectOs).thenCallRealMethod();
 
-			assertEquals(Optional.empty(), LocalOsHandler.detectOS());
+			assertEquals(Optional.empty(), LocalOsHandler.detectOs());
 		}
 	}
 
 	@Test
-	void testDetectOSUnknown() {
-		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class)) {
-			mockedLocalOSHandler.when(LocalOsHandler::getSystemOSName).thenReturn(Optional.of("OS/400"));
-			mockedLocalOSHandler.when(LocalOsHandler::detectOS).thenCallRealMethod();
+	void testDetectOsUnknown() {
+		try (final MockedStatic<LocalOsHandler> mockedLocalOsHandler = mockStatic(LocalOsHandler.class)) {
+			mockedLocalOsHandler.when(LocalOsHandler::getSystemOsName).thenReturn(Optional.of("OS/400"));
+			mockedLocalOsHandler.when(LocalOsHandler::detectOs).thenCallRealMethod();
 
-			assertEquals(Optional.empty(), LocalOsHandler.detectOS());
+			assertEquals(Optional.empty(), LocalOsHandler.detectOs());
 		}
 	}
 
 	@Test
-	void testDetectOSWindows() {
-		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class)) {
-			mockedLocalOSHandler.when(LocalOsHandler::getSystemOSName).thenReturn(Optional.of("Windows 8.1"));
-			mockedLocalOSHandler.when(LocalOsHandler::detectOS).thenCallRealMethod();
+	void testDetectOsWindows() {
+		try (final MockedStatic<LocalOsHandler> mockedLocalOsHandler = mockStatic(LocalOsHandler.class)) {
+			mockedLocalOsHandler.when(LocalOsHandler::getSystemOsName).thenReturn(Optional.of("Windows 8.1"));
+			mockedLocalOsHandler.when(LocalOsHandler::detectOs).thenCallRealMethod();
 
-			final Optional<ILocalOS> maybeOS = LocalOsHandler.detectOS();
+			final Optional<ILocalOs> maybeOS = LocalOsHandler.detectOs();
 			assertNotNull(maybeOS);
 			assertTrue(maybeOS.isPresent());
 
-			final ILocalOS os = maybeOS.get();
+			final ILocalOs os = maybeOS.get();
 			assertEquals(LocalOsHandler.WINDOWS, os);
 			assertFalse(os.isUnix());
 		}
 	}
 
 	@Test
-	void testDetectOSLinux() {
-		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class)) {
-			mockedLocalOSHandler.when(LocalOsHandler::getSystemOSName).thenReturn(Optional.of("Linux"));
-			mockedLocalOSHandler.when(LocalOsHandler::detectOS).thenCallRealMethod();
+	void testDetectOsLinux() {
+		try (final MockedStatic<LocalOsHandler> mockedLocalOsHandler = mockStatic(LocalOsHandler.class)) {
+			mockedLocalOsHandler.when(LocalOsHandler::getSystemOsName).thenReturn(Optional.of("Linux"));
+			mockedLocalOsHandler.when(LocalOsHandler::detectOs).thenCallRealMethod();
 
-			final Optional<ILocalOS> maybeOS = LocalOsHandler.detectOS();
+			final Optional<ILocalOs> maybeOS = LocalOsHandler.detectOs();
 			assertNotNull(maybeOS);
 			assertTrue(maybeOS.isPresent());
 
-			final ILocalOS os = maybeOS.get();
+			final ILocalOs os = maybeOS.get();
 			assertEquals(LocalOsHandler.LINUX, os);
 			assertTrue(os.isUnix());
 		}
 	}
 
 	@Test
-	void testDetectOSAix() {
-		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class)) {
-			mockedLocalOSHandler.when(LocalOsHandler::getSystemOSName).thenReturn(Optional.of("AIX"));
-			mockedLocalOSHandler.when(LocalOsHandler::detectOS).thenCallRealMethod();
+	void testDetectOsAix() {
+		try (final MockedStatic<LocalOsHandler> mockedLocalOsHandler = mockStatic(LocalOsHandler.class)) {
+			mockedLocalOsHandler.when(LocalOsHandler::getSystemOsName).thenReturn(Optional.of("AIX"));
+			mockedLocalOsHandler.when(LocalOsHandler::detectOs).thenCallRealMethod();
 
-			final Optional<ILocalOS> maybeOS = LocalOsHandler.detectOS();
+			final Optional<ILocalOs> maybeOS = LocalOsHandler.detectOs();
 			assertNotNull(maybeOS);
 			assertTrue(maybeOS.isPresent());
 
-			final ILocalOS os = maybeOS.get();
+			final ILocalOs os = maybeOS.get();
 			assertEquals(LocalOsHandler.AIX, os);
 			assertTrue(os.isUnix());
 		}
 	}
 
 	@Test
-	void testDetectOSSolaris() {
-		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class)) {
-			mockedLocalOSHandler.when(LocalOsHandler::getSystemOSName).thenReturn(Optional.of("Solaris"));
-			mockedLocalOSHandler.when(LocalOsHandler::detectOS).thenCallRealMethod();
+	void testDetectOsSolaris() {
+		try (final MockedStatic<LocalOsHandler> mockedLocalOsHandler = mockStatic(LocalOsHandler.class)) {
+			mockedLocalOsHandler.when(LocalOsHandler::getSystemOsName).thenReturn(Optional.of("Solaris"));
+			mockedLocalOsHandler.when(LocalOsHandler::detectOs).thenCallRealMethod();
 
-			final Optional<ILocalOS> maybeOS = LocalOsHandler.detectOS();
+			final Optional<ILocalOs> maybeOS = LocalOsHandler.detectOs();
 			assertNotNull(maybeOS);
 			assertTrue(maybeOS.isPresent());
 
-			final ILocalOS os = maybeOS.get();
+			final ILocalOs os = maybeOS.get();
 			assertEquals(LocalOsHandler.SOLARIS, os);
 			assertTrue(os.isUnix());
 		}
 	}
 
 	@Test
-	void testDetectOSSunOS() {
-		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class)) {
-			mockedLocalOSHandler.when(LocalOsHandler::getSystemOSName).thenReturn(Optional.of("sunos"));
-			mockedLocalOSHandler.when(LocalOsHandler::detectOS).thenCallRealMethod();
+	void testDetectOsSunOs() {
+		try (final MockedStatic<LocalOsHandler> mockedLocalOsHandler = mockStatic(LocalOsHandler.class)) {
+			mockedLocalOsHandler.when(LocalOsHandler::getSystemOsName).thenReturn(Optional.of("sunos"));
+			mockedLocalOsHandler.when(LocalOsHandler::detectOs).thenCallRealMethod();
 
-			final Optional<ILocalOS> maybeOS = LocalOsHandler.detectOS();
+			final Optional<ILocalOs> maybeOS = LocalOsHandler.detectOs();
 			assertNotNull(maybeOS);
 			assertTrue(maybeOS.isPresent());
 
-			final ILocalOS os = maybeOS.get();
+			final ILocalOs os = maybeOS.get();
 			assertEquals(LocalOsHandler.SUN, os);
 			assertTrue(os.isUnix());
 		}
 	}
 
 	@Test
-	void testDetectOSHp() {
-		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class)) {
-			mockedLocalOSHandler.when(LocalOsHandler::getSystemOSName).thenReturn(Optional.of("HP-UX"));
-			mockedLocalOSHandler.when(LocalOsHandler::detectOS).thenCallRealMethod();
+	void testDetectOsHp() {
+		try (final MockedStatic<LocalOsHandler> mockedLocalOsHandler = mockStatic(LocalOsHandler.class)) {
+			mockedLocalOsHandler.when(LocalOsHandler::getSystemOsName).thenReturn(Optional.of("HP-UX"));
+			mockedLocalOsHandler.when(LocalOsHandler::detectOs).thenCallRealMethod();
 
-			final Optional<ILocalOS> maybeOS = LocalOsHandler.detectOS();
+			final Optional<ILocalOs> maybeOS = LocalOsHandler.detectOs();
 			assertNotNull(maybeOS);
 			assertTrue(maybeOS.isPresent());
 
-			final ILocalOS os = maybeOS.get();
+			final ILocalOs os = maybeOS.get();
 			assertEquals(LocalOsHandler.HP, os);
 			assertTrue(os.isUnix());
 		}
 	}
 
 	@Test
-	void testDetectOSFreeBSD() {
-		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class)) {
-			mockedLocalOSHandler.when(LocalOsHandler::getSystemOSName).thenReturn(Optional.of("FreeBSD"));
-			mockedLocalOSHandler.when(LocalOsHandler::detectOS).thenCallRealMethod();
+	void testDetectOsFreeBsd() {
+		try (final MockedStatic<LocalOsHandler> mockedLocalOsHandler = mockStatic(LocalOsHandler.class)) {
+			mockedLocalOsHandler.when(LocalOsHandler::getSystemOsName).thenReturn(Optional.of("FreeBsd"));
+			mockedLocalOsHandler.when(LocalOsHandler::detectOs).thenCallRealMethod();
 
-			final Optional<ILocalOS> maybeOS = LocalOsHandler.detectOS();
+			final Optional<ILocalOs> maybeOS = LocalOsHandler.detectOs();
 			assertNotNull(maybeOS);
 			assertTrue(maybeOS.isPresent());
 
-			final ILocalOS os = maybeOS.get();
+			final ILocalOs os = maybeOS.get();
 			assertEquals(LocalOsHandler.FREE_BSD, os);
 			assertTrue(os.isUnix());
 
-			final FreeBSD bsdOS = (FreeBSD) os;
+			final FreeBsd bsdOS = (FreeBsd) os;
 			assertTrue(bsdOS.isBsd());
 		}
 	}
 
 	@Test
-	void testDetectOSOpenBSD() {
-		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class)) {
-			mockedLocalOSHandler.when(LocalOsHandler::getSystemOSName).thenReturn(Optional.of("OpenBSD"));
-			mockedLocalOSHandler.when(LocalOsHandler::detectOS).thenCallRealMethod();
+	void testDetectOsOpenBsd() {
+		try (final MockedStatic<LocalOsHandler> mockedLocalOsHandler = mockStatic(LocalOsHandler.class)) {
+			mockedLocalOsHandler.when(LocalOsHandler::getSystemOsName).thenReturn(Optional.of("OpenBsd"));
+			mockedLocalOsHandler.when(LocalOsHandler::detectOs).thenCallRealMethod();
 
-			final Optional<ILocalOS> maybeOS = LocalOsHandler.detectOS();
+			final Optional<ILocalOs> maybeOS = LocalOsHandler.detectOs();
 			assertNotNull(maybeOS);
 			assertTrue(maybeOS.isPresent());
 
-			final ILocalOS os = maybeOS.get();
+			final ILocalOs os = maybeOS.get();
 			assertEquals(LocalOsHandler.OPEN_BSD, os);
 			assertTrue(os.isUnix());
 
-			final OpenBSD bsdOS = (OpenBSD) os;
+			final OpenBsd bsdOS = (OpenBsd) os;
 			assertTrue(bsdOS.isBsd());
 		}
 	}
 
 	@Test
-	void testDetectOSNetBSD() {
-		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class)) {
-			mockedLocalOSHandler.when(LocalOsHandler::getSystemOSName).thenReturn(Optional.of("NetBSD"));
-			mockedLocalOSHandler.when(LocalOsHandler::detectOS).thenCallRealMethod();
+	void testDetectOsNetBsd() {
+		try (final MockedStatic<LocalOsHandler> mockedLocalOsHandler = mockStatic(LocalOsHandler.class)) {
+			mockedLocalOsHandler.when(LocalOsHandler::getSystemOsName).thenReturn(Optional.of("NetBsd"));
+			mockedLocalOsHandler.when(LocalOsHandler::detectOs).thenCallRealMethod();
 
-			final Optional<ILocalOS> maybeOS = LocalOsHandler.detectOS();
+			final Optional<ILocalOs> maybeOS = LocalOsHandler.detectOs();
 			assertNotNull(maybeOS);
 			assertTrue(maybeOS.isPresent());
 
-			final ILocalOS os = maybeOS.get();
+			final ILocalOs os = maybeOS.get();
 			assertEquals(LocalOsHandler.NET_BSD, os);
 			assertTrue(os.isUnix());
 
-			final NetBSD bsdOS = (NetBSD) os;
+			final NetBsd bsdOS = (NetBsd) os;
 			assertTrue(bsdOS.isBsd());
 		}
 	}
 
 	@Test
-	void testDetectOSMacOSX() {
-		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class)) {
-			mockedLocalOSHandler.when(LocalOsHandler::getSystemOSName).thenReturn(Optional.of("Mac OS X"));
-			mockedLocalOSHandler.when(LocalOsHandler::detectOS).thenCallRealMethod();
+	void testDetectOsMacOSX() {
+		try (final MockedStatic<LocalOsHandler> mockedLocalOsHandler = mockStatic(LocalOsHandler.class)) {
+			mockedLocalOsHandler.when(LocalOsHandler::getSystemOsName).thenReturn(Optional.of("Mac OS X"));
+			mockedLocalOsHandler.when(LocalOsHandler::detectOs).thenCallRealMethod();
 
-			final Optional<ILocalOS> maybeOS = LocalOsHandler.detectOS();
+			final Optional<ILocalOs> maybeOS = LocalOsHandler.detectOs();
 			assertNotNull(maybeOS);
 			assertTrue(maybeOS.isPresent());
 
-			final ILocalOS os = maybeOS.get();
+			final ILocalOs os = maybeOS.get();
 			assertEquals(LocalOsHandler.MAC_OS_X, os);
 			assertTrue(os.isUnix());
 		}

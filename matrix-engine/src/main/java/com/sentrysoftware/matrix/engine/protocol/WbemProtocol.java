@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class WbemProtocol implements IProtocolConfiguration {
 
 	@Default
-	WBEMProtocols protocol = WBEMProtocols.HTTPS;
+	WbemProtocols protocol = WbemProtocols.HTTPS;
 
 	@Default
 	private Integer port = 5989;
@@ -39,7 +39,7 @@ public class WbemProtocol implements IProtocolConfiguration {
 	/**
 	 * Represents the transport protocol for WBEM: HTTP or HTTPS
 	 */
-	public enum WBEMProtocols {
+	public enum WbemProtocols {
 
 		HTTP,
 		HTTPS;
@@ -49,9 +49,9 @@ public class WbemProtocol implements IProtocolConfiguration {
 		 *
 		 * @param label	String to be interpreted
 		 *
-		 * @return Corresponding {@link WBEMProtocols} value
+		 * @return Corresponding {@link WbemProtocols} value
 		 */
-		public static WBEMProtocols interpretValueOf(final String label) {
+		public static WbemProtocols interpretValueOf(final String label) {
 
 			if ("http".equalsIgnoreCase(label)) {
 				return HTTP;

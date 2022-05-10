@@ -23,7 +23,7 @@ import com.sentrysoftware.matrix.connector.model.common.http.header.StringHeader
 import com.sentrysoftware.matrix.engine.protocol.HttpProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IpmiOverLanProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WbemProtocol.WBEMProtocols;
+import com.sentrysoftware.matrix.engine.protocol.WbemProtocol.WbemProtocols;
 import com.sentrysoftware.matsya.http.HttpClient;
 import com.sentrysoftware.matsya.http.HttpResponse;
 import com.sentrysoftware.matsya.ipmi.IpmiConfiguration;
@@ -311,7 +311,7 @@ class MatsyaClientsExecutorTest {
 
 			String url = "https://" + DEV_HV_01 + ":5989";
 			assertEquals(Collections.emptyList(), matsyaClientsExecutor.executeWbem(url, WbemProtocol.builder()
-					.protocol(WBEMProtocols.HTTPS)
+					.protocol(WbemProtocols.HTTPS)
 					.build(), "SELECT Name FROM EMC_StorageSystem", "root/emc"));
 
 			mockedWbemExecuteQuery.verify(() -> WbemExecutor.executeWql(any(URL.class), anyString(), isNull(),

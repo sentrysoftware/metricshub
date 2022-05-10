@@ -17,7 +17,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
-import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.ILocalOS;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.ILocalOs;
 import com.sentrysoftware.matrix.common.helpers.StringHelper;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 
@@ -86,7 +86,7 @@ public class OtelHelper {
 			STORAGE, HOST_TYPE_STORAGE,
 			SUN_SOLARIS, HOST_TYPE_COMPUTE);
 
-	static final Map<ILocalOS, String> LOCAL_OS_TO_OTEL_OS_TYPE = Map.of(
+	static final Map<ILocalOs, String> LOCAL_OS_TO_OTEL_OS_TYPE = Map.of(
 			LocalOsHandler.WINDOWS, OS_TYPE_WINDOWS,
 			LocalOsHandler.LINUX, OS_TYPE_LINUX,
 			LocalOsHandler.SUN, OS_TYPE_SUN,
@@ -272,7 +272,7 @@ public class OtelHelper {
 	 * @return String value
 	 */
 	static String getAgentOsType() {
-		final Optional<ILocalOS> localOs = LocalOsHandler.getOS();
+		final Optional<ILocalOs> localOs = LocalOsHandler.getOs();
 		if (localOs.isPresent()) {
 			return LOCAL_OS_TO_OTEL_OS_TYPE.getOrDefault(localOs.get(), UNKNOWN);
 		}

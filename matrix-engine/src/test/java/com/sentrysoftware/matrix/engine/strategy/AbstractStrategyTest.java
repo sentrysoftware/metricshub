@@ -37,7 +37,7 @@ import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SnmpGet
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetTableSource;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
-import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.SNMPVersion;
+import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.SnmpVersion;
 import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
 import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
@@ -90,7 +90,7 @@ class AbstractStrategyTest {
 
 	@BeforeAll
 	static void setUp() {
-		final SnmpProtocol protocol = SnmpProtocol.builder().community("public").version(SNMPVersion.V1).port(161)
+		final SnmpProtocol protocol = SnmpProtocol.builder().community("public").version(SnmpVersion.V1).port(161)
 				.timeout(120L).build();
 		engineConfiguration = EngineConfiguration.builder()
 				.target(HardwareTarget.builder().hostname(HOSTNAME).id(HOSTNAME).type(TargetType.LINUX).build())

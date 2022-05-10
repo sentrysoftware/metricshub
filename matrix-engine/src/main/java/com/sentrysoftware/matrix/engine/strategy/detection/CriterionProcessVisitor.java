@@ -1,5 +1,8 @@
 package com.sentrysoftware.matrix.engine.strategy.detection;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -7,12 +10,12 @@ import org.springframework.util.Assert;
 
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.Aix;
-import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.FreeBSD;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.FreeBsd;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.Hp;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.Linux;
-import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.MacOSX;
-import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.NetBSD;
-import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.OpenBSD;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.MacOsx;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.NetBsd;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.OpenBsd;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.Solaris;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.Sun;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.Windows;
@@ -25,12 +28,9 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
-
 @Slf4j
 @RequiredArgsConstructor
-public class CriterionProcessVisitor implements LocalOsHandler.ILocalOSVisitor {
+public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 
 	@NonNull
 	private final String command;
@@ -85,17 +85,17 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOSVisitor {
 	}
 
 	@Override
-	public void visit(final FreeBSD os) {
+	public void visit(final FreeBsd os) {
 		notImplemented(LocalOsHandler.FREE_BSD.getOsTag());
 	}
 
 	@Override
-	public void visit(final OpenBSD os) {
+	public void visit(final OpenBsd os) {
 		notImplemented(LocalOsHandler.OPEN_BSD.getOsTag());
 	}
 
 	@Override
-	public void visit(final NetBSD os) {
+	public void visit(final NetBsd os) {
 		notImplemented(LocalOsHandler.NET_BSD.getOsTag());
 	}
 
@@ -105,7 +105,7 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOSVisitor {
 	}
 
 	@Override
-	public void visit(final MacOSX os) {
+	public void visit(final MacOsx os) {
 		notImplemented(LocalOsHandler.MAC_OS_X.getOsTag());
 	}
 

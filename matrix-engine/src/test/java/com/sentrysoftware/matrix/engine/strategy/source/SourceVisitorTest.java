@@ -59,7 +59,7 @@ import com.sentrysoftware.matrix.engine.protocol.HttpProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IpmiOverLanProtocol;
 import com.sentrysoftware.matrix.engine.protocol.OsCommandConfig;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
-import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.SNMPVersion;
+import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.SnmpVersion;
 import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WmiProtocol;
@@ -109,7 +109,7 @@ class SourceVisitorTest {
 
 	@BeforeAll
 	public static void setUp() {
-		SnmpProtocol snmpProtocol = SnmpProtocol.builder().community("public").version(SNMPVersion.V1).port(161).timeout(120L).build();
+		SnmpProtocol snmpProtocol = SnmpProtocol.builder().community("public").version(SnmpVersion.V1).port(161).timeout(120L).build();
 		HttpProtocol httpProtocol = HttpProtocol.builder().username("username").password("password".toCharArray()).port(161).timeout(120L).build();
 		engineConfiguration = EngineConfiguration.builder()
 				.target(HardwareTarget.builder().hostname(ECS1_01).id(ECS1_01).type(TargetType.LINUX).build())
@@ -808,7 +808,7 @@ class SourceVisitorTest {
 				.protocolConfigurations(Map.of(WbemProtocol.class,
 						WbemProtocol.builder()
 						.port(5989)
-						.protocol(WbemProtocol.WBEMProtocols.HTTPS)
+						.protocol(WbemProtocol.WbemProtocols.HTTPS)
 						.namespace(ROOT_IBMSD_WMI_NAMESPACE)
 						.username(EMC_HOSTNAME)
 						.password("password".toCharArray())

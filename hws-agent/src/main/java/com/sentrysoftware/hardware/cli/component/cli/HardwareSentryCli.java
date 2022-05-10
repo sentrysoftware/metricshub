@@ -44,7 +44,7 @@ import com.sentrysoftware.matrix.engine.EngineResult;
 import com.sentrysoftware.matrix.engine.OperationStatus;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.Privacy;
-import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.SNMPVersion;
+import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.SnmpVersion;
 import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
 import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
 import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
@@ -376,8 +376,8 @@ public class HardwareSentryCli implements Callable<Integer> {
 
 		// SNMP inconsistencies
 		if (snmpConfigCli != null) {
-			SNMPVersion version = snmpConfigCli.getSnmpVersion();
-			if (version == SNMPVersion.V1 || version == SNMPVersion.V2C) {
+			SnmpVersion version = snmpConfigCli.getSnmpVersion();
+			if (version == SnmpVersion.V1 || version == SnmpVersion.V2C) {
 				if (snmpConfigCli.getCommunity() == null || snmpConfigCli.getCommunity().isBlank()) {
 					throw new ParameterException(spec.commandLine(), "Community string is required for SNMP " + version);
 				}
@@ -389,7 +389,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 					throw new ParameterException(spec.commandLine(), "Privacy (encryption) is not supported in SNMP " + version);
 				}
 			} else {
-				if (version == SNMPVersion.V3_MD5 || version == SNMPVersion.V3_SHA) {
+				if (version == SnmpVersion.V3_MD5 || version == SnmpVersion.V3_SHA) {
 					if ((snmpConfigCli.getUsername() == null && username == null)
 							|| (snmpConfigCli.getPassword() == null && password == null)) {
 						throw new ParameterException(spec.commandLine(), "Username and password are required for SNMP " + version);

@@ -19,7 +19,7 @@ import com.sentrysoftware.matrix.common.exception.NoCredentialProvidedException;
 import com.sentrysoftware.matrix.common.exception.StepException;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
-import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.ILocalOS;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.ILocalOs;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.OsType;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
@@ -580,7 +580,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 					.build();
 		}
 
-		final Optional<ILocalOS> maybeLocalOS = LocalOsHandler.getOS();
+		final Optional<ILocalOs> maybeLocalOS = LocalOsHandler.getOs();
 		if (maybeLocalOS.isEmpty()) {
 			log.debug("Hostname {} - Process Criterion, Unknown Local OS.", hostname);
 			return CriterionTestResult.builder()

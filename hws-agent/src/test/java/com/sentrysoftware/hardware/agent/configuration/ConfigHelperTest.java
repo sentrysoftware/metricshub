@@ -28,7 +28,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.Wmi
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
-import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.SNMPVersion;
+import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.SnmpVersion;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
@@ -208,7 +208,7 @@ class ConfigHelperTest {
 					.community(emptyCommunity)
 					.port(1234)
 					.timeout(60L)
-					.version(SNMPVersion.V1)
+					.version(SnmpVersion.V1)
 					.username(null)
 					.build();
 
@@ -221,7 +221,7 @@ class ConfigHelperTest {
 					.community(null)
 					.port(1234)
 					.timeout(60L)
-					.version(SNMPVersion.V1)
+					.version(SnmpVersion.V1)
 					.username(null)
 					.build();
 
@@ -234,7 +234,7 @@ class ConfigHelperTest {
 					.community(community)
 					.port(-1)
 					.timeout(60L)
-					.version(SNMPVersion.V1)
+					.version(SnmpVersion.V1)
 					.username(null)
 					.build();
 
@@ -247,7 +247,7 @@ class ConfigHelperTest {
 					.community(community)
 					.port(66666)
 					.timeout(60L)
-					.version(SNMPVersion.V1)
+					.version(SnmpVersion.V1)
 					.username(null)
 					.build();
 
@@ -260,7 +260,7 @@ class ConfigHelperTest {
 					.community(community)
 					.port(null)
 					.timeout(60L)
-					.version(SNMPVersion.V1)
+					.version(SnmpVersion.V1)
 					.username(null)
 					.build();
 
@@ -273,7 +273,7 @@ class ConfigHelperTest {
 					.community(community)
 					.port(1234)
 					.timeout(-60L)
-					.version(SNMPVersion.V1)
+					.version(SnmpVersion.V1)
 					.username(null)
 					.build();
 
@@ -286,7 +286,7 @@ class ConfigHelperTest {
 					.community(community)
 					.port(1234)
 					.timeout(null)
-					.version(SNMPVersion.V1)
+					.version(SnmpVersion.V1)
 					.username(null)
 					.build();		
 
@@ -299,7 +299,7 @@ class ConfigHelperTest {
 					.community(community)
 					.port(1234)
 					.timeout(60L)
-					.version(SNMPVersion.V3_SHA)
+					.version(SnmpVersion.V3_SHA)
 					.username(null)
 					.build();		
 
@@ -313,7 +313,7 @@ class ConfigHelperTest {
 					.community(community)
 					.port(1234)
 					.timeout(60L)
-					.version(SNMPVersion.V3_SHA)
+					.version(SnmpVersion.V3_SHA)
 					.username("")
 					.build();		
 
@@ -326,7 +326,7 @@ class ConfigHelperTest {
 					.community(community)
 					.port(1234)
 					.timeout(60L)
-					.version(SNMPVersion.V3_SHA)
+					.version(SnmpVersion.V3_SHA)
 					.username("username")
 					.build();		
 
@@ -339,7 +339,7 @@ class ConfigHelperTest {
 					.community(community)
 					.port(1234)
 					.timeout(60L)
-					.version(SNMPVersion.V3_NO_AUTH)
+					.version(SnmpVersion.V3_NO_AUTH)
 					.username(null)
 					.build();		
 

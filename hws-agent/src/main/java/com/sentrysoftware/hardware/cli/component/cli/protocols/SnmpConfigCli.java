@@ -21,7 +21,7 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 			description = "Enables SNMP protocol version: 1, 2, 3-md5, 3-sha or 3-noauth",
 			converter = SnmpVersionConverter.class
 	)
-	SnmpProtocol.SNMPVersion snmpVersion;
+	SnmpProtocol.SnmpVersion snmpVersion;
 
 	@Option(
 			names = { "--snmp-community", "--community" },

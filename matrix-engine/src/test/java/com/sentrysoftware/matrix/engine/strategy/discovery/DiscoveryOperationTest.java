@@ -54,7 +54,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Left
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetTableSource;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
-import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.SNMPVersion;
+import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.SnmpVersion;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
@@ -133,7 +133,7 @@ class DiscoveryOperationTest {
 
 	@BeforeAll
 	public static void setUp() {
-		final SnmpProtocol protocol = SnmpProtocol.builder().community(COMMUNITY).version(SNMPVersion.V1).port(161)
+		final SnmpProtocol protocol = SnmpProtocol.builder().community(COMMUNITY).version(SnmpVersion.V1).port(161)
 				.timeout(120L).build();
 		engineConfiguration = EngineConfiguration
 				.builder()

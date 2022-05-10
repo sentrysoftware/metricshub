@@ -1,12 +1,13 @@
 package com.sentrysoftware.hardware.agent.dto.protocol;
 
+import static com.fasterxml.jackson.annotation.Nulls.SKIP;
+
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 import com.sentrysoftware.hardware.agent.deserialization.TimeDeserializer;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WbemProtocol.WBEMProtocols;
+import com.sentrysoftware.matrix.engine.protocol.WbemProtocol.WbemProtocols;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,7 +25,7 @@ public class WbemProtocolDto extends AbstractProtocolDto {
 	
 	@Default
 	@JsonSetter(nulls = SKIP)
-	WBEMProtocols protocol = WBEMProtocols.HTTPS;
+	WbemProtocols protocol = WbemProtocols.HTTPS;
 
 	@Default
 	private Integer port = 5989;

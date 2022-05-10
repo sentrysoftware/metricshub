@@ -28,12 +28,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.Aix;
-import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.FreeBSD;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.FreeBsd;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.Hp;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.Linux;
-import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.MacOSX;
-import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.NetBSD;
-import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.OpenBSD;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.MacOsx;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.NetBsd;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.OpenBsd;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.Solaris;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.Sun;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.Windows;
@@ -269,7 +269,7 @@ class CriterionProcessVisitorTest {
 	@Test
 	void testVisitNotImplementedFreeBsdOK() {
 		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper, "localhost");
-		visitor.visit((FreeBSD) null);
+		visitor.visit((FreeBsd) null);
 
 		final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
 
@@ -282,7 +282,7 @@ class CriterionProcessVisitorTest {
 	@Test
 	void testVisitNotImplementedOpenBsdOK() {
 		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper, "localhost");
-		visitor.visit((OpenBSD) null);
+		visitor.visit((OpenBsd) null);
 
 		final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
 
@@ -295,7 +295,7 @@ class CriterionProcessVisitorTest {
 	@Test
 	void testVisitNotImplementedNetBsdOK() {
 		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper, "localhost");
-		visitor.visit((NetBSD) null);
+		visitor.visit((NetBsd) null);
 
 		final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
 
@@ -308,7 +308,7 @@ class CriterionProcessVisitorTest {
 	@Test
 	void testVisitNotImplementedMacOsxOK() {
 		final CriterionProcessVisitor visitor = new CriterionProcessVisitor("cimserver", wqlDetectionHelper, "localhost");
-		visitor.visit((MacOSX) null);
+		visitor.visit((MacOsx) null);
 
 		final CriterionTestResult criterionTestResult = visitor.getCriterionTestResult();
 

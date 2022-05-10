@@ -14,8 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
-import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.ILocalOS;
-import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.ILocalOSVisitor;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.ILocalOs;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.ILocalOsVisitor;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 
 import io.opentelemetry.api.common.Attributes;
@@ -141,7 +141,7 @@ class OtelHelperTest {
 		assertNotNull(OtelHelper.createServiceResource("Hardware Sentry Agent", emptyMap));
 
 		try(MockedStatic<LocalOsHandler> localOsHandler = mockStatic(LocalOsHandler.class)){
-			localOsHandler.when(() -> LocalOsHandler.getOS()).thenReturn(Optional.of(LocalOsHandler.LINUX));
+			localOsHandler.when(() -> LocalOsHandler.getOs()).thenReturn(Optional.of(LocalOsHandler.LINUX));
 
 			final Resource actual = OtelHelper.createServiceResource("Hardware Sentry Agent", Map.of(
 					"agent.host.name", "my.agent.host.name"
@@ -163,7 +163,7 @@ class OtelHelperTest {
 
 	@Test
 	void testGetAgentOsType() {
-		final Map<ILocalOS, String> expectedOSTypes = Map.of(
+		final Map<ILocalOs, String> expectedOSTypes = Map.of(
 			LocalOsHandler.WINDOWS, "windows",
 			LocalOsHandler.LINUX, "linux",
 			LocalOsHandler.SUN, "sun",
@@ -176,9 +176,9 @@ class OtelHelperTest {
 			LocalOsHandler.MAC_OS_X, "macosx"
 		);
 
-		for (Entry<ILocalOS, String> entry : expectedOSTypes.entrySet()) {
+		for (Entry<ILocalOs, String> entry : expectedOSTypes.entrySet()) {
 			try(MockedStatic<LocalOsHandler> localOsHandler = mockStatic(LocalOsHandler.class)){
-				localOsHandler.when(() -> LocalOsHandler.getOS()).thenReturn(Optional.of(entry.getKey()));
+				localOsHandler.when(() -> LocalOsHandler.getOs()).thenReturn(Optional.of(entry.getKey()));
 				assertEquals(entry.getValue(), OtelHelper.getAgentOsType());
 			}
 		}
@@ -188,22 +188,22 @@ class OtelHelperTest {
 	@Test
 	void testGetAgentOsTypeUnknown() {
 		{
-			final ILocalOS unknown = new ILocalOS() {
+			final ILocalOs unknown = new ILocalOs() {
 				@Override
-				public void accept(ILocalOSVisitor visitor) {
+				public void accept(ILocalOsVisitor visitor) {
 					// Not implemented
 				}
 			};
 
 			try(MockedStatic<LocalOsHandler> localOsHandler = mockStatic(LocalOsHandler.class)){
-				localOsHandler.when(() -> LocalOsHandler.getOS()).thenReturn(Optional.of(unknown));
+				localOsHandler.when(() -> LocalOsHandler.getOs()).thenReturn(Optional.of(unknown));
 				assertEquals("unknown", OtelHelper.getAgentOsType());
 			}
 		}
 
 		{
 			try(MockedStatic<LocalOsHandler> localOsHandler = mockStatic(LocalOsHandler.class)){
-				localOsHandler.when(() -> LocalOsHandler.getOS()).thenReturn(Optional.empty());
+				localOsHandler.when(() -> LocalOsHandler.getOs()).thenReturn(Optional.empty());
 				assertEquals("unknown", OtelHelper.getAgentOsType());
 			}
 		}

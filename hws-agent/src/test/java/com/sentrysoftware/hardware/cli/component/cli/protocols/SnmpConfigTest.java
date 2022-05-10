@@ -38,7 +38,7 @@ public class SnmpConfigTest {
 		);
 		SnmpProtocol proto = cli.getSnmpConfigCli().toProtocol(DEFAULT_USERNAME, DEFAULT_PASSWORD);
 		assertNotNull(proto);
-		assertEquals(SnmpProtocol.SNMPVersion.V3_MD5, proto.getVersion());
+		assertEquals(SnmpProtocol.SnmpVersion.V3_MD5, proto.getVersion());
 		assertEquals("custom", proto.getUsername());
 		assertArrayEquals("other".toCharArray(), proto.getPassword());
 		assertEquals(SnmpProtocol.Privacy.AES, proto.getPrivacy());
@@ -58,7 +58,7 @@ public class SnmpConfigTest {
 		);
 		SnmpProtocol proto = cli.getSnmpConfigCli().toProtocol(DEFAULT_USERNAME, DEFAULT_PASSWORD);
 		assertNotNull(proto);
-		assertEquals(SnmpProtocol.SNMPVersion.V3_SHA, proto.getVersion());
+		assertEquals(SnmpProtocol.SnmpVersion.V3_SHA, proto.getVersion());
 		assertEquals(DEFAULT_USERNAME, proto.getUsername());
 		assertArrayEquals(DEFAULT_PASSWORD, proto.getPassword());
 		assertEquals(SnmpProtocol.Privacy.AES, proto.getPrivacy());
@@ -76,7 +76,7 @@ public class SnmpConfigTest {
 		);
 		SnmpProtocol proto = cli.getSnmpConfigCli().toProtocol(DEFAULT_USERNAME, DEFAULT_PASSWORD);
 		assertNotNull(proto);
-		assertEquals(SnmpProtocol.SNMPVersion.V1, proto.getVersion());
+		assertEquals(SnmpProtocol.SnmpVersion.V1, proto.getVersion());
 		assertEquals("comm", proto.getCommunity());
 	}
 
@@ -91,7 +91,7 @@ public class SnmpConfigTest {
 		);
 		SnmpProtocol proto = cli.getSnmpConfigCli().toProtocol(DEFAULT_USERNAME, DEFAULT_PASSWORD);
 		assertNotNull(proto);
-		assertEquals(SnmpProtocol.SNMPVersion.V2C, proto.getVersion());
+		assertEquals(SnmpProtocol.SnmpVersion.V2C, proto.getVersion());
 		assertEquals("comm", proto.getCommunity());
 	}
 

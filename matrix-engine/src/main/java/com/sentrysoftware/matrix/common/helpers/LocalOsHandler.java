@@ -10,29 +10,29 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor (access=AccessLevel.PRIVATE)
 public class LocalOsHandler {
 
-	public static final ILocalOS WINDOWS = new Windows();
-	public static final ILocalOS LINUX = new Linux();
-	public static final ILocalOS SUN = new Sun();
-	public static final ILocalOS HP = new Hp();
-	public static final ILocalOS SOLARIS = new Solaris();
-	public static final ILocalOS AIX = new Aix();
-	public static final ILocalOS FREE_BSD = new FreeBSD();
-	public static final ILocalOS OPEN_BSD = new OpenBSD();
-	public static final ILocalOS NET_BSD = new NetBSD();
-	public static final ILocalOS MAC_OS_X = new MacOSX();
+	public static final ILocalOs WINDOWS = new Windows();
+	public static final ILocalOs LINUX = new Linux();
+	public static final ILocalOs SUN = new Sun();
+	public static final ILocalOs HP = new Hp();
+	public static final ILocalOs SOLARIS = new Solaris();
+	public static final ILocalOs AIX = new Aix();
+	public static final ILocalOs FREE_BSD = new FreeBsd();
+	public static final ILocalOs OPEN_BSD = new OpenBsd();
+	public static final ILocalOs NET_BSD = new NetBsd();
+	public static final ILocalOs MAC_OS_X = new MacOsx();
 
-	private static final List<ILocalOS> OS_LIST = List.of(WINDOWS, LINUX, AIX, SUN, HP, MAC_OS_X, SOLARIS, FREE_BSD, OPEN_BSD, NET_BSD);
+	private static final List<ILocalOs> OS_LIST = List.of(WINDOWS, LINUX, AIX, SUN, HP, MAC_OS_X, SOLARIS, FREE_BSD, OPEN_BSD, NET_BSD);
 
 	@Getter
-	private static final Optional<ILocalOS> OS = detectOS();
-	private static final boolean IS_WINDOWS = OS.isPresent() && OS.get().equals(WINDOWS);
+	private static final Optional<ILocalOs> Os = detectOs();
+	private static final boolean IS_WINDOWS = Os.isPresent() && Os.get().equals(WINDOWS);
 
 	/**
 	 * Detect the current Local OS.
 	 * @return An optional with the current local OS. Empty if not determined.
 	 */
-	static Optional<ILocalOS> detectOS() {
-		return getSystemOSName()
+	static Optional<ILocalOs> detectOs() {
+		return getSystemOsName()
 				.map(String::toLowerCase)
 				.map(name -> OS_LIST.stream().filter(os -> name.startsWith(os.getOsTag())).findFirst().orElse(null));
 	}
@@ -50,7 +50,7 @@ public class LocalOsHandler {
 	 * Get the OS Name from the System.
 	 * @return An Optional of the OS name. Empty if not defined.
 	 */
-	public static Optional<String> getSystemOSName() {
+	public static Optional<String> getSystemOsName() {
 		return Optional.ofNullable(System.getProperty("os.name"));
 	}
 
@@ -58,160 +58,160 @@ public class LocalOsHandler {
 	 * Get the OS Version from the System.
 	 * @return An Optional of the OS version. Empty if not defined.
 	 */
-	public static Optional<String> getSystemOSVersion() {
+	public static Optional<String> getSystemOsVersion() {
 		return Optional.ofNullable(System.getProperty("os.version"));
 	}
 
-	public static interface ILocalOSVisitor {
+	public static interface ILocalOsVisitor {
 		void visit(final Windows os);
 		void visit(final Linux os);
 		void visit(final Sun os);
 		void visit(final Hp os);
 		void visit(final Solaris os);
 		void visit(final Aix os);
-		void visit(final FreeBSD os);
-		void visit(final OpenBSD os);
-		void visit(final NetBSD os);
-		void visit(final MacOSX os);
+		void visit(final FreeBsd os);
+		void visit(final OpenBsd os);
+		void visit(final NetBsd os);
+		void visit(final MacOsx os);
 	}
 
 	@Getter
-	public abstract static class ILocalOS {
+	public abstract static class ILocalOs {
 
 		protected String osTag;
 		protected boolean unix;
 
-		public abstract void accept(final ILocalOSVisitor visitor);
+		public abstract void accept(final ILocalOsVisitor visitor);
 	}
 
-	public static class Windows extends ILocalOS {
+	public static class Windows extends ILocalOs {
 		Windows() {
 			osTag = "windows";
 			unix = false;
 		}
 
 		@Override
-		public void accept(final ILocalOSVisitor visitor) {
+		public void accept(final ILocalOsVisitor visitor) {
 			visitor.visit(this);
 		}
 	}
 
-	public static class Linux extends ILocalOS {
+	public static class Linux extends ILocalOs {
 		Linux() {
 			osTag = "linux";
 			unix = true;
 		}
 
 		@Override
-		public void accept(final ILocalOSVisitor visitor) {
+		public void accept(final ILocalOsVisitor visitor) {
 			visitor.visit(this);
 		}
 	}
 
-	public static class Sun extends ILocalOS {
+	public static class Sun extends ILocalOs {
 		Sun() {
 			osTag = "sunos";
 			unix = true;
 		}
 
 		@Override
-		public void accept(final ILocalOSVisitor visitor) {
+		public void accept(final ILocalOsVisitor visitor) {
 			visitor.visit(this);
 		}
 	}
 
-	public static class Hp extends ILocalOS {
+	public static class Hp extends ILocalOs {
 		Hp() {
 			osTag = "hp-ux";
 			unix = true;
 		}
 
 		@Override
-		public void accept(final ILocalOSVisitor visitor) {
+		public void accept(final ILocalOsVisitor visitor) {
 			visitor.visit(this);
 		}
 	}
 
-	public static class Solaris extends ILocalOS {
+	public static class Solaris extends ILocalOs {
 		Solaris() {
 			osTag = "solaris";
 			unix = true;
 		}
 
 		@Override
-		public void accept(final ILocalOSVisitor visitor) {
+		public void accept(final ILocalOsVisitor visitor) {
 			visitor.visit(this);
 		}
 	}
 
-	public static class Aix extends ILocalOS {
+	public static class Aix extends ILocalOs {
 		Aix() {
 			osTag = "aix";
 			unix = true;
 		}
 
 		@Override
-		public void accept(final ILocalOSVisitor visitor) {
+		public void accept(final ILocalOsVisitor visitor) {
 			visitor.visit(this);
 		}
 	}
 
 	@Getter
-	private abstract static class BsdOS extends ILocalOS {
+	private abstract static class BsdOs extends ILocalOs {
 
 		private final boolean bsd;
 
-		BsdOS() {
+		BsdOs() {
 			bsd = true;
 			unix = true;
 		}
 	}
 
-	public static class FreeBSD extends BsdOS {
+	public static class FreeBsd extends BsdOs {
 
-		FreeBSD() {
+		FreeBsd() {
 			super();
 			osTag = "freebsd";
 		}
 
 		@Override
-		public void accept(final ILocalOSVisitor visitor) {
+		public void accept(final ILocalOsVisitor visitor) {
 			visitor.visit(this);
 		}
 	}
 
-	public static class OpenBSD extends BsdOS {
-		OpenBSD() {
+	public static class OpenBsd extends BsdOs {
+		OpenBsd() {
 			super();
 			osTag = "openbsd";
 		}
 
 		@Override
-		public void accept(final ILocalOSVisitor visitor) {
+		public void accept(final ILocalOsVisitor visitor) {
 			visitor.visit(this);
 		}
 	}
 
-	public static class NetBSD extends BsdOS {
-		NetBSD() {
+	public static class NetBsd extends BsdOs {
+		NetBsd() {
 			super();
 			osTag = "netbsd";
 		}
 
 		@Override
-		public void accept(final ILocalOSVisitor visitor) {
+		public void accept(final ILocalOsVisitor visitor) {
 			visitor.visit(this);
 		}
 	}
 
-	public static class MacOSX extends ILocalOS {
-		MacOSX() {
+	public static class MacOsx extends ILocalOs {
+		MacOsx() {
 			osTag = "mac os x";
 			unix = true;
 		}
 
 		@Override
-		public void accept(final ILocalOSVisitor visitor) {
+		public void accept(final ILocalOsVisitor visitor) {
 			visitor.visit(this);
 		}
 	}

@@ -15,7 +15,7 @@ import lombok.Builder.Default;
 public class SnmpProtocol implements IProtocolConfiguration {
 
 	@Default
-	private SNMPVersion version = SNMPVersion.V1;
+	private SnmpVersion version = SnmpVersion.V1;
 	@Default
 	private String community = "public";
 	@Default
@@ -30,7 +30,7 @@ public class SnmpProtocol implements IProtocolConfiguration {
 	@Override
 	public String toString() {
 		String desc = version.getDisplayName();
-		if (version == SNMPVersion.V1 || version == SNMPVersion.V2C) {
+		if (version == SnmpVersion.V1 || version == SnmpVersion.V2C) {
 			desc = desc + " (" + community + ")";
 		} else {
 			if (username != null) {
@@ -47,7 +47,7 @@ public class SnmpProtocol implements IProtocolConfiguration {
 	 * Enum of SNMP versions and authentication types.
 	 */
 	@AllArgsConstructor
-	public enum SNMPVersion {
+	public enum SnmpVersion {
 
 		V1(1, null, "SNMP v1"),
 		V2C(2, null, "SNMP v2c"),
@@ -69,28 +69,28 @@ public class SnmpProtocol implements IProtocolConfiguration {
 		 *
 		 * @param label	String to be interpreted
 		 *
-		 * @return Corresponding {@link SNMPVersion} value
+		 * @return Corresponding {@link SnmpVersion} value
 		 */
-		public static SNMPVersion interpretValueOf(@NonNull final String label) {
+		public static SnmpVersion interpretValueOf(@NonNull final String label) {
 
 			final String lCaseVersion = label.toLowerCase();
 
 			if ("1".equals(lCaseVersion) || "v1".equals(lCaseVersion)) {
-				return SnmpProtocol.SNMPVersion.V1;
+				return SnmpProtocol.SnmpVersion.V1;
 			}
 
 			if ("2".equals(lCaseVersion) || "v2".equals(lCaseVersion) || "v2c".equals(lCaseVersion)) {
-				return SnmpProtocol.SNMPVersion.V2C;
+				return SnmpProtocol.SnmpVersion.V2C;
 			}
 
 			if (lCaseVersion.startsWith("3") || lCaseVersion.startsWith("v3")) {
 				if (lCaseVersion.contains("md5")) {
-					return SnmpProtocol.SNMPVersion.V3_MD5;
+					return SnmpProtocol.SnmpVersion.V3_MD5;
 				}
 				if (lCaseVersion.contains("no") && lCaseVersion.contains("auth")) {
-					return SnmpProtocol.SNMPVersion.V3_NO_AUTH;
+					return SnmpProtocol.SnmpVersion.V3_NO_AUTH;
 				}
-				return SNMPVersion.V3_SHA;
+				return SnmpVersion.V3_SHA;
 			}
 
 			throw new IllegalArgumentException("Invalid SNMP version: " + label);

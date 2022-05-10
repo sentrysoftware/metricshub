@@ -7,7 +7,7 @@ import com.sentrysoftware.hardware.agent.deserialization.TimeDeserializer;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.Privacy;
-import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.SNMPVersion;
+import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.SnmpVersion;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,7 +25,7 @@ public class SnmpProtocolDto extends AbstractProtocolDto {
 
 	@Default
 	@JsonDeserialize(using = SnmpVersionDeserializer.class)
-	private SNMPVersion version = SNMPVersion.V1;
+	private SnmpVersion version = SnmpVersion.V1;
 	@Default
 	private char[] community = new char[] { 'p', 'u', 'b', 'l', 'i', 'c' };
 	@Default
@@ -62,7 +62,7 @@ public class SnmpProtocolDto extends AbstractProtocolDto {
 	@Override
 	public String toString() {
 		String desc = version.getDisplayName();
-		if (version == SNMPVersion.V1 || version == SNMPVersion.V2C) {
+		if (version == SnmpVersion.V1 || version == SnmpVersion.V2C) {
 			desc = desc + " (" + String.valueOf(community) + ")";
 		} else {
 			if (username != null) {
