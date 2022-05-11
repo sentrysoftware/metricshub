@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static com.sentrysoftware.matrix.connector.model.common.http.url.Url.*;
 import org.junit.jupiter.api.Test;
 
-public class UrlTest {
+class UrlTest {
 
 	@Test
 	void getContentTest() {

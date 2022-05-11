@@ -29,7 +29,7 @@ public class StringHeader implements Header {
 	private String header;
 
 	@Override
-	public Map<String, String> getContent(@NonNull String username, @NonNull char[] password, String authenticationToken, String hostname) {
+	public Map<String, String> getContent(@NonNull String username, @NonNull char[] password, String authenticationToken, @NonNull String hostname) {
 
 		if (header == null) {
 			return null;

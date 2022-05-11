@@ -29,7 +29,7 @@ public class EmbeddedFileBody implements Body {
 	private EmbeddedFile body;
 
 	@Override
-	public String getContent(@NonNull String username, @NonNull char[] password, String authenticationToken, String hostname) {
+	public String getContent(@NonNull String username, @NonNull char[] password, String authenticationToken, @NonNull String hostname) {
 
 		if (body == null) {
 			return null;
