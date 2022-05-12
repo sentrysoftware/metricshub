@@ -786,7 +786,7 @@
         "collectTime" : 1649435081386,
         "previousCollectTime" : null,
         "unit" : null,
-        "value" : "Received Result: Criteria testing. OsCommand test succeeded:\n- CommandLine: echo Criteria testing\n- ExecuteLocally: false\n- ExpectedResult: Criteria\n\nResult: Criteria testing\nConclusion: TEST on localhost SUCCEEDED",
+        "value" : "Received Result: Criteria testing. OSCommand test succeeded:\n- CommandLine: echo Criteria testing\n- ExecuteLocally: false\n- ExpectedResult: Criteria\n\nResult: Criteria testing\nConclusion: TEST on localhost SUCCEEDED",
         "previousValue" : null,
         "type" : "TextParam"
       }

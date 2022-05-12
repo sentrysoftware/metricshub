@@ -19,7 +19,7 @@ import com.sentrysoftware.matrix.connector.model.common.sshinteractive.step.Slee
 import com.sentrysoftware.matrix.connector.model.common.sshinteractive.step.Step;
 import com.sentrysoftware.matrix.connector.model.common.sshinteractive.step.WaitFor;
 import com.sentrysoftware.matrix.connector.model.common.sshinteractive.step.WaitForPrompt;
-import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
 import com.sentrysoftware.matsya.ssh.SSHClient;
 
 import lombok.Getter;
@@ -35,7 +35,7 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 
 	private final SSHClient sshClient;
 	private final String hostname;
-	private final SshProtocol sshProtocol;
+	private final SSHProtocol sshProtocol;
 	private final String inPrompt;
 	private final String currentSourceTag;
 

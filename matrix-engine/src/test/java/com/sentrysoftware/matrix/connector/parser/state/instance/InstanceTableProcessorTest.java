@@ -17,8 +17,8 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.SourceInstanceTable;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.TextInstanceTable;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HttpSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tablejoin.TableJoinSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tableunion.TableUnionSource;
 
@@ -57,7 +57,7 @@ class InstanceTableProcessorTest {
 	@Test
 	void testParse() {
 		final Connector connector = new Connector();
-		final Source sourceDiscovery1 = SnmpGetTableSource.builder().index(1).oid(OID).build();
+		final Source sourceDiscovery1 = SNMPGetTableSource.builder().index(1).oid(OID).build();
 		final Source sourceDiscovery2 = TableJoinSource.builder().index(2).build();
 		final Discovery discovery = Discovery.builder().sources(Arrays.asList(sourceDiscovery1, sourceDiscovery2))
 				.build();
@@ -76,11 +76,11 @@ class InstanceTableProcessorTest {
 	void testGetInstanceTableFromValue() {
 		{
 			final Connector connector = new Connector();
-			final Source sourceDiscovery1 = SnmpGetTableSource.builder().index(1).oid(OID).build();
+			final Source sourceDiscovery1 = SNMPGetTableSource.builder().index(1).oid(OID).build();
 			final Source sourceDiscovery2 = TableJoinSource.builder().index(2).build();
 			final Discovery discovery = Discovery.builder().sources(Arrays.asList(sourceDiscovery1, sourceDiscovery2))
 					.build();
-			final Source sourceCollect1 = HttpSource.builder().index(1).url(URL).build();
+			final Source sourceCollect1 = HTTPSource.builder().index(1).url(URL).build();
 			final Source sourceCollect2 = TableUnionSource.builder().index(2).build();
 			final Collect collect = Collect.builder().sources(Arrays.asList(sourceCollect1, sourceCollect2)).build();
 			connector.setHardwareMonitors(Collections.singletonList(
@@ -100,7 +100,7 @@ class InstanceTableProcessorTest {
 	void testGetHardwareMonitor() {
 		{
 			final Connector connector = new Connector();
-			final Source sourceDiscovery1 = SnmpGetTableSource.builder().index(1).oid(OID).build();
+			final Source sourceDiscovery1 = SNMPGetTableSource.builder().index(1).oid(OID).build();
 			final Source sourceDiscovery2 = TableJoinSource.builder().index(2).build();
 			final Discovery discovery = Discovery.builder().sources(Arrays.asList(sourceDiscovery1, sourceDiscovery2))
 					.build();

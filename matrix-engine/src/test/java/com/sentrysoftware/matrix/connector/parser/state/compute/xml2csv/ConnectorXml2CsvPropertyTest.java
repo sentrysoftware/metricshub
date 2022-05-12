@@ -15,7 +15,7 @@ class ConnectorXml2CsvPropertyTest {
 	@Test
 	void testGetConnectorProperties() {
 		assertEquals(
-				Stream.of(TypeProcessor.class,RecordTagProcessor.class, PropertiesProcessor.class).collect(Collectors.toSet()),
+				Stream.of(TypeProcessor.class,RecordtTagProcessor.class, PropertiesProcessor.class).collect(Collectors.toSet()),
 				ConnectorXml2CsvProperty.getConnectorProperties().stream()
 				.map(IConnectorStateParser::getClass)
 				.collect(Collectors.toSet()));

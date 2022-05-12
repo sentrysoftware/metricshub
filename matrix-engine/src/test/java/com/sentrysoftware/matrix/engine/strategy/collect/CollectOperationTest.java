@@ -79,16 +79,16 @@ import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SnmpGetNext;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGetNext;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
 import com.sentrysoftware.matrix.connector.model.monitor.job.collect.CollectType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.LeftConcat;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
-import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
-import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.SnmpVersion;
+import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.discovery.MonitorAlertRulesVisitor;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
@@ -155,7 +155,7 @@ class CollectOperationTest {
 	private static EngineConfiguration engineConfigurationSequential;
 
 	private static Connector connector;
-	private static SnmpGetNext criterion;
+	private static SNMPGetNext criterion;
 
 	private static Map<String, String> parameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 	private static Map<String, String> metadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -169,7 +169,7 @@ class CollectOperationTest {
 
 	@BeforeAll
 	public static void setUp() {
-		final SnmpProtocol protocol = SnmpProtocol.builder().community(COMMUNITY).version(SnmpVersion.V1).port(161)
+		final SNMPProtocol protocol = SNMPProtocol.builder().community(COMMUNITY).version(SNMPVersion.V1).port(161)
 				.timeout(120L).build();
 		engineConfiguration = EngineConfiguration
 				.builder()
@@ -179,7 +179,7 @@ class CollectOperationTest {
 						.id(TEST_HOST_01)
 						.type(TargetType.LINUX)
 						.build())
-				.protocolConfigurations(Map.of(SnmpProtocol.class, protocol))
+				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol))
 				.build();
 
 		engineConfigurationSequential = EngineConfiguration
@@ -190,11 +190,11 @@ class CollectOperationTest {
 						.id(TEST_HOST_01)
 						.type(TargetType.LINUX)
 						.build())
-				.protocolConfigurations(Map.of(SnmpProtocol.class, protocol))
+				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol))
 				.sequential(true)
 				.build();
 
-		criterion = SnmpGetNext.builder().oid(CRITERION_OID).build();
+		criterion = SNMPGetNext.builder().oid(CRITERION_OID).build();
 
 		connector = Connector.builder()
 				.compiledFilename(CONNECTOR_NAME)
@@ -672,7 +672,7 @@ class CollectOperationTest {
 
 	private static HardwareMonitor buildHardwareEnclosureMonitor(final CollectType collectType, final String oid) {
 
-		final SnmpGetTableSource source = SnmpGetTableSource
+		final SNMPGetTableSource source = SNMPGetTableSource
 				.builder()
 				.oid(oid)
 				.snmpTableSelectColumns(Arrays.asList("1", "2", "3", "4", "5"))

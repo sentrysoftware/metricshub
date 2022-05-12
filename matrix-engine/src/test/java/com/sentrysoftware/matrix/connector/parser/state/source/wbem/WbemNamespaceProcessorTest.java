@@ -11,7 +11,7 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WbemSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
 import com.sentrysoftware.matrix.connector.parser.state.source.common.WbemNamespaceProcessor;
 
 class WbemNamespaceProcessorTest {
@@ -19,7 +19,7 @@ class WbemNamespaceProcessorTest {
 	private static final String WBEM_NAMESPACE_KEY = "enclosure.discovery.source(1).WbemNameSpace";
 	private static final String NAMESPACE_VALUE = "root/emc/smis";
 
-	private WbemNamespaceProcessor wbemNamespaceProcessor = new WbemNamespaceProcessor(WbemSource.class, "WBEM");
+	private WbemNamespaceProcessor wbemNamespaceProcessor = new WbemNamespaceProcessor(WBEMSource.class, "WBEM");
 
 	private Connector connector;
 
@@ -31,7 +31,7 @@ class WbemNamespaceProcessorTest {
 	@Test
 	void testParse() {
 
-		final WbemSource wbemQuery = WbemSource.builder()
+		final WBEMSource wbemQuery = WBEMSource.builder()
 				.index(1)
 				.build();
 

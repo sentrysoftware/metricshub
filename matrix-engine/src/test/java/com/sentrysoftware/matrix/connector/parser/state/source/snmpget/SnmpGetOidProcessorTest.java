@@ -14,7 +14,7 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetSource;
 
 class SnmpGetOidProcessorTest {
 	private static final String SNMP_GET_OID_KEY = "enclosure.discovery.source(1).snmpoid";
@@ -36,7 +36,7 @@ class SnmpGetOidProcessorTest {
 		assertFalse(snmpGetOidProcessor.detect(SNMP_GET_OID_KEY, null, null));
 		assertThrows(IllegalArgumentException.class, () -> {snmpGetOidProcessor.detect(SNMP_GET_OID_KEY, VALUE, null);});
 
-		SnmpGetSource source = SnmpGetSource.builder().index(1).build();
+		SNMPGetSource source = SNMPGetSource.builder().index(1).build();
 		
 		Discovery discovery = Discovery.builder().sources(Collections.singletonList(source)).build();
 		
@@ -52,7 +52,7 @@ class SnmpGetOidProcessorTest {
 	
 	@Test
 	void testParse() {
-		SnmpGetSource snmpGetSource = SnmpGetSource.builder().index(1).build();
+		SNMPGetSource snmpGetSource = SNMPGetSource.builder().index(1).build();
 		Discovery discovery = Discovery.builder().sources(Collections.singletonList(snmpGetSource)).build();
 		HardwareMonitor hardwareMonitor = HardwareMonitor
 			.builder()

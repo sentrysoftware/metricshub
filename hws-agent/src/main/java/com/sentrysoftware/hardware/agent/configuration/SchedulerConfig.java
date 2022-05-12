@@ -8,13 +8,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
-import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
+import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
 
 @Configuration
 public class SchedulerConfig {
 
 	@Bean
-	public ThreadPoolTaskScheduler taskScheduler(final MultiHostsConfigurationDto multiHostsConfigurationDto) {
+	public ThreadPoolTaskScheduler taskScheduler(final MultiHostsConfigurationDTO multiHostsConfigurationDto) {
 
 		return createScheduler(multiHostsConfigurationDto.getJobPoolSize(), "hws-agent-task-");
 	}

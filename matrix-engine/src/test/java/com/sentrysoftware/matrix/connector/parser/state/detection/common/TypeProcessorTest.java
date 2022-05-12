@@ -3,8 +3,8 @@ package com.sentrysoftware.matrix.connector.parser.state.detection.common;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.Snmp;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.wbem.Wbem;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMP;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.wbem.WBEM;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TypeProcessorTest {
 
-	private final TypeProcessor typeProcessor = new TypeProcessor(Wbem.class, "WBEM");
+	private final TypeProcessor typeProcessor = new TypeProcessor(WBEM.class, "WBEM");
 
 	private final Connector connector = new Connector();
 	private static final String TYPE_KEY = "detection.criteria(1).type";
@@ -26,7 +26,7 @@ class TypeProcessorTest {
 	@Test
 	void testGetType() {
 
-		assertEquals(Wbem.class, new TypeProcessor(Wbem.class, null).getType());
+		assertEquals(WBEM.class, new TypeProcessor(WBEM.class, null).getType());
 	}
 
 	@Test
@@ -46,7 +46,7 @@ class TypeProcessorTest {
 		assertNotNull(criteria);
 		assertEquals(1, criteria.size());
 		Criterion criterion = criteria.get(0);
-		assertTrue(criterion instanceof Wbem);
+		assertTrue(criterion instanceof WBEM);
 		assertEquals(1, criterion.getIndex());
 
 		// Value is valid, key matches, detection is not initially null
@@ -58,15 +58,15 @@ class TypeProcessorTest {
 		assertNotNull(criteria);
 		assertEquals(2, criteria.size());
 		criterion = criteria.get(0);
-		assertTrue(criterion instanceof Wbem);
+		assertTrue(criterion instanceof WBEM);
 		assertEquals(1, criterion.getIndex());
 		criterion = criteria.get(1);
-		assertTrue(criterion instanceof Wbem);
+		assertTrue(criterion instanceof WBEM);
 		assertEquals(1, criterion.getIndex());
 
 		// Could not instantiate Criterion
 		String SNMP = "SNMP";
-		TypeProcessor snmpTypeProcessor = new TypeProcessor(Snmp.class, SNMP);
+		TypeProcessor snmpTypeProcessor = new TypeProcessor(SNMP.class, SNMP);
 		assertThrows(IllegalStateException.class, () -> snmpTypeProcessor.parse(TYPE_KEY, SNMP, connector));
 	}
 }

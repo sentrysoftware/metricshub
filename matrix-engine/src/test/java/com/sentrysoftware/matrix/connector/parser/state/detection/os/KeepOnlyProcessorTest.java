@@ -14,10 +14,10 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.common.OsType;
+import com.sentrysoftware.matrix.connector.model.common.OSType;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.os.Os;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.os.OS;
 
 class KeepOnlyProcessorTest {
 
@@ -27,7 +27,7 @@ class KeepOnlyProcessorTest {
 
 	private static final String CRITERION_KEEP_ONLY_KEY = "detection.criteria(1).keeponly";
 	private static final String VALUE = "Solaris,OOB,Linux";
-	private static final Set<OsType> RESULT = new HashSet<>(Arrays.asList(OsType.SOLARIS, OsType.OOB, OsType.LINUX));
+	private static final Set<OSType> RESULT = new HashSet<>(Arrays.asList(OSType.SOLARIS, OSType.OOB, OSType.LINUX));
 	private static final String FOO = "FOO";
 
 	@Test
@@ -37,7 +37,7 @@ class KeepOnlyProcessorTest {
 		assertThrows(IllegalArgumentException.class, () -> keepOnlyProcessor.parse(FOO, FOO, connector));
 
 		// Key matches, type is OS, detection is initially null
-		Os os = Os.builder().index(1).build();
+		OS os = OS.builder().index(1).build();
 		Detection detection = Detection.builder().criteria(Collections.singletonList(os)).build();
 		connector.setDetection(detection);
 		keepOnlyProcessor.parse(CRITERION_KEEP_ONLY_KEY, VALUE, connector);
@@ -45,8 +45,8 @@ class KeepOnlyProcessorTest {
 		assertNotNull(criteria);
 		assertEquals(1, criteria.size());
 		Criterion criterion = criteria.get(0);
-		assertTrue(criterion instanceof Os);
+		assertTrue(criterion instanceof OS);
 		assertEquals(1, criterion.getIndex());
-		assertEquals(RESULT, ((Os) criterion).getKeepOnly());
+		assertEquals(RESULT, ((OS) criterion).getKeepOnly());
 	}
 }

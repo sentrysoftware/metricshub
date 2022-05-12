@@ -4,7 +4,7 @@ import static com.sentrysoftware.matrix.connector.parser.state.source.ipmi.IpmiT
 
 import java.util.Set;
 
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.Ipmi;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
 import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
 import com.sentrysoftware.matrix.connector.parser.state.source.common.EntryConcatEndProcessor;
 import com.sentrysoftware.matrix.connector.parser.state.source.common.EntryConcatMethodProcessor;
@@ -20,12 +20,12 @@ public class ConnectorIpmiProperty {
 	public static Set<IConnectorStateParser> getConnectorProperties() {
 
 		return Set.of(
-				new IpmiTypeProcessor(Ipmi.class, IPMI_TYPE_VALUE),
-				new ForceSerializationProcessor(Ipmi.class, IPMI_TYPE_VALUE),
-				new ExecuteForEachEntryOfProcessor(Ipmi.class, IPMI_TYPE_VALUE),
-				new EntryConcatMethodProcessor(Ipmi.class, IPMI_TYPE_VALUE),
-				new EntryConcatStartProcessor(Ipmi.class, IPMI_TYPE_VALUE),
-				new EntryConcatEndProcessor(Ipmi.class, IPMI_TYPE_VALUE));
+				new IpmiTypeProcessor(IPMI.class, IPMI_TYPE_VALUE),
+				new ForceSerializationProcessor(IPMI.class, IPMI_TYPE_VALUE),
+				new ExecuteForEachEntryOfProcessor(IPMI.class, IPMI_TYPE_VALUE),
+				new EntryConcatMethodProcessor(IPMI.class, IPMI_TYPE_VALUE),
+				new EntryConcatStartProcessor(IPMI.class, IPMI_TYPE_VALUE),
+				new EntryConcatEndProcessor(IPMI.class, IPMI_TYPE_VALUE));
 
 	}
 }

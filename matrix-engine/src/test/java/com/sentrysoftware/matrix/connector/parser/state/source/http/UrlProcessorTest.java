@@ -10,7 +10,7 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HttpSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 
 class UrlProcessorTest {
 	private static final String URL_KEY = "enclosure.discovery.source(3).url";
@@ -19,7 +19,7 @@ class UrlProcessorTest {
 	@Test
 	void testParse() {
 
-		HttpSource httpSource = HttpSource.builder().index(3).build();
+		HTTPSource httpSource = HTTPSource.builder().index(3).build();
 		Discovery discovery = Discovery.builder().sources(Collections.singletonList(httpSource)).build();
 		HardwareMonitor hardwareMonitor = HardwareMonitor
 				.builder()

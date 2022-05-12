@@ -5,18 +5,18 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.SnmpVersion;
+import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
 
-public class SnmpVersionDeserializer extends JsonDeserializer<SnmpVersion> {
+public class SnmpVersionDeserializer extends JsonDeserializer<SNMPVersion> {
 
 	@Override
-	public SnmpVersion deserialize(JsonParser parser, DeserializationContext ctxt)
+	public SNMPVersion deserialize(JsonParser parser, DeserializationContext ctxt)
 			throws IOException {
 		if (parser == null)
 			return null;
 
 		try {
-			return SnmpVersion.interpretValueOf(parser.getValueAsString());
+			return SNMPVersion.interpretValueOf(parser.getValueAsString());
 		} catch (IllegalArgumentException e) {
 			throw new IOException(e.getMessage());
 		}

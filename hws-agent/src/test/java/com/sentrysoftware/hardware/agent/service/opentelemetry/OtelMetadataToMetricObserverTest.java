@@ -15,7 +15,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
+import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
@@ -44,7 +44,7 @@ class OtelMetadataToMetricObserverTest {
 				.registerMetricReader(inMemoryReader)
 				.build();
 
-		final MultiHostsConfigurationDto multiHostsConfigurationDto= MultiHostsConfigurationDto
+		final MultiHostsConfigurationDTO multiHostsConfigurationDTO= MultiHostsConfigurationDTO
 				.builder()
 				.extraLabels(Map.of("site", "Datacenter 1"))
 				.build();
@@ -62,7 +62,7 @@ class OtelMetadataToMetricObserverTest {
 			.builder()
 			.monitor(cpu)
 			.sdkMeterProvider(meterProvider)
-			.multiHostsConfigurationDto(multiHostsConfigurationDto)
+			.multiHostsConfigurationDTO(multiHostsConfigurationDTO)
 			.metricInfo(MetricsMapping.getMetadataAsMetricInfo(MonitorType.CPU, MAXIMUM_SPEED).get())
 			.matrixMetadata(MAXIMUM_SPEED)
 			.build()

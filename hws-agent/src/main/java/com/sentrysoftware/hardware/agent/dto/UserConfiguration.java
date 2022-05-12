@@ -9,7 +9,7 @@ import lombok.NonNull;
 public class UserConfiguration {
 
 	@NonNull
-	private MultiHostsConfigurationDto multiHostsConfigurationDto;
+	private MultiHostsConfigurationDTO multiHostsConfigurationDTO;
 	@NonNull
-	private HostConfigurationDto hostConfigurationDto;
+	private HostConfigurationDTO hostConfigurationDTO;
 }

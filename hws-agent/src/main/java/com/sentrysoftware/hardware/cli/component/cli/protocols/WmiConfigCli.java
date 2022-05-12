@@ -1,6 +1,6 @@
 package com.sentrysoftware.hardware.cli.component.cli.protocols;
 
-import com.sentrysoftware.matrix.engine.protocol.WmiProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 
 import lombok.Data;
 import picocli.CommandLine.Option;
@@ -58,8 +58,8 @@ public class WmiConfigCli implements IProtocolConfigCli {
 	 * @return an WMIProtocol instance corresponding to the options specified by the user in the CLI
 	 */
 	@Override
-	public WmiProtocol toProtocol(String defaultUsername, char[] defaultPassword) {
-		return WmiProtocol
+	public WMIProtocol toProtocol(String defaultUsername, char[] defaultPassword) {
+		return WMIProtocol
 				.builder()
 				.username(username == null ? defaultUsername : username)
 				.password(username == null ? defaultPassword : password)

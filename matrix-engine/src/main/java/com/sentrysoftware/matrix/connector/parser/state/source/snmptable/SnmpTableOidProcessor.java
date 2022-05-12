@@ -1,7 +1,7 @@
 package com.sentrysoftware.matrix.connector.parser.state.source.snmptable;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,6 +22,6 @@ public class SnmpTableOidProcessor extends SnmpTableProcessor {
 
 		super.parse(key, value, connector);
 
-		((SnmpGetTableSource) getSource(key, connector)).setOid(value);
+		((SNMPGetTableSource) getSource(key, connector)).setOid(value);
 	}
 }

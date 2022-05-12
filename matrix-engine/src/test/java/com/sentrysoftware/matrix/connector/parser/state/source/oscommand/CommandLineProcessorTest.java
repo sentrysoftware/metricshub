@@ -16,7 +16,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OsCommandSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
 
 class CommandLineProcessorTest {
 
@@ -28,7 +28,7 @@ class CommandLineProcessorTest {
 
 	@Test
 	void testGetType() {
-		assertEquals(OsCommandSource.class, COMMAND_LINE_PROCESSOR.getType());
+		assertEquals(OSCommandSource.class, COMMAND_LINE_PROCESSOR.getType());
 	}
 
 	@Test
@@ -73,20 +73,20 @@ class CommandLineProcessorTest {
 		assertThrows(IllegalArgumentException.class, () -> COMMAND_LINE_PROCESSOR.parse(COMMAND_LINE_COLLECT, VALUE, CONNECTOR));
 
 		{
-			final OsCommandSource osCommandSource = OsCommandSource.builder().index(1).build();
+			final OSCommandSource osCommandSource = OSCommandSource.builder().index(1).build();
 			final Discovery discovery = Discovery.builder().sources(List.of(osCommandSource)).build();
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.DISK_CONTROLLER).discovery(discovery).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			COMMAND_LINE_PROCESSOR.parse(COMMAND_LINE_DISCOVERY, VALUE, CONNECTOR);
-			assertEquals(VALUE, ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getCommandLine()); 
+			assertEquals(VALUE, ((OSCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getCommandLine()); 
 		}
 		{
-			final OsCommandSource osCommandSource = OsCommandSource.builder().index(1).build();
+			final OSCommandSource osCommandSource = OSCommandSource.builder().index(1).build();
 			final Collect collect = Collect.builder().sources(List.of(osCommandSource)).build();
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.PHYSICAL_DISK).collect(collect).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			COMMAND_LINE_PROCESSOR.parse(COMMAND_LINE_COLLECT, VALUE, CONNECTOR);
-			assertEquals(VALUE, ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).getCommandLine()); 
+			assertEquals(VALUE, ((OSCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).getCommandLine()); 
 		}
 	}
 }

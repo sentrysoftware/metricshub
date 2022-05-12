@@ -37,12 +37,12 @@ import org.mockito.MockedStatic;
 
 import com.sentrysoftware.matrix.common.exception.NoCredentialProvidedException;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
-import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
+import com.sentrysoftware.matrix.common.helpers.LocalOSHandler;
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
-import com.sentrysoftware.matrix.engine.protocol.OsCommandConfig;
-import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WmiProtocol;
+import com.sentrysoftware.matrix.engine.protocol.OSCommandConfig;
+import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
@@ -144,7 +144,7 @@ class OsCommandHelperTest {
 			final Map<String, File> embeddedTempFiles = OsCommandHelper.createOsCommandEmbeddedFiles(
 					commandLine,
 					embeddedFiles,
-					OsCommandConfig.builder()
+					OSCommandConfig.builder()
 						.useSudo(true)
 						.useSudoCommands(Set.of("/[opt|usr]/StorMan/arcconf"))
 						.build());
@@ -201,29 +201,29 @@ class OsCommandHelperTest {
 	void testReplaceSudo() {
 
 		assertNull(OsCommandHelper.replaceSudo(null, null));
-		assertNull(OsCommandHelper.replaceSudo(null, OsCommandConfig.builder().build()));
+		assertNull(OsCommandHelper.replaceSudo(null, OSCommandConfig.builder().build()));
 
 		assertEquals("", OsCommandHelper.replaceSudo("", null));
-		assertEquals("", OsCommandHelper.replaceSudo("", OsCommandConfig.builder().build()));
+		assertEquals("", OsCommandHelper.replaceSudo("", OSCommandConfig.builder().build()));
 		assertEquals(" ", OsCommandHelper.replaceSudo(" ", null));
-		assertEquals(" ", OsCommandHelper.replaceSudo(" ", OsCommandConfig.builder().build()));
+		assertEquals(" ", OsCommandHelper.replaceSudo(" ", OSCommandConfig.builder().build()));
 
 		assertEquals("text", OsCommandHelper.replaceSudo("text", null));
-		assertEquals("text", OsCommandHelper.replaceSudo("text", OsCommandConfig.builder().build()));
+		assertEquals("text", OsCommandHelper.replaceSudo("text", OSCommandConfig.builder().build()));
 
 		// Check replace sudo tag with empty string.
 		assertEquals(" key", OsCommandHelper.replaceSudo("%{SUDO:key} key", null));
-		assertEquals(" key", OsCommandHelper.replaceSudo("%{SUDO:key} key", OsCommandConfig.builder().build()));
-		assertEquals(" key", OsCommandHelper.replaceSudo("%{SUDO:key} key", OsCommandConfig.builder().useSudo(true).build()));
-		assertEquals(" key\n key", OsCommandHelper.replaceSudo("%{SUDO:key} key\n%{SUDO:key} key", OsCommandConfig.builder().useSudo(true).build()));
+		assertEquals(" key", OsCommandHelper.replaceSudo("%{SUDO:key} key", OSCommandConfig.builder().build()));
+		assertEquals(" key", OsCommandHelper.replaceSudo("%{SUDO:key} key", OSCommandConfig.builder().useSudo(true).build()));
+		assertEquals(" key\n key", OsCommandHelper.replaceSudo("%{SUDO:key} key\n%{SUDO:key} key", OSCommandConfig.builder().useSudo(true).build()));
 
 		assertEquals("sudo key", OsCommandHelper.replaceSudo(
 				"%{SUDO:key} key",
-				OsCommandConfig.builder().useSudo(true).useSudoCommands(Set.of("key")).build()));
+				OSCommandConfig.builder().useSudo(true).useSudoCommands(Set.of("key")).build()));
 
 		assertEquals("sudo key\nsudo key", OsCommandHelper.replaceSudo(
 				"%{SUDO:key} key\n%{SUDO:key} key",
-				OsCommandConfig.builder().useSudo(true).useSudoCommands(Set.of("key")).build()));
+				OSCommandConfig.builder().useSudo(true).useSudoCommands(Set.of("key")).build()));
 	}
 
 	@Test
@@ -236,9 +236,9 @@ class OsCommandHelperTest {
 
 		// case Process null Linux
 		final Runtime runtime = mock(Runtime.class);
-		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class);
+		try (final MockedStatic<LocalOSHandler> mockedLocalOSHandler = mockStatic(LocalOSHandler.class);
 				final MockedStatic<Runtime> mockedRuntime = mockStatic(Runtime.class)) {
-			mockedLocalOSHandler.when(LocalOsHandler::isWindows).thenReturn(false);
+			mockedLocalOSHandler.when(LocalOSHandler::isWindows).thenReturn(false);
 			mockedRuntime.when(Runtime::getRuntime).thenReturn(runtime);
 			when(runtime.exec(command)).thenReturn(null);
 
@@ -246,9 +246,9 @@ class OsCommandHelperTest {
 		}
 
 		// case Process null Windows
-		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class);
+		try (final MockedStatic<LocalOSHandler> mockedLocalOSHandler = mockStatic(LocalOSHandler.class);
 				final MockedStatic<Runtime> mockedRuntime = mockStatic(Runtime.class)) {
-			mockedLocalOSHandler.when(LocalOsHandler::isWindows).thenReturn(true);
+			mockedLocalOSHandler.when(LocalOSHandler::isWindows).thenReturn(true);
 			mockedRuntime.when(Runtime::getRuntime).thenReturn(runtime);
 			when(runtime.exec("CMD.EXE /C cmd")).thenReturn(null);
 
@@ -284,7 +284,7 @@ class OsCommandHelperTest {
 	void testRunSshCommand() throws Exception {
 		final String command = "cmd";
 		final String hostname = "host";
-		final SshProtocol sshProtocol = mock(SshProtocol.class);
+		final SSHProtocol sshProtocol = mock(SSHProtocol.class);
 		final int timeout = 1000;
 
 		assertThrows(IllegalArgumentException.class, () -> OsCommandHelper.runSshCommand(null, hostname, sshProtocol, timeout, null, null));
@@ -332,13 +332,13 @@ class OsCommandHelperTest {
 
 	@Test
 	void testGetTimeout() {
-		final OsCommandConfig osCommandConfig = new OsCommandConfig();
+		final OSCommandConfig osCommandConfig = new OSCommandConfig();
 		osCommandConfig.setTimeout(2L);
 
-		final WmiProtocol wmiProtocol = new WmiProtocol();
+		final WMIProtocol wmiProtocol = new WMIProtocol();
 		wmiProtocol.setTimeout(3L);
 
-		final SshProtocol sshProtocol = SshProtocol.builder().username("user").password(PASSWORD).build();
+		final SSHProtocol sshProtocol = SSHProtocol.builder().username("user").password(PASSWORD).build();
 		sshProtocol.setTimeout(4L);
 
 		assertEquals(1, OsCommandHelper.getTimeout(1L, osCommandConfig, sshProtocol, 5));
@@ -346,37 +346,37 @@ class OsCommandHelperTest {
 		assertEquals(3, OsCommandHelper.getTimeout(null, null, wmiProtocol, 5));
 		assertEquals(4, OsCommandHelper.getTimeout(null, null, sshProtocol, 5));
 		assertEquals(5, OsCommandHelper.getTimeout(null, null, null, 5));
-		assertEquals(30, OsCommandHelper.getTimeout(null, new OsCommandConfig(), sshProtocol, 5));
-		assertEquals(120, OsCommandHelper.getTimeout(null, null, new WmiProtocol(), 5));
-		assertEquals(30, OsCommandHelper.getTimeout(null, null, SshProtocol.builder().username("user").password(PASSWORD).build(), 5));
+		assertEquals(30, OsCommandHelper.getTimeout(null, new OSCommandConfig(), sshProtocol, 5));
+		assertEquals(120, OsCommandHelper.getTimeout(null, null, new WMIProtocol(), 5));
+		assertEquals(30, OsCommandHelper.getTimeout(null, null, SSHProtocol.builder().username("user").password(PASSWORD).build(), 5));
 	}
 
 	@Test
 	void testGetUsername() {
 		assertEquals(Optional.empty(), OsCommandHelper.getUsername(null));
-		assertEquals(Optional.empty(), OsCommandHelper.getUsername(new OsCommandConfig()));
-		assertEquals(Optional.empty(), OsCommandHelper.getUsername(new WmiProtocol()));
-		assertEquals(Optional.empty(), OsCommandHelper.getUsername(SshProtocol.builder().password(PASSWORD).build()));
+		assertEquals(Optional.empty(), OsCommandHelper.getUsername(new OSCommandConfig()));
+		assertEquals(Optional.empty(), OsCommandHelper.getUsername(new WMIProtocol()));
+		assertEquals(Optional.empty(), OsCommandHelper.getUsername(SSHProtocol.builder().password(PASSWORD).build()));
 
-		final WmiProtocol wmiProtocol = new WmiProtocol();
+		final WMIProtocol wmiProtocol = new WMIProtocol();
 		wmiProtocol.setUsername("user");
 		assertEquals(Optional.of("user"), OsCommandHelper.getUsername(wmiProtocol));
 
-		assertEquals(Optional.of("user"), OsCommandHelper.getUsername(SshProtocol.builder().username("user").password(PASSWORD).build()));
+		assertEquals(Optional.of("user"), OsCommandHelper.getUsername(SSHProtocol.builder().username("user").password(PASSWORD).build()));
 	}
 
 	@Test
 	void testGetPassword() {
 		assertEquals(Optional.empty(), OsCommandHelper.getPassword(null));
-		assertEquals(Optional.empty(), OsCommandHelper.getPassword(new OsCommandConfig()));
-		assertEquals(Optional.empty(), OsCommandHelper.getPassword(new WmiProtocol()));
-		assertEquals(Optional.empty(), OsCommandHelper.getPassword(SshProtocol.builder().username("user").build()));
+		assertEquals(Optional.empty(), OsCommandHelper.getPassword(new OSCommandConfig()));
+		assertEquals(Optional.empty(), OsCommandHelper.getPassword(new WMIProtocol()));
+		assertEquals(Optional.empty(), OsCommandHelper.getPassword(SSHProtocol.builder().username("user").build()));
 
-		final WmiProtocol wmiProtocol = new WmiProtocol();
+		final WMIProtocol wmiProtocol = new WMIProtocol();
 		wmiProtocol.setPassword(PASSWORD);
 		assertEquals(Optional.of(PASSWORD), OsCommandHelper.getPassword(wmiProtocol));
 
-		assertEquals(Optional.of(PASSWORD), OsCommandHelper.getPassword(SshProtocol.builder().username("user").password(PASSWORD).build()));
+		assertEquals(Optional.of(PASSWORD), OsCommandHelper.getPassword(SSHProtocol.builder().username("user").password(PASSWORD).build()));
 	}
 
 	@Test
@@ -403,7 +403,7 @@ class OsCommandHelperTest {
 
 	@Test
 	void testRunOsCommandRemoteNoUser() {
-		final SshProtocol sshProtocol = SshProtocol.builder()
+		final SSHProtocol sshProtocol = SSHProtocol.builder()
 				.username(" ")
 				.password("pwd".toCharArray())
 				.build();
@@ -439,7 +439,7 @@ class OsCommandHelperTest {
 		embeddedFiles.put(1, new EmbeddedFile("ECHO %OS%", "bat", 1));
 		embeddedFiles.put(2, new EmbeddedFile("echo Hello World", null, 2));
 
-		final WmiProtocol wmiProtocol = new WmiProtocol();
+		final WMIProtocol wmiProtocol = new WMIProtocol();
 		wmiProtocol.setUsername("user");
 		wmiProtocol.setPassword("pwd".toCharArray());
 
@@ -520,7 +520,7 @@ class OsCommandHelperTest {
 	@EnabledOnOs(WINDOWS)
 	void testRunOsCommandLocalWindows() throws Exception {
 
-		final WmiProtocol wmiProtocol = new WmiProtocol();
+		final WMIProtocol wmiProtocol = new WMIProtocol();
 		wmiProtocol.setUsername("user");
 		wmiProtocol.setPassword("pwd".toCharArray());
 
@@ -550,7 +550,7 @@ class OsCommandHelperTest {
 	@EnabledOnOs(LINUX)
 	void testRunOsCommandLocalLinux() throws Exception {
 
-		final SshProtocol sshProtocol = SshProtocol.builder()
+		final SSHProtocol sshProtocol = SSHProtocol.builder()
 				.username("user")
 				.password("pwd".toCharArray())
 				.build();
@@ -649,7 +649,7 @@ class OsCommandHelperTest {
 		embeddedTempFiles.put("%EmbeddedFile(1)%", file1);
 		embeddedTempFiles.put("%EmbeddedFile(2)%", file2);
 
-		final WmiProtocol wmiProtocol = new WmiProtocol();
+		final WMIProtocol wmiProtocol = new WMIProtocol();
 		wmiProtocol.setUsername("user");
 		wmiProtocol.setPassword("pwd".toCharArray());
 
@@ -723,7 +723,7 @@ class OsCommandHelperTest {
 		final String commandLine = "%{SUDO:naviseccli} naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent";
 		final String result = "Agent Rev:";
 
-		final SshProtocol sshProtocol = SshProtocol.builder()
+		final SSHProtocol sshProtocol = SSHProtocol.builder()
 				.username("user")
 				.password("pwd".toCharArray())
 				.build();
@@ -789,12 +789,12 @@ class OsCommandHelperTest {
 		final String command = "%{SUDO:naviseccli} naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent";
 		final String result = "Agent Rev:";
 
-		final SshProtocol sshProtocol = SshProtocol.builder()
+		final SSHProtocol sshProtocol = SSHProtocol.builder()
 				.username("user")
 				.password("pwd".toCharArray())
 				.build();
 
-		final OsCommandConfig osCommandConfig = new OsCommandConfig();
+		final OSCommandConfig osCommandConfig = new OSCommandConfig();
 		osCommandConfig.setUseSudoCommands(Collections.singleton("naviseccli"));
 
 		final HardwareTarget hardwareTarget = new HardwareTarget("id", "host", TargetType.LINUX);
@@ -856,12 +856,12 @@ class OsCommandHelperTest {
 		final String command = "%{SUDO:naviseccli} naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent";
 		final String result = "Agent Rev:";
 
-		final SshProtocol sshProtocol = SshProtocol.builder()
+		final SSHProtocol sshProtocol = SSHProtocol.builder()
 				.username("user")
 				.password("pwd".toCharArray())
 				.build();
 
-		final OsCommandConfig osCommandConfig = new OsCommandConfig();
+		final OSCommandConfig osCommandConfig = new OSCommandConfig();
 		osCommandConfig.setUseSudo(true);
 		osCommandConfig.setUseSudoCommands(Collections.singleton("other"));
 
@@ -924,12 +924,12 @@ class OsCommandHelperTest {
 		final String command = "%{SUDO:naviseccli} naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent";
 		final String result = "Agent Rev:";
 
-		final SshProtocol sshProtocol = SshProtocol.builder()
+		final SSHProtocol sshProtocol = SSHProtocol.builder()
 				.username("user")
 				.password("pwd".toCharArray())
 				.build();
 
-		final OsCommandConfig osCommandConfig = new OsCommandConfig();
+		final OSCommandConfig osCommandConfig = new OSCommandConfig();
 		osCommandConfig.setUseSudo(true);
 		osCommandConfig.setUseSudoCommands(Collections.singleton("naviseccli"));
 
@@ -1020,14 +1020,14 @@ class OsCommandHelperTest {
 		final Map<String, File> embeddedTempFiles = new HashMap<>();
 		embeddedTempFiles.put("%EmbeddedFile(1)%", localFile);
 
-		final OsCommandConfig osCommandConfig = new OsCommandConfig();
+		final OSCommandConfig osCommandConfig = new OSCommandConfig();
 		osCommandConfig.setUseSudo(true);
 		osCommandConfig.setUseSudoCommands(Collections.singleton("/[opt|usr]/StorMan/arcconf"));
 
 		final String command = "/bin/sh %EmbeddedFile(1)%";
 		final String result = "Hard drive";
 
-		final SshProtocol sshProtocol = SshProtocol.builder()
+		final SSHProtocol sshProtocol = SSHProtocol.builder()
 				.username("user")
 				.password("pwd".toCharArray())
 				.build();

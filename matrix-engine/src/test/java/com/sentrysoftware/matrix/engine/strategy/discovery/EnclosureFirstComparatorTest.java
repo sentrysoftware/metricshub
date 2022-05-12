@@ -16,13 +16,13 @@ import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.LeftConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.RightConcat;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
 
 class EnclosureFirstComparatorTest {
 
 	private static final String EMPTY = "";
-	final SnmpGetTableSource source1 = SnmpGetTableSource.builder().oid("oid1").key("key1").computes(Collections.singletonList(LeftConcat.builder().column(1).string(EMPTY).build())).build();
-	final SnmpGetTableSource source2 = SnmpGetTableSource.builder().oid("oid2").key("key2").computes(Collections.singletonList(RightConcat.builder().column(1).string(EMPTY).build())).build();
+	final SNMPGetTableSource source1 = SNMPGetTableSource.builder().oid("oid1").key("key1").computes(Collections.singletonList(LeftConcat.builder().column(1).string(EMPTY).build())).build();
+	final SNMPGetTableSource source2 = SNMPGetTableSource.builder().oid("oid2").key("key2").computes(Collections.singletonList(RightConcat.builder().column(1).string(EMPTY).build())).build();
 
 	final HardwareMonitor hdfConnector = HardwareMonitor.builder().type(MonitorType.CONNECTOR).build();
 	final HardwareMonitor hdfTarget = HardwareMonitor.builder().type(MonitorType.TARGET).build();

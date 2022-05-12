@@ -1,6 +1,6 @@
 package com.sentrysoftware.matrix.connector.parser.state.detection.http;
 
-import com.sentrysoftware.matrix.connector.model.detection.criteria.http.Http;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.http.HTTP;
 import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
 import com.sentrysoftware.matrix.connector.parser.state.detection.common.ErrorMessageProcessor;
 import com.sentrysoftware.matrix.connector.parser.state.detection.common.ExpectedResultProcessor;
@@ -19,10 +19,10 @@ public class ConnectorHttpProperty {
 
 		return Stream
 				.of(
-					new TypeProcessor(Http.class, HttpProcessor.HTTP_TYPE_VALUE),
-					new ForceSerializationProcessor(Http.class, HttpProcessor.HTTP_TYPE_VALUE),
-					new ExpectedResultProcessor(Http.class, HttpProcessor.HTTP_TYPE_VALUE),
-					new ErrorMessageProcessor(Http.class, HttpProcessor.HTTP_TYPE_VALUE),
+					new TypeProcessor(HTTP.class, HttpProcessor.HTTP_TYPE_VALUE),
+					new ForceSerializationProcessor(HTTP.class, HttpProcessor.HTTP_TYPE_VALUE),
+					new ExpectedResultProcessor(HTTP.class, HttpProcessor.HTTP_TYPE_VALUE),
+					new ErrorMessageProcessor(HTTP.class, HttpProcessor.HTTP_TYPE_VALUE),
 					new MethodProcessor(),
 					new UrlProcessor(),
 					new HeaderProcessor(),

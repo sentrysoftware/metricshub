@@ -12,7 +12,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Substring;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
 
 class StartProcessorTest {
 
@@ -34,7 +34,7 @@ class StartProcessorTest {
 				.index(1)
 				.build();
 
-		final SnmpGetTableSource snmpGetTableSource = SnmpGetTableSource
+		final SNMPGetTableSource snmpGetTableSource = SNMPGetTableSource
 			.builder()
 			.index(1)
 			.computes(Collections.singletonList(substring))

@@ -29,7 +29,7 @@ import java.util.TreeMap;
 
 import org.junit.jupiter.api.Test;
 
-import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
+import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
@@ -99,7 +99,7 @@ class OtelParameterToMetricObserverTest {
 				.registerMetricReader(inMemoryReader)
 				.build();
 
-		final MultiHostsConfigurationDto multiHostsConfigurationDto= MultiHostsConfigurationDto
+		final MultiHostsConfigurationDTO multiHostsConfigurationDTO= MultiHostsConfigurationDTO
 				.builder()
 				.extraLabels(Map.of("site", "Datacenter 1"))
 				.build();
@@ -125,7 +125,7 @@ class OtelParameterToMetricObserverTest {
 			.builder()
 			.monitor(enclosure)
 			.sdkMeterProvider(meterProvider)
-			.multiHostsConfigurationDto(multiHostsConfigurationDto)
+			.multiHostsConfigurationDTO(multiHostsConfigurationDTO)
 			.metricInfo(MetricsMapping.getMetricInfo(MonitorType.ENCLOSURE, parameter.getName()).get())
 			.matrixParameterName(parameter.getName())
 			.build()
@@ -277,7 +277,7 @@ class OtelParameterToMetricObserverTest {
 
 		final OtelParameterToMetricObserver parameterToMetricObserver = OtelParameterToMetricObserver
 			.builder()
-			.multiHostsConfigurationDto(MultiHostsConfigurationDto
+			.multiHostsConfigurationDTO(MultiHostsConfigurationDTO
 					.builder()
 					.extraLabels(Map.of("site", "Datacenter 1"))
 					.build())

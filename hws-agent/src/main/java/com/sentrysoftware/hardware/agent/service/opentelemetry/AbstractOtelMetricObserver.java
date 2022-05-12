@@ -9,7 +9,7 @@ import org.springframework.util.Assert;
 
 import com.sentrysoftware.hardware.agent.dto.MetricInfo;
 import com.sentrysoftware.hardware.agent.dto.MetricInfo.MetricType;
-import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
+import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 
@@ -31,8 +31,8 @@ public abstract class AbstractOtelMetricObserver extends AbstractOtelObserver {
 	protected final String matrixDataKey;
 
 	protected AbstractOtelMetricObserver(Monitor monitor, SdkMeterProvider sdkMeterProvider,
-			MultiHostsConfigurationDto multiHostsConfigurationDto, MetricInfo metricInfo, String matrixDataKey) {
-		super(monitor, sdkMeterProvider, multiHostsConfigurationDto);
+			MultiHostsConfigurationDTO multiHostsConfigurationDTO, MetricInfo metricInfo, String matrixDataKey) {
+		super(monitor, sdkMeterProvider, multiHostsConfigurationDTO);
 		this.metricInfo = metricInfo;
 		this.matrixDataKey = matrixDataKey;
 	}
@@ -105,7 +105,7 @@ public abstract class AbstractOtelMetricObserver extends AbstractOtelObserver {
 					final String attributeValue = ATTRIBUTE_FUNCTIONS
 							.getOrDefault(
 									attributeKey, 
-									mo -> multiHostsConfigurationDto.getExtraLabels()
+									mo -> multiHostsConfigurationDTO.getExtraLabels()
 									.getOrDefault(
 											attributeKey,
 											convertMetadataInfoValue(mo, initialAttributesMap.get(attributeKey))

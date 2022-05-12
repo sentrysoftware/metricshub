@@ -2,8 +2,8 @@ package com.sentrysoftware.hardware.cli.component.cli.protocols;
 
 import com.sentrysoftware.hardware.cli.component.cli.converters.SnmpPrivacyConverter;
 import com.sentrysoftware.hardware.cli.component.cli.converters.SnmpVersionConverter;
-import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
-import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.Privacy;
+import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
 
 import lombok.Data;
 import picocli.CommandLine.Option;
@@ -21,7 +21,7 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 			description = "Enables SNMP protocol version: 1, 2, 3-md5, 3-sha or 3-noauth",
 			converter = SnmpVersionConverter.class
 	)
-	SnmpProtocol.SnmpVersion snmpVersion;
+	SNMPProtocol.SNMPVersion snmpVersion;
 
 	@Option(
 			names = { "--snmp-community", "--community" },
@@ -93,8 +93,8 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 	 * @return a SNMPProtocol instance corresponding to the options specified by the user in the CLI
 	 */
 	@Override
-	public SnmpProtocol toProtocol(String defaultUsername, char[] defaultPassword) {
-		return SnmpProtocol
+	public SNMPProtocol toProtocol(String defaultUsername, char[] defaultPassword) {
+		return SNMPProtocol
 				.builder()
 				.version(snmpVersion)
 				.community(community)

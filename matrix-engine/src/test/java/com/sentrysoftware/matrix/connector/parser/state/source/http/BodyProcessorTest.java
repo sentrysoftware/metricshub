@@ -14,7 +14,7 @@ import com.sentrysoftware.matrix.connector.model.common.http.body.StringBody;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HttpSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 
 class BodyProcessorTest {
 
@@ -28,7 +28,7 @@ class BodyProcessorTest {
 	@Test
 	void testParseStringBody() {
 
-		HttpSource httpSource = HttpSource.builder().index(3).build();
+		HTTPSource httpSource = HTTPSource.builder().index(3).build();
 		Discovery discovery = Discovery.builder().sources(Collections.singletonList(httpSource)).build();
 		HardwareMonitor hardwareMonitor = HardwareMonitor
 				.builder()
@@ -46,7 +46,7 @@ class BodyProcessorTest {
 	@Test
 	void testParseEmbeddedFileBody() {
 
-		HttpSource httpSource = HttpSource.builder().index(3).build();
+		HTTPSource httpSource = HTTPSource.builder().index(3).build();
 		Discovery discovery = Discovery.builder().sources(Collections.singletonList(httpSource)).build();
 		HardwareMonitor hardwareMonitor = HardwareMonitor
 				.builder()

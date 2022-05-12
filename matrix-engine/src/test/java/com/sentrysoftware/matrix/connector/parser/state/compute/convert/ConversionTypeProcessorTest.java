@@ -13,7 +13,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Convert;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
 
 class ConversionTypeProcessorTest {
 
@@ -33,7 +33,7 @@ class ConversionTypeProcessorTest {
 
 			final Convert convert = Convert.builder().index(1).build();
 
-			final SnmpGetTableSource snmpGetTableSource = SnmpGetTableSource
+			final SNMPGetTableSource snmpGetTableSource = SNMPGetTableSource
 					.builder()
 					.index(1)
 					.computes(Collections.singletonList(convert))
@@ -57,7 +57,7 @@ class ConversionTypeProcessorTest {
 
 			final Convert convert = Convert.builder().index(1).build();
 
-			final SnmpGetTableSource snmpGetTableSource = SnmpGetTableSource
+			final SNMPGetTableSource snmpGetTableSource = SNMPGetTableSource
 					.builder()
 					.index(1)
 					.computes(Collections.singletonList(convert))

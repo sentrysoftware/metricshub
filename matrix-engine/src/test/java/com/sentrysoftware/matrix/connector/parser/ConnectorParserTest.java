@@ -3,7 +3,7 @@ package com.sentrysoftware.matrix.connector.parser;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SnmpGetNext;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGetNext;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -48,9 +48,9 @@ class ConnectorParserTest {
 		assertEquals(1, criteria.size());
 
 		Criterion criterion = criteria.get(0);
-		assertTrue(criterion instanceof SnmpGetNext);
+		assertTrue(criterion instanceof SNMPGetNext);
 
-		SnmpGetNext snmpGetNextCriterion = (SnmpGetNext) criterion;
+		SNMPGetNext snmpGetNextCriterion = (SNMPGetNext) criterion;
 		assertEquals(OID, snmpGetNextCriterion.getOid());
 		assertNull(snmpGetNextCriterion.getExpectedResult());
 		assertFalse(snmpGetNextCriterion.isForceSerialization());

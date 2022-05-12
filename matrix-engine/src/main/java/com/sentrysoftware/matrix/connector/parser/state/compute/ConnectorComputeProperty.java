@@ -15,7 +15,7 @@ import com.sentrysoftware.matrix.connector.parser.state.compute.duplicatecolumn.
 import com.sentrysoftware.matrix.connector.parser.state.compute.excludematchinglines.ConnectorExcludeMatchingLinesProperty;
 import com.sentrysoftware.matrix.connector.parser.state.compute.extract.ConnectorExtractProperty;
 import com.sentrysoftware.matrix.connector.parser.state.compute.extractpropertyfromwbempath.ConnectorExtractPropertyFromWbemPathProperty;
-import com.sentrysoftware.matrix.connector.parser.state.compute.json2csv.ConnectorJson2CsvProperty;
+import com.sentrysoftware.matrix.connector.parser.state.compute.json2csv.ConnectorJson2CSVProperty;
 import com.sentrysoftware.matrix.connector.parser.state.compute.keepcolumns.ConnectorKeepColumnsProperty;
 import com.sentrysoftware.matrix.connector.parser.state.compute.keeponlymatchinglines.ConnectorKeepOnlyMatchingLinesProperty;
 import com.sentrysoftware.matrix.connector.parser.state.compute.leftconcat.ConnectorLeftConcatProperty;
@@ -55,7 +55,7 @@ public class ConnectorComputeProperty {
 				ConnectorAndProperty.getConnectorProperties(),
 				ConnectorConvertProperty.getConnectorProperties(),
 				ConnectorArrayTranslateProperty.getConnectorProperties(),
-				ConnectorJson2CsvProperty.getConnectorProperties(),
+				ConnectorJson2CSVProperty.getConnectorProperties(),
 				ConnectorXml2CsvProperty.getConnectorProperties(),
 				ConnectorExtractPropertyFromWbemPathProperty.getConnectorProperties())
 			.flatMap(Set::stream)

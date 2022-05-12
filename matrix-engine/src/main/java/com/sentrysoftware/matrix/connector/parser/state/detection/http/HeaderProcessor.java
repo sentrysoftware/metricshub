@@ -5,7 +5,7 @@ import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import com.sentrysoftware.matrix.connector.model.common.http.header.EmbeddedFileHeader;
 import com.sentrysoftware.matrix.connector.model.common.http.header.Header;
 import com.sentrysoftware.matrix.connector.model.common.http.header.StringHeader;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.http.Http;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.http.HTTP;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
 
 import java.util.regex.Matcher;
@@ -31,7 +31,7 @@ public class HeaderProcessor extends HttpProcessor {
 
 		super.parse(key, value, connector);
 
-		((Http) getCriterion(key, connector)).setHeader(getHeader(value, connector));
+		((HTTP) getCriterion(key, connector)).setHeader(getHeader(value, connector));
 	}
 
 	/**

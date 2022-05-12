@@ -40,7 +40,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Dupl
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.ExcludeMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Extract;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.ExtractPropertyFromWbemPath;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Json2Csv;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Json2CSV;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.KeepColumns;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.KeepOnlyMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.LeftConcat;
@@ -2195,15 +2195,15 @@ class ComputeVisitorTest {
 		String rawData = ResourceHelper.getResourceAsString("/data/host-monitoring-vo.json", ComputeVisitorTest.class).replaceAll("\\s", "");
 		sourceTable.setRawData(rawData);
 
-		Json2Csv json2Csv = null;
-		computeVisitor.visit(json2Csv);
+		Json2CSV json2CSV = null;
+		computeVisitor.visit(json2CSV);
 		assertEquals(rawData, sourceTable.getRawData());
 
-		json2Csv = Json2Csv.builder().build();
-		computeVisitor.visit(json2Csv);
+		json2CSV = Json2CSV.builder().build();
+		computeVisitor.visit(json2CSV);
 		assertEquals(rawData, sourceTable.getRawData());
 
-		json2Csv = Json2Csv.builder()
+		json2CSV = Json2CSV.builder()
 				.entryKey("/monitors")
 				.separator(";")
 				.properties(Arrays.asList("id", "name", "monitorType", "targetId"))
@@ -2211,7 +2211,7 @@ class ComputeVisitorTest {
 
 		doReturn(strategyConfig).when(matsyaClientsExecutor).getStrategyConfig();
 
-		computeVisitor.visit(json2Csv);
+		computeVisitor.visit(json2CSV);
 
 		String rawDataRes = "/monitors[0];enclosure-1;enclosure-1;ENCLOSURE;targetId;\n" +
 							"/monitors[1];enclosure-2;enclosure-2;ENCLOSURE;targetId;\n";

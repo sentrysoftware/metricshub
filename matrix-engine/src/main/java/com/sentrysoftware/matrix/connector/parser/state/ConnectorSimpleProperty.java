@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.common.OsType;
+import com.sentrysoftware.matrix.connector.model.common.OSType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
 
@@ -82,10 +82,10 @@ public class ConnectorSimpleProperty {
 		@Override
 		public void parse(final String key, final String value, final Connector connector) {
 			if (connector != null && value != null) {
-				Set<OsType> osTypes = new HashSet<>();
+				Set<OSType> osTypes = new HashSet<>();
 
 				Arrays.stream(value.split(ConnectorParserConstants.COMMA))
-					.forEach(osTypeStr -> osTypes.add(OsType.valueOf(osTypeStr.trim().toUpperCase())));
+					.forEach(osTypeStr -> osTypes.add(OSType.valueOf(osTypeStr.trim().toUpperCase())));
 
 				connector.setAppliesToOS(osTypes);
 			}

@@ -18,29 +18,29 @@ import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.StringHelper;
 import com.sentrysoftware.matrix.common.helpers.TextTableHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HttpSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.Ipmi;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OsCommandSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.reference.ReferenceSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.reference.StaticSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.sshinteractive.SshInteractiveSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tablejoin.TableJoinSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tableunion.TableUnionSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ucs.UcsSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WbemSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WmiSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ucs.UCSSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
 import com.sentrysoftware.matrix.engine.protocol.AbstractCommand;
-import com.sentrysoftware.matrix.engine.protocol.HttpProtocol;
-import com.sentrysoftware.matrix.engine.protocol.IpmiOverLanProtocol;
-import com.sentrysoftware.matrix.engine.protocol.OsCommandConfig;
-import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
-import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WmiProtocol;
+import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
+import com.sentrysoftware.matrix.engine.protocol.OSCommandConfig;
+import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
-import com.sentrysoftware.matrix.engine.strategy.matsya.HttpRequest;
+import com.sentrysoftware.matrix.engine.strategy.matsya.HTTPRequest;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.utils.FilterResultHelper;
 import com.sentrysoftware.matrix.engine.strategy.utils.IpmiHelper;
@@ -69,20 +69,20 @@ public class SourceVisitor implements ISourceVisitor {
 	private Connector connector;
 
 	@Override
-	public SourceTable visit(final HttpSource httpSource) {
+	public SourceTable visit(final HTTPSource httpSource) {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 		if (httpSource == null) {
-			log.error("Hostname {} - HttpSource cannot be null, the HttpSource operation will return an empty result.", hostname);
+			log.error("Hostname {} - HTTPSource cannot be null, the HTTPSource operation will return an empty result.", hostname);
 			return SourceTable.empty();
 		}
 
-		final HttpProtocol protocol = (HttpProtocol) strategyConfig.getEngineConfiguration()
-				.getProtocolConfigurations().get(HttpProtocol.class);
+		final HTTPProtocol protocol = (HTTPProtocol) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(HTTPProtocol.class);
 
 		if (protocol == null) {
 
-			log.debug("Hostname {} - The HTTP Credentials are not configured. Returning an empty table for HttpSource {}.",
+			log.debug("Hostname {} - The HTTP Credentials are not configured. Returning an empty table for HTTPSource {}.",
 					hostname, httpSource);
 
 			return SourceTable.empty();
@@ -91,7 +91,7 @@ public class SourceVisitor implements ISourceVisitor {
 		try {
 
 			final String result = matsyaClientsExecutor.executeHttp(
-					HttpRequest.builder()
+					HTTPRequest.builder()
 					.hostname(hostname)
 					.method(httpSource.getMethod())
 					.url(httpSource.getUrl())
@@ -120,7 +120,7 @@ public class SourceVisitor implements ISourceVisitor {
 	}
 
 	@Override
-	public SourceTable visit(final Ipmi ipmi) {
+	public SourceTable visit(final IPMI ipmi) {
 
 		HardwareTarget target = strategyConfig.getEngineConfiguration().getTarget();
 		final TargetType targetType = target.getType();
@@ -150,8 +150,8 @@ public class SourceVisitor implements ISourceVisitor {
 	 */
 	SourceTable processOutOfBandIpmiSource(String sourceKey) {
 
-		final IpmiOverLanProtocol protocol = (IpmiOverLanProtocol) strategyConfig.getEngineConfiguration()
-				.getProtocolConfigurations().get(IpmiOverLanProtocol.class);
+		final IPMIOverLanProtocol protocol = (IPMIOverLanProtocol) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(IPMIOverLanProtocol.class);
 
 		String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 		
@@ -202,10 +202,10 @@ public class SourceVisitor implements ISourceVisitor {
 
 		boolean isLocalHost = strategyConfig.getHostMonitoring().isLocalhost();
 
-		final SshProtocol sshProtocol = (SshProtocol) strategyConfig.getEngineConfiguration()
-				.getProtocolConfigurations().get(SshProtocol.class);
-		final OsCommandConfig osCommandConfig = (OsCommandConfig) strategyConfig.getEngineConfiguration()
-				.getProtocolConfigurations().get(OsCommandConfig.class);
+		final SSHProtocol sshProtocol = (SSHProtocol) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(SSHProtocol.class);
+		final OSCommandConfig osCommandConfig = (OSCommandConfig) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(OSCommandConfig.class);
 
 		final int defaultTimeout = osCommandConfig != null ? osCommandConfig.getTimeout().intValue()
 				: AbstractCommand.DEFAULT_TIMEOUT.intValue();
@@ -271,7 +271,7 @@ public class SourceVisitor implements ISourceVisitor {
 	 */
 	SourceTable processWindowsIpmiSource(String sourceKey) {
 
-		final WmiProtocol wmiProtocol = (WmiProtocol) strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(WmiProtocol.class);
+		final WMIProtocol wmiProtocol = (WMIProtocol) strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(WMIProtocol.class);
 		if (wmiProtocol == null) {
 			return SourceTable.empty();
 		}
@@ -300,7 +300,7 @@ public class SourceVisitor implements ISourceVisitor {
 	}
 
 	@Override
-	public SourceTable visit(final OsCommandSource osCommandSource) {
+	public SourceTable visit(final OSCommandSource osCommandSource) {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 		
@@ -437,7 +437,7 @@ public class SourceVisitor implements ISourceVisitor {
 	}
 
 	@Override
-	public SourceTable visit(final SnmpGetSource snmpGetSource) {
+	public SourceTable visit(final SNMPGetSource snmpGetSource) {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 		
@@ -452,8 +452,8 @@ public class SourceVisitor implements ISourceVisitor {
 			return SourceTable.empty();
 		}
 
-		final SnmpProtocol protocol = (SnmpProtocol) strategyConfig.getEngineConfiguration()
-				.getProtocolConfigurations().get(SnmpProtocol.class);
+		final SNMPProtocol protocol = (SNMPProtocol) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(SNMPProtocol.class);
 
 		if (protocol == null) {
 			log.debug("Hostname {} - The SNMP Credentials are not configured. Returning an empty table for SNMP Get Source {}.",
@@ -489,7 +489,7 @@ public class SourceVisitor implements ISourceVisitor {
 	}
 
 	@Override
-	public SourceTable visit(final SnmpGetTableSource snmpGetTableSource) {
+	public SourceTable visit(final SNMPGetTableSource snmpGetTableSource) {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 		
@@ -516,8 +516,8 @@ public class SourceVisitor implements ISourceVisitor {
 		String[] selectColumnArray = new String[selectedColumns.size()];
 		selectColumnArray = selectedColumns.toArray(selectColumnArray);
 
-		final SnmpProtocol protocol = (SnmpProtocol) strategyConfig.getEngineConfiguration()
-				.getProtocolConfigurations().get(SnmpProtocol.class);
+		final SNMPProtocol protocol = (SNMPProtocol) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(SNMPProtocol.class);
 
 		if (protocol == null) {
 			log.debug("Hostname {} - The SNMP Credentials are not configured. Returning an empty table for SNMP Get Table Source {}.",
@@ -715,12 +715,12 @@ public class SourceVisitor implements ISourceVisitor {
 	}
 
 	@Override
-	public SourceTable visit(final UcsSource ucsSource) {
+	public SourceTable visit(final UCSSource ucsSource) {
 		return SourceTable.empty();
 	}
 
 	@Override
-	public SourceTable visit(final WbemSource wbemSource) {
+	public SourceTable visit(final WBEMSource wbemSource) {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 		
@@ -729,8 +729,8 @@ public class SourceVisitor implements ISourceVisitor {
 			return SourceTable.empty();
 		}
 
-		final WbemProtocol protocol = (WbemProtocol) strategyConfig.getEngineConfiguration()
-				.getProtocolConfigurations().get(WbemProtocol.class);
+		final WBEMProtocol protocol = (WBEMProtocol) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(WBEMProtocol.class);
 
 		if (protocol == null) {
 			log.debug("Hostname {} - The WBEM Credentials are not configured. Returning an empty table for WBEM source {}.",
@@ -787,7 +787,7 @@ public class SourceVisitor implements ISourceVisitor {
 	}
 
 	@Override
-	public SourceTable visit(final WmiSource wmiSource) {
+	public SourceTable visit(final WMISource wmiSource) {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 		
@@ -796,8 +796,8 @@ public class SourceVisitor implements ISourceVisitor {
 			return SourceTable.empty();
 		}
 
-		final WmiProtocol protocol = (WmiProtocol) strategyConfig.getEngineConfiguration()
-				.getProtocolConfigurations().get(WmiProtocol.class);
+		final WMIProtocol protocol = (WMIProtocol) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(WMIProtocol.class);
 
 		if (protocol == null) {
 			log.debug("Hostname {} - The WMI Credentials are not configured. Returning an empty table for WMI source {}.",
@@ -839,13 +839,13 @@ public class SourceVisitor implements ISourceVisitor {
 	}
 
 	/**
-	 * Get the namespace to use for the execution of the given {@link WmiSource} instance
+	 * Get the namespace to use for the execution of the given {@link WMISource} instance
 	 *
-	 * @param wmiSource {@link WmiSource} instance from which we want to extract the namespace. Expected "automatic", null or <em>any
+	 * @param wmiSource {@link WMISource} instance from which we want to extract the namespace. Expected "automatic", null or <em>any
 	 *                  string</em>
 	 * @return {@link String} value
 	 */
-	String getNamespace(final WmiSource wmiSource) {
+	String getNamespace(final WMISource wmiSource) {
 
 		final String sourceNamespace = wmiSource.getWbemNamespace();
 
@@ -876,7 +876,7 @@ public class SourceVisitor implements ISourceVisitor {
 	 *
 	 * @return				The result of the execution of the query.
 	 */
-	private List<List<String>> executeIpmiWmiRequest(final String hostname, final WmiProtocol wmiProtocol,
+	private List<List<String>> executeIpmiWmiRequest(final String hostname, final WMIProtocol wmiProtocol,
 			final String wmiQuery, final String namespace, final String sourceKey) {
 
 		log.info("Hostname {} - Executing IPMI Query for source [{}]:\nWMI Query: {}:\n", hostname, sourceKey, wmiQuery);

@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.oscommand.OsCommand;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.oscommand.OSCommand;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParser;
 
 public class OsCommandTest {
@@ -37,9 +37,9 @@ public class OsCommandTest {
 		// Tests on Detection.Criteria(1)
 		{
 			Criterion criterion = criteria.get(0);
-			assertTrue(criterion instanceof OsCommand);
+			assertTrue(criterion instanceof OSCommand);
 
-			OsCommand osCommandCriterion = (OsCommand) criterion;
+			OSCommand osCommandCriterion = (OSCommand) criterion;
 			assertEquals("command line", osCommandCriterion.getCommandLine());
 			assertTrue(osCommandCriterion.isExecuteLocally());
 			assertEquals("expected result", osCommandCriterion.getExpectedResult());
@@ -51,9 +51,9 @@ public class OsCommandTest {
 		// Tests on Detection.Criteria(2)
 		{
 			Criterion criterion = criteria.get(1);
-			assertTrue(criterion instanceof OsCommand);
+			assertTrue(criterion instanceof OSCommand);
 
-			OsCommand osCommandCriterion = (OsCommand) criterion;
+			OSCommand osCommandCriterion = (OSCommand) criterion;
 			assertEquals("command line", osCommandCriterion.getCommandLine());
 			assertFalse(osCommandCriterion.isExecuteLocally());
 			assertEquals("expected result", osCommandCriterion.getExpectedResult());
@@ -65,9 +65,9 @@ public class OsCommandTest {
 		// Tests on Detection.Criteria(3)
 		{
 			Criterion criterion = criteria.get(2);
-			assertTrue(criterion instanceof OsCommand);
+			assertTrue(criterion instanceof OSCommand);
 
-			OsCommand osCommandCriterion = (OsCommand) criterion;
+			OSCommand osCommandCriterion = (OSCommand) criterion;
 			assertEquals("command line", osCommandCriterion.getCommandLine());
 			assertFalse(osCommandCriterion.isExecuteLocally());
 			assertNull(osCommandCriterion.getExpectedResult());

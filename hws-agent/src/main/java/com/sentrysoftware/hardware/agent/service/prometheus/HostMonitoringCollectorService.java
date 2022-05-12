@@ -22,7 +22,7 @@ import org.springframework.util.Assert;
 
 import com.sentrysoftware.hardware.agent.dto.MetricInfo;
 import com.sentrysoftware.hardware.agent.dto.MetricInfo.MetricType;
-import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
+import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
 import com.sentrysoftware.hardware.agent.dto.TargetContext;
 import com.sentrysoftware.hardware.agent.service.ServiceHelper;
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
@@ -67,7 +67,7 @@ public class HostMonitoringCollectorService extends Collector {
 	private AgentInfoService exporterInfoService;
 
 	@Autowired
-	private MultiHostsConfigurationDto multiHostsConfigurationDto;
+	private MultiHostsConfigurationDTO multiHostsConfigurationDTO;
 
 	@Autowired 
 	private ExtraMetricsService extraMetricsService;
@@ -223,7 +223,7 @@ public class HostMonitoringCollectorService extends Collector {
 		// Concatenate extra labels. Sonar doesn't know that the previous 
 		// Assert.state throws the IllegalArgumentException if staticLabels is null, so never null here.
 		final List<String> labels = Stream
-				.concat(staticLabels.stream(), multiHostsConfigurationDto.getExtraLabels().keySet().stream()) // NOSONAR
+				.concat(staticLabels.stream(), multiHostsConfigurationDTO.getExtraLabels().keySet().stream()) // NOSONAR
 				.sorted()
 				.collect(Collectors.toList());
 
@@ -250,7 +250,7 @@ public class HostMonitoringCollectorService extends Collector {
 		final List<String> labelValues = gauge.getLabelNames()
 			.stream()
 			.map(labelKey -> LABEL_FUNCTIONS
-					.getOrDefault(labelKey, mo -> multiHostsConfigurationDto
+					.getOrDefault(labelKey, mo -> multiHostsConfigurationDTO
 							.getExtraLabels()
 							.getOrDefault(labelKey, convertMetadataInfoValue(mo, labelKey)))
 					.apply(monitor))
@@ -417,7 +417,7 @@ public class HostMonitoringCollectorService extends Collector {
 	private AbstractHardwareMetricFamily createMetricFamilySamples(final MetricInfo prometheusParameter, final String help) {
 
 		final List<String> labels = Stream
-				.concat(LABELS.stream(), multiHostsConfigurationDto.getExtraLabels().keySet().stream())
+				.concat(LABELS.stream(), multiHostsConfigurationDTO.getExtraLabels().keySet().stream())
 				.sorted()
 				.collect(Collectors.toList());
 
@@ -547,7 +547,7 @@ public class HostMonitoringCollectorService extends Collector {
 				.map(labelKey -> LABEL_FUNCTIONS
 						.getOrDefault(
 								labelKey,
-								mo -> multiHostsConfigurationDto.getExtraLabels().getOrDefault(labelKey, "")
+								mo -> multiHostsConfigurationDTO.getExtraLabels().getOrDefault(labelKey, "")
 						)
 						.apply(monitor))
 				.collect(Collectors.toList());
@@ -561,7 +561,7 @@ public class HostMonitoringCollectorService extends Collector {
 	 * @return Long value
 	 */
 	Long getDiscoveryTime(final Monitor monitor) {
-		return multiHostsConfigurationDto.isExportTimestamps() ? monitor.getDiscoveryTime() : null;
+		return multiHostsConfigurationDTO.isExportTimestamps() ? monitor.getDiscoveryTime() : null;
 	}
 
 	/**
@@ -573,7 +573,7 @@ public class HostMonitoringCollectorService extends Collector {
 	 * @return Long value
 	 */
 	Long getCollectTime(final Monitor monitor, final String parameterName) {
-		if (!multiHostsConfigurationDto.isExportTimestamps()) {
+		if (!multiHostsConfigurationDTO.isExportTimestamps()) {
 			return null;
 		}
 

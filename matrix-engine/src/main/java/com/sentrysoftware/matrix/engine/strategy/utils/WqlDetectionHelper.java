@@ -20,8 +20,8 @@ import com.sentrysoftware.javax.wbem.WBEMException;
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.WqlCriterion;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
-import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WmiProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.detection.CriterionTestResult;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
@@ -74,15 +74,15 @@ public class WqlDetectionHelper {
 
 
 	/**
-	 * Find the possible WBEM namespaces using the configured {@link WbemProtocol}.
+	 * Find the possible WBEM namespaces using the configured {@link WBEMProtocol}.
 	 *
 	 * @param hostname	The hostname of the target device.
-	 * @param wbemConfig	The user's configured {@link WbemProtocol}.
+	 * @param wbemConfig	The user's configured {@link WBEMProtocol}.
 	 *
 	 * @return A {@link PossibleNamespacesResult} wrapping the success state, the message in case of errors
 	 * and the possibleWmiNamespaces {@link Set}.
 	 */
-	public PossibleNamespacesResult findPossibleNamespaces(final String hostname, final WbemProtocol wbemConfig) {
+	public PossibleNamespacesResult findPossibleNamespaces(final String hostname, final WBEMProtocol wbemConfig) {
 
 		// If the user specified a namespace, we return it as if it was the only namespace available
 		// and for which we're going to test our connector
@@ -176,7 +176,7 @@ public class WqlDetectionHelper {
 	 * @return A {@link PossibleNamespacesResult} wrapping the success state, the message in case of errors
 	 * and the possibleWmiNamespaces {@link Set}.
 	 */
-	public PossibleNamespacesResult findPossibleNamespaces(final String hostname, final WmiProtocol wmiConfig) {
+	public PossibleNamespacesResult findPossibleNamespaces(final String hostname, final WMIProtocol wmiConfig) {
 
 		// If the user specified a namespace, we return it as if it was the only namespace available
 		// and for which we're going to test our connector

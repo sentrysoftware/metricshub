@@ -27,7 +27,7 @@ import com.sentrysoftware.matrix.connector.model.common.sshinteractive.step.Step
 import com.sentrysoftware.matrix.connector.model.common.sshinteractive.step.WaitFor;
 import com.sentrysoftware.matrix.connector.model.common.sshinteractive.step.WaitForPrompt;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
-import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matsya.ssh.SSHClient;
@@ -61,7 +61,7 @@ class SshInteractiveHelperTest {
 				NoCredentialProvidedException.class,
 				() -> SshInteractiveHelper.runSshInteractive(
 						EngineConfiguration.builder().protocolConfigurations(
-								Map.of(SshProtocol.class, SshProtocol.builder().build())).build(),
+								Map.of(SSHProtocol.class, SSHProtocol.builder().build())).build(),
 						List.of(),
 						"SshInteractive(1)"));
 	}
@@ -74,8 +74,8 @@ class SshInteractiveHelperTest {
 						EngineConfiguration.builder()
 							.protocolConfigurations(
 									Map.of(
-											SshProtocol.class,
-											SshProtocol.builder().username(HardwareConstants.EMPTY).build()))
+											SSHProtocol.class,
+											SSHProtocol.builder().username(HardwareConstants.EMPTY).build()))
 							.build(),
 						List.of(),
 						"SshInteractive(1)"));
@@ -86,8 +86,8 @@ class SshInteractiveHelperTest {
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
 				.protocolConfigurations(Map.of(
-						SshProtocol.class,
-						SshProtocol.builder().username("user").password("pwd".toCharArray()).build()))
+						SSHProtocol.class,
+						SSHProtocol.builder().username("user").password("pwd".toCharArray()).build()))
 				.target(HardwareTarget.builder().hostname("host").build())
 				.build();
 
