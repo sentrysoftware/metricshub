@@ -83,6 +83,9 @@ public class MetricsMapping {
 	private static final String SECONDS = "s";
 	private static final String RPM = "rpm";
 	static final String VM_HOST_NAME = "vm.host.name";
+	private static final String ALARM_THRESHOLD_OF_ERRORS = "Alarm threshold of the encountered errors";
+	private static final String WARNING_THRESHOLD_OF_ERRORS = "Warning threshold of the encountered errors";
+
 
 	protected static final Set<String> DEFAULT_ATTRIBUTE_NAMES = Set.of(ID, LABEL, PARENT);
 
@@ -253,13 +256,13 @@ public class MetricsMapping {
 		map.put(ERROR_COUNT_WARNING_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.robotics.errors_warning")
-			.description("WARNING_THRESHOLD_OF_ERRORS")
+			.description(WARNING_THRESHOLD_OF_ERRORS)
 			.build());
 
 		map.put(ERROR_COUNT_ALARM_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.robotics.errors_alarm")
-			.description("ALARM_THRESHOLD_OF_ERRORS")
+			.description(ALARM_THRESHOLD_OF_ERRORS)
 			.build());
 
 		return map;
@@ -328,13 +331,13 @@ public class MetricsMapping {
 		map.put(ERROR_COUNT_WARNING_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.tape_drive.errors_warning")
-			.description("WARNING_THRESHOLD_OF_ERRORS")
+			.description(WARNING_THRESHOLD_OF_ERRORS)
 			.build());
 
 		map.put(ERROR_COUNT_ALARM_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.tape_drive.errors_alarm")
-			.description("ALARM_THRESHOLD_OF_ERRORS")
+			.description(ALARM_THRESHOLD_OF_ERRORS)
 			.build());
 
 		return map;
@@ -478,13 +481,13 @@ public class MetricsMapping {
 		map.put(ERROR_COUNT_WARNING_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.physical_disk.errors_warning")
-			.description("WARNING_THRESHOLD_OF_ERRORS")
+			.description(WARNING_THRESHOLD_OF_ERRORS)
 			.build());
 
 		map.put(ERROR_COUNT_ALARM_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.physical_disk.errors_alarm")
-			.description("ALARM_THRESHOLD_OF_ERRORS")
+			.description(ALARM_THRESHOLD_OF_ERRORS)
 			.build());
 
 		return map;
@@ -509,13 +512,13 @@ public class MetricsMapping {
 		map.put(ERROR_COUNT_WARNING_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.memory.errors_warning")
-			.description("WARNING_THRESHOLD_OF_ERRORS")
+			.description(WARNING_THRESHOLD_OF_ERRORS)
 			.build());
 
 		map.put(ERROR_COUNT_ALARM_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.memory.errors_alarm")
-			.description("ALARM_THRESHOLD_OF_ERRORS")
+			.description(ALARM_THRESHOLD_OF_ERRORS)
 			.build());
 
 		return map;
@@ -539,13 +542,13 @@ public class MetricsMapping {
 		map.put(ERROR_COUNT_WARNING_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.logical_disk.errors_warning")
-			.description("WARNING_THRESHOLD_OF_ERRORS")
+			.description(WARNING_THRESHOLD_OF_ERRORS)
 			.build());
 
 		map.put(ERROR_COUNT_ALARM_THRESHOLD, MetricInfo
 			.builder()
 			.name("hw.logical_disk.errors_alarm")
-			.description("ALARM_THRESHOLD_OF_ERRORS")
+			.description(ALARM_THRESHOLD_OF_ERRORS)
 			.build());
 
 		return map;
