@@ -83,8 +83,8 @@ public class MetricsMapping {
 	private static final String SECONDS = "s";
 	private static final String RPM = "rpm";
 	static final String VM_HOST_NAME = "vm.host.name";
-	private static final String ALARM_THRESHOLD_OF_ERRORS = "Alarm threshold of the encountered errors";
-	private static final String WARNING_THRESHOLD_OF_ERRORS = "Warning threshold of the encountered errors";
+	private static final String ALARM_THRESHOLD_OF_ERRORS = "Alarm threshold of the encountered errors.";
+	private static final String WARNING_THRESHOLD_OF_ERRORS = "Warning threshold of the encountered errors.";
 
 
 	protected static final Set<String> DEFAULT_ATTRIBUTE_NAMES = Set.of(ID, LABEL, PARENT);
