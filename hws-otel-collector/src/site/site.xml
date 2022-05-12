@@ -24,6 +24,10 @@
 			<item name="Installation" href="install.html"/>
 		</menu>
 
+		  <menu name="Quick Start Guides">
+            <item name="Prometheus Grafana" href="start/prometheus-grafana.html" />
+        </menu>
+
 		<menu name="Configuration">
 			<item name="OpenTelemetry Collector" href="configuration/configure-otel.html" />
 			<item name="Hardware Sentry Agent" href="configuration/configure-agent.html" />
