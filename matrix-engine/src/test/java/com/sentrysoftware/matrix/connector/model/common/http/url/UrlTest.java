@@ -8,7 +8,7 @@ class UrlTest {
 
 	@Test
 	void getContentTest() {
-		assertEquals("https://address:9999/api/json/address", getContent("address", 9999, "/api/json/%{HOSTNAME}", "https"));
-		assertEquals("https://address:9999/api/json/", getContent("address", 9999, "api/json/", "https"));
+		assertEquals("https://address:9999/api/json/address", format("address", 9999, "/api/json/%{HOSTNAME}", "https"));
+		assertEquals("https://address:9999/api/json/", format("address", 9999, "api/json/", "https"));
 	}
 }

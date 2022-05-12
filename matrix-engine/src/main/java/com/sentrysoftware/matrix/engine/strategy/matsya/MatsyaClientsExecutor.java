@@ -738,7 +738,7 @@ public class MatsyaClientsExecutor {
 		notNull(url, "URL cannot be null");
 
 		String protocol = httpProtocol.getHttps() != null && httpProtocol.getHttps() ? "https" : "http";
-		String fullUrl = Url.getContent(hostname, httpProtocol.getPort(), url, protocol);
+		String fullUrl = Url.format(hostname, httpProtocol.getPort(), url, protocol);
 
 		trace(() -> 
 			log.trace(
