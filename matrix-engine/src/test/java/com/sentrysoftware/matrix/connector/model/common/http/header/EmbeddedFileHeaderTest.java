@@ -10,7 +10,7 @@ import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 class EmbeddedFileHeaderTest {
 
 	@Test
-	void testGetByName() {
+	void testGetContent() {
 
 		char[] password = {'p','w'};
 
