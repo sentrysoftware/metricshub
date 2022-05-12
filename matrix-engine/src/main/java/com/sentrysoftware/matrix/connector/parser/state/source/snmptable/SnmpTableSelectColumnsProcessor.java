@@ -1,7 +1,7 @@
 package com.sentrysoftware.matrix.connector.parser.state.source.snmptable;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetTableSource;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
 
 import java.util.Arrays;
@@ -24,7 +24,7 @@ public class SnmpTableSelectColumnsProcessor extends SnmpTableProcessor {
 
 		super.parse(key, value, connector);
 
-		((SNMPGetTableSource) getSource(key, connector)).setSnmpTableSelectColumns(
+		((SnmpGetTableSource) getSource(key, connector)).setSnmpTableSelectColumns(
 			Arrays.asList(value.split(ConnectorParserConstants.COMMA)));
 	}
 }

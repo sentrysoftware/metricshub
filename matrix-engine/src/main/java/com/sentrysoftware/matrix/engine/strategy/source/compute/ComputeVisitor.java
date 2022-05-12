@@ -39,7 +39,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Dupl
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.ExcludeMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Extract;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.ExtractPropertyFromWbemPath;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Json2CSV;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Json2Csv;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.KeepColumns;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.KeepOnlyMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.LeftConcat;
@@ -583,7 +583,7 @@ public class ComputeVisitor implements IComputeVisitor {
 	}
 
 	@Override
-	public void visit(final Json2CSV json2csv) {
+	public void visit(final Json2Csv json2csv) {
 
 		if (json2csv == null) {
 			log.warn("Hostname {} - Compute Operation (Json2CSV) is null, the table remains unchanged.", hostname);

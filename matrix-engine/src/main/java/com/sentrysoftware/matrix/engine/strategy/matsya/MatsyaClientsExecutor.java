@@ -31,13 +31,13 @@ import com.sentrysoftware.matrix.common.helpers.StringHelper;
 import com.sentrysoftware.matrix.common.helpers.TextTableHelper;
 import com.sentrysoftware.matrix.connector.model.common.http.body.Body;
 import com.sentrysoftware.matrix.connector.model.common.http.header.Header;
-import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
-import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
+import com.sentrysoftware.matrix.engine.protocol.HttpProtocol;
+import com.sentrysoftware.matrix.engine.protocol.IpmiOverLanProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
-import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.Privacy;
+import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WmiProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.matsya.WmiHelper;
@@ -121,7 +121,7 @@ public class MatsyaClientsExecutor {
 	 */
 	public String executeSNMPGetNext(
 			@NonNull final String oid,
-			@NonNull final SNMPProtocol protocol,
+			@NonNull final SnmpProtocol protocol,
 			@NonNull final String hostname,
 			final boolean logMode
 	) throws InterruptedException, ExecutionException, TimeoutException {
@@ -153,7 +153,7 @@ public class MatsyaClientsExecutor {
 	 */
 	public String executeSNMPGet(
 			@NonNull final String oid,
-			@NonNull final SNMPProtocol protocol,
+			@NonNull final SnmpProtocol protocol,
 			@NonNull final String hostname,
 			final boolean logMode
 	) throws InterruptedException, ExecutionException, TimeoutException {
@@ -186,7 +186,7 @@ public class MatsyaClientsExecutor {
 	public List<List<String>> executeSNMPTable(
 			@NonNull final String oid,
 			@NonNull String[] selectColumnArray,
-			@NonNull final SNMPProtocol protocol,
+			@NonNull final SnmpProtocol protocol,
 			@NonNull final String hostname,
 			final boolean logMode
 	) throws InterruptedException, ExecutionException, TimeoutException {
@@ -216,7 +216,7 @@ public class MatsyaClientsExecutor {
 	private <T> T executeSNMPGetRequest(
 			final SNMPGetRequest request,
 			final String oid,
-			final SNMPProtocol protocol,
+			final SnmpProtocol protocol,
 			final String hostname,
 			final String[] selectColumnArray,
 			final boolean logMode
@@ -452,10 +452,10 @@ public class MatsyaClientsExecutor {
 		final String namespace
 	) throws MatsyaException {
 
-		if (protoConfig instanceof WBEMProtocol) {
-			return executeWbem(hostname, (WBEMProtocol) protoConfig, query, namespace);
-		} else if (protoConfig instanceof WMIProtocol) {
-			return executeWmi(hostname, (WMIProtocol) protoConfig, query, namespace);
+		if (protoConfig instanceof WbemProtocol) {
+			return executeWbem(hostname, (WbemProtocol) protoConfig, query, namespace);
+		} else if (protoConfig instanceof WmiProtocol) {
+			return executeWmi(hostname, (WmiProtocol) protoConfig, query, namespace);
 		}
 
 		throw new IllegalStateException("WQL queries can be executed only in WBEM and WMI protocols.");
@@ -476,7 +476,7 @@ public class MatsyaClientsExecutor {
 	 */
 	public List<List<String>> executeWbem(
 			@NonNull final String hostname,
-			@NonNull final WBEMProtocol wbemConfig,
+			@NonNull final WbemProtocol wbemConfig,
 			@NonNull final String query,
 			@NonNull final String namespace
 	) throws MatsyaException {
@@ -553,7 +553,7 @@ public class MatsyaClientsExecutor {
 	 */
 	public List<List<String>> executeWmi(
 			final String hostname,
-			@NonNull final WMIProtocol wmiConfig,
+			@NonNull final WmiProtocol wmiConfig,
 			@NonNull final String wbemQuery,
 			@NonNull final String namespace
 	) throws MatsyaException {
@@ -705,14 +705,14 @@ public class MatsyaClientsExecutor {
 	}
 
 	/**
-	 * @param httpRequest	The {@link HTTPRequest} values.
+	 * @param httpRequest	The {@link HttpRequest} values.
 	 * @param logMode		Whether or not logging is enabled.
 	 *
 	 * @return				The result of the execution of the given HTTP request.
 	 */
-	public String executeHttp(@NonNull HTTPRequest httpRequest, boolean logMode) {
+	public String executeHttp(@NonNull HttpRequest httpRequest, boolean logMode) {
 
-		HTTPProtocol httpProtocol = httpRequest.getHttpProtocol();
+		HttpProtocol httpProtocol = httpRequest.getHttpProtocol();
 		String hostname = httpRequest.getHostname();
 		notNull(httpProtocol, PROTOCOL_CANNOT_BE_NULL);
 		notNull(hostname, HOSTNAME_CANNOT_BE_NULL);
@@ -1091,13 +1091,13 @@ public class MatsyaClientsExecutor {
 	 * Run the IPMI detection in order to detect the Chassis power state
 	 *
 	 * @param hostname            The host name or the IP address we wish to query
-	 * @param ipmiOverLanProtocol The Matrix {@link IPMIOverLanProtocol} instance including all the required fields to perform IPMI requests
+	 * @param ipmiOverLanProtocol The Matrix {@link IpmiOverLanProtocol} instance including all the required fields to perform IPMI requests
 	 * @return String value. E.g. System power state is up
 	 * @throws TimeoutException
 	 * @throws ExecutionException
 	 * @throws InterruptedException
 	 */
-	public String executeIpmiDetection(String hostname, @NonNull IPMIOverLanProtocol ipmiOverLanProtocol)
+	public String executeIpmiDetection(String hostname, @NonNull IpmiOverLanProtocol ipmiOverLanProtocol)
 			throws InterruptedException, ExecutionException, TimeoutException {
 
 		trace(() -> 
@@ -1131,10 +1131,10 @@ public class MatsyaClientsExecutor {
 	 * Build MATSYA IPMI configuration
 	 *
 	 * @param hostname            The host we wish to set in the {@link IpmiConfiguration}
-	 * @param ipmiOverLanProtocol Matrix {@link IPMIOverLanProtocol} instance including all the required fields to perform IPMI requests
+	 * @param ipmiOverLanProtocol Matrix {@link IpmiOverLanProtocol} instance including all the required fields to perform IPMI requests
 	 * @return new instance of MATSYA {@link IpmiConfiguration}
 	 */
-	private static IpmiConfiguration buildIpmiConfiguration(@NonNull String hostname, @NonNull IPMIOverLanProtocol ipmiOverLanProtocol) {
+	private static IpmiConfiguration buildIpmiConfiguration(@NonNull String hostname, @NonNull IpmiOverLanProtocol ipmiOverLanProtocol) {
 		String username = ipmiOverLanProtocol.getUsername();
 		char[] password = ipmiOverLanProtocol.getPassword();
 		Long timeout = ipmiOverLanProtocol.getTimeout();
@@ -1155,13 +1155,13 @@ public class MatsyaClientsExecutor {
 	 * Run IPMI Over-LAN request in order to get all the sensors
 	 *
 	 * @param hostname            The host we wish to set in the {@link IpmiConfiguration}
-	 * @param ipmiOverLanProtocol The Matrix {@link IPMIOverLanProtocol} instance including all the required fields to perform IPMI requests
+	 * @param ipmiOverLanProtocol The Matrix {@link IpmiOverLanProtocol} instance including all the required fields to perform IPMI requests
 	 * @return String output contains FRUs and Sensor states and readings
 	 * @throws TimeoutException
 	 * @throws ExecutionException
 	 * @throws InterruptedException
 	 */
-	public String executeIpmiGetSensors(String hostname, @NonNull IPMIOverLanProtocol ipmiOverLanProtocol)
+	public String executeIpmiGetSensors(String hostname, @NonNull IpmiOverLanProtocol ipmiOverLanProtocol)
 			throws InterruptedException, ExecutionException, TimeoutException {
 
 		trace(() -> 

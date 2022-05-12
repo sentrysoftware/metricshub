@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
+import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 
@@ -26,7 +26,7 @@ public abstract class AbstractOtelObserver {
 
 	protected final Monitor monitor;
 	protected final SdkMeterProvider sdkMeterProvider;
-	protected final MultiHostsConfigurationDTO multiHostsConfigurationDTO;
+	protected final MultiHostsConfigurationDto multiHostsConfigurationDto;
 
 	protected static final Map<String, Function<Monitor, String>> ATTRIBUTE_FUNCTIONS = Map.of(
 			ID, Monitor::getId,
@@ -72,7 +72,7 @@ public abstract class AbstractOtelObserver {
 	 */
 	protected Stream<String> getAttributeKeys(final Collection<String> initialAttributeKeys) {
 		return Stream
-				.concat(initialAttributeKeys.stream(), multiHostsConfigurationDTO.getExtraLabels().keySet().stream())
+				.concat(initialAttributeKeys.stream(), multiHostsConfigurationDto.getExtraLabels().keySet().stream())
 				.sorted();
 	}
 

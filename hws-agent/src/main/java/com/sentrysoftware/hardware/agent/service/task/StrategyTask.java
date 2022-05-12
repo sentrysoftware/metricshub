@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.apache.logging.log4j.ThreadContext;
 
-import com.sentrysoftware.hardware.agent.dto.HostConfigurationDTO;
+import com.sentrysoftware.hardware.agent.dto.HostConfigurationDto;
 import com.sentrysoftware.hardware.agent.dto.UserConfiguration;
 import com.sentrysoftware.hardware.agent.service.opentelemetry.MetricsMapping;
 import com.sentrysoftware.hardware.agent.service.opentelemetry.OtelHelper;
@@ -95,16 +95,16 @@ public class StrategyTask implements Runnable {
 
 			// Create the resource
 			final Monitor targetMonitor = hostMonitoring.getTargetMonitor();
-			final HostConfigurationDTO hostConfigurationDTO = userConfiguration.getHostConfigurationDTO();
+			final HostConfigurationDto hostConfigurationDto = userConfiguration.getHostConfigurationDto();
 
 			final Resource resource = OtelHelper.createHostResource(
 					targetMonitor.getId(),
-					hostConfigurationDTO.getTarget().getHostname(),
-					hostConfigurationDTO.getTarget().getType(),
+					hostConfigurationDto.getTarget().getHostname(),
+					hostConfigurationDto.getTarget().getType(),
 					targetMonitor.getFqdn(),
-					userConfiguration.getMultiHostsConfigurationDTO().isResolveHostnameToFqdn(),
-					hostConfigurationDTO.getExtraLabels(),
-					userConfiguration.getMultiHostsConfigurationDTO().getExtraLabels()
+					userConfiguration.getMultiHostsConfigurationDto().isResolveHostnameToFqdn(),
+					hostConfigurationDto.getExtraLabels(),
+					userConfiguration.getMultiHostsConfigurationDto().getExtraLabels()
 			);
 
 			autoConfiguredOpenTelemetrySdk = OtelHelper.initOpenTelemetrySdk(resource, otelSdkConfiguration);
@@ -147,7 +147,7 @@ public class StrategyTask implements Runnable {
 							.matrixMetadata(metricEntry.getKey())
 							.metricInfo(metricEntry.getValue())
 							.sdkMeterProvider(autoConfiguredOpenTelemetrySdk.getOpenTelemetrySdk().getSdkMeterProvider())
-							.multiHostsConfigurationDTO(userConfiguration.getMultiHostsConfigurationDTO())
+							.multiHostsConfigurationDto(userConfiguration.getMultiHostsConfigurationDto())
 							.build()
 							.init()
 					)
@@ -172,7 +172,7 @@ public class StrategyTask implements Runnable {
 					.monitor(monitor)
 					.metricInfo(metricInfo)
 					.matrixParameterName(parameterName)
-					.multiHostsConfigurationDTO(userConfiguration.getMultiHostsConfigurationDTO())
+					.multiHostsConfigurationDto(userConfiguration.getMultiHostsConfigurationDto())
 					.sdkMeterProvider(autoConfiguredOpenTelemetrySdk.getOpenTelemetrySdk().getSdkMeterProvider())
 					.build()
 					.init() // Initialize using the current monitor/parameter context
