@@ -4,7 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OsCommandSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
 
 import lombok.NonNull;
 
@@ -26,6 +26,6 @@ public class CommandLineProcessor extends OsCommandProcessor {
 
 		super.parse(key, value, connector);
 
-		((OsCommandSource) getSource(key, connector)).setCommandLine(value);
+		((OSCommandSource) getSource(key, connector)).setCommandLine(value);
 	}
 }

@@ -1,6 +1,6 @@
 package com.sentrysoftware.hardware.cli.component.cli.protocols;
 
-import com.sentrysoftware.matrix.engine.protocol.HttpProtocol;
+import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 
 import lombok.Data;
 import lombok.Getter;
@@ -75,11 +75,11 @@ public class HttpConfigCli implements IProtocolConfigCli {
 	/**
 	 * @param defaultUsername Username specified at the top level of the CLI (with the --username option)
 	 * @param defaultPassword Password specified at the top level of the CLI (with the --password option)
-	 * @return an HttpProtocol instance corresponding to the options specified by the user in the CLI
+	 * @return an HTTPProtocol instance corresponding to the options specified by the user in the CLI
 	 */
 	@Override
-	public HttpProtocol toProtocol(String defaultUsername, char[] defaultPassword) {
-		return HttpProtocol
+	public HTTPProtocol toProtocol(String defaultUsername, char[] defaultPassword) {
+		return HTTPProtocol
 				.builder()
 				.https(httpOrHttps.https)
 				.port(port != null ? port : httpOrHttps.https ? 443 : 80)

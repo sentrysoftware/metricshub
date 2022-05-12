@@ -26,10 +26,10 @@ import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import com.sentrysoftware.hardware.agent.configuration.ConfigHelper;
-import com.sentrysoftware.hardware.agent.dto.HardwareTargetDto;
-import com.sentrysoftware.hardware.agent.dto.HostConfigurationDto;
-import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
-import com.sentrysoftware.hardware.agent.dto.protocol.SnmpProtocolDto;
+import com.sentrysoftware.hardware.agent.dto.HardwareTargetDTO;
+import com.sentrysoftware.hardware.agent.dto.HostConfigurationDTO;
+import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
+import com.sentrysoftware.hardware.agent.dto.protocol.SnmpProtocolDTO;
 import com.sentrysoftware.hardware.agent.service.task.StrategyTask;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
@@ -48,7 +48,7 @@ class TaskSchedulingServiceTest {
 	private ThreadPoolTaskScheduler targetTaskScheduler;
 
 	@Mock
-	private MultiHostsConfigurationDto multiHostsConfigurationDto;
+	private MultiHostsConfigurationDTO multiHostsConfigurationDto;
 
 	@Mock
 	private Map<String, IHostMonitoring> hostMonitoringMap;
@@ -78,11 +78,11 @@ class TaskSchedulingServiceTest {
 
 	@Test
 	void testScheduleTargetTaskNoHostMonitoring() {
-		final MultiHostsConfigurationDto multiHostsConfigurationDto = ConfigHelper
+		final MultiHostsConfigurationDTO multiHostsConfigurationDto = ConfigHelper
 				.readConfigurationSafe(configFile);
 
 		// Get one from the test resources
-		final HostConfigurationDto hostConfigDto = multiHostsConfigurationDto
+		final HostConfigurationDTO hostConfigDto = multiHostsConfigurationDto
 			.getTargets()
 			.stream()
 			.filter(node -> TARGET_ID.equals(node.getTarget().getId()))
@@ -99,11 +99,11 @@ class TaskSchedulingServiceTest {
 
 	@Test
 	void testScheduleTargetTask() {
-		final MultiHostsConfigurationDto multiHostsConfigurationDto = ConfigHelper
+		final MultiHostsConfigurationDTO multiHostsConfigurationDto = ConfigHelper
 				.readConfigurationSafe(configFile);
 
 		// Get one from the test resources
-		final HostConfigurationDto hostConfigDto = multiHostsConfigurationDto
+		final HostConfigurationDTO hostConfigDto = multiHostsConfigurationDto
 			.getTargets()
 			.stream()
 			.filter(node -> TARGET_ID.equals(node.getTarget().getId()))
@@ -126,17 +126,17 @@ class TaskSchedulingServiceTest {
 		// Current /data/hws-config.yaml has 3 targets
 		// Let's say we have 4 targets from the previous configuration but the current contains only 3 targets
 		// Let's check that 1 target is unscheduled and the exsiting targets are never re-scheduled
-		final MultiHostsConfigurationDto previous = ConfigHelper.readConfigurationSafe(configFile);
-		previous.getTargets().add(HostConfigurationDto.builder()
-				.collectPeriod(MultiHostsConfigurationDto.DEFAULT_COLLECT_PERIOD)
-				.discoveryCycle(MultiHostsConfigurationDto.DEFAULT_DISCOVERY_CYCLE)
-				.target(HardwareTargetDto
+		final MultiHostsConfigurationDTO previous = ConfigHelper.readConfigurationSafe(configFile);
+		previous.getTargets().add(HostConfigurationDTO.builder()
+				.collectPeriod(MultiHostsConfigurationDTO.DEFAULT_COLLECT_PERIOD)
+				.discoveryCycle(MultiHostsConfigurationDTO.DEFAULT_DISCOVERY_CYCLE)
+				.target(HardwareTargetDTO
 						.builder()
 						.hostname("host1")
 						.id("host1")
 						.type(TargetType.LINUX)
 						.build())
-				.snmp(SnmpProtocolDto.builder().community("public1".toCharArray()).build())
+				.snmp(SnmpProtocolDTO.builder().community("public1".toCharArray()).build())
 				.build());
 
 		doReturn(previous.getTargets()).when(multiHostsConfigurationDto).getTargets();
@@ -159,7 +159,7 @@ class TaskSchedulingServiceTest {
 
 		doReturn(new HashSet<>()).when(multiHostsConfigurationDto).getTargets();
 
-		doReturn(MultiHostsConfigurationDto.DEFAULT_JOB_POOL_SIZE).when(multiHostsConfigurationDto).getJobPoolSize();
+		doReturn(MultiHostsConfigurationDTO.DEFAULT_JOB_POOL_SIZE).when(multiHostsConfigurationDto).getJobPoolSize();
 
 		final ScheduledFuture<?> mock = spy(ScheduledFuture.class);
 		doReturn(mock).when(targetTaskScheduler).schedule(any(StrategyTask.class), any(Trigger.class));

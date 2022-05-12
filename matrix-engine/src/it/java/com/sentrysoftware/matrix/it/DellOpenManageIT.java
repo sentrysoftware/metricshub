@@ -4,8 +4,8 @@ import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParser;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
-import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
-import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.SnmpVersion;
+import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
 import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
 import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
 import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
@@ -38,15 +38,15 @@ class DellOpenManageIT {
 		ConnectorStore.getInstance().getConnectors().put(CONNECTOR_NAME, connector);
 
 		// Configure the engine
-		final SnmpProtocol protocol = SnmpProtocol.builder()
+		final SNMPProtocol protocol = SNMPProtocol.builder()
 				.community("public")
-				.version(SnmpVersion.V1)
+				.version(SNMPVersion.V1)
 				.timeout(120L).build();
 
 		engineConfiguration = EngineConfiguration.builder()
 				.target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.LINUX).build())
 				.selectedConnectors(Set.of(CONNECTOR_NAME))
-				.protocolConfigurations(Map.of(SnmpProtocol.class, protocol)).build();
+				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol)).build();
 
 	}
 

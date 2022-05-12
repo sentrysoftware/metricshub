@@ -24,7 +24,7 @@ import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import com.sentrysoftware.hardware.agent.configuration.ConfigHelper;
-import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
+import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
 import com.sentrysoftware.hardware.agent.service.task.StrategyTask;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
@@ -45,7 +45,7 @@ class TaskSchedulingServiceResetAllTest {
 	private ThreadPoolTaskScheduler targetTaskScheduler;
 
 	@Mock
-	private MultiHostsConfigurationDto multiHostsConfigurationDto;
+	private MultiHostsConfigurationDTO multiHostsConfigurationDto;
 
 	@Mock
 	private Map<String, IHostMonitoring> hostMonitoringMap;
@@ -63,7 +63,7 @@ class TaskSchedulingServiceResetAllTest {
 
 		// Current /data/hws-config.yaml has 3 targets
 		// Let's say we have updated the SDK configuration
-		final MultiHostsConfigurationDto previous = ConfigHelper.readConfigurationSafe(configFile);
+		final MultiHostsConfigurationDTO previous = ConfigHelper.readConfigurationSafe(configFile);
 		previous.getExporter().getOtlp().getHeaders().put("accept", "*/*".toCharArray());
 
 		try (MockedStatic<ConfigHelper> configHelper = mockStatic(ConfigHelper.class)) {

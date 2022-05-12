@@ -10,7 +10,7 @@ import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import com.sentrysoftware.matrix.connector.model.common.http.body.Body;
 import com.sentrysoftware.matrix.connector.model.common.http.body.EmbeddedFileBody;
 import com.sentrysoftware.matrix.connector.model.common.http.body.StringBody;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HttpSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
 
 public class BodyProcessor  extends HttpProcessor {
@@ -59,6 +59,6 @@ public class BodyProcessor  extends HttpProcessor {
 			body = new StringBody(value);
 		}
 
-		((HttpSource) getSource(key, connector)).setBody(body);
+		((HTTPSource) getSource(key, connector)).setBody(body);
 	}
 }

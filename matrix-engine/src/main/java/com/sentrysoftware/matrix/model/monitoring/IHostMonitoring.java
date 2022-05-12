@@ -72,5 +72,5 @@ public interface IHostMonitoring {
 
 	Monitor getTargetMonitor();
 
-	HostMonitoringVo getVo();
+	HostMonitoringVO getVo();
 }

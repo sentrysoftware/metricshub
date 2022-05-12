@@ -15,7 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
+import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
 
 import io.prometheus.client.Collector.MetricFamilySamples.Sample;
 
@@ -24,7 +24,7 @@ import io.prometheus.client.Collector.MetricFamilySamples.Sample;
 class ExtraMetricsServiceTest {
 
 	@Mock
-	private MultiHostsConfigurationDto multiHostsConfigurationDto;
+	private MultiHostsConfigurationDTO multiHostsConfigurationDTO;
 
 	@InjectMocks
 	private ExtraMetricsService extraMetricsService;
@@ -34,11 +34,11 @@ class ExtraMetricsServiceTest {
 
 		{
 			doReturn(Map.of("site", "Data Center 1", "group", "IT"))
-					.when(multiHostsConfigurationDto).getExtraLabels();
+					.when(multiHostsConfigurationDTO).getExtraLabels();
 			doReturn(Map.of("hw_carbon_density_grams", 0.66, "hw_electricity_cost_dollars", 0.02))
-					.when(multiHostsConfigurationDto).getExtraMetrics();
+					.when(multiHostsConfigurationDTO).getExtraMetrics();
 
-			doReturn(true).when(multiHostsConfigurationDto).isExportTimestamps();
+			doReturn(true).when(multiHostsConfigurationDTO).isExportTimestamps();
 
 			final List<HardwareGaugeMetric> gauges = extraMetricsService.buildExtraMetrics();
 
@@ -60,11 +60,11 @@ class ExtraMetricsServiceTest {
 			extraLabels.put("site", "Data Center 1");
 			extraLabels.put("bad_label", null);
 			doReturn(extraLabels)
-					.when(multiHostsConfigurationDto).getExtraLabels();
+					.when(multiHostsConfigurationDTO).getExtraLabels();
 			doReturn(Map.of("hw_carbon_density_grams", 0.66, "hw_electricity_cost_dollars", 0.02))
-					.when(multiHostsConfigurationDto).getExtraMetrics();
+					.when(multiHostsConfigurationDTO).getExtraMetrics();
 
-			doReturn(false).when(multiHostsConfigurationDto).isExportTimestamps();
+			doReturn(false).when(multiHostsConfigurationDTO).isExportTimestamps();
 
 			final List<HardwareGaugeMetric> gauges = extraMetricsService.buildExtraMetrics();
 
@@ -88,9 +88,9 @@ class ExtraMetricsServiceTest {
 			extraMetrics.put("hw_electricity_cost_dollars", null);
 
 			doReturn(Map.of("site", "Data Center 1", "group", "IT"))
-					.when(multiHostsConfigurationDto).getExtraLabels();
+					.when(multiHostsConfigurationDTO).getExtraLabels();
 			doReturn(extraMetrics)
-					.when(multiHostsConfigurationDto).getExtraMetrics();
+					.when(multiHostsConfigurationDTO).getExtraMetrics();
 
 			final List<HardwareGaugeMetric> gauges = extraMetricsService.buildExtraMetrics();
 

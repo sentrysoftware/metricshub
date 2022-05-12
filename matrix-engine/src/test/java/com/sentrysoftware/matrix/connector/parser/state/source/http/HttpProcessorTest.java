@@ -4,14 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HttpSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 
 class HttpProcessorTest {
 
 	@Test
 	void testGetType() {
 
-		assertEquals(HttpSource.class, new UrlProcessor().getType());
+		assertEquals(HTTPSource.class, new UrlProcessor().getType());
 	}
 
 	@Test

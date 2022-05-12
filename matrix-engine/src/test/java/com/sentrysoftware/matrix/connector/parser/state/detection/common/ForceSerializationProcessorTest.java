@@ -2,9 +2,9 @@ package com.sentrysoftware.matrix.connector.parser.state.detection.common;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.Snmp;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SnmpGetNext;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.wbem.Wbem;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMP;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGetNext;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.wbem.WBEM;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ForceSerializationProcessorTest {
 
 	private final ForceSerializationProcessor forceSerializationProcessor =
-		new ForceSerializationProcessor(Snmp.class, "SNMP");
+		new ForceSerializationProcessor(SNMP.class, "SNMP");
 
 	private final Connector connector = new Connector();
 
@@ -30,13 +30,13 @@ class ForceSerializationProcessorTest {
 	@Test
 	void testGetType() {
 
-		assertEquals(Snmp.class, new ForceSerializationProcessor(Snmp.class, null).getType());
+		assertEquals(SNMP.class, new ForceSerializationProcessor(SNMP.class, null).getType());
 	}
 
 	@Test
 	void testGetTypeValue() {
 
-		assertNull(new ForceSerializationProcessor(Snmp.class, null).getTypeValue());
+		assertNull(new ForceSerializationProcessor(SNMP.class, null).getTypeValue());
 	}
 
 	@Test
@@ -62,17 +62,17 @@ class ForceSerializationProcessorTest {
 
 		// value not null, key not null, key matches, detection found, detection.getCriteria() is not null,
 		// no same type criterion
-		detection.setCriteria(Collections.singletonList(Wbem.builder().build()));
+		detection.setCriteria(Collections.singletonList(WBEM.builder().build()));
 		assertFalse(forceSerializationProcessor.detect(FORCE_SERIALIZATION_KEY, FOO, connector));
 
 		// value not null, key not null, key matches, detection found, detection.getCriteria() is not null,
 		// same type criterion, different index
-		detection.setCriteria(Collections.singletonList(SnmpGetNext.builder().index(2).build()));
+		detection.setCriteria(Collections.singletonList(SNMPGetNext.builder().index(2).build()));
 		assertFalse(forceSerializationProcessor.detect(FORCE_SERIALIZATION_KEY, FOO, connector));
 
 		// value not null, key not null, key matches, detection found, detection.getCriteria() is not null,
 		// same type criterion, same index
-		detection.setCriteria(Collections.singletonList(SnmpGetNext.builder().index(1).build()));
+		detection.setCriteria(Collections.singletonList(SNMPGetNext.builder().index(1).build()));
 		assertTrue(forceSerializationProcessor.detect(FORCE_SERIALIZATION_KEY, FOO, connector));
 	}
 
@@ -89,7 +89,7 @@ class ForceSerializationProcessorTest {
 			() -> forceSerializationProcessor.parse(FORCE_SERIALIZATION_KEY, FOO, connector));
 
 		// Key matches, Criterion found
-		SnmpGetNext snmpGetNext = SnmpGetNext.builder().index(1).build();
+		SNMPGetNext snmpGetNext = SNMPGetNext.builder().index(1).build();
 		Detection detection = Detection.builder().criteria(Collections.singletonList(snmpGetNext)).build();
 		connector.setDetection(detection);
 		assertFalse(snmpGetNext.isForceSerialization());

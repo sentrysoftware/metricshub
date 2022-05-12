@@ -1,7 +1,7 @@
 package com.sentrysoftware.matrix.it.job;
 
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
-import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
 import com.sentrysoftware.matrix.it.snmp.SnmpAgent;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
@@ -28,7 +28,7 @@ public class SnmpITJob extends AbstractITJob {
 	public ITJob prepareEngine(EngineConfiguration engineConfiguration, IHostMonitoring hostMonitoring) {
 
 		// Force the agent port
-		final SnmpProtocol snmpProtocol = (SnmpProtocol) engineConfiguration.getProtocolConfigurations().get(SnmpProtocol.class);
+		final SNMPProtocol snmpProtocol = (SNMPProtocol) engineConfiguration.getProtocolConfigurations().get(SNMPProtocol.class);
 		snmpProtocol.setPort(SnmpAgent.DEFAULT_AGENT_PORT);
 
 		return super.prepareEngine(engineConfiguration, hostMonitoring);

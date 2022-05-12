@@ -1,6 +1,6 @@
 package com.sentrysoftware.matrix.connector.parser.state.source.oscommand;
 
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OsCommandSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
 import com.sentrysoftware.matrix.connector.parser.state.AbstractStateParser;
 
 public abstract class OsCommandProcessor extends AbstractStateParser {
@@ -9,7 +9,7 @@ public abstract class OsCommandProcessor extends AbstractStateParser {
 	
 	@Override
 	protected Class<?> getType() {
-		return OsCommandSource.class;
+		return OSCommandSource.class;
 	}
 
 	@Override

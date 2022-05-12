@@ -4,7 +4,7 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -19,7 +19,7 @@ class SnmpTableOidProcessorTest {
 	@Test
 	void testParse() {
 
-		SnmpGetTableSource snmpGetTableSource = SnmpGetTableSource.builder().index(1).build();
+		SNMPGetTableSource snmpGetTableSource = SNMPGetTableSource.builder().index(1).build();
 		Discovery discovery = Discovery.builder().sources(Collections.singletonList(snmpGetTableSource)).build();
 		HardwareMonitor hardwareMonitor = HardwareMonitor
 			.builder()

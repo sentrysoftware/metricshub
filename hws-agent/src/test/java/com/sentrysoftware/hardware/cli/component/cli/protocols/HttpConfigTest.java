@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.hardware.cli.component.cli.HardwareSentryCli;
-import com.sentrysoftware.matrix.engine.protocol.HttpProtocol;
+import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
 
 import picocli.CommandLine;
 import picocli.CommandLine.ParameterException;
@@ -36,7 +36,7 @@ class HttpConfigTest {
 				"--http-timeout", "37",
 				"--http-port", "8080"
 		);
-		HttpProtocol proto = cli.getHttpConfigCli().toProtocol(DEFAULT_USERNAME, DEFAULT_PASSWORD);
+		HTTPProtocol proto = cli.getHttpConfigCli().toProtocol(DEFAULT_USERNAME, DEFAULT_PASSWORD);
 		assertNotNull(proto);
 		assertFalse(proto.getHttps());
 		assertEquals("custom", proto.getUsername());
@@ -54,7 +54,7 @@ class HttpConfigTest {
 				"--http",
 				"--http-timeout", "37"
 		);
-		HttpProtocol proto = cli.getHttpConfigCli().toProtocol(DEFAULT_USERNAME, DEFAULT_PASSWORD);
+		HTTPProtocol proto = cli.getHttpConfigCli().toProtocol(DEFAULT_USERNAME, DEFAULT_PASSWORD);
 		assertNotNull(proto);
 		assertFalse(proto.getHttps());
 		assertEquals(DEFAULT_USERNAME, proto.getUsername());
@@ -71,7 +71,7 @@ class HttpConfigTest {
 				"-t", TYPE,
 				"--https"
 		);
-		HttpProtocol proto = cli.getHttpConfigCli().toProtocol(null, null);
+		HTTPProtocol proto = cli.getHttpConfigCli().toProtocol(null, null);
 		assertNotNull(proto);
 		assertTrue(proto.getHttps());
 		assertNull(proto.getUsername());

@@ -3,7 +3,7 @@ package com.sentrysoftware.matrix.engine.target;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import com.sentrysoftware.matrix.connector.model.common.OsType;
+import com.sentrysoftware.matrix.connector.model.common.OSType;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,16 +11,16 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum TargetType {
 
-	HP_OPEN_VMS(OsType.VMS, "OpenVMS"),
-	HP_TRU64_UNIX(OsType.OSF1, "Tru64"),
-	HP_UX(OsType.HP, "HP-UX"),
-	IBM_AIX(OsType.RS6000, "AIX"),
-	LINUX(OsType.LINUX, "Linux"),
-	MGMT_CARD_BLADE_ESXI(OsType.OOB, "Management"),
-	MS_WINDOWS(OsType.NT, "Windows"),
-	NETWORK_SWITCH(OsType.NETWORK, "Network"),
-	STORAGE(OsType.STORAGE, "Storage"),
-	SUN_SOLARIS(OsType.SOLARIS, "Solaris");
+	HP_OPEN_VMS(OSType.VMS, "OpenVMS"),
+	HP_TRU64_UNIX(OSType.OSF1, "Tru64"),
+	HP_UX(OSType.HP, "HP-UX"),
+	IBM_AIX(OSType.RS6000, "AIX"),
+	LINUX(OSType.LINUX, "Linux"),
+	MGMT_CARD_BLADE_ESXI(OSType.OOB, "Management"),
+	MS_WINDOWS(OSType.NT, "Windows"),
+	NETWORK_SWITCH(OSType.NETWORK, "Network"),
+	STORAGE(OSType.STORAGE, "Storage"),
+	SUN_SOLARIS(OSType.SOLARIS, "Solaris");
 
 	/**
 	 * Map each TargetType with a regular expression that detects it
@@ -38,7 +38,7 @@ public enum TargetType {
 			SUN_SOLARIS, Pattern.compile("^sun|^ora|sol")
 	);
 	@Getter
-	private OsType osType;
+	private OSType osType;
 
 	@Getter
 	private String displayName;

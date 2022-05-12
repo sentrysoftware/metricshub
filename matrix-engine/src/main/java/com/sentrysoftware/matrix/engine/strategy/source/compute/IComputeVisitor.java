@@ -10,7 +10,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Dupl
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.ExcludeMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Extract;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.ExtractPropertyFromWbemPath;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Json2Csv;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Json2CSV;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.KeepColumns;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.KeepOnlyMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.LeftConcat;
@@ -50,7 +50,7 @@ public interface IComputeVisitor {
 
 	void visit(final ExtractPropertyFromWbemPath extractPropertyFromWbemPath);
 
-	void visit(final Json2Csv json2csv);
+	void visit(final Json2CSV json2csv);
 
 	void visit(final KeepColumns keepColumns);
 

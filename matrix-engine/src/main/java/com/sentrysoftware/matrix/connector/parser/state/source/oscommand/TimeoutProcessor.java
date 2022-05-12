@@ -4,7 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OsCommandSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
 
 import lombok.NonNull;
 
@@ -27,7 +27,7 @@ public class TimeoutProcessor extends OsCommandProcessor {
 		super.parse(key, value, connector);
 
 		try {
-			((OsCommandSource) getSource(key, connector)).setTimeout(Long.valueOf(value));
+			((OSCommandSource) getSource(key, connector)).setTimeout(Long.valueOf(value));
 		} catch (final Exception e) {
 			throw new IllegalStateException(
 					String.format("TimeoutProcessor parse %s, error: %s", value, e.getMessage()), 

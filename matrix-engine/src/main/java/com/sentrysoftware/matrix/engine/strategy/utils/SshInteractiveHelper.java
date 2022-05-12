@@ -13,7 +13,7 @@ import com.sentrysoftware.matrix.common.exception.StepException;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.common.sshinteractive.step.Step;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
-import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
 import com.sentrysoftware.matrix.engine.protocol.AbstractCommand;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matsya.ssh.SSHClient;
@@ -48,8 +48,8 @@ public class SshInteractiveHelper {
 					MatsyaException,
 					NoCredentialProvidedException {
 
-		final SshProtocol sshProtocol =
-				(SshProtocol) engineConfiguration.getProtocolConfigurations().get(SshProtocol.class);
+		final SSHProtocol sshProtocol =
+				(SSHProtocol) engineConfiguration.getProtocolConfigurations().get(SSHProtocol.class);
 		state(sshProtocol != null, "Can't find SSHProtocol in ProtocolConfigurations.");
 
 		final String username = sshProtocol.getUsername();

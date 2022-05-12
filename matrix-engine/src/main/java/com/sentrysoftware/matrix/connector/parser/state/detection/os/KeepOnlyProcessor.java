@@ -4,7 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.os.Os;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.os.OS;
 
 public class KeepOnlyProcessor extends OsProcessor {
 
@@ -22,6 +22,6 @@ public class KeepOnlyProcessor extends OsProcessor {
 
 		super.parse(key, value, connector);
 
-		((Os) getCriterion(key, connector)).setKeepOnly(getOsTypes(value));
+		((OS) getCriterion(key, connector)).setKeepOnly(getOsTypes(value));
 	}
 }

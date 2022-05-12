@@ -16,19 +16,19 @@ import org.springframework.util.Assert;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.EntryConcatMethod;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HttpSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.Ipmi;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OsCommandSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.reference.ReferenceSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.reference.StaticSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.sshinteractive.SshInteractiveSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tablejoin.TableJoinSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tableunion.TableUnionSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ucs.UcsSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WbemSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WmiSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ucs.UCSSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.utils.PslUtils;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
@@ -58,9 +58,9 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 	private StrategyConfig strategyConfig;
 
 	@Override
-	public SourceTable visit(final HttpSource httpSource) {
+	public SourceTable visit(final HTTPSource httpSource) {
 		// Very important! otherwise we will overlap in multi-host mode
-		final HttpSource copy = httpSource.copy();
+		final HTTPSource copy = httpSource.copy();
 
 		// Replace HTTP Authentication token
 		copy.setAuthenticationToken(extractHttpTokenFromSource(
@@ -295,12 +295,12 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 	}
 
 	@Override
-	public SourceTable visit(final Ipmi ipmi) {
+	public SourceTable visit(final IPMI ipmi) {
 		return processSource(ipmi.copy());
 	}
 
 	@Override
-	public SourceTable visit(final OsCommandSource osCommandSource) {
+	public SourceTable visit(final OSCommandSource osCommandSource) {
 		return processSource(osCommandSource.copy());
 	}
 
@@ -315,12 +315,12 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 	}
 
 	@Override
-	public SourceTable visit(final SnmpGetSource snmpGetSource) {
+	public SourceTable visit(final SNMPGetSource snmpGetSource) {
 		return processSource(snmpGetSource.copy());
 	}
 
 	@Override
-	public SourceTable visit(final SnmpGetTableSource snmpGetTableSource) {
+	public SourceTable visit(final SNMPGetTableSource snmpGetTableSource) {
 		return processSource(snmpGetTableSource.copy());
 	}
 
@@ -340,17 +340,17 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 	}
 
 	@Override
-	public SourceTable visit(final UcsSource ucsSource) {
+	public SourceTable visit(final UCSSource ucsSource) {
 		return processSource(ucsSource.copy());
 	}
 
 	@Override
-	public SourceTable visit(final WbemSource wbemSource) {
+	public SourceTable visit(final WBEMSource wbemSource) {
 		return processSource(wbemSource.copy());
 	}
 
 	@Override
-	public SourceTable visit(final WmiSource wmiSource) {
+	public SourceTable visit(final WMISource wmiSource) {
 		return processSource(wmiSource.copy());
 	}
 

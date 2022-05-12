@@ -11,7 +11,7 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WmiSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
 import com.sentrysoftware.matrix.connector.parser.state.source.common.WbemNamespaceProcessor;
 
 class WbemNamespaceProcessorTest {
@@ -19,7 +19,7 @@ class WbemNamespaceProcessorTest {
 	private static final String WBEM_NAMESPACE = "root/emc";
 	private static final String WBEM_NAMESPACE_KEY = "enclosure.collect.source(1).WbemNameSpace";
 
-	private static WbemNamespaceProcessor wbemNamespaceProcessor = new WbemNamespaceProcessor(WmiSource.class, "WMI");
+	private static WbemNamespaceProcessor wbemNamespaceProcessor = new WbemNamespaceProcessor(WMISource.class, "WMI");
 
 	private Connector connector;
 
@@ -32,7 +32,7 @@ class WbemNamespaceProcessorTest {
 	void testParse() {
 
 		final Collect collect = Collect.builder()
-				.sources(Collections.singletonList(WmiSource.builder()
+				.sources(Collections.singletonList(WMISource.builder()
 						.key("enclosure.collect.source(1)")
 						.index(1).build()))
 				.build();
@@ -46,7 +46,7 @@ class WbemNamespaceProcessorTest {
 
 		wbemNamespaceProcessor.parse(WBEM_NAMESPACE_KEY, WBEM_NAMESPACE, connector);
 
-		final WmiSource expected = WmiSource.builder()
+		final WMISource expected = WMISource.builder()
 				.index(1)
 				.wbemNamespace(WBEM_NAMESPACE)
 				.key("enclosure.collect.source(1)")

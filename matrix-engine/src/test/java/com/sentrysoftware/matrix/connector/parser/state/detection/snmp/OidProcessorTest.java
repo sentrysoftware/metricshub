@@ -3,8 +3,8 @@ package com.sentrysoftware.matrix.connector.parser.state.detection.snmp;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SnmpGet;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SnmpGetNext;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGet;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGetNext;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -39,9 +39,9 @@ class OidProcessorTest {
 		assertNotNull(criteria);
 		assertEquals(1, criteria.size());
 		Criterion criterion = criteria.get(0);
-		assertTrue(criterion instanceof SnmpGetNext);
+		assertTrue(criterion instanceof SNMPGetNext);
 		assertEquals(1, criterion.getIndex());
-		assertEquals(VALUE, ((SnmpGetNext) criterion).getOid());
+		assertEquals(VALUE, ((SNMPGetNext) criterion).getOid());
 
 		// Key matches, type is SNMPGet, detection is not initially null
 		oidProcessor.parse(CRITERION_SNMPGET_OID_KEY, VALUE, connector);
@@ -51,12 +51,12 @@ class OidProcessorTest {
 		assertNotNull(criteria);
 		assertEquals(2, criteria.size());
 		criterion = criteria.get(0);
-		assertTrue(criterion instanceof SnmpGetNext);
+		assertTrue(criterion instanceof SNMPGetNext);
 		assertEquals(1, criterion.getIndex());
-		assertEquals(VALUE, ((SnmpGetNext) criterion).getOid());
+		assertEquals(VALUE, ((SNMPGetNext) criterion).getOid());
 		criterion = criteria.get(1);
-		assertTrue(criterion instanceof SnmpGet);
+		assertTrue(criterion instanceof SNMPGet);
 		assertEquals(2, criterion.getIndex());
-		assertEquals(VALUE, ((SnmpGet) criterion).getOid());
+		assertEquals(VALUE, ((SNMPGet) criterion).getOid());
 	}
 }

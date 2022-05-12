@@ -16,20 +16,20 @@ import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OsCommandSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
 import com.sentrysoftware.matrix.connector.parser.state.source.oscommand.OsCommandProcessor;
 
 class RemoveFooterProcessorTest {
 
 	private static final String REMOVE_FOOTER_DISCOVERY = "DiskController.Discovery.Source(1).removeFooter";
 	private static final String REMOVE_FOOTER_COLLECT = "PhysicalDisk.Collect.Source(1).removeFooter";
-	private static final RemoveFooterProcessor REMOVE_FOOTER_PROCESSOR = new RemoveFooterProcessor(OsCommandSource.class, OsCommandProcessor.OS_COMMAND_TYPE);
+	private static final RemoveFooterProcessor REMOVE_FOOTER_PROCESSOR = new RemoveFooterProcessor(OSCommandSource.class, OsCommandProcessor.OS_COMMAND_TYPE);
 	private static final String VALUE = "1";
 	private static final Connector CONNECTOR = new Connector();
 
 	@Test
 	void testGetType() {
-		assertEquals(OsCommandSource.class, REMOVE_FOOTER_PROCESSOR.getType());
+		assertEquals(OSCommandSource.class, REMOVE_FOOTER_PROCESSOR.getType());
 	}
 
 	@Test
@@ -73,14 +73,14 @@ class RemoveFooterProcessorTest {
 		assertThrows(IllegalArgumentException.class, () -> REMOVE_FOOTER_PROCESSOR.parse(REMOVE_FOOTER_DISCOVERY, VALUE, CONNECTOR));
 		assertThrows(IllegalArgumentException.class, () -> REMOVE_FOOTER_PROCESSOR.parse(REMOVE_FOOTER_COLLECT, VALUE, CONNECTOR));
 		{
-			final OsCommandSource osCommandSource = OsCommandSource.builder().index(1).build();
+			final OSCommandSource osCommandSource = OSCommandSource.builder().index(1).build();
 			final Discovery discovery = Discovery.builder().sources(List.of(osCommandSource)).build();
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.DISK_CONTROLLER).discovery(discovery).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			assertThrows(IllegalStateException.class, () -> REMOVE_FOOTER_PROCESSOR.parse(REMOVE_FOOTER_DISCOVERY, "x", CONNECTOR));
 		}
 		{
-			final OsCommandSource osCommandSource = OsCommandSource.builder().index(1).build();
+			final OSCommandSource osCommandSource = OSCommandSource.builder().index(1).build();
 			final Collect collect = Collect.builder().sources(List.of(osCommandSource)).build();
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.PHYSICAL_DISK).collect(collect).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
@@ -88,20 +88,20 @@ class RemoveFooterProcessorTest {
 		}
 
 		{
-			final OsCommandSource osCommandSource = OsCommandSource.builder().index(1).build();
+			final OSCommandSource osCommandSource = OSCommandSource.builder().index(1).build();
 			final Discovery discovery = Discovery.builder().sources(List.of(osCommandSource)).build();
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.DISK_CONTROLLER).discovery(discovery).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			REMOVE_FOOTER_PROCESSOR.parse(REMOVE_FOOTER_DISCOVERY, VALUE, CONNECTOR);
-			assertEquals(1, ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getRemoveFooter()); 
+			assertEquals(1, ((OSCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getRemoveFooter()); 
 		}
 		{
-			final OsCommandSource osCommandSource = OsCommandSource.builder().index(1).build();
+			final OSCommandSource osCommandSource = OSCommandSource.builder().index(1).build();
 			final Collect collect = Collect.builder().sources(List.of(osCommandSource)).build();
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.PHYSICAL_DISK).collect(collect).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			REMOVE_FOOTER_PROCESSOR.parse(REMOVE_FOOTER_COLLECT, VALUE, CONNECTOR);
-			assertEquals(1, ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).getRemoveFooter()); 
+			assertEquals(1, ((OSCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).getRemoveFooter()); 
 		}
 	}
 }

@@ -4,9 +4,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.oscommand.OsCommand;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.oscommand.OSCommand;
 
-public class CommandLineProcessor extends OsCommandProcessor {
+public class CommandLineProcessor extends OSCommandProcessor {
 
 	private static final Pattern COMMANDLINE_KEY_PATTERN = Pattern.compile(
 			"^\\s*detection\\.criteria\\(([1-9]\\d*)\\)\\.commandline\\s*$",
@@ -22,6 +22,6 @@ public class CommandLineProcessor extends OsCommandProcessor {
 
 		super.parse(key, value, connector);
 
-		((OsCommand) getCriterion(key, connector)).setCommandLine(value);
+		((OSCommand) getCriterion(key, connector)).setCommandLine(value);
 	}
 }

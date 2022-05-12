@@ -5,7 +5,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.KeepColumns;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -35,7 +35,7 @@ class ColumnNumbersProcessorTest {
 			.index(1)
 			.build();
 
-		SnmpGetTableSource snmpGetTableSource = SnmpGetTableSource
+		SNMPGetTableSource snmpGetTableSource = SNMPGetTableSource
 			.builder()
 			.index(1)
 			.computes(Collections.singletonList(keepColumns))

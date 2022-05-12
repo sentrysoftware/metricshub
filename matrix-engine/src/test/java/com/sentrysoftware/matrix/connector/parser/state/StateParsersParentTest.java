@@ -14,7 +14,7 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
 import com.sentrysoftware.matrix.connector.parser.state.source.ConnectorSourceProperty;
 
 class StateParsersParentTest {
@@ -63,9 +63,9 @@ class StateParsersParentTest {
 		assertEquals(1, sources.size());
 
 		final Source source = sources.get(0);
-		assertTrue(source instanceof SnmpGetTableSource);
+		assertTrue(source instanceof SNMPGetTableSource);
 
-		final SnmpGetTableSource snmpGetTableSource = (SnmpGetTableSource) source;
+		final SNMPGetTableSource snmpGetTableSource = (SNMPGetTableSource) source;
 		assertEquals(1, snmpGetTableSource.getIndex());
 		assertNull(snmpGetTableSource.getComputes());
 		assertNotNull(snmpGetTableSource.getSnmpTableSelectColumns());

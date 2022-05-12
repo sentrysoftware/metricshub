@@ -16,7 +16,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OsCommandSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
 
 class ExecuteLocallyProcessorTest {
 
@@ -28,7 +28,7 @@ class ExecuteLocallyProcessorTest {
 
 	@Test
 	void testGetType() {
-		assertEquals(OsCommandSource.class, EXECUTE_LOCALLY_PROCESSOR.getType());
+		assertEquals(OSCommandSource.class, EXECUTE_LOCALLY_PROCESSOR.getType());
 	}
 
 	@Test
@@ -73,36 +73,36 @@ class ExecuteLocallyProcessorTest {
 		assertThrows(IllegalArgumentException.class, () -> EXECUTE_LOCALLY_PROCESSOR.parse(EXECUTE_LOCALLY_COLLECT, VALUE, CONNECTOR));
 
 		{
-			final OsCommandSource osCommandSource = OsCommandSource.builder().index(1).build();
+			final OSCommandSource osCommandSource = OSCommandSource.builder().index(1).build();
 			final Discovery discovery = Discovery.builder().sources(List.of(osCommandSource)).build();
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.DISK_CONTROLLER).discovery(discovery).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			EXECUTE_LOCALLY_PROCESSOR.parse(EXECUTE_LOCALLY_DISCOVERY, "0", CONNECTOR);
-			assertFalse(((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).isExecuteLocally()); 
+			assertFalse(((OSCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).isExecuteLocally()); 
 		}
 		{
-			final OsCommandSource osCommandSource = OsCommandSource.builder().index(1).build();
+			final OSCommandSource osCommandSource = OSCommandSource.builder().index(1).build();
 			final Collect collect = Collect.builder().sources(List.of(osCommandSource)).build();
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.PHYSICAL_DISK).collect(collect).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			EXECUTE_LOCALLY_PROCESSOR.parse(EXECUTE_LOCALLY_COLLECT, "0", CONNECTOR);
-			assertFalse(((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).isExecuteLocally()); 
+			assertFalse(((OSCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).isExecuteLocally()); 
 		}
 		{
-			final OsCommandSource osCommandSource = OsCommandSource.builder().index(1).build();
+			final OSCommandSource osCommandSource = OSCommandSource.builder().index(1).build();
 			final Discovery discovery = Discovery.builder().sources(List.of(osCommandSource)).build();
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.DISK_CONTROLLER).discovery(discovery).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			EXECUTE_LOCALLY_PROCESSOR.parse(EXECUTE_LOCALLY_DISCOVERY, VALUE, CONNECTOR);
-			assertTrue(((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).isExecuteLocally()); 
+			assertTrue(((OSCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).isExecuteLocally()); 
 		}
 		{
-			final OsCommandSource osCommandSource = OsCommandSource.builder().index(1).build();
+			final OSCommandSource osCommandSource = OSCommandSource.builder().index(1).build();
 			final Collect collect = Collect.builder().sources(List.of(osCommandSource)).build();
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.PHYSICAL_DISK).collect(collect).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			EXECUTE_LOCALLY_PROCESSOR.parse(EXECUTE_LOCALLY_COLLECT, VALUE, CONNECTOR);
-			assertTrue(((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).isExecuteLocally()); 
+			assertTrue(((OSCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).isExecuteLocally()); 
 		}
 	}
 }

@@ -14,7 +14,7 @@ import com.sentrysoftware.matrix.connector.model.common.http.header.StringHeader
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HttpSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
 
 class HeaderProcessorTest {
 
@@ -28,7 +28,7 @@ class HeaderProcessorTest {
 	@Test
 	void testParseStringHeader() {
 
-		HttpSource httpSource = HttpSource.builder().index(3).build();
+		HTTPSource httpSource = HTTPSource.builder().index(3).build();
 		Discovery discovery = Discovery.builder().sources(Collections.singletonList(httpSource)).build();
 		HardwareMonitor hardwareMonitor = HardwareMonitor
 				.builder()
@@ -46,7 +46,7 @@ class HeaderProcessorTest {
 	@Test
 	void testParseEmbeddedFileHeader() {
 
-		HttpSource httpSource = HttpSource.builder().index(3).build();
+		HTTPSource httpSource = HTTPSource.builder().index(3).build();
 		Discovery discovery = Discovery.builder().sources(Collections.singletonList(httpSource)).build();
 		HardwareMonitor hardwareMonitor = HardwareMonitor
 				.builder()

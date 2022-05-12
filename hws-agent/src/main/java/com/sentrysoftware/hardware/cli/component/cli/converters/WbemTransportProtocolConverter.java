@@ -1,17 +1,17 @@
 package com.sentrysoftware.hardware.cli.component.cli.converters;
 
-import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WbemProtocol.WbemProtocols;
+import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol.WBEMProtocols;
 
 import picocli.CommandLine.ITypeConverter;
 import picocli.CommandLine.TypeConversionException;
 
-public class WbemTransportProtocolConverter implements ITypeConverter<WbemProtocol.WbemProtocols> {
+public class WbemTransportProtocolConverter implements ITypeConverter<WBEMProtocol.WBEMProtocols> {
 
 	@Override
-	public WbemProtocols convert(final String wbemTransportProtocol) throws Exception {
+	public WBEMProtocols convert(final String wbemTransportProtocol) throws Exception {
 		try {
-			return WbemProtocols.interpretValueOf(wbemTransportProtocol);
+			return WBEMProtocols.interpretValueOf(wbemTransportProtocol);
 		} catch (IllegalArgumentException e) {
 			throw new TypeConversionException(e.getMessage());
 		}

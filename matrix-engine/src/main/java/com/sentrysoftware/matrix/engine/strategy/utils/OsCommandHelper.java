@@ -31,13 +31,13 @@ import java.util.stream.Collectors;
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
 import com.sentrysoftware.matrix.common.exception.NoCredentialProvidedException;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
-import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
+import com.sentrysoftware.matrix.common.helpers.LocalOSHandler;
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
-import com.sentrysoftware.matrix.engine.protocol.OsCommandConfig;
-import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WmiProtocol;
+import com.sentrysoftware.matrix.engine.protocol.OSCommandConfig;
+import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 
@@ -67,7 +67,7 @@ public class OsCommandHelper {
 			@NonNull
 			final String commandLine, 
 			final Map<Integer, EmbeddedFile> embeddedFiles,
-			final OsCommandConfig osCommandConfig) throws IOException {
+			final OSCommandConfig osCommandConfig) throws IOException {
 
 		if (embeddedFiles == null) {
 			return Collections.emptyMap();
@@ -123,7 +123,7 @@ public class OsCommandHelper {
 	 */
 	static File createEmbeddedFile(
 			final EmbeddedFile embeddedFile,
-			final OsCommandConfig osCommandConfig) throws IOException {
+			final OSCommandConfig osCommandConfig) throws IOException {
 
 		final String extension = embeddedFile.getType() != null ? 
 				"." + embeddedFile.getType() : 
@@ -150,7 +150,7 @@ public class OsCommandHelper {
 	 */
 	static String replaceSudo(
 			final String text, 
-			final OsCommandConfig osCommandConfig) {
+			final OSCommandConfig osCommandConfig) {
 		if (text == null || text.isBlank()) {
 			return text;
 		}
@@ -191,7 +191,7 @@ public class OsCommandHelper {
 					throws InterruptedException, IOException, TimeoutException {
 		isTrue(timeout > 0, "timeout mustn't be negative nor zero.");
 
-		final String cmd = LocalOsHandler.isWindows() ? "CMD.EXE /C " + command : command;
+		final String cmd = LocalOSHandler.isWindows() ? "CMD.EXE /C " + command : command;
 
 		final Process process = Runtime.getRuntime().exec(cmd);
 		if (process == null) {
@@ -256,7 +256,7 @@ public class OsCommandHelper {
 			@NonNull
 			final String hostname,
 			@NonNull
-			final SshProtocol sshProtocol,
+			final SSHProtocol sshProtocol,
 			final int timeout,
 			final List<File> localFiles,
 			final String noPasswordCommand) throws MatsyaException {
@@ -317,7 +317,7 @@ public class OsCommandHelper {
 	 */
 	public static int getTimeout(
 			final Long commandTimeout,
-			final OsCommandConfig osCommandConfig,
+			final OSCommandConfig osCommandConfig,
 			final IProtocolConfiguration protocolConfiguration,
 			final int defaultTimeout) {
 		if (commandTimeout != null) {
@@ -329,9 +329,9 @@ public class OsCommandHelper {
 		if (protocolConfiguration == null) {
 			return defaultTimeout;
 		}
-		final Long timeout = protocolConfiguration instanceof WmiProtocol ?
-				((WmiProtocol) protocolConfiguration).getTimeout() :
-					((SshProtocol) protocolConfiguration).getTimeout();
+		final Long timeout = protocolConfiguration instanceof WMIProtocol ?
+				((WMIProtocol) protocolConfiguration).getTimeout() :
+					((SSHProtocol) protocolConfiguration).getTimeout();
 		return timeout != null ? timeout.intValue() : defaultTimeout;
 	}
 
@@ -344,11 +344,11 @@ public class OsCommandHelper {
 		if (protocolConfiguration == null) {
 			return Optional.empty();
 		}
-		if (protocolConfiguration instanceof WmiProtocol) {
-			return Optional.ofNullable(((WmiProtocol) protocolConfiguration).getUsername());
+		if (protocolConfiguration instanceof WMIProtocol) {
+			return Optional.ofNullable(((WMIProtocol) protocolConfiguration).getUsername());
 		}
-		if (protocolConfiguration instanceof SshProtocol) {
-			return Optional.ofNullable(((SshProtocol) protocolConfiguration).getUsername());
+		if (protocolConfiguration instanceof SSHProtocol) {
+			return Optional.ofNullable(((SSHProtocol) protocolConfiguration).getUsername());
 		}
 		return Optional.empty();
 	}
@@ -362,11 +362,11 @@ public class OsCommandHelper {
 		if (protocolConfiguration == null) {
 			return Optional.empty();
 		}
-		if (protocolConfiguration instanceof WmiProtocol) {
-			return Optional.ofNullable(((WmiProtocol) protocolConfiguration).getPassword());
+		if (protocolConfiguration instanceof WMIProtocol) {
+			return Optional.ofNullable(((WMIProtocol) protocolConfiguration).getPassword());
 		}
-		if (protocolConfiguration instanceof SshProtocol) {
-			return Optional.ofNullable(((SshProtocol) protocolConfiguration).getPassword());
+		if (protocolConfiguration instanceof SSHProtocol) {
+			return Optional.ofNullable(((SSHProtocol) protocolConfiguration).getPassword());
 		}
 		return Optional.empty();
 	}
@@ -412,8 +412,8 @@ public class OsCommandHelper {
 			.getProtocolConfigurations()
 			.get(
 				!isLocalhost && engineConfiguration.getTarget().getType() == TargetType.MS_WINDOWS
-					? WmiProtocol.class
-					: SshProtocol.class);
+					? WMIProtocol.class
+					: SSHProtocol.class);
 
 		final Optional<String> maybeUsername = getUsername(protocolConfiguration);
 
@@ -427,8 +427,8 @@ public class OsCommandHelper {
 
 		final String hostname = engineConfiguration.getTarget().getHostname();
 
-		final OsCommandConfig osCommandConfig = 
-				(OsCommandConfig) engineConfiguration.getProtocolConfigurations().get(OsCommandConfig.class);
+		final OSCommandConfig osCommandConfig = 
+				(OSCommandConfig) engineConfiguration.getProtocolConfigurations().get(OSCommandConfig.class);
 
 		final Map<String, File> embeddedTempFiles = createOsCommandEmbeddedFiles(
 				commandLine, 
@@ -484,7 +484,7 @@ public class OsCommandHelper {
 
 			// Case Windows Remote
 			} else if (engineConfiguration.getTarget().getType() == TargetType.MS_WINDOWS) {
-				final WmiProtocol  wmiProtocol = (WmiProtocol) protocolConfiguration;
+				final WMIProtocol  wmiProtocol = (WMIProtocol) protocolConfiguration;
 				commandResult = MatsyaClientsExecutor.executeWmiRemoteCommand(
 						command,
 						hostname,
@@ -498,7 +498,7 @@ public class OsCommandHelper {
 				commandResult = runSshCommand(
 						command,
 						hostname,
-						(SshProtocol) protocolConfiguration,
+						(SSHProtocol) protocolConfiguration,
 						timeout,
 						new ArrayList<>(embeddedTempFiles.values()),
 						noPasswordCommand);

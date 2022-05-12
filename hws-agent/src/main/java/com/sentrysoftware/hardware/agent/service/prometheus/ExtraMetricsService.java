@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
+import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
 
 /***
  * @deprecated This service export metrics in Prometheus format. This mechanism is
@@ -18,7 +18,7 @@ import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
 public class ExtraMetricsService {
 
 	@Autowired
-	private MultiHostsConfigurationDto multiHostsConfigurationDto;
+	private MultiHostsConfigurationDTO multiHostsConfigurationDTO;
 
 	/**
 	 * Build user configured extra metrics. The generated gauge metrics include the configured extra labels.
@@ -27,7 +27,7 @@ public class ExtraMetricsService {
 	 */
 	public List<HardwareGaugeMetric> buildExtraMetrics() {
 
-		final List<String> labelKeys = multiHostsConfigurationDto
+		final List<String> labelKeys = multiHostsConfigurationDTO
 				.getExtraLabels()
 				.keySet()
 				.stream()
@@ -36,10 +36,10 @@ public class ExtraMetricsService {
 
 		final List<String> labelValues = labelKeys
 				.stream()
-				.map(labelKey -> multiHostsConfigurationDto.getExtraLabels().getOrDefault(labelKey, ""))
+				.map(labelKey -> multiHostsConfigurationDTO.getExtraLabels().getOrDefault(labelKey, ""))
 				.collect(Collectors.toList());
 
-		return multiHostsConfigurationDto
+		return multiHostsConfigurationDTO
 				.getExtraMetrics()
 				.entrySet()
 				.stream()
@@ -68,7 +68,7 @@ public class ExtraMetricsService {
 		metric.addMetric(
 				labelValues,
 				metricValue,
-				multiHostsConfigurationDto.isExportTimestamps() ? new Date().getTime() : null);
+				multiHostsConfigurationDTO.isExportTimestamps() ? new Date().getTime() : null);
 
 		return metric;
 	}

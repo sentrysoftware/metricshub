@@ -2,9 +2,9 @@ package com.sentrysoftware.matrix.connector.parser.state.detection.common;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.Snmp;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SnmpGetNext;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.wbem.Wbem;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMP;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGetNext;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.wbem.WBEM;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class WbemNameSpaceProcessorTest {
 
-	private final WbemNameSpaceProcessor wbemNameSpaceProcessor = new WbemNameSpaceProcessor(Wbem.class, "WBEM");
+	private final WbemNameSpaceProcessor wbemNameSpaceProcessor = new WbemNameSpaceProcessor(WBEM.class, "WBEM");
 
 	private final Connector connector = new Connector();
 
@@ -25,13 +25,13 @@ class WbemNameSpaceProcessorTest {
 	@Test
 	void testGetTypeValue() {
 
-		assertNull(new WbemNameSpaceProcessor(Wbem.class, null).getTypeValue());
+		assertNull(new WbemNameSpaceProcessor(WBEM.class, null).getTypeValue());
 	}
 
 	@Test
 	void testParse() {
 
-		Wbem wbem = (Wbem) Wbem.builder().index(1).build();
+		WBEM wbem = (WBEM) WBEM.builder().index(1).build();
 		Detection detection = Detection.builder().criteria(Collections.singletonList(wbem)).build();
 		connector.setDetection(detection);
 		assertNull(wbem.getWbemNamespace());
@@ -39,10 +39,10 @@ class WbemNameSpaceProcessorTest {
 		assertEquals(FOO, wbem.getWbemNamespace());
 
 		// setWBemNameSpace() not available
-		Snmp snmp = SnmpGetNext.builder().index(1).build();
+		SNMP snmp = SNMPGetNext.builder().index(1).build();
 		detection.setCriteria(Collections.singletonList(snmp));
 		connector.setDetection(detection);
-		WbemNameSpaceProcessor absurdProcessor = new WbemNameSpaceProcessor(Snmp.class, "SNMP");
+		WbemNameSpaceProcessor absurdProcessor = new WbemNameSpaceProcessor(SNMP.class, "SNMP");
 		assertThrows(IllegalStateException.class, () -> absurdProcessor.parse(WBEM_NAMESPACE_KEY, FOO, connector));
 	}
 }
