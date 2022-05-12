@@ -12,7 +12,7 @@ import com.sentrysoftware.matrix.connector.model.common.http.ResultContent;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HttpSource;
 
 class ResultContentProcessorTest {
 	private static final String RESULT_CONTENT_KEY = "enclosure.discovery.source(3).resultcontent";
@@ -26,7 +26,7 @@ class ResultContentProcessorTest {
 	@Test
 	void testParse() {
 
-		HTTPSource httpSource = HTTPSource.builder().index(3).build();
+		HttpSource httpSource = HttpSource.builder().index(3).build();
 		Discovery discovery = Discovery.builder().sources(Collections.singletonList(httpSource)).build();
 		HardwareMonitor hardwareMonitor = HardwareMonitor
 				.builder()

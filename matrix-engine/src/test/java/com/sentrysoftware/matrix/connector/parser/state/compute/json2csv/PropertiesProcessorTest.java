@@ -13,8 +13,8 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Json2CSV;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Json2Csv;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetTableSource;
 
 public class PropertiesProcessorTest {
 	private final PropertiesProcessor propertiesProcessor = new PropertiesProcessor();
@@ -29,15 +29,15 @@ public class PropertiesProcessorTest {
 	@Test
 	void testParse() {
 
-		Json2CSV json2CSV = Json2CSV
+		Json2Csv json2Csv = Json2Csv
 				.builder()
 				.index(1)
 				.build();
 
-		SNMPGetTableSource snmpGetTableSource = SNMPGetTableSource
+		SnmpGetTableSource snmpGetTableSource = SnmpGetTableSource
 				.builder()
 				.index(1)
-				.computes(Collections.singletonList(json2CSV))
+				.computes(Collections.singletonList(json2Csv))
 				.build();
 
 		Collect collect = Collect
@@ -56,6 +56,6 @@ public class PropertiesProcessorTest {
 		.add(hardwareMonitor);
 
 		propertiesProcessor.parse(PROPERTIES_KEY, VALUE, connector);
-		assertEquals(VALUE_RESULT, json2CSV.getProperties());
+		assertEquals(VALUE_RESULT, json2Csv.getProperties());
 	}
 }

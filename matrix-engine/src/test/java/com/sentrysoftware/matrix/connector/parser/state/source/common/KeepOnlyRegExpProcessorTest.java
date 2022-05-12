@@ -16,20 +16,20 @@ import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OsCommandSource;
 import com.sentrysoftware.matrix.connector.parser.state.source.oscommand.OsCommandProcessor;
 
 class KeepOnlyRegExpProcessorTest {
 
 	private static final String KEEP_ONLY_REGEXP_DISCOVERY = "DiskController.Discovery.Source(1).KeepOnlyRegExp";
 	private static final String KEEP_ONLY_REGEXP_COLLECT = "PhysicalDisk.Collect.Source(1).KeepOnlyRegExp";
-	private static final KeepOnlyRegExpProcessor KEEP_ONLY_REGEXP_PROCESSOR = new KeepOnlyRegExpProcessor(OSCommandSource.class, OsCommandProcessor.OS_COMMAND_TYPE);
+	private static final KeepOnlyRegExpProcessor KEEP_ONLY_REGEXP_PROCESSOR = new KeepOnlyRegExpProcessor(OsCommandSource.class, OsCommandProcessor.OS_COMMAND_TYPE);
 	private static final String VALUE = ":ext_bus:";
 	private static final Connector CONNECTOR = new Connector();
 
 	@Test
 	void testGetType() {
-		assertEquals(OSCommandSource.class, KEEP_ONLY_REGEXP_PROCESSOR.getType());
+		assertEquals(OsCommandSource.class, KEEP_ONLY_REGEXP_PROCESSOR.getType());
 	}
 
 	@Test
@@ -74,20 +74,20 @@ class KeepOnlyRegExpProcessorTest {
 		assertThrows(IllegalArgumentException.class, () -> KEEP_ONLY_REGEXP_PROCESSOR.parse(KEEP_ONLY_REGEXP_COLLECT, VALUE, CONNECTOR));
 
 		{
-			final OSCommandSource osCommandSource = OSCommandSource.builder().index(1).build();
+			final OsCommandSource osCommandSource = OsCommandSource.builder().index(1).build();
 			final Discovery discovery = Discovery.builder().sources(List.of(osCommandSource)).build();
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.DISK_CONTROLLER).discovery(discovery).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			KEEP_ONLY_REGEXP_PROCESSOR.parse(KEEP_ONLY_REGEXP_DISCOVERY, VALUE, CONNECTOR);
-			assertEquals(VALUE, ((OSCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getKeepOnlyRegExp()); 
+			assertEquals(VALUE, ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getKeepOnlyRegExp()); 
 		}
 		{
-			final OSCommandSource osCommandSource = OSCommandSource.builder().index(1).build();
+			final OsCommandSource osCommandSource = OsCommandSource.builder().index(1).build();
 			final Collect collect = Collect.builder().sources(List.of(osCommandSource)).build();
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.PHYSICAL_DISK).collect(collect).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			KEEP_ONLY_REGEXP_PROCESSOR.parse(KEEP_ONLY_REGEXP_COLLECT, VALUE, CONNECTOR);
-			assertEquals(VALUE, ((OSCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).getKeepOnlyRegExp()); 
+			assertEquals(VALUE, ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).getKeepOnlyRegExp()); 
 		}
 	}
 }

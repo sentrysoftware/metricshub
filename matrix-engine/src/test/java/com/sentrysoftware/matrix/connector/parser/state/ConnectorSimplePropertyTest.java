@@ -18,7 +18,7 @@ import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimpleProperty.
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.common.OSType;
+import com.sentrysoftware.matrix.connector.model.common.OsType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimpleProperty.AppliesToOSProcessor;
 import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimpleProperty.CommentsProcessor;
@@ -61,8 +61,8 @@ class ConnectorSimplePropertyTest {
 	private static final Set<String> SUPERSEDES_VALUE_RESULT = new HashSet<>(
 			Arrays.asList("MS_HW_IpmiTool.hdf","MS_HW_VMwareESX4i.hdf")
 		);
-	private static final Set<OSType> APPLIES_TO_OS_VALUE_RESULT = new HashSet<>(
-			Arrays.asList(OSType.LINUX,OSType.NT)
+	private static final Set<OsType> APPLIES_TO_OS_VALUE_RESULT = new HashSet<>(
+			Arrays.asList(OsType.LINUX,OsType.NT)
 		);
 	
 	private static final String SPACE = " ";

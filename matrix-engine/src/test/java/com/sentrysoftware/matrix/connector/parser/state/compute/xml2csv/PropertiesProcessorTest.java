@@ -12,7 +12,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Xml2Csv;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetTableSource;
 
 class PropertiesProcessorTest {
 
@@ -43,8 +43,8 @@ class PropertiesProcessorTest {
 
 		final Xml2Csv xml2Csv = Xml2Csv.builder().index(1).build();
 
-		final SNMPGetTableSource snmpGetTableSource =
-				SNMPGetTableSource.builder().index(1).computes(Collections.singletonList(xml2Csv)).build();
+		final SnmpGetTableSource snmpGetTableSource =
+				SnmpGetTableSource.builder().index(1).computes(Collections.singletonList(xml2Csv)).build();
 
 		final Discovery discovery = Discovery.builder().sources(Collections.singletonList(snmpGetTableSource)).build();
 

@@ -11,7 +11,7 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WmiSource;
 import com.sentrysoftware.matrix.connector.parser.state.source.common.WbemQueryProcessor;
 
 class WbemQueryProcessorTest {
@@ -19,7 +19,7 @@ class WbemQueryProcessorTest {
 	private static final String WBEM_QUERY = "SELECT Version FROM IBMPSG_DirectorAgent";
 	private static final String WBEM_QUERY_KEY = "enclosure.collect.source(1).WbemQuery";
 
-	private static WbemQueryProcessor wbemQueryProcessor = new WbemQueryProcessor(WMISource.class, "WMI");
+	private static WbemQueryProcessor wbemQueryProcessor = new WbemQueryProcessor(WmiSource.class, "WMI");
 
 	private Connector connector;
 
@@ -33,7 +33,7 @@ class WbemQueryProcessorTest {
 
 		final Collect collect = Collect
 				.builder()
-				.sources(Collections.singletonList(WMISource.builder()
+				.sources(Collections.singletonList(WmiSource.builder()
 						.key("enclosure.collect.source(1)")
 						.index(1).build()))
 				.build();
@@ -47,7 +47,7 @@ class WbemQueryProcessorTest {
 
 		wbemQueryProcessor.parse(WBEM_QUERY_KEY, WBEM_QUERY, connector);
 
-		final WMISource expected = WMISource.builder()
+		final WmiSource expected = WmiSource.builder()
 				.index(1)
 				.wbemQuery(WBEM_QUERY)
 				.key("enclosure.collect.source(1)")

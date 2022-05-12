@@ -471,11 +471,11 @@ class HostMonitoringTest {
 		enclosure2.setAsPresent();
 		hostMonitoring.getMonitors().get(ENCLOSURE).put(ENCLOSURE_2, enclosure2);
 
-		final HostMonitoringVO expected = JsonHelper.deserialize(
+		final HostMonitoringVo expected = JsonHelper.deserialize(
 				new FileInputStream(new File("src/test/resources/data/host-monitoring-vo.json")),
-				HostMonitoringVO.class);
+				HostMonitoringVo.class);
 
-		final HostMonitoringVO actual = JsonHelper.deserialize(hostMonitoring.toJson(), HostMonitoringVO.class);
+		final HostMonitoringVo actual = JsonHelper.deserialize(hostMonitoring.toJson(), HostMonitoringVo.class);
 
 		assertEquals(expected, actual);
 

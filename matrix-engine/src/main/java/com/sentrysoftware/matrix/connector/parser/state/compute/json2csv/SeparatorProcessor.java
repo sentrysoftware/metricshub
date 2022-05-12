@@ -4,9 +4,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Json2CSV;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Json2Csv;
 
-public class SeparatorProcessor extends Json2CSVProcessor {
+public class SeparatorProcessor extends Json2CsvProcessor {
 
 	private static final Pattern ENTRY_KEY_KEY_PATTERN = Pattern.compile(
 			"^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\))\\.compute\\(([1-9]\\d*)\\)\\.separator\\s*$",
@@ -22,6 +22,6 @@ public class SeparatorProcessor extends Json2CSVProcessor {
 
 		super.parse(key, value, connector);
 
-		((Json2CSV) getCompute(key, connector)).setSeparator(value);
+		((Json2Csv) getCompute(key, connector)).setSeparator(value);
 	}
 }

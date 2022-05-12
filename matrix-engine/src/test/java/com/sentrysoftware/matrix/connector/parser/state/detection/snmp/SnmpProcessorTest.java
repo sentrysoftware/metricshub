@@ -1,6 +1,6 @@
 package com.sentrysoftware.matrix.connector.parser.state.detection.snmp;
 
-import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMP;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.Snmp;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -10,7 +10,7 @@ class SnmpProcessorTest {
 	@Test
 	void testGetType() {
 
-		assertEquals(SNMP.class, new OidProcessor().getType());
+		assertEquals(Snmp.class, new OidProcessor().getType());
 	}
 
 	@Test

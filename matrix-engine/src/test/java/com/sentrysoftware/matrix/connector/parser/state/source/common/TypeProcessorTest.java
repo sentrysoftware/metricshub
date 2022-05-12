@@ -5,7 +5,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tableunion.TableUnionSource;
 import org.junit.jupiter.api.Test;
 
@@ -123,7 +123,7 @@ class TypeProcessorTest {
 
 		// Could not instantiate Source
 		String snmpTable = "SnmpTable";
-		TypeProcessor snmpTypeProcessor = new TypeProcessor(SNMPSource.class, snmpTable);
+		TypeProcessor snmpTypeProcessor = new TypeProcessor(SnmpSource.class, snmpTable);
 		assertThrows(IllegalStateException.class, () -> snmpTypeProcessor.parse(TYPE_COLLECT_KEY, snmpTable, connector));
 	}
 }

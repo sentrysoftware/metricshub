@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.http.ResultContent;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HttpSource;
 
 public class ResultContentProcessor extends HttpProcessor {
 
@@ -24,7 +24,7 @@ public class ResultContentProcessor extends HttpProcessor {
 		super.parse(key, value, connector);
 
 		try {
-			((HTTPSource) getSource(key, connector)).setResultContent(ResultContent.getByName(value));
+			((HttpSource) getSource(key, connector)).setResultContent(ResultContent.getByName(value));
 		} catch (IllegalArgumentException e) {
 			throw new IllegalStateException(
 					"ResultContentProcessor parse: could not instantiate ResultContent from Source ("

@@ -21,9 +21,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.sentrysoftware.javax.wbem.WBEMException;
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.wmi.WMI;
-import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.wmi.Wmi;
+import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WmiProtocol;
 import com.sentrysoftware.matrix.engine.strategy.detection.CriterionTestResult;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.utils.WqlDetectionHelper.NamespaceResult;
@@ -47,7 +47,7 @@ class WqlDetectionHelperTest {
 	void testWbemFindPossibleNamespacesForcedProtocol() {
 
 		// Namespace is forced
-		WBEMProtocol wbemConfig = WBEMProtocol.builder().namespace("forced").build();
+		WbemProtocol wbemConfig = WbemProtocol.builder().namespace("forced").build();
 
 		PossibleNamespacesResult result = wqlDetectionHelper.findPossibleNamespaces(null, wbemConfig);
 		assertTrue(result.isSuccess());
@@ -57,7 +57,7 @@ class WqlDetectionHelperTest {
 	@Test
 	void testWbemFindPossibleNamespacesNoResponse() throws Exception {
 
-		WBEMProtocol wbemConfig = WBEMProtocol
+		WbemProtocol wbemConfig = WbemProtocol
 				.builder()
 				.username(USERNAME)
 				.password(PASSWORD.toCharArray())
@@ -77,7 +77,7 @@ class WqlDetectionHelperTest {
 	@Test
 	void testWbemFindPossibleNamespacesEmpty() throws Exception {
 
-		WBEMProtocol wbemConfig = WBEMProtocol
+		WbemProtocol wbemConfig = WbemProtocol
 				.builder()
 				.username(USERNAME)
 				.password(PASSWORD.toCharArray())
@@ -96,7 +96,7 @@ class WqlDetectionHelperTest {
 	@Test
 	void testWbemFindPossibleNamespaces() throws Exception {
 
-		WBEMProtocol wbemConfig = WBEMProtocol
+		WbemProtocol wbemConfig = WbemProtocol
 				.builder()
 				.username(USERNAME)
 				.password(PASSWORD.toCharArray())
@@ -133,7 +133,7 @@ class WqlDetectionHelperTest {
 	void testWmiFindPossibleNamespacesForcedProtocol() {
 
 		// Namespace is forced
-		WMIProtocol wmiConfig = WMIProtocol.builder().namespace("forced").build();
+		WmiProtocol wmiConfig = WmiProtocol.builder().namespace("forced").build();
 
 		PossibleNamespacesResult result = wqlDetectionHelper.findPossibleNamespaces(null, wmiConfig);
 		assertTrue(result.isSuccess());
@@ -143,7 +143,7 @@ class WqlDetectionHelperTest {
 	@Test
 	void testWmiFindPossibleNamespacesNoResponse() throws Exception {
 
-		WMIProtocol wmiConfig = WMIProtocol
+		WmiProtocol wmiConfig = WmiProtocol
 				.builder()
 				.username(USERNAME)
 				.password(PASSWORD.toCharArray())
@@ -162,7 +162,7 @@ class WqlDetectionHelperTest {
 	@Test
 	void testWmiFindPossibleNamespacesEmpty() throws Exception {
 
-		WMIProtocol wmiConfig = WMIProtocol
+		WmiProtocol wmiConfig = WmiProtocol
 				.builder()
 				.username(USERNAME)
 				.password(PASSWORD.toCharArray())
@@ -181,7 +181,7 @@ class WqlDetectionHelperTest {
 	@Test
 	void testWmiFindPossibleNamespaces() throws Exception {
 
-		WMIProtocol wmiConfig = WMIProtocol
+		WmiProtocol wmiConfig = WmiProtocol
 				.builder()
 				.username(USERNAME)
 				.password(PASSWORD.toCharArray())
@@ -210,11 +210,11 @@ class WqlDetectionHelperTest {
 
 		// MatsyaException
 		{
-			WMIProtocol wmiConfig = WMIProtocol.builder().build();
+			WmiProtocol wmiConfig = WmiProtocol.builder().build();
 			doThrow(new MatsyaException("problem", new TimeoutException()))
 					.when(matsyaClientsExecutor)
 					.executeWql(any(), eq(wmiConfig), any(), any());
-			WMI criterion = WMI.builder().wbemQuery("query").build();
+			Wmi criterion = Wmi.builder().wbemQuery("query").build();
 
 			CriterionTestResult result = wqlDetectionHelper.performDetectionTest(HOSTNAME, wmiConfig, criterion);
 			assertFalse(result.isSuccess());
@@ -225,11 +225,11 @@ class WqlDetectionHelperTest {
 		// Empty result
 		// MatsyaException
 		{
-			WMIProtocol wmiConfig = WMIProtocol.builder().build();
+			WmiProtocol wmiConfig = WmiProtocol.builder().build();
 			doReturn(Collections.emptyList())
 					.when(matsyaClientsExecutor)
 					.executeWql(any(), eq(wmiConfig), any(), any());
-			WMI criterion = WMI.builder().wbemQuery("query").build();
+			Wmi criterion = Wmi.builder().wbemQuery("query").build();
 
 			CriterionTestResult result = wqlDetectionHelper.performDetectionTest(HOSTNAME, wmiConfig, criterion);
 			assertFalse(result.isSuccess());
@@ -238,11 +238,11 @@ class WqlDetectionHelperTest {
 
 		// Non-empty result, and no expected result => success
 		{
-			WMIProtocol wmiConfig = WMIProtocol.builder().build();
+			WmiProtocol wmiConfig = WmiProtocol.builder().build();
 			doReturn(List.of(List.of("some result")))
 					.when(matsyaClientsExecutor)
 					.executeWql(any(), eq(wmiConfig), any(), any());
-			WMI criterion = WMI.builder().wbemQuery("query").build();
+			Wmi criterion = Wmi.builder().wbemQuery("query").build();
 
 			CriterionTestResult result = wqlDetectionHelper.performDetectionTest(HOSTNAME, wmiConfig, criterion);
 			assertTrue(result.isSuccess());
@@ -251,11 +251,11 @@ class WqlDetectionHelperTest {
 
 		// Non-empty result, and matching expected result => success
 		{
-			WMIProtocol wmiConfig = WMIProtocol.builder().build();
+			WmiProtocol wmiConfig = WmiProtocol.builder().build();
 			doReturn(List.of(List.of("some result")))
 					.when(matsyaClientsExecutor)
 					.executeWql(any(), eq(wmiConfig), any(), any());
-			WMI criterion = WMI.builder().wbemQuery("query").expectedResult("^Some Res[aeiouy]lt").build();
+			Wmi criterion = Wmi.builder().wbemQuery("query").expectedResult("^Some Res[aeiouy]lt").build();
 
 			CriterionTestResult result = wqlDetectionHelper.performDetectionTest(HOSTNAME, wmiConfig, criterion);
 			assertTrue(result.isSuccess());
@@ -264,11 +264,11 @@ class WqlDetectionHelperTest {
 
 		// Non-empty result, and non-matching expected result => failure
 		{
-			WMIProtocol wmiConfig = WMIProtocol.builder().build();
+			WmiProtocol wmiConfig = WmiProtocol.builder().build();
 			doReturn(List.of(List.of("some result")))
 					.when(matsyaClientsExecutor)
 					.executeWql(any(), eq(wmiConfig), any(), any());
-			WMI criterion = WMI.builder().wbemQuery("query").expectedResult("^Some Res[^aeiouy]lt").build();
+			Wmi criterion = Wmi.builder().wbemQuery("query").expectedResult("^Some Res[^aeiouy]lt").build();
 
 			CriterionTestResult result = wqlDetectionHelper.performDetectionTest(HOSTNAME, wmiConfig, criterion);
 			assertFalse(result.isSuccess());
@@ -282,8 +282,8 @@ class WqlDetectionHelperTest {
 	@Test
 	void testDetectNamespaceNoResponse() throws Exception {
 		// No response at all => we fail early (we don't try every single namespace)
-		WMIProtocol wmiConfig = WMIProtocol.builder().build();
-		WMI criterion = WMI.builder().wbemQuery("query").expectedResult("^Some Res[^aeiouy]lt").build();
+		WmiProtocol wmiConfig = WmiProtocol.builder().build();
+		Wmi criterion = Wmi.builder().wbemQuery("query").expectedResult("^Some Res[^aeiouy]lt").build();
 		doThrow(new MatsyaException("problem", new TimeoutException()))
 				.when(matsyaClientsExecutor)
 				.executeWql(any(), eq(wmiConfig), any(), any());
@@ -298,8 +298,8 @@ class WqlDetectionHelperTest {
 	@Test
 	void testDetectNamespaceEmpty() throws Exception {
 		// Non-matching result AND empty result (with an error that doesn't stop the loop)
-		WMIProtocol wmiConfig = WMIProtocol.builder().build();
-		WMI criterion = WMI.builder().wbemQuery("query").expectedResult("^Some Res[^aeiouy]lt").build();
+		WmiProtocol wmiConfig = WmiProtocol.builder().build();
+		Wmi criterion = Wmi.builder().wbemQuery("query").expectedResult("^Some Res[^aeiouy]lt").build();
 		doThrow(new MatsyaException("problem", new WmiComException("WBEM_E_INVALID_NAMESPACE")))
 				.when(matsyaClientsExecutor)
 				.executeWql(any(), eq(wmiConfig), any(), eq("ns1"));
@@ -317,8 +317,8 @@ class WqlDetectionHelperTest {
 	@Test
 	void testDetectNamespace() throws Exception {
 		// 3 matching result, and root\\cimv2 must be removed
-		WMIProtocol wmiConfig = WMIProtocol.builder().build();
-		WMI criterion = WMI.builder().wbemQuery("query").build();
+		WmiProtocol wmiConfig = WmiProtocol.builder().build();
+		Wmi criterion = Wmi.builder().wbemQuery("query").build();
 		doReturn(List.of(List.of("some result")))
 				.when(matsyaClientsExecutor)
 				.executeWql(any(), eq(wmiConfig), any(), any());
@@ -334,8 +334,8 @@ class WqlDetectionHelperTest {
 	@Test
 	void testDetectNamespaceCimv2() throws Exception {
 		// 1 single matching result: root\\cimv2 which must not be removed
-		WMIProtocol wmiConfig = WMIProtocol.builder().build();
-		WMI criterion = WMI.builder().wbemQuery("query").build();
+		WmiProtocol wmiConfig = WmiProtocol.builder().build();
+		Wmi criterion = Wmi.builder().wbemQuery("query").build();
 		doReturn(List.of(List.of("some result")))
 				.when(matsyaClientsExecutor)
 				.executeWql(any(), eq(wmiConfig), any(), any());

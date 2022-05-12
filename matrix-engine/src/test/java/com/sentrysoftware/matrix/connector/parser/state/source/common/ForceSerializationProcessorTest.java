@@ -5,7 +5,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetTableSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tableunion.TableUnionSource;
 import org.junit.jupiter.api.Test;
 
@@ -65,7 +65,7 @@ class ForceSerializationProcessorTest {
 		assertFalse(forceSerializationProcessor.detect(FORCE_SERIALIZATION_KEY, ONE, connector));
 
 		// value not null, key not null, key matches, different type source found
-		Source source2 = SNMPGetTableSource.builder().index(2).build();
+		Source source2 = SnmpGetTableSource.builder().index(2).build();
 		discovery.getSources().add(source2);
 		assertFalse(forceSerializationProcessor.detect(FORCE_SERIALIZATION_KEY, ONE, connector));
 

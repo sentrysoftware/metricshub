@@ -13,9 +13,9 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.ILocalOS;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.ILocalOSVisitor;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.ILocalOs;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.ILocalOsVisitor;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 
 import io.opentelemetry.api.common.Attributes;
@@ -140,8 +140,8 @@ class OtelHelperTest {
 		assertThrows(IllegalArgumentException.class, () -> OtelHelper.createServiceResource("Hardware Sentry Agent", null));
 		assertNotNull(OtelHelper.createServiceResource("Hardware Sentry Agent", emptyMap));
 
-		try(MockedStatic<LocalOSHandler> localOSHandler = mockStatic(LocalOSHandler.class)){
-			localOSHandler.when(() -> LocalOSHandler.getOS()).thenReturn(Optional.of(LocalOSHandler.LINUX));
+		try(MockedStatic<LocalOsHandler> localOsHandler = mockStatic(LocalOsHandler.class)){
+			localOsHandler.when(() -> LocalOsHandler.getOs()).thenReturn(Optional.of(LocalOsHandler.LINUX));
 
 			final Resource actual = OtelHelper.createServiceResource("Hardware Sentry Agent", Map.of(
 					"agent.host.name", "my.agent.host.name"
@@ -163,22 +163,22 @@ class OtelHelperTest {
 
 	@Test
 	void testGetAgentOsType() {
-		final Map<ILocalOS, String> expectedOSTypes = Map.of(
-			LocalOSHandler.WINDOWS, "windows",
-			LocalOSHandler.LINUX, "linux",
-			LocalOSHandler.SUN, "sun",
-			LocalOSHandler.HP, "hpux",
-			LocalOSHandler.SOLARIS, "solaris",
-			LocalOSHandler.AIX, "aix",
-			LocalOSHandler.FREE_BSD, "freebsd",
-			LocalOSHandler.OPEN_BSD, "openbsd",
-			LocalOSHandler.NET_BSD, "netbsd",
-			LocalOSHandler.MAC_OS_X, "macosx"
+		final Map<ILocalOs, String> expectedOSTypes = Map.of(
+			LocalOsHandler.WINDOWS, "windows",
+			LocalOsHandler.LINUX, "linux",
+			LocalOsHandler.SUN, "sun",
+			LocalOsHandler.HP, "hpux",
+			LocalOsHandler.SOLARIS, "solaris",
+			LocalOsHandler.AIX, "aix",
+			LocalOsHandler.FREE_BSD, "freebsd",
+			LocalOsHandler.OPEN_BSD, "openbsd",
+			LocalOsHandler.NET_BSD, "netbsd",
+			LocalOsHandler.MAC_OS_X, "macosx"
 		);
 
-		for (Entry<ILocalOS, String> entry : expectedOSTypes.entrySet()) {
-			try(MockedStatic<LocalOSHandler> localOSHandler = mockStatic(LocalOSHandler.class)){
-				localOSHandler.when(() -> LocalOSHandler.getOS()).thenReturn(Optional.of(entry.getKey()));
+		for (Entry<ILocalOs, String> entry : expectedOSTypes.entrySet()) {
+			try(MockedStatic<LocalOsHandler> localOsHandler = mockStatic(LocalOsHandler.class)){
+				localOsHandler.when(() -> LocalOsHandler.getOs()).thenReturn(Optional.of(entry.getKey()));
 				assertEquals(entry.getValue(), OtelHelper.getAgentOsType());
 			}
 		}
@@ -188,22 +188,22 @@ class OtelHelperTest {
 	@Test
 	void testGetAgentOsTypeUnknown() {
 		{
-			final ILocalOS unknown = new ILocalOS() {
+			final ILocalOs unknown = new ILocalOs() {
 				@Override
-				public void accept(ILocalOSVisitor visitor) {
+				public void accept(ILocalOsVisitor visitor) {
 					// Not implemented
 				}
 			};
 
-			try(MockedStatic<LocalOSHandler> localOSHandler = mockStatic(LocalOSHandler.class)){
-				localOSHandler.when(() -> LocalOSHandler.getOS()).thenReturn(Optional.of(unknown));
+			try(MockedStatic<LocalOsHandler> localOsHandler = mockStatic(LocalOsHandler.class)){
+				localOsHandler.when(() -> LocalOsHandler.getOs()).thenReturn(Optional.of(unknown));
 				assertEquals("unknown", OtelHelper.getAgentOsType());
 			}
 		}
 
 		{
-			try(MockedStatic<LocalOSHandler> localOSHandler = mockStatic(LocalOSHandler.class)){
-				localOSHandler.when(() -> LocalOSHandler.getOS()).thenReturn(Optional.empty());
+			try(MockedStatic<LocalOsHandler> localOsHandler = mockStatic(LocalOsHandler.class)){
+				localOsHandler.when(() -> LocalOsHandler.getOs()).thenReturn(Optional.empty());
 				assertEquals("unknown", OtelHelper.getAgentOsType());
 			}
 		}

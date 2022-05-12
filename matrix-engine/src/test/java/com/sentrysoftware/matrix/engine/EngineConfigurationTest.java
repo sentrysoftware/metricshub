@@ -9,14 +9,14 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.Ipmi;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OsCommandSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.sshinteractive.SshInteractiveSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
-import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WbemSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WmiSource;
+import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WmiProtocol;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 
@@ -26,25 +26,25 @@ class EngineConfigurationTest {
 	void testDetermineAcceptedSources() {
 		EngineConfiguration engineConfiguration = EngineConfiguration.builder().build();
 		{
-			engineConfiguration.setProtocolConfigurations(Map.of(WBEMProtocol.class, WBEMProtocol.builder().build()));
+			engineConfiguration.setProtocolConfigurations(Map.of(WbemProtocol.class, WbemProtocol.builder().build()));
 			engineConfiguration.setTarget(HardwareTarget.builder().type(TargetType.MS_WINDOWS).build());
 
 			final Set<Class<? extends Source>> actual = engineConfiguration.determineAcceptedSources(false);
-			final Set<Class<? extends Source>> expected = Collections.singleton(WBEMSource.class);
+			final Set<Class<? extends Source>> expected = Collections.singleton(WbemSource.class);
 			assertEquals(expected, actual);
 		}
 
 		{
-			engineConfiguration.setProtocolConfigurations(Map.of(WMIProtocol.class, WMIProtocol.builder().build()));
+			engineConfiguration.setProtocolConfigurations(Map.of(WmiProtocol.class, WmiProtocol.builder().build()));
 			engineConfiguration.setTarget(HardwareTarget.builder().type(TargetType.MS_WINDOWS).build());
 
 			final Set<Class<? extends Source>> actual = engineConfiguration.determineAcceptedSources(false);
-			final Set<Class<? extends Source>> expected = Set.of(IPMI.class, WMISource.class);
+			final Set<Class<? extends Source>> expected = Set.of(Ipmi.class, WmiSource.class);
 			assertEquals(expected, actual);
 		}
 
 		{
-			engineConfiguration.setProtocolConfigurations(Map.of(WMIProtocol.class, WMIProtocol.builder().build()));
+			engineConfiguration.setProtocolConfigurations(Map.of(WmiProtocol.class, WmiProtocol.builder().build()));
 			engineConfiguration.setTarget(HardwareTarget.builder().type(TargetType.LINUX).build());
 
 			final Set<Class<? extends Source>> actual = engineConfiguration.determineAcceptedSources(false);
@@ -53,21 +53,21 @@ class EngineConfigurationTest {
 		}
 
 		{
-			engineConfiguration.setProtocolConfigurations(Map.of(SSHProtocol.class, SSHProtocol.builder().build()));
+			engineConfiguration.setProtocolConfigurations(Map.of(SshProtocol.class, SshProtocol.builder().build()));
 			engineConfiguration.setTarget(HardwareTarget.builder().type(TargetType.LINUX).build());
 
 			final Set<Class<? extends Source>> actual = engineConfiguration.determineAcceptedSources(false);
-			final Set<Class<? extends Source>> expected = Set.of(OSCommandSource.class, IPMI.class,
+			final Set<Class<? extends Source>> expected = Set.of(OsCommandSource.class, Ipmi.class,
 					SshInteractiveSource.class);
 			assertEquals(expected, actual);
 		}
 
 		{
-			engineConfiguration.setProtocolConfigurations(Map.of(SSHProtocol.class, SSHProtocol.builder().build()));
+			engineConfiguration.setProtocolConfigurations(Map.of(SshProtocol.class, SshProtocol.builder().build()));
 			engineConfiguration.setTarget(HardwareTarget.builder().type(TargetType.SUN_SOLARIS).build());
 
 			final Set<Class<? extends Source>> actual = engineConfiguration.determineAcceptedSources(false);
-			final Set<Class<? extends Source>> expected = Set.of(OSCommandSource.class, IPMI.class,
+			final Set<Class<? extends Source>> expected = Set.of(OsCommandSource.class, Ipmi.class,
 					SshInteractiveSource.class);
 			assertEquals(expected, actual);
 		}
@@ -77,7 +77,7 @@ class EngineConfigurationTest {
 			engineConfiguration.setTarget(HardwareTarget.builder().type(TargetType.MS_WINDOWS).build());
 
 			final Set<Class<? extends Source>> actual = engineConfiguration.determineAcceptedSources(true);
-			final Set<Class<? extends Source>> expected = Collections.singleton(OSCommandSource.class);
+			final Set<Class<? extends Source>> expected = Collections.singleton(OsCommandSource.class);
 			assertEquals(expected, actual);
 		}
 
@@ -86,7 +86,7 @@ class EngineConfigurationTest {
 			engineConfiguration.setTarget(HardwareTarget.builder().type(TargetType.LINUX).build());
 
 			final Set<Class<? extends Source>> actual = engineConfiguration.determineAcceptedSources(true);
-			final Set<Class<? extends Source>> expected = Set.of(OSCommandSource.class, IPMI.class);
+			final Set<Class<? extends Source>> expected = Set.of(OsCommandSource.class, Ipmi.class);
 			assertEquals(expected, actual);
 		}
 
@@ -95,16 +95,16 @@ class EngineConfigurationTest {
 			engineConfiguration.setTarget(HardwareTarget.builder().type(TargetType.SUN_SOLARIS).build());
 
 			final Set<Class<? extends Source>> actual = engineConfiguration.determineAcceptedSources(true);
-			final Set<Class<? extends Source>> expected = Set.of(OSCommandSource.class, IPMI.class);
+			final Set<Class<? extends Source>> expected = Set.of(OsCommandSource.class, Ipmi.class);
 			assertEquals(expected, actual);
 		}
 
 		{
-			engineConfiguration.setProtocolConfigurations(Map.of(SSHProtocol.class, SSHProtocol.builder().build()));
+			engineConfiguration.setProtocolConfigurations(Map.of(SshProtocol.class, SshProtocol.builder().build()));
 			engineConfiguration.setTarget(HardwareTarget.builder().type(TargetType.SUN_SOLARIS).build());
 
 			final Set<Class<? extends Source>> actual = engineConfiguration.determineAcceptedSources(true);
-			final Set<Class<? extends Source>> expected = Set.of(OSCommandSource.class, IPMI.class,
+			final Set<Class<? extends Source>> expected = Set.of(OsCommandSource.class, Ipmi.class,
 					SshInteractiveSource.class);
 			assertEquals(expected, actual);
 		}

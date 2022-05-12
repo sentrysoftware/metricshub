@@ -33,11 +33,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGetNext;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SnmpGetNext;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetTableSource;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
+import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.SnmpVersion;
 import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
 import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
@@ -85,20 +85,20 @@ class AbstractStrategyTest {
 	private static EngineConfiguration engineConfiguration;
 	private static IHostMonitoring hostMonitoring;
 	private static Connector connector;
-	private static SNMPGetTableSource snmpGetTableSource;
-	private static SNMPGetNext snmpGetNext;
+	private static SnmpGetTableSource snmpGetTableSource;
+	private static SnmpGetNext snmpGetNext;
 
 	@BeforeAll
 	static void setUp() {
-		final SNMPProtocol protocol = SNMPProtocol.builder().community("public").version(SNMPVersion.V1).port(161)
+		final SnmpProtocol protocol = SnmpProtocol.builder().community("public").version(SnmpVersion.V1).port(161)
 				.timeout(120L).build();
 		engineConfiguration = EngineConfiguration.builder()
 				.target(HardwareTarget.builder().hostname(HOSTNAME).id(HOSTNAME).type(TargetType.LINUX).build())
-				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol)).build();
+				.protocolConfigurations(Map.of(SnmpProtocol.class, protocol)).build();
 
 		connector = Connector.builder().compiledFilename(MY_CONNECTOR_NAME).build();
 
-		snmpGetTableSource = SNMPGetTableSource
+		snmpGetTableSource = SnmpGetTableSource
 					.builder()
 					.oid("1.2.3.4.5.6")
 					.snmpTableSelectColumns(SNMP_TABLE_SELECTED_COLUMNS)
@@ -106,7 +106,7 @@ class AbstractStrategyTest {
 					.key(ENCLOSURE_DISCOVERY_SOURCE_1_KEY)
 					.build();
 
-		snmpGetNext = SNMPGetNext.builder().oid("1.3.6.1.4.1.674.10893.1.20").forceSerialization(true).build();
+		snmpGetNext = SnmpGetNext.builder().oid("1.3.6.1.4.1.674.10893.1.20").forceSerialization(true).build();
 	}
 
 	@BeforeEach
@@ -215,7 +215,7 @@ class AbstractStrategyTest {
 	void testProcessCriterionForceSerialization() throws Exception {
 		doReturn("1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT 2.4.6").when(matsyaClientsExecutor).executeSNMPGetNext(
 				anyString(),
-				any(SNMPProtocol.class),
+				any(SnmpProtocol.class),
 				anyString(),
 				anyBoolean());
 

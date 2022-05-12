@@ -115,10 +115,10 @@ class ComputeUpdaterVisitorTest {
 
 	@Test
 	void testVisitJson2CSV() {
-		final Json2CSV json2CSV = Json2CSV.builder().build();
-		doNothing().when(computeVisitor).visit(any(Json2CSV.class));
-		computeUpdaterVisitor.visit(json2CSV);
-		verify(computeVisitor, times(1)).visit(any(Json2CSV.class));
+		final Json2Csv json2Csv = Json2Csv.builder().build();
+		doNothing().when(computeVisitor).visit(any(Json2Csv.class));
+		computeUpdaterVisitor.visit(json2Csv);
+		verify(computeVisitor, times(1)).visit(any(Json2Csv.class));
 	}
 
 	@Test

@@ -6,9 +6,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.oscommand.OSCommand;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.oscommand.OsCommand;
 
-public class ExecuteLocallyProcessor extends OSCommandProcessor {
+public class ExecuteLocallyProcessor extends OsCommandProcessor {
 
 	private static final Pattern EXECUTELOCALLY_KEY_PATTERN = Pattern.compile(
 			"^\\s*detection\\.criteria\\(([1-9]\\d*)\\)\\.executelocally\\s*$",
@@ -24,7 +24,7 @@ public class ExecuteLocallyProcessor extends OSCommandProcessor {
 
 		super.parse(key, value, connector);
 
-		((OSCommand) getCriterion(key, connector)).setExecuteLocally(ONE.equals(value));
+		((OsCommand) getCriterion(key, connector)).setExecuteLocally(ONE.equals(value));
 	}
 
 }

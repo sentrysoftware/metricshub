@@ -14,7 +14,7 @@ import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
-import com.sentrysoftware.matrix.model.monitoring.HostMonitoringVO;
+import com.sentrysoftware.matrix.model.monitoring.HostMonitoringVo;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
 import com.sentrysoftware.matrix.model.parameter.IParameter;
@@ -100,12 +100,12 @@ class JobResultFormatterServiceTest {
 
 		String formattedHostMonitoring = jobFormatter.format(hostMonitoring);
 
-		final HostMonitoringVO expected = JsonHelper.deserialize(
+		final HostMonitoringVo expected = JsonHelper.deserialize(
 				new FileInputStream(new File("src/test/resources/json/formatTestResource.json")),
-				HostMonitoringVO.class
+				HostMonitoringVo.class
 		);
 
-		final HostMonitoringVO actual = JsonHelper.deserialize(formattedHostMonitoring, HostMonitoringVO.class);
+		final HostMonitoringVo actual = JsonHelper.deserialize(formattedHostMonitoring, HostMonitoringVo.class);
 
 		assertEquals(expected, actual);
 

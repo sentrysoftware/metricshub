@@ -51,10 +51,10 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.InstanceT
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.SourceInstanceTable;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.TextInstanceTable;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.LeftConcat;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetTableSource;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
+import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.SnmpVersion;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
@@ -133,18 +133,18 @@ class DiscoveryOperationTest {
 
 	@BeforeAll
 	public static void setUp() {
-		final SNMPProtocol protocol = SNMPProtocol.builder().community(COMMUNITY).version(SNMPVersion.V1).port(161)
+		final SnmpProtocol protocol = SnmpProtocol.builder().community(COMMUNITY).version(SnmpVersion.V1).port(161)
 				.timeout(120L).build();
 		engineConfiguration = EngineConfiguration
 				.builder()
 				.target(HardwareTarget.builder().hostname(ECS1_01).id(ECS1_01).type(TargetType.LINUX).build())
-				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol))
+				.protocolConfigurations(Map.of(SnmpProtocol.class, protocol))
 				.build();
 
 		engineConfigurationSequential = EngineConfiguration
 				.builder()
 				.target(HardwareTarget.builder().hostname(ECS1_01).id(ECS1_01).type(TargetType.LINUX).build())
-				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol))
+				.protocolConfigurations(Map.of(SnmpProtocol.class, protocol))
 				.sequential(true)
 				.build();
 	
@@ -385,7 +385,7 @@ class DiscoveryOperationTest {
 				.builder()
 				.sourceKey(FAN_SOURCE_KEY)
 				.build();
-		final SNMPGetTableSource source = SNMPGetTableSource
+		final SnmpGetTableSource source = SnmpGetTableSource
 				.builder()
 				.oid(OID_FAN)
 				.snmpTableSelectColumns(Arrays.asList("1", "2", "3"))
@@ -532,7 +532,7 @@ class DiscoveryOperationTest {
 				.builder()
 				.sourceKey(ENCLOSURE_SOURCE_KEY)
 				.build();
-		final SNMPGetTableSource source = SNMPGetTableSource
+		final SnmpGetTableSource source = SnmpGetTableSource
 				.builder()
 				.oid(OID_ENCLOSURE)
 				.snmpTableSelectColumns(Arrays.asList("1", "2", "3", "4", "5"))
@@ -910,7 +910,7 @@ class DiscoveryOperationTest {
 		discoveryOperation.processSourcesAndComputes(null, hostMonitoring, connector, MonitorType.ENCLOSURE, ECS1_01);
 		assertTrue(hostMonitoring.getConnectorNamespace(MY_CONNECTOR_1_NAME).getSourceTables().isEmpty());
 
-		SNMPGetTableSource source = SNMPGetTableSource
+		SnmpGetTableSource source = SnmpGetTableSource
 				.builder()
 				.oid(OID_ENCLOSURE)
 				.snmpTableSelectColumns(Arrays.asList("1", "2"))
@@ -932,7 +932,7 @@ class DiscoveryOperationTest {
 				ECS1_01);
 		assertEquals(expected, hostMonitoring.getConnectorNamespace(MY_CONNECTOR_1_NAME).getSourceTable(ENCLOSURE_SOURCE_KEY));
 
-		source = SNMPGetTableSource.builder()
+		source = SnmpGetTableSource.builder()
 				.oid(OID_ENCLOSURE)
 				.key(ENCLOSURE_SOURCE_KEY)
 				.snmpTableSelectColumns(Arrays.asList("1", "2"))
