@@ -1,6 +1,8 @@
 package com.sentrysoftware.hardware.agent.dto.protocol;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 import com.sentrysoftware.hardware.agent.deserialization.TimeDeserializer;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
@@ -19,8 +21,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class WbemProtocolDTO extends AbstractProtocolDTO {
-
+	
 	@Default
+	@JsonSetter(nulls = SKIP)
 	WBEMProtocols protocol = WBEMProtocols.HTTPS;
 
 	@Default
@@ -43,6 +46,8 @@ public class WbemProtocolDTO extends AbstractProtocolDTO {
 	 */
 	@Override
 	public IProtocolConfiguration toProtocol() {
+		
+		
 		return WBEMProtocol
 				.builder()
 				.namespace(namespace)
