@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
-import com.sentrysoftware.matrix.connector.model.common.OSType;
+import com.sentrysoftware.matrix.connector.model.common.OsType;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
@@ -43,7 +43,7 @@ public class Connector implements Serializable {
 	private MonitorType onLastResort;
 
 	@Default
-	private Set<OSType> appliesToOS = new HashSet<>();
+	private Set<OsType> appliesToOS = new HashSet<>();
 	@Default
 	private Set<String> supersedes = new HashSet<>();
 

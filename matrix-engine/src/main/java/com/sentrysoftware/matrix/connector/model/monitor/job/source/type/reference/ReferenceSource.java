@@ -65,7 +65,7 @@ public class ReferenceSource extends Source {
 
 		addNonNull(stringJoiner, "- reference=", reference);
 
-		return stringJoiner.toString(); 
+		return stringJoiner.toString();
 	}
 
 }

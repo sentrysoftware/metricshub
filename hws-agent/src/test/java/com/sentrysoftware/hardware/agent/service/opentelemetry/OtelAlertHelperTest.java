@@ -23,7 +23,7 @@ import java.util.function.Consumer;
 
 import org.junit.jupiter.api.Test;
 
-import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
+import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
 import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.common.meta.monitor.Battery;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
@@ -332,7 +332,7 @@ public class OtelAlertHelperTest {
 	 * @param alertInfo
 	 */
 	private void assertAlertMessage(final AlertInfo alertInfo) {
-		String actual = OtelAlertHelper.buildHardwareProblem(alertInfo, MultiHostsConfigurationDTO.HW_PROBLEM_DEFAULT_TEMPLATE);
+		String actual = OtelAlertHelper.buildHardwareProblem(alertInfo, MultiHostsConfigurationDto.HW_PROBLEM_DEFAULT_TEMPLATE);
 		// Replace the Local ISO date as it is impossible to get the exact platform date
 		actual = actual.replaceAll("\\(\\d{4}\\-\\d{2}\\-\\d{2}T\\d{2}\\:\\d{2}\\:\\d{2}\\.\\d+\\)", "(2022-04-13T18:37:02.212)");
 		String expected = ResourceHelper.getResourceAsString("/data/hardware-problem.txt", this.getClass());

@@ -21,7 +21,7 @@ import com.sentrysoftware.matrix.engine.OperationStatus;
 import com.sentrysoftware.matrix.engine.strategy.IStrategy;
 import com.sentrysoftware.matrix.model.alert.AlertRule;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
-import com.sentrysoftware.matrix.model.monitoring.HostMonitoringVO;
+import com.sentrysoftware.matrix.model.monitoring.HostMonitoringVo;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
 import com.sentrysoftware.matrix.model.parameter.IParameter;
@@ -215,13 +215,13 @@ public abstract class AbstractITJob implements ITJob {
 		assertEquals(OperationStatus.SUCCESS, lastEngineResult.getOperationStatus(), "Last strategy failed.");
 
 		final InputStream is = ITJobUtils.getItResourceAsInputStream(expectedPath);
-		final HostMonitoringVO hostMonitoringVO = JsonHelper.deserialize(is, HostMonitoringVO.class);
+		final HostMonitoringVo hostMonitoringVo = JsonHelper.deserialize(is, HostMonitoringVo.class);
 
-		final HostMonitoringVO actual = hostMonitoring.getVo();
+		final HostMonitoringVo actual = hostMonitoring.getVo();
 
-		assertEquals(hostMonitoringVO.getTotal(), actual.getTotal());
+		assertEquals(hostMonitoringVo.getTotal(), actual.getTotal());
 
-		hostMonitoringVO.getMonitors().forEach(monitor -> assertMonitor(
+		hostMonitoringVo.getMonitors().forEach(monitor -> assertMonitor(
 				monitor, hostMonitoring.selectFromType(monitor.getMonitorType())));
 
 		return this;

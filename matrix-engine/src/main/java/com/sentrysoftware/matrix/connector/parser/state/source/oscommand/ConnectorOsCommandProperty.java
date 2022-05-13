@@ -4,7 +4,7 @@ import static com.sentrysoftware.matrix.connector.parser.state.source.oscommand.
 
 import java.util.Set;
 
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OsCommandSource;
 import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
 import com.sentrysoftware.matrix.connector.parser.state.source.common.EntryConcatEndProcessor;
 import com.sentrysoftware.matrix.connector.parser.state.source.common.EntryConcatMethodProcessor;
@@ -27,20 +27,20 @@ public class ConnectorOsCommandProperty {
 
 	public static Set<IConnectorStateParser> getConnectorProperties() {
 		return Set.of(
-				new TypeProcessor(OSCommandSource.class, OS_COMMAND_TYPE),
-				new ForceSerializationProcessor(OSCommandSource.class, OS_COMMAND_TYPE),
+				new TypeProcessor(OsCommandSource.class, OS_COMMAND_TYPE),
+				new ForceSerializationProcessor(OsCommandSource.class, OS_COMMAND_TYPE),
 				new CommandLineProcessor(),
 				new ExecuteLocallyProcessor(),
-				new ExcludeRegExpProcessor(OSCommandSource.class, OS_COMMAND_TYPE),
-				new KeepOnlyRegExpProcessor(OSCommandSource.class, OS_COMMAND_TYPE),
-				new RemoveFooterProcessor(OSCommandSource.class, OS_COMMAND_TYPE),
-				new RemoveHeaderProcessor(OSCommandSource.class, OS_COMMAND_TYPE),
-				new SelectColumnsProcessor(OSCommandSource.class, OS_COMMAND_TYPE),
-				new SeparatorsProcessor(OSCommandSource.class, OS_COMMAND_TYPE),
+				new ExcludeRegExpProcessor(OsCommandSource.class, OS_COMMAND_TYPE),
+				new KeepOnlyRegExpProcessor(OsCommandSource.class, OS_COMMAND_TYPE),
+				new RemoveFooterProcessor(OsCommandSource.class, OS_COMMAND_TYPE),
+				new RemoveHeaderProcessor(OsCommandSource.class, OS_COMMAND_TYPE),
+				new SelectColumnsProcessor(OsCommandSource.class, OS_COMMAND_TYPE),
+				new SeparatorsProcessor(OsCommandSource.class, OS_COMMAND_TYPE),
 				new TimeoutProcessor(),
-				new ExecuteForEachEntryOfProcessor(OSCommandSource.class, OS_COMMAND_TYPE),
-				new EntryConcatMethodProcessor(OSCommandSource.class, OS_COMMAND_TYPE),
-				new EntryConcatStartProcessor(OSCommandSource.class, OS_COMMAND_TYPE),
-				new EntryConcatEndProcessor(OSCommandSource.class, OS_COMMAND_TYPE));
+				new ExecuteForEachEntryOfProcessor(OsCommandSource.class, OS_COMMAND_TYPE),
+				new EntryConcatMethodProcessor(OsCommandSource.class, OS_COMMAND_TYPE),
+				new EntryConcatStartProcessor(OsCommandSource.class, OS_COMMAND_TYPE),
+				new EntryConcatEndProcessor(OsCommandSource.class, OS_COMMAND_TYPE));
 	}
 }

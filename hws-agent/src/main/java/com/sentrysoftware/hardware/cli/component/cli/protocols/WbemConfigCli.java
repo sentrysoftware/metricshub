@@ -1,11 +1,11 @@
 package com.sentrysoftware.hardware.cli.component.cli.protocols;
 
-import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol.WBEMProtocols;
+import com.sentrysoftware.hardware.cli.component.cli.converters.WbemTransportProtocolConverter;
+import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WbemProtocol.WbemProtocols;
 
 import lombok.Data;
 import picocli.CommandLine.Option;
-import com.sentrysoftware.hardware.cli.component.cli.converters.WbemTransportProtocolConverter;
 
 @Data
 public class WbemConfigCli implements IProtocolConfigCli {
@@ -27,7 +27,7 @@ public class WbemConfigCli implements IProtocolConfigCli {
 			description = "Transport protocol for WBEM (default: ${DEFAULT-VALUE})",
 			converter = WbemTransportProtocolConverter.class
 	)
-	WBEMProtocol.WBEMProtocols protocol;
+	WbemProtocol.WbemProtocols protocol;
 
 	@Option(
 			names = "--wbem-port",
@@ -77,11 +77,11 @@ public class WbemConfigCli implements IProtocolConfigCli {
 	 * @return an WBEMProtocol instance corresponding to the options specified by the user in the CLI
 	 */
 	@Override
-	public WBEMProtocol toProtocol(String defaultUsername, char[] defaultPassword) {
-		return WBEMProtocol
+	public WbemProtocol toProtocol(String defaultUsername, char[] defaultPassword) {
+		return WbemProtocol
 				.builder()
 				.protocol(protocol)
-				.port(port != null ? port : protocol == WBEMProtocols.HTTP ? 5988 : 5989)
+				.port(port != null ? port : protocol == WbemProtocols.HTTP ? 5988 : 5989)
 				.username(username == null ? defaultUsername : username)
 				.password(username == null ? defaultPassword : password)
 				.namespace(namespace)

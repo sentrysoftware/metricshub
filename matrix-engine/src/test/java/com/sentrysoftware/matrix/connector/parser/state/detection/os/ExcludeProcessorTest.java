@@ -14,10 +14,10 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.common.OSType;
+import com.sentrysoftware.matrix.connector.model.common.OsType;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.os.OS;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.os.Os;
 
 class ExcludeProcessorTest {
 
@@ -27,7 +27,7 @@ class ExcludeProcessorTest {
 
 	private static final String CRITERION_EXCLUDE_KEY = "detection.criteria(1).exclude";
 	private static final String VALUE = "Solaris,OOB,SunOS";
-	private static final Set<OSType> RESULT = new HashSet<>(Arrays.asList(OSType.SOLARIS, OSType.OOB, OSType.SUNOS));
+	private static final Set<OsType> RESULT = new HashSet<>(Arrays.asList(OsType.SOLARIS, OsType.OOB, OsType.SUNOS));
 	private static final String FOO = "FOO";
 
 	@Test
@@ -37,7 +37,7 @@ class ExcludeProcessorTest {
 		assertThrows(IllegalArgumentException.class, () -> excludeProcessor.parse(FOO, FOO, connector));
 
 		// Key matches, type is OS, detection is initially null
-		OS os = OS.builder().index(1).build();
+		Os os = Os.builder().index(1).build();
 		Detection detection = Detection.builder().criteria(Collections.singletonList(os)).build();
 		connector.setDetection(detection);
 		excludeProcessor.parse(CRITERION_EXCLUDE_KEY, VALUE, connector);
@@ -45,8 +45,8 @@ class ExcludeProcessorTest {
 		assertNotNull(criteria);
 		assertEquals(1, criteria.size());
 		Criterion criterion = criteria.get(0);
-		assertTrue(criterion instanceof OS);
+		assertTrue(criterion instanceof Os);
 		assertEquals(1, criterion.getIndex());
-		assertEquals(RESULT, ((OS) criterion).getExclude());
+		assertEquals(RESULT, ((Os) criterion).getExclude());
 	}
 }

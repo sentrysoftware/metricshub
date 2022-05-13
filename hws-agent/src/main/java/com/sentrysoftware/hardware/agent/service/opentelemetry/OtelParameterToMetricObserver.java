@@ -1,7 +1,7 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry;
 
 import com.sentrysoftware.hardware.agent.dto.MetricInfo;
-import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
+import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 
@@ -19,9 +19,9 @@ public class OtelParameterToMetricObserver extends AbstractOtelMetricObserver {
 
 	@Builder
 	public OtelParameterToMetricObserver(Monitor monitor, SdkMeterProvider sdkMeterProvider,
-			MultiHostsConfigurationDTO multiHostsConfigurationDTO, MetricInfo metricInfo, String matrixParameterName) {
+			MultiHostsConfigurationDto multiHostsConfigurationDto, MetricInfo metricInfo, String matrixParameterName) {
 
-		super(monitor, sdkMeterProvider, multiHostsConfigurationDTO, metricInfo, matrixParameterName);
+		super(monitor, sdkMeterProvider, multiHostsConfigurationDto, metricInfo, matrixParameterName);
 
 	}
 

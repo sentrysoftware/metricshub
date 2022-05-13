@@ -1,34 +1,34 @@
 package com.sentrysoftware.matrix.engine.strategy.source;
 
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.IPMI;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HttpSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ipmi.Ipmi;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OsCommandSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.reference.ReferenceSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.reference.StaticSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetTableSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.sshinteractive.SshInteractiveSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tablejoin.TableJoinSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tableunion.TableUnionSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ucs.UCSSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WMISource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ucs.UcsSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WbemSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WmiSource;
 
 public interface ISourceVisitor {
 
-	SourceTable visit(final HTTPSource httpSource);
+	SourceTable visit(final HttpSource httpSource);
 
-	SourceTable visit(final IPMI ipmi);
+	SourceTable visit(final Ipmi ipmi);
 
-	SourceTable visit(final OSCommandSource osCommandSource);
+	SourceTable visit(final OsCommandSource osCommandSource);
 
 	SourceTable visit(final ReferenceSource referenceSource);
 
 	SourceTable visit(final StaticSource staticSource);
 
-	SourceTable visit(final SNMPGetSource snmpGetSource);
+	SourceTable visit(final SnmpGetSource snmpGetSource);
 
-	SourceTable visit(final SNMPGetTableSource snmpGetTableSource);
+	SourceTable visit(final SnmpGetTableSource snmpGetTableSource);
 
 	SourceTable visit(final TableJoinSource tableJoinSource);
 
@@ -36,10 +36,10 @@ public interface ISourceVisitor {
 
 	SourceTable visit(final SshInteractiveSource sshInteractiveSource);
 
-	SourceTable visit(final UCSSource ucsSource);
+	SourceTable visit(final UcsSource ucsSource);
 
-	SourceTable visit(final WBEMSource wbemSource);
+	SourceTable visit(final WbemSource wbemSource);
 
-	SourceTable visit(final WMISource wmiSource);
+	SourceTable visit(final WmiSource wmiSource);
 
 }

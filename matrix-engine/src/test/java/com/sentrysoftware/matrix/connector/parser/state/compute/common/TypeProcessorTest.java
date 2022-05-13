@@ -8,7 +8,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Abst
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.LeftConcat;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetTableSource;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -71,7 +71,7 @@ class TypeProcessorTest {
 		assertTrue(discovery.getSources().isEmpty());
 
 		// Value is valid, key matches, source found, sources.getComputes() == null
-		SNMPGetTableSource snmpGetTableSource = SNMPGetTableSource
+		SnmpGetTableSource snmpGetTableSource = SnmpGetTableSource
 			.builder()
 			.index(1)
 			.build();

@@ -16,20 +16,20 @@ import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OsCommandSource;
 import com.sentrysoftware.matrix.connector.parser.state.source.common.ExcludeRegExpProcessor;
 
 class ExcludeRegExpProcessorTest {
 
 	private static final String EXCLUDE_REGEXP_DISCOVERY = "DiskController.Discovery.Source(1).excludeRegExp";
 	private static final String EXCLUDE_REGEXP_COLLECT = "PhysicalDisk.Collect.Source(1).excludeRegExp";
-	private static final ExcludeRegExpProcessor EXCLUDE_REGEXP_PROCESSOR = new ExcludeRegExpProcessor(OSCommandSource.class, OsCommandProcessor.OS_COMMAND_TYPE);
+	private static final ExcludeRegExpProcessor EXCLUDE_REGEXP_PROCESSOR = new ExcludeRegExpProcessor(OsCommandSource.class, OsCommandProcessor.OS_COMMAND_TYPE);
 	private static final String VALUE = "^MSHW;";
 	private static final Connector CONNECTOR = new Connector();
 
 	@Test
 	void testGetType() {
-		assertEquals(OSCommandSource.class, EXCLUDE_REGEXP_PROCESSOR.getType());
+		assertEquals(OsCommandSource.class, EXCLUDE_REGEXP_PROCESSOR.getType());
 	}
 
 	@Test
@@ -74,20 +74,20 @@ class ExcludeRegExpProcessorTest {
 		assertThrows(IllegalArgumentException.class, () -> EXCLUDE_REGEXP_PROCESSOR.parse(EXCLUDE_REGEXP_COLLECT, VALUE, CONNECTOR));
 
 		{
-			final OSCommandSource osCommandSource = OSCommandSource.builder().index(1).build();
+			final OsCommandSource osCommandSource = OsCommandSource.builder().index(1).build();
 			final Discovery discovery = Discovery.builder().sources(List.of(osCommandSource)).build();
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.DISK_CONTROLLER).discovery(discovery).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			EXCLUDE_REGEXP_PROCESSOR.parse(EXCLUDE_REGEXP_DISCOVERY, VALUE, CONNECTOR);
-			assertEquals(VALUE, ((OSCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getExcludeRegExp()); 
+			assertEquals(VALUE, ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getExcludeRegExp());
 		}
 		{
-			final OSCommandSource osCommandSource = OSCommandSource.builder().index(1).build();
+			final OsCommandSource osCommandSource = OsCommandSource.builder().index(1).build();
 			final Collect collect = Collect.builder().sources(List.of(osCommandSource)).build();
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.PHYSICAL_DISK).collect(collect).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			EXCLUDE_REGEXP_PROCESSOR.parse(EXCLUDE_REGEXP_COLLECT, VALUE, CONNECTOR);
-			assertEquals(VALUE, ((OSCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).getExcludeRegExp()); 
+			assertEquals(VALUE, ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).getExcludeRegExp());
 		}
 	}
 }

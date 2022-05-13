@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
+import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
 
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
 import io.opentelemetry.sdk.metrics.data.MetricData;
@@ -33,7 +33,7 @@ class OtelSelfObserverTest {
 		InMemoryMetricReader inMemoryReader = InMemoryMetricReader.create();
 		final SdkMeterProvider sdkMeterProvider = initOpenTelemetryMetrics(resource, inMemoryReader);
 	
-		MultiHostsConfigurationDTO multiHostsConfigurationDTO = MultiHostsConfigurationDTO
+		MultiHostsConfigurationDto multiHostsConfigurationDto = MultiHostsConfigurationDto
 				.builder()
 				.extraMetrics(Map.of(
 								"hw.site.carbon_density_grams", 350D,
@@ -46,7 +46,7 @@ class OtelSelfObserverTest {
 			.builder()
 			.agentInfo(agentInfo)
 			.sdkMeterProvider(sdkMeterProvider)
-			.multiHostsConfigurationDTO(multiHostsConfigurationDTO)
+			.multiHostsConfigurationDto(multiHostsConfigurationDto)
 			.build()
 			.init();
 

@@ -4,7 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HttpSource;
 
 public class MethodProcessor extends HttpProcessor {
 
@@ -22,6 +22,6 @@ public class MethodProcessor extends HttpProcessor {
 
 		super.parse(key, value, connector);
 
-		((HTTPSource) getSource(key, connector)).setMethod(value);
+		((HttpSource) getSource(key, connector)).setMethod(value);
 	}
 }

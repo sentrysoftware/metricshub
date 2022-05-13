@@ -4,7 +4,7 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetTableSource;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -22,7 +22,7 @@ class SnmpTableSelectColumnsProcessorTest {
 	@Test
 	void testParse() {
 
-		SNMPGetTableSource snmpGetTableSource = SNMPGetTableSource.builder().index(1).build();
+		SnmpGetTableSource snmpGetTableSource = SnmpGetTableSource.builder().index(1).build();
 		Discovery discovery = Discovery.builder().sources(Collections.singletonList(snmpGetTableSource)).build();
 		HardwareMonitor hardwareMonitor = HardwareMonitor
 			.builder()

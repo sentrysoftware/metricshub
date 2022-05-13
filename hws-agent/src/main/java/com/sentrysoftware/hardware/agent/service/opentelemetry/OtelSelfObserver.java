@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
+import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 
 import io.opentelemetry.api.common.Attributes;
@@ -31,9 +31,9 @@ public class OtelSelfObserver extends AbstractOtelObserver {
 
 	@Builder
 	public OtelSelfObserver(Monitor monitor, SdkMeterProvider sdkMeterProvider,
-			MultiHostsConfigurationDTO multiHostsConfigurationDTO,
+			MultiHostsConfigurationDto multiHostsConfigurationDto,
 			Map<String, String> agentInfo) {
-		super(monitor, sdkMeterProvider, multiHostsConfigurationDTO);
+		super(monitor, sdkMeterProvider, multiHostsConfigurationDto);
 		this.agentInfo = agentInfo;
 
 	}
@@ -55,7 +55,7 @@ public class OtelSelfObserver extends AbstractOtelObserver {
 			.buildWithCallback(this::observeCollectorInformation);
 
 		// Extra metrics processing
-		multiHostsConfigurationDTO
+		multiHostsConfigurationDto
 			.getExtraMetrics()
 			.entrySet()
 			.stream()
@@ -108,7 +108,7 @@ public class OtelSelfObserver extends AbstractOtelObserver {
 		getAttributeKeys(attributeKeys)
 			.forEach(attributeKey -> {
 				final String value = agentInfo.getOrDefault(attributeKey,
-						multiHostsConfigurationDTO.getExtraLabels().getOrDefault(attributeKey, EMPTY));
+						multiHostsConfigurationDto.getExtraLabels().getOrDefault(attributeKey, EMPTY));
 				builder.put(attributeKey, value);
 			});
 
