@@ -1006,7 +1006,7 @@ public class CollectOperation extends AbstractStrategy {
 
 		if (isPowerCollected(enclosureMonitors)) {
 			// Set power meter to collected
-			hostMonitoring.setPowerMeter(PowerMeter.COLLECTED);
+			hostMonitoring.setPowerMeter(PowerMeter.MEASURED);
 
 			sumEnclosurePowerConsumptions(enclosureMonitors);
 		} else {
