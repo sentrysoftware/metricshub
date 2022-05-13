@@ -23,6 +23,7 @@ import com.sentrysoftware.matrix.model.alert.Severity;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER;
@@ -39,6 +40,8 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TYPE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
+import static com.sentrysoftware.matrix.common.helpers.NumberHelper.formatNumber;
+import static com.sentrysoftware.matrix.common.helpers.StringHelper.getValue;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.ERROR_COUNT_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.PRESENT_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
@@ -239,7 +242,8 @@ public class Memory implements IMetaMonitor {
 		if (errorCountAsserted.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem(String.format("This memory module encountered a few internal errors (%f).", errorCountAsserted.getParameter().getValue()))
+					.problem(String.format("This memory module encountered a few internal errors (%s).",
+							getValue(() -> formatNumber(errorCountAsserted.getParameter().getValue()), EMPTY)))
 					.consequence("The stability of the system may be affected. A system crash or data corruption is likely to occur soon.")
 					.recommendedAction("Replace this memory module as soon as possible to prevent a system overload.")
 					.build();
@@ -260,7 +264,8 @@ public class Memory implements IMetaMonitor {
 		if (errorCountAsserted.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem(String.format("This memory module encountered a high number of internal errors (%f).", errorCountAsserted.getParameter().getValue()))
+					.problem(String.format("This memory module encountered a high number of internal errors (%s).",
+							getValue(() -> formatNumber(errorCountAsserted.getParameter().getValue()), EMPTY)))
 					.consequence("The stability of the system may be critically affected. A system crash or data corruption is very likely to occur soon.")
 					.recommendedAction("Replace this memory module as soon as possible to prevent a system crash.")
 					.build();

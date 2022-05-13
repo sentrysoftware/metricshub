@@ -468,8 +468,8 @@ public class OtelAlertHelper {
 	 * Build alert details including the severity and the alert rule
 	 * 
 	 * @param alertRule       The alert rule defining the severity and the alert conditions
-	 * @param matrixParamName The name of the matrix parameter
 	 * @param monitorType     The type of the monitor which is defined by the matrix engine
+	 * @param matrixParamName The name of the matrix parameter
 	 * 
 	 * @return {@link String} value
 	 */
@@ -537,6 +537,14 @@ public class OtelAlertHelper {
 
 	}
 
+	/**
+	 * Get the status information parameter value from the given monitor
+	 * 
+	 * @param monitor {@link Monitor} instance from which we want to extract the
+	 *                status information
+	 * @return Optional of string value. The result is not present if status
+	 *         information is not collected.
+	 */
 	static Optional<String> getStatusInformation(@NonNull final Monitor monitor) {
 		final TextParam statusInformation = monitor.getParameter(STATUS_INFORMATION_PARAMETER, TextParam.class);
 

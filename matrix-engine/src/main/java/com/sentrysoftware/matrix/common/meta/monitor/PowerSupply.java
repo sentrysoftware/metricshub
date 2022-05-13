@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.common.meta.monitor;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER;
@@ -9,6 +10,8 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_S
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_CAPACITY_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.NumberHelper.formatNumber;
+import static com.sentrysoftware.matrix.common.helpers.StringHelper.getValue;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.PRESENT_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_WARN_CONDITION;
@@ -199,9 +202,9 @@ public class PowerSupply implements IMetaMonitor {
 	 * @return {@link String} value
 	 */
 	private static String getUsedCapacityInfo(Monitor monitor, NumberParam usedCapacity) {
-		String power = monitor.getMetadata(POWER);
-		return power != null ? String.format("%f of %s W", usedCapacity.getValue(), power)
-					: usedCapacity.getValue().toString();
+		final String power = monitor.getMetadata(POWER);
+		final String usedCapacityValue = getValue(() -> formatNumber(usedCapacity.getValue()), EMPTY);
+		return power != null ? String.format("%s of %s W", usedCapacityValue, power) : usedCapacityValue;
 	}
 
 	@Override

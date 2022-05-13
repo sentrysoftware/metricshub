@@ -2,10 +2,13 @@ package com.sentrysoftware.matrix.common.meta.monitor;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ROBOTIC_TYPE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_NUMBER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
+import static com.sentrysoftware.matrix.common.helpers.NumberHelper.formatNumber;
+import static com.sentrysoftware.matrix.common.helpers.StringHelper.getValue;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.PRESENT_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_WARN_CONDITION;
@@ -158,7 +161,8 @@ public class Robotics implements IMetaMonitor {
 		if (assertedErrorCount.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem(String.format("These robotics encountered errors (%f).", assertedErrorCount.getParameter().getValue()))
+					.problem(String.format("These robotics encountered errors (%s).",
+							getValue(() -> formatNumber(assertedErrorCount.getParameter().getValue()), EMPTY)))
 					.consequence(TapeDrive.TAPE_LIBRARY_CONSEQUENCE)
 					.recommendedAction("Replace or repair the faulty robotics.")
 					.build();
@@ -179,7 +183,8 @@ public class Robotics implements IMetaMonitor {
 		if (assertedErrorCount.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem(String.format("These robotics encountered too many errors (%f).", assertedErrorCount.getParameter().getValue()))
+					.problem(String.format("These robotics encountered too many errors (%s).",
+							getValue(() -> formatNumber(assertedErrorCount.getParameter().getValue()), EMPTY)))
 					.consequence(TapeDrive.TAPE_LIBRARY_CONSEQUENCE)
 					.recommendedAction("Replace or repair the faulty robotics as soon as possible to avoid a system crash.")
 					.build();
