@@ -25,7 +25,7 @@ class EmbeddedFileHeaderTest {
 					.header(header)
 					.build();
 
-			assertDoesNotThrow(() -> embeddedHeader.getContent("username", password, "abc"));
+			assertDoesNotThrow(() -> embeddedHeader.getContent("username", password, "abc", "hostname"));
 		}
 
 		{
@@ -39,7 +39,7 @@ class EmbeddedFileHeaderTest {
 					.header(header)
 					.build();
 
-			assertThrows(IllegalArgumentException.class, () -> embeddedHeader.getContent("username", password, "abc"));
+			assertThrows(IllegalArgumentException.class, () -> embeddedHeader.getContent("username", password, "abc", "hostname"));
 		}
 	}
 }

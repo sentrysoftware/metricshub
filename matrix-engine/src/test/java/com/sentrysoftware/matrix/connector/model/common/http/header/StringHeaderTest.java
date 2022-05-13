@@ -18,7 +18,7 @@ public class StringHeaderTest {
 			.header("Cookie: PVEAuthCookie=PVE:root@pam:6273E79B::haiZ/i60")
 			.build();
 
-			assertDoesNotThrow(() -> stringHeader.getContent("username", password, "abc"));
+			assertDoesNotThrow(() -> stringHeader.getContent("username", password, "abc", "hostname"));
 		}
 
 		{
@@ -27,7 +27,7 @@ public class StringHeaderTest {
 			.header("Cookie")
 			.build();
 
-			assertThrows(IllegalArgumentException.class, () -> stringHeader.getContent("username", password, "abc"));
+			assertThrows(IllegalArgumentException.class, () -> stringHeader.getContent("username", password, "abc", "hostname"));
 		}
 	}
 }
