@@ -212,13 +212,13 @@ class ComputeUpdaterVisitorTest {
 	@Test
 	void testSetSourceTable() {
 		doNothing().when(computeVisitor).setSourceTable(any());
-		assertDoesNotThrow(() -> computeUpdaterVisitor.setSourceTable(SourceTable.empty())); 
+		assertDoesNotThrow(() -> computeUpdaterVisitor.setSourceTable(SourceTable.empty()));
 	}
 
 	@Test
 	void testGetSourceTable() {
 		doReturn(SourceTable.empty()).when(computeVisitor).getSourceTable();
-		assertDoesNotThrow(() -> computeUpdaterVisitor.getSourceTable()); 
+		assertDoesNotThrow(() -> computeUpdaterVisitor.getSourceTable());
 	}
 
 	@Test

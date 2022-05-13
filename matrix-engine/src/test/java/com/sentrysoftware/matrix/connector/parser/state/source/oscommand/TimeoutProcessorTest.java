@@ -92,7 +92,7 @@ class TimeoutProcessorTest {
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.DISK_CONTROLLER).discovery(discovery).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			TIMEOUT_PROCESSOR.parse(TIMEOUT_DISCOVERY, VALUE, CONNECTOR);
-			assertEquals(120L, ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getTimeout()); 
+			assertEquals(120L, ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getTimeout());
 		}
 		{
 			final OsCommandSource osCommandSource = OsCommandSource.builder().index(1).build();
@@ -100,7 +100,7 @@ class TimeoutProcessorTest {
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.PHYSICAL_DISK).collect(collect).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			TIMEOUT_PROCESSOR.parse(TIMEOUT_COLLECT, VALUE, CONNECTOR);
-			assertEquals(120L, ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).getTimeout()); 
+			assertEquals(120L, ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).getTimeout());
 		}
 	}
 }

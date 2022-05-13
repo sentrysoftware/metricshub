@@ -78,7 +78,7 @@ class CommandLineProcessorTest {
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.DISK_CONTROLLER).discovery(discovery).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			COMMAND_LINE_PROCESSOR.parse(COMMAND_LINE_DISCOVERY, VALUE, CONNECTOR);
-			assertEquals(VALUE, ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getCommandLine()); 
+			assertEquals(VALUE, ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getCommandLine());
 		}
 		{
 			final OsCommandSource osCommandSource = OsCommandSource.builder().index(1).build();
@@ -86,7 +86,7 @@ class CommandLineProcessorTest {
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.PHYSICAL_DISK).collect(collect).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			COMMAND_LINE_PROCESSOR.parse(COMMAND_LINE_COLLECT, VALUE, CONNECTOR);
-			assertEquals(VALUE, ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).getCommandLine()); 
+			assertEquals(VALUE, ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).getCommandLine());
 		}
 	}
 }

@@ -78,7 +78,7 @@ class ExecuteLocallyProcessorTest {
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.DISK_CONTROLLER).discovery(discovery).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			EXECUTE_LOCALLY_PROCESSOR.parse(EXECUTE_LOCALLY_DISCOVERY, "0", CONNECTOR);
-			assertFalse(((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).isExecuteLocally()); 
+			assertFalse(((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).isExecuteLocally());
 		}
 		{
 			final OsCommandSource osCommandSource = OsCommandSource.builder().index(1).build();
@@ -86,7 +86,7 @@ class ExecuteLocallyProcessorTest {
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.PHYSICAL_DISK).collect(collect).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			EXECUTE_LOCALLY_PROCESSOR.parse(EXECUTE_LOCALLY_COLLECT, "0", CONNECTOR);
-			assertFalse(((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).isExecuteLocally()); 
+			assertFalse(((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).isExecuteLocally());
 		}
 		{
 			final OsCommandSource osCommandSource = OsCommandSource.builder().index(1).build();
@@ -94,7 +94,7 @@ class ExecuteLocallyProcessorTest {
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.DISK_CONTROLLER).discovery(discovery).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			EXECUTE_LOCALLY_PROCESSOR.parse(EXECUTE_LOCALLY_DISCOVERY, VALUE, CONNECTOR);
-			assertTrue(((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).isExecuteLocally()); 
+			assertTrue(((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).isExecuteLocally());
 		}
 		{
 			final OsCommandSource osCommandSource = OsCommandSource.builder().index(1).build();
@@ -102,7 +102,7 @@ class ExecuteLocallyProcessorTest {
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.PHYSICAL_DISK).collect(collect).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			EXECUTE_LOCALLY_PROCESSOR.parse(EXECUTE_LOCALLY_COLLECT, VALUE, CONNECTOR);
-			assertTrue(((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).isExecuteLocally()); 
+			assertTrue(((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).isExecuteLocally());
 		}
 	}
 }

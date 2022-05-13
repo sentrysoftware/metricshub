@@ -264,7 +264,7 @@ class SshInteractiveStepVisitorTest {
 			step.setDuration(1L);
 
 			visitor.visit(step);
-			mockedVisitor.verify(times(1), () -> SshInteractiveStepVisitor.sleep(anyString(), eq(1L))); 
+			mockedVisitor.verify(times(1), () -> SshInteractiveStepVisitor.sleep(anyString(), eq(1L)));
 		}
 	}
 

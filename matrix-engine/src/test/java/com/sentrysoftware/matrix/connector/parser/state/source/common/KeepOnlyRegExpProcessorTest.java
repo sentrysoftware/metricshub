@@ -79,7 +79,7 @@ class KeepOnlyRegExpProcessorTest {
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.DISK_CONTROLLER).discovery(discovery).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			KEEP_ONLY_REGEXP_PROCESSOR.parse(KEEP_ONLY_REGEXP_DISCOVERY, VALUE, CONNECTOR);
-			assertEquals(VALUE, ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getKeepOnlyRegExp()); 
+			assertEquals(VALUE, ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getKeepOnlyRegExp());
 		}
 		{
 			final OsCommandSource osCommandSource = OsCommandSource.builder().index(1).build();
@@ -87,7 +87,7 @@ class KeepOnlyRegExpProcessorTest {
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.PHYSICAL_DISK).collect(collect).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			KEEP_ONLY_REGEXP_PROCESSOR.parse(KEEP_ONLY_REGEXP_COLLECT, VALUE, CONNECTOR);
-			assertEquals(VALUE, ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).getKeepOnlyRegExp()); 
+			assertEquals(VALUE, ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).getKeepOnlyRegExp());
 		}
 	}
 }

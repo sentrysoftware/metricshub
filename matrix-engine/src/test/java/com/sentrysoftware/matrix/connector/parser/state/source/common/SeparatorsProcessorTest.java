@@ -79,7 +79,7 @@ class SeparatorsProcessorTest {
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.DISK_CONTROLLER).discovery(discovery).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			SEPARATORS_PROCESSOR.parse(SEPARATORS_DISCOVERY, VALUE, CONNECTOR);
-			assertEquals(VALUE, ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getSeparators()); 
+			assertEquals(VALUE, ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getSeparators());
 		}
 		{
 			final OsCommandSource osCommandSource = OsCommandSource.builder().index(1).build();
@@ -87,7 +87,7 @@ class SeparatorsProcessorTest {
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.PHYSICAL_DISK).collect(collect).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			SEPARATORS_PROCESSOR.parse(SEPARATORS_COLLECT, VALUE, CONNECTOR);
-			assertEquals(VALUE, ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).getSeparators()); 
+			assertEquals(VALUE, ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).getSeparators());
 		}
 	}
 }

@@ -65,6 +65,6 @@ public class StaticSource  extends Source {
 
 		addNonNull(stringJoiner, "- staticValue=", staticValue);
 
-		return stringJoiner.toString(); 
+		return stringJoiner.toString();
 	}
 }

@@ -84,7 +84,7 @@ class ExtraMetricsServiceTest {
 
 		{
 			final Map<String, Double> extraMetrics = new HashMap<>();
-			extraMetrics.put("hw_carbon_density_grams", 0.66); 
+			extraMetrics.put("hw_carbon_density_grams", 0.66);
 			extraMetrics.put("hw_electricity_cost_dollars", null);
 
 			doReturn(Map.of("site", "Data Center 1", "group", "IT"))

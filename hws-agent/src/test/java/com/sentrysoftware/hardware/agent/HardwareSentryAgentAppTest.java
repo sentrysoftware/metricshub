@@ -10,11 +10,11 @@ class HardwareSentryAgentAppTest {
 
 	@Test
 	void contextLoads() {
-		assertDoesNotThrow(() -> {}); 
+		assertDoesNotThrow(() -> {});
 	}
 
 	@Test
 	void testInitializeLoggerContext() {
-		assertDoesNotThrow(() -> HardwareSentryAgentApp.initializeLoggerContext()); 
+		assertDoesNotThrow(() -> HardwareSentryAgentApp.initializeLoggerContext());
 	}
 }

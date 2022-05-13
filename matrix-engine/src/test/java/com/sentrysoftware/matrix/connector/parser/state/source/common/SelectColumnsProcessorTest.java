@@ -80,7 +80,7 @@ class SelectColumnsProcessorTest {
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.DISK_CONTROLLER).discovery(discovery).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			SEPARATORS_PROCESSOR.parse(SEPARATORS_DISCOVERY, "", CONNECTOR);
-			assertEquals(Collections.emptyList(), ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getSelectColumns()); 
+			assertEquals(Collections.emptyList(), ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getSelectColumns());
 		}
 		{
 			final OsCommandSource osCommandSource = OsCommandSource.builder().index(1).build();
@@ -95,7 +95,7 @@ class SelectColumnsProcessorTest {
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.DISK_CONTROLLER).discovery(discovery).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			SEPARATORS_PROCESSOR.parse(SEPARATORS_DISCOVERY, "1", CONNECTOR);
-			assertEquals(List.of("1"), ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getSelectColumns()); 
+			assertEquals(List.of("1"), ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getSelectColumns());
 		}
 		{
 			final OsCommandSource osCommandSource = OsCommandSource.builder().index(1).build();
@@ -103,7 +103,7 @@ class SelectColumnsProcessorTest {
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.DISK_CONTROLLER).discovery(discovery).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			SEPARATORS_PROCESSOR.parse(SEPARATORS_DISCOVERY, VALUE, CONNECTOR);
-			assertEquals(List.of("-3", "11-15", "18", "19-"), ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getSelectColumns()); 
+			assertEquals(List.of("-3", "11-15", "18", "19-"), ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getSelectColumns());
 		}
 		{
 			final OsCommandSource osCommandSource = OsCommandSource.builder().index(1).build();
@@ -111,7 +111,7 @@ class SelectColumnsProcessorTest {
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.PHYSICAL_DISK).collect(collect).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			SEPARATORS_PROCESSOR.parse(SEPARATORS_COLLECT, "", CONNECTOR);
-			assertEquals(Collections.emptyList(), ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).getSelectColumns()); 
+			assertEquals(Collections.emptyList(), ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).getSelectColumns());
 		}
 		{
 			final OsCommandSource osCommandSource = OsCommandSource.builder().index(1).build();
@@ -119,7 +119,7 @@ class SelectColumnsProcessorTest {
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.PHYSICAL_DISK).collect(collect).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			SEPARATORS_PROCESSOR.parse(SEPARATORS_COLLECT, "1", CONNECTOR);
-			assertEquals(List.of("1"), ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).getSelectColumns()); 
+			assertEquals(List.of("1"), ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).getSelectColumns());
 		}
 		{
 			final OsCommandSource osCommandSource = OsCommandSource.builder().index(1).build();
@@ -127,7 +127,7 @@ class SelectColumnsProcessorTest {
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.PHYSICAL_DISK).collect(collect).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			SEPARATORS_PROCESSOR.parse(SEPARATORS_COLLECT, VALUE, CONNECTOR);
-			assertEquals(List.of("-3", "11-15", "18", "19-"), ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).getSelectColumns()); 
+			assertEquals(List.of("-3", "11-15", "18", "19-"), ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).getSelectColumns());
 		}
 	}
 }

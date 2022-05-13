@@ -19,7 +19,7 @@ import com.sentrysoftware.hardware.agent.service.prometheus.PrometheusService;
 class PrometheusControllerTest {
 
 	@Mock
-	private PrometheusService prometheusService; 
+	private PrometheusService prometheusService;
 
 	@InjectMocks
 	private PrometheusController prometheusController = new PrometheusController();

@@ -93,7 +93,7 @@ class RemoveHeaderProcessorTest {
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.DISK_CONTROLLER).discovery(discovery).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			REMOVE_HEADER_PROCESSOR.parse(REMOVE_HEADER_DISCOVERY, VALUE, CONNECTOR);
-			assertEquals(1, ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getRemoveHeader()); 
+			assertEquals(1, ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getRemoveHeader());
 		}
 		{
 			final OsCommandSource osCommandSource = OsCommandSource.builder().index(1).build();
@@ -101,7 +101,7 @@ class RemoveHeaderProcessorTest {
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.PHYSICAL_DISK).collect(collect).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			REMOVE_HEADER_PROCESSOR.parse(REMOVE_HEADER_COLLECT, VALUE, CONNECTOR);
-			assertEquals(1, ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).getRemoveHeader()); 
+			assertEquals(1, ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).getRemoveHeader());
 		}
 	}
 }
