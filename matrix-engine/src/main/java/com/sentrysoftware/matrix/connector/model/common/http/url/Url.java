@@ -2,10 +2,11 @@ package com.sentrysoftware.matrix.connector.model.common.http.url;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HOSTNAME_MACRO;
 
-import java.io.Serializable;
-
 import lombok.NonNull;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access =  AccessLevel.PRIVATE)
 public class Url {
 
 	/**
