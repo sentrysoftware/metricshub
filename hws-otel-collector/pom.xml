@@ -174,11 +174,38 @@
 						</configuration>
 					</execution>
 
+					<!-- go build -buildmode=default -ldflags -s -w -o target/darwin-amd64/hws-otel-collector -trimpath -->
+					<!-- Build the Darwin-AMD64 collector -->
+					<execution>
+						<phase>compile</phase>
+						<id>build-darwin-amd64</id>
+						<goals>
+							<goal>build</goal>
+						</goals>
+						<configuration>
+							<sources>${project.build.directory}/hws-otel-collector/collector</sources>
+							<resultFolder>${project.build.directory}/darwin-amd64</resultFolder>
+							<resultName>${project.artifactId}</resultName>
+							<ldFlags>
+								<ldFlag>-s</ldFlag>
+								<ldFlag>-w</ldFlag>
+							</ldFlags>
+							<buildFlags>
+								<buildFlag>-trimpath</buildFlag>
+							</buildFlags>
+							<targetOs>darwin</targetOs>
+							<targetArch>amd64</targetArch>
+							<env>
+								<CGO_ENABLED>0</CGO_ENABLED>
+							</env>
+						</configuration>
+					</execution>
+
 					<!-- go build -buildmode=default -ldflags -s -w -o target/darwin-arm64/hws-otel-collector -trimpath -->
 					<!-- Build the Darwin-ARM64 collector -->
 					<execution>
 						<phase>compile</phase>
-						<id>build-darwin</id>
+						<id>build-darwin-arm64</id>
 						<goals>
 							<goal>build</goal>
 						</goals>
@@ -272,6 +299,20 @@
 						<configuration>
 							<descriptors>
 								<descriptor>src/assembly/linux-amd64.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+
+					<!-- MacOS-AMD64 -->
+					<execution>
+						<id>dist-darwin-amd64</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>src/assembly/darwin-amd64.xml</descriptor>
 							</descriptors>
 						</configuration>
 					</execution>
