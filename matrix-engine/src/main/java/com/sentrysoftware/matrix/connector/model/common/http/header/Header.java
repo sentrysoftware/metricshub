@@ -6,7 +6,7 @@ import java.util.function.UnaryOperator;
 
 public interface Header extends Serializable {
 
-	Map<String, String> getContent(String username, char[] password, String authenticationToken);
+	Map<String, String> getContent(String username, char[] password, String authenticationToken, String hostname);
 
 	Header copy();
 

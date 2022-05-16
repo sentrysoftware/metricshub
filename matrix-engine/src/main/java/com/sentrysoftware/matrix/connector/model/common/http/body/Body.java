@@ -5,7 +5,7 @@ import java.util.function.UnaryOperator;
 
 public interface Body extends Serializable {
 
-	String getContent(String username, char[] password, String authenticationToken);
+	String getContent(String username, char[] password, String authenticationToken, String hostname);
 
 	Body copy();
 
