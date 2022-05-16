@@ -75,7 +75,7 @@ public class AlertConditionsBuilder {
 			.unmodifiableSet(AlertConditionsBuilder.newInstance().gte(80D).build());
 
 	public static final Set<AlertCondition> MEMORY_UTILIZATION_ALARM_CONDITION = Collections
-		.unmodifiableSet(AlertConditionsBuilder.newInstance().build());
+		.unmodifiableSet(AlertConditionsBuilder.newInstance().gte(99D).build());
 
 	public static final Set<AlertCondition> MEMORY_UTILIZATION_WARN_CONDITION = Collections
 		.unmodifiableSet(AlertConditionsBuilder.newInstance().gte(90D).build());

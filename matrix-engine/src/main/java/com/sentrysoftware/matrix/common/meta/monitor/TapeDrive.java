@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.common.meta.monitor;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER;
@@ -18,6 +19,8 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UNMOUNT_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UNMOUNT_COUNT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
+import static com.sentrysoftware.matrix.common.helpers.NumberHelper.formatNumber;
+import static com.sentrysoftware.matrix.common.helpers.StringHelper.getValue;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.ERROR_COUNT_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.PRESENT_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
@@ -246,7 +249,8 @@ public class TapeDrive implements IMetaMonitor {
 
 			String serialNumber = monitor.getMetadata(SERIAL_NUMBER);
 			return AlertDetails.builder()
-					.problem(String.format("The tape drive encountered errors (%f).", assertedErrorCount.getParameter().getValue()))
+					.problem(String.format("The tape drive encountered errors (%s).",
+							getValue(() -> formatNumber(assertedErrorCount.getParameter().getValue()), EMPTY)))
 					.consequence("The tape drive may not be able to read or write data to the tape.")
 					.recommendedAction("Check what is causing these errors on the tape drive, whether it is caused by the tape itself, the drive needing to be cleaned, or a data transport error."
 							+ ((serialNumber != null) ? String.format(" Please note this tape drive's serial number: %s.", serialNumber) : ""))
@@ -269,7 +273,8 @@ public class TapeDrive implements IMetaMonitor {
 
 			String serialNumber = monitor.getMetadata(SERIAL_NUMBER);
 			return AlertDetails.builder()
-					.problem(String.format("The tape drive encountered too many errors (%f).", assertedErrorCount.getParameter().getValue()))
+					.problem(String.format("The tape drive encountered too many errors (%s).",
+							getValue(() -> formatNumber(assertedErrorCount.getParameter().getValue()), EMPTY)))
 					.consequence("The tape drive may not be able to read or write data to the tape.")
 					.recommendedAction("Check what is causing these errors on the tape drive, whether it is caused by the tape itself, the drive needing to be cleaned, or a data transport error."
 							+ ((serialNumber != null) ? String.format("Please note this tape drive's serial number: %s.", serialNumber) : ""))

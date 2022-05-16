@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.common.meta.monitor;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FAN_TYPE;
@@ -13,6 +14,8 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_P
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_PERCENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_PERCENT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.NumberHelper.formatNumber;
+import static com.sentrysoftware.matrix.common.helpers.StringHelper.getValue;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.PRESENT_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.SPEED_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.SPEED_PERCENT_ALARM_CONDITION;
@@ -197,8 +200,10 @@ public class Fan implements IMetaMonitor {
 		if (assertedSpeed.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem(String.format("The speed of this fan is out of normal range (%f %s).", assertedSpeed.getParameter().getValue(), META_PARAMETERS.get(parameterName).getUnit()))
-					.consequence("The fan is not behaving as expected and probably not properly cooling down the system. This could lead to severe hardware damage and system crashes")
+					.problem(String.format("The speed of this fan is out of normal range (%s %s).",
+							getValue(() -> formatNumber(assertedSpeed.getParameter().getValue()), EMPTY),
+							META_PARAMETERS.get(parameterName).getUnit()))
+					.consequence("The fan is not behaving as expected and probably not properly cooling down the system. This could lead to severe hardware damage and system crashes.")
 					.recommendedAction("Check if the fan is not working as expected. If so, replace the fan.")
 					.build();
 
@@ -219,7 +224,9 @@ public class Fan implements IMetaMonitor {
 		if (assertedSpeed.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem(String.format("The speed of this fan is critically low (%f %s).", assertedSpeed.getParameter().getValue(), META_PARAMETERS.get(parameterName).getUnit()))
+					.problem(String.format("The speed of this fan is critically low (%s %s).",
+							getValue(() -> formatNumber(assertedSpeed.getParameter().getValue()), EMPTY),
+							META_PARAMETERS.get(parameterName).getUnit()))
 					.consequence("The temperature of the chip, component or device that was cooled down by this fan, may rise rapidly. This could lead to severe hardware damage and system crashes.")
 					.recommendedAction(RECOMMENDED_ACTION_FOR_BAD_FAN)
 					.build();
@@ -241,7 +248,9 @@ public class Fan implements IMetaMonitor {
 		if (assertedSpeed.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem(String.format("The speed of this fan is insufficient (%f %s).", assertedSpeed.getParameter().getValue(), META_PARAMETERS.get(parameterName).getUnit()))
+					.problem(String.format("The speed of this fan is insufficient (%s %s).",
+							getValue(() -> formatNumber(assertedSpeed.getParameter().getValue()), EMPTY),
+							META_PARAMETERS.get(parameterName).getUnit()))
 					.consequence("The temperature of the chip, component or device that was cooled down by this fan, may increase slightly. This could lead to system crashes.")
 					.recommendedAction("Check why the fan is running slow. This may be caused by dust or wear and tear. Replace the fan if needed.")
 					.build();

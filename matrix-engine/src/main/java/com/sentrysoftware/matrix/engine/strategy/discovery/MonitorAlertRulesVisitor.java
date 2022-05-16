@@ -38,7 +38,6 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-import com.sentrysoftware.matrix.common.meta.monitor.Gpu;
 import org.springframework.util.Assert;
 
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
@@ -49,6 +48,7 @@ import com.sentrysoftware.matrix.common.meta.monitor.CpuCore;
 import com.sentrysoftware.matrix.common.meta.monitor.DiskController;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.Fan;
+import com.sentrysoftware.matrix.common.meta.monitor.Gpu;
 import com.sentrysoftware.matrix.common.meta.monitor.IMetaMonitor;
 import com.sentrysoftware.matrix.common.meta.monitor.Led;
 import com.sentrysoftware.matrix.common.meta.monitor.LogicalDisk;
@@ -74,20 +74,19 @@ import com.sentrysoftware.matrix.model.alert.AlertRule.AlertRuleType;
 import com.sentrysoftware.matrix.model.alert.Severity;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 
+import lombok.NonNull;
+
 public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	private Monitor monitor;
 
-	public MonitorAlertRulesVisitor(Monitor monitor) {
+	public MonitorAlertRulesVisitor(@NonNull Monitor monitor) {
 		this.monitor = monitor;
-		Assert.isTrue(monitor == null || monitor.getMetadata() != null, METADATA_CANNOT_BE_NULL);
+		Assert.isTrue(monitor.getMetadata() != null, METADATA_CANNOT_BE_NULL);
 	}
 
 	@Override
 	public void visit(MetaConnector metaConnector) {
-		if (monitor == null) {
-			return;
-		}
 
 		// Process the static alert rules
 		processStaticAlertRules(monitor, metaConnector);
@@ -95,9 +94,6 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	@Override
 	public void visit(Target target) {
-		if (monitor == null) {
-			return;
-		}
 
 		// Process the static alert rules
 		processStaticAlertRules(monitor, target);
@@ -105,9 +101,6 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	@Override
 	public void visit(Battery battery) {
-		if (monitor == null) {
-			return;
-		}
 
 		// Process the static alert rules
 		processStaticAlertRules(monitor, battery);
@@ -115,9 +108,6 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	@Override
 	public void visit(Blade blade) {
-		if (monitor == null) {
-			return;
-		}
 
 		// Process the static alert rules
 		processStaticAlertRules(monitor, blade);
@@ -125,9 +115,6 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	@Override
 	public void visit(Cpu cpu) {
-		if (monitor == null) {
-			return;
-		}
 
 		// Process the CPU Instance Alert Rules
 		final Set<String> parametersToSkip = processCpuInstanceAlertRules(monitor);
@@ -138,9 +125,6 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	@Override
 	public void visit(CpuCore cpuCore) {
-		if (monitor == null) {
-			return;
-		}
 
 		// Process the static alert rules
 		processStaticAlertRules(monitor, cpuCore);
@@ -148,9 +132,6 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	@Override
 	public void visit(DiskController diskController) {
-		if (monitor == null) {
-			return;
-		}
 
 		// Process the static alert rules
 		processStaticAlertRules(monitor, diskController);
@@ -158,9 +139,6 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	@Override
 	public void visit(Enclosure enclosure) {
-		if (monitor == null) {
-			return;
-		}
 
 		// Last step, for the enclosure we set the static alert rules.
 		// We don't have instance (dynamic) threshold from the connector
@@ -169,9 +147,6 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	@Override
 	public void visit(Fan fan) {
-		if (monitor == null) {
-			return;
-		}
 
 		// Process the Fan Instance Alert Rules
 		final Set<String> parametersToSkip = processFanInstanceAlertRules(monitor);
@@ -182,9 +157,6 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	@Override
 	public void visit(Led led) {
-		if (monitor == null) {
-			return;
-		}
 
 		// Static alert rules processing
 		processStaticAlertRules(monitor, led);
@@ -192,9 +164,6 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	@Override
 	public void visit(LogicalDisk logicalDisk) {
-		if (monitor == null) {
-			return;
-		}
 
 		// Process instance alert rules
 		final Set<String> parametersToSkip = processErrorCountAlertRules(monitor, 
@@ -207,9 +176,6 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	@Override
 	public void visit(Lun lun) {
-		if (monitor == null) {
-			return;
-		}
 
 		// Process instance alert rules
 		final Set<String> parametersToSkip = processLunInstanceAlertRules(monitor);
@@ -220,9 +186,6 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	@Override
 	public void visit(Memory memory) {
-		if (monitor == null) {
-			return;
-		}
 
 		// Process instance alert rules
 		final Set<String> parametersToSkip = processErrorCountAlertRules(monitor,
@@ -235,9 +198,6 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	@Override
 	public void visit(NetworkCard networkCard) {
-		if (monitor == null) {
-			return;
-		}
 
 		// Process instance alert rules
 		final Set<String> parametersToSkip = processNetworkCardInstanceAlertRules(monitor);
@@ -248,9 +208,6 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	@Override
 	public void visit(OtherDevice otherDevice) {
-		if (monitor == null) {
-			return;
-		}
 
 		// Process instance alert rules
 		final Set<String> parametersToSkip = processOtherDecviceInstanceAlertRules(monitor);
@@ -261,9 +218,6 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	@Override
 	public void visit(PhysicalDisk physicalDisk) {
-		if (monitor == null) {
-			return;
-		}
 
 		// Process instance alert rules
 		final Set<String> parametersToSkip = processErrorCountAlertRules(monitor,
@@ -276,9 +230,6 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	@Override
 	public void visit(PowerSupply powerSupply) {
-		if (monitor == null) {
-			return;
-		}
 
 		// Process static alert rules
 		processStaticAlertRules(monitor, powerSupply);
@@ -286,9 +237,6 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	@Override
 	public void visit(TapeDrive tapeDrive) {
-		if (monitor == null) {
-			return;
-		}
 
 		// Process instance alert rules
 		final Set<String> parametersToSkip = processErrorCountAlertRules(monitor,
@@ -301,9 +249,6 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	@Override
 	public void visit(Temperature temperature) {
-		if (monitor == null) {
-			return;
-		}
 
 		// Process instance alert rules
 		final Set<String> parametersToSkip = processTemperatureAlertRules(monitor);
@@ -314,9 +259,6 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	@Override
 	public void visit(Voltage voltage) {
-		if (monitor == null) {
-			return;
-		}
 
 		// Process instance alert rules
 		final Set<String> parametersToSkip = processVoltageAlertRules(monitor);
@@ -327,9 +269,6 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	@Override
 	public void visit(Robotics robotics) {
-		if (monitor == null) {
-			return;
-		}
 
 		// Process instance alert rules
 		final Set<String> parametersToSkip = processErrorCountAlertRules(monitor,
@@ -343,19 +282,12 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 	@Override
 	public void visit(Vm vm) {
 
-		if (monitor == null) {
-			return;
-		}
-
 		// Process the static alert rules
 		processStaticAlertRules(monitor, vm);
 	}
 
 	@Override
 	public void visit(Gpu gpu) {
-		if (monitor == null) {
-			return;
-		}
 
 		// Process the GPU Instance Alert Rules
 		final Set<String> parametersToSkip = processGpuInstanceAlertRules(monitor);
@@ -372,7 +304,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 	 * @param metaMonitor      The meta monitor instance, e.g. {@link Fan} instance, from which we want to extract the static alert rules
 	 * @param parametersToSkip The parameters to skip (priority parameters)
 	 */
-	static void processStaticAlertRules(final Monitor monitor, final IMetaMonitor metaMonitor, final Set<String> parametersToSkip) {
+	void processStaticAlertRules(final Monitor monitor, final IMetaMonitor metaMonitor, final Set<String> parametersToSkip) {
 
 		metaMonitor.getStaticAlertRules().entrySet()
 			.stream()
@@ -390,7 +322,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 	 * @param monitor     The monitor on which we set the parameter alert rules
 	 * @param metaMonitor The meta monitor instance, e.g. {@link Fan} instance, from which we want to extract the static alert rules
 	 */
-	static void processStaticAlertRules(final Monitor monitor, final IMetaMonitor metaMonitor) {
+	void processStaticAlertRules(final Monitor monitor, final IMetaMonitor metaMonitor) {
 		processStaticAlertRules(monitor, metaMonitor, Collections.emptySet());
 	}
 
@@ -400,7 +332,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 	 * @param monitor The monitor we wish to process the alert rules
 	 * @return set of parameters with alert rules otherwise empty list
 	 */
-	static Set<String> processVoltageAlertRules(Monitor monitor) {
+	Set<String> processVoltageAlertRules(Monitor monitor) {
 
 		final Map<String, String> metadata = monitor.getMetadata();
 
@@ -421,7 +353,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 	 * @param alarmThreshold   The alarm threshold
 	 * @return Singleton set of the updated parameter or empty
 	 */
-	static Set<String> updateFanInstanceSpeedAlertRules(final Monitor monitor, final String parameterName, Double warningThreshold, Double alarmThreshold) {
+	Set<String> updateFanInstanceSpeedAlertRules(final Monitor monitor, final String parameterName, Double warningThreshold, Double alarmThreshold) {
 
 		final BiFunction<Monitor, Set<AlertCondition>, AlertDetails> outOfRangeSpeedChecker = 
 				(mo, conditions) -> Fan.checkOutOfRangeSpeedCondition(mo, parameterName, conditions);
@@ -481,7 +413,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 	 * @param upperThreshold   The voltage upper threshold
 	 * @return Singleton list of the updated parameter or empty
 	 */
-	static Set<String> updateVoltageInstanceAlertRules(final Monitor monitor, Double lowerThreshold, Double upperThreshold) {
+	Set<String> updateVoltageInstanceAlertRules(final Monitor monitor, Double lowerThreshold, Double upperThreshold) {
 
 		final AlertRule alertRule1;
 		final AlertRule alertRule2;
@@ -581,7 +513,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 	 * @param monitor The monitor we wish to process the alert rules
 	 * @return list of parameters with alert rules otherwise empty list
 	 */
-	static Set<String> processTemperatureAlertRules(Monitor monitor) {
+	Set<String> processTemperatureAlertRules(Monitor monitor) {
 
 		final Map<String, String> metadata = monitor.getMetadata();
 
@@ -604,7 +536,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 	 * @param monitor The monitor we wish to process the alert rules
 	 * @return list of parameters with alert rules otherwise empty list
 	 */
-	static Set<String> processErrorCountAlertRules(Monitor monitor,
+	Set<String> processErrorCountAlertRules(Monitor monitor,
 			final BiFunction<Monitor, Set<AlertCondition>, AlertDetails> warnConditionsChecker,
 			final BiFunction<Monitor, Set<AlertCondition>, AlertDetails> alarmConditionsChecker) {
 
@@ -629,7 +561,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 	 * @param monitor The CPU monitor from which we extract the warning and alarm threshold
 	 * @return list of parameters with alert rules otherwise empty list
 	 */
-	static Set<String> processCpuInstanceAlertRules(Monitor monitor) {
+	Set<String> processCpuInstanceAlertRules(Monitor monitor) {
 
 		final Map<String, String> metadata = monitor.getMetadata();
 
@@ -650,7 +582,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 	 * @param monitor The LUN monitor from which we extract the warning or the alarm threshold
 	 * @return set of parameters with alert rules otherwise empty list
 	 */
-	static Set<String> processLunInstanceAlertRules(Monitor monitor) {
+	Set<String> processLunInstanceAlertRules(Monitor monitor) {
 
 		final Map<String, String> metadata = monitor.getMetadata();
 
@@ -663,6 +595,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 			final AlertRule warnAlertRule = new AlertRule(Lun::checkLowerAvailablePathCountCondition, warningConditions, Severity.WARN, AlertRuleType.INSTANCE);
 
+			// Add to the monitor, it will be inserted only if updated.
 			monitor.addAlertRules(AVAILABLE_PATH_COUNT_PARAMETER, new ArrayList<>(Collections.singletonList(warnAlertRule)));
 
 			return Collections.singleton(AVAILABLE_PATH_COUNT_PARAMETER);
@@ -677,7 +610,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 	 * @param monitor The network card monitor from which we extract the warning and the alarm threshold
 	 * @return list of parameters with alert rules otherwise empty list
 	 */
-	static Set<String> processNetworkCardInstanceAlertRules(Monitor monitor) {
+	Set<String> processNetworkCardInstanceAlertRules(Monitor monitor) {
 
 		final Map<String, String> metadata = monitor.getMetadata();
 
@@ -703,7 +636,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 	 * @param monitor The OtherDevice monitor from which we extract the warning and the alarm threshold
 	 * @return set of parameters with alert rules otherwise empty list
 	 */
-	static Set<String> processOtherDecviceInstanceAlertRules(Monitor monitor) {
+	Set<String> processOtherDecviceInstanceAlertRules(Monitor monitor) {
 
 		final Map<String, String> metadata = monitor.getMetadata();
 
@@ -735,7 +668,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 	 * @param monitor The GPU monitor from which we extract the warning and alarm threshold
 	 * @return list of parameters with alert rules otherwise empty list
 	 */
-	static Set<String> processGpuInstanceAlertRules(Monitor monitor) {
+	Set<String> processGpuInstanceAlertRules(Monitor monitor) {
 
 		final Map<String, String> metadata = monitor.getMetadata();
 
@@ -759,7 +692,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 	 * @param alarmThreshold   The alarm threshold
 	 * @return Singleton list of the updated parameter or empty
 	 */
-	static Set<String> updateWarningToAlarmEnhancedAlertRules(final Monitor monitor, final String parameterName,
+	Set<String> updateWarningToAlarmEnhancedAlertRules(final Monitor monitor, final String parameterName,
 			Double warningThreshold, Double alarmThreshold, 
 			final BiFunction<Monitor, Set<AlertCondition>, AlertDetails> warnConditionsChecker,
 			final BiFunction<Monitor, Set<AlertCondition>, AlertDetails> alarmConditionsChecker) {
@@ -827,7 +760,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 	 * @param alarmConditionsChecker The alarm conditions checker function
 	 * @return Singleton set of the updated parameter
 	 */
-	static Set<String> updateWarningToAlarmAlertRules(final Monitor monitor, final String parameterName,
+	Set<String> updateWarningToAlarmAlertRules(final Monitor monitor, final String parameterName,
 			Double warningThreshold, Double alarmThreshold,
 			final BiFunction<Monitor, Set<AlertCondition>, AlertDetails> warnConditionsChecker,
 			final BiFunction<Monitor, Set<AlertCondition>, AlertDetails> alarmConditionsChecker) {
@@ -851,6 +784,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 			final AlertRule warnAlertRule = new AlertRule(warnConditionsChecker, warningConditions, Severity.WARN, AlertRuleType.INSTANCE);
 			final AlertRule alarmAlertRule = new AlertRule(alarmConditionsChecker, alarmConditions, Severity.ALARM, AlertRuleType.INSTANCE);
 
+			// Add them to the monitor, they will be inserted only if they are updated.
 			monitor.addAlertRules(parameterName, new ArrayList<>(Arrays.asList(warnAlertRule, alarmAlertRule)));
 
 			return Collections.singleton(parameterName);
@@ -861,6 +795,8 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 					.gte(warningThreshold)
 					.build();
 			final AlertRule warnAlertRule = new AlertRule(warnConditionsChecker, warningConditions, Severity.WARN, AlertRuleType.INSTANCE);
+
+			// Add to the monitor, it will be inserted only if updated.
 			monitor.addAlertRules(parameterName, new ArrayList<>(Collections.singletonList(warnAlertRule)));
 
 			return Collections.singleton(parameterName);
@@ -871,6 +807,8 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 					.gte(alarmThreshold)
 					.build();
 			final AlertRule alarmAlertRule = new AlertRule(alarmConditionsChecker, alarmConditions, Severity.ALARM, AlertRuleType.INSTANCE);
+
+			// Add to the monitor, it will be inserted only if updated.
 			monitor.addAlertRules(parameterName, new ArrayList<>(Collections.singletonList(alarmAlertRule)));
 
 			return Collections.singleton(parameterName);
@@ -885,7 +823,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 	 * @param monitor The monitor we wish to process
 	 * @return list of parameters with alert rules otherwise empty list
 	 */
-	static Set<String> processFanInstanceAlertRules(final Monitor monitor) {
+	Set<String> processFanInstanceAlertRules(final Monitor monitor) {
 
 		final Map<String, String> metadata = monitor.getMetadata();
 

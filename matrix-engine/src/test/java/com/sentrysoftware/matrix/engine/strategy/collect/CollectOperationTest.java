@@ -11,24 +11,31 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_THE
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_COUNT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.INTRUSION_STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_SPEED_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAXIMUM_SPEED;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SHARE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_STATE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_NUMBER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_INFORMATION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_REPORT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TOTAL_BANDWIDTH_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_STATE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SHARE_PARAMETER;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.CPU;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.ENCLOSURE;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.FAN;
@@ -53,13 +60,16 @@ import static org.mockito.Mockito.verify;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -95,6 +105,7 @@ import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
+import com.sentrysoftware.matrix.model.alert.AlertRule;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
@@ -153,6 +164,7 @@ class CollectOperationTest {
 
 	private static EngineConfiguration engineConfiguration;
 	private static EngineConfiguration engineConfigurationSequential;
+	private static EngineConfiguration engineConfigWithAlertConfig;
 
 	private static Connector connector;
 	private static SNMPGetNext criterion;
@@ -192,6 +204,18 @@ class CollectOperationTest {
 						.build())
 				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol))
 				.sequential(true)
+				.build();
+
+		engineConfigWithAlertConfig = EngineConfiguration
+				.builder()
+				.target(HardwareTarget
+						.builder()
+						.hostname(TEST_HOST_01)
+						.id(TEST_HOST_01)
+						.type(TargetType.LINUX)
+						.build())
+				.protocolConfigurations(Map.of(SNMPProtocol.class, protocol))
+				.alertTrigger(alertInfo -> {})
 				.build();
 
 		criterion = SNMPGetNext.builder().oid(CRITERION_OID).build();
@@ -2272,5 +2296,97 @@ class CollectOperationTest {
 
 		assertEquals(expectedConnector, actualConnector);
 
+	}
+
+	@Test
+	void testPrepareAlertRules() {
+
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+
+		final Monitor target = Monitor
+				.builder()
+				.id(TEST_HOST_01)
+				.parentId(null)
+				.targetId(TEST_HOST_01)
+				.name(TEST_HOST_01)
+				.monitorType(MonitorType.TARGET)
+				.metadata(Map.of(FQDN, TEST_HOST_01))
+				.build();
+
+		hostMonitoring.addMonitor(target);
+
+		final Map<String, String> enclosureMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		enclosureMetadata.put(ID_COUNT, "1");
+		enclosureMetadata.put(VENDOR, "Pure");
+		enclosureMetadata.put(MODEL, "FA-X20R2");
+		enclosureMetadata.put(SERIAL_NUMBER, "FA-123456789");
+		enclosureMetadata.put(TARGET_FQDN, TEST_HOST_01);
+
+		final Monitor enclosure = Monitor.builder()
+				.id("test-host-01@connector1_enclosure_1")
+				.name("PureStorage FA-X20R2")
+				.parentId(TEST_HOST_01)
+				.targetId(TEST_HOST_01)
+				.metadata(enclosureMetadata)
+				.monitorType(MonitorType.ENCLOSURE)
+				.extendedType(COMPUTER)
+				.metadata(enclosureMetadata)
+				.build();
+
+		hostMonitoring.addMonitor(enclosure);
+
+		final Map<String, String> diskMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		diskMetadata.put(VENDOR, "Pure");
+		diskMetadata.put(MODEL, "SAS Flash Module");
+		diskMetadata.put(SERIAL_NUMBER, "FM-123456789");
+		diskMetadata.put(SIZE, "1000000000000");
+		diskMetadata.put(TARGET_FQDN, TEST_HOST_01);
+		diskMetadata.put(CONNECTOR, "Connector1");
+
+		final Monitor physicalDisk = Monitor.builder()
+				.id("test-host-01@connector1_physical_disk_1")
+				.name("SAS Flash Module - CH0.BAY9")
+				.parentId(enclosure.getId())
+				.targetId(TEST_HOST_01)
+				.metadata(diskMetadata)
+				.monitorType(MonitorType.PHYSICAL_DISK)
+				.build();
+
+		hostMonitoring.addMonitor(physicalDisk);
+
+		doReturn(engineConfigWithAlertConfig).when(strategyConfig).getEngineConfiguration();
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+
+		collectOperation.prepareAlertRules();
+
+		final List<AlertRule> allAlertRules = hostMonitoring
+			.getMonitors()
+			.values()
+			.stream()
+			.map(Map::values)
+			.flatMap(Collection::stream)
+			.map(monitor -> monitor.getAlertRules().values())
+			.flatMap(Collection::stream)
+			.flatMap(Collection::stream)
+			.collect(Collectors.toList());
+
+		final Set<MonitorType> expectedMonitorTypes = Set.of(enclosure.getMonitorType(), physicalDisk.getMonitorType());
+
+		assertFalse(allAlertRules.isEmpty(), "Alert rules shouldn't be empty.");
+
+		final Set<MonitorType> actualMonitorTypes = new HashSet<>();
+
+		for(final AlertRule alertRule : allAlertRules) {
+			assertNotNull(alertRule.getAlertInfo());
+			assertNotNull(alertRule.getAlertInfo().getAlertRule());
+			assertNotNull(alertRule.getAlertInfo().getHardwareTarget());
+			assertNotNull(alertRule.getAlertInfo().getHostMonitoring());
+			assertNotNull(alertRule.getAlertInfo().getMonitor());
+			assertNotNull(alertRule.getAlertInfo().getParameterName());
+			assertNotNull(alertRule.getTrigger());
+			actualMonitorTypes.add(alertRule.getAlertInfo().getMonitor().getMonitorType());
+		}
+
+		assertEquals(expectedMonitorTypes, actualMonitorTypes);
 	}
 }

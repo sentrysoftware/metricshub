@@ -204,7 +204,7 @@ public class MetricsMapping {
 			.build());
 		map.put(IMetaMonitor.ENERGY.getName(), MetricInfo
 			.builder()
-			.name("hw.target.energy_joules")
+			.name("hw.target.energy_joules_total")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
 			.description("Amount of joules dissipated by all the discovered components on the monitored target")
@@ -716,13 +716,13 @@ public class MetricsMapping {
 			.build());
 		map.put(IMetaMonitor.ERROR_COUNT.getName(), MetricInfo
 			.builder()
-			.name("hw.tape_drive.errors")
+			.name("hw.tape_drive.errors_total")
 			.type(MetricType.COUNTER)
 			.description("Number of errors encountered by the tape drive since the last reinitialization")
 			.build());
 		map.put(TapeDrive.MOUNT_COUNT.getName(), MetricInfo
 			.builder()
-			.name("hw.tape_drive.mounts")
+			.name("hw.tape_drive.mounts_total")
 			.type(MetricType.COUNTER)
 			.description("Number of mount operations that happened during the last collect interval")
 			.build());
@@ -734,14 +734,14 @@ public class MetricsMapping {
 			.build());
 		map.put(TapeDrive.UNMOUNT_COUNT.getName(), MetricInfo
 			.builder()
-			.name("hw.tape_drive.unmounts")
+			.name("hw.tape_drive.unmounts_total")
 			.unit("unmounts")
 			.type(MetricType.COUNTER)
 			.description("Number of unmount operations that happened during the last collect interval")
 			.build());
 		map.put(IMetaMonitor.ENERGY.getName(), MetricInfo
 			.builder()
-			.name("hw.tape_drive.energy_joules")
+			.name("hw.tape_drive.energy_joules_total")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
 			.description("Tape drive total dissipated energy")
@@ -779,20 +779,20 @@ public class MetricsMapping {
 			.build());
 		map.put(IMetaMonitor.ERROR_COUNT.getName(), MetricInfo
 			.builder()
-			.name("hw.robotics.errors")
+			.name("hw.robotics.errors_total")
 			.type(MetricType.COUNTER)
 			.description("Number of errors encountered by the robotic device since the last reinitialization")
 			.build());
 		map.put(Robotics.MOVE_COUNT.getName(), MetricInfo
 			.builder()
-			.name("hw.robotics.moves")
+			.name("hw.robotics.moves_total")
 			.unit("moves")
 			.type(MetricType.COUNTER)
 			.description("Number of moves operations that happened during the last collect interval")
 			.build());
 		map.put(IMetaMonitor.ENERGY.getName(), MetricInfo
 			.builder()
-			.name("hw.robotics.energy_joules")
+			.name("hw.robotics.energy_joules_total")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
 			.description("Robotics total dissipated energy")
@@ -866,7 +866,7 @@ public class MetricsMapping {
 			.build());
 		map.put(IMetaMonitor.ERROR_COUNT.getName(), MetricInfo
 			.builder()
-			.name("hw.physical_disk.errors")
+			.name("hw.physical_disk.errors_total")
 			.type(MetricType.COUNTER)
 			.description("Number of errors encountered by the physical disk since the last reinitialization")
 			.build());
@@ -878,7 +878,7 @@ public class MetricsMapping {
 			.build());
 		map.put(IMetaMonitor.ENERGY.getName(), MetricInfo
 			.builder()
-			.name("hw.physical_disk.energy_joules")
+			.name("hw.physical_disk.energy_joules_total")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
 			.description("Physical disk total dissipated energy")
@@ -916,7 +916,7 @@ public class MetricsMapping {
 			.build());
 		map.put(OtherDevice.USAGE_COUNT.getName(), MetricInfo
 			.builder()
-			.name("hw.other_device.usage_times")
+			.name("hw.other_device.usage_times_total")
 			.type(MetricType.COUNTER)
 			.description("Number of times the device has been used")
 			.build());
@@ -958,7 +958,7 @@ public class MetricsMapping {
 			.description("Whether the port is configured to operate in half-duplex or full-duplex mode")
 			.build());
 		map.put(IMetaMonitor.ERROR_COUNT.getName(), MetricInfo.builder()
-			.name("hw.network_card.errors")
+			.name("hw.network_card.errors_total")
 			.type(MetricType.COUNTER)
 			.description("Number of sent and received packets that were in error")
 			.build());
@@ -974,36 +974,36 @@ public class MetricsMapping {
 			.description("Whether the network card is plugged-in to the network or not")
 			.build());
 		map.put(NetworkCard.RECEIVED_BYTES.getName(), MetricInfo.builder()
-			.name("hw.network_card.received_bytes")
+			.name("hw.network_card.received_bytes_total")
 			.unit(BYTES)
 			.type(MetricType.COUNTER)
 			.description("Network card total received bytes")
 			.build());
 		map.put(NetworkCard.RECEIVED_PACKETS.getName(), MetricInfo.builder()
-			.name("hw.network_card.received_packets")
+			.name("hw.network_card.received_packets_total")
 			.unit(PACKETS)
 			.type(MetricType.COUNTER)
 			.description("Network card total received packets")
 			.build());
 		map.put(NetworkCard.TRANSMITTED_BYTES.getName(), MetricInfo.builder()
-			.name("hw.network_card.transmitted_bytes")
+			.name("hw.network_card.transmitted_bytes_total")
 			.unit(BYTES)
 			.type(MetricType.COUNTER)
 			.description("Network card total transmitted bytes")
 			.build());
 		map.put(NetworkCard.TRANSMITTED_PACKETS.getName(), MetricInfo.builder()
-			.name("hw.network_card.transmitted_packets")
+			.name("hw.network_card.transmitted_packets_total")
 			.unit(PACKETS)
 			.type(MetricType.COUNTER)
 			.description("Network card total transmitted packets")
 			.build());
 		map.put(NetworkCard.ZERO_BUFFER_CREDIT_COUNT.getName(), MetricInfo.builder()
-			.name("hw.network_card.zero_buffer_credits")
+			.name("hw.network_card.zero_buffer_credits_total")
 			.type(MetricType.COUNTER)
 			.description("Total zero buffer credits occurred")
 			.build());
 		map.put(IMetaMonitor.ENERGY.getName(), MetricInfo.builder()
-			.name("hw.network_card.energy_joules")
+			.name("hw.network_card.energy_joules_total")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
 			.description("Network card total dissipated energy")
@@ -1041,7 +1041,7 @@ public class MetricsMapping {
 			.description("Availability of the memory module")
 			.build());
 		map.put(IMetaMonitor.ERROR_COUNT.getName(), MetricInfo.builder()
-			.name("hw.memory.errors")
+			.name("hw.memory.errors_total")
 			.type(MetricType.COUNTER)
 			.description("Number of errors encountered by the memory module since the last reinitialization")
 			.build());
@@ -1056,7 +1056,7 @@ public class MetricsMapping {
 			.description("Predicted failure set by analyzing the trend of the number of detected/corrected errors with the ECC technology")
 			.build());
 		map.put(IMetaMonitor.ENERGY.getName(), MetricInfo.builder()
-			.name("hw.memory.energy_joules")
+			.name("hw.memory.energy_joules_total")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
 			.description("Memory module total dissipated energy")
@@ -1114,7 +1114,7 @@ public class MetricsMapping {
 			.description("Logical disk status")
 			.build());
 		map.put(IMetaMonitor.ERROR_COUNT.getName(), MetricInfo.builder()
-			.name("hw.logical_disk.errors")
+			.name("hw.logical_disk.errors_total")
 			.type(MetricType.COUNTER)
 			.description("Number of errors encountered by the logical disk since the last reinitialization")
 			.build());
@@ -1195,7 +1195,7 @@ public class MetricsMapping {
 			.description("Fan speed ratio")
 			.build());
 		map.put(IMetaMonitor.ENERGY.getName(), MetricInfo.builder()
-			.name("hw.fan.energy_joules")
+			.name("hw.fan.energy_joules_total")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
 			.description("Fan total dissipated energy")
@@ -1234,7 +1234,7 @@ public class MetricsMapping {
 			.description("Enclosure intrusion status. If the enclosure is open or not properly closed, it is set to 1")
 			.build());
 		map.put(IMetaMonitor.ENERGY.getName(), MetricInfo.builder()
-			.name("hw.enclosure.energy_joules")
+			.name("hw.enclosure.energy_joules_total")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
 			.description("Enclosure total dissipated energy")
@@ -1278,7 +1278,7 @@ public class MetricsMapping {
 			.description("Disk controller status")
 			.build());
 		map.put(IMetaMonitor.ENERGY.getName(), MetricInfo.builder()
-			.name("hw.disk_controller.energy_joules")
+			.name("hw.disk_controller.energy_joules_total")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
 			.description("Disk controller total dissipated energy")
@@ -1345,7 +1345,7 @@ public class MetricsMapping {
 			.description("Whether the CPU is found or not")
 			.build());
 		map.put(Cpu.CORRECTED_ERROR_COUNT.getName(), MetricInfo.builder()
-			.name("hw.cpu.corrected_errors")
+			.name("hw.cpu.corrected_errors_total")
 			.type(MetricType.COUNTER)
 			.description("Number of detected and corrected errors")
 			.build());
@@ -1361,7 +1361,7 @@ public class MetricsMapping {
 			.description("Predicted failure analysis performed by the CPU itself")
 			.build());
 		map.put(IMetaMonitor.ENERGY.getName(), MetricInfo.builder()
-			.name("hw.cpu.energy_joules")
+			.name("hw.cpu.energy_joules_total")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
 			.description("CPU total dissipated energy")
@@ -1477,7 +1477,7 @@ public class MetricsMapping {
 			.description("Whether the virtual machine is currently on, off or standby")
 			.build());
 		map.put(IMetaMonitor.ENERGY.getName(), MetricInfo.builder()
-			.name("hw.vm.energy_joules")
+			.name("hw.vm.energy_joules_total")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
 			.description("Virtual machine total dissipated energy")
@@ -1512,7 +1512,7 @@ public class MetricsMapping {
 			.description("Whether the GPU is found or not")
 			.build());
 		map.put(Gpu.CORRECTED_ERROR_COUNT.getName(), MetricInfo.builder()
-			.name("hw.gpu.corrected_errors")
+			.name("hw.gpu.corrected_errors_total")
 			.type(MetricType.COUNTER)
 			.description("Number of detected and corrected errors")
 			.build());
@@ -1542,19 +1542,19 @@ public class MetricsMapping {
 			.description("GPU memory utilisation ratio")
 			.build());
 		map.put(Gpu.RECEIVED_BYTES.getName(), MetricInfo.builder()
-			.name("hw.gpu.received_bytes")
+			.name("hw.gpu.received_bytes_total")
 			.unit(BYTES)
 			.type(MetricType.COUNTER)
 			.description("GPU received bytes")
 			.build());
 		map.put(Gpu.TRANSMITTED_BYTES.getName(), MetricInfo.builder()
-			.name("hw.gpu.transmitted_bytes")
+			.name("hw.gpu.transmitted_bytes_total")
 			.unit(BYTES)
 			.type(MetricType.COUNTER)
 			.description("GPU transmitted bytes")
 			.build());
 		map.put(IMetaMonitor.ENERGY.getName(), MetricInfo.builder()
-			.name("hw.gpu.energy_joules")
+			.name("hw.gpu.energy_joules_total")
 			.unit(JOULES)
 			.type(MetricType.COUNTER)
 			.description("GPU total dissipated energy")
@@ -1566,7 +1566,7 @@ public class MetricsMapping {
 			.description("GPU power consumption")
 			.build());
 		map.put(Gpu.ERROR_COUNT.getName(), MetricInfo.builder()
-				.name("hw.gpu.errors")
+				.name("hw.gpu.errors_total")
 				.type(MetricType.COUNTER)
 				.description("Number of errors encountered by the GPU since the last reinitialization")
 				.build());

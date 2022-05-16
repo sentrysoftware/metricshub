@@ -30,6 +30,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BYTES_R
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DUPLEX_MODE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DUPLEX_MODE_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER;
@@ -63,6 +64,8 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_COUNT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_PERCENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.NumberHelper.formatNumber;
+import static com.sentrysoftware.matrix.common.helpers.StringHelper.getValue;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.BANDWIDTH_UTILIZATION_WARN_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.ERROR_PERCENT_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.ERROR_PERCENT_WARN_CONDITION;
@@ -289,11 +292,12 @@ public class NetworkCard implements IMetaMonitor {
 			final Double speed = speedParameter != null ? speedParameter.getValue() : null;
 
 			return AlertDetails.builder()
-					.problem(String.format("The network adapter is using (%f %s) of its bandwidth.",
-							assertedBandwidthUtilization.getParameter().getValue(), PERCENT_PARAMETER_UNIT))
+					.problem(String.format("The network adapter is using (%s %s) of its bandwidth.",
+							getValue(() -> formatNumber(assertedBandwidthUtilization.getParameter().getValue()), EMPTY),
+							PERCENT_PARAMETER_UNIT))
 					.consequence("High network usage can increase response times at an unacceptable level and sometimes lead to file transfer failures.")
 					.recommendedAction("Check on the operating system what is generating such a high network traffic. If network traffic level is normal (in bytes/sec), check the link speed and duplex mode of the card"
-							+ (speed != null && duplexMode != null ? String.format(" currently reported as running at (%f) in (%s) duplex mode", speed, duplexMode) : ""))
+							+ (speed != null && duplexMode != null ? String.format(" currently reported as running at (%s) in (%s) duplex mode", formatNumber(speed), duplexMode) : ""))
 					.build();
 		}
 
@@ -355,8 +359,9 @@ public class NetworkCard implements IMetaMonitor {
 		if (assertedErrorPercent.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem(String.format("This network card is encountering or generating a high number of errors (%f %s).",
-							assertedErrorPercent.getParameter().getValue(), PERCENT_PARAMETER_UNIT))
+					.problem(String.format("This network card is encountering or generating a high number of errors (%s %s).",
+							getValue(() -> formatNumber(assertedErrorPercent.getParameter().getValue()), EMPTY),
+							PERCENT_PARAMETER_UNIT))
 					.consequence("This strongly impacts the network performance.")
 					.recommendedAction("Check the network cable, the driver settings, the speed and duplex mode of the link. If everything seems normal, you may have to replace this network adapter.")
 					.build();
@@ -377,8 +382,9 @@ public class NetworkCard implements IMetaMonitor {
 		if (assertedErrorPercent.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem(String.format("This network card is encountering or generating a critically high number of errors (%f %s).",
-							assertedErrorPercent.getParameter().getValue(), PERCENT_PARAMETER_UNIT))
+					.problem(String.format("This network card is encountering or generating a critically high number of errors (%s %s).",
+							getValue(() -> formatNumber(assertedErrorPercent.getParameter().getValue()), EMPTY),
+							PERCENT_PARAMETER_UNIT))
 					.consequence("This strongly impacts the network performance.")
 					.recommendedAction("Check the network cable, the driver settings, the speed and duplex mode of the link. If everything seems normal, you may have to replace this network adapter.")
 					.build();
@@ -462,8 +468,9 @@ public class NetworkCard implements IMetaMonitor {
 		if (assertedLinkSpeed.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem(String.format("The network link is operating at an improper speed (%f %s).",
-							assertedLinkSpeed.getParameter().getValue(), SPEED_MBITS_PARAMETER_UNIT))
+					.problem(String.format("The network link is operating at an improper speed (%s %s).",
+							getValue(() -> formatNumber(assertedLinkSpeed.getParameter().getValue()), EMPTY),
+							SPEED_MBITS_PARAMETER_UNIT))
 					.consequence("If the network link has negotiated too low, it may not be able to carry all of the traffic, leading to delayed response times for the applications relying on it. On the opposite, if negotiated too high, it can (rarely though) generate a unacceptable amount of errors, leading to response time delays and even data corruption.")
 					.recommendedAction("A badly negotiated link speed may be caused by a problem with the cable (defective, poor quality). It can also be caused by bugs in the firmware of the network cards themselves. If configured to automatically negotiate the link speed (as it is often the case), try configuring the adapter with a fixed speed.")
 					.build();

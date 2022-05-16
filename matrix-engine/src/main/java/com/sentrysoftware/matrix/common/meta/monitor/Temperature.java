@@ -1,12 +1,15 @@
 package com.sentrysoftware.matrix.common.meta.monitor;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_TYPE;
+import static com.sentrysoftware.matrix.common.helpers.NumberHelper.formatNumber;
+import static com.sentrysoftware.matrix.common.helpers.StringHelper.getValue;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_WARN_CONDITION;
 
@@ -127,7 +130,8 @@ public class Temperature implements IMetaMonitor {
 		if (assertedTemperature.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem(String.format("Although not yet critical, the temperature is abnormally high (%f °C).", assertedTemperature.getParameter().getValue()))
+					.problem(String.format("Although not yet critical, the temperature is abnormally high (%s °C).",
+							getValue(() -> formatNumber(assertedTemperature.getParameter().getValue()), EMPTY)))
 					.consequence(HIGH_TEMPERATURE_CONSEQUENCE)
 					.recommendedAction(HIGH_TEMPERATURE_RECOMMENDED_ACTION)
 					.build();
@@ -148,7 +152,8 @@ public class Temperature implements IMetaMonitor {
 		if (assertedTemperature.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem(String.format("The temperature is critically high (%f °C).", assertedTemperature.getParameter().getValue()))
+					.problem(String.format("The temperature is critically high (%s °C).",
+							getValue(() -> formatNumber(assertedTemperature.getParameter().getValue()), EMPTY)))
 					.consequence(HIGH_TEMPERATURE_CONSEQUENCE)
 					.recommendedAction(HIGH_TEMPERATURE_RECOMMENDED_ACTION)
 					.build();

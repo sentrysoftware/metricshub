@@ -23,6 +23,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIF
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CHARGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CHEMISTRY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
@@ -31,6 +32,8 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TIME_LE
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TIME_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TYPE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
+import static com.sentrysoftware.matrix.common.helpers.NumberHelper.formatNumber;
+import static com.sentrysoftware.matrix.common.helpers.StringHelper.getValue;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.CHARGE_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.CHARGE_WARN_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.PRESENT_ALARM_CONDITION;
@@ -167,8 +170,9 @@ public class Battery implements IMetaMonitor {
 		if (assertedCharge.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem(String.format("Although not yet critical, the battery charge is abnormally low (%f %s).",
-							assertedCharge.getParameter().getValue(), PERCENT_PARAMETER_UNIT))
+					.problem(String.format("Although not yet critical, the battery charge is abnormally low (%s %s).",
+							getValue(() -> formatNumber(assertedCharge.getParameter().getValue()), EMPTY),
+							PERCENT_PARAMETER_UNIT))
 					.consequence("A low charge battery may lead to data loss in case of a power outage.")
 					.recommendedAction(
 							"Check why the battery is not fully charged (it may be due to a power outage or an unplugged power cable) and fully recharge the battery when possible.")
@@ -190,8 +194,9 @@ public class Battery implements IMetaMonitor {
 		if (assertedCharge.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem(String.format("The battery charge is very low and will soon run out of charge (%f %s).",
-							assertedCharge.getParameter().getValue(), PERCENT_PARAMETER_UNIT))
+					.problem(String.format("The battery charge is very low and will soon run out of charge (%s %s).",
+							getValue(() -> formatNumber(assertedCharge.getParameter().getValue()), EMPTY),
+							PERCENT_PARAMETER_UNIT))
 					.consequence("A low charge battery may lead to data loss in case of a power outage.")
 					.recommendedAction(
 							"Check why the battery is not fully charged (it may be due to a power outage or an unplugged power cable) and fully recharge the battery when possible.")

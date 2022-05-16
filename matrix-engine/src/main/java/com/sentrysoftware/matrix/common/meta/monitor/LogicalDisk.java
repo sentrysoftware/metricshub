@@ -21,6 +21,7 @@ import com.sentrysoftware.matrix.model.alert.Severity;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LAST_ERROR_PARAMETER;
@@ -30,6 +31,8 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPACE_GB_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UNALLOCATED_SPACE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.NumberHelper.formatNumber;
+import static com.sentrysoftware.matrix.common.helpers.StringHelper.getValue;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.ERROR_COUNT_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_WARN_CONDITION;
@@ -103,7 +106,8 @@ public class LogicalDisk implements IMetaMonitor {
 		if (correctedErrorCountAsserted.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem(String.format("The logical disk encountered errors (%f).", correctedErrorCountAsserted.getParameter().getValue()))
+					.problem(String.format("The logical disk encountered errors (%s).",
+							getValue(() -> formatNumber(correctedErrorCountAsserted.getParameter().getValue()), EMPTY)))
 					.consequence("The integrity of the data stored on this logical disk may be in jeopardy.")
 					.recommendedAction("Check whether a physical disk is in degraded state or predicts failure, and if so, replace it.")
 					.build();
@@ -124,7 +128,8 @@ public class LogicalDisk implements IMetaMonitor {
 		if (correctedErrorCountAsserted.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem(String.format("The logical disk encountered too many errors (%f).", correctedErrorCountAsserted.getParameter().getValue()))
+					.problem(String.format("The logical disk encountered too many errors (%s).",
+							getValue(() -> formatNumber(correctedErrorCountAsserted.getParameter().getValue()), EMPTY)))
 					.consequence("The integrity of the data stored on this logical disk is affected (possible data corruption).")
 					.recommendedAction("Check whether a physical disk is in degraded state or predicts failure, and if so, replace it.")
 					.build();
