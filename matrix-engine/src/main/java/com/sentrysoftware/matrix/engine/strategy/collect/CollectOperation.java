@@ -110,8 +110,31 @@ public class CollectOperation extends AbstractStrategy {
 
 		final Map<String, Monitor> connectorMonitors = hostMonitoring.selectFromType(MonitorType.CONNECTOR);
 
+		final Map<String, Monitor> targetMonitors = hostMonitoring.selectFromType(MonitorType.TARGET);
+
+		if (targetMonitors != null && !targetMonitors.isEmpty()) {
+
+			final Optional<Monitor> targetMonitor = targetMonitors.values().stream().findAny();
+
+			if (targetMonitor.isPresent()) {
+
+				final MonitorCollectVisitor visitor = new MonitorCollectVisitor(
+					MonitorCollectInfo.builder()
+						.engineConfiguration(strategyConfig.getEngineConfiguration())
+						.collectTime(strategyTime)
+						.hostMonitoring(hostMonitoring)
+						.monitor(targetMonitor.get())
+						.hostname(hostname)
+						.matsyaClientsExecutor(matsyaClientsExecutor)
+						.build());
+				targetMonitor.get().getMonitorType().getMetaMonitor().accept(visitor);	
+			}
+		}
+
 		if (connectorMonitors == null || connectorMonitors.isEmpty()) {
-			log.error("Hostname {} - Collect - No connector detected in the detection operation. Stop collect operation", hostname);
+			log.error(
+					"Hostname {} - Collect - No connector detected in the detection operation. Stop collect operation",
+					hostname);
 			return false;
 		}
 

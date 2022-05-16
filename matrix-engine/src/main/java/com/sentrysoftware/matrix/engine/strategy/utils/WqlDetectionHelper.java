@@ -403,7 +403,7 @@ public class WqlDetectionHelper {
 	 * @param t Exception to verify
 	 * @return whether specified exception is acceptable while performing namespace detection
 	 */
-	boolean isAcceptableException(Throwable t) {
+	public static boolean isAcceptableException(Throwable t) {
 
 		if (t == null) {
 			return false;

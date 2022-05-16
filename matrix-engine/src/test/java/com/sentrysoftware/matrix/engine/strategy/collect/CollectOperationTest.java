@@ -2370,7 +2370,7 @@ class CollectOperationTest {
 			.flatMap(Collection::stream)
 			.collect(Collectors.toList());
 
-		final Set<MonitorType> expectedMonitorTypes = Set.of(enclosure.getMonitorType(), physicalDisk.getMonitorType());
+		final Set<MonitorType> expectedMonitorTypes = Set.of(enclosure.getMonitorType(), target.getMonitorType(), physicalDisk.getMonitorType());
 
 		assertFalse(allAlertRules.isEmpty(), "Alert rules shouldn't be empty.");
 
