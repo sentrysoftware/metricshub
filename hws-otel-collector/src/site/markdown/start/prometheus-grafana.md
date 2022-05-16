@@ -1,82 +1,94 @@
 keywords: prometheus, grafana, configuration, dashboards
 description: How to integrate Hardware Sentry with Prometheus and Grafana.
 
-# Quick start to Prometheus integration
+# Quick start to Prometheus and Grafana integration
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
-This Quick Start guides you through the process of installing and configuring **${project.name}** settings to make it interact with Prometheus and Grafana for visualizing health and sustainability metrics in easy-to-read dashboards.
-
-This guide is intended for people who need to extend the observability capabilities of the Prometheus toolkit to maintain their data center healthy and energy efficient.
-
-You will learn about getting started with Hardware Sentry OpenTelemetry Collector and how to add servers, network switches or storage systems to your monitoring environment and what it looks like in the Hardware Sentry dashboard.
-
-## Principle
-
-**${project.name}** integrates seamlessly with Prometheus (and Grafana) to expose collected health, performance, and sustainability metrics to Prometheus Server.
-
-### Hardware Monitoring
-
-Hardware Sentry detects and even predict failures in processors, memory modules, disks, network cards, controllers, power supplies, fans, temperature sensors, etc.
-
-### Sustainability KPIs Monitoring
-
-In addition to physical health monitoring, Hardware Sentry also reports the energy usage of each monitored system. Combined with metrics representing the electricity cost and the carbon density, the provided dashboards report the electricity usage of your infrastructure in kWh and its carbon footprint in tons of CO₂.
-
-100% Software, Hardware Sentry does not require smart PDUs, even for systems that are not equipped with an internal power sensor.
+**${project.name}** leverages several protocols (`SNMP`, `IPMI`, `HTTP`, `WBEM`, `WMI`, `SSH`, etc.) to gather hardware information and push the related metrics into Prometheus. The information can be viewed in Grafana using the prebuilt **Hardware Observability and Sustainability** dashboards.
 
 ![Archirecture diagram](../images/hws_quick_start_architecture_diagram.png)
 
+In this quick start guide, you will learn how to monitor several hosts and bring hardware observability and sustainability metrics in Prometheus and Grafana in a couple of minutes.
+
+![Quick start to Prometheus integration](../images/hws-prometheus-grafana-quick-start-steps.png)
+
 ## Prerequisites
 
-**${project.name}** requires Java Runtime Environment (JRE) version 11 or higher.
+1. Prometheus Server installed and started with the `--web.enable-remote-write-receiver` option
+2. Grafana installed
 
-## Installing Hardware Sentry
+## Step 1: [Install Hardware Sentry OpenTelemetry Collector](../install.html)
 
-1. Download the latest version of Hardware Sentry
-2. Follow the installation instructions (we recommend installing 1 collector on each site, i.e. each data center, each server room, etc.).
+## Step 2: Push metrics to Prometheus Server
 
-## Configuring the OpenTelemetry Collector
+Copy the **config/otel-config-example.yaml** file and rename it **otel-config.yaml**.
 
-This step is required to specify how and where the OpenTelemetry Collector should send the collected data.
+In the **config/otel-config.yaml** file, locate the `prometheusremotewrite/your-server:` section and specify the remote write URL (`endpoint`):
 
-1. Open the **${project.name}** configuration file `config/otel-config.yaml` to integrate **${project.name}** with Prometheus Server.
-2. Follow the [configuration instructions](../configuration/configure-otel.html).
+```yaml
+  prometheusremotewrite/your-server:
+    endpoint: http://localhost:9090/api/v1/write
+    resource_to_telemetry_conversion:
+      enabled: true
+```
 
-## Configuring Hosts monitoring
+then, add to the pipeline the `exporter` `prometheusremotewrite/your-server`:
 
-The monitoring of systems is performed by the internal Hardware Sentry Agent. The Hardware Sentry Agent is the internal component responsible for scraping targets, collecting metrics, and pushing OTLP data to the OTLP receiver of the OpenTelemetry Collector.
+```yaml
+  pipelines:
+    metrics:
+      receivers: [otlp, prometheus/internal]
+      processors: [memory_limiter, batch, resourcedetection, metricstransform]
+      exporters: [prometheusremotewrite/your-server, prometheus, …] 
+```
 
-1. Open the Hardware Sentry Agent configuration file `config/hws-config.yaml` to specify the internal polling cycle and the hostnames and credentials of the systems to monitor.
+## Step 3: Specify sites (group of hosts)
 
-    ![Adding hosts to the configuration file](../images/hws_quick_start_config_target.png)
+Copy the **config/hws-config-example.yaml** file and rename it **hws-config.yaml**.
 
-1. Specify the `<hostname>`: name of the target, or its IP address
-2. Provide the `<target-type>`. Refer to the Hardware Sentry Agent documentation for details.
-3. Save your changes.
+In the **config/hws-config.yaml** file, change `Datacenter 1` with the actual name of your datacenter or site (ex: Paris, New York, etc.)  
 
-## Verifying that metrics are stored in Prometheus Server
+```yaml
+extraLabels:
+  site: Datacenter 1
+```
 
-In the *Search* field of your Prometheus Server, type `hw`, which is the prefix of all Hardware Sentry metrics. You should see the list of collected metrics:
+## Step 4: Configure targets (hosts)
+
+You can monitor as many hosts as required using either `IPMI`, `HTTP`, `WBEM`, `WMI`, `SSH`, or `SNMP`. Several examples are provided in the **config/hws-config-example.yaml** file. This example shows how to monitor one host via `SNMP`.
+
+In the **config/hws-config.yaml** file, copy these lines:
+
+```yaml
+- target:
+    hostname: ecs1-01
+    type: linux
+  snmp:
+    version: v1
+    port: 161
+    timeout: 120
+```
+
+and replace:
+
+* `ecs1-01` with the name or IP address of one host belonging to the site previously configured
+* `linux` with the host type. Refer to [Monitored Target](../configuration/configure-agent.html#Monitored_Targets) for more details.
+
+## Step 5: Verify that metrics are stored in Prometheus Server
+
+Open your Prometheus server (typically http://localhost:9090/graph) and type `hw` in the *Search* field to look for Hardware Sentry metrics:
 
 ![Verifying that metrics are stored in Prometheus Server](../images/hws_quick_start_check_list-metrics.png)
 
-## Import Grafana Dashboards
+## Step 6: Import dashboards in Grafana
 
-Combined with **${project.name}**, Grafana displays collected metrics stored in Prometheus Server. Sentry Software provides pre-built Sustainable IT dashboards that leverage these metrics to report on the health of the hardware of the monitored systems, and on the carbon emissions of these systems.
+1. [Load Dashboards in Grafana](./integration/grafana.html#Loading_Dashboards_in_Grafana)
+2. [Configure the Dashboard provider](./integration/grafana.html#Configuring_the_Dashboard_Provider)
+3. [Configure the Data Source](./integration/grafana.html#Configuring_the_Data_Source)
 
-1. Download the Grafana Dashboard package and install it with the Grafana installer file. Refer to the [Grafana documentation](https://grafana.com/search/?term=install&type=dashboard%2Cdoc&section=Grafana) for details.
-2. Go to `%GRAFANA_HOME%\grafana\conf\provisioning\dashboards`.
-3. Open the `hardware-sentry.yml` file.
-4. Search for the path: `'' parameter`.
-5. Specify the path to the folder where you uncompressed the `sustainable_IT` folder and save your changes.
-6. Configure the data source. In *\grafana\conf\provisioning\datasource*, open the `hardware-sentry-prometheus.yml` file.
-7. Enter the required settings to connect to your Prometheus Server and save your changes. This will create a new data source called **hardware_sentry_prometheus** in Grafana.
-8. Restart the Grafana service.
-9. The dashboards are now loaded in Grafana.
+## Step 7: View data in Grafana
 
-## Verifying that metrics are exposed in dashboard
+Open Grafana (typically on http://localhost:3000/) and browse for the [MAIN] dashboard.
 
-Open the Grafana platform in your Web browser and verify that the dashboards are displaying metrics.
-
-
+![**${project.name}** Sustainable IT Dashboard](../images/grafana-sustainable-it.png)
