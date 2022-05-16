@@ -22,7 +22,7 @@ In this quick start guide, you will learn how to monitor several hosts and bring
 
 ## Step 2: Push metrics to Prometheus Server
 
-Copy the **config/otel-config-example.yaml** file and rename it **config/otel-config.yaml**.
+Copy the **config/otel-config-example.yaml** file and rename it **otel-config.yaml**.
 
 In the **config/otel-config.yaml** file, locate the `prometheusremotewrite/your-server:` section and specify the remote write URL (`endpoint`):
 
