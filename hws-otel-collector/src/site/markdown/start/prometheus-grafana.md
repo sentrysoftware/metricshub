@@ -5,11 +5,11 @@ description: How to integrate Hardware Sentry with Prometheus and Grafana.
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
-**${project.name}** leverages several protocols (`SNMP`, `IPMI`, `HTTP`, `WBEM`, `WMI`, `SSH`, etc.) to gather hardware information and push the related metrics into Prometheus. The information can be viewed in Grafana using the prebuilt **Hardware Observability and Sustainability** dashboards.
+**${project.name}** leverages several protocols (`SNMP`, `IPMI`, `HTTP`, `WBEM`, `WMI`, `SSH`, etc.) to gather hardware health and sustainability information and push the related metrics into Prometheus. The information can be viewed in Grafana using the prebuilt **Hardware Observability and Sustainability** dashboards.
 
 ![Archirecture diagram](../images/hws_quick_start_architecture_diagram.png)
 
-In this quick start guide, you will learn how to monitor several hosts and bring hardware observability and sustainability metrics in Prometheus and Grafana in a couple of minutes.
+In this quick start guide, you will learn how to monitor several hosts and bring hardware observability and sustainability metrics in Prometheus and Grafana in a few quick steps.
 
 ![Quick start to Prometheus integration](../images/hws-prometheus-grafana-quick-start-steps.png)
 
@@ -22,7 +22,7 @@ In this quick start guide, you will learn how to monitor several hosts and bring
 
 ## Step 2: Push metrics to Prometheus Server
 
-Copy the **config/otel-config-example.yaml** file and rename it **otel-config.yaml**.
+Copy the **config/otel-config-example.yaml** file and rename it **config/otel-config.yaml**.
 
 In the **config/otel-config.yaml** file, locate the `prometheusremotewrite/your-server:` section and specify the remote write URL (`endpoint`):
 
@@ -33,7 +33,7 @@ In the **config/otel-config.yaml** file, locate the `prometheusremotewrite/your-
       enabled: true
 ```
 
-then, add to the pipeline the `exporter` `prometheusremotewrite/your-server`:
+then, add the `exporter` `prometheusremotewrite/your-server` to the pipeline:
 
 ```yaml
   pipelines:
@@ -56,7 +56,7 @@ extraLabels:
 
 ## Step 4: Configure targets (hosts)
 
-You can monitor as many hosts as required using either `IPMI`, `HTTP`, `WBEM`, `WMI`, `SSH`, or `SNMP`. Several examples are provided in the **config/hws-config-example.yaml** file. This example shows how to monitor one host via `SNMP`.
+You can monitor as many hosts as required using either `IPMI`, `HTTP`, `WBEM`, `WMI`, `SSH`, or `SNMP`. Several examples are provided in the **config/hws-config-example.yaml** file. See below an example of how to monitor one host via `SNMP`.
 
 In the **config/hws-config.yaml** file, copy these lines:
 
@@ -77,7 +77,7 @@ and replace:
 
 ## Step 5: Verify that metrics are stored in Prometheus Server
 
-Open your Prometheus server (typically http://localhost:9090/graph) and type `hw` in the *Search* field to look for Hardware Sentry metrics:
+Open your Prometheus server (typically http://localhost:9090/graph) and type `hw` in the *Search* field to display the list of collected Hardware Sentry metrics:
 
 ![Verifying that metrics are stored in Prometheus Server](../images/hws_quick_start_check_list-metrics.png)
 
