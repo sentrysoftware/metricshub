@@ -56,7 +56,7 @@ public class EmbeddedFileHeader implements Header {
 
 			if (line != null && !line.trim().isEmpty()) {
 
-				String[] tuple = line.split(":");
+				String[] tuple = line.split(":", 2);
 				isTrue(tuple.length == 2, "Invalid header entry: " + line);
 
 				result.put(tuple[0].trim(), tuple[1].trim());
