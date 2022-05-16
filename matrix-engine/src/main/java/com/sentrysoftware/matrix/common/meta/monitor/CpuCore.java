@@ -23,10 +23,13 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIF
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CURRENT_SPEED_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CURRENT_SPEED_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_TIME_PERCENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.NumberHelper.formatNumber;
+import static com.sentrysoftware.matrix.common.helpers.StringHelper.getValue;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.PRESENT_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_WARN_CONDITION;
@@ -157,8 +160,9 @@ public class CpuCore implements IMetaMonitor {
 		if (assertedusedTimePercent.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem(String.format("The processor core time usage is outside of expected range (%f %s).",
-							assertedusedTimePercent.getParameter().getValue(), PERCENT_PARAMETER_UNIT))
+					.problem(String.format("The processor core time usage is outside of expected range (%s %s).",
+							getValue(() -> formatNumber(assertedusedTimePercent.getParameter().getValue()), EMPTY),
+							PERCENT_PARAMETER_UNIT))
 					.consequence("The processing load may not be optimal and therefore lead to lower system performance.")
 					.recommendedAction("Check why this processor is used this way and whether it is caused by other failed or offlined cores or by the inability of the system to share the load across the various cores.")
 					.build();
@@ -180,8 +184,9 @@ public class CpuCore implements IMetaMonitor {
 		if (assertedusedTimePercent.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem(String.format("The processor core time usage is outside of tolerated range (%f %s).",
-							assertedusedTimePercent.getParameter().getValue(), PERCENT_PARAMETER_UNIT))
+					.problem(String.format("The processor core time usage is outside of tolerated range (%s %s).",
+							getValue(() -> formatNumber(assertedusedTimePercent.getParameter().getValue()), EMPTY),
+							PERCENT_PARAMETER_UNIT))
 					.consequence("The processing load may not be optimal and therefore lead to lower system performance.")
 					.recommendedAction("Check why this processor is used this way and whether it is caused by other failed or offlined cores or by the inability of the system to share the load across the various cores.")
 					.build();

@@ -24,6 +24,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ARRAY_N
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_INFORMATION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EXPECTED_PATH_COUNT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCAL_DEVICE_NAME;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PATHS_PARAMETER_UNIT;
@@ -31,6 +32,8 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.REMOTE_DEVICE_NAME;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WWN;
+import static com.sentrysoftware.matrix.common.helpers.NumberHelper.formatNumber;
+import static com.sentrysoftware.matrix.common.helpers.StringHelper.getValue;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.AVAILABLE_PATH_COUNT_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_WARN_CONDITION;
@@ -164,7 +167,8 @@ public class Lun implements IMetaMonitor {
 		if (assertedParam.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem(String.format("Although the LUN is still working and available, the number of paths to the LUN is lower than previously detected (%f).", assertedParam.getParameter().getValue()))
+					.problem(String.format("Although the LUN is still working and available, the number of paths to the LUN is lower than previously detected (%s).",
+							getValue(() -> formatNumber(assertedParam.getParameter().getValue()), EMPTY)))
 					.consequence("The performance of the system may be affected and redundancy could be lost.")
 					.recommendedAction("Verify on the SAN switches which links are broken (link down, or zone exclusion, etc.). Check the mapping and masking configuration of the corresponding storage volume in the storage system.")
 					.build();

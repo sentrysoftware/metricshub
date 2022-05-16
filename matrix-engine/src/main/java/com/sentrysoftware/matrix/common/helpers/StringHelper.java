@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.concurrent.Callable;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -110,5 +111,46 @@ public class StringHelper {
 		if (value != null) {
 			stringJoiner.add(new StringBuilder(prefix).append(value));
 		}
+	}
+
+	/**
+	 * Replace each substring of the <code>template</code> that matches the literal
+	 * <code>macro</code> sequence with the value specified by the <code>replacementSupplier</code>.
+	 * 
+	 * @param macro               The sequence of char values to be replaced
+	 * @param replacementSupplier The supplier of the replacement sequence
+	 * @param template            The template to replace
+	 * @return String value
+	 */
+	public static String replace(@NonNull final String macro,
+			@NonNull final Supplier<String> replacementSupplier,
+			@NonNull final String template) {
+
+		if (template.contains(macro)) {
+			return template.replace(macro, getValue(replacementSupplier::get, macro));
+		}
+
+		return template;
+	}
+
+	/**
+	 * Replace each substring of the <code>template</code> that matches the
+	 * literal <code>macro</code> sequence with the specified literal
+	 * <code>replacement</code> sequence.
+	 * 
+	 * @param macro       The sequence of char values to be replaced
+	 * @param replacement The replacement sequence
+	 * @param template    The template to replace
+	 * @return String value
+	 */
+	public static String replace(@NonNull final String macro,
+			final String replacement,
+			@NonNull final String template) {
+
+		if (template.contains(macro) && replacement != null) {
+			return template.replace(macro, replacement);
+		}
+
+		return template;
 	}
 }

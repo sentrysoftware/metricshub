@@ -5,6 +5,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BASIC_A
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PASSWORD_BASE64_MACRO;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PASSWORD_MACRO;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USERNAME_MACRO;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HOSTNAME_MACRO;
 import static org.springframework.util.Assert.isTrue;
 
 import java.util.Base64;
@@ -28,7 +29,7 @@ public class StringHeader implements Header {
 	private String header;
 
 	@Override
-	public Map<String, String> getContent(@NonNull String username, @NonNull char[] password, String authenticationToken) {
+	public Map<String, String> getContent(@NonNull String username, @NonNull char[] password, String authenticationToken, @NonNull String hostname) {
 
 		if (header == null) {
 			return null;
@@ -38,12 +39,13 @@ public class StringHeader implements Header {
 
 		String resolvedHeader = header
 			.replace(USERNAME_MACRO, username)
+			.replace(HOSTNAME_MACRO, hostname)
 			.replace(AUTHENTICATION_TOKEN_MACRO, authenticationToken == null ? "" : authenticationToken)
 			.replace(PASSWORD_MACRO, passwordAsString)
 			.replace(PASSWORD_BASE64_MACRO, Base64.getEncoder().encodeToString(passwordAsString.getBytes()))
 			.replace(BASIC_AUTH_BASE64_MACRO, Base64.getEncoder().encodeToString((username + ":" + passwordAsString).getBytes()));
 
-		String[] splitHeader = resolvedHeader.split(":");
+		String[] splitHeader = resolvedHeader.split(":", 2);
 		isTrue(splitHeader.length == 2, "Invalid header: " + header);
 
 		return Map.of(splitHeader[0].trim(), splitHeader[1].trim());

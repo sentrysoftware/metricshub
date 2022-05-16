@@ -54,7 +54,7 @@ public abstract class AbstractOtelMetricObserver extends AbstractOtelObserver {
 		if (type.equals(MetricType.COUNTER)) {
 			// Sum (Counter)
 			meter
-				.counterBuilder(metricInfo.getName() + "_total")
+				.counterBuilder(metricInfo.getName())
 				.setDescription(metricInfo.getDescription())
 				.setUnit(metricInfo.getUnit())
 				.ofDoubles()

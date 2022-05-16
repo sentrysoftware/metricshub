@@ -11,7 +11,7 @@ description: Where to download the installation package of the ${project.name}.
 
 The _OpenTelemetry Collector_ will use the `$JAVA_HOME` environment variable to determine that path to the JRE. If `$JAVA_HOME` is not set, it will use any `java` executable found in the `$PATH`.
 
-To verify the version installed on a Linux system, run the following commands:
+To verify the version installed on a Linux or MacOS system, run the following commands:
 
 ```bash
 $JAVA_HOME/bin/java -version
@@ -82,6 +82,105 @@ Example:
 ```shell-session
 /$ cd /usr/local/hws-otel-collector
 /usr/local/hws-otel-collector$ bin/hws-otel-collector --config config/my-otel-config.yaml
+```
+
+## On MacOS (Apple Silicon)
+
+### Download
+
+From [Sentry Software's Web site](https://www.sentrysoftware.com/downloads/), download:
+
+- **${project.artifactId}-${project.version}-darwin-arm64.tar.gz**
+
+### Install
+
+Unzip and untar the content of **${project.artifactId}-${project.version}-darwin-arm64.tar.gz** into a program directory, like **/Library** or **/opt**. There is no need to create a specific subdirectory for `hws-otel-collector` as the zip archive already contains an **hws-otel-collector** directory.
+
+```shell-session
+/ $ cd /Library
+/Library $ sudo tar xf /tmp/${project.artifactId}-${project.version}-darwin-arm64.tar.gz
+```
+
+### Configure
+
+There are 2 configuration files:
+
+- [**./config/otel-config.yaml**](configuration/configure-otel.md): to specify where the _OpenTelemetry Collector_ should send the collected data
+- [**./config/hws-config.yaml**](configuration/configure-agent.md): to specify the hosts to monitor and their credentials
+
+Before starting the _OpenTelemetry Collector_, make sure to configure [**./config/otel-config.yaml**](configuration/configure-otel.md), since a restart of the _Collector_ is required to take into account its changes.
+
+### Start
+
+You can start the **${project.name}** with the below command:
+
+```bash
+/Library/hws-otel-collector/bin/hws-otel-collector
+```
+
+This will start the **${project.name}** with the default _OpenTelemetry Collector_ configuration file: **./config/otel-config.yaml**.
+
+You can start the **${project.name}** with an alternate configuration file with the below command:
+
+```bash
+/Library/hws-otel-collector/bin/hws-otel-collector --config <PATH>
+```
+
+Example:
+
+```shell-session
+/$ cd /Library/hws-otel-collector
+/Library/hws-otel-collector$ bin/hws-otel-collector --config config/my-otel-config.yaml
+```
+
+
+## On MacOS (x86)
+
+### Download
+
+From [Sentry Software's Web site](https://www.sentrysoftware.com/downloads/), download:
+
+- **${project.artifactId}-${project.version}-darwin-amd64.tar.gz**
+
+### Install
+
+Unzip and untar the content of **${project.artifactId}-${project.version}-darwin-amd64.tar.gz** into a program directory, like **/Library** or **/opt**. There is no need to create a specific subdirectory for `hws-otel-collector` as the zip archive already contains an **hws-otel-collector** directory.
+
+```shell-session
+/ $ cd /Library
+/Library $ sudo tar xf /tmp/${project.artifactId}-${project.version}-darwin-amd64.tar.gz
+```
+
+### Configure
+
+There are 2 configuration files:
+
+- [**./config/otel-config.yaml**](configuration/configure-otel.md): to specify where the _OpenTelemetry Collector_ should send the collected data
+- [**./config/hws-config.yaml**](configuration/configure-agent.md): to specify the hosts to monitor and their credentials
+
+Before starting the _OpenTelemetry Collector_, make sure to configure [**./config/otel-config.yaml**](configuration/configure-otel.md), since a restart of the _Collector_ is required to take into account its changes.
+
+### Start
+
+You can start the **${project.name}** with the below command:
+
+```bash
+/Library/hws-otel-collector/bin/hws-otel-collector
+```
+
+This will start the **${project.name}** with the default _OpenTelemetry Collector_ configuration file: **./config/otel-config.yaml**.
+
+You can start the **${project.name}** with an alternate configuration file with the below command:
+
+```bash
+/Library/hws-otel-collector/bin/hws-otel-collector --config <PATH>
+```
+
+Example:
+
+```shell-session
+/$ cd /Library/hws-otel-collector
+/Library/hws-otel-collector$ bin/hws-otel-collector --config config/my-otel-config.yaml
 ```
 
 ## On Windows

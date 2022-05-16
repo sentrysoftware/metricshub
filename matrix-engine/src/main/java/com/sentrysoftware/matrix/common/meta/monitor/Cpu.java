@@ -24,6 +24,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CORRECT
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CURRENT_SPEED_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CURRENT_SPEED_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER_UNIT;
@@ -34,6 +35,8 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PREDICT
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
+import static com.sentrysoftware.matrix.common.helpers.NumberHelper.formatNumber;
+import static com.sentrysoftware.matrix.common.helpers.StringHelper.getValue;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.CORRECTED_ERROR_COUNT_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.PRESENT_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
@@ -200,8 +203,8 @@ public class Cpu implements IMetaMonitor {
 		if (assertedCorrectedErrorCount.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem( String.format("The processor encountered and fixed a few internal errors (%f).",
-							assertedCorrectedErrorCount.getParameter().getValue()))
+					.problem(String.format("The processor encountered and fixed a few internal errors (%s).",
+							getValue(() -> formatNumber(assertedCorrectedErrorCount.getParameter().getValue()), EMPTY)))
 					.consequence("The stability of the system may be affected. A system crash is likely to occur soon.")
 					.recommendedAction("Check as soon as possible whether the processor environment is normal (voltage levels and temperature). If so, the processor may be defective and needs to be replaced quickly.")
 					.build();
@@ -223,8 +226,8 @@ public class Cpu implements IMetaMonitor {
 		if (assertedCorrectedErrorCount.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem(String.format("The processor encountered and fixed a high number of internal errors (%f).",
-							assertedCorrectedErrorCount.getParameter().getValue()))
+					.problem(String.format("The processor encountered and fixed a high number of internal errors (%s).",
+							getValue(() -> formatNumber(assertedCorrectedErrorCount.getParameter().getValue()), EMPTY)))
 					.consequence("The stability of the system may be critically affected. A system crash is very likely to occur soon.")
 					.recommendedAction("Check as soon as possible if the processor environment is normal (voltage levels and temperature). If so, the processor may be defective and needs to be replaced quickly.")
 					.build();

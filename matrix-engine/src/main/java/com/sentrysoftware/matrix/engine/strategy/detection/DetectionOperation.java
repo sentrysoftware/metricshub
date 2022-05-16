@@ -9,7 +9,9 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCATIO
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.OPERATING_SYSTEM_TYPE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.REMOTE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.APPLIES_TO_OS;
+
 
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -304,6 +306,7 @@ public class DetectionOperation extends AbstractStrategy {
 		monitor.addMetadata(DISPLAY_NAME, connector.getDisplayName());
 		monitor.addMetadata(COMPILED_FILE_NAME, connector.getCompiledFilename());
 		monitor.addMetadata(DESCRIPTION, connector.getComments());
+		monitor.addMetadata(CONNECTOR, connector.getCompiledFilename());
 		monitor.addMetadata(APPLIES_TO_OS, connector.getAppliesToOS().stream().map(OSType::getDisplayName).collect(Collectors.joining(",")));
 
 		monitor.getMonitorType().getMetaMonitor()

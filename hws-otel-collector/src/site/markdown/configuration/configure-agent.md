@@ -378,6 +378,34 @@ $ hws -l
 
 [More information on the `hws` command](../troubleshooting/cli.md)
 
+### Disabling Alerts (Not Recommended)
+
+To disable **${project.name}**'s alerts:
+
+* for all your targets, set the `disableAlerts` parameter to `true` just before the `targets` section:
+
+    ```yaml
+    disableAlerts: true
+
+    targets: # ...
+    ```
+
+* for a specific target, set the `disableAlerts` parameter to `true` in the relevant `target` section:
+
+    ```yaml
+    targets:
+
+    - target:
+        hostname: myhost
+        type: linux
+      snmp:
+        version: v1
+        community: public
+        port: 161
+        timeout: 120s
+      disableAlerts: true
+    ```
+
 ### Discovery Cycle
 
 **${project.name}** periodically performs discoveries to detect new components in your monitored environment. By default, **${project.name}** runs a discovery after 30 collects. To change this default discovery cycle:
@@ -430,6 +458,44 @@ targets:
     host.name: host01.internal.domain.net
     app: Jenkins
 ```
+
+### Hardware Problem Template
+
+When detecting a hardware problem, **${project.name}** triggers an alert as OpenTelemetry log. The alert body is built from the following template:
+
+```
+Hardware problem on ${FQDN} with ${MONITOR_NAME}.${NEWLINE}${NEWLINE}${ALERT_DETAILS}${NEWLINE}${NEWLINE}${FULLREPORT}
+```
+
+To change this default hardware problem template:
+
+* for all your targets, configure the `hardwareProblemTemplate` parameter just before the `targets` section:
+
+    ```yaml
+    hardwareProblemTemplate: Custom hardware problem on ${FQDN} with ${MONITOR_NAME}.
+
+    targets: # ...
+    ```
+
+* for a specific target, configure the `hardwareProblemTemplate` parameter in the relevant `target` section:
+
+    ```yaml
+    targets:
+
+    - target:
+        hostname: myhost
+        type: linux
+      snmp:
+        version: v1
+        community: public
+        port: 161
+        timeout: 120s
+      hardwareProblemTemplate: Custom hardware problem on myhost with ${MONITOR_NAME}.
+    ```
+
+and indicate the template to use when building alert messages.
+
+For more information about the alert mechanism and the macros to use, refer to the [Alerts](../alerts.md) page.
 
 ### Hostname Resolution
 

@@ -4,22 +4,28 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.ThreadContext;
 
 import com.sentrysoftware.hardware.agent.dto.HostConfigurationDTO;
 import com.sentrysoftware.hardware.agent.dto.UserConfiguration;
 import com.sentrysoftware.hardware.agent.service.opentelemetry.MetricsMapping;
+import com.sentrysoftware.hardware.agent.service.opentelemetry.OtelAlertHelper;
 import com.sentrysoftware.hardware.agent.service.opentelemetry.OtelHelper;
 import com.sentrysoftware.hardware.agent.service.opentelemetry.OtelMetadataToMetricObserver;
 import com.sentrysoftware.hardware.agent.service.opentelemetry.OtelParameterToMetricObserver;
 import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
 import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
 import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
+import com.sentrysoftware.matrix.model.alert.AlertInfo;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
+import io.opentelemetry.context.Context;
 import io.opentelemetry.sdk.autoconfigure.AutoConfiguredOpenTelemetrySdk;
+import io.opentelemetry.sdk.logs.LogEmitter;
+import io.opentelemetry.sdk.logs.data.Severity;
 import io.opentelemetry.sdk.resources.Resource;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +48,8 @@ public class StrategyTask implements Runnable {
 
 	private Set<String> otelInitializedMonitors = new HashSet<>();
 
+	private LogEmitter logEmitter;
+
 	@Override
 	public void run() {
 
@@ -61,19 +69,25 @@ public class StrategyTask implements Runnable {
 			// observers are registered
 			hostMonitoring.run(new DetectionOperation(), new DiscoveryOperation());
 
-			// Initialize the OpenTelemetry observers after the discovery
-			// at this time we should have what we want to observe
-			initOtelObservers(hostMonitoring);
+			// Initialize the OpenTelemetry observers and LogEmitter after the discovery
+			// as at this time we should have what we want to observe
+			initOtelSdk(hostMonitoring);
 
 		}
 
 		log.info("Calling the engine to collect target: {}.", targetId);
+
+		// Make sure the engine configuration is updated correctly with the trigger
+		hostMonitoring.getEngineConfiguration().setAlertTrigger(this::triggerAlertAsOtelLog);
 
 		// One more, run only the collect strategy
 		hostMonitoring.run(new CollectOperation());
 
 		// Call the flush of all the metricInfo readers associated with this meter provider
 		autoConfiguredOpenTelemetrySdk.getOpenTelemetrySdk().getSdkMeterProvider().forceFlush();
+
+		// Request the active log processor to process all logs that have not yet been processed
+		autoConfiguredOpenTelemetrySdk.getOpenTelemetrySdk().getSdkLogEmitterProvider().forceFlush();
 
 		// Increment the number of collects
 		numberOfCollects++;
@@ -85,11 +99,41 @@ public class StrategyTask implements Runnable {
 	}
 
 	/**
-	 * Initialize OpenTelemetry observers
+	 * Trigger the metric's alert as OpenTelemetry log
+	 * 
+	 * @param alertInfo
+	 */
+	void triggerAlertAsOtelLog(@NonNull final AlertInfo alertInfo) {
+
+		// Is alerts disabled?
+		if (Boolean.TRUE.equals(userConfiguration.getHostConfigurationDTO().getDisableAlerts())) {
+			return;
+		}
+
+		final String message = OtelAlertHelper.buildHardwareProblem(alertInfo,
+				userConfiguration.getHostConfigurationDTO().getHardwareProblemTemplate());
+
+		final Severity severity = OtelAlertHelper.convertToOtelSeverity(alertInfo);
+
+		// Emit the log to OpenTelemetry Collector
+		logEmitter
+			.logBuilder()
+			.setBody(message)
+			.setSeverity(severity)
+			.setSeverityText(severity.name())
+			.setAttributes(autoConfiguredOpenTelemetrySdk.getResource().getAttributes())
+			.setContext(Context.current())
+			.setEpoch(OtelAlertHelper.getAlertTime(alertInfo), TimeUnit.MILLISECONDS)
+			.emit();
+
+	}
+
+	/**
+	 * Initialize OpenTelemetry observers and {@link LogEmitter}
 	 * 
 	 * @param hostMonitoring The instance where all the monitors are managed
 	 */
-	void initOtelObservers(final IHostMonitoring hostMonitoring) {
+	void initOtelSdk(final IHostMonitoring hostMonitoring) {
 		// Create a resource if it hasn't been created by the previous cycle
 		if (autoConfiguredOpenTelemetrySdk == null) {
 
@@ -108,6 +152,10 @@ public class StrategyTask implements Runnable {
 			);
 
 			autoConfiguredOpenTelemetrySdk = OtelHelper.initOpenTelemetrySdk(resource, otelSdkConfiguration);
+
+			// Instantiate the LogEmitter
+			logEmitter = autoConfiguredOpenTelemetrySdk.getOpenTelemetrySdk().getSdkLogEmitterProvider()
+					.get(hostConfigurationDTO.getTarget().getId());
 		}
 
 		hostMonitoring

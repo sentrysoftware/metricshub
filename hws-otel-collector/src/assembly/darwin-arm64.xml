@@ -1,0 +1,41 @@
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.1.0 http://maven.apache.org/xsd/assembly-2.1.0.xsd">
+	<id>darwin-arm64</id>
+	<formats>
+		<format>tar.gz</format>
+	</formats>
+	<includeBaseDirectory>true</includeBaseDirectory>
+	<baseDirectory>${project.artifactId}</baseDirectory>
+	<includeSiteDirectory>true</includeSiteDirectory>
+
+	<dependencySets>
+		<dependencySet>
+			<useTransitiveDependencies>false</useTransitiveDependencies>
+			<useProjectArtifact>false</useProjectArtifact>
+			<unpack>true</unpack>
+			<unpackOptions>
+				<excludes>
+					<exclude>**/*.cmd</exclude>
+				</excludes>
+			</unpackOptions>
+		</dependencySet>
+	</dependencySets>
+
+	<fileSets>
+		<fileSet>
+			<directory>src/dist</directory>
+			<outputDirectory>/</outputDirectory>
+			<lineEnding>unix</lineEnding>
+			<filtered>true</filtered>
+		</fileSet>
+
+	</fileSets>
+
+	<files>
+		<file>
+			<source>${project.build.directory}/darwin-arm64/${project.artifactId}</source>
+			<outputDirectory>bin</outputDirectory>
+			<fileMode>0755</fileMode>
+		</file>
+	</files>
+
+</assembly>
