@@ -12,6 +12,11 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VALUE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VOLTAGE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SNMP_UP_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SSH_UP_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WMI_UP_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WBEM_UP_PARAMETER;
+
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,9 +35,12 @@ import org.junit.jupiter.api.Test;
 import com.sentrysoftware.matrix.common.meta.monitor.Fan;
 import com.sentrysoftware.matrix.common.meta.monitor.Gpu;
 import com.sentrysoftware.matrix.common.meta.monitor.OtherDevice;
+import com.sentrysoftware.matrix.common.meta.monitor.Target;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
 import com.sentrysoftware.matrix.common.meta.monitor.Vm;
+import com.sentrysoftware.matrix.common.meta.parameter.state.Up;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.engine.strategy.collect.CollectHelper;
 import com.sentrysoftware.matrix.model.alert.AlertCondition;
 import com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder;
 import com.sentrysoftware.matrix.model.alert.AlertRule;
@@ -53,6 +61,28 @@ class MonitorAlertRulesVisitorTest {
 		assertNotNull(monitor.getAlertRules().get(SPEED_PARAMETER));
 		assertNotNull(monitor.getAlertRules().get(SPEED_PERCENT_PARAMETER));
 
+	}
+
+	@Test 
+	void testProcessTargetProtocolAlertRules() {
+		final Monitor monitor = new Monitor();
+
+		CollectHelper.updateDiscreteParameter(monitor, SNMP_UP_PARAMETER, monitor.getDiscoveryTime(), Up.UP);
+		CollectHelper.updateDiscreteParameter(monitor, SSH_UP_PARAMETER, monitor.getDiscoveryTime(), Up.UP);
+		CollectHelper.updateDiscreteParameter(monitor, WMI_UP_PARAMETER, monitor.getDiscoveryTime(), Up.UP);
+		CollectHelper.updateDiscreteParameter(monitor, WBEM_UP_PARAMETER, monitor.getDiscoveryTime(), Up.UP);
+
+		new MonitorAlertRulesVisitor(monitor).processStaticAlertRules(monitor, new Target());
+	
+		final Map<String, List<AlertRule>> alertRulesMap = monitor.getAlertRules();
+		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
+				.eq(0D)
+				.build();
+
+		assertAlertRule(alertRulesMap, SNMP_UP_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.STATIC);
+		assertAlertRule(alertRulesMap, SSH_UP_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.STATIC);
+		assertAlertRule(alertRulesMap, WMI_UP_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.STATIC);
+		assertAlertRule(alertRulesMap, WBEM_UP_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.STATIC);
 	}
 
 	@Test

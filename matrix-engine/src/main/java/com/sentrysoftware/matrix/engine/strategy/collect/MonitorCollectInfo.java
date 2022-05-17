@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.sentrysoftware.matrix.engine.EngineConfiguration;
+import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
@@ -30,5 +32,7 @@ public class MonitorCollectInfo {
 	@Default
 	private Map<String, String> mapping = new HashMap<>();
 	private Long collectTime;
+	private EngineConfiguration engineConfiguration;
+	private MatsyaClientsExecutor matsyaClientsExecutor;
 
 }

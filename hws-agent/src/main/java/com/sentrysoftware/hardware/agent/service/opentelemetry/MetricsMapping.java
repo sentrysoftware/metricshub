@@ -22,6 +22,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_C
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VALUE_ALARM_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VALUE_WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UP_PARAMETER_UNIT;
 
 import java.util.Collections;
 import java.util.EnumMap;
@@ -240,6 +241,30 @@ public class MetricsMapping {
 				.name("hw.target.present")
 				.unit(IMetaMonitor.PRESENT.getUnit())
 				.description("Whether the target is found or not.")
+				.build());
+		map.put(Target.SNMP_UP.getName(), MetricInfo
+				.builder()
+				.name("hw.target.snmp.up")
+				.unit(UP_PARAMETER_UNIT)
+				.description("Whether the SNMP protocol is up or not")
+				.build());
+		map.put(Target.WMI_UP.getName(), MetricInfo
+				.builder()
+				.name("hw.target.wmi.up")
+				.unit(UP_PARAMETER_UNIT)
+				.description("Whether the WMI protocol is up or not")
+				.build());
+		map.put(Target.WBEM_UP.getName(), MetricInfo
+				.builder()
+				.name("hw.target.wbem.up")
+				.unit(UP_PARAMETER_UNIT)
+				.description("Whether the WBEM protocol is up or not")
+				.build());
+		map.put(Target.SSH_UP.getName(), MetricInfo
+				.builder()
+				.name("hw.target.ssh.up")
+				.unit(UP_PARAMETER_UNIT)
+				.description("Whether the SSH protocol is up or not")
 				.build());
 
 		return map;
