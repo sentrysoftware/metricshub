@@ -661,6 +661,6 @@ public class HostMonitoring implements IHostMonitoring {
 	}
 
 	public enum PowerMeter {
-		COLLECTED, ESTIMATED;
+		MEASURED, ESTIMATED;
 	}
 }

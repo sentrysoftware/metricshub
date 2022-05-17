@@ -5698,7 +5698,7 @@
       "averageCpuTemperatureWarning" : "85.0",
       "location" : "localhost",
       "operatingSystemType" : "LINUX",
-      "powerMeter" : "collected"
+      "powerMeter" : "measured"
     },
     "alertRules" : { }
   }, {
