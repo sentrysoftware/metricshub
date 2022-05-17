@@ -131,7 +131,7 @@ public class MatsyaClientsExecutor {
 			log.trace("Executing SNMP GetNext request:\n- oid: {}\n", oid)
 		);
 
-		String result = executeSNMPGetRequest(SNMPGetRequest.GETNEXT, oid, protocol, hostname, null, logMode);
+		String result = executeSNMPGetRequest(SnmpGetRequest.GETNEXT, oid, protocol, hostname, null, logMode);
 
 		trace(() -> 
 			log.trace("Executed SNMP GetNext request:\n- oid: {}\n- result: {}\n", oid, result)
@@ -163,7 +163,7 @@ public class MatsyaClientsExecutor {
 			log.trace("Executing SNMP Get request:\n- oid: {}\n", oid)
 		);
 
-		String result = executeSNMPGetRequest(SNMPGetRequest.GET, oid, protocol, hostname, null, logMode);
+		String result = executeSNMPGetRequest(SnmpGetRequest.GET, oid, protocol, hostname, null, logMode);
 
 		trace(() -> 
 			log.trace("Executed SNMP Get request:\n- oid: {}\n- result: {}\n", oid, result)
@@ -199,7 +199,7 @@ public class MatsyaClientsExecutor {
 			)
 		);
 
-		List<List<String>> result = executeSNMPGetRequest(SNMPGetRequest.TABLE, oid, protocol,
+		List<List<String>> result = executeSNMPGetRequest(SnmpGetRequest.TABLE, oid, protocol,
 			hostname, selectColumnArray, logMode);
 
 		trace(() -> 
@@ -215,7 +215,7 @@ public class MatsyaClientsExecutor {
 
 	@SuppressWarnings("unchecked")
 	private <T> T executeSNMPGetRequest(
-			final SNMPGetRequest request,
+			final SnmpGetRequest request,
 			final String oid,
 			final SnmpProtocol protocol,
 			final String hostname,
@@ -277,7 +277,7 @@ public class MatsyaClientsExecutor {
 		}, protocol.getTimeout());
 	}
 
-	public enum SNMPGetRequest {
+	public enum SnmpGetRequest {
 		GET, GETNEXT, TABLE
 	}
 

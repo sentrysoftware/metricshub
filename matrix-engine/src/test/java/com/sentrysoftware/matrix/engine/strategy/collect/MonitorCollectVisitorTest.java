@@ -33,10 +33,10 @@ import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Up;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
-import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WmiProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
@@ -68,12 +68,14 @@ import java.util.concurrent.TimeoutException;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_INFORMATION_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_WARNING;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BANDWIDTH_UTILIZATION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CHARGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLOR_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DECODER_USED_TIME_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DECODER_USED_TIME_PERCENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DUPLEX_MODE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ECHO_SSH_UP_TEST;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENCODER_USED_TIME_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENCODER_USED_TIME_PERCENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENDURANCE_REMAINING_PARAMETER;
@@ -86,6 +88,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LAST_ER
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LED_INDICATOR_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_SPEED_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAX_AVAILABLE_PATH_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOUNT_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOVE_COUNT_PARAMETER;
@@ -96,9 +99,12 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_S
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PREDICTED_FAILURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVED_BYTES_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVED_BYTES_RATE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SNMP_UP_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_MBITS_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_PERCENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SSH_UP_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SSH_UP_TEST_RESPONSE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STARTING_ERROR_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_INFORMATION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
@@ -121,17 +127,10 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_TI
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_TIME_PERCENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_WATTS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VOLTAGE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WBEM_UP_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WMI_UP_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_PERCENT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_WARNING;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAX_AVAILABLE_PATH_COUNT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SNMP_UP_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WBEM_UP_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SSH_UP_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WMI_UP_PARAMETER;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ECHO_SSH_UP_TEST;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SSH_UP_TEST_RESPONSE;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -328,7 +327,7 @@ class MonitorCollectVisitorTest {
 
 		monitorCollectVisitor.getMonitorCollectInfo().setEngineConfiguration(
 				EngineConfiguration.builder()
-						.protocolConfigurations(Collections.singletonMap(SNMPProtocol.class, new SNMPProtocol()))
+						.protocolConfigurations(Collections.singletonMap(SnmpProtocol.class, new SnmpProtocol()))
 						.build());
 
 		final String snmpResult = "SNMP up test successful";
@@ -355,7 +354,7 @@ class MonitorCollectVisitorTest {
 
 		monitorCollectVisitor.getMonitorCollectInfo().setEngineConfiguration(
 				EngineConfiguration.builder()
-						.protocolConfigurations(Collections.singletonMap(SNMPProtocol.class, new SNMPProtocol()))
+						.protocolConfigurations(Collections.singletonMap(SnmpProtocol.class, new SnmpProtocol()))
 						.build());
 
 		doReturn(null).when(matsyaClientsExecutor)
@@ -380,7 +379,7 @@ class MonitorCollectVisitorTest {
 
 		monitorCollectVisitor.getMonitorCollectInfo().setEngineConfiguration(
 				EngineConfiguration.builder()
-						.protocolConfigurations(Collections.singletonMap(WBEMProtocol.class, new WBEMProtocol()))
+						.protocolConfigurations(Collections.singletonMap(WbemProtocol.class, new WbemProtocol()))
 						.build());
 
 		List<List<String>> wbemResult = Collections.singletonList(Collections.singletonList("Success"));
@@ -407,7 +406,7 @@ class MonitorCollectVisitorTest {
 
 		monitorCollectVisitor.getMonitorCollectInfo().setEngineConfiguration(
 				EngineConfiguration.builder()
-						.protocolConfigurations(Collections.singletonMap(WBEMProtocol.class, new WBEMProtocol()))
+						.protocolConfigurations(Collections.singletonMap(WbemProtocol.class, new WbemProtocol()))
 						.build());
 
 		Mockito.when(matsyaClientsExecutor.executeWbem(any(), any(), eq("SELECT Name FROM CIM_NameSpace"), any()))
@@ -432,7 +431,7 @@ class MonitorCollectVisitorTest {
 
 		monitorCollectVisitor.getMonitorCollectInfo().setEngineConfiguration(
 				EngineConfiguration.builder()
-						.protocolConfigurations(Collections.singletonMap(WMIProtocol.class, new WMIProtocol()))
+						.protocolConfigurations(Collections.singletonMap(WmiProtocol.class, new WmiProtocol()))
 						.build());
 
 		List<List<String>> wmiResult = Collections.singletonList(Collections.singletonList("Success"));
@@ -459,7 +458,7 @@ class MonitorCollectVisitorTest {
 
 		monitorCollectVisitor.getMonitorCollectInfo().setEngineConfiguration(
 				EngineConfiguration.builder()
-						.protocolConfigurations(Collections.singletonMap(WMIProtocol.class, new WMIProtocol()))
+						.protocolConfigurations(Collections.singletonMap(WmiProtocol.class, new WmiProtocol()))
 						.build());
 
 		Mockito.when(matsyaClientsExecutor.executeWmi(any(), any(), eq("Select Name FROM Win32_ComputerSystem"),
@@ -481,12 +480,12 @@ class MonitorCollectVisitorTest {
 				.build();
 
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
-		final SSHProtocol ssh = SSHProtocol.builder().username("username").timeout(30L).build();
+		final SshProtocol ssh = SshProtocol.builder().username("username").timeout(30L).build();
 
 		monitorCollectVisitor.getMonitorCollectInfo().setHostname("localhost");
 		monitorCollectVisitor.getMonitorCollectInfo().setEngineConfiguration(
 				EngineConfiguration.builder()
-						.protocolConfigurations(Collections.singletonMap(SSHProtocol.class, ssh)).build());
+						.protocolConfigurations(Collections.singletonMap(SshProtocol.class, ssh)).build());
 
 		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
 
@@ -512,12 +511,12 @@ class MonitorCollectVisitorTest {
 				.build();
 
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
-		final SSHProtocol ssh = SSHProtocol.builder().username("username").timeout(30L).build();
+		final SshProtocol ssh = SshProtocol.builder().username("username").timeout(30L).build();
 
 		monitorCollectVisitor.getMonitorCollectInfo().setHostname("localhost");
 		monitorCollectVisitor.getMonitorCollectInfo().setEngineConfiguration(
 				EngineConfiguration.builder()
-						.protocolConfigurations(Collections.singletonMap(SSHProtocol.class, ssh)).build());
+						.protocolConfigurations(Collections.singletonMap(SshProtocol.class, ssh)).build());
 
 		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
 

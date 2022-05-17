@@ -25,7 +25,7 @@ public class ConnectorSimpleProperty {
 					new VersionProcessor(),
 					new RemoteSupportProcessor(),
 					new LocalSupportProcessor(),
-					new AppliesToOSProcessor(),
+					new AppliesToOsProcessor(),
 					new SupersedesProcessor(),
 					new CommentsProcessor(),
 					new NoAutoDetectionProcessor(),
@@ -72,7 +72,7 @@ public class ConnectorSimpleProperty {
 		}
 	}
 
-	public static class AppliesToOSProcessor implements IConnectorStateParser {
+	public static class AppliesToOsProcessor implements IConnectorStateParser {
 
 		@Override
 		public boolean detect(final String key, final String value, final Connector connector) {

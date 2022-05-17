@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.OsType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimpleProperty.AppliesToOSProcessor;
+import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimpleProperty.AppliesToOsProcessor;
 import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimpleProperty.CommentsProcessor;
 import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimpleProperty.DisplayNameProcessor;
 import com.sentrysoftware.matrix.connector.parser.state.ConnectorSimpleProperty.LocalSupportProcessor;
@@ -298,8 +298,8 @@ class ConnectorSimplePropertyTest {
 	// AppliesToOS tests
 	
 	@Test
-	void testAppliesToOSProcessorDetectKeyNull() {
-		AppliesToOSProcessor appliesToOSProcessor = new AppliesToOSProcessor();
+	void testAppliesToOsProcessorDetectKeyNull() {
+		AppliesToOsProcessor appliesToOSProcessor = new AppliesToOsProcessor();
 		String key = null;
 		String value = APPLIES_TO_OS_VALUE;
 		Connector connector = new Connector();
@@ -307,8 +307,8 @@ class ConnectorSimplePropertyTest {
 	}
 
 	@Test
-	void testAppliesToOSProcessorDetectKeyEmpty() {
-		AppliesToOSProcessor appliesToOSProcessor = new AppliesToOSProcessor();
+	void testAppliesToOsProcessorDetectKeyEmpty() {
+		AppliesToOsProcessor appliesToOSProcessor = new AppliesToOsProcessor();
 		String key = "";
 		String value =APPLIES_TO_OS_VALUE;
 		Connector connector = new Connector();
@@ -316,8 +316,8 @@ class ConnectorSimplePropertyTest {
 	}
 
 	@Test
-	void testAppliesToOSProcessorDetectValueNull() {
-		AppliesToOSProcessor appliesToOSProcessor = new AppliesToOSProcessor();
+	void testAppliesToOsProcessorDetectValueNull() {
+		AppliesToOsProcessor appliesToOSProcessor = new AppliesToOsProcessor();
 		String key = APPLIES_TO_OS_KEY;
 		String value = null;
 		Connector connector = new Connector();
@@ -325,8 +325,8 @@ class ConnectorSimplePropertyTest {
 	}
 
 	@Test
-	void testAppliesToOSProcessorDetectValueEmpty() {
-		AppliesToOSProcessor appliesToOSProcessor = new AppliesToOSProcessor();
+	void testAppliesToOsProcessorDetectValueEmpty() {
+		AppliesToOsProcessor appliesToOSProcessor = new AppliesToOsProcessor();
 		String key = APPLIES_TO_OS_KEY;
 		String value = "";
 		Connector connector = new Connector();
@@ -334,8 +334,8 @@ class ConnectorSimplePropertyTest {
 	}
 
 	@Test
-	void testAppliesToOSProcessorDetectConnectorNull() {
-		AppliesToOSProcessor appliesToOSProcessor = new AppliesToOSProcessor();
+	void testAppliesToOsProcessorDetectConnectorNull() {
+		AppliesToOsProcessor appliesToOSProcessor = new AppliesToOsProcessor();
 		String key = APPLIES_TO_OS_KEY;
 		String value = APPLIES_TO_OS_VALUE;
 		Connector connector = null;
@@ -343,8 +343,8 @@ class ConnectorSimplePropertyTest {
 	}
 
 	@Test
-	void testAppliesToOSProcessorDetectUppercaseOK() {
-		AppliesToOSProcessor appliesToOSProcessor = new AppliesToOSProcessor();
+	void testAppliesToOsProcessorDetectUppercaseOK() {
+		AppliesToOsProcessor appliesToOSProcessor = new AppliesToOsProcessor();
 		String key = APPLIES_TO_OS_KEY.toUpperCase();
 		String value = APPLIES_TO_OS_VALUE;
 		Connector connector = new Connector();
@@ -352,8 +352,8 @@ class ConnectorSimplePropertyTest {
 	}
 
 	@Test
-	void testAppliesToOSProcessorDetectLowercaseOK() {
-		AppliesToOSProcessor appliesToOSProcessor = new AppliesToOSProcessor();
+	void testAppliesToOsProcessorDetectLowercaseOK() {
+		AppliesToOsProcessor appliesToOSProcessor = new AppliesToOsProcessor();
 		String key = APPLIES_TO_OS_KEY.toLowerCase();
 		String value = APPLIES_TO_OS_VALUE;
 		Connector connector = new Connector();
@@ -361,8 +361,8 @@ class ConnectorSimplePropertyTest {
 	}
 
 	@Test
-	void testAppliesToOSProcessorDetectOK() {
-		AppliesToOSProcessor appliesToOSProcessor = new AppliesToOSProcessor();
+	void testAppliesToOsProcessorDetectOK() {
+		AppliesToOsProcessor appliesToOSProcessor = new AppliesToOsProcessor();
 		String key = APPLIES_TO_OS_KEY;
 		String value = APPLIES_TO_OS_VALUE;
 		Connector connector = new Connector();
@@ -370,8 +370,8 @@ class ConnectorSimplePropertyTest {
 	}
 	
 	@Test
-	void testAppliesToOSProcessorParseConnectorNull() {
-		AppliesToOSProcessor appliesToOSProcessor = new AppliesToOSProcessor();
+	void testAppliesToOsProcessorParseConnectorNull() {
+		AppliesToOsProcessor appliesToOSProcessor = new AppliesToOsProcessor();
 		String key = APPLIES_TO_OS_KEY;
 		String value = APPLIES_TO_OS_VALUE;
 		Connector connector = null;
@@ -380,8 +380,8 @@ class ConnectorSimplePropertyTest {
 	}
 	
 	@Test
-	void testAppliesToOSProcessorParseValueNull() {
-		AppliesToOSProcessor appliesToOSProcessor = new AppliesToOSProcessor();
+	void testAppliesToOsProcessorParseValueNull() {
+		AppliesToOsProcessor appliesToOSProcessor = new AppliesToOsProcessor();
 		String key = APPLIES_TO_OS_KEY;
 		String value = null;
 		Connector connector = new Connector();
@@ -390,8 +390,8 @@ class ConnectorSimplePropertyTest {
 	}
 	
 	@Test
-	void testAppliesToOSProcessorParseTrimOK() {
-		AppliesToOSProcessor appliesToOSProcessor = new AppliesToOSProcessor();
+	void testAppliesToOsProcessorParseTrimOK() {
+		AppliesToOsProcessor appliesToOSProcessor = new AppliesToOsProcessor();
 		String key = APPLIES_TO_OS_KEY;
 		String value = APPLIES_TO_OS_VALUE_SPACED;
 		Connector connector = new Connector();
@@ -400,8 +400,8 @@ class ConnectorSimplePropertyTest {
 	}
 	
 	@Test
-	void testAppliesToOSProcessorParseOK() {
-		AppliesToOSProcessor appliesToOSProcessor = new AppliesToOSProcessor();
+	void testAppliesToOsProcessorParseOK() {
+		AppliesToOsProcessor appliesToOSProcessor = new AppliesToOsProcessor();
 		String key = APPLIES_TO_OS_KEY;
 		String value = APPLIES_TO_OS_VALUE;
 		Connector connector = new Connector();
@@ -1004,7 +1004,7 @@ class ConnectorSimplePropertyTest {
 
 		assertEquals(
 				Stream.of(DisplayNameProcessor.class, TypicalPlatformProcessor.class, ReliesOnProcessor.class, VersionProcessor.class,
-						RemoteSupportProcessor.class, LocalSupportProcessor.class, AppliesToOSProcessor.class, SupersedesProcessor.class,
+						RemoteSupportProcessor.class, LocalSupportProcessor.class, AppliesToOsProcessor.class, SupersedesProcessor.class,
 						CommentsProcessor.class, NoAutoDetectionProcessor.class, OnLastResortProcessor.class)
 						.collect(Collectors.toSet()),
 				ConnectorSimpleProperty.getConnectorProperties().stream().map(IConnectorStateParser::getClass).collect(Collectors.toSet()));
