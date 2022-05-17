@@ -66428,7 +66428,7 @@
       "averageCpuTemperatureWarning" : "60.0",
       "location" : "localhost",
       "operatingSystemType" : "STORAGE",
-      "powerMeter" : "collected"
+      "powerMeter" : "measured"
     },
     "alertRules" : { }
   }, {
