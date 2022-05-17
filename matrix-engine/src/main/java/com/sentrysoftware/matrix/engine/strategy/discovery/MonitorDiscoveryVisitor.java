@@ -324,7 +324,7 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 		Assert.notNull(monitorBuildingInfo.getMonitorType(), MONITOR_TYPE_CANNOT_BE_NULL);
 		Assert.isTrue(hasConnectorName(monitorBuildingInfo), CONNECTOR_NAME_CANNOT_BE_NULL);
 		Assert.isTrue(hasTargetMonitor(monitorBuildingInfo), TARGET_MONITOR_CANNOT_BE_NULL);
-		Assert.notNull(monitorBuildingInfo.getTargetType(), TARGET_TYPE_CANNOT_BE_NULL);
+		Assert.notNull(monitorBuildingInfo.getHostType(), TARGET_TYPE_CANNOT_BE_NULL);
 		Assert.notNull(monitorBuildingInfo.getHostMonitoring(), HOST_MONITORING_CANNOT_BE_NULL);
 		Assert.notNull(monitorBuildingInfo.getHostname(), HOSTNAME_CANNOT_BE_NULL);
 	}

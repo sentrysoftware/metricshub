@@ -434,7 +434,7 @@ public class HostMonitoring implements IHostMonitoring {
 	@Override
 	public synchronized EngineResult run(final IStrategy... strategies) {
 
-		final String hostname = engineConfiguration.getTarget().getHostname();
+		final String hostname = engineConfiguration.getHost().getHostname();
 
 		log.trace("Hostname {} - Engine called for thread {}", hostname, Thread.currentThread().getName());
 
@@ -467,7 +467,7 @@ public class HostMonitoring implements IHostMonitoring {
 	 */
 	private EngineResult run(@NonNull final IStrategy strategy) {
 		final ApplicationContext applicationContext = createApplicationContext(strategy);
-		final String hostname = engineConfiguration.getTarget().getHostname();
+		final String hostname = engineConfiguration.getHost().getHostname();
 
 		try {
 
@@ -549,10 +549,10 @@ public class HostMonitoring implements IHostMonitoring {
 		Assert.notNull(engineConfiguration.getProtocolConfigurations(), "protocolConfigurations cannot be null.");
 		Assert.isTrue(!engineConfiguration.getProtocolConfigurations().isEmpty(), "protocolConfigurations cannot be empty.");
 		Assert.notNull(engineConfiguration.getSelectedConnectors(), "selectedConnectors cannot be null.");
-		Assert.notNull(engineConfiguration.getTarget(), "target cannot be null.");
-		Assert.notNull(engineConfiguration.getTarget().getHostname(), "target hostname cannot be null.");
-		Assert.notNull(engineConfiguration.getTarget().getType(), "target type cannot be null.");
-		Assert.notNull(engineConfiguration.getTarget().getId(), "target id cannot be null.");
+		Assert.notNull(engineConfiguration.getHost(), "target cannot be null.");
+		Assert.notNull(engineConfiguration.getHost().getHostname(), "target hostname cannot be null.");
+		Assert.notNull(engineConfiguration.getHost().getType(), "target type cannot be null.");
+		Assert.notNull(engineConfiguration.getHost().getId(), "target id cannot be null.");
 	}
 
 	/**
@@ -564,7 +564,7 @@ public class HostMonitoring implements IHostMonitoring {
 	 */
 	private ApplicationContext createApplicationContext(final IStrategy strategy) {
 
-		log.debug("Hostname {} - Creating spring context", engineConfiguration.getTarget().getHostname());
+		log.debug("Hostname {} - Creating spring context", engineConfiguration.getHost().getHostname());
 
 		final StrategyConfig strategyConfig = StrategyConfig
 			.builder()

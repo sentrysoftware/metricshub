@@ -35,10 +35,10 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.engine.strategy.AbstractStrategy;
 import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
-import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
+import com.sentrysoftware.matrix.engine.host.HostType;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -51,7 +51,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 	@Override
 	public Boolean call() throws Exception {
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		log.debug("Hostname {} - Start Discovery", hostname);
 
 		// Get the connectors previously created/selected in the DetectionOperation
@@ -250,7 +250,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 			return;
 		}
 
-		final TargetType targetType = strategyConfig.getEngineConfiguration().getTarget().getType();
+		final HostType hostType = strategyConfig.getEngineConfiguration().getHost().getType();
 
 		// Process the instance table
 		if (instanceTable instanceof SourceInstanceTable) {
@@ -300,7 +300,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 						.hostMonitoring(hostMonitoring)
 						.monitorType(monitorType)
 						.hostname(hostname)
-						.targetType(targetType)
+						.hostType(hostType)
 						.build();
 
 				monitorType.getMetaMonitor().accept(new MonitorDiscoveryVisitor(monitorBuildingInfo));
@@ -326,7 +326,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 					.hostMonitoring(hostMonitoring)
 					.monitorType(monitorType)
 					.hostname(hostname)
-					.targetType(targetType)
+					.hostType(hostType)
 					.build();
 
 			monitorType.getMetaMonitor().accept(new MonitorDiscoveryVisitor(monitorBuildingInfo));
@@ -385,7 +385,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 	void processSourceTableMetadata(final String connectorName, final Map<String, String> parameters,
 									final String sourceKey, final List<String> row, final Monitor monitor, final int idCount) {
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		
 		// Loop over all the key values defined in the connector's Instance and create a metadata attribute for each entry
 		for (final Entry<String, String> parameter : parameters.entrySet()) {
@@ -481,7 +481,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 		if (temperatureMonitors == null || temperatureMonitors.isEmpty()) {
 			log.debug(
 					"Hostname {} - Could not detect cpu temperature sensors. isCpuSensor and averageCpuTemperatureWarning metadata won't be set.",
-					strategyConfig.getEngineConfiguration().getTarget().getHostname());
+					strategyConfig.getEngineConfiguration().getHost().getHostname());
 			return;
 		}
 

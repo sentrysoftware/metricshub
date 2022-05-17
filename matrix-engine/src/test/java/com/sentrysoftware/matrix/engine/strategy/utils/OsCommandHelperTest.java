@@ -44,8 +44,9 @@ import com.sentrysoftware.matrix.engine.protocol.OsCommandConfig;
 import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WmiProtocol;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
-import com.sentrysoftware.matrix.engine.target.HardwareTarget;
-import com.sentrysoftware.matrix.engine.target.TargetType;
+
+import com.sentrysoftware.matrix.engine.host.HardwareHost;
+import com.sentrysoftware.matrix.engine.host.HostType;
 
 class OsCommandHelperTest {
 
@@ -408,12 +409,12 @@ class OsCommandHelperTest {
 				.password("pwd".toCharArray())
 				.build();
 
-		final HardwareTarget hardwareTarget = new HardwareTarget("id", "host", TargetType.LINUX);
+		final HardwareHost hardwareHost = new HardwareHost("id", "host", HostType.LINUX);
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
 				.protocolConfigurations(Map.of(sshProtocol.getClass(), sshProtocol))
-				.target(hardwareTarget)
+				.host(hardwareHost)
 				.build();
 
 		assertThrows(NoCredentialProvidedException.class, () -> OsCommandHelper.runOsCommand(
@@ -443,12 +444,12 @@ class OsCommandHelperTest {
 		wmiProtocol.setUsername("user");
 		wmiProtocol.setPassword("pwd".toCharArray());
 
-		final HardwareTarget hardwareTarget = new HardwareTarget("id", "host", TargetType.MS_WINDOWS);
+		final HardwareHost hardwareHost = new HardwareHost("id", "host", HostType.MS_WINDOWS);
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
 				.protocolConfigurations(Map.of(wmiProtocol.getClass(), wmiProtocol))
-				.target(hardwareTarget)
+				.host(hardwareHost)
 				.build();
 
 		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
@@ -480,11 +481,11 @@ class OsCommandHelperTest {
 	@EnabledOnOs(WINDOWS)
 	void testRunOsCommandWindowsError() {
 
-		final HardwareTarget hardwareTarget = new HardwareTarget("id", "localhost", TargetType.MS_WINDOWS);
+		final HardwareHost hardwareHost = new HardwareHost("id", "localhost", HostType.MS_WINDOWS);
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
-				.target(hardwareTarget)
+				.host(hardwareHost)
 				.build();
 
 		assertThrows(TimeoutException.class, () -> OsCommandHelper.runOsCommand(
@@ -500,11 +501,11 @@ class OsCommandHelperTest {
 	@EnabledOnOs(LINUX)
 	void testRunOsCommandLinuxError() {
 
-		final HardwareTarget hardwareTarget = new HardwareTarget("id", "localhost", TargetType.LINUX);
+		final HardwareHost hardwareHost = new HardwareHost("id", "localhost", HostType.LINUX);
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
-				.target(hardwareTarget)
+				.host(hardwareHost)
 				.build();
 
 		assertThrows(TimeoutException.class, () -> OsCommandHelper.runOsCommand(
@@ -524,12 +525,12 @@ class OsCommandHelperTest {
 		wmiProtocol.setUsername("user");
 		wmiProtocol.setPassword("pwd".toCharArray());
 
-		final HardwareTarget hardwareTarget = new HardwareTarget("id", "localhost", TargetType.MS_WINDOWS);
+		final HardwareHost hardwareHost = new HardwareHost("id", "localhost", HostType.MS_WINDOWS);
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
 				.protocolConfigurations(Map.of(wmiProtocol.getClass(), wmiProtocol))
-				.target(hardwareTarget)
+				.host(hardwareHost)
 				.build();
 
 		final String command = "ECHO Test";
@@ -555,12 +556,12 @@ class OsCommandHelperTest {
 				.password("pwd".toCharArray())
 				.build();
 
-		final HardwareTarget hardwareTarget = new HardwareTarget("id", "localhost", TargetType.LINUX);
+		final HardwareHost hardwareHost = new HardwareHost("id", "localhost", HostType.LINUX);
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
 				.protocolConfigurations(Map.of(sshProtocol.getClass(), sshProtocol))
-				.target(hardwareTarget)
+				.host(hardwareHost)
 				.build();
 
 		final String command = "echo Test";
@@ -581,11 +582,11 @@ class OsCommandHelperTest {
 	@EnabledOnOs(WINDOWS)
 	void testRunOsCommandRemoteExecutedLocallyWindows() throws Exception {
 
-		final HardwareTarget hardwareTarget = new HardwareTarget("id", "host", TargetType.MS_WINDOWS);
+		final HardwareHost hardwareHost = new HardwareHost("id", "host", HostType.MS_WINDOWS);
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
-				.target(hardwareTarget)
+				.host(hardwareHost)
 				.build();
 
 		final String command = "ECHO Test";
@@ -606,11 +607,11 @@ class OsCommandHelperTest {
 	@EnabledOnOs(LINUX)
 	void testRunOsCommandRemoteExecutedLocallyLinux() throws Exception {
 
-		final HardwareTarget hardwareTarget = new HardwareTarget("id", "host", TargetType.LINUX);
+		final HardwareHost hardwareHost = new HardwareHost("id", "host", HostType.LINUX);
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
-				.target(hardwareTarget)
+				.host(hardwareHost)
 				.build();
 
 		final String command = "echo Test";
@@ -653,12 +654,12 @@ class OsCommandHelperTest {
 		wmiProtocol.setUsername("user");
 		wmiProtocol.setPassword("pwd".toCharArray());
 
-		final HardwareTarget hardwareTarget = new HardwareTarget("id", "host", TargetType.MS_WINDOWS);
+		final HardwareHost hardwareHost = new HardwareHost("id", "host", HostType.MS_WINDOWS);
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
 				.protocolConfigurations(Map.of(wmiProtocol.getClass(), wmiProtocol))
-				.target(hardwareTarget)
+				.host(hardwareHost)
 				.build();
 
 		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class);
@@ -728,12 +729,12 @@ class OsCommandHelperTest {
 				.password("pwd".toCharArray())
 				.build();
 
-		final HardwareTarget hardwareTarget = new HardwareTarget("id", "host", TargetType.LINUX);
+		final HardwareHost hardwareHost = new HardwareHost("id", "host", HostType.LINUX);
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
 				.protocolConfigurations(Map.of(sshProtocol.getClass(), sshProtocol))
-				.target(hardwareTarget)
+				.host(hardwareHost)
 				.build();
 
 		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
@@ -797,12 +798,12 @@ class OsCommandHelperTest {
 		final OsCommandConfig osCommandConfig = new OsCommandConfig();
 		osCommandConfig.setUseSudoCommands(Collections.singleton("naviseccli"));
 
-		final HardwareTarget hardwareTarget = new HardwareTarget("id", "host", TargetType.LINUX);
+		final HardwareHost hardwareHost = new HardwareHost("id", "host", HostType.LINUX);
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
 				.protocolConfigurations(Map.of(sshProtocol.getClass(), sshProtocol, osCommandConfig.getClass(), osCommandConfig))
-				.target(hardwareTarget)
+				.host(hardwareHost)
 				.build();
 
 		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
@@ -865,12 +866,12 @@ class OsCommandHelperTest {
 		osCommandConfig.setUseSudo(true);
 		osCommandConfig.setUseSudoCommands(Collections.singleton("other"));
 
-		final HardwareTarget hardwareTarget = new HardwareTarget("id", "host", TargetType.LINUX);
+		final HardwareHost hardwareHost = new HardwareHost("id", "host", HostType.LINUX);
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
 				.protocolConfigurations(Map.of(sshProtocol.getClass(), sshProtocol, osCommandConfig.getClass(), osCommandConfig))
-				.target(hardwareTarget)
+				.host(hardwareHost)
 				.build();
 
 		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
@@ -933,12 +934,12 @@ class OsCommandHelperTest {
 		osCommandConfig.setUseSudo(true);
 		osCommandConfig.setUseSudoCommands(Collections.singleton("naviseccli"));
 
-		final HardwareTarget hardwareTarget = new HardwareTarget("id", "host", TargetType.LINUX);
+		final HardwareHost hardwareHost = new HardwareHost("id", "host", HostType.LINUX);
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
 				.protocolConfigurations(Map.of(sshProtocol.getClass(), sshProtocol, osCommandConfig.getClass(), osCommandConfig))
-				.target(hardwareTarget)
+				.host(hardwareHost)
 				.build();
 
 		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
@@ -1032,12 +1033,12 @@ class OsCommandHelperTest {
 				.password("pwd".toCharArray())
 				.build();
 
-		final HardwareTarget hardwareTarget = new HardwareTarget("id", "host", TargetType.LINUX);
+		final HardwareHost hardwareHost = new HardwareHost("id", "host", HostType.LINUX);
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
 				.protocolConfigurations(Map.of(sshProtocol.getClass(), sshProtocol, osCommandConfig.getClass(), osCommandConfig))
-				.target(hardwareTarget)
+				.host(hardwareHost)
 				.build();
 
 		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {

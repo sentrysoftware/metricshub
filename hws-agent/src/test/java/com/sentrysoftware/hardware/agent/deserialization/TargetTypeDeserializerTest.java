@@ -13,7 +13,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.fasterxml.jackson.dataformat.yaml.YAMLParser;
-import com.sentrysoftware.matrix.engine.target.TargetType;
+
+import com.sentrysoftware.matrix.engine.host.HostType;
 
 @ExtendWith(MockitoExtension.class)
 class TargetTypeDeserializerTest {
@@ -52,69 +53,69 @@ class TargetTypeDeserializerTest {
 	@Test
 	void testLinux() throws IOException {
 		doReturn("linux").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.LINUX, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.LINUX, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 		doReturn("lin").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.LINUX, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.LINUX, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 		doReturn("linx").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.LINUX, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.LINUX, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 	}
 
 	@Test
 	void testWindows() throws IOException {
 		doReturn("win").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.MS_WINDOWS, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.MS_WINDOWS, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 		doReturn("microsoft win").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.MS_WINDOWS, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.MS_WINDOWS, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 		doReturn("ms win").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.MS_WINDOWS, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.MS_WINDOWS, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 		doReturn("ms_windows").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.MS_WINDOWS, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.MS_WINDOWS, new TargetTypeDeserializer().deserialize(yamlParser, null));
 	}
 
 	@Test
 	void testOob() throws IOException {
 		doReturn("oob").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.MGMT_CARD_BLADE_ESXI, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.MGMT_CARD_BLADE_ESXI, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 		doReturn("esx").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.MGMT_CARD_BLADE_ESXI, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.MGMT_CARD_BLADE_ESXI, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 		doReturn("blade").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.MGMT_CARD_BLADE_ESXI, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.MGMT_CARD_BLADE_ESXI, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 		doReturn("vmware").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.MGMT_CARD_BLADE_ESXI, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.MGMT_CARD_BLADE_ESXI, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 		doReturn("mgmt").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.MGMT_CARD_BLADE_ESXI, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.MGMT_CARD_BLADE_ESXI, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 		doReturn("management").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.MGMT_CARD_BLADE_ESXI, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.MGMT_CARD_BLADE_ESXI, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 		doReturn("MGMT_CARD_BLADE_ESXI").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.MGMT_CARD_BLADE_ESXI, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.MGMT_CARD_BLADE_ESXI, new TargetTypeDeserializer().deserialize(yamlParser, null));
 	}
 
 	@Test
 	void testNetwork() throws IOException {
 
 		doReturn("network").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.NETWORK_SWITCH, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.NETWORK_SWITCH, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 		doReturn("net").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.NETWORK_SWITCH, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.NETWORK_SWITCH, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 		doReturn("switch").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.NETWORK_SWITCH, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.NETWORK_SWITCH, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 		doReturn("NETWORK_SWITCH").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.NETWORK_SWITCH, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.NETWORK_SWITCH, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 	}
 
@@ -122,16 +123,16 @@ class TargetTypeDeserializerTest {
 	void testStorage() throws IOException {
 
 		doReturn("storage").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.STORAGE, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.STORAGE, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 		doReturn("sto").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.STORAGE, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.STORAGE, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 		doReturn("san").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.STORAGE, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.STORAGE, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 		doReturn("STORAGE").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.STORAGE, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.STORAGE, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 	}
 
@@ -139,13 +140,13 @@ class TargetTypeDeserializerTest {
 	void testTru64() throws IOException {
 
 		doReturn("tru64").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.HP_TRU64_UNIX, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.HP_TRU64_UNIX, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 		doReturn("osf").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.HP_TRU64_UNIX, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.HP_TRU64_UNIX, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 		doReturn("HP_TRU64_UNIX").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.HP_TRU64_UNIX, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.HP_TRU64_UNIX, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 	}
 
@@ -153,13 +154,13 @@ class TargetTypeDeserializerTest {
 	void testHpUx() throws IOException {
 
 		doReturn("hpux").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.HP_UX, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.HP_UX, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 		doReturn("hp ux").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.HP_UX, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.HP_UX, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 		doReturn("HP_UX").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.HP_UX, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.HP_UX, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 	}
 
@@ -167,13 +168,13 @@ class TargetTypeDeserializerTest {
 	void testAix() throws IOException {
 
 		doReturn("aix").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.IBM_AIX, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.IBM_AIX, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 		doReturn("rs6000").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.IBM_AIX, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.IBM_AIX, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 		doReturn("IBM_AIX").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.IBM_AIX, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.IBM_AIX, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 	}
 
@@ -181,31 +182,31 @@ class TargetTypeDeserializerTest {
 	void testSun() throws IOException {
 
 		doReturn("sun").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.SUN_SOLARIS, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.SUN_SOLARIS, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 		doReturn("oracle").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.SUN_SOLARIS, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.SUN_SOLARIS, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 		doReturn("ora").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.SUN_SOLARIS, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.SUN_SOLARIS, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 		doReturn("solaris").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.SUN_SOLARIS, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.SUN_SOLARIS, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 		doReturn("SUN_SOLARIS").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.SUN_SOLARIS, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.SUN_SOLARIS, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 	}
 
 	@Test
 	void testVms() throws IOException {
 		doReturn("vms").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.HP_OPEN_VMS, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.HP_OPEN_VMS, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 		doReturn("HP_OPEN_VMS").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.HP_OPEN_VMS, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.HP_OPEN_VMS, new TargetTypeDeserializer().deserialize(yamlParser, null));
 
 		doReturn("open vms").when(yamlParser).getValueAsString();
-		assertEquals(TargetType.HP_OPEN_VMS, new TargetTypeDeserializer().deserialize(yamlParser, null));
+		assertEquals(HostType.HP_OPEN_VMS, new TargetTypeDeserializer().deserialize(yamlParser, null));
 	}
 }

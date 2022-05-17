@@ -29,8 +29,6 @@ import com.sentrysoftware.matrix.common.meta.monitor.Battery;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.collect.CollectHelper;
-import com.sentrysoftware.matrix.engine.target.HardwareTarget;
-import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.alert.AlertDetails;
 import com.sentrysoftware.matrix.model.alert.AlertInfo;
 import com.sentrysoftware.matrix.model.alert.AlertRule;
@@ -38,6 +36,9 @@ import com.sentrysoftware.matrix.model.alert.Severity;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+
+import com.sentrysoftware.matrix.engine.host.HardwareHost;
+import com.sentrysoftware.matrix.engine.host.HostType;
 
 public class OtelAlertHelperTest {
 
@@ -214,7 +215,7 @@ public class OtelAlertHelperTest {
 					.alertRule(new AlertRule())
 					.parameterName("unknownParam")
 					.hostMonitoring(new HostMonitoring())
-					.hardwareTarget(HardwareTarget.builder().build())
+					.hardwareHost(HardwareHost.builder().build())
 					.monitor(Monitor.builder().build())
 					.build(), "template"));
 		assertEquals(EMPTY, OtelAlertHelper.buildHardwareProblem(
@@ -223,7 +224,7 @@ public class OtelAlertHelperTest {
 					.alertRule(new AlertRule())
 					.parameterName(STATUS_PARAMETER)
 					.hostMonitoring(new HostMonitoring())
-					.hardwareTarget(HardwareTarget.builder().build())
+					.hardwareHost(HardwareHost.builder().build())
 					.monitor(Monitor.builder().monitorType(MonitorType.BATTERY).build())
 					.build(), ""));
 		assertEquals(EMPTY, OtelAlertHelper.buildHardwareProblem(
@@ -232,7 +233,7 @@ public class OtelAlertHelperTest {
 					.alertRule(new AlertRule())
 					.parameterName(STATUS_PARAMETER)
 					.hostMonitoring(new HostMonitoring())
-					.hardwareTarget(HardwareTarget.builder().build())
+					.hardwareHost(HardwareHost.builder().build())
 					.monitor(Monitor.builder().monitorType(MonitorType.BATTERY).build())
 					.build(), null));
 		assertThrows(IllegalArgumentException.class, () -> OtelAlertHelper.buildHardwareProblem(null, "template"));
@@ -318,7 +319,7 @@ public class OtelAlertHelperTest {
 						.alertRule(alertRule)
 						.monitor(monitor)
 						.parameterName(parameterName)
-						.hardwareTarget(HardwareTarget.builder().type(TargetType.LINUX).id(TRAGET_HOSTNAME).hostname(TRAGET_HOSTNAME).build())
+						.hardwareHost(HardwareHost.builder().type(HostType.LINUX).id(TRAGET_HOSTNAME).hostname(TRAGET_HOSTNAME).build())
 						.hostMonitoring(hostMonitoring)
 						.build()
 				);

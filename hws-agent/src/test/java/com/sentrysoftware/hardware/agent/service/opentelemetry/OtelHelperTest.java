@@ -16,8 +16,8 @@ import org.mockito.MockedStatic;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.ILocalOs;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.ILocalOsVisitor;
-import com.sentrysoftware.matrix.engine.target.TargetType;
 
+import com.sentrysoftware.matrix.engine.host.HostType;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.sdk.resources.Resource;
 
@@ -39,23 +39,23 @@ class OtelHelperTest {
 
 		{
 			assertThrows(IllegalArgumentException.class, () -> OtelHelper.createHostResource(null,
-					"host", TargetType.LINUX, "host.my.domain.net", false, emptyMap, emptyMap));
+					"host", HostType.LINUX, "host.my.domain.net", false, emptyMap, emptyMap));
 			assertThrows(IllegalArgumentException.class, () -> OtelHelper.createHostResource("id",
-					null, TargetType.LINUX, "host.my.domain.net", false, emptyMap, emptyMap));
+					null, HostType.LINUX, "host.my.domain.net", false, emptyMap, emptyMap));
 			assertThrows(IllegalArgumentException.class, () -> OtelHelper.createHostResource("id",
 					"host", null, "host.my.domain.net", false, emptyMap, emptyMap));
 			assertThrows(IllegalArgumentException.class, () -> OtelHelper.createHostResource("id",
-					"host", TargetType.LINUX, null, false, emptyMap, emptyMap));
+					"host", HostType.LINUX, null, false, emptyMap, emptyMap));
 			assertThrows(IllegalArgumentException.class, () -> OtelHelper.createHostResource("id",
-					"host", TargetType.LINUX, "host.my.domain.net", false, null, emptyMap));
+					"host", HostType.LINUX, "host.my.domain.net", false, null, emptyMap));
 			assertThrows(IllegalArgumentException.class, () -> OtelHelper.createHostResource("id",
-					"host", TargetType.LINUX, "host.my.domain.net", false, emptyMap, null));
-			assertNotNull(OtelHelper.createHostResource("id", "host", TargetType.LINUX, "host.my.domain.net", false, emptyMap, emptyMap));
+					"host", HostType.LINUX, "host.my.domain.net", false, emptyMap, null));
+			assertNotNull(OtelHelper.createHostResource("id", "host", HostType.LINUX, "host.my.domain.net", false, emptyMap, emptyMap));
 		}
 
 
 		{
-			final Resource actual = OtelHelper.createHostResource("id", "host", TargetType.LINUX, "host.my.domain.net", false,
+			final Resource actual = OtelHelper.createHostResource("id", "host", HostType.LINUX, "host.my.domain.net", false,
 					emptyMap, emptyMap);
 			final Resource expected = Resource.create(Attributes.builder()
 					.put("host.id", "id")
@@ -69,7 +69,7 @@ class OtelHelperTest {
 		}
 
 		{
-			final Resource actual = OtelHelper.createHostResource("id", "host", TargetType.LINUX, "host.my.domain.net", true,
+			final Resource actual = OtelHelper.createHostResource("id", "host", HostType.LINUX, "host.my.domain.net", true,
 					emptyMap, emptyMap);
 			final Resource expected = Resource.create(Attributes.builder()
 					.put("host.id", "id")
@@ -83,7 +83,7 @@ class OtelHelperTest {
 		}
 
 		{
-			final Resource actual = OtelHelper.createHostResource("id", "host", TargetType.LINUX, "host.my.domain.net", true,
+			final Resource actual = OtelHelper.createHostResource("id", "host", HostType.LINUX, "host.my.domain.net", true,
 					Map.of("host.name", "host.my.domain"), emptyMap);
 			final Resource expected = Resource.create(Attributes.builder()
 					.put("host.id", "id")
@@ -97,7 +97,7 @@ class OtelHelperTest {
 		}
 
 		{
-			final Resource actual = OtelHelper.createHostResource("id", "host", TargetType.LINUX, "host.my.domain.net", true,
+			final Resource actual = OtelHelper.createHostResource("id", "host", HostType.LINUX, "host.my.domain.net", true,
 					Map.of(
 							"host.name", "host.my.domain",
 							"fqdn", "host-01.my.domain.com" // The user added a new extra label: fqdn.
@@ -115,7 +115,7 @@ class OtelHelperTest {
 			assertEquals(expected, actual);
 		}
 		{
-			final Resource actual = OtelHelper.createHostResource("id", "host", TargetType.LINUX, "host.my.domain.net", true,
+			final Resource actual = OtelHelper.createHostResource("id", "host", HostType.LINUX, "host.my.domain.net", true,
 					emptyMap,
 					Map.of(
 							"host.name", "should.n.t",

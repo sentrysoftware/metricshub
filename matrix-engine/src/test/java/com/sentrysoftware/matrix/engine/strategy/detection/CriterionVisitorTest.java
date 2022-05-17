@@ -71,10 +71,11 @@ import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.matrix.engine.strategy.utils.SshInteractiveHelper;
 import com.sentrysoftware.matrix.engine.strategy.utils.WqlDetectionHelper;
-import com.sentrysoftware.matrix.engine.target.HardwareTarget;
-import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+
+import com.sentrysoftware.matrix.engine.host.HardwareHost;
+import com.sentrysoftware.matrix.engine.host.HostType;
 
 @ExtendWith(MockitoExtension.class)
 class CriterionVisitorTest {
@@ -140,7 +141,7 @@ class CriterionVisitorTest {
 
 		engineConfiguration = EngineConfiguration
 				.builder()
-				.target(HardwareTarget.builder().hostname(PUREM_SAN).id(PUREM_SAN).type(TargetType.LINUX).build())
+				.host(HardwareHost.builder().hostname(PUREM_SAN).id(PUREM_SAN).type(HostType.LINUX).build())
 				.protocolConfigurations(Map.of(HttpProtocol.class, protocol))
 				.build();
 	}
@@ -154,7 +155,7 @@ class CriterionVisitorTest {
 		// HTTP is not null, protocol is null
 		engineConfiguration = EngineConfiguration
 				.builder()
-				.target(HardwareTarget.builder().hostname(PUREM_SAN).id(PUREM_SAN).type(TargetType.LINUX).build())
+				.host(HardwareHost.builder().hostname(PUREM_SAN).id(PUREM_SAN).type(HostType.LINUX).build())
 				.build();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		final Http http = new Http();
@@ -233,10 +234,10 @@ class CriterionVisitorTest {
 		final Map<Class<? extends IProtocolConfiguration>, IProtocolConfiguration> protocolConfigurations = new HashMap<>();
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
-				.target(HardwareTarget.builder()
+				.host(HardwareHost.builder()
 						.hostname(HOST_WIN)
 						.id(HOST_WIN)
-						.type(TargetType.MS_WINDOWS)
+						.type(HostType.MS_WINDOWS)
 						.build())
 				.protocolConfigurations(protocolConfigurations)
 				.build();
@@ -283,10 +284,10 @@ class CriterionVisitorTest {
 		protocolConfigurations.put(wmiProtocol.getClass(), wmiProtocol);
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
-				.target(HardwareTarget.builder()
+				.host(HardwareHost.builder()
 						.hostname(HOST_WIN)
 						.id(HOST_WIN)
-						.type(TargetType.MS_WINDOWS)
+						.type(HostType.MS_WINDOWS)
 						.build())
 				.protocolConfigurations(protocolConfigurations)
 				.build();
@@ -328,7 +329,7 @@ class CriterionVisitorTest {
 		// osConfig null
 		{
 			final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
-					.target(HardwareTarget.builder().hostname(HOST_LINUX).id(HOST_LINUX).type(TargetType.LINUX).build())
+					.host(HardwareHost.builder().hostname(HOST_LINUX).id(HOST_LINUX).type(HostType.LINUX).build())
 
 					.build();
 
@@ -343,7 +344,7 @@ class CriterionVisitorTest {
 		{
 			// wrong IPMIToolCommand
 			final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
-					.target(HardwareTarget.builder().hostname(HOST_LINUX).id(HOST_LINUX).type(TargetType.LINUX).build())
+					.host(HardwareHost.builder().hostname(HOST_LINUX).id(HOST_LINUX).type(HostType.LINUX).build())
 					.protocolConfigurations(Map.of(HttpProtocol.class, HttpProtocol.builder().build(),
 							OsCommandConfig.class, OsCommandConfig.builder().build(),
 							SshProtocol.class, ssh))
@@ -358,7 +359,7 @@ class CriterionVisitorTest {
 		{
 			// wrong result when running IPMIToolCommand
 			final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
-					.target(HardwareTarget.builder().hostname(HOST_LINUX).id(HOST_LINUX).type(TargetType.LINUX).build())
+					.host(HardwareHost.builder().hostname(HOST_LINUX).id(HOST_LINUX).type(HostType.LINUX).build())
 					.protocolConfigurations(Map.of(HttpProtocol.class, OsCommandConfig.builder().build(),
 							OsCommandConfig.class, OsCommandConfig.builder().build(),
 							SshProtocol.class, ssh))
@@ -375,7 +376,7 @@ class CriterionVisitorTest {
 		}
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
-				.target(HardwareTarget.builder().hostname(HOST_LINUX).id(HOST_LINUX).type(TargetType.LINUX).build())
+				.host(HardwareHost.builder().hostname(HOST_LINUX).id(HOST_LINUX).type(HostType.LINUX).build())
 				.protocolConfigurations(Map.of(HttpProtocol.class, OsCommandConfig.builder().build(),
 						OsCommandConfig.class, OsCommandConfig.builder().build(),
 						SshProtocol.class, ssh))
@@ -399,7 +400,7 @@ class CriterionVisitorTest {
 
 		// run localhost command
 		final EngineConfiguration engineConfigurationLocal = EngineConfiguration.builder()
-				.target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.SUN_SOLARIS)
+				.host(HardwareHost.builder().hostname("localhost").id("localhost").type(HostType.SUN_SOLARIS)
 						.build())
 				.protocolConfigurations(Map.of(HttpProtocol.class, OsCommandConfig.builder().build(),
 						OsCommandConfig.class, OsCommandConfig.builder().build(),
@@ -456,7 +457,7 @@ class CriterionVisitorTest {
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 			try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
 				oscmd.when(() -> OsCommandHelper.runLocalCommand(any(), eq(120), isNull())).thenReturn("5.10");
-				final String cmdResult = criterionVisitor.buildIpmiCommand(TargetType.SUN_SOLARIS, "toto", ssh,
+				final String cmdResult = criterionVisitor.buildIpmiCommand(HostType.SUN_SOLARIS, "toto", ssh,
 						osCommandConfig, 120);
 				assertNotNull(cmdResult);
 				assertTrue(cmdResult.startsWith("PATH")); // Successful command
@@ -464,7 +465,7 @@ class CriterionVisitorTest {
 
 			try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
 				oscmd.when(() -> OsCommandHelper.runLocalCommand(any(), eq(120), isNull())).thenReturn("blabla");
-				final String cmdResult = criterionVisitor.buildIpmiCommand(TargetType.SUN_SOLARIS, "toto", ssh,
+				final String cmdResult = criterionVisitor.buildIpmiCommand(HostType.SUN_SOLARIS, "toto", ssh,
 						osCommandConfig, 120);
 				assertNotNull(cmdResult);
 				assertTrue(cmdResult.contains("Couldn't")); // Not Successful command the response starts with
@@ -474,7 +475,7 @@ class CriterionVisitorTest {
 			try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
 				osCommandConfig.setUseSudo(true);
 				oscmd.when(() -> OsCommandHelper.runLocalCommand(any(), eq(120), isNull())).thenReturn("5.10");
-				final String cmdResult = criterionVisitor.buildIpmiCommand(TargetType.SUN_SOLARIS, "toto", ssh,
+				final String cmdResult = criterionVisitor.buildIpmiCommand(HostType.SUN_SOLARIS, "toto", ssh,
 						osCommandConfig, 120);
 				assertNotNull(cmdResult);
 				assertTrue(cmdResult.contains("sudo")); // Successful sudo command
@@ -484,7 +485,7 @@ class CriterionVisitorTest {
 		{
 			// test Linux
 			osCommandConfig.setUseSudo(false);
-			final String cmdResult = criterionVisitor.buildIpmiCommand(TargetType.LINUX, "toto", ssh, osCommandConfig, 120);
+			final String cmdResult = criterionVisitor.buildIpmiCommand(HostType.LINUX, "toto", ssh, osCommandConfig, 120);
 			assertEquals("PATH=$PATH:/usr/local/bin:/usr/sfw/bin;export PATH;ipmitool -I open bmc info", cmdResult);
 		}
 
@@ -529,10 +530,10 @@ class CriterionVisitorTest {
 	void testVisitIPMIOutOfBandConfigurationNotFound() {
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
-				.target(HardwareTarget.builder()
+				.host(HardwareHost.builder()
 						.hostname(MANAGEMENT_CARD_HOST)
 						.id(MANAGEMENT_CARD_HOST)
-						.type(TargetType.MGMT_CARD_BLADE_ESXI)
+						.type(HostType.MGMT_CARD_BLADE_ESXI)
 						.build())
 				.protocolConfigurations(Collections.emptyMap())
 				.build();
@@ -544,10 +545,10 @@ class CriterionVisitorTest {
 	void testVisitIPMIOutOfBand() throws Exception {
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
-				.target(HardwareTarget.builder()
+				.host(HardwareHost.builder()
 						.hostname(MANAGEMENT_CARD_HOST)
 						.id(MANAGEMENT_CARD_HOST)
-						.type(TargetType.MGMT_CARD_BLADE_ESXI)
+						.type(HostType.MGMT_CARD_BLADE_ESXI)
 						.build())
 				.protocolConfigurations(Map.of(IpmiOverLanProtocol.class, IpmiOverLanProtocol
 						.builder()
@@ -569,10 +570,10 @@ class CriterionVisitorTest {
 	void testVisitIPMIOutOfBandNullResult() throws Exception {
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
-				.target(HardwareTarget.builder()
+				.host(HardwareHost.builder()
 						.hostname(MANAGEMENT_CARD_HOST)
 						.id(MANAGEMENT_CARD_HOST)
-						.type(TargetType.MGMT_CARD_BLADE_ESXI)
+						.type(HostType.MGMT_CARD_BLADE_ESXI)
 						.build())
 				.protocolConfigurations(Map.of(IpmiOverLanProtocol.class, IpmiOverLanProtocol
 						.builder()
@@ -596,7 +597,7 @@ class CriterionVisitorTest {
 	@Test
 	void testVisitOS() {
 		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
-				.target(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.MS_WINDOWS).build())
+				.host(HardwareHost.builder().hostname(PC14).id(PC14).type(HostType.MS_WINDOWS).build())
 				.build();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
@@ -638,7 +639,7 @@ class CriterionVisitorTest {
 
 		successfulTestResult.setResult("Configured OS Type : SOLARIS");
 		failedTestResult.setResult("Configured OS Type : SOLARIS");
-		engineConfiguration.setTarget(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.SUN_SOLARIS).build());
+		engineConfiguration.setHost(HardwareHost.builder().hostname(PC14).id(PC14).type(HostType.SUN_SOLARIS).build());
 
 		os.setKeepOnly(Set.of(OsType.LINUX));
 		os.setExclude(Collections.emptySet());
@@ -804,12 +805,12 @@ class CriterionVisitorTest {
 				.password("pwd".toCharArray())
 				.build();
 
-		final HardwareTarget hardwareTarget = new HardwareTarget("id", "host", TargetType.LINUX);
+		final HardwareHost hardwareHost = new HardwareHost("id", "host", HostType.LINUX);
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
 				.protocolConfigurations(Map.of(sshProtocol.getClass(), sshProtocol))
-				.target(hardwareTarget)
+				.host(hardwareHost)
 				.build();
 
 		doReturn(new HostMonitoring()).when(strategyConfig).getHostMonitoring();
@@ -844,12 +845,12 @@ class CriterionVisitorTest {
 				.password("pwd".toCharArray())
 				.build();
 
-		final HardwareTarget hardwareTarget = new HardwareTarget("id", "localhost", TargetType.MS_WINDOWS);
+		final HardwareHost hardwareHost = new HardwareHost("id", "localhost", HostType.MS_WINDOWS);
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
 				.protocolConfigurations(Map.of(sshProtocol.getClass(), sshProtocol, osCommandConfig.getClass(), osCommandConfig))
-				.target(hardwareTarget)
+				.host(hardwareHost)
 				.build();
 
 		final HostMonitoring hostMonitoring = new HostMonitoring();
@@ -888,12 +889,12 @@ class CriterionVisitorTest {
 				.password("pwd".toCharArray())
 				.build();
 
-		final HardwareTarget hardwareTarget = new HardwareTarget("id", "localhost", TargetType.LINUX);
+		final HardwareHost hardwareHost = new HardwareHost("id", "localhost", HostType.LINUX);
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
 				.protocolConfigurations(Map.of(sshProtocol.getClass(), sshProtocol, osCommandConfig.getClass(), osCommandConfig))
-				.target(hardwareTarget)
+				.host(hardwareHost)
 				.build();
 
 		final HostMonitoring hostMonitoring = new HostMonitoring();
@@ -931,12 +932,12 @@ class CriterionVisitorTest {
 				.password("pwd".toCharArray())
 				.build();
 
-		final HardwareTarget hardwareTarget = new HardwareTarget("id", "localhost", TargetType.MS_WINDOWS);
+		final HardwareHost hardwareHost = new HardwareHost("id", "localhost", HostType.MS_WINDOWS);
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
 				.protocolConfigurations(Map.of(sshProtocol.getClass(), sshProtocol))
-				.target(hardwareTarget)
+				.host(hardwareHost)
 				.build();
 
 		final HostMonitoring hostMonitoring = new HostMonitoring();
@@ -974,12 +975,12 @@ class CriterionVisitorTest {
 				.password("pwd".toCharArray())
 				.build();
 
-		final HardwareTarget hardwareTarget = new HardwareTarget("id", "localhost", TargetType.LINUX);
+		final HardwareHost hardwareHost = new HardwareHost("id", "localhost", HostType.LINUX);
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
 				.protocolConfigurations(Map.of(sshProtocol.getClass(), sshProtocol))
-				.target(hardwareTarget)
+				.host(hardwareHost)
 				.build();
 
 		final HostMonitoring hostMonitoring = new HostMonitoring();
@@ -1017,12 +1018,12 @@ class CriterionVisitorTest {
 				.password("pwd".toCharArray())
 				.build();
 
-		final HardwareTarget hardwareTarget = new HardwareTarget("id", "localhost", TargetType.MS_WINDOWS);
+		final HardwareHost hardwareHost = new HardwareHost("id", "localhost", HostType.MS_WINDOWS);
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
 				.protocolConfigurations(Map.of(sshProtocol.getClass(), sshProtocol))
-				.target(hardwareTarget)
+				.host(hardwareHost)
 				.build();
 
 		final HostMonitoring hostMonitoring = new HostMonitoring();
@@ -1060,12 +1061,12 @@ class CriterionVisitorTest {
 				.password("pwd".toCharArray())
 				.build();
 
-		final HardwareTarget hardwareTarget = new HardwareTarget("id", "localhost", TargetType.LINUX);
+		final HardwareHost hardwareHost = new HardwareHost("id", "localhost", HostType.LINUX);
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
 				.protocolConfigurations(Map.of(sshProtocol.getClass(), sshProtocol))
-				.target(hardwareTarget)
+				.host(hardwareHost)
 				.build();
 
 		final HostMonitoring hostMonitoring = new HostMonitoring();
@@ -1119,12 +1120,12 @@ class CriterionVisitorTest {
 
 		final OsCommandConfig osCommandConfig = OsCommandConfig.builder().build();
 
-		final HardwareTarget hardwareTarget = new HardwareTarget("id", "localhost", TargetType.STORAGE);
+		final HardwareHost hardwareHost = new HardwareHost("id", "localhost", HostType.STORAGE);
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
 				.protocolConfigurations(Map.of(OsCommandConfig.class, osCommandConfig))
-				.target(hardwareTarget)
+				.host(hardwareHost)
 				.build();
 
 		final HostMonitoring hostMonitoring = new HostMonitoring();
@@ -1156,7 +1157,7 @@ class CriterionVisitorTest {
 		
         final EngineConfiguration engineConfiguration = EngineConfiguration
                 .builder()
-                .target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.LINUX).build())
+                .host(HardwareHost.builder().hostname("localhost").id("localhost").type(HostType.LINUX).build())
                 .build();
         doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
         
@@ -1167,7 +1168,7 @@ class CriterionVisitorTest {
 	void testVisitProcessCommandLineNull() {
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
-                .target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.LINUX).build())
+                .host(HardwareHost.builder().hostname("localhost").id("localhost").type(HostType.LINUX).build())
 				.build();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		final Process process = new Process();
@@ -1181,7 +1182,7 @@ class CriterionVisitorTest {
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
-                .target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.LINUX).build())
+                .host(HardwareHost.builder().hostname("localhost").id("localhost").type(HostType.LINUX).build())
 				.build();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
@@ -1199,7 +1200,7 @@ class CriterionVisitorTest {
 		process.setProcessCommandLine("MBM[5-9]\\.exe");
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
-				.target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.LINUX).build())
+				.host(HardwareHost.builder().hostname("localhost").id("localhost").type(HostType.LINUX).build())
 				.build();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(new HostMonitoring()).when(strategyConfig).getHostMonitoring();
@@ -1219,7 +1220,7 @@ class CriterionVisitorTest {
 		
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
-                .target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.LINUX).build())
+                .host(HardwareHost.builder().hostname("localhost").id("localhost").type(HostType.LINUX).build())
 				.build();
 		
 		final HostMonitoring hostMonitoring = new HostMonitoring();
@@ -1247,7 +1248,7 @@ class CriterionVisitorTest {
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
-                .target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.LINUX).build())
+                .host(HardwareHost.builder().hostname("localhost").id("localhost").type(HostType.LINUX).build())
 				.build();
 		
 		final HostMonitoring hostMonitoring = new HostMonitoring();
@@ -1327,7 +1328,7 @@ class CriterionVisitorTest {
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
-				.target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.LINUX).build())
+				.host(HardwareHost.builder().hostname("localhost").id("localhost").type(HostType.LINUX).build())
 				.build();
 		
 		final HostMonitoring hostMonitoring = new HostMonitoring();
@@ -1366,7 +1367,7 @@ class CriterionVisitorTest {
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
-                .target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.LINUX).build())
+                .host(HardwareHost.builder().hostname("localhost").id("localhost").type(HostType.LINUX).build())
 				.build();
 		
 		final HostMonitoring hostMonitoring = new HostMonitoring();
@@ -1402,7 +1403,7 @@ class CriterionVisitorTest {
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
-				.target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.LINUX).build())
+				.host(HardwareHost.builder().hostname("localhost").id("localhost").type(HostType.LINUX).build())
 				.build();
 		
 		final HostMonitoring hostMonitoring = new HostMonitoring();
@@ -1438,7 +1439,7 @@ class CriterionVisitorTest {
 	void testVisitServiceCheckProtocolNull() {
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
-				.target(HardwareTarget.builder()
+				.host(HardwareHost.builder()
 						.hostname(HOST_WIN)
 						.build())
 				.build();
@@ -1461,7 +1462,7 @@ class CriterionVisitorTest {
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
-				.target(HardwareTarget.builder()
+				.host(HardwareHost.builder()
 						.hostname(HOST_WIN)
 						.build())
 				.protocolConfigurations(Map.of(wmiProtocol.getClass(), wmiProtocol))
@@ -1476,7 +1477,7 @@ class CriterionVisitorTest {
 
 		assertNotNull(criterionTestResult);
 		assertFalse(criterionTestResult.isSuccess());
-		assertTrue(criterionTestResult.getMessage().contains("Target system is not Windows"));
+		assertTrue(criterionTestResult.getMessage().contains("Host system is not Windows"));
 		assertNull(criterionTestResult.getResult());
 	}
 
@@ -1490,9 +1491,9 @@ class CriterionVisitorTest {
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
-				.target(HardwareTarget.builder()
+				.host(HardwareHost.builder()
 						.hostname(HOST_WIN)
-						.type(TargetType.LINUX)
+						.type(HostType.LINUX)
 						.build())
 				.protocolConfigurations(Map.of(wmiProtocol.getClass(), wmiProtocol))
 				.build();
@@ -1520,10 +1521,10 @@ class CriterionVisitorTest {
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
-				.target(HardwareTarget.builder()
+				.host(HardwareHost.builder()
 						.hostname(HOST_WIN)
 						.id(HOST_WIN)
-						.type(TargetType.MS_WINDOWS)
+						.type(HostType.MS_WINDOWS)
 						.build())
 				.protocolConfigurations(Map.of(wmiProtocol.getClass(), wmiProtocol))
 				.build();
@@ -1559,7 +1560,7 @@ class CriterionVisitorTest {
 
 		engineConfiguration = EngineConfiguration
 				.builder()
-				.target(HardwareTarget.builder().hostname(ECS1_01).id(ECS1_01).type(TargetType.LINUX).build())
+				.host(HardwareHost.builder().hostname(ECS1_01).id(ECS1_01).type(HostType.LINUX).build())
 				.protocolConfigurations(Map.of(SnmpProtocol.class, protocol))
 				.build();
 	}
@@ -1700,7 +1701,7 @@ class CriterionVisitorTest {
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
 				.protocolConfigurations(Map.of(SshProtocol.class, SshProtocol.builder().build()))
-				.target(new HardwareTarget("id", "host", TargetType.LINUX))
+				.host(new HardwareHost("id", "host", HostType.LINUX))
 				.build();
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
@@ -1734,7 +1735,7 @@ class CriterionVisitorTest {
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
 				.protocolConfigurations(Map.of(SshProtocol.class, SshProtocol.builder().build()))
-				.target(new HardwareTarget("id", "host", TargetType.LINUX))
+				.host(new HardwareHost("id", "host", HostType.LINUX))
 				.build();
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
@@ -1777,7 +1778,7 @@ class CriterionVisitorTest {
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
 				.protocolConfigurations(Map.of(SshProtocol.class, SshProtocol.builder().build()))
-				.target(new HardwareTarget("id", "host", TargetType.LINUX))
+				.host(new HardwareHost("id", "host", HostType.LINUX))
 				.build();
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
@@ -1820,7 +1821,7 @@ class CriterionVisitorTest {
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
 				.protocolConfigurations(Map.of(SshProtocol.class, SshProtocol.builder().build()))
-				.target(new HardwareTarget("id", "host", TargetType.LINUX))
+				.host(new HardwareHost("id", "host", HostType.LINUX))
 				.build();
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
@@ -1859,7 +1860,7 @@ class CriterionVisitorTest {
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
 				.protocolConfigurations(Map.of(SshProtocol.class, SshProtocol.builder().build()))
-				.target(new HardwareTarget("id", "host", TargetType.LINUX))
+				.host(new HardwareHost("id", "host", HostType.LINUX))
 				.build();
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
@@ -1898,7 +1899,7 @@ class CriterionVisitorTest {
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
 				.protocolConfigurations(Map.of(SshProtocol.class, SshProtocol.builder().build()))
-				.target(new HardwareTarget("id", "host", TargetType.LINUX))
+				.host(new HardwareHost("id", "host", HostType.LINUX))
 				.build();
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
@@ -1938,7 +1939,7 @@ class CriterionVisitorTest {
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
 				.protocolConfigurations(Map.of(SshProtocol.class, SshProtocol.builder().build()))
-				.target(new HardwareTarget("id", "host", TargetType.LINUX))
+				.host(new HardwareHost("id", "host", HostType.LINUX))
 				.build();
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
@@ -1980,7 +1981,7 @@ class CriterionVisitorTest {
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
 				.protocolConfigurations(Map.of(SshProtocol.class, SshProtocol.builder().build()))
-				.target(new HardwareTarget("id", "host", TargetType.LINUX))
+				.host(new HardwareHost("id", "host", HostType.LINUX))
 				.build();
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
@@ -2022,7 +2023,7 @@ class CriterionVisitorTest {
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
 				.protocolConfigurations(Map.of(SshProtocol.class, SshProtocol.builder().build()))
-				.target(new HardwareTarget("id", "host", TargetType.LINUX))
+				.host(new HardwareHost("id", "host", HostType.LINUX))
 				.build();
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
@@ -2197,7 +2198,7 @@ class CriterionVisitorTest {
 	void testVisitWmiNoProtocol() {
 		final Wmi wmi = Wmi.builder().wbemQuery(WMI_WQL).wbemNamespace(AUTOMATIC).expectedResult(null).build();
 		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
-				.target(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.MS_WINDOWS).build())
+				.host(HardwareHost.builder().hostname(PC14).id(PC14).type(HostType.MS_WINDOWS).build())
 				.protocolConfigurations(Map.of(SnmpProtocol.class, new SnmpProtocol()))
 				.build();
 

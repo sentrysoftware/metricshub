@@ -17,9 +17,9 @@ import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 
+import com.sentrysoftware.matrix.engine.host.HostType;
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
@@ -36,7 +36,7 @@ class OtelMetadataToMetricObserverTest {
 		final Monitor target = Monitor.builder().id(ID).name("host").build();
 		target.addMetadata(FQDN, "host.my.domain.net");
 		final Resource resource = OtelHelper.createHostResource(target.getId(),
-				"host", TargetType.LINUX, "host.my.domain.net", false, Collections.emptyMap(), Collections.emptyMap());
+				"host", HostType.LINUX, "host.my.domain.net", false, Collections.emptyMap(), Collections.emptyMap());
 
 		final InMemoryMetricReader inMemoryReader = InMemoryMetricReader.create();
 		final SdkMeterProvider meterProvider = SdkMeterProvider.builder()

@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.engine.target;
+package com.sentrysoftware.matrix.engine.host;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class HardwareTarget {
+public class HardwareHost {
 
 	private String id;
 	private String hostname;
-	private TargetType type;
+	private HostType type;
 }

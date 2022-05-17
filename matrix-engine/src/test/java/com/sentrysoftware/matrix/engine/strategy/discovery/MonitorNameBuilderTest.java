@@ -41,9 +41,10 @@ import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
+
+import com.sentrysoftware.matrix.engine.host.HostType;
 
 class MonitorNameBuilderTest {
 
@@ -55,17 +56,17 @@ class MonitorNameBuilderTest {
 					.metadata(Map.of(LOCATION, REMOTE)).build();
 
 			assertEquals(MonitorNameBuilder.WINDOWS_COMPUTER,
-					MonitorNameBuilder.handleComputerDisplayName(target, TargetType.MS_WINDOWS));
+					MonitorNameBuilder.handleComputerDisplayName(target, HostType.MS_WINDOWS));
 			assertEquals(MonitorNameBuilder.LINUX_COMPUTER,
-					MonitorNameBuilder.handleComputerDisplayName(target, TargetType.LINUX));
+					MonitorNameBuilder.handleComputerDisplayName(target, HostType.LINUX));
 			assertEquals(MonitorNameBuilder.HP_TRU64_UNIX_COMPUTER,
-					MonitorNameBuilder.handleComputerDisplayName(target, TargetType.HP_TRU64_UNIX));
+					MonitorNameBuilder.handleComputerDisplayName(target, HostType.HP_TRU64_UNIX));
 			assertEquals(MonitorNameBuilder.HP_OPEN_VMS_COMPUTER,
-					MonitorNameBuilder.handleComputerDisplayName(target, TargetType.HP_OPEN_VMS));
+					MonitorNameBuilder.handleComputerDisplayName(target, HostType.HP_OPEN_VMS));
 			assertEquals(MonitorNameBuilder.STORAGE_ENCLOSURE,
-					MonitorNameBuilder.handleComputerDisplayName(target, TargetType.STORAGE));
+					MonitorNameBuilder.handleComputerDisplayName(target, HostType.STORAGE));
 			assertEquals(MonitorNameBuilder.NETWORK_SWITCH_ENCLOSURE,
-					MonitorNameBuilder.handleComputerDisplayName(target, TargetType.NETWORK_SWITCH));
+					MonitorNameBuilder.handleComputerDisplayName(target, HostType.NETWORK_SWITCH));
 		}
 
 		{
@@ -73,17 +74,17 @@ class MonitorNameBuilderTest {
 					.metadata(Map.of(LOCATION, LOCALHOST)).build();
 
 			assertEquals(MonitorNameBuilder.LOCALHOST_ENCLOSURE,
-					MonitorNameBuilder.handleComputerDisplayName(target, TargetType.MS_WINDOWS));
+					MonitorNameBuilder.handleComputerDisplayName(target, HostType.MS_WINDOWS));
 			assertEquals(MonitorNameBuilder.LOCALHOST_ENCLOSURE,
-					MonitorNameBuilder.handleComputerDisplayName(target, TargetType.LINUX));
+					MonitorNameBuilder.handleComputerDisplayName(target, HostType.LINUX));
 			assertEquals(MonitorNameBuilder.LOCALHOST_ENCLOSURE,
-					MonitorNameBuilder.handleComputerDisplayName(target, TargetType.HP_TRU64_UNIX));
+					MonitorNameBuilder.handleComputerDisplayName(target, HostType.HP_TRU64_UNIX));
 			assertEquals(MonitorNameBuilder.LOCALHOST_ENCLOSURE,
-					MonitorNameBuilder.handleComputerDisplayName(target, TargetType.HP_OPEN_VMS));
+					MonitorNameBuilder.handleComputerDisplayName(target, HostType.HP_OPEN_VMS));
 			assertEquals(MonitorNameBuilder.LOCALHOST_ENCLOSURE,
-					MonitorNameBuilder.handleComputerDisplayName(target, TargetType.STORAGE));
+					MonitorNameBuilder.handleComputerDisplayName(target, HostType.STORAGE));
 			assertEquals(MonitorNameBuilder.LOCALHOST_ENCLOSURE,
-					MonitorNameBuilder.handleComputerDisplayName(target, TargetType.NETWORK_SWITCH));
+					MonitorNameBuilder.handleComputerDisplayName(target, HostType.NETWORK_SWITCH));
 		}
 
 	}
@@ -161,7 +162,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.BATTERY)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -189,7 +190,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.BATTERY)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -218,7 +219,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.BLADE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -245,7 +246,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.BLADE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -277,7 +278,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.CPU)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -303,7 +304,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.CPU)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -331,7 +332,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.CPU_CORE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -363,7 +364,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.DISK_CONTROLLER)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -397,7 +398,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.ENCLOSURE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -427,7 +428,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.ENCLOSURE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -456,7 +457,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.ENCLOSURE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -484,7 +485,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.ENCLOSURE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -511,7 +512,7 @@ class MonitorNameBuilderTest {
 					.connectorName("myConnector")
 					.monitorType(MonitorType.ENCLOSURE).monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -539,7 +540,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.ENCLOSURE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -566,7 +567,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.ENCLOSURE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -594,7 +595,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.ENCLOSURE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -621,7 +622,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.ENCLOSURE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -651,7 +652,7 @@ class MonitorNameBuilderTest {
 					.connectorName("myConnector")
 					.monitorType(MonitorType.FAN).monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -675,7 +676,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.FAN)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -699,7 +700,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.FAN)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -730,7 +731,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.LED)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -755,7 +756,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.LED)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -786,7 +787,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.LOGICAL_DISK)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -812,7 +813,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.LOGICAL_DISK)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -840,7 +841,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.LUN)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -867,7 +868,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.LUN)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -895,7 +896,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.MEMORY)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -922,7 +923,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.MEMORY)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -949,7 +950,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.MEMORY)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -977,7 +978,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.NETWORK_CARD)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -1004,7 +1005,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.NETWORK_CARD)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -1034,7 +1035,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.OTHER_DEVICE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -1059,7 +1060,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.OTHER_DEVICE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -1091,7 +1092,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.PHYSICAL_DISK)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -1117,7 +1118,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.PHYSICAL_DISK)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -1147,7 +1148,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.POWER_SUPPLY)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -1175,7 +1176,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.ROBOTICS)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -1203,7 +1204,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.ROBOTICS)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -1232,7 +1233,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.TAPE_DRIVE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -1259,7 +1260,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.TAPE_DRIVE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -1289,7 +1290,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.TEMPERATURE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -1319,7 +1320,7 @@ class MonitorNameBuilderTest {
 					.monitorType(MonitorType.VOLTAGE)
 					.monitor(monitor)
 					.hostMonitoring(new HostMonitoring())
-					.targetType(TargetType.LINUX)
+					.hostType(HostType.LINUX)
 					.targetMonitor(new Monitor())
 					.hostname("ecs1-01")
 					.build();
@@ -1354,7 +1355,7 @@ class MonitorNameBuilderTest {
 			.monitorType(MonitorType.VM)
 			.monitor(monitor)
 			.hostMonitoring(new HostMonitoring())
-			.targetType(TargetType.LINUX)
+			.hostType(HostType.LINUX)
 			.targetMonitor(new Monitor())
 			.hostname("ecs1-01")
 			.build();
@@ -1397,7 +1398,7 @@ class MonitorNameBuilderTest {
 			.monitorType(MonitorType.GPU)
 			.monitor(monitor)
 			.hostMonitoring(new HostMonitoring())
-			.targetType(TargetType.LINUX)
+			.hostType(HostType.LINUX)
 			.targetMonitor(new Monitor())
 			.hostname("ecs1-01")
 			.build();

@@ -31,9 +31,10 @@ import com.sentrysoftware.hardware.agent.dto.HostConfigurationDto;
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
 import com.sentrysoftware.hardware.agent.dto.protocol.SnmpProtocolDto;
 import com.sentrysoftware.hardware.agent.service.task.StrategyTask;
-import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+
+import com.sentrysoftware.matrix.engine.host.HostType;
 
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
@@ -134,7 +135,7 @@ class TaskSchedulingServiceTest {
 						.builder()
 						.hostname("host1")
 						.id("host1")
-						.type(TargetType.LINUX)
+						.type(HostType.LINUX)
 						.build())
 				.snmp(SnmpProtocolDto.builder().community("public1".toCharArray()).build())
 				.build());

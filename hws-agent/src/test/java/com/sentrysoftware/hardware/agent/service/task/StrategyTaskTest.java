@@ -41,14 +41,14 @@ import com.sentrysoftware.matrix.engine.strategy.collect.CollectHelper;
 import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
 import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
 import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
-import com.sentrysoftware.matrix.engine.target.HardwareTarget;
-import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.alert.AlertInfo;
 import com.sentrysoftware.matrix.model.alert.Severity;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
+import com.sentrysoftware.matrix.engine.host.HardwareHost;
+import com.sentrysoftware.matrix.engine.host.HostType;
 import io.opentelemetry.sdk.autoconfigure.AutoConfiguredOpenTelemetrySdk;
 import io.opentelemetry.sdk.logs.data.LogData;
 import io.opentelemetry.sdk.resources.Resource;
@@ -79,22 +79,22 @@ class StrategyTaskTest {
 	static void beforeAll() {
 		engineConfiguration = EngineConfiguration
 				.builder()
-				.target(HardwareTarget
+				.host(HardwareHost
 						.builder()
 						.hostname("host")
 						.id("host")
-						.type(TargetType.LINUX)
+						.type(HostType.LINUX)
 						.build())
 				.protocolConfigurations(Map.of(SnmpProtocol.class, SnmpProtocol.builder().build()))
 				.build();
 
 		engineConfigWithAlertConfig = EngineConfiguration
 				.builder()
-				.target(HardwareTarget
+				.host(HardwareHost
 						.builder()
 						.hostname("host")
 						.id("host")
-						.type(TargetType.LINUX)
+						.type(HostType.LINUX)
 						.build())
 				.protocolConfigurations(Map.of(SnmpProtocol.class, SnmpProtocol.builder().build()))
 				.alertTrigger(alertInfo -> {})
@@ -135,7 +135,7 @@ class StrategyTaskTest {
 						.builder()
 						.hostname("target")
 						.id("id")
-						.type(TargetType.LINUX)
+						.type(HostType.LINUX)
 						.build())
 				.build())
 				.when(userConfiguration).getHostConfigurationDto();
@@ -144,7 +144,7 @@ class StrategyTaskTest {
 
 		try(MockedStatic<OtelHelper> otelHelper = mockStatic(OtelHelper.class)){
 			otelHelper.when(() -> OtelHelper.createHostResource(
-					anyString(), anyString(), any(TargetType.class), anyString(), anyBoolean(), any(), any()))
+					anyString(), anyString(), any(HostType.class), anyString(), anyBoolean(), any(), any()))
 				.thenCallRealMethod();
 
 			// Build the SdkMeterProvider using InMemoryMetricReader, it's not required to
@@ -206,7 +206,7 @@ class StrategyTaskTest {
 
 		try (MockedStatic<OtelHelper> otelHelper = mockStatic(OtelHelper.class)) {
 
-			otelHelper.when(() -> OtelHelper.createHostResource(anyString(), anyString(), any(TargetType.class),
+			otelHelper.when(() -> OtelHelper.createHostResource(anyString(), anyString(), any(HostType.class),
 					anyString(), anyBoolean(), any(), any())).thenCallRealMethod();
 
 			// Build the SdkMeterProvider using InMemoryMetricReader, it's not required to
@@ -242,7 +242,7 @@ class StrategyTaskTest {
 					.getMultiHostsConfigurationDto();
 			HostConfigurationDto hostConfig = HostConfigurationDto
 					.builder()
-					.target(HardwareTargetDto.builder().hostname("target").id("id").type(TargetType.LINUX).build())
+					.target(HardwareTargetDto.builder().hostname("target").id("id").type(HostType.LINUX).build())
 					.hardwareProblemTemplate("Hardware problem on ${FQDN} with ${MONITOR_NAME}.")
 					.build();
 			hostConfig.setDisableAlerts(disableAlerting);
@@ -258,7 +258,7 @@ class StrategyTaskTest {
 					.alertRule(physicalDisk.getAlertRules().get(STATUS_PARAMETER).stream()
 							.filter(rule -> Severity.ALARM.equals(rule.getSeverity())).findFirst().orElseThrow())
 					.monitor(physicalDisk).parameterName(STATUS_PARAMETER)
-					.hardwareTarget(engineConfigWithAlertConfig.getTarget()).hostMonitoring(hostMonitoring).build();
+					.hardwareHost(engineConfigWithAlertConfig.getHost()).hostMonitoring(hostMonitoring).build();
 
 			strategyTask2.triggerAlertAsOtelLog(alertInfo);
 

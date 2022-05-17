@@ -34,13 +34,13 @@ import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
 import com.sentrysoftware.matrix.model.parameter.IParameter;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
 
+import com.sentrysoftware.matrix.engine.host.HostType;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
 import io.opentelemetry.sdk.metrics.data.DoublePointData;
@@ -91,7 +91,7 @@ class OtelParameterToMetricObserverTest {
 		final Monitor target = Monitor.builder().id(ID).name("host").build();
 		target.addMetadata(FQDN, "host.my.domain.net");
 		final Resource resource = OtelHelper.createHostResource(target.getId(),
-				"host", TargetType.LINUX, "host.my.domain.net", false, Collections.emptyMap(), Collections.emptyMap());
+				"host", HostType.LINUX, "host.my.domain.net", false, Collections.emptyMap(), Collections.emptyMap());
 
 		final InMemoryMetricReader inMemoryReader = InMemoryMetricReader.create();
 		final SdkMeterProvider meterProvider = SdkMeterProvider.builder()

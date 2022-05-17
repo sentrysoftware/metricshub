@@ -1,9 +1,10 @@
 package com.sentrysoftware.matrix.engine.strategy.discovery;
 
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+
+import com.sentrysoftware.matrix.engine.host.HostType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,7 +21,7 @@ public class MonitorBuildingInfo {
 	private Monitor targetMonitor;
 	private IHostMonitoring hostMonitoring;
 	private MonitorType monitorType;
-	private TargetType targetType;
+	private HostType hostType;
 	private String hostname;
 
 }

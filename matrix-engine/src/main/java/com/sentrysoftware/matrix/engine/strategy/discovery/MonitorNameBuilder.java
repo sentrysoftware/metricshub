@@ -49,9 +49,9 @@ import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 import org.springframework.util.Assert;
 
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 
+import com.sentrysoftware.matrix.engine.host.HostType;
 import lombok.NonNull;
 
 public class MonitorNameBuilder {
@@ -102,14 +102,14 @@ public class MonitorNameBuilder {
 	// Network card vendor/model words to be trimmed
 	private static final Pattern NETWORK_VENDOR_MODEL_TRIM_PATTERN = Pattern.compile("network|ndis|client|server|adapter|ethernet|interface|controller|miniport|scheduler|packet|connection|multifunction|(1([0]+[/]*))*(base[\\-tx]*)*", Pattern.CASE_INSENSITIVE);
 
-	private static final Map<TargetType, String> COMPUTE_DISPLAY_NAMES;
+	private static final Map<HostType, String> COMPUTE_DISPLAY_NAMES;
 	static {
-		final Map<TargetType, String> map = new EnumMap<>(TargetType.class);
-		for (TargetType targetType : TargetType.values()) {
+		final Map<HostType, String> map = new EnumMap<>(HostType.class);
+		for (HostType hostType : HostType.values()) {
 
 			final String value;
 
-			switch (targetType) {
+			switch (hostType) {
 				case HP_OPEN_VMS:
 					value = HP_OPEN_VMS_COMPUTER;
 					break;
@@ -154,7 +154,7 @@ public class MonitorNameBuilder {
 					value = null;
 			}
 
-			map.put(targetType, value);
+			map.put(hostType, value);
 		}
 
 		COMPUTE_DISPLAY_NAMES = Collections.unmodifiableMap(map);
@@ -254,15 +254,15 @@ public class MonitorNameBuilder {
 	 * Handle the computer display name based on the target location. I.e. local or remote
 	 *
 	 * @param targetMonitor Monitor with type {@link MonitorType#TARGET}
-	 * @param targetType    The type of the target monitor
+	 * @param hostType    The type of the target monitor
 	 *
 	 * @return {@link String} value to append with the full monitor name
 	 */
-	public static String handleComputerDisplayName(@NonNull final Monitor targetMonitor, @NonNull final TargetType targetType) {
+	public static String handleComputerDisplayName(@NonNull final Monitor targetMonitor, @NonNull final HostType hostType) {
 		if (isLocalhost(targetMonitor.getMetadata())) {
 			return LOCALHOST_ENCLOSURE;
 		} else {
-			return COMPUTE_DISPLAY_NAMES.get(targetType);
+			return COMPUTE_DISPLAY_NAMES.get(hostType);
 		}
 	}
 
@@ -576,8 +576,8 @@ public class MonitorNameBuilder {
 	 */
 	public static String buildEnclosureName(final MonitorBuildingInfo monitorBuildingInfo) {
 
-		final TargetType targetType = monitorBuildingInfo.getTargetType();
-		Assert.notNull(targetType, TARGET_TYPE_CANNOT_BE_NULL);
+		final HostType hostType = monitorBuildingInfo.getHostType();
+		Assert.notNull(hostType, TARGET_TYPE_CANNOT_BE_NULL);
 
 		final Monitor targetMonitor = monitorBuildingInfo.getTargetMonitor();
 		Assert.notNull(targetMonitor, TARGET_MONITOR_CANNOT_BE_NULL);
@@ -629,7 +629,7 @@ public class MonitorNameBuilder {
 		} else if (COMPUTER.equals(enclosureType)) {
 
 			// Find the computer display name
-			String computerDisplayName = handleComputerDisplayName(targetMonitor, targetType);
+			String computerDisplayName = handleComputerDisplayName(targetMonitor, hostType);
 			if (hasMeaningfulContent(computerDisplayName)) {
 				// We will use computer display name as enclosureDisplayId, if it is still not set
 				if (hasMeaningfulContent(enclosureDisplayId)) {

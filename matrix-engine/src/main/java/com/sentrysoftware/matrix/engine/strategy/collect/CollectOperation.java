@@ -102,7 +102,7 @@ public class CollectOperation extends AbstractStrategy {
 
 	@Override
 	public Boolean call() throws Exception {
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		log.debug("Hostname {} - Collect - Start collect", hostname);
 
 		// Get the connectors previously discovered
@@ -452,7 +452,7 @@ public class CollectOperation extends AbstractStrategy {
 				monitorType,
 				row,
 				deviceIdValueTableColumn,
-				strategyConfig.getEngineConfiguration().getTarget().getHostname());
+				strategyConfig.getEngineConfiguration().getHost().getHostname());
 
 		if (id != null) {
 			return monitors.values().stream()
@@ -675,7 +675,7 @@ public class CollectOperation extends AbstractStrategy {
 	 */
 	void sumEnclosurePowerConsumptions(@NonNull final Map<String, Monitor> enclosureMonitors) {
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 
 		// Getting the target monitor
 		final Monitor targetMonitor = getTargetMonitor(strategyConfig.getHostMonitoring());
@@ -812,7 +812,7 @@ public class CollectOperation extends AbstractStrategy {
 		if (temperatureMonitors == null || temperatureMonitors.isEmpty()) {
 			log.debug(
 					"Hostname {} - Could not compute temperature parameters (ambientTemperature, cpuTemperature, cpuThermalDissipationRate)",
-					strategyConfig.getEngineConfiguration().getTarget().getHostname());
+					strategyConfig.getEngineConfiguration().getHost().getHostname());
 			return;
 		}
 
@@ -1058,7 +1058,7 @@ public class CollectOperation extends AbstractStrategy {
 
 		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 
 		// Browse through all the collected objects and perform the sum of parameters using the map-reduce
 		final Double totalPowerConsumption = hostMonitoring.getMonitors()
@@ -1105,7 +1105,7 @@ public class CollectOperation extends AbstractStrategy {
 	void estimateCpusPowerConsumption() {
 		final String hostname = strategyConfig
 				.getEngineConfiguration()
-				.getTarget().getHostname();
+				.getHost().getHostname();
 		final Long collectTime = this.strategyTime;
 		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
 		final Map<String, Monitor> cpus = hostMonitoring.selectFromType(MonitorType.CPU);
@@ -1258,7 +1258,7 @@ public class CollectOperation extends AbstractStrategy {
 				powerConsumption,
 				strategyConfig
 					.getEngineConfiguration()
-					.getTarget()
+					.getHost()
 					.getHostname()
 			);
 		}
@@ -1301,7 +1301,7 @@ public class CollectOperation extends AbstractStrategy {
 	void estimateDiskControllersPowerConsumption() {
 		final String hostname = strategyConfig
 				.getEngineConfiguration()
-				.getTarget().getHostname();
+				.getHost().getHostname();
 		final Long collectTime = this.strategyTime;
 		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
 		final Map<String, Monitor> diskControllers = hostMonitoring.selectFromType(MonitorType.DISK_CONTROLLER);
@@ -1329,7 +1329,7 @@ public class CollectOperation extends AbstractStrategy {
 	void estimateMemoriesPowerConsumption() {
 		final String hostname = strategyConfig
 				.getEngineConfiguration()
-				.getTarget().getHostname();
+				.getHost().getHostname();
 		final Long collectTime = this.strategyTime;
 		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
 		final Map<String, Monitor> memories = hostMonitoring.selectFromType(MonitorType.MEMORY);
@@ -1356,7 +1356,7 @@ public class CollectOperation extends AbstractStrategy {
 	 * Inspiration: https://outervision.com/power-supply-calculator
 	 */
 	void estimatePhysicalDisksPowerConsumption() {
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		final Long collectTime = this.strategyTime;
 		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
 		final Map<String, Monitor> physicalDisks = hostMonitoring.selectFromType(MonitorType.PHYSICAL_DISK);
@@ -1531,7 +1531,7 @@ public class CollectOperation extends AbstractStrategy {
 								.alertRule(alertRule)
 								.monitor(monitor)
 								.parameterName(parameterName)
-								.hardwareTarget(strategyConfig.getEngineConfiguration().getTarget())
+								.hardwareHost(strategyConfig.getEngineConfiguration().getHost())
 								.hostMonitoring(strategyConfig.getHostMonitoring())
 								.build()
 						);

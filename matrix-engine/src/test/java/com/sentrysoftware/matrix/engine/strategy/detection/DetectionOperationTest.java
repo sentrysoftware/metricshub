@@ -19,13 +19,14 @@ import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.SnmpVersion;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
-import com.sentrysoftware.matrix.engine.target.HardwareTarget;
-import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
+
+import com.sentrysoftware.matrix.engine.host.HardwareHost;
+import com.sentrysoftware.matrix.engine.host.HostType;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -115,22 +116,22 @@ class DetectionOperationTest {
 				.timeout(120L).build();
 		engineConfigurationAuto = EngineConfiguration
 				.builder()
-				.target(HardwareTarget
+				.host(HardwareHost
 						.builder()
 						.hostname(TARGET_HOSTNAME)
 						.id(TARGET_HOSTNAME)
-						.type(TargetType.LINUX)
+						.type(HostType.LINUX)
 						.build())
 				.protocolConfigurations(Map.of(SnmpProtocol.class, protocol))
 				.build();
 
 		engineConfigurationAutoSequential = EngineConfiguration
 				.builder()
-				.target(HardwareTarget
+				.host(HardwareHost
 						.builder()
 						.hostname(TARGET_HOSTNAME)
 						.id(TARGET_HOSTNAME)
-						.type(TargetType.LINUX)
+						.type(HostType.LINUX)
 						.build())
 				.protocolConfigurations(Map.of(SnmpProtocol.class, protocol))
 				.sequential(true)
@@ -184,7 +185,7 @@ class DetectionOperationTest {
 				.build();
 
 		engineConfigurationSelection = EngineConfiguration.builder()
-				.target(HardwareTarget.builder().hostname(TARGET_HOSTNAME).id(TARGET_HOSTNAME).type(TargetType.LINUX).build())
+				.host(HardwareHost.builder().hostname(TARGET_HOSTNAME).id(TARGET_HOSTNAME).type(HostType.LINUX).build())
 				.protocolConfigurations(Map.of(SnmpProtocol.class, protocol)).selectedConnectors(Stream
 						.of(connector1, connector2).map(Connector::getCompiledFilename).collect(Collectors.toSet()))
 				.build();
@@ -405,7 +406,7 @@ class DetectionOperationTest {
 			Connector connector = Connector.builder().appliesToOS(null).build();
 			final Stream<Connector> stream = Stream.of(connector1, connector2, connector4, connector);
 
-			final Stream<Connector> result = detectionOperation.filterConnectorsByTargetType(stream, TargetType.LINUX);
+			final Stream<Connector> result = detectionOperation.filterConnectorsByTargetType(stream, HostType.LINUX);
 			assertEquals(Stream.of(connector1, connector2, connector4).collect(Collectors.toSet()),
 					result.collect(Collectors.toSet()));
 		}
@@ -415,7 +416,7 @@ class DetectionOperationTest {
 			final Stream<Connector> stream = Stream.of(connector1, connector2, connector4, connector);
 
 			final Stream<Connector> result = detectionOperation.filterConnectorsByTargetType(stream,
-					TargetType.STORAGE);
+					HostType.STORAGE);
 			assertEquals(Collections.emptySet(), result.collect(Collectors.toSet()));
 		}
 

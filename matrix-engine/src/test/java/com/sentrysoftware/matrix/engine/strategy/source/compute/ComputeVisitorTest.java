@@ -56,8 +56,9 @@ import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
-import com.sentrysoftware.matrix.engine.target.HardwareTarget;
-import com.sentrysoftware.matrix.engine.target.TargetType;
+
+import com.sentrysoftware.matrix.engine.host.HardwareHost;
+import com.sentrysoftware.matrix.engine.host.HostType;
 
 class ComputeVisitorTest {
 
@@ -148,11 +149,11 @@ class ComputeVisitorTest {
 				.builder()
 				.engineConfiguration(EngineConfiguration
 						.builder()
-						.target(HardwareTarget
+						.host(HardwareHost
 								.builder()
 								.hostname("localhost")
 								.id("localhost")
-								.type(TargetType.MS_WINDOWS)
+								.type(HostType.MS_WINDOWS)
 								.build())
 						.build())
 				.build();

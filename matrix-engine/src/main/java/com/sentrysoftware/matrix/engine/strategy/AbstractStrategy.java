@@ -158,7 +158,7 @@ public abstract class AbstractStrategy implements IStrategy {
 			if (computes != null) {
 
 				final ComputeVisitor computeVisitor = new ComputeVisitor(sourceKey, sourceTable, connector,
-						strategyConfig.getEngineConfiguration().getTarget().getHostname(), matsyaClientsExecutor);
+						strategyConfig.getEngineConfiguration().getHost().getHostname(), matsyaClientsExecutor);
 
 				final ComputeUpdaterVisitor computeUpdaterVisitor = new ComputeUpdaterVisitor(computeVisitor, monitor);
 
@@ -379,7 +379,7 @@ public abstract class AbstractStrategy implements IStrategy {
 			final Object objToProcess, @NonNull final String description, @NonNull final T defaultValue) {
 
 		final ReentrantLock forceSerializationLock = getForceSerializationLock(connector);
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 
 		final boolean isLockAcquired;
 		try {

@@ -103,8 +103,6 @@ import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.discovery.MonitorAlertRulesVisitor;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
-import com.sentrysoftware.matrix.engine.target.HardwareTarget;
-import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.alert.AlertRule;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
@@ -113,6 +111,9 @@ import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
 import com.sentrysoftware.matrix.model.parameter.IParameter;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
+
+import com.sentrysoftware.matrix.engine.host.HardwareHost;
+import com.sentrysoftware.matrix.engine.host.HostType;
 
 @ExtendWith(MockitoExtension.class)
 class CollectOperationTest {
@@ -185,22 +186,22 @@ class CollectOperationTest {
 				.timeout(120L).build();
 		engineConfiguration = EngineConfiguration
 				.builder()
-				.target(HardwareTarget
+				.host(HardwareHost
 						.builder()
 						.hostname(TEST_HOST_01)
 						.id(TEST_HOST_01)
-						.type(TargetType.LINUX)
+						.type(HostType.LINUX)
 						.build())
 				.protocolConfigurations(Map.of(SnmpProtocol.class, protocol))
 				.build();
 
 		engineConfigurationSequential = EngineConfiguration
 				.builder()
-				.target(HardwareTarget
+				.host(HardwareHost
 						.builder()
 						.hostname(TEST_HOST_01)
 						.id(TEST_HOST_01)
-						.type(TargetType.LINUX)
+						.type(HostType.LINUX)
 						.build())
 				.protocolConfigurations(Map.of(SnmpProtocol.class, protocol))
 				.sequential(true)
@@ -208,11 +209,11 @@ class CollectOperationTest {
 
 		engineConfigWithAlertConfig = EngineConfiguration
 				.builder()
-				.target(HardwareTarget
+				.host(HardwareHost
 						.builder()
 						.hostname(TEST_HOST_01)
 						.id(TEST_HOST_01)
-						.type(TargetType.LINUX)
+						.type(HostType.LINUX)
 						.build())
 				.protocolConfigurations(Map.of(SnmpProtocol.class, protocol))
 				.alertTrigger(alertInfo -> {})
@@ -2379,7 +2380,7 @@ class CollectOperationTest {
 		for(final AlertRule alertRule : allAlertRules) {
 			assertNotNull(alertRule.getAlertInfo());
 			assertNotNull(alertRule.getAlertInfo().getAlertRule());
-			assertNotNull(alertRule.getAlertInfo().getHardwareTarget());
+			assertNotNull(alertRule.getAlertInfo().getHardwareHost());
 			assertNotNull(alertRule.getAlertInfo().getHostMonitoring());
 			assertNotNull(alertRule.getAlertInfo().getMonitor());
 			assertNotNull(alertRule.getAlertInfo().getParameterName());

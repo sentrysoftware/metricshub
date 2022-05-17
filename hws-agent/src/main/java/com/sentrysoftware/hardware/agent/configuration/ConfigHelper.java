@@ -35,11 +35,11 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
-import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import com.sentrysoftware.matrix.security.SecurityManager;
 
+import com.sentrysoftware.matrix.engine.host.HostType;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -100,18 +100,18 @@ public class ConfigHelper {
 	/**
 	 * Validate the given target information (hostname and targetType)
 	 *
-	 * @param targetType type of the target
+	 * @param hostType type of the target
 	 * @param hostname   hostname of the target
 	 * @throws BusinessException
 	 */
-	static void validateTarget(final TargetType targetType, final String hostname) throws BusinessException {
+	static void validateTarget(final HostType hostType, final String hostname) throws BusinessException {
 
 		validateAttribute(hostname,
 				INVALID_STRING_CHECKER,
 				() -> String.format("Invalid hostname: %s", hostname),
 				ErrorCode.INVALID_HOSTNAME);
 
-		validateAttribute(targetType,
+		validateAttribute(hostType,
 				Objects::isNull,
 				() -> String.format("No target type configured for hostname: %s", hostname),
 				ErrorCode.NO_TARGET_TYPE);
@@ -134,7 +134,7 @@ public class ConfigHelper {
 				connector -> engineConfiguration.getSelectedConnectors().contains(connector.getCompiledFilename()))
 				.collect(Collectors.toSet());
 
-		final String hostname = engineConfiguration.getTarget().getHostname();
+		final String hostname = engineConfiguration.getHost().getHostname();
 		final Set<Class<? extends Source>> acceptedSources = engineConfiguration
 				.determineAcceptedSources(NetworkHelper.isLocalhost(hostname));
 
@@ -362,7 +362,7 @@ public class ConfigHelper {
 			.protocolConfigurations(protocolConfigurations)
 			.selectedConnectors(selectedConnectors)
 			.excludedConnectors(excludedConnectors)
-			.target(target.toHardwareTarget())
+			.host(target.toHardwareTarget())
 			.sequential(Boolean.TRUE.equals(hostConfigurationDto.getSequential()))
 			.build();
 	}

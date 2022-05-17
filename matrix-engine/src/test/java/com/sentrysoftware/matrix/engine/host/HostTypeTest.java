@@ -1,10 +1,11 @@
-package com.sentrysoftware.matrix.engine.target;
+package com.sentrysoftware.matrix.engine.host;
 
+import static com.sentrysoftware.matrix.engine.host.HostType.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static com.sentrysoftware.matrix.engine.target.TargetType.*;
+
 import org.junit.jupiter.api.Test;
 
-class TargetTypeTest {
+class HostTypeTest {
 
 	@Test
 	void testInterpretValueOf() {

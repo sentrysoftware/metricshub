@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.engine.target;
+package com.sentrysoftware.matrix.engine.host;
 
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -9,7 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor
-public enum TargetType {
+public enum HostType {
 
 	HP_OPEN_VMS(OsType.VMS, "OpenVMS"),
 	HP_TRU64_UNIX(OsType.OSF1, "Tru64"),
@@ -25,7 +25,7 @@ public enum TargetType {
 	/**
 	 * Map each TargetType with a regular expression that detects it
 	 */
-	private static final Map<TargetType, Pattern> DETECTORS = Map.of(
+	private static final Map<HostType, Pattern> DETECTORS = Map.of(
 			LINUX, Pattern.compile("^lin|^lnx$"),
 			MS_WINDOWS, Pattern.compile("^win|^ms.*win|^microsoft.*w"),
 			MGMT_CARD_BLADE_ESXI, Pattern.compile("^oob$|^out|^vmware|^mgmt|^management|^esx|^blade"),
@@ -50,7 +50,7 @@ public enum TargetType {
 	 * @return a TargetType value (or null if null)
 	 * @throws IllegalArgumentException when specified value is not supported
 	 */
-	public static TargetType interpretValueOf(String value) {
+	public static HostType interpretValueOf(String value) {
 
 		// Null returns null
 		if (value == null) {
@@ -59,7 +59,7 @@ public enum TargetType {
 
 		// Check all regex in DETECTORS to see which one matches
 		String lCaseValue = value.trim().toLowerCase();
-		for (Map.Entry<TargetType, Pattern> detector : DETECTORS.entrySet()) {
+		for (Map.Entry<HostType, Pattern> detector : DETECTORS.entrySet()) {
 			if (detector.getValue().matcher(lCaseValue).find()) {
 				return detector.getKey();
 			}

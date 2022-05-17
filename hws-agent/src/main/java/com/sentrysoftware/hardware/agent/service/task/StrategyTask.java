@@ -57,7 +57,7 @@ public class StrategyTask implements Runnable {
 		final IHostMonitoring hostMonitoring = strategyTaskInfo.getHostMonitoring();
 		final int discoveryCycle = strategyTaskInfo.getDiscoveryCycle();
 
-		final String targetId = hostMonitoring.getEngineConfiguration().getTarget().getId();
+		final String targetId = hostMonitoring.getEngineConfiguration().getHost().getId();
 
 		configureLoggerContext(targetId);
 

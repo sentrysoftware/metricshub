@@ -58,13 +58,14 @@ import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.SnmpVersion;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
-import com.sentrysoftware.matrix.engine.target.HardwareTarget;
-import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
+
+import com.sentrysoftware.matrix.engine.host.HardwareHost;
+import com.sentrysoftware.matrix.engine.host.HostType;
 
 @ExtendWith(MockitoExtension.class)
 class DiscoveryOperationTest {
@@ -137,13 +138,13 @@ class DiscoveryOperationTest {
 				.timeout(120L).build();
 		engineConfiguration = EngineConfiguration
 				.builder()
-				.target(HardwareTarget.builder().hostname(ECS1_01).id(ECS1_01).type(TargetType.LINUX).build())
+				.host(HardwareHost.builder().hostname(ECS1_01).id(ECS1_01).type(HostType.LINUX).build())
 				.protocolConfigurations(Map.of(SnmpProtocol.class, protocol))
 				.build();
 
 		engineConfigurationSequential = EngineConfiguration
 				.builder()
-				.target(HardwareTarget.builder().hostname(ECS1_01).id(ECS1_01).type(TargetType.LINUX).build())
+				.host(HardwareHost.builder().hostname(ECS1_01).id(ECS1_01).type(HostType.LINUX).build())
 				.protocolConfigurations(Map.of(SnmpProtocol.class, protocol))
 				.sequential(true)
 				.build();

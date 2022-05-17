@@ -29,9 +29,10 @@ import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.SnmpVersion;
-import com.sentrysoftware.matrix.engine.target.HardwareTarget;
-import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+
+import com.sentrysoftware.matrix.engine.host.HardwareHost;
+import com.sentrysoftware.matrix.engine.host.HostType;
 
 @SpringBootTest
 class ConfigHelperTest {
@@ -110,7 +111,7 @@ class ConfigHelperTest {
 			Map<Class<? extends IProtocolConfiguration>, IProtocolConfiguration> protocolConfigurations = Map
 					.of(SnmpProtocol.class, hostConfigurationDto.getSnmp().toProtocol());
 
-			HardwareTarget target = hostConfigurationDto.getTarget().toHardwareTarget();
+			HardwareHost target = hostConfigurationDto.getTarget().toHardwareTarget();
 			if ("357306c9-07e9-431b-bc71-b7712daabbbf-1".equals(target.getId())) {
 				target.setId("357306c9-07e9-431b-bc71-b7712daabbbf-1");
 			} else {
@@ -121,7 +122,7 @@ class ConfigHelperTest {
 					.builder()
 					.operationTimeout(hostConfigurationDto.getOperationTimeout())
 					.protocolConfigurations(protocolConfigurations).selectedConnectors(selectedConnectors)
-					.target(target)
+					.host(target)
 					.build();
 
 			assertEquals(expected, actual);
@@ -162,10 +163,10 @@ class ConfigHelperTest {
 	@Test
 	void testValidateTarget() {
 		assertThrows(BusinessException.class, () -> ConfigHelper.validateTarget(null, "hostname"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateTarget(TargetType.LINUX, ""));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateTarget(TargetType.LINUX, null));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateTarget(TargetType.LINUX, " 	"));
-		assertDoesNotThrow(() -> ConfigHelper.validateTarget(TargetType.LINUX, "hostname"));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateTarget(HostType.LINUX, ""));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateTarget(HostType.LINUX, null));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateTarget(HostType.LINUX, " 	"));
+		assertDoesNotThrow(() -> ConfigHelper.validateTarget(HostType.LINUX, "hostname"));
 	}
 
 	@Test
@@ -174,11 +175,11 @@ class ConfigHelperTest {
 
 
 		EngineConfiguration engineConfiguration = EngineConfiguration.builder()
-				.target(HardwareTarget
+				.host(HardwareHost
 						.builder()
 						.hostname("localhost")
 						.id("localhost")
-						.type(TargetType.LINUX)
+						.type(HostType.LINUX)
 						.build())
 				.protocolConfigurations(Map.of(SnmpProtocol.class, SnmpProtocol.builder().build()))
 				.build();

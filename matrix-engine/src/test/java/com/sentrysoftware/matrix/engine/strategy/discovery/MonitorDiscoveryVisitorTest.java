@@ -41,11 +41,12 @@ import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
 import com.sentrysoftware.matrix.common.meta.monitor.Vm;
 import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
+
+import com.sentrysoftware.matrix.engine.host.HostType;
 
 class MonitorDiscoveryVisitorTest {
 
@@ -275,7 +276,7 @@ class MonitorDiscoveryVisitorTest {
 				.monitorType(MonitorType.ENCLOSURE)
 				.monitor(monitor)
 				.hostMonitoring(hostMonitoring)
-				.targetType(TargetType.LINUX)
+				.hostType(HostType.LINUX)
 				.targetMonitor(targetMonitor)
 				.hostname(TRAGET_HOSTNAME)
 				.build();
@@ -732,7 +733,7 @@ class MonitorDiscoveryVisitorTest {
 				.monitorType(MonitorType.FAN)
 				.monitor(monitor)
 				.hostMonitoring(hostMonitoring)
-				.targetType(TargetType.LINUX)
+				.hostType(HostType.LINUX)
 				.targetMonitor(targetMonitor)
 				.hostname(TRAGET_HOSTNAME)
 				.build();
@@ -770,7 +771,7 @@ class MonitorDiscoveryVisitorTest {
 				.monitorType(MonitorType.FAN)
 				.monitor(monitor)
 				.hostMonitoring(hostMonitoring)
-				.targetType(TargetType.LINUX)
+				.hostType(HostType.LINUX)
 				.targetMonitor(targetMonitor)
 				.hostname(TRAGET_HOSTNAME)
 				.build();
@@ -843,7 +844,7 @@ class MonitorDiscoveryVisitorTest {
 				.monitorType(monitorType)
 				.monitor(monitor)
 				.hostMonitoring(hostMonitoring)
-				.targetType(TargetType.LINUX)
+				.hostType(HostType.LINUX)
 				.targetMonitor(targetMonitor)
 				.hostname(TRAGET_HOSTNAME)
 				.build();
