@@ -20,4 +20,5 @@ public class AlertCondition {
 				.threshold(threshold)
 				.build();
 	}
+
 }

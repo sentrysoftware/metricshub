@@ -1,20 +1,8 @@
 package com.sentrysoftware.matrix.model.monitor;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.sentrysoftware.matrix.common.meta.parameter.state.IState;
-import com.sentrysoftware.matrix.common.meta.parameter.state.Present;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.model.alert.AlertCondition;
-import com.sentrysoftware.matrix.model.alert.AlertRule;
-import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
-import com.sentrysoftware.matrix.model.parameter.IParameter;
-import com.sentrysoftware.matrix.model.parameter.NumberParam;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Builder.Default;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,9 +12,22 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.sentrysoftware.matrix.common.meta.parameter.state.IState;
+import com.sentrysoftware.matrix.common.meta.parameter.state.Present;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.model.alert.AlertCondition;
+import com.sentrysoftware.matrix.model.alert.AlertRule;
+import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
+import com.sentrysoftware.matrix.model.parameter.IParameter;
+import com.sentrysoftware.matrix.model.parameter.NumberParam;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @Data
 @Builder
@@ -78,8 +79,8 @@ public class Monitor {
 	/**
 	 * Add the given alert rules to the internal map of alert rules
 	 * 
-	 * @param parameterName The parameter on which we want to the alert rules
-	 * @param alertRules    The alert rules we wish to add
+	 * @param parameterName  The parameter on which we want to set the alert rules
+	 * @param alertRules     The alert rules we wish to add
 	 */
 	public void addAlertRules(@NonNull final String parameterName, @NonNull List<AlertRule> alertRules) {
 

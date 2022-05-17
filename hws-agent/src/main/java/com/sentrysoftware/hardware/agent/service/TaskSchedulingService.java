@@ -169,6 +169,8 @@ public class TaskSchedulingService {
 		multiHostsConfigurationDto.setSequential(newMultiHostsConfigurationDto.isSequential());
 		multiHostsConfigurationDto.setResolveHostnameToFqdn(newMultiHostsConfigurationDto.isResolveHostnameToFqdn());
 		multiHostsConfigurationDto.setExporter(newMultiHostsConfigurationDto.getExporter());
+		multiHostsConfigurationDto.setHardwareProblemTemplate(newMultiHostsConfigurationDto.getHardwareProblemTemplate());
+		multiHostsConfigurationDto.setDisableAlerts(newMultiHostsConfigurationDto.isDisableAlerts());
 
 		// Make sure the logger is configured correctly
 		configureLoggerLevel();

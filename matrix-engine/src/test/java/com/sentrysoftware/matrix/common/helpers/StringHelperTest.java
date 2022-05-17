@@ -2,11 +2,13 @@ package com.sentrysoftware.matrix.common.helpers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collections;
 import java.util.Map;
 import java.util.StringJoiner;
+import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
 
@@ -39,5 +41,25 @@ class StringHelperTest {
 		StringHelper.addNonNull(stringJoiner, "prefix1=", "val1");
 		StringHelper.addNonNull(stringJoiner, "prefix2=", 10);
 		assertEquals("prefix1=val1;prefix2=10", stringJoiner.toString());
+	}
+
+	@Test
+	void testReplace() {
+		assertEquals("b b cc", StringHelper.replace("$a", "b", "$a $a cc"));
+		assertEquals("$a $a cc", StringHelper.replace("$a", (String) null, "$a $a cc"));
+		assertEquals("$a $a cc", StringHelper.replace("$d", "b", "$a $a cc"));
+		assertThrows(IllegalArgumentException.class, () -> StringHelper.replace(null, "b", "$a $a cc"));
+		assertThrows(IllegalArgumentException.class, () -> StringHelper.replace("$a", "$a", null));
+	}
+
+	@Test
+	void testReplaceWithSupplier() {
+		assertEquals("b b cc", StringHelper.replace("$a", () -> "b", "$a $a cc"));
+		assertEquals("$a $a cc", StringHelper.replace("$a", () -> (String) null, "$a $a cc"));
+		assertEquals("$a $a cc", StringHelper.replace("$a", () -> { throw new IllegalStateException(); }, "$a $a cc"));
+		assertEquals("$a $a cc", StringHelper.replace("$d", () -> "b", "$a $a cc"));
+		assertThrows(IllegalArgumentException.class, () -> StringHelper.replace(null, () -> "b", "$a $a cc"));
+		assertThrows(IllegalArgumentException.class, () -> StringHelper.replace("$a", () -> "b", null));
+		assertThrows(IllegalArgumentException.class, () -> StringHelper.replace("$a", (Supplier<String>) null, "$a $a cc"));
 	}
 }

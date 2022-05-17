@@ -2,12 +2,30 @@ package com.sentrysoftware.matrix.common.helpers;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import lombok.NonNull;
 
 public class NumberHelper {
 
 	public static final Pattern INTEGER_DETECT_PATTERN = Pattern.compile("^(-?\\d+)(\\.0*)$");
+
+	private static final DecimalFormat DECIMAL_FORMAT;
+	static {
+		// By default we use the US Locale.
+		DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+
+		// The decimal separator is '.'
+		symbols.setDecimalSeparator('.');
+
+		// Create the decimalFormat
+		DECIMAL_FORMAT = new DecimalFormat("#########.###", symbols);
+
+	}
 
 	private NumberHelper() {}
 
@@ -84,4 +102,30 @@ public class NumberHelper {
 
 		return state;
 	}
+
+	/**
+	 * Format the given value as String
+	 * 
+	 * @param n      numeric value to format
+	 * @param format string format used to format decimal parts
+	 * @return {@link String} value
+	 */
+	public static String formatNumber(final Number n, @NonNull final String format) {
+		final String stringValue = DECIMAL_FORMAT.format(n);
+		final String[] valueParts = stringValue.split("\\.");
+		final String leftPart = valueParts[0];
+		final String rightPart = valueParts.length == 2 ? "." + valueParts[1] : "";
+		return String.format(format, leftPart, rightPart);
+	}
+
+	/**
+	 * Format the given value as String
+	 * 
+	 * @param n numeric value to format
+	 * @return {@link String} value
+	 */
+	public static String formatNumber(final Number n) {
+		return DECIMAL_FORMAT.format(n);
+	}
+
 }

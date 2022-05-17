@@ -272,7 +272,7 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 		}
 
 		// Get the id metadata value which is going to be used to create the
-		// enclosure monitor
+		// monitor
 		final String id = metadata.get(DEVICE_ID);
 		if (!checkNotBlankDataValue(id)) {
 			log.error(CANNOT_CREATE_MONITOR_ERROR_MSG,

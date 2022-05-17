@@ -5,17 +5,21 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SUPPLY_POWER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EXPECTED_PATH_COUNT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Stream;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.hardware.agent.dto.MetricInfo;
+import com.sentrysoftware.hardware.agent.dto.MetricInfo.MetricType;
 import com.sentrysoftware.hardware.agent.service.ServiceHelper;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
@@ -74,4 +78,25 @@ class MetricsMappingTest {
 
 	}
 
+	@Test
+	void testCounterAndGaugeNaming() {
+		Stream.concat(MetricsMapping.getMatrixParamToMetricMap()
+			.values()
+			.stream()
+			.map(Map::values)
+			.flatMap(Collection::stream), MetricsMapping.getMatrixMetadataToMetricMap()
+			.values()
+			.stream()
+			.map(Map::values)
+			.flatMap(Collection::stream))
+			.forEach(metricInfo -> {
+				if (MetricType.COUNTER.equals(metricInfo.getType())) {
+					assertTrue(metricInfo.getName().endsWith("_total"),
+							String.format("Metric %s is a counter and doesn't end with _total suffix", metricInfo.getName()));
+				} else if (MetricType.GAUGE.equals(metricInfo.getType())) {
+					assertFalse(metricInfo.getName().endsWith("_total"),
+							String.format("Metric %s is a gaugne and ends with _total suffix", metricInfo.getName()));
+				}
+			});
+	}
 }

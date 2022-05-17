@@ -468,6 +468,16 @@ public class ConfigHelper {
 				if (configDto.getSequential() == null) {
 					configDto.setSequential(multiHostsConfig.isSequential());
 				}
+
+				// Set the hardware problem template for alerting
+				if (configDto.getHardwareProblemTemplate() == null) {
+					configDto.setHardwareProblemTemplate(multiHostsConfig.getHardwareProblemTemplate());
+				}
+
+				// Set the disableAlerts flag to enable or disable alerting
+				if (configDto.getDisableAlerts() == null) {
+					configDto.setDisableAlerts(multiHostsConfig.isDisableAlerts());
+				}
 			});
 
 			return multiHostsConfig;

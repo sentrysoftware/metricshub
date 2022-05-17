@@ -260,7 +260,7 @@
         "severity" : "WARN",
         "firstTriggerTimestamp" : 1649435081467,
         "details" : {
-          "problem" : "Although not yet critical, the battery charge is abnormally low (5.000000 %).",
+          "problem" : "Although not yet critical, the battery charge is abnormally low (5 %).",
           "consequence" : "A low charge battery may lead to data loss in case of a power outage.",
           "recommendedAction" : "Check why the battery is not fully charged (it may be due to a power outage or an unplugged power cable) and fully recharge the battery when possible."
         },
@@ -275,7 +275,7 @@
         "severity" : "ALARM",
         "firstTriggerTimestamp" : 1649435081467,
         "details" : {
-          "problem" : "The battery charge is very low and will soon run out of charge (5.000000 %).",
+          "problem" : "The battery charge is very low and will soon run out of charge (5 %).",
           "consequence" : "A low charge battery may lead to data loss in case of a power outage.",
           "recommendedAction" : "Check why the battery is not fully charged (it may be due to a power outage or an unplugged power cable) and fully recharge the battery when possible."
         },
@@ -427,7 +427,7 @@
         "severity" : "WARN",
         "firstTriggerTimestamp" : 1649435081467,
         "details" : {
-          "problem" : "Although not yet critical, the battery charge is abnormally low (50.000000 %).",
+          "problem" : "Although not yet critical, the battery charge is abnormally low (50 %).",
           "consequence" : "A low charge battery may lead to data loss in case of a power outage.",
           "recommendedAction" : "Check why the battery is not fully charged (it may be due to a power outage or an unplugged power cable) and fully recharge the battery when possible."
         },
@@ -944,7 +944,7 @@
         "severity" : "ALARM",
         "firstTriggerTimestamp" : 1649435081458,
         "details" : {
-          "problem" : "The processor encountered and fixed a few internal errors (5.000000).",
+          "problem" : "The processor encountered and fixed a few internal errors (5).",
           "consequence" : "The stability of the system may be affected. A system crash is likely to occur soon.",
           "recommendedAction" : "Check as soon as possible whether the processor environment is normal (voltage levels and temperature). If so, the processor may be defective and needs to be replaced quickly."
         },
@@ -1133,7 +1133,7 @@
         "severity" : "ALARM",
         "firstTriggerTimestamp" : 1649435081459,
         "details" : {
-          "problem" : "The processor encountered and fixed a few internal errors (10.000000).",
+          "problem" : "The processor encountered and fixed a few internal errors (10).",
           "consequence" : "The stability of the system may be affected. A system crash is likely to occur soon.",
           "recommendedAction" : "Check as soon as possible whether the processor environment is normal (voltage levels and temperature). If so, the processor may be defective and needs to be replaced quickly."
         },
@@ -1312,7 +1312,7 @@
         "severity" : "ALARM",
         "firstTriggerTimestamp" : 1649435081459,
         "details" : {
-          "problem" : "The processor encountered and fixed a few internal errors (15.000000).",
+          "problem" : "The processor encountered and fixed a few internal errors (15).",
           "consequence" : "The stability of the system may be affected. A system crash is likely to occur soon.",
           "recommendedAction" : "Check as soon as possible whether the processor environment is normal (voltage levels and temperature). If so, the processor may be defective and needs to be replaced quickly."
         },
@@ -3693,8 +3693,8 @@
         "severity" : "WARN",
         "firstTriggerTimestamp" : 1649435081468,
         "details" : {
-          "problem" : "The speed of this fan is out of normal range (5.000000 % of maximum speed).",
-          "consequence" : "The fan is not behaving as expected and probably not properly cooling down the system. This could lead to severe hardware damage and system crashes",
+          "problem" : "The speed of this fan is out of normal range (5 % of maximum speed).",
+          "consequence" : "The fan is not behaving as expected and probably not properly cooling down the system. This could lead to severe hardware damage and system crashes.",
           "recommendedAction" : "Check if the fan is not working as expected. If so, replace the fan."
         },
         "active" : "ACTIVE",
@@ -4106,7 +4106,10 @@
         "type" : "STATIC"
       }, {
         "period" : 0,
-        "conditions" : [ ],
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 99.0
+        } ],
         "severity" : "ALARM",
         "firstTriggerTimestamp" : null,
         "details" : null,
@@ -4384,7 +4387,7 @@
         "severity" : "WARN",
         "firstTriggerTimestamp" : 1649435081483,
         "details" : {
-          "problem" : "The GPU memory utilization is outside of expected range (1000.000000 %).",
+          "problem" : "The GPU memory utilization is outside of expected range (1000 %).",
           "consequence" : "The memory utilization may not be optimal and therefore lead to lower system performance.",
           "recommendedAction" : "Check why this GPU memory is used so much."
         },
@@ -4392,11 +4395,18 @@
         "type" : "STATIC"
       }, {
         "period" : 0,
-        "conditions" : [ ],
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 99.0
+        } ],
         "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
+        "details" : {
+          "problem" : "The GPU memory utilization is outside of tolerated range (1000 %).",
+          "consequence" : "The memory utilization may not be optimal and therefore lead to lower system performance.",
+          "recommendedAction" : "Check why this GPU memory utilization is used so much."
+        },
+        "firstTriggerTimestamp" : 1649435081483,
+        "active" : "ACTIVE",
         "type" : "STATIC"
       } ],
       "predictedFailure" : [ {
@@ -4718,7 +4728,10 @@
         "type" : "STATIC"
       }, {
         "period" : 0,
-        "conditions" : [ ],
+        "conditions" : [ {
+          "operator" : "GTE",
+          "threshold" : 99.0
+        } ],
         "severity" : "ALARM",
         "firstTriggerTimestamp" : null,
         "details" : null,
@@ -66671,7 +66684,7 @@
         "severity" : "WARN",
         "firstTriggerTimestamp" : 1649435081469,
         "details" : {
-          "problem" : "Although not yet critical, the temperature is abnormally high (98.000000 °C).",
+          "problem" : "Although not yet critical, the temperature is abnormally high (98 °C).",
           "consequence" : "An out-of-range temperature may lead to a system crash or even damaged hardware.",
           "recommendedAction" : "Check why the temperature is out of the normal range (it may be due to a fan failure, a severe system overload or a failure in the data center cooling system)."
         },
@@ -66686,7 +66699,7 @@
         "severity" : "ALARM",
         "firstTriggerTimestamp" : 1649435081469,
         "details" : {
-          "problem" : "The temperature is critically high (98.000000 °C).",
+          "problem" : "The temperature is critically high (98 °C).",
           "consequence" : "An out-of-range temperature may lead to a system crash or even damaged hardware.",
           "recommendedAction" : "Check why the temperature is out of the normal range (it may be due to a fan failure, a severe system overload or a failure in the data center cooling system)."
         },

@@ -1,12 +1,15 @@
 package com.sentrysoftware.matrix.common.meta.monitor;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VOLTAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VOLTAGE_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VOLTAGE_TYPE;
+import static com.sentrysoftware.matrix.common.helpers.NumberHelper.formatNumber;
+import static com.sentrysoftware.matrix.common.helpers.StringHelper.getValue;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_WARN_CONDITION;
 
@@ -125,7 +128,8 @@ public class Voltage implements IMetaMonitor {
 		if (assertedVoltage.isAbnormal()) {
 
 			return AlertDetails.builder()
-					.problem(String.format("The voltage has reached an abnormal level (%f V).", assertedVoltage.getParameter().getValue() / 1000))
+					.problem(String.format("The voltage has reached an abnormal level (%s V).",
+							getValue(() -> formatNumber(assertedVoltage.getParameter().getValue() / 1000), EMPTY)))
 					.consequence(OUT_OF_RANGE_VOLTAGE_CONSEQUENCE)
 					.recommendedAction(OUT_OF_RANGE_VOLTAGE_RECOMMENDED_ACTION)
 					.build();
