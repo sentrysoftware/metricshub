@@ -17,7 +17,6 @@ import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
 
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
 import io.opentelemetry.sdk.metrics.data.MetricData;
-import io.opentelemetry.sdk.metrics.export.MetricReaderFactory;
 import io.opentelemetry.sdk.resources.Resource;
 import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
 import lombok.NonNull;
@@ -70,15 +69,16 @@ class OtelSelfObserverTest {
 	 * Initializes a Metrics SDK with a Resource and an instance of IntervalMetricReader.
 	 *
 	 * @param resource the resource used for the SdkMeterProvider
-	 * @param periodicReaderFactory the periodic reader running the metrics collect then the OTLP metrics export
+	 * @param inMemoryReader the periodic reader running the metrics collect then the OTLP metrics export
 	 * @return a ready-to-use {@link SdkMeterProvider} instance
 	 */
 	public static SdkMeterProvider initOpenTelemetryMetrics(@NonNull final Resource resource,
-			@NonNull final MetricReaderFactory periodicReaderFactory) {
+			@NonNull final InMemoryMetricReader inMemoryReader) {
 
-		return SdkMeterProvider.builder()
-					.setResource(resource)
-					.registerMetricReader(periodicReaderFactory)
-					.build();
+		return SdkMeterProvider
+			.builder()
+			.setResource(resource)
+			.registerMetricReader(inMemoryReader)
+			.build();
 	}
 }

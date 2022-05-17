@@ -3,8 +3,6 @@ package main
 import (
 	"flag"
 	"strings"
-
-	"go.opentelemetry.io/collector/service/featuregate"
 )
 
 var (
@@ -28,7 +26,6 @@ func (s *stringArrayValue) String() string {
 
 func flags() *flag.FlagSet {
 	flagSet := new(flag.FlagSet)
-	featuregate.Flags(flagSet)
 
 	// Update the default config file
 	if len(configFlag.values) == 0 {

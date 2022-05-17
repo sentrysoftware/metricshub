@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
@@ -26,6 +27,7 @@ import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
+import com.sentrysoftware.matrix.model.alert.AlertInfo;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -72,6 +74,8 @@ public class EngineConfiguration {
 	private Set<String> excludedConnectors = new HashSet<>();
 
 	private boolean sequential;
+
+	private Consumer<AlertInfo> alertTrigger;
 
 	/**
 	 * Determine the accepted sources that can be executed using the current engine configuration

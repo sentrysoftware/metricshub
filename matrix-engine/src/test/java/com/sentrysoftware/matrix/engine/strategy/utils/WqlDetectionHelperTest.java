@@ -347,29 +347,28 @@ class WqlDetectionHelperTest {
 
 
 	@Test
-	void testIsAcceptableException() {
+    void testIsAcceptableException() {
 
-		assertFalse(wqlDetectionHelper.isAcceptableException(null));
-		assertFalse(wqlDetectionHelper.isAcceptableException(new Exception()));
-		assertFalse(wqlDetectionHelper.isAcceptableException(new Exception(new Exception())));
+        assertFalse(WqlDetectionHelper.isAcceptableException(null));
+        assertFalse(WqlDetectionHelper.isAcceptableException(new Exception()));
+        assertFalse(WqlDetectionHelper.isAcceptableException(new Exception(new Exception())));
 
-		assertFalse(wqlDetectionHelper.isAcceptableException(new WmiComException("other")));
-		assertFalse(wqlDetectionHelper.isAcceptableException(new WmiComException(new Exception())));
-		assertTrue(wqlDetectionHelper.isAcceptableException(new WmiComException("WBEM_E_NOT_FOUND")));
-		assertTrue(wqlDetectionHelper.isAcceptableException(new WmiComException("WBEM_E_INVALID_NAMESPACE")));
-		assertTrue(wqlDetectionHelper.isAcceptableException(new WmiComException("WBEM_E_INVALID_CLASS")));
+        assertFalse(WqlDetectionHelper.isAcceptableException(new WmiComException("other")));
+        assertFalse(WqlDetectionHelper.isAcceptableException(new WmiComException(new Exception())));
+        assertTrue(WqlDetectionHelper.isAcceptableException(new WmiComException("WBEM_E_NOT_FOUND")));
+        assertTrue(WqlDetectionHelper.isAcceptableException(new WmiComException("WBEM_E_INVALID_NAMESPACE")));
+        assertTrue(WqlDetectionHelper.isAcceptableException(new WmiComException("WBEM_E_INVALID_CLASS")));
 
-		assertFalse(wqlDetectionHelper.isAcceptableException(new WBEMException("other")));
-		assertFalse(wqlDetectionHelper.isAcceptableException(new WBEMException(0)));
-		assertTrue(wqlDetectionHelper.isAcceptableException(new WBEMException(WBEMException.CIM_ERR_NOT_FOUND)));
-		assertTrue(wqlDetectionHelper.isAcceptableException(new WBEMException(WBEMException.CIM_ERR_INVALID_NAMESPACE)));
-		assertTrue(wqlDetectionHelper.isAcceptableException(new WBEMException(WBEMException.CIM_ERR_INVALID_CLASS)));
+        assertFalse(WqlDetectionHelper.isAcceptableException(new WBEMException("other")));
+        assertFalse(WqlDetectionHelper.isAcceptableException(new WBEMException(0)));
+        assertTrue(WqlDetectionHelper.isAcceptableException(new WBEMException(WBEMException.CIM_ERR_NOT_FOUND)));
+        assertTrue(WqlDetectionHelper.isAcceptableException(new WBEMException(WBEMException.CIM_ERR_INVALID_NAMESPACE)));
+        assertTrue(WqlDetectionHelper.isAcceptableException(new WBEMException(WBEMException.CIM_ERR_INVALID_CLASS)));
 
-		assertTrue(wqlDetectionHelper.isAcceptableException(new Exception(new WmiComException("WBEM_E_NOT_FOUND"))));
-		assertTrue(wqlDetectionHelper.isAcceptableException(new Exception(new WBEMException(WBEMException.CIM_ERR_NOT_FOUND))));
+        assertTrue(WqlDetectionHelper.isAcceptableException(new Exception(new WmiComException("WBEM_E_NOT_FOUND"))));
+        assertTrue(WqlDetectionHelper.isAcceptableException(new Exception(new WBEMException(WBEMException.CIM_ERR_NOT_FOUND))));
 
-	}
-
+    }
 
 
 }

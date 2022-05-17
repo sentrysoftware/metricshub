@@ -46,4 +46,10 @@ class NumberHelperTest {
 		assertEquals("2", NumberHelper.cleanUpEnumInput("2.0"));
 		assertEquals("ok", NumberHelper.cleanUpEnumInput(" OK "));
 	}
+
+	@Test
+	void testFormatNumber() {
+		assertEquals("10.05", NumberHelper.formatNumber(10.05));
+		assertEquals("        10.05", NumberHelper.formatNumber(10.05, "%10s%s"));
+	}
 }

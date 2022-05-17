@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.common.meta.monitor;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENDURANCE_REMAINING_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
@@ -17,6 +18,8 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
+import static com.sentrysoftware.matrix.common.helpers.NumberHelper.formatNumber;
+import static com.sentrysoftware.matrix.common.helpers.StringHelper.getValue;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.ENDURANCE_REMAINING_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.ENDURANCE_REMAINING_WARN_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.ERROR_COUNT_ALARM_CONDITION;
@@ -194,7 +197,8 @@ public class PhysicalDisk implements IMetaMonitor {
 
 			String serialNumber = monitor.getMetadata(SERIAL_NUMBER);
 			return AlertDetails.builder()
-					.problem(String.format("The physical disk encountered too many errors (%f).", assertedErrorCount.getParameter().getValue()))
+					.problem(String.format("The physical disk encountered too many errors (%s).",
+							getValue(() -> formatNumber(assertedErrorCount.getParameter().getValue()), EMPTY)))
 					.consequence("The integrity of the data stored on this physical disk may be in jeopardy.")
 					.recommendedAction(buildRecommendedActionString("Replace this physical disk as soon as possible to avoid data corruption.", serialNumber))
 					.build();
@@ -217,7 +221,8 @@ public class PhysicalDisk implements IMetaMonitor {
 
 			String serialNumber = monitor.getMetadata(SERIAL_NUMBER);
 			return AlertDetails.builder()
-					.problem(String.format("The physical disk encountered errors (%f).", assertedErrorCount.getParameter().getValue()))
+					.problem(String.format("The physical disk encountered errors (%s).",
+							getValue(() -> formatNumber(assertedErrorCount.getParameter().getValue()), EMPTY)))
 					.consequence("The integrity of the data stored on this physical disk is not assured.")
 					.recommendedAction(buildRecommendedActionString("Replace this physical disk as soon as possible to avoid data corruption.", serialNumber))
 					.build();
