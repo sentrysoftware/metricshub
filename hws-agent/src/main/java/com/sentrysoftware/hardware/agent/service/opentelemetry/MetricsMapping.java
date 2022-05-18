@@ -199,43 +199,43 @@ public class MetricsMapping {
 		final Map<String, MetricInfo> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(IMetaMonitor.STATUS.getName(), MetricInfo
-			.builder()
-			.name("hw.target.status")
-			.unit(IMetaMonitor.STATUS.getUnit())
-			.description("Target status.")
-			.build());
+				.builder()
+				.name("hw.target.status")
+				.unit(IMetaMonitor.STATUS.getUnit())
+				.description("Target status.")
+				.build());
 		map.put(IMetaMonitor.ENERGY.getName(), MetricInfo
-			.builder()
-			.name("hw.target.energy_joules_total")
-			.unit(JOULES)
-			.type(MetricType.COUNTER)
-			.description("Energy consumed by the components since the start of the Hardware Sentry agent.")
-			.build());
+				.builder()
+				.name("hw.target.energy_joules_total")
+				.unit(JOULES)
+				.type(MetricType.COUNTER)
+				.description("Energy consumed by the components since the start of the Hardware Sentry agent.")
+				.build());
 		map.put(IMetaMonitor.POWER_CONSUMPTION.getName(), MetricInfo
-			.builder()
-			.name("hw.target.power_watts")
-			.unit(WATTS)
-			.type(MetricType.GAUGE)
-			.description("Energy consumed by all the components discovered for the monitored target.")
-			.build());
+				.builder()
+				.name("hw.target.power_watts")
+				.unit(WATTS)
+				.type(MetricType.GAUGE)
+				.description("Energy consumed by all the components discovered for the monitored target.")
+				.build());
 		map.put(IMetaMonitor.HEATING_MARGIN.getName(), MetricInfo
-			.builder()
-			.name("hw.target.heating_margin_celsius")
-			.unit(CELSIUS)
-			.description("Number of degrees Celsius (°C) remaining before the temperature reaches the closest warning threshold.")
-			.build());
+				.builder()
+				.name("hw.target.heating_margin_celsius")
+				.unit(CELSIUS)
+				.description("Number of degrees Celsius (°C) remaining before the temperature reaches the closest warning threshold.")
+				.build());
 		map.put(Target.AMBIENT_TEMPERATURE.getName(), MetricInfo
-			.builder()
-			.name("hw.target.ambient_temperature_celsius")
-			.unit(CELSIUS)
-			.description("Target's current ambient temperature in degrees Celsius (°C).")
-			.build());
+				.builder()
+				.name("hw.target.ambient_temperature_celsius")
+				.unit(CELSIUS)
+				.description("Target's current ambient temperature in degrees Celsius (°C).")
+				.build());
 		map.put(Target.CPU_TEMPERATURE.getName(), MetricInfo
-			.builder()
-			.name("hw.target.cpu_temperature_celsius")
-			.unit(CELSIUS)
-			.description("Target's CPU temperature in degrees Celsius (°C).")
-			.build());
+				.builder()
+				.name("hw.target.cpu_temperature_celsius")
+				.unit(CELSIUS)
+				.description("Target's CPU temperature in degrees Celsius (°C).")
+				.build());
 		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo
 				.builder()
 				.name("hw.target.present")
@@ -265,6 +265,18 @@ public class MetricsMapping {
 				.name("hw.target.ssh.up")
 				.unit(UP_PARAMETER_UNIT)
 				.description("Whether the SSH protocol is up or not")
+				.build());
+		map.put(Target.HTTP_UP.getName(), MetricInfo
+				.builder()
+				.name("hw.target.http.up")
+				.unit(UP_PARAMETER_UNIT)
+				.description("Whether the HTTP protocol is up or not")
+				.build());
+		map.put(Target.IPMI_UP.getName(), MetricInfo
+				.builder()
+				.name("hw.target.ipmi.up")
+				.unit(UP_PARAMETER_UNIT)
+				.description("Whether the IPMI protocol is up or not")
 				.build());
 
 		return map;

@@ -21,6 +21,8 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_PERCENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HTTP_UP_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IPMI_UP_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LED_INDICATOR_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_SPEED_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_STATUS_PARAMETER;
@@ -123,11 +125,14 @@ import com.sentrysoftware.matrix.common.meta.parameter.state.LinkStatus;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Up;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
+import com.sentrysoftware.matrix.engine.protocol.HttpProtocol;
+import com.sentrysoftware.matrix.engine.protocol.IpmiOverLanProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WmiProtocol;
 import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
+import com.sentrysoftware.matrix.engine.strategy.matsya.HttpRequest;
 import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.matrix.engine.strategy.utils.WqlDetectionHelper;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
@@ -201,7 +206,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	@Override
 	public void visit(Target target) {
 
-		final String hostName = monitorCollectInfo.getHostname();
+		final String hostname = monitorCollectInfo.getHostname();
 		final Monitor monitor = monitorCollectInfo.getMonitor();
 
 		// No engine configuration means no protocols to check if they are up.
@@ -209,20 +214,92 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			return;
 		}
 
-		updateSnmpUpParameter(hostName, monitor);
-		updateWbemUpParameter(hostName, monitor);
-		updateSshUpParameter(hostName, monitor);
-		updateWmiUpParameter(hostName, monitor);
+		updateSnmpUpParameter(hostname, monitor);
+		updateWbemUpParameter(hostname, monitor);
+		updateSshUpParameter(hostname, monitor);
+		updateWmiUpParameter(hostname, monitor);
+		updateHttpUpParameter(hostname, monitor);
+		updateIpmiUpParameter(hostname, monitor);
 
 	}
 
 	/**
-	 * Update WMI Protocol Up Parameter
+	 * Update IPMI protocol up parameter
 	 * 
-	 * @param hostName hostname
+	 * @param hostname hostname
 	 * @param monitor  monitor
 	 */
-	private void updateWmiUpParameter(final String hostName, final Monitor monitor) {
+	private void updateIpmiUpParameter(final String hostname, final Monitor monitor) {
+		// Get IPMI Configuration if it exists
+		final IpmiOverLanProtocol ipmi = (IpmiOverLanProtocol) monitorCollectInfo.getEngineConfiguration().getProtocolConfigurations()
+				.get(IpmiOverLanProtocol.class);
+
+		// Update the IPMI_UP_PARAMETER
+		if (ipmi != null) {
+
+			String ipmiResult = null;
+
+			try {
+				// Query to test for response.
+				ipmiResult = monitorCollectInfo.getMatsyaClientsExecutor().executeIpmiDetection(hostname, ipmi);
+			} catch (Exception e) {
+				log.debug("Hostname {} - Checking HTTP protocol status. HTTP exception when performing a test HTTP query: ", hostname, e);
+			}
+
+			CollectHelper.updateDiscreteParameter(
+					monitor,
+					IPMI_UP_PARAMETER,
+					monitorCollectInfo.getCollectTime(),
+					ipmiResult != null ? Up.UP : Up.DOWN);
+
+		}
+	}
+
+
+	/**
+	 * Update HTTP protocol up parameter
+	 * 
+	 * @param hostname hostname
+	 * @param monitor  monitor
+	 */
+	private void updateHttpUpParameter(final String hostname, final Monitor monitor) {
+		// Get HTTP Configuration if it exists
+		final HttpProtocol http = (HttpProtocol) monitorCollectInfo.getEngineConfiguration().getProtocolConfigurations()
+				.get(HttpProtocol.class);
+
+		// Update the HTTP_UP_PARAMETER
+		if (http != null) {
+
+			String httpResult = null;
+
+			try {
+				// Query to test for response.
+				HttpRequest request = new HttpRequest();
+				request.setHostname(hostname);
+				request.setUrl("/");
+				request.setHttpProtocol(http);
+
+				httpResult = monitorCollectInfo.getMatsyaClientsExecutor().executeHttp(request, true);
+			} catch (Exception e) {
+				log.debug("Hostname {} - Checking HTTP protocol status. HTTP exception when performing a test HTTP query: ", hostname, e);
+			}
+
+			CollectHelper.updateDiscreteParameter(
+					monitor,
+					HTTP_UP_PARAMETER,
+					monitorCollectInfo.getCollectTime(),
+					httpResult != null ? Up.UP : Up.DOWN);
+
+		}
+	}
+
+	/**
+	 * Update WMI protocol up parameter
+	 * 
+	 * @param hostname hostname
+	 * @param monitor  monitor
+	 */
+	private void updateWmiUpParameter(final String hostname, final Monitor monitor) {
 		// Get WMI Configuration if it exists
 		final WmiProtocol wmi = (WmiProtocol) monitorCollectInfo.getEngineConfiguration().getProtocolConfigurations()
 				.get(WmiProtocol.class);
@@ -237,7 +314,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 			try {
 				// Query to test for response.
-				wmiResult = monitorCollectInfo.getMatsyaClientsExecutor().executeWmi(hostName,
+				wmiResult = monitorCollectInfo.getMatsyaClientsExecutor().executeWmi(hostname,
 						wmi, wbemQuery, nameSpace);
 
 			} catch (Exception e) {
@@ -248,7 +325,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 							Up.UP);
 					return;
 				}
-				log.debug("Hostname {} - Checking WMI protocol status. WMI exception when performing a test WMI query: ", hostName, e);
+				log.debug("Hostname {} - Checking WMI protocol status. WMI exception when performing a test WMI query: ", hostname, e);
 			}
 
 			CollectHelper.updateDiscreteParameter(
@@ -263,10 +340,10 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	/**
 	 * Update SSH Protocol Up Parameter
 	 * 
-	 * @param hostName hostname
+	 * @param hostname hostname
 	 * @param monitor  monitor
 	 */
-	private void updateSshUpParameter(final String hostName, final Monitor monitor) {
+	private void updateSshUpParameter(final String hostname, final Monitor monitor) {
 		// Get SSH Configuration if it exists
 		final SshProtocol ssh = (SshProtocol) monitorCollectInfo.getEngineConfiguration().getProtocolConfigurations()
 				.get(SshProtocol.class);
@@ -275,11 +352,11 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		if (ssh != null) {
 			String sshResult = null;
 			try {
-				sshResult = OsCommandHelper.runSshCommand("echo SSH_UP_TEST", hostName, ssh,
+				sshResult = OsCommandHelper.runSshCommand("echo SSH_UP_TEST", hostname, ssh,
 						Math.toIntExact(ssh.getTimeout()), null, null);
 
 			} catch (Exception e) {
-				log.debug("Hostname {} - Checking SSH protocol status. SSH exception when performing a test SSH command: ", hostName, e);
+				log.debug("Hostname {} - Checking SSH protocol status. SSH exception when performing a test SSH command: ", hostname, e);
 			} finally {
 				CollectHelper.updateDiscreteParameter(
 						monitor,
@@ -293,10 +370,10 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	/**
 	 * Update WBEM Protocol Up Parameter
 	 * 
-	 * @param hostName hostname
+	 * @param hostname hostname
 	 * @param monitor  monitor
 	 */
-	private void updateWbemUpParameter(final String hostName, final Monitor monitor) {
+	private void updateWbemUpParameter(final String hostname, final Monitor monitor) {
 
 		// Get WBEM Configuration if it exists
 		final WbemProtocol wbem = (WbemProtocol) monitorCollectInfo.getEngineConfiguration().getProtocolConfigurations()
@@ -319,7 +396,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 					// Execute wbem query
 					wbemResult = monitorCollectInfo
 							.getMatsyaClientsExecutor()
-							.executeWbem(hostName, wbem, "SELECT Name FROM CIM_NameSpace", wbemNamespace);
+							.executeWbem(hostname, wbem, "SELECT Name FROM CIM_NameSpace", wbemNamespace);
 
 					// We have got a result?
 					if (wbemResult != null) {
@@ -337,7 +414,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 								Up.UP);
 						return;
 					}
-					log.debug("Hostname {} - Checking WBEM protocol status. WBEM exception when performing a test WBEM query: ", hostName, e);
+					log.debug("Hostname {} - Checking WBEM protocol status. WBEM exception when performing a test WBEM query: ", hostname, e);
 				}
 			}
 
@@ -351,10 +428,10 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	/**
 	 * Update SNMP Protocol Up Parameter
 	 * 
-	 * @param hostName hostname
+	 * @param hostname hostname
 	 * @param monitor  monitor
 	 */
-	private void updateSnmpUpParameter(final String hostName, final Monitor monitor) {
+	private void updateSnmpUpParameter(final String hostname, final Monitor monitor) {
 		// Get SNMP Configuration if it exists
 		final SnmpProtocol snmp = (SnmpProtocol) monitorCollectInfo.getEngineConfiguration().getProtocolConfigurations()
 				.get(SnmpProtocol.class);
@@ -365,10 +442,10 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			String snmpGetNext = null;
 			try {
 				snmpGetNext = monitorCollectInfo.getMatsyaClientsExecutor()
-						.executeSNMPGetNext(SNMP_UP_TEST_OID, snmp, hostName, true);
+						.executeSNMPGetNext(SNMP_UP_TEST_OID, snmp, hostname, true);
 
 			} catch (Exception e) {
-				log.debug("Hostname {} - Checking SNMP protocol status. SNMP exception when performing a test SNMP Get Next: ", hostName, e);
+				log.debug("Hostname {} - Checking SNMP protocol status. SNMP exception when performing a test SNMP Get Next: ", hostname, e);
 			} finally {
 				CollectHelper.updateDiscreteParameter(monitor, SNMP_UP_PARAMETER,
 						monitorCollectInfo.getCollectTime(), snmpGetNext != null ? Up.UP : Up.DOWN);
