@@ -11,7 +11,7 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WbemSource;
 import com.sentrysoftware.matrix.connector.parser.state.source.common.WbemQueryProcessor;
 
 class WbemQueryProcessorTest {
@@ -19,7 +19,7 @@ class WbemQueryProcessorTest {
 	private static final String WBEM_QUERY_KEY = "enclosure.discovery.source(1).WbemQuery";
 	private static final String QUERY_VALUE = "SELECT __PATH,Model,SerialNumber FROM EMC_VNXe_ArrayChassisLeaf";
 
-	private WbemQueryProcessor wbemQueryProcessor = new WbemQueryProcessor(WBEMSource.class, "WBEM");
+	private WbemQueryProcessor wbemQueryProcessor = new WbemQueryProcessor(WbemSource.class, "WBEM");
 
 	private Connector connector;
 
@@ -31,7 +31,7 @@ class WbemQueryProcessorTest {
 	@Test
 	void testParse() {
 
-		final WBEMSource wbemQuery = WBEMSource.builder()
+		final WbemSource wbemQuery = WbemSource.builder()
 				.index(1)
 				.build();
 

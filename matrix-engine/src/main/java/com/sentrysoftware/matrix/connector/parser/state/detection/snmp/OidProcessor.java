@@ -2,9 +2,9 @@ package com.sentrysoftware.matrix.connector.parser.state.detection.snmp;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMP;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGet;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGetNext;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.Snmp;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SnmpGet;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SnmpGetNext;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,9 +32,9 @@ public class OidProcessor extends SnmpProcessor {
 		Matcher matcher = getMatcher(key);
 		isTrue(matcher.matches(), () -> "Invalid key: " + key);
 
-		SNMP criterion = key.trim().endsWith(SNMP_GET_OID_KEY)
-			? new SNMPGet()
-			: new SNMPGetNext();
+		Snmp criterion = key.trim().endsWith(SNMP_GET_OID_KEY)
+			? new SnmpGet()
+			: new SnmpGetNext();
 
 		criterion.setIndex(getCriterionIndex(matcher));
 		criterion.setOid(value.trim());

@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.common.OSType;
+import com.sentrysoftware.matrix.connector.model.common.OsType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
 
@@ -25,7 +25,7 @@ public class ConnectorSimpleProperty {
 					new VersionProcessor(),
 					new RemoteSupportProcessor(),
 					new LocalSupportProcessor(),
-					new AppliesToOSProcessor(),
+					new AppliesToOsProcessor(),
 					new SupersedesProcessor(),
 					new CommentsProcessor(),
 					new NoAutoDetectionProcessor(),
@@ -72,7 +72,7 @@ public class ConnectorSimpleProperty {
 		}
 	}
 
-	public static class AppliesToOSProcessor implements IConnectorStateParser {
+	public static class AppliesToOsProcessor implements IConnectorStateParser {
 
 		@Override
 		public boolean detect(final String key, final String value, final Connector connector) {
@@ -82,10 +82,10 @@ public class ConnectorSimpleProperty {
 		@Override
 		public void parse(final String key, final String value, final Connector connector) {
 			if (connector != null && value != null) {
-				Set<OSType> osTypes = new HashSet<>();
+				Set<OsType> osTypes = new HashSet<>();
 
 				Arrays.stream(value.split(ConnectorParserConstants.COMMA))
-					.forEach(osTypeStr -> osTypes.add(OSType.valueOf(osTypeStr.trim().toUpperCase())));
+					.forEach(osTypeStr -> osTypes.add(OsType.valueOf(osTypeStr.trim().toUpperCase())));
 
 				connector.setAppliesToOS(osTypes);
 			}

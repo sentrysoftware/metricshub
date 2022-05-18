@@ -16,7 +16,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OsCommandSource;
 
 class TimeoutProcessorTest {
 
@@ -28,7 +28,7 @@ class TimeoutProcessorTest {
 
 	@Test
 	void testGetType() {
-		assertEquals(OSCommandSource.class, TIMEOUT_PROCESSOR.getType());
+		assertEquals(OsCommandSource.class, TIMEOUT_PROCESSOR.getType());
 	}
 
 	@Test
@@ -72,14 +72,14 @@ class TimeoutProcessorTest {
 		assertThrows(IllegalStateException.class, () -> TIMEOUT_PROCESSOR.parse(TIMEOUT_DISCOVERY, VALUE, CONNECTOR));
 		assertThrows(IllegalStateException.class, () -> TIMEOUT_PROCESSOR.parse(TIMEOUT_COLLECT, VALUE, CONNECTOR));
 		{
-			final OSCommandSource osCommandSource = OSCommandSource.builder().index(1).build();
+			final OsCommandSource osCommandSource = OsCommandSource.builder().index(1).build();
 			final Discovery discovery = Discovery.builder().sources(List.of(osCommandSource)).build();
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.DISK_CONTROLLER).discovery(discovery).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			assertThrows(IllegalStateException.class, () -> TIMEOUT_PROCESSOR.parse(TIMEOUT_DISCOVERY, "x", CONNECTOR));
 		}
 		{
-			final OSCommandSource osCommandSource = OSCommandSource.builder().index(1).build();
+			final OsCommandSource osCommandSource = OsCommandSource.builder().index(1).build();
 			final Collect collect = Collect.builder().sources(List.of(osCommandSource)).build();
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.PHYSICAL_DISK).collect(collect).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
@@ -87,20 +87,20 @@ class TimeoutProcessorTest {
 		}
 
 		{
-			final OSCommandSource osCommandSource = OSCommandSource.builder().index(1).build();
+			final OsCommandSource osCommandSource = OsCommandSource.builder().index(1).build();
 			final Discovery discovery = Discovery.builder().sources(List.of(osCommandSource)).build();
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.DISK_CONTROLLER).discovery(discovery).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			TIMEOUT_PROCESSOR.parse(TIMEOUT_DISCOVERY, VALUE, CONNECTOR);
-			assertEquals(120L, ((OSCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getTimeout()); 
+			assertEquals(120L, ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getTimeout());
 		}
 		{
-			final OSCommandSource osCommandSource = OSCommandSource.builder().index(1).build();
+			final OsCommandSource osCommandSource = OsCommandSource.builder().index(1).build();
 			final Collect collect = Collect.builder().sources(List.of(osCommandSource)).build();
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.PHYSICAL_DISK).collect(collect).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			TIMEOUT_PROCESSOR.parse(TIMEOUT_COLLECT, VALUE, CONNECTOR);
-			assertEquals(120L, ((OSCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).getTimeout()); 
+			assertEquals(120L, ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).getTimeout());
 		}
 	}
 }

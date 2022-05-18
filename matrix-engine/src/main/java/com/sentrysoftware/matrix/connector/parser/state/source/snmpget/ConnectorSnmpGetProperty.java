@@ -4,7 +4,7 @@ import static com.sentrysoftware.matrix.connector.parser.state.source.snmpget.Sn
 
 import java.util.Set;
 
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetSource;
 import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
 import com.sentrysoftware.matrix.connector.parser.state.source.common.EntryConcatEndProcessor;
 import com.sentrysoftware.matrix.connector.parser.state.source.common.EntryConcatMethodProcessor;
@@ -21,12 +21,12 @@ public class ConnectorSnmpGetProperty {
 	public static Set<IConnectorStateParser> getConnectorProperties() {
 
 		return Set.of(
-				new TypeProcessor(SNMPGetSource.class, SNMP_GET_TYPE_VALUE),
-				new ForceSerializationProcessor(SNMPGetSource.class, SNMP_GET_TYPE_VALUE),
+				new TypeProcessor(SnmpGetSource.class, SNMP_GET_TYPE_VALUE),
+				new ForceSerializationProcessor(SnmpGetSource.class, SNMP_GET_TYPE_VALUE),
 				new SnmpGetOidProcessor(),
-				new ExecuteForEachEntryOfProcessor(SNMPGetSource.class, SNMP_GET_TYPE_VALUE),
-				new EntryConcatMethodProcessor(SNMPGetSource.class, SNMP_GET_TYPE_VALUE),
-				new EntryConcatStartProcessor(SNMPGetSource.class, SNMP_GET_TYPE_VALUE),
-				new EntryConcatEndProcessor(SNMPGetSource.class, SNMP_GET_TYPE_VALUE));
+				new ExecuteForEachEntryOfProcessor(SnmpGetSource.class, SNMP_GET_TYPE_VALUE),
+				new EntryConcatMethodProcessor(SnmpGetSource.class, SNMP_GET_TYPE_VALUE),
+				new EntryConcatStartProcessor(SnmpGetSource.class, SNMP_GET_TYPE_VALUE),
+				new EntryConcatEndProcessor(SnmpGetSource.class, SNMP_GET_TYPE_VALUE));
 	}
 }

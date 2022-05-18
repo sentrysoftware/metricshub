@@ -13,7 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.fasterxml.jackson.dataformat.yaml.YAMLParser;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.SNMPVersion;
+import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.SnmpVersion;
 
 @ExtendWith(MockitoExtension.class)
 class SnmpVersionDeserializerTest {
@@ -51,10 +51,10 @@ class SnmpVersionDeserializerTest {
 	void testV1() throws IOException {
 
 		doReturn("v1").when(yamlParser).getValueAsString();
-		assertEquals(SNMPVersion.V1, new SnmpVersionDeserializer().deserialize(yamlParser, null));
+		assertEquals(SnmpVersion.V1, new SnmpVersionDeserializer().deserialize(yamlParser, null));
 
 		doReturn("1").when(yamlParser).getValueAsString();
-		assertEquals(SNMPVersion.V1, new SnmpVersionDeserializer().deserialize(yamlParser, null));
+		assertEquals(SnmpVersion.V1, new SnmpVersionDeserializer().deserialize(yamlParser, null));
 
 	}
 
@@ -62,13 +62,13 @@ class SnmpVersionDeserializerTest {
 	void testV2() throws IOException {
 
 		doReturn("v2").when(yamlParser).getValueAsString();
-		assertEquals(SNMPVersion.V2C, new SnmpVersionDeserializer().deserialize(yamlParser, null));
+		assertEquals(SnmpVersion.V2C, new SnmpVersionDeserializer().deserialize(yamlParser, null));
 
 		doReturn("2").when(yamlParser).getValueAsString();
-		assertEquals(SNMPVersion.V2C, new SnmpVersionDeserializer().deserialize(yamlParser, null));
+		assertEquals(SnmpVersion.V2C, new SnmpVersionDeserializer().deserialize(yamlParser, null));
 
 		doReturn("v2c").when(yamlParser).getValueAsString();
-		assertEquals(SNMPVersion.V2C, new SnmpVersionDeserializer().deserialize(yamlParser, null));
+		assertEquals(SnmpVersion.V2C, new SnmpVersionDeserializer().deserialize(yamlParser, null));
 
 	}
 
@@ -76,27 +76,27 @@ class SnmpVersionDeserializerTest {
 	void testV3() throws IOException {
 
 		doReturn("v3").when(yamlParser).getValueAsString();
-		assertEquals(SNMPVersion.V3_SHA, new SnmpVersionDeserializer().deserialize(yamlParser, null));
+		assertEquals(SnmpVersion.V3_SHA, new SnmpVersionDeserializer().deserialize(yamlParser, null));
 
 		doReturn("v3 no auth").when(yamlParser).getValueAsString();
-		assertEquals(SNMPVersion.V3_NO_AUTH, new SnmpVersionDeserializer().deserialize(yamlParser, null));
+		assertEquals(SnmpVersion.V3_NO_AUTH, new SnmpVersionDeserializer().deserialize(yamlParser, null));
 
 		doReturn("v3 no-auth").when(yamlParser).getValueAsString();
-		assertEquals(SNMPVersion.V3_NO_AUTH, new SnmpVersionDeserializer().deserialize(yamlParser, null));
+		assertEquals(SnmpVersion.V3_NO_AUTH, new SnmpVersionDeserializer().deserialize(yamlParser, null));
 
 		doReturn("v3 md5").when(yamlParser).getValueAsString();
-		assertEquals(SNMPVersion.V3_MD5, new SnmpVersionDeserializer().deserialize(yamlParser, null));
+		assertEquals(SnmpVersion.V3_MD5, new SnmpVersionDeserializer().deserialize(yamlParser, null));
 
 		doReturn("v3 sha").when(yamlParser).getValueAsString();
-		assertEquals(SNMPVersion.V3_SHA, new SnmpVersionDeserializer().deserialize(yamlParser, null));
+		assertEquals(SnmpVersion.V3_SHA, new SnmpVersionDeserializer().deserialize(yamlParser, null));
 
 		doReturn("V3_MD5").when(yamlParser).getValueAsString();
-		assertEquals(SNMPVersion.V3_MD5, new SnmpVersionDeserializer().deserialize(yamlParser, null));
+		assertEquals(SnmpVersion.V3_MD5, new SnmpVersionDeserializer().deserialize(yamlParser, null));
 
 		doReturn("V3_SHA").when(yamlParser).getValueAsString();
-		assertEquals(SNMPVersion.V3_SHA, new SnmpVersionDeserializer().deserialize(yamlParser, null));
+		assertEquals(SnmpVersion.V3_SHA, new SnmpVersionDeserializer().deserialize(yamlParser, null));
 
 		doReturn("V3_NO_AUTH").when(yamlParser).getValueAsString();
-		assertEquals(SNMPVersion.V3_NO_AUTH, new SnmpVersionDeserializer().deserialize(yamlParser, null));
+		assertEquals(SnmpVersion.V3_NO_AUTH, new SnmpVersionDeserializer().deserialize(yamlParser, null));
 	}
 }

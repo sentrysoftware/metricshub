@@ -24,7 +24,7 @@ public class ITJobUtils {
 	 * @return The path under <em>src/it/resources</em>
 	 */
 	public static String getItResourcePath(final String itResourcePath) {
-		return "src/it/resources/" + itResourcePath; 
+		return "src/it/resources/" + itResourcePath;
 	}
 
 }

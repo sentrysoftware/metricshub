@@ -1,7 +1,7 @@
 package com.sentrysoftware.hardware.cli.component.cli.protocols;
 
 import com.sentrysoftware.matrix.common.helpers.ArrayHelper;
-import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
+import com.sentrysoftware.matrix.engine.protocol.IpmiOverLanProtocol;
 
 import lombok.Data;
 import picocli.CommandLine.Model.CommandSpec;
@@ -70,12 +70,12 @@ public class IpmiConfigCli implements IProtocolConfigCli {
 	/**
 	 * @param defaultUsername Username specified at the top level of the CLI (with the --username option)
 	 * @param defaultPassword Password specified at the top level of the CLI (with the --password option)
-	 * @return an IPMIOverLanProtocol instance corresponding to the options specified by the user in the CLI
+	 * @return an IpmiOverLanProtocol instance corresponding to the options specified by the user in the CLI
 	 */
 	@Override
-	public IPMIOverLanProtocol toProtocol(String defaultUsername, char[] defaultPassword) {
+	public IpmiOverLanProtocol toProtocol(String defaultUsername, char[] defaultPassword) {
 		try {
-			return IPMIOverLanProtocol
+			return IpmiOverLanProtocol
 					.builder()
 					.username(username == null ? defaultUsername : username)
 					.password(username == null ? defaultPassword : password)

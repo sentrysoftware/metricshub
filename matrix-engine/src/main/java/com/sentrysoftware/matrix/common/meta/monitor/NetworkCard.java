@@ -245,7 +245,7 @@ public class NetworkCard implements IMetaMonitor {
 		alertRulesMap.put(ERROR_PERCENT_PARAMETER, List.of(ERROR_PERCENT_WARN_ALART_RULE, ERROR_PERCENT_ALARM_ALERT_RULE));
 		alertRulesMap.put(BANDWIDTH_UTILIZATION_PARAMETER, Collections.singletonList(BANDWIDTH_UTILIZATION_HIGH_ALERT_RULE));
 
-		ALERT_RULES = Collections.unmodifiableMap(alertRulesMap); 
+		ALERT_RULES = Collections.unmodifiableMap(alertRulesMap);
 	}
 
 	/**

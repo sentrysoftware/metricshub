@@ -16,20 +16,20 @@ import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OSCommandSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OsCommandSource;
 import com.sentrysoftware.matrix.connector.parser.state.source.oscommand.OsCommandProcessor;
 
 class SeparatorsProcessorTest {
 
 	private static final String SEPARATORS_DISCOVERY = "DiskController.Discovery.Source(1).Separators";
 	private static final String SEPARATORS_COLLECT = "PhysicalDisk.Collect.Source(1).Separators";
-	private static final SeparatorsProcessor SEPARATORS_PROCESSOR = new SeparatorsProcessor(OSCommandSource.class, OsCommandProcessor.OS_COMMAND_TYPE);
+	private static final SeparatorsProcessor SEPARATORS_PROCESSOR = new SeparatorsProcessor(OsCommandSource.class, OsCommandProcessor.OS_COMMAND_TYPE);
 	private static final String VALUE = ":";
 	private static final Connector CONNECTOR = new Connector();
 
 	@Test
 	void testGetType() {
-		assertEquals(OSCommandSource.class, SEPARATORS_PROCESSOR.getType());
+		assertEquals(OsCommandSource.class, SEPARATORS_PROCESSOR.getType());
 	}
 
 	@Test
@@ -74,20 +74,20 @@ class SeparatorsProcessorTest {
 		assertThrows(IllegalArgumentException.class, () -> SEPARATORS_PROCESSOR.parse(SEPARATORS_COLLECT, VALUE, CONNECTOR));
 
 		{
-			final OSCommandSource osCommandSource = OSCommandSource.builder().index(1).build();
+			final OsCommandSource osCommandSource = OsCommandSource.builder().index(1).build();
 			final Discovery discovery = Discovery.builder().sources(List.of(osCommandSource)).build();
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.DISK_CONTROLLER).discovery(discovery).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			SEPARATORS_PROCESSOR.parse(SEPARATORS_DISCOVERY, VALUE, CONNECTOR);
-			assertEquals(VALUE, ((OSCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getSeparators()); 
+			assertEquals(VALUE, ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getSeparators());
 		}
 		{
-			final OSCommandSource osCommandSource = OSCommandSource.builder().index(1).build();
+			final OsCommandSource osCommandSource = OsCommandSource.builder().index(1).build();
 			final Collect collect = Collect.builder().sources(List.of(osCommandSource)).build();
 			final HardwareMonitor hardwareMonitor = HardwareMonitor.builder().type(MonitorType.PHYSICAL_DISK).collect(collect).build();
 			CONNECTOR.setHardwareMonitors(List.of(hardwareMonitor));
 			SEPARATORS_PROCESSOR.parse(SEPARATORS_COLLECT, VALUE, CONNECTOR);
-			assertEquals(VALUE, ((OSCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).getSeparators()); 
+			assertEquals(VALUE, ((OsCommandSource) CONNECTOR.getHardwareMonitors().get(0).getCollect().getSources().get(0)).getSeparators());
 		}
 	}
 }

@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import com.sentrysoftware.hardware.agent.dto.ErrorResponseDTO;
+import com.sentrysoftware.hardware.agent.dto.ErrorResponseDto;
 import com.sentrysoftware.hardware.agent.exception.BusinessException;
 import com.sentrysoftware.hardware.agent.exception.IBusinessException;
 
@@ -21,7 +21,7 @@ public class RestExceptionHandler {
 	protected <T extends IBusinessException> ResponseEntity<Object> handleBusinessException(final T exception) {
 
 		// Get the code and generate the appropriate HttpStatus error
-		return new ResponseEntity<>(ErrorResponseDTO.builder().code(exception.getErrorCode())
+		return new ResponseEntity<>(ErrorResponseDto.builder().code(exception.getErrorCode())
 				.message(exception.getMessage()).date(exception.getDate()).build(),
 				exception.getErrorCode().getHttpStatus());
 

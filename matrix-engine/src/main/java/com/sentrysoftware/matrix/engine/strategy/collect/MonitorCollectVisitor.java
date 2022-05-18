@@ -1,6 +1,8 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ALARM_ON_COLOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_COUNT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_WARNING;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BANDWIDTH_UTILIZATION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BLINKING_STATUS;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BYTES_PARAMETER_UNIT;
@@ -22,6 +24,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_P
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LED_INDICATOR_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_SPEED_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAX_AVAILABLE_PATH_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOUNT_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOUNT_COUNT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MOVE_COUNT_PARAMETER;
@@ -37,10 +40,12 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVE
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVED_BYTES_RATE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVED_PACKETS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVED_PACKETS_RATE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SNMP_UP_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPACE_GB_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_MBITS_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_PERCENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SSH_UP_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STARTING_CORRECTED_ERROR_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STARTING_ERROR_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_INFORMATION_PARAMETER;
@@ -69,16 +74,11 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_WA
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VOLTAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VOLTAGE_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_ON_COLOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WBEM_UP_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WMI_UP_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_COUNT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_PERCENT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_WARNING;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_COUNT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAX_AVAILABLE_PATH_COUNT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SNMP_UP_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SSH_UP_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WMI_UP_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WBEM_UP_PARAMETER;
 
 import java.math.RoundingMode;
 import java.util.Collections;
@@ -123,10 +123,10 @@ import com.sentrysoftware.matrix.common.meta.parameter.state.LinkStatus;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Up;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
-import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WmiProtocol;
 import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
 import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.matrix.engine.strategy.utils.WqlDetectionHelper;
@@ -224,8 +224,8 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	 */
 	private void updateWmiUpParameter(final String hostName, final Monitor monitor) {
 		// Get WMI Configuration if it exists
-		final WMIProtocol wmi = (WMIProtocol) monitorCollectInfo.getEngineConfiguration().getProtocolConfigurations()
-				.get(WMIProtocol.class);
+		final WmiProtocol wmi = (WmiProtocol) monitorCollectInfo.getEngineConfiguration().getProtocolConfigurations()
+				.get(WmiProtocol.class);
 
 		// Update the WMI_UP_PARAMETER
 		if (wmi != null) {
@@ -268,8 +268,8 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	 */
 	private void updateSshUpParameter(final String hostName, final Monitor monitor) {
 		// Get SSH Configuration if it exists
-		final SSHProtocol ssh = (SSHProtocol) monitorCollectInfo.getEngineConfiguration().getProtocolConfigurations()
-				.get(SSHProtocol.class);
+		final SshProtocol ssh = (SshProtocol) monitorCollectInfo.getEngineConfiguration().getProtocolConfigurations()
+				.get(SshProtocol.class);
 
 		// Update the SSH_UP_PARAMETER
 		if (ssh != null) {
@@ -299,8 +299,8 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	private void updateWbemUpParameter(final String hostName, final Monitor monitor) {
 
 		// Get WBEM Configuration if it exists
-		final WBEMProtocol wbem = (WBEMProtocol) monitorCollectInfo.getEngineConfiguration().getProtocolConfigurations()
-				.get(WBEMProtocol.class);
+		final WbemProtocol wbem = (WbemProtocol) monitorCollectInfo.getEngineConfiguration().getProtocolConfigurations()
+				.get(WbemProtocol.class);
 
 		// Configuration expects WBEM
 		if (wbem != null) {
@@ -356,8 +356,8 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	 */
 	private void updateSnmpUpParameter(final String hostName, final Monitor monitor) {
 		// Get SNMP Configuration if it exists
-		final SNMPProtocol snmp = (SNMPProtocol) monitorCollectInfo.getEngineConfiguration().getProtocolConfigurations()
-				.get(SNMPProtocol.class);
+		final SnmpProtocol snmp = (SnmpProtocol) monitorCollectInfo.getEngineConfiguration().getProtocolConfigurations()
+				.get(SnmpProtocol.class);
 
 		// Update the SNMP_UP_PARAMETER.
 		if (snmp != null) {

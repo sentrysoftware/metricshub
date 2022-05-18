@@ -52,7 +52,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.sentrysoftware.hardware.agent.dto.MetricInfo;
 import com.sentrysoftware.hardware.agent.dto.MetricInfo.MetricType;
-import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
+import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
 import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
@@ -95,7 +95,7 @@ class HostMonitoringCollectorServiceTest {
 	private Map<String, IHostMonitoring> hostMonitoringMap;
 
 	@Mock
-	private MultiHostsConfigurationDTO multiHostsConfigurationDTO;
+	private MultiHostsConfigurationDto multiHostsConfigurationDto;
 
 	@InjectMocks
 	@Autowired
@@ -809,7 +809,7 @@ class HostMonitoringCollectorServiceTest {
 				.build();
 
 		doReturn(Map.of("site", "Data Center 1"))
-			.when(multiHostsConfigurationDTO).getExtraLabels();
+			.when(multiHostsConfigurationDto).getExtraLabels();
 
 		final List<String> actual = hostMonitoringCollectorService.createLabels(
 				build,
@@ -919,19 +919,19 @@ class HostMonitoringCollectorServiceTest {
 	@Test
 	void testGetCollectTime() {
 		{
-			doReturn(false).when(multiHostsConfigurationDTO).isExportTimestamps();
+			doReturn(false).when(multiHostsConfigurationDto).isExportTimestamps();
 			assertNull(hostMonitoringCollectorService.getCollectTime(Monitor.builder().build(), "parameter"));
 		}
 
 		{
 			// Parameter missing
-			doReturn(true).when(multiHostsConfigurationDTO).isExportTimestamps();
+			doReturn(true).when(multiHostsConfigurationDto).isExportTimestamps();
 			assertNull(hostMonitoringCollectorService.getCollectTime(Monitor.builder().build(), "parameter"));
 		}
 
 		{
 			// Parameter missing
-			doReturn(true).when(multiHostsConfigurationDTO).isExportTimestamps();
+			doReturn(true).when(multiHostsConfigurationDto).isExportTimestamps();
 			final Map<String, IParameter> parameters = Map.of("parameter",
 					NumberParam.builder().collectTime(123456789L).build());
 			assertEquals(123456789L, hostMonitoringCollectorService
@@ -942,12 +942,12 @@ class HostMonitoringCollectorServiceTest {
 	@Test
 	void testGetDiscoveryTime() {
 		{
-			doReturn(false).when(multiHostsConfigurationDTO).isExportTimestamps();
+			doReturn(false).when(multiHostsConfigurationDto).isExportTimestamps();
 			assertNull(hostMonitoringCollectorService.getDiscoveryTime(Monitor.builder().build()));
 		}
 
 		{
-			doReturn(true).when(multiHostsConfigurationDTO).isExportTimestamps();
+			doReturn(true).when(multiHostsConfigurationDto).isExportTimestamps();
 			assertEquals(123456789L, hostMonitoringCollectorService
 					.getDiscoveryTime(Monitor.builder().discoveryTime(123456789L).build()));
 		}

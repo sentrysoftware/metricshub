@@ -16,7 +16,7 @@ public class ConnectorXml2CsvProperty {
 		return Stream
 				.of(
 						new TypeProcessor(Xml2Csv.class, Xml2CsvProcessor.XML_2_CSV_TYPE_VALUE),
-						new RecordtTagProcessor(),
+						new RecordTagProcessor(),
 						new PropertiesProcessor())
 				.collect(Collectors.toSet());
 	}

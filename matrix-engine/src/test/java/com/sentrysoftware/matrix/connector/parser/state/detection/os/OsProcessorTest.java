@@ -4,14 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import com.sentrysoftware.matrix.connector.model.detection.criteria.os.OS;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.os.Os;
 
 class OsProcessorTest {
 
 	@Test
 	void testGetType() {
-		assertEquals(OS.class, new KeepOnlyProcessor().getType());
-		assertEquals(OS.class, new ExcludeProcessor().getType());
+		assertEquals(Os.class, new KeepOnlyProcessor().getType());
+		assertEquals(Os.class, new ExcludeProcessor().getType());
 	}
 
 	@Test

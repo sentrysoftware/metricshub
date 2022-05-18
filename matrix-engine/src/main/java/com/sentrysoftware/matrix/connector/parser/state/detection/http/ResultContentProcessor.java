@@ -2,7 +2,7 @@ package com.sentrysoftware.matrix.connector.parser.state.detection.http;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.http.ResultContent;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.http.HTTP;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.http.Http;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,6 +23,6 @@ public class ResultContentProcessor extends HttpProcessor {
 
 		super.parse(key, value, connector);
 
-		((HTTP) getCriterion(key, connector)).setResultContent(ResultContent.getByName(value));
+		((Http) getCriterion(key, connector)).setResultContent(ResultContent.getByName(value));
 	}
 }

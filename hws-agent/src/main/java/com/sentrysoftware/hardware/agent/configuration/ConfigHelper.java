@@ -21,11 +21,11 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.sentrysoftware.hardware.agent.dto.ErrorCode;
-import com.sentrysoftware.hardware.agent.dto.HardwareTargetDTO;
-import com.sentrysoftware.hardware.agent.dto.HostConfigurationDTO;
-import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
-import com.sentrysoftware.hardware.agent.dto.protocol.IProtocolConfigDTO;
-import com.sentrysoftware.hardware.agent.dto.protocol.SnmpProtocolDTO;
+import com.sentrysoftware.hardware.agent.dto.HardwareTargetDto;
+import com.sentrysoftware.hardware.agent.dto.HostConfigurationDto;
+import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
+import com.sentrysoftware.hardware.agent.dto.protocol.IProtocolConfigDto;
+import com.sentrysoftware.hardware.agent.dto.protocol.SnmpProtocolDto;
 import com.sentrysoftware.hardware.agent.exception.BusinessException;
 import com.sentrysoftware.hardware.agent.security.PasswordEncrypt;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
@@ -156,7 +156,7 @@ public class ConfigHelper {
 	 * @param snmpDto  Snmp object of the target (configuration)
 	 * @throws BusinessException
 	 */
-	static void validateSnmpInfo(final String hostname, SnmpProtocolDTO snmpDto)
+	static void validateSnmpInfo(final String hostname, SnmpProtocolDto snmpDto)
 			throws BusinessException {
 
 		final String displayName = snmpDto.getVersion().getDisplayName();
@@ -327,7 +327,7 @@ public class ConfigHelper {
 
 	/**
 	 * Build the {@link EngineConfiguration} instance from the given
-	 * {@link HostConfigurationDTO}
+	 * {@link HostConfigurationDto}
 	 *
 	 * @param hostConfigurationDto User's configuration
 	 * @param selectedConnectors   The connector names, the matrix engine should run
@@ -335,10 +335,10 @@ public class ConfigHelper {
 	 *
 	 * @return The built {@link EngineConfiguration}.
 	 */
-	static EngineConfiguration buildEngineConfiguration(final HostConfigurationDTO hostConfigurationDto,
+	static EngineConfiguration buildEngineConfiguration(final HostConfigurationDto hostConfigurationDto,
 			final Set<String> selectedConnectors, final Set<String> excludedConnectors) {
 
-		final HardwareTargetDTO target = hostConfigurationDto.getTarget();
+		final HardwareTargetDto target = hostConfigurationDto.getTarget();
 
 		final Map<Class<? extends IProtocolConfiguration>, IProtocolConfiguration> protocolConfigurations =
 				new HashMap<>(
@@ -352,7 +352,7 @@ public class ConfigHelper {
 								hostConfigurationDto.getIpmi()
 						)
 						.filter(Objects::nonNull)
-						.map(IProtocolConfigDTO::toProtocol)
+						.map(IProtocolConfigDto::toProtocol)
 						.filter(Objects::nonNull)
 						.collect(Collectors.toMap(IProtocolConfiguration::getClass, Function.identity())));
 
@@ -431,16 +431,16 @@ public class ConfigHelper {
 	 *
 	 * @param configFile the configuration file
 	 *
-	 * @return A {@link MultiHostsConfigurationDTO} instance.
+	 * @return A {@link MultiHostsConfigurationDto} instance.
 	 *
 	 * @throws BusinessException if a read error occurred.
 	 */
-	public static MultiHostsConfigurationDTO readConfigurationSafe(final File configFile) {
+	public static MultiHostsConfigurationDto readConfigurationSafe(final File configFile) {
 		try {
-			final MultiHostsConfigurationDTO multiHostsConfig = deserializeYamlFile(configFile, MultiHostsConfigurationDTO.class);
+			final MultiHostsConfigurationDto multiHostsConfig = deserializeYamlFile(configFile, MultiHostsConfigurationDto.class);
 
 			multiHostsConfig.getTargets().forEach(configDto -> {
-				HardwareTargetDTO target = configDto.getTarget();
+				HardwareTargetDto target = configDto.getTarget();
 				// Make sure the target id is always set
 				if (target.getId() == null) {
 					target.setId(target.getHostname());
@@ -484,7 +484,7 @@ public class ConfigHelper {
 		} catch (Exception e) {
 			log.info("Cannot read the configuration file {}", configFile.getAbsoluteFile());
 			log.debug("Exception: ", e);
-			return MultiHostsConfigurationDTO.empty();
+			return MultiHostsConfigurationDto.empty();
 
 		}
 	}
@@ -496,7 +496,7 @@ public class ConfigHelper {
 	 * @param acceptedConnectorNames     set of accepted compiled connector names
 	 * @return Map of {@link IHostMonitoring} instances indexed by the target id
 	 */
-	public static Map<String, IHostMonitoring> buildHostMonitoringMap(final MultiHostsConfigurationDTO multiHostsConfigurationDto,
+	public static Map<String, IHostMonitoring> buildHostMonitoringMap(final MultiHostsConfigurationDto multiHostsConfigurationDto,
 			final Set<String> acceptedConnectorNames) {
 
 		final Map<String, IHostMonitoring> hostMonitoringMap = new HashMap<>();
@@ -512,7 +512,7 @@ public class ConfigHelper {
 
 	/**
 	 * Create a new {@link IHostMonitoring} instance for the given
-	 * {@link HostConfigurationDTO} and update the host monitoring map
+	 * {@link HostConfigurationDto} and update the host monitoring map
 	 * 
 	 * @param hostMonitoringMap      Map of {@link IHostMonitoring} instances indexed by the targetId
 	 * @param acceptedConnectorNames set of accepted compiled connector names
@@ -520,7 +520,7 @@ public class ConfigHelper {
 	 *                               the {@link IHostMonitoring} instance
 	 */
 	public static void fillHostMonitoringMap(final Map<String, IHostMonitoring> hostMonitoringMap,
-			final Set<String> acceptedConnectorNames, final HostConfigurationDTO hostConfigurationDto) {
+			final Set<String> acceptedConnectorNames, final HostConfigurationDto hostConfigurationDto) {
 
 		final String hostname = hostConfigurationDto.getTarget().getHostname();
 

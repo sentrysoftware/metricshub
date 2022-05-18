@@ -5,7 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HTTPSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.http.HttpSource;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
 
 public class AuthenticationTokenProcessor extends HttpProcessor {
@@ -24,7 +24,7 @@ public class AuthenticationTokenProcessor extends HttpProcessor {
 
 		super.parse(key, value, connector);
 
-		((HTTPSource) getSource(key, connector)).setAuthenticationToken(
+		((HttpSource) getSource(key, connector)).setAuthenticationToken(
 				value.replaceAll(ConnectorParserConstants.SOURCE_REFERENCE_REGEX_REPLACEMENT, "$1"));
 	}
 }
