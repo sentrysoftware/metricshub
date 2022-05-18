@@ -2,7 +2,7 @@ package com.sentrysoftware.matrix.connector.parser.state.source.wbem;
 
 import java.util.Set;
 
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WBEMSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WbemSource;
 import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
 import com.sentrysoftware.matrix.connector.parser.state.source.common.EntryConcatEndProcessor;
 import com.sentrysoftware.matrix.connector.parser.state.source.common.EntryConcatMethodProcessor;
@@ -22,14 +22,14 @@ public class ConnectorWbemProperty {
 	public static Set<IConnectorStateParser> getConnectorProperties() {
 
 		return Set.of(
-				new TypeProcessor(WBEMSource.class, WBEM_TYPE_VALUE),
-				new ForceSerializationProcessor(WBEMSource.class, WBEM_TYPE_VALUE),
-				new WbemQueryProcessor(WBEMSource.class, WBEM_TYPE_VALUE),
-				new WbemNamespaceProcessor(WBEMSource.class, WBEM_TYPE_VALUE),
-				new ExecuteForEachEntryOfProcessor(WBEMSource.class, WBEM_TYPE_VALUE),
-				new EntryConcatMethodProcessor(WBEMSource.class, WBEM_TYPE_VALUE),
-				new EntryConcatStartProcessor(WBEMSource.class, WBEM_TYPE_VALUE),
-				new EntryConcatEndProcessor(WBEMSource.class, WBEM_TYPE_VALUE));
+				new TypeProcessor(WbemSource.class, WBEM_TYPE_VALUE),
+				new ForceSerializationProcessor(WbemSource.class, WBEM_TYPE_VALUE),
+				new WbemQueryProcessor(WbemSource.class, WBEM_TYPE_VALUE),
+				new WbemNamespaceProcessor(WbemSource.class, WBEM_TYPE_VALUE),
+				new ExecuteForEachEntryOfProcessor(WbemSource.class, WBEM_TYPE_VALUE),
+				new EntryConcatMethodProcessor(WbemSource.class, WBEM_TYPE_VALUE),
+				new EntryConcatStartProcessor(WbemSource.class, WBEM_TYPE_VALUE),
+				new EntryConcatEndProcessor(WbemSource.class, WBEM_TYPE_VALUE));
 
 	}
 }

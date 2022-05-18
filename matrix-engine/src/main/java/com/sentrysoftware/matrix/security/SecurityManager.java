@@ -73,7 +73,7 @@ public class SecurityManager {
 		final KeyStore ks = loadKeyStore(keyStoreFile);
 
 		// Get the secretKey entry by its alias
-		KeyStore.SecretKeyEntry entry = null; 
+		KeyStore.SecretKeyEntry entry = null;
 		try {
 			entry = (KeyStore.SecretKeyEntry) ks.getEntry(MASTER_KEY_ALIAS, new PasswordProtection(KEY_STORE_PASSWORD));
 		} catch (Exception e) {

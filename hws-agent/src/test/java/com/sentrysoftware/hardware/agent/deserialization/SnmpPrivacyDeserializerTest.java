@@ -13,7 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.fasterxml.jackson.dataformat.yaml.YAMLParser;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol.Privacy;
+import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.Privacy;
 
 @ExtendWith(MockitoExtension.class)
 class SnmpPrivacyDeserializerTest {

@@ -18,38 +18,38 @@ import com.sentrysoftware.matrix.common.exception.MatsyaException;
 import com.sentrysoftware.matrix.common.exception.NoCredentialProvidedException;
 import com.sentrysoftware.matrix.common.exception.StepException;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.ILocalOS;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.ILocalOs;
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.common.OSType;
+import com.sentrysoftware.matrix.connector.model.common.OsType;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.WqlCriterion;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.http.HTTP;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.ipmi.IPMI;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.kmversion.KMVersion;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.os.OS;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.oscommand.OSCommand;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.http.Http;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.ipmi.Ipmi;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.kmversion.KmVersion;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.os.Os;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.oscommand.OsCommand;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.process.Process;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.service.Service;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGet;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGetNext;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SnmpGet;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SnmpGetNext;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.sshinteractive.SshInteractive;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.ucs.UCS;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.wbem.WBEM;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.wmi.WMI;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.ucs.Ucs;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.wbem.Wbem;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.wmi.Wmi;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.AbstractCommand;
-import com.sentrysoftware.matrix.engine.protocol.HTTPProtocol;
-import com.sentrysoftware.matrix.engine.protocol.IPMIOverLanProtocol;
+import com.sentrysoftware.matrix.engine.protocol.HttpProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IWqlProtocol;
-import com.sentrysoftware.matrix.engine.protocol.OSCommandConfig;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
-import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WMIProtocol;
+import com.sentrysoftware.matrix.engine.protocol.IpmiOverLanProtocol;
+import com.sentrysoftware.matrix.engine.protocol.OsCommandConfig;
+import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WinRMProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WmiProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
-import com.sentrysoftware.matrix.engine.strategy.matsya.HTTPRequest;
+import com.sentrysoftware.matrix.engine.strategy.matsya.HttpRequest;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandResult;
@@ -86,7 +86,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 	private Connector connector;
 
 	@Override
-	public CriterionTestResult visit(final HTTP criterion) {
+	public CriterionTestResult visit(final Http criterion) {
 
 		if (criterion == null) {
 			return CriterionTestResult.empty();
@@ -94,9 +94,9 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 		final EngineConfiguration engineConfiguration = strategyConfig.getEngineConfiguration();
 
-		final HTTPProtocol protocol = (HTTPProtocol) engineConfiguration
+		final HttpProtocol protocol = (HttpProtocol) engineConfiguration
 				.getProtocolConfigurations()
-				.get(HTTPProtocol.class);
+				.get(HttpProtocol.class);
 
 		final String hostname = engineConfiguration
 				.getTarget()
@@ -107,7 +107,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 			return CriterionTestResult.empty();
 		}
 
-		final String result = matsyaClientsExecutor.executeHttp(HTTPRequest.builder()
+		final String result = matsyaClientsExecutor.executeHttp(HttpRequest.builder()
 				.hostname(hostname)
 				.method(criterion.getMethod())
 				.url(criterion.getUrl())
@@ -180,7 +180,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 	}
 
 	@Override
-	public CriterionTestResult visit(final IPMI ipmi) {
+	public CriterionTestResult visit(final Ipmi ipmi) {
 
 		final HardwareTarget target = strategyConfig.getEngineConfiguration().getTarget();
 		final TargetType targetType = target.getType();
@@ -209,8 +209,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 	 */
 	private CriterionTestResult processOutOfBandIpmiDetection() {
 
-		final IPMIOverLanProtocol protocol = (IPMIOverLanProtocol) strategyConfig.getEngineConfiguration()
-				.getProtocolConfigurations().get(IPMIOverLanProtocol.class);
+		final IpmiOverLanProtocol protocol = (IpmiOverLanProtocol) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(IpmiOverLanProtocol.class);
 
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 		
@@ -257,12 +257,12 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 		String ipmitoolCommand = strategyConfig.getHostMonitoring().getIpmitoolCommand();
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-		final SSHProtocol sshProtocol = (SSHProtocol) strategyConfig.getEngineConfiguration()
-				.getProtocolConfigurations().get(SSHProtocol.class);
+		final SshProtocol sshProtocol = (SshProtocol) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(SshProtocol.class);
 
 		// Retrieve the sudo and timeout settings from OSCommandConfig for localhost, or directly from SSH for remote
 		final AbstractCommand osCommandConfig = strategyConfig.getHostMonitoring().isLocalhost()
-				? (OSCommandConfig) strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(OSCommandConfig.class)
+				? (OsCommandConfig) strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(OsCommandConfig.class)
 				: sshProtocol;
 
 		if (osCommandConfig == null) {
@@ -316,7 +316,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 	 * @param defaultTimeout
 	 * @return
 	 */
-	public String buildIpmiCommand(final TargetType targetType, final String hostname, final SSHProtocol sshProtocol,
+	public String buildIpmiCommand(final TargetType targetType, final String hostname, final SshProtocol sshProtocol,
 			final AbstractCommand osCommandConfig, final int defaultTimeout) {
 		// do we need to use sudo or not?
 		// If we have enabled useSudo (possible only in Web UI and CMA) --> yes
@@ -381,7 +381,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 	String runOsCommand(
 			final String ipmitoolCommand,
 			final String hostname,
-			final SSHProtocol sshProtocol,
+			final SshProtocol sshProtocol,
 			final int timeout) throws InterruptedException, IOException, TimeoutException, MatsyaException {
 		return strategyConfig.getHostMonitoring().isLocalhost() ? // or we can use NetworkHelper.isLocalhost(hostname)
 				OsCommandHelper.runLocalCommand(ipmitoolCommand, timeout, null) :
@@ -436,17 +436,17 @@ public class CriterionVisitor implements ICriterionVisitor {
 	 *
 	 * @return
 	 */
-	private CriterionTestResult processWindowsIpmiDetection(final IPMI ipmi) {
+	private CriterionTestResult processWindowsIpmiDetection(final Ipmi ipmi) {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-		final WMIProtocol wmiConfig =
-				(WMIProtocol) strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(WMIProtocol.class);
+		final WmiProtocol wmiConfig =
+				(WmiProtocol) strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(WmiProtocol.class);
 
 		if (wmiConfig == null) {
 			return CriterionTestResult.error(ipmi, "No WMI credentials provided.");
 		}
 
-		WMI ipmiWmiCriterion = WMI
+		Wmi ipmiWmiCriterion = Wmi
 				.builder()
 				.wbemQuery("SELECT Description FROM ComputerSystem")
 				.wbemNamespace("root\\hardware")
@@ -456,23 +456,23 @@ public class CriterionVisitor implements ICriterionVisitor {
 	}
 
 	@Override
-	public CriterionTestResult visit(final KMVersion kmVersion) {
+	public CriterionTestResult visit(final KmVersion kmVersion) {
 		// Not implemented yet
 		return CriterionTestResult.empty();
 	}
 
 	@Override
-	public CriterionTestResult visit(final OS os) {
+	public CriterionTestResult visit(final Os os) {
 		if (os == null) {
 			log.error("Hostname {} - Malformed os criterion {}. Cannot process OS detection.", 
 					strategyConfig.getEngineConfiguration().getTarget().getHostname(), os);
 			return CriterionTestResult.empty();
 		}
 
-		final OSType osType = strategyConfig.getEngineConfiguration().getTarget().getType().getOsType();
+		final OsType osType = strategyConfig.getEngineConfiguration().getTarget().getType().getOsType();
 
-		if (OSType.SOLARIS.equals(osType) && !isOsTypeIncluded(Arrays.asList(OSType.SOLARIS, OSType.SUNOS), os)
-				|| !OSType.SOLARIS.equals(osType) && !isOsTypeIncluded(Collections.singletonList(osType), os)) {
+		if (OsType.SOLARIS.equals(osType) && !isOsTypeIncluded(Arrays.asList(OsType.SOLARIS, OsType.SUNOS), os)
+				|| !OsType.SOLARIS.equals(osType) && !isOsTypeIncluded(Collections.singletonList(osType), os)) {
 			return CriterionTestResult
 					.builder()
 					.message("Failed OS detection operation")
@@ -495,9 +495,9 @@ public class CriterionVisitor implements ICriterionVisitor {
 	 * @param os
 	 * @return
 	 */
-	public boolean isOsTypeIncluded(final List<OSType> osTypeList, final OS os) {
-		final Set<OSType> keepOnly = os.getKeepOnly();
-		final Set<OSType> exclude = os.getExclude();
+	public boolean isOsTypeIncluded(final List<OsType> osTypeList, final Os os) {
+		final Set<OsType> keepOnly = os.getKeepOnly();
+		final Set<OsType> exclude = os.getExclude();
 
 		if (keepOnly != null && osTypeList.stream().anyMatch(keepOnly::contains)) {
 			return true;
@@ -512,7 +512,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 	}
 
 	@Override
-	public CriterionTestResult visit(final OSCommand osCommand) {
+	public CriterionTestResult visit(final OsCommand osCommand) {
 		if (osCommand == null || osCommand.getCommandLine() == null) {
 			return CriterionTestResult.error(osCommand, "Malformed OSCommand criterion.");
 		}
@@ -532,7 +532,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 					osCommand.isExecuteLocally(),
 					strategyConfig.getHostMonitoring().isLocalhost());
 
-			final OSCommand osCommandNoPassword = OSCommand.builder()
+			final OsCommand osCommandNoPassword = OsCommand.builder()
 					.commandLine(osCommandResult.getNoPasswordCommand())
 					.executeLocally(osCommand.isExecuteLocally())
 					.timeout(osCommand.getTimeout())
@@ -582,7 +582,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 					.build();
 		}
 
-		final Optional<ILocalOS> maybeLocalOS = LocalOSHandler.getOS();
+		final Optional<ILocalOs> maybeLocalOS = LocalOsHandler.getOs();
 		if (maybeLocalOS.isEmpty()) {
 			log.debug("Hostname {} - Process Criterion, Unknown Local OS.", hostname);
 			return CriterionTestResult.builder()
@@ -610,8 +610,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 		}
 
 		// We need WMI for this
-		final WMIProtocol wmiConfig =
-				(WMIProtocol) strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(WMIProtocol.class);
+		final WmiProtocol wmiConfig =
+				(WmiProtocol) strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(WmiProtocol.class);
 		if (wmiConfig == null) {
 			return CriterionTestResult.error(service, "WMI Credentials are not configured.");
 		}
@@ -622,7 +622,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 		}
 
 		// Our local system must be Windows
-		if (!LocalOSHandler.isWindows()) {
+		if (!LocalOsHandler.isWindows()) {
 			return CriterionTestResult.success(service, "We're not running on Windows. Skipping this test.");
 		}
 
@@ -635,7 +635,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 
 		// Build a new WMI criterion to check the service existence
-		WMI serviceWmiCriterion = WMI
+		Wmi serviceWmiCriterion = Wmi
 				.builder()
 				.wbemQuery(String.format("SELECT Name, State FROM Win32_Service WHERE Name = '%s'", serviceName))
 				.wbemNamespace("root\\cimv2")
@@ -663,15 +663,15 @@ public class CriterionVisitor implements ICriterionVisitor {
 	}
 
 	@Override
-	public CriterionTestResult visit(final SNMPGet snmpGet) {
+	public CriterionTestResult visit(final SnmpGet snmpGet) {
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 		if (null == snmpGet || snmpGet.getOid() == null) {
 			log.error("Hostname {} - Malformed SNMPGet criterion {}. Cannot process SNMPGet detection.", hostname, snmpGet);
 			return CriterionTestResult.empty();
 		}
 
-		final SNMPProtocol protocol = (SNMPProtocol) strategyConfig.getEngineConfiguration()
-				.getProtocolConfigurations().get(SNMPProtocol.class);
+		final SnmpProtocol protocol = (SnmpProtocol) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(SnmpProtocol.class);
 
 		if (protocol == null) {
 			log.debug("Hostname {} - The SNMP Credentials are not configured. Cannot process SNMP detection {}.", hostname, snmpGet);
@@ -838,13 +838,13 @@ public class CriterionVisitor implements ICriterionVisitor {
 	}
 
 	@Override
-	public CriterionTestResult visit(final UCS ucs) {
+	public CriterionTestResult visit(final Ucs ucs) {
 		// Not implemented yet
 		return CriterionTestResult.empty();
 	}
 
 	@Override
-	public CriterionTestResult visit(final WBEM wbemCriterion) {
+	public CriterionTestResult visit(final Wbem wbemCriterion) {
 
 		// Sanity check
 		if (wbemCriterion == null || wbemCriterion.getWbemQuery() == null) {
@@ -856,8 +856,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 		final String hostname = engineConfiguration.getTarget().getHostname();
 
-		final WBEMProtocol wbemConfig =
-				(WBEMProtocol) engineConfiguration.getProtocolConfigurations().get(WBEMProtocol.class);
+		final WbemProtocol wbemConfig =
+				(WbemProtocol) engineConfiguration.getProtocolConfigurations().get(WbemProtocol.class);
 		if (wbemConfig == null) {
 			return CriterionTestResult.error(wbemCriterion, "The WBEM Credentials are not configured");
 		}
@@ -889,7 +889,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 	}
 
 	/**
-	 * Find the namespace to use for the execution of the given {@link WBEM} {@link Criterion}.
+	 * Find the namespace to use for the execution of the given {@link Wbem} {@link Criterion}.
 	 *
 	 * @param hostname The hostname of the target device
 	 * @param wbemConfig The WBEM protocol configuration (port, credentials, etc.)
@@ -897,7 +897,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 	 *
 	 * @return A {@link CriterionTestResult} telling whether we found the proper namespace for the specified WQL
 	 */
-	private CriterionTestResult findNamespace(final String hostname, final WBEMProtocol wbemConfig, final WBEM criterion) {
+	private CriterionTestResult findNamespace(final String hostname, final WbemProtocol wbemConfig, final Wbem criterion) {
 
 		// Get the list of possible namespaces on this host
 		Set<String> possibleWbemNamespaces = strategyConfig.getHostMonitoring().getPossibleWbemNamespaces();
@@ -940,7 +940,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 	}
 
 	@Override
-	public CriterionTestResult visit(final WMI wmiCriterion) {
+	public CriterionTestResult visit(final Wmi wmiCriterion) {
 
 		// Sanity check
 		if (wmiCriterion == null || wmiCriterion.getWbemQuery() == null) {
@@ -953,7 +953,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 		final String hostname = engineConfiguration.getTarget().getHostname();
 
 		IWqlProtocol protocol =
-				(WMIProtocol) engineConfiguration.getProtocolConfigurations().get(WMIProtocol.class);
+				(WmiProtocol) engineConfiguration.getProtocolConfigurations().get(WmiProtocol.class);
 
 		if (protocol == null) {
 			protocol = (WinRMProtocol) engineConfiguration.getProtocolConfigurations().get(WinRMProtocol.class);
@@ -989,7 +989,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 	}
 
 	/**
-	 * Find the namespace to use for the execution of the given {@link WMI} {@link Criterion}.
+	 * Find the namespace to use for the execution of the given {@link Wmi} {@link Criterion}.
 	 *
 	 * @param hostname The hostname of the target device
 	 * @param wqlConfig The WQL protocol configuration (credentials, etc.)
@@ -997,7 +997,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 	 *
 	 * @return A {@link CriterionTestResult} telling whether we found the proper namespace for the specified WQL
 	 */
-	CriterionTestResult findNamespace(final String hostname, final IWqlProtocol wqlConfig, final WMI criterion) {
+	CriterionTestResult findNamespace(final String hostname, final IWqlProtocol wqlConfig, final Wmi criterion) {
 
 		// Get the list of possible namespaces on this host
 		Set<String> possibleWmiNamespaces = strategyConfig.getHostMonitoring().getPossibleWmiNamespaces();
@@ -1069,7 +1069,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 
 	@Override
-	public CriterionTestResult visit(final SNMPGetNext snmpGetNext) {
+	public CriterionTestResult visit(final SnmpGetNext snmpGetNext) {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 		
@@ -1078,8 +1078,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 			return CriterionTestResult.empty();
 		}
 
-		final SNMPProtocol protocol = (SNMPProtocol) strategyConfig.getEngineConfiguration()
-				.getProtocolConfigurations().get(SNMPProtocol.class);
+		final SnmpProtocol protocol = (SnmpProtocol) strategyConfig.getEngineConfiguration()
+				.getProtocolConfigurations().get(SnmpProtocol.class);
 
 		if (protocol == null) {
 			log.debug("Hostname {} - The SNMP Credentials are not configured. Cannot process SNMP detection {}.", hostname, snmpGetNext);

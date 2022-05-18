@@ -357,18 +357,18 @@ public class HostMonitoring implements IHostMonitoring {
 	@Override
 	public String toJson() {
 
-		final HostMonitoringVO hostMonitoringVO = getVo();
+		final HostMonitoringVo hostMonitoringVo = getVo();
 
-		return JsonHelper.serialize(hostMonitoringVO);
+		return JsonHelper.serialize(hostMonitoringVo);
 	}
 
 	/**
-	 * Get the actual {@link HostMonitoring} as {@link HostMonitoringVO}
+	 * Get the actual {@link HostMonitoring} as {@link HostMonitoringVo}
 	 * 
-	 * @return {@link HostMonitoringVO} object
+	 * @return {@link HostMonitoringVo} object
 	 */
-	public HostMonitoringVO getVo() {
-		final HostMonitoringVO hostMonitoringVO = new HostMonitoringVO();
+	public HostMonitoringVo getVo() {
+		final HostMonitoringVo hostMonitoringVo = new HostMonitoringVo();
 
 		final List<MonitorType> monitorTypes = new ArrayList<>(monitors.keySet());
 
@@ -377,9 +377,9 @@ public class HostMonitoring implements IHostMonitoring {
 				.forEach(monitorType -> {
 					final List<Monitor> monitorList = new ArrayList<>(monitors.get(monitorType).values());
 					Collections.sort(monitorList, new MonitorComparator());
-					hostMonitoringVO.addAll(monitorList);
+					hostMonitoringVo.addAll(monitorList);
 				});
-		return hostMonitoringVO;
+		return hostMonitoringVo;
 	}
 
 	@Override
@@ -661,6 +661,6 @@ public class HostMonitoring implements IHostMonitoring {
 	}
 
 	public enum PowerMeter {
-		COLLECTED, ESTIMATED;
+		MEASURED, ESTIMATED;
 	}
 }

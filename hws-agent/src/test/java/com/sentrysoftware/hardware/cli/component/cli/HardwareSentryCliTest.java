@@ -21,8 +21,8 @@ import com.sentrysoftware.hardware.cli.component.cli.protocols.HttpConfigCli;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.SnmpConfigCli;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WbemConfigCli;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WmiConfigCli;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WBEMProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 
 import picocli.CommandLine;
@@ -80,7 +80,7 @@ class HardwareSentryCliTest {
 
 		assertEquals("hostaa", sentryCli.getHostname()) ;
 		assertEquals(TargetType.HP_UX, sentryCli.getDeviceType());
-		assertEquals(SNMPProtocol.SNMPVersion.V2C, sentryCli.getSnmpConfigCli().getSnmpVersion());
+		assertEquals(SnmpProtocol.SnmpVersion.V2C, sentryCli.getSnmpConfigCli().getSnmpVersion());
 		assertEquals(200, sentryCli.getSnmpConfigCli().getPort());
 		assertEquals("private", sentryCli.getSnmpConfigCli().getCommunity());
 		assertEquals(60, sentryCli.getSnmpConfigCli().getTimeout());
@@ -100,7 +100,7 @@ class HardwareSentryCliTest {
 		new CommandLine(sentryCli).parseArgs(args_exclud_hdfs);
 		assertEquals("hosta", sentryCli.getHostname()) ;
 		assertEquals(TargetType.HP_UX, sentryCli.getDeviceType());
-		assertEquals(SNMPProtocol.SNMPVersion.V2C, sentryCli.getSnmpConfigCli().getSnmpVersion());
+		assertEquals(SnmpProtocol.SnmpVersion.V2C, sentryCli.getSnmpConfigCli().getSnmpVersion());
 		assertEquals(200, sentryCli.getSnmpConfigCli().getPort());
 		assertEquals("private", sentryCli.getSnmpConfigCli().getCommunity());
 		assertEquals(60, sentryCli.getSnmpConfigCli().getTimeout());
@@ -116,7 +116,7 @@ class HardwareSentryCliTest {
 		new CommandLine(sentryCli).parseArgs(args_default_snmp);
 		assertEquals("hostaa", sentryCli.getHostname()) ;
 		assertEquals(TargetType.HP_UX, sentryCli.getDeviceType());
-		assertEquals(SNMPProtocol.SNMPVersion.V1, sentryCli.getSnmpConfigCli().getSnmpVersion());
+		assertEquals(SnmpProtocol.SnmpVersion.V1, sentryCli.getSnmpConfigCli().getSnmpVersion());
 		assertEquals(161, sentryCli.getSnmpConfigCli().getPort());
 		assertEquals("public", sentryCli.getSnmpConfigCli().getCommunity());
 		assertEquals(SnmpConfigCli.DEFAULT_TIMEOUT, sentryCli.getSnmpConfigCli().getTimeout());
@@ -149,7 +149,7 @@ class HardwareSentryCliTest {
 
 		assertEquals("hostaa", sentryCli.getHostname());
 		assertEquals(TargetType.HP_UX, sentryCli.getDeviceType());
-		assertEquals(WBEMProtocol.WBEMProtocols.HTTP, sentryCli.getWbemConfigCli().getProtocol());
+		assertEquals(WbemProtocol.WbemProtocols.HTTP, sentryCli.getWbemConfigCli().getProtocol());
 		assertEquals(5989, sentryCli.getWbemConfigCli().getPort());
 		assertEquals("root/emc", sentryCli.getWbemConfigCli().getNamespace());
 		assertEquals(120, sentryCli.getWbemConfigCli().getTimeout());
@@ -171,7 +171,7 @@ class HardwareSentryCliTest {
 
 		assertEquals("dev-hv-01", sentryCli.getHostname());
 		assertEquals(TargetType.MS_WINDOWS, sentryCli.getDeviceType());
-		assertEquals(WBEMProtocol.WBEMProtocols.HTTPS, sentryCli.getWbemConfigCli().getProtocol());
+		assertEquals(WbemProtocol.WbemProtocols.HTTPS, sentryCli.getWbemConfigCli().getProtocol());
 		assertEquals(5989, sentryCli.getWbemConfigCli().getPort());
 		assertEquals("root/emc", sentryCli.getWbemConfigCli().getNamespace());
 		assertEquals(WbemConfigCli.DEFAULT_TIMEOUT, sentryCli.getWbemConfigCli().getTimeout());

@@ -2,9 +2,9 @@ package com.sentrysoftware.matrix.connector.parser.state.detection.common;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMP;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SNMPGetNext;
-import com.sentrysoftware.matrix.connector.model.detection.criteria.wbem.WBEM;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.Snmp;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SnmpGetNext;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.wbem.Wbem;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class WbemQueryProcessorTest {
 
-	private final WbemQueryProcessor wbemQueryProcessor = new WbemQueryProcessor(WBEM.class, "WBEM");
+	private final WbemQueryProcessor wbemQueryProcessor = new WbemQueryProcessor(Wbem.class, "WBEM");
 
 	private final Connector connector = new Connector();
 
@@ -23,13 +23,13 @@ class WbemQueryProcessorTest {
 	@Test
 	void testGetTypeValue() {
 
-		assertNull(new WbemQueryProcessor(WBEM.class, null).getTypeValue());
+		assertNull(new WbemQueryProcessor(Wbem.class, null).getTypeValue());
 	}
 
 	@Test
 	void testParse() {
 
-		WBEM wbem = (WBEM) WBEM.builder().index(1).build();
+		Wbem wbem = (Wbem) Wbem.builder().index(1).build();
 		Detection detection = Detection.builder().criteria(Collections.singletonList(wbem)).build();
 		connector.setDetection(detection);
 		assertNull(wbem.getWbemQuery());
@@ -37,10 +37,10 @@ class WbemQueryProcessorTest {
 		assertEquals(FOO, wbem.getWbemQuery());
 
 		// setWBemQuery() not available
-		SNMP snmp = SNMPGetNext.builder().index(1).build();
+		Snmp snmp = SnmpGetNext.builder().index(1).build();
 		detection.setCriteria(Collections.singletonList(snmp));
 		connector.setDetection(detection);
-		WbemQueryProcessor absurdProcessor = new WbemQueryProcessor(SNMP.class, "SNMP");
+		WbemQueryProcessor absurdProcessor = new WbemQueryProcessor(Snmp.class, "SNMP");
 		assertThrows(IllegalStateException.class, () -> absurdProcessor.parse(WBEM_QUERY_KEY, FOO, connector));
 	}
 }

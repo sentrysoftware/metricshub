@@ -31,7 +31,7 @@ import com.sentrysoftware.matrix.connector.model.common.sshinteractive.step.Send
 import com.sentrysoftware.matrix.connector.model.common.sshinteractive.step.Sleep;
 import com.sentrysoftware.matrix.connector.model.common.sshinteractive.step.WaitFor;
 import com.sentrysoftware.matrix.connector.model.common.sshinteractive.step.WaitForPrompt;
-import com.sentrysoftware.matrix.engine.protocol.SSHProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
 import com.sentrysoftware.matsya.ssh.SSHClient;
 
 class SshInteractiveStepVisitorTest {
@@ -42,7 +42,7 @@ class SshInteractiveStepVisitorTest {
 	void testVisitGetAvailable() throws Exception {
 
 		final SshInteractiveStepVisitor visitor =
-				spy(new SshInteractiveStepVisitor(null, null, mock(SSHProtocol.class), null, CURRENT_SOURCE_TAG));
+				spy(new SshInteractiveStepVisitor(null, null, mock(SshProtocol.class), null, CURRENT_SOURCE_TAG));
 
 		assertThrows(IllegalArgumentException.class, () -> visitor.visit((GetAvailable) null));
 
@@ -165,7 +165,7 @@ class SshInteractiveStepVisitorTest {
 	@Test
 	void testVisitSendPassword() throws Exception {
 
-		final SSHProtocol sshProtocol = mock(SSHProtocol.class);
+		final SshProtocol sshProtocol = mock(SshProtocol.class);
 
 		final SshInteractiveStepVisitor visitor =
 				spy(new SshInteractiveStepVisitor(mock(SSHClient.class), null, sshProtocol, null, CURRENT_SOURCE_TAG));
@@ -220,7 +220,7 @@ class SshInteractiveStepVisitorTest {
 	@Test
 	void testVisitSendUsername() throws Exception {
 
-		final SSHProtocol sshProtocol = mock(SSHProtocol.class);
+		final SshProtocol sshProtocol = mock(SshProtocol.class);
 
 		final SshInteractiveStepVisitor visitor =
 				spy(new SshInteractiveStepVisitor(mock(SSHClient.class), null, sshProtocol, null, CURRENT_SOURCE_TAG));
@@ -264,7 +264,7 @@ class SshInteractiveStepVisitorTest {
 			step.setDuration(1L);
 
 			visitor.visit(step);
-			mockedVisitor.verify(times(1), () -> SshInteractiveStepVisitor.sleep(anyString(), eq(1L))); 
+			mockedVisitor.verify(times(1), () -> SshInteractiveStepVisitor.sleep(anyString(), eq(1L)));
 		}
 	}
 
@@ -410,7 +410,7 @@ class SshInteractiveStepVisitorTest {
 
 		// check timeout default
 		{
-			final SSHProtocol sshProtocol = mock(SSHProtocol.class);
+			final SshProtocol sshProtocol = mock(SshProtocol.class);
 			doReturn(null).when(sshProtocol).getTimeout();
 			assertEquals(15, spy(new SshInteractiveStepVisitor(null, null, sshProtocol, null, CURRENT_SOURCE_TAG)).getTimeout(null));
 			assertEquals(15, spy(new SshInteractiveStepVisitor(null, null, sshProtocol, null, CURRENT_SOURCE_TAG)).getTimeout(0L));
@@ -418,7 +418,7 @@ class SshInteractiveStepVisitorTest {
 
 		// check timeout from SSH protocol
 		{
-			final SSHProtocol sshProtocol = mock(SSHProtocol.class);
+			final SshProtocol sshProtocol = mock(SshProtocol.class);
 			doReturn(30L).when(sshProtocol).getTimeout();
 			assertEquals(30, spy(new SshInteractiveStepVisitor(null, null, sshProtocol, null, CURRENT_SOURCE_TAG)).getTimeout(null));
 			assertEquals(30, spy(new SshInteractiveStepVisitor(null, null, sshProtocol, null, CURRENT_SOURCE_TAG)).getTimeout(0L));

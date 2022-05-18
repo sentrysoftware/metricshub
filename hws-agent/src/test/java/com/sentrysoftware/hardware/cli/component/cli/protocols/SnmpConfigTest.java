@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.hardware.cli.component.cli.HardwareSentryCli;
-import com.sentrysoftware.matrix.engine.protocol.SNMPProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
 
 import picocli.CommandLine;
 
@@ -36,12 +36,12 @@ public class SnmpConfigTest {
 				"--snmp-privacy-password", "please",
 				"--snmp-timeout", "42"
 		);
-		SNMPProtocol proto = cli.getSnmpConfigCli().toProtocol(DEFAULT_USERNAME, DEFAULT_PASSWORD);
+		SnmpProtocol proto = cli.getSnmpConfigCli().toProtocol(DEFAULT_USERNAME, DEFAULT_PASSWORD);
 		assertNotNull(proto);
-		assertEquals(SNMPProtocol.SNMPVersion.V3_MD5, proto.getVersion());
+		assertEquals(SnmpProtocol.SnmpVersion.V3_MD5, proto.getVersion());
 		assertEquals("custom", proto.getUsername());
 		assertArrayEquals("other".toCharArray(), proto.getPassword());
-		assertEquals(SNMPProtocol.Privacy.AES, proto.getPrivacy());
+		assertEquals(SnmpProtocol.Privacy.AES, proto.getPrivacy());
 		assertArrayEquals("please".toCharArray(), proto.getPrivacyPassword());
 		assertEquals(42, proto.getTimeout());
 	}
@@ -56,12 +56,12 @@ public class SnmpConfigTest {
 				"--snmp-privacy", "aes",
 				"--snmp-privacy-password", "please"
 		);
-		SNMPProtocol proto = cli.getSnmpConfigCli().toProtocol(DEFAULT_USERNAME, DEFAULT_PASSWORD);
+		SnmpProtocol proto = cli.getSnmpConfigCli().toProtocol(DEFAULT_USERNAME, DEFAULT_PASSWORD);
 		assertNotNull(proto);
-		assertEquals(SNMPProtocol.SNMPVersion.V3_SHA, proto.getVersion());
+		assertEquals(SnmpProtocol.SnmpVersion.V3_SHA, proto.getVersion());
 		assertEquals(DEFAULT_USERNAME, proto.getUsername());
 		assertArrayEquals(DEFAULT_PASSWORD, proto.getPassword());
-		assertEquals(SNMPProtocol.Privacy.AES, proto.getPrivacy());
+		assertEquals(SnmpProtocol.Privacy.AES, proto.getPrivacy());
 		assertArrayEquals("please".toCharArray(), proto.getPrivacyPassword());
 	}
 
@@ -74,9 +74,9 @@ public class SnmpConfigTest {
 				"--snmp", "v1",
 				"--snmp-community", "comm"
 		);
-		SNMPProtocol proto = cli.getSnmpConfigCli().toProtocol(DEFAULT_USERNAME, DEFAULT_PASSWORD);
+		SnmpProtocol proto = cli.getSnmpConfigCli().toProtocol(DEFAULT_USERNAME, DEFAULT_PASSWORD);
 		assertNotNull(proto);
-		assertEquals(SNMPProtocol.SNMPVersion.V1, proto.getVersion());
+		assertEquals(SnmpProtocol.SnmpVersion.V1, proto.getVersion());
 		assertEquals("comm", proto.getCommunity());
 	}
 
@@ -89,9 +89,9 @@ public class SnmpConfigTest {
 				"--snmp", "2",
 				"--community", "comm"
 		);
-		SNMPProtocol proto = cli.getSnmpConfigCli().toProtocol(DEFAULT_USERNAME, DEFAULT_PASSWORD);
+		SnmpProtocol proto = cli.getSnmpConfigCli().toProtocol(DEFAULT_USERNAME, DEFAULT_PASSWORD);
 		assertNotNull(proto);
-		assertEquals(SNMPProtocol.SNMPVersion.V2C, proto.getVersion());
+		assertEquals(SnmpProtocol.SnmpVersion.V2C, proto.getVersion());
 		assertEquals("comm", proto.getCommunity());
 	}
 

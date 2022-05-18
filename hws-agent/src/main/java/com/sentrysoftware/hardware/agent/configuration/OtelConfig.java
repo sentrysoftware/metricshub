@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
-import com.sentrysoftware.hardware.agent.dto.exporter.OtlpConfigDTO;
+import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
+import com.sentrysoftware.hardware.agent.dto.exporter.OtlpConfigDto;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -61,7 +61,7 @@ public class OtelConfig {
 	}
 
 	@Bean
-	public Map<String, String> otelSdkConfiguration(final MultiHostsConfigurationDTO multiHostsConfigurationDTO,
+	public Map<String, String> otelSdkConfiguration(final MultiHostsConfigurationDto multiHostsConfigurationDto,
 			@Value("#{ '${grpc}'.isBlank() ? 'https://localhost:4317' : '${grpc}' }") final String grpcEndpoint) {
 
 		final Map<String, String> properties = new HashMap<>();
@@ -72,9 +72,9 @@ public class OtelConfig {
 		properties.put("otel.metric.export.interval", String.valueOf(Duration.ofDays(365 * 10L).toMillis()));
 
 		String certificatesFileToTrust = null;
-		if (multiHostsConfigurationDTO.hasExporterOtlpConfig()) {
+		if (multiHostsConfigurationDto.hasExporterOtlpConfig()) {
 
-			final OtlpConfigDTO otlpConfig = multiHostsConfigurationDTO.getExporter().getOtlp();
+			final OtlpConfigDto otlpConfig = multiHostsConfigurationDto.getExporter().getOtlp();
 
 			otlpConfig.getHeadersInOtlpFormat()
 					.ifPresent(headers -> properties.put("otel.exporter.otlp.headers", headers));

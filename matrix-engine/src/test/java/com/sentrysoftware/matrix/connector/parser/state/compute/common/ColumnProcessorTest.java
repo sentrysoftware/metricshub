@@ -7,8 +7,8 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Divide;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Json2CSV;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Json2Csv;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetTableSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tableunion.TableUnionSource;
 import org.junit.jupiter.api.Test;
 
@@ -65,7 +65,7 @@ class ColumnProcessorTest {
 		assertFalse(columnProcessor.detect(COLUMN_KEY, ONE, connector));
 
 		// value not null, key not null, key matches, different type source found
-		Source source2 = SNMPGetTableSource.builder().index(2).build();
+		Source source2 = SnmpGetTableSource.builder().index(2).build();
 		discovery.getSources().add(source2);
 		assertFalse(columnProcessor.detect(COLUMN_KEY, ONE, connector));
 
@@ -106,7 +106,7 @@ class ColumnProcessorTest {
 		assertThrows(IllegalArgumentException.class, () -> columnProcessor.parse(FOO, ONE, connector));
 
 		// Value is valid, key matches, no compute found
-		SNMPGetTableSource snmpGetTableSource = SNMPGetTableSource
+		SnmpGetTableSource snmpGetTableSource = SnmpGetTableSource
 			.builder()
 			.index(1)
 			.computes(Collections.emptyList())
@@ -124,9 +124,9 @@ class ColumnProcessorTest {
 		assertThrows(IllegalArgumentException.class, () -> columnProcessor.parse(COLUMN_KEY, ONE, connector));
 
 		// Value is valid, key matches, compute found, no column field
-		Json2CSV json2CSV = Json2CSV.builder().index(1).build();
-		snmpGetTableSource.setComputes(Collections.singletonList(json2CSV));
-		ColumnProcessor json2CsvColumnProcessor = new ColumnProcessor(Json2CSV.class, "Json2Csv");
+		Json2Csv json2Csv = Json2Csv.builder().index(1).build();
+		snmpGetTableSource.setComputes(Collections.singletonList(json2Csv));
+		ColumnProcessor json2CsvColumnProcessor = new ColumnProcessor(Json2Csv.class, "Json2Csv");
 		assertThrows(IllegalStateException.class, () -> json2CsvColumnProcessor.parse(COLUMN_KEY, ONE, connector));
 
 		// Value is valid, key matches, compute found, column field exists

@@ -16,8 +16,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler;
-import com.sentrysoftware.matrix.common.helpers.LocalOSHandler.ILocalOS;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.ILocalOs;
 import com.sentrysoftware.matrix.common.helpers.StringHelper;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 
@@ -86,17 +86,17 @@ public class OtelHelper {
 			STORAGE, HOST_TYPE_STORAGE,
 			SUN_SOLARIS, HOST_TYPE_COMPUTE);
 
-	static final Map<ILocalOS, String> LOCAL_OS_TO_OTEL_OS_TYPE = Map.of(
-			LocalOSHandler.WINDOWS, OS_TYPE_WINDOWS,
-			LocalOSHandler.LINUX, OS_TYPE_LINUX,
-			LocalOSHandler.SUN, OS_TYPE_SUN,
-			LocalOSHandler.HP, OS_TYPE_HP_UX,
-			LocalOSHandler.SOLARIS, OS_TYPE_SOLARIS,
-			LocalOSHandler.FREE_BSD, OS_TYPE_FREE_BSD,
-			LocalOSHandler.NET_BSD, OS_TYPE_NET_BSD,
-			LocalOSHandler.OPEN_BSD, OS_TYPE_OPEN_BSD,
-			LocalOSHandler.MAC_OS_X, OS_TYPE_MAC_OS_X,
-			LocalOSHandler.AIX, OS_TYPE_AIX);
+	static final Map<ILocalOs, String> LOCAL_OS_TO_OTEL_OS_TYPE = Map.of(
+			LocalOsHandler.WINDOWS, OS_TYPE_WINDOWS,
+			LocalOsHandler.LINUX, OS_TYPE_LINUX,
+			LocalOsHandler.SUN, OS_TYPE_SUN,
+			LocalOsHandler.HP, OS_TYPE_HP_UX,
+			LocalOsHandler.SOLARIS, OS_TYPE_SOLARIS,
+			LocalOsHandler.FREE_BSD, OS_TYPE_FREE_BSD,
+			LocalOsHandler.NET_BSD, OS_TYPE_NET_BSD,
+			LocalOsHandler.OPEN_BSD, OS_TYPE_OPEN_BSD,
+			LocalOsHandler.MAC_OS_X, OS_TYPE_MAC_OS_X,
+			LocalOsHandler.AIX, OS_TYPE_AIX);
 
 	/**
 	 * Initializes an OpenTelemetry SDK with a Resource and an instance of
@@ -272,7 +272,7 @@ public class OtelHelper {
 	 * @return String value
 	 */
 	static String getAgentOsType() {
-		final Optional<ILocalOS> localOs = LocalOSHandler.getOS();
+		final Optional<ILocalOs> localOs = LocalOsHandler.getOs();
 		if (localOs.isPresent()) {
 			return LOCAL_OS_TO_OTEL_OS_TYPE.getOrDefault(localOs.get(), UNKNOWN);
 		}

@@ -46,7 +46,7 @@ import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import com.sentrysoftware.matrix.model.parameter.IParameter;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
-import com.sentrysoftware.matrix.connector.model.common.OSType;
+import com.sentrysoftware.matrix.connector.model.common.OsType;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -307,7 +307,7 @@ public class DetectionOperation extends AbstractStrategy {
 		monitor.addMetadata(COMPILED_FILE_NAME, connector.getCompiledFilename());
 		monitor.addMetadata(DESCRIPTION, connector.getComments());
 		monitor.addMetadata(CONNECTOR, connector.getCompiledFilename());
-		monitor.addMetadata(APPLIES_TO_OS, connector.getAppliesToOS().stream().map(OSType::getDisplayName).collect(Collectors.joining(",")));
+		monitor.addMetadata(APPLIES_TO_OS, connector.getAppliesToOS().stream().map(OsType::getDisplayName).collect(Collectors.joining(",")));
 
 		monitor.getMonitorType().getMetaMonitor()
 				.accept(new MonitorDiscoveryVisitor(MonitorBuildingInfo.builder()

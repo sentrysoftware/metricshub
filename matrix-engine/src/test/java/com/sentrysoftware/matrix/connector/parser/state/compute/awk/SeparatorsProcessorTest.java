@@ -11,7 +11,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.collect.Collect;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Awk;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SNMPGetTableSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetTableSource;
 
 public class SeparatorsProcessorTest {
 	private final SeparatorsProcessor separatorsProcessor = new SeparatorsProcessor();
@@ -29,7 +29,7 @@ public class SeparatorsProcessorTest {
 				.index(1)
 				.build();
 
-		SNMPGetTableSource snmpGetTableSource = SNMPGetTableSource
+		SnmpGetTableSource snmpGetTableSource = SnmpGetTableSource
 				.builder()
 				.index(1)
 				.computes(Collections.singletonList(awk))

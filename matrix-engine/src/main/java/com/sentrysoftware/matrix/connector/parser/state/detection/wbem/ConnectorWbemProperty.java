@@ -1,6 +1,6 @@
 package com.sentrysoftware.matrix.connector.parser.state.detection.wbem;
 
-import com.sentrysoftware.matrix.connector.model.detection.criteria.wbem.WBEM;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.wbem.Wbem;
 import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
 import com.sentrysoftware.matrix.connector.parser.state.detection.common.ErrorMessageProcessor;
 import com.sentrysoftware.matrix.connector.parser.state.detection.common.ExpectedResultProcessor;
@@ -23,12 +23,12 @@ public class ConnectorWbemProperty {
 
 		return Stream
 				.of(
-					new TypeProcessor(WBEM.class, WBEM_TYPE_VALUE),
-					new ForceSerializationProcessor(WBEM.class, WBEM_TYPE_VALUE),
-					new ExpectedResultProcessor(WBEM.class, WBEM_TYPE_VALUE),
-					new WbemNameSpaceProcessor(WBEM.class, WBEM_TYPE_VALUE),
-					new WbemQueryProcessor(WBEM.class, WBEM_TYPE_VALUE),
-					new ErrorMessageProcessor(WBEM.class, WBEM_TYPE_VALUE))
+					new TypeProcessor(Wbem.class, WBEM_TYPE_VALUE),
+					new ForceSerializationProcessor(Wbem.class, WBEM_TYPE_VALUE),
+					new ExpectedResultProcessor(Wbem.class, WBEM_TYPE_VALUE),
+					new WbemNameSpaceProcessor(Wbem.class, WBEM_TYPE_VALUE),
+					new WbemQueryProcessor(Wbem.class, WBEM_TYPE_VALUE),
+					new ErrorMessageProcessor(Wbem.class, WBEM_TYPE_VALUE))
 				.collect(Collectors.toSet());
 	}
 }

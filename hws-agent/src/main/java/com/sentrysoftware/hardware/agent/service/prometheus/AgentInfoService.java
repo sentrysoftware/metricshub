@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDTO;
+import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
 
 import io.prometheus.client.Collector.MetricFamilySamples;
 
@@ -22,7 +22,7 @@ import io.prometheus.client.Collector.MetricFamilySamples;
 public class AgentInfoService {
 
 	@Autowired
-	private MultiHostsConfigurationDTO multiHostsConfigurationDTO;
+	private MultiHostsConfigurationDto multiHostsConfigurationDto;
 
 	@Autowired
 	private Map<String, String> agentInfo;
@@ -36,7 +36,7 @@ public class AgentInfoService {
 	public MetricFamilySamples buildAgentInfoMetric() {
 
 		final List<String> labelKeys = Stream
-				.concat(agentInfo.keySet().stream(), multiHostsConfigurationDTO.getExtraLabels().keySet().stream())
+				.concat(agentInfo.keySet().stream(), multiHostsConfigurationDto.getExtraLabels().keySet().stream())
 				.sorted()
 				.collect(Collectors.toList());
 
@@ -49,7 +49,7 @@ public class AgentInfoService {
 		metric.addMetric(
 				buildLabelValues(labelKeys),
 				1D,
-				multiHostsConfigurationDTO.isExportTimestamps() ? new Date().getTime() : null);
+				multiHostsConfigurationDto.isExportTimestamps() ? new Date().getTime() : null);
 
 		return metric;
 	}
@@ -65,7 +65,7 @@ public class AgentInfoService {
 	private List<String> buildLabelValues(final List<String> labelKeys) {
 		return labelKeys.stream()
 				.map(labelKey -> agentInfo.getOrDefault(labelKey,
-						multiHostsConfigurationDTO.getExtraLabels().getOrDefault(labelKey, "")))
+						multiHostsConfigurationDto.getExtraLabels().getOrDefault(labelKey, "")))
 				.collect(Collectors.toList());
 	}
 }

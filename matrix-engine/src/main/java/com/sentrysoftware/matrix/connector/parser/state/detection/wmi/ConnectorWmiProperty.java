@@ -4,7 +4,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.sentrysoftware.matrix.connector.model.detection.criteria.wmi.WMI;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.wmi.Wmi;
 import com.sentrysoftware.matrix.connector.parser.state.IConnectorStateParser;
 import com.sentrysoftware.matrix.connector.parser.state.detection.common.ErrorMessageProcessor;
 import com.sentrysoftware.matrix.connector.parser.state.detection.common.ExpectedResultProcessor;
@@ -23,12 +23,12 @@ public class ConnectorWmiProperty {
 
 		return Stream
 				.of(
-					new TypeProcessor(WMI.class, WMI_TYPE_VALUE),
-					new ForceSerializationProcessor(WMI.class, WMI_TYPE_VALUE),
-					new ExpectedResultProcessor(WMI.class, WMI_TYPE_VALUE),
-					new WbemNameSpaceProcessor(WMI.class, WMI_TYPE_VALUE),
-					new WbemQueryProcessor(WMI.class, WMI_TYPE_VALUE),
-					new ErrorMessageProcessor(WMI.class, WMI_TYPE_VALUE))
+					new TypeProcessor(Wmi.class, WMI_TYPE_VALUE),
+					new ForceSerializationProcessor(Wmi.class, WMI_TYPE_VALUE),
+					new ExpectedResultProcessor(Wmi.class, WMI_TYPE_VALUE),
+					new WbemNameSpaceProcessor(Wmi.class, WMI_TYPE_VALUE),
+					new WbemQueryProcessor(Wmi.class, WMI_TYPE_VALUE),
+					new ErrorMessageProcessor(Wmi.class, WMI_TYPE_VALUE))
 				.collect(Collectors.toSet());
 	}
 }
