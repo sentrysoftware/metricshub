@@ -2207,15 +2207,15 @@ class ComputeVisitorTest {
 		json2Csv = Json2Csv.builder()
 				.entryKey("/monitors")
 				.separator(";")
-				.properties(Arrays.asList("id", "name", "monitorType", "targetId"))
+				.properties(Arrays.asList("id", "name", "monitorType", "hostId"))
 				.build();
 
 		doReturn(strategyConfig).when(matsyaClientsExecutor).getStrategyConfig();
 
 		computeVisitor.visit(json2Csv);
 
-		String rawDataRes = "/monitors[0];enclosure-1;enclosure-1;ENCLOSURE;targetId;\n" +
-							"/monitors[1];enclosure-2;enclosure-2;ENCLOSURE;targetId;\n";
+		String rawDataRes = "/monitors[0];enclosure-1;enclosure-1;ENCLOSURE;hostId;\n" +
+							"/monitors[1];enclosure-2;enclosure-2;ENCLOSURE;hostId;\n";
 		assertEquals(rawDataRes, sourceTable.getRawData());
 	}
 

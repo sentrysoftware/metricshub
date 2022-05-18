@@ -110,7 +110,7 @@ public class CollectOperation extends AbstractStrategy {
 
 		final Map<String, Monitor> connectorMonitors = hostMonitoring.selectFromType(MonitorType.CONNECTOR);
 
-		final Map<String, Monitor> targetMonitors = hostMonitoring.selectFromType(MonitorType.TARGET);
+		final Map<String, Monitor> targetMonitors = hostMonitoring.selectFromType(MonitorType.HOST);
 
 		if (targetMonitors != null && !targetMonitors.isEmpty()) {
 
@@ -1067,7 +1067,7 @@ public class CollectOperation extends AbstractStrategy {
 			.map(Map::values)
 			.flatMap(Collection::stream)
 			.filter(monitor -> !monitor.isMissing()) // Skip missing
-			.filter(monitor -> !MonitorType.TARGET.equals(monitor.getMonitorType())) // We already sum the values for the target
+			.filter(monitor -> !MonitorType.HOST.equals(monitor.getMonitorType())) // We already sum the values for the target
 			.filter(monitor -> !MonitorType.ENCLOSURE.equals(monitor.getMonitorType())) // Skip the enclosure
 			.filter(monitor -> !MonitorType.VM.equals(monitor.getMonitorType())) // Skip VM monitors as their power is already computed based on the target's power
 			.map(monitor -> CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER))

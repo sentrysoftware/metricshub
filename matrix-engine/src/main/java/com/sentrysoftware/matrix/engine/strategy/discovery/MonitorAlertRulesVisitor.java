@@ -61,7 +61,7 @@ import com.sentrysoftware.matrix.common.meta.monitor.PhysicalDisk;
 import com.sentrysoftware.matrix.common.meta.monitor.PowerSupply;
 import com.sentrysoftware.matrix.common.meta.monitor.Robotics;
 import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
-import com.sentrysoftware.matrix.common.meta.monitor.Target;
+import com.sentrysoftware.matrix.common.meta.monitor.Host;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
 import com.sentrysoftware.matrix.common.meta.monitor.Vm;
 import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
@@ -93,10 +93,10 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 	}
 
 	@Override
-	public void visit(Target target) {
+	public void visit(Host host) {
 
 		// Process the static alert rules
-		processStaticAlertRules(monitor, target);
+		processStaticAlertRules(monitor, host);
 	}
 
 	@Override

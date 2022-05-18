@@ -236,7 +236,7 @@ public class MonitorNameBuilder {
 
 	/**
 	 * Try to get the {@value HardwareConstants#LOCATION} metadata and return <code>true</code> for localhost value
-	 * Note: {@value HardwareConstants#LOCATION} is computed on {@link MonitorType#TARGET} in the detection operation
+	 * Note: {@value HardwareConstants#LOCATION} is computed on {@link MonitorType#HOST} in the detection operation
 	 *
 	 * @param metadata         Metadata containing location and localhost constants
 	 *
@@ -253,7 +253,7 @@ public class MonitorNameBuilder {
 	/**
 	 * Handle the computer display name based on the target location. I.e. local or remote
 	 *
-	 * @param targetMonitor Monitor with type {@link MonitorType#TARGET}
+	 * @param targetMonitor Monitor with type {@link MonitorType#HOST}
 	 * @param hostType    The type of the target monitor
 	 *
 	 * @return {@link String} value to append with the full monitor name

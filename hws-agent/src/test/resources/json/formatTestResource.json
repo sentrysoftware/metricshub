@@ -61,7 +61,7 @@
   }, {
     "id" : "id3",
     "name" : "MS_HW_DellOpenManage_Device",
-    "monitorType" : "TARGET",
+    "monitorType" : "HOST",
     "parentId" : "id1",
     "targetId" : null,
     "extendedType" : null,

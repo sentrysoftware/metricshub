@@ -8,7 +8,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_NUMBER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HOST_FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -43,7 +43,7 @@ import com.sentrysoftware.matrix.engine.host.HostType;
 public class OtelAlertHelperTest {
 
 	private static long collectTime = System.currentTimeMillis(); 
-	private static final String TRAGET_HOSTNAME = "localhost";
+	private static final String HOST_HOSTNAME = "localhost";
 
 	@Test
 	void testBuildHardwareProblem() {
@@ -246,12 +246,12 @@ public class OtelAlertHelperTest {
 	public static void initMonitorsForAlert(final IHostMonitoring hostMonitoring) {
 		final Monitor target = Monitor
 				.builder()
-				.id(TRAGET_HOSTNAME)
+				.id(HOST_HOSTNAME)
 				.parentId(null)
-				.targetId(TRAGET_HOSTNAME)
-				.name(TRAGET_HOSTNAME)
-				.monitorType(MonitorType.TARGET)
-				.metadata(Map.of(FQDN, TRAGET_HOSTNAME))
+				.hostId(HOST_HOSTNAME)
+				.name(HOST_HOSTNAME)
+				.monitorType(MonitorType.HOST)
+				.metadata(Map.of(FQDN, HOST_HOSTNAME))
 				.build();
 
 		hostMonitoring.addMonitor(target);
@@ -261,13 +261,13 @@ public class OtelAlertHelperTest {
 		enclosureMetadata.put(VENDOR, "Pure");
 		enclosureMetadata.put(MODEL, "FA-X20R2");
 		enclosureMetadata.put(SERIAL_NUMBER, "FA-123456789");
-		enclosureMetadata.put(TARGET_FQDN, TRAGET_HOSTNAME);
+		enclosureMetadata.put(HOST_FQDN, HOST_HOSTNAME);
 
 		final Monitor enclosure = Monitor.builder()
 				.id("localhost@connector1_enclosure_1")
 				.name("PureStorage FA-X20R2")
-				.parentId(TRAGET_HOSTNAME)
-				.targetId(TRAGET_HOSTNAME)
+				.parentId(HOST_HOSTNAME)
+				.hostId(HOST_HOSTNAME)
 				.monitorType(MonitorType.ENCLOSURE)
 				.extendedType(COMPUTER)
 				.metadata(enclosureMetadata)
@@ -280,14 +280,14 @@ public class OtelAlertHelperTest {
 		diskMetadata.put(MODEL, "SAS Flash Module");
 		diskMetadata.put(SERIAL_NUMBER, "FM-123456789");
 		diskMetadata.put(SIZE, "1000000000000");
-		diskMetadata.put(TARGET_FQDN, TRAGET_HOSTNAME);
+		diskMetadata.put(HOST_FQDN, HOST_HOSTNAME);
 		diskMetadata.put(CONNECTOR, "Connector1");
 
 		final Monitor physicalDisk = Monitor.builder()
 				.id("localhost@connector1_physical_disk_1")
 				.name("SAS Flash Module - CH0.BAY9")
 				.parentId(enclosure.getId())
-				.targetId(TRAGET_HOSTNAME)
+				.hostId(HOST_HOSTNAME)
 				.metadata(diskMetadata)
 				.monitorType(MonitorType.PHYSICAL_DISK)
 				.build();
@@ -319,7 +319,7 @@ public class OtelAlertHelperTest {
 						.alertRule(alertRule)
 						.monitor(monitor)
 						.parameterName(parameterName)
-						.hardwareHost(HardwareHost.builder().type(HostType.LINUX).id(TRAGET_HOSTNAME).hostname(TRAGET_HOSTNAME).build())
+						.hardwareHost(HardwareHost.builder().type(HostType.LINUX).id(HOST_HOSTNAME).hostname(HOST_HOSTNAME).build())
 						.hostMonitoring(hostMonitoring)
 						.build()
 				);
@@ -436,13 +436,13 @@ public class OtelAlertHelperTest {
 		enclosureMetadata.put(VENDOR, "Pure");
 		enclosureMetadata.put(MODEL, "FA-X20R2");
 		enclosureMetadata.put(SERIAL_NUMBER, "FA-123456789");
-		enclosureMetadata.put(TARGET_FQDN, TRAGET_HOSTNAME);
+		enclosureMetadata.put(HOST_FQDN, HOST_HOSTNAME);
 
 		final Monitor enclosure = Monitor.builder()
 				.id("localhost@connector1_enclosure_1")
 				.name("PureStorage FA-X20R2")
-				.parentId(TRAGET_HOSTNAME)
-				.targetId(TRAGET_HOSTNAME)
+				.parentId(HOST_HOSTNAME)
+				.hostId(HOST_HOSTNAME)
 				.metadata(enclosureMetadata)
 				.monitorType(MonitorType.ENCLOSURE)
 				.extendedType(COMPUTER)

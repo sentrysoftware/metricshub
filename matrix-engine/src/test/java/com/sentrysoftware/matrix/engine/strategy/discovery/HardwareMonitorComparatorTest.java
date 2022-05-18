@@ -17,7 +17,7 @@ class HardwareMonitorComparatorTest {
 	final HardwareMonitor hardwareMonitorNull = null;
 
 	final HardwareMonitor hdfConnector = HardwareMonitor.builder().type(MonitorType.CONNECTOR).build();
-	final HardwareMonitor hdfTarget = HardwareMonitor.builder().type(MonitorType.TARGET).build();
+	final HardwareMonitor hdfTarget = HardwareMonitor.builder().type(MonitorType.HOST).build();
 	final HardwareMonitor hdfBattery = HardwareMonitor.builder().type(MonitorType.BATTERY).build();
 	final HardwareMonitor hdfBlade = HardwareMonitor.builder().type(MonitorType.BLADE).build();
 	final HardwareMonitor hdfCPU = HardwareMonitor.builder().type(MonitorType.CPU).build();
@@ -51,7 +51,7 @@ class HardwareMonitorComparatorTest {
 				.map(HardwareMonitor::getType).collect(Collectors.toList());
 
 		List<MonitorType> expectedSort = Arrays.asList(MonitorType.ENCLOSURE, MonitorType.BLADE,
-				MonitorType.DISK_CONTROLLER, MonitorType.CPU, MonitorType.TARGET, MonitorType.BATTERY,
+				MonitorType.DISK_CONTROLLER, MonitorType.CPU, MonitorType.HOST, MonitorType.BATTERY,
 				MonitorType.CPU_CORE, MonitorType.FAN,
 				MonitorType.LED, MonitorType.LOGICAL_DISK, MonitorType.LUN, MonitorType.MEMORY,
 				MonitorType.NETWORK_CARD, MonitorType.OTHER_DEVICE, MonitorType.PHYSICAL_DISK, MonitorType.POWER_SUPPLY,

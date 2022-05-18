@@ -59,7 +59,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
 
 		// Get the Target monitor
-		final Map<String, Monitor> targets = hostMonitoring.selectFromType(MonitorType.TARGET);
+		final Map<String, Monitor> targets = hostMonitoring.selectFromType(MonitorType.HOST);
 
 		if (targets == null) {
 			log.error("Hostname {} - No target found. Stop discovery operation", hostname);
@@ -115,7 +115,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 	 * @param connector      The connector we wish to interpret and discover
 	 * @param hostMonitoring The monitors container, it also wraps the {@link SourceTable} objects
 	 * @param hostname       The system hostname
-	 * @param targetMonitor  The main {@link MonitorType#TARGET} monitor detected in the {@link DetectionOperation} strategy.
+	 * @param targetMonitor  The main {@link MonitorType#HOST} monitor detected in the {@link DetectionOperation} strategy.
 	 */
 	void discover(final Connector connector, final IHostMonitoring hostMonitoring, final String hostname,
 			final Monitor targetMonitor) {
@@ -228,7 +228,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 	 * @param hostMonitoring		The {@link IHostMonitoring} instance wrapping source tables and monitors.
 	 * @param instanceTable			Defines the source key or the hard coded key.
 	 * @param parameters			The discovery parameters to process (from the connector).
-	 * @param targetMonitor			The main monitor with {@link MonitorType#TARGET} type.
+	 * @param targetMonitor			The main monitor with {@link MonitorType#HOST} type.
 	 * @param monitorType			The current type of the monitor, {@link MonitorType}.
 	 * @param hostname				The user's configured hostname used for debug purpose.
 	 */

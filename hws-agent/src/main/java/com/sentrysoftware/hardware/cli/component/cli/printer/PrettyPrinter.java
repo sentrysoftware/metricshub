@@ -27,7 +27,7 @@ public class PrettyPrinter {
 			HardwareConstants.ADDITIONAL_INFORMATION2.toLowerCase(),
 			HardwareConstants.ADDITIONAL_INFORMATION3.toLowerCase(),
 			HardwareConstants.IDENTIFYING_INFORMATION.toLowerCase(),
-			HardwareConstants.TARGET_FQDN.toLowerCase(),
+			HardwareConstants.HOST_FQDN.toLowerCase(),
 			HardwareConstants.ID_COUNT.toLowerCase(),
 			HardwareConstants.ATTACHED_TO_DEVICE_ID.toLowerCase(),
 			HardwareConstants.ATTACHED_TO_DEVICE_TYPE.toLowerCase(),
@@ -73,7 +73,7 @@ public class PrettyPrinter {
 	private void start() {
 
 		// Extract the target from the result
-		Map<String, Monitor> targetMap = result.selectFromType(MonitorType.TARGET);
+		Map<String, Monitor> targetMap = result.selectFromType(MonitorType.HOST);
 		if (targetMap == null || targetMap.size() != 1) {
 			throw new IllegalStateException("Invalid results");
 		}
@@ -103,14 +103,14 @@ public class PrettyPrinter {
 
 			if (!monitorsOfType.isEmpty()) {
 
-				if (type != MonitorType.TARGET) {
+				if (type != MonitorType.HOST) {
 					margin(indentation);
 					out.println(Ansi.ansi().bold().a(type.getDisplayNamePlural()).boldOff().a(":").toString());
 				}
 				for (Monitor monitor : monitorsOfType) {
 
 					margin(indentation);
-					if (type != MonitorType.TARGET) {
+					if (type != MonitorType.HOST) {
 						out.print("- ");
 					}
 					out.print(type.getDisplayName());

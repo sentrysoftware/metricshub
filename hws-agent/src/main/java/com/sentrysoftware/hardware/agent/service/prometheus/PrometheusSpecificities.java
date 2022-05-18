@@ -53,7 +53,7 @@ import com.sentrysoftware.matrix.common.meta.monitor.PhysicalDisk;
 import com.sentrysoftware.matrix.common.meta.monitor.PowerSupply;
 import com.sentrysoftware.matrix.common.meta.monitor.Robotics;
 import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
-import com.sentrysoftware.matrix.common.meta.monitor.Target;
+import com.sentrysoftware.matrix.common.meta.monitor.Host;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
 import com.sentrysoftware.matrix.common.meta.monitor.Vm;
 import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
@@ -108,7 +108,7 @@ public class PrometheusSpecificities {
 		labelsMap.put(MonitorType.LED, concatLabelsWithMetadata(MonitorType.LED));
 		labelsMap.put(MonitorType.LOGICAL_DISK, concatLabelsWithMetadata(MonitorType.LOGICAL_DISK));
 		labelsMap.put(MonitorType.LUN, concatLabelsWithMetadata(MonitorType.LUN));
-		labelsMap.put(MonitorType.TARGET, concatLabelsWithMetadata(MonitorType.TARGET));
+		labelsMap.put(MonitorType.HOST, concatLabelsWithMetadata(MonitorType.HOST));
 		labelsMap.put(MonitorType.MEMORY, concatLabelsWithMetadata(MonitorType.MEMORY));
 		labelsMap.put(MonitorType.NETWORK_CARD, concatLabelsWithMetadata(MonitorType.NETWORK_CARD));
 		labelsMap.put(MonitorType.OTHER_DEVICE, concatLabelsWithMetadata(MonitorType.OTHER_DEVICE));
@@ -146,7 +146,7 @@ public class PrometheusSpecificities {
 		prometheusParametersMap.put(MonitorType.TEMPERATURE, buildTemperaturePrometheusParameters());
 		prometheusParametersMap.put(MonitorType.VOLTAGE, buildVoltagePrometheusParameters());
 		prometheusParametersMap.put(MonitorType.VM, buildVmPrometheusParameters());
-		prometheusParametersMap.put(MonitorType.TARGET, buildTargetPrometheusParameters());
+		prometheusParametersMap.put(MonitorType.HOST, buildTargetPrometheusParameters());
 
 		prometheusParameters = Collections.unmodifiableMap(prometheusParametersMap);
 
@@ -174,7 +174,7 @@ public class PrometheusSpecificities {
 		infoMetricsMap.put(MonitorType.TEMPERATURE, "hw_temperature_info");
 		infoMetricsMap.put(MonitorType.VOLTAGE, "hw_voltage_info");
 		infoMetricsMap.put(MonitorType.VM, "hw_vm_info");
-		infoMetricsMap.put(MonitorType.TARGET, "hw_target_info");
+		infoMetricsMap.put(MonitorType.HOST, "hw_target_info");
 
 		infoMetricNames = Collections.unmodifiableMap(infoMetricsMap);
 
@@ -218,15 +218,15 @@ public class PrometheusSpecificities {
 				.name("hw_target_heating_margin_celsius")
 				.unit(CELSIUS)
 				.build());
-		map.put(Target.AMBIENT_TEMPERATURE.getName(), MetricInfo.builder()
+		map.put(Host.AMBIENT_TEMPERATURE.getName(), MetricInfo.builder()
 				.name("hw_target_ambient_temperature_celsius")
 				.unit(CELSIUS)
 				.build());
-		map.put(Target.CPU_TEMPERATURE.getName(), MetricInfo.builder()
+		map.put(Host.CPU_TEMPERATURE.getName(), MetricInfo.builder()
 				.name("hw_target_cpu_temperature_celsius")
 				.unit(CELSIUS)
 				.build());
-		map.put(Target.CPU_THERMAL_DISSIPATION_RATE.getName(), MetricInfo.builder()
+		map.put(Host.CPU_THERMAL_DISSIPATION_RATE.getName(), MetricInfo.builder()
 				.name("hw_target_cpu_thermal_dissipation_ratio")
 				.unit(RATIO)
 				.build());

@@ -356,7 +356,7 @@ class MonitorTest {
 
 		// Target cannot be missing
 		final Monitor target = Monitor.builder()
-				.monitorType(MonitorType.TARGET)
+				.monitorType(MonitorType.HOST)
 				.build();
 
 		assertFalse(target.isMissing());

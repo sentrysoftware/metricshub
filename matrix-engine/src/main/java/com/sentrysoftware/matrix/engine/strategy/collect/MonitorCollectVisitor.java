@@ -109,7 +109,7 @@ import com.sentrysoftware.matrix.common.meta.monitor.PhysicalDisk;
 import com.sentrysoftware.matrix.common.meta.monitor.PowerSupply;
 import com.sentrysoftware.matrix.common.meta.monitor.Robotics;
 import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
-import com.sentrysoftware.matrix.common.meta.monitor.Target;
+import com.sentrysoftware.matrix.common.meta.monitor.Host;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
 import com.sentrysoftware.matrix.common.meta.monitor.Vm;
 import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
@@ -173,20 +173,20 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		Assert.notNull(monitorCollectInfo.getMonitor(), MONITOR_CANNOT_BE_NULL);
 
-		Assert.isTrue(monitorCollectInfo.getMonitor().getMonitorType().equals(MonitorType.TARGET)
+		Assert.isTrue(monitorCollectInfo.getMonitor().getMonitorType().equals(MonitorType.HOST)
 					|| monitorCollectInfo.getConnectorName() != null, CONNECTOR_NAME_CANNOT_BE_NULL);
 
-		Assert.isTrue(monitorCollectInfo.getMonitor().getMonitorType().equals(MonitorType.TARGET)
+		Assert.isTrue(monitorCollectInfo.getMonitor().getMonitorType().equals(MonitorType.HOST)
 					|| monitorCollectInfo.getRow() != null, DATA_CANNOT_BE_NULL);
 
 		Assert.notNull(monitorCollectInfo.getHostMonitoring(), HOST_MONITORING_CANNOT_BE_NULL);
 
 		Assert.notNull(monitorCollectInfo.getHostname(), HOSTNAME_CANNOT_BE_NULL);
 
-		Assert.isTrue(monitorCollectInfo.getMonitor().getMonitorType().equals(MonitorType.TARGET)
+		Assert.isTrue(monitorCollectInfo.getMonitor().getMonitorType().equals(MonitorType.HOST)
 					|| monitorCollectInfo.getMapping() != null, MAPPING_CANNOT_BE_NULL);
 
-		Assert.isTrue(monitorCollectInfo.getMonitor().getMonitorType().equals(MonitorType.TARGET)
+		Assert.isTrue(monitorCollectInfo.getMonitor().getMonitorType().equals(MonitorType.HOST)
 					|| monitorCollectInfo.getValueTable() != null, VALUE_TABLE_CANNOT_BE_NULL);
 
 		Assert.notNull(monitorCollectInfo.getCollectTime(), COLLECT_TIME_CANNOT_BE_NULL);
@@ -199,7 +199,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	}
 
 	@Override
-	public void visit(Target target) {
+	public void visit(Host host) {
 
 		final String hostName = monitorCollectInfo.getHostname();
 		final Monitor monitor = monitorCollectInfo.getMonitor();

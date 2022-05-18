@@ -8,7 +8,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCALHO
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.OPERATING_SYSTEM_TYPE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.REMOTE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HOST_FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.APPLIES_TO_OS;
 
@@ -282,29 +282,29 @@ public class DetectionOperation extends AbstractStrategy {
 
 	/**
 	 * Create the given tested connector attached to the passed {@link Monitor} target
-	 * @param target
+	 * @param host
 	 * @param testedConnector
 	 */
-	void createConnector(final Monitor target, final TestedConnector testedConnector) {
+	void createConnector(final Monitor host, final TestedConnector testedConnector) {
 
 		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
 
 		final Connector connector = testedConnector.getConnector();
 
-		final Monitor monitor = Monitor.builder().id(target.getId() + "@" + connector.getCompiledFilename())
+		final Monitor monitor = Monitor.builder().id(host.getId() + "@" + connector.getCompiledFilename())
 				.name(connector.getDisplayName())
-				.targetId(target.getId())
-				.parentId(target.getId())
+				.hostId(host.getId())
+				.parentId(host.getId())
 				.monitorType(MonitorType.CONNECTOR).build();
 
-		final TextParam testReport = buildTestReportParameter(target.getName(), testedConnector);
+		final TextParam testReport = buildTestReportParameter(host.getName(), testedConnector);
 		final IParameter[] statusAndStatusInformation = buildConnectorStatusAndStatusInformation(testedConnector);
 
 		monitor.collectParameter(testReport);
 		monitor.collectParameter(statusAndStatusInformation[0]); // Status
 		monitor.collectParameter(statusAndStatusInformation[1]); // Status Information
 
-		monitor.addMetadata(TARGET_FQDN, target.getFqdn());
+		monitor.addMetadata(HOST_FQDN, host.getFqdn());
 		monitor.addMetadata(DISPLAY_NAME, connector.getDisplayName());
 		monitor.addMetadata(COMPILED_FILE_NAME, connector.getCompiledFilename());
 		monitor.addMetadata(DESCRIPTION, connector.getComments());
@@ -315,10 +315,10 @@ public class DetectionOperation extends AbstractStrategy {
 				.accept(new MonitorDiscoveryVisitor(MonitorBuildingInfo.builder()
 						.connectorName(connector.getCompiledFilename())
 						.hostMonitoring(hostMonitoring)
-						.hostname(target.getName())
+						.hostname(host.getName())
 						.monitor(monitor)
 						.monitorType(MonitorType.CONNECTOR)
-						.targetMonitor(target)
+						.targetMonitor(host)
 						.hostType(strategyConfig.getEngineConfiguration().getHost().getType())
 						.build()));
 	}
@@ -334,19 +334,19 @@ public class DetectionOperation extends AbstractStrategy {
 
 		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
 
-		final HardwareHost target = strategyConfig.getEngineConfiguration().getHost();
+		final HardwareHost host = strategyConfig.getEngineConfiguration().getHost();
 
 		hostMonitoring.setLocalhost(isLocalhost);
 
-		String hostname = target.getHostname();
+		String hostname = host.getHostname();
 
 		// Create the target
 		final Monitor targetMonitor = Monitor
 			.builder()
-			.id(target.getId())
-			.targetId(target.getId())
+			.id(host.getId())
+			.hostId(host.getId())
 			.name(hostname)
-			.monitorType(MonitorType.TARGET)
+			.monitorType(MonitorType.HOST)
 			.discoveryTime(strategyTime)
 			.build();
 
@@ -355,7 +355,7 @@ public class DetectionOperation extends AbstractStrategy {
 				isLocalhost ? LOCALHOST: REMOTE);
 
 		// Create the operating system type metadata
-		targetMonitor.addMetadata(OPERATING_SYSTEM_TYPE, target.getType().name());
+		targetMonitor.addMetadata(OPERATING_SYSTEM_TYPE, host.getType().name());
 
 		// Create the fqdn metadata
 		targetMonitor.addMetadata(FQDN, NetworkHelper.getFqdn(hostname));
@@ -366,11 +366,11 @@ public class DetectionOperation extends AbstractStrategy {
 						.hostMonitoring(hostMonitoring)
 						.hostname(hostname)
 						.monitor(targetMonitor)
-						.monitorType(MonitorType.TARGET)
-						.hostType(target.getType())
+						.monitorType(MonitorType.HOST)
+						.hostType(host.getType())
 						.build()));
 
-		log.debug("Hostname {} - Created Target ID: {} ", target.getHostname(), target.getId());
+		log.debug("Hostname {} - Created Target ID: {} ", host.getHostname(), host.getId());
 
 		return hostMonitoring.getTargetMonitor();
 	}

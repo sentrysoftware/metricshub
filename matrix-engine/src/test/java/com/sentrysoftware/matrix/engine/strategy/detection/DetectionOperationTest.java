@@ -52,7 +52,7 @@ import java.util.stream.Stream;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_REPORT_PARAMETER;
-import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.TARGET;
+import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.HOST;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -67,7 +67,7 @@ import static org.mockito.Mockito.doReturn;
 class DetectionOperationTest {
 
 	private static final String TARGET_NAME = "target";
-	private static final String TARGET_ID = "targetId";
+	private static final String HOST_ID = "hostId";
 	private static final String COMMUNITY = "public";
 	private static final String VERSION = "4.2.3";
 	private static final String CONNECTOR5_ID = "connector5";
@@ -217,10 +217,10 @@ class DetectionOperationTest {
 
 			detectionOperation.call();
 
-			final Monitor target = hostMonitoring.selectFromType(TARGET).get(TARGET_HOSTNAME);
+			final Monitor target = hostMonitoring.selectFromType(HOST).get(TARGET_HOSTNAME);
 			assertEquals(TARGET_HOSTNAME, target.getName());
 			assertEquals(TARGET_HOSTNAME, target.getId());
-			assertEquals(TARGET_HOSTNAME, target.getTargetId());
+			assertEquals(TARGET_HOSTNAME, target.getHostId());
 
 			final Map<String, Monitor> connectors = hostMonitoring.selectFromType(MonitorType.CONNECTOR);
 			assertEquals(1, connectors.size());
@@ -228,7 +228,7 @@ class DetectionOperationTest {
 			assertEquals(TARGET_HOSTNAME, connector.getParentId());
 			assertEquals(TARGET_HOSTNAME + "@" + CONNECTOR1_ID, connector.getId());
 			assertEquals(CONNECTOR1_ID, connector.getName());
-			assertEquals(TARGET_HOSTNAME, connector.getTargetId());
+			assertEquals(TARGET_HOSTNAME, connector.getHostId());
 		}
 
 	}
@@ -252,10 +252,10 @@ class DetectionOperationTest {
 
 		detectionOperation.call();
 
-		final Monitor target = hostMonitoring.selectFromType(MonitorType.TARGET).get(TARGET_HOSTNAME);
+		final Monitor target = hostMonitoring.selectFromType(MonitorType.HOST).get(TARGET_HOSTNAME);
 		assertEquals(TARGET_HOSTNAME, target.getName());
 		assertEquals(TARGET_HOSTNAME, target.getId());
-		assertEquals(TARGET_HOSTNAME, target.getTargetId());
+		assertEquals(TARGET_HOSTNAME, target.getHostId());
 
 		final Map<String, Monitor> monitors = hostMonitoring.selectFromType(MonitorType.CONNECTOR);
 		assertEquals(2, monitors.size());
@@ -263,7 +263,7 @@ class DetectionOperationTest {
 		assertEquals(TARGET_HOSTNAME, connector1Mo.getParentId());
 		assertEquals(TARGET_HOSTNAME + "@" + CONNECTOR1_ID, connector1Mo.getId());
 		assertEquals(CONNECTOR1_ID, connector1Mo.getName());
-		assertEquals(TARGET_HOSTNAME, connector1Mo.getTargetId());
+		assertEquals(TARGET_HOSTNAME, connector1Mo.getHostId());
 
 		assertNotNull(connector1Mo.getParameters().get(TEST_REPORT_PARAMETER));
 		assertEquals(Status.OK, connector1Mo.getParameter(STATUS_PARAMETER, DiscreteParam.class).getState());
@@ -272,7 +272,7 @@ class DetectionOperationTest {
 		assertEquals(TARGET_HOSTNAME, connector2Mo.getParentId());
 		assertEquals(TARGET_HOSTNAME + "@" + CONNECTOR2_ID, connector2Mo.getId());
 		assertEquals(CONNECTOR2_ID, connector2Mo.getName());
-		assertEquals(TARGET_HOSTNAME, connector2Mo.getTargetId());
+		assertEquals(TARGET_HOSTNAME, connector2Mo.getHostId());
 
 		assertNotNull(connector2Mo.getParameters().get(TEST_REPORT_PARAMETER));
 		assertEquals(Status.FAILED, connector2Mo.getParameter(STATUS_PARAMETER, DiscreteParam.class).getState());
@@ -286,20 +286,20 @@ class DetectionOperationTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(engineConfigurationAuto).when(strategyConfig).getEngineConfiguration();
 
-		final Monitor target = Monitor.builder().id(TARGET_ID).targetId(TARGET_ID).name(TARGET_NAME)
-				.monitorType(MonitorType.TARGET).build();
+		final Monitor target = Monitor.builder().id(HOST_ID).hostId(HOST_ID).name(TARGET_NAME)
+				.monitorType(MonitorType.HOST).build();
 
 		hostMonitoring.addMonitor(target);
 
 		detectionOperation.createTarget(false);
 
-		final Map<String, Monitor> targets = hostMonitoring.selectFromType(MonitorType.TARGET);
-		final Monitor actual = hostMonitoring.selectFromType(MonitorType.TARGET).get(TARGET_HOSTNAME);
+		final Map<String, Monitor> targets = hostMonitoring.selectFromType(MonitorType.HOST);
+		final Monitor actual = hostMonitoring.selectFromType(MonitorType.HOST).get(TARGET_HOSTNAME);
 		assertNotNull(targets);
 		assertNotEquals(target, actual);
 		assertEquals(TARGET_HOSTNAME, actual.getName());
 		assertEquals(TARGET_HOSTNAME, actual.getId());
-		assertEquals(TARGET_HOSTNAME, actual.getTargetId());
+		assertEquals(TARGET_HOSTNAME, actual.getHostId());
 	}
 
 	@Test
@@ -489,10 +489,10 @@ class DetectionOperationTest {
 
 			detectionOperation.call();
 
-			final Monitor target = hostMonitoring.selectFromType(TARGET).get(TARGET_HOSTNAME);
+			final Monitor target = hostMonitoring.selectFromType(HOST).get(TARGET_HOSTNAME);
 			assertEquals(TARGET_HOSTNAME, target.getName());
 			assertEquals(TARGET_HOSTNAME, target.getId());
-			assertEquals(TARGET_HOSTNAME, target.getTargetId());
+			assertEquals(TARGET_HOSTNAME, target.getHostId());
 
 			final Map<String, Monitor> connectors = hostMonitoring.selectFromType(MonitorType.CONNECTOR);
 			assertEquals(1, connectors.size());  // connector 1 supersedes connector 2 that's why we've detected only one connector
@@ -500,7 +500,7 @@ class DetectionOperationTest {
 			assertEquals(TARGET_HOSTNAME, connector.getParentId());
 			assertEquals(TARGET_HOSTNAME + "@" + CONNECTOR1_ID, connector.getId());
 			assertEquals(CONNECTOR1_ID, connector.getName());
-			assertEquals(TARGET_HOSTNAME, connector.getTargetId());
+			assertEquals(TARGET_HOSTNAME, connector.getHostId());
 		}
 
 	}

@@ -22,7 +22,7 @@ import com.sentrysoftware.matrix.common.meta.monitor.PhysicalDisk;
 import com.sentrysoftware.matrix.common.meta.monitor.PowerSupply;
 import com.sentrysoftware.matrix.common.meta.monitor.Robotics;
 import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
-import com.sentrysoftware.matrix.common.meta.monitor.Target;
+import com.sentrysoftware.matrix.common.meta.monitor.Host;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
 import com.sentrysoftware.matrix.common.meta.monitor.Vm;
 import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
@@ -42,7 +42,7 @@ import java.util.Map;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ATTACHED_TO_DEVICE_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ATTACHED_TO_DEVICE_TYPE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HOST_FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TYPE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_WARNING;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EXPECTED_PATH_COUNT;
@@ -82,7 +82,7 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 	}
 
 	@Override
-	public void visit(Target target) {
+	public void visit(Host host) {
 
 		final Monitor monitor = monitorBuildingInfo.getMonitor();
 
@@ -289,9 +289,9 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 
 		monitor.setName(monitorName);
 		monitor.setParentId(parentId);
-		monitor.setTargetId(targetMonitor.getId());
+		monitor.setHostId(targetMonitor.getId());
 		monitor.setExtendedType(extendedType);
-		monitor.addMetadata(TARGET_FQDN, targetMonitor.getFqdn());
+		monitor.addMetadata(HOST_FQDN, targetMonitor.getFqdn());
 
 		// Finally we can add the monitor
 		return hostMonitoring.addMonitor(
@@ -357,7 +357,7 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 	 */
 	static boolean isTargetType(final MonitorBuildingInfo monitorBuildingInfo) {
 		Assert.notNull(monitorBuildingInfo.getMonitorType(), MONITOR_TYPE_CANNOT_BE_NULL);
-		return monitorBuildingInfo.getMonitorType().equals(MonitorType.TARGET);
+		return monitorBuildingInfo.getMonitorType().equals(MonitorType.HOST);
 	}
 
 	/**

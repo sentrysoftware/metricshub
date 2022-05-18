@@ -25,7 +25,7 @@ class EnclosureFirstComparatorTest {
 	final SnmpGetTableSource source2 = SnmpGetTableSource.builder().oid("oid2").key("key2").computes(Collections.singletonList(RightConcat.builder().column(1).string(EMPTY).build())).build();
 
 	final HardwareMonitor hdfConnector = HardwareMonitor.builder().type(MonitorType.CONNECTOR).build();
-	final HardwareMonitor hdfTarget = HardwareMonitor.builder().type(MonitorType.TARGET).build();
+	final HardwareMonitor hdfTarget = HardwareMonitor.builder().type(MonitorType.HOST).build();
 	final HardwareMonitor hdfBattery = HardwareMonitor.builder().type(MonitorType.BATTERY).build();
 	final HardwareMonitor hdfBlade = HardwareMonitor.builder().type(MonitorType.BLADE).build();
 	final HardwareMonitor hdfCPU = HardwareMonitor.builder().type(MonitorType.CPU).build();

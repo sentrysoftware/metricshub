@@ -328,7 +328,7 @@ public class HardwareConstants {
 	public static final String AUTOMATIC_NAMESPACE = "automatic";
 
 	public static final String FQDN = "fqdn";
-	public static final String TARGET_FQDN = "targetFqdn";
+	public static final String HOST_FQDN = "hostFqdn";
 
 	public static final int ID_MAXLENGTH = 10;
 

@@ -100,10 +100,10 @@ public class HostMonitoring implements IHostMonitoring {
 		final MonitorType monitorType = monitor.getMonitorType();
 		Assert.notNull(monitorType, MONITOR_TYPE_CANNOT_BE_NULL);
 
-		Assert.isTrue(MonitorType.TARGET.equals(monitorType) || Objects.nonNull(monitor.getParentId()),
+		Assert.isTrue(MonitorType.HOST.equals(monitorType) || Objects.nonNull(monitor.getParentId()),
 			PARENT_ID_CANNOT_BE_NULL);
 
-		Assert.notNull(monitor.getTargetId(), TARGET_ID_CANNOT_BE_NULL);
+		Assert.notNull(monitor.getHostId(), TARGET_ID_CANNOT_BE_NULL);
 
 		Monitor created = monitor;
 
@@ -146,7 +146,7 @@ public class HostMonitoring implements IHostMonitoring {
 
 		previous.setName(current.getName());
 		previous.setParentId(current.getParentId());
-		previous.setTargetId(current.getTargetId());
+		previous.setHostId(current.getHostId());
 		previous.setExtendedType(current.getExtendedType());
 		previous.setDiscoveryTime(current.getDiscoveryTime());
 		previous.setMetadata(current.getMetadata());
@@ -159,12 +159,12 @@ public class HostMonitoring implements IHostMonitoring {
 			@NonNull final String connectorName, @NonNull final MonitorType monitorType,
 			final String attachedToDeviceId, final String attachedToDeviceType) {
 
-		Assert.notNull(monitor.getTargetId(), TARGET_ID_CANNOT_BE_NULL);
+		Assert.notNull(monitor.getHostId(), TARGET_ID_CANNOT_BE_NULL);
 
 		monitor.setMonitorType(monitorType);
 
 		if (monitor.getId() == null) {
-			monitor.setId(buildMonitorId(connectorName, monitorType, monitor.getTargetId(), id));
+			monitor.setId(buildMonitorId(connectorName, monitorType, monitor.getHostId(), id));
 		}
 
 		if (monitor.getParentId() == null) {
@@ -182,7 +182,7 @@ public class HostMonitoring implements IHostMonitoring {
 
 			if (monitor.getParentId() == null) {
 
-				monitor.setParentId(buildParentId(monitor.getTargetId(), connectorName, attachedToDeviceId,
+				monitor.setParentId(buildParentId(monitor.getHostId(), connectorName, attachedToDeviceId,
 					attachedToDeviceType));
 			}
 		}
@@ -622,7 +622,7 @@ public class HostMonitoring implements IHostMonitoring {
 	 * @return {@link Monitor} instance ready to use
 	 */
 	public Monitor getTargetMonitor() {
-		final Map<String, Monitor> targetMonitors = selectFromType(MonitorType.TARGET);
+		final Map<String, Monitor> targetMonitors = selectFromType(MonitorType.HOST);
 		if (targetMonitors == null || targetMonitors.isEmpty()) {
 			return null;
 		}

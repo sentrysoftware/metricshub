@@ -40,7 +40,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UP_PARA
 
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.UP_ALARM_CONDITION;
 
-public class Target implements IMetaMonitor {
+public class Host implements IMetaMonitor {
 
 	private static final String CONSEQUENCE_MESSAGE = "All connectors relying on this protocol to collect data will not work anymore. The components detected through these connectors will no longer be monitored.";
 
@@ -95,19 +95,19 @@ public class Target implements IMetaMonitor {
 			.type(new DiscreteParamType(Up::interpret))
 			.build();
 
-	public static final AlertRule SNMP_UP_ALERT_RULE = new AlertRule(Target::checkSnmpStatusAlarmCondition,
+	public static final AlertRule SNMP_UP_ALERT_RULE = new AlertRule(Host::checkSnmpStatusAlarmCondition,
 			UP_ALARM_CONDITION,
 			Severity.ALARM);
 
-	public static final AlertRule WBEM_UP_ALERT_RULE = new AlertRule(Target::checkWbemStatusAlarmCondition,
+	public static final AlertRule WBEM_UP_ALERT_RULE = new AlertRule(Host::checkWbemStatusAlarmCondition,
 			UP_ALARM_CONDITION,
 			Severity.ALARM);
 
-	public static final AlertRule SSH_UP_ALERT_RULE = new AlertRule(Target::checkSshStatusAlarmCondition,
+	public static final AlertRule SSH_UP_ALERT_RULE = new AlertRule(Host::checkSshStatusAlarmCondition,
 			UP_ALARM_CONDITION,
 			Severity.ALARM);
 
-	public static final AlertRule WMI_UP_ALERT_RULE = new AlertRule(Target::checkWmiStatusAlarmCondition,
+	public static final AlertRule WMI_UP_ALERT_RULE = new AlertRule(Host::checkWmiStatusAlarmCondition,
 			UP_ALARM_CONDITION,
 			Severity.ALARM);
 
@@ -263,7 +263,7 @@ public class Target implements IMetaMonitor {
 
 	@Override
 	public MonitorType getMonitorType() {
-		return MonitorType.TARGET;
+		return MonitorType.HOST;
 	}
 
 	@Override
