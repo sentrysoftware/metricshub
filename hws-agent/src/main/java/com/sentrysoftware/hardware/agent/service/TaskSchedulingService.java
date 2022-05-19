@@ -289,7 +289,7 @@ public class TaskSchedulingService {
 
 		// No host monitoring no schedule
 		if (hostMonitoring == null) {
-			log.warn("There is no HostMonitoring for the target id: {}. Skip task schedule.", targetId);
+			log.warn("There is no HostMonitoring for the target id: {}. Skipping task schedule.", targetId);
 			return;
 		}
 
@@ -316,7 +316,7 @@ public class TaskSchedulingService {
 		// Don't forget to store the scheduled task in case we want to cancel it due to a configuration change
 		targetSchedules.put(targetId, scheduledFuture);
 
-		log.info("Scheduled Job for target id {}", targetId);
+		log.info("Scheduled job for target id {}.", targetId);
 	}
 
 	/**

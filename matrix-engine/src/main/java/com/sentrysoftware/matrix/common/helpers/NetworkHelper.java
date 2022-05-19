@@ -51,7 +51,7 @@ public class NetworkHelper {
 		try {
 			inetAddress = InetAddress.getByName(hostname);
 		} catch (UnknownHostException e) {
-			log.warn("Hostname {} - Unknown host. Assuming non-local.", hostname);
+			log.warn("Hostname {} - Could not resolve into an IP addrress. Assuming non-local.", hostname);
 			return false;
 		}
 
@@ -68,7 +68,7 @@ public class NetworkHelper {
 		try {
 			return NetworkInterface.getByInetAddress(inetAddress) != null;
 		} catch (SocketException e) {
-			log.warn("Hostname {} - Error while checking network interfaces. Assuming non-local.", hostname);
+			log.warn("Hostname {} - Could not find interface associated to this IP address. Assuming non-local.", hostname);
 			log.debug("Hostname {} - Exception while checking network interfaces: ", hostname, e);
 			return false;
 		}
@@ -116,7 +116,7 @@ public class NetworkHelper {
 			try {
 				inetAddress = InetAddress.getByName(hostname);
 			} catch (UnknownHostException e) {
-				log.error("Hostname {} - Unknown host", hostname);
+				log.error("Could not resolve {} into an IP address.", hostname);
 				throw e;
 			}
 		}

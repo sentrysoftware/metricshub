@@ -65,7 +65,7 @@ public class DetectionOperation extends AbstractStrategy {
 		final boolean isLocalhost = NetworkHelper.isLocalhost(hostname);
 
 		// Create the target
-		log.debug("Hostname {} - Create the Target", hostname);
+		log.debug("Hostname {} - Creating the Target.", hostname);
 		final Monitor target = createTarget(isLocalhost);
 
 		// No selectedConnectors then perform auto detection
@@ -92,7 +92,7 @@ public class DetectionOperation extends AbstractStrategy {
 	List<TestedConnector> processSelectedConnectors(final Set<String> selectedConnectorKeys) {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-		log.debug("Hostname {} - Process selected connectors: {}",
+		log.debug("Hostname {} - Process selected connectors: {}.",
 				hostname, selectedConnectorKeys);
 
 		// Get the selected connectors from the store singleton bean
@@ -112,7 +112,7 @@ public class DetectionOperation extends AbstractStrategy {
 	List<TestedConnector> performAutoDetection(final boolean isLocalhost) {
 
 		String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-		log.debug("Hostname {} - Start Detection", hostname);
+		log.debug("Hostname {} - Starting detection.", hostname);
 
 		// Get the excluded connectors
 		final Set<String> excludedConnectors = strategyConfig.getEngineConfiguration().getExcludedConnectors();
@@ -158,7 +158,7 @@ public class DetectionOperation extends AbstractStrategy {
 
 		// We have detected connectors, now we need to handle Supersedes
 		log.debug(
-				"Hostname {} - Detection Conclusion: The following connectors match the system and will be used to monitor its hardware: {}",
+				"Hostname {} - Detection conclusion: The following connectors match the system and will be used to monitor its hardware: {}.",
 				hostname, testedConnectorList.stream()
 						.map(c -> c.getConnector().getCompiledFilename()).collect(Collectors.toList()));
 
@@ -202,7 +202,7 @@ public class DetectionOperation extends AbstractStrategy {
 				
 				if (hardwareMonitors == null || hardwareMonitors.isEmpty()) {
 					log.warn(
-							"Hostname {} - {} connector detection. On last resort filter: connector {} has no hardware monitors",
+							"Hostname {} - {} connector detection. On last resort filter: Connector {} has no hardware monitors.",
 							hostname,
 							strategyConfig.getEngineConfiguration().getTarget().getHostname(),
 							connectorNameHolder[0]
@@ -368,7 +368,7 @@ public class DetectionOperation extends AbstractStrategy {
 						.targetType(target.getType())
 						.build()));
 
-		log.debug("Hostname {} - Created Target ID: {} ", target.getHostname(), target.getId());
+		log.debug("Hostname {} - Created Target ID: {}.", target.getHostname(), target.getId());
 
 		return hostMonitoring.getTargetMonitor();
 	}
@@ -454,7 +454,7 @@ public class DetectionOperation extends AbstractStrategy {
 		// The user may want to run queries sent to the target one by one instead of everything in parallel
 		if (strategyConfig.getEngineConfiguration().isSequential()) {
 
-			log.info("Hostname {} - Running detection in sequential mode", hostname);
+			log.info("Hostname {} - Running detection in sequential mode.", hostname);
 
 			// Run detection in sequential mode
 			stream.forEach(
@@ -462,7 +462,7 @@ public class DetectionOperation extends AbstractStrategy {
 
 		} else {
 
-			log.info("Hostname {} - Running detection in parallel mode", hostname);
+			log.info("Hostname {} - Running detection in parallel mode.", hostname);
 
 			// Default mode is parallel.
 			// Make sure our list is thread-safe, in our case it is not required to manually synchronize this list as there is no traversal
@@ -484,7 +484,7 @@ public class DetectionOperation extends AbstractStrategy {
 				if (e instanceof InterruptedException) {
 					Thread.currentThread().interrupt();
 				}
-				log.debug("Hostname {} - Waiting for threads termination aborted with an error", hostname, e);
+				log.debug("Hostname {} - Waiting for threads' termination aborted with an error.", hostname, e);
 			}
 		}
 
@@ -501,11 +501,11 @@ public class DetectionOperation extends AbstractStrategy {
 	 */
 	private TestedConnector runConnectorDetection(final Connector connector, final String hostname) {
 
-		log.debug("Hostname {} - Start Detection for Connector {}", hostname, connector.getCompiledFilename());
+		log.debug("Hostname {} - Start Detection for Connector {}.", hostname, connector.getCompiledFilename());
 
 		final TestedConnector testedConnector = testConnector(connector, hostname);
 
-		log.debug("Hostname {} - End of Detection for Connector {}. Detection Status: {}", hostname, connector.getCompiledFilename(),
+		log.debug("Hostname {} - End of Detection for Connector {}. Detection Status: {}.", hostname, connector.getCompiledFilename(),
 				getTestedConnectorStatus(testedConnector));
 
 		return testedConnector;

@@ -228,7 +228,7 @@ public class SourceVisitor implements ISourceVisitor {
 		} catch (Exception e) {
 
 			logSourceError(connector.getCompiledFilename(), 
-					sourceKey, String.format("IPMI OS Command: %s", fruCommand), hostname, e);
+					sourceKey, String.format("IPMI OS Command: %s.", fruCommand), hostname, e);
 
 			Thread.currentThread().interrupt();
 
@@ -248,7 +248,7 @@ public class SourceVisitor implements ISourceVisitor {
 		} catch (Exception e) {
 
 			logSourceError(connector.getCompiledFilename(), 
-					sourceKey, String.format("IPMI OS Command: %s", sdrCommand), hostname, e);
+					sourceKey, String.format("IPMI OS Command: %s.", sdrCommand), hostname, e);
 
 			Thread.currentThread().interrupt();
 
@@ -348,7 +348,7 @@ public class SourceVisitor implements ISourceVisitor {
 		} catch(Exception e) {
 
 			logSourceError(connector.getCompiledFilename(), osCommandSource.getKey(),
-					String.format("OS Command: %s", osCommandSource.getCommandLine()),
+					String.format("OS Command: %s.", osCommandSource.getCommandLine()),
 					hostname, e);
 
 			return SourceTable.empty();
@@ -481,7 +481,7 @@ public class SourceVisitor implements ISourceVisitor {
 		} catch (Exception e) {
 
 			logSourceError(connector.getCompiledFilename(), 
-					snmpGetSource.getKey(), String.format("SNMP Get: %s", snmpGetSource.getOid()),
+					snmpGetSource.getKey(), String.format("SNMP Get: %s.", snmpGetSource.getOid()),
 					hostname, e);
 		}
 
@@ -583,7 +583,7 @@ public class SourceVisitor implements ISourceVisitor {
 
 		if (tableJoinSource.getLeftKeyColumn() < 1 || tableJoinSource.getRightKeyColumn() < 1) {
 			log.error("Hostname {} - Invalid key column number (leftKeyColumnNumber=" + tableJoinSource.getLeftKeyColumn()
-			+ ", rightKeyColumnNumber=" + tableJoinSource.getDefaultRightLine() + ")", hostname);
+			+ ", rightKeyColumnNumber=" + tableJoinSource.getDefaultRightLine() + ").", hostname);
 			return SourceTable.empty();
 		}
 

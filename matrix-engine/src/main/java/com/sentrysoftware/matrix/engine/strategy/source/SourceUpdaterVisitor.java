@@ -103,7 +103,7 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 		final SourceTable sourceTable = getSourceTable(sourceTableKey);
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 		if (sourceTable == null) {
-			log.error("Hostname {} - The SourceTable referenced in the ExecuteForEachEntryOf field can't be found : {}", 
+			log.error("Hostname {} - The SourceTable referenced in the ExecuteForEachEntryOf field cannot be found : {}.", 
 					hostname, sourceTableKey);
 			return SourceTable.empty();
 		}
@@ -116,7 +116,7 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 			try {
 				copy.update(dataValue -> replaceDynamicEntry(dataValue, row));
 			} catch (NumberFormatException e) {
-				log.warn("Hostname {} - The dynamic key from Source is badly formatted : {}", hostname, copy);
+				log.warn("Hostname {} - The dynamic key from Source is incorrectly formatted : {}.", hostname, copy);
 				continue;
 			}
 

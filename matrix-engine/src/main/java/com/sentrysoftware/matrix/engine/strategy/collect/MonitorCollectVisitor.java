@@ -2164,7 +2164,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		if (maxAvailablePathCount == null || availablePathCount > maxAvailablePathCount) {
 
-			log.info("Hostname {} - Number of paths increased to {} for LUN instance [id: {}, name: {}]",
+			log.info("Hostname {} - Number of paths increased to {} for LUN instance [id: {}, name: {}].",
 					monitorCollectInfo.getHostname(), availablePathCount, monitor.getId(), monitor.getName());
 
 			CollectHelper.updateNumberParameter(

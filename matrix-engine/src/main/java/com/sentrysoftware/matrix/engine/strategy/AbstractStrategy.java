@@ -116,7 +116,7 @@ public abstract class AbstractStrategy implements IStrategy {
 			final String hostname, final Monitor monitor) {
 
 		if (sources == null || sources.isEmpty()) {
-			log.debug("Hostname {} - No source found from connector {} with monitor {}", hostname, connector.getCompiledFilename(), monitorType);
+			log.debug("Hostname {} - No source found from connector {} with monitor {}.", hostname, connector.getCompiledFilename(), monitorType);
 			return;
 		}
 
@@ -141,7 +141,7 @@ public abstract class AbstractStrategy implements IStrategy {
 			}
 
 			if (sourceTable == null) {
-				log.warn("Hostname {} - Received null source table for source key {}. Connector {}. Monitor {}",
+				log.warn("Hostname {} - Received null source table for Source key {} - Connector {} - Monitor {}.",
 						hostname,
 						sourceKey,
 						connector.getCompiledFilename(),
@@ -467,7 +467,7 @@ public abstract class AbstractStrategy implements IStrategy {
 				.builder()
 				.collectTime(strategyTime)
 				.name(STATUS_INFORMATION_PARAMETER)
-				.value(success ? "Connector test succeeded" : "Connector test failed")
+				.value(success ? "Connector test succeeded." : "Connector test failed.")
 				.build();
 
 		return statusAndStatusInformation;
@@ -518,7 +518,7 @@ public abstract class AbstractStrategy implements IStrategy {
 	protected Monitor getTargetMonitor(IHostMonitoring hostMonitoring) {
 
 		Monitor target = hostMonitoring.getTargetMonitor();
-		state(target != null, "target monitor should not be null.");
+		state(target != null, "Target monitor should not be null.");
 
 		return target;
 	}

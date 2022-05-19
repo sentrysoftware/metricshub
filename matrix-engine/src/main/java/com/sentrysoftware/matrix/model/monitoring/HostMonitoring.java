@@ -54,10 +54,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class HostMonitoring implements IHostMonitoring {
 
-	private static final String MONITOR_ID_CANNOT_BE_NULL = "monitor id cannot be null.";
+	private static final String MONITOR_ID_CANNOT_BE_NULL = "Monitor Id cannot be null.";
 	private static final String PARENT_ID_CANNOT_BE_NULL = "Parent Id cannot be null.";
 	private static final String TARGET_ID_CANNOT_BE_NULL = "Target Id cannot be null.";
-	private static final String MONITOR_TYPE_CANNOT_BE_NULL = "monitor type cannot be null.";
+	private static final String MONITOR_TYPE_CANNOT_BE_NULL = "Monitor type cannot be null.";
 
 	private static final String STRATEGY_TIME = "strategyTime";
 	private static final String STRATEGY_BEAN_NAME = "strategy";
@@ -436,7 +436,7 @@ public class HostMonitoring implements IHostMonitoring {
 
 		final String hostname = engineConfiguration.getTarget().getHostname();
 
-		log.trace("Hostname {} - Engine called for thread {}", hostname, Thread.currentThread().getName());
+		log.trace("Hostname {} - Engine called for thread {}.", hostname, Thread.currentThread().getName());
 
 		checkEngineConfiguration();
 
@@ -445,9 +445,9 @@ public class HostMonitoring implements IHostMonitoring {
 
 		for (IStrategy strategy : strategies) {
 
-			log.trace("Hostname {} - Calling strategy {}", hostname, strategy.getClass().getSimpleName());
+			log.trace("Hostname {} - Calling strategy {}.", hostname, strategy.getClass().getSimpleName());
 			lastEngineResult = run(strategy);
-			log.info("Hostname {} - {} status {}", 
+			log.info("Hostname {} - {} status {}.", 
 					hostname, strategy.getClass().getSimpleName(), lastEngineResult.getOperationStatus());
 
 			if (log.isDebugEnabled()) {
@@ -484,17 +484,17 @@ public class HostMonitoring implements IHostMonitoring {
 			Throwable cause = e.getCause();
 			if (cause != null) {
 				log.error(
-						"Hostname {} - {} operation failed: {}: {}",
+						"Hostname {} - {} operation failed: {}: {}.",
 						hostname,
 						strategy.getClass().getSimpleName(),
 						cause.getClass().getSimpleName(),
 						cause.getMessage()
 				);
-				log.debug("Hostname {} - Operation failed with ExecutionException", hostname, cause);
+				log.debug("Hostname {} - Operation failed with ExecutionException.", hostname, cause);
 			} else {
-				log.error("Hostname {} - {} operation failed: {}: {}", hostname, strategy.getClass().getSimpleName(),
+				log.error("Hostname {} - {} operation failed: {}: {}.", hostname, strategy.getClass().getSimpleName(),
 						e.getClass().getSimpleName(), e.getMessage());
-				log.debug("Hostname {} - Operation failed with ExecutionException", hostname, e);
+				log.debug("Hostname {} - Operation failed with ExecutionException.", hostname, e);
 			}
 
 			return EngineResult
@@ -505,8 +505,8 @@ public class HostMonitoring implements IHostMonitoring {
 
 		} catch (TimeoutException e) {
 
-			log.error("Hostname {} - {} operation timeout!", hostname, strategy.getClass().getSimpleName());
-			log.debug("Hostname {} - Operation failed with TimeoutException", hostname, e);
+			log.error("Hostname {} - {} operation timeout.", hostname, strategy.getClass().getSimpleName());
+			log.debug("Hostname {} - Operation failed with TimeoutException: ", hostname, e);
 
 			return EngineResult
 				.builder()
@@ -516,8 +516,8 @@ public class HostMonitoring implements IHostMonitoring {
 
 		} catch (InterruptedException e) {
 
-			log.error("Hostname {} - {} operation interrupted", hostname, strategy.getClass().getSimpleName());
-			log.debug("Hostname {} - Operation failed with InterruptedException", hostname, e);
+			log.error("Hostname {} - {} operation interrupted.", hostname, strategy.getClass().getSimpleName());
+			log.debug("Hostname {} - Operation failed with InterruptedException: ", hostname, e);
 
 			Thread.currentThread().interrupt();
 
@@ -529,8 +529,8 @@ public class HostMonitoring implements IHostMonitoring {
 
 		} catch (Exception e) {
 
-			log.error("Hostname {} - {} operation failed with {}", hostname, strategy.getClass().getSimpleName(), e.getClass().getSimpleName());
-			log.debug("Hostname {} - Operation failed with unknown exception", hostname, e);
+			log.error("Hostname {} - {} operation failed with {}.", hostname, strategy.getClass().getSimpleName(), e.getClass().getSimpleName());
+			log.debug("Hostname {} - Operation failed with unknown exception: ", hostname, e);
 
 			return EngineResult
 				.builder()
@@ -545,14 +545,14 @@ public class HostMonitoring implements IHostMonitoring {
 	 */
 	private void checkEngineConfiguration() {
 
-		Assert.notNull(engineConfiguration, "engineConfiguration cannot be null.");
-		Assert.notNull(engineConfiguration.getProtocolConfigurations(), "protocolConfigurations cannot be null.");
-		Assert.isTrue(!engineConfiguration.getProtocolConfigurations().isEmpty(), "protocolConfigurations cannot be empty.");
-		Assert.notNull(engineConfiguration.getSelectedConnectors(), "selectedConnectors cannot be null.");
-		Assert.notNull(engineConfiguration.getTarget(), "target cannot be null.");
-		Assert.notNull(engineConfiguration.getTarget().getHostname(), "target hostname cannot be null.");
-		Assert.notNull(engineConfiguration.getTarget().getType(), "target type cannot be null.");
-		Assert.notNull(engineConfiguration.getTarget().getId(), "target id cannot be null.");
+		Assert.notNull(engineConfiguration, "EngineConfiguration cannot be null.");
+		Assert.notNull(engineConfiguration.getProtocolConfigurations(), "ProtocolConfigurations cannot be null.");
+		Assert.isTrue(!engineConfiguration.getProtocolConfigurations().isEmpty(), "ProtocolConfigurations cannot be empty.");
+		Assert.notNull(engineConfiguration.getSelectedConnectors(), "SelectedConnectors cannot be null.");
+		Assert.notNull(engineConfiguration.getTarget(), "Target cannot be null.");
+		Assert.notNull(engineConfiguration.getTarget().getHostname(), "Target hostname cannot be null.");
+		Assert.notNull(engineConfiguration.getTarget().getType(), "Target type cannot be null.");
+		Assert.notNull(engineConfiguration.getTarget().getId(), "Target id cannot be null.");
 	}
 
 	/**
