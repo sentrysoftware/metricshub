@@ -31,7 +31,7 @@ import com.sentrysoftware.hardware.cli.component.cli.protocols.IpmiConfigCli;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.SnmpConfigCli;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.SshConfigCli;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WbemConfigCli;
-import com.sentrysoftware.hardware.cli.component.cli.protocols.WinRMConfigCli;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.WinRmConfigCli;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WmiConfigCli;
 import com.sentrysoftware.hardware.cli.service.ConsoleService;
 import com.sentrysoftware.hardware.cli.service.VersionService;
@@ -143,7 +143,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 	private WmiConfigCli wmiConfigCli;
 
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline WinRM Options|@:%n")
-	private WinRMConfigCli winRMConfigCli;
+	private WinRmConfigCli winRmConfigCli;
 
 	@Option(
 			names = { "-u", "--username" },
@@ -370,16 +370,16 @@ public class HardwareSentryCli implements Callable<Integer> {
 					wmiConfigCli.setPassword(System.console().readPassword("%s password for WMI: ", wmiConfigCli.getUsername()));
 				}
 			}
-			if (winRMConfigCli != null) {
-				if (winRMConfigCli.getUsername() != null && winRMConfigCli.getPassword() == null) {
-					winRMConfigCli.setPassword(System.console().readPassword("%s password for WinRM: ", winRMConfigCli.getUsername()));
+			if (winRmConfigCli != null) {
+				if (winRmConfigCli.getUsername() != null && winRmConfigCli.getPassword() == null) {
+					winRmConfigCli.setPassword(System.console().readPassword("%s password for WinRM: ", winRmConfigCli.getUsername()));
 				}
 			}
 		}
 
 		// No protocol at all?
 		if (httpConfigCli == null && ipmiConfigCli == null && snmpConfigCli == null
-				&& sshConfigCli == null && wbemConfigCli == null && wmiConfigCli == null && winRMConfigCli == null) {
+				&& sshConfigCli == null && wbemConfigCli == null && wmiConfigCli == null && winRmConfigCli == null) {
 			throw new ParameterException(spec.commandLine(), "At least one protocol must be specified: --http[s], --ipmi, --snmp, --ssh, --wbem, --wmi, --winRM.");
 		}
 
@@ -463,7 +463,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 	 */
 	private Map<Class< ? extends IProtocolConfiguration>, IProtocolConfiguration> getProtocols() {
 
-		return Stream.of(httpConfigCli, ipmiConfigCli, snmpConfigCli, sshConfigCli, wbemConfigCli, wmiConfigCli, winRMConfigCli)
+		return Stream.of(httpConfigCli, ipmiConfigCli, snmpConfigCli, sshConfigCli, wbemConfigCli, wmiConfigCli, winRmConfigCli)
 				.filter(Objects::nonNull)
 				.map(protocolConfig -> protocolConfig.toProtocol(username, password))
 				.collect(Collectors.toMap(

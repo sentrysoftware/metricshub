@@ -687,7 +687,7 @@ class OsCommandHelperTest {
 			doReturn(absolutePath1).when(file1).getAbsolutePath();
 			doReturn(absolutePath2).when(file2).getAbsolutePath();
 
-			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.executeWqlRemoteCommand(
+			mockedMatsyaClientsExecutor.when(() -> MatsyaClientsExecutor.executeWinRemoteCommand(
 					updatedCommand,
 					wmiProtocol,
 					"host",

@@ -268,7 +268,7 @@ class HardwareSentryCliTest {
 	}
 
 	@Test
-	void winRMArgumentsTest() {
+	void winRmArgumentsTest() {
 		{
 			String[] args_hdfs = { "hostaa",
 					"-t", "win",
@@ -276,7 +276,6 @@ class HardwareSentryCliTest {
 					"--winrm-username", "admin",
 					"--winrm-password", "password",
 					"--winrm-timeout", "160",
-					"--winrm-command", "SELECT * FROM myTable",
 					"--winrm-port", "1234",
 					"--winrm-protocol", "HTTPS",
 					"--winrm-kerberosonly"};
@@ -285,15 +284,14 @@ class HardwareSentryCliTest {
 
 			assertEquals("hostaa", sentryCli.getHostname());
 			assertEquals(TargetType.MS_WINDOWS, sentryCli.getDeviceType());
-			assertEquals("root\\cimv2", sentryCli.getWinRMConfigCli().getNamespace());
-			assertEquals("admin", sentryCli.getWinRMConfigCli().getUsername());
-			assertArrayEquals("password".toCharArray(), sentryCli.getWinRMConfigCli().getPassword());
-			assertEquals(160, sentryCli.getWinRMConfigCli().getTimeout());
-			assertEquals("SELECT * FROM myTable", sentryCli.getWinRMConfigCli().getCommand());
-			assertEquals(1234, sentryCli.getWinRMConfigCli().getPort());
-			assertEquals("HTTPS", sentryCli.getWinRMConfigCli().getProtocol());
-			assertEquals(true, sentryCli.getWinRMConfigCli().isKerberosOnly());
-			assertEquals(false, sentryCli.getWinRMConfigCli().isForceNtlm());
+			assertEquals("root\\cimv2", sentryCli.getWinRmConfigCli().getNamespace());
+			assertEquals("admin", sentryCli.getWinRmConfigCli().getUsername());
+			assertArrayEquals("password".toCharArray(), sentryCli.getWinRmConfigCli().getPassword());
+			assertEquals(160, sentryCli.getWinRmConfigCli().getTimeout());
+			assertEquals(1234, sentryCli.getWinRmConfigCli().getPort());
+			assertEquals("HTTPS", sentryCli.getWinRmConfigCli().getProtocol());
+			assertEquals(true, sentryCli.getWinRmConfigCli().isKerberosOnly());
+			assertEquals(false, sentryCli.getWinRmConfigCli().isForceNtlm());
 		}
 
 		{
@@ -303,8 +301,8 @@ class HardwareSentryCliTest {
 			HardwareSentryCli sentryCli = new HardwareSentryCli();
 			new CommandLine(sentryCli).parseArgs(args_hdfs);
 
-			assertEquals(false, sentryCli.getWinRMConfigCli().isKerberosOnly());
-			assertEquals(true, sentryCli.getWinRMConfigCli().isForceNtlm());
+			assertEquals(false, sentryCli.getWinRmConfigCli().isKerberosOnly());
+			assertEquals(true, sentryCli.getWinRmConfigCli().isForceNtlm());
 		}
 
 	}

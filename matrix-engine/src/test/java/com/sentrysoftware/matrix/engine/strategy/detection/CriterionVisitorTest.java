@@ -2203,7 +2203,7 @@ class CriterionVisitorTest {
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
-		assertTrue(criterionVisitor.visit(wmi).getMessage().contains("The WBEM Credentials are not configured"));
+		assertTrue(criterionVisitor.visit(wmi).getMessage().contains("Neither WMI nor WinRM credentials are configured."));
 	}
 
 }

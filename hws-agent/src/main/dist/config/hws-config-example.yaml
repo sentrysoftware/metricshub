@@ -162,7 +162,6 @@ targets:
 #      username: myusername
 #      password: mypwd
 #      namespace: mynamespace
-#      command: SELECT * FROM TABLENAME
 #      port: 5986                     #optional
 #      protocol: http                 #optional
 #      forcentlm: true                #optional

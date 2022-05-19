@@ -3,14 +3,14 @@ package com.sentrysoftware.hardware.cli.component.cli.protocols;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sentrysoftware.matrix.engine.protocol.WinRMProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WinRmProtocol;
 import com.sentrysoftware.matsya.winrm.service.client.auth.AuthenticationEnum;
 
 import lombok.Data;
 import picocli.CommandLine.Option;
 
 @Data
-public class WinRMConfigCli implements IProtocolConfigCli {
+public class WinRmConfigCli implements IProtocolConfigCli {
 	public static final int DEFAULT_TIMEOUT = 30;
 	public static final String DEFAULT_PROTOCOL = "HTTP";
 	public static final Integer DEFAULT_HTTP_PORT = 5985;
@@ -21,7 +21,7 @@ public class WinRMConfigCli implements IProtocolConfigCli {
 			order = 1,
 			description = "Enables WinRM"
 			)
-	private boolean useWinRM;
+	private boolean useWinRm;
 
 	@Option(
 			names = "--winrm-username",
@@ -57,14 +57,6 @@ public class WinRMConfigCli implements IProtocolConfigCli {
 			description = "Namespace for a WinRM query"
 			)
 	private String namespace;
-
-	@Option(
-			names = "--winrm-command",
-			order = 5,
-			paramLabel = "COMMAND",
-			description = "WinRM query to execute"
-			)
-	private String command;
 
 	@Option(
 			names = "--winrm-port",
@@ -105,7 +97,7 @@ public class WinRMConfigCli implements IProtocolConfigCli {
 	 * @return an WinRMProtocol instance corresponding to the options specified by the user in the CLI
 	 */
 	@Override
-	public WinRMProtocol toProtocol(String defaultUsername, char[] defaultPassword) {
+	public WinRmProtocol toProtocol(String defaultUsername, char[] defaultPassword) {
 		List<AuthenticationEnum> authentications = new ArrayList<>();
 		if (kerberosOnly) {
 			authentications.add(AuthenticationEnum.KERBEROS);
@@ -123,12 +115,11 @@ public class WinRMConfigCli implements IProtocolConfigCli {
 			} 
 		}
 
-		return WinRMProtocol
+		return WinRmProtocol
 				.builder()
 				.username(username == null ? defaultUsername : username)
 				.password(username == null ? defaultPassword : password)
 				.namespace(namespace)
-				.command(command)
 				.port(port)
 				.https(!"HTTP".equals(protocol))
 				.authentications(authentications)

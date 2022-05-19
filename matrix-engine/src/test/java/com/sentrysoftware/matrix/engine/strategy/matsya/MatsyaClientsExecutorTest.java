@@ -49,7 +49,7 @@ import com.sentrysoftware.matrix.engine.protocol.HttpProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IpmiOverLanProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WbemProtocol.WbemProtocols;
-import com.sentrysoftware.matrix.engine.protocol.WinRMProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WinRmProtocol;
 import com.sentrysoftware.matsya.HttpProtocolEnum;
 import com.sentrysoftware.matsya.http.HttpClient;
 import com.sentrysoftware.matsya.http.HttpResponse;
@@ -798,19 +798,18 @@ class MatsyaClientsExecutorTest {
 	}
 
 	@Test
-	void testExecuteWqlThroughWinRM() throws Exception {
+	void testExecuteWqlThroughWinRm() throws Exception {
 		final int port = 1234;
 		final String username = "user";
 		final char[] password = "password".toCharArray();
 		final String namespace = "namespace";
 		final String command ="SELECT BootDevice,BuildNumber FROM Win32_OperatingSystem";
-		final WinRMProtocol winRMProtocol = WinRMProtocol.builder()
+		final WinRmProtocol winRmProtocol = WinRmProtocol.builder()
 				.https(false)
 				.port(port)
 				.username(username)
 				.password(password)
 				.namespace(namespace)
-				.command(command)
 				.build();
 
 		List<List<String>> expectedResult = new ArrayList<>();
@@ -838,7 +837,7 @@ class MatsyaClientsExecutorTest {
 					null,
 					null)).thenReturn(winRMWqlExecutorResult);
 
-			List<List<String>> result = MatsyaClientsExecutor.executeWqlThroughWinRM(PUREM_SAN, winRMProtocol, command, namespace);
+			List<List<String>> result = MatsyaClientsExecutor.executeWqlThroughWinRm(PUREM_SAN, winRmProtocol, command, namespace);
 			assertNotNull(result);
 			assertEquals(1, result.size());
 			assertLinesMatch(expectedResult.get(0), result.get(0));
@@ -852,13 +851,12 @@ class MatsyaClientsExecutorTest {
 		final char[] password = "password".toCharArray();
 		final String namespace = "namespace";
 		final String command ="SELECT BootDevice,BuildNumber FROM Win32_OperatingSystem";
-		final WinRMProtocol winRMProtocol = WinRMProtocol.builder()
+		final WinRmProtocol winRmProtocol = WinRmProtocol.builder()
 				.https(false)
 				.port(port)
 				.username(username)
 				.password(password)
 				.namespace(namespace)
-				.command(command)
 				.build();
 
 		final String expectedResult = "BootDevice1|BuildNumber1";
@@ -878,7 +876,7 @@ class MatsyaClientsExecutorTest {
 					null,
 					null)).thenReturn(windowsRemoteCommandResult);
 
-			String result = MatsyaClientsExecutor.executeRemoteWinRMCommand(PUREM_SAN, winRMProtocol, namespace);
+			String result = MatsyaClientsExecutor.executeRemoteWinRmCommand(PUREM_SAN, winRmProtocol, command);
 			assertEquals(expectedResult, result);
 		}
 	}

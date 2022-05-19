@@ -17,7 +17,7 @@ import com.sentrysoftware.hardware.agent.dto.protocol.OsCommandConfigDto;
 import com.sentrysoftware.hardware.agent.dto.protocol.SnmpProtocolDto;
 import com.sentrysoftware.hardware.agent.dto.protocol.SshProtocolDto;
 import com.sentrysoftware.hardware.agent.dto.protocol.WbemProtocolDto;
-import com.sentrysoftware.hardware.agent.dto.protocol.WinRMProtocolDTO;
+import com.sentrysoftware.hardware.agent.dto.protocol.WinRmProtocolDto;
 import com.sentrysoftware.hardware.agent.dto.protocol.WmiProtocolDto;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 
@@ -57,7 +57,7 @@ public class HostConfigurationDto {
 
 	private OsCommandConfigDto osCommand;
 
-	private WinRMProtocolDTO winRM;
+	private WinRmProtocolDto winRm;
 
 	@Default
 	@JsonSetter(nulls = SKIP)

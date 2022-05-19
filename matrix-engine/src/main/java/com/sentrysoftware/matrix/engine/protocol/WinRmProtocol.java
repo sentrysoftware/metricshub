@@ -14,12 +14,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class WinRMProtocol implements IWqlProtocol {
+public class WinRmProtocol implements IWqlProtocol {
 
 	private String username;
 	private char[] password;
 	private String namespace;
-	private String command;
 	@Default
 	private Integer port = 5985;
 	@Default

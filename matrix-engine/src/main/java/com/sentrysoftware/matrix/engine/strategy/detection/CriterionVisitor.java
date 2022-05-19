@@ -46,7 +46,7 @@ import com.sentrysoftware.matrix.engine.protocol.OsCommandConfig;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WinRMProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WinRmProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WmiProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.HttpRequest;
@@ -952,15 +952,16 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 		final String hostname = engineConfiguration.getTarget().getHostname();
 
+		// We prioritise WinRM over WMI as it's more efficient.
 		IWqlProtocol protocol =
-				(WmiProtocol) engineConfiguration.getProtocolConfigurations().get(WmiProtocol.class);
+				(WinRmProtocol) engineConfiguration.getProtocolConfigurations().get(WinRmProtocol.class);
 
 		if (protocol == null) {
-			protocol = (WinRMProtocol) engineConfiguration.getProtocolConfigurations().get(WinRMProtocol.class);
+			protocol = (WmiProtocol) engineConfiguration.getProtocolConfigurations().get(WmiProtocol.class);
 		}
 
 		if (protocol == null) {
-			return CriterionTestResult.error(wmiCriterion, "The WBEM Credentials are not configured");
+			return CriterionTestResult.error(wmiCriterion, "Neither WMI nor WinRM credentials are configured.");
 		}
 
 		// If namespace is specified as "Automatic"

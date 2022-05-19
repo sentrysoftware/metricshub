@@ -24,6 +24,7 @@ import com.sentrysoftware.matrix.engine.protocol.OsCommandConfig;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WinRmProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WmiProtocol;
 import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matrix.engine.target.TargetType;
@@ -52,7 +53,8 @@ public class EngineConfiguration {
 				SshProtocol.class, Set.of(OsCommandSource.class, SshInteractiveSource.class),
 				HttpProtocol.class, Collections.singleton(HttpSource.class),
 				IpmiOverLanProtocol.class, Collections.singleton(Ipmi.class),
-				OsCommandConfig.class, Collections.singleton(OsCommandSource.class));
+				OsCommandConfig.class, Collections.singleton(OsCommandSource.class),
+				WinRmProtocol.class, Collections.singleton(WmiSource.class));
 
 	}
 

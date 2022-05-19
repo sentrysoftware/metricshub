@@ -32,7 +32,7 @@ public class HardwareSentryAgentApp {
 		// Default values for targetId, loggerLevel and port
 		ThreadContext.put("port", "");
 		ThreadContext.put("targetId", "");
-		ThreadContext.put("loggerLevel", "DEBUG");
+		ThreadContext.put("loggerLevel", "OFF");
 		ThreadContext.put("outputDirectory", DEFAULT_OUTPUT_DIRECTORY.toString());
 	}
 }

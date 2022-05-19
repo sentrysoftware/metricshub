@@ -26,7 +26,7 @@ import com.sentrysoftware.hardware.agent.dto.HostConfigurationDto;
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
 import com.sentrysoftware.hardware.agent.dto.protocol.IProtocolConfigDto;
 import com.sentrysoftware.hardware.agent.dto.protocol.SnmpProtocolDto;
-import com.sentrysoftware.hardware.agent.dto.protocol.WinRMProtocolDTO;
+import com.sentrysoftware.hardware.agent.dto.protocol.WinRmProtocolDto;
 import com.sentrysoftware.hardware.agent.exception.BusinessException;
 import com.sentrysoftware.hardware.agent.security.PasswordEncrypt;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
@@ -57,7 +57,6 @@ public class ConfigHelper {
 	private static final Predicate<String> INVALID_STRING_CHECKER = attr -> attr == null || attr.isBlank();
 	private static final Predicate<Integer> INVALID_PORT_CHECKER = attr -> attr == null || attr < 1 || attr > 65535;
 	private static final Predicate<Long> INVALID_TIMEOUT_CHECKER = attr -> attr == null || attr < 0L;
-	private static final String COMMAND_ERROR = "Command invalid for hostname: %s";
 
 	/**
 	 * Deserialize YAML configuration file.
@@ -352,7 +351,7 @@ public class ConfigHelper {
 								hostConfigurationDto.getWmi(),
 								hostConfigurationDto.getOsCommand(),
 								hostConfigurationDto.getIpmi(),
-								hostConfigurationDto.getWinRM())
+								hostConfigurationDto.getWinRm())
 						.filter(Objects::nonNull)
 						.map(IProtocolConfigDto::toProtocol)
 						.filter(Objects::nonNull)
@@ -530,12 +529,11 @@ public class ConfigHelper {
 			validateTarget(hostConfigurationDto.getTarget().getType(), hostname);
 
 			if (hostConfigurationDto.getOsCommand() != null) {
-				WinRMProtocolDTO winRMDTO = hostConfigurationDto.getWinRM();
-				 validateWinRMInfo(hostname,
-						winRMDTO.getPort(),
-						winRMDTO.getTimeout(),
-						winRMDTO.getUsername(),
-						winRMDTO.getCommand());
+				WinRmProtocolDto winRmDto = hostConfigurationDto.getWinRm();
+				validateWinRmInfo(hostname,
+						winRmDto.getPort(),
+						winRmDto.getTimeout(),
+						winRmDto.getUsername());
 			}
 
 			if (hostConfigurationDto.getSnmp() != null)
@@ -692,10 +690,9 @@ public class ConfigHelper {
 	 * @param port      port of the target
 	 * @param timeout   timeout of the target
 	 * @param username	username used to authenticate to the target
-	 * @param command	wql command to execute
 	 * @throws BusinessException
 	 */
-	static void validateWinRMInfo(final String hostname, final Integer port, final Long timeout, final String username, final String command)
+	static void validateWinRmInfo(final String hostname, final Integer port, final Long timeout, final String username)
 			throws BusinessException {
 
 		final String protocol = "WinRM";
@@ -719,10 +716,5 @@ public class ConfigHelper {
 				INVALID_STRING_CHECKER,
 				() -> String.format(USERNAME_ERROR, hostname, protocol),
 				ErrorCode.NO_USERNAME);
-
-		validateAttribute(command,
-				INVALID_STRING_CHECKER,
-				() -> String.format(COMMAND_ERROR, hostname, protocol),
-				ErrorCode.NO_COMMAND);
 	}
 }

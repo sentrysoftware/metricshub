@@ -484,7 +484,7 @@ public class OsCommandHelper {
 
 			// Case Windows Remote
 			} else if (engineConfiguration.getTarget().getType() == TargetType.MS_WINDOWS) {
-				commandResult = MatsyaClientsExecutor.executeWqlRemoteCommand(
+				commandResult = MatsyaClientsExecutor.executeWinRemoteCommand(
 						command,
 						protocolConfiguration,
 						hostname,

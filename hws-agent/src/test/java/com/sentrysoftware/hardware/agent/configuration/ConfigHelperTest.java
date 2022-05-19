@@ -402,20 +402,17 @@ class ConfigHelperTest {
 	}
 
 	@Test
-	void testValidateWinRM() {
+	void testValidateWinRm() {
 		final String hostname = "hostname";
 		final String username = "username";
-		final String command = "SELECT * FROM MYTABLE";
 
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWinRMInfo(hostname, 1234, -60L, username, command));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWinRMInfo(hostname, 1234, null, username, command));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWinRMInfo(hostname, null, 60L, username, command));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWinRMInfo(hostname, -1234, 60L, username, command));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWinRMInfo(hostname, 1234, 60L, null, command));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWinRMInfo(hostname, 1234, 60L, "", command));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWinRMInfo(hostname, 1234, 60L, username, null));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWinRMInfo(hostname, 1234, 60L, username, ""));
-		assertDoesNotThrow(() -> ConfigHelper.validateWinRMInfo(hostname, 1234, 60L, username, command));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWinRmInfo(hostname, 1234, -60L, username));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWinRmInfo(hostname, 1234, null, username));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWinRmInfo(hostname, null, 60L, username));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWinRmInfo(hostname, -1234, 60L, username));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWinRmInfo(hostname, 1234, 60L, null));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWinRmInfo(hostname, 1234, 60L, ""));
+		assertDoesNotThrow(() -> ConfigHelper.validateWinRmInfo(hostname, 1234, 60L, username));
 	}
 
 }
