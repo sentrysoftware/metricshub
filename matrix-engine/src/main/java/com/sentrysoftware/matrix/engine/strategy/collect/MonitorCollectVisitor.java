@@ -243,7 +243,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				// Query to test for response.
 				ipmiResult = monitorCollectInfo.getMatsyaClientsExecutor().executeIpmiDetection(hostname, ipmi);
 			} catch (Exception e) {
-				log.debug("Hostname {} - Checking HTTP protocol status. HTTP exception when performing a test HTTP query: ", hostname, e);
+				log.debug("Hostname {} - Checking IPMI protocol status. IPMI exception when performing a test IPMI detection: ", hostname, e);
 			}
 
 			CollectHelper.updateDiscreteParameter(
@@ -274,10 +274,12 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 			try {
 				// Query to test for response.
-				HttpRequest request = new HttpRequest();
-				request.setHostname(hostname);
-				request.setUrl("/");
-				request.setHttpProtocol(http);
+				HttpRequest request = HttpRequest.builder()
+						.hostname(hostname)
+						.method("GET")
+						.url("/")
+						.httpProtocol(http)
+						.build();
 
 				httpResult = monitorCollectInfo.getMatsyaClientsExecutor().executeHttp(request, true);
 			} catch (Exception e) {
