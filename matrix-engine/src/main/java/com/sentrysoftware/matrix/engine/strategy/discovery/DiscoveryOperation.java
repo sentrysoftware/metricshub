@@ -485,7 +485,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 			return;
 		}
 
-		final Monitor targetMonitor = getTargetMonitor(hostMonitoring);
+		final Monitor targetMonitor = getHostMonitor(hostMonitoring);
 
 		double cpuTemperatureSensorCount = 0;
 		double cpuTemperatureWarningAverage = 0.0;

@@ -988,7 +988,7 @@ class CollectOperationTest {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 
-		final Monitor target = buildTargetMonitor();
+		final Monitor host = buildHostMonitor();
 
 		final Monitor fan1 = Monitor.builder()
 			.id("FAN1")
@@ -1023,7 +1023,7 @@ class CollectOperationTest {
 				.build();
 
 		final Monitor enclosure = buildEnclosure(metadata);
-		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(host);
 		hostMonitoring.addMonitor(fan1);
 		hostMonitoring.addMonitor(fan2);
 		hostMonitoring.addMonitor(temperature);
@@ -1049,32 +1049,32 @@ class CollectOperationTest {
 	}
 
 	/**
-	 * Build a new target monitor
+	 * Build a new host monitor
 	 * 
 	 * @return {@link Monitor} instance
 	 */
-	private static Monitor buildTargetMonitor() {
+	private static Monitor buildHostMonitor() {
 		return Monitor
 				.builder()
-				.id("TARGET")
-				.name("TARGET")
+				.id("HOST")
+				.name("HOST")
 				.hostId(TEST_HOST_01)
 				.monitorType(HOST)
 				.build();
 	}
 
 	@Test
-	void testGetTargetMonitorViaPost() {
+	void testGetHostMonitorViaPost() {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
-		// targetMonitors is null
+		// hostMonitors is null
 		assertThrows(IllegalStateException.class, () -> collectOperation.post());
 		verify(strategyConfig, times(2)).getHostMonitoring();
 
-		// targetMonitors is empty
+		// hostMonitors is empty
 		Map<MonitorType, Map<String, Monitor>> monitors = hostMonitoring.getMonitors();
 		monitors.put(HOST, new LinkedHashMap<>());
 		assertThrows(IllegalStateException.class, () -> collectOperation.post());
@@ -1084,19 +1084,19 @@ class CollectOperationTest {
 	@Test
 	void testSumEnclosurePowerConsumption() {
 
-		final Monitor target = buildTargetMonitor();
+		final Monitor host = buildHostMonitor();
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(host);
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
-		assertNull(target.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class));
+		assertNull(host.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class));
 
 		// enclosureMonitors is null
 		assertThrows(IllegalArgumentException.class,
 				() -> collectOperation.sumEnclosurePowerConsumptions(null));
-		assertNull(target.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class));
+		assertNull(host.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class));
 
 		// enclosureMonitors is empty
 
@@ -1104,7 +1104,7 @@ class CollectOperationTest {
 		monitors.put(ENCLOSURE, new LinkedHashMap<>());
 
 		collectOperation.sumEnclosurePowerConsumptions(new LinkedHashMap<>());
-		assertNull(target.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class));
+		assertNull(host.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class));
 
 		// totalPowerConsumption is null
 
@@ -1118,7 +1118,7 @@ class CollectOperationTest {
 
 		collectOperation.sumEnclosurePowerConsumptions(hostMonitoring.selectFromType(ENCLOSURE));
 
-		assertNull(target.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class));
+		assertNull(host.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class));
 
 		// PowerConsumption is null
 
@@ -1127,7 +1127,7 @@ class CollectOperationTest {
 
 		collectOperation.sumEnclosurePowerConsumptions(hostMonitoring.selectFromType(ENCLOSURE));
 
-		assertNull(target.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class));
+		assertNull(host.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class));
 
 		// PowerConsumption not null
 		enclosure1.collectParameter(NumberParam.builder().name(POWER_CONSUMPTION_PARAMETER).value(1.0).build());
@@ -1135,17 +1135,17 @@ class CollectOperationTest {
 
 		collectOperation.sumEnclosurePowerConsumptions(hostMonitoring.selectFromType(ENCLOSURE));
 
-		assertNotNull(target.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class));
+		assertNotNull(host.getParameter(POWER_CONSUMPTION_PARAMETER, NumberParam.class));
 
 	}
 
 	@Test
-	void testComputeTargetHeatingMarginViaPost() {
+	void testComputeHostHeatingMarginViaPost() {
 
-		final Monitor target = buildTargetMonitor();
+		final Monitor host = buildHostMonitor();
 
 		IHostMonitoring hostMonitoring = new HostMonitoring();
-		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(host);
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
@@ -1160,10 +1160,10 @@ class CollectOperationTest {
 
 		hostMonitoring.addMonitor(temperature1);
 
-		assertNull(target.getParameter(HEATING_MARGIN_PARAMETER, NumberParam.class));
+		assertNull(host.getParameter(HEATING_MARGIN_PARAMETER, NumberParam.class));
 
 		collectOperation.post();
-		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
+		assertNull(host.getParameter(ENERGY_PARAMETER, NumberParam.class));
 
 		// OK
 
@@ -1175,10 +1175,10 @@ class CollectOperationTest {
 		temperature1.collectParameter(NumberParam.builder().name(TEMPERATURE_PARAMETER).value(1.0).rawValue(1.0).build());
 		temperature2.collectParameter(NumberParam.builder().name(TEMPERATURE_PARAMETER).value(2.0).rawValue(2.0).build());
 
-		assertNull(target.getParameter(HEATING_MARGIN_PARAMETER, NumberParam.class));
+		assertNull(host.getParameter(HEATING_MARGIN_PARAMETER, NumberParam.class));
 
 		collectOperation.post();
-		NumberParam heatingMarginParameter = target.getParameter(HEATING_MARGIN_PARAMETER, NumberParam.class);
+		NumberParam heatingMarginParameter = host.getParameter(HEATING_MARGIN_PARAMETER, NumberParam.class);
 		assertNotNull(heatingMarginParameter);
 		assertEquals(8.0, heatingMarginParameter.getValue());
 		assertEquals(8.0, heatingMarginParameter.getRawValue());
@@ -1187,17 +1187,17 @@ class CollectOperationTest {
 	@Test
 	void testComputeTemperatureHeatingMarginViaPost() {
 
-		final Monitor target = buildTargetMonitor();
+		final Monitor host = buildHostMonitor();
 
 		IHostMonitoring hostMonitoring = new HostMonitoring();
-		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(host);
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
 		// temperatureMonitors is null
 
 		collectOperation.post();
-		assertNull(target.getParameter(TEMPERATURE_PARAMETER, NumberParam.class));
+		assertNull(host.getParameter(TEMPERATURE_PARAMETER, NumberParam.class));
 
 		// temperatureMonitors is empty
 
@@ -1205,7 +1205,7 @@ class CollectOperationTest {
 		monitors.put(TEMPERATURE, new LinkedHashMap<>());
 
 		collectOperation.post();
-		assertNull(target.getParameter(TEMPERATURE_PARAMETER, NumberParam.class));
+		assertNull(host.getParameter(TEMPERATURE_PARAMETER, NumberParam.class));
 
 		// Invalid threshold
 
@@ -1218,14 +1218,14 @@ class CollectOperationTest {
 
 		hostMonitoring.addMonitor(temperature);
 
-		assertNull(target.getParameter(HEATING_MARGIN_PARAMETER, NumberParam.class));
+		assertNull(host.getParameter(HEATING_MARGIN_PARAMETER, NumberParam.class));
 
 		collectOperation.post();
-		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
+		assertNull(host.getParameter(ENERGY_PARAMETER, NumberParam.class));
 
 		// Temperature value is null
 
-		target.setParameters(new TreeMap<>(String.CASE_INSENSITIVE_ORDER));
+		host.setParameters(new TreeMap<>(String.CASE_INSENSITIVE_ORDER));
 
 		localMetadata.clear();
 		localMetadata.put(WARNING_THRESHOLD, "10.0");
@@ -1235,13 +1235,13 @@ class CollectOperationTest {
 		temperature.collectParameter(NumberParam.builder().name(TEMPERATURE_PARAMETER).value(null).build());
 
 		hostMonitoring.setMonitors(new LinkedHashMap<>());
-		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(host);
 		hostMonitoring.addMonitor(temperature);
 
-		assertNull(target.getParameter(HEATING_MARGIN_PARAMETER, NumberParam.class));
+		assertNull(host.getParameter(HEATING_MARGIN_PARAMETER, NumberParam.class));
 
 		collectOperation.post();
-		assertNull(target.getParameter(ENERGY_PARAMETER, NumberParam.class));
+		assertNull(host.getParameter(ENERGY_PARAMETER, NumberParam.class));
 	}
 
 	@Test
@@ -1281,17 +1281,17 @@ class CollectOperationTest {
 
 	@Test
 	void testComputeTemperatureParameters() {
-		final Monitor target = buildTargetMonitor();
+		final Monitor host = buildHostMonitor();
 
 		IHostMonitoring hostMonitoring = new HostMonitoring();
-		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(host);
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
 		// temperatureMonitors is null
 
-		collectOperation.computeTargetTemperatureParameters();
-		assertNull(target.getParameter(TEMPERATURE_PARAMETER, NumberParam.class));
+		collectOperation.computeHostTemperatureParameters();
+		assertNull(host.getParameter(TEMPERATURE_PARAMETER, NumberParam.class));
 
 		// temperatureMonitors is empty
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
@@ -1299,8 +1299,8 @@ class CollectOperationTest {
 		Map<MonitorType, Map<String, Monitor>> monitors = hostMonitoring.getMonitors();
 		monitors.put(TEMPERATURE, new LinkedHashMap<>());
 
-		collectOperation.computeTargetTemperatureParameters();
-		assertNull(target.getParameter(TEMPERATURE_PARAMETER, NumberParam.class));
+		collectOperation.computeHostTemperatureParameters();
+		assertNull(host.getParameter(TEMPERATURE_PARAMETER, NumberParam.class));
 
 		// No CPU sensor
 
@@ -1311,20 +1311,20 @@ class CollectOperationTest {
 				"temperature", localMetadata);
 		temperature.collectParameter(NumberParam.builder().name(TEMPERATURE_PARAMETER).value(10.0).rawValue(10.0).build());
 
-		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(host);
 		hostMonitoring.addMonitor(temperature);
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
-		assertNull(target.getParameter(AMBIENT_TEMPERATURE_PARAMETER, NumberParam.class));
-		assertNull(target.getParameter(CPU_TEMPERATURE_PARAMETER, NumberParam.class));
+		assertNull(host.getParameter(AMBIENT_TEMPERATURE_PARAMETER, NumberParam.class));
+		assertNull(host.getParameter(CPU_TEMPERATURE_PARAMETER, NumberParam.class));
 
-		collectOperation.computeTargetTemperatureParameters();
-		assertEquals(10.0, target.getParameter(AMBIENT_TEMPERATURE_PARAMETER, NumberParam.class).getValue());
-		assertNull(target.getParameter(CPU_TEMPERATURE_PARAMETER, NumberParam.class));
+		collectOperation.computeHostTemperatureParameters();
+		assertEquals(10.0, host.getParameter(AMBIENT_TEMPERATURE_PARAMETER, NumberParam.class).getValue());
+		assertNull(host.getParameter(CPU_TEMPERATURE_PARAMETER, NumberParam.class));
 
 		// Present CPU sensor
 
-		target.setParameters(new TreeMap<>(String.CASE_INSENSITIVE_ORDER));
+		host.setParameters(new TreeMap<>(String.CASE_INSENSITIVE_ORDER));
 
 		localMetadata.clear();
 		localMetadata.put(IS_CPU_SENSOR, "true");
@@ -1334,26 +1334,26 @@ class CollectOperationTest {
 		temperature.collectParameter(NumberParam.builder().name(TEMPERATURE_PARAMETER).value(10.0).rawValue(10.0).build());
 
 		hostMonitoring.setMonitors(new LinkedHashMap<>());
-		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(host);
 		hostMonitoring.addMonitor(temperature);
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
-		assertNull(target.getParameter(AMBIENT_TEMPERATURE_PARAMETER, NumberParam.class));
-		assertNull(target.getParameter(CPU_TEMPERATURE_PARAMETER, NumberParam.class));
+		assertNull(host.getParameter(AMBIENT_TEMPERATURE_PARAMETER, NumberParam.class));
+		assertNull(host.getParameter(CPU_TEMPERATURE_PARAMETER, NumberParam.class));
 
-		collectOperation.computeTargetTemperatureParameters();
-		assertEquals(10.0, target.getParameter(AMBIENT_TEMPERATURE_PARAMETER, NumberParam.class).getValue());
-		assertEquals(10.0, target.getParameter(CPU_TEMPERATURE_PARAMETER, NumberParam.class).getValue());
+		collectOperation.computeHostTemperatureParameters();
+		assertEquals(10.0, host.getParameter(AMBIENT_TEMPERATURE_PARAMETER, NumberParam.class).getValue());
+		assertEquals(10.0, host.getParameter(CPU_TEMPERATURE_PARAMETER, NumberParam.class).getValue());
 	}
 
 	@Test
 	void testEstimateCpuPowerConsumption() {
 		{
-			// Max Power Consumption already discovered on the CPU - thermal dissipation rate is set on the target
-			final Monitor target = buildTargetMonitor();
+			// Max Power Consumption already discovered on the CPU - thermal dissipation rate is set on the host
+			final Monitor host = buildHostMonitor();
 
 			CollectHelper.updateNumberParameter(
-				target,
+				host,
 				CPU_THERMAL_DISSIPATION_RATE_PARAMETER,
 				"",
 				strategyTime,
@@ -1371,7 +1371,7 @@ class CollectOperationTest {
 
 			cpu.addMetadata(POWER_CONSUMPTION, "120");
 
-			collectOperation.estimateCpuPowerConsumption(cpu, target, strategyTime, TEST_HOST_01);
+			collectOperation.estimateCpuPowerConsumption(cpu, host, strategyTime, TEST_HOST_01);
 
 			assertEquals(36.0, CollectHelper.getNumberParamValue(cpu, POWER_CONSUMPTION_PARAMETER));
 			assertNull(CollectHelper.getNumberParamValue(cpu, ENERGY_PARAMETER));
@@ -1379,11 +1379,11 @@ class CollectOperationTest {
 		}
 
 		{
-			// Max Power Consumption not discovered on the CPU - maxSpeed is discovered - thermal dissipation rate is set on the target
-			final Monitor target = buildTargetMonitor();
+			// Max Power Consumption not discovered on the CPU - maxSpeed is discovered - thermal dissipation rate is set on the host
+			final Monitor host = buildHostMonitor();
 
 			CollectHelper.updateNumberParameter(
-				target,
+				host,
 				CPU_THERMAL_DISSIPATION_RATE_PARAMETER,
 				"",
 				strategyTime,
@@ -1401,7 +1401,7 @@ class CollectOperationTest {
 
 			cpu.addMetadata(MAXIMUM_SPEED, "2200");
 
-			collectOperation.estimateCpuPowerConsumption(cpu, target, strategyTime, TEST_HOST_01);
+			collectOperation.estimateCpuPowerConsumption(cpu, host, strategyTime, TEST_HOST_01);
 
 			assertEquals(12.54, CollectHelper.getNumberParamValue(cpu, POWER_CONSUMPTION_PARAMETER));
 			assertNull(CollectHelper.getNumberParamValue(cpu, ENERGY_PARAMETER));
@@ -1409,11 +1409,11 @@ class CollectOperationTest {
 		}
 
 		{
-			// Max Power Consumption not discovered on the CPU - maxSpeed is not discovered - thermal dissipation rate is set on the target
-			final Monitor target = buildTargetMonitor();
+			// Max Power Consumption not discovered on the CPU - maxSpeed is not discovered - thermal dissipation rate is set on the host
+			final Monitor host = buildHostMonitor();
 
 			CollectHelper.updateNumberParameter(
-				target,
+				host,
 				CPU_THERMAL_DISSIPATION_RATE_PARAMETER,
 				"",
 				strategyTime,
@@ -1429,7 +1429,7 @@ class CollectOperationTest {
 					.monitorType(CPU)
 					.build();
 
-			collectOperation.estimateCpuPowerConsumption(cpu, target, strategyTime, TEST_HOST_01);
+			collectOperation.estimateCpuPowerConsumption(cpu, host, strategyTime, TEST_HOST_01);
 
 			assertEquals(14.25, CollectHelper.getNumberParamValue(cpu, POWER_CONSUMPTION_PARAMETER));
 			assertNull(CollectHelper.getNumberParamValue(cpu, ENERGY_PARAMETER));
@@ -1438,7 +1438,7 @@ class CollectOperationTest {
 
 		{
 			// Max Power Consumption not discovered on the CPU - maxSpeed is not discovered - thermal dissipation rate is not set
-			final Monitor target = buildTargetMonitor();
+			final Monitor host = buildHostMonitor();
 
 			final Monitor cpu = Monitor.builder()
 					.id("CPU")
@@ -1448,7 +1448,7 @@ class CollectOperationTest {
 					.monitorType(CPU)
 					.build();
 
-			collectOperation.estimateCpuPowerConsumption(cpu, target, strategyTime, TEST_HOST_01);
+			collectOperation.estimateCpuPowerConsumption(cpu, host, strategyTime, TEST_HOST_01);
 
 			assertEquals(11.88, CollectHelper.getNumberParamValue(cpu, POWER_CONSUMPTION_PARAMETER));
 			assertNull(CollectHelper.getNumberParamValue(cpu, ENERGY_PARAMETER));
@@ -1458,11 +1458,11 @@ class CollectOperationTest {
 
 	@Test
 	void testEstimateCpuPowerConsumptionManyCollects() {
-		// Max Power Consumption not discovered on the CPU - maxSpeed is discovered - thermal dissipation rate is set on the target
-		final Monitor target = buildTargetMonitor();
+		// Max Power Consumption not discovered on the CPU - maxSpeed is discovered - thermal dissipation rate is set on the host
+		final Monitor host = buildHostMonitor();
 
 		CollectHelper.updateNumberParameter(
-			target,
+			host,
 			CPU_THERMAL_DISSIPATION_RATE_PARAMETER,
 			"",
 			strategyTime,
@@ -1481,7 +1481,7 @@ class CollectOperationTest {
 		cpu.addMetadata(MAXIMUM_SPEED, "2200");
 
 		// Collect 1
-		collectOperation.estimateCpuPowerConsumption(cpu, target, strategyTime, TEST_HOST_01);
+		collectOperation.estimateCpuPowerConsumption(cpu, host, strategyTime, TEST_HOST_01);
 
 		assertEquals(12.54, CollectHelper.getNumberParamValue(cpu, POWER_CONSUMPTION_PARAMETER));
 		assertNull(CollectHelper.getNumberParamValue(cpu, ENERGY_PARAMETER));
@@ -1490,7 +1490,7 @@ class CollectOperationTest {
 		// Collect 2
 		cpu.getParameters().values().forEach(param -> param.save());
 
-		collectOperation.estimateCpuPowerConsumption(cpu, target, strategyTime + 2 * 60 * 1000, TEST_HOST_01);
+		collectOperation.estimateCpuPowerConsumption(cpu, host, strategyTime + 2 * 60 * 1000, TEST_HOST_01);
 
 		assertEquals(12.54, CollectHelper.getNumberParamValue(cpu, POWER_CONSUMPTION_PARAMETER));
 		assertEquals(1504.8, CollectHelper.getNumberParamValue(cpu, ENERGY_PARAMETER));
@@ -1499,7 +1499,7 @@ class CollectOperationTest {
 		// Collect 3
 		cpu.getParameters().values().forEach(param -> param.save());
 
-		collectOperation.estimateCpuPowerConsumption(cpu, target, strategyTime + 4 * 60 * 1000, TEST_HOST_01);
+		collectOperation.estimateCpuPowerConsumption(cpu, host, strategyTime + 4 * 60 * 1000, TEST_HOST_01);
 
 		assertEquals(12.54, CollectHelper.getNumberParamValue(cpu, POWER_CONSUMPTION_PARAMETER));
 		assertEquals(3009.6, CollectHelper.getNumberParamValue(cpu, ENERGY_PARAMETER)); // The energy is increased correctly
@@ -1508,10 +1508,10 @@ class CollectOperationTest {
 
 	@Test
 	void testEstimateCpusPowerConsumption() {
-		final Monitor target = buildTargetMonitor();
+		final Monitor host = buildHostMonitor();
 
 		CollectHelper.updateNumberParameter(
-			target,
+			host,
 			CPU_THERMAL_DISSIPATION_RATE_PARAMETER,
 			"",
 			strategyTime,
@@ -1548,7 +1548,7 @@ class CollectOperationTest {
 				.build();
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(host);
 		hostMonitoring.addMonitor(cpu1);
 		hostMonitoring.addMissingMonitor(cpu3);
 
@@ -1574,10 +1574,10 @@ class CollectOperationTest {
 
 	@Test
 	void testEstimateCpusPowerConsumptionNoCpus() {
-		final Monitor target = buildTargetMonitor();
+		final Monitor host = buildHostMonitor();
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(host);
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
@@ -1586,25 +1586,25 @@ class CollectOperationTest {
 	}
 
 	@Test
-	void testEstimateTargetPowerConsumptionNoData() {
-		final Monitor target = buildTargetMonitor();
+	void testEstimateHostPowerConsumptionNoData() {
+		final Monitor host = buildHostMonitor();
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(host);
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
-		collectOperation.estimateTargetPowerConsumption();
+		collectOperation.estimateHostPowerConsumption();
 
-		assertNull(CollectHelper.getNumberParamValue(target, POWER_CONSUMPTION_PARAMETER));
+		assertNull(CollectHelper.getNumberParamValue(host, POWER_CONSUMPTION_PARAMETER));
 	}
 
 	@Test
-	void testEstimateTargetPowerConsumptionEnclosureHasPower() {
-		final Monitor target = buildTargetMonitor();
+	void testEstimateHostPowerConsumptionEnclosureHasPower() {
+		final Monitor host = buildHostMonitor();
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(host);
 
 		final Monitor enclosure = buildEnclosure(Collections.emptyMap());
 		CollectHelper.updateNumberParameter(
@@ -1619,22 +1619,22 @@ class CollectOperationTest {
 		hostMonitoring.addMonitor(enclosure);
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
-		collectOperation.estimateTargetPowerConsumption();
+		collectOperation.estimateHostPowerConsumption();
 
 		// First collect
-		assertNull(CollectHelper.getNumberParamValue(target, ENERGY_PARAMETER));
+		assertNull(CollectHelper.getNumberParamValue(host, ENERGY_PARAMETER));
 	}
 
 	@Test
-	void testEstimateTargetPowerConsumptionTargetHasEnergy() {
-		final Monitor target = buildTargetMonitor();
+	void testEstimateHostPowerConsumptionHostHasEnergy() {
+		final Monitor host = buildHostMonitor();
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(host);
 
 		final Monitor enclosure = buildEnclosure(Collections.emptyMap());
 		CollectHelper.updateNumberParameter(
-			target,
+			host,
 			ENERGY_PARAMETER,
 			ENERGY_PARAMETER_UNIT,
 			strategyTime,
@@ -1646,14 +1646,14 @@ class CollectOperationTest {
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
-		collectOperation.estimateTargetPowerConsumption();
+		collectOperation.estimateHostPowerConsumption();
 
-		assertEquals(3520255.0, CollectHelper.getNumberParamValue(target, ENERGY_PARAMETER));
+		assertEquals(3520255.0, CollectHelper.getNumberParamValue(host, ENERGY_PARAMETER));
 	}
 
 	@Test
-	void testEstimateTargetPowerConsumptionFirstCollect() {
-		final Monitor target = buildTargetMonitor();
+	void testEstimateHostPowerConsumptionFirstCollect() {
+		final Monitor host = buildHostMonitor();
 
 		final Monitor cpu = Monitor.builder()
 				.id("CPU1")
@@ -1726,23 +1726,23 @@ class CollectOperationTest {
 		CollectHelper.collectEnergyUsageFromPower(vm, strategyTime, 10D, TEST_HOST_01);
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(host);
 		hostMonitoring.addMonitor(cpu);
 		hostMonitoring.addMonitor(disk);
 		hostMonitoring.addMissingMonitor(missingDisk);
 		hostMonitoring.addMonitor(memory);
 		hostMonitoring.addMonitor(diskNoPower);
 		hostMonitoring.addMonitor(buildEnclosure(Collections.emptyMap()));
-		hostMonitoring.addMonitor(vm); // The VM's power will not be added to the estimated power of the target
+		hostMonitoring.addMonitor(vm); // The VM's power will not be added to the estimated power of the host
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
-		collectOperation.estimateTargetPowerConsumption();
+		collectOperation.estimateHostPowerConsumption();
 
-		assertEquals(77.78, CollectHelper.getNumberParamValue(target, POWER_CONSUMPTION_PARAMETER));
+		assertEquals(77.78, CollectHelper.getNumberParamValue(host, POWER_CONSUMPTION_PARAMETER));
 	}
 
 	@Test
-	void testEstimateTargetPowerConsumptionSecondCollect() {
+	void testEstimateHostPowerConsumptionSecondCollect() {
 		final NumberParam previousPowerConsumptionParam = NumberParam
 				.builder()
 				.name(POWER_CONSUMPTION_PARAMETER)
@@ -1751,9 +1751,9 @@ class CollectOperationTest {
 				.value(60.0)
 				.build();
 
-		final Monitor target = buildTargetMonitor();
+		final Monitor host = buildHostMonitor();
 
-		target.collectParameter(previousPowerConsumptionParam);
+		host.collectParameter(previousPowerConsumptionParam);
 
 		previousPowerConsumptionParam.save();
 
@@ -1828,37 +1828,37 @@ class CollectOperationTest {
 		CollectHelper.collectEnergyUsageFromPower(vm, strategyTime, 10D, TEST_HOST_01);
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(host);
 		hostMonitoring.addMonitor(cpu);
 		hostMonitoring.addMonitor(disk);
 		hostMonitoring.addMissingMonitor(missingDisk);
 		hostMonitoring.addMonitor(memory);
 		hostMonitoring.addMonitor(diskNoPower);
 		hostMonitoring.addMonitor(buildEnclosure(Collections.emptyMap()));
-		hostMonitoring.addMonitor(vm); // The VM's power will not be added to the estimated power of the target
+		hostMonitoring.addMonitor(vm); // The VM's power will not be added to the estimated power of the host
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
-		collectOperation.estimateTargetPowerConsumption();
+		collectOperation.estimateHostPowerConsumption();
 
-		assertEquals(77.78, CollectHelper.getNumberParamValue(target, POWER_CONSUMPTION_PARAMETER));
-		assertEquals(9333.6, CollectHelper.getNumberParamValue(target, ENERGY_USAGE_PARAMETER));
-		assertEquals(9333.6, CollectHelper.getNumberParamValue(target, ENERGY_PARAMETER)); // First collect energy usage = energy
+		assertEquals(77.78, CollectHelper.getNumberParamValue(host, POWER_CONSUMPTION_PARAMETER));
+		assertEquals(9333.6, CollectHelper.getNumberParamValue(host, ENERGY_USAGE_PARAMETER));
+		assertEquals(9333.6, CollectHelper.getNumberParamValue(host, ENERGY_PARAMETER)); // First collect energy usage = energy
 	}
 
 	@Test
 	void testComputeNetworkCardParameters() {
-		final Monitor target = buildTargetMonitor();
+		final Monitor host = buildHostMonitor();
 
 		IHostMonitoring hostMonitoring = new HostMonitoring();
-		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(host);
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
 		// No network cards
 		collectOperation.computeNetworkCardParameters();
-		assertNull(target.getParameter(CONNECTED_PORTS_COUNT_PARAMETER, NumberParam.class));
-		assertNull(target.getParameter(TOTAL_BANDWIDTH_PARAMETER, NumberParam.class));
+		assertNull(host.getParameter(CONNECTED_PORTS_COUNT_PARAMETER, NumberParam.class));
+		assertNull(host.getParameter(TOTAL_BANDWIDTH_PARAMETER, NumberParam.class));
 
 		// Network card is empty
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
@@ -1867,8 +1867,8 @@ class CollectOperationTest {
 		monitors.put(NETWORK_CARD, new LinkedHashMap<>());
 
 		collectOperation.computeNetworkCardParameters();
-		assertNull(target.getParameter(CONNECTED_PORTS_COUNT_PARAMETER, NumberParam.class));
-		assertNull(target.getParameter(TOTAL_BANDWIDTH_PARAMETER, NumberParam.class));
+		assertNull(host.getParameter(CONNECTED_PORTS_COUNT_PARAMETER, NumberParam.class));
+		assertNull(host.getParameter(TOTAL_BANDWIDTH_PARAMETER, NumberParam.class));
 
 		Monitor networkCard = buildMonitor(NETWORK_CARD, "myConnector1.connector_temperature_test-host-01_1.1", "network card", Collections.emptyMap());
 		networkCard.collectParameter(DiscreteParam
@@ -1879,16 +1879,16 @@ class CollectOperationTest {
 				.build());
 		networkCard.collectParameter(NumberParam.builder().name(LINK_SPEED_PARAMETER).value(100.0).rawValue(100.0).build());
 
-		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(host);
 		hostMonitoring.addMonitor(networkCard);
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
-		assertNull(target.getParameter(CONNECTED_PORTS_COUNT_PARAMETER, NumberParam.class));
-		assertNull(target.getParameter(TOTAL_BANDWIDTH_PARAMETER, NumberParam.class));
+		assertNull(host.getParameter(CONNECTED_PORTS_COUNT_PARAMETER, NumberParam.class));
+		assertNull(host.getParameter(TOTAL_BANDWIDTH_PARAMETER, NumberParam.class));
 
 		collectOperation.computeNetworkCardParameters();
-		assertEquals(1.0, target.getParameter(CONNECTED_PORTS_COUNT_PARAMETER, NumberParam.class).getValue());
-		assertEquals(100.0, target.getParameter(TOTAL_BANDWIDTH_PARAMETER, NumberParam.class).getValue());
+		assertEquals(1.0, host.getParameter(CONNECTED_PORTS_COUNT_PARAMETER, NumberParam.class).getValue());
+		assertEquals(100.0, host.getParameter(TOTAL_BANDWIDTH_PARAMETER, NumberParam.class).getValue());
 	}
 
 	@Test
@@ -2181,11 +2181,11 @@ class CollectOperationTest {
 		CollectHelper.updateDiscreteParameter(vmOnlineBadPowerShare5, POWER_STATE_PARAMETER, strategyTime, PowerState.ON);
 		CollectHelper.updateNumberParameter(vmOnlineBadPowerShare5, POWER_SHARE_PARAMETER, "", strategyTime, -15.0, -15.0);
 
-		final Monitor target = buildTargetMonitor();
+		final Monitor host = buildHostMonitor();
 
-		CollectHelper.collectEnergyUsageFromPower(target, strategyTime, 100D, TEST_HOST_01);
+		CollectHelper.collectEnergyUsageFromPower(host, strategyTime, 100D, TEST_HOST_01);
 
-		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(host);
 		hostMonitoring.addMonitor(vmOnline1);
 		hostMonitoring.addMonitor(vmOffline2);
 		hostMonitoring.addMonitor(vmOnline3);
@@ -2194,9 +2194,9 @@ class CollectOperationTest {
 
 		collectOperation.estimateVmsPowerConsumption();
 
-		assertEquals(50D, CollectHelper.getNumberParamValue(vmOnline1, POWER_CONSUMPTION_PARAMETER)); // 50% of the target Power
+		assertEquals(50D, CollectHelper.getNumberParamValue(vmOnline1, POWER_CONSUMPTION_PARAMETER)); // 50% of the host Power
 		assertEquals(0.0, CollectHelper.getNumberParamValue(vmOffline2, POWER_CONSUMPTION_PARAMETER)); // Offline
-		assertEquals(50D, CollectHelper.getNumberParamValue(vmOnline3, POWER_CONSUMPTION_PARAMETER)); // 50% of the target Power
+		assertEquals(50D, CollectHelper.getNumberParamValue(vmOnline3, POWER_CONSUMPTION_PARAMETER)); // 50% of the host Power
 		assertEquals(0.0, CollectHelper.getNumberParamValue(vmOnlineNoPowerShare4, POWER_CONSUMPTION_PARAMETER)); // powerShare collected not collected
 		assertEquals(0.0, CollectHelper.getNumberParamValue(vmOnlineBadPowerShare5, POWER_CONSUMPTION_PARAMETER)); // Wrong power share
 	}
@@ -2206,11 +2206,11 @@ class CollectOperationTest {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
-		final Monitor target = buildTargetMonitor();
+		final Monitor host = buildHostMonitor();
 
-		CollectHelper.collectEnergyUsageFromPower(target, strategyTime, 100D, TEST_HOST_01);
+		CollectHelper.collectEnergyUsageFromPower(host, strategyTime, 100D, TEST_HOST_01);
 
-		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(host);
 
 		assertDoesNotThrow(() -> collectOperation.estimateVmsPowerConsumption());
 
@@ -2225,11 +2225,11 @@ class CollectOperationTest {
 		CollectHelper.updateDiscreteParameter(vmOnlineZeroPowerShare1, POWER_STATE_PARAMETER, strategyTime, PowerState.ON);
 		CollectHelper.updateNumberParameter(vmOnlineZeroPowerShare1, POWER_SHARE_PARAMETER, "", strategyTime, 0.0, 0.0);
 
-		final Monitor target = buildTargetMonitor();
+		final Monitor host = buildHostMonitor();
 
-		CollectHelper.collectEnergyUsageFromPower(target, strategyTime, 100D, TEST_HOST_01);
+		CollectHelper.collectEnergyUsageFromPower(host, strategyTime, 100D, TEST_HOST_01);
 
-		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(host);
 		hostMonitoring.addMonitor(vmOnlineZeroPowerShare1);
 
 		collectOperation.estimateVmsPowerConsumption();
@@ -2239,7 +2239,7 @@ class CollectOperationTest {
 	}
 
 	@Test
-	void testEstimateVmsPowerConsumptionTargetPowerConsumptionMissing() {
+	void testEstimateVmsPowerConsumptionHostPowerConsumptionMissing() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 
@@ -2247,16 +2247,16 @@ class CollectOperationTest {
 		CollectHelper.updateDiscreteParameter(vm1Oneline, POWER_STATE_PARAMETER, strategyTime, PowerState.ON);
 		CollectHelper.updateNumberParameter(vm1Oneline, POWER_SHARE_PARAMETER, "", strategyTime, 10.0, 10.0);
 
-		final Monitor target = buildTargetMonitor();
+		final Monitor host = buildHostMonitor();
 
-		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(host);
 		hostMonitoring.addMonitor(vm1Oneline);
 
-		assertNull(CollectHelper.getNumberParamValue(target, POWER_CONSUMPTION_PARAMETER));
+		assertNull(CollectHelper.getNumberParamValue(host, POWER_CONSUMPTION_PARAMETER));
 
 		collectOperation.estimateVmsPowerConsumption();
 
-		assertNull(CollectHelper.getNumberParamValue(target, POWER_CONSUMPTION_PARAMETER));
+		assertNull(CollectHelper.getNumberParamValue(host, POWER_CONSUMPTION_PARAMETER));
 		assertNull(CollectHelper.getNumberParamValue(vm1Oneline, POWER_CONSUMPTION_PARAMETER));
 
 	}
@@ -2304,7 +2304,7 @@ class CollectOperationTest {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 
-		final Monitor target = Monitor
+		final Monitor host = Monitor
 				.builder()
 				.id(TEST_HOST_01)
 				.parentId(null)
@@ -2314,7 +2314,7 @@ class CollectOperationTest {
 				.metadata(Map.of(FQDN, TEST_HOST_01))
 				.build();
 
-		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(host);
 
 		final Map<String, String> enclosureMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 		enclosureMetadata.put(ID_COUNT, "1");
@@ -2371,7 +2371,7 @@ class CollectOperationTest {
 			.flatMap(Collection::stream)
 			.collect(Collectors.toList());
 
-		final Set<MonitorType> expectedMonitorTypes = Set.of(enclosure.getMonitorType(), target.getMonitorType(), physicalDisk.getMonitorType());
+		final Set<MonitorType> expectedMonitorTypes = Set.of(enclosure.getMonitorType(), host.getMonitorType(), physicalDisk.getMonitorType());
 
 		assertFalse(allAlertRules.isEmpty(), "Alert rules shouldn't be empty.");
 

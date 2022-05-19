@@ -70,7 +70,7 @@ public interface IHostMonitoring {
 
 	Set<Monitor> findChildren(final String parentId);
 
-	Monitor getTargetMonitor();
+	Monitor getHostMonitor();
 
 	HostMonitoringVo getVo();
 }

@@ -110,24 +110,24 @@ public class CollectOperation extends AbstractStrategy {
 
 		final Map<String, Monitor> connectorMonitors = hostMonitoring.selectFromType(MonitorType.CONNECTOR);
 
-		final Map<String, Monitor> targetMonitors = hostMonitoring.selectFromType(MonitorType.HOST);
+		final Map<String, Monitor> hostMonitors = hostMonitoring.selectFromType(MonitorType.HOST);
 
-		if (targetMonitors != null && !targetMonitors.isEmpty()) {
+		if (hostMonitors != null && !hostMonitors.isEmpty()) {
 
-			final Optional<Monitor> targetMonitor = targetMonitors.values().stream().findAny();
+			final Optional<Monitor> hostMonitor = hostMonitors.values().stream().findAny();
 
-			if (targetMonitor.isPresent()) {
+			if (hostMonitor.isPresent()) {
 
 				final MonitorCollectVisitor visitor = new MonitorCollectVisitor(
 					MonitorCollectInfo.builder()
 						.engineConfiguration(strategyConfig.getEngineConfiguration())
 						.collectTime(strategyTime)
 						.hostMonitoring(hostMonitoring)
-						.monitor(targetMonitor.get())
+						.monitor(hostMonitor.get())
 						.hostname(hostname)
 						.matsyaClientsExecutor(matsyaClientsExecutor)
 						.build());
-				targetMonitor.get().getMonitorType().getMetaMonitor().accept(visitor);	
+				hostMonitor.get().getMonitorType().getMetaMonitor().accept(visitor);	
 			}
 		}
 
@@ -671,14 +671,14 @@ public class CollectOperation extends AbstractStrategy {
 	}
 
 	/**
-	 * Setting the target power consumption value as the sum of all the {@link Enclosure}s' power consumption values.
+	 * Setting the host power consumption value as the sum of all the {@link Enclosure}s' power consumption values.
 	 */
 	void sumEnclosurePowerConsumptions(@NonNull final Map<String, Monitor> enclosureMonitors) {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 
-		// Getting the target monitor
-		final Monitor targetMonitor = getTargetMonitor(strategyConfig.getHostMonitoring());
+		// Getting the host monitor
+		final Monitor hostMonitor = getHostMonitor(strategyConfig.getHostMonitoring());
 
 		// Getting the sums of the enclosures' power consumption values
 		Double totalPowerConsumption = enclosureMonitors
@@ -698,7 +698,7 @@ public class CollectOperation extends AbstractStrategy {
 
 		// Collect the power consumption and energy
 		CollectHelper.collectEnergyUsageFromPower(
-				targetMonitor,
+				hostMonitor,
 				strategyTime,
 				totalPowerConsumption,
 				hostname
@@ -743,15 +743,15 @@ public class CollectOperation extends AbstractStrategy {
 	}
 
 	/**
-	 * Setting the target heating margin value as the minimum value of all the {@link Temperature}s' heating margins.
+	 * Setting the host heating margin value as the minimum value of all the {@link Temperature}s' heating margins.
 	 */
-	private void computeTargetHeatingMargin() {
+	private void computeHostHeatingMargin() {
 
 		IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
 		state(hostMonitoring != null, "hostMonitoring should not be null.");
 
-		// Getting the target monitor
-		Monitor targetMonitor = getTargetMonitor(hostMonitoring);
+		// Getting the host monitor
+		Monitor hostMonitor = getHostMonitor(hostMonitoring);
 
 		// Getting the temperature monitors
 		Map<String, Monitor> temperatureMonitors = hostMonitoring.selectFromType(MonitorType.TEMPERATURE);
@@ -775,7 +775,7 @@ public class CollectOperation extends AbstractStrategy {
 		}
 
 		// Building the parameter
-		NumberParam targetHeatingMargin = NumberParam
+		NumberParam hostHeatingMargin = NumberParam
 			.builder()
 			.name(HEATING_MARGIN_PARAMETER)
 			.unit(HEATING_MARGIN_PARAMETER_UNIT)
@@ -784,8 +784,8 @@ public class CollectOperation extends AbstractStrategy {
 			.rawValue(minimumHeatingMargin)
 			.build();
 
-		// Adding the parameter to the target monitor
-		targetMonitor.collectParameter(targetHeatingMargin);
+		// Adding the parameter to the host monitor
+		hostMonitor.collectParameter(hostHeatingMargin);
 	}
 
 	@Override
@@ -794,19 +794,19 @@ public class CollectOperation extends AbstractStrategy {
 	}
 
 	/**
-	 * Compute temperature parameters for the current target monitor:
+	 * Compute temperature parameters for the current host monitor:
 	 * <ul>
 	 * <li><b>ambientTemperature</b>: the minimum temperature between 5 and 100 degrees Celsius</li>
 	 * <li><b>cpuTemperature</b>: the average CPU temperatures</li>
 	 * <li><b>cpuThermalDissipationRate</b>: the heat dissipation rate of the processors (as a fraction of the maximum heat/power they can emit)</li>
 	 * </ul>
 	 */
-	void computeTargetTemperatureParameters() {
+	void computeHostTemperatureParameters() {
 		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
 		final Map<String, Monitor> temperatureMonitors = hostMonitoring
 				.selectFromType(MonitorType.TEMPERATURE);
 
-		final Monitor targetMonitor = getTargetMonitor(hostMonitoring);
+		final Monitor hostMonitor = getHostMonitor(hostMonitoring);
 
 		// No temperatures then no computation
 		if (temperatureMonitors == null || temperatureMonitors.isEmpty()) {
@@ -851,7 +851,7 @@ public class CollectOperation extends AbstractStrategy {
 
 			// Update the parameter
 			CollectHelper.updateNumberParameter(
-				targetMonitor,
+				hostMonitor,
 				AMBIENT_TEMPERATURE_PARAMETER,
 				TEMPERATURE_PARAMETER_UNIT,
 				strategyTime,
@@ -871,7 +871,7 @@ public class CollectOperation extends AbstractStrategy {
 
 			// Update the parameter
 			CollectHelper.updateNumberParameter(
-				targetMonitor,
+				hostMonitor,
 				CPU_TEMPERATURE_PARAMETER,
 				TEMPERATURE_PARAMETER_UNIT,
 				strategyTime,
@@ -880,7 +880,7 @@ public class CollectOperation extends AbstractStrategy {
 			);
 
 			// Calculate the dissipation rate
-			computeTargetThermalDissipationRate(targetMonitor, ambientTemperature, cpuTemperatureAverage);
+			computeHostThermalDissipationRate(hostMonitor, ambientTemperature, cpuTemperatureAverage);
 		}
 
 	}
@@ -888,15 +888,15 @@ public class CollectOperation extends AbstractStrategy {
 	/**
 	 * Calculate the heat dissipation rate of the processors (as a fraction of the maximum heat/power they can emit).
 	 *
-	 * @param targetMonitor         The target monitor we wish to update its heat dissipation rate
+	 * @param hostMonitor           The host monitor we wish to update its heat dissipation rate
 	 * @param ambientTemperature    The ambient temperature of the host
 	 * @param cpuTemperatureAverage The CPU average temperature previously computed based on the cpu sensor count
 	 */
-	void computeTargetThermalDissipationRate(final Monitor targetMonitor, final double ambientTemperature, final double cpuTemperatureAverage) {
+	void computeHostThermalDissipationRate(final Monitor hostMonitor, final double ambientTemperature, final double cpuTemperatureAverage) {
 
 		// Get the average CPU temperature computed at the discovery level
 		final double ambientToWarningDifference = NumberHelper.parseDouble(
-				targetMonitor.getMetadata(AVERAGE_CPU_TEMPERATURE_WARNING), 0.0) - ambientTemperature;
+				hostMonitor.getMetadata(AVERAGE_CPU_TEMPERATURE_WARNING), 0.0) - ambientTemperature;
 
 		// Avoid the arithmetic exception
 		if (ambientToWarningDifference != 0.0) {
@@ -908,7 +908,7 @@ public class CollectOperation extends AbstractStrategy {
 				cpuThermalDissipationRate = NumberHelper.round(cpuThermalDissipationRate, 2, RoundingMode.HALF_UP);
 
 				CollectHelper.updateNumberParameter(
-					targetMonitor,
+					hostMonitor,
 					CPU_THERMAL_DISSIPATION_RATE_PARAMETER,
 					"",
 					strategyTime,
@@ -920,7 +920,7 @@ public class CollectOperation extends AbstractStrategy {
 	}
 
 	/**
-	 * Compute network card parameters for the current target monitor:
+	 * Compute network card parameters for the current host monitor:
 	 * <ul>
 	 * <li><b>connectedPortsCount</b>: the number of connected network ports</li>
 	 * <li><b>totalBandwidth</b>: the total bandwidth available across all network cards</li>
@@ -975,10 +975,10 @@ public class CollectOperation extends AbstractStrategy {
 				.rawValue(totalBandwidth)
 				.build();
 
-		// Add the new parameters to the target monitor
-		final Monitor targetMonitor = getTargetMonitor(hostMonitoring);
-		targetMonitor.collectParameter(connectedPortsCountParam);
-		targetMonitor.collectParameter(totalBandwidthParam);
+		// Add the new parameters to the host monitor
+		final Monitor hostMonitor = getHostMonitor(hostMonitoring);
+		hostMonitor.collectParameter(connectedPortsCountParam);
+		hostMonitor.collectParameter(totalBandwidthParam);
 	}
 
 	@Override
@@ -987,11 +987,11 @@ public class CollectOperation extends AbstractStrategy {
 		// Refresh present parameters
 		refreshPresentParameters();
 
-		// Setting the target heating margin
-		computeTargetHeatingMargin();
+		// Setting the host heating margin
+		computeHostHeatingMargin();
 
 		// Compute temperatures
-		computeTargetTemperatureParameters();
+		computeHostTemperatureParameters();
 
 		// Estimate power consumption for DiskControllers, Memories and PhysicalDisks.
 		// This estimation is computed here, as a post collect, because it doesn't rely on the collected parameters
@@ -1004,13 +1004,13 @@ public class CollectOperation extends AbstractStrategy {
 
 		// Estimate CPUs Power Consumption
 		// The CPUs power consumption needs to be estimated in the post collect strategy
-		// because the computation requires the target Thermal Dissipation Rate which is also collected at the end of the collect.
+		// because the computation requires the host Thermal Dissipation Rate which is also collected at the end of the collect.
 		estimateCpusPowerConsumption();
 
 		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
 
 		// Compute the power consumption
-		computeTargetPowerConsumption(hostMonitoring);
+		computeHostPowerConsumption(hostMonitoring);
 
 		// Estimate the VMs Power Consumption
 		// The VMs power consumption needs to be estimated in the post collect strategy
@@ -1019,16 +1019,16 @@ public class CollectOperation extends AbstractStrategy {
 
 		// Set the power meter metadata
 		final PowerMeter powerMeter = hostMonitoring.getPowerMeter();
-		getTargetMonitor(hostMonitoring)
+		getHostMonitor(hostMonitoring)
 			.addMetadata(POWER_METER, powerMeter != null ? powerMeter.name().toLowerCase() : null);
 	}
 
 	/**
-	 * Compute the target's power consumption
+	 * Compute the host's power consumption
 	 *
 	 * @param hostMonitoring
 	 */
-	void computeTargetPowerConsumption(final IHostMonitoring hostMonitoring) {
+	void computeHostPowerConsumption(final IHostMonitoring hostMonitoring) {
 
 		// Getting the enclosure monitors
 		final Map<String, Monitor> enclosureMonitors = hostMonitoring.selectFromType(MonitorType.ENCLOSURE);
@@ -1042,19 +1042,19 @@ public class CollectOperation extends AbstractStrategy {
 			// Set power meter to estimated
 			hostMonitoring.setPowerMeter(PowerMeter.ESTIMATED);
 
-			// Estimate the target Power Consumption
-			// The target estimated power consumption is the sum of all monitor's power consumption that are not missing (Present = 1) divided by 0.9, to
+			// Estimate the host Power Consumption
+			// The host estimated power consumption is the sum of all monitor's power consumption that are not missing (Present = 1) divided by 0.9, to
 			// account for the power supplies' heat dissipation (90% efficiency assumed).
-			estimateTargetPowerConsumption();
+			estimateHostPowerConsumption();
 		}
 	}
 
 	/**
-	 * Estimate the target power consumption.<br> Perform the the sum of all monitor's power consumption, energy and energy usage, excluding missing
+	 * Estimate the host power consumption.<br> Perform the the sum of all monitor's power consumption, energy and energy usage, excluding missing
 	 * monitors. The final value is divided by 0.9 to add 10% to the final value so that we account the power supplies' heat dissipation (90%
 	 * efficiency assumed)
 	 */
-	void estimateTargetPowerConsumption() {
+	void estimateHostPowerConsumption() {
 
 		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
 
@@ -1067,9 +1067,9 @@ public class CollectOperation extends AbstractStrategy {
 			.map(Map::values)
 			.flatMap(Collection::stream)
 			.filter(monitor -> !monitor.isMissing()) // Skip missing
-			.filter(monitor -> !MonitorType.HOST.equals(monitor.getMonitorType())) // We already sum the values for the target
+			.filter(monitor -> !MonitorType.HOST.equals(monitor.getMonitorType())) // We already sum the values for the host
 			.filter(monitor -> !MonitorType.ENCLOSURE.equals(monitor.getMonitorType())) // Skip the enclosure
-			.filter(monitor -> !MonitorType.VM.equals(monitor.getMonitorType())) // Skip VM monitors as their power is already computed based on the target's power
+			.filter(monitor -> !MonitorType.VM.equals(monitor.getMonitorType())) // Skip VM monitors as their power is already computed based on the host's power
 			.map(monitor -> CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER))
 			.filter(Objects::nonNull) // skip null power consumption values
 			.reduce(Double::sum)
@@ -1080,14 +1080,14 @@ public class CollectOperation extends AbstractStrategy {
 			return;
 		}
 
-		// Getting the target monitor
-		final Monitor targetMonitor = getTargetMonitor(hostMonitoring);
+		// Getting the host monitor
+		final Monitor hostMonitor = getHostMonitor(hostMonitoring);
 
 		// Add 10% because of the heat dissipation of the power supplies
 		final double powerConsumption = NumberHelper.round(totalPowerConsumption / 0.9, 2, RoundingMode.HALF_UP);
 		if (powerConsumption > 0) {
 			CollectHelper.collectEnergyUsageFromPower(
-					targetMonitor,
+					hostMonitor,
 					strategyTime,
 					powerConsumption,
 					hostname);
@@ -1115,12 +1115,12 @@ public class CollectOperation extends AbstractStrategy {
 			return;
 		}
 
-		final Monitor target = getTargetMonitor(hostMonitoring);
+		final Monitor host = getHostMonitor(hostMonitoring);
 
 		cpus.values()
 			.stream()
 			.filter(cpu -> !cpu.isMissing())
-			.forEach(cpu -> estimateCpuPowerConsumption(cpu, target, collectTime, hostname));
+			.forEach(cpu -> estimateCpuPowerConsumption(cpu, host, collectTime, hostname));
 	}
 
 	/**
@@ -1129,11 +1129,11 @@ public class CollectOperation extends AbstractStrategy {
 	 * http://www.cse.iitd.ernet.in/~srsarangi/files/papers/powersurvey.pdf
 	 *
 	 * @param cpu         The CPU monitor we wish to estimate its power dissipation
-	 * @param target      The target root parent monitor from which we extract the overall dissipation rate of the processors
+	 * @param host        The host root parent monitor from which we extract the overall dissipation rate of the processors
 	 * @param collectTime The current strategy collect time
 	 * @param hostname    The system hostname
 	 */
-	void estimateCpuPowerConsumption(@NonNull final Monitor cpu, @NonNull final Monitor target,
+	void estimateCpuPowerConsumption(@NonNull final Monitor cpu, @NonNull final Monitor host,
 			@NonNull final Long collectTime, @NonNull String hostname) {
 
 		Double maximumPowerConsumption = NumberHelper.parseDouble(cpu.getMetadata(POWER_CONSUMPTION), null);
@@ -1152,8 +1152,8 @@ public class CollectOperation extends AbstractStrategy {
 			maximumPowerConsumption = maximumSpeed / 1000 * 19.0;
 		}
 
-		// Get the thermal dissipation rate collected on the target monitor at the end of the collect
-		Double thermalDissipationRate = CollectHelper.getNumberParamValue(target, CPU_THERMAL_DISSIPATION_RATE_PARAMETER);
+		// Get the thermal dissipation rate collected on the host monitor at the end of the collect
+		Double thermalDissipationRate = CollectHelper.getNumberParamValue(host, CPU_THERMAL_DISSIPATION_RATE_PARAMETER);
 
 		// If we didn't have a thermal dissipation rate value, then assume it's at 25%
 		if (thermalDissipationRate == null) {
@@ -1287,11 +1287,11 @@ public class CollectOperation extends AbstractStrategy {
 			return parent.getId();
 		}
 
-		// If the parent does not have a power consumption, the power source is the target
-		Monitor targetMonitor = getTargetMonitor(hostMonitoring);
-		vm.addMetadata(POWER_SOURCE_ID, targetMonitor.getId());
+		// If the parent does not have a power consumption, the power source is the host
+		Monitor hostMonitor = getHostMonitor(hostMonitoring);
+		vm.addMetadata(POWER_SOURCE_ID, hostMonitor.getId());
 
-		return targetMonitor.getId();
+		return hostMonitor.getId();
 	}
 
 	/**

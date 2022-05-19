@@ -372,7 +372,7 @@ public class DetectionOperation extends AbstractStrategy {
 
 		log.debug("Hostname {} - Created Target ID: {} ", host.getHostname(), host.getId());
 
-		return hostMonitoring.getTargetMonitor();
+		return hostMonitoring.getHostMonitor();
 	}
 
 	/**

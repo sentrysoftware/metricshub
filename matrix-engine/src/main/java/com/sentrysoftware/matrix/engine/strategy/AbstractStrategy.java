@@ -515,12 +515,12 @@ public abstract class AbstractStrategy implements IStrategy {
 	 *
 	 * @return	The target {@link Monitor} in the given {@link IHostMonitoring} instance.
 	 */
-	protected Monitor getTargetMonitor(IHostMonitoring hostMonitoring) {
+	protected Monitor getHostMonitor(IHostMonitoring hostMonitoring) {
 
-		Monitor target = hostMonitoring.getTargetMonitor();
-		state(target != null, "target monitor should not be null.");
+		Monitor host = hostMonitoring.getHostMonitor();
+		state(host != null, "host monitor should not be null.");
 
-		return target;
+		return host;
 	}
 
 	/**

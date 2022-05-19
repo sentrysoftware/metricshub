@@ -138,7 +138,7 @@ public class StrategyTask implements Runnable {
 		if (autoConfiguredOpenTelemetrySdk == null) {
 
 			// Create the resource
-			final Monitor targetMonitor = hostMonitoring.getTargetMonitor();
+			final Monitor targetMonitor = hostMonitoring.getHostMonitor();
 			final HostConfigurationDto hostConfigurationDto = userConfiguration.getHostConfigurationDto();
 
 			final Resource resource = OtelHelper.createHostResource(
