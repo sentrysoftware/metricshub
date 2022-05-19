@@ -702,7 +702,7 @@ public class MatsyaClientsExecutor {
 			String resultStdout = result.getStdout();
 
 			trace(() -> 
-				log.trace("Executing WMI remote command:\n- command: {}\n- hostname: {}\n- username: {}\n"
+				log.trace("Executed WMI remote command:\n- command: {}\n- hostname: {}\n- username: {}\n"
 							+ "- timeout: {} s\n- local-files: {}\n- result:\n{}\n",
 						command,
 						hostname,
@@ -1229,6 +1229,7 @@ public class MatsyaClientsExecutor {
 	 *
 	 * @param hostname The hostname of the device where the WinRM service is running (<code>null</code> for localhost)
 	 * @param winRMProtocol WinRM Protocol configuration (credentials, timeout)
+	 * @param command The command to execute
 	 * @param namespace The namespace on which to execute the quer
 	 * @return The result of the query
 	 * @throws MatsyaException when anything goes wrong (details in cause)
@@ -1236,7 +1237,7 @@ public class MatsyaClientsExecutor {
 	public static List<List<String>> executeWqlThroughWinRm(
 			@NonNull final String hostname,
 			@NonNull final WinRmProtocol winRmProtocol,
-			@NonNull final String query,
+			@NonNull final String command,
 			@NonNull final String namespace)
 					throws MatsyaException {
 		final String username = winRmProtocol.getUsername();
@@ -1246,11 +1247,11 @@ public class MatsyaClientsExecutor {
 		final List<AuthenticationEnum> authentications = winRmProtocol.getAuthentications();
 		final Long timeout = winRmProtocol.getTimeout();
 
-		trace(() -> log.trace("Executing WinRM request:\n- hostname: {}\n- username: {}\n- query: {}\n"
+		trace(() -> log.trace("Executing WinRM WQL request:\n- hostname: {}\n- username: {}\n- query: {}\n"
 				+ "- protocol: {}\n- port: {}\n- force Ntlm: {}\n- kerberos only: {}\n- timeout: {}\n",
 				hostname,
 				username,
-				query,
+				command,
 				httpProtocol.toString(),
 				port,
 				authentications != null && authentications.contains(AuthenticationEnum.NTLM),
@@ -1267,16 +1268,16 @@ public class MatsyaClientsExecutor {
 					username,
 					winRmProtocol.getPassword(),
 					namespace,
-					query,
+					command,
 					timeout * 1000L,
 					null,
 					authentications);
 
 
 			trace(() -> 
-			log.trace("Executing WMI remote command:\n- command: {}\n- hostname: {}\n- username: {}\n"
+			log.trace("Executed WinRM WQL request:\n- command: {}\n- hostname: {}\n- username: {}\n"
 					+ "- timeout: {} s\n- result:\n{}\n",
-					query,
+					command,
 					hostname,
 					username,
 					timeout,
@@ -1311,7 +1312,7 @@ public class MatsyaClientsExecutor {
 		final List<AuthenticationEnum> authentications = winRmProtocol.getAuthentications();
 		final Long timeout = winRmProtocol.getTimeout();
 
-		trace(() -> log.trace("Executing WinRM request:\n- hostname: {}\n- username: {}\n- command: {}\n"
+		trace(() -> log.trace("Executing WinRM remote command:\n- hostname: {}\n- username: {}\n- command: {}\n"
 				+ "- protocol: {}\n- port: {}\n- force Ntlm: {}\n"
 				+ "- kerberos only: {}\n- timeout: {}\n",
 				hostname,
@@ -1347,7 +1348,7 @@ public class MatsyaClientsExecutor {
 			String resultStdout = result.getStdout();
 
 			trace(() -> 
-			log.trace("Executing WMI remote command:\n- command: {}\n- hostname: {}\n- username: {}\n"
+			log.trace("Executed WinRM remote command:\n- command: {}\n- hostname: {}\n- username: {}\n"
 					+ "- timeout: {} s\n- result:\n{}\n",
 					command,
 					hostname,

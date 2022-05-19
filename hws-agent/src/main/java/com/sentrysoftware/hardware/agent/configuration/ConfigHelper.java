@@ -76,7 +76,8 @@ public class ConfigHelper {
 		// Since 2.13 use JsonMapper.builder().enable(...)
 		return JsonMapper.builder(new YAMLFactory()).configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 				.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false)
-				.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS).build().readValue(file, type);
+				.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+				.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES).build().readValue(file, type);
 
 	}
 
