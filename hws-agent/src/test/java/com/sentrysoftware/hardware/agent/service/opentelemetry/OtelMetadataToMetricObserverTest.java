@@ -1,6 +1,6 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry;
 
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.MetricsMapping.ID;
+import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAXIMUM_SPEED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -16,6 +16,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
+import com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MetricsMapping;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
@@ -63,7 +64,7 @@ class OtelMetadataToMetricObserverTest {
 			.monitor(cpu)
 			.sdkMeterProvider(meterProvider)
 			.multiHostsConfigurationDto(multiHostsConfigurationDto)
-			.metricInfo(MetricsMapping.getMetadataAsMetricInfo(MonitorType.CPU, MAXIMUM_SPEED).get())
+			.metricInfoList(MetricsMapping.getMetadataAsMetricInfoList(MonitorType.CPU, MAXIMUM_SPEED).get())
 			.matrixMetadata(MAXIMUM_SPEED)
 			.build()
 			.init();

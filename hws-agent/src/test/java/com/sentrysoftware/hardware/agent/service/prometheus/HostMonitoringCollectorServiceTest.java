@@ -50,9 +50,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.sentrysoftware.hardware.agent.dto.MetricInfo;
-import com.sentrysoftware.hardware.agent.dto.MetricInfo.MetricType;
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
+import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo;
+import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo.MetricType;
 import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;

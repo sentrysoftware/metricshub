@@ -31,8 +31,8 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.sentrysoftware.hardware.agent.dto.MetricInfo;
-import com.sentrysoftware.hardware.agent.dto.MetricInfo.MetricType;
+import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo;
+import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo.MetricType;
 import com.sentrysoftware.hardware.agent.service.ServiceHelper;
 import com.sentrysoftware.matrix.common.meta.monitor.Battery;
 import com.sentrysoftware.matrix.common.meta.monitor.Blade;

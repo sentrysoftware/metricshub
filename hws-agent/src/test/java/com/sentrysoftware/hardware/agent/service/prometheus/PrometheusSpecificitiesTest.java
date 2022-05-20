@@ -10,7 +10,7 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
-import com.sentrysoftware.hardware.agent.dto.MetricInfo;
+import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 
 @Deprecated(since = "1.1")

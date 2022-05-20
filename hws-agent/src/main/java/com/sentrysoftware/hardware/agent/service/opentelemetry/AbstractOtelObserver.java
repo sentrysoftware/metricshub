@@ -1,8 +1,8 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry;
 
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.MetricsMapping.ID;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.MetricsMapping.LABEL;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.MetricsMapping.PARENT;
+import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.ID;
+import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.NAME;
+import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.PARENT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 
 import java.util.Collection;
@@ -30,7 +30,7 @@ public abstract class AbstractOtelObserver {
 
 	protected static final Map<String, Function<Monitor, String>> ATTRIBUTE_FUNCTIONS = Map.of(
 			ID, Monitor::getId,
-			LABEL, Monitor::getName,
+			NAME, Monitor::getName,
 			PARENT, mo -> getValueOrElse(mo.getParentId(), EMPTY)
 	);
 

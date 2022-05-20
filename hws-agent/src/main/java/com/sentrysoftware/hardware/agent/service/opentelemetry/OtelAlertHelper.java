@@ -1,6 +1,5 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry;
 
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.OtelParameterToMetricObserver.getParameterValue;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.OtelParameterToMetricObserver.isParameterAvailable;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BIOS_VERSION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DRIVER_VERSION;
@@ -29,7 +28,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.util.Assert;
 
-import com.sentrysoftware.hardware.agent.dto.MetricInfo;
+import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo;
+import com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MetricsMapping;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 import com.sentrysoftware.matrix.common.helpers.StringHelper;
@@ -53,7 +53,7 @@ public class OtelAlertHelper {
 
 	private static final String TWO_NEW_LINES = "\n\n";
 
-	private static final String METRIC_INFO_MUST_BE_PRESENT = "metricInfo must be present.";
+	private static final String METRIC_INFO_LIST_MUST_BE_PRESENT = "The list of metric information must be present.";
 
 	private static final Map<String, String> METADATA_TO_DISPLAY_PREFIX;
 
@@ -85,7 +85,7 @@ public class OtelAlertHelper {
 		validState(alertInfo);
 
 		// The metric must be mapped, same as on the hardware problem template 
-		if (MetricsMapping.getMetricInfo(alertInfo.getMonitor().getMonitorType(), alertInfo.getParameterName())
+		if (MetricsMapping.getMetricInfoList(alertInfo.getMonitor().getMonitorType(), alertInfo.getParameterName())
 				.isEmpty() || hwsProblemTemplate == null || hwsProblemTemplate.isBlank()) {
 			return EMPTY;
 		}
@@ -105,14 +105,14 @@ public class OtelAlertHelper {
 		result = StringHelper.replace("${PARENT_ID}", StringHelper.getValue(monitor::getParentId, EMPTY), result);
 
 		result = StringHelper.replace("${METRIC_NAME}",
-				() -> getMetricName(monitor.getMonitorType(), parameterName), result);
+				() -> buildMetricName(monitor, parameterName), result);
 
 		result = StringHelper.replace("${METRIC_VALUE}", () -> buildMetricValue(monitor, parameterName), result);
 
 		result = StringHelper.replace("${SEVERITY}", () -> alertRule.getSeverity().name(), result);
 
 		result = StringHelper.replace("${ALERT_RULE}",
-				() -> buildAlertRule(alertRule, monitor.getMonitorType(), parameterName), result);
+				() -> buildAlertRule(alertRule, monitor, parameterName), result);
 
 		result = StringHelper.replace("${ALERT_DATE}", () -> buildAlertDate(alertInfo), result);
 
@@ -123,7 +123,7 @@ public class OtelAlertHelper {
 		result = StringHelper.replace("${PROBLEM}",  () -> alertRule.getDetails().getProblem(), result);
 
 		result = StringHelper.replace("${ALERT_DETAILS}",
-				() -> buildAlertDetails(alertRule, monitor.getMonitorType(), parameterName), result);
+				() -> buildAlertDetails(alertRule, monitor, parameterName), result);
 
 		result = StringHelper.replace("${FULLREPORT}", () -> buildFullReport(alertInfo), result);
 
@@ -176,7 +176,13 @@ public class OtelAlertHelper {
 				.get(monitor.getMonitorType())
 				.entrySet()
 				.stream()
-				.map(entry -> buildMetricDetails(entry.getKey(), entry.getValue(), monitor))
+				.map(entry -> entry
+								.getValue()
+								.stream()
+								.map(metricInfo -> buildMetricDetails(entry.getKey(), metricInfo, monitor))
+								.filter(Objects::nonNull)
+								.collect(Collectors.joining(NEW_LINE))
+				)
 				.filter(Objects::nonNull)
 				.collect(Collectors.joining(NEW_LINE));
 
@@ -201,10 +207,10 @@ public class OtelAlertHelper {
 		}
 
 		final StringBuilder builder = new StringBuilder("\n=================================================================")
-				.append("\nMetric: ").append(metricInfo.getName())
+				.append("\nMetric: ").append(getMetricName(monitor, metricInfo))
 				.append("\n-----------------------------------------------------------------")
-				.append("\nCurrent Value     : ").append(NumberHelper
-						.formatNumber(getParameterValue(monitor, parameterName).doubleValue() * metricInfo.getFactor()));
+				.append("\nCurrent Value     : ").append(buildMetricValue(monitor, parameterName, metricInfo));
+
 		final IParameter parameter = monitor.getParameters().get(parameterName);
 
 		// Let's get the state of the parameter
@@ -243,7 +249,7 @@ public class OtelAlertHelper {
 			final String thresholds = alertRules
 					.stream()
 					.map(alertRule -> String.format(" - %s: %s", alertRule.getSeverity(),
-							buildAlertRule(alertRule, monitor.getMonitorType(), parameterName)))
+							buildAlertRule(alertRule, monitor, parameterName)))
 					.collect(Collectors.joining(NEW_LINE));
 
 			builder
@@ -305,14 +311,20 @@ public class OtelAlertHelper {
 		// A metadata from the matrix engine can be converted to an OpenTelemetry metric
 		// that's why we try to get the metricInfo of the metadata. Example: Size is a
 		// metadata in matrix but a metric in the Hardware Sentry Agent
-		final Optional<MetricInfo> metricInfoOpt = MetricsMapping.getMetadataAsMetricInfo(monitor.getMonitorType(),
+		final Optional<List<MetricInfo>> maybeMetricInfoList = MetricsMapping.getMetadataAsMetricInfoList(monitor.getMonitorType(),
 				metadata);
-		if (!metricInfoOpt.isPresent()) {
+		if (maybeMetricInfoList.isEmpty()) {
+			return prefix + value;
+		}
+
+		// Get the metric information (Optional). The first MetricInfo is sufficient to get the unit and the factor to display
+		final Optional<MetricInfo> maybeMetricInfo = maybeMetricInfoList.get().stream().findFirst();
+		if (maybeMetricInfo.isEmpty()) {
 			return prefix + value;
 		}
 
 		// Get the metric information
-		final MetricInfo metricInfo = metricInfoOpt.get();
+		final MetricInfo metricInfo = maybeMetricInfo.get();
 
 		// Get the unit
 		final String unit = metricInfo.getUnit();
@@ -374,54 +386,134 @@ public class OtelAlertHelper {
 	 * Build the alert rule in string format. E.g. hw.battery.charge <= 0.3 && hw.battery.charge >= 0.2
 	 * 
 	 * @param alertRule       The alert rule defining all the sub conditions
-	 * @param monitorType     The type of the monitor used to get the {@link MetricInfo} instance
+	 * @param monitor         The monitor used to get the {@link MonitorType} and the matrix parameter
 	 * @param matrixParamName The name of the parameter used to get the {@link MetricInfo} instance
 	 * @return String value
 	 */
 	static String buildAlertRule(@NonNull final AlertRule alertRule,
-			@NonNull final MonitorType monitorType,
+			@NonNull final Monitor monitor,
 			@NonNull final String matrixParamName) {
 
+		final MonitorType monitorType = monitor.getMonitorType();
+
 		// Get the metric information
-		final Optional<MetricInfo> metricInfoOpt = MetricsMapping.getMetricInfo(monitorType, matrixParamName);
+		final Optional<List<MetricInfo>> maybeMetricInfoList = MetricsMapping.getMetricInfoList(monitorType, matrixParamName);
 
 		// The metric information must be present
-		Assert.isTrue(metricInfoOpt.isPresent(), METRIC_INFO_MUST_BE_PRESENT);
+		Assert.isTrue(maybeMetricInfoList.isPresent(), METRIC_INFO_LIST_MUST_BE_PRESENT);
 
-		final MetricInfo metricInfo = metricInfoOpt.get();
+		final List<MetricInfo> metricInfoList = maybeMetricInfoList.get();
+
+		final IParameter parameter = monitor.getParameters().get(matrixParamName);
+
+		final MetricInfo metricInfo = findMetricInfo(metricInfoList, parameter);
 
 		// The metric unit provided by the connector couldn't be the same as the one defined by the Hardware Sentry Agent
 		// The factor is less than equals 1 and greater than 0. E.G. 0.001 for hw.voltage.voltage_volts
 		final double factor = metricInfo.getFactor();
 
-		final String metricName = metricInfo.getName();
+		final String metricName = getMetricName(monitor, metricInfo);
+
+		// We know the threshold for a discrete parameter: 0 or 1
+		if (metricInfo.getPredicate() != null && parameter instanceof DiscreteParam) {
+			final IState state = ((DiscreteParam) parameter).getState();
+			final String threshold = metricInfo.getPredicate().test(state) ? "1" : "0";
+			return String.format("%s == %s", metricName, threshold);
+		}
 
 		// Build the alert rule and concatenate all the sub rules using `&&`
 		return alertRule
 				.getConditions()
 				.stream()
-				.map(condition -> String.format("%s %s %s",
-						metricName, condition.getOperator().getExpression(), NumberHelper.formatNumber(condition.getThreshold() * factor)))
+				.map(condition -> String
+						.format(
+							"%s %s %s",
+							metricName,
+							condition.getOperator().getExpression(),
+							NumberHelper.formatNumber(condition.getThreshold() * factor)
+						)
+				)
 				.collect(Collectors.joining(" && "));
 	}
 
 	/**
-	 * Get the name of the metric from the actual mapping defined in {@link MetricsMapping}
+	 * Get the metric name and append its identifying attribute if available
 	 * 
-	 * @param type            The type of the monitor
+	 * @param monitor    The monitor the metric belongs to
+	 * @param metricInfo The metric information
+	 * @return String value. Never <code>null</code>.
+	 */
+	static String getMetricName(@NonNull final Monitor monitor, @NonNull final MetricInfo metricInfo) {
+
+		// Get the identifying attribute
+		final Optional<String[]> maybeIdentifyingAttribute =  OtelHelper.extractIdentifyingAttribute(metricInfo, monitor);
+		if (maybeIdentifyingAttribute.isPresent()) {
+			final String[] identifyingAttribute = maybeIdentifyingAttribute.get();
+			// Example hw.battery.status{state="failed"} NOSONAR
+			return String.format("%s{%s=\"%s\"}", metricInfo.getName(), identifyingAttribute[0], identifyingAttribute[1]);
+		}
+
+		return metricInfo.getName();
+	}
+
+	/**
+	 * A {@link List} of {@link MetricInfo} instances can be defined for one
+	 * parameter. If the parameter is a {@link DiscreteParam} then the
+	 * {@link MetricInfo} instance which defines the right state (e.g. Degraded) is
+	 * returned. Otherwise this method returns the first {@link MetricInfo} instance
+	 * in the list and if there are many elements in the list then the first element
+	 * is always correct, because we are not handling a metric with a state
+	 * (true/false) and this metric is always reporting the same value as the
+	 * internal matrix parameter (e.g. hw.battery.charge) except a conversion using
+	 * a factor but still fine as the kind is not changed.
+	 * 
+	 * @param metricInfoList List of metric information defined in the mapping
+	 * @param parameter      The collected parameter
+	 * @return {@link MetricInfo} instance. Never <code>null</code>.
+	 */
+	static MetricInfo findMetricInfo(@NonNull final List<MetricInfo> metricInfoList, @NonNull IParameter parameter) {
+		final Optional<IState> maybeState = getParameterState(parameter);
+		if (maybeState.isPresent()) {
+			final Optional<MetricInfo> maybeMetricInfo = metricInfoList
+					.stream()
+					.filter(info -> info.getPredicate() != null)
+					.filter(info -> info.getPredicate().test(maybeState.get()))
+					.findFirst();
+
+			if (maybeMetricInfo.isPresent()) {
+				return maybeMetricInfo.get();
+			}
+		}
+
+		return metricInfoList.stream().findFirst().orElseThrow();
+	}
+
+	/**
+	 * Build the name of the metric from the actual mapping defined in {@link MetricsMapping}
+	 * 
+	 * @param monitor         The monitor defining the matrix parameter
 	 * @param matrixParamName The name of the matrix parameter
 	 * @return The name of the OpenTelemetry metric (Gauge or Counter)
 	 */
-	static String getMetricName(@NonNull final MonitorType type, @NonNull final String matrixParamName) {
+	static String buildMetricName(@NonNull final Monitor monitor, @NonNull final String matrixParamName) {
 
-		// Get the metric information from the Hardware Sentry Agent mapping
-		final Optional<MetricInfo> metricInfoOpt = MetricsMapping.getMetricInfo(type, matrixParamName);
+		// Get the metric information
+		final Optional<List<MetricInfo>> maybeMetricInfoList = MetricsMapping.getMetricInfoList(monitor.getMonitorType(), matrixParamName);
 
 		// The metric information must be present
-		Assert.isTrue(metricInfoOpt.isPresent(), METRIC_INFO_MUST_BE_PRESENT);
+		Assert.isTrue(maybeMetricInfoList.isPresent(), METRIC_INFO_LIST_MUST_BE_PRESENT);
 
-		// Get the name of the counter or gauge metric
-		return metricInfoOpt.get().getName();
+		// List of MetricInfo instances
+		final List<MetricInfo> metricInfoList = maybeMetricInfoList.get();
+
+		// Get the parameter
+		final IParameter parameter = monitor.getParameters().get(matrixParamName);
+
+		// Find the right metric information
+		final MetricInfo metricInfo = findMetricInfo(metricInfoList, parameter);
+
+		// Get the name of the counter or gauge metric including its identifying attribute
+		return getMetricName(monitor, metricInfo);
 
 	}
 
@@ -438,48 +530,67 @@ public class OtelAlertHelper {
 		// The parameter must be available
 		if (isParameterAvailable(monitor, matrixParamName)) {
 
-			// Get the metricInfo. This represents the Hardware Sentry Agent's predefined mapping.
-			final Optional<MetricInfo> metricInfoOpt = MetricsMapping.getMetricInfo(monitor.getMonitorType(), matrixParamName);
+			// Get the metricInfo list. This represents the Hardware Sentry Agent's predefined mapping.
+			final Optional<List<MetricInfo>> maybeMetricInfoList = MetricsMapping.getMetricInfoList(monitor.getMonitorType(), matrixParamName);
 
 			// No mercy
-			Assert.isTrue(metricInfoOpt.isPresent(), METRIC_INFO_MUST_BE_PRESENT);
+			Assert.isTrue(maybeMetricInfoList.isPresent(), METRIC_INFO_LIST_MUST_BE_PRESENT);
 
-			final MetricInfo metricInfo = metricInfoOpt.get();
+			final List<MetricInfo> metricInfoList = maybeMetricInfoList.get();
 
-			// Get the parameter value.
-			double value = getParameterValue(monitor, matrixParamName).doubleValue() * metricInfo.getFactor();
+			// Get the parameter
+			final IParameter parameter = monitor.getParameters().get(matrixParamName);
 
-			// Convert the value to string
-			String metricValue = NumberHelper.formatNumber(value);
+			// Find the right metric information
+			final MetricInfo metricInfo = findMetricInfo(metricInfoList, parameter);
 
-			final Optional<IState> maybeState = getParameterState(monitor.getParameters().get(matrixParamName));
-
-			if (maybeState.isPresent()) {
-				return String.format("%s (%s)", metricValue, maybeState.get().getDisplayName());
-			}
-
-			return metricValue;
+			return buildMetricValue(monitor, matrixParamName, metricInfo);
 		}
 
 		return EMPTY;
 	}
 
 	/**
+	 * Build metric value including its unit if present
+	 * 
+	 * @param monitor         The monitor from which we extract the parameter value
+	 * @param matrixParamName The name of the matrix parameter
+	 * @param metricInfo      The metric information used to get the real value to report
+	 * @return String value
+	 */
+	static String buildMetricValue(@NonNull final Monitor monitor, @NonNull final String matrixParamName,
+			final MetricInfo metricInfo) {
+		// Compute the metric value
+		final double value = OtelHelper.getMetricValue(metricInfo, monitor, matrixParamName);
+
+		// Convert the value to string
+		String formatted = NumberHelper.formatNumber(value);
+
+		final Optional<IState> maybeState = getParameterState(monitor.getParameters().get(matrixParamName));
+
+		if (maybeState.isPresent()) {
+			return String.format("%s (%s)", formatted, maybeState.get().getDisplayName());
+		}
+
+		return formatted;
+	}
+
+	/**
 	 * Build alert details including the severity and the alert rule
 	 * 
 	 * @param alertRule       The alert rule defining the severity and the alert conditions
-	 * @param monitorType     The type of the monitor which is defined by the matrix engine
+	 * @param monitorType     The monitor which is provided by the matrix engine
 	 * @param matrixParamName The name of the matrix parameter
 	 * 
 	 * @return {@link String} value
 	 */
-	static String buildAlertDetails(@NonNull final AlertRule alertRule, @NonNull final MonitorType monitorType,
+	static String buildAlertDetails(@NonNull final AlertRule alertRule, @NonNull final Monitor monitor,
 			@NonNull final String matrixParamName) {
 
 		return new StringBuilder("Alert Severity    : ")
 				.append(alertRule.getSeverity())
 				.append("\nAlert Rule        : ")
-				.append(buildAlertRule(alertRule, monitorType, matrixParamName))
+				.append(buildAlertRule(alertRule, monitor, matrixParamName))
 				.append("\n\nAlert Details")
 				.append("\n=============\n")
 				.append(alertRule.getDetails().toString())

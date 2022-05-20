@@ -1,6 +1,6 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry;
 
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.MetricsMapping.ID;
+import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BIOS_VERSION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
@@ -30,6 +30,8 @@ import java.util.TreeMap;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
+import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo;
+import com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MetricsMapping;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
@@ -126,7 +128,7 @@ class OtelParameterToMetricObserverTest {
 			.monitor(enclosure)
 			.sdkMeterProvider(meterProvider)
 			.multiHostsConfigurationDto(multiHostsConfigurationDto)
-			.metricInfo(MetricsMapping.getMetricInfo(MonitorType.ENCLOSURE, parameter.getName()).get())
+			.metricInfoList(MetricsMapping.getMetricInfoList(MonitorType.ENCLOSURE, parameter.getName()).get())
 			.matrixParameterName(parameter.getName())
 			.build()
 			.init();
@@ -294,7 +296,8 @@ class OtelParameterToMetricObserverTest {
 		enclosure.addMetadata("serialNumber", "Serial1234");
 		enclosure.addMetadata(IP_ADDRESS, "192.168.1.1");
 
-		final Attributes actual = parameterToMetricObserver.createAttributes(enclosure);
+		final MetricInfo metricInfo = MetricsMapping.getMetricInfoList(MonitorType.ENCLOSURE, STATUS_PARAMETER).get().get(0);
+		final Attributes actual = parameterToMetricObserver.createAttributes(metricInfo, enclosure);
 
 		final Attributes expected = Attributes.builder()
 				.put("id", "id_enclosure")
