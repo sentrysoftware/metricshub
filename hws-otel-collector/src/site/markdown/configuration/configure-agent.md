@@ -1,4 +1,4 @@
-keywords: configuration, protocols, snmp, wbem, wmi, ipmi, ssh, http, os command
+keywords: configuration, protocols, snmp, wbem, wmi, ipmi, ssh, http, os command, winrm
 description: How to configure Hardware Sentry Agent to scrape targets with various protocols.
 
 # Monitoring Configuration
@@ -263,6 +263,42 @@ targets:
       timeout: 120s
       username: myusername
       password: mypwd
+```
+
+### WinRM
+
+Use the parameters below to configure the WinRM protocol:
+
+| Parameter    | Description                                                                                                   |
+| ------------ | ------------------------------------------------------------------------------------------------------------- |
+| winrm        | Protocol used to access the target.                                                                           |
+| timeout      | How long until the WMI request times out (default: 120s).                                                     |
+| username     | Name used to establish the connection with the target via the WinRM protocol.                                 |
+| password     | Password used to establish the connection with the target via the WinRM protocol.                             |
+| namespace    | Namespace of the target to connect to via the WinRM protocol.                                                 |
+| protocol     | The protocol used to access the target.                                                                       |
+| port         | The HTTPS port number used to perform WQL queries and commands (Default: 5985 for HTTP or 5986 for HTTPS).    |
+| forcentlm    | Wether or not to prioritize the use of NTLM to authenticate to the target (Default: false)                    |
+| kerberosonly | Wether or not to force the use of kerberos only to authenticate to the target (Default: false)                |
+
+#### Example
+
+```yaml
+targets:
+
+  - target:
+      hostname: server-11
+      type: win
+    winRM:
+      timeout: 120
+      username: myusername
+      password: mypwd
+      namespace: mynamespace
+      port: 5986
+      protocol: http
+      forcentlm: true
+      kerberosOnly: false
+
 ```
 
 ## Site and Sustainable IT Settings
