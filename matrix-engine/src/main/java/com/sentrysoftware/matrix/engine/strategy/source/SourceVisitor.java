@@ -194,7 +194,7 @@ public class SourceVisitor implements ISourceVisitor {
 		// get the ipmiTool command to execute
 		String ipmitoolCommand = strategyConfig.getHostMonitoring().getIpmitoolCommand();
 		if (ipmitoolCommand == null || ipmitoolCommand.isEmpty()) {
-			final String message = String.format("Hostname %s - IPMI Tool Command cannot be found. Return empty result.",
+			final String message = String.format("Hostname %s - IPMI Tool Command cannot be found. Returning empty result.",
 					hostname);
 			log.error(message);
 			return SourceTable.empty();
@@ -219,7 +219,7 @@ public class SourceVisitor implements ISourceVisitor {
 			} else if (sshProtocol != null){
 				fruResult = OsCommandHelper.runSshCommand(fruCommand, hostname, sshProtocol, defaultTimeout, null, null);
 			} else {
-				log.warn("Hostname %s - Couldn't process unix IPMI Source. SSH Protocol credentials missing.", hostname);
+				log.warn("Hostname %s - Could not process unix IPMI Source. SSH Protocol credentials are missing.", hostname);
 				return SourceTable.empty();
 			}
 
@@ -895,7 +895,7 @@ public class SourceVisitor implements ISourceVisitor {
 
 			logSourceError(connector.getCompiledFilename(),
 					sourceKey,
-					String.format("IPMI wmiQuery=%s, hostname=%s, username=%s, timeout=%d, namespace=%s",
+					String.format("IPMI WMIQuery=%s, Hostname=%s, Username=%s, Timeout=%d, Namespace=%s",
 							wmiQuery, hostname, wmiProtocol.getUsername(), wmiProtocol.getTimeout(),
 							namespace),
 					hostname,

@@ -262,7 +262,7 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 		final SourceTable sourceTable = getSourceTable(foreignSourceKey);
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 		if (sourceTable == null) {
-			log.error("Hostname {} - Couldn't extract the foreign source table identified by {} and defined in original source {} to set the {} field.",
+			log.error("Hostname {} - Could not extract the foreign source table identified by {} and defined in original source {} to set the {} field.",
 					hostname, foreignSourceKey, originalSourceKey, fieldLabel);
 			return null;
 		}
@@ -407,8 +407,8 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 			return key;
 		}
 
-		Assert.notNull(monitor.getMetadata(), "monitor metadata cannot be null.");
-		Assert.notNull(monitor.getMetadata().get(DEVICE_ID), "monitor deviceId cannot be null.");
+		Assert.notNull(monitor.getMetadata(), "Monitored metadata cannot be null.");
+		Assert.notNull(monitor.getMetadata().get(DEVICE_ID), "Monitored deviceId cannot be null.");
 
 		final String deviceId = monitor.getMetadata().get(DEVICE_ID);
 
