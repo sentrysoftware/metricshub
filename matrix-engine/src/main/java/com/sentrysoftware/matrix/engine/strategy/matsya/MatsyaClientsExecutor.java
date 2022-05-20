@@ -474,7 +474,7 @@ public class MatsyaClientsExecutor {
 	 * <p>
 	 * @param hostname Hostname
 	 * @param protoConfig The WBEMProtocol or WMIProtocol object specifying how to connect to specified host
-	 * @param query WQL query to execute
+	 * @param command Windows remote command to execute
 	 * @param embeddedFiles The list of embedded files used in the wql remote command query
 	 *
 	 * @return A table (as a {@link List} of {@link List} of {@link String}s)
