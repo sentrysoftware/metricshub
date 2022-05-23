@@ -1,16 +1,16 @@
 package com.sentrysoftware.hardware.agent.dto;
 
-public class TargetContext {
+public class HostContext {
 
-	private TargetContext() {}
+	private HostContext() {}
 
 	private static final ThreadLocal<String> CONTEXT = new ThreadLocal<>();
 
-	public static void setTargetId(String targetId) {
-		CONTEXT.set(targetId);
+	public static void setHostId(String hostId) {
+		CONTEXT.set(hostId);
 	}
 
-	public static String getTargetId() {
+	public static String getHostId() {
 		return CONTEXT.get();
 	}
 

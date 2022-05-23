@@ -284,7 +284,7 @@ class MonitorCollectVisitorTest {
 	}
 
 	@Test
-	void testVisitTarget() {
+	void testVisitHost() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.HOST).build();
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
@@ -294,7 +294,7 @@ class MonitorCollectVisitorTest {
 	}
 
 	@Test
-	void testVisitTargetNoProtocol() {
+	void testVisitHostNoProtocol() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = Monitor.builder()
 				.id(MONITOR_ID)
@@ -316,7 +316,7 @@ class MonitorCollectVisitorTest {
 	}
 
 	@Test
-	void testVisitTargetSnmpUp() throws InterruptedException, ExecutionException, TimeoutException {
+	void testVisitHostSnmpUp() throws InterruptedException, ExecutionException, TimeoutException {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = Monitor.builder()
 				.id(MONITOR_ID)
@@ -343,7 +343,7 @@ class MonitorCollectVisitorTest {
 	}
 
 	@Test
-	void testVisitTargetSnmpDown() throws InterruptedException, ExecutionException, TimeoutException {
+	void testVisitHostSnmpDown() throws InterruptedException, ExecutionException, TimeoutException {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = Monitor.builder()
 				.id(MONITOR_ID)
@@ -368,7 +368,7 @@ class MonitorCollectVisitorTest {
 	}
 
 	@Test
-	void testVisitTargetWbemUp() throws MatsyaException {
+	void testVisitHostWbemUp() throws MatsyaException {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = Monitor.builder()
 				.id(MONITOR_ID)
@@ -395,7 +395,7 @@ class MonitorCollectVisitorTest {
 	}
 
 	@Test
-	void testVisitTargetWbemDown() throws MatsyaException {
+	void testVisitHostWbemDown() throws MatsyaException {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = Monitor.builder()
 				.id(MONITOR_ID)
@@ -420,7 +420,7 @@ class MonitorCollectVisitorTest {
 	}
 
 	@Test
-	void testVisitTargetWmiUp() throws MatsyaException {
+	void testVisitHostWmiUp() throws MatsyaException {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = Monitor.builder()
 				.id(MONITOR_ID)
@@ -447,7 +447,7 @@ class MonitorCollectVisitorTest {
 	}
 
 	@Test
-	void testVisitTargetWmiDown() throws MatsyaException {
+	void testVisitHostWmiDown() throws MatsyaException {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = Monitor.builder()
 				.id(MONITOR_ID)
@@ -472,7 +472,7 @@ class MonitorCollectVisitorTest {
 	}
 
 	@Test
-	void testVisitTargetSshUp() throws MatsyaException {
+	void testVisitHostSshUp() throws MatsyaException {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = Monitor.builder()
 				.id(MONITOR_ID)
@@ -503,7 +503,7 @@ class MonitorCollectVisitorTest {
 	}
 
 	@Test
-	void testVisitTargetSshDown() throws MatsyaException {
+	void testVisitHostSshDown() throws MatsyaException {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = Monitor.builder()
 				.id(MONITOR_ID)

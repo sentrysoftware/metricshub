@@ -143,8 +143,8 @@ public class StrategyTask implements Runnable {
 
 			final Resource resource = OtelHelper.createHostResource(
 					targetMonitor.getId(),
-					hostConfigurationDto.getTarget().getHostname(),
-					hostConfigurationDto.getTarget().getType(),
+					hostConfigurationDto.getHost().getHostname(),
+					hostConfigurationDto.getHost().getType(),
 					targetMonitor.getFqdn(),
 					userConfiguration.getMultiHostsConfigurationDto().isResolveHostnameToFqdn(),
 					hostConfigurationDto.getExtraLabels(),
@@ -155,7 +155,7 @@ public class StrategyTask implements Runnable {
 
 			// Instantiate the LogEmitter
 			logEmitter = autoConfiguredOpenTelemetrySdk.getOpenTelemetrySdk().getSdkLogEmitterProvider()
-					.get(hostConfigurationDto.getTarget().getId());
+					.get(hostConfigurationDto.getHost().getId());
 		}
 
 		hostMonitoring

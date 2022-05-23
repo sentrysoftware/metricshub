@@ -103,7 +103,7 @@ class ConfigHelperTest {
 
 		final Set<String> selectedConnectors = Collections.singleton(DELL_OPEN_MANAGE_CONNECTOR);
 
-		for (HostConfigurationDto hostConfigurationDto : hostsConfigurations.getTargets()) {
+		for (HostConfigurationDto hostConfigurationDto : hostsConfigurations.getHosts()) {
 
 			EngineConfiguration actual = ConfigHelper.buildEngineConfiguration(hostConfigurationDto, selectedConnectors,
 					Collections.emptySet());
@@ -111,18 +111,18 @@ class ConfigHelperTest {
 			Map<Class<? extends IProtocolConfiguration>, IProtocolConfiguration> protocolConfigurations = Map
 					.of(SnmpProtocol.class, hostConfigurationDto.getSnmp().toProtocol());
 
-			HardwareHost target = hostConfigurationDto.getTarget().toHardwareTarget();
-			if ("357306c9-07e9-431b-bc71-b7712daabbbf-1".equals(target.getId())) {
-				target.setId("357306c9-07e9-431b-bc71-b7712daabbbf-1");
+			HardwareHost host = hostConfigurationDto.getHost().toHardwareHost();
+			if ("357306c9-07e9-431b-bc71-b7712daabbbf-1".equals(host.getId())) {
+				host.setId("357306c9-07e9-431b-bc71-b7712daabbbf-1");
 			} else {
-				target.setId(target.getHostname());
+				host.setId(host.getHostname());
 			}
 
 			EngineConfiguration expected = EngineConfiguration
 					.builder()
 					.operationTimeout(hostConfigurationDto.getOperationTimeout())
 					.protocolConfigurations(protocolConfigurations).selectedConnectors(selectedConnectors)
-					.host(target)
+					.host(host)
 					.build();
 
 			assertEquals(expected, actual);
@@ -161,12 +161,12 @@ class ConfigHelperTest {
 	}
 
 	@Test
-	void testValidateTarget() {
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateTarget(null, "hostname"));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateTarget(HostType.LINUX, ""));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateTarget(HostType.LINUX, null));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateTarget(HostType.LINUX, " 	"));
-		assertDoesNotThrow(() -> ConfigHelper.validateTarget(HostType.LINUX, "hostname"));
+	void testValidateHost() {
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateHost(null, "hostname"));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateHost(HostType.LINUX, ""));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateHost(HostType.LINUX, null));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateHost(HostType.LINUX, " 	"));
+		assertDoesNotThrow(() -> ConfigHelper.validateHost(HostType.LINUX, "hostname"));
 	}
 
 	@Test

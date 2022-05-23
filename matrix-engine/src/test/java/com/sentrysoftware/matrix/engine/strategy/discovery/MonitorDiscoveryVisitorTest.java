@@ -277,7 +277,7 @@ class MonitorDiscoveryVisitorTest {
 				.monitor(monitor)
 				.hostMonitoring(hostMonitoring)
 				.hostType(HostType.LINUX)
-				.targetMonitor(targetMonitor)
+				.hostMonitor(targetMonitor)
 				.hostname(TRAGET_HOSTNAME)
 				.build();
 
@@ -734,7 +734,7 @@ class MonitorDiscoveryVisitorTest {
 				.monitor(monitor)
 				.hostMonitoring(hostMonitoring)
 				.hostType(HostType.LINUX)
-				.targetMonitor(targetMonitor)
+				.hostMonitor(targetMonitor)
 				.hostname(TRAGET_HOSTNAME)
 				.build();
 
@@ -772,7 +772,7 @@ class MonitorDiscoveryVisitorTest {
 				.monitor(monitor)
 				.hostMonitoring(hostMonitoring)
 				.hostType(HostType.LINUX)
-				.targetMonitor(targetMonitor)
+				.hostMonitor(targetMonitor)
 				.hostname(TRAGET_HOSTNAME)
 				.build();
 
@@ -845,7 +845,7 @@ class MonitorDiscoveryVisitorTest {
 				.monitor(monitor)
 				.hostMonitoring(hostMonitoring)
 				.hostType(HostType.LINUX)
-				.targetMonitor(targetMonitor)
+				.hostMonitor(targetMonitor)
 				.hostname(TRAGET_HOSTNAME)
 				.build();
 

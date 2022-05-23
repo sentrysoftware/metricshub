@@ -18,7 +18,7 @@ public class MonitorBuildingInfo {
 
 	private Monitor monitor;
 	private String connectorName;
-	private Monitor targetMonitor;
+	private Monitor hostMonitor;
 	private IHostMonitoring hostMonitoring;
 	private MonitorType monitorType;
 	private HostType hostType;

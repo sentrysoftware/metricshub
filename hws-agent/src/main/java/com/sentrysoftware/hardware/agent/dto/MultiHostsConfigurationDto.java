@@ -21,7 +21,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * DTO to wrap the agent configuration for all targets.
+ * DTO to wrap the agent configuration for all hosts.
  */
 @Data
 @NoArgsConstructor
@@ -36,7 +36,7 @@ public class MultiHostsConfigurationDto {
 
 	@Default
 	@JsonSetter(nulls = SKIP)
-	private Set<HostConfigurationDto> targets = new HashSet<>();
+	private Set<HostConfigurationDto> hosts = new HashSet<>();
 
 	@Default
 	private int jobPoolSize = DEFAULT_JOB_POOL_SIZE;
@@ -95,7 +95,7 @@ public class MultiHostsConfigurationDto {
 	 * @return boolean value
 	 */
 	public boolean isEmpty() {
-		return targets.isEmpty();
+		return hosts.isEmpty();
 	}
 
 	/**

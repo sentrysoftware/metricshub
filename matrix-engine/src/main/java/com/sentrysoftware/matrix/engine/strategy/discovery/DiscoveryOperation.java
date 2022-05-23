@@ -58,24 +58,24 @@ public class DiscoveryOperation extends AbstractStrategy {
 		// strategy
 		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
 
-		// Get the Target monitor
-		final Map<String, Monitor> targets = hostMonitoring.selectFromType(MonitorType.HOST);
+		// Get the Host monitor
+		final Map<String, Monitor> hosts = hostMonitoring.selectFromType(MonitorType.HOST);
 
-		if (targets == null) {
-			log.error("Hostname {} - No target found. Stop discovery operation", hostname);
+		if (hosts == null) {
+			log.error("Hostname {} - No host found. Stop discovery operation", hostname);
 			return false;
 		}
 
-		final Monitor targetMonitor = targets.values().stream().findFirst().orElse(null);
-		if (targetMonitor == null) {
-			log.error("Hostname {} - No target monitor found. Stop discovery operation", hostname);
+		final Monitor hostMonitor = hosts.values().stream().findFirst().orElse(null);
+		if (hostMonitor == null) {
+			log.error("Hostname {} - No host monitor found. Stop discovery operation", hostname);
 			return false;
 		}
 
-		// Set the discovery time for the target. 
-		// The missing monitor detection will set the target as present since its
+		// Set the discovery time for the host. 
+		// The missing monitor detection will set the host as present since its
 		// discovery time is the same as the current strategy time
-		targetMonitor.setDiscoveryTime(strategyTime);
+		hostMonitor.setDiscoveryTime(strategyTime);
 
 		final Map<String, Monitor> connectorMonitors = hostMonitoring.selectFromType(MonitorType.CONNECTOR);
 
@@ -104,7 +104,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 
 		connectors.stream()
 		.filter(connector -> super.validateHardwareMonitors(connector, hostname, NO_HW_MONITORS_FOUND_MSG))
-		.forEach(connector -> discover(connector, hostMonitoring, hostname, targetMonitor));
+		.forEach(connector -> discover(connector, hostMonitoring, hostname, hostMonitor));
 
 		return true;
 	}
@@ -115,10 +115,10 @@ public class DiscoveryOperation extends AbstractStrategy {
 	 * @param connector      The connector we wish to interpret and discover
 	 * @param hostMonitoring The monitors container, it also wraps the {@link SourceTable} objects
 	 * @param hostname       The system hostname
-	 * @param targetMonitor  The main {@link MonitorType#HOST} monitor detected in the {@link DetectionOperation} strategy.
+	 * @param hostMonitor  The main {@link MonitorType#HOST} monitor detected in the {@link DetectionOperation} strategy.
 	 */
 	void discover(final Connector connector, final IHostMonitoring hostMonitoring, final String hostname,
-			final Monitor targetMonitor) {
+			final Monitor hostMonitor) {
 
 		log.debug("Hostname {} - Processing connector {}", hostname, connector.getCompiledFilename());
 
@@ -134,7 +134,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 				&& validateHardwareMonitorFields(hardwareMonitor, connector.getCompiledFilename(), hostname)
 				&& HardwareMonitorComparator.ORDER.contains(hardwareMonitor.getType()))
 			.forEach(hardwareMonitor -> discoverSameTypeMonitors(hardwareMonitor, connector, hostMonitoring,
-				targetMonitor, hostname));
+				hostMonitor, hostname));
 
 
 		final Stream<HardwareMonitor> hardwareMonitors = connector
@@ -144,13 +144,13 @@ public class DiscoveryOperation extends AbstractStrategy {
 						&& validateHardwareMonitorFields(hardwareMonitor, connector.getCompiledFilename(), hostname)
 						&& !HardwareMonitorComparator.ORDER.contains(hardwareMonitor.getType()));
 
-		// The user may want to run queries sent to the target one by one instead of everything in parallel
+		// The user may want to run queries sent to the host one by one instead of everything in parallel
 		if (strategyConfig.getEngineConfiguration().isSequential()) {
 
 			log.info("Hostname {} - Running discovery in sequential mode. Connector: {}", hostname, connector.getCompiledFilename());
 
 			hardwareMonitors.forEach(hardwareMonitor -> discoverSameTypeMonitors(hardwareMonitor, connector,
-					hostMonitoring, targetMonitor, hostname));
+					hostMonitoring, hostMonitor, hostname));
 
 		} else {
 
@@ -162,7 +162,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 			hardwareMonitors
 				.forEach(hardwareMonitor -> 
 					threadsPool.execute(
-							() -> discoverSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, targetMonitor, hostname)
+							() -> discoverSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, hostMonitor, hostname)
 					)
 			);
 
@@ -191,11 +191,11 @@ public class DiscoveryOperation extends AbstractStrategy {
 	 * @param connector   	  The connector we currently process
 	 * @param hostMonitoring  The {@link IHostMonitoring} instance wrapping
 	 *                        {@link Monitor} and {@link SourceTable} instances
-	 * @param targetMonitor   The target monitor (main)
+	 * @param hostMonitor     The host monitor (main)
 	 * @param hostname        The user's configured hostname
 	 */
 	void discoverSameTypeMonitors(final HardwareMonitor hardwareMonitor, final Connector connector,
-			final IHostMonitoring hostMonitoring, final Monitor targetMonitor, final String hostname) {
+			final IHostMonitoring hostMonitoring, final Monitor hostMonitor, final String hostname) {
 
 		// Process all the sources with their computes
 		processSourcesAndComputes(
@@ -211,7 +211,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 				hostMonitoring,
 				hardwareMonitor.getDiscovery().getInstanceTable(),
 				hardwareMonitor.getDiscovery().getParameters(),
-				targetMonitor,
+				hostMonitor,
 				hardwareMonitor.getType(),
 				hostname);
 
@@ -228,13 +228,13 @@ public class DiscoveryOperation extends AbstractStrategy {
 	 * @param hostMonitoring		The {@link IHostMonitoring} instance wrapping source tables and monitors.
 	 * @param instanceTable			Defines the source key or the hard coded key.
 	 * @param parameters			The discovery parameters to process (from the connector).
-	 * @param targetMonitor			The main monitor with {@link MonitorType#HOST} type.
+	 * @param hostMonitor			The main monitor with {@link MonitorType#HOST} type.
 	 * @param monitorType			The current type of the monitor, {@link MonitorType}.
 	 * @param hostname				The user's configured hostname used for debug purpose.
 	 */
 	void createSameTypeMonitors(final String connectorName, final IHostMonitoring hostMonitoring,
 								final InstanceTable instanceTable, final Map<String, String> parameters,
-								final Monitor targetMonitor, final MonitorType monitorType, final String hostname) {
+								final Monitor hostMonitor, final MonitorType monitorType, final String hostname) {
 
 		// Check the instanceTable, so that, we can create the monitor later
 		if (instanceTable == null) {
@@ -295,7 +295,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 				final MonitorBuildingInfo monitorBuildingInfo = MonitorBuildingInfo
 						.builder()
 						.monitor(monitor)
-						.targetMonitor(targetMonitor)
+						.hostMonitor(hostMonitor)
 						.connectorName(connectorName)
 						.hostMonitoring(hostMonitoring)
 						.monitorType(monitorType)
@@ -321,7 +321,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 			final MonitorBuildingInfo monitorBuildingInfo = MonitorBuildingInfo
 					.builder()
 					.monitor(monitor)
-					.targetMonitor(targetMonitor)
+					.hostMonitor(hostMonitor)
 					.connectorName(connectorName)
 					.hostMonitoring(hostMonitoring)
 					.monitorType(monitorType)
@@ -485,7 +485,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 			return;
 		}
 
-		final Monitor targetMonitor = getHostMonitor(hostMonitoring);
+		final Monitor hostMonitor = getHostMonitor(hostMonitoring);
 
 		double cpuTemperatureSensorCount = 0;
 		double cpuTemperatureWarningAverage = 0.0;
@@ -513,7 +513,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 			cpuTemperatureWarningAverage /= cpuTemperatureSensorCount;
 
 			// Set the cpuTemperatureWarningAverage value as String
-			targetMonitor.addMetadata(AVERAGE_CPU_TEMPERATURE_WARNING, String.valueOf(cpuTemperatureWarningAverage));
+			hostMonitor.addMetadata(AVERAGE_CPU_TEMPERATURE_WARNING, String.valueOf(cpuTemperatureWarningAverage));
 		}
 	}
 

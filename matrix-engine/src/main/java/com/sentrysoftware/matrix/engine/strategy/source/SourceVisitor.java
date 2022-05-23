@@ -122,8 +122,8 @@ public class SourceVisitor implements ISourceVisitor {
 	@Override
 	public SourceTable visit(final Ipmi ipmi) {
 
-		HardwareHost target = strategyConfig.getEngineConfiguration().getHost();
-		final HostType hostType = target.getType();
+		HardwareHost host = strategyConfig.getEngineConfiguration().getHost();
+		final HostType hostType = host.getType();
 
 		String sourceKey = ipmi.getKey();
 
@@ -136,7 +136,7 @@ public class SourceVisitor implements ISourceVisitor {
 		}
 
 		log.info("Hostname {} - Failed to process IPMI source. {} is an unsupported OS for IPMI. Returning an empty table.",
-			target.getHostname(), hostType.name());
+			host.getHostname(), hostType.name());
 
 		return SourceTable.empty();
 	}
@@ -987,7 +987,7 @@ public class SourceVisitor implements ISourceVisitor {
 	 * 
 	 * @param connectorName  The name of the connector
 	 * @param sourceKey      The key of the source
-	 * @param hostname       The target's hostname
+	 * @param hostname       The host's hostname
 	 * @param context        Additional information about the operation
 	 * @param throwable      The catched throwable to log
 	 */

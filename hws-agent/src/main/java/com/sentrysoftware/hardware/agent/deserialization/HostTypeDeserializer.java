@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 
 import com.sentrysoftware.matrix.engine.host.HostType;
 
-public class TargetTypeDeserializer extends JsonDeserializer<HostType> {
+public class HostTypeDeserializer extends JsonDeserializer<HostType> {
 
 	@Override
 	public HostType deserialize(JsonParser parser, DeserializationContext ctxt) throws IOException {

@@ -27,7 +27,7 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.sentrysoftware.hardware.agent.dto.HardwareTargetDto;
+import com.sentrysoftware.hardware.agent.dto.HardwareHostDto;
 import com.sentrysoftware.hardware.agent.dto.HostConfigurationDto;
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
 import com.sentrysoftware.hardware.agent.dto.UserConfiguration;
@@ -131,7 +131,7 @@ class StrategyTaskTest {
 		doReturn(MultiHostsConfigurationDto.builder().build()).when(userConfiguration).getMultiHostsConfigurationDto();
 		doReturn(HostConfigurationDto
 				.builder()
-				.target(HardwareTargetDto
+				.host(HardwareHostDto
 						.builder()
 						.hostname("target")
 						.id("id")
@@ -242,7 +242,7 @@ class StrategyTaskTest {
 					.getMultiHostsConfigurationDto();
 			HostConfigurationDto hostConfig = HostConfigurationDto
 					.builder()
-					.target(HardwareTargetDto.builder().hostname("target").id("id").type(HostType.LINUX).build())
+					.host(HardwareHostDto.builder().hostname("target").id("id").type(HostType.LINUX).build())
 					.hardwareProblemTemplate("Hardware problem on ${FQDN} with ${MONITOR_NAME}.")
 					.build();
 			hostConfig.setDisableAlerts(disableAlerting);

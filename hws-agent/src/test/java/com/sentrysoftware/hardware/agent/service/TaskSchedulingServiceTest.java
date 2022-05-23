@@ -26,7 +26,7 @@ import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import com.sentrysoftware.hardware.agent.configuration.ConfigHelper;
-import com.sentrysoftware.hardware.agent.dto.HardwareTargetDto;
+import com.sentrysoftware.hardware.agent.dto.HardwareHostDto;
 import com.sentrysoftware.hardware.agent.dto.HostConfigurationDto;
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
 import com.sentrysoftware.hardware.agent.dto.protocol.SnmpProtocolDto;
@@ -40,13 +40,13 @@ import com.sentrysoftware.matrix.engine.host.HostType;
 @ExtendWith(MockitoExtension.class)
 class TaskSchedulingServiceTest {
 
-	private static final String TARGET_ID = "357306c9-07e9-431b-bc71-b7712daabbbf-1";
+	private static final String HOST_ID = "357306c9-07e9-431b-bc71-b7712daabbbf-1";
 
 	@Autowired
 	private File configFile;
 
 	@Mock
-	private ThreadPoolTaskScheduler targetTaskScheduler;
+	private ThreadPoolTaskScheduler hostTaskScheduler;
 
 	@Mock
 	private MultiHostsConfigurationDto multiHostsConfigurationDto;
@@ -55,7 +55,7 @@ class TaskSchedulingServiceTest {
 	private Map<String, IHostMonitoring> hostMonitoringMap;
 
 	@Mock
-	private Map<String, ScheduledFuture<?>> targetSchedules;
+	private Map<String, ScheduledFuture<?>> hostSchedules;
 
 	@InjectMocks
 	@Autowired
@@ -63,75 +63,75 @@ class TaskSchedulingServiceTest {
 
 	@Test
 	void testRemoveScheduledTaskNotFound() {
-		doReturn(null).when(targetSchedules).get("target");
-		assertDoesNotThrow(() -> taskSechedulingService.removeScheduledTask("target"));
-		verify(targetSchedules, never()).remove(any());
+		doReturn(null).when(hostSchedules).get("host");
+		assertDoesNotThrow(() -> taskSechedulingService.removeScheduledTask("host"));
+		verify(hostSchedules, never()).remove(any());
 	}
 
 	@Test
 	void testRemoveScheduledTask() {
 		final ScheduledFuture<?> mock = spy(ScheduledFuture.class);
-		doReturn(mock).when(targetSchedules).get("target");
+		doReturn(mock).when(hostSchedules).get("host");
 		doReturn(true).when(mock).cancel(true);
-		assertDoesNotThrow(() -> taskSechedulingService.removeScheduledTask("target"));
-		verify(targetSchedules).remove("target");
+		assertDoesNotThrow(() -> taskSechedulingService.removeScheduledTask("host"));
+		verify(hostSchedules).remove("host");
 	}
 
 	@Test
-	void testScheduleTargetTaskNoHostMonitoring() {
+	void testScheduleHostTaskNoHostMonitoring() {
 		final MultiHostsConfigurationDto multiHostsConfigurationDto = ConfigHelper
 				.readConfigurationSafe(configFile);
 
 		// Get one from the test resources
 		final HostConfigurationDto hostConfigDto = multiHostsConfigurationDto
-			.getTargets()
+			.getHosts()
 			.stream()
-			.filter(node -> TARGET_ID.equals(node.getTarget().getId()))
+			.filter(node -> HOST_ID.equals(node.getHost().getId()))
 			.findFirst()
 			.orElseThrow();
 
-		doReturn(null).when(hostMonitoringMap).get(TARGET_ID);
+		doReturn(null).when(hostMonitoringMap).get(HOST_ID);
 
-		taskSechedulingService.scheduleTargetTask(hostConfigDto);
+		taskSechedulingService.scheduleHostTask(hostConfigDto);
 
-		verify(targetTaskScheduler, never()).schedule(any(StrategyTask.class), any(Trigger.class));
+		verify(hostTaskScheduler, never()).schedule(any(StrategyTask.class), any(Trigger.class));
 
 	}
 
 	@Test
-	void testScheduleTargetTask() {
+	void testScheduleHostTask() {
 		final MultiHostsConfigurationDto multiHostsConfigurationDto = ConfigHelper
 				.readConfigurationSafe(configFile);
 
 		// Get one from the test resources
 		final HostConfigurationDto hostConfigDto = multiHostsConfigurationDto
-			.getTargets()
+			.getHosts()
 			.stream()
-			.filter(node -> TARGET_ID.equals(node.getTarget().getId()))
+			.filter(node -> HOST_ID.equals(node.getHost().getId()))
 			.findFirst()
 			.orElseThrow();
 
-		doReturn(new HostMonitoring()).when(hostMonitoringMap).get(TARGET_ID);
+		doReturn(new HostMonitoring()).when(hostMonitoringMap).get(HOST_ID);
 		final ScheduledFuture<?> mock = spy(ScheduledFuture.class);
-		doReturn(mock).when(targetTaskScheduler).schedule(any(StrategyTask.class), any(Trigger.class));
+		doReturn(mock).when(hostTaskScheduler).schedule(any(StrategyTask.class), any(Trigger.class));
 
-		taskSechedulingService.scheduleTargetTask(hostConfigDto);
+		taskSechedulingService.scheduleHostTask(hostConfigDto);
 
-		verify(targetSchedules, times(1)).put(any(String.class), any());
+		verify(hostSchedules, times(1)).put(any(String.class), any());
 
 	}
 
 	@Test
 	void testUpdateConfigurationRemoveObsoleteSchedules() {
 
-		// Current /data/hws-config.yaml has 3 targets
-		// Let's say we have 4 targets from the previous configuration but the current contains only 3 targets
-		// Let's check that 1 target is unscheduled and the exsiting targets are never re-scheduled
+		// Current /data/hws-config.yaml has 3 hosts
+		// Let's say we have 4 hosts from the previous configuration but the current contains only 3 hosts
+		// Let's check that 1 host is unscheduled and the exsiting hosts are never re-scheduled
 		final MultiHostsConfigurationDto previous = ConfigHelper.readConfigurationSafe(configFile);
-		previous.getTargets().add(HostConfigurationDto.builder()
+		previous.getHosts().add(HostConfigurationDto.builder()
 				.collectPeriod(MultiHostsConfigurationDto.DEFAULT_COLLECT_PERIOD)
 				.discoveryCycle(MultiHostsConfigurationDto.DEFAULT_DISCOVERY_CYCLE)
-				.target(HardwareTargetDto
+				.host(HardwareHostDto
 						.builder()
 						.hostname("host1")
 						.id("host1")
@@ -140,35 +140,35 @@ class TaskSchedulingServiceTest {
 				.snmp(SnmpProtocolDto.builder().community("public1".toCharArray()).build())
 				.build());
 
-		doReturn(previous.getTargets()).when(multiHostsConfigurationDto).getTargets();
+		doReturn(previous.getHosts()).when(multiHostsConfigurationDto).getHosts();
 		final ScheduledFuture<?> mock = spy(ScheduledFuture.class);
-		doReturn(mock).when(targetSchedules).get(any());
+		doReturn(mock).when(hostSchedules).get(any());
 		doReturn(true).when(mock).cancel(true);
 
 		taskSechedulingService.updateConfiguration(configFile);
 
 		verify(mock, times(1)).cancel(true);
-		verify(targetTaskScheduler, never()).schedule(any(StrategyTask.class), any(Trigger.class));
+		verify(hostTaskScheduler, never()).schedule(any(StrategyTask.class), any(Trigger.class));
 
 	}
 
 	@Test
-	void testUpdateConfigurationSchedulesNewTargets() {
-		// /data/hws-config.yaml has 3 targets
+	void testUpdateConfigurationSchedulesNewHosts() {
+		// /data/hws-config.yaml has 3 hosts
 		// let's say, we have nothing in the configuration
-		// then verify that 3 targets are fetched and 3 schedules are launched
+		// then verify that 3 hosts are fetched and 3 schedules are launched
 
-		doReturn(new HashSet<>()).when(multiHostsConfigurationDto).getTargets();
+		doReturn(new HashSet<>()).when(multiHostsConfigurationDto).getHosts();
 
 		doReturn(MultiHostsConfigurationDto.DEFAULT_JOB_POOL_SIZE).when(multiHostsConfigurationDto).getJobPoolSize();
 
 		final ScheduledFuture<?> mock = spy(ScheduledFuture.class);
-		doReturn(mock).when(targetTaskScheduler).schedule(any(StrategyTask.class), any(Trigger.class));
+		doReturn(mock).when(hostTaskScheduler).schedule(any(StrategyTask.class), any(Trigger.class));
 		doReturn(new HostMonitoring()).when(hostMonitoringMap).get(any());
 
 		taskSechedulingService.updateConfiguration(configFile);
 
-		verify(targetTaskScheduler, times(3)).schedule(any(StrategyTask.class), any(Trigger.class));
+		verify(hostTaskScheduler, times(3)).schedule(any(StrategyTask.class), any(Trigger.class));
 	}
 
 	@Test

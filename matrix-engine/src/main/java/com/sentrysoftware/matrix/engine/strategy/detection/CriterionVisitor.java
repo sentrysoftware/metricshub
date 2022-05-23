@@ -180,8 +180,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 	@Override
 	public CriterionTestResult visit(final Ipmi ipmi) {
 
-		final HardwareHost target = strategyConfig.getEngineConfiguration().getHost();
-		final HostType hostType = target.getType();
+		final HardwareHost host = strategyConfig.getEngineConfiguration().getHost();
+		final HostType hostType = host.getType();
 
 		if (HostType.MS_WINDOWS.equals(hostType)) {
 			return processWindowsIpmiDetection(ipmi);
@@ -191,7 +191,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 			return processOutOfBandIpmiDetection();
 		}
 
-		final String message = String.format("Hostname %s - Failed to perform IPMI detection. %s is an unsupported OS for IPMI.", target.getHostname(),
+		final String message = String.format("Hostname %s - Failed to perform IPMI detection. %s is an unsupported OS for IPMI.", host.getHostname(),
 				hostType.name());
 
 		return CriterionTestResult.builder()
@@ -614,7 +614,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 			return CriterionTestResult.error(service, "WMI Credentials are not configured.");
 		}
 
-		// The target system must be Windows
+		// The host system must be Windows
 		if (!HostType.MS_WINDOWS.equals(strategyConfig.getEngineConfiguration().getHost().getType())) {
 			return CriterionTestResult.error(service, "Host system is not Windows.");
 		}
@@ -889,7 +889,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 	/**
 	 * Find the namespace to use for the execution of the given {@link Wbem} {@link Criterion}.
 	 *
-	 * @param hostname The hostname of the target device
+	 * @param hostname The hostname of the host device
 	 * @param wbemConfig The WBEM protocol configuration (port, credentials, etc.)
 	 * @param criterion The WQL criterion with an "Automatic" namespace
 	 *
@@ -986,7 +986,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 	/**
 	 * Find the namespace to use for the execution of the given {@link Wmi} {@link Criterion}.
 	 *
-	 * @param hostname The hostname of the target device
+	 * @param hostname The hostname of the host device
 	 * @param wmiConfig The WMI protocol configuration (credentials, etc.)
 	 * @param criterion The WQL criterion with an "Automatic" namespace
 	 *

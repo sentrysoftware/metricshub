@@ -20,7 +20,7 @@ public class SchedulerConfig {
 	}
 
 	@Bean
-	public <T> Map<String, ScheduledFuture<T>> targetSchedules() {
+	public <T> Map<String, ScheduledFuture<T>> SchedulerConfig() {
 		return new HashMap<>();
 	}
 

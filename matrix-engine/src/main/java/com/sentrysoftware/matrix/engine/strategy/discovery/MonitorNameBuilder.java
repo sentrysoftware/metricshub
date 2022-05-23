@@ -72,8 +72,8 @@ public class MonitorNameBuilder {
 	public static final String LOCALHOST_ENCLOSURE = System.getProperty("os.name") + " " + System.getProperty("os.arch");
 
 	// Error messages
-	private static final String TARGET_MONITOR_CANNOT_BE_NULL = "targetMonitor cannot be null.";
-	private static final String TARGET_TYPE_CANNOT_BE_NULL = "targetType cannot be null.";
+	private static final String HOST_MONITOR_CANNOT_BE_NULL = "hostMonitor cannot be null.";
+	private static final String HOST_TYPE_CANNOT_BE_NULL = "hostType cannot be null.";
 	private static final String METADATA_CANNOT_BE_NULL = "metadata cannot be null.";
 
 	// Patterns to trim unwanted contents from deviceId
@@ -251,15 +251,15 @@ public class MonitorNameBuilder {
 	}
 
 	/**
-	 * Handle the computer display name based on the target location. I.e. local or remote
+	 * Handle the computer display name based on the host location. I.e. local or remote
 	 *
-	 * @param targetMonitor Monitor with type {@link MonitorType#HOST}
-	 * @param hostType    The type of the target monitor
+	 * @param hostMonitor Monitor with type {@link MonitorType#HOST}
+	 * @param hostType    The type of the host monitor
 	 *
 	 * @return {@link String} value to append with the full monitor name
 	 */
-	public static String handleComputerDisplayName(@NonNull final Monitor targetMonitor, @NonNull final HostType hostType) {
-		if (isLocalhost(targetMonitor.getMetadata())) {
+	public static String handleComputerDisplayName(@NonNull final Monitor hostMonitor, @NonNull final HostType hostType) {
+		if (isLocalhost(hostMonitor.getMetadata())) {
 			return LOCALHOST_ENCLOSURE;
 		} else {
 			return COMPUTE_DISPLAY_NAMES.get(hostType);
@@ -577,10 +577,10 @@ public class MonitorNameBuilder {
 	public static String buildEnclosureName(final MonitorBuildingInfo monitorBuildingInfo) {
 
 		final HostType hostType = monitorBuildingInfo.getHostType();
-		Assert.notNull(hostType, TARGET_TYPE_CANNOT_BE_NULL);
+		Assert.notNull(hostType, HOST_TYPE_CANNOT_BE_NULL);
 
-		final Monitor targetMonitor = monitorBuildingInfo.getTargetMonitor();
-		Assert.notNull(targetMonitor, TARGET_MONITOR_CANNOT_BE_NULL);
+		final Monitor hostMonitor = monitorBuildingInfo.getHostMonitor();
+		Assert.notNull(hostMonitor, HOST_MONITOR_CANNOT_BE_NULL);
 
 		final Map<String, String> metadata = monitorBuildingInfo.getMonitor().getMetadata();
 		Assert.notNull(metadata, METADATA_CANNOT_BE_NULL);
@@ -629,7 +629,7 @@ public class MonitorNameBuilder {
 		} else if (COMPUTER.equals(enclosureType)) {
 
 			// Find the computer display name
-			String computerDisplayName = handleComputerDisplayName(targetMonitor, hostType);
+			String computerDisplayName = handleComputerDisplayName(hostMonitor, hostType);
 			if (hasMeaningfulContent(computerDisplayName)) {
 				// We will use computer display name as enclosureDisplayId, if it is still not set
 				if (hasMeaningfulContent(enclosureDisplayId)) {
