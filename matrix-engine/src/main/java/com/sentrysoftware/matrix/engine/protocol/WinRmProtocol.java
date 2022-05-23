@@ -22,7 +22,7 @@ public class WinRmProtocol implements IWqlProtocol {
 	@Default
 	private Integer port = 5985;
 	@Default
-	private boolean https = false;
+	private TransportProtocols protocol = TransportProtocols.HTTP;
 	private List<AuthenticationEnum> authentications;
 	@Default
 	private Long timeout = 120L;

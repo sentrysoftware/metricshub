@@ -47,8 +47,8 @@ import com.sentrysoftware.matrix.connector.model.common.http.body.StringBody;
 import com.sentrysoftware.matrix.connector.model.common.http.header.StringHeader;
 import com.sentrysoftware.matrix.engine.protocol.HttpProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IpmiOverLanProtocol;
+import com.sentrysoftware.matrix.engine.protocol.TransportProtocols;
 import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WbemProtocol.WbemProtocols;
 import com.sentrysoftware.matrix.engine.protocol.WinRmProtocol;
 import com.sentrysoftware.matsya.HttpProtocolEnum;
 import com.sentrysoftware.matsya.http.HttpClient;
@@ -318,7 +318,7 @@ class MatsyaClientsExecutorTest {
 
 			String url = "https://" + DEV_HV_01 + ":5989";
 			assertEquals(Collections.emptyList(), matsyaClientsExecutor.executeWbem(url, WbemProtocol.builder()
-					.protocol(WbemProtocols.HTTPS)
+					.protocol(TransportProtocols.HTTPS)
 					.build(), "SELECT Name FROM EMC_StorageSystem", "root/emc"));
 
 			mockedWbemExecuteQuery.verify(() -> WbemExecutor.executeWql(any(URL.class), anyString(), isNull(),
@@ -805,7 +805,7 @@ class MatsyaClientsExecutorTest {
 		final String namespace = "namespace";
 		final String command ="SELECT BootDevice,BuildNumber FROM Win32_OperatingSystem";
 		final WinRmProtocol winRmProtocol = WinRmProtocol.builder()
-				.https(false)
+				.protocol(TransportProtocols.HTTP)
 				.port(port)
 				.username(username)
 				.password(password)
@@ -852,7 +852,7 @@ class MatsyaClientsExecutorTest {
 		final String namespace = "namespace";
 		final String command ="SELECT BootDevice,BuildNumber FROM Win32_OperatingSystem";
 		final WinRmProtocol winRmProtocol = WinRmProtocol.builder()
-				.https(false)
+				.protocol(TransportProtocols.HTTP)
 				.port(port)
 				.username(username)
 				.password(password)

@@ -36,6 +36,7 @@ import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.IpmiOverLanProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.Privacy;
+import com.sentrysoftware.matrix.engine.protocol.TransportProtocols;
 import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WinRmProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WmiProtocol;
@@ -1241,8 +1242,8 @@ public class MatsyaClientsExecutor {
 			@NonNull final String namespace)
 					throws MatsyaException {
 		final String username = winRmProtocol.getUsername();
-		final HttpProtocolEnum httpProtocol = winRmProtocol.isHttps() ?
-				HttpProtocolEnum.HTTPS : HttpProtocolEnum.HTTP;
+		final HttpProtocolEnum httpProtocol = TransportProtocols.HTTP.equals(winRmProtocol.getProtocol()) ?
+				HttpProtocolEnum.HTTP: HttpProtocolEnum.HTTPS;
 		final Integer port = winRmProtocol.getPort();
 		final List<AuthenticationEnum> authentications = winRmProtocol.getAuthentications();
 		final Long timeout = winRmProtocol.getTimeout();
@@ -1306,8 +1307,8 @@ public class MatsyaClientsExecutor {
 			@NonNull final String command)
 					throws MatsyaException {
 		final String username = winRmProtocol.getUsername();
-		final HttpProtocolEnum httpProtocol = winRmProtocol.isHttps() ?
-				HttpProtocolEnum.HTTPS : HttpProtocolEnum.HTTP;
+		final HttpProtocolEnum httpProtocol = TransportProtocols.HTTP.equals(winRmProtocol.getProtocol()) ?
+				HttpProtocolEnum.HTTP : HttpProtocolEnum.HTTPS;
 		final Integer port = winRmProtocol.getPort();
 		final List<AuthenticationEnum> authentications = winRmProtocol.getAuthentications();
 		final Long timeout = winRmProtocol.getTimeout();

@@ -44,7 +44,7 @@ where:
     * `tru64` for [HP Tru64 systems](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#hp-tru64)
     * `vms` for [HP Open VMS systems](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#hp-openvms)
 
-* `<protocol-configuration>` is the protocol(s) **${project.name}** will use to communicate with the targets: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, or `wbem`. Refer to [Specifying the protocol to be used](#protocol) for more details.
+* `<protocol-configuration>` is the protocol(s) **${project.name}** will use to communicate with the targets: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` r `winrm`. Refer to [Specifying the protocol to be used](#protocol) for more details.
 
 <a name="protocol"></a>
 
@@ -276,10 +276,10 @@ Use the parameters below to configure the WinRM protocol:
 | username     | Name used to establish the connection with the target via the WinRM protocol.                                 |
 | password     | Password used to establish the connection with the target via the WinRM protocol.                             |
 | namespace    | Namespace of the target to connect to via the WinRM protocol.                                                 |
-| protocol     | The protocol used to access the target.                                                                       |
-| port         | The HTTPS port number used to perform WQL queries and commands (Default: 5985 for HTTP or 5986 for HTTPS).    |
-| forcentlm    | Wether or not to prioritize the use of NTLM to authenticate to the target (Default: false)                    |
-| kerberosonly | Wether or not to force the use of kerberos only to authenticate to the target (Default: false)                |
+| transport    | The protocol used to access the target (HTTP or HTTPS).                                                       |
+| port         | The port number used to perform WQL queries and commands (Default: 5985 for HTTP or 5986 for HTTPS).          |
+| forcentlm    | Whether to force the use of NTLM to authenticate to the target (Default: false).                              |
+| kerberosonly | Whether to force the use of kerberos to authenticate to the target (Default: false).                          |
 
 #### Example
 

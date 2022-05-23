@@ -22,7 +22,7 @@ import com.sentrysoftware.hardware.cli.component.cli.protocols.SnmpConfigCli;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WbemConfigCli;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WmiConfigCli;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
+import com.sentrysoftware.matrix.engine.protocol.TransportProtocols;
 import com.sentrysoftware.matrix.engine.target.TargetType;
 
 import picocli.CommandLine;
@@ -149,7 +149,7 @@ class HardwareSentryCliTest {
 
 		assertEquals("hostaa", sentryCli.getHostname());
 		assertEquals(TargetType.HP_UX, sentryCli.getDeviceType());
-		assertEquals(WbemProtocol.WbemProtocols.HTTP, sentryCli.getWbemConfigCli().getProtocol());
+		assertEquals(TransportProtocols.HTTP, sentryCli.getWbemConfigCli().getProtocol());
 		assertEquals(5989, sentryCli.getWbemConfigCli().getPort());
 		assertEquals("root/emc", sentryCli.getWbemConfigCli().getNamespace());
 		assertEquals(120, sentryCli.getWbemConfigCli().getTimeout());
@@ -171,7 +171,7 @@ class HardwareSentryCliTest {
 
 		assertEquals("dev-hv-01", sentryCli.getHostname());
 		assertEquals(TargetType.MS_WINDOWS, sentryCli.getDeviceType());
-		assertEquals(WbemProtocol.WbemProtocols.HTTPS, sentryCli.getWbemConfigCli().getProtocol());
+		assertEquals(TransportProtocols.HTTPS, sentryCli.getWbemConfigCli().getProtocol());
 		assertEquals(5989, sentryCli.getWbemConfigCli().getPort());
 		assertEquals("root/emc", sentryCli.getWbemConfigCli().getNamespace());
 		assertEquals(WbemConfigCli.DEFAULT_TIMEOUT, sentryCli.getWbemConfigCli().getTimeout());
@@ -277,7 +277,7 @@ class HardwareSentryCliTest {
 					"--winrm-password", "password",
 					"--winrm-timeout", "160",
 					"--winrm-port", "1234",
-					"--winrm-protocol", "HTTPS",
+					"--winrm-transport", "HTTPS",
 					"--winrm-kerberosonly"};
 			HardwareSentryCli sentryCli = new HardwareSentryCli();
 			new CommandLine(sentryCli).parseArgs(args_hdfs);
@@ -289,7 +289,7 @@ class HardwareSentryCliTest {
 			assertArrayEquals("password".toCharArray(), sentryCli.getWinRmConfigCli().getPassword());
 			assertEquals(160, sentryCli.getWinRmConfigCli().getTimeout());
 			assertEquals(1234, sentryCli.getWinRmConfigCli().getPort());
-			assertEquals("HTTPS", sentryCli.getWinRmConfigCli().getProtocol());
+			assertEquals(TransportProtocols.HTTPS, sentryCli.getWinRmConfigCli().getProtocol());
 			assertEquals(true, sentryCli.getWinRmConfigCli().isKerberosOnly());
 			assertEquals(false, sentryCli.getWinRmConfigCli().isForceNtlm());
 		}

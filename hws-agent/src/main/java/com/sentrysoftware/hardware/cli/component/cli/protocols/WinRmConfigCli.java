@@ -3,6 +3,8 @@ package com.sentrysoftware.hardware.cli.component.cli.protocols;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sentrysoftware.hardware.cli.component.cli.converters.TransportProtocolConverter;
+import com.sentrysoftware.matrix.engine.protocol.TransportProtocols;
 import com.sentrysoftware.matrix.engine.protocol.WinRmProtocol;
 import com.sentrysoftware.matsya.winrm.service.client.auth.AuthenticationEnum;
 
@@ -12,7 +14,7 @@ import picocli.CommandLine.Option;
 @Data
 public class WinRmConfigCli implements IProtocolConfigCli {
 	public static final int DEFAULT_TIMEOUT = 30;
-	public static final String DEFAULT_PROTOCOL = "HTTP";
+	public static final String DEFAULT_TRANSPORT_PROTOCOL = "HTTP";
 	public static final Integer DEFAULT_HTTP_PORT = 5985;
 	public static final Integer DEFAULT_HTTPS_PORT = 5986;
 
@@ -67,13 +69,14 @@ public class WinRmConfigCli implements IProtocolConfigCli {
 	private Integer port;
 
 	@Option(
-			names = "--winrm-protocol",
+			names = "--winrm-transport",
 			order = 5,
-			paramLabel = "PROTOCOL",
-			defaultValue = DEFAULT_PROTOCOL,
-			description = "Protocol to use to execute the query (default: ${DEFAULT-VALUE})"
+			paramLabel = "TRANSPORT",
+			defaultValue = DEFAULT_TRANSPORT_PROTOCOL,
+			description = "Transport protocol to use to execute the query (default: ${DEFAULT-VALUE})",
+			converter = TransportProtocolConverter.class
 			)
-	private String protocol;
+	private TransportProtocols protocol;
 
 	@Option(
 			names = "--winrm-forcentlm",
@@ -108,7 +111,7 @@ public class WinRmConfigCli implements IProtocolConfigCli {
 		}
 
 		if (port == null) {
-			if ("HTTP".equals(protocol)) {
+			if (TransportProtocols.HTTP.equals(protocol)) {
 				port = 5985;
 			} else {
 				port = 5986;
@@ -121,7 +124,7 @@ public class WinRmConfigCli implements IProtocolConfigCli {
 				.password(username == null ? defaultPassword : password)
 				.namespace(namespace)
 				.port(port)
-				.https(!"HTTP".equals(protocol))
+				.protocol(protocol)
 				.authentications(authentications)
 				.timeout(timeout)
 				.build();

@@ -1,10 +1,14 @@
 package com.sentrysoftware.hardware.agent.dto.protocol;
 
+import static com.fasterxml.jackson.annotation.Nulls.SKIP;
+
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.hardware.agent.deserialization.TimeDeserializer;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
+import com.sentrysoftware.matrix.engine.protocol.TransportProtocols;
 import com.sentrysoftware.matrix.engine.protocol.WinRmProtocol;
 import com.sentrysoftware.matsya.winrm.service.client.auth.AuthenticationEnum;
 
@@ -28,7 +32,8 @@ public class WinRmProtocolDto extends AbstractProtocolDto {
 	@Default
 	private Integer port = 5985;
 	@Default
-	private Boolean https = false;
+	@JsonSetter(nulls = SKIP)
+	private TransportProtocols protocol = TransportProtocols.HTTP;
 	private List<AuthenticationEnum> authentications;
 	@Default
 	@JsonDeserialize(using = TimeDeserializer.class)
@@ -47,7 +52,7 @@ public class WinRmProtocolDto extends AbstractProtocolDto {
 				.password(super.decrypt(password))
 				.namespace(namespace)
 				.port(port)
-				.https(https)
+				.protocol(protocol)
 				.authentications(authentications)
 				.timeout(timeout)
 				.build();

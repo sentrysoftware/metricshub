@@ -61,6 +61,7 @@ import com.sentrysoftware.matrix.engine.protocol.OsCommandConfig;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.SnmpVersion;
 import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
+import com.sentrysoftware.matrix.engine.protocol.TransportProtocols;
 import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WmiProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
@@ -808,7 +809,7 @@ class SourceVisitorTest {
 				.protocolConfigurations(Map.of(WbemProtocol.class,
 						WbemProtocol.builder()
 						.port(5989)
-						.protocol(WbemProtocol.WbemProtocols.HTTPS)
+						.protocol(TransportProtocols.HTTPS)
 						.namespace(ROOT_IBMSD_WMI_NAMESPACE)
 						.username(EMC_HOSTNAME)
 						.password("password".toCharArray())
