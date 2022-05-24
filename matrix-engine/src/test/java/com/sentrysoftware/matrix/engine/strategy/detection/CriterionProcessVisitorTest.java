@@ -183,7 +183,7 @@ class CriterionProcessVisitorTest {
 			assertNotNull(criterionTestResult);
 			assertFalse(criterionTestResult.isSuccess());
 			assertEquals(
-					"No currently running processes matches the following regular expression:\n" +
+					"No currently running process matches the following regular expression:\n" +
 							"- Regexp (should match with the command-line): cimserver\n" +
 							"- Currently running process list:\n" +
 							"1;ps;root;0;ps -A -o pid,comm,ruser,ppid,args",
@@ -223,7 +223,7 @@ class CriterionProcessVisitorTest {
 
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
-		assertEquals("Process presence check: no test will be performed for OS: sunos.", criterionTestResult.getMessage());
+		assertEquals("Process presence check: No test will be performed for OS: sunos.", criterionTestResult.getMessage());
 		assertNull(criterionTestResult.getResult());
 	}
 
@@ -236,7 +236,7 @@ class CriterionProcessVisitorTest {
 
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
-		assertEquals("Process presence check: no test will be performed for OS: solaris.", criterionTestResult.getMessage());
+		assertEquals("Process presence check: No test will be performed for OS: solaris.", criterionTestResult.getMessage());
 		assertNull(criterionTestResult.getResult());
 	}
 
@@ -249,7 +249,7 @@ class CriterionProcessVisitorTest {
 
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
-		assertEquals("Process presence check: no test will be performed for OS: hp-ux.", criterionTestResult.getMessage());
+		assertEquals("Process presence check: No test will be performed for OS: hp-ux.", criterionTestResult.getMessage());
 		assertNull(criterionTestResult.getResult());
 	}
 
@@ -262,7 +262,7 @@ class CriterionProcessVisitorTest {
 
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
-		assertEquals("Process presence check: no test will be performed for OS: aix.", criterionTestResult.getMessage());
+		assertEquals("Process presence check: No test will be performed for OS: aix.", criterionTestResult.getMessage());
 		assertNull(criterionTestResult.getResult());
 	}
 
@@ -275,7 +275,7 @@ class CriterionProcessVisitorTest {
 
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
-		assertEquals("Process presence check: no test will be performed for OS: freebsd.", criterionTestResult.getMessage());
+		assertEquals("Process presence check: No test will be performed for OS: freebsd.", criterionTestResult.getMessage());
 		assertNull(criterionTestResult.getResult());
 	}
 
@@ -288,7 +288,7 @@ class CriterionProcessVisitorTest {
 
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
-		assertEquals("Process presence check: no test will be performed for OS: openbsd.", criterionTestResult.getMessage());
+		assertEquals("Process presence check: No test will be performed for OS: openbsd.", criterionTestResult.getMessage());
 		assertNull(criterionTestResult.getResult());
 	}
 
@@ -301,7 +301,7 @@ class CriterionProcessVisitorTest {
 
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
-		assertEquals("Process presence check: no test will be performed for OS: netbsd.", criterionTestResult.getMessage());
+		assertEquals("Process presence check: No test will be performed for OS: netbsd.", criterionTestResult.getMessage());
 		assertNull(criterionTestResult.getResult());
 	}
 
@@ -314,7 +314,7 @@ class CriterionProcessVisitorTest {
 
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
-		assertEquals("Process presence check: no test will be performed for OS: mac os x.", criterionTestResult.getMessage());
+		assertEquals("Process presence check: No test will be performed for OS: mac os x.", criterionTestResult.getMessage());
 		assertNull(criterionTestResult.getResult());
 	}
 

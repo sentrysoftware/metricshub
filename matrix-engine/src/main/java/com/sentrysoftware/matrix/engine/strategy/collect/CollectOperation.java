@@ -132,7 +132,7 @@ public class CollectOperation extends AbstractStrategy {
 		}
 
 		if (connectorMonitors == null || connectorMonitors.isEmpty()) {
-			log.error("Hostname {} - Collect - No connector detected in the detection operation. Collect operation will now be stopped.", 
+			log.error("Hostname {} - Collect - No connectors detected in the detection operation. Collect operation will now be stopped.", 
 					hostname);
 			return false;
 		}
@@ -400,7 +400,7 @@ public class CollectOperation extends AbstractStrategy {
 				continue;
 			}
 
-			log.debug("Hostname {} - Collecting monitor id {}.", hostname, monitorOpt.get().getId());
+			log.debug("Hostname {} - Collecting monitor ID {}.", hostname, monitorOpt.get().getId());
 
 			// Build the collect information as the parameters are collected by the MonitorCollectVisitor
 			// so that we avoid the tightly coupling with the current CollectOperation strategy.
@@ -606,7 +606,7 @@ public class CollectOperation extends AbstractStrategy {
 
 		final MonitorType monitorType = hardwareMonitor.getType();
 		if (monitorType == null) {
-			log.warn("Hostname {} - Collect - No monitor type was specified for hardware monitor job with connector {}.",
+			log.warn("Hostname {} - Collect - No monitor types were specified for hardware monitor job with connector {}.",
 					hostname, connectorName);
 			return false;
 		}

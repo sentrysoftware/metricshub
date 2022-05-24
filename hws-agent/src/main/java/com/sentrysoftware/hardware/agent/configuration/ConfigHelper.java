@@ -50,9 +50,9 @@ import lombok.extern.slf4j.Slf4j;
 public class ConfigHelper {
 
 	public static final Path DEFAULT_OUTPUT_DIRECTORY = getSubDirectory("logs", true);
-	private static final String TIMEOUT_ERROR = "Timeout value is invalid for hostname %s for protocol %s. This host will not be monitored. Please verify the timeout value configured in the configuration file.";
-	private static final String PORT_ERROR = "Invalid port configured for hostname %s for protocol %s. This host will not be monitored. Please verify the port value configured in the configuration file.";
-	private static final String USERNAME_ERROR = "No username configured for hostname %s for protocol %s. This host will not be monitored. Please verify the username configured in the configuration file.";
+	private static final String TIMEOUT_ERROR = "Timeout value is invalid for hostname %s for protocol %s. Timeout value returned: %f. This host will not be monitored. Please verify the configured timeout value.";
+	private static final String PORT_ERROR = "Invalid port configured for hostname %s for protocol %s. Port value returned: %d. This host will not be monitored. Please verify the configured port value.";
+	private static final String USERNAME_ERROR = "No username configured for hostname %s for protocol %s. This host will not be monitored. Please verify the configured username.";
 	private static final Predicate<String> INVALID_STRING_CHECKER = attr -> attr == null || attr.isBlank();
 	private static final Predicate<Integer> INVALID_PORT_CHECKER = attr -> attr == null || attr < 1 || attr > 65535;
 	private static final Predicate<Long> INVALID_TIMEOUT_CHECKER = attr -> attr == null || attr < 0L;
@@ -109,11 +109,11 @@ public class ConfigHelper {
 		validateAttribute(hostname, 
 				INVALID_STRING_CHECKER,
 				() -> String.format(
-				"Invalid hostname: %s. This host will not be monitored. Please verify the hostname configured in the configuration file.",
+				"Invalid hostname: %s. This host will not be monitored. Please verify the configured hostname.",
 				hostname), ErrorCode.INVALID_HOSTNAME);
 
 		validateAttribute(targetType, Objects::isNull, () -> String.format(
-				"No target type configured for hostname: %s. This host will not be monitored. Please verify the type configured in the configuration file.",
+				"No target type configured for hostname: %s. This host will not be monitored. Please verify the configured type.",
 				hostname), ErrorCode.NO_TARGET_TYPE);
 	}
 
@@ -166,19 +166,19 @@ public class ConfigHelper {
 			validateAttribute(snmpDto.getCommunity(),
 					attr -> attr == null || attr.length == 0,
 					() -> String.format(
-							"No community string configured for hostname %s for %s. This host will not be monitored. Please verify the community string configured in the configuration file.",
+							"No community string configured for hostname %s for %s. This host will not be monitored. Please verify the configured community string.",
 							hostname, displayName),
 					ErrorCode.NO_COMMUNITY_STRING);
 		}
 
 		validateAttribute(snmpDto.getPort(),
 				INVALID_PORT_CHECKER,
-				() -> String.format(PORT_ERROR, hostname, displayName),
+				() -> String.format(PORT_ERROR, hostname, displayName, snmpDto.getPort()),
 				ErrorCode.INVALID_PORT);
 
 		validateAttribute(snmpDto.getTimeout(),
 				INVALID_TIMEOUT_CHECKER,
-				() -> String.format(TIMEOUT_ERROR, hostname, displayName),
+				() -> String.format(TIMEOUT_ERROR, hostname, displayName, snmpDto.getTimeout()),
 				ErrorCode.INVALID_TIMEOUT);
 
 		if (intVersion == 3 && snmpDto.getVersion().getAuthType() != null) {
@@ -209,7 +209,7 @@ public class ConfigHelper {
 
 		validateAttribute(timeout,
 				INVALID_TIMEOUT_CHECKER,
-				() -> String.format(TIMEOUT_ERROR, hostname, protocol),
+				() -> String.format(TIMEOUT_ERROR, hostname, protocol, timeout),
 				ErrorCode.INVALID_TIMEOUT);
 	}
 
@@ -231,7 +231,7 @@ public class ConfigHelper {
 				ErrorCode.NO_USERNAME);
 
 		validateAttribute(timeout, INVALID_TIMEOUT_CHECKER,
-				() -> String.format(TIMEOUT_ERROR, hostname, protocol),
+				() -> String.format(TIMEOUT_ERROR, hostname, protocol, timeout),
 				ErrorCode.INVALID_TIMEOUT);
 	}
 
@@ -250,11 +250,11 @@ public class ConfigHelper {
 		final String protocol = "WBEM";
 
 		validateAttribute(timeout, INVALID_TIMEOUT_CHECKER,
-				() -> String.format(TIMEOUT_ERROR, hostname, protocol),
+				() -> String.format(TIMEOUT_ERROR, hostname, protocol, timeout),
 				ErrorCode.INVALID_TIMEOUT);
 
 		validateAttribute(port, INVALID_PORT_CHECKER,
-				() -> String.format(PORT_ERROR, hostname, protocol),
+				() -> String.format(PORT_ERROR, hostname, protocol, port),
 				ErrorCode.INVALID_PORT);
 
 		validateAttribute(username, INVALID_STRING_CHECKER,
@@ -273,7 +273,7 @@ public class ConfigHelper {
 
 		final String protocol = "WMI";
 
-		validateAttribute(timeout, INVALID_TIMEOUT_CHECKER, () -> String.format(TIMEOUT_ERROR, hostname, protocol),
+		validateAttribute(timeout, INVALID_TIMEOUT_CHECKER, () -> String.format(TIMEOUT_ERROR, hostname, protocol, timeout),
 				ErrorCode.INVALID_TIMEOUT);
 	}
 
@@ -291,11 +291,11 @@ public class ConfigHelper {
 		final String protocol = "HTTP";
 
 		validateAttribute(timeout, INVALID_TIMEOUT_CHECKER,
-				() -> String.format(TIMEOUT_ERROR, hostname, protocol),
+				() -> String.format(TIMEOUT_ERROR, hostname, protocol, timeout),
 				ErrorCode.INVALID_TIMEOUT);
 
 		validateAttribute(port, INVALID_PORT_CHECKER,
-				() -> String.format(PORT_ERROR, hostname, protocol),
+				() -> String.format(PORT_ERROR, hostname, protocol, port),
 				ErrorCode.INVALID_PORT);
 	}
 
@@ -311,7 +311,7 @@ public class ConfigHelper {
 		final String protocol = "OSCommand";
 
 		validateAttribute(timeout, INVALID_TIMEOUT_CHECKER,
-				() -> String.format(TIMEOUT_ERROR, hostname, protocol),
+				() -> String.format(TIMEOUT_ERROR, hostname, protocol, timeout),
 				ErrorCode.INVALID_TIMEOUT);
 	}
 
@@ -395,7 +395,7 @@ public class ConfigHelper {
 		final String message;
 		if (isExcluded) {
 			message = String.format(
-					"Configured unknown excluded connector(s): %s. Hostname: %s. This host will be monitored, but the unknown connectors will be ignored. Please verify the excludedConnectors configured in the configuration file.",
+					"Configured unknown excluded connector(s): %s. Hostname: %s. This host will be monitored, but the unknown connectors will be ignored. Please verify the configured list of excluded connectors.",
 					String.join(", ", unknownConnectors), hostname);
 
 			log.error(message);
@@ -404,7 +404,7 @@ public class ConfigHelper {
 			return configConnectors;
 		} else {
 			message = String.format(
-					"Configured unknown selected connector(s): %s. Hostname: %s. This host will not be monitored. Please verify the selectedConnectors configured in the configuration file.",
+					"Configured unknown selected connector(s): %s. Hostname: %s. This host will not be monitored. Please verify the configured list of selected connectors.",
 					String.join(", ", unknownConnectors), hostname);
 
 			log.error(message);
@@ -485,7 +485,6 @@ public class ConfigHelper {
 	 * @param acceptedConnectorNames     set of accepted compiled connector names
 	 * @return Map of {@link IHostMonitoring} instances indexed by the target id
 	 */
-
 	public static Map<String, IHostMonitoring> buildHostMonitoringMap(final MultiHostsConfigurationDto multiHostsConfigurationDto,
 			final Set<String> acceptedConnectorNames) {
 
@@ -571,7 +570,7 @@ public class ConfigHelper {
 
 		} catch (Exception e) {
 
-			log.warn("Target: {} - The given target has been staged as invalid.", hostConfigurationDto);
+			log.warn("Host: {} - The given target has been staged as invalid.", hostConfigurationDto);
 
 		}
 	}
@@ -602,7 +601,7 @@ public class ConfigHelper {
 		try {
 			return Files.createDirectories(subDirectory).toRealPath();
 		} catch (IOException e) {
-			throw new IllegalStateException("Could not create " + dir + " directory " + subDirectory + ".", e);
+			throw new IllegalStateException("Could not create " + dir + " directory \"" + subDirectory + "\".", e);
 		}
 	}
 
@@ -658,7 +657,7 @@ public class ConfigHelper {
 			return SecurityManager.decrypt(crypted, PasswordEncrypt.getKeyStoreFile(false));
 		} catch (Exception e) {
 			// This is a real problem, let's log the error
-			log.error("Could not decrypt password: {}.", e.getMessage());
+			log.error("Could not decrypt password: {}", e.getMessage());
 			log.debug("Exception", e);
 			return crypted;
 		}

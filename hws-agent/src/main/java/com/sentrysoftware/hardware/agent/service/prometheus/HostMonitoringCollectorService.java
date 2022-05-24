@@ -180,7 +180,7 @@ public class HostMonitoringCollectorService extends Collector {
 	void processSameTypeMonitors(final MonitorType monitorType, final Map<String, Monitor> monitors, final List<MetricFamilySamples> mfs) {
 
 		if (monitors == null || monitors.isEmpty()) {
-			log.info("No monitor found of type {}.", monitorType);
+			log.info("No monitor of type {} found.", monitorType);
 			return;
 		}
 
@@ -212,7 +212,7 @@ public class HostMonitoringCollectorService extends Collector {
 
 		final String metricName = PrometheusSpecificities.getInfoMetricName(monitorType);
 		if (metricName == null || metricName.isBlank()) {
-			log.warn("The metric name is not defined for monitor type {}. The metric name received was: {}.", monitorType, metricName);
+			log.warn("The metric name is not defined for monitor type {}. Received: {}.", monitorType, metricName);
 			return;
 		}
 

@@ -147,8 +147,8 @@ class CollectOperationTest {
 	private static final String OID_MONO_INSTANCE = OID1 + ".%Enclosure.Collect.DeviceID%";
 	private static final String VERSION = "4.2.3";
 	private static final String MONITOR_ID = "monitorId";
-	private static final String SUCCESSFUL_SNMP_GET_NEXT_MESSAGE = "Hostname " + TEST_HOST_01 + " - Successful SNMP GetNext of 1.2.3.4.5.6. Returned Result: 1.2.3.4.5.6 ASN_OCT 4.2.3.";
-	private static final String SNMP_TEST_FAILED = "Hostname " + TEST_HOST_01 + " - SNMP Test Failed - SNMP GetNext of 1.2.3.4.5.6 was unsuccessful due to an empty result.";
+	private static final String SUCCESSFUL_SNMP_GET_NEXT_MESSAGE = "Hostname " + TEST_HOST_01 + " - Successful SNMP GetNext of 1.2.3.4.5.6. Returned result: 1.2.3.4.5.6 ASN_OCT 4.2.3.";
+	private static final String SNMP_TEST_FAILED = "Hostname " + TEST_HOST_01 + " - SNMP test failed - SNMP GetNext of 1.2.3.4.5.6 was unsuccessful due to an empty result.";
 
 	@Mock
 	private StrategyConfig strategyConfig;
@@ -967,7 +967,7 @@ class CollectOperationTest {
 		final IParameter statusInformationParam = TextParam
 				.builder()
 				.name(STATUS_INFORMATION_PARAMETER)
-				.value(success ? "Connector test succeeded" : "Connector test failed")
+				.value(success ? "Connector test succeeded." : "Connector test failed.")
 				.collectTime(strategyTime)
 				.build();
 

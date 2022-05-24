@@ -493,7 +493,7 @@ public class MatsyaClientsExecutor {
 			final URL url = new URL(urlSpec);
 
 			trace(() -> 
-				log.trace("Executing WBEM request:\n- Hostname: {}\n- Port: {}\n- Protocol: {}\n- Url: {}\n"
+				log.trace("Executing WBEM request:\n- Hostname: {}\n- Port: {}\n- Protocol: {}\n- URL: {}\n"
 							+ "- Username: {}\n- Query: {}\n- Namespace: {}\n- Timeout: {} s\n",
 						hostname,
 						wbemConfig.getPort(),
@@ -519,7 +519,7 @@ public class MatsyaClientsExecutor {
 			List<List<String>> result = wbemQueryResult.getValues();
 
 			trace(() -> 
-				log.trace("Executed WBEM request:\n- Hostname: {}\n- Port: {}\n- Protocol: {}\n- Url: {}\n"
+				log.trace("Executed WBEM request:\n- Hostname: {}\n- Port: {}\n- Protocol: {}\n- URL: {}\n"
 							+ "- Username: {}\n- Query: {}\n- Namespace: {}\n- Timeout: {} s\n- Result:\n{}\n",
 						hostname,
 						wbemConfig.getPort(),

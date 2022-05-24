@@ -82,7 +82,7 @@ public class SourceVisitor implements ISourceVisitor {
 
 		if (protocol == null) {
 
-			log.debug("Hostname {} - The HTTP Credentials are not configured. Returning an empty table for HttpSource {}.",
+			log.debug("Hostname {} - The HTTP credentials are not configured. Returning an empty table for HttpSource {}.",
 					hostname, httpSource);
 
 			return SourceTable.empty();
@@ -156,7 +156,7 @@ public class SourceVisitor implements ISourceVisitor {
 		String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 		
 		if (protocol == null) {
-			log.warn("Hostname {} - The IPMI Credentials are not configured. Cannot process IPMI-over-LAN source.", hostname);
+			log.warn("Hostname {} - The IPMI credentials are not configured. Cannot process IPMI-over-LAN source.", hostname);
 			return SourceTable.empty();
 		}
 
@@ -194,7 +194,7 @@ public class SourceVisitor implements ISourceVisitor {
 		// get the ipmiTool command to execute
 		String ipmitoolCommand = strategyConfig.getHostMonitoring().getIpmitoolCommand();
 		if (ipmitoolCommand == null || ipmitoolCommand.isEmpty()) {
-			final String message = String.format("Hostname %s - IPMI Tool Command cannot be found. Returning empty result.",
+			final String message = String.format("Hostname %s - IPMI tool command cannot be found. Returning empty result.",
 					hostname);
 			log.error(message);
 			return SourceTable.empty();
@@ -219,7 +219,7 @@ public class SourceVisitor implements ISourceVisitor {
 			} else if (sshProtocol != null){
 				fruResult = OsCommandHelper.runSshCommand(fruCommand, hostname, sshProtocol, defaultTimeout, null, null);
 			} else {
-				log.warn("Hostname %s - Could not process unix IPMI Source. SSH Protocol credentials are missing.", hostname);
+				log.warn("Hostname %s - Could not process UNIX IPMI Source. SSH protocol credentials are missing.", hostname);
 				return SourceTable.empty();
 			}
 
@@ -244,11 +244,11 @@ public class SourceVisitor implements ISourceVisitor {
 			} else {
 				sensorResult = OsCommandHelper.runSshCommand(sdrCommand, hostname, sshProtocol, defaultTimeout,	null, null);
 			}
-			log.debug("Hostname {} - IPMI OS Command: {}:\n{}", hostname, sdrCommand, sensorResult);
+			log.debug("Hostname {} - IPMI OS command: {}:\n{}", hostname, sdrCommand, sensorResult);
 		} catch (Exception e) {
 
 			logSourceError(connector.getCompiledFilename(), 
-					sourceKey, String.format("IPMI OS Command: %s.", sdrCommand), hostname, e);
+					sourceKey, String.format("IPMI OS command: %s.", sdrCommand), hostname, e);
 
 			Thread.currentThread().interrupt();
 
@@ -306,7 +306,7 @@ public class SourceVisitor implements ISourceVisitor {
 		
 		if (osCommandSource == null ||
 				osCommandSource.getCommandLine() == null || osCommandSource.getCommandLine().isEmpty()) {
-			log.error("Hostname {} - Malformed OS Command source.", hostname);
+			log.error("Hostname {} - Malformed OS command source.", hostname);
 			return SourceTable.empty();
 		}
 
@@ -348,7 +348,7 @@ public class SourceVisitor implements ISourceVisitor {
 		} catch(Exception e) {
 
 			logSourceError(connector.getCompiledFilename(), osCommandSource.getKey(),
-					String.format("OS Command: %s.", osCommandSource.getCommandLine()),
+					String.format("OS command: %s.", osCommandSource.getCommandLine()),
 					hostname, e);
 
 			return SourceTable.empty();
@@ -416,7 +416,7 @@ public class SourceVisitor implements ISourceVisitor {
 			return SourceTable.empty();
 		}
 
-		log.debug("Hostname {} - Got Static Source Value [{}] referenced in Source [{}].",
+		log.debug("Hostname {} - Got Static Source value [{}] referenced in source [{}].",
 				hostname,
 				staticValue,
 				staticSource.getKey());
@@ -456,7 +456,7 @@ public class SourceVisitor implements ISourceVisitor {
 				.getProtocolConfigurations().get(SnmpProtocol.class);
 
 		if (protocol == null) {
-			log.debug("Hostname {} - The SNMP Credentials are not configured. Returning an empty table for SNMP Get Source {}.",
+			log.debug("Hostname {} - The SNMP credentials are not configured. Returning an empty table for SNMP Get Source {}.",
 					hostname, snmpGetSource);
 			return SourceTable.empty();
 		}
@@ -520,7 +520,7 @@ public class SourceVisitor implements ISourceVisitor {
 				.getProtocolConfigurations().get(SnmpProtocol.class);
 
 		if (protocol == null) {
-			log.debug("Hostname {} - The SNMP Credentials are not configured. Returning an empty table for SNMP Get Table Source {}.",
+			log.debug("Hostname {} - The SNMP credentials are not configured. Returning an empty table for SNMP Get Table Source {}.",
 					hostname, snmpGetTableSource);
 			return SourceTable.empty();
 		}
@@ -571,13 +571,13 @@ public class SourceVisitor implements ISourceVisitor {
 
 		final SourceTable leftTable = sources.get(tableJoinSource.getLeftTable());
 		if (tableJoinSource.getLeftTable() == null || leftTable == null ||  leftTable.getTable() == null) {
-			log.debug("Hostname {} - Left Table cannot be null, the Join {} will return an empty result.", hostname, tableJoinSource);
+			log.debug("Hostname {} - Left table cannot be null, the Join {} will return an empty result.", hostname, tableJoinSource);
 			return SourceTable.empty();
 		}
 
 		final SourceTable rightTable = sources.get(tableJoinSource.getRightTable());
 		if (tableJoinSource.getRightTable() == null || rightTable == null || rightTable.getTable() == null) {
-			log.debug("Hostname {} - Right Table cannot be null, the Join {} will return an empty result.", hostname, tableJoinSource);
+			log.debug("Hostname {} - Right table cannot be null, the Join {} will return an empty result.", hostname, tableJoinSource);
 			return SourceTable.empty();
 		}
 
@@ -733,7 +733,7 @@ public class SourceVisitor implements ISourceVisitor {
 				.getProtocolConfigurations().get(WbemProtocol.class);
 
 		if (protocol == null) {
-			log.debug("Hostname {} - The WBEM Credentials are not configured. Returning an empty table for WBEM source {}.",
+			log.debug("Hostname {} - The WBEM credentials are not configured. Returning an empty table for WBEM source {}.",
 					hostname, wbemSource.getKey());
 			return SourceTable.empty();
 		}
@@ -777,7 +777,7 @@ public class SourceVisitor implements ISourceVisitor {
 		} catch (Exception e) {
 
 			logSourceError(connector.getCompiledFilename(), wbemSource.getKey(),
-					String.format("wbemQuery=%s, username=%s, timeout=%d, namespace=%s",
+					String.format("WBEM query=%s, Username=%s, Timeout=%d, Namespace=%s",
 							wbemSource.getWbemQuery(), protocol.getUsername(), protocol.getTimeout(),
 							namespace),
 					hostname, e);
@@ -792,7 +792,7 @@ public class SourceVisitor implements ISourceVisitor {
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 		
 		if (wmiSource == null || wmiSource.getWbemQuery() == null) {
-			log.warn("Hostname {} - Malformed WMI Source {}. Returning an empty table.", hostname, wmiSource);
+			log.warn("Hostname {} - Malformed WMI source {}. Returning an empty table.", hostname, wmiSource);
 			return SourceTable.empty();
 		}
 
@@ -800,7 +800,7 @@ public class SourceVisitor implements ISourceVisitor {
 				.getProtocolConfigurations().get(WmiProtocol.class);
 
 		if (protocol == null) {
-			log.debug("Hostname {} - The WMI Credentials are not configured. Returning an empty table for WMI source {}.",
+			log.debug("Hostname {} - The WMI credentials are not configured. Returning an empty table for WMI source {}.",
 					hostname, wmiSource.getKey());
 			return SourceTable.empty();
 		}
@@ -828,7 +828,7 @@ public class SourceVisitor implements ISourceVisitor {
 		} catch (Exception e) {
 
 			logSourceError(connector.getCompiledFilename(), wmiSource.getKey(),
-					String.format("wmiQuery=%s, username=%s, timeout=%d, namespace=%s",
+					String.format("WMI query=%s, Username=%s, Timeout=%d, Namespace=%s",
 							wmiSource.getWbemQuery(), protocol.getUsername(), protocol.getTimeout(),
 							namespace),
 					hostname, e);
@@ -895,7 +895,7 @@ public class SourceVisitor implements ISourceVisitor {
 
 			logSourceError(connector.getCompiledFilename(),
 					sourceKey,
-					String.format("IPMI WMIQuery=%s, Hostname=%s, Username=%s, Timeout=%d, Namespace=%s",
+					String.format("IPMI WMI query=%s, Hostname=%s, Username=%s, Timeout=%d, Namespace=%s",
 							wmiQuery, hostname, wmiProtocol.getUsername(), wmiProtocol.getTimeout(),
 							namespace),
 					hostname,

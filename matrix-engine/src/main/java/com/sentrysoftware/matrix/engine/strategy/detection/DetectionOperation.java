@@ -65,7 +65,7 @@ public class DetectionOperation extends AbstractStrategy {
 		final boolean isLocalhost = NetworkHelper.isLocalhost(hostname);
 
 		// Create the target
-		log.debug("Hostname {} - Creating the Target.", hostname);
+		log.debug("Hostname {} - Creating the host.", hostname);
 		final Monitor target = createTarget(isLocalhost);
 
 		// No selectedConnectors then perform auto detection
