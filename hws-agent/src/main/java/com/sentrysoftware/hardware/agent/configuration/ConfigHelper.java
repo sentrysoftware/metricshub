@@ -349,8 +349,7 @@ public class ConfigHelper {
 
 		return EngineConfiguration
 				.builder()
-				.operationTimeout(hostConfigurationDto
-				.getOperationTimeout())
+				.operationTimeout(hostConfigurationDto.getOperationTimeout())
 				.protocolConfigurations(protocolConfigurations)
 				.selectedConnectors(selectedConnectors)
 				.excludedConnectors(excludedConnectors)
