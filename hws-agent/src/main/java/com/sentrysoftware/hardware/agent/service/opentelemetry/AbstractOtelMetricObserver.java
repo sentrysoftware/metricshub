@@ -53,8 +53,8 @@ public abstract class AbstractOtelMetricObserver extends AbstractOtelObserver {
 			final MetricType type = metricInfo.getType();
 
 			// Gets or creates a named meter instance using the unique id of
-			// the monitor as instrumentation library
-			final Meter meter = getMeter();
+			// the monitor and the metric identifier as instrument
+			final Meter meter = getMeter(metricInfo);
 
 			if (type.equals(MetricType.COUNTER)) {
 				// Sum (Counter)
@@ -74,7 +74,6 @@ public abstract class AbstractOtelMetricObserver extends AbstractOtelObserver {
 					.buildWithCallback(recorder -> observe(metricInfo, monitor, recorder));
 			}
 		}
-
 
 	}
 
@@ -124,7 +123,7 @@ public abstract class AbstractOtelMetricObserver extends AbstractOtelObserver {
 					attributesBuilder.put(attributeKey, attributeValue);
 				});
 
-		// Update the identifying attribute for the current metric
+		// Add the identifying attribute to the metric's attributes
 		final Optional<String[]> maybeIdentifyingAttribute =  OtelHelper.extractIdentifyingAttribute(metricInfo, monitor);
 		if (maybeIdentifyingAttribute.isPresent()) {
 			final String[] identifyingAttribute = maybeIdentifyingAttribute.get();

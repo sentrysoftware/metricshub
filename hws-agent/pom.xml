@@ -260,6 +260,7 @@
 						<exclude>com/sentrysoftware/hardware/agent/service/task/StrategyTaskInfo.*</exclude>
 						<exclude>com/sentrysoftware/hardware/agent/service/task/*StrategyTaskInfoBuilder.*</exclude>
 						<exclude>com/sentrysoftware/hardware/cli/**</exclude>
+						<exclude>com/sentrysoftware/hardware/agent/service/opentelemetry/MetricsMappingOld.*</exclude>
 					</excludes>
 					<outputDirectory>${project.build.directory}/coverage-reports/jacoco</outputDirectory>
 				</configuration>

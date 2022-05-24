@@ -86,4 +86,5 @@ public class OtelParameterToMetricObserver extends AbstractOtelMetricObserver {
 
 		return monitor.getParameters().get(parameterName).numberValue();
 	}
+
 }

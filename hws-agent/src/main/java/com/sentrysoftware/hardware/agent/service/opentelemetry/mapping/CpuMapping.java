@@ -1,9 +1,9 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry.mapping;
 
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.*;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_ALARM_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_WARNING_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CORRECTED_ERROR_ALARM_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CORRECTED_ERROR_WARNING_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAXIMUM_SPEED;
 
 import java.util.Collections;
 import java.util.List;
@@ -13,23 +13,23 @@ import java.util.TreeMap;
 import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo;
 import com.sentrysoftware.hardware.agent.dto.metric.StaticIdentifyingAttribute;
 import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo.MetricType;
+import com.sentrysoftware.matrix.common.meta.monitor.Cpu;
 import com.sentrysoftware.matrix.common.meta.monitor.IMetaMonitor;
-import com.sentrysoftware.matrix.common.meta.monitor.PhysicalDisk;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class PhysicalDiskMapping {
+public class CpuMapping {
 
-	private static final String PHYSICAL_DISK_STATUS_METRIC_NAME = "hw.physical_disk.status";
+	private static final String CPU_STATUS_METRIC_NAME = "hw.cpu.status";
 
 	/**
-	 * Build physical disk metrics map
+	 * Build CPU metrics map
 	 *
-	 * @return  {@link Map} where the metrics are indexed by the matrix parameter name
+	 * @return {@link Map} where the metrics are indexed by the matrix parameter name
 	 */
-	static Map<String, List<MetricInfo>> buildPhysicalDiskMetricsMapping() {
+	static Map<String, List<MetricInfo>> buildCpuMetricsMapping() {
 		final Map<String, List<MetricInfo>> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(
@@ -37,8 +37,8 @@ public class PhysicalDiskMapping {
 			List.of(
 				MetricInfo
 					.builder()
-					.name(PHYSICAL_DISK_STATUS_METRIC_NAME)
-					.description("Whether the physical disk status is ok or not.")
+					.name(CPU_STATUS_METRIC_NAME)
+					.description("Whether the CPU status is ok or not.")
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -50,8 +50,8 @@ public class PhysicalDiskMapping {
 					.build(),
 				MetricInfo
 					.builder()
-					.name(PHYSICAL_DISK_STATUS_METRIC_NAME)
-					.description("Whether the physical disk status is degraded or not.")
+					.name(CPU_STATUS_METRIC_NAME)
+					.description("Whether the CPU status is degraded or not.")
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -63,8 +63,8 @@ public class PhysicalDiskMapping {
 					.build(),
 				MetricInfo
 					.builder()
-					.name(PHYSICAL_DISK_STATUS_METRIC_NAME)
-					.description("Whether the physical disk status is failed or not.")
+					.name(CPU_STATUS_METRIC_NAME)
+					.description("Whether the CPU status is failed or not.")
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -82,8 +82,8 @@ public class PhysicalDiskMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name(PHYSICAL_DISK_STATUS_METRIC_NAME)
-					.description("Whether the physical disk is found or not.")
+					.name(CPU_STATUS_METRIC_NAME)
+					.description("Whether the CPU is found or not.")
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -97,34 +97,27 @@ public class PhysicalDiskMapping {
 		);
 
 		map.put(
-			PhysicalDisk.ENDURANCE_REMAINING.getName(),
+			Cpu.CORRECTED_ERROR_COUNT.getName(),
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.physical_disk.endurance_utilization")
-					.factor(0.01)
-					.description("Physical disk remaining endurance ratio.")
-					.unit("1")
-					.identifyingAttribute(
-						StaticIdentifyingAttribute
-							.builder()
-							.key(STATE_ATTRIBUTE_KEY)
-							.value("remaining")
-							.build()
-					)
+					.name("hw.cpu.errors")
+					.type(MetricType.COUNTER)
+					.unit(ERRORS_UNIT)
+					.description("Number of detected and corrected errors.")
 					.build()
 			)
 		);
 
 		map.put(
-			IMetaMonitor.ERROR_COUNT.getName(),
+			Cpu.CURRENT_SPEED.getName(),
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.physical_disk.errors")
-					.unit(ERRORS_UNIT)
-					.type(MetricType.COUNTER)
-					.description("Number of errors encountered by the physical disk since the start of the Hardware Sentry Agent.")
+					.name("hw.cpu.speed")
+					.unit(HERTZ_UNIT)
+					.factor(1000000.0)
+					.description("CPU current speed.")
 					.build()
 			)
 		);
@@ -134,15 +127,15 @@ public class PhysicalDiskMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name(PHYSICAL_DISK_STATUS_METRIC_NAME)
-					.description("Informs if a failure is predicted.")
+					.name(CPU_STATUS_METRIC_NAME)
+					.description("Predicted failure analysis performed by the CPU itself.")
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
 							.key(STATE_ATTRIBUTE_KEY)
 							.value(PREDICTED_FAILURE_ATTRIBUTE_VALUE)
 							.build()
-					)
+						)
 					.predicate(PREDICTED_FAILURE_PREDICATE)
 					.build()
 			)
@@ -153,10 +146,10 @@ public class PhysicalDiskMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.physical_disk.energy")
+					.name("hw.cpu.energy")
 					.unit(JOULES_UNIT)
 					.type(MetricType.COUNTER)
-					.description("Energy consumed by the physical disk since the start of the Hardware Sentry Agent.")
+					.description("Energy consumed by the CPU since the start of the Hardware Sentry Agent.")
 					.build()
 			)
 		);
@@ -166,56 +159,58 @@ public class PhysicalDiskMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.physical_disk.power")
+					.name("hw.cpu.power")
 					.unit(WATTS_UNIT)
-					.description("Energy consumed by the physical disk.")
+					.type(MetricType.GAUGE)
+					.description("Energy consumed by the CPU.")
 					.build()
 			)
 		);
-
+			
 		return map;
 	}
 
 	/**
-	 * Create PhysicalDisk Metadata to metrics map
+	 * Build CPU Metadata to metrics
 	 * 
 	 * @return {@link Map} of {@link MetricInfo} instances indexed by the matrix parameter names
 	 */
-	static Map<String, List<MetricInfo>> physicalDiskMetadataToMetrics() {
+	static Map<String, List<MetricInfo>> cpuMetadataToMetrics() {
 		final Map<String, List<MetricInfo>> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(
-			SIZE,
+			MAXIMUM_SPEED,
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.physical_disk.size")
-					.unit(BYTES_UNIT)
-					.description("Physical disk size.")
+					.name("hw.cpu.speed_limit")
+					.unit(HERTZ_UNIT)
+					.factor(1000000.0)
+					.description("CPU maximum speed.")
 					.build()
 			)
 		);
 
 		map.put(
-			ERROR_COUNT_WARNING_THRESHOLD,
+			CORRECTED_ERROR_WARNING_THRESHOLD,
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.physical_disk.errors_warning")
-					.description(WARNING_THRESHOLD_OF_ERRORS)
+					.name("hw.cpu.errors_warning")
 					.unit(ERRORS_UNIT)
+					.description("Number of detected and corrected errors that will generate a warning.")
 					.build()
 			)
 		);
 
 		map.put(
-			ERROR_COUNT_ALARM_THRESHOLD,
+			CORRECTED_ERROR_ALARM_THRESHOLD,
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.physical_disk.errors_alarm")
-					.description(ALARM_THRESHOLD_OF_ERRORS)
+					.name("hw.cpu.errors_alarm")
 					.unit(ERRORS_UNIT)
+					.description("Number of detected and corrected errors that will generate an alarm.")
 					.build()
 			)
 		);

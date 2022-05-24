@@ -1,4 +1,4 @@
-package com.sentrysoftware.hardware.agent.service.opentelemetry;
+package com.sentrysoftware.hardware.agent.service.opentelemetry.mapping;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EXPECTED_PATH_COUNT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAXIMUM_SPEED;
@@ -19,8 +19,6 @@ import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo;
 import com.sentrysoftware.hardware.agent.service.ServiceHelper;
-import com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants;
-import com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MetricsMapping;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 
@@ -48,7 +46,6 @@ class MetricsMappingTest {
 	}
 
 	@Test
-	@Disabled
 	void testGetMetricInfo() {
 
 		for (MonitorType monitorType : MonitorType.MONITOR_TYPES) {
@@ -73,10 +70,9 @@ class MetricsMappingTest {
 	}
 
 	@Test
-	@Disabled
 	void testGetMetadataAsMetricInfo() {
 
-		assertTrue(MetricsMapping.getMetadataAsMetricInfoList(MonitorType.CPU, MAXIMUM_SPEED).isPresent());
+		assertTrue(MetricsMapping.getMetadataAsMetricInfoList(MonitorType.PHYSICAL_DISK, SIZE).isPresent());
 		assertEquals(Optional.empty(), MetricsMapping.getMetadataAsMetricInfoList(MonitorType.MEMORY, "undefinedMatrixMetadataName"));
 		assertEquals(Optional.empty(), MetricsMapping.getMetadataAsMetricInfoList(MonitorType.MEMORY, ""));
 		assertEquals(Optional.empty(), MetricsMapping.getMetadataAsMetricInfoList(MonitorType.MEMORY, null));

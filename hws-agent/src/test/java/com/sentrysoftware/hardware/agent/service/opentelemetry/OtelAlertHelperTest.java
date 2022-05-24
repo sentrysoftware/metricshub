@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
 import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.common.meta.monitor.Battery;
+import com.sentrysoftware.matrix.common.meta.parameter.state.Present;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.collect.CollectHelper;
@@ -57,8 +58,10 @@ public class OtelAlertHelperTest {
 			// Inject the alert information and a custom testing trigger verifying that our generated report ;)
 			injectAlertInfoAndTriggerTest(hostMonitoring, physicalDisk, this::assertAlertMessage);
 
+			CollectHelper.updateNumberParameter(physicalDisk, ENERGY_PARAMETER, EMPTY, collectTime, 1000D, 1000D);
 			CollectHelper.updateStatusInformation(physicalDisk, collectTime, "Disk Failure X001256", Status.FAILED);
 			CollectHelper.updateDiscreteParameter(physicalDisk, STATUS_PARAMETER, collectTime, Status.FAILED);
+
 		}
 
 		{
@@ -84,7 +87,7 @@ public class OtelAlertHelperTest {
 
 			// Inject the alert information and a custom testing trigger verifying that our generated report ;)
 			injectAlertInfoAndTriggerTest(hostMonitoring, physicalDisk,
-					info -> assertEquals("hw.physical_disk.status", OtelAlertHelper.buildHardwareProblem(info, "${METRIC_NAME}")));
+					info -> assertEquals("hw.physical_disk.status{state=\"failed\"}", OtelAlertHelper.buildHardwareProblem(info, "${METRIC_NAME}")));
 
 			CollectHelper.updateDiscreteParameter(physicalDisk, STATUS_PARAMETER, collectTime, Status.FAILED);
 		}
@@ -98,7 +101,7 @@ public class OtelAlertHelperTest {
 
 			// Inject the alert information and a custom testing trigger verifying that our generated report ;)
 			injectAlertInfoAndTriggerTest(hostMonitoring, physicalDisk,
-					info -> assertEquals("2 (Failed)", OtelAlertHelper.buildHardwareProblem(info, "${METRIC_VALUE}")));
+					info -> assertEquals("1 (Failed)", OtelAlertHelper.buildHardwareProblem(info, "${METRIC_VALUE}")));
 
 			CollectHelper.updateDiscreteParameter(physicalDisk, STATUS_PARAMETER, collectTime, Status.FAILED);
 		}
@@ -126,7 +129,7 @@ public class OtelAlertHelperTest {
 
 			// Inject the alert information and a custom testing trigger verifying that our generated report ;)
 			injectAlertInfoAndTriggerTest(hostMonitoring, physicalDisk,
-					info -> assertEquals("hw.physical_disk.status == 2", OtelAlertHelper.buildHardwareProblem(info, "${ALERT_RULE}")));
+					info -> assertEquals("hw.physical_disk.status{state=\"failed\"} == 1", OtelAlertHelper.buildHardwareProblem(info, "${ALERT_RULE}")));
 
 			CollectHelper.updateDiscreteParameter(physicalDisk, STATUS_PARAMETER, collectTime, Status.FAILED);
 		}
@@ -387,25 +390,62 @@ public class OtelAlertHelperTest {
 							.monitorType(MonitorType.BATTERY)
 							.build();
 
-		CollectHelper.updateDiscreteParameter(monitor, STATUS_PARAMETER, collectTime, Status.FAILED);
+		{
+			CollectHelper.updateDiscreteParameter(monitor, STATUS_PARAMETER, collectTime, Status.FAILED);
 
-		final AlertRule alertRule = Battery.STATUS_ALARM_ALERT_RULE.copy();
-		alertRule.setDetails(AlertDetails.builder().problem("Elbow problem").consequence("Cannot play babyfoot")
-				.recommendedAction("Do a massage").build());
+			final AlertRule alertRule = Battery.STATUS_ALARM_ALERT_RULE.copy();
+			alertRule.setDetails(AlertDetails.builder().problem("Elbow problem").consequence("Cannot play babyfoot")
+					.recommendedAction("Do a massage").build());
 
-		String expected = "Alert Severity    : ALARM\n"
-				+ "Alert Rule        : hw.battery.status == 2\n"
-				+ "\n"
-				+ "Alert Details\n"
-				+ "=============\n"
-				+ "Problem           : Elbow problem\n"
-				+ "Consequence       : Cannot play babyfoot\n"
-				+ "Recommended Action: Do a massage";
+			final String expected = "Alert Severity    : ALARM\n"
+					+ "Alert Rule        : hw.battery.status{state=\"failed\"} == 1\n"
+					+ "\n"
+					+ "Alert Details\n"
+					+ "=============\n"
+					+ "Problem           : Elbow problem\n"
+					+ "Consequence       : Cannot play babyfoot\n"
+					+ "Recommended Action: Do a massage";
 
-		assertEquals(expected, OtelAlertHelper.buildAlertDetails(alertRule, monitor, STATUS_PARAMETER));
-		assertThrows(IllegalArgumentException.class, () -> OtelAlertHelper.buildAlertDetails(null, monitor, STATUS_PARAMETER));
-		assertThrows(IllegalArgumentException.class, () -> OtelAlertHelper.buildAlertDetails(alertRule, null, STATUS_PARAMETER));
-		assertThrows(IllegalArgumentException.class, () -> OtelAlertHelper.buildAlertDetails(null, monitor, null));
+			assertEquals(expected, OtelAlertHelper.buildAlertDetails(alertRule, monitor, STATUS_PARAMETER));
+			assertThrows(IllegalArgumentException.class, () -> OtelAlertHelper.buildAlertDetails(null, monitor, STATUS_PARAMETER));
+			assertThrows(IllegalArgumentException.class, () -> OtelAlertHelper.buildAlertDetails(alertRule, null, STATUS_PARAMETER));
+			assertThrows(IllegalArgumentException.class, () -> OtelAlertHelper.buildAlertDetails(null, monitor, null));
+		}
+
+		{
+			CollectHelper.updateDiscreteParameter(monitor, PRESENT_PARAMETER, collectTime, Present.MISSING);
+			final AlertRule alertRule = Battery.PRESENT_ALERT_RULE.copy();
+			alertRule.setDetails(AlertDetails.builder().problem("Elbow problem").consequence("Cannot play babyfoot")
+					.recommendedAction("Do a massage").build());
+
+			final String expected = "Alert Severity    : ALARM\n"
+					+ "Alert Rule        : hw.battery.status{state=\"present\"} == 0\n"
+					+ "\n"
+					+ "Alert Details\n"
+					+ "=============\n"
+					+ "Problem           : Elbow problem\n"
+					+ "Consequence       : Cannot play babyfoot\n"
+					+ "Recommended Action: Do a massage";
+			assertEquals(expected, OtelAlertHelper.buildAlertDetails(alertRule, monitor, PRESENT_PARAMETER));
+		}
+
+
+		{
+			CollectHelper.updateNumberParameter(monitor, CHARGE_PARAMETER, "", collectTime, 10D, 10D);
+			final AlertRule alertRule = Battery.CHARGE_ALARM_ALERT_RULE.copy();
+			alertRule.setDetails(AlertDetails.builder().problem("Elbow problem").consequence("Cannot play babyfoot")
+					.recommendedAction("Do a massage").build());
+
+			final String expected = "Alert Severity    : ALARM\n"
+					+ "Alert Rule        : hw.battery.charge <= 0.3\n"
+					+ "\n"
+					+ "Alert Details\n"
+					+ "=============\n"
+					+ "Problem           : Elbow problem\n"
+					+ "Consequence       : Cannot play babyfoot\n"
+					+ "Recommended Action: Do a massage";
+			assertEquals(expected, OtelAlertHelper.buildAlertDetails(alertRule, monitor, CHARGE_PARAMETER));
+		}
 	}
 
 	@Test
@@ -417,7 +457,7 @@ public class OtelAlertHelperTest {
 		CollectHelper.updateDiscreteParameter(physicalDisk, STATUS_PARAMETER, collectTime, Status.FAILED);
 		CollectHelper.updateNumberParameter(physicalDisk, ERROR_COUNT_PARAMETER, "", collectTime, 2d, 2d);
 
-		assertEquals("2 (Failed)", OtelAlertHelper.buildMetricValue(physicalDisk, STATUS_PARAMETER));
+		assertEquals("1 (Failed)", OtelAlertHelper.buildMetricValue(physicalDisk, STATUS_PARAMETER));
 		assertEquals("2", OtelAlertHelper.buildMetricValue(physicalDisk, ERROR_COUNT_PARAMETER));
 		assertEquals(EMPTY, OtelAlertHelper.buildMetricValue(physicalDisk, ENDURANCE_REMAINING_PARAMETER));
 		assertThrows(IllegalArgumentException.class, () -> OtelAlertHelper.buildMetricValue(physicalDisk, null));
@@ -432,9 +472,12 @@ public class OtelAlertHelperTest {
 				.build();
 		CollectHelper.updateDiscreteParameter(physicalDisk, STATUS_PARAMETER, collectTime, Status.FAILED);
 
-		assertEquals("hw.physical_disk.status", OtelAlertHelper.buildMetricName(physicalDisk, STATUS_PARAMETER));
+		assertEquals("hw.physical_disk.status{state=\"failed\"}", OtelAlertHelper.buildMetricName(physicalDisk, STATUS_PARAMETER));
 		assertThrows(IllegalArgumentException.class, () -> OtelAlertHelper.buildMetricName(null, STATUS_PARAMETER));
 		assertThrows(IllegalArgumentException.class, () -> OtelAlertHelper.buildMetricName(physicalDisk, (String) null));
+
+		CollectHelper.updateNumberParameter(physicalDisk, ENERGY_PARAMETER, EMPTY, collectTime, 1000D, 1000D);
+		assertEquals("hw.physical_disk.energy", OtelAlertHelper.buildMetricName(physicalDisk, ENERGY_PARAMETER));
 	}
 
 	@Test
@@ -474,4 +517,5 @@ public class OtelAlertHelperTest {
 		
 		assertThrows(IllegalArgumentException.class, () -> OtelAlertHelper.buildParentInformation("disk", id, null));
 	}
+
 }

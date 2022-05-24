@@ -5,6 +5,7 @@ import java.util.function.Predicate;
 
 import com.sentrysoftware.matrix.common.meta.parameter.state.IState;
 import com.sentrysoftware.matrix.common.meta.parameter.state.IntrusionStatus;
+import com.sentrysoftware.matrix.common.meta.parameter.state.PredictedFailure;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Present;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 
@@ -20,6 +21,7 @@ public class MappingConstants {
 	public static final Predicate<IState> FAILED_STATUS_PREDICATE = state -> Status.FAILED == state;
 	public static final Predicate<IState> PRESENT_PREDICATE = state -> Present.PRESENT == state;
 	public static final Predicate<IState> INTRUSION_STATUS_PREDICATE = state -> IntrusionStatus.OPEN == state;
+	public static final Predicate<IState> PREDICTED_FAILURE_PREDICATE = state -> PredictedFailure.FAILURE_PREDICTED == state;
 
 	// Attribute keys and values
 	public static final String VM_HOST_NAME = "vm.host.name";
@@ -35,7 +37,6 @@ public class MappingConstants {
 	public static final String PRESENT_ATTRIBUTE_VALUE = "present";
 	public static final String INTRUSION_ATTRIBUTE_VALUE = "open";
 	public static final String PREDICTED_FAILURE_ATTRIBUTE_VALUE = "predicted_failure";
-	
 
 	// Default attribute keys
 	public static final String NAME = "name";
@@ -49,6 +50,7 @@ public class MappingConstants {
 	public static final String SECONDS_UNIT = "s";
 	public static final String ERRORS_UNIT = "{errors}";
 	public static final String BYTES_UNIT = "By";
+	public static final String HERTZ_UNIT = "Hz";
 
 	public static final Set<String> DEFAULT_ATTRIBUTE_NAMES = Set.of(ID, NAME, PARENT);
 

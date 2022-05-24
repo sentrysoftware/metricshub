@@ -183,7 +183,7 @@ public class OtelAlertHelper {
 								.filter(Objects::nonNull)
 								.collect(Collectors.joining(NEW_LINE))
 				)
-				.filter(Objects::nonNull)
+				.filter(value -> !value.isBlank())
 				.collect(Collectors.joining(NEW_LINE));
 
 	}
@@ -211,21 +211,19 @@ public class OtelAlertHelper {
 				.append("\n-----------------------------------------------------------------")
 				.append("\nCurrent Value     : ").append(buildMetricValue(monitor, parameterName, metricInfo));
 
+		// Get the parameter from the monitor
 		final IParameter parameter = monitor.getParameters().get(parameterName);
 
 		// Let's get the state of the parameter
 		final Optional<IState> maybeState = getParameterState(parameter);
 
 		Optional<String> maybeStatusInfo = Optional.empty();
-		// Append the state if present
-		if (maybeState.isPresent()) {
-			IState state = maybeState.get();
-			builder.append(" (").append(state.getDisplayName()).append(")");
+
+		// Append the status information if we have a status state
+		if (maybeState.isPresent() && maybeState.get() instanceof Status) {
 
 			// Get the status information
-			if (state instanceof Status) {
-				maybeStatusInfo = getStatusInformation(monitor);
-			}
+			maybeStatusInfo = getStatusInformation(monitor);
 		}
 
 		// Is there any unit?
@@ -238,23 +236,7 @@ public class OtelAlertHelper {
 		if (maybeStatusInfo.isPresent()) {
 			builder
 				.append("\nStatus Information: \n")
-				.append(maybeStatusInfo.get())
-				.append(NEW_LINE);
-		}
-
-		final List<AlertRule> alertRules = monitor.getAlertRules().get(parameterName);
-
-		// Do we have alert rules on this parameter? If yes let's append them
-		if (alertRules != null && !alertRules.isEmpty()) {
-			final String thresholds = alertRules
-					.stream()
-					.map(alertRule -> String.format(" - %s: %s", alertRule.getSeverity(),
-							buildAlertRule(alertRule, monitor, parameterName)))
-					.collect(Collectors.joining(NEW_LINE));
-
-			builder
-				.append("\nAlert Rules       : \n")
-				.append(thresholds);
+				.append(maybeStatusInfo.get());
 		}
 
 		return builder.toString();
@@ -402,20 +384,24 @@ public class OtelAlertHelper {
 		// The metric information must be present
 		Assert.isTrue(maybeMetricInfoList.isPresent(), METRIC_INFO_LIST_MUST_BE_PRESENT);
 
+		// Metric info list from the mapping
 		final List<MetricInfo> metricInfoList = maybeMetricInfoList.get();
 
+		// Get the collected parameter
 		final IParameter parameter = monitor.getParameters().get(matrixParamName);
 
+		// Find the right metric information
 		final MetricInfo metricInfo = findMetricInfo(metricInfoList, parameter);
 
 		// The metric unit provided by the connector couldn't be the same as the one defined by the Hardware Sentry Agent
 		// The factor is less than equals 1 and greater than 0. E.G. 0.001 for hw.voltage.voltage_volts
 		final double factor = metricInfo.getFactor();
 
+		// Get the metric name including its identifying attribute
 		final String metricName = getMetricName(monitor, metricInfo);
 
 		// We know the threshold for a discrete parameter: 0 or 1
-		if (metricInfo.getPredicate() != null && parameter instanceof DiscreteParam) {
+		if (metricInfo.isBooleanMetric() && parameter instanceof DiscreteParam) {
 			final IState state = ((DiscreteParam) parameter).getState();
 			final String threshold = metricInfo.getPredicate().test(state) ? "1" : "0";
 			return String.format("%s == %s", metricName, threshold);
@@ -458,14 +444,14 @@ public class OtelAlertHelper {
 
 	/**
 	 * A {@link List} of {@link MetricInfo} instances can be defined for one
-	 * parameter. If the parameter is a {@link DiscreteParam} then the
-	 * {@link MetricInfo} instance which defines the right state (e.g. Degraded) is
-	 * returned. Otherwise this method returns the first {@link MetricInfo} instance
-	 * in the list and if there are many elements in the list then the first element
-	 * is always correct, because we are not handling a metric with a state
-	 * (true/false) and this metric is always reporting the same value as the
-	 * internal matrix parameter (e.g. hw.battery.charge) except a conversion using
-	 * a factor but still fine as the kind is not changed.
+	 * parameter.<br>
+	 * If the parameter is a {@link DiscreteParam} then the {@link MetricInfo}
+	 * instance which defines the right state (e.g. Degraded) is returned.<br>
+	 * Otherwise this method returns the first {@link MetricInfo} instance in the
+	 * list and if there are many elements in the list then the first element is
+	 * always correct, because this metric always reports the same value as the one
+	 * reported by the internal matrix parameter (e.g. hw.battery.charge) except a
+	 * conversion using a factor but still fine as the kind is not changed.
 	 * 
 	 * @param metricInfoList List of metric information defined in the mapping
 	 * @param parameter      The collected parameter
@@ -476,7 +462,7 @@ public class OtelAlertHelper {
 		if (maybeState.isPresent()) {
 			final Optional<MetricInfo> maybeMetricInfo = metricInfoList
 					.stream()
-					.filter(info -> info.getPredicate() != null)
+					.filter(MetricInfo::isBooleanMetric)
 					.filter(info -> info.getPredicate().test(maybeState.get()))
 					.findFirst();
 
@@ -566,9 +552,11 @@ public class OtelAlertHelper {
 		// Convert the value to string
 		String formatted = NumberHelper.formatNumber(value);
 
+		// Get the parameter state. It could be missing
 		final Optional<IState> maybeState = getParameterState(monitor.getParameters().get(matrixParamName));
 
 		if (maybeState.isPresent()) {
+			// Format the value e.g. 1 (Present)
 			return String.format("%s (%s)", formatted, maybeState.get().getDisplayName());
 		}
 
