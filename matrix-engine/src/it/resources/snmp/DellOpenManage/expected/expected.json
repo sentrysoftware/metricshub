@@ -157,7 +157,7 @@
         "collectTime" : 1634216906694,
         "previousCollectTime" : null,
         "unit" : null,
-        "value" : "Connector test succeeded",
+        "value" : "Connector test succeeded.",
         "previousValue" : null,
         "type" : "TextParam"
       },
