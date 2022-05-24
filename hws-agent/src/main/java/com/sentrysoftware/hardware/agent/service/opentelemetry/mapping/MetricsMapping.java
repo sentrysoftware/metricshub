@@ -54,6 +54,7 @@ public class MetricsMapping {
 		matrixParamToMetric.put(MonitorType.CONNECTOR, ConnectorMapping.buildConnectorMetricsMapping());
 		matrixParamToMetric.put(MonitorType.TARGET, HostMapping.buildHostMetricsMapping());
 		matrixParamToMetric.put(MonitorType.ENCLOSURE, EnclosureMapping.buildEnclosureMetricsMapping());
+		matrixParamToMetric.put(MonitorType.BATTERY, BatteryMapping.buildBatteryMetricsMapping());
 
 		matrixParamToMetricMap = Collections.unmodifiableMap(matrixParamToMetric);
 

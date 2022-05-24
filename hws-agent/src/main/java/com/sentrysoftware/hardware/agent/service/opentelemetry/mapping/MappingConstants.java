@@ -45,6 +45,7 @@ public class MappingConstants {
 	public static final String CELCIUS_UNIT = "Cel";
 	public static final String JOULES_UNIT = "J";
 	public static final String WATTS_UNIT = "W";
+	public static final String SECONDS_UNIT = "s";
 
 	public static final Set<String> DEFAULT_ATTRIBUTE_NAMES = Set.of(ID, NAME, PARENT);
 }

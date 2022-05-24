@@ -90,7 +90,6 @@ public class HostMapping {
 					.builder()
 					.name("hw.host.power")
 					.unit(WATTS_UNIT)
-					.type(MetricType.GAUGE)
 					.description("Energy consumed by all the components discovered for the monitored host.")
 					.identifyingAttribute(
 						DynamicIdentifyingAttribute

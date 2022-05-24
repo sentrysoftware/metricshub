@@ -1,6 +1,8 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry.mapping;
 
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.*;
+import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.OK_STATUS_PREDICATE;
+import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.STATE_ATTRIBUTE_KEY;
 
 import java.util.Collections;
 import java.util.List;
@@ -9,24 +11,23 @@ import java.util.TreeMap;
 
 import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo;
 import com.sentrysoftware.hardware.agent.dto.metric.StaticIdentifyingAttribute;
-import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo.MetricType;
-import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
+import com.sentrysoftware.matrix.common.meta.monitor.Battery;
 import com.sentrysoftware.matrix.common.meta.monitor.IMetaMonitor;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class EnclosureMapping {
+public class BatteryMapping {
 
-	private static final String ENCLOSURE_STATUS_METRIC_NAME = "hw.enclosure.status";
+	private static final String BATTERY_STATUS_METRIC_NAME = "hw.battery.status";
 
 	/**
-	 * Build enclosure metrics map
+	 * Build battery metrics map
 	 *
 	 * @return {@link Map} where the metrics are indexed by the matrix parameter name
 	 */
-	static Map<String, List<MetricInfo>> buildEnclosureMetricsMapping() {
+	static Map<String, List<MetricInfo>> buildBatteryMetricsMapping() {
 		final Map<String, List<MetricInfo>> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(
@@ -34,59 +35,59 @@ public class EnclosureMapping {
 			List.of(
 				MetricInfo
 					.builder()
-					.name(ENCLOSURE_STATUS_METRIC_NAME)
-					.description("Whether the enclosure status is ok or not.")
+					.name(BATTERY_STATUS_METRIC_NAME)
+					.description("Whether the battery status is ok or not.")
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
 							.key(STATE_ATTRIBUTE_KEY)
 							.value(OK_ATTRIBUTE_VALUE)
 							.build()
-					)
+						)
 					.predicate(OK_STATUS_PREDICATE)
 					.build(),
 				MetricInfo
 					.builder()
-					.name(ENCLOSURE_STATUS_METRIC_NAME)
-					.description("Whether the enclosure status is degraded or not.")
+					.name(BATTERY_STATUS_METRIC_NAME)
+					.description("Whether the battery status is degraded or not.")
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
 							.key(STATE_ATTRIBUTE_KEY)
 							.value(DEGRADED_ATTRIBUTE_VALUE)
 							.build()
-					)
+						)
 					.predicate(DEGRADED_STATUS_PREDICATE)
 					.build(),
 				MetricInfo
 					.builder()
-					.name(ENCLOSURE_STATUS_METRIC_NAME)
-					.description("Whether the enclosure status is failed or not.")
+					.name(BATTERY_STATUS_METRIC_NAME)
+					.description("Whether the battery status is failed or not.")
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
 							.key(STATE_ATTRIBUTE_KEY)
 							.value(FAILED_ATTRIBUTE_VALUE)
 							.build()
-					)
+						)
 					.predicate(FAILED_STATUS_PREDICATE)
 					.build()
 			)
 		);
 
 		map.put(
-			IMetaMonitor.PRESENT.getName(),
+			IMetaMonitor.PRESENT.getName(), 
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name(ENCLOSURE_STATUS_METRIC_NAME)
-					.description("Whether the enclosure is found or not.")
+					.name(BATTERY_STATUS_METRIC_NAME)
+					.description("Whether the battery is found or not.")
 					.identifyingAttribute(
-						StaticIdentifyingAttribute
-							.builder()
-							.key(STATE_ATTRIBUTE_KEY)
-							.value(PRESENT_ATTRIBUTE_VALUE)
-							.build()
+							StaticIdentifyingAttribute
+								.builder()
+								.key(STATE_ATTRIBUTE_KEY)
+								.value(PRESENT_ATTRIBUTE_VALUE)
+								.build()
 					)
 					.predicate(PRESENT_PREDICATE)
 					.build()
@@ -94,46 +95,34 @@ public class EnclosureMapping {
 		);
 
 		map.put(
-			Enclosure.INTRUSION_STATUS.getName(),
+			Battery.CHARGE.getName(),
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name(ENCLOSURE_STATUS_METRIC_NAME)
-					.description("Enclosure intrusion status. If the enclosure is open or not properly closed, it is set to 1.")
+					.name("hw.battery.charge")
+					.factor(0.01)
+					.unit("1")
+					.description("Battery charge ratio.")
+					.build()
+			)
+		);
+
+		map.put(
+			Battery.TIME_LEFT.getName(),
+			Collections.singletonList(
+				MetricInfo
+					.builder()
+					.name("hw.battery.time_left")
+					.unit(SECONDS_UNIT)
+					.description("Number of seconds left before recharging the battery.")
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
 							.key(STATE_ATTRIBUTE_KEY)
-							.value(INTRUSION_ATTRIBUTE_VALUE)
+							.value("discharging")
 							.build()
 					)
-					.predicate(INTRUSION_STATUS_PREDICATE)
 					.build()
-			)
-		);
-
-		map.put(
-			IMetaMonitor.ENERGY.getName(),
-			Collections.singletonList(
-				MetricInfo
-					.builder()
-					.name("hw.enclosure.energy")
-					.unit(JOULES_UNIT)
-					.type(MetricType.COUNTER)
-					.description("Energy consumed by the enclosure since the start of the Hardware Sentry Agent.")
-					.build()
-			)
-		);
-
-		map.put(
-			IMetaMonitor.POWER_CONSUMPTION.getName(), 
-			Collections.singletonList(
-				MetricInfo
-				.builder()
-				.name("hw.enclosure.power")
-				.unit(WATTS_UNIT)
-				.description("Energy consumed by the enclosure.")
-				.build()
 			)
 		);
 
