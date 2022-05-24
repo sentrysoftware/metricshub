@@ -276,7 +276,7 @@ Use the parameters below to configure the WinRM protocol:
 | username     | Name used to establish the connection with the target via the WinRM protocol.                                 |
 | password     | Password used to establish the connection with the target via the WinRM protocol.                             |
 | namespace    | Namespace of the target to connect to via the WinRM protocol.                                                 |
-| transport    | The protocol used to access the target (HTTP or HTTPS).                                                       |
+| protocol     | The protocol used to access the target (HTTP or HTTPS).                                                       |
 | port         | The port number used to perform WQL queries and commands (Default: 5985 for HTTP or 5986 for HTTPS).          |
 | forcentlm    | Whether to force the use of NTLM to authenticate to the target (Default: false).                              |
 | kerberosonly | Whether to force the use of kerberos to authenticate to the target (Default: false).                          |
