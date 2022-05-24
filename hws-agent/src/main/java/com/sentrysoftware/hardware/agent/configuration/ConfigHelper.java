@@ -50,8 +50,8 @@ import lombok.extern.slf4j.Slf4j;
 public class ConfigHelper {
 
 	public static final Path DEFAULT_OUTPUT_DIRECTORY = getSubDirectory("logs", true);
-	private static final String TIMEOUT_ERROR = "Timeout value is invalid for hostname %s for protocol %s. Timeout value returned: %f. This host will not be monitored. Please verify the configured timeout value.";
-	private static final String PORT_ERROR = "Invalid port configured for hostname %s for protocol %s. Port value returned: %d. This host will not be monitored. Please verify the configured port value.";
+	private static final String TIMEOUT_ERROR = "Timeout value is invalid for hostname %s for protocol %s. Timeout value returned: %s. This host will not be monitored. Please verify the configured timeout value.";
+	private static final String PORT_ERROR = "Invalid port configured for hostname %s for protocol %s. Port value returned: %s. This host will not be monitored. Please verify the configured port value.";
 	private static final String USERNAME_ERROR = "No username configured for hostname %s for protocol %s. This host will not be monitored. Please verify the configured username.";
 	private static final Predicate<String> INVALID_STRING_CHECKER = attr -> attr == null || attr.isBlank();
 	private static final Predicate<Integer> INVALID_PORT_CHECKER = attr -> attr == null || attr < 1 || attr > 65535;
@@ -141,7 +141,7 @@ public class ConfigHelper {
 		for (Connector connector : connectors) {
 			if (acceptedSources.stream().noneMatch(source -> connector.getSourceTypes().contains(source))) {
 				String message = String.format(
-						"Hostname %s - Selected connector %s couldn't be processed due to unsupported protocol. This host will not be monitored. Please verify that the connectors selected are appropriate for the specified protocol.",
+						"Hostname %s - Selected connector %s could not be processed due to unsupported protocol. This host will not be monitored. Please verify that the connectors selected are appropriate for the specified protocol.",
 						hostname, connector.getCompiledFilename());
 				log.error(message);
 				throw new BusinessException(ErrorCode.UNSUPPORTED_PROTOCOL, message);
