@@ -55,10 +55,13 @@ public class MetricsMapping {
 		matrixParamToMetric.put(MonitorType.TARGET, HostMapping.buildHostMetricsMapping());
 		matrixParamToMetric.put(MonitorType.ENCLOSURE, EnclosureMapping.buildEnclosureMetricsMapping());
 		matrixParamToMetric.put(MonitorType.BATTERY, BatteryMapping.buildBatteryMetricsMapping());
+		matrixParamToMetric.put(MonitorType.PHYSICAL_DISK, PhysicalDiskMapping.buildPhysicalDiskMetricsMapping());
 
 		matrixParamToMetricMap = Collections.unmodifiableMap(matrixParamToMetric);
 
 		final Map<MonitorType, Map<String, List<MetricInfo>>> metadataToMetric = new EnumMap<>(MonitorType.class);
+
+		metadataToMetric.put(MonitorType.PHYSICAL_DISK, PhysicalDiskMapping.physicalDiskMetadataToMetrics());
 
 		matrixMetadataToMetricMap = Collections.unmodifiableMap(metadataToMetric);
 	

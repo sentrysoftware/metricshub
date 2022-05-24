@@ -34,6 +34,7 @@ public class MappingConstants {
 	public static final String SSH_ATTRIBUTE_VALUE = "ssh";
 	public static final String PRESENT_ATTRIBUTE_VALUE = "present";
 	public static final String INTRUSION_ATTRIBUTE_VALUE = "open";
+	public static final String PREDICTED_FAILURE_ATTRIBUTE_VALUE = "predicted_failure";
 	
 
 	// Default attribute keys
@@ -46,6 +47,12 @@ public class MappingConstants {
 	public static final String JOULES_UNIT = "J";
 	public static final String WATTS_UNIT = "W";
 	public static final String SECONDS_UNIT = "s";
+	public static final String ERRORS_UNIT = "{errors}";
+	public static final String BYTES_UNIT = "By";
 
 	public static final Set<String> DEFAULT_ATTRIBUTE_NAMES = Set.of(ID, NAME, PARENT);
+
+	// Descriptions
+	public static final String ALARM_THRESHOLD_OF_ERRORS = "Alarm threshold of the encountered errors.";
+	public static final String WARNING_THRESHOLD_OF_ERRORS = "Warning threshold of the encountered errors.";
 }
