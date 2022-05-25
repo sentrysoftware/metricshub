@@ -76,7 +76,6 @@ public class RoboticsMapping {
 					.build()
 			)
 		);
-
 		map.put(
 			IMetaMonitor.PRESENT.getName(),
 			Collections.singletonList(

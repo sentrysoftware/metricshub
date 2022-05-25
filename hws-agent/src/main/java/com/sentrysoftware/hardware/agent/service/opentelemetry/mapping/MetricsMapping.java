@@ -66,7 +66,6 @@ public class MetricsMapping {
 		matrixParamToMetric.put(MonitorType.TEMPERATURE, TemperatureMapping.buildTemperatureMetricsMapping());
 		matrixParamToMetric.put(MonitorType.CPU_CORE, CpuCoreMapping.buildCpuCoreMetricsMapping());
 		matrixParamToMetric.put(MonitorType.FAN, FanMapping.buildFanMetricsMapping());
-		matrixParamToMetric.put(MonitorType.TAPE_DRIVE, TapeDriveMapping.buildTapeDriveMetricsMapping());
 
 		matrixParamToMetricMap = Collections.unmodifiableMap(matrixParamToMetric);
 
@@ -79,7 +78,6 @@ public class MetricsMapping {
 		metadataToMetric.put(MonitorType.TEMPERATURE, TemperatureMapping.temperatureMetadataToMetrics());
 		metadataToMetric.put(MonitorType.MEMORY, MemoryMapping.memoryMetadataToMetrics());
 		metadataToMetric.put(MonitorType.FAN, FanMapping.fanMetadataToMetrics());
-		metadataToMetric.put(MonitorType.TAPE_DRIVE, TapeDriveMapping.tapeDriveMetadataToMetrics());
 
 		matrixMetadataToMetricMap = Collections.unmodifiableMap(metadataToMetric);
 
