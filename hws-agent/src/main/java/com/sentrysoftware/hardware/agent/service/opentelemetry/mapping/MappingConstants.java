@@ -22,6 +22,7 @@ public class MappingConstants {
 	public static final Predicate<IState> OK_STATUS_PREDICATE = state -> Status.OK == state;
 	public static final Predicate<IState> DEGRADED_STATUS_PREDICATE = state -> Status.DEGRADED == state;
 	public static final Predicate<IState> FAILED_STATUS_PREDICATE = state -> Status.FAILED == state;
+	public static final Predicate<IState> PREDICTED_FAILURE_STATUS_PREDICATE = state -> PredictedFailure.FAILURE_PREDICTED == state;
 	public static final Predicate<IState> PRESENT_PREDICATE = state -> Present.PRESENT == state;
 	public static final Predicate<IState> INTRUSION_STATUS_PREDICATE = state -> IntrusionStatus.OPEN == state;
 	public static final Predicate<IState> PREDICTED_FAILURE_PREDICATE = state -> PredictedFailure.FAILURE_PREDICTED == state;
@@ -36,9 +37,18 @@ public class MappingConstants {
 	public static final String STATE_ATTRIBUTE_KEY = "state";
 	public static final String PROTOCOL_ATTRIBUTE_KEY = "protocol";
 	public static final String TYPE_ATTRIBUTE_KEY = "type";
+	public static final String TASK_ATTRIBUTE_KEY = "task";
+	public static final String DIRECTION_ATTRIBUTE_KEY = "direction";
 
 	// Attribute values
 	public static final String OK_ATTRIBUTE_VALUE = "ok";
+	public static final String CORRECTED_ATTRIBUTE_VALUE = "corrected";
+	public static final String DECODER_ATTRIBUTE_VALUE = "decorder";
+	public static final String ENCODER_ATTRIBUTE_VALUE = "encorder";
+	public static final String GENERAL_ATTRIBUTE_VALUE = "general";
+	public static final String RECEIVE_ATTRIBUTE_VALUE = "receive";
+	public static final String TRANSMIT_ATTRIBUTE_VALUE = "transmit";
+	public static final String ALL_ATTRIBUTE_VALUE = "all";
 	public static final String DEGRADED_ATTRIBUTE_VALUE = "degraded";
 	public static final String FAILED_ATTRIBUTE_VALUE = "failed";
 	public static final String SNMP_ATTRIBUTE_VALUE = "snmp";
@@ -54,7 +64,7 @@ public class MappingConstants {
 	public static final String ON_ATTRIBUTE_VALUE = "on";
 	public static final String OFF_ATTRIBUTE_VALUE = "off";
 	public static final String SUSPENDED_ATTRIBUTE_VALUE = "suspended";
-
+	
 	// Default attribute keys
 	public static final String NAME = "name";
 	public static final String PARENT = "parent";

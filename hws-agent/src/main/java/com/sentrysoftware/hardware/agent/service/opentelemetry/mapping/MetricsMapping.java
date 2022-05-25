@@ -60,6 +60,7 @@ public class MetricsMapping {
 		matrixParamToMetric.put(MonitorType.POWER_SUPPLY, PowerSupplyMapping.buildPowerSupplyMetricsMapping());
 		matrixParamToMetric.put(MonitorType.ROBOTICS, RoboticsMapping.buildRoboticsMetricsMapping());
 		matrixParamToMetric.put(MonitorType.TAPE_DRIVE, TapeDriveMapping.buildTapeDriveMetricsMapping());
+		matrixParamToMetric.put(MonitorType.GPU, GpuMapping.buildGpuMetricsMapping());
 		matrixParamToMetric.put(MonitorType.CPU, CpuMapping.buildCpuMetricsMapping());
 		matrixParamToMetric.put(MonitorType.VM, VmMapping.buildVmMetricsMapping());
 
@@ -70,6 +71,7 @@ public class MetricsMapping {
 		metadataToMetric.put(MonitorType.PHYSICAL_DISK, PhysicalDiskMapping.physicalDiskMetadataToMetrics());
 		metadataToMetric.put(MonitorType.ROBOTICS, RoboticsMapping.roboticsMetadataToMetrics());
 		metadataToMetric.put(MonitorType.TAPE_DRIVE, TapeDriveMapping.tapeDriveMetadataToMetrics());
+		metadataToMetric.put(MonitorType.GPU, GpuMapping.gpuMetadataToMetrics());
 		metadataToMetric.put(MonitorType.CPU, CpuMapping.cpuMetadataToMetrics());
 
 		matrixMetadataToMetricMap = Collections.unmodifiableMap(metadataToMetric);
