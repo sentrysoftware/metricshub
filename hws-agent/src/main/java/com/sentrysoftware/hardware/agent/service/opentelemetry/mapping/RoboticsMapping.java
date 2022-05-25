@@ -37,7 +37,7 @@ public class RoboticsMapping {
 				MetricInfo
 					.builder()
 					.name(ROBOTICS_STATUS_METRIC_NAME)
-					.description("Whether the robotics status is ok or not.")
+					.description("Whether the robotic device status is ok or not.")
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -50,7 +50,7 @@ public class RoboticsMapping {
 				MetricInfo
 					.builder()
 					.name(ROBOTICS_STATUS_METRIC_NAME)
-					.description("Whether the robotics status is degraded or not.")
+					.description("Whether the robotic device status is degraded or not.")
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -63,7 +63,7 @@ public class RoboticsMapping {
 				MetricInfo
 					.builder()
 					.name(ROBOTICS_STATUS_METRIC_NAME)
-					.description("Whether the robotics status is failed or not.")
+					.description("Whether the robotic device status is failed or not.")
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -82,7 +82,7 @@ public class RoboticsMapping {
 				MetricInfo
 					.builder()
 					.name(ROBOTICS_STATUS_METRIC_NAME)
-					.description("Whether the robotics is found or not.")
+					.description("Whether the robotic device is found or not.")
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -103,7 +103,7 @@ public class RoboticsMapping {
 					.name("hw.robotics.moves")
 					.unit(MOVES_UNIT)
 					.type(MetricType.COUNTER)
-					.description("Number of moves made by the robotics since the start of the Hardware Sentry Agent.")
+					.description("Number of moves operations that occurred during the last collect interval.")
 					.build()
 			)
 		);
@@ -116,7 +116,7 @@ public class RoboticsMapping {
 					.name("hw.robotics.errors")
 					.unit(ERRORS_UNIT)
 					.type(MetricType.COUNTER)
-					.description("Number of errors encountered by the robotics since the start of the Hardware Sentry Agent.")
+					.description("Number of errors encountered by the robotic device since the start of the Hardware Sentry Agent.")
 					.build()
 			)
 		);
@@ -129,7 +129,7 @@ public class RoboticsMapping {
 					.name("hw.robotics.energy")
 					.unit(JOULES_UNIT)
 					.type(MetricType.COUNTER)
-					.description("Energy consumed by the robotics since the start of the Hardware Sentry Agent.")
+					.description("Energy consumed by the robotic device since the start of the Hardware Sentry Agent.")
 					.build()
 			)
 		);
@@ -141,7 +141,7 @@ public class RoboticsMapping {
 					.builder()
 					.name("hw.robotics.power")
 					.unit(WATTS_UNIT)
-					.description("Energy consumed by the robotics.")
+					.description("Energy consumed by the robotic device.")
 					.build()
 			)
 		);
