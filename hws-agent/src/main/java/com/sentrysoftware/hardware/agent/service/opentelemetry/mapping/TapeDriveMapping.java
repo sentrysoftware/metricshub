@@ -102,7 +102,7 @@ public class TapeDriveMapping {
 				MetricInfo
 					.builder()
 					.name(TAPE_DRIVE_STATUS_METRIC_NAME)
-					.description("Whether the tape drive does not need cleaning or does.")
+					.description("Whether the tape drive needs cleaning.")
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -115,7 +115,7 @@ public class TapeDriveMapping {
 				MetricInfo
 					.builder()
 					.name(TAPE_DRIVE_STATUS_METRIC_NAME)
-					.description("Whether the tape drive needs cleaning or not.")
+					.description("Whether the tape drive needs cleaning.")
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -128,7 +128,7 @@ public class TapeDriveMapping {
 				MetricInfo
 					.builder()
 					.name(TAPE_DRIVE_STATUS_METRIC_NAME)
-					.description("Whether the tape drive needs cleaning immediately or not.")
+					.description("Whether the tape drive needs cleaning.")
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -148,7 +148,7 @@ public class TapeDriveMapping {
 					.builder()
 					.name(TAPE_DRIVE_OPERATIONS_METRIC_NAME)
 					.unit(OPERATIONS_UNIT)
-					.description("Number of mount operations performed by the tape drive since the start of the Hardware Sentry Agent.")
+					.description("Number of mount operations that occurred during the last collect interval.")
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -167,7 +167,7 @@ public class TapeDriveMapping {
 					.builder()
 					.name(TAPE_DRIVE_OPERATIONS_METRIC_NAME)
 					.unit(OPERATIONS_UNIT)
-					.description("Number of unmount operations performed by the tape drive since the start of the Hardware Sentry Agent.")
+					.description("Number of unmount operations that occurred during the last collect interval.")
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
