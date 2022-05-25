@@ -34,6 +34,8 @@ public class MappingConstants {
 	public static final String WMI_ATTRIBUTE_VALUE = "wmi";
 	public static final String WBEM_ATTRIBUTE_VALUE = "wbem";
 	public static final String SSH_ATTRIBUTE_VALUE = "ssh";
+	public static final String HTTP_ATTRIBUTE_VALUE = "http";
+	public static final String IPMI_ATTRIBUTE_VALUE = "ipmi";
 	public static final String PRESENT_ATTRIBUTE_VALUE = "present";
 	public static final String INTRUSION_ATTRIBUTE_VALUE = "open";
 	public static final String PREDICTED_FAILURE_ATTRIBUTE_VALUE = "predicted_failure";

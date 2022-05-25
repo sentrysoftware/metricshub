@@ -1,6 +1,8 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry.mapping;
 
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.CELCIUS_UNIT;
+import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.HTTP_ATTRIBUTE_VALUE;
+import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.IPMI_ATTRIBUTE_VALUE;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.JOULES_UNIT;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.PRESENT_PREDICATE;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.PROTOCOL_ATTRIBUTE_KEY;
@@ -17,8 +19,8 @@ import java.util.TreeMap;
 
 import com.sentrysoftware.hardware.agent.dto.metric.DynamicIdentifyingAttribute;
 import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo;
-import com.sentrysoftware.hardware.agent.dto.metric.StaticIdentifyingAttribute;
 import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo.MetricType;
+import com.sentrysoftware.hardware.agent.dto.metric.StaticIdentifyingAttribute;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.monitor.IMetaMonitor;
 import com.sentrysoftware.matrix.common.meta.monitor.Target;
@@ -190,6 +192,42 @@ public class HostMapping {
 					)
 					.build()
 				)
+		);
+
+		map.put(
+			Target.HTTP_UP.getName(),
+			Collections.singletonList(
+				MetricInfo
+					.builder()
+					.name(HARDWARE_SENTRY_HOST_UP_METRIC_NAME)
+					.description("Whether the HTTP protocol is up or not.")
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(PROTOCOL_ATTRIBUTE_KEY)
+							.value(HTTP_ATTRIBUTE_VALUE)
+							.build()
+					)
+					.build()
+			)
+		);
+
+		map.put(
+			Target.IPMI_UP.getName(),
+			Collections.singletonList(
+				MetricInfo
+					.builder()
+					.name(HARDWARE_SENTRY_HOST_UP_METRIC_NAME)
+					.description("Whether the IPMI protocol is up or not.")
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(PROTOCOL_ATTRIBUTE_KEY)
+							.value(IPMI_ATTRIBUTE_VALUE)
+							.build()
+					)
+					.build()
+			)
 		);
 
 		return map;
