@@ -246,37 +246,37 @@ public class MetricsMapping {
 				.builder()
 				.name("hw.target.snmp.up")
 				.unit(UP_PARAMETER_UNIT)
-				.description("Whether the SNMP protocol is up or not")
+				.description("Whether the SNMP protocol is up or not.")
 				.build());
 		map.put(Target.WMI_UP.getName(), MetricInfo
 				.builder()
 				.name("hw.target.wmi.up")
 				.unit(UP_PARAMETER_UNIT)
-				.description("Whether the WMI protocol is up or not")
+				.description("Whether the WMI protocol is up or not.")
 				.build());
 		map.put(Target.WBEM_UP.getName(), MetricInfo
 				.builder()
 				.name("hw.target.wbem.up")
 				.unit(UP_PARAMETER_UNIT)
-				.description("Whether the WBEM protocol is up or not")
+				.description("Whether the WBEM protocol is up or not.")
 				.build());
 		map.put(Target.SSH_UP.getName(), MetricInfo
 				.builder()
 				.name("hw.target.ssh.up")
 				.unit(UP_PARAMETER_UNIT)
-				.description("Whether the SSH protocol is up or not")
+				.description("Whether the SSH protocol is up or not.")
 				.build());
 		map.put(Target.HTTP_UP.getName(), MetricInfo
 				.builder()
 				.name("hw.target.http.up")
 				.unit(UP_PARAMETER_UNIT)
-				.description("Whether the HTTP protocol is up or not")
+				.description("Whether the HTTP protocol is up or not.")
 				.build());
 		map.put(Target.IPMI_UP.getName(), MetricInfo
 				.builder()
 				.name("hw.target.ipmi.up")
 				.unit(UP_PARAMETER_UNIT)
-				.description("Whether the IPMI protocol is up or not")
+				.description("Whether the IPMI protocol is up or not.")
 				.build());
 
 		return map;
