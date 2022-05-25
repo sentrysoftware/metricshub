@@ -223,12 +223,12 @@ public class SourceVisitor implements ISourceVisitor {
 				return SourceTable.empty();
 			}
 
-			log.debug("Hostname {} - IPMI OS Command: {}:\n{}", hostname, fruCommand, fruResult);
+			log.debug("Hostname {} - IPMI OS command: {}:\n{}", hostname, fruCommand, fruResult);
 
 		} catch (Exception e) {
 
 			logSourceError(connector.getCompiledFilename(), 
-					sourceKey, String.format("IPMI OS Command: %s.", fruCommand), hostname, e);
+					sourceKey, String.format("IPMI OS command: %s.", fruCommand), hostname, e);
 
 			Thread.currentThread().interrupt();
 

@@ -92,7 +92,7 @@ public class DetectionOperation extends AbstractStrategy {
 	List<TestedConnector> processSelectedConnectors(final Set<String> selectedConnectorKeys) {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-		log.debug("Hostname {} - Process selected connectors: {}.",
+		log.debug("Hostname {} - Processing selected connectors: {}.",
 				hostname, selectedConnectorKeys);
 
 		// Get the selected connectors from the store singleton bean
@@ -368,7 +368,7 @@ public class DetectionOperation extends AbstractStrategy {
 						.targetType(target.getType())
 						.build()));
 
-		log.debug("Hostname {} - Created Target ID: {}.", target.getHostname(), target.getId());
+		log.debug("Hostname {} - Created host ID: {}.", target.getHostname(), target.getId());
 
 		return hostMonitoring.getTargetMonitor();
 	}
@@ -501,11 +501,11 @@ public class DetectionOperation extends AbstractStrategy {
 	 */
 	private TestedConnector runConnectorDetection(final Connector connector, final String hostname) {
 
-		log.debug("Hostname {} - Start Detection for Connector {}.", hostname, connector.getCompiledFilename());
+		log.debug("Hostname {} - Start of detection for connector {}.", hostname, connector.getCompiledFilename());
 
 		final TestedConnector testedConnector = testConnector(connector, hostname);
 
-		log.debug("Hostname {} - End of Detection for Connector {}. Detection Status: {}.", hostname, connector.getCompiledFilename(),
+		log.debug("Hostname {} - End of detection for connector {}. Detection result: {}.", hostname, connector.getCompiledFilename(),
 				getTestedConnectorStatus(testedConnector));
 
 		return testedConnector;
