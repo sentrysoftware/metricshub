@@ -35,7 +35,7 @@ public class MappingConstants {
 	public static final String PRESENT_ATTRIBUTE_VALUE = "present";
 	public static final String INTRUSION_ATTRIBUTE_VALUE = "open";
 	public static final String PREDICTED_FAILURE_ATTRIBUTE_VALUE = "predicted_failure";
-	
+	public static final String TYPE_ATTRIBUTE_KEY = "type";
 
 	// Default attribute keys
 	public static final String NAME = "name";
@@ -49,6 +49,7 @@ public class MappingConstants {
 	public static final String SECONDS_UNIT = "s";
 	public static final String ERRORS_UNIT = "{errors}";
 	public static final String BYTES_UNIT = "By";
+	public static final String OPERATIONS_UNIT = "{operations}";
 
 	public static final Set<String> DEFAULT_ATTRIBUTE_NAMES = Set.of(ID, NAME, PARENT);
 
