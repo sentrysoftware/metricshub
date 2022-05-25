@@ -57,6 +57,7 @@ public class MetricsMapping {
 		matrixParamToMetric.put(MonitorType.BATTERY, BatteryMapping.buildBatteryMetricsMapping());
 		matrixParamToMetric.put(MonitorType.PHYSICAL_DISK, PhysicalDiskMapping.buildPhysicalDiskMetricsMapping());
 		matrixParamToMetric.put(MonitorType.TAPE_DRIVE, TapeDriveMapping.buildTapeDriveMetricsMapping());
+		matrixParamToMetric.put(MonitorType.CPU, CpuMapping.buildCpuMetricsMapping());
 
 		matrixParamToMetricMap = Collections.unmodifiableMap(matrixParamToMetric);
 
@@ -64,9 +65,10 @@ public class MetricsMapping {
 
 		metadataToMetric.put(MonitorType.PHYSICAL_DISK, PhysicalDiskMapping.physicalDiskMetadataToMetrics());
 		metadataToMetric.put(MonitorType.TAPE_DRIVE, TapeDriveMapping.tapeDriveMetadataToMetrics());
+		metadataToMetric.put(MonitorType.CPU, CpuMapping.cpuMetadataToMetrics());
 
 		matrixMetadataToMetricMap = Collections.unmodifiableMap(metadataToMetric);
-	
+
 		final Map<MonitorType, Map<String, String>> attributesMap = new EnumMap<>(MonitorType.class);
 
 		attributesMap.put(MonitorType.BATTERY, concatDefaultAttributesWithMetadata(MonitorType.BATTERY));

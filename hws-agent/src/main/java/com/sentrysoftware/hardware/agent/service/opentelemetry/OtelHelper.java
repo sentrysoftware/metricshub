@@ -291,8 +291,8 @@ public class OtelHelper {
 
 	/**
 	 * Extract the identifying attribute from the given {@link MetricInfo}. The
-	 * identifying attribute is key value pair which could be static or dynamic
-	 * fetched from the monitor's metadata.
+	 * identifying attribute is a key value pair which could be static or dynamic
+	 * i.e. fetched from the monitor's metadata.
 	 * 
 	 * @param metricInfo The metric information
 	 * @param monitor    The monitor used to fetch the attribute value
@@ -309,6 +309,8 @@ public class OtelHelper {
 				// The value is dynamic extracted from the metadata collection
 				return Optional.of(new String[] { identifyingAttribute.getKey(),
 						StringHelper.getValue(() -> monitor.getMetadata(identifyingAttribute.getValue()).trim().toLowerCase(), EMPTY) });
+			} else {
+				throw new IllegalStateException("Unhandled identifying attribute: " + identifyingAttribute.getClass().getSimpleName());
 			}
 		}
 
@@ -317,8 +319,10 @@ public class OtelHelper {
 
 	/**
 	 * Get the parameter from the monitor instance then if this parameter is a
-	 * {@link DiscreteParam} then apply the {@link MetricInfo} predicate if
-	 * available otherwise ({@link NumberParam}) return the parameter value
+	 * {@link DiscreteParam} then apply the {@link MetricInfo} predicate to decide
+	 * if we should return 1 (true) or 0 (false).<br> If we deal with a
+	 * {@link NumberParam} then simply return the parameter's value converted using
+	 * the metric information factor.
 	 *
 	 * @param metricInfo    The metric information
 	 * @param monitor       The monitor from which we extract the parameter value
@@ -326,12 +330,12 @@ public class OtelHelper {
 	 *                      monitor instance
 	 * @return {@link Number} value
 	 */
-	public static double getMetricValue(final MetricInfo metricInfo, final Monitor monitor, final String parameterName) {
+	public static double getMetricValue(@NonNull final MetricInfo metricInfo, @NonNull final Monitor monitor, @NonNull  final String parameterName) {
 
 		// Extract the parameter from this monitor
 		final IParameter parameter = monitor.getParameters().get(parameterName);
 
-		if (parameter instanceof DiscreteParam && metricInfo.getPredicate() != null) {
+		if (parameter instanceof DiscreteParam && metricInfo.isBooleanMetric()) {
 			final IState state = ((DiscreteParam) parameter).getState();
 			return metricInfo.getPredicate().test(state) ? 1 : 0;
 		}
