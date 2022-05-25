@@ -336,7 +336,7 @@ class CriterionVisitorTest {
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 			doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 			assertEquals(CriterionTestResult.builder().result("").success(false)
-					.message("Hostname " + HOST_LINUX + " - No OSCommand configuration for this host. Returning empty result").build(),
+					.message("Hostname " + HOST_LINUX + " - No OS command configuration for this host. Returning empty result").build(),
 					criterionVisitor.visit(new Ipmi()));
 		}
 		final SshProtocol ssh = SshProtocol.builder().username("root").password("nationale".toCharArray()).build();
@@ -1448,7 +1448,7 @@ class CriterionVisitorTest {
 		final Service service = new Service();
 		service.setServiceName("TWGIPC");
 
-		assertTrue(criterionVisitor.visit(service).getMessage().contains("WMI Credentials are not configured."));
+		assertTrue(criterionVisitor.visit(service).getMessage().contains("WMI credentials are not configured."));
 	}
 
 	@Test
@@ -1476,7 +1476,7 @@ class CriterionVisitorTest {
 
 		assertNotNull(criterionTestResult);
 		assertFalse(criterionTestResult.isSuccess());
-		assertTrue(criterionTestResult.getMessage().contains("Target OS is not Windows."));
+		assertTrue(criterionTestResult.getMessage().contains("Host OS is not Windows."));
 		assertNull(criterionTestResult.getResult());
 	}
 
@@ -1646,7 +1646,7 @@ class CriterionVisitorTest {
 		doReturn(UCS_SYSTEM_CISCO_RESULT).when(matsyaClientsExecutor).executeSNMPGet(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionVisitor.visit(SnmpGet.builder().oid(OID).expectedResult(UCS_EXPECTED).build());
 		final CriterionTestResult expected = CriterionTestResult.builder().message(
-				"Hostname ecs1-01 - Successful SNMPGet of 1.3.6.1.4.1.674.10893.1.20. Returned result: UCS System Cisco")
+				"Hostname ecs1-01 - Successful SNMP Get of 1.3.6.1.4.1.674.10893.1.20. Returned result: UCS System Cisco")
 				.result(UCS_SYSTEM_CISCO_RESULT)
 				.success(true)
 				.build();

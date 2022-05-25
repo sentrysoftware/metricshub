@@ -264,7 +264,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 				: sshProtocol;
 
 		if (osCommandConfig == null) {
-			final String message = String.format("Hostname %s - No OSCommand configuration for this host. Returning empty result", hostname);
+			final String message = String.format("Hostname %s - No OS command configuration for this host. Returning empty result", hostname);
 			log.warn(message);
 			return CriterionTestResult.builder().success(false).result("").message(message).build();
 		}
@@ -611,12 +611,12 @@ public class CriterionVisitor implements ICriterionVisitor {
 		final WmiProtocol wmiConfig =
 				(WmiProtocol) strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(WmiProtocol.class);
 		if (wmiConfig == null) {
-			return CriterionTestResult.error(service, "WMI Credentials are not configured.");
+			return CriterionTestResult.error(service, "WMI credentials are not configured.");
 		}
 
 		// The target system must be Windows
 		if (!TargetType.MS_WINDOWS.equals(strategyConfig.getEngineConfiguration().getTarget().getType())) {
-			return CriterionTestResult.error(service, "Target OS is not Windows. Skipping this test.");
+			return CriterionTestResult.error(service, "Host OS is not Windows. Skipping this test.");
 		}
 
 		// Our local system must be Windows
@@ -665,7 +665,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 	public CriterionTestResult visit(final SnmpGet snmpGet) {
 		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
 		if (null == snmpGet || snmpGet.getOid() == null) {
-			log.error("Hostname {} - Malformed SNMPGet criterion {}. Cannot process SNMPGet detection.", hostname, snmpGet);
+			log.error("Hostname {} - Malformed SNMP Get criterion {}. Cannot process SNMP Get detection.", hostname, snmpGet);
 			return CriterionTestResult.empty();
 		}
 
@@ -747,7 +747,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 					hostname, oid);
 			message += String.format(EXPECTED_VALUE_RETURNED_VALUE, expected, result);
 		} else {
-			message = String.format("Hostname %s - Successful SNMPGet of %s. Returned result: %s", hostname, oid, result);
+			message = String.format("Hostname %s - Successful SNMP Get of %s. Returned result: %s", hostname, oid, result);
 			success = true;
 		}
 

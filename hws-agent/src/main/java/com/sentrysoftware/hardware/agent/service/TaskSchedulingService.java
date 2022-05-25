@@ -316,7 +316,7 @@ public class TaskSchedulingService {
 		// Don't forget to store the scheduled task in case we want to cancel it due to a configuration change
 		targetSchedules.put(targetId, scheduledFuture);
 
-		log.info("Scheduled job for target ID {}.", targetId);
+		log.info("Scheduled job for host ID {}.", targetId);
 	}
 
 	/**

@@ -116,7 +116,7 @@ public class NetworkHelper {
 			try {
 				inetAddress = InetAddress.getByName(hostname);
 			} catch (UnknownHostException e) {
-				log.error("Hostname {} - Could not resolve hostname into an IP addrress. Assuming non-local.", hostname);
+				log.error("Hostname {} - Could not resolve hostname into an IP address. Assuming non-local.", hostname);
 				throw e;
 			}
 		}

@@ -106,15 +106,21 @@ public class ConfigHelper {
 	 */
 	static void validateTarget(final TargetType targetType, final String hostname) throws BusinessException {
 
-		validateAttribute(hostname, 
+		validateAttribute(
+				hostname,
 				INVALID_STRING_CHECKER,
 				() -> String.format(
-				"Invalid hostname: %s. This host will not be monitored. Please verify the configured hostname.",
-				hostname), ErrorCode.INVALID_HOSTNAME);
+						"Invalid hostname: %s. This host will not be monitored. Please verify the configured hostname.",
+						hostname),
+				ErrorCode.INVALID_HOSTNAME);
 
-		validateAttribute(targetType, Objects::isNull, () -> String.format(
-				"No target type configured for hostname: %s. This host will not be monitored. Please verify the configured type.",
-				hostname), ErrorCode.NO_TARGET_TYPE);
+		validateAttribute(
+				targetType,
+				Objects::isNull,
+				() -> String.format(
+						"No type configured for hostname: %s. This host will not be monitored. Please verify the configured type.",
+						hostname),
+				ErrorCode.NO_TARGET_TYPE);
 	}
 
 	/**
@@ -163,26 +169,31 @@ public class ConfigHelper {
 		final int intVersion = snmpDto.getVersion().getIntVersion();
 
 		if (intVersion != 3) {
-			validateAttribute(snmpDto.getCommunity(),
+			validateAttribute(
+					snmpDto.getCommunity(),
 					attr -> attr == null || attr.length == 0,
 					() -> String.format(
-							"No community string configured for hostname %s for %s. This host will not be monitored. Please verify the configured community string.",
-							hostname, displayName),
+							"No community string configured for hostname %s for %s. This host will not be monitored.",
+							hostname,
+							displayName),
 					ErrorCode.NO_COMMUNITY_STRING);
 		}
 
-		validateAttribute(snmpDto.getPort(),
+		validateAttribute(
+				snmpDto.getPort(),
 				INVALID_PORT_CHECKER,
 				() -> String.format(PORT_ERROR, hostname, displayName, snmpDto.getPort()),
 				ErrorCode.INVALID_PORT);
 
-		validateAttribute(snmpDto.getTimeout(),
+		validateAttribute(
+				snmpDto.getTimeout(),
 				INVALID_TIMEOUT_CHECKER,
 				() -> String.format(TIMEOUT_ERROR, hostname, displayName, snmpDto.getTimeout()),
 				ErrorCode.INVALID_TIMEOUT);
 
 		if (intVersion == 3 && snmpDto.getVersion().getAuthType() != null) {
-			validateAttribute(snmpDto.getUsername(),
+			validateAttribute(
+					snmpDto.getUsername(),
 					INVALID_STRING_CHECKER,
 					() -> String.format(USERNAME_ERROR, hostname, displayName),
 					ErrorCode.NO_USERNAME);
@@ -202,12 +213,14 @@ public class ConfigHelper {
 
 		final String protocol = "IPMI";
 
-		validateAttribute(username,
+		validateAttribute(
+				username,
 				INVALID_STRING_CHECKER,
 				() -> String.format(USERNAME_ERROR, hostname, protocol),
 				ErrorCode.NO_USERNAME);
 
-		validateAttribute(timeout,
+		validateAttribute(
+				timeout,
 				INVALID_TIMEOUT_CHECKER,
 				() -> String.format(TIMEOUT_ERROR, hostname, protocol, timeout),
 				ErrorCode.INVALID_TIMEOUT);
@@ -226,11 +239,15 @@ public class ConfigHelper {
 
 		final String protocol = "SSH";
 
-		validateAttribute(username, INVALID_STRING_CHECKER,
+		validateAttribute(
+				username,
+				INVALID_STRING_CHECKER,
 				() -> String.format(USERNAME_ERROR, hostname, protocol),
 				ErrorCode.NO_USERNAME);
 
-		validateAttribute(timeout, INVALID_TIMEOUT_CHECKER,
+		validateAttribute(
+				timeout,
+				INVALID_TIMEOUT_CHECKER,
 				() -> String.format(TIMEOUT_ERROR, hostname, protocol, timeout),
 				ErrorCode.INVALID_TIMEOUT);
 	}
@@ -249,15 +266,21 @@ public class ConfigHelper {
 
 		final String protocol = "WBEM";
 
-		validateAttribute(timeout, INVALID_TIMEOUT_CHECKER,
+		validateAttribute(
+				timeout,
+				INVALID_TIMEOUT_CHECKER,
 				() -> String.format(TIMEOUT_ERROR, hostname, protocol, timeout),
 				ErrorCode.INVALID_TIMEOUT);
 
-		validateAttribute(port, INVALID_PORT_CHECKER,
+		validateAttribute(
+				port,
+				INVALID_PORT_CHECKER,
 				() -> String.format(PORT_ERROR, hostname, protocol, port),
 				ErrorCode.INVALID_PORT);
 
-		validateAttribute(username, INVALID_STRING_CHECKER,
+		validateAttribute(
+				username,
+				INVALID_STRING_CHECKER,
 				() -> String.format(USERNAME_ERROR, hostname, protocol),
 				ErrorCode.NO_USERNAME);
 	}
@@ -273,7 +296,10 @@ public class ConfigHelper {
 
 		final String protocol = "WMI";
 
-		validateAttribute(timeout, INVALID_TIMEOUT_CHECKER, () -> String.format(TIMEOUT_ERROR, hostname, protocol, timeout),
+		validateAttribute(
+				timeout,
+				INVALID_TIMEOUT_CHECKER,
+				() -> String.format(TIMEOUT_ERROR, hostname, protocol, timeout),
 				ErrorCode.INVALID_TIMEOUT);
 	}
 
@@ -290,11 +316,15 @@ public class ConfigHelper {
 
 		final String protocol = "HTTP";
 
-		validateAttribute(timeout, INVALID_TIMEOUT_CHECKER,
+		validateAttribute(
+				timeout,
+				INVALID_TIMEOUT_CHECKER,
 				() -> String.format(TIMEOUT_ERROR, hostname, protocol, timeout),
 				ErrorCode.INVALID_TIMEOUT);
 
-		validateAttribute(port, INVALID_PORT_CHECKER,
+		validateAttribute(
+				port,
+				INVALID_PORT_CHECKER,
 				() -> String.format(PORT_ERROR, hostname, protocol, port),
 				ErrorCode.INVALID_PORT);
 	}
@@ -310,7 +340,9 @@ public class ConfigHelper {
 
 		final String protocol = "OSCommand";
 
-		validateAttribute(timeout, INVALID_TIMEOUT_CHECKER,
+		validateAttribute(
+				timeout,
+				INVALID_TIMEOUT_CHECKER,
 				() -> String.format(TIMEOUT_ERROR, hostname, protocol, timeout),
 				ErrorCode.INVALID_TIMEOUT);
 	}
@@ -569,7 +601,7 @@ public class ConfigHelper {
 
 		} catch (Exception e) {
 
-			log.warn("Host: {} - The given target has been staged as invalid.", hostConfigurationDto);
+			log.warn("Host: {} - The given host has been staged as invalid.", hostConfigurationDto);
 
 		}
 	}
