@@ -71,6 +71,7 @@ public class MetricsMapping {
 		matrixParamToMetric.put(MonitorType.FAN, FanMapping.buildFanMetricsMapping());
 		matrixParamToMetric.put(MonitorType.LUN, LunMapping.buildLunMetricsMapping());
 		matrixParamToMetric.put(MonitorType.LED, LedMapping.buildLedMetricsMapping());
+		matrixParamToMetric.put(MonitorType.DISK_CONTROLLER, DiskControllerMapping.buildDiskControllerMetricsMapping());
 
 		matrixParamToMetricMap = Collections.unmodifiableMap(matrixParamToMetric);
 
