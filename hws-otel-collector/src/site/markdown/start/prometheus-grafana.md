@@ -18,7 +18,9 @@ In this quick start guide, you will learn how to monitor several hosts and bring
 1. Prometheus Server installed and started with the `--web.enable-remote-write-receiver` option
 2. Grafana installed
 
-## Step 1: [Install Hardware Sentry OpenTelemetry Collector](../install.html)
+## Step 1: Install Hardware Sentry OpenTelemetry Collector
+
+[Install Hardware Sentry OpenTelemetry Collector](../install.html) on a system that has network access to the physical servers, switches and storage systems you need to monitor. We recommend to install one instance of the **Hardware Sentry OpenTelemetry Collector** on each "site" (i.e. each datacenter or server room).
 
 ## Step 2: Push metrics to Prometheus Server
 
@@ -28,7 +30,7 @@ In the **config/otel-config.yaml** file, locate the `prometheusremotewrite/your-
 
 ```yaml
   prometheusremotewrite/your-server:
-    endpoint: http://localhost:9090/api/v1/write
+    endpoint: http://myprometheusserver:9090/api/v1/write
     resource_to_telemetry_conversion:
       enabled: true
 ```

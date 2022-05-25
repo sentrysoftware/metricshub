@@ -21,13 +21,12 @@
 			<item name="Overview" href="index.html"/>
 			<item name="Release Notes" href="release-notes.html" />
 			<item name="Supported Platforms" href="platform-requirements.html " />
+			<item name="Quick Start" href="start/start.html ">
+           		 <item name="Prometheus / Grafana" href="start/prometheus-grafana.html" />
+			</item>
 			<item name="Installation" href="install.html"/>
 		</menu>
-
-		  <menu name="Quick Start Guides">
-            <item name="Prometheus / Grafana" href="start/prometheus-grafana.html" />
-        </menu>
-
+	
 		<menu name="Configuration">
 			<item name="OpenTelemetry Collector" href="configuration/configure-otel.html" />
 			<item name="Hardware Sentry Agent" href="configuration/configure-agent.html" />
