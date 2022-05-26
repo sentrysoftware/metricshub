@@ -57,6 +57,7 @@ public class MetricsMapping {
 		matrixParamToMetric.put(MonitorType.BATTERY, BatteryMapping.buildBatteryMetricsMapping());
 		matrixParamToMetric.put(MonitorType.PHYSICAL_DISK, PhysicalDiskMapping.buildPhysicalDiskMetricsMapping());
 		matrixParamToMetric.put(MonitorType.CPU, CpuMapping.buildCpuMetricsMapping());
+		matrixParamToMetric.put(MonitorType.MEMORY, MemoryMapping.buildMemoryMetricsMapping());
 
 		matrixParamToMetricMap = Collections.unmodifiableMap(matrixParamToMetric);
 
@@ -64,6 +65,7 @@ public class MetricsMapping {
 
 		metadataToMetric.put(MonitorType.PHYSICAL_DISK, PhysicalDiskMapping.physicalDiskMetadataToMetrics());
 		metadataToMetric.put(MonitorType.CPU, CpuMapping.cpuMetadataToMetrics());
+		metadataToMetric.put(MonitorType.FAN, MemoryMapping.memoryMetadataToMetrics());
 
 		matrixMetadataToMetricMap = Collections.unmodifiableMap(metadataToMetric);
 
