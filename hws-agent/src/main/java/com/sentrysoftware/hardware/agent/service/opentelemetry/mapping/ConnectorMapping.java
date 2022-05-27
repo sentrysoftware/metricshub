@@ -16,7 +16,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ConnectorMapping {
 
-	public static final String HARDWARE_SENTRY_CONNECTOR_STATUS_METRIC_NAME = "hardware_sentry.connector.status";
+	private static final String CONNECTOR_TYPE = "connector";
+	private static final String HARDWARE_SENTRY_CONNECTOR_STATUS_METRIC_NAME = "hardware_sentry.connector.status";
 
 	/**
 	 * Build connector metrics map
@@ -32,7 +33,7 @@ public class ConnectorMapping {
 					MetricInfo
 						.builder()
 						.name(HARDWARE_SENTRY_CONNECTOR_STATUS_METRIC_NAME)
-						.description("Whether the connector status is ok or not.")
+						.description(MappingConstants.createStatusDescription(CONNECTOR_TYPE, OK_ATTRIBUTE_VALUE))
 						.identifyingAttribute(
 							StaticIdentifyingAttribute
 								.builder()
@@ -45,7 +46,7 @@ public class ConnectorMapping {
 					MetricInfo
 						.builder()
 						.name(HARDWARE_SENTRY_CONNECTOR_STATUS_METRIC_NAME)
-						.description("Whether the connector status is degraded or not.")
+						.description(MappingConstants.createStatusDescription(CONNECTOR_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 						.identifyingAttribute(
 							StaticIdentifyingAttribute
 								.builder()
@@ -58,7 +59,7 @@ public class ConnectorMapping {
 					MetricInfo
 						.builder()
 						.name(HARDWARE_SENTRY_CONNECTOR_STATUS_METRIC_NAME)
-						.description("Whether the connector status is failed or not.")
+						.description(MappingConstants.createStatusDescription(CONNECTOR_TYPE, FAILED_ATTRIBUTE_VALUE))
 						.identifyingAttribute(
 							StaticIdentifyingAttribute
 								.builder()

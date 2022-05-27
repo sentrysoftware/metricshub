@@ -6,6 +6,7 @@ import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.Ma
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.common.meta.parameter.state.IntrusionStatus;
+import com.sentrysoftware.matrix.common.meta.parameter.state.NeedsCleaning;
 import com.sentrysoftware.matrix.common.meta.parameter.state.PredictedFailure;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Present;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
@@ -46,4 +47,31 @@ class MappingConstantsTest {
 		assertFalse(PREDICTED_FAILURE_PREDICATE.test(PredictedFailure.OK));
 	}
 
+	@Test
+	void testNeedsCleaningPredicates() {
+		assertTrue(NO_NEEDS_CLEANING_PREDICATE.test(NeedsCleaning.OK));
+		assertFalse(NEEDED_CLEANING_PREDICATE.test(NeedsCleaning.OK));
+		assertFalse(IMMEDIATELY_NEEDED_CLEANING_PREDICATE.test(NeedsCleaning.OK));
+
+		assertFalse(NO_NEEDS_CLEANING_PREDICATE.test(NeedsCleaning.NEEDED));
+		assertTrue(NEEDED_CLEANING_PREDICATE.test(NeedsCleaning.NEEDED));
+		assertFalse(IMMEDIATELY_NEEDED_CLEANING_PREDICATE.test(NeedsCleaning.NEEDED));
+
+		assertFalse(NO_NEEDS_CLEANING_PREDICATE.test(NeedsCleaning.NEEDED_IMMEDIATELY));
+		assertFalse(NEEDED_CLEANING_PREDICATE.test(NeedsCleaning.NEEDED_IMMEDIATELY));
+		assertTrue(IMMEDIATELY_NEEDED_CLEANING_PREDICATE.test(NeedsCleaning.NEEDED_IMMEDIATELY));
+	}
+
+	@Test
+	void testCreateStatusDescription() {
+		assertThrows(IllegalArgumentException.class, () -> createStatusDescription(null, "ok"));
+		assertThrows(IllegalArgumentException.class, () -> createStatusDescription("physical disk", null));
+		assertNotNull(createStatusDescription("physical disk", "ok"));
+	}
+
+	@Test
+	void testCreatePresentDescription() {
+		assertThrows(IllegalArgumentException.class, () -> createPresentDescription(null));
+		assertNotNull(createPresentDescription("physical disk"));
+	}
 }

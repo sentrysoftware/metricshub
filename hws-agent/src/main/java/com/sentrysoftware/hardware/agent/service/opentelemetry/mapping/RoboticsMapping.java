@@ -21,6 +21,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RoboticsMapping {
 
+	private static final String ROBOTICS_TYPE = "robotic device";
 	private static final String ROBOTICS_STATUS_METRIC_NAME = "hw.robotics.status";
 
 	/**
@@ -37,7 +38,7 @@ public class RoboticsMapping {
 				MetricInfo
 					.builder()
 					.name(ROBOTICS_STATUS_METRIC_NAME)
-					.description("Whether the robotic device status is ok or not.")
+					.description(MappingConstants.createStatusDescription(ROBOTICS_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -50,7 +51,7 @@ public class RoboticsMapping {
 				MetricInfo
 					.builder()
 					.name(ROBOTICS_STATUS_METRIC_NAME)
-					.description("Whether the robotic device status is degraded or not.")
+					.description(MappingConstants.createStatusDescription(ROBOTICS_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -63,7 +64,7 @@ public class RoboticsMapping {
 				MetricInfo
 					.builder()
 					.name(ROBOTICS_STATUS_METRIC_NAME)
-					.description("Whether the robotic device status is failed or not.")
+					.description(MappingConstants.createStatusDescription(ROBOTICS_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -82,7 +83,7 @@ public class RoboticsMapping {
 				MetricInfo
 					.builder()
 					.name(ROBOTICS_STATUS_METRIC_NAME)
-					.description("Whether the robotic device is found or not.")
+					.description(MappingConstants.createPresentDescription(ROBOTICS_TYPE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()

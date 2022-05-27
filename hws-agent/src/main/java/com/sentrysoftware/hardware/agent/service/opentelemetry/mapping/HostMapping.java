@@ -1,6 +1,6 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry.mapping;
 
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.CELCIUS_UNIT;
+import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.CELSIUS_UNIT;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.HTTP_ATTRIBUTE_VALUE;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.IPMI_ATTRIBUTE_VALUE;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.JOULES_UNIT;
@@ -31,6 +31,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class HostMapping {
 
+	private static final String HOST_CONFIGURED_METRIC_DESCRIPTION = "Whether the host is configured or not.";
 	public static final String HARDWARE_SENTRY_HOST_UP_METRIC_NAME = "hardware_sentry.host.up";
 
 	/**
@@ -47,7 +48,7 @@ public class HostMapping {
 				 MetricInfo
 					.builder()
 					.name("hw.host.ambient_temperature")
-					.unit(CELCIUS_UNIT)
+					.unit(CELSIUS_UNIT)
 					.description("Host's current ambient temperature in degrees Celsius (°C).")
 					.build()
 			)
@@ -79,7 +80,7 @@ public class HostMapping {
 				MetricInfo
 					.builder()
 					.name("hw.host.heating_margin")
-					.unit(CELCIUS_UNIT)
+					.unit(CELSIUS_UNIT)
 					.description("Number of degrees Celsius (°C) remaining before the temperature reaches the closest warning threshold.")
 					.build()
 			)
@@ -110,13 +111,13 @@ public class HostMapping {
 				MetricInfo
 					.builder()
 					.name("hw.host.configured")
-					.description("Whether the host is configured or not.")
+					.description(HOST_CONFIGURED_METRIC_DESCRIPTION)
 					.predicate(PRESENT_PREDICATE)
 					.build(),
 				MetricInfo
 					.builder()
 					.name("hardware_sentry.host.configured")
-					.description("Whether the host is configured or not.")
+					.description(HOST_CONFIGURED_METRIC_DESCRIPTION)
 					.predicate(PRESENT_PREDICATE)
 					.build()
 			)

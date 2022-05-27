@@ -343,4 +343,5 @@ public class OtelHelper {
 		// Return the number value for other parameters
 		return parameter.numberValue().doubleValue() * metricInfo.getFactor();
 	}
+
 }

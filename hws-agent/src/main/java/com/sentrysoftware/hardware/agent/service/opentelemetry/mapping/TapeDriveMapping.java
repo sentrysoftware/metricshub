@@ -21,6 +21,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TapeDriveMapping {
 
+	private static final String TAPE_DRIVE_TYPE = "tape drive";
 	private static final String TAPE_DRIVE_STATUS_METRIC_NAME = "hw.tape_drive.status";
 	private static final String TAPE_DRIVE_OPERATIONS_METRIC_NAME = "hw.tape_drive.operations";
 
@@ -38,7 +39,7 @@ public class TapeDriveMapping {
 				MetricInfo
 					.builder()
 					.name(TAPE_DRIVE_STATUS_METRIC_NAME)
-					.description("Whether the tape drive status is ok or not.")
+					.description(MappingConstants.createStatusDescription(TAPE_DRIVE_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -51,7 +52,7 @@ public class TapeDriveMapping {
 				MetricInfo
 					.builder()
 					.name(TAPE_DRIVE_STATUS_METRIC_NAME)
-					.description("Whether the tape drive status is degraded or not.")
+					.description(MappingConstants.createStatusDescription(TAPE_DRIVE_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -64,7 +65,7 @@ public class TapeDriveMapping {
 				MetricInfo
 					.builder()
 					.name(TAPE_DRIVE_STATUS_METRIC_NAME)
-					.description("Whether the tape drive status is failed or not.")
+					.description(MappingConstants.createStatusDescription(TAPE_DRIVE_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -83,7 +84,7 @@ public class TapeDriveMapping {
 				MetricInfo
 					.builder()
 					.name(TAPE_DRIVE_STATUS_METRIC_NAME)
-					.description("Whether the tape drive is found or not.")
+					.description(MappingConstants.createPresentDescription(TAPE_DRIVE_TYPE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -102,7 +103,7 @@ public class TapeDriveMapping {
 				MetricInfo
 					.builder()
 					.name(TAPE_DRIVE_STATUS_METRIC_NAME)
-					.description("Whether the tape drive needs cleaning.")
+					.description("Whether the tape drive doesn't need cleaning.")
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -110,7 +111,7 @@ public class TapeDriveMapping {
 							.value("no_needs_cleaning")
 							.build()
 					)
-					.predicate(OK_STATUS_PREDICATE)
+					.predicate(NO_NEEDS_CLEANING_PREDICATE)
 					.build(),
 				MetricInfo
 					.builder()
@@ -123,12 +124,12 @@ public class TapeDriveMapping {
 							.value("needs_cleaning")
 							.build()
 					)
-					.predicate(DEGRADED_STATUS_PREDICATE)
+					.predicate(NEEDED_CLEANING_PREDICATE)
 					.build(),
 				MetricInfo
 					.builder()
 					.name(TAPE_DRIVE_STATUS_METRIC_NAME)
-					.description("Whether the tape drive needs cleaning.")
+					.description("Whether the tape drive needs cleaning immediately.")
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -136,7 +137,7 @@ public class TapeDriveMapping {
 							.value("needs_cleaning_immediately")
 							.build()
 					)
-					.predicate(FAILED_STATUS_PREDICATE)
+					.predicate(IMMEDIATELY_NEEDED_CLEANING_PREDICATE)
 					.build()
 			)
 		);
