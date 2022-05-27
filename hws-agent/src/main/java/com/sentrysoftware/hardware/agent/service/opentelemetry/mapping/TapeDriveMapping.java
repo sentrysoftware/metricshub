@@ -39,7 +39,7 @@ public class TapeDriveMapping {
 				MetricInfo
 					.builder()
 					.name(TAPE_DRIVE_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(TAPE_DRIVE_TYPE, OK_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(TAPE_DRIVE_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -52,7 +52,7 @@ public class TapeDriveMapping {
 				MetricInfo
 					.builder()
 					.name(TAPE_DRIVE_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(TAPE_DRIVE_TYPE, DEGRADED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(TAPE_DRIVE_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -65,7 +65,7 @@ public class TapeDriveMapping {
 				MetricInfo
 					.builder()
 					.name(TAPE_DRIVE_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(TAPE_DRIVE_TYPE, FAILED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(TAPE_DRIVE_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -84,7 +84,7 @@ public class TapeDriveMapping {
 				MetricInfo
 					.builder()
 					.name(TAPE_DRIVE_STATUS_METRIC_NAME)
-					.description(MappingConstants.createPresentDescription(TAPE_DRIVE_TYPE))
+					.description(createPresentDescription(TAPE_DRIVE_TYPE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -96,7 +96,7 @@ public class TapeDriveMapping {
 					.build()
 			)
 		);
-		
+
 		map.put(
 			TapeDrive.NEEDS_CLEANING.getName(),
 			List.of(
@@ -141,7 +141,7 @@ public class TapeDriveMapping {
 					.build()
 			)
 		);
-		
+
 		map.put(
 			TapeDrive.MOUNT_COUNT.getName(),
 			Collections.singletonList(
@@ -160,7 +160,7 @@ public class TapeDriveMapping {
 					.build()
 			)
 		);
-		
+
 		map.put(
 			TapeDrive.UNMOUNT_COUNT.getName(),
 			Collections.singletonList(
@@ -179,7 +179,7 @@ public class TapeDriveMapping {
 					.build()
 			)
 		);
-			
+
 		map.put(
 			IMetaMonitor.ERROR_COUNT.getName(),
 			Collections.singletonList(
@@ -201,7 +201,7 @@ public class TapeDriveMapping {
 					.name("hw.tape_drive.energy")
 					.unit(JOULES_UNIT)
 					.type(MetricType.COUNTER)
-					.description("Energy consumed by the tape drive since the start of the Hardware Sentry Agent.")
+					.description(createEnergyDescription(TAPE_DRIVE_TYPE))
 					.build()
 			)
 		);
@@ -213,7 +213,7 @@ public class TapeDriveMapping {
 					.builder()
 					.name("hw.tape_drive.power")
 					.unit(WATTS_UNIT)
-					.description("Energy consumed by the tape drive.")
+					.description(createPowerConsumptionDescription(TAPE_DRIVE_TYPE))
 					.build()
 			)
 		);

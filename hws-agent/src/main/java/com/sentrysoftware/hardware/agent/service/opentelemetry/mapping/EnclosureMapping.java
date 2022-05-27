@@ -36,7 +36,7 @@ public class EnclosureMapping {
 				MetricInfo
 					.builder()
 					.name(ENCLOSURE_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(ENCLOSURE_TYPE, OK_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(ENCLOSURE_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -49,7 +49,7 @@ public class EnclosureMapping {
 				MetricInfo
 					.builder()
 					.name(ENCLOSURE_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(ENCLOSURE_TYPE, DEGRADED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(ENCLOSURE_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -62,7 +62,7 @@ public class EnclosureMapping {
 				MetricInfo
 					.builder()
 					.name(ENCLOSURE_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(ENCLOSURE_TYPE, FAILED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(ENCLOSURE_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -81,7 +81,7 @@ public class EnclosureMapping {
 				MetricInfo
 					.builder()
 					.name(ENCLOSURE_STATUS_METRIC_NAME)
-					.description(MappingConstants.createPresentDescription(ENCLOSURE_TYPE))
+					.description(createPresentDescription(ENCLOSURE_TYPE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -121,7 +121,7 @@ public class EnclosureMapping {
 					.name("hw.enclosure.energy")
 					.unit(JOULES_UNIT)
 					.type(MetricType.COUNTER)
-					.description("Energy consumed by the enclosure since the start of the Hardware Sentry Agent.")
+					.description(createEnergyDescription(ENCLOSURE_TYPE))
 					.build()
 			)
 		);
@@ -133,7 +133,7 @@ public class EnclosureMapping {
 				.builder()
 				.name("hw.enclosure.power")
 				.unit(WATTS_UNIT)
-				.description("Energy consumed by the enclosure.")
+				.description(createPowerConsumptionDescription(ENCLOSURE_TYPE))
 				.build()
 			)
 		);
