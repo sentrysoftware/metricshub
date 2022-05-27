@@ -5,14 +5,17 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAXIMUM
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SUPPLY_POWER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -42,12 +45,13 @@ class MetricsMappingTest {
 				.get(ServiceHelper.camelCaseToSnakeCase(EXPECTED_PATH_COUNT)));
 
 		assertEquals(HardwareConstants.HOSTNAME, MetricsMapping.getAttributesMap(MonitorType.VM)
-				.get(MappingConstants.VM_HOST_NAME));
+				.get(MetricsMapping.VM_HOST_NAME));
 	}
 
 	@Test
 	void testGetMetricInfo() {
 
+		Set<String> metricIds = new HashSet<>();
 		for (MonitorType monitorType : MonitorType.MONITOR_TYPES) {
 
 			final Map<String, List<MetricInfo>> matrixParamToMetricInfo = MetricsMapping.getMatrixParamToMetricMap()
@@ -56,6 +60,27 @@ class MetricsMappingTest {
 				for (Entry<String, List<MetricInfo>> entry : matrixParamToMetricInfo.entrySet())  {
 					for (MetricInfo metricInfo : entry.getValue()) {
 						assertNotNull(metricInfo);
+						String metricId;
+						if (metricInfo.getIdentifyingAttribute() != null) {
+							metricId = String.format("%s.%s.%s", metricInfo.getName(), metricInfo.getIdentifyingAttribute().getKey(), metricInfo.getIdentifyingAttribute().getValue());
+						} else {
+							metricId = metricInfo.getName();
+						}
+
+						// Check if the metric is not defined multiple times
+						assertFalse(
+							metricIds.contains(metricId),
+							String.format(
+								"This metric (%s) is badly mapped for monitor type %s. Metric id: %s."
+										+ "\nIf no identifying attributes are defined for this metric, the metric name must be unique."
+										+ "\nIf this metric is mapped with identifying attributes, the identifying attributes must be unique.",
+								metricInfo.getName(),
+								monitorType,
+								metricId
+							)
+						);
+
+						metricIds.add(metricId);
 					}
 				}
 			}

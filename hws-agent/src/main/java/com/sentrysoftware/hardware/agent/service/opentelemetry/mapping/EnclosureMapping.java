@@ -19,6 +19,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EnclosureMapping {
 
+	private static final String ENCLOSURE_TYPE = "enclosure";
 	private static final String ENCLOSURE_STATUS_METRIC_NAME = "hw.enclosure.status";
 
 	/**
@@ -35,7 +36,7 @@ public class EnclosureMapping {
 				MetricInfo
 					.builder()
 					.name(ENCLOSURE_STATUS_METRIC_NAME)
-					.description("Whether the enclosure status is ok or not.")
+					.description(MappingConstants.createStatusDescription(ENCLOSURE_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -48,7 +49,7 @@ public class EnclosureMapping {
 				MetricInfo
 					.builder()
 					.name(ENCLOSURE_STATUS_METRIC_NAME)
-					.description("Whether the enclosure status is degraded or not.")
+					.description(MappingConstants.createStatusDescription(ENCLOSURE_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -61,7 +62,7 @@ public class EnclosureMapping {
 				MetricInfo
 					.builder()
 					.name(ENCLOSURE_STATUS_METRIC_NAME)
-					.description("Whether the enclosure status is failed or not.")
+					.description(MappingConstants.createStatusDescription(ENCLOSURE_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -80,7 +81,7 @@ public class EnclosureMapping {
 				MetricInfo
 					.builder()
 					.name(ENCLOSURE_STATUS_METRIC_NAME)
-					.description("Whether the enclosure is found or not.")
+					.description(MappingConstants.createPresentDescription(ENCLOSURE_TYPE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -104,7 +105,7 @@ public class EnclosureMapping {
 						StaticIdentifyingAttribute
 							.builder()
 							.key(STATE_ATTRIBUTE_KEY)
-							.value(INTRUSION_ATTRIBUTE_VALUE)
+							.value(OPEN_ATTRIBUTE_VALUE)
 							.build()
 					)
 					.predicate(INTRUSION_STATUS_PREDICATE)
