@@ -24,7 +24,7 @@ public class VoltageMapping {
 	private static final String VOLTAGE_STATUS_METRIC_NAME = "hw.voltage.status";
 
 	/**
-	 * Build physical disk metrics map
+	 * Build voltage metrics map
 	 *
 	 * @return  {@link Map} where the metrics are indexed by the matrix parameter name
 	 */
@@ -101,7 +101,7 @@ public class VoltageMapping {
 				MetricInfo
 					.builder()
 					.name("hw.voltage.voltage_volts")
-					.factor(MILLIVOLT_TO_VOLT_FACTOR)
+					.factor(MILLIVOLTS_TO_VOLTS_FACTOR)
 					.unit(VOLTS_UNIT)
 					.description("Voltage outputs.")
 					.build()
@@ -112,7 +112,7 @@ public class VoltageMapping {
 	}
 
 	/**
-	 * Create Voltage Metadata to metrics map
+	 * Create voltage Metadata to metrics map
 	 * 
 	 * @return {@link Map} of {@link MetricInfo} instances indexed by the matrix parameter names
 	 */
@@ -125,7 +125,7 @@ public class VoltageMapping {
 				MetricInfo
 					.builder()
 					.name("hw.voltage.voltage_volts_upper")
-					.factor(MILLIVOLT_TO_VOLT_FACTOR)
+					.factor(MILLIVOLTS_TO_VOLTS_FACTOR)
 					.unit(VOLTS_UNIT)
 					.description("Upper threshold of the voltage.")
 					.build()
@@ -139,7 +139,7 @@ public class VoltageMapping {
 					.builder()
 					.name("hw.voltage.voltage_volts_lower")
 					.description("Lower threshold of the voltage.")
-					.factor(MILLIVOLT_TO_VOLT_FACTOR)
+					.factor(MILLIVOLTS_TO_VOLTS_FACTOR)
 					.unit(VOLTS_UNIT)
 					.build()
 			)

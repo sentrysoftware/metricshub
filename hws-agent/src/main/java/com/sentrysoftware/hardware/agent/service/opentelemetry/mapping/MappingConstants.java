@@ -76,7 +76,7 @@ public class MappingConstants {
 	// Factors
 	public static final double MHZ_TO_HZ_FACTOR = 1000000.0;
 	public static final double RATIO_FACTOR = 0.01;
-	public static final double MILLIVOLT_TO_VOLT_FACTOR = 0.001;
+	public static final double MILLIVOLTS_TO_VOLTS_FACTOR = 0.001;
 
 	/**
 	 * Creates the description of the status mappings.
