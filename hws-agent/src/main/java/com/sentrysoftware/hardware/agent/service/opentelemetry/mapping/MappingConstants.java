@@ -59,4 +59,7 @@ public class MappingConstants {
 	// Descriptions
 	public static final String ALARM_THRESHOLD_OF_ERRORS = "Alarm threshold of the encountered errors.";
 	public static final String WARNING_THRESHOLD_OF_ERRORS = "Warning threshold of the encountered errors.";
+	
+	// Factors
+	public static final double MB_TO_B_FACTOR = 1000000.0;
 }
