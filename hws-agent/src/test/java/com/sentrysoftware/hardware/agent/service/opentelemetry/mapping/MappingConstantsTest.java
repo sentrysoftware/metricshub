@@ -6,6 +6,7 @@ import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.Ma
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.common.meta.parameter.state.IntrusionStatus;
+import com.sentrysoftware.matrix.common.meta.parameter.state.NeedsCleaning;
 import com.sentrysoftware.matrix.common.meta.parameter.state.PredictedFailure;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Present;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
@@ -44,6 +45,21 @@ class MappingConstantsTest {
 	void testPredictedFailureStatusPredicate() {
 		assertTrue(PREDICTED_FAILURE_PREDICATE.test(PredictedFailure.FAILURE_PREDICTED));
 		assertFalse(PREDICTED_FAILURE_PREDICATE.test(PredictedFailure.OK));
+	}
+
+	@Test
+	void testNeedsCleaningPredicates() {
+		assertTrue(NO_NEEDS_CLEANING_PREDICATE.test(NeedsCleaning.OK));
+		assertFalse(NEEDED_CLEANING_PREDICATE.test(NeedsCleaning.OK));
+		assertFalse(IMMEDIATELY_NEEDED_CLEANING_PREDICATE.test(NeedsCleaning.OK));
+
+		assertFalse(NO_NEEDS_CLEANING_PREDICATE.test(NeedsCleaning.NEEDED));
+		assertTrue(NEEDED_CLEANING_PREDICATE.test(NeedsCleaning.NEEDED));
+		assertFalse(IMMEDIATELY_NEEDED_CLEANING_PREDICATE.test(NeedsCleaning.NEEDED));
+
+		assertFalse(NO_NEEDS_CLEANING_PREDICATE.test(NeedsCleaning.NEEDED_IMMEDIATELY));
+		assertFalse(NEEDED_CLEANING_PREDICATE.test(NeedsCleaning.NEEDED_IMMEDIATELY));
+		assertTrue(IMMEDIATELY_NEEDED_CLEANING_PREDICATE.test(NeedsCleaning.NEEDED_IMMEDIATELY));
 	}
 
 	@Test
