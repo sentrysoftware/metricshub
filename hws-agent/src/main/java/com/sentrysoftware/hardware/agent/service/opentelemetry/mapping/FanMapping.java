@@ -23,6 +23,7 @@ import lombok.NoArgsConstructor;
 public class FanMapping {
 
 	private static final String FAN_STATUS_METRIC_NAME = "hw.fan.status";
+	private static final String FAN_NAME = "fan";
 
 	/**
 	 * Build fan metrics map
@@ -38,7 +39,7 @@ public class FanMapping {
 				MetricInfo
 					.builder()
 					.name(FAN_STATUS_METRIC_NAME)
-					.description("Whether the fan status is ok or not.")
+					.description(createStatusDescription(FAN_NAME, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -51,7 +52,7 @@ public class FanMapping {
 				MetricInfo
 					.builder()
 					.name(FAN_STATUS_METRIC_NAME)
-					.description("Whether the fan status is degraded or not.")
+					.description(createStatusDescription(FAN_NAME, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -64,7 +65,7 @@ public class FanMapping {
 				MetricInfo
 					.builder()
 					.name(FAN_STATUS_METRIC_NAME)
-					.description("Whether the fan status is failed or not.")
+					.description(createStatusDescription(FAN_NAME, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -83,7 +84,7 @@ public class FanMapping {
 				MetricInfo
 					.builder()
 					.name(FAN_STATUS_METRIC_NAME)
-					.description("Whether the fan is found or not.")
+					.description(createPresentDescription(FAN_NAME))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -104,7 +105,7 @@ public class FanMapping {
 					.name("hw.fan.energy")
 					.unit(JOULES_UNIT)
 					.type(MetricType.COUNTER)
-					.description("Energy consumed by the fan since the start of the Hardware Sentry Agent.")
+					.description(createEnergyDescription(FAN_NAME))
 					.build()
 			)
 		);
@@ -117,7 +118,7 @@ public class FanMapping {
 				.name("hw.fan.power")
 				.unit(WATTS_UNIT)
 				.type(MetricType.GAUGE)
-				.description("Energy consumed by the fan.")
+				.description(createPowerConsumptionDescription(FAN_NAME))
 				.build()
 			)
 		);
