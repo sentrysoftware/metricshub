@@ -61,6 +61,7 @@ public class MetricsMapping {
 		matrixParamToMetric.put(MonitorType.ROBOTICS, RoboticsMapping.buildRoboticsMetricsMapping());
 		matrixParamToMetric.put(MonitorType.TAPE_DRIVE, TapeDriveMapping.buildTapeDriveMetricsMapping());
 		matrixParamToMetric.put(MonitorType.CPU, CpuMapping.buildCpuMetricsMapping());
+		matrixParamToMetric.put(MonitorType.VM, VmMapping.buildVmMetricsMapping());
 
 		matrixParamToMetricMap = Collections.unmodifiableMap(matrixParamToMetric);
 
