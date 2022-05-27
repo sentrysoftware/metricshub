@@ -285,7 +285,7 @@ public class GpuMapping {
 					.name("hw.gpu.energy")
 					.unit(JOULES_UNIT)
 					.type(MetricType.COUNTER)
-					.description("Energy consumed by the GPU since the start of the Hardware Sentry Agent.")
+					.description(createEnergyDescription(GPU_NAME))
 					.build()
 			)
 		);
@@ -297,7 +297,7 @@ public class GpuMapping {
 					.builder()
 					.name("hw.gpu.power")
 					.unit(WATTS_UNIT)
-					.description("Energy consumed by the GPU.")
+					.description(createPowerConsumptionDescription(GPU_NAME))
 					.build()
 			)
 		);
@@ -320,7 +320,7 @@ public class GpuMapping {
 					.builder()
 					.name("hw.gpu.memory.limit")
 					.unit(BYTES_UNIT)
-					.factor(MHZ_TO_HZ_FACTOR) // MB to Bytes  
+					.factor(MHZ_TO_BYTE_FACTOR) // MB to Bytes  
 					.description("GPU memory size.")
 					.build()
 			)

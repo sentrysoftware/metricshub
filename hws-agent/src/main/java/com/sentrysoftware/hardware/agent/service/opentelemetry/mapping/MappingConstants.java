@@ -91,6 +91,7 @@ public class MappingConstants {
 
 	// Factors
 	public static final double MHZ_TO_HZ_FACTOR = 1000000.0;
+	public static final double MHZ_TO_BYTE_FACTOR = 1000000.0;
 	public static final double RATIO_FACTOR = 0.01;
 
 	/**
