@@ -1,8 +1,6 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry.mapping;
 
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.*;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_ALARM_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SUPPLY_POWER;
 
 import java.util.Collections;
@@ -21,6 +19,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PowerSupplyMapping {
 
+	private static final String POWER_SUPPLY_TYPE = "power supply";
 	private static final String POWER_SUPPLY_STATUS_METRIC_NAME = "hw.power_supply.status";
 
 	/**
@@ -37,7 +36,7 @@ public class PowerSupplyMapping {
 				MetricInfo
 					.builder()
 					.name(POWER_SUPPLY_STATUS_METRIC_NAME)
-					.description("Whether the power supply status is ok or not.")
+					.description(MappingConstants.createStatusDescription(POWER_SUPPLY_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -50,7 +49,7 @@ public class PowerSupplyMapping {
 				MetricInfo
 					.builder()
 					.name(POWER_SUPPLY_STATUS_METRIC_NAME)
-					.description("Whether the power supply status is degraded or not.")
+					.description(MappingConstants.createStatusDescription(POWER_SUPPLY_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -63,7 +62,7 @@ public class PowerSupplyMapping {
 				MetricInfo
 					.builder()
 					.name(POWER_SUPPLY_STATUS_METRIC_NAME)
-					.description("Whether the power supply status is failed or not.")
+					.description(MappingConstants.createStatusDescription(POWER_SUPPLY_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -82,7 +81,7 @@ public class PowerSupplyMapping {
 				MetricInfo
 					.builder()
 					.name(POWER_SUPPLY_STATUS_METRIC_NAME)
-					.description("Whether the power supply is found or not.")
+					.description(MappingConstants.createPresentDescription(POWER_SUPPLY_TYPE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -94,15 +93,15 @@ public class PowerSupplyMapping {
 					.build()
 			)
 		);
-		
+
 		map.put(
 			PowerSupply.USED_CAPACITY.getName(),
 			Collections.singletonList(
 				MetricInfo
 					.builder()
 					.name("hw.power_supply.utilization")
-					.factor(0.01)
-					.unit("1")
+					.factor(RATIO_FACTOR)
+					.unit(RATIO_UNIT)
 					.description("Ratio of the power supply power currently in use.")
 					.build()
 			)
@@ -110,7 +109,7 @@ public class PowerSupplyMapping {
 
 		return map;
 	}
-	
+
 	/**
 	 * Create PowerSupply Metadata to metrics map
 	 * 

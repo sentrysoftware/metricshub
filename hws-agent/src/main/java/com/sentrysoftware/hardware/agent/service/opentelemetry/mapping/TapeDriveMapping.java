@@ -96,7 +96,7 @@ public class TapeDriveMapping {
 					.build()
 			)
 		);
-		
+
 		map.put(
 			TapeDrive.NEEDS_CLEANING.getName(),
 			List.of(
@@ -141,7 +141,7 @@ public class TapeDriveMapping {
 					.build()
 			)
 		);
-		
+
 		map.put(
 			TapeDrive.MOUNT_COUNT.getName(),
 			Collections.singletonList(
@@ -160,7 +160,7 @@ public class TapeDriveMapping {
 					.build()
 			)
 		);
-		
+
 		map.put(
 			TapeDrive.UNMOUNT_COUNT.getName(),
 			Collections.singletonList(
@@ -179,7 +179,7 @@ public class TapeDriveMapping {
 					.build()
 			)
 		);
-			
+
 		map.put(
 			IMetaMonitor.ERROR_COUNT.getName(),
 			Collections.singletonList(
