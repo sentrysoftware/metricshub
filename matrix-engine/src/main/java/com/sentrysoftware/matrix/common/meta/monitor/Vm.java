@@ -13,6 +13,8 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_S
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_STATE_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SHARE_RATIO_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATUS_WARN_CONDITION;
 
@@ -55,6 +57,14 @@ public class Vm implements IMetaMonitor {
 			.type(SimpleParamType.NUMBER)
 			.build();
 
+	public static final MetaParameter POWER_SHARE_RATIO = MetaParameter.builder()
+			.basicCollect(true)
+			.name(POWER_SHARE_RATIO_PARAMETER)
+			.unit(PERCENT_PARAMETER_UNIT)
+			.type(SimpleParamType.NUMBER)
+			.build();
+
+			
 	public static final AlertRule STATUS_WARN_ALERT_RULE = new AlertRule(Vm::checkStatusWarnCondition,
 			STATUS_WARN_CONDITION,
 			Severity.WARN);
@@ -75,6 +85,7 @@ public class Vm implements IMetaMonitor {
 		map.put(ENERGY_PARAMETER, ENERGY);
 		map.put(ENERGY_USAGE_PARAMETER, ENERGY_USAGE);
 		map.put(POWER_CONSUMPTION_PARAMETER, POWER_CONSUMPTION);
+		map.put(POWER_SHARE_RATIO_PARAMETER, POWER_SHARE_RATIO);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 

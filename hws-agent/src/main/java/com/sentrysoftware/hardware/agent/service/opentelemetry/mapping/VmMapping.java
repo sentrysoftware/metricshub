@@ -21,6 +21,7 @@ public class VmMapping {
 
 	private static final String VM_STATUS_METRIC_NAME = "hw.vm.status";
 	private static final String VM_POWER_STATE_METRIC_NAME = "hw.vm.power_state";
+	private static final String VM_NAME="virtual machine";
 
 	/**
 	 * Build virtual machine metrics map
@@ -36,7 +37,7 @@ public class VmMapping {
 				MetricInfo
 					.builder()
 					.name(VM_STATUS_METRIC_NAME)
-					.description("Whether the virtual machine status is ok or not.")
+					.description(createStatusDescription(VM_NAME, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -49,7 +50,7 @@ public class VmMapping {
 				MetricInfo
 					.builder()
 					.name(VM_STATUS_METRIC_NAME)
-					.description("Whether the virtual machine status is degraded or not.")
+					.description(createStatusDescription(VM_NAME, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -62,7 +63,7 @@ public class VmMapping {
 				MetricInfo
 					.builder()
 					.name(VM_STATUS_METRIC_NAME)
-					.description("Whether the virtual machine status is failed or not.")
+					.description(createStatusDescription(VM_NAME, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -81,7 +82,7 @@ public class VmMapping {
 				MetricInfo
 					.builder()
 					.name(VM_STATUS_METRIC_NAME)
-					.description("Whether the virtual machine is found or not.")
+					.description(createPresentDescription(VM_NAME))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -140,7 +141,7 @@ public class VmMapping {
 		);
 
 		map.put(
-			Vm.POWER_SHARE.getName(),
+			Vm.POWER_SHARE_RATIO.getName(),
 			Collections.singletonList(
 				MetricInfo
 					.builder()
@@ -160,7 +161,7 @@ public class VmMapping {
 					.name("hw.vm.energy")
 					.unit(JOULES_UNIT)
 					.type(MetricType.COUNTER)
-					.description("Energy consumed by the virtual machine since the start of the Hardware Sentry Agent.")
+					.description(createEnergyDescription(VM_NAME))
 					.build()
 			)
 		);
@@ -172,7 +173,7 @@ public class VmMapping {
 					.builder()
 					.name("hw.vm.power")
 					.unit(WATTS_UNIT)
-					.description("Energy consumed by the virtual machine.")
+					.description(createPowerConsumptionDescription(VM_NAME))
 					.build()
 			)
 		);

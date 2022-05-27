@@ -31,6 +31,9 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_M
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TOTAL_BANDWIDTH_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SHARE_RATIO_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_PARAMETER_UNIT;
+
 import static org.springframework.util.Assert.state;
 
 import java.math.RoundingMode;
@@ -1262,6 +1265,9 @@ public class CollectOperation extends AbstractStrategy {
 					.getHostname()
 			);
 		}
+
+		CollectHelper.updateNumberParameter(vm, POWER_SHARE_RATIO_PARAMETER, PERCENT_PARAMETER_UNIT, strategyTime, powerShareRatio, powerShareRatio);
+
 	}
 
 	/**

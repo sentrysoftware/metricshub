@@ -105,4 +105,28 @@ public class MappingConstants {
 	public static String createPresentDescription(@NonNull String monitorType) {
 		return String.format("Whether the %s is found or not.", monitorType);
 	}
+
+	/**
+	 * Creates the description of the energy mappings.
+	 * 
+	 * @param monitorType The type of the monitor as string.
+	 * 
+	 * @return {@link String} value
+	 */
+	public static String createEnergyDescription(@NonNull String monitorType) {
+		return String.format("Energy consumed by the %s since the start of the Hardware Sentry Agent.", monitorType);
+	}
+
+	/**
+	 * Creates the description of the power consumption mappings.
+	 * 
+	 * @param monitorType The type of the monitor as string.
+	 * 
+	 * @return {@link String} value
+	 */
+	public static String createPowerConsumptionDescription(@NonNull String monitorType) {
+		return String.format("Energy consumed by the %s.", monitorType);
+	}
+
+	
 }
