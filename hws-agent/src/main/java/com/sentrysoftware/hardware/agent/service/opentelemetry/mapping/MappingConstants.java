@@ -11,6 +11,7 @@ import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MappingConstants {
@@ -23,13 +24,15 @@ public class MappingConstants {
 	public static final Predicate<IState> INTRUSION_STATUS_PREDICATE = state -> IntrusionStatus.OPEN == state;
 	public static final Predicate<IState> PREDICTED_FAILURE_PREDICATE = state -> PredictedFailure.FAILURE_PREDICTED == state;
 
-	// Attribute keys and values
-	public static final String VM_HOST_NAME = "vm.host.name";
+	// Attribute keys
 	public static final String STATE_ATTRIBUTE_KEY = "state";
+	public static final String PROTOCOL_ATTRIBUTE_KEY = "protocol";
+	public static final String TYPE_ATTRIBUTE_KEY = "type";
+
+	// Attribute values
 	public static final String OK_ATTRIBUTE_VALUE = "ok";
 	public static final String DEGRADED_ATTRIBUTE_VALUE = "degraded";
 	public static final String FAILED_ATTRIBUTE_VALUE = "failed";
-	public static final String PROTOCOL_ATTRIBUTE_KEY = "protocol";
 	public static final String SNMP_ATTRIBUTE_VALUE = "snmp";
 	public static final String WMI_ATTRIBUTE_VALUE = "wmi";
 	public static final String WBEM_ATTRIBUTE_VALUE = "wbem";
@@ -37,17 +40,20 @@ public class MappingConstants {
 	public static final String HTTP_ATTRIBUTE_VALUE = "http";
 	public static final String IPMI_ATTRIBUTE_VALUE = "ipmi";
 	public static final String PRESENT_ATTRIBUTE_VALUE = "present";
-	public static final String INTRUSION_ATTRIBUTE_VALUE = "open";
+	public static final String OPEN_ATTRIBUTE_VALUE = "open";
 	public static final String PREDICTED_FAILURE_ATTRIBUTE_VALUE = "predicted_failure";
-	public static final String TYPE_ATTRIBUTE_KEY = "type";
+	public static final String DISCHARGING_ATTRIBUTE_VALUE = "discharging";
 
 	// Default attribute keys
 	public static final String NAME = "name";
 	public static final String PARENT = "parent";
 	public static final String ID = "id";
 
+	// Default attribute set to be reported by each metric
+	public static final Set<String> DEFAULT_ATTRIBUTE_NAMES = Set.of(ID, NAME, PARENT);
+
 	// Units
-	public static final String CELCIUS_UNIT = "Cel";
+	public static final String CELSIUS_UNIT = "Cel";
 	public static final String JOULES_UNIT = "J";
 	public static final String WATTS_UNIT = "W";
 	public static final String SECONDS_UNIT = "s";
@@ -55,10 +61,36 @@ public class MappingConstants {
 	public static final String BYTES_UNIT = "By";
 	public static final String OPERATIONS_UNIT = "{operations}";
 	public static final String HERTZ_UNIT = "Hz";
-
-	public static final Set<String> DEFAULT_ATTRIBUTE_NAMES = Set.of(ID, NAME, PARENT);
+	public static final String RATIO_UNIT = "1";
 
 	// Descriptions
 	public static final String ALARM_THRESHOLD_OF_ERRORS = "Alarm threshold of the encountered errors.";
 	public static final String WARNING_THRESHOLD_OF_ERRORS = "Warning threshold of the encountered errors.";
+
+	// Factors
+	public static final double MHZ_TO_HZ_FACTOR = 1000000.0;
+	public static final double RATIO_FACTOR = 0.01;
+
+	/**
+	 * Creates the description of the status mappings.
+	 * 
+	 * @param monitorType The type of the monitor as string.
+	 * @param status      The status of the monitor as string.
+	 * 
+	 * @return {@link String} value
+	 */
+	public static String createStatusDescription(@NonNull String monitorType, @NonNull String status) {
+		return String.format("Whether the %s status is %s or not.", monitorType, status);
+	}
+
+	/**
+	 * Creates the description of the present mappings.
+	 * 
+	 * @param monitorType The type of the monitor as string.
+	 * 
+	 * @return {@link String} value
+	 */
+	public static String createPresentDescription(@NonNull String monitorType) {
+		return String.format("Whether the %s is found or not.", monitorType);
+	}
 }
