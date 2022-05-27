@@ -19,6 +19,8 @@ import lombok.NoArgsConstructor;
 public class DiskControllerMapping {
 
 	private static final String DISK_CONTROLLER_STATUS_METRIC_NAME = "hw.disk_controller.status";
+	private static final String DISK_CONTROLLER_NAME = "disk controller";
+	private static final String DISK_CONTROLLER_BATTERY_NAME = DISK_CONTROLLER_NAME + " " + "battery";
 
 	/**
 	 * Build disk controller metrics map
@@ -34,7 +36,7 @@ public class DiskControllerMapping {
 				MetricInfo
 					.builder()
 					.name(DISK_CONTROLLER_STATUS_METRIC_NAME)
-					.description("Whether the disk controller status is ok or not.")
+					.description(createStatusDescription(DISK_CONTROLLER_NAME, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -47,7 +49,7 @@ public class DiskControllerMapping {
 				MetricInfo
 					.builder()
 					.name(DISK_CONTROLLER_STATUS_METRIC_NAME)
-					.description("Whether the disk controller status is degraded or not.")
+					.description(createStatusDescription(DISK_CONTROLLER_NAME, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -60,7 +62,7 @@ public class DiskControllerMapping {
 				MetricInfo
 					.builder()
 					.name(DISK_CONTROLLER_STATUS_METRIC_NAME)
-					.description("Whether the disk controller status is failed or not.")
+					.description(createStatusDescription(DISK_CONTROLLER_NAME, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -79,7 +81,7 @@ public class DiskControllerMapping {
 				MetricInfo
 					.builder()
 					.name(DISK_CONTROLLER_STATUS_METRIC_NAME)
-					.description("Whether the disk controller is found or not.")
+					.description(createPresentDescription(DISK_CONTROLLER_NAME))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -98,7 +100,7 @@ public class DiskControllerMapping {
 				MetricInfo
 					.builder()
 					.name(DISK_CONTROLLER_STATUS_METRIC_NAME)
-					.description("Whether the disk controller battery status is ok or not.")
+					.description(createStatusDescription(DISK_CONTROLLER_BATTERY_NAME, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -111,7 +113,7 @@ public class DiskControllerMapping {
 				MetricInfo
 					.builder()
 					.name(DISK_CONTROLLER_STATUS_METRIC_NAME)
-					.description("Whether the disk controller battery status is degraded or not.")
+					.description(createStatusDescription(DISK_CONTROLLER_BATTERY_NAME, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -124,7 +126,7 @@ public class DiskControllerMapping {
 				MetricInfo
 					.builder()
 					.name(DISK_CONTROLLER_STATUS_METRIC_NAME)
-					.description("Whether the disk controller battery status is failed or not.")
+					.description(createStatusDescription(DISK_CONTROLLER_BATTERY_NAME, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -143,7 +145,7 @@ public class DiskControllerMapping {
 				MetricInfo
 					.builder()
 					.name(DISK_CONTROLLER_STATUS_METRIC_NAME)
-					.description("Whether the disk controller status is ok or not.")
+					.description(createStatusDescription(DISK_CONTROLLER_NAME, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -156,7 +158,7 @@ public class DiskControllerMapping {
 				MetricInfo
 					.builder()
 					.name(DISK_CONTROLLER_STATUS_METRIC_NAME)
-					.description("Whether the disk controller status is degraded or not.")
+					.description(createStatusDescription(DISK_CONTROLLER_NAME, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -169,7 +171,7 @@ public class DiskControllerMapping {
 				MetricInfo
 					.builder()
 					.name(DISK_CONTROLLER_STATUS_METRIC_NAME)
-					.description("Whether the disk controller status is failed or not.")
+					.description(createStatusDescription(DISK_CONTROLLER_NAME, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -190,7 +192,7 @@ public class DiskControllerMapping {
 					.name("hw.disk_controller.energy")
 					.unit(JOULES_UNIT)
 					.type(MetricType.COUNTER)
-					.description("Energy consumed by the disk controller since the start of the Hardware Sentry Agent.")
+					.description(createEnergyDescription(DISK_CONTROLLER_NAME))
 					.build()
 			)
 		);
@@ -202,7 +204,7 @@ public class DiskControllerMapping {
 					.builder()
 					.name("hw.disk_controller.power")
 					.unit(WATTS_UNIT)
-					.description("Energy consumed by the disk controller.")
+					.description(createPowerConsumptionDescription(DISK_CONTROLLER_NAME))
 					.build()
 			)
 		);
