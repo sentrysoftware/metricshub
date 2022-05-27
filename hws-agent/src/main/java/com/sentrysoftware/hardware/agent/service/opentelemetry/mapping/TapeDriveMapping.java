@@ -179,7 +179,7 @@ public class TapeDriveMapping {
 					.build()
 			)
 		);
-		
+
 		map.put(
 			IMetaMonitor.ERROR_COUNT.getName(),
 			Collections.singletonList(
