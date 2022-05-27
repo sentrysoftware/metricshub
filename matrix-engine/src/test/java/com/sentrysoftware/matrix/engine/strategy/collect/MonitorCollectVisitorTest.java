@@ -352,11 +352,11 @@ class MonitorCollectVisitorTest {
 
 
 	@Test
-	void testVisitTargetIpmiUp() throws Exception {
+	void testVisitHostIpmiUp() throws Exception {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = Monitor.builder()
 				.id(MONITOR_ID)
-				.monitorType(MonitorType.TARGET)
+				.monitorType(MonitorType.HOST)
 				.build();
 
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
@@ -372,18 +372,18 @@ class MonitorCollectVisitorTest {
 				.executeIpmiDetection(notNull(), notNull());
 
 		monitorCollectVisitor.getMonitorCollectInfo().setMatsyaClientsExecutor(matsyaClientsExecutor);
-		monitorCollectVisitor.visit(new Target());
+		monitorCollectVisitor.visit(new Host());
 
 		final IParameter actual = monitor.getParameters().get(IPMI_UP_PARAMETER);
 		assertEquals(ipmiUpParam, actual);
 	}
 
 	@Test
-	void testVisitTargetIpmiDown() throws Exception{
+	void testVisitHostIpmiDown() throws Exception{
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = Monitor.builder()
 				.id(MONITOR_ID)
-				.monitorType(MonitorType.TARGET)
+				.monitorType(MonitorType.HOST)
 				.build();
 
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
@@ -398,7 +398,7 @@ class MonitorCollectVisitorTest {
 
 
 		monitorCollectVisitor.getMonitorCollectInfo().setMatsyaClientsExecutor(matsyaClientsExecutor);
-		monitorCollectVisitor.visit(new Target());
+		monitorCollectVisitor.visit(new Host());
 
 		final IParameter actual = monitor.getParameters().get(IPMI_UP_PARAMETER);
 		assertEquals(ipmiDownParam, actual);
@@ -406,11 +406,11 @@ class MonitorCollectVisitorTest {
 
 
 	@Test
-	void testVisitTargetHttpUp() throws Exception {
+	void testVisitHostHttpUp() throws Exception {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = Monitor.builder()
 				.id(MONITOR_ID)
-				.monitorType(MonitorType.TARGET)
+				.monitorType(MonitorType.HOST)
 				.build();
 
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
@@ -426,18 +426,18 @@ class MonitorCollectVisitorTest {
 				.executeHttp(notNull(), anyBoolean());
 
 		monitorCollectVisitor.getMonitorCollectInfo().setMatsyaClientsExecutor(matsyaClientsExecutor);
-		monitorCollectVisitor.visit(new Target());
+		monitorCollectVisitor.visit(new Host());
 
 		final IParameter actual = monitor.getParameters().get(HTTP_UP_PARAMETER);
 		assertEquals(httpUpParam, actual);
 	}
 
 	@Test
-	void testVisitTargetHttpDown() throws Exception{
+	void testVisitHostHttpDown() throws Exception{
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = Monitor.builder()
 				.id(MONITOR_ID)
-				.monitorType(MonitorType.TARGET)
+				.monitorType(MonitorType.HOST)
 				.build();
 
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
@@ -451,7 +451,7 @@ class MonitorCollectVisitorTest {
 				.executeHttp(notNull(), anyBoolean());
 
 		monitorCollectVisitor.getMonitorCollectInfo().setMatsyaClientsExecutor(matsyaClientsExecutor);
-		monitorCollectVisitor.visit(new Target());
+		monitorCollectVisitor.visit(new Host());
 
 		final IParameter actual = monitor.getParameters().get(HTTP_UP_PARAMETER);
 		assertEquals(httpDownParam, actual);
