@@ -5,6 +5,7 @@ import java.util.function.Predicate;
 
 import com.sentrysoftware.matrix.common.meta.parameter.state.IState;
 import com.sentrysoftware.matrix.common.meta.parameter.state.IntrusionStatus;
+import com.sentrysoftware.matrix.common.meta.parameter.state.NeedsCleaning;
 import com.sentrysoftware.matrix.common.meta.parameter.state.PredictedFailure;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Present;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
@@ -23,6 +24,9 @@ public class MappingConstants {
 	public static final Predicate<IState> PRESENT_PREDICATE = state -> Present.PRESENT == state;
 	public static final Predicate<IState> INTRUSION_STATUS_PREDICATE = state -> IntrusionStatus.OPEN == state;
 	public static final Predicate<IState> PREDICTED_FAILURE_PREDICATE = state -> PredictedFailure.FAILURE_PREDICTED == state;
+	public static final Predicate<IState> NO_NEEDS_CLEANING_PREDICATE = state -> NeedsCleaning.OK == state;
+	public static final Predicate<IState> NEEDED_CLEANING_PREDICATE = state -> NeedsCleaning.NEEDED == state;
+	public static final Predicate<IState> IMMEDIATELY_NEEDED_CLEANING_PREDICATE = state -> NeedsCleaning.NEEDED_IMMEDIATELY == state;
 
 	// Attribute keys
 	public static final String STATE_ATTRIBUTE_KEY = "state";
