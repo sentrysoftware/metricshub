@@ -21,6 +21,7 @@ import lombok.NoArgsConstructor;
 public class TemperatureMapping {
 
 	private static final String TEMPERATURE_STATUS_METRIC_NAME = "hw.temperature.status";
+	private static final String TEMPERATURE_NAME = "temperature";
 
 	/**
 	 * Build temperature metrics map
@@ -36,7 +37,7 @@ public class TemperatureMapping {
 				MetricInfo
 					.builder()
 					.name(TEMPERATURE_STATUS_METRIC_NAME)
-					.description("Whether the temperature status is ok or not.")
+					.description(createStatusDescription(TEMPERATURE_NAME, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -49,7 +50,7 @@ public class TemperatureMapping {
 				MetricInfo
 					.builder()
 					.name(TEMPERATURE_STATUS_METRIC_NAME)
-					.description("Whether the temperature status is degraded or not.")
+					.description(createStatusDescription(TEMPERATURE_NAME, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -62,7 +63,7 @@ public class TemperatureMapping {
 				MetricInfo
 					.builder()
 					.name(TEMPERATURE_STATUS_METRIC_NAME)
-					.description("Whether the temperature status is failed or not.")
+					.description(createStatusDescription(TEMPERATURE_NAME, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -81,7 +82,7 @@ public class TemperatureMapping {
 				MetricInfo
 					.builder()
 					.name(TEMPERATURE_STATUS_METRIC_NAME)
-					.description("Whether the temperature sensor is found or not.")
+					.description(createPresentDescription(TEMPERATURE_NAME))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
