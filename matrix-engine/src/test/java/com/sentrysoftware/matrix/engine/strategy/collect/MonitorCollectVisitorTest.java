@@ -33,6 +33,8 @@ import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Up;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
+import com.sentrysoftware.matrix.engine.protocol.HttpProtocol;
+import com.sentrysoftware.matrix.engine.protocol.IpmiOverLanProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
@@ -131,6 +133,8 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WBEM_UP
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WMI_UP_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_PERCENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IPMI_UP_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HTTP_UP_PARAMETER;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -142,6 +146,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mockStatic;
 
@@ -217,6 +222,34 @@ class MonitorCollectVisitorTest {
 		.collectTime(collectTime)
 		.state(Status.OK)
 		.build();
+
+	private static final IParameter httpUpParam = DiscreteParam
+			.builder()
+			.name(HTTP_UP_PARAMETER)
+			.collectTime(collectTime)
+			.state(Up.UP)
+			.build();
+
+	private static final IParameter httpDownParam = DiscreteParam
+			.builder()
+			.name(HTTP_UP_PARAMETER)
+			.collectTime(collectTime)
+			.state(Up.DOWN)
+			.build();
+
+	private static final IParameter ipmiUpParam = DiscreteParam
+			.builder()
+			.name(IPMI_UP_PARAMETER)
+			.collectTime(collectTime)
+			.state(Up.UP)
+			.build();
+
+	private static final IParameter ipmiDownParam = DiscreteParam
+			.builder()
+			.name(IPMI_UP_PARAMETER)
+			.collectTime(collectTime)
+			.state(Up.DOWN)
+			.build();
 
 	private static final IParameter snmpUpParam = DiscreteParam
 			.builder()
@@ -312,7 +345,116 @@ class MonitorCollectVisitorTest {
 		assertNull(monitor.getParameters().get(SSH_UP_PARAMETER));
 		assertNull(monitor.getParameters().get(WMI_UP_PARAMETER));
 		assertNull(monitor.getParameters().get(WBEM_UP_PARAMETER));
+		assertNull(monitor.getParameters().get(HTTP_UP_PARAMETER));
+		assertNull(monitor.getParameters().get(IPMI_UP_PARAMETER));
 
+	}
+
+
+	@Test
+	void testVisitTargetIpmiUp() throws Exception {
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		final Monitor monitor = Monitor.builder()
+				.id(MONITOR_ID)
+				.monitorType(MonitorType.TARGET)
+				.build();
+
+		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+		monitorCollectVisitor.getMonitorCollectInfo().setEngineConfiguration(
+				EngineConfiguration.builder()
+						.protocolConfigurations(Collections.singletonMap(IpmiOverLanProtocol.class, new IpmiOverLanProtocol()))
+						.build());
+
+		final String ipmiResult = "IPMI up test successful";
+
+		doReturn(ipmiResult).when(matsyaClientsExecutor)
+				.executeIpmiDetection(notNull(), notNull());
+
+		monitorCollectVisitor.getMonitorCollectInfo().setMatsyaClientsExecutor(matsyaClientsExecutor);
+		monitorCollectVisitor.visit(new Target());
+
+		final IParameter actual = monitor.getParameters().get(IPMI_UP_PARAMETER);
+		assertEquals(ipmiUpParam, actual);
+	}
+
+	@Test
+	void testVisitTargetIpmiDown() throws Exception{
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		final Monitor monitor = Monitor.builder()
+				.id(MONITOR_ID)
+				.monitorType(MonitorType.TARGET)
+				.build();
+
+		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+		monitorCollectVisitor.getMonitorCollectInfo().setEngineConfiguration(
+				EngineConfiguration.builder()
+						.protocolConfigurations(Collections.singletonMap(IpmiOverLanProtocol.class, new IpmiOverLanProtocol()))
+						.build());
+
+		doReturn(null).when(matsyaClientsExecutor)
+				.executeIpmiDetection(notNull(), notNull());
+
+
+		monitorCollectVisitor.getMonitorCollectInfo().setMatsyaClientsExecutor(matsyaClientsExecutor);
+		monitorCollectVisitor.visit(new Target());
+
+		final IParameter actual = monitor.getParameters().get(IPMI_UP_PARAMETER);
+		assertEquals(ipmiDownParam, actual);
+	}
+
+
+	@Test
+	void testVisitTargetHttpUp() throws Exception {
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		final Monitor monitor = Monitor.builder()
+				.id(MONITOR_ID)
+				.monitorType(MonitorType.TARGET)
+				.build();
+
+		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+		monitorCollectVisitor.getMonitorCollectInfo().setEngineConfiguration(
+				EngineConfiguration.builder()
+						.protocolConfigurations(Collections.singletonMap(HttpProtocol.class, new HttpProtocol()))
+						.build());
+
+		final String httpResult = "HTTP up test successful";
+
+		doReturn(httpResult).when(matsyaClientsExecutor)
+				.executeHttp(notNull(), anyBoolean());
+
+		monitorCollectVisitor.getMonitorCollectInfo().setMatsyaClientsExecutor(matsyaClientsExecutor);
+		monitorCollectVisitor.visit(new Target());
+
+		final IParameter actual = monitor.getParameters().get(HTTP_UP_PARAMETER);
+		assertEquals(httpUpParam, actual);
+	}
+
+	@Test
+	void testVisitTargetHttpDown() throws Exception{
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		final Monitor monitor = Monitor.builder()
+				.id(MONITOR_ID)
+				.monitorType(MonitorType.TARGET)
+				.build();
+
+		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+		monitorCollectVisitor.getMonitorCollectInfo().setEngineConfiguration(
+				EngineConfiguration.builder()
+						.protocolConfigurations(Collections.singletonMap(HttpProtocol.class, new HttpProtocol()))
+						.build());
+
+		doReturn(null).when(matsyaClientsExecutor)
+				.executeHttp(notNull(), anyBoolean());
+
+		monitorCollectVisitor.getMonitorCollectInfo().setMatsyaClientsExecutor(matsyaClientsExecutor);
+		monitorCollectVisitor.visit(new Target());
+
+		final IParameter actual = monitor.getParameters().get(HTTP_UP_PARAMETER);
+		assertEquals(httpDownParam, actual);
 	}
 
 	@Test

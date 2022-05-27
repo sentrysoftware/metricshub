@@ -1,5 +1,26 @@
 package com.sentrysoftware.matrix.common.meta.monitor;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AMBIENT_TEMPERATURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_TEMPERATURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HTTP_UP_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IPMI_UP_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCATION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_METER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SNMP_UP_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SSH_UP_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UP_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WBEM_UP_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WMI_UP_PARAMETER;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.UP_ALARM_CONDITION;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -19,26 +40,6 @@ import com.sentrysoftware.matrix.model.alert.Severity;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitor.Monitor.AssertedParameter;
 import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AMBIENT_TEMPERATURE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_TEMPERATURE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCATION;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_METER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SNMP_UP_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WBEM_UP_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SSH_UP_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WMI_UP_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UP_PARAMETER_UNIT;
-
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.UP_ALARM_CONDITION;
 
 public class Host implements IMetaMonitor {
 
@@ -95,6 +96,20 @@ public class Host implements IMetaMonitor {
 			.type(new DiscreteParamType(Up::interpret))
 			.build();
 
+	public static final MetaParameter HTTP_UP = MetaParameter.builder()
+			.basicCollect(false)
+			.name(HTTP_UP_PARAMETER)
+			.unit(UP_PARAMETER_UNIT)
+			.type(new DiscreteParamType(Up::interpret))
+			.build();
+
+	public static final MetaParameter IPMI_UP = MetaParameter.builder()
+			.basicCollect(false)
+			.name(IPMI_UP_PARAMETER)
+			.unit(UP_PARAMETER_UNIT)
+			.type(new DiscreteParamType(Up::interpret))
+			.build();
+
 	public static final AlertRule SNMP_UP_ALERT_RULE = new AlertRule(Host::checkSnmpStatusAlarmCondition,
 			UP_ALARM_CONDITION,
 			Severity.ALARM);
@@ -108,6 +123,14 @@ public class Host implements IMetaMonitor {
 			Severity.ALARM);
 
 	public static final AlertRule WMI_UP_ALERT_RULE = new AlertRule(Host::checkWmiStatusAlarmCondition,
+			UP_ALARM_CONDITION,
+			Severity.ALARM);
+
+	public static final AlertRule HTTP_UP_ALERT_RULE = new AlertRule(Host::checkHttpStatusAlarmCondition,
+			UP_ALARM_CONDITION,
+			Severity.ALARM);
+
+	public static final AlertRule IPMI_UP_ALERT_RULE = new AlertRule(Host::checkIpmiStatusAlarmCondition,
 			UP_ALARM_CONDITION,
 			Severity.ALARM);
 
@@ -131,6 +154,8 @@ public class Host implements IMetaMonitor {
 		map.put(WBEM_UP_PARAMETER, WBEM_UP);
 		map.put(SSH_UP_PARAMETER, SSH_UP);
 		map.put(WMI_UP_PARAMETER, WMI_UP);
+		map.put(HTTP_UP_PARAMETER, HTTP_UP);
+		map.put(IPMI_UP_PARAMETER, IPMI_UP);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 
@@ -140,8 +165,60 @@ public class Host implements IMetaMonitor {
 		alertRulesMap.put(WBEM_UP_PARAMETER, Collections.singletonList(WBEM_UP_ALERT_RULE));
 		alertRulesMap.put(SSH_UP_PARAMETER, Collections.singletonList(SSH_UP_ALERT_RULE));
 		alertRulesMap.put(WMI_UP_PARAMETER, Collections.singletonList(WMI_UP_ALERT_RULE));
+		alertRulesMap.put(HTTP_UP_PARAMETER, Collections.singletonList(HTTP_UP_ALERT_RULE));
+		alertRulesMap.put(IPMI_UP_PARAMETER, Collections.singletonList(IPMI_UP_ALERT_RULE));
 
 		ALERT_RULES = Collections.unmodifiableMap(alertRulesMap);
+	}
+
+	/**
+	 * Check condition when the monitor status is in ALARM state.
+	 * 
+	 * @param monitor    The monitor we wish to check its status
+	 * @param conditions The conditions used to detect abnormality
+	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
+	 */
+	public static AlertDetails checkHttpStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor.assertStatusParameter(HTTP_UP_PARAMETER,
+				conditions);
+		if (assertedStatus.isAbnormal()) {
+
+			String problem = "The HTTP protocol is no longer available.";
+			String consequence = CONSEQUENCE_MESSAGE;
+			String recommendedAction = "Check that the provided credentials and port number are correct. Verify that no firewall is blocking the access.";
+
+			return AlertDetails.builder()
+					.problem(problem)
+					.consequence(consequence)
+					.recommendedAction(recommendedAction)
+					.build();
+		}
+		return null;
+	}
+
+	/**
+	 * Check condition when the monitor status is in ALARM state.
+	 * 
+	 * @param monitor    The monitor we wish to check its status
+	 * @param conditions The conditions used to detect abnormality
+	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
+	 */
+	public static AlertDetails checkIpmiStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor.assertStatusParameter(IPMI_UP_PARAMETER,
+				conditions);
+		if (assertedStatus.isAbnormal()) {
+
+			String problem = "The IPMI protocol is no longer available.";
+			String consequence = CONSEQUENCE_MESSAGE;
+			String recommendedAction = "Check that the provided credentials are correct.";
+
+			return AlertDetails.builder()
+					.problem(problem)
+					.consequence(consequence)
+					.recommendedAction(recommendedAction)
+					.build();
+		}
+		return null;
 	}
 
 	/**
@@ -157,9 +234,9 @@ public class Host implements IMetaMonitor {
 		if (assertedStatus.isAbnormal()) {
 
 			// TODO: Get error message from SNMP protocol and append to problem.
-			String problem = "The SNMP protocol is no longer available."; 
-	 		String consequence = CONSEQUENCE_MESSAGE;
-	 		String recommendedAction = "Check that the provided credentials or community and port number are correct. Verify that no firewall is blocking the access. Also, make sure the SNMP service/daemon is started.";
+			String problem = "The SNMP protocol is no longer available.";
+			String consequence = CONSEQUENCE_MESSAGE;
+			String recommendedAction = "Check that the provided credentials or community and port number are correct. Verify that no firewall is blocking the access. Also, make sure the SNMP service/daemon is started.";
 
 			return AlertDetails.builder()
 					.problem(problem)
@@ -184,9 +261,9 @@ public class Host implements IMetaMonitor {
 		if (assertedStatus.isAbnormal()) {
 
 			// TODO: Get error message from WBEM protocol and append to problem.
-	 		String problem = "The WBEM protocol is no longer available.";
-	 		String consequence = CONSEQUENCE_MESSAGE;
-	 		String recommendedAction = "Check that the provided credentials and port number are correct. Verify that no firewall is blocking the access. Also, make sure the service is started and the provider available.";
+			String problem = "The WBEM protocol is no longer available.";
+			String consequence = CONSEQUENCE_MESSAGE;
+			String recommendedAction = "Check that the provided credentials and port number are correct. Verify that no firewall is blocking the access. Also, make sure the service is started and the provider available.";
 
 			return AlertDetails.builder()
 					.problem(problem)
@@ -196,7 +273,6 @@ public class Host implements IMetaMonitor {
 		}
 		return null;
 	}
-
 
 	/**
 	 * Check condition when the monitor status is in ALARM state.
@@ -214,7 +290,7 @@ public class Host implements IMetaMonitor {
 			String problem = "The SSH protocol is no longer available.";
 			String consequence = CONSEQUENCE_MESSAGE;
 			String recommendedAction = "Check that the provided credentials have access to the server and no firewall is blocking the access.";
-	
+
 			return AlertDetails.builder()
 					.problem(problem)
 					.consequence(consequence)
@@ -223,7 +299,6 @@ public class Host implements IMetaMonitor {
 		}
 		return null;
 	}
-
 
 	/**
 	 * Check condition when the monitor status is in ALARM state.

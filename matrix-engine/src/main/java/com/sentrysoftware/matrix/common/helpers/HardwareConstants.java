@@ -150,6 +150,8 @@ public class HardwareConstants {
 	public static final String SSH_UP_PARAMETER = "sshUp";
 	public static final String WBEM_UP_PARAMETER = "wbemUp";
 	public static final String WMI_UP_PARAMETER = "wmiUp";
+	public static final String HTTP_UP_PARAMETER = "httpUp";
+	public static final String IPMI_UP_PARAMETER = "ipmiUp";
 
 	///////////////////////////////////////////////////////////////////////////////
 	//                                                                           //

@@ -16,6 +16,9 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SNMP_UP
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SSH_UP_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WMI_UP_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WBEM_UP_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HTTP_UP_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IPMI_UP_PARAMETER;
+
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -71,6 +74,8 @@ class MonitorAlertRulesVisitorTest {
 		CollectHelper.updateDiscreteParameter(monitor, SSH_UP_PARAMETER, monitor.getDiscoveryTime(), Up.UP);
 		CollectHelper.updateDiscreteParameter(monitor, WMI_UP_PARAMETER, monitor.getDiscoveryTime(), Up.UP);
 		CollectHelper.updateDiscreteParameter(monitor, WBEM_UP_PARAMETER, monitor.getDiscoveryTime(), Up.UP);
+		CollectHelper.updateDiscreteParameter(monitor, HTTP_UP_PARAMETER, monitor.getDiscoveryTime(), Up.UP);
+		CollectHelper.updateDiscreteParameter(monitor, IPMI_UP_PARAMETER, monitor.getDiscoveryTime(), Up.UP);
 
 		new MonitorAlertRulesVisitor(monitor).processStaticAlertRules(monitor, new Host());
 	
@@ -83,6 +88,8 @@ class MonitorAlertRulesVisitorTest {
 		assertAlertRule(alertRulesMap, SSH_UP_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.STATIC);
 		assertAlertRule(alertRulesMap, WMI_UP_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.STATIC);
 		assertAlertRule(alertRulesMap, WBEM_UP_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.STATIC);
+		assertAlertRule(alertRulesMap, HTTP_UP_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.STATIC);
+		assertAlertRule(alertRulesMap, IPMI_UP_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.STATIC);
 	}
 
 	@Test
