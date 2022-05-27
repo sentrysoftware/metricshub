@@ -22,6 +22,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PhysicalDiskMapping {
 
+	private static final String PHYSICAL_DISK_TYPE = "physical disk";
 	private static final String PHYSICAL_DISK_STATUS_METRIC_NAME = "hw.physical_disk.status";
 
 	/**
@@ -38,7 +39,7 @@ public class PhysicalDiskMapping {
 				MetricInfo
 					.builder()
 					.name(PHYSICAL_DISK_STATUS_METRIC_NAME)
-					.description("Whether the physical disk status is ok or not.")
+					.description(MappingConstants.createStatusDescription(PHYSICAL_DISK_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -51,7 +52,7 @@ public class PhysicalDiskMapping {
 				MetricInfo
 					.builder()
 					.name(PHYSICAL_DISK_STATUS_METRIC_NAME)
-					.description("Whether the physical disk status is degraded or not.")
+					.description(MappingConstants.createStatusDescription(PHYSICAL_DISK_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -64,7 +65,7 @@ public class PhysicalDiskMapping {
 				MetricInfo
 					.builder()
 					.name(PHYSICAL_DISK_STATUS_METRIC_NAME)
-					.description("Whether the physical disk status is failed or not.")
+					.description(MappingConstants.createStatusDescription(PHYSICAL_DISK_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -83,7 +84,7 @@ public class PhysicalDiskMapping {
 				MetricInfo
 					.builder()
 					.name(PHYSICAL_DISK_STATUS_METRIC_NAME)
-					.description("Whether the physical disk is found or not.")
+					.description(MappingConstants.createPresentDescription(PHYSICAL_DISK_TYPE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -102,9 +103,9 @@ public class PhysicalDiskMapping {
 				MetricInfo
 					.builder()
 					.name("hw.physical_disk.endurance_utilization")
-					.factor(0.01)
+					.factor(RATIO_FACTOR)
 					.description("Physical disk remaining endurance ratio.")
-					.unit("1")
+					.unit(RATIO_UNIT)
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()

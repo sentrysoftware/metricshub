@@ -22,6 +22,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CpuMapping {
 
+	private static final String CPU_TYPE = "CPU";
 	private static final String CPU_STATUS_METRIC_NAME = "hw.cpu.status";
 
 	/**
@@ -38,7 +39,7 @@ public class CpuMapping {
 				MetricInfo
 					.builder()
 					.name(CPU_STATUS_METRIC_NAME)
-					.description("Whether the CPU status is ok or not.")
+					.description(MappingConstants.createStatusDescription(CPU_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -51,7 +52,7 @@ public class CpuMapping {
 				MetricInfo
 					.builder()
 					.name(CPU_STATUS_METRIC_NAME)
-					.description("Whether the CPU status is degraded or not.")
+					.description(MappingConstants.createStatusDescription(CPU_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -64,7 +65,7 @@ public class CpuMapping {
 				MetricInfo
 					.builder()
 					.name(CPU_STATUS_METRIC_NAME)
-					.description("Whether the CPU status is failed or not.")
+					.description(MappingConstants.createStatusDescription(CPU_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -83,7 +84,7 @@ public class CpuMapping {
 				MetricInfo
 					.builder()
 					.name(CPU_STATUS_METRIC_NAME)
-					.description("Whether the CPU is found or not.")
+					.description(MappingConstants.createPresentDescription(CPU_TYPE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -116,7 +117,7 @@ public class CpuMapping {
 					.builder()
 					.name("hw.cpu.speed")
 					.unit(HERTZ_UNIT)
-					.factor(1000000.0)
+					.factor(MHZ_TO_HZ_FACTOR)
 					.description("CPU current speed.")
 					.build()
 			)
@@ -185,7 +186,7 @@ public class CpuMapping {
 					.builder()
 					.name("hw.cpu.speed_limit")
 					.unit(HERTZ_UNIT)
-					.factor(1000000.0)
+					.factor(MHZ_TO_HZ_FACTOR)
 					.description("CPU maximum speed.")
 					.build()
 			)

@@ -1,7 +1,6 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry.mapping;
 
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.DEFAULT_ATTRIBUTE_NAMES;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.VM_HOST_NAME;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HOSTNAME;
 
 import java.util.Collections;
@@ -40,6 +39,8 @@ public class MetricsMapping {
 			.description("Agent information.")
 			.type(MetricType.GAUGE)
 			.build();
+
+	public static final String VM_HOST_NAME = "vm.host.name";
 
 	static {
 
