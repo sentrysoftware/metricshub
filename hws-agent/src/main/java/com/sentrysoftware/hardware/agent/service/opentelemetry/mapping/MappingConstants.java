@@ -54,6 +54,8 @@ public class MappingConstants {
 	public static final String ON_ATTRIBUTE_VALUE = "on";
 	public static final String OFF_ATTRIBUTE_VALUE = "off";
 	public static final String SUSPENDED_ATTRIBUTE_VALUE = "suspended";
+	public static final String AVAILABLE_ATTRIBUTE_VALUE = "available";
+	public static final String EXPECTED_ATTRIBUTE_VALUE = "expected";
 
 	// Default attribute keys
 	public static final String NAME = "name";
@@ -72,6 +74,7 @@ public class MappingConstants {
 	public static final String BYTES_UNIT = "By";
 	public static final String MOVES_UNIT = "{moves}";
 	public static final String OPERATIONS_UNIT = "{operations}";
+	public static final String PATHS_UNIT = "{paths}";
 	public static final String HERTZ_UNIT = "Hz";
 	public static final String RATIO_UNIT = "1";
 
