@@ -5,6 +5,7 @@ import java.util.function.Predicate;
 
 import com.sentrysoftware.matrix.common.meta.parameter.state.IState;
 import com.sentrysoftware.matrix.common.meta.parameter.state.IntrusionStatus;
+import com.sentrysoftware.matrix.common.meta.parameter.state.LedIndicator;
 import com.sentrysoftware.matrix.common.meta.parameter.state.NeedsCleaning;
 import com.sentrysoftware.matrix.common.meta.parameter.state.PowerState;
 import com.sentrysoftware.matrix.common.meta.parameter.state.PredictedFailure;
@@ -31,6 +32,11 @@ public class MappingConstants {
 	public static final Predicate<IState> ON_POWER_STATE_PREDICATE = powerState -> PowerState.ON == powerState;
 	public static final Predicate<IState> OFF_POWER_STATE_PREDICATE = powerState -> PowerState.OFF == powerState;
 	public static final Predicate<IState> SUSPENDED_POWER_STATE_PREDICATE = powerState -> PowerState.SUSPENDED == powerState;
+	public static final Predicate<IState> ON_LED_INDICATOR_PREDICATE = ledState -> LedIndicator.ON == ledState;
+	public static final Predicate<IState> OFF_LED_INDICATOR_PREDICATE = ledState -> LedIndicator.OFF == ledState;
+	public static final Predicate<IState> BLINKING_LED_INDICATOR_PREDICATE = ledState -> LedIndicator.BLINKING == ledState;
+
+
 
 	// Attribute keys
 	public static final String STATE_ATTRIBUTE_KEY = "state";
@@ -54,6 +60,7 @@ public class MappingConstants {
 	public static final String ON_ATTRIBUTE_VALUE = "on";
 	public static final String OFF_ATTRIBUTE_VALUE = "off";
 	public static final String SUSPENDED_ATTRIBUTE_VALUE = "suspended";
+	public static final String BLINKING_ATTRIBUTE_VALUE = "blinking";
 
 	// Default attribute keys
 	public static final String NAME = "name";
