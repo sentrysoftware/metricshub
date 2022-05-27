@@ -1,8 +1,6 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry.mapping;
 
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.*;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.OK_STATUS_PREDICATE;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.STATE_ATTRIBUTE_KEY;
 
 import java.util.Collections;
 import java.util.List;
@@ -20,6 +18,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BatteryMapping {
 
+	private static final String BATTERY_TYPE = "battery";
 	private static final String BATTERY_STATUS_METRIC_NAME = "hw.battery.status";
 
 	/**
@@ -36,7 +35,7 @@ public class BatteryMapping {
 				MetricInfo
 					.builder()
 					.name(BATTERY_STATUS_METRIC_NAME)
-					.description("Whether the battery status is ok or not.")
+					.description(MappingConstants.createStatusDescription(BATTERY_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -49,7 +48,7 @@ public class BatteryMapping {
 				MetricInfo
 					.builder()
 					.name(BATTERY_STATUS_METRIC_NAME)
-					.description("Whether the battery status is degraded or not.")
+					.description(MappingConstants.createStatusDescription(BATTERY_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -62,7 +61,7 @@ public class BatteryMapping {
 				MetricInfo
 					.builder()
 					.name(BATTERY_STATUS_METRIC_NAME)
-					.description("Whether the battery status is failed or not.")
+					.description(MappingConstants.createStatusDescription(BATTERY_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -81,13 +80,13 @@ public class BatteryMapping {
 				MetricInfo
 					.builder()
 					.name(BATTERY_STATUS_METRIC_NAME)
-					.description("Whether the battery is found or not.")
+					.description(MappingConstants.createPresentDescription(BATTERY_TYPE))
 					.identifyingAttribute(
-							StaticIdentifyingAttribute
-								.builder()
-								.key(STATE_ATTRIBUTE_KEY)
-								.value(PRESENT_ATTRIBUTE_VALUE)
-								.build()
+						StaticIdentifyingAttribute
+							.builder()
+							.key(STATE_ATTRIBUTE_KEY)
+							.value(PRESENT_ATTRIBUTE_VALUE)
+							.build()
 					)
 					.predicate(PRESENT_PREDICATE)
 					.build()
@@ -100,8 +99,8 @@ public class BatteryMapping {
 				MetricInfo
 					.builder()
 					.name("hw.battery.charge")
-					.factor(0.01)
-					.unit("1")
+					.factor(RATIO_FACTOR)
+					.unit(RATIO_UNIT)
 					.description("Battery charge ratio.")
 					.build()
 			)
@@ -119,7 +118,7 @@ public class BatteryMapping {
 						StaticIdentifyingAttribute
 							.builder()
 							.key(STATE_ATTRIBUTE_KEY)
-							.value("discharging")
+							.value(DISCHARGING_ATTRIBUTE_VALUE)
 							.build()
 					)
 					.build()

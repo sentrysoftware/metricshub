@@ -46,4 +46,16 @@ class MappingConstantsTest {
 		assertFalse(PREDICTED_FAILURE_PREDICATE.test(PredictedFailure.OK));
 	}
 
+	@Test
+	void testCreateStatusDescription() {
+		assertThrows(IllegalArgumentException.class, () -> createStatusDescription(null, "ok"));
+		assertThrows(IllegalArgumentException.class, () -> createStatusDescription("physical disk", null));
+		assertNotNull(createStatusDescription("physical disk", "ok"));
+	}
+
+	@Test
+	void testCreatePresentDescription() {
+		assertThrows(IllegalArgumentException.class, () -> createPresentDescription(null));
+		assertNotNull(createPresentDescription("physical disk"));
+	}
 }
