@@ -31,7 +31,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_M
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TOTAL_BANDWIDTH_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SHARE_RATIO_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SHARE_PERCENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_PARAMETER_UNIT;
 
 import static org.springframework.util.Assert.state;
@@ -1266,7 +1266,14 @@ public class CollectOperation extends AbstractStrategy {
 			);
 		}
 
-		CollectHelper.updateNumberParameter(vm, POWER_SHARE_RATIO_PARAMETER, PERCENT_PARAMETER_UNIT, strategyTime, powerShareRatio, powerShareRatio);
+		CollectHelper.updateNumberParameter(
+			vm,
+			POWER_SHARE_PERCENT_PARAMETER,
+			PERCENT_PARAMETER_UNIT,
+			strategyTime,
+			powerShareRatio * 100,
+			powerShareRatio * 100
+		);
 
 	}
 

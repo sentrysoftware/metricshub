@@ -146,7 +146,7 @@ public class HardwareConstants {
 	public static final String DECODER_USED_TIME_PARAMETER = "decoderUsedTime";
 	public static final String DECODER_USED_TIME_PERCENT_PARAMETER = "decoderUsedTimePercent";
 	public static final String POWER_SHARE_PARAMETER = "powerShare";
-	public static final String POWER_SHARE_RATIO_PARAMETER = "powerShareRatio";
+	public static final String POWER_SHARE_PERCENT_PARAMETER = "powerSharePercent";
 	public static final String SNMP_UP_PARAMETER = "snmpUp";
 	public static final String SSH_UP_PARAMETER = "sshUp";
 	public static final String WBEM_UP_PARAMETER = "wbemUp";

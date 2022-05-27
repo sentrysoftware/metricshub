@@ -141,7 +141,7 @@ public class VmMapping {
 		);
 
 		map.put(
-			Vm.POWER_SHARE_RATIO.getName(),
+			Vm.POWER_SHARE_PERCENT.getName(),
 			Collections.singletonList(
 				MetricInfo
 					.builder()

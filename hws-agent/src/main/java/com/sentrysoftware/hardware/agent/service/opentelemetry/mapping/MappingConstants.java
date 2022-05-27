@@ -127,6 +127,4 @@ public class MappingConstants {
 	public static String createPowerConsumptionDescription(@NonNull String monitorType) {
 		return String.format("Energy consumed by the %s.", monitorType);
 	}
-
-	
 }
