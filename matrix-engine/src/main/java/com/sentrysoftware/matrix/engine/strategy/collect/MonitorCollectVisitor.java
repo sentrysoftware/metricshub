@@ -1,6 +1,8 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ALARM_ON_COLOR;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ALLOCATED_SPACE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ALLOCATED_SPACE_PERCENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_WARNING;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BANDWIDTH_UTILIZATION_PARAMETER;
@@ -38,10 +40,12 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PACKETS
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SUPPLY_POWER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RATIO_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVED_BYTES_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVED_BYTES_RATE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVED_PACKETS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVED_PACKETS_RATE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SNMP_UP_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPACE_GB_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_MBITS_PARAMETER_UNIT;
@@ -62,6 +66,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TRANSMI
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TRANSMITTED_PACKETS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TRANSMITTED_PACKETS_RATE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UNALLOCATED_SPACE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UNALLOCATED_SPACE_PERCENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UNMOUNT_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UNMOUNT_COUNT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_REPORT_RECEIVED_BYTES_PARAMETER;
@@ -565,6 +570,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		collectErrorCount(ERROR_COUNT_PARAMETER, STARTING_ERROR_COUNT_PARAMETER);
 
 		collectLogicalDiskUnallocatedSpace();
+		calculateLogicalDiskSpace();
 
 		collectStatusInformation();
 
@@ -1271,6 +1277,49 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				monitorCollectInfo.getCollectTime(),
 				unallocatedSpaceRaw / (1024.0 * 1024.0 * 1024.0), // Bytes to GB
 				unallocatedSpaceRaw
+			);
+		}
+	}
+
+	/**
+	 * Calculates the additional space related parameters for {@link LogicalDisk}.
+	 */
+	void calculateLogicalDiskSpace() {
+
+		final Monitor monitor = monitorCollectInfo.getMonitor();
+
+		final Double sizeRaw = NumberHelper.parseDouble(monitor.getMetadata(SIZE), null);
+
+		final Double unallocatedSpaceRaw = CollectHelper.getNumberParamRawValue(monitor, UNALLOCATED_SPACE_PARAMETER, false);
+
+		if (sizeRaw != null && unallocatedSpaceRaw != null) {
+			final Double allocatedSpaceRaw = sizeRaw - unallocatedSpaceRaw;
+
+			CollectHelper.updateNumberParameter(
+					monitor,
+					ALLOCATED_SPACE_PARAMETER,
+					SPACE_GB_PARAMETER_UNIT,
+					monitorCollectInfo.getCollectTime(),
+					allocatedSpaceRaw / (1024.0 * 1024.0 * 1024.0), // Bytes to GB
+					allocatedSpaceRaw
+			);
+
+			CollectHelper.updateNumberParameter(
+					monitor,
+					ALLOCATED_SPACE_PERCENT_PARAMETER,
+					RATIO_UNIT,
+					monitorCollectInfo.getCollectTime(),
+					allocatedSpaceRaw / sizeRaw,
+					allocatedSpaceRaw / sizeRaw
+			);
+
+			CollectHelper.updateNumberParameter(
+					monitor,
+					UNALLOCATED_SPACE_PERCENT_PARAMETER,
+					RATIO_UNIT,
+					monitorCollectInfo.getCollectTime(),
+					unallocatedSpaceRaw / sizeRaw,
+					unallocatedSpaceRaw / sizeRaw
 			);
 		}
 	}

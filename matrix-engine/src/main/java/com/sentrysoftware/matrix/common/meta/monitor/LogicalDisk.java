@@ -31,6 +31,10 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPACE_GB_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UNALLOCATED_SPACE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ALLOCATED_SPACE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UNALLOCATED_SPACE_PERCENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ALLOCATED_SPACE_PERCENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.NumberHelper.formatNumber;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.getValue;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.ERROR_COUNT_ALARM_CONDITION;
@@ -39,6 +43,20 @@ import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.STATU
 
 public class LogicalDisk implements IMetaMonitor {
 
+	public static final MetaParameter ALLOCATED_SPACE = MetaParameter.builder()
+			.basicCollect(false)
+			.name(ALLOCATED_SPACE_PARAMETER)
+			.unit(SPACE_GB_PARAMETER_UNIT)
+			.type(SimpleParamType.NUMBER)
+			.build();
+
+	public static final MetaParameter ALLOCATED_SPACE_PERCENT = MetaParameter.builder()
+			.basicCollect(false)
+			.name(ALLOCATED_SPACE_PERCENT_PARAMETER)
+			.unit(PERCENT_PARAMETER_UNIT)
+			.type(SimpleParamType.NUMBER)
+			.build();
+
 	public static final MetaParameter UNALLOCATED_SPACE = MetaParameter.builder()
 			.basicCollect(false)
 			.name(UNALLOCATED_SPACE_PARAMETER)
@@ -46,6 +64,13 @@ public class LogicalDisk implements IMetaMonitor {
 			.type(SimpleParamType.NUMBER)
 			.build();
 	
+	public static final MetaParameter UNALLOCATED_SPACE_PERCENT = MetaParameter.builder()
+			.basicCollect(false)
+			.name(UNALLOCATED_SPACE_PERCENT_PARAMETER)
+			.unit(PERCENT_PARAMETER_UNIT)
+			.type(SimpleParamType.NUMBER)
+			.build();
+
 	public static final MetaParameter ERROR_COUNT = MetaParameter.builder()
 			.basicCollect(false)
 			.name(ERROR_COUNT_PARAMETER)
@@ -82,6 +107,10 @@ public class LogicalDisk implements IMetaMonitor {
 		map.put(UNALLOCATED_SPACE_PARAMETER, UNALLOCATED_SPACE);
 		map.put(LAST_ERROR_PARAMETER, LAST_ERROR);
 		map.put(PRESENT_PARAMETER, PRESENT);
+		map.put(ALLOCATED_SPACE_PARAMETER, ALLOCATED_SPACE);
+		map.put(UNALLOCATED_SPACE_PARAMETER, UNALLOCATED_SPACE);
+		map.put(ALLOCATED_SPACE_PERCENT_PARAMETER, ALLOCATED_SPACE_PERCENT);
+		map.put(UNALLOCATED_SPACE_PERCENT_PARAMETER, UNALLOCATED_SPACE_PERCENT);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 

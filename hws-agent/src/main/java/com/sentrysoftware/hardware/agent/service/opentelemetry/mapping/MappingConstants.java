@@ -70,6 +70,8 @@ public class MappingConstants {
 	public static final String AVAILABLE_ATTRIBUTE_VALUE = "available";
 	public static final String EXPECTED_ATTRIBUTE_VALUE = "expected";
 	public static final String BLINKING_ATTRIBUTE_VALUE = "blinking";
+	public static final String FREE_ATTRIBUTE_VALUE = "free";
+	public static final String USED_ATTRIBUTE_VALUE = "used";
 
 	// Default attribute keys
 	public static final String NAME = "name";
@@ -104,6 +106,7 @@ public class MappingConstants {
 	public static final double RATIO_FACTOR = 0.01;
 	public static final double MB_TO_B_FACTOR = 1000000.0;
 	public static final double MILLIVOLTS_TO_VOLTS_FACTOR = 0.001;
+	public static final double BYTES_TO_GB_FACTOR = 1073741824.0;
 
 	/**
 	 * Creates the description of the status mappings.

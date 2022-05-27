@@ -101,7 +101,10 @@ public class HardwareConstants {
 	public static final String TIME_LEFT_PARAMETER = "timeLeft";
 	public static final String COLOR_PARAMETER = "color";
 	public static final String LED_INDICATOR_PARAMETER = "ledIndicator";
+	public static final String ALLOCATED_SPACE_PARAMETER = "allocatedSpace";
+	public static final String ALLOCATED_SPACE_PERCENT_PARAMETER = "allocatedSpacePercent";
 	public static final String UNALLOCATED_SPACE_PARAMETER = "unallocatedSpace";
+	public static final String UNALLOCATED_SPACE_PERCENT_PARAMETER = "unallocatedSpacePercent";
 	public static final String AVAILABLE_PATH_COUNT_PARAMETER = "availablePathCount";
 	public static final String MAX_AVAILABLE_PATH_COUNT_PARAMETER = "maxAvailablePathCount";
 	public static final String AVAILABLE_PATH_INFORMATION_PARAMETER = "availablePathInformation";
@@ -319,6 +322,7 @@ public class HardwareConstants {
 	public static final String CONNECTED_PORTS_PARAMETER_UNIT = "ports";
 	public static final String COLOR_PARAMETER_UNIT = "{ 0 = OK ; 1 = Degraded ; 2 = Failed }";
 	public static final String UP_PARAMETER_UNIT  = "{ 0 = Down ; 1 = Up }";
+	public static final String RATIO_UNIT  = "1";
 	public static final String DEFAULT = "default";
 
 	public static final String USERNAME_MACRO = "%{USERNAME}";

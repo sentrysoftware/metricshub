@@ -101,6 +101,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_S
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PREDICTED_FAILURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVED_BYTES_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVED_BYTES_RATE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SNMP_UP_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_MBITS_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_PARAMETER;
@@ -135,6 +136,9 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BU
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_PERCENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IPMI_UP_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HTTP_UP_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ALLOCATED_SPACE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ALLOCATED_SPACE_PERCENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UNALLOCATED_SPACE_PERCENT_PARAMETER;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -1808,7 +1812,46 @@ class MonitorCollectVisitorTest {
 		assertNotNull(unallocatedSpaceParameter);
 		assertEquals(10737418240.0, unallocatedSpaceParameter.getRawValue());
 		assertEquals(10.0, unallocatedSpaceParameter.getValue());
+		
 	}
+
+	@Test
+	void testCalculateLogicalDiskSpace() {
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.LOGICAL_DISK).build();
+		MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+		// Unallocated space value collected
+		monitorCollectVisitor = new MonitorCollectVisitor(
+				buildCollectMonitorInfo(hostMonitoring,
+						Map.of(UNALLOCATED_SPACE_PARAMETER, VALUETABLE_COLUMN_1),
+						monitor,
+						Collections.singletonList(UNALLOCATED_SPACE)));
+
+		// SIZE collected
+		monitor.addMetadata(SIZE, UNALLOCATED_SPACE);
+
+		monitorCollectVisitor.collectLogicalDiskUnallocatedSpace();
+		monitorCollectVisitor.calculateLogicalDiskSpace();
+
+		NumberParam allocatedSpaceParameter = monitor.getParameter(ALLOCATED_SPACE_PARAMETER, NumberParam.class);
+		assertNotNull(allocatedSpaceParameter);
+		assertEquals(0, allocatedSpaceParameter.getRawValue());
+		assertEquals(0, allocatedSpaceParameter.getValue());
+
+		NumberParam allocatedSpacePercentParameter = monitor.getParameter(ALLOCATED_SPACE_PERCENT_PARAMETER,
+				NumberParam.class);
+		assertNotNull(allocatedSpacePercentParameter);
+		assertEquals(0, allocatedSpacePercentParameter.getRawValue());
+		assertEquals(0, allocatedSpacePercentParameter.getValue());
+
+		NumberParam unallocatedSpacePercentParameter = monitor.getParameter(UNALLOCATED_SPACE_PERCENT_PARAMETER,
+				NumberParam.class);
+		assertNotNull(unallocatedSpacePercentParameter);
+		assertEquals(1.0, unallocatedSpacePercentParameter.getRawValue());
+		assertEquals(1.0, unallocatedSpacePercentParameter.getValue());
+	}
+
 
 	@Test
 	void testEstimateFanPowerConsumption() {
