@@ -26,6 +26,7 @@ public class GpuMapping {
 	private static final String GPU_ERROR_METRIC_NAME = "hw.gpu.errors";
 	private static final String GPU_IO_METRIC_NAME = "hw.gpu.io";
 	private static final String GPU_UTILIZATION_METRIC_NAME = "hw.gpu.utilization";
+	private static final String GPU_NAME = "GPU";
 
 	/**
 	 * Build GPU metrics map
@@ -41,7 +42,7 @@ public class GpuMapping {
 				MetricInfo
 					.builder()
 					.name(GPU_STATUS_METRIC_NAME)
-					.description("Whether the GPU status is ok or not.")
+					.description(createStatusDescription(GPU_NAME, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -54,7 +55,7 @@ public class GpuMapping {
 				MetricInfo
 					.builder()
 					.name(GPU_STATUS_METRIC_NAME)
-					.description("Whether the GPU status is degraded or not.")
+					.description(createStatusDescription(GPU_NAME, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -67,7 +68,7 @@ public class GpuMapping {
 				MetricInfo
 					.builder()
 					.name(GPU_STATUS_METRIC_NAME)
-					.description("Whether the GPU status is failed or not.")
+					.description(createStatusDescription(GPU_NAME, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -87,7 +88,7 @@ public class GpuMapping {
 					.builder()
 					.name(GPU_STATUS_METRIC_NAME)
 					.unit(IMetaMonitor.PREDICTED_FAILURE.getUnit())
-					.description("Predicted failure analysis performed by the GPU itself.")
+					.description(createStatusDescription(GPU_NAME, PREDICTED_FAILURE_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -106,7 +107,7 @@ public class GpuMapping {
 				MetricInfo
 					.builder()
 					.name(GPU_STATUS_METRIC_NAME)
-					.description("Whether the GPU is found or not.")
+					.description(createPresentDescription(GPU_NAME))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -205,8 +206,8 @@ public class GpuMapping {
 				MetricInfo
 					.builder()
 					.name(GPU_UTILIZATION_METRIC_NAME)
-					.unit("1")
-					.factor(0.01)
+					.unit(RATIO_UNIT)
+					.factor(RATIO_FACTOR)
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -226,8 +227,8 @@ public class GpuMapping {
 				MetricInfo
 					.builder()
 					.name(GPU_UTILIZATION_METRIC_NAME)
-					.unit("1")
-					.factor(0.01)
+					.unit(RATIO_UNIT)
+					.factor(RATIO_FACTOR)
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -247,8 +248,8 @@ public class GpuMapping {
 				MetricInfo
 					.builder()
 					.name(GPU_UTILIZATION_METRIC_NAME)
-					.unit("1")
-					.factor(0.01)
+					.unit(RATIO_UNIT)
+					.factor(RATIO_FACTOR)
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -268,8 +269,8 @@ public class GpuMapping {
 				MetricInfo
 					.builder()
 					.name("hw.gpu.memory.utilization")
-					.unit("1")
-					.factor(0.01)
+					.unit(RATIO_UNIT)
+					.factor(RATIO_FACTOR)
 					.type(MetricType.GAUGE)
 					.description("GPU memory utilization ratio.")
 					.build()
@@ -319,7 +320,7 @@ public class GpuMapping {
 					.builder()
 					.name("hw.gpu.memory.limit")
 					.unit(BYTES_UNIT)
-					.factor(1000000.0) // MB to Bytes
+					.factor(MHZ_TO_HZ_FACTOR) // MB to Bytes  
 					.description("GPU memory size.")
 					.build()
 			)
