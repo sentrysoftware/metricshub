@@ -114,17 +114,17 @@ class StrategyTaskTest {
 
 	@Test
 	void testRun() {
-		final Monitor target = Monitor
+		final Monitor host = Monitor
 				.builder()
 				.id("id")
-				.name("target")
+				.name("host")
 				.build();
-		target.addMetadata("fqdn", "host.my.domain.net");
+		host.addMetadata("fqdn", "host.my.domain.net");
 
 		final HostMonitoring hostMonitoring = spy(HostMonitoring.class);
 
 		doReturn(hostMonitoring).when(strategyTaskInfo).getHostMonitoring();
-		doReturn(target).when(hostMonitoring).getHostMonitor();
+		doReturn(host).when(hostMonitoring).getHostMonitor();
 		doReturn("OFF").when(strategyTaskInfo).getLoggerLevel();
 		doReturn(engineConfiguration).when(hostMonitoring).getEngineConfiguration();
 		doReturn(EngineResult.builder().build()).when(hostMonitoring).run(any());
@@ -133,7 +133,7 @@ class StrategyTaskTest {
 				.builder()
 				.host(HardwareHostDto
 						.builder()
-						.hostname("target")
+						.hostname("host")
 						.id("id")
 						.type(HostType.LINUX)
 						.build())
@@ -242,7 +242,7 @@ class StrategyTaskTest {
 					.getMultiHostsConfigurationDto();
 			HostConfigurationDto hostConfig = HostConfigurationDto
 					.builder()
-					.host(HardwareHostDto.builder().hostname("target").id("id").type(HostType.LINUX).build())
+					.host(HardwareHostDto.builder().hostname("host").id("id").type(HostType.LINUX).build())
 					.hardwareProblemTemplate("Hardware problem on ${FQDN} with ${MONITOR_NAME}.")
 					.build();
 			hostConfig.setDisableAlerts(disableAlerting);

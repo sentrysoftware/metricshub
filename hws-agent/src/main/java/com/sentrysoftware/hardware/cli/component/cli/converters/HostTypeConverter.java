@@ -5,7 +5,7 @@ import lombok.NonNull;
 import picocli.CommandLine.ITypeConverter;
 import picocli.CommandLine.TypeConversionException;
 
-public class TargetTypeConverter implements ITypeConverter<HostType> {
+public class HostTypeConverter implements ITypeConverter<HostType> {
 
 	@Override
 	public HostType convert(@NonNull final String type) throws Exception {

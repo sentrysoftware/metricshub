@@ -11,12 +11,12 @@
 						   pattern="%highlight{[%date{ISO8601}][%-5level][%logger{1.}] %m%n}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=cyan, DEBUG=green bold, TRACE=blue}" />
 		</Console>
 		<Routing name="Routing">
-			<Routes pattern="$${ctx:targetId}">
+			<Routes pattern="$${ctx:hostId}">
 				<!-- This route is chosen if ThreadContext has loggerLevel = DEBUG/INFO/ERROR/WARN/TRACE. -->
 				<Route>
-					<RollingFile name="Rolling-${ctx:targetId}"
-								 fileName="${ctx:outputDirectory}/hws-agent-${ctx:port}-${ctx:targetId}-${date:yyyy-MM-dd-hh-mm-ss}.log"
-								 filePattern="${ctx:outputDirectory}/${date:yyyy-MM}/hws-agent-${ctx:port}-${ctx:targetId}-%d{yyyy-MM-dd}-%i.log.gz">
+					<RollingFile name="Rolling-${ctx:hostId}"
+								 fileName="${ctx:outputDirectory}/hws-agent-${ctx:port}-${ctx:hostId}-${date:yyyy-MM-dd-hh-mm-ss}.log"
+								 filePattern="${ctx:outputDirectory}/${date:yyyy-MM}/hws-agent-${ctx:port}-${ctx:hostId}-%d{yyyy-MM-dd}-%i.log.gz">
 						<PatternLayout pattern="[%date{ISO8601}][%-5level][%logger{1.}] %m%n" />
 						<Policies>
 							<TimeBasedTriggeringPolicy />

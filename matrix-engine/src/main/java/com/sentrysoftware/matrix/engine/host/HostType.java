@@ -23,7 +23,7 @@ public enum HostType {
 	SUN_SOLARIS(OsType.SOLARIS, "Solaris");
 
 	/**
-	 * Map each TargetType with a regular expression that detects it
+	 * Map each HostType with a regular expression that detects it
 	 */
 	private static final Map<HostType, Pattern> DETECTORS = Map.of(
 			LINUX, Pattern.compile("^lin|^lnx$"),
@@ -44,10 +44,10 @@ public enum HostType {
 	private String displayName;
 
 	/**
-	 * Interpret the specified string as a TargetType (in a flexible way).
+	 * Interpret the specified string as a HostType (in a flexible way).
 	 * <p>
 	 * @param value String to be interpreted
-	 * @return a TargetType value (or null if null)
+	 * @return a HostType value (or null if null)
 	 * @throws IllegalArgumentException when specified value is not supported
 	 */
 	public static HostType interpretValueOf(String value) {
@@ -66,7 +66,7 @@ public enum HostType {
 		}
 
 		// No match => Exception
-		throw new IllegalArgumentException("'" + value + "' is not a supported target type");
+		throw new IllegalArgumentException("'" + value + "' is not a supported host type");
 	}
 
 }

@@ -25,7 +25,7 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Attribute;
 
-import com.sentrysoftware.hardware.cli.component.cli.converters.TargetTypeConverter;
+import com.sentrysoftware.hardware.cli.component.cli.converters.HostTypeConverter;
 import com.sentrysoftware.hardware.cli.component.cli.printer.PrettyPrinter;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.HttpConfigCli;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.IpmiConfigCli;
@@ -109,7 +109,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 	@Parameters(
 			index = "0",
 			paramLabel = "HOSTNAME",
-			description = "Hostname of IP address of the target to monitor"
+			description = "Hostname of IP address of the host to monitor"
 	)
 	private String hostname;
 
@@ -119,7 +119,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 			required = true,
 			paramLabel = "TYPE",
 			description = "Type of the host to monitor (lin, linux, win, windows, mgmt, management, storage, network, aix, hpux, solaris, tru64, vms)",
-			converter = TargetTypeConverter.class
+			converter = HostTypeConverter.class
 	)
 	private HostType deviceType;
 
@@ -164,7 +164,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 			order = 4,
 			split = ",",
 			paramLabel = "CONNECTOR",
-			description = "Force selected hardware connectors to connect to the target (use @|bold ${ROOT-COMMAND-NAME} -l|@ to get the list of connectors)"
+			description = "Force selected hardware connectors to connect to the host (use @|bold ${ROOT-COMMAND-NAME} -l|@ to get the list of connectors)"
 	)
 	private Set<String> connectors;
 
@@ -232,7 +232,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 		// Configure the Matrix engine for the specified host
 		EngineConfiguration engineConf = new EngineConfiguration();
 
-		// Target
+		// host
 		engineConf.setHost(new HardwareHost(hostname, hostname, deviceType));
 
 		// Protocols

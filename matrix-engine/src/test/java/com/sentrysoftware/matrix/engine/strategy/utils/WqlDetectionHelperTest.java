@@ -63,7 +63,7 @@ class WqlDetectionHelperTest {
 				.password(PASSWORD.toCharArray())
 				.build();
 
-		// No response from the target
+		// No response from the host
 		doThrow(new MatsyaException("no response", new TimeoutException("very long")))
 			.when(matsyaClientsExecutor)
 			.executeWbem(any(), eq(wbemConfig), any(), any());
@@ -149,7 +149,7 @@ class WqlDetectionHelperTest {
 				.password(PASSWORD.toCharArray())
 				.build();
 
-		// No response from the target
+		// No response from the host
 		doThrow(new MatsyaException("no response", new TimeoutException("very long")))
 			.when(matsyaClientsExecutor)
 			.executeWmi(any(), eq(wmiConfig), any(), any());

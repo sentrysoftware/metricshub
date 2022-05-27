@@ -326,7 +326,7 @@ class OsCommandHelperTest {
 		assertThrows(IllegalArgumentException.class, () -> OsCommandHelper.toCaseInsensitiveRegex(null));
 		assertThrows(IllegalArgumentException.class, () -> OsCommandHelper.toCaseInsensitiveRegex(""));
 		assertEquals(" ", OsCommandHelper.toCaseInsensitiveRegex(" "));
-		assertEquals("(?i)\\QTarget\\E", OsCommandHelper.toCaseInsensitiveRegex("Target"));
+		assertEquals("(?i)\\QHost\\E", OsCommandHelper.toCaseInsensitiveRegex("Host"));
 		assertEquals("(?i)\\Q%{UserName}\\E", OsCommandHelper.toCaseInsensitiveRegex("%{UserName}"));
 		assertEquals("(?i)\\Q%{HOSTNAME}\\E", OsCommandHelper.toCaseInsensitiveRegex(HardwareConstants.HOSTNAME_MACRO));
 	}

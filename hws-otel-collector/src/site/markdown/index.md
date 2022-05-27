@@ -67,7 +67,7 @@ The internal **Hardware Sentry Agent** is the engine that performs the actual mo
 * its internal polling cycle
 * the hostnames and credentials of the systems to monitor
 
-The **Hardware Sentry Agent** is the internal component which is responsible of scraping targets, collecting metrics and pushing OTLP data to the OTLP receiver of the OpenTelemetry Collector.
+The **Hardware Sentry Agent** is the internal component which is responsible of scraping hosts, collecting metrics and pushing OTLP data to the OTLP receiver of the OpenTelemetry Collector.
 
 ### Hardware Connector Library
 

@@ -72,15 +72,15 @@ public class PrettyPrinter {
 	 */
 	private void start() {
 
-		// Extract the target from the result
-		Map<String, Monitor> targetMap = result.selectFromType(MonitorType.HOST);
-		if (targetMap == null || targetMap.size() != 1) {
+		// Extract the host from the result
+		Map<String, Monitor> hostMap = result.selectFromType(MonitorType.HOST);
+		if (hostMap == null || hostMap.size() != 1) {
 			throw new IllegalStateException("Invalid results");
 		}
-		Monitor target = targetMap.values().stream().findFirst().orElseThrow();
+		Monitor host = hostMap.values().stream().findFirst().orElseThrow();
 
-		// Print what is under the target
-		printChildrenOf(target.getId(), 0);
+		// Print what is under the host
+		printChildrenOf(host.getId(), 0);
 	}
 
 	/**

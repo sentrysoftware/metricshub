@@ -48,7 +48,7 @@ class HostMonitoringTest {
 	private static final String CONNECTOR_NAME = "myConnector";
 	private static final String FAN_NAME = "fan";
 	private static final String ENCLOSURE_NAME = "enclosure";
-	private static final String target_NAME = "target";
+	private static final String HOST_NAME = "host";
 	private static final String FAN_ID = "fanId";
 	private static final String ENCLOSURE_ID = "enclosureId";
 	private static final String HOST_ID = "hostId";
@@ -57,12 +57,12 @@ class HostMonitoringTest {
 	void testRemoveMonitorException() {
 		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance()
 				.createHostMonitoring(UUID.randomUUID().toString(), null);
-		final Monitor noHostId = Monitor.builder().hostId(HOST_ID).name(target_NAME)
+		final Monitor noHostId = Monitor.builder().hostId(HOST_ID).name(HOST_NAME)
 				.monitorType(HOST).build();
 		assertThrows(IllegalArgumentException.class, () -> hostMonitoring.removeMonitor(noHostId));
 
 
-		final Monitor noMonitorType = Monitor.builder().hostId(HOST_ID).id(HOST_ID).name(target_NAME).build();
+		final Monitor noMonitorType = Monitor.builder().hostId(HOST_ID).id(HOST_ID).name(HOST_NAME).build();
 		assertThrows(IllegalArgumentException.class, () -> hostMonitoring.removeMonitor(noMonitorType));
 
 		try {
@@ -77,18 +77,18 @@ class HostMonitoringTest {
 		{
 			final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance()
 					.createHostMonitoring(UUID.randomUUID().toString(), null);
-			final Monitor target = Monitor.builder().id(HOST_ID).hostId(HOST_ID).name(target_NAME)
+			final Monitor host = Monitor.builder().id(HOST_ID).hostId(HOST_ID).name(HOST_NAME)
 					.monitorType(HOST).build();
 			final Monitor enclosure = Monitor.builder().id(ENCLOSURE_ID).name(ENCLOSURE_NAME).hostId(HOST_ID)
 					.parentId(HOST_ID).monitorType(ENCLOSURE).build();
 			final Monitor fan = Monitor.builder().id(FAN_ID).name(FAN_NAME).hostId(HOST_ID)
 					.parentId(ENCLOSURE_ID).monitorType(FAN).build();
 
-			hostMonitoring.addMonitor(target);
+			hostMonitoring.addMonitor(host);
 			hostMonitoring.addMonitor(enclosure);
 			hostMonitoring.addMonitor(fan);
 
-			hostMonitoring.removeMonitor(target);
+			hostMonitoring.removeMonitor(host);
 
 			assertTrue(hostMonitoring.selectFromType(HOST).isEmpty());
 			assertTrue(hostMonitoring.selectFromType(ENCLOSURE).isEmpty());
@@ -99,13 +99,13 @@ class HostMonitoringTest {
 		{
 			final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance()
 					.createHostMonitoring(UUID.randomUUID().toString(), null);
-			final Monitor target = Monitor.builder().id(HOST_ID).hostId(HOST_ID).name(target_NAME).monitorType(HOST).build();
+			final Monitor host = Monitor.builder().id(HOST_ID).hostId(HOST_ID).name(HOST_NAME).monitorType(HOST).build();
 			final Monitor enclosure = Monitor.builder().id(ENCLOSURE_ID).name(ENCLOSURE_NAME).hostId(HOST_ID)
 					.parentId(HOST_ID).monitorType(ENCLOSURE).build();
 			final Monitor fan = Monitor.builder().id(FAN_ID).name(FAN_NAME).hostId(HOST_ID)
 					.parentId(ENCLOSURE_ID).monitorType(FAN).build();
 
-			hostMonitoring.addMonitor(target);
+			hostMonitoring.addMonitor(host);
 			hostMonitoring.addMonitor(enclosure);
 			hostMonitoring.addMonitor(fan);
 
@@ -120,7 +120,7 @@ class HostMonitoringTest {
 		{
 			final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance()
 					.createHostMonitoring(UUID.randomUUID().toString(), null);
-			final Monitor target = Monitor.builder().id(HOST_ID).hostId(HOST_ID).name(target_NAME).monitorType(HOST).build();
+			final Monitor host = Monitor.builder().id(HOST_ID).hostId(HOST_ID).name(HOST_NAME).monitorType(HOST).build();
 			final Monitor enclosure = Monitor.builder().id(ENCLOSURE_ID).name(ENCLOSURE_NAME).hostId(HOST_ID)
 					.parentId(HOST_ID).monitorType(ENCLOSURE).build();
 			final Monitor fan = Monitor.builder().id(FAN_ID).name(FAN_NAME).hostId(HOST_ID)
@@ -129,7 +129,7 @@ class HostMonitoringTest {
 			hostMonitoring.addMonitor(enclosure);
 			hostMonitoring.addMonitor(fan);
 
-			hostMonitoring.removeMonitor(target);
+			hostMonitoring.removeMonitor(host);
 
 			assertNull(hostMonitoring.selectFromType(HOST));
 			assertTrue(hostMonitoring.selectFromType(ENCLOSURE).isEmpty());
@@ -140,7 +140,7 @@ class HostMonitoringTest {
 		{
 			final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance()
 					.createHostMonitoring(UUID.randomUUID().toString(), null);
-			final Monitor target = Monitor.builder().id(HOST_ID).hostId(HOST_ID).name(target_NAME).monitorType(HOST).build();
+			final Monitor host = Monitor.builder().id(HOST_ID).hostId(HOST_ID).name(HOST_NAME).monitorType(HOST).build();
 			final Monitor enclosure = Monitor.builder().id(ENCLOSURE_ID).name(ENCLOSURE_NAME).hostId(HOST_ID)
 					.parentId(HOST_ID).monitorType(ENCLOSURE).build();
 			final Monitor fan = Monitor.builder().id(FAN_ID).name(FAN_NAME).hostId(HOST_ID)
@@ -150,7 +150,7 @@ class HostMonitoringTest {
 			hostMonitoring.addMonitor(enclosure);
 			hostMonitoring.addMonitor(fan);
 
-			hostMonitoring.removeMonitor(target);
+			hostMonitoring.removeMonitor(host);
 
 			assertTrue(hostMonitoring.selectFromType(HOST).isEmpty());
 			assertTrue(hostMonitoring.selectFromType(ENCLOSURE).isEmpty());
@@ -160,7 +160,7 @@ class HostMonitoringTest {
 			hostMonitoring.addMonitor(enclosure);
 			hostMonitoring.addMonitor(fan);
 
-			hostMonitoring.removeMonitor(target);
+			hostMonitoring.removeMonitor(host);
 
 			assertNull(hostMonitoring.selectFromType(HOST));
 			assertTrue(hostMonitoring.selectFromType(ENCLOSURE).isEmpty());
@@ -176,13 +176,13 @@ class HostMonitoringTest {
 
 		assertThrows(IllegalArgumentException.class, () -> hostMonitoring.addMonitor(null));
 
-		final Monitor nohostId = Monitor.builder().hostId(HOST_ID).name(target_NAME).monitorType(HOST).build();
+		final Monitor nohostId = Monitor.builder().hostId(HOST_ID).name(HOST_NAME).monitorType(HOST).build();
 		assertThrows(IllegalArgumentException.class, () -> hostMonitoring.addMonitor(nohostId));
 
-		final Monitor noMonitorType = Monitor.builder().id(HOST_ID).hostId(HOST_ID).name(target_NAME).build();
+		final Monitor noMonitorType = Monitor.builder().id(HOST_ID).hostId(HOST_ID).name(HOST_NAME).build();
 		assertThrows(IllegalArgumentException.class, () -> hostMonitoring.addMonitor(noMonitorType));
 
-		final Monitor noHostId = Monitor.builder().id(HOST_ID).monitorType(HOST).name(target_NAME).build();
+		final Monitor noHostId = Monitor.builder().id(HOST_ID).monitorType(HOST).name(HOST_NAME).build();
 		assertThrows(IllegalArgumentException.class, () -> hostMonitoring.addMonitor(noHostId));
 
 		final Monitor noParentId = Monitor.builder().id(ENCLOSURE_ID).name(ENCLOSURE_NAME).hostId(HOST_ID).monitorType(ENCLOSURE).build();
@@ -283,7 +283,7 @@ class HostMonitoringTest {
 			final Monitor fanResult = hostMonitoring.selectFromType(FAN).values().stream().findFirst().get();
 			assertNotNull(fanResult);
 			assertEquals(FULL_FAN_ID, fanResult.getId());
-			// The Fan is attached to the target id because we haven't a "Computer" enclosure and AttachedTohostId is not set
+			// The Fan is attached to the host id because we haven't a "Computer" enclosure and AttachedTohostId is not set
 			assertEquals(enclosure.getId(), fanResult.getParentId());
 			assertEquals(HOST_ID, fanResult.getHostId());
 		}
@@ -299,7 +299,7 @@ class HostMonitoringTest {
 			final Monitor fanResult = hostMonitoring.selectFromType(FAN).values().stream().findFirst().get();
 			assertNotNull(fanResult);
 			assertEquals(FULL_FAN_ID, fanResult.getId());
-			// The Fan is attached to the target id because there is no enclosure
+			// The Fan is attached to the host id because there is no enclosure
 			assertEquals("hostId", fanResult.getParentId());
 			assertEquals(HOST_ID, fanResult.getHostId());
 		}

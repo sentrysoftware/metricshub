@@ -33,9 +33,9 @@ class OtelMetadataToMetricObserverTest {
 	@Test
 	void testInit() {
 
-		final Monitor target = Monitor.builder().id(ID).name("host").build();
-		target.addMetadata(FQDN, "host.my.domain.net");
-		final Resource resource = OtelHelper.createHostResource(target.getId(),
+		final Monitor host = Monitor.builder().id(ID).name("host").build();
+		host.addMetadata(FQDN, "host.my.domain.net");
+		final Resource resource = OtelHelper.createHostResource(host.getId(),
 				"host", HostType.LINUX, "host.my.domain.net", false, Collections.emptyMap(), Collections.emptyMap());
 
 		final InMemoryMetricReader inMemoryReader = InMemoryMetricReader.create();

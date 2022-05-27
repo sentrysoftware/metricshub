@@ -125,7 +125,7 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitHTTPSource() {
+	void testVisitHttpSource() {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(HttpSource.builder().build()));
 
@@ -146,16 +146,16 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitIPMISourceStorageTarget() {
-		EngineConfiguration engineConfigurationStorageTarget = EngineConfiguration.builder()
+	void testVisitIpmiSourceStorageHost() {
+		EngineConfiguration engineConfigurationStorageHost = EngineConfiguration.builder()
 				.host(HardwareHost.builder().hostname(ECS1_01).id(ECS1_01).type(HostType.STORAGE).build())
 				.build();
-		doReturn(engineConfigurationStorageTarget).when(strategyConfig).getEngineConfiguration();
+		doReturn(engineConfigurationStorageHost).when(strategyConfig).getEngineConfiguration();
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(new Ipmi()));
 	}
 
 	@Test
-	void testVisitIPMISourceOOBTargetNoIPMIConfig() {
+	void testVisitIpmiSourceOobHostNoIpmiConfig() {
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
 				.host(HardwareHost.builder()
@@ -170,7 +170,7 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitIPMISourceOOB() throws Exception {
+	void testVisitIpmiSourceOob() throws Exception {
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
 				.host(HardwareHost.builder()
@@ -192,7 +192,7 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitIPMISourceOOBNullResult() throws Exception {
+	void testVisitIpmiSourceOobNullResult() throws Exception {
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
 				.host(HardwareHost.builder()
@@ -212,7 +212,7 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitIPMISourceOOBException() throws Exception {
+	void testVisitIpmiSourceOobException() throws Exception {
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
 				.host(HardwareHost.builder()
@@ -233,7 +233,7 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitOSCommandSource() {
+	void testVisitOsCommandSource() {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		assertEquals(SourceTable.empty(), sourceVisitor.visit((OsCommandSource) null));
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(new OsCommandSource()));
@@ -373,7 +373,7 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitSNMPGetSource() throws InterruptedException, ExecutionException, TimeoutException {
+	void testVisitSnmpGetSource() throws InterruptedException, ExecutionException, TimeoutException {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		assertEquals(SourceTable.empty(), sourceVisitor.visit( SnmpGetSource.builder().oid(null).build()));
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
@@ -406,7 +406,7 @@ class SourceVisitorTest {
 
 
 	@Test
-	void testVisitSNMPGetTableNullArgs() throws Exception {
+	void testVisitSnmpGetTableNullArgs() throws Exception {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		assertEquals(SourceTable.empty(), sourceVisitor.visit( SnmpGetTableSource.builder().oid(null).snmpTableSelectColumns(null).build()));
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(SnmpGetTableSource.builder().snmpTableSelectColumns(SNMP_SELECTED_COLUMNS).build()));
@@ -425,7 +425,7 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitSNMPGetTableExpectedResultNotMatches() throws Exception {
+	void testVisitSnmpGetTableExpectedResultNotMatches() throws Exception {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(new ArrayList<>()).when(matsyaClientsExecutor).executeSNMPTable(any(), any(), any(), any(), eq(true));
 		final SourceTable actual = sourceVisitor.visit(SnmpGetTableSource.builder().oid(OID).snmpTableSelectColumns(SNMP_WRONG_COLUMNS).build());
@@ -435,7 +435,7 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitSNMPGetTableExpectedResultMatches() throws Exception {
+	void testVisitSbmpGetTableExpectedResultMatches() throws Exception {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(EXPECTED_SNMP_TABLE_DATA).when(matsyaClientsExecutor).executeSNMPTable(any(), any(), any(), any(), eq(true));
 		final SourceTable actual = sourceVisitor
@@ -730,12 +730,12 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitUCSSource() {
+	void testVisitUcsSource() {
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(new UcsSource()));
 	}
 
 	@Test
-	void testVisitWBEMSource() throws MatsyaException {
+	void testVisitWbemSource() throws MatsyaException {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		assertEquals(SourceTable.empty(), sourceVisitor.visit((WbemSource) null));
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(WbemSource.builder().build()));
@@ -831,14 +831,14 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitWMISourceMalformed() {
+	void testVisitWmiSourceMalformed() {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		assertEquals(SourceTable.empty(), sourceVisitor.visit((WmiSource) null));
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(WmiSource.builder().build()));
 	}
 
 	@Test
-	void testVisitWMISourceButWMINotConfigured() {
+	void testVisitWmiSourceButWmiNotConfigured() {
 		final WmiSource wmiSource = WmiSource.builder().wbemQuery(WQL).build();
 		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
 				.host(HardwareHost.builder().hostname(PC14).id(PC14).type(HostType.MS_WINDOWS).build())
@@ -849,7 +849,7 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitWMISourceNoNamespace() {
+	void testVisitWmiSourceNoNamespace() {
 		final WmiSource wmiSource = WmiSource.builder().wbemQuery(WQL).wbemNamespace("automatic").build();
 		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
 				.host(HardwareHost.builder().hostname(PC14).id(PC14).type(HostType.MS_WINDOWS).build())
@@ -866,7 +866,7 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitWMISource() throws Exception {
+	void testVisitWmiSource() throws Exception {
 		final WmiSource wmiSource = WmiSource.builder().wbemQuery(WQL).wbemNamespace("automatic").build();
 		final WmiProtocol wmiProtocol = WmiProtocol.builder()
 				.username(PC14 + "\\" + "Administrator")
@@ -898,7 +898,7 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitWMISourceTimeout() throws Exception {
+	void testVisitWmiSourceTimeout() throws Exception {
 
 		final WmiSource wmiSource = WmiSource.builder().wbemQuery(WQL).wbemNamespace("automatic").build();
 		final WmiProtocol wmiProtocol = WmiProtocol.builder()

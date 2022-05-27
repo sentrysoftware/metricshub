@@ -57,13 +57,13 @@ public class StrategyTask implements Runnable {
 		final IHostMonitoring hostMonitoring = strategyTaskInfo.getHostMonitoring();
 		final int discoveryCycle = strategyTaskInfo.getDiscoveryCycle();
 
-		final String targetId = hostMonitoring.getEngineConfiguration().getHost().getId();
+		final String hostId = hostMonitoring.getEngineConfiguration().getHost().getId();
 
-		configureLoggerContext(targetId);
+		configureLoggerContext(hostId);
 
-		// Are we supposed to run the target discovery?
+		// Are we supposed to run the host discovery?
 		if (numberOfCollects == 0) {
-			log.info("Calling the engine to discover target: {}.", targetId);
+			log.info("Calling the engine to discover host: {}.", hostId);
 
 			// Run detection and discovery strategies first, the collect strategy will be run when all the OpenTelemetry
 			// observers are registered
@@ -75,7 +75,7 @@ public class StrategyTask implements Runnable {
 
 		}
 
-		log.info("Calling the engine to collect target: {}.", targetId);
+		log.info("Calling the engine to collect host: {}.", hostId);
 
 		// Make sure the engine configuration is updated correctly with the trigger
 		hostMonitoring.getEngineConfiguration().setAlertTrigger(this::triggerAlertAsOtelLog);
@@ -138,14 +138,14 @@ public class StrategyTask implements Runnable {
 		if (autoConfiguredOpenTelemetrySdk == null) {
 
 			// Create the resource
-			final Monitor targetMonitor = hostMonitoring.getHostMonitor();
+			final Monitor hostMonitor = hostMonitoring.getHostMonitor();
 			final HostConfigurationDto hostConfigurationDto = userConfiguration.getHostConfigurationDto();
 
 			final Resource resource = OtelHelper.createHostResource(
-					targetMonitor.getId(),
+					hostMonitor.getId(),
 					hostConfigurationDto.getHost().getHostname(),
 					hostConfigurationDto.getHost().getType(),
-					targetMonitor.getFqdn(),
+					hostMonitor.getFqdn(),
 					userConfiguration.getMultiHostsConfigurationDto().isResolveHostnameToFqdn(),
 					hostConfigurationDto.getExtraLabels(),
 					userConfiguration.getMultiHostsConfigurationDto().getExtraLabels()
@@ -229,13 +229,13 @@ public class StrategyTask implements Runnable {
 	}
 
 	/**
-	 * Configure the logger context with the targetId, port, debugMode and outputDirectory.
+	 * Configure the logger context with the hostId, port, debugMode and outputDirectory.
 	 *
-	 * @param targetId	The unique identifier of the target
+	 * @param hostId	The unique identifier of the host
 	 */
-	void configureLoggerContext(final String targetId) {
+	void configureLoggerContext(final String hostId) {
 
-		ThreadContext.put("targetId", targetId);
+		ThreadContext.put("hostId", hostId);
 		ThreadContext.put("loggerLevel", strategyTaskInfo.getLoggerLevel());
 		ThreadContext.put("port", String.valueOf(strategyTaskInfo.getServerPort()));
 

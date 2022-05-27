@@ -62,7 +62,7 @@ class MonitorDiscoveryVisitorTest {
 	private static final String VENDOR = "vendor";
 	private static final String DISPLAY_ID = "displayId";
 	private static final String DEVICE_ID = "deviceId";
-	private static final String TRAGET_HOSTNAME = "localhost";
+	private static final String HOSTNAME = "localhost";
 	private static final String VOLTAGE_ID = "myConnector_voltage_localhost_1.1";
 	private static final String TEMPERATURE_ID = "myConnector_temperature_localhost_1.1";
 	private static final String TAPE_DRIVE_ID = "myConnector_tapedrive_localhost_1.1";
@@ -102,8 +102,8 @@ class MonitorDiscoveryVisitorTest {
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(BATTERY_ID)
 				.name(MONITOR_NAME)
-				.parentId(TRAGET_HOSTNAME)
-				.hostId(TRAGET_HOSTNAME)
+				.parentId(HOSTNAME)
+				.hostId(HOSTNAME)
 				.metadata(metadata)
 				.monitorType(MonitorType.BATTERY)
 				.extendedType(MonitorType.BATTERY.getNameInConnector())
@@ -133,8 +133,8 @@ class MonitorDiscoveryVisitorTest {
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(BLADE_ID)
 				.name(MONITOR_NAME)
-				.parentId(TRAGET_HOSTNAME)
-				.hostId(TRAGET_HOSTNAME)
+				.parentId(HOSTNAME)
+				.hostId(HOSTNAME)
 				.metadata(metadata)
 				.monitorType(MonitorType.BLADE)
 				.extendedType(MonitorType.BLADE.getNameInConnector())
@@ -164,8 +164,8 @@ class MonitorDiscoveryVisitorTest {
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(CPU_ID)
 				.name(MONITOR_NAME)
-				.parentId(TRAGET_HOSTNAME)
-				.hostId(TRAGET_HOSTNAME)
+				.parentId(HOSTNAME)
+				.hostId(HOSTNAME)
 				.metadata(metadata)
 				.monitorType(MonitorType.CPU)
 				.extendedType(MonitorType.CPU.getNameInConnector())
@@ -195,8 +195,8 @@ class MonitorDiscoveryVisitorTest {
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(CPU_CORE_ID)
 				.name(MONITOR_NAME)
-				.parentId(TRAGET_HOSTNAME)
-				.hostId(TRAGET_HOSTNAME)
+				.parentId(HOSTNAME)
+				.hostId(HOSTNAME)
 				.metadata(metadata)
 				.monitorType(MonitorType.CPU_CORE)
 				.extendedType(MonitorType.CPU_CORE.getNameInConnector())
@@ -226,8 +226,8 @@ class MonitorDiscoveryVisitorTest {
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(DISK_CONTROLLER_ID)
 				.name(DISK_CONTROLLER_MONITOR_X)
-				.parentId(TRAGET_HOSTNAME)
-				.hostId(TRAGET_HOSTNAME)
+				.parentId(HOSTNAME)
+				.hostId(HOSTNAME)
 				.metadata(metadata)
 				.monitorType(MonitorType.DISK_CONTROLLER)
 				.extendedType(MonitorType.DISK_CONTROLLER.getNameInConnector())
@@ -261,12 +261,12 @@ class MonitorDiscoveryVisitorTest {
 				.metadata(metadata)
 				.build();
 
-		final Monitor targetMonitor = Monitor
+		final Monitor hostMonitor = Monitor
 				.builder()
-				.id(TRAGET_HOSTNAME)
+				.id(HOSTNAME)
 				.parentId(null)
-				.hostId(TRAGET_HOSTNAME)
-				.name(TRAGET_HOSTNAME)
+				.hostId(HOSTNAME)
+				.name(HOSTNAME)
 				.monitorType(MonitorType.HOST)
 				.build();
 
@@ -277,8 +277,8 @@ class MonitorDiscoveryVisitorTest {
 				.monitor(monitor)
 				.hostMonitoring(hostMonitoring)
 				.hostType(HostType.LINUX)
-				.hostMonitor(targetMonitor)
-				.hostname(TRAGET_HOSTNAME)
+				.hostMonitor(hostMonitor)
+				.hostname(HOSTNAME)
 				.build();
 
 		new MonitorDiscoveryVisitor(buildingInfo).visit((Enclosure) MonitorType.ENCLOSURE.getMetaMonitor());
@@ -286,8 +286,8 @@ class MonitorDiscoveryVisitorTest {
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(ENCLOSURE_ID)
 				.name(ENCLOSURE_NAME)
-				.parentId(TRAGET_HOSTNAME)
-				.hostId(TRAGET_HOSTNAME)
+				.parentId(HOSTNAME)
+				.hostId(HOSTNAME)
 				.metadata(metadata)
 				.monitorType(MonitorType.ENCLOSURE)
 				.extendedType(COMPUTER)
@@ -316,8 +316,8 @@ class MonitorDiscoveryVisitorTest {
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(FAN_ID)
 				.name(MONITOR_NAME)
-				.parentId(TRAGET_HOSTNAME)
-				.hostId(TRAGET_HOSTNAME)
+				.parentId(HOSTNAME)
+				.hostId(HOSTNAME)
 				.metadata(metadata)
 				.monitorType(MonitorType.FAN)
 				.extendedType(MonitorType.FAN.getNameInConnector())
@@ -347,8 +347,8 @@ class MonitorDiscoveryVisitorTest {
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(LED_ID)
 				.name(MONITOR_NAME)
-				.parentId(TRAGET_HOSTNAME)
-				.hostId(TRAGET_HOSTNAME)
+				.parentId(HOSTNAME)
+				.hostId(HOSTNAME)
 				.metadata(metadata)
 				.monitorType(MonitorType.LED)
 				.extendedType(MonitorType.LED.getNameInConnector())
@@ -378,8 +378,8 @@ class MonitorDiscoveryVisitorTest {
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(LOGICAL_DISK_ID)
 				.name(MONITOR_NAME)
-				.parentId(TRAGET_HOSTNAME)
-				.hostId(TRAGET_HOSTNAME)
+				.parentId(HOSTNAME)
+				.hostId(HOSTNAME)
 				.metadata(metadata)
 				.monitorType(MonitorType.LOGICAL_DISK)
 				.extendedType(MonitorType.LOGICAL_DISK.getNameInConnector())
@@ -409,8 +409,8 @@ class MonitorDiscoveryVisitorTest {
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(LUN_ID)
 				.name(MONITOR_NAME)
-				.parentId(TRAGET_HOSTNAME)
-				.hostId(TRAGET_HOSTNAME)
+				.parentId(HOSTNAME)
+				.hostId(HOSTNAME)
 				.metadata(metadata)
 				.monitorType(MonitorType.LUN)
 				.extendedType(MonitorType.LUN.getNameInConnector())
@@ -440,8 +440,8 @@ class MonitorDiscoveryVisitorTest {
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(MEMORY_ID)
 				.name(MONITOR_NAME)
-				.parentId(TRAGET_HOSTNAME)
-				.hostId(TRAGET_HOSTNAME)
+				.parentId(HOSTNAME)
+				.hostId(HOSTNAME)
 				.metadata(metadata)
 				.monitorType(MonitorType.MEMORY)
 				.extendedType(MonitorType.MEMORY.getNameInConnector())
@@ -473,8 +473,8 @@ class MonitorDiscoveryVisitorTest {
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(NETWORK_CARD_ID)
 				.name(MONITOR_NAME)
-				.parentId(TRAGET_HOSTNAME)
-				.hostId(TRAGET_HOSTNAME)
+				.parentId(HOSTNAME)
+				.hostId(HOSTNAME)
 				.metadata(metadata)
 				.monitorType(MonitorType.NETWORK_CARD)
 				.extendedType(MonitorType.NETWORK_CARD.getNameInConnector())
@@ -504,8 +504,8 @@ class MonitorDiscoveryVisitorTest {
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(OTHER_DEVICE_ID)
 				.name(MONITOR_NAME)
-				.parentId(TRAGET_HOSTNAME)
-				.hostId(TRAGET_HOSTNAME)
+				.parentId(HOSTNAME)
+				.hostId(HOSTNAME)
 				.metadata(metadata)
 				.monitorType(MonitorType.OTHER_DEVICE)
 				.extendedType(MonitorType.OTHER_DEVICE.getNameInConnector())
@@ -535,8 +535,8 @@ class MonitorDiscoveryVisitorTest {
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(PHYSICAL_DISK_ID)
 				.name(MONITOR_NAME)
-				.parentId(TRAGET_HOSTNAME)
-				.hostId(TRAGET_HOSTNAME)
+				.parentId(HOSTNAME)
+				.hostId(HOSTNAME)
 				.metadata(metadata)
 				.monitorType(MonitorType.PHYSICAL_DISK)
 				.extendedType(MonitorType.PHYSICAL_DISK.getNameInConnector())
@@ -566,8 +566,8 @@ class MonitorDiscoveryVisitorTest {
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(POWER_SUPPLY_ID)
 				.name(MONITOR_NAME)
-				.parentId(TRAGET_HOSTNAME)
-				.hostId(TRAGET_HOSTNAME)
+				.parentId(HOSTNAME)
+				.hostId(HOSTNAME)
 				.metadata(metadata)
 				.monitorType(MonitorType.POWER_SUPPLY)
 				.extendedType(MonitorType.POWER_SUPPLY.getNameInConnector())
@@ -597,8 +597,8 @@ class MonitorDiscoveryVisitorTest {
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(TAPE_DRIVE_ID)
 				.name(MONITOR_NAME)
-				.parentId(TRAGET_HOSTNAME)
-				.hostId(TRAGET_HOSTNAME)
+				.parentId(HOSTNAME)
+				.hostId(HOSTNAME)
 				.metadata(metadata)
 				.monitorType(MonitorType.TAPE_DRIVE)
 				.extendedType(MonitorType.TAPE_DRIVE.getNameInConnector())
@@ -628,8 +628,8 @@ class MonitorDiscoveryVisitorTest {
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(TEMPERATURE_ID)
 				.name(MONITOR_NAME)
-				.parentId(TRAGET_HOSTNAME)
-				.hostId(TRAGET_HOSTNAME)
+				.parentId(HOSTNAME)
+				.hostId(HOSTNAME)
 				.metadata(metadata)
 				.monitorType(MonitorType.TEMPERATURE)
 				.extendedType(MonitorType.TEMPERATURE.getNameInConnector())
@@ -659,8 +659,8 @@ class MonitorDiscoveryVisitorTest {
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(VOLTAGE_ID)
 				.name(MONITOR_NAME)
-				.parentId(TRAGET_HOSTNAME)
-				.hostId(TRAGET_HOSTNAME)
+				.parentId(HOSTNAME)
+				.hostId(HOSTNAME)
 				.metadata(metadata)
 				.monitorType(MonitorType.VOLTAGE)
 				.extendedType(MonitorType.VOLTAGE.getNameInConnector())
@@ -691,8 +691,8 @@ class MonitorDiscoveryVisitorTest {
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(ROBOTICS_ID)
 				.name(MONITOR_NAME)
-				.parentId(TRAGET_HOSTNAME)
-				.hostId(TRAGET_HOSTNAME)
+				.parentId(HOSTNAME)
+				.hostId(HOSTNAME)
 				.metadata(metadata)
 				.monitorType(MonitorType.ROBOTICS)
 				.extendedType(MonitorType.ROBOTICS.getNameInConnector())
@@ -718,12 +718,12 @@ class MonitorDiscoveryVisitorTest {
 				.metadata(metadata)
 				.build();
 
-		final Monitor targetMonitor = Monitor
+		final Monitor hostMonitor = Monitor
 				.builder()
-				.id(TRAGET_HOSTNAME)
+				.id(HOSTNAME)
 				.parentId(null)
-				.hostId(TRAGET_HOSTNAME)
-				.name(TRAGET_HOSTNAME)
+				.hostId(HOSTNAME)
+				.name(HOSTNAME)
 				.monitorType(MonitorType.HOST)
 				.build();
 
@@ -734,8 +734,8 @@ class MonitorDiscoveryVisitorTest {
 				.monitor(monitor)
 				.hostMonitoring(hostMonitoring)
 				.hostType(HostType.LINUX)
-				.hostMonitor(targetMonitor)
-				.hostname(TRAGET_HOSTNAME)
+				.hostMonitor(hostMonitor)
+				.hostname(HOSTNAME)
 				.build();
 
 		new MonitorDiscoveryVisitor(buildingInfo).createMonitor(null, null);
@@ -756,12 +756,12 @@ class MonitorDiscoveryVisitorTest {
 				.metadata(metadata)
 				.build();
 
-		final Monitor targetMonitor = Monitor
+		final Monitor hostMonitor = Monitor
 				.builder()
-				.id(TRAGET_HOSTNAME)
+				.id(HOSTNAME)
 				.parentId(null)
-				.hostId(TRAGET_HOSTNAME)
-				.name(TRAGET_HOSTNAME)
+				.hostId(HOSTNAME)
+				.name(HOSTNAME)
 				.monitorType(MonitorType.HOST)
 				.build();
 
@@ -772,8 +772,8 @@ class MonitorDiscoveryVisitorTest {
 				.monitor(monitor)
 				.hostMonitoring(hostMonitoring)
 				.hostType(HostType.LINUX)
-				.hostMonitor(targetMonitor)
-				.hostname(TRAGET_HOSTNAME)
+				.hostMonitor(hostMonitor)
+				.hostname(HOSTNAME)
 				.build();
 
 		new MonitorDiscoveryVisitor(buildingInfo).createMonitor(MONITOR_NAME, null);
@@ -800,8 +800,8 @@ class MonitorDiscoveryVisitorTest {
 		final Monitor expectedFan = Monitor.builder()
 				.id(FAN_ID)
 				.name(MONITOR_NAME)
-				.parentId(TRAGET_HOSTNAME)
-				.hostId(TRAGET_HOSTNAME)
+				.parentId(HOSTNAME)
+				.hostId(HOSTNAME)
 				.metadata(metadata)
 				.monitorType(MonitorType.FAN)
 				.extendedType(MonitorType.FAN.getNameInConnector())
@@ -829,12 +829,12 @@ class MonitorDiscoveryVisitorTest {
 				.metadata(metadata)
 				.build();
 
-		final Monitor targetMonitor = Monitor
+		final Monitor hostMonitor = Monitor
 				.builder()
-				.id(TRAGET_HOSTNAME)
+				.id(HOSTNAME)
 				.parentId(null)
-				.hostId(TRAGET_HOSTNAME)
-				.name(TRAGET_HOSTNAME)
+				.hostId(HOSTNAME)
+				.name(HOSTNAME)
 				.monitorType(MonitorType.HOST)
 				.build();
 
@@ -845,8 +845,8 @@ class MonitorDiscoveryVisitorTest {
 				.monitor(monitor)
 				.hostMonitoring(hostMonitoring)
 				.hostType(HostType.LINUX)
-				.hostMonitor(targetMonitor)
-				.hostname(TRAGET_HOSTNAME)
+				.hostMonitor(hostMonitor)
+				.hostname(HOSTNAME)
 				.build();
 
 	}

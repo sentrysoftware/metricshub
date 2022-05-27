@@ -146,7 +146,7 @@ public class PrometheusSpecificities {
 		prometheusParametersMap.put(MonitorType.TEMPERATURE, buildTemperaturePrometheusParameters());
 		prometheusParametersMap.put(MonitorType.VOLTAGE, buildVoltagePrometheusParameters());
 		prometheusParametersMap.put(MonitorType.VM, buildVmPrometheusParameters());
-		prometheusParametersMap.put(MonitorType.HOST, buildTargetPrometheusParameters());
+		prometheusParametersMap.put(MonitorType.HOST, buildHostPrometheusParameters());
 
 		prometheusParameters = Collections.unmodifiableMap(prometheusParametersMap);
 
@@ -198,11 +198,11 @@ public class PrometheusSpecificities {
 	}
 
 	/**
-	 * Build target prometheus parameters map
+	 * Build host prometheus parameters map
 	 *
 	 * @return  {@link Map} where the prometheus parameters are indexed by the matrix parameter name
 	 */
-	private static Map<String, MetricInfo> buildTargetPrometheusParameters() {
+	private static Map<String, MetricInfo> buildHostPrometheusParameters() {
 		final Map<String, MetricInfo> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(IMetaMonitor.STATUS.getName(), MetricInfo.builder()

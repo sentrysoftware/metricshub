@@ -239,12 +239,12 @@ public class OtelAlertHelperTest {
 		assertThrows(IllegalArgumentException.class, () -> OtelAlertHelper.buildHardwareProblem(null, "template"));
 	}
 	/**
-	 * Initialize target, enclosure and disk for alert testing
+	 * Initialize host, enclosure and disk for alert testing
 	 * 
 	 * @param hostMonitoring
 	 */
 	public static void initMonitorsForAlert(final IHostMonitoring hostMonitoring) {
-		final Monitor target = Monitor
+		final Monitor host = Monitor
 				.builder()
 				.id(HOST_HOSTNAME)
 				.parentId(null)
@@ -254,7 +254,7 @@ public class OtelAlertHelperTest {
 				.metadata(Map.of(FQDN, HOST_HOSTNAME))
 				.build();
 
-		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(host);
 
 		final Map<String, String> enclosureMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 		enclosureMetadata.put(ID_COUNT, "1");
@@ -425,7 +425,7 @@ public class OtelAlertHelperTest {
 
 	@Test
 	void testBuildParentInformation() {
-		assertEquals("target is the root monitor", OtelAlertHelper.buildParentInformation("target", null, new HostMonitoring()));
+		assertEquals("host is the root monitor", OtelAlertHelper.buildParentInformation("host", null, new HostMonitoring()));
 		assertEquals("No information available on the parent", OtelAlertHelper.buildParentInformation(null, "parent_id", new HostMonitoring()));
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();

@@ -126,7 +126,7 @@ class TaskSchedulingServiceTest {
 
 		// Current /data/hws-config.yaml has 3 hosts
 		// Let's say we have 4 hosts from the previous configuration but the current contains only 3 hosts
-		// Let's check that 1 host is unscheduled and the exsiting hosts are never re-scheduled
+		// Let's check that 1 host is unscheduled and the existing hosts are never re-scheduled
 		final MultiHostsConfigurationDto previous = ConfigHelper.readConfigurationSafe(configFile);
 		previous.getHosts().add(HostConfigurationDto.builder()
 				.collectPeriod(MultiHostsConfigurationDto.DEFAULT_COLLECT_PERIOD)
@@ -147,7 +147,7 @@ class TaskSchedulingServiceTest {
 
 		taskSechedulingService.updateConfiguration(configFile);
 
-		verify(mock, times(1)).cancel(true);
+		verify(mock, times(4)).cancel(true);
 		verify(hostTaskScheduler, never()).schedule(any(StrategyTask.class), any(Trigger.class));
 
 	}

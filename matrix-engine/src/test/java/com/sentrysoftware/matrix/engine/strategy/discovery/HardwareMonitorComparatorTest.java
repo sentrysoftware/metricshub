@@ -17,7 +17,7 @@ class HardwareMonitorComparatorTest {
 	final HardwareMonitor hardwareMonitorNull = null;
 
 	final HardwareMonitor hdfConnector = HardwareMonitor.builder().type(MonitorType.CONNECTOR).build();
-	final HardwareMonitor hdfTarget = HardwareMonitor.builder().type(MonitorType.HOST).build();
+	final HardwareMonitor hdfHost = HardwareMonitor.builder().type(MonitorType.HOST).build();
 	final HardwareMonitor hdfBattery = HardwareMonitor.builder().type(MonitorType.BATTERY).build();
 	final HardwareMonitor hdfBlade = HardwareMonitor.builder().type(MonitorType.BLADE).build();
 	final HardwareMonitor hdfCPU = HardwareMonitor.builder().type(MonitorType.CPU).build();
@@ -39,7 +39,7 @@ class HardwareMonitorComparatorTest {
 	final HardwareMonitor hdfVoltage = HardwareMonitor.builder().type(MonitorType.VOLTAGE).build();
 
 	final List<HardwareMonitor> allPossibleMonitorsType = Arrays.asList(
-			hdfTarget, hdfBattery, hdfBlade, hdfCPU,
+			hdfHost, hdfBattery, hdfBlade, hdfCPU,
 			hdfCpuCore, hdfDiskController, hdfFan, hdfEnclosure,
 			hdfLed, hdfLogicalDisk, hdfLun, hdfMemory,
 			hdfNetworkCard, hdfOtherDevice, hdfPhysicalDisk, hdfPowerSupply,

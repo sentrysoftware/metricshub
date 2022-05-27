@@ -64,7 +64,7 @@ public class OtelHelper {
 	static final String AGENT_HOSTNAME = StringHelper
 			.getValue(() -> InetAddress.getLocalHost().getCanonicalHostName(), UNKNOWN);
 
-	static final Map<HostType, String> TARGET_TYPE_TO_OTEL_OS_TYPE = Map.of(
+	static final Map<HostType, String> HOST_TYPE_TO_OTEL_OS_TYPE = Map.of(
 			HP_OPEN_VMS, OS_TYPE_OPEN_VMS,
 			HP_TRU64_UNIX, OS_TYPE_TRUE64,
 			HP_UX, OS_TYPE_HP_UX,
@@ -76,7 +76,7 @@ public class OtelHelper {
 			STORAGE, OS_TYPE_STORAGE,
 			SUN_SOLARIS, OS_TYPE_SOLARIS);
 
-	static final Map<HostType, String> TARGET_TYPE_TO_OTEL_HOST_TYPE = Map.of(
+	static final Map<HostType, String> HOST_TYPE_TO_OTEL_HOST_TYPE = Map.of(
 			HP_OPEN_VMS, HOST_TYPE_COMPUTE,
 			HP_TRU64_UNIX, HOST_TYPE_COMPUTE,
 			HP_UX, HOST_TYPE_COMPUTE,
@@ -124,7 +124,7 @@ public class OtelHelper {
 		sdkBuilder.registerShutdownHook(false);
 
 		// We are not instrumenting our code execution and because this method is called
-		// for each target, we must disable the global result
+		// for each host, we must disable the global result
 		sdkBuilder.setResultAsGlobal(false);
 
 		return sdkBuilder.build();
@@ -133,14 +133,14 @@ public class OtelHelper {
 	/**
 	 * Create host resource using the given information
 	 * 
-	 * @param id                    Target id
-	 * @param hostname              Target configured hostname
-	 * @param hostType            Target type
+	 * @param id                    Host id
+	 * @param hostname              Host configured hostname
+	 * @param hostType              Host type
 	 * @param fqdn                  Collected fqdn
 	 * @param resolveHostnameToFqdn Whether we should resolve the hostname to Fqdn
-	 * @param extraLabels           Extra labels configured on the target
+	 * @param extraLabels           Extra labels configured on the host
 	 * @param globalExtraLabels     Global configured extra labels
-	 * @return Resource capturing identifying information about the target for which
+	 * @return Resource capturing identifying information about the host for which
 	 *         signals are reported.
 	 */
 	public static Resource createHostResource(
@@ -161,11 +161,11 @@ public class OtelHelper {
 		);
 
 		// The host resource os.type
-		final String osType = TARGET_TYPE_TO_OTEL_OS_TYPE.getOrDefault(hostType,
+		final String osType = HOST_TYPE_TO_OTEL_OS_TYPE.getOrDefault(hostType,
 				hostType.getDisplayName().toLowerCase());
 
 		// The host resource host.type
-		final String hostTypeStr = TARGET_TYPE_TO_OTEL_HOST_TYPE.getOrDefault(hostType,
+		final String hostTypeStr = HOST_TYPE_TO_OTEL_HOST_TYPE.getOrDefault(hostType,
 				hostType.getDisplayName().toLowerCase());
 
 		// Build attributes
@@ -203,10 +203,10 @@ public class OtelHelper {
 	 *   <li>User's extra label <code>fqdn</code> with <code>resolveHostnameToFqdn=true</code></li>
 	 *   <li>User's extra label <code>host.name</code> value</li>
 	 *   <li>Collected <code>fqdn</code> when the <code>resolveHostnameToFqdn=true</code></li>
-	 *   <li>Configured target's <code>hostname</code></li>
+	 *   <li>Configured host's <code>hostname</code></li>
 	 * </ol>
 	 * 
-	 * @param hostname              Configured target's hostname
+	 * @param hostname              Configured host's hostname
 	 * @param collectedFqdn         Collected fqdn
 	 * @param resolveHostnameToFqdn global configuration property to tell the agent
 	 *                              resolve host.name as Fqdn
@@ -234,7 +234,7 @@ public class OtelHelper {
 			return collectedFqdn;
 		}
 
-		// Finally we keep the configured target's hostname
+		// Finally we keep the configured host's hostname
 		return hostname;
 	}
 

@@ -9,7 +9,7 @@
 				onMismatch="DENY" />
 			<!-- Format of the output log -->
 			<PatternLayout
-				pattern="[%date{ISO8601}][%-5level][%logger{1.}][%marker][$${ctx:targetId}] %X %m%n" />
+				pattern="[%date{ISO8601}][%-5level][%logger{1.}][%marker][$${ctx:hostId}] %X %m%n" />
 		</Console>
 	</Appenders>
 	<Loggers>

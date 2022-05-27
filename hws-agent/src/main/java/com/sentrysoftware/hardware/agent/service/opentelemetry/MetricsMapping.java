@@ -191,7 +191,7 @@ public class MetricsMapping {
 	}
 
 	/**
-	 * Build target metrics map
+	 * Build host metrics map
 	 *
 	 * @return  {@link Map} where the metrics are indexed by the matrix parameter name
 	 */

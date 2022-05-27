@@ -37,7 +37,7 @@ receivers:
         - job_name: otel-collector-internal
           scrape_interval: 60s
           static_configs:
-            - targets: [ localhost:8888 ]
+            - hosts: [ localhost:8888 ]
 
 # PROCESSING
 processors:
