@@ -127,7 +127,7 @@ public class VmMapping {
 				MetricInfo
 					.builder()
 					.name(VM_POWER_STATE_METRIC_NAME)
-					.description("Whether the state of the virtual machine is currently standby or not.")
+					.description("Whether the state of the virtual machine is currently suspended or not.")
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
