@@ -137,7 +137,7 @@ public class MemoryMapping{
 					.name("hw.memory.energy")
 					.unit(JOULES_UNIT)
 					.type(MetricType.COUNTER)
-					.description("Energy consumed by the memory since the start of the Hardware Sentry Agent.")
+					.description(createEnergyDescription(MEMORY_TYPE))
 					.build()
 			)
 		);
@@ -149,7 +149,7 @@ public class MemoryMapping{
 					.builder()
 					.name("hw.memory.power")
 					.unit(WATTS_UNIT)
-					.description("Energy consumed by the memory.")
+					.description(createPowerConsumptionDescription(MEMORY_TYPE))
 					.build()
 			)
 		);
