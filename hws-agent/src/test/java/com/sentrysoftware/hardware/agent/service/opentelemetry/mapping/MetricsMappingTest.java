@@ -68,13 +68,16 @@ class MetricsMappingTest {
 						}
 
 						// TODO: resolve conflict with 2 statuses for controller in HW Sentry KM
-						if(metricId.equals("hw.disk_controller.status.state.ok")) {
+						if (metricId.equals("hw.disk_controller.status.state.ok")) {
+							metricIds.add(metricId);
 							continue;
 						}
-						if(metricId.equals("hw.disk_controller.status.state.degraded")) {
+						if (metricId.equals("hw.disk_controller.status.state.degraded")) {
+							metricIds.add(metricId);
 							continue;
 						}
-						if(metricId.equals("hw.disk_controller.status.state.failed")) {
+						if (metricId.equals("hw.disk_controller.status.state.failed")) {
+							metricIds.add(metricId);
 							continue;
 						}
 
