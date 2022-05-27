@@ -22,6 +22,7 @@ import lombok.NoArgsConstructor;
 public class MemoryMapping{
 
 	private static final String MEMORY_STATUS_METRIC_NAME = "hw.memory.status";
+	private static final String MEMORY_TYPE = "memory";
 
 
 	/**
@@ -38,7 +39,7 @@ public class MemoryMapping{
 				MetricInfo
 					.builder()
 					.name(MEMORY_STATUS_METRIC_NAME)
-					.description("Whether the memory status is ok or not.")
+					.description(MappingConstants.createStatusDescription(MEMORY_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -51,7 +52,7 @@ public class MemoryMapping{
 				MetricInfo
 					.builder()
 					.name(MEMORY_STATUS_METRIC_NAME)
-					.description("Whether the memory status is degraded or not.")
+					.description(MappingConstants.createStatusDescription(MEMORY_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -64,7 +65,7 @@ public class MemoryMapping{
 				MetricInfo
 					.builder()
 					.name(MEMORY_STATUS_METRIC_NAME)
-					.description("Whether the memory status is failed or not.")
+					.description(MappingConstants.createStatusDescription(MEMORY_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -83,7 +84,7 @@ public class MemoryMapping{
 				MetricInfo
 					.builder()
 					.name(MEMORY_STATUS_METRIC_NAME)
-					.description("Whether the memory is found or not.")
+					.description(MappingConstants.createPresentDescription(MEMORY_TYPE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -123,6 +124,7 @@ public class MemoryMapping{
 							.value(PREDICTED_FAILURE_ATTRIBUTE_VALUE)
 							.build()
 					)
+					.predicate(PREDICTED_FAILURE_PREDICATE)
 					.build()
 			)
 		);
