@@ -6,6 +6,7 @@ import java.util.function.Predicate;
 import com.sentrysoftware.matrix.common.meta.parameter.state.IState;
 import com.sentrysoftware.matrix.common.meta.parameter.state.IntrusionStatus;
 import com.sentrysoftware.matrix.common.meta.parameter.state.NeedsCleaning;
+import com.sentrysoftware.matrix.common.meta.parameter.state.PowerState;
 import com.sentrysoftware.matrix.common.meta.parameter.state.PredictedFailure;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Present;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
@@ -27,6 +28,9 @@ public class MappingConstants {
 	public static final Predicate<IState> NO_NEEDS_CLEANING_PREDICATE = state -> NeedsCleaning.OK == state;
 	public static final Predicate<IState> NEEDED_CLEANING_PREDICATE = state -> NeedsCleaning.NEEDED == state;
 	public static final Predicate<IState> IMMEDIATELY_NEEDED_CLEANING_PREDICATE = state -> NeedsCleaning.NEEDED_IMMEDIATELY == state;
+	public static final Predicate<IState> ON_POWER_STATE_PREDICATE = powerState -> PowerState.ON == powerState;
+	public static final Predicate<IState> OFF_POWER_STATE_PREDICATE = powerState -> PowerState.OFF == powerState;
+	public static final Predicate<IState> SUSPENDED_POWER_STATE_PREDICATE = powerState -> PowerState.SUSPENDED == powerState;
 
 	// Attribute keys
 	public static final String STATE_ATTRIBUTE_KEY = "state";
@@ -47,6 +51,9 @@ public class MappingConstants {
 	public static final String OPEN_ATTRIBUTE_VALUE = "open";
 	public static final String PREDICTED_FAILURE_ATTRIBUTE_VALUE = "predicted_failure";
 	public static final String DISCHARGING_ATTRIBUTE_VALUE = "discharging";
+	public static final String ON_ATTRIBUTE_VALUE = "on";
+	public static final String OFF_ATTRIBUTE_VALUE = "off";
+	public static final String SUSPENDED_ATTRIBUTE_VALUE = "suspended";
 
 	// Default attribute keys
 	public static final String NAME = "name";
@@ -98,5 +105,27 @@ public class MappingConstants {
 	 */
 	public static String createPresentDescription(@NonNull String monitorType) {
 		return String.format("Whether the %s is found or not.", monitorType);
+	}
+
+	/**
+	 * Creates the description of the energy mappings.
+	 *
+	 * @param monitorType The type of the monitor as string.
+	 *
+	 * @return {@link String} value
+	 */
+	public static String createEnergyDescription(@NonNull String monitorType) {
+		return String.format("Energy consumed by the %s since the start of the Hardware Sentry Agent.", monitorType);
+	}
+
+	/**
+	 * Creates the description of the power consumption mappings.
+	 *
+	 * @param monitorType The type of the monitor as string.
+	 *
+	 * @return {@link String} value
+	 */
+	public static String createPowerConsumptionDescription(@NonNull String monitorType) {
+		return String.format("Energy consumed by the %s.", monitorType);
 	}
 }

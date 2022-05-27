@@ -1,8 +1,6 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry.mapping;
 
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.*;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_ALARM_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_WARNING_THRESHOLD;
 
 import java.util.Collections;
 import java.util.List;
@@ -13,23 +11,24 @@ import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo;
 import com.sentrysoftware.hardware.agent.dto.metric.StaticIdentifyingAttribute;
 import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo.MetricType;
 import com.sentrysoftware.matrix.common.meta.monitor.IMetaMonitor;
-import com.sentrysoftware.matrix.common.meta.monitor.Robotics;
+import com.sentrysoftware.matrix.common.meta.monitor.Vm;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class RoboticsMapping {
+public class VmMapping {
 
-	private static final String ROBOTICS_TYPE = "robotic device";
-	private static final String ROBOTICS_STATUS_METRIC_NAME = "hw.robotics.status";
+	private static final String VM_STATUS_METRIC_NAME = "hw.vm.status";
+	private static final String VM_POWER_STATE_METRIC_NAME = "hw.vm.power_state";
+	private static final String VM_NAME="virtual machine";
 
 	/**
-	 * Build robotics metrics map
+	 * Build virtual machine metrics map
 	 *
 	 * @return  {@link Map} where the metrics are indexed by the matrix parameter name
 	 */
-	static Map<String, List<MetricInfo>> buildRoboticsMetricsMapping() {
+	static Map<String, List<MetricInfo>> buildVmMetricsMapping() {
 		final Map<String, List<MetricInfo>> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(
@@ -37,8 +36,8 @@ public class RoboticsMapping {
 			List.of(
 				MetricInfo
 					.builder()
-					.name(ROBOTICS_STATUS_METRIC_NAME)
-					.description(createStatusDescription(ROBOTICS_TYPE, OK_ATTRIBUTE_VALUE))
+					.name(VM_STATUS_METRIC_NAME)
+					.description(createStatusDescription(VM_NAME, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -50,8 +49,8 @@ public class RoboticsMapping {
 					.build(),
 				MetricInfo
 					.builder()
-					.name(ROBOTICS_STATUS_METRIC_NAME)
-					.description(createStatusDescription(ROBOTICS_TYPE, DEGRADED_ATTRIBUTE_VALUE))
+					.name(VM_STATUS_METRIC_NAME)
+					.description(createStatusDescription(VM_NAME, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -63,8 +62,8 @@ public class RoboticsMapping {
 					.build(),
 				MetricInfo
 					.builder()
-					.name(ROBOTICS_STATUS_METRIC_NAME)
-					.description(createStatusDescription(ROBOTICS_TYPE, FAILED_ATTRIBUTE_VALUE))
+					.name(VM_STATUS_METRIC_NAME)
+					.description(createStatusDescription(VM_NAME, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -82,8 +81,8 @@ public class RoboticsMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name(ROBOTICS_STATUS_METRIC_NAME)
-					.description(createPresentDescription(ROBOTICS_TYPE))
+					.name(VM_STATUS_METRIC_NAME)
+					.description(createPresentDescription(VM_NAME))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -97,27 +96,59 @@ public class RoboticsMapping {
 		);
 
 		map.put(
-			Robotics.MOVE_COUNT.getName(),
-			Collections.singletonList(
+			Vm.POWER_STATE.getName(),
+			List.of(
 				MetricInfo
 					.builder()
-					.name("hw.robotics.moves")
-					.unit(MOVES_UNIT)
-					.type(MetricType.COUNTER)
-					.description("Number of moves operations that occurred during the last collect interval.")
+					.name(VM_POWER_STATE_METRIC_NAME)
+					.description("Whether the state of the virtual machine is currently on or not.")
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(STATE_ATTRIBUTE_KEY)
+							.value(ON_ATTRIBUTE_VALUE)
+							.build()
+					)
+					.predicate(ON_POWER_STATE_PREDICATE)
+					.build(),
+				MetricInfo
+					.builder()
+					.name(VM_POWER_STATE_METRIC_NAME)
+					.description("Whether the state of the virtual machine is currently off or not.")
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(STATE_ATTRIBUTE_KEY)
+							.value(OFF_ATTRIBUTE_VALUE)
+							.build()
+					)
+					.predicate(OFF_POWER_STATE_PREDICATE)
+					.build(),
+				MetricInfo
+					.builder()
+					.name(VM_POWER_STATE_METRIC_NAME)
+					.description("Whether the state of the virtual machine is currently suspended or not.")
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(STATE_ATTRIBUTE_KEY)
+							.value(SUSPENDED_ATTRIBUTE_VALUE)
+							.build()
+					)
+					.predicate(SUSPENDED_POWER_STATE_PREDICATE)
 					.build()
 			)
 		);
 
 		map.put(
-			IMetaMonitor.ERROR_COUNT.getName(),
+			Vm.POWER_SHARE_PERCENT.getName(),
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.robotics.errors")
-					.unit(ERRORS_UNIT)
-					.type(MetricType.COUNTER)
-					.description("Number of errors encountered by the robotic device since the start of the Hardware Sentry Agent.")
+					.name("hw.vm.power_ratio")
+					.description("Ratio of host power consumed by the virtual machine.")
+					.unit(RATIO_UNIT)
+					.factor(RATIO_FACTOR)
 					.build()
 			)
 		);
@@ -127,10 +158,10 @@ public class RoboticsMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.robotics.energy")
+					.name("hw.vm.energy")
 					.unit(JOULES_UNIT)
 					.type(MetricType.COUNTER)
-					.description(createEnergyDescription(ROBOTICS_TYPE))
+					.description(createEnergyDescription(VM_NAME))
 					.build()
 			)
 		);
@@ -140,44 +171,9 @@ public class RoboticsMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.robotics.power")
+					.name("hw.vm.power")
 					.unit(WATTS_UNIT)
-					.description(createPowerConsumptionDescription(ROBOTICS_TYPE))
-					.build()
-			)
-		);
-
-		return map;
-	}
-
-	/**
-	 * Create Robotics Metadata to metrics map
-	 * 
-	 * @return {@link Map} of {@link MetricInfo} instances indexed by the matrix parameter names
-	 */
-	static Map<String, List<MetricInfo>> roboticsMetadataToMetrics() {
-		final Map<String, List<MetricInfo>> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-
-		map.put(
-			ERROR_COUNT_WARNING_THRESHOLD,
-			Collections.singletonList(
-				MetricInfo
-					.builder()
-					.name("hw.robotics.errors_warning")
-					.description(WARNING_THRESHOLD_OF_ERRORS)
-					.unit(ERRORS_UNIT)
-					.build()
-			)
-		);
-
-		map.put(
-			ERROR_COUNT_ALARM_THRESHOLD,
-			Collections.singletonList(
-				MetricInfo
-					.builder()
-					.name("hw.robotics.errors_alarm")
-					.description(ALARM_THRESHOLD_OF_ERRORS)
-					.unit(ERRORS_UNIT)
+					.description(createPowerConsumptionDescription(VM_NAME))
 					.build()
 			)
 		);

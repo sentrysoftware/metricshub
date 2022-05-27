@@ -33,7 +33,7 @@ public class ConnectorMapping {
 					MetricInfo
 						.builder()
 						.name(HARDWARE_SENTRY_CONNECTOR_STATUS_METRIC_NAME)
-						.description(MappingConstants.createStatusDescription(CONNECTOR_TYPE, OK_ATTRIBUTE_VALUE))
+						.description(createStatusDescription(CONNECTOR_TYPE, OK_ATTRIBUTE_VALUE))
 						.identifyingAttribute(
 							StaticIdentifyingAttribute
 								.builder()
@@ -46,7 +46,7 @@ public class ConnectorMapping {
 					MetricInfo
 						.builder()
 						.name(HARDWARE_SENTRY_CONNECTOR_STATUS_METRIC_NAME)
-						.description(MappingConstants.createStatusDescription(CONNECTOR_TYPE, DEGRADED_ATTRIBUTE_VALUE))
+						.description(createStatusDescription(CONNECTOR_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 						.identifyingAttribute(
 							StaticIdentifyingAttribute
 								.builder()
@@ -59,7 +59,7 @@ public class ConnectorMapping {
 					MetricInfo
 						.builder()
 						.name(HARDWARE_SENTRY_CONNECTOR_STATUS_METRIC_NAME)
-						.description(MappingConstants.createStatusDescription(CONNECTOR_TYPE, FAILED_ATTRIBUTE_VALUE))
+						.description(createStatusDescription(CONNECTOR_TYPE, FAILED_ATTRIBUTE_VALUE))
 						.identifyingAttribute(
 							StaticIdentifyingAttribute
 								.builder()

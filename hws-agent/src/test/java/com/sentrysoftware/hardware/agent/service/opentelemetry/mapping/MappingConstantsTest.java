@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.common.meta.parameter.state.IntrusionStatus;
 import com.sentrysoftware.matrix.common.meta.parameter.state.NeedsCleaning;
+import com.sentrysoftware.matrix.common.meta.parameter.state.PowerState;
 import com.sentrysoftware.matrix.common.meta.parameter.state.PredictedFailure;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Present;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
@@ -73,5 +74,32 @@ class MappingConstantsTest {
 	void testCreatePresentDescription() {
 		assertThrows(IllegalArgumentException.class, () -> createPresentDescription(null));
 		assertNotNull(createPresentDescription("physical disk"));
+	}
+
+	@Test
+	void testCreateEnergyDescription() {
+		assertThrows(IllegalArgumentException.class, () -> createEnergyDescription(null));
+		assertNotNull(createEnergyDescription("physical disk"));
+	}
+
+	@Test
+	void testCreatePowerConsumptionDescription() {
+		assertThrows(IllegalArgumentException.class, () -> createPowerConsumptionDescription(null));
+		assertNotNull(createPowerConsumptionDescription("physical disk"));
+	}
+
+	@Test
+	void testPowerStatePredicate() {
+		assertTrue(ON_POWER_STATE_PREDICATE.test(PowerState.ON));
+		assertFalse(ON_POWER_STATE_PREDICATE.test(PowerState.OFF));
+		assertFalse(ON_POWER_STATE_PREDICATE.test(PowerState.SUSPENDED));
+
+		assertFalse(OFF_POWER_STATE_PREDICATE.test(PowerState.ON));
+		assertTrue(OFF_POWER_STATE_PREDICATE.test(PowerState.OFF));
+		assertFalse(OFF_POWER_STATE_PREDICATE.test(PowerState.SUSPENDED));
+
+		assertFalse(SUSPENDED_POWER_STATE_PREDICATE.test(PowerState.ON));
+		assertFalse(SUSPENDED_POWER_STATE_PREDICATE.test(PowerState.OFF));
+		assertTrue(SUSPENDED_POWER_STATE_PREDICATE.test(PowerState.SUSPENDED));
 	}
 }
