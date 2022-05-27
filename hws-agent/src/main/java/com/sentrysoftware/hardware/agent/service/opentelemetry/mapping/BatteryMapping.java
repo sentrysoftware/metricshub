@@ -35,7 +35,7 @@ public class BatteryMapping {
 				MetricInfo
 					.builder()
 					.name(BATTERY_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(BATTERY_TYPE, OK_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(BATTERY_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -48,7 +48,7 @@ public class BatteryMapping {
 				MetricInfo
 					.builder()
 					.name(BATTERY_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(BATTERY_TYPE, DEGRADED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(BATTERY_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -61,7 +61,7 @@ public class BatteryMapping {
 				MetricInfo
 					.builder()
 					.name(BATTERY_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(BATTERY_TYPE, FAILED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(BATTERY_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
