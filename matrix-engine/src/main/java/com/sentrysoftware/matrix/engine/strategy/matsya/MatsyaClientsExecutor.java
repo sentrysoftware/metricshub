@@ -662,7 +662,7 @@ public class MatsyaClientsExecutor {
 
 			trace(() -> 
 				log.trace("Executing WMI remote command:\n- Command: {}\n- Hostname: {}\n- Username: {}\n"
-							+ "- Timeout: {} s\n- Local-files: {}\n- Tesult:\n{}\n",
+							+ "- Timeout: {} s\n- Local-files: {}\n- Result:\n{}\n",
 						command,
 						hostname,
 						username,

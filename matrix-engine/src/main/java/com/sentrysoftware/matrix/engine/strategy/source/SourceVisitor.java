@@ -219,7 +219,7 @@ public class SourceVisitor implements ISourceVisitor {
 			} else if (sshProtocol != null){
 				fruResult = OsCommandHelper.runSshCommand(fruCommand, hostname, sshProtocol, defaultTimeout, null, null);
 			} else {
-				log.warn("Hostname %s - Could not process UNIX IPMI Source. SSH protocol credentials are missing.", hostname);
+				log.warn("Hostname {} - Could not process UNIX IPMI Source. SSH protocol credentials are missing.", hostname);
 				return SourceTable.empty();
 			}
 
