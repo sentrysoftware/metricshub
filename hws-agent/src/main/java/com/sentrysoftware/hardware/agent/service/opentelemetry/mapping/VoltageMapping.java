@@ -100,7 +100,7 @@ public class VoltageMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.voltage.voltage_volts")
+					.name("hw.voltage.voltage")
 					.factor(MILLIVOLTS_TO_VOLTS_FACTOR)
 					.unit(VOLTS_UNIT)
 					.description("Voltage outputs.")
@@ -124,7 +124,7 @@ public class VoltageMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.voltage.voltage_volts_upper")
+					.name("hw.voltage.voltage_upper")
 					.factor(MILLIVOLTS_TO_VOLTS_FACTOR)
 					.unit(VOLTS_UNIT)
 					.description("Upper threshold of the voltage.")
@@ -137,7 +137,7 @@ public class VoltageMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.voltage.voltage_volts_lower")
+					.name("hw.voltage.voltage_lower")
 					.description("Lower threshold of the voltage.")
 					.factor(MILLIVOLTS_TO_VOLTS_FACTOR)
 					.unit(VOLTS_UNIT)
