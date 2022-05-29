@@ -38,7 +38,7 @@ public class RoboticsMapping {
 				MetricInfo
 					.builder()
 					.name(ROBOTICS_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(ROBOTICS_TYPE, OK_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(ROBOTICS_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -51,7 +51,7 @@ public class RoboticsMapping {
 				MetricInfo
 					.builder()
 					.name(ROBOTICS_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(ROBOTICS_TYPE, DEGRADED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(ROBOTICS_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -64,7 +64,7 @@ public class RoboticsMapping {
 				MetricInfo
 					.builder()
 					.name(ROBOTICS_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(ROBOTICS_TYPE, FAILED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(ROBOTICS_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -83,7 +83,7 @@ public class RoboticsMapping {
 				MetricInfo
 					.builder()
 					.name(ROBOTICS_STATUS_METRIC_NAME)
-					.description(MappingConstants.createPresentDescription(ROBOTICS_TYPE))
+					.description(createPresentDescription(ROBOTICS_TYPE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -130,7 +130,7 @@ public class RoboticsMapping {
 					.name("hw.robotics.energy")
 					.unit(JOULES_UNIT)
 					.type(MetricType.COUNTER)
-					.description("Energy consumed by the robotic device since the start of the Hardware Sentry Agent.")
+					.description(createEnergyDescription(ROBOTICS_TYPE))
 					.build()
 			)
 		);
@@ -142,7 +142,7 @@ public class RoboticsMapping {
 					.builder()
 					.name("hw.robotics.power")
 					.unit(WATTS_UNIT)
-					.description("Energy consumed by the robotic device.")
+					.description(createPowerConsumptionDescription(ROBOTICS_TYPE))
 					.build()
 			)
 		);

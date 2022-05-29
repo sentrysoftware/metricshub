@@ -39,7 +39,7 @@ public class PhysicalDiskMapping {
 				MetricInfo
 					.builder()
 					.name(PHYSICAL_DISK_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(PHYSICAL_DISK_TYPE, OK_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(PHYSICAL_DISK_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -52,7 +52,7 @@ public class PhysicalDiskMapping {
 				MetricInfo
 					.builder()
 					.name(PHYSICAL_DISK_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(PHYSICAL_DISK_TYPE, DEGRADED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(PHYSICAL_DISK_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -65,7 +65,7 @@ public class PhysicalDiskMapping {
 				MetricInfo
 					.builder()
 					.name(PHYSICAL_DISK_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(PHYSICAL_DISK_TYPE, FAILED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(PHYSICAL_DISK_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -84,7 +84,7 @@ public class PhysicalDiskMapping {
 				MetricInfo
 					.builder()
 					.name(PHYSICAL_DISK_STATUS_METRIC_NAME)
-					.description(MappingConstants.createPresentDescription(PHYSICAL_DISK_TYPE))
+					.description(createPresentDescription(PHYSICAL_DISK_TYPE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -157,7 +157,7 @@ public class PhysicalDiskMapping {
 					.name("hw.physical_disk.energy")
 					.unit(JOULES_UNIT)
 					.type(MetricType.COUNTER)
-					.description("Energy consumed by the physical disk since the start of the Hardware Sentry Agent.")
+					.description(createEnergyDescription(PHYSICAL_DISK_TYPE))
 					.build()
 			)
 		);
@@ -169,7 +169,7 @@ public class PhysicalDiskMapping {
 					.builder()
 					.name("hw.physical_disk.power")
 					.unit(WATTS_UNIT)
-					.description("Energy consumed by the physical disk.")
+					.description(createPowerConsumptionDescription(PHYSICAL_DISK_TYPE))
 					.build()
 			)
 		);
