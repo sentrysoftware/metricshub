@@ -152,7 +152,7 @@ public class OtherDeviceMapping {
 				MetricInfo
 					.builder()
 					.name("hw.other_device.uses_warning")
-					.description(WARNING_THRESHOLD_OF_USAGE_COUNT)
+					.description("Number of times the device has been used which will generate a warning when reached.")
 					.unit(USAGE_UNIT)
 					.build()
 			)
@@ -164,7 +164,7 @@ public class OtherDeviceMapping {
 				MetricInfo
 					.builder()
 					.name("hw.other_device.uses_alarm")
-					.description(ALARM_THRESHOLD_OF_USAGE_COUNT)
+					.description("Number of times the device has been used which will generate an alarm when reached.")
 					.unit(USAGE_UNIT)
 					.build()
 			)
@@ -176,7 +176,7 @@ public class OtherDeviceMapping {
 				MetricInfo
 					.builder()
 					.name("hw.other_device.value_warning")
-					.description(WARNING_THRESHOLD_OF_VALUE)
+					.description("Device reported value that will generate a warning when reached.")
 					.build()
 			)
 		);
@@ -187,7 +187,7 @@ public class OtherDeviceMapping {
 				MetricInfo
 					.builder()
 					.name("hw.other_device.value_alarm")
-					.description(ALARM_THRESHOLD_OF_VALUE)
+					.description("Device reported value that will generate an alarm when reached.")
 					.build()
 			)
 		);

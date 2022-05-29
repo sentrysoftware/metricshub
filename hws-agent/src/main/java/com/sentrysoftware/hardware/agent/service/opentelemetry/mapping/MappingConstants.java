@@ -79,10 +79,6 @@ public class MappingConstants {
 	// Descriptions
 	public static final String ALARM_THRESHOLD_OF_ERRORS = "Alarm threshold of the encountered errors.";
 	public static final String WARNING_THRESHOLD_OF_ERRORS = "Warning threshold of the encountered errors.";
-	public static final String ALARM_THRESHOLD_OF_USAGE_COUNT = "Number of times the device has been used which will generate an alarm when reached.";
-	public static final String WARNING_THRESHOLD_OF_USAGE_COUNT = "Number of times the device has been used which will generate a warning when reached.";
-	public static final String ALARM_THRESHOLD_OF_VALUE = "Device reported value that will generate an alarm when reached.";
-	public static final String WARNING_THRESHOLD_OF_VALUE = "Device reported value that will generate a warning when reached.";
 	
 	// Factors
 	public static final double MHZ_TO_HZ_FACTOR = 1000000.0;
