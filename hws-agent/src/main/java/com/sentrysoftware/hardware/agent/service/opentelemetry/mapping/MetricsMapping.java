@@ -56,12 +56,16 @@ public class MetricsMapping {
 		matrixParamToMetric.put(MonitorType.TARGET, HostMapping.buildHostMetricsMapping());
 		matrixParamToMetric.put(MonitorType.ENCLOSURE, EnclosureMapping.buildEnclosureMetricsMapping());
 		matrixParamToMetric.put(MonitorType.BATTERY, BatteryMapping.buildBatteryMetricsMapping());
+		matrixParamToMetric.put(MonitorType.MEMORY, MemoryMapping.buildMemoryMetricsMapping());
 		matrixParamToMetric.put(MonitorType.OTHER_DEVICE, OtherDeviceMapping.buildOtherDeviceMetricsMapping());
 		matrixParamToMetric.put(MonitorType.PHYSICAL_DISK, PhysicalDiskMapping.buildPhysicalDiskMetricsMapping());
 		matrixParamToMetric.put(MonitorType.POWER_SUPPLY, PowerSupplyMapping.buildPowerSupplyMetricsMapping());
 		matrixParamToMetric.put(MonitorType.ROBOTICS, RoboticsMapping.buildRoboticsMetricsMapping());
 		matrixParamToMetric.put(MonitorType.TAPE_DRIVE, TapeDriveMapping.buildTapeDriveMetricsMapping());
 		matrixParamToMetric.put(MonitorType.CPU, CpuMapping.buildCpuMetricsMapping());
+		matrixParamToMetric.put(MonitorType.VM, VmMapping.buildVmMetricsMapping());
+		matrixParamToMetric.put(MonitorType.TEMPERATURE, TemperatureMapping.buildTemperatureMetricsMapping());
+		matrixParamToMetric.put(MonitorType.CPU_CORE, CpuCoreMapping.buildCpuCoreMetricsMapping());
 
 		matrixParamToMetricMap = Collections.unmodifiableMap(matrixParamToMetric);
 
@@ -72,6 +76,8 @@ public class MetricsMapping {
 		metadataToMetric.put(MonitorType.ROBOTICS, RoboticsMapping.roboticsMetadataToMetrics());
 		metadataToMetric.put(MonitorType.TAPE_DRIVE, TapeDriveMapping.tapeDriveMetadataToMetrics());
 		metadataToMetric.put(MonitorType.CPU, CpuMapping.cpuMetadataToMetrics());
+		metadataToMetric.put(MonitorType.TEMPERATURE, TemperatureMapping.temperatureMetadataToMetrics());
+		metadataToMetric.put(MonitorType.MEMORY, MemoryMapping.memoryMetadataToMetrics());
 
 		matrixMetadataToMetricMap = Collections.unmodifiableMap(metadataToMetric);
 
@@ -134,7 +140,7 @@ public class MetricsMapping {
 	 * Concatenate the predefined labels with the specific monitor metadata
 	 *
 	 * @param monitorType The monitor type we want to get its metadata
-	 * 
+	 *
 	 * @return Map of attribute key to matrix metadata name
 	 */
 	private static Map<String, String> concatDefaultAttributesWithMetadata(final MonitorType monitorType) {
@@ -155,7 +161,7 @@ public class MetricsMapping {
 
 	/**
 	 * Checks if the given matrix metadata is mapped as metric
-	 * 
+	 *
 	 * @param monitorType        The type of the monitor defined by matrix engine
 	 * @param matrixMetadataName The name of the metadata (key)
 	 * @return <code>true</code> if the metadata is mapped as metric otherwise <code>false</code>

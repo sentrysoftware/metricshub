@@ -39,7 +39,7 @@ public class CpuMapping {
 				MetricInfo
 					.builder()
 					.name(CPU_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(CPU_TYPE, OK_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(CPU_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -52,7 +52,7 @@ public class CpuMapping {
 				MetricInfo
 					.builder()
 					.name(CPU_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(CPU_TYPE, DEGRADED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(CPU_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -65,7 +65,7 @@ public class CpuMapping {
 				MetricInfo
 					.builder()
 					.name(CPU_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(CPU_TYPE, FAILED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(CPU_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -84,7 +84,7 @@ public class CpuMapping {
 				MetricInfo
 					.builder()
 					.name(CPU_STATUS_METRIC_NAME)
-					.description(MappingConstants.createPresentDescription(CPU_TYPE))
+					.description(createPresentDescription(CPU_TYPE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -150,7 +150,7 @@ public class CpuMapping {
 					.name("hw.cpu.energy")
 					.unit(JOULES_UNIT)
 					.type(MetricType.COUNTER)
-					.description("Energy consumed by the CPU since the start of the Hardware Sentry Agent.")
+					.description(createEnergyDescription(CPU_TYPE))
 					.build()
 			)
 		);
@@ -163,7 +163,7 @@ public class CpuMapping {
 					.name("hw.cpu.power")
 					.unit(WATTS_UNIT)
 					.type(MetricType.GAUGE)
-					.description("Energy consumed by the CPU.")
+					.description(createPowerConsumptionDescription(CPU_TYPE))
 					.build()
 			)
 		);
