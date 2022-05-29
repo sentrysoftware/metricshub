@@ -123,7 +123,7 @@ public class TemperatureMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.temperature.errors_warning")
+					.name("hw.temperature.temperature_celsius_warning")
 					.description("Current temperature in degrees Celsius (°C) that will generate a warning when reached.")
 					.unit(CELSIUS_UNIT)
 					.build()
@@ -135,7 +135,7 @@ public class TemperatureMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.temperature.errors_alarm")
+					.name("hw.temperature.temperature_celsius_alarm")
 					.description("Current temperature in degrees Celsius (°C) that will generate an alarm when reached.")
 					.unit(CELSIUS_UNIT)
 					.build()
