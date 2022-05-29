@@ -116,7 +116,7 @@ public class CpuCoreMapping {
 					.unit(HERTZ_UNIT)
 					.factor(MHZ_TO_HZ_FACTOR)
 					.type(MetricType.COUNTER)
-					.description(String.format("Current speed of the %s.", CPU_CORE_NAME))
+					.description("Current speed of the CPU core.")
 					.build()
 			)
 		);
