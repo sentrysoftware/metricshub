@@ -56,6 +56,7 @@ public class MetricsMapping {
 		matrixParamToMetric.put(MonitorType.TARGET, HostMapping.buildHostMetricsMapping());
 		matrixParamToMetric.put(MonitorType.ENCLOSURE, EnclosureMapping.buildEnclosureMetricsMapping());
 		matrixParamToMetric.put(MonitorType.BATTERY, BatteryMapping.buildBatteryMetricsMapping());
+		matrixParamToMetric.put(MonitorType.MEMORY, MemoryMapping.buildMemoryMetricsMapping());
 		matrixParamToMetric.put(MonitorType.PHYSICAL_DISK, PhysicalDiskMapping.buildPhysicalDiskMetricsMapping());
 		matrixParamToMetric.put(MonitorType.POWER_SUPPLY, PowerSupplyMapping.buildPowerSupplyMetricsMapping());
 		matrixParamToMetric.put(MonitorType.ROBOTICS, RoboticsMapping.buildRoboticsMetricsMapping());
@@ -63,6 +64,8 @@ public class MetricsMapping {
 		matrixParamToMetric.put(MonitorType.CPU, CpuMapping.buildCpuMetricsMapping());
 		matrixParamToMetric.put(MonitorType.VOLTAGE, VoltageMapping.buildVoltageMetricsMapping());
 		matrixParamToMetric.put(MonitorType.VM, VmMapping.buildVmMetricsMapping());
+		matrixParamToMetric.put(MonitorType.TEMPERATURE, TemperatureMapping.buildTemperatureMetricsMapping());
+		matrixParamToMetric.put(MonitorType.CPU_CORE, CpuCoreMapping.buildCpuCoreMetricsMapping());
 
 		matrixParamToMetricMap = Collections.unmodifiableMap(matrixParamToMetric);
 
@@ -72,6 +75,8 @@ public class MetricsMapping {
 		metadataToMetric.put(MonitorType.ROBOTICS, RoboticsMapping.roboticsMetadataToMetrics());
 		metadataToMetric.put(MonitorType.TAPE_DRIVE, TapeDriveMapping.tapeDriveMetadataToMetrics());
 		metadataToMetric.put(MonitorType.CPU, CpuMapping.cpuMetadataToMetrics());
+		metadataToMetric.put(MonitorType.TEMPERATURE, TemperatureMapping.temperatureMetadataToMetrics());
+		metadataToMetric.put(MonitorType.MEMORY, MemoryMapping.memoryMetadataToMetrics());
 		metadataToMetric.put(MonitorType.VOLTAGE, VoltageMapping.voltageMetadataToMetrics());
 
 		matrixMetadataToMetricMap = Collections.unmodifiableMap(metadataToMetric);

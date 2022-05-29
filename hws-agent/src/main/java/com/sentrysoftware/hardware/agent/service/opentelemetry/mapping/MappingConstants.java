@@ -83,14 +83,15 @@ public class MappingConstants {
 	// Factors
 	public static final double MHZ_TO_HZ_FACTOR = 1000000.0;
 	public static final double RATIO_FACTOR = 0.01;
+	public static final double MB_TO_B_FACTOR = 1000000.0;
 	public static final double MILLIVOLTS_TO_VOLTS_FACTOR = 0.001;
 
 	/**
 	 * Creates the description of the status mappings.
-	 * 
+	 *
 	 * @param monitorType The type of the monitor as string.
 	 * @param status      The status of the monitor as string.
-	 * 
+	 *
 	 * @return {@link String} value
 	 */
 	public static String createStatusDescription(@NonNull String monitorType, @NonNull String status) {
@@ -99,9 +100,9 @@ public class MappingConstants {
 
 	/**
 	 * Creates the description of the present mappings.
-	 * 
+	 *
 	 * @param monitorType The type of the monitor as string.
-	 * 
+	 *
 	 * @return {@link String} value
 	 */
 	public static String createPresentDescription(@NonNull String monitorType) {
@@ -110,9 +111,9 @@ public class MappingConstants {
 
 	/**
 	 * Creates the description of the energy mappings.
-	 * 
+	 *
 	 * @param monitorType The type of the monitor as string.
-	 * 
+	 *
 	 * @return {@link String} value
 	 */
 	public static String createEnergyDescription(@NonNull String monitorType) {
@@ -121,9 +122,9 @@ public class MappingConstants {
 
 	/**
 	 * Creates the description of the power consumption mappings.
-	 * 
+	 *
 	 * @param monitorType The type of the monitor as string.
-	 * 
+	 *
 	 * @return {@link String} value
 	 */
 	public static String createPowerConsumptionDescription(@NonNull String monitorType) {
