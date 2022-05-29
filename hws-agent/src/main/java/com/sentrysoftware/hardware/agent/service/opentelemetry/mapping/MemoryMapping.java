@@ -170,7 +170,7 @@ public class MemoryMapping{
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.memory.size")
+					.name("hw.memory.limit")
 					.unit(BYTES_UNIT)
 					.factor(MB_TO_B_FACTOR) //MB to Bytes
 					.description("Memory size.")
