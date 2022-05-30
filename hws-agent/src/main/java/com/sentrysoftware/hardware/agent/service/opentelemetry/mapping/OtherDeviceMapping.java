@@ -1,7 +1,5 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry.mapping;
 
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.ALARM_THRESHOLD_OF_USAGE_COUNT;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.ALARM_THRESHOLD_OF_VALUE;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.DEGRADED_ATTRIBUTE_VALUE;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.DEGRADED_STATUS_PREDICATE;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.FAILED_ATTRIBUTE_VALUE;
@@ -12,8 +10,6 @@ import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.Ma
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.PRESENT_PREDICATE;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.STATE_ATTRIBUTE_KEY;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.USAGE_UNIT;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.WARNING_THRESHOLD_OF_USAGE_COUNT;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.WARNING_THRESHOLD_OF_VALUE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_COUNT_ALARM_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_COUNT_WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VALUE_ALARM_THRESHOLD;
