@@ -1,15 +1,16 @@
-keywords: grafana, dashboard, sustainable, sustainability, green
-description: How to import and configure Hardware Sentry's Sustainable IT Dashboards for Grafana.
+keywords: grafana, dashboard, observability, sustainability, green, power consumption, carbon, CO₂
+description: How to import and configure Hardware Sentry's Observability and Sustainability Dashboards for Grafana.
 
 # Grafana Dashboards
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
-> **Warning**: The current version of the Grafana dashboards has been tested with Grafana v8.5.0 Note that previous versions of Grafana may not be fully compatible with the built-in dashboards.
-
-[Grafana](https://grafana.com/) can easily display the metrics collected by **${project.name}** and stored in a Prometheus Server. Sentry Software provides pre-built **Observability and Sustainability** dashboards that leverage these metrics to report on the health of the hardware of the monitored systems, and on the carbon emissions of these systems:
+The **Hardware Sentry Observability and Sustainability** dashboards for Grafana give you immediate visibility into your monitored environment. The organized views expose health metrics for all monitored hardware systems and bring real-time metrics and projected trends on electricity consumption and costs, as well as CO₂ emissions for your entire infrastructure into unified observability dashboards.
+Once you have configured the [dashboard provider](#Configuring_the_Dashboard_Provider) and the [data source](#Configuring_the_Data_Source), the dashboards are automatically available from the **Dashboard** menu on the **Home** page.
 
 ![Hardware Sentry Observability and Sustainability Dashboard](../images/grafana-sustainable-it.png)
+
+> **Warning**: The current version of the **Hardware Sentry Observability and Sustainability** dashboards has been tested with Grafana v8.5.0 Note that previous versions of Grafana may not be fully compatible with the built-in dashboards.
 
 ## Prerequisites
 
@@ -122,12 +123,7 @@ datasources:
 ```
 ## Understanding the Dashboards
 
-The **Hardware Sentry - Observability and Sustainability** dashboards give you immediate visibility into your monitored environment. The organized views expose health metrics for all monitored hardware systems and bring real-time metrics and projected trends on electricity consumption and costs, as well as CO₂ emissions for your entire infrastructure into unified observability dashboards.
-Once you have configured the [dashboard provider](#Configuring_the_Dashboard_Provider) and the [data source](#Configuring_the_Data_Source), the dashboards are automatically available from the **Dashboard** menu on the **Home** page.
-
-### Preliminary Settings
-
-Monitored systems are grouped into sites. You can easily customize this grouping to represent data centers, server rooms, or applications and services. For each site, you can view the consumption in kilowatts per hour, its related cost in dollars, and carbon footprint in metric tons.
+Monitored systems are grouped into sites. You can easily customize this grouping to represent data centers, server rooms, or applications and services. For each site, you can view its consumption in kilowatts per hour, its related cost in dollars, and carbon footprint in metric tons.
 
 To define sites, open the `hws-config.yaml` file and customize the `extraLabels` as shown in the example below:
 
