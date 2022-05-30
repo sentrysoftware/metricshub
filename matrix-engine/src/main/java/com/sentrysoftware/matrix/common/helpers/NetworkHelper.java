@@ -51,12 +51,12 @@ public class NetworkHelper {
 		try {
 			inetAddress = InetAddress.getByName(hostname);
 		} catch (UnknownHostException e) {
-			log.warn("Hostname {} - Could not resolve hostname into an IP address. Assuming non-local.", hostname);
+			log.warn("Hostname {} - Could not resolve the hostname to a valid IP address. The host is considered remote.", hostname);
 			return false;
 		}
 
 		if (inetAddress == null) {
-			log.warn("Hostname {} - Could not resolve hostname into an IP address. Assuming non-local.", hostname);
+			log.warn("Hostname {} - Could not resolve the hostname to a valid IP address. The host is considered remote.", hostname);
 			return false;
 		}
 
@@ -68,7 +68,7 @@ public class NetworkHelper {
 		try {
 			return NetworkInterface.getByInetAddress(inetAddress) != null;
 		} catch (SocketException e) {
-			log.warn("Hostname {} - Could not find interface associated to this IP address. Assuming non-local.", hostname);
+			log.warn("Hostname {} - Could not find a network interface associated to this IP address. The network interface is considered remote.", hostname);
 			log.debug("Hostname {} - Exception while checking network interfaces: ", hostname, e);
 			return false;
 		}

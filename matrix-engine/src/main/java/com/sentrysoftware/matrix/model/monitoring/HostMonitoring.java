@@ -484,7 +484,7 @@ public class HostMonitoring implements IHostMonitoring {
 			Throwable cause = e.getCause();
 			if (cause != null) {
 				log.error(
-						"Hostname {} - {} operation failed: {}: {}.",
+						"Hostname {} - {} failed: {}: {}.",
 						hostname,
 						strategy.getClass().getSimpleName(),
 						cause.getClass().getSimpleName(),
@@ -492,7 +492,7 @@ public class HostMonitoring implements IHostMonitoring {
 				);
 				log.debug("Hostname {} - Operation failed with ExecutionException.", hostname, cause);
 			} else {
-				log.error("Hostname {} - {} operation failed: {}: {}.", hostname, strategy.getClass().getSimpleName(),
+				log.error("Hostname {} - {} failed: {}: {}.", hostname, strategy.getClass().getSimpleName(),
 						e.getClass().getSimpleName(), e.getMessage());
 				log.debug("Hostname {} - Operation failed with ExecutionException.", hostname, e);
 			}
@@ -516,7 +516,7 @@ public class HostMonitoring implements IHostMonitoring {
 
 		} catch (InterruptedException e) {
 
-			log.error("Hostname {} - {} operation interrupted.", hostname, strategy.getClass().getSimpleName());
+			log.error("Hostname {} - {} interrupted.", hostname, strategy.getClass().getSimpleName());
 			log.debug("Hostname {} - Operation failed with InterruptedException: ", hostname, e);
 
 			Thread.currentThread().interrupt();

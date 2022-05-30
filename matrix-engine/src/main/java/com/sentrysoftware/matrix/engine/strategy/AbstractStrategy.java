@@ -467,7 +467,7 @@ public abstract class AbstractStrategy implements IStrategy {
 				.builder()
 				.collectTime(strategyTime)
 				.name(STATUS_INFORMATION_PARAMETER)
-				.value(success ? "Connector test succeeded." : "Connector test failed.")
+				.value(success ? "Connector tested successfully." : "Connector test failed.")
 				.build();
 
 		return statusAndStatusInformation;

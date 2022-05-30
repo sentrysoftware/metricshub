@@ -194,7 +194,7 @@ public class SourceVisitor implements ISourceVisitor {
 		// get the ipmiTool command to execute
 		String ipmitoolCommand = strategyConfig.getHostMonitoring().getIpmitoolCommand();
 		if (ipmitoolCommand == null || ipmitoolCommand.isEmpty()) {
-			final String message = String.format("Hostname %s - IPMI tool command cannot be found. Returning empty result.",
+			final String message = String.format("Hostname %s - IPMI tool command cannot be found. Returning an empty result.",
 					hostname);
 			log.error(message);
 			return SourceTable.empty();

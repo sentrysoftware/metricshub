@@ -180,7 +180,7 @@ public class HostMonitoringCollectorService extends Collector {
 	void processSameTypeMonitors(final MonitorType monitorType, final Map<String, Monitor> monitors, final List<MetricFamilySamples> mfs) {
 
 		if (monitors == null || monitors.isEmpty()) {
-			log.info("No monitor of type {} found.", monitorType);
+			log.info("No Monitor of type {} found.", monitorType);
 			return;
 		}
 
@@ -212,13 +212,13 @@ public class HostMonitoringCollectorService extends Collector {
 
 		final String metricName = PrometheusSpecificities.getInfoMetricName(monitorType);
 		if (metricName == null || metricName.isBlank()) {
-			log.warn("The metric name is not defined for monitor type {}. Received: {}.", monitorType, metricName);
+			log.warn("The metric name is not defined for Monitor type {}. Received: {}.", monitorType, metricName);
 			return;
 		}
 
 		final List<String> staticLabels = PrometheusSpecificities.getLabels(monitorType);
 		Assert.state(staticLabels != null && !staticLabels.isEmpty(),
-				() -> "The labels are not defined for the monitor type: " + monitorType.getDisplayName() + ".");
+				() -> "Labels are not defined for the Monitor type: " + monitorType.getDisplayName() + ".");
 
 		// Concatenate extra labels. Sonar doesn't know that the previous 
 		// Assert.state throws the IllegalArgumentException if staticLabels is null, so never null here.

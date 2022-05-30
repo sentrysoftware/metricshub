@@ -62,13 +62,13 @@ public class DiscoveryOperation extends AbstractStrategy {
 		final Map<String, Monitor> targets = hostMonitoring.selectFromType(MonitorType.TARGET);
 
 		if (targets == null) {
-			log.error("Hostname {} - No hosts found. Stopping discovery operation.", hostname);
+			log.error("Hostname {} - No host found. Stopping discovery operation.", hostname);
 			return false;
 		}
 
 		final Monitor targetMonitor = targets.values().stream().findFirst().orElse(null);
 		if (targetMonitor == null) {
-			log.error("Hostname {} - No hosts monitor found. Stopping discovery operation.", hostname);
+			log.error("Hostname {} - No host Monitor found. Stopping discovery operation.", hostname);
 			return false;
 		}
 
@@ -80,7 +80,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 		final Map<String, Monitor> connectorMonitors = hostMonitoring.selectFromType(MonitorType.CONNECTOR);
 
 		if (connectorMonitors == null || connectorMonitors.isEmpty()) {
-			log.error("Hostname {} - No connectors detected in the detection operation. Stopping discovery operation.", hostname);
+			log.error("Hostname {} - No Connector detected in the detection operation. Stopping discovery operation.", hostname);
 			return false;
 		}
 
@@ -120,7 +120,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 	void discover(final Connector connector, final IHostMonitoring hostMonitoring, final String hostname,
 			final Monitor targetMonitor) {
 
-		log.debug("Hostname {} - Processing connector {}.", hostname, connector.getCompiledFilename());
+		log.debug("Hostname {} - Processing Connector {}.", hostname, connector.getCompiledFilename());
 
 		// Perform discovery for the hardware monitor jobs
 		// The discovery order is the following: Enclosure, Blade, DiskController, CPU then the rest
@@ -238,14 +238,14 @@ public class DiscoveryOperation extends AbstractStrategy {
 
 		// Check the instanceTable, so that, we can create the monitor later
 		if (instanceTable == null) {
-			log.warn("Hostname {} - No instance tables found with {} during the discovery for the connector {}.",
+			log.warn("Hostname {} - No instance tables found with {} during the discovery for the Connector {}.",
 					hostname, monitorType.getNameInConnector(), connectorName);
 			return;
 		}
 
 		// Check discovery parameters, so we can create the monitor with the metadata
 		if (parameters == null || parameters.isEmpty()) {
-			log.warn("Hostname {} - No parameters found with {} during the discovery for the connector {}.",
+			log.warn("Hostname {} - No parameters found with {} during the discovery for the Connector {}.",
 					hostname, monitorType.getNameInConnector(), connectorName);
 			return;
 		}
@@ -261,7 +261,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 			// No sourceKey no monitor
 			if (sourceKey == null) {
 				log.error(
-						"Hostname {} - No source keys found with monitor {} for connector {}.",
+						"Hostname {} - No source keys found with monitor {} for Connector {}.",
 						hostname, monitorType.getNameInConnector(), connectorName);
 				return;
 			}
@@ -273,7 +273,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 			// No sourceTable no monitor
 			if (sourceTable == null) {
 				log.debug(
-						"Hostname {} - No source tables created with source key {} for connector {}.",
+						"Hostname {} - No source tables created with source key {} for Connector {}.",
 						hostname, sourceKey, connectorName);
 				return;
 			}
@@ -407,7 +407,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 					}
 
 				} else {
-					log.warn("Hostname {} - Column {} doesn't match the instance table source {} for connector {}.", columnIndex,
+					log.warn("Hostname {} - Column {} doesn't match the instance table source {} for Connector {}.", columnIndex,
 							hostname, sourceKey, connectorName);
 				}
 			} else {
@@ -446,12 +446,12 @@ public class DiscoveryOperation extends AbstractStrategy {
 		// Is there any discovery job here ?
 		final MonitorType monitorType = hardwareMonitor.getType();
 		if (monitorType == null) {
-			log.warn("Hostname {} - No monitor types specified for hardware monitor job with connector {}.", hostname, connectorName);
+			log.warn("Hostname {} - No Monitor type specified for hardware monitor job with Connector {}.", hostname, connectorName);
 			return false;
 		}
 
 		if (hardwareMonitor.getDiscovery() == null) {
-			log.warn("Hostname {} - No {} monitor jobs specified during the discovery for the connector {}.",
+			log.warn("Hostname {} - No {} Monitor job specified during the discovery for the Connector {}.",
 					hostname, monitorType.getNameInConnector(), connectorName);
 			return false;
 		}
@@ -480,7 +480,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 
 		if (temperatureMonitors == null || temperatureMonitors.isEmpty()) {
 			log.debug(
-					"Hostname {} - Could not detect cpu temperature sensors. isCpuSensor and averageCpuTemperatureWarning metadata won't be set.",
+					"Hostname {} - Could not detect cpu temperature sensors. isCpuSensor and averageCpuTemperatureWarning metadata will not be set.",
 					strategyConfig.getEngineConfiguration().getTarget().getHostname());
 			return;
 		}

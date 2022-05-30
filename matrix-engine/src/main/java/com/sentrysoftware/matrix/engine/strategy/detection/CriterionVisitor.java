@@ -264,7 +264,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 				: sshProtocol;
 
 		if (osCommandConfig == null) {
-			final String message = String.format("Hostname %s - No OS command configuration for this host. Returning empty result", hostname);
+			final String message = String.format("Hostname %s - No OS command configuration for this host. Returning an empty result", hostname);
 			log.warn(message);
 			return CriterionTestResult.builder().success(false).result("").message(message).build();
 		}
@@ -284,7 +284,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 			if (result != null && !result.contains(IPMI_VERSION)) {
 				// Didn't find what we expected: exit
 				return CriterionTestResult.builder().success(false).result(result)
-						.message("Did not get the expected result from ipmitool command: " + ipmitoolCommand).build();
+						.message("Did not get the expected result from the ipmitool command: " + ipmitoolCommand).build();
 			} else {
 				// everything goes well
 				strategyConfig.getHostMonitoring()
@@ -295,7 +295,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 			}
 
 		} catch (final Exception e) {
-			final String message = String.format("Hostname %s - Cannot execute IPMI tool command %s. Exception: %s.",
+			final String message = String.format("Hostname %s - Cannot execute the IPMI tool command %s. Exception: %s.",
 					hostname, ipmitoolCommand, e.getMessage());
 			log.debug(message, e);
 			return CriterionTestResult.builder().success(false).message(message).build();
@@ -414,7 +414,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 			} else if (versionInt < 9) {
 
 				throw new IpmiCommandForSolarisException(String.format(
-						"Solaris version (%s) is too old for the host: %s IPMI cannot be executed, returning empty result.",
+						"Solaris version (%s) is too old for the host: %s IPMI cannot be executed Returning an empty result.",
 						solarisOsVersion, hostname));
 
 			} else {
