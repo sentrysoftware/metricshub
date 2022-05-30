@@ -86,7 +86,7 @@ Once **${project.name}** is running, you can configure a job in the [`scrape_con
     scrape_timeout: <duration>
     static_configs:
     scheme: <http or https>
-    - hosts: ['<hostname:port_number>' ]
+    - targets: ['<hostname:port_number>' ]
 ```
 
 `<duration>` is a duration that **must be greater than the `collectPeriod`** defined in [config/hws-config.yaml](../configuration/configure-agent.md) to avoid gaps and duplicate points in the metrics, which will affect the calculation of rates.
@@ -98,5 +98,5 @@ Example:
     scrape_interval: 2m
     scrape_timeout: 30s
     static_configs:
-    - hosts: ['hws-otel-exporter-siteA:24375']
+    - targets: ['hws-otel-exporter-siteA:24375']
 ```

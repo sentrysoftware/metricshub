@@ -95,7 +95,7 @@ The *OpenTelemetry Collector*'s internal *Exporter for Prometheus* is an optiona
         - job_name: otel-collector-internal
           scrape_interval: 60s
           static_configs:
-            - hosts: [ localhost:8888 ]
+            - targets: [ localhost:8888 ]
 ```
 
 Under the `service:telemetry:metrics` section, you can set the metrics `level` or the `address` of the OpenTelemetry Collector Internal Exporter (by default: **localhost:8888**).
