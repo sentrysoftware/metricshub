@@ -147,7 +147,7 @@ class TaskSchedulingServiceTest {
 
 		taskSechedulingService.updateConfiguration(configFile);
 
-		verify(mock, times(4)).cancel(true);
+		verify(mock, times(1)).cancel(true);
 		verify(hostTaskScheduler, never()).schedule(any(StrategyTask.class), any(Trigger.class));
 
 	}
