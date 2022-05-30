@@ -40,7 +40,6 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PACKETS
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SUPPLY_POWER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RATIO_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVED_BYTES_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVED_BYTES_RATE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVED_PACKETS_PARAMETER;
@@ -570,7 +569,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		collectErrorCount(ERROR_COUNT_PARAMETER, STARTING_ERROR_COUNT_PARAMETER);
 
 		collectLogicalDiskUnallocatedSpace();
-		calculateLogicalDiskSpace();
+		collectLogicalDiskSpace();
 
 		collectStatusInformation();
 
@@ -1284,13 +1283,14 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	/**
 	 * Calculates the additional space related parameters for {@link LogicalDisk}.
 	 */
-	void calculateLogicalDiskSpace() {
+	void collectLogicalDiskSpace() {
 
 		final Monitor monitor = monitorCollectInfo.getMonitor();
 
 		final Double sizeRaw = NumberHelper.parseDouble(monitor.getMetadata(SIZE), null);
 
-		final Double unallocatedSpaceRaw = CollectHelper.getNumberParamRawValue(monitor, UNALLOCATED_SPACE_PARAMETER, false);
+		final Double unallocatedSpaceRaw = CollectHelper.getNumberParamRawValue(monitor, UNALLOCATED_SPACE_PARAMETER,
+				false);
 
 		if (sizeRaw != null && unallocatedSpaceRaw != null) {
 			final Double allocatedSpaceRaw = sizeRaw - unallocatedSpaceRaw;
@@ -1301,26 +1301,23 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 					SPACE_GB_PARAMETER_UNIT,
 					monitorCollectInfo.getCollectTime(),
 					allocatedSpaceRaw / (1024.0 * 1024.0 * 1024.0), // Bytes to GB
-					allocatedSpaceRaw
-			);
+					allocatedSpaceRaw);
 
 			CollectHelper.updateNumberParameter(
 					monitor,
 					ALLOCATED_SPACE_PERCENT_PARAMETER,
-					RATIO_UNIT,
+					PERCENT_PARAMETER_UNIT,
 					monitorCollectInfo.getCollectTime(),
-					allocatedSpaceRaw / sizeRaw,
-					allocatedSpaceRaw / sizeRaw
-			);
+					allocatedSpaceRaw / sizeRaw * 100,
+					allocatedSpaceRaw / sizeRaw * 100);
 
 			CollectHelper.updateNumberParameter(
 					monitor,
 					UNALLOCATED_SPACE_PERCENT_PARAMETER,
-					RATIO_UNIT,
+					PERCENT_PARAMETER_UNIT,
 					monitorCollectInfo.getCollectTime(),
-					unallocatedSpaceRaw / sizeRaw,
-					unallocatedSpaceRaw / sizeRaw
-			);
+					unallocatedSpaceRaw / sizeRaw * 100,
+					unallocatedSpaceRaw / sizeRaw * 100);
 		}
 	}
 
