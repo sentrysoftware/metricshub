@@ -36,8 +36,6 @@ public class MappingConstants {
 	public static final Predicate<IState> OFF_LED_INDICATOR_PREDICATE = ledState -> LedIndicator.OFF == ledState;
 	public static final Predicate<IState> BLINKING_LED_INDICATOR_PREDICATE = ledState -> LedIndicator.BLINKING == ledState;
 
-
-
 	// Attribute keys
 	public static final String STATE_ATTRIBUTE_KEY = "state";
 	public static final String PROTOCOL_ATTRIBUTE_KEY = "protocol";
