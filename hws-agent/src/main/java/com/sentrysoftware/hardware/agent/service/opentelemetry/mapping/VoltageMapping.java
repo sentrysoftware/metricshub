@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class VoltageMapping {
 
-	private static final String VOLTAGE_TYPE = "voltage";
+	private static final String VOLTAGE_NAME = "voltage";
 	private static final String VOLTAGE_STATUS_METRIC_NAME = "hw.voltage.status";
 
 	/**
@@ -37,7 +37,7 @@ public class VoltageMapping {
 				MetricInfo
 					.builder()
 					.name(VOLTAGE_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(VOLTAGE_TYPE, OK_ATTRIBUTE_VALUE))
+					.description(MappingConstants.createStatusDescription(VOLTAGE_NAME, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -50,7 +50,7 @@ public class VoltageMapping {
 				MetricInfo
 					.builder()
 					.name(VOLTAGE_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(VOLTAGE_TYPE, DEGRADED_ATTRIBUTE_VALUE))
+					.description(MappingConstants.createStatusDescription(VOLTAGE_NAME, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -63,7 +63,7 @@ public class VoltageMapping {
 				MetricInfo
 					.builder()
 					.name(VOLTAGE_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(VOLTAGE_TYPE, FAILED_ATTRIBUTE_VALUE))
+					.description(MappingConstants.createStatusDescription(VOLTAGE_NAME, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -82,7 +82,7 @@ public class VoltageMapping {
 				MetricInfo
 					.builder()
 					.name(VOLTAGE_STATUS_METRIC_NAME)
-					.description(MappingConstants.createPresentDescription(VOLTAGE_TYPE))
+					.description(MappingConstants.createPresentDescription(VOLTAGE_NAME))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -103,7 +103,7 @@ public class VoltageMapping {
 					.name("hw.voltage.voltage")
 					.factor(MILLIVOLTS_TO_VOLTS_FACTOR)
 					.unit(VOLTS_UNIT)
-					.description("Voltage outputs.")
+					.description("Voltage output.")
 					.build()
 			)
 		);
