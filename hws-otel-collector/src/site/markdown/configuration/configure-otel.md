@@ -149,7 +149,7 @@ Configured extensions, receivers, processors and exporters are taken into accoun
 service:
   telemetry:
     logs:
-      level: info # Change to debug more more details
+      level: info # Change to debug for more details
     metrics:
       address: localhost:8888
       level: basic

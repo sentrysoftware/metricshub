@@ -54,7 +54,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class HostMonitoring implements IHostMonitoring {
 
-	private static final String MONITOR_ID_CANNOT_BE_NULL = "Monitor Id cannot be null.";
+	private static final String MONITOR_ID_CANNOT_BE_NULL = "Monitor ID cannot be null.";
 	private static final String PARENT_ID_CANNOT_BE_NULL = "Parent Id cannot be null.";
 	private static final String TARGET_ID_CANNOT_BE_NULL = "Target Id cannot be null.";
 	private static final String MONITOR_TYPE_CANNOT_BE_NULL = "Monitor type cannot be null.";
@@ -505,7 +505,7 @@ public class HostMonitoring implements IHostMonitoring {
 
 		} catch (TimeoutException e) {
 
-			log.error("Hostname {} - {} operation timeout.", hostname, strategy.getClass().getSimpleName());
+			log.error("Hostname {} - {} operation timed out.", hostname, strategy.getClass().getSimpleName());
 			log.debug("Hostname {} - Operation failed with TimeoutException: ", hostname, e);
 
 			return EngineResult
@@ -549,10 +549,10 @@ public class HostMonitoring implements IHostMonitoring {
 		Assert.notNull(engineConfiguration.getProtocolConfigurations(), "ProtocolConfigurations cannot be null.");
 		Assert.isTrue(!engineConfiguration.getProtocolConfigurations().isEmpty(), "ProtocolConfigurations cannot be empty.");
 		Assert.notNull(engineConfiguration.getSelectedConnectors(), "SelectedConnectors cannot be null.");
-		Assert.notNull(engineConfiguration.getTarget(), "Target cannot be null.");
-		Assert.notNull(engineConfiguration.getTarget().getHostname(), "Target hostname cannot be null.");
-		Assert.notNull(engineConfiguration.getTarget().getType(), "Target type cannot be null.");
-		Assert.notNull(engineConfiguration.getTarget().getId(), "Target id cannot be null.");
+		Assert.notNull(engineConfiguration.getTarget(), "Host cannot be null.");
+		Assert.notNull(engineConfiguration.getTarget().getHostname(), "Hostname cannot be null.");
+		Assert.notNull(engineConfiguration.getTarget().getType(), "Host type cannot be null.");
+		Assert.notNull(engineConfiguration.getTarget().getId(), "Host ID cannot be null.");
 	}
 
 	/**
