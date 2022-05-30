@@ -15,6 +15,8 @@ import com.sentrysoftware.matrix.common.meta.monitor.IMetaMonitor;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ALARM_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_ALARM_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_WARNING_THRESHOLD;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -186,7 +188,7 @@ public class FanMapping {
 		);
 
 		map.put(
-			ALARM_THRESHOLD,
+			PERCENT_ALARM_THRESHOLD,
 			Collections.singletonList(
 				MetricInfo
 					.builder()
@@ -199,7 +201,7 @@ public class FanMapping {
 		);
 
 		map.put(
-			WARNING_THRESHOLD,
+			PERCENT_WARNING_THRESHOLD,
 			Collections.singletonList(
 				MetricInfo
 					.builder()
