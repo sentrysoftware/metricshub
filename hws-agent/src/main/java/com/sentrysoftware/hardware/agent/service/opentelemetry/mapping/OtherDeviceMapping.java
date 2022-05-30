@@ -32,7 +32,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class OtherDeviceMapping {
 
-	private static final String OTHER_DEVICE_TYPE = "other device";
+	private static final String OTHER_DEVICE_NAME = "other device";
 	private static final String OTHER_DEVICE_STATUS_METRIC_NAME = "hw.other_device.status";
 
 	/**
@@ -49,7 +49,7 @@ public class OtherDeviceMapping {
 				MetricInfo
 					.builder()
 					.name(OTHER_DEVICE_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(OTHER_DEVICE_TYPE, OK_ATTRIBUTE_VALUE))
+					.description(MappingConstants.createStatusDescription(OTHER_DEVICE_NAME, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -62,7 +62,7 @@ public class OtherDeviceMapping {
 				MetricInfo
 					.builder()
 					.name(OTHER_DEVICE_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(OTHER_DEVICE_TYPE, DEGRADED_ATTRIBUTE_VALUE))
+					.description(MappingConstants.createStatusDescription(OTHER_DEVICE_NAME, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -75,7 +75,7 @@ public class OtherDeviceMapping {
 				MetricInfo
 					.builder()
 					.name(OTHER_DEVICE_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(OTHER_DEVICE_TYPE, FAILED_ATTRIBUTE_VALUE))
+					.description(MappingConstants.createStatusDescription(OTHER_DEVICE_NAME, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -94,7 +94,7 @@ public class OtherDeviceMapping {
 				MetricInfo
 					.builder()
 					.name(OTHER_DEVICE_STATUS_METRIC_NAME)
-					.description(MappingConstants.createPresentDescription(OTHER_DEVICE_TYPE))
+					.description(MappingConstants.createPresentDescription(OTHER_DEVICE_NAME))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
