@@ -107,10 +107,10 @@ public class MappingConstants {
 	public static final double MILLIVOLTS_TO_VOLTS_FACTOR = 0.001;
 
 	/**
-	 * Creates the description of the status mappings.
+	 * Creates the description of the status metrics.
 	 *
-	 * @param monitorType The type of the monitor as string.
-	 * @param status      The status of the monitor as string.
+	 * @param monitorType The type of the monitor, as string.
+	 * @param status      The status of the monitor, as string.
 	 *
 	 * @return {@link String} value
 	 */
@@ -119,9 +119,9 @@ public class MappingConstants {
 	}
 
 	/**
-	 * Creates the description of the present mappings.
+	 * Creates the description of the present metrics.
 	 *
-	 * @param monitorType The type of the monitor as string.
+	 * @param monitorType The type of the monitor, as string.
 	 *
 	 * @return {@link String} value
 	 */
@@ -130,9 +130,9 @@ public class MappingConstants {
 	}
 
 	/**
-	 * Creates the description of the energy mappings.
+	 * Creates the description of the energy metrics.
 	 *
-	 * @param monitorType The type of the monitor as string.
+	 * @param monitorType The type of the monitor, as string.
 	 *
 	 * @return {@link String} value
 	 */
@@ -141,9 +141,9 @@ public class MappingConstants {
 	}
 
 	/**
-	 * Creates the description of the power consumption mappings.
+	 * Creates the description of the power consumption metrics.
 	 *
-	 * @param monitorType The type of the monitor as string.
+	 * @param monitorType The type of the monitor, as string.
 	 *
 	 * @return {@link String} value
 	 */

@@ -68,24 +68,15 @@ class MetricsMappingTest {
 						}
 
 						// TODO: resolve conflict with 2 statuses for controller in HW Sentry KM
-						if (metricId.equals("hw.disk_controller.status.state.ok")) {
-							metricIds.add(metricId);
-							continue;
-						}
-						if (metricId.equals("hw.disk_controller.status.state.degraded")) {
-							metricIds.add(metricId);
-							continue;
-						}
-						if (metricId.equals("hw.disk_controller.status.state.failed")) {
-							metricIds.add(metricId);
-							continue;
+						if (metricInfo.getAdditionalId() != null) {
+							metricId = String.format("%s.%s", metricId, metricInfo.getAdditionalId());
 						}
 
 						// Check if the metric is not defined multiple times
 						assertFalse(
 							metricIds.contains(metricId),
 							String.format(
-								"This metric (%s) is badly mapped for monitor type %s. Metric id: %s."
+								"This metric (%s) is incorrectly mapped for monitor type %s. Metric id: %s."
 										+ "\nIf no identifying attributes are defined for this metric, the metric name must be unique."
 										+ "\nIf this metric is mapped with identifying attributes, the identifying attributes must be unique.",
 								metricInfo.getName(),

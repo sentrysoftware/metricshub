@@ -1,16 +1,17 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry.mapping;
 
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.*;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo;
-import com.sentrysoftware.hardware.agent.dto.metric.StaticIdentifyingAttribute;
 import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo.MetricType;
-import com.sentrysoftware.matrix.common.meta.monitor.IMetaMonitor;
+import com.sentrysoftware.hardware.agent.dto.metric.StaticIdentifyingAttribute;
 import com.sentrysoftware.matrix.common.meta.monitor.DiskController;
+import com.sentrysoftware.matrix.common.meta.monitor.IMetaMonitor;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -18,6 +19,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DiskControllerMapping {
 
+	private static final String DISK_CONTROLLER_ADDITIONAL_ID = "1";
 	private static final String DISK_CONTROLLER_STATUS_METRIC_NAME = "hw.disk_controller.status";
 	private static final String DISK_CONTROLLER_NAME = "disk controller";
 	private static final String DISK_CONTROLLER_BATTERY_NAME = DISK_CONTROLLER_NAME + " " + "battery";
@@ -154,6 +156,7 @@ public class DiskControllerMapping {
 							.build()
 					)
 					.predicate(OK_STATUS_PREDICATE)
+					.additionalId(DISK_CONTROLLER_ADDITIONAL_ID)
 					.build(),
 				MetricInfo
 					.builder()
@@ -167,6 +170,7 @@ public class DiskControllerMapping {
 							.build()
 					)
 					.predicate(DEGRADED_STATUS_PREDICATE)
+					.additionalId(DISK_CONTROLLER_ADDITIONAL_ID)
 					.build(),
 				MetricInfo
 					.builder()
@@ -180,6 +184,7 @@ public class DiskControllerMapping {
 							.build()
 					)
 					.predicate(FAILED_STATUS_PREDICATE)
+					.additionalId(DISK_CONTROLLER_ADDITIONAL_ID)
 					.build()
 			)
 		);
