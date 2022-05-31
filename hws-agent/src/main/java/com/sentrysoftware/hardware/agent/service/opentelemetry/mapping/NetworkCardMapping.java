@@ -1,27 +1,30 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry.mapping;
 
+import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.ALL_ATTRIBUTE_VALUE;
+import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.BYTES_UNIT;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.DEGRADED_ATTRIBUTE_VALUE;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.DEGRADED_STATUS_PREDICATE;
+import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.DIRECTION_ATTRIBUTE_KEY;
+import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.DUPLEX_MODE_PREDICATE;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.ERRORS_UNIT;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.FAILED_ATTRIBUTE_VALUE;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.FAILED_STATUS_PREDICATE;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.JOULES_UNIT;
+import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.LINK_SPEED_FACTOR;
+import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.LINK_STATUS_PREDICATE;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.OK_ATTRIBUTE_VALUE;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.OK_STATUS_PREDICATE;
+import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.PACKETS_UNIT;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.PRESENT_ATTRIBUTE_VALUE;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.TRANSMIT_ATTRIBUTE_VALUE;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.ALL_ATTRIBUTE_VALUE;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.ZERO_BUFFER_CREDIT_ATTRIBUTE_VALUE;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.RECEIVE_ATTRIBUTE_VALUE;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.PRESENT_PREDICATE;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.RATIO_FACTOR;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.BYTES_UNIT;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.RATIO_UNIT;
+import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.RECEIVE_ATTRIBUTE_VALUE;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.STATE_ATTRIBUTE_KEY;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.DIRECTION_ATTRIBUTE_KEY;
+import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.TRANSMIT_ATTRIBUTE_VALUE;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.TYPE_ATTRIBUTE_KEY;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.WATTS_UNIT;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.PACKETS_UNIT;
+import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.ZERO_BUFFER_CREDIT_ATTRIBUTE_VALUE;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.createEnergyDescription;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.createPowerConsumptionDescription;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.createPresentDescription;
@@ -140,6 +143,7 @@ public class NetworkCardMapping {
 					.builder()
 					.name("hw.network.full_duplex")
 					.description("Whether the port is configured to operate in half-duplex or full-duplex mode.")
+					.predicate(DUPLEX_MODE_PREDICATE)
 					.build()
 			)
 		);
@@ -165,23 +169,14 @@ public class NetworkCardMapping {
 		);
 
 		map.put(
-			NetworkCard.ERROR_PERCENT.getName(),
-			Collections.singletonList(
-				MetricInfo
-					.builder()
-					.name("hw.network.error_ratio")
-					.description("Ratio of sent and received packets that were in error.")
-					.build()
-			)
-		);
-
-		map.put(
 			NetworkCard.LINK_SPEED.getName(),
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.network.full_duplex")
+					.name("hw.network.bandwidth_limit")
+					.factor(LINK_SPEED_FACTOR)
 					.description("Speed that the network adapter and its remote counterpart currently use to communicate with each other.")
+					.unit(BYTES_UNIT)
 					.build()
 			)
 		);
@@ -192,7 +187,8 @@ public class NetworkCardMapping {
 				MetricInfo
 					.builder()
 					.name("hw.network.up")
-					.description("Whether the network interface is plugged-in to the network or not.")
+					.description("Whether the network interface is plugged into the network or not.")
+					.predicate(LINK_STATUS_PREDICATE)
 					.build()
 			)
 		);
@@ -245,7 +241,7 @@ public class NetworkCardMapping {
 					.name("hw.network.io")
 					.unit(BYTES_UNIT)
 					.type(MetricType.COUNTER)
-					.description("otal number of bytes transmitted through the network interface.")
+					.description("Total number of bytes transmitted through the network interface.")
 					.identifyingAttribute(
 							StaticIdentifyingAttribute
 								.builder()
@@ -321,6 +317,18 @@ public class NetworkCardMapping {
 			)
 		);
 
+		map.put(
+			NetworkCard.ERROR_PERCENT.getName(),
+			Collections.singletonList(
+				MetricInfo
+					.builder()
+					.name("hw.network.error_ratio")
+					.factor(RATIO_FACTOR)
+					.description("Ratio of sent and received packets that were in error.")
+					.unit(RATIO_UNIT)
+					.build()
+			)
+		);
 		return map;
 	}
 
