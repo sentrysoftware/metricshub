@@ -11,6 +11,7 @@ import com.sentrysoftware.matrix.common.meta.parameter.state.PowerState;
 import com.sentrysoftware.matrix.common.meta.parameter.state.PredictedFailure;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Present;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
+import com.sentrysoftware.matrix.common.meta.parameter.state.PowerState;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -138,5 +139,17 @@ public class MappingConstants {
 	 */
 	public static String createPowerConsumptionDescription(@NonNull String monitorType) {
 		return String.format("Energy consumed by the %s.", monitorType);
+	}
+	
+	/**
+	 * Creates the the power state description
+	 *
+	 * @param monitorType The monitor type, as string.
+	 * @param powerState  The power state, as string.
+	 *
+	 * @return {@link String} value
+	 */
+	public static String createPowerStateDescription(@NonNull String monitorType, @NonNull String powerState) {
+		return String.format("Whether the %s is currently %s or not.", monitorType, powerState);
 	}
 }

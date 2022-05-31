@@ -69,6 +69,7 @@ public class MetricsMapping {
 		matrixParamToMetric.put(MonitorType.CPU_CORE, CpuCoreMapping.buildCpuCoreMetricsMapping());
 		matrixParamToMetric.put(MonitorType.LUN, LunMapping.buildLunMetricsMapping());
 		matrixParamToMetric.put(MonitorType.LED, LedMapping.buildLedMetricsMapping());
+		matrixParamToMetric.put(MonitorType.BLADE,BladeMapping.buildBladeMetricsMapping());
 
 		matrixParamToMetricMap = Collections.unmodifiableMap(matrixParamToMetric);
 
