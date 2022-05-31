@@ -72,6 +72,7 @@ public class MetricsMapping {
 		matrixParamToMetric.put(MonitorType.FAN, FanMapping.buildFanMetricsMapping());
 		matrixParamToMetric.put(MonitorType.LUN, LunMapping.buildLunMetricsMapping());
 		matrixParamToMetric.put(MonitorType.LED, LedMapping.buildLedMetricsMapping());
+		matrixParamToMetric.put(MonitorType.LOGICAL_DISK, LogicalDiskMapping.buildLogicalDiskMetricsMapping());
 		matrixParamToMetric.put(MonitorType.BLADE, BladeMapping.buildBladeMetricsMapping());
 		matrixParamToMetric.put(MonitorType.DISK_CONTROLLER, DiskControllerMapping.buildDiskControllerMetricsMapping());
 		matrixParamToMetric.put(MonitorType.NETWORK_CARD, NetworkCardMapping.buildNetworkCardMetricsMapping());
@@ -92,6 +93,8 @@ public class MetricsMapping {
 		metadataToMetric.put(MonitorType.LUN, LunMapping.lunMetadataToMetrics());
 		metadataToMetric.put(MonitorType.VOLTAGE, VoltageMapping.voltageMetadataToMetrics());
 		metadataToMetric.put(MonitorType.NETWORK_CARD, NetworkCardMapping.networkCardMetadataToMetrics());
+		metadataToMetric.put(MonitorType.LOGICAL_DISK, LogicalDiskMapping.logicalDiskMetadataToMetrics());
+		metadataToMetric.put(MonitorType.POWER_SUPPLY, PowerSupplyMapping.powerSupplyMetadataToMetrics());
 
 		matrixMetadataToMetricMap = Collections.unmodifiableMap(metadataToMetric);
 

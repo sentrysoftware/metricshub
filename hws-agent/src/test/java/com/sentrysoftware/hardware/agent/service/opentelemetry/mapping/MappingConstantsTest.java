@@ -5,8 +5,10 @@ import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.Ma
 
 import org.junit.jupiter.api.Test;
 
+import com.sentrysoftware.matrix.common.meta.parameter.state.DuplexMode;
 import com.sentrysoftware.matrix.common.meta.parameter.state.IntrusionStatus;
 import com.sentrysoftware.matrix.common.meta.parameter.state.LedIndicator;
+import com.sentrysoftware.matrix.common.meta.parameter.state.LinkStatus;
 import com.sentrysoftware.matrix.common.meta.parameter.state.NeedsCleaning;
 import com.sentrysoftware.matrix.common.meta.parameter.state.PowerState;
 import com.sentrysoftware.matrix.common.meta.parameter.state.PredictedFailure;
@@ -106,7 +108,7 @@ class MappingConstantsTest {
 
 	@Test
 	void testLedIndicatorPredicates() {
-		
+
 		assertTrue(ON_LED_INDICATOR_PREDICATE.test(LedIndicator.ON));
 		assertFalse(ON_LED_INDICATOR_PREDICATE.test(LedIndicator.BLINKING));
 		assertFalse(ON_LED_INDICATOR_PREDICATE.test(LedIndicator.OFF));
@@ -125,5 +127,17 @@ class MappingConstantsTest {
 		assertThrows(IllegalArgumentException.class, () -> createPowerStateDescription(null, "ok"));
 		assertThrows(IllegalArgumentException.class, () -> createPowerStateDescription("physical disk", null));
 		assertNotNull(createPowerStateDescription("physical disk", "ok"));
+	}
+
+	@Test
+	void testFullDuplexPredicate() {
+		assertTrue(FULL_DUPLEX_MODE_PREDICATE.test(DuplexMode.FULL));
+		assertFalse(FULL_DUPLEX_MODE_PREDICATE.test(DuplexMode.HALF));
+	}
+
+	@Test
+	void testLinkStatusPredicate() {
+		assertTrue(PLUGGED_LINK_STATUS_PREDICATE.test(LinkStatus.PLUGGED));
+		assertFalse(PLUGGED_LINK_STATUS_PREDICATE.test(LinkStatus.UNPLUGGED));
 	}
 }

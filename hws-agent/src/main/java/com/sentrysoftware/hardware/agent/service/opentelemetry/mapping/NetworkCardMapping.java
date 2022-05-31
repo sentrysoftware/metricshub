@@ -143,7 +143,7 @@ public class NetworkCardMapping {
 				MetricInfo
 					.builder()
 					.name("hw.network.full_duplex")
-					.description("Whether the port is configured to operate in half-duplex or full-duplex mode.")
+					.description("Whether the port is configured to operate in full-duplex mode.")
 					.predicate(FULL_DUPLEX_MODE_PREDICATE)
 					.build()
 			)
@@ -159,12 +159,12 @@ public class NetworkCardMapping {
 					.type(MetricType.COUNTER)
 					.description("Number of errors encountered by the network since the start of the Hardware Sentry Agent.")
 					.identifyingAttribute(
-							StaticIdentifyingAttribute
-								.builder()
-								.key(TYPE_ATTRIBUTE_KEY)
-								.value(ALL_ATTRIBUTE_VALUE)
-								.build()
-						)
+						StaticIdentifyingAttribute
+							.builder()
+							.key(TYPE_ATTRIBUTE_KEY)
+							.value(ALL_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);
@@ -204,12 +204,12 @@ public class NetworkCardMapping {
 					.type(MetricType.COUNTER)
 					.description("Total number of bytes received through the network interface.")
 					.identifyingAttribute(
-							StaticIdentifyingAttribute
-								.builder()
-								.key(DIRECTION_ATTRIBUTE_KEY)
-								.value(RECEIVE_ATTRIBUTE_VALUE)
-								.build()
-						)
+						StaticIdentifyingAttribute
+							.builder()
+							.key(DIRECTION_ATTRIBUTE_KEY)
+							.value(RECEIVE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);
@@ -224,12 +224,12 @@ public class NetworkCardMapping {
 					.type(MetricType.COUNTER)
 					.description("Total number of packets received through the network interface.")
 					.identifyingAttribute(
-							StaticIdentifyingAttribute
-								.builder()
-								.key(DIRECTION_ATTRIBUTE_KEY)
-								.value(RECEIVE_ATTRIBUTE_VALUE)
-								.build()
-						)
+						StaticIdentifyingAttribute
+							.builder()
+							.key(DIRECTION_ATTRIBUTE_KEY)
+							.value(RECEIVE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);
@@ -244,12 +244,12 @@ public class NetworkCardMapping {
 					.type(MetricType.COUNTER)
 					.description("Total number of bytes transmitted through the network interface.")
 					.identifyingAttribute(
-							StaticIdentifyingAttribute
-								.builder()
-								.key(DIRECTION_ATTRIBUTE_KEY)
-								.value(TRANSMIT_ATTRIBUTE_VALUE)
-								.build()
-						)
+						StaticIdentifyingAttribute
+							.builder()
+							.key(DIRECTION_ATTRIBUTE_KEY)
+							.value(TRANSMIT_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);
@@ -264,12 +264,12 @@ public class NetworkCardMapping {
 					.type(MetricType.COUNTER)
 					.description("Total number of packets transmitted through the network interface.")
 					.identifyingAttribute(
-							StaticIdentifyingAttribute
-								.builder()
-								.key(DIRECTION_ATTRIBUTE_KEY)
-								.value(TRANSMIT_ATTRIBUTE_VALUE)
-								.build()
-						)
+						StaticIdentifyingAttribute
+							.builder()
+							.key(DIRECTION_ATTRIBUTE_KEY)
+							.value(TRANSMIT_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);
@@ -283,11 +283,11 @@ public class NetworkCardMapping {
 					.type(MetricType.COUNTER)
 					.description("Total number of zero buffer credits that occurred.")
 					.identifyingAttribute(
-							StaticIdentifyingAttribute
-								.builder()
-								.key(TYPE_ATTRIBUTE_KEY)
-								.value(ZERO_BUFFER_CREDIT_ATTRIBUTE_VALUE)
-								.build()
+						StaticIdentifyingAttribute
+							.builder()
+							.key(TYPE_ATTRIBUTE_KEY)
+							.value(ZERO_BUFFER_CREDIT_ATTRIBUTE_VALUE)
+							.build()
 						)
 					.build()
 			)
@@ -330,6 +330,7 @@ public class NetworkCardMapping {
 					.build()
 			)
 		);
+
 		return map;
 	}
 

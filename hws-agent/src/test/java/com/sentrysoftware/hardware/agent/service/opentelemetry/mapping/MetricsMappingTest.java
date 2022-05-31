@@ -17,7 +17,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo;
@@ -28,7 +27,6 @@ import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 class MetricsMappingTest {
 
 	@Test
-	@Disabled
 	void testGetAttributesMap() {
 		MonitorType.MONITOR_TYPES.forEach(monitorType -> assertNotNull(MetricsMapping.getAttributesMap(monitorType)));
 		// Null attributes that are already defined as metrics.
