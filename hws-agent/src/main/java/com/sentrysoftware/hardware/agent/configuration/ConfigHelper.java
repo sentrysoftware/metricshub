@@ -50,9 +50,9 @@ import lombok.extern.slf4j.Slf4j;
 public class ConfigHelper {
 
 	public static final Path DEFAULT_OUTPUT_DIRECTORY = getSubDirectory("logs", true);
-	private static final String TIMEOUT_ERROR = "Hostname %s cannot be monitored using the protocol %s due to an invalid timeout value (%s). Please provide a valid timeout value.";
-	private static final String PORT_ERROR = "Hostname %s cannot be monitored using the protocol %s due to an invalid port value (%s). Please provide a valid port.";
-	private static final String USERNAME_ERROR = "Hostname %s cannot be monitored using %s. Please provide a valid username.";
+	private static final String TIMEOUT_ERROR = "Timeout value is invalid for hostname %s for protocol %s. Timeout value returned: %s. This host will not be monitored. Please verify the configured timeout value.";
+	private static final String PORT_ERROR = "Invalid port configured for hostname %s for protocol %s. Port value returned: %s. This host will not be monitored. Please verify the configured port value.";
+	private static final String USERNAME_ERROR = "No username configured for hostname %s for protocol %s. This host will not be monitored. Please verify the configured username.";
 	private static final Predicate<String> INVALID_STRING_CHECKER = attr -> attr == null || attr.isBlank();
 	private static final Predicate<Integer> INVALID_PORT_CHECKER = attr -> attr == null || attr < 1 || attr > 65535;
 	private static final Predicate<Long> INVALID_TIMEOUT_CHECKER = attr -> attr == null || attr < 0L;
@@ -110,7 +110,7 @@ public class ConfigHelper {
 				hostname,
 				INVALID_STRING_CHECKER,
 				() -> String.format(
-						"%s cannot be monitored. Please provide a valid hostname.",
+						"Invalid hostname: %s. This host will not be monitored. Please verify the configured hostname.",
 						hostname),
 				ErrorCode.INVALID_HOSTNAME);
 
@@ -118,7 +118,7 @@ public class ConfigHelper {
 				targetType,
 				Objects::isNull,
 				() -> String.format(
-						"%s cannot be monitored. Please provide a valid type.",
+						"No type configured for hostname: %s. This host will not be monitored. Please verify the configured type.",
 						hostname),
 				ErrorCode.NO_TARGET_TYPE);
 	}
@@ -147,7 +147,7 @@ public class ConfigHelper {
 		for (Connector connector : connectors) {
 			if (acceptedSources.stream().noneMatch(source -> connector.getSourceTypes().contains(source))) {
 				String message = String.format(
-						"Hostname %s cannot be monitored - The selected Connector %s does not support the configured protocol. Please use connectors that are compatible with the configured protocol.",
+						"Hostname %s - Selected connector %s could not be processed due to unsupported protocol. This host will not be monitored. Please verify that the connectors selected are appropriate for the specified protocol.",
 						hostname, connector.getCompiledFilename());
 				log.error(message);
 				throw new BusinessException(ErrorCode.UNSUPPORTED_PROTOCOL, message);
@@ -173,7 +173,7 @@ public class ConfigHelper {
 					snmpDto.getCommunity(),
 					attr -> attr == null || attr.length == 0,
 					() -> String.format(
-							"Hostname %s cannot be monitored using the %s protocol. Please provide a community string.",
+							"No community string configured for hostname %s for %s. This host will not be monitored.",
 							hostname,
 							displayName),
 					ErrorCode.NO_COMMUNITY_STRING);
@@ -426,7 +426,7 @@ public class ConfigHelper {
 		final String message;
 		if (isExcluded) {
 			message = String.format(
-					"The Connector(s) %s excluded for monitoring hostname: %s are unknown. Although this host will be monitored, we recommend verifying the configured list of excluded Connectors.",
+					"Configured unknown excluded connector(s): %s. Hostname: %s. This host will be monitored, but the unknown connectors will be ignored. Please verify the configured list of excluded connectors.",
 					String.join(", ", unknownConnectors), hostname);
 
 			log.error(message);
@@ -435,7 +435,7 @@ public class ConfigHelper {
 			return configConnectors;
 		} else {
 			message = String.format(
-					"The Connector(s) %s selected for monitoring hostname: %s are unknown. Although this host will be monitored, we recommend verifying the configured list of selected Connectors.",
+					"Configured unknown selected connector(s): %s. Hostname: %s. This host will not be monitored. Please verify the configured list of selected connectors.",
 					String.join(", ", unknownConnectors), hostname);
 
 			log.error(message);
@@ -601,7 +601,7 @@ public class ConfigHelper {
 
 		} catch (Exception e) {
 
-			log.warn("Host {} is invalid.", hostConfigurationDto);
+			log.warn("Host: {} - The given host has been staged as invalid.", hostConfigurationDto);
 
 		}
 	}

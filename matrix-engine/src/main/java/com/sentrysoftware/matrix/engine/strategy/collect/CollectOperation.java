@@ -85,8 +85,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CollectOperation extends AbstractStrategy {
 
-	private static final String NO_SOURCE_TABLE_CREATE_MSG = "Hostname {} - Collect - No source table created with source key {} for Connector {}.";
-	static final String NO_HW_MONITORS_FOUND_MSG = "Hostname {} - Collect - No hardware monitors found in Connector {}. The collect will now be stopped.";
+	private static final String NO_SOURCE_TABLE_CREATE_MSG = "Hostname {} - Collect - No source table created with source key {} for connector {}.";
+	static final String NO_HW_MONITORS_FOUND_MSG = "Hostname {} - Collect - No hardware monitors found in connector {}. Collect operation will now be stopped.";
 
 	@Override
 	public void prepare() {
@@ -132,7 +132,7 @@ public class CollectOperation extends AbstractStrategy {
 		}
 
 		if (connectorMonitors == null || connectorMonitors.isEmpty()) {
-			log.error("Hostname {} - Collect - No Connector detected. The collect will now be stopped.", 
+			log.error("Hostname {} - Collect - No connectors detected in the detection operation. Collect operation will now be stopped.", 
 					hostname);
 			return false;
 		}
@@ -395,12 +395,12 @@ public class CollectOperation extends AbstractStrategy {
 					parameters.get(DEVICE_ID));
 
 			if (monitorOpt.isEmpty()) {
-				log.warn("Hostname {} - Collect - Could not find Monitor {} associated with row {} for Connector {}.",
+				log.warn("Hostname {} - Collect - Could not find monitor {} associated with row {} for connector {}.",
 						hostname, monitorType.getNameInConnector(), row, connectorName);
 				continue;
 			}
 
-			log.debug("Hostname {} - Collecting Monitor ID {}.", hostname, monitorOpt.get().getId());
+			log.debug("Hostname {} - Collecting monitor ID {}.", hostname, monitorOpt.get().getId());
 
 			// Build the collect information as the parameters are collected by the MonitorCollectVisitor
 			// so that we avoid the tightly coupling with the current CollectOperation strategy.
@@ -485,7 +485,7 @@ public class CollectOperation extends AbstractStrategy {
 
 		monitors.forEach(monitor -> {
 
-			log.debug("Hostname {} - Collecting Monitor ID {}.", hostname, monitor.getId());
+			log.debug("Hostname {} - Collecting monitor id {}.", hostname, monitor.getId());
 
 			// Process sources and computes
 			processSourcesAndComputes(sources, hostMonitoring, connector, monitorType, hostname, monitor);
@@ -561,7 +561,7 @@ public class CollectOperation extends AbstractStrategy {
 
 		// Make sure the table is not empty
 		if (sourceTable.getTable().isEmpty()) {
-			log.error("Hostname {} - Collect - Empty source table created with source key {} for Connector {}.",
+			log.error("Hostname {} - Collect - Empty source table created with source key {} for connector {}.",
 					hostname, valueTable, connectorName);
 			return;
 		}
@@ -606,20 +606,20 @@ public class CollectOperation extends AbstractStrategy {
 
 		final MonitorType monitorType = hardwareMonitor.getType();
 		if (monitorType == null) {
-			log.warn("Hostname {} - Collect - No Monitor types were specified for hardware Monitor job with Connector {}.",
+			log.warn("Hostname {} - Collect - No monitor types were specified for hardware monitor job with connector {}.",
 					hostname, connectorName);
 			return false;
 		}
 
 		if (hardwareMonitor.getCollect() == null) {
-			log.warn("Hostname {} - Collect - No {} Monitor job specified during the collect for the Connector {}.",
+			log.warn("Hostname {} - Collect - No {} monitor job specified during the collect for the connector {}.",
 					hostname, monitorType.getNameInConnector(), connectorName);
 			return false;
 		}
 
 		// Check the collectType
 		if (hardwareMonitor.getCollect().getType() == null) {
-			log.warn("Hostname {} - Collect - No collect type found with {} during the collect for the Connector {}. The default type (MONO_INSTANCE) will be used.",
+			log.warn("Hostname {} - Collect - No collect type found with {} during the collect for the connector {}. The default type (MONO_INSTANCE) will be used.",
 					hostname, monitorType.getNameInConnector(), connectorName);
 			hardwareMonitor.getCollect().setType(CollectType.MONO_INSTANCE);
 		}
@@ -627,14 +627,14 @@ public class CollectOperation extends AbstractStrategy {
 		// Check the collect parameters, so later in the code we can create the monitor with the metadata
 		final Map<String, String> parameters = hardwareMonitor.getCollect().getParameters();
 		if (parameters == null || parameters.isEmpty()) {
-			log.warn("Hostname {} - Collect - No parameter found with {} during the collect for the Connector {}.",
+			log.warn("Hostname {} - Collect - No parameter found with {} during the collect for the connector {}.",
 					hostname, monitorType.getNameInConnector(), connectorName);
 			return false;
 		}
 
 		// Check the valueTable key
 		if (hardwareMonitor.getCollect().getValueTable() == null) {
-			log.error("Hostname {} - Collect - No valueTable found with Monitor {} for Connector {}.",
+			log.error("Hostname {} - Collect - No valueTable found with monitor {} for connector {}.",
 					hostname, monitorType.getNameInConnector(), connectorName);
 			return false;
 		}
@@ -691,7 +691,7 @@ public class CollectOperation extends AbstractStrategy {
 
 		if (totalPowerConsumption == null) {
 			// Let's try next collect
-			log.debug("Hostname {} - The powerConsumption is going to be collected during the next collect.", hostname);
+			log.debug("Hostname {} - The power consumption is going to be collected during the next collect.", hostname);
 			return;
 		}
 
@@ -703,7 +703,7 @@ public class CollectOperation extends AbstractStrategy {
 				hostname
 		);
 
-		log.debug("Hostname {} - The powerConsumption has been collected. Value: {} Watts.", hostname, totalPowerConsumption);
+		log.debug("Hostname {} - The power consumption has been collected. Value: {} Watts.", hostname, totalPowerConsumption);
 
 	}
 
@@ -810,7 +810,7 @@ public class CollectOperation extends AbstractStrategy {
 		// No temperatures then no computation
 		if (temperatureMonitors == null || temperatureMonitors.isEmpty()) {
 			log.debug(
-					"Hostname {} - Could not compute Temperature parameters (ambientTemperature, cpuTemperature, cpuThermalDissipationRate).",
+					"Hostname {} - Could not compute temperature parameters (ambientTemperature, cpuTemperature, cpuThermalDissipationRate).",
 					strategyConfig.getEngineConfiguration().getTarget().getHostname());
 			return;
 		}
@@ -1075,7 +1075,7 @@ public class CollectOperation extends AbstractStrategy {
 			.orElse(null);
 
 		if (totalPowerConsumption == null) {
-			log.debug("Hostname {} - No powerConsumption estimated for the monitored devices.", hostname);
+			log.debug("Hostname {} - No power consumption estimated for the monitored devices.", hostname);
 			return;
 		}
 
@@ -1090,10 +1090,10 @@ public class CollectOperation extends AbstractStrategy {
 					strategyTime,
 					powerConsumption,
 					hostname);
-			log.debug("Hostname {} - powerConsumption: Estimated at {} Watts.", hostname, powerConsumption);
+			log.debug("Hostname {} - Power Consumption: Estimated at {} Watts.", hostname, powerConsumption);
 
 		} else {
-			log.warn("Hostname {} - powerConsumption could not be estimated. Negative value: {}.", hostname, powerConsumption);
+			log.warn("Hostname {} - Power Consumption could not be estimated. Negative value: {}.", hostname, powerConsumption);
 		}
 
 	}
@@ -1110,7 +1110,7 @@ public class CollectOperation extends AbstractStrategy {
 		final Map<String, Monitor> cpus = hostMonitoring.selectFromType(MonitorType.CPU);
 
 		if (cpus == null) {
-			log.debug("Hostname {} - No CPU discovered. Skipping CPUs' powerConsumption estimation.", hostname);
+			log.debug("Hostname {} - No CPU discovered. Skipping CPUs' Power Consumption estimation.", hostname);
 			return;
 		}
 
@@ -1306,7 +1306,7 @@ public class CollectOperation extends AbstractStrategy {
 		final Map<String, Monitor> diskControllers = hostMonitoring.selectFromType(MonitorType.DISK_CONTROLLER);
 
 		if (diskControllers == null) {
-			log.debug("Hostname {} - No Disk Controllers discovered. Skipping Disk Controllers' powerConsumption estimation.", hostname);
+			log.debug("Hostname {} - No Disk Controllers discovered. Skipping Disk Controllers' Power Consumption estimation.", hostname);
 			return;
 		}
 
@@ -1334,7 +1334,7 @@ public class CollectOperation extends AbstractStrategy {
 		final Map<String, Monitor> memories = hostMonitoring.selectFromType(MonitorType.MEMORY);
 
 		if (memories == null) {
-			log.debug("Hostname {} - No Memories discovered. Skipping Memories' powerConsumption estimation.", hostname);
+			log.debug("Hostname {} - No Memories discovered. Skipping Memories' Power Consumption estimation.", hostname);
 			return;
 		}
 
@@ -1361,7 +1361,7 @@ public class CollectOperation extends AbstractStrategy {
 		final Map<String, Monitor> physicalDisks = hostMonitoring.selectFromType(MonitorType.PHYSICAL_DISK);
 
 		if (physicalDisks == null) {
-			log.debug("Hostname {} - No Physical Disks discovered. Skipping Physical Disks' powerConsumption estimation.",
+			log.debug("Hostname {} - No Physical Disks discovered. Skipping Physical Disks' Power Consumption estimation.",
 					hostname);
 			return;
 		}

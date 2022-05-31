@@ -967,7 +967,7 @@ class CollectOperationTest {
 		final IParameter statusInformationParam = TextParam
 				.builder()
 				.name(STATUS_INFORMATION_PARAMETER)
-				.value(success ? "Connector tested successfully." : "Connector test failed.")
+				.value(success ? "Connector test succeeded." : "Connector test failed.")
 				.collectTime(strategyTime)
 				.build();
 

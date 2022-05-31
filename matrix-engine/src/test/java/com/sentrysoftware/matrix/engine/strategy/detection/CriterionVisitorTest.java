@@ -336,7 +336,7 @@ class CriterionVisitorTest {
 			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 			doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 			assertEquals(CriterionTestResult.builder().result("").success(false)
-					.message("Hostname " + HOST_LINUX + " - No OS command configuration for this host. Returning an empty result").build(),
+					.message("Hostname " + HOST_LINUX + " - No OS command configuration for this host. Returning empty result").build(),
 					criterionVisitor.visit(new Ipmi()));
 		}
 		final SshProtocol ssh = SshProtocol.builder().username("root").password("nationale".toCharArray()).build();

@@ -38,7 +38,7 @@ public class FileWatcherTask extends Thread {
 				Thread.currentThread().interrupt();
 			}
 
-			log.error("This watcher could not be started: {}. Error: {}.", file.getAbsolutePath(),
+			log.error("The watcher on file could not be started: {}. Error: {}.", file.getAbsolutePath(),
 					e.getMessage());
 			log.debug("Error: ", e);
 		}
