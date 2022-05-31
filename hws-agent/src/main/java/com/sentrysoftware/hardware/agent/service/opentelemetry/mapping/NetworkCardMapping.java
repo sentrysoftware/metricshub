@@ -5,13 +5,13 @@ import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.Ma
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.DEGRADED_ATTRIBUTE_VALUE;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.DEGRADED_STATUS_PREDICATE;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.DIRECTION_ATTRIBUTE_KEY;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.DUPLEX_MODE_PREDICATE;
+import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.FULL_DUPLEX_MODE_PREDICATE;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.ERRORS_UNIT;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.FAILED_ATTRIBUTE_VALUE;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.FAILED_STATUS_PREDICATE;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.JOULES_UNIT;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.LINK_SPEED_FACTOR;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.LINK_STATUS_PREDICATE;
+import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.MEGABITS_TO_BYTES_FACTOR;
+import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.PLUGGED_LINK_STATUS_PREDICATE;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.OK_ATTRIBUTE_VALUE;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.OK_STATUS_PREDICATE;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.PACKETS_UNIT;
@@ -52,7 +52,8 @@ public class NetworkCardMapping {
 	private static final String NETWORK_CARD_NAME = "network card";
 	private static final String NETWORK_CARD_STATUS_METRIC_NAME = "hw.network.status";
 	/**
-	 * Build physical disk metrics map
+	 * 
+	 * Build network card metrics map
 	 *
 	 * @return  {@link Map} where the metrics are indexed by the matrix parameter name
 	 */
@@ -143,7 +144,7 @@ public class NetworkCardMapping {
 					.builder()
 					.name("hw.network.full_duplex")
 					.description("Whether the port is configured to operate in half-duplex or full-duplex mode.")
-					.predicate(DUPLEX_MODE_PREDICATE)
+					.predicate(FULL_DUPLEX_MODE_PREDICATE)
 					.build()
 			)
 		);
@@ -174,7 +175,7 @@ public class NetworkCardMapping {
 				MetricInfo
 					.builder()
 					.name("hw.network.bandwidth_limit")
-					.factor(LINK_SPEED_FACTOR)
+					.factor(MEGABITS_TO_BYTES_FACTOR)
 					.description("Speed that the network adapter and its remote counterpart currently use to communicate with each other.")
 					.unit(BYTES_UNIT)
 					.build()
@@ -188,7 +189,7 @@ public class NetworkCardMapping {
 					.builder()
 					.name("hw.network.up")
 					.description("Whether the network interface is plugged into the network or not.")
-					.predicate(LINK_STATUS_PREDICATE)
+					.predicate(PLUGGED_LINK_STATUS_PREDICATE)
 					.build()
 			)
 		);
@@ -333,7 +334,7 @@ public class NetworkCardMapping {
 	}
 
 	/**
-	 * Create PhysicalDisk Metadata to metrics map
+	 * Create NetworkCard Metadata to metrics map
 	 * 
 	 * @return {@link Map} of {@link MetricInfo} instances indexed by the matrix parameter names
 	 */
