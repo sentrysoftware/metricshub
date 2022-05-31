@@ -51,16 +51,16 @@ class MappingConstantsTest {
 	@Test
 	void testNeedsCleaningPredicates() {
 		assertTrue(NO_NEEDS_CLEANING_PREDICATE.test(NeedsCleaning.OK));
-		assertFalse(NEEDED_CLEANING_PREDICATE.test(NeedsCleaning.OK));
-		assertFalse(IMMEDIATELY_NEEDED_CLEANING_PREDICATE.test(NeedsCleaning.OK));
+		assertFalse(CLEANING_NEEDED_PREDICATE.test(NeedsCleaning.OK));
+		assertFalse(IMMEDIATEL_CLEANING_NEEDED_PREDICATE.test(NeedsCleaning.OK));
 
 		assertFalse(NO_NEEDS_CLEANING_PREDICATE.test(NeedsCleaning.NEEDED));
-		assertTrue(NEEDED_CLEANING_PREDICATE.test(NeedsCleaning.NEEDED));
-		assertFalse(IMMEDIATELY_NEEDED_CLEANING_PREDICATE.test(NeedsCleaning.NEEDED));
+		assertTrue(CLEANING_NEEDED_PREDICATE.test(NeedsCleaning.NEEDED));
+		assertFalse(IMMEDIATEL_CLEANING_NEEDED_PREDICATE.test(NeedsCleaning.NEEDED));
 
 		assertFalse(NO_NEEDS_CLEANING_PREDICATE.test(NeedsCleaning.NEEDED_IMMEDIATELY));
-		assertFalse(NEEDED_CLEANING_PREDICATE.test(NeedsCleaning.NEEDED_IMMEDIATELY));
-		assertTrue(IMMEDIATELY_NEEDED_CLEANING_PREDICATE.test(NeedsCleaning.NEEDED_IMMEDIATELY));
+		assertFalse(CLEANING_NEEDED_PREDICATE.test(NeedsCleaning.NEEDED_IMMEDIATELY));
+		assertTrue(IMMEDIATEL_CLEANING_NEEDED_PREDICATE.test(NeedsCleaning.NEEDED_IMMEDIATELY));
 	}
 
 	@Test

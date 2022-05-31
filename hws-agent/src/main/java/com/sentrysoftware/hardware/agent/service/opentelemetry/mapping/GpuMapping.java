@@ -82,7 +82,7 @@ public class GpuMapping {
 		);
 
 		map.put(
-			Gpu.PREDICTED_FAILURE.getName(),
+			IMetaMonitor.PREDICTED_FAILURE.getName(),
 			Collections.singletonList(
 				MetricInfo
 					.builder()
@@ -96,7 +96,7 @@ public class GpuMapping {
 							.value(PREDICTED_FAILURE_ATTRIBUTE_VALUE)
 							.build()	
 					)
-					.predicate(PREDICTED_FAILURE_STATUS_PREDICATE)
+					.predicate(PREDICTED_FAILURE_PREDICATE)
 					.build()
 			)	
 		);
@@ -320,7 +320,7 @@ public class GpuMapping {
 					.builder()
 					.name("hw.gpu.memory.limit")
 					.unit(BYTES_UNIT)
-					.factor(MHZ_TO_BYTE_FACTOR) // MB to Bytes  
+					.factor(MB_TO_B_FACTOR) // MB to Bytes  
 					.description("GPU memory size.")
 					.build()
 			)
