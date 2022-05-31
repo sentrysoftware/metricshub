@@ -17,7 +17,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo;
@@ -28,7 +27,6 @@ import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 class MetricsMappingTest {
 
 	@Test
-	@Disabled
 	void testGetAttributesMap() {
 		MonitorType.MONITOR_TYPES.forEach(monitorType -> assertNotNull(MetricsMapping.getAttributesMap(monitorType)));
 		// Null attributes that are already defined as metrics.
@@ -67,11 +65,16 @@ class MetricsMappingTest {
 							metricId = metricInfo.getName();
 						}
 
+						// TODO: resolve conflict with 2 statuses for controller in HW Sentry KM
+						if (metricInfo.getAdditionalId() != null) {
+							metricId = String.format("%s.%s", metricId, metricInfo.getAdditionalId());
+						}
+
 						// Check if the metric is not defined multiple times
 						assertFalse(
 							metricIds.contains(metricId),
 							String.format(
-								"This metric (%s) is badly mapped for monitor type %s. Metric id: %s."
+								"This metric (%s) is incorrectly mapped for monitor type %s. Metric id: %s."
 										+ "\nIf no identifying attributes are defined for this metric, the metric name must be unique."
 										+ "\nIf this metric is mapped with identifying attributes, the identifying attributes must be unique.",
 								metricInfo.getName(),

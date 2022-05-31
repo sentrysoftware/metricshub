@@ -42,6 +42,7 @@ public class MappingConstants {
 	public static final String TYPE_ATTRIBUTE_KEY = "type";
 	public static final String TASK_ATTRIBUTE_KEY = "task";
 	public static final String DIRECTION_ATTRIBUTE_KEY = "direction";
+	public static final String BATTERY_STATE_ATTRIBUTE_KEY = "battery_state";
 
 	// Attribute values
 	public static final String OK_ATTRIBUTE_VALUE = "ok";
@@ -106,13 +107,13 @@ public class MappingConstants {
 	public static final double RATIO_FACTOR = 0.01;
 	public static final double MB_TO_B_FACTOR = 1000000.0;
 	public static final double MILLIVOLTS_TO_VOLTS_FACTOR = 0.001;
-	public static final double BYTES_TO_GB_FACTOR = 1073741824.0;
+	public static final double GB_TO_B_FACTOR = 1073741824.0;
 
 	/**
-	 * Creates the description of the status mappings.
+	 * Creates the description of the status metrics.
 	 *
-	 * @param monitorType The type of the monitor as string.
-	 * @param status      The status of the monitor as string.
+	 * @param monitorType The type of the monitor, as string.
+	 * @param status      The status of the monitor, as string.
 	 *
 	 * @return {@link String} value
 	 */
@@ -121,9 +122,9 @@ public class MappingConstants {
 	}
 
 	/**
-	 * Creates the description of the present mappings.
+	 * Creates the description of the present metrics.
 	 *
-	 * @param monitorType The type of the monitor as string.
+	 * @param monitorType The type of the monitor, as string.
 	 *
 	 * @return {@link String} value
 	 */
@@ -132,9 +133,9 @@ public class MappingConstants {
 	}
 
 	/**
-	 * Creates the description of the energy mappings.
+	 * Creates the description of the energy metrics.
 	 *
-	 * @param monitorType The type of the monitor as string.
+	 * @param monitorType The type of the monitor, as string.
 	 *
 	 * @return {@link String} value
 	 */
@@ -143,13 +144,25 @@ public class MappingConstants {
 	}
 
 	/**
-	 * Creates the description of the power consumption mappings.
+	 * Creates the description of the power consumption metrics.
 	 *
-	 * @param monitorType The type of the monitor as string.
+	 * @param monitorType The type of the monitor, as string.
 	 *
 	 * @return {@link String} value
 	 */
 	public static String createPowerConsumptionDescription(@NonNull String monitorType) {
 		return String.format("Energy consumed by the %s.", monitorType);
+	}
+	
+	/**
+	 * Creates the power state description.
+	 *
+	 * @param monitorType The monitor type, as string.
+	 * @param powerState  The power state, as string.
+	 *
+	 * @return {@link String} value
+	 */
+	public static String createPowerStateDescription(@NonNull String monitorType, @NonNull String powerState) {
+		return String.format("Whether the %s is currently %s or not.", monitorType, powerState);
 	}
 }

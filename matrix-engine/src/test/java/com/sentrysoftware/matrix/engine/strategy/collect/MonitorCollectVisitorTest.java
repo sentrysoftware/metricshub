@@ -1796,7 +1796,7 @@ class MonitorCollectVisitorTest {
 		MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
 		// No unallocated space value
-		monitorCollectVisitor.collectLogicalDiskUnallocatedSpace();
+		monitorCollectVisitor.collectLogicalDiskSpace();
 		NumberParam unallocatedSpaceParameter = monitor.getParameter(UNALLOCATED_SPACE_PARAMETER, NumberParam.class);
 		assertNull(unallocatedSpaceParameter);
 
@@ -1807,7 +1807,7 @@ class MonitorCollectVisitorTest {
 				monitor,
 				Collections.singletonList(UNALLOCATED_SPACE))
 		);
-		monitorCollectVisitor.collectLogicalDiskUnallocatedSpace();
+		monitorCollectVisitor.collectLogicalDiskSpace();
 		unallocatedSpaceParameter = monitor.getParameter(UNALLOCATED_SPACE_PARAMETER, NumberParam.class);
 		assertNotNull(unallocatedSpaceParameter);
 		assertEquals(10737418240.0, unallocatedSpaceParameter.getRawValue());
@@ -1816,40 +1816,109 @@ class MonitorCollectVisitorTest {
 	}
 
 	@Test
-	void testCalculateLogicalDiskSpace() {
-		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.LOGICAL_DISK).build();
-		MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+	void testCollectLogicalDiskSpace() {
+		{
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor monitor = Monitor
+					.builder()
+					.id(MONITOR_ID)
+					.monitorType(MonitorType.LOGICAL_DISK)
+					.build();
 
-		// Unallocated space value collected
-		monitorCollectVisitor = new MonitorCollectVisitor(
-				buildCollectMonitorInfo(hostMonitoring,
-						Map.of(UNALLOCATED_SPACE_PARAMETER, VALUETABLE_COLUMN_1),
-						monitor,
-						Collections.singletonList(UNALLOCATED_SPACE)));
+			// SIZE collected
+			monitor.addMetadata(SIZE, UNALLOCATED_SPACE);
 
-		// SIZE collected
-		monitor.addMetadata(SIZE, UNALLOCATED_SPACE);
+			MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
-		monitorCollectVisitor.collectLogicalDiskUnallocatedSpace();
-		monitorCollectVisitor.calculateLogicalDiskSpace();
+			// Unallocated space value collected
+			monitorCollectVisitor = new MonitorCollectVisitor(
+				buildCollectMonitorInfo(
+					hostMonitoring,
+					Map.of(UNALLOCATED_SPACE_PARAMETER, VALUETABLE_COLUMN_1),
+					monitor,
+					Collections.singletonList(UNALLOCATED_SPACE)
+				)
+			);
 
-		NumberParam allocatedSpaceParameter = monitor.getParameter(ALLOCATED_SPACE_PARAMETER, NumberParam.class);
-		assertNotNull(allocatedSpaceParameter);
-		assertEquals(0, allocatedSpaceParameter.getRawValue());
-		assertEquals(0, allocatedSpaceParameter.getValue());
+			monitorCollectVisitor.collectLogicalDiskSpace();
 
-		NumberParam allocatedSpacePercentParameter = monitor.getParameter(ALLOCATED_SPACE_PERCENT_PARAMETER,
-				NumberParam.class);
-		assertNotNull(allocatedSpacePercentParameter);
-		assertEquals(0, allocatedSpacePercentParameter.getRawValue());
-		assertEquals(0, allocatedSpacePercentParameter.getValue());
+			NumberParam allocatedSpaceParameter = monitor.getParameter(ALLOCATED_SPACE_PARAMETER, NumberParam.class);
+			assertNotNull(allocatedSpaceParameter);
+			assertEquals(0, allocatedSpaceParameter.getRawValue());
+			assertEquals(0, allocatedSpaceParameter.getValue());
 
-		NumberParam unallocatedSpacePercentParameter = monitor.getParameter(UNALLOCATED_SPACE_PERCENT_PARAMETER,
-				NumberParam.class);
-		assertNotNull(unallocatedSpacePercentParameter);
-		assertEquals(1.0, unallocatedSpacePercentParameter.getRawValue());
-		assertEquals(1.0, unallocatedSpacePercentParameter.getValue());
+			NumberParam allocatedSpacePercentParameter = monitor.getParameter(ALLOCATED_SPACE_PERCENT_PARAMETER, NumberParam.class);
+			assertNotNull(allocatedSpacePercentParameter);
+			assertEquals(0, allocatedSpacePercentParameter.getRawValue());
+			assertEquals(0, allocatedSpacePercentParameter.getValue());
+
+			NumberParam unallocatedSpacePercentParameter = monitor.getParameter(UNALLOCATED_SPACE_PERCENT_PARAMETER, NumberParam.class);
+			assertNotNull(unallocatedSpacePercentParameter);
+			assertEquals(100.0, unallocatedSpacePercentParameter.getRawValue());
+			assertEquals(100.0, unallocatedSpacePercentParameter.getValue());
+		}
+
+		{
+			// Size less than unallocated space
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor monitor = Monitor
+					.builder()
+					.id(MONITOR_ID)
+					.monitorType(MonitorType.LOGICAL_DISK)
+					.build();
+
+			// SIZE collected
+			monitor.addMetadata(SIZE, String.valueOf(Double.parseDouble(UNALLOCATED_SPACE) - 1));
+
+			MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+			// Unallocated space value collected
+			monitorCollectVisitor = new MonitorCollectVisitor(
+				buildCollectMonitorInfo(
+					hostMonitoring,
+					Map.of(UNALLOCATED_SPACE_PARAMETER, VALUETABLE_COLUMN_1),
+					monitor,
+					Collections.singletonList(UNALLOCATED_SPACE)
+				)
+			);
+
+			monitorCollectVisitor.collectLogicalDiskSpace();
+
+			assertNull(monitor.getParameter(ALLOCATED_SPACE_PARAMETER, NumberParam.class));
+			assertNull(monitor.getParameter(ALLOCATED_SPACE_PERCENT_PARAMETER, NumberParam.class));
+			assertNull(monitor.getParameter(UNALLOCATED_SPACE_PERCENT_PARAMETER, NumberParam.class));
+		}
+
+		{
+			// Size less than unallocated space
+			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			final Monitor monitor = Monitor
+					.builder()
+					.id(MONITOR_ID)
+					.monitorType(MonitorType.LOGICAL_DISK)
+					.build();
+
+			// SIZE collected
+			monitor.addMetadata(SIZE, "0");
+
+			MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+			// Unallocated space value collected
+			monitorCollectVisitor = new MonitorCollectVisitor(
+				buildCollectMonitorInfo(
+					hostMonitoring,
+					Map.of(UNALLOCATED_SPACE_PARAMETER, VALUETABLE_COLUMN_1),
+					monitor,
+					Collections.singletonList("0")
+				)
+			);
+
+			monitorCollectVisitor.collectLogicalDiskSpace();
+
+			assertEquals(0.0, monitor.getParameter(ALLOCATED_SPACE_PARAMETER, NumberParam.class).getValue());
+			assertNull(monitor.getParameter(ALLOCATED_SPACE_PERCENT_PARAMETER, NumberParam.class));
+			assertNull(monitor.getParameter(UNALLOCATED_SPACE_PERCENT_PARAMETER, NumberParam.class));
+		}
 	}
 
 

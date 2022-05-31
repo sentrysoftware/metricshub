@@ -160,6 +160,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	private static final String MAPPING_CANNOT_BE_NULL = "mapping cannot be null.";
 	private static final String MONITOR_CANNOT_BE_NULL = "monitor cannot be null.";
 	private static final String COLLECT_TIME_CANNOT_BE_NULL = "collectTime cannot be null.";
+	private static final double BYTES_TO_GB_CONV_FACTOR = 1024.0 * 1024.0 * 1024.0;
 
 	private static final Map<String, String> GPU_USED_TIME_PARAMETERS = Map.of(
 		DECODER_USED_TIME_PARAMETER, DECODER_USED_TIME_PERCENT_PARAMETER,
@@ -568,7 +569,6 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		collectErrorCount(ERROR_COUNT_PARAMETER, STARTING_ERROR_COUNT_PARAMETER);
 
-		collectLogicalDiskUnallocatedSpace();
 		collectLogicalDiskSpace();
 
 		collectStatusInformation();
@@ -1258,66 +1258,100 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	}
 
 	/**
-	 * Collects the unallocated space in GB for {@link LogicalDisk}.
+	 * Collects space parameters for {@link LogicalDisk}:<br>
+	 * <ul>
+	 * <li>Unallocated space.</li>
+	 * <li>Allocated space.</li>
+	 * <li>Unallocated space percentage.</li>
+	 * <li>Allocated space percentage.</li>
+	 * </ul>
 	 */
-	void collectLogicalDiskUnallocatedSpace() {
+	void collectLogicalDiskSpace() {
 
 		final Monitor monitor = monitorCollectInfo.getMonitor();
 
 		final Double unallocatedSpaceRaw = extractParameterValue(monitor.getMonitorType(),
-			UNALLOCATED_SPACE_PARAMETER);
+				UNALLOCATED_SPACE_PARAMETER);
 
 		if (unallocatedSpaceRaw != null) {
+
+			final double unallocatedSpaceGb = unallocatedSpaceRaw / BYTES_TO_GB_CONV_FACTOR;
 
 			CollectHelper.updateNumberParameter(
 				monitor,
 				UNALLOCATED_SPACE_PARAMETER,
 				SPACE_GB_PARAMETER_UNIT,
 				monitorCollectInfo.getCollectTime(),
-				unallocatedSpaceRaw / (1024.0 * 1024.0 * 1024.0), // Bytes to GB
+				unallocatedSpaceGb, // Bytes to GB
 				unallocatedSpaceRaw
 			);
-		}
-	}
 
-	/**
-	 * Calculates the additional space related parameters for {@link LogicalDisk}.
-	 */
-	void collectLogicalDiskSpace() {
+			final Double sizeRawBytes = NumberHelper.parseDouble(monitor.getMetadata(SIZE), null);
 
-		final Monitor monitor = monitorCollectInfo.getMonitor();
+			if (sizeRawBytes != null) {
 
-		final Double sizeRaw = NumberHelper.parseDouble(monitor.getMetadata(SIZE), null);
+				// Convert the size to GB
+				double sizeGb = sizeRawBytes / BYTES_TO_GB_CONV_FACTOR;
 
-		final Double unallocatedSpaceRaw = CollectHelper.getNumberParamRawValue(monitor, UNALLOCATED_SPACE_PARAMETER,
-				false);
+				// Check if the size is correct to avoid the negative value for the allocated space
+				if (sizeGb < unallocatedSpaceGb) {
+					log.warn(
+						"Hostname {} - The logical disk size ({} GB) is greater than the unallocated space ({} GB). "
+							+ "The following parameters will be ignored:\n{}.\n{}.\n{}.",
+						monitorCollectInfo.getHostname(),
+						sizeGb,
+						unallocatedSpaceGb,
+						ALLOCATED_SPACE_PARAMETER,
+						ALLOCATED_SPACE_PERCENT_PARAMETER,
+						UNALLOCATED_SPACE_PERCENT_PARAMETER
+					);
+					return;
+				}
 
-		if (sizeRaw != null && unallocatedSpaceRaw != null) {
-			final Double allocatedSpaceRaw = sizeRaw - unallocatedSpaceRaw;
+				// Compute the allocated space
+				final double allocatedSpaceGb = sizeGb - unallocatedSpaceGb;
 
-			CollectHelper.updateNumberParameter(
+				// Collect the allocated space parameter
+				CollectHelper.updateNumberParameter(
 					monitor,
 					ALLOCATED_SPACE_PARAMETER,
 					SPACE_GB_PARAMETER_UNIT,
 					monitorCollectInfo.getCollectTime(),
-					allocatedSpaceRaw / (1024.0 * 1024.0 * 1024.0), // Bytes to GB
-					allocatedSpaceRaw);
+					allocatedSpaceGb,
+					allocatedSpaceGb
+				);
 
-			CollectHelper.updateNumberParameter(
+				// sizeGb equals 0? Avoid the division by zero!
+				if (sizeGb == 0.0) {
+					log.warn(
+						"Hostname {} - The logical disk size equals 0. The following parameters will be ignored:\n{}.\n{}.",
+						monitorCollectInfo.getHostname(),
+						ALLOCATED_SPACE_PERCENT_PARAMETER,
+						UNALLOCATED_SPACE_PERCENT_PARAMETER
+					);
+					return;
+				}
+
+				// Collect the allocated space percentage parameter
+				CollectHelper.updateNumberParameter(
 					monitor,
 					ALLOCATED_SPACE_PERCENT_PARAMETER,
 					PERCENT_PARAMETER_UNIT,
 					monitorCollectInfo.getCollectTime(),
-					allocatedSpaceRaw / sizeRaw * 100,
-					allocatedSpaceRaw / sizeRaw * 100);
+					allocatedSpaceGb / sizeGb * 100,
+					allocatedSpaceGb / sizeGb * 100
+				);
 
-			CollectHelper.updateNumberParameter(
+				// Collect the unallocated space percentage parameter
+				CollectHelper.updateNumberParameter(
 					monitor,
 					UNALLOCATED_SPACE_PERCENT_PARAMETER,
 					PERCENT_PARAMETER_UNIT,
 					monitorCollectInfo.getCollectTime(),
-					unallocatedSpaceRaw / sizeRaw * 100,
-					unallocatedSpaceRaw / sizeRaw * 100);
+					unallocatedSpaceGb / sizeGb * 100,
+					unallocatedSpaceGb / sizeGb * 100
+				);
+			}
 		}
 	}
 
