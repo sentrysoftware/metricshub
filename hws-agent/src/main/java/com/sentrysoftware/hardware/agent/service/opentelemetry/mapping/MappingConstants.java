@@ -70,6 +70,7 @@ public class MappingConstants {
 	public static final String AVAILABLE_ATTRIBUTE_VALUE = "available";
 	public static final String EXPECTED_ATTRIBUTE_VALUE = "expected";
 	public static final String BLINKING_ATTRIBUTE_VALUE = "blinking";
+	public static final String ZERO_BUFFER_CREDIT_ATTRIBUTE_VALUE = "zero_buffer_credit";
 
 	// Default attribute keys
 	public static final String NAME = "name";
@@ -94,6 +95,7 @@ public class MappingConstants {
 	public static final String RATIO_UNIT = "1";
 	public static final String USAGE_UNIT = "{uses}";
 	public static final String VOLTS_UNIT = "V";
+	public static final String PACKETS_UNIT = "{packets}";
 
 	// Descriptions
 	public static final String ALARM_THRESHOLD_OF_ERRORS = "Alarm threshold of the encountered errors.";
