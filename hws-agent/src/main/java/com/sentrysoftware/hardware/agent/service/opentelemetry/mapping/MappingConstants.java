@@ -5,6 +5,7 @@ import java.util.function.Predicate;
 
 import com.sentrysoftware.matrix.common.meta.parameter.state.IState;
 import com.sentrysoftware.matrix.common.meta.parameter.state.IntrusionStatus;
+import com.sentrysoftware.matrix.common.meta.parameter.state.LedIndicator;
 import com.sentrysoftware.matrix.common.meta.parameter.state.NeedsCleaning;
 import com.sentrysoftware.matrix.common.meta.parameter.state.PowerState;
 import com.sentrysoftware.matrix.common.meta.parameter.state.PredictedFailure;
@@ -26,11 +27,14 @@ public class MappingConstants {
 	public static final Predicate<IState> INTRUSION_STATUS_PREDICATE = state -> IntrusionStatus.OPEN == state;
 	public static final Predicate<IState> PREDICTED_FAILURE_PREDICATE = state -> PredictedFailure.FAILURE_PREDICTED == state;
 	public static final Predicate<IState> NO_NEEDS_CLEANING_PREDICATE = state -> NeedsCleaning.OK == state;
-	public static final Predicate<IState> NEEDED_CLEANING_PREDICATE = state -> NeedsCleaning.NEEDED == state;
-	public static final Predicate<IState> IMMEDIATELY_NEEDED_CLEANING_PREDICATE = state -> NeedsCleaning.NEEDED_IMMEDIATELY == state;
+	public static final Predicate<IState> CLEANING_NEEDED_PREDICATE = state -> NeedsCleaning.NEEDED == state;
+	public static final Predicate<IState> IMMEDIATEL_CLEANING_NEEDED_PREDICATE = state -> NeedsCleaning.NEEDED_IMMEDIATELY == state;
 	public static final Predicate<IState> ON_POWER_STATE_PREDICATE = powerState -> PowerState.ON == powerState;
 	public static final Predicate<IState> OFF_POWER_STATE_PREDICATE = powerState -> PowerState.OFF == powerState;
 	public static final Predicate<IState> SUSPENDED_POWER_STATE_PREDICATE = powerState -> PowerState.SUSPENDED == powerState;
+	public static final Predicate<IState> ON_LED_INDICATOR_PREDICATE = ledState -> LedIndicator.ON == ledState;
+	public static final Predicate<IState> OFF_LED_INDICATOR_PREDICATE = ledState -> LedIndicator.OFF == ledState;
+	public static final Predicate<IState> BLINKING_LED_INDICATOR_PREDICATE = ledState -> LedIndicator.BLINKING == ledState;
 
 	// Attribute keys
 	public static final String STATE_ATTRIBUTE_KEY = "state";
@@ -56,6 +60,7 @@ public class MappingConstants {
 	public static final String SUSPENDED_ATTRIBUTE_VALUE = "suspended";
 	public static final String AVAILABLE_ATTRIBUTE_VALUE = "available";
 	public static final String EXPECTED_ATTRIBUTE_VALUE = "expected";
+	public static final String BLINKING_ATTRIBUTE_VALUE = "blinking";
 
 	// Default attribute keys
 	public static final String NAME = "name";
@@ -77,6 +82,8 @@ public class MappingConstants {
 	public static final String PATHS_UNIT = "{paths}";
 	public static final String HERTZ_UNIT = "Hz";
 	public static final String RATIO_UNIT = "1";
+	public static final String USAGE_UNIT = "{uses}";
+	public static final String VOLTS_UNIT = "V";
 
 	// Descriptions
 	public static final String ALARM_THRESHOLD_OF_ERRORS = "Alarm threshold of the encountered errors.";
@@ -86,6 +93,7 @@ public class MappingConstants {
 	public static final double MHZ_TO_HZ_FACTOR = 1000000.0;
 	public static final double RATIO_FACTOR = 0.01;
 	public static final double MB_TO_B_FACTOR = 1000000.0;
+	public static final double MILLIVOLTS_TO_VOLTS_FACTOR = 0.001;
 
 	/**
 	 * Creates the description of the status mappings.

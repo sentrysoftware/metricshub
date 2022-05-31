@@ -1,9 +1,8 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry.mapping;
 
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.*;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EXPECTED_PATH_COUNT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_WARNING;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UPPER_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOWER_THRESHOLD;
 
 import java.util.Collections;
 import java.util.List;
@@ -13,24 +12,23 @@ import java.util.TreeMap;
 import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo;
 import com.sentrysoftware.hardware.agent.dto.metric.StaticIdentifyingAttribute;
 import com.sentrysoftware.matrix.common.meta.monitor.IMetaMonitor;
-import com.sentrysoftware.matrix.common.meta.monitor.Lun;
+import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class LunMapping {
+public class VoltageMapping {
 
-	private static final String LUN_STATUS_METRIC_NAME = "hw.lun.status";
-	private static final String LUN_PATHS_METRIC_NAME = "hw.lun.paths";
-	private static final String LUN_NAME = "LUN";
+	private static final String VOLTAGE_NAME = "voltage";
+	private static final String VOLTAGE_STATUS_METRIC_NAME = "hw.voltage.status";
 
 	/**
-	 * Build LUN metrics map
+	 * Build voltage metrics map
 	 *
 	 * @return  {@link Map} where the metrics are indexed by the matrix parameter name
 	 */
-	static Map<String, List<MetricInfo>> buildLunMetricsMapping() {
+	static Map<String, List<MetricInfo>> buildVoltageMetricsMapping() {
 		final Map<String, List<MetricInfo>> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(
@@ -38,8 +36,8 @@ public class LunMapping {
 			List.of(
 				MetricInfo
 					.builder()
-					.name(LUN_STATUS_METRIC_NAME)
-					.description(createStatusDescription(LUN_NAME, OK_ATTRIBUTE_VALUE))
+					.name(VOLTAGE_STATUS_METRIC_NAME)
+					.description(MappingConstants.createStatusDescription(VOLTAGE_NAME, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -51,8 +49,8 @@ public class LunMapping {
 					.build(),
 				MetricInfo
 					.builder()
-					.name(LUN_STATUS_METRIC_NAME)
-					.description(createStatusDescription(LUN_NAME, DEGRADED_ATTRIBUTE_VALUE))
+					.name(VOLTAGE_STATUS_METRIC_NAME)
+					.description(MappingConstants.createStatusDescription(VOLTAGE_NAME, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -64,8 +62,8 @@ public class LunMapping {
 					.build(),
 				MetricInfo
 					.builder()
-					.name(LUN_STATUS_METRIC_NAME)
-					.description(createStatusDescription(LUN_NAME, FAILED_ATTRIBUTE_VALUE))
+					.name(VOLTAGE_STATUS_METRIC_NAME)
+					.description(MappingConstants.createStatusDescription(VOLTAGE_NAME, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -83,8 +81,8 @@ public class LunMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name(LUN_STATUS_METRIC_NAME)
-					.description(createPresentDescription(LUN_NAME))
+					.name(VOLTAGE_STATUS_METRIC_NAME)
+					.description(MappingConstants.createPresentDescription(VOLTAGE_NAME))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -98,20 +96,14 @@ public class LunMapping {
 		);
 
 		map.put(
-			Lun.AVAILABLE_PATH_COUNT.getName(),
+			Voltage._VOLTAGE.getName(),
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name(LUN_PATHS_METRIC_NAME)
-					.description("Number of distinct paths available to the remote volume.")
-					.unit(PATHS_UNIT)
-					.identifyingAttribute(
-						StaticIdentifyingAttribute
-							.builder()
-							.key(TYPE_ATTRIBUTE_KEY)
-							.value(AVAILABLE_ATTRIBUTE_VALUE)
-							.build()
-					)
+					.name("hw.voltage.voltage")
+					.factor(MILLIVOLTS_TO_VOLTS_FACTOR)
+					.unit(VOLTS_UNIT)
+					.description("Voltage output.")
 					.build()
 			)
 		);
@@ -120,47 +112,35 @@ public class LunMapping {
 	}
 
 	/**
-	 * Create LUN Metadata to metrics map
+	 * Create voltage Metadata to metrics map
 	 * 
 	 * @return {@link Map} of {@link MetricInfo} instances indexed by the matrix parameter names
 	 */
-	static Map<String, List<MetricInfo>> lunMetadataToMetrics() {
+	static Map<String, List<MetricInfo>> voltageMetadataToMetrics() {
 		final Map<String, List<MetricInfo>> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(
-			EXPECTED_PATH_COUNT,
+			UPPER_THRESHOLD,
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name(LUN_PATHS_METRIC_NAME)
-					.unit(PATHS_UNIT)
-					.identifyingAttribute(
-						StaticIdentifyingAttribute
-							.builder()
-							.key(TYPE_ATTRIBUTE_KEY)
-							.value(EXPECTED_ATTRIBUTE_VALUE)
-							.build()
-					)
-					.description("Number of paths that are expected to be available to the remote volume.")
+					.name("hw.voltage.voltage_upper")
+					.factor(MILLIVOLTS_TO_VOLTS_FACTOR)
+					.unit(VOLTS_UNIT)
+					.description("Upper threshold of the voltage.")
 					.build()
 			)
 		);
 
 		map.put(
-			AVAILABLE_PATH_WARNING,
+			LOWER_THRESHOLD,
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.lun.paths_warning")
-					.unit(PATHS_UNIT)
-					.identifyingAttribute(
-						StaticIdentifyingAttribute
-							.builder()
-							.key(TYPE_ATTRIBUTE_KEY)
-							.value(AVAILABLE_ATTRIBUTE_VALUE)
-							.build()
-					)
-					.description("Number of available paths that will generate a warning when reached.")
+					.name("hw.voltage.voltage_lower")
+					.description("Lower threshold of the voltage.")
+					.factor(MILLIVOLTS_TO_VOLTS_FACTOR)
+					.unit(VOLTS_UNIT)
 					.build()
 			)
 		);

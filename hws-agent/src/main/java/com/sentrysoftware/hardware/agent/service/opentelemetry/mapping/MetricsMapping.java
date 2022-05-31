@@ -57,20 +57,24 @@ public class MetricsMapping {
 		matrixParamToMetric.put(MonitorType.ENCLOSURE, EnclosureMapping.buildEnclosureMetricsMapping());
 		matrixParamToMetric.put(MonitorType.BATTERY, BatteryMapping.buildBatteryMetricsMapping());
 		matrixParamToMetric.put(MonitorType.MEMORY, MemoryMapping.buildMemoryMetricsMapping());
+		matrixParamToMetric.put(MonitorType.OTHER_DEVICE, OtherDeviceMapping.buildOtherDeviceMetricsMapping());
 		matrixParamToMetric.put(MonitorType.PHYSICAL_DISK, PhysicalDiskMapping.buildPhysicalDiskMetricsMapping());
 		matrixParamToMetric.put(MonitorType.POWER_SUPPLY, PowerSupplyMapping.buildPowerSupplyMetricsMapping());
 		matrixParamToMetric.put(MonitorType.ROBOTICS, RoboticsMapping.buildRoboticsMetricsMapping());
 		matrixParamToMetric.put(MonitorType.TAPE_DRIVE, TapeDriveMapping.buildTapeDriveMetricsMapping());
 		matrixParamToMetric.put(MonitorType.CPU, CpuMapping.buildCpuMetricsMapping());
+		matrixParamToMetric.put(MonitorType.VOLTAGE, VoltageMapping.buildVoltageMetricsMapping());
 		matrixParamToMetric.put(MonitorType.VM, VmMapping.buildVmMetricsMapping());
 		matrixParamToMetric.put(MonitorType.TEMPERATURE, TemperatureMapping.buildTemperatureMetricsMapping());
 		matrixParamToMetric.put(MonitorType.CPU_CORE, CpuCoreMapping.buildCpuCoreMetricsMapping());
 		matrixParamToMetric.put(MonitorType.LUN, LunMapping.buildLunMetricsMapping());
+		matrixParamToMetric.put(MonitorType.LED, LedMapping.buildLedMetricsMapping());
 
 		matrixParamToMetricMap = Collections.unmodifiableMap(matrixParamToMetric);
 
 		final Map<MonitorType, Map<String, List<MetricInfo>>> metadataToMetric = new EnumMap<>(MonitorType.class);
 
+		metadataToMetric.put(MonitorType.OTHER_DEVICE, OtherDeviceMapping.otherDeviceMetadataToMetrics());
 		metadataToMetric.put(MonitorType.PHYSICAL_DISK, PhysicalDiskMapping.physicalDiskMetadataToMetrics());
 		metadataToMetric.put(MonitorType.ROBOTICS, RoboticsMapping.roboticsMetadataToMetrics());
 		metadataToMetric.put(MonitorType.TAPE_DRIVE, TapeDriveMapping.tapeDriveMetadataToMetrics());
@@ -78,6 +82,7 @@ public class MetricsMapping {
 		metadataToMetric.put(MonitorType.TEMPERATURE, TemperatureMapping.temperatureMetadataToMetrics());
 		metadataToMetric.put(MonitorType.MEMORY, MemoryMapping.memoryMetadataToMetrics());
 		metadataToMetric.put(MonitorType.LUN, LunMapping.lunMetadataToMetrics());
+		metadataToMetric.put(MonitorType.VOLTAGE, VoltageMapping.voltageMetadataToMetrics());
 
 		matrixMetadataToMetricMap = Collections.unmodifiableMap(metadataToMetric);
 

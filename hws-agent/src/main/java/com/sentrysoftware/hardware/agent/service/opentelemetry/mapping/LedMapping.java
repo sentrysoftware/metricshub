@@ -2,9 +2,6 @@ package com.sentrysoftware.hardware.agent.service.opentelemetry.mapping;
 
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.*;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EXPECTED_PATH_COUNT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_WARNING;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -13,24 +10,23 @@ import java.util.TreeMap;
 import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo;
 import com.sentrysoftware.hardware.agent.dto.metric.StaticIdentifyingAttribute;
 import com.sentrysoftware.matrix.common.meta.monitor.IMetaMonitor;
-import com.sentrysoftware.matrix.common.meta.monitor.Lun;
+import com.sentrysoftware.matrix.common.meta.monitor.Led;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class LunMapping {
+public class LedMapping {
 
-	private static final String LUN_STATUS_METRIC_NAME = "hw.lun.status";
-	private static final String LUN_PATHS_METRIC_NAME = "hw.lun.paths";
-	private static final String LUN_NAME = "LUN";
+	private static final String LED_STATUS_METRIC_NAME = "hw.led.status";
+	private static final String LED_NAME = "led";
 
 	/**
-	 * Build LUN metrics map
+	 * Build LED metrics map
 	 *
 	 * @return  {@link Map} where the metrics are indexed by the matrix parameter name
 	 */
-	static Map<String, List<MetricInfo>> buildLunMetricsMapping() {
+	static Map<String, List<MetricInfo>> buildLedMetricsMapping() {
 		final Map<String, List<MetricInfo>> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(
@@ -38,8 +34,8 @@ public class LunMapping {
 			List.of(
 				MetricInfo
 					.builder()
-					.name(LUN_STATUS_METRIC_NAME)
-					.description(createStatusDescription(LUN_NAME, OK_ATTRIBUTE_VALUE))
+					.name(LED_STATUS_METRIC_NAME)
+					.description(createStatusDescription(LED_NAME, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -51,8 +47,8 @@ public class LunMapping {
 					.build(),
 				MetricInfo
 					.builder()
-					.name(LUN_STATUS_METRIC_NAME)
-					.description(createStatusDescription(LUN_NAME, DEGRADED_ATTRIBUTE_VALUE))
+					.name(LED_STATUS_METRIC_NAME)
+					.description(createStatusDescription(LED_NAME, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -64,8 +60,8 @@ public class LunMapping {
 					.build(),
 				MetricInfo
 					.builder()
-					.name(LUN_STATUS_METRIC_NAME)
-					.description(createStatusDescription(LUN_NAME, FAILED_ATTRIBUTE_VALUE))
+					.name(LED_STATUS_METRIC_NAME)
+					.description(createStatusDescription(LED_NAME, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -79,12 +75,57 @@ public class LunMapping {
 		);
 
 		map.put(
+			Led.LED_INDICATOR.getName(),
+			List.of(
+				MetricInfo
+					.builder()
+					.name(LED_STATUS_METRIC_NAME)
+					.description(createStatusDescription(LED_NAME, ON_ATTRIBUTE_VALUE))
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(STATE_ATTRIBUTE_KEY)
+							.value(ON_ATTRIBUTE_VALUE)
+							.build()
+					)
+					.predicate(ON_LED_INDICATOR_PREDICATE)
+					.build(),
+				MetricInfo
+					.builder()
+					.name(LED_STATUS_METRIC_NAME)
+					.description(createStatusDescription(LED_NAME, BLINKING_ATTRIBUTE_VALUE))
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(STATE_ATTRIBUTE_KEY)
+							.value(BLINKING_ATTRIBUTE_VALUE)
+							.build()
+					)
+					.predicate(BLINKING_LED_INDICATOR_PREDICATE)
+					.build(),
+				MetricInfo
+					.builder()
+					.name(LED_STATUS_METRIC_NAME)
+					.description(createStatusDescription(LED_NAME, OFF_ATTRIBUTE_VALUE))
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(STATE_ATTRIBUTE_KEY)
+							.value(OFF_ATTRIBUTE_VALUE)
+							.build()
+					)
+					.predicate(OFF_LED_INDICATOR_PREDICATE)
+					.build()
+			)
+		);
+
+		map.put(
 			IMetaMonitor.PRESENT.getName(),
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name(LUN_STATUS_METRIC_NAME)
-					.description(createPresentDescription(LUN_NAME))
+					.name(LED_STATUS_METRIC_NAME)
+					.description(createPresentDescription(LED_NAME))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -93,74 +134,6 @@ public class LunMapping {
 							.build()
 					)
 					.predicate(PRESENT_PREDICATE)
-					.build()
-			)
-		);
-
-		map.put(
-			Lun.AVAILABLE_PATH_COUNT.getName(),
-			Collections.singletonList(
-				MetricInfo
-					.builder()
-					.name(LUN_PATHS_METRIC_NAME)
-					.description("Number of distinct paths available to the remote volume.")
-					.unit(PATHS_UNIT)
-					.identifyingAttribute(
-						StaticIdentifyingAttribute
-							.builder()
-							.key(TYPE_ATTRIBUTE_KEY)
-							.value(AVAILABLE_ATTRIBUTE_VALUE)
-							.build()
-					)
-					.build()
-			)
-		);
-
-		return map;
-	}
-
-	/**
-	 * Create LUN Metadata to metrics map
-	 * 
-	 * @return {@link Map} of {@link MetricInfo} instances indexed by the matrix parameter names
-	 */
-	static Map<String, List<MetricInfo>> lunMetadataToMetrics() {
-		final Map<String, List<MetricInfo>> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-
-		map.put(
-			EXPECTED_PATH_COUNT,
-			Collections.singletonList(
-				MetricInfo
-					.builder()
-					.name(LUN_PATHS_METRIC_NAME)
-					.unit(PATHS_UNIT)
-					.identifyingAttribute(
-						StaticIdentifyingAttribute
-							.builder()
-							.key(TYPE_ATTRIBUTE_KEY)
-							.value(EXPECTED_ATTRIBUTE_VALUE)
-							.build()
-					)
-					.description("Number of paths that are expected to be available to the remote volume.")
-					.build()
-			)
-		);
-
-		map.put(
-			AVAILABLE_PATH_WARNING,
-			Collections.singletonList(
-				MetricInfo
-					.builder()
-					.name("hw.lun.paths_warning")
-					.unit(PATHS_UNIT)
-					.identifyingAttribute(
-						StaticIdentifyingAttribute
-							.builder()
-							.key(TYPE_ATTRIBUTE_KEY)
-							.value(AVAILABLE_ATTRIBUTE_VALUE)
-							.build()
-					)
-					.description("Number of available paths that will generate a warning when reached.")
 					.build()
 			)
 		);
