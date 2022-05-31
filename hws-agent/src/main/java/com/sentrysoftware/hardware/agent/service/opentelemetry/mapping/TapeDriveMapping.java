@@ -124,7 +124,7 @@ public class TapeDriveMapping {
 							.value("needs_cleaning")
 							.build()
 					)
-					.predicate(NEEDED_CLEANING_PREDICATE)
+					.predicate(CLEANING_NEEDED_PREDICATE)
 					.build(),
 				MetricInfo
 					.builder()
@@ -137,7 +137,7 @@ public class TapeDriveMapping {
 							.value("needs_cleaning_immediately")
 							.build()
 					)
-					.predicate(IMMEDIATELY_NEEDED_CLEANING_PREDICATE)
+					.predicate(IMMEDIATEL_CLEANING_NEEDED_PREDICATE)
 					.build()
 			)
 		);
