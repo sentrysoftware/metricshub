@@ -21,7 +21,7 @@ public class VmMapping {
 
 	private static final String VM_STATUS_METRIC_NAME = "hw.vm.status";
 	private static final String VM_POWER_STATE_METRIC_NAME = "hw.vm.power_state";
-	private static final String VM_NAME="virtual machine";
+	private static final String VM_NAME = "virtual machine";
 
 	/**
 	 * Build virtual machine metrics map

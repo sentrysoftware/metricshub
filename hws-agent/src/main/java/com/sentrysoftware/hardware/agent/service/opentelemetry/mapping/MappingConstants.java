@@ -11,7 +11,6 @@ import com.sentrysoftware.matrix.common.meta.parameter.state.PowerState;
 import com.sentrysoftware.matrix.common.meta.parameter.state.PredictedFailure;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Present;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
-import com.sentrysoftware.matrix.common.meta.parameter.state.PowerState;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -41,9 +40,19 @@ public class MappingConstants {
 	public static final String STATE_ATTRIBUTE_KEY = "state";
 	public static final String PROTOCOL_ATTRIBUTE_KEY = "protocol";
 	public static final String TYPE_ATTRIBUTE_KEY = "type";
+	public static final String TASK_ATTRIBUTE_KEY = "task";
+	public static final String DIRECTION_ATTRIBUTE_KEY = "direction";
+	public static final String BATTERY_STATE_ATTRIBUTE_KEY = "battery_state";
 
 	// Attribute values
 	public static final String OK_ATTRIBUTE_VALUE = "ok";
+	public static final String CORRECTED_ATTRIBUTE_VALUE = "corrected";
+	public static final String DECODER_ATTRIBUTE_VALUE = "decorder";
+	public static final String ENCODER_ATTRIBUTE_VALUE = "encorder";
+	public static final String GENERAL_ATTRIBUTE_VALUE = "general";
+	public static final String RECEIVE_ATTRIBUTE_VALUE = "receive";
+	public static final String TRANSMIT_ATTRIBUTE_VALUE = "transmit";
+	public static final String ALL_ATTRIBUTE_VALUE = "all";
 	public static final String DEGRADED_ATTRIBUTE_VALUE = "degraded";
 	public static final String FAILED_ATTRIBUTE_VALUE = "failed";
 	public static final String SNMP_ATTRIBUTE_VALUE = "snmp";
@@ -80,6 +89,7 @@ public class MappingConstants {
 	public static final String BYTES_UNIT = "By";
 	public static final String MOVES_UNIT = "{moves}";
 	public static final String OPERATIONS_UNIT = "{operations}";
+	public static final String RPM_UNIT = "{rpm}";
 	public static final String PATHS_UNIT = "{paths}";
 	public static final String HERTZ_UNIT = "Hz";
 	public static final String RATIO_UNIT = "1";
@@ -97,10 +107,10 @@ public class MappingConstants {
 	public static final double MILLIVOLTS_TO_VOLTS_FACTOR = 0.001;
 
 	/**
-	 * Creates the description of the status mappings.
+	 * Creates the description of the status metrics.
 	 *
-	 * @param monitorType The type of the monitor as string.
-	 * @param status      The status of the monitor as string.
+	 * @param monitorType The type of the monitor, as string.
+	 * @param status      The status of the monitor, as string.
 	 *
 	 * @return {@link String} value
 	 */
@@ -109,9 +119,9 @@ public class MappingConstants {
 	}
 
 	/**
-	 * Creates the description of the present mappings.
+	 * Creates the description of the present metrics.
 	 *
-	 * @param monitorType The type of the monitor as string.
+	 * @param monitorType The type of the monitor, as string.
 	 *
 	 * @return {@link String} value
 	 */
@@ -120,9 +130,9 @@ public class MappingConstants {
 	}
 
 	/**
-	 * Creates the description of the energy mappings.
+	 * Creates the description of the energy metrics.
 	 *
-	 * @param monitorType The type of the monitor as string.
+	 * @param monitorType The type of the monitor, as string.
 	 *
 	 * @return {@link String} value
 	 */
@@ -131,9 +141,9 @@ public class MappingConstants {
 	}
 
 	/**
-	 * Creates the description of the power consumption mappings.
+	 * Creates the description of the power consumption metrics.
 	 *
-	 * @param monitorType The type of the monitor as string.
+	 * @param monitorType The type of the monitor, as string.
 	 *
 	 * @return {@link String} value
 	 */
@@ -142,7 +152,7 @@ public class MappingConstants {
 	}
 	
 	/**
-	 * Creates the the power state description
+	 * Creates the power state description.
 	 *
 	 * @param monitorType The monitor type, as string.
 	 * @param powerState  The power state, as string.

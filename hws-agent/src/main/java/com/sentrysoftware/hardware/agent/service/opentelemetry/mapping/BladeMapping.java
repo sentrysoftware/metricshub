@@ -21,7 +21,7 @@ public class BladeMapping {
 
 	private static final String BLADE_STATUS_METRIC_NAME = "hw.blade.status";
 	private static final String BLADE_POWER_STATE_METRIC_NAME = "hw.blade.power_state";
-	private static final String BLADE_NAME="blade";
+	private static final String BLADE_NAME = "blade";
 
 	/**
 	 * Build battery metrics map
@@ -94,7 +94,7 @@ public class BladeMapping {
 					.build()
 			)
 		);
-		
+
 		map.put(
 			Blade.POWER_STATE.getName(),
 			List.of(
