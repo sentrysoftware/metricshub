@@ -67,16 +67,31 @@ class ConfigHelperTest {
 		}
 
 		{
+			HashSet<String> configConnectors = new HashSet<>(Set.of("BadConnector", "WrongConnector"));
+
 			assertThrows(BusinessException.class, () -> 
 			ConfigHelper.validateAndGetConnectors(
 					connectors,
-					Set.of("BadConnector", DELL_OPEN_MANAGE_CONNECTOR),
+					configConnectors,
 					"hostname",
 					false
 					)
 					);
 			assertThrows(Exception.class,
 					() -> ConfigHelper.validateAndGetConnectors(null, Collections.emptySet(), "hostname", false));
+		}
+
+		{
+			HashSet<String> configConnectors = new HashSet<>(Set.of("BadConnector", DELL_OPEN_MANAGE_CONNECTOR));
+
+			assertEquals(Set.of(DELL_OPEN_MANAGE_CONNECTOR),
+					ConfigHelper.validateAndGetConnectors(
+					connectors,
+					configConnectors,
+					"hostname",
+					false
+					)
+					);
 		}
 
 		{

@@ -59,14 +59,14 @@ public class ConfigHelper {
 
 	/**
 	 * Deserialize YAML configuration file.
-	 * 
+	 *
 	 * @param <T>
 	 *
 	 * @param file YAML file
 	 * @param type the value type to return
 	 *
 	 * @return new instance of type T
-	 * 
+	 *
 	 * @throws IOException
 	 *
 	 */
@@ -424,26 +424,37 @@ public class ConfigHelper {
 		}
 
 		final String message;
+		configConnectors.removeAll(unknownConnectors);
+
 		if (isExcluded) {
 			message = String.format(
-					"Configured unknown excluded connector(s): %s. Hostname: %s. This host will be monitored, but the unknown connectors will be ignored. Please verify the configured list of excluded connectors.",
-					String.join(", ", unknownConnectors), hostname);
+					"Configured unknown excluded connector(s): %s. Hostname: %s - This host will be monitored, but the unknown connectors will be ignored.",
+					String.join(", ", unknownConnectors),
+					hostname
+					);
 
 			log.error(message);
-			configConnectors.removeAll(unknownConnectors);
+
+			return configConnectors;
+		} else if(!configConnectors.isEmpty()){
+			message = String.format(
+					"Configured unknown selected connector(s): %s. Hostname: %s - This host will be monitored, but the unknown connectors will be ignored.",
+					String.join(", ", unknownConnectors),
+					hostname
+					);
+
+			log.error(message);
 
 			return configConnectors;
 		} else {
 			message = String.format(
-					"Configured unknown selected connector(s): %s. Hostname: %s. This host will not be monitored. Please verify the configured list of selected connectors.",
-					String.join(", ", unknownConnectors), hostname);
-
-			log.error(message);
+					"Hostname: %s - No valid selected connectors configured. This host will not be monitored.",
+					hostname
+					);
 
 			// Throw the bad configuration exception
 			throw new BusinessException(ErrorCode.BAD_CONNECTOR_CONFIGURATION, message);
 		}
-
 	}
 
 	/**
@@ -511,7 +522,7 @@ public class ConfigHelper {
 
 	/**
 	 * Build the {@link IHostMonitoring} map. Each entry is index by the targetId
-	 * 
+	 *
 	 * @param multiHostsConfigurationDto DTO that wraps the agent configuration for all the targets
 	 * @param acceptedConnectorNames     set of accepted compiled connector names
 	 * @return Map of {@link IHostMonitoring} instances indexed by the target id
@@ -533,10 +544,10 @@ public class ConfigHelper {
 	/**
 	 * Create a new {@link IHostMonitoring} instance for the given
 	 * {@link HostConfigurationDto} and update the host monitoring map
-	 * 
+	 *
 	 * @param hostMonitoringMap      Map of {@link IHostMonitoring} instances indexed by the targetId
 	 * @param acceptedConnectorNames set of accepted compiled connector names
-	 * @param hostConfigurationDto   the host configuration we wish to process in order to build 
+	 * @param hostConfigurationDto   the host configuration we wish to process in order to build
 	 * 								 the {@link IHostMonitoring} instance
 	 */
 	public static void fillHostMonitoringMap(final Map<String, IHostMonitoring> hostMonitoringMap,
@@ -608,7 +619,7 @@ public class ConfigHelper {
 
 	/**
 	 * Get the directory path of the given file
-	 * 
+	 *
 	 * @param file
 	 * @return {@link Path} instance
 	 */
@@ -639,7 +650,7 @@ public class ConfigHelper {
 	/**
 	 * Get the sub path under the home directory. E.g.
 	 * <em>/usr/local/bin/hws-otel-collector/lib/../config</em>
-	 * 
+	 *
 	 * @param subPath sub path to the directory or the file
 	 * @return {@link Path} instance
 	 */
@@ -660,7 +671,7 @@ public class ConfigHelper {
 
 	/**
 	 * Get the directory of the current executable jar.
-	 * 
+	 *
 	 * @return {@link File} instance
 	 */
 	public static File getExecutableDir() {
@@ -679,7 +690,7 @@ public class ConfigHelper {
 
 	/**
 	 * Decrypt the given crypted password.
-	 * 
+	 *
 	 * @param crypted
 	 * @return char array
 	 */
