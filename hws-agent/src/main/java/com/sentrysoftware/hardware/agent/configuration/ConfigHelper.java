@@ -399,26 +399,33 @@ public class ConfigHelper {
 		}
 
 		final String message;
+		configConnectors.removeAll(unknownConnectors);
+
 		if (isExcluded) {
 			message = String.format(
-					"Configured unknown excluded connector(s): %s. Hostname: %s. This target will be monitored, but the unknown connectors will be ignored.",
+					"Configured unknown excluded connector(s): %s. Hostname: %s - This host will be monitored, but the unknown connectors will be ignored.",
 					String.join(", ", unknownConnectors),
 					hostname
 					);
 
 			log.error(message);
-			configConnectors.removeAll(unknownConnectors);
+
+			return configConnectors;
+		} else if(!configConnectors.isEmpty()){
+			message = String.format(
+					"Configured unknown selected connector(s): %s. Hostname: %s - This host will be monitored, but the unknown connectors will be ignored.",
+					String.join(", ", unknownConnectors),
+					hostname
+					);
+
+			log.error(message);
 
 			return configConnectors;
 		} else {
 			message = String.format(
-					"Configured unknown selected connector(s): %s. Hostname: %s. This target will not be monitored.",
-					String.join(", ", unknownConnectors),
+					"Hostname: %s - No valid selected connectors configured. This host will not be monitored.",
 					hostname
 					);
-
-			log.error(message);
-
 			// Throw the bad configuration exception
 			throw new BusinessException(ErrorCode.BAD_CONNECTOR_CONFIGURATION, message);
 		}
