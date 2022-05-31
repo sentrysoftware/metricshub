@@ -42,6 +42,7 @@ public class MappingConstants {
 	public static final String TYPE_ATTRIBUTE_KEY = "type";
 	public static final String TASK_ATTRIBUTE_KEY = "task";
 	public static final String DIRECTION_ATTRIBUTE_KEY = "direction";
+	public static final String BATTERY_STATE_ATTRIBUTE_KEY = "battery_state";
 
 	// Attribute values
 	public static final String OK_ATTRIBUTE_VALUE = "ok";
