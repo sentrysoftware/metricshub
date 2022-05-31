@@ -116,12 +116,12 @@ public class FanMapping {
 			Fan.POWER_CONSUMPTION.getName(), 
 			Collections.singletonList(
 				MetricInfo
-				.builder()
-				.name("hw.fan.power")
-				.unit(WATTS_UNIT)
-				.type(MetricType.GAUGE)
-				.description(createPowerConsumptionDescription(FAN_NAME))
-				.build()
+					.builder()
+					.name("hw.fan.power")
+					.unit(WATTS_UNIT)
+					.type(MetricType.GAUGE)
+					.description(createPowerConsumptionDescription(FAN_NAME))
+					.build()
 			)
 		);
 
@@ -142,13 +142,13 @@ public class FanMapping {
 			Fan.SPEED_PERCENT.getName(),
 			Collections.singletonList(
 				MetricInfo
-				.builder()
-				.name("hw.fan.speed_ratio")
-				.unit(RATIO_UNIT)
-				.factor(RATIO_FACTOR)
-				.type(MetricType.GAUGE)
-				.description("Fan speed ratio.")
-				.build()
+					.builder()
+					.name("hw.fan.speed_ratio")
+					.unit(RATIO_UNIT)
+					.factor(RATIO_FACTOR)
+					.type(MetricType.GAUGE)
+					.description("Fan speed ratio.")
+					.build()
 			)
 		);
 
