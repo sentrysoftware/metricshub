@@ -21,7 +21,7 @@ public class VmMapping {
 
 	private static final String VM_STATUS_METRIC_NAME = "hw.vm.status";
 	private static final String VM_POWER_STATE_METRIC_NAME = "hw.vm.power_state";
-	private static final String VM_NAME="virtual machine";
+	private static final String VM_NAME = "virtual machine";
 
 	/**
 	 * Build virtual machine metrics map
@@ -101,7 +101,7 @@ public class VmMapping {
 				MetricInfo
 					.builder()
 					.name(VM_POWER_STATE_METRIC_NAME)
-					.description("Whether the state of the virtual machine is currently on or not.")
+					.description(createPowerStateDescription(VM_NAME, ON_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -114,7 +114,7 @@ public class VmMapping {
 				MetricInfo
 					.builder()
 					.name(VM_POWER_STATE_METRIC_NAME)
-					.description("Whether the state of the virtual machine is currently off or not.")
+					.description(createPowerStateDescription(VM_NAME, OFF_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -127,7 +127,7 @@ public class VmMapping {
 				MetricInfo
 					.builder()
 					.name(VM_POWER_STATE_METRIC_NAME)
-					.description("Whether the state of the virtual machine is currently suspended or not.")
+					.description(createPowerStateDescription(VM_NAME, SUSPENDED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -146,7 +146,7 @@ public class VmMapping {
 				MetricInfo
 					.builder()
 					.name("hw.vm.power_ratio")
-					.description("Ratio of host power consumed by the virtual machine.")
+					.description(String.format("Ratio of host power consumed by the %s.", VM_NAME))
 					.unit(RATIO_UNIT)
 					.factor(RATIO_FACTOR)
 					.build()

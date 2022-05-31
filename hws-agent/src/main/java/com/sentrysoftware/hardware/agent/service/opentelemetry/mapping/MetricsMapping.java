@@ -68,9 +68,12 @@ public class MetricsMapping {
 		matrixParamToMetric.put(MonitorType.VM, VmMapping.buildVmMetricsMapping());
 		matrixParamToMetric.put(MonitorType.TEMPERATURE, TemperatureMapping.buildTemperatureMetricsMapping());
 		matrixParamToMetric.put(MonitorType.CPU_CORE, CpuCoreMapping.buildCpuCoreMetricsMapping());
+		matrixParamToMetric.put(MonitorType.DISK_CONTROLLER, DiskControllerMapping.buildDiskControllerMetricsMapping());
 		matrixParamToMetric.put(MonitorType.FAN, FanMapping.buildFanMetricsMapping());
 		matrixParamToMetric.put(MonitorType.LUN, LunMapping.buildLunMetricsMapping());
 		matrixParamToMetric.put(MonitorType.LED, LedMapping.buildLedMetricsMapping());
+		matrixParamToMetric.put(MonitorType.BLADE, BladeMapping.buildBladeMetricsMapping());
+		matrixParamToMetric.put(MonitorType.DISK_CONTROLLER, DiskControllerMapping.buildDiskControllerMetricsMapping());
 		matrixParamToMetric.put(MonitorType.NETWORK_CARD, NetworkCardMapping.buildNetworkCardMetricsMapping());
 
 		matrixParamToMetricMap = Collections.unmodifiableMap(matrixParamToMetric);

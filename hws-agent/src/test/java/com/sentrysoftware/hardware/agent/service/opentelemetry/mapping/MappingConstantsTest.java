@@ -6,6 +6,7 @@ import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.Ma
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.common.meta.parameter.state.IntrusionStatus;
+import com.sentrysoftware.matrix.common.meta.parameter.state.LedIndicator;
 import com.sentrysoftware.matrix.common.meta.parameter.state.NeedsCleaning;
 import com.sentrysoftware.matrix.common.meta.parameter.state.PowerState;
 import com.sentrysoftware.matrix.common.meta.parameter.state.PredictedFailure;
@@ -89,7 +90,7 @@ class MappingConstantsTest {
 	}
 
 	@Test
-	void testPowerStatePredicate() {
+	void testPowerStatePredicates() {
 		assertTrue(ON_POWER_STATE_PREDICATE.test(PowerState.ON));
 		assertFalse(ON_POWER_STATE_PREDICATE.test(PowerState.OFF));
 		assertFalse(ON_POWER_STATE_PREDICATE.test(PowerState.SUSPENDED));
@@ -101,5 +102,28 @@ class MappingConstantsTest {
 		assertFalse(SUSPENDED_POWER_STATE_PREDICATE.test(PowerState.ON));
 		assertFalse(SUSPENDED_POWER_STATE_PREDICATE.test(PowerState.OFF));
 		assertTrue(SUSPENDED_POWER_STATE_PREDICATE.test(PowerState.SUSPENDED));
+	}
+
+	@Test
+	void testLedIndicatorPredicates() {
+		
+		assertTrue(ON_LED_INDICATOR_PREDICATE.test(LedIndicator.ON));
+		assertFalse(ON_LED_INDICATOR_PREDICATE.test(LedIndicator.BLINKING));
+		assertFalse(ON_LED_INDICATOR_PREDICATE.test(LedIndicator.OFF));
+
+		assertFalse(BLINKING_LED_INDICATOR_PREDICATE.test(LedIndicator.ON));
+		assertTrue(BLINKING_LED_INDICATOR_PREDICATE.test(LedIndicator.BLINKING));
+		assertFalse(BLINKING_LED_INDICATOR_PREDICATE.test(LedIndicator.OFF));
+
+		assertFalse(OFF_LED_INDICATOR_PREDICATE.test(LedIndicator.ON));
+		assertFalse(OFF_LED_INDICATOR_PREDICATE.test(LedIndicator.BLINKING));
+		assertTrue(OFF_LED_INDICATOR_PREDICATE.test(LedIndicator.OFF));
+	}
+
+	@Test
+	void testCreatePowerStateDescription() {
+		assertThrows(IllegalArgumentException.class, () -> createPowerStateDescription(null, "ok"));
+		assertThrows(IllegalArgumentException.class, () -> createPowerStateDescription("physical disk", null));
+		assertNotNull(createPowerStateDescription("physical disk", "ok"));
 	}
 }

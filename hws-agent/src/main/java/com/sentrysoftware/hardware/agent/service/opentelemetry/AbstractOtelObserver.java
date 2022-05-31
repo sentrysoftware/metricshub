@@ -12,6 +12,8 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
+import com.sentrysoftware.hardware.agent.dto.metric.DynamicIdentifyingAttribute;
+import com.sentrysoftware.hardware.agent.dto.metric.IIdentifyingAttribute;
 import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo;
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
@@ -86,14 +88,35 @@ public abstract class AbstractOtelObserver {
 	 */
 	protected Meter getMeter(final MetricInfo metricInfo) {
 
-		final Optional<String[]> maybeIdentifyingAttributes = OtelHelper.extractIdentifyingAttribute(metricInfo, monitor);
+		return sdkMeterProvider.get(determineMeterId(metricInfo, monitor));
+	}
+
+	/**
+	 * Determine the unique id to use when creating or getting a {@link Meter}
+	 * 
+	 * @param metricInfo Metric information used to get the {@link IIdentifyingAttribute}, the metric name and the additional id.
+	 * @param monitor    Monitor defining the monitor id and used to get the {@link DynamicIdentifyingAttribute} instance.
+	 * @return String value
+	 */
+	static String determineMeterId(final MetricInfo metricInfo, final Monitor monitor) {
+		String meterId;
+		final Optional<String[]> maybeIdentifyingAttributes = OtelHelper.extractIdentifyingAttribute(metricInfo,
+				monitor);
 
 		if (maybeIdentifyingAttributes.isPresent()) {
 			final String[] identifyingAttributes = maybeIdentifyingAttributes.get();
-			return sdkMeterProvider.get(String.format("%s.%s.%s.%s", monitor.getId(), metricInfo.getName(), identifyingAttributes[0], identifyingAttributes[1]));
+			meterId = String.format("%s.%s.%s.%s", monitor.getId(), metricInfo.getName(), identifyingAttributes[0],
+					identifyingAttributes[1]);
+		} else {
+			meterId = String.format("%s.%s", monitor.getId(), metricInfo.getName());
 		}
 
-		return sdkMeterProvider.get(String.format("%s.%s", monitor.getId(), metricInfo.getName()));
+		final String additionalId = metricInfo.getAdditionalId();
+		if (additionalId != null) {
+			return String.format("%s.%s", meterId, additionalId);
+		}
+
+		return meterId;
 	}
 
 	/**

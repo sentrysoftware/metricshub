@@ -37,6 +37,8 @@ public class MetricInfo {
 
 	private Predicate<IState> predicate;
 
+	private String additionalId;
+
 	public enum MetricType {
 		GAUGE, COUNTER
 	}

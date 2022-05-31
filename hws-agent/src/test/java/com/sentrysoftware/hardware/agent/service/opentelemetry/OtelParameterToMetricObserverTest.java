@@ -34,6 +34,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
 import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo;
+import com.sentrysoftware.hardware.agent.dto.metric.StaticIdentifyingAttribute;
 import com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants;
 import com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MetricsMapping;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
@@ -526,5 +527,52 @@ class OtelParameterToMetricObserverTest {
 		assertTrue(OtelParameterToMetricObserver.canParseDoubleValue("8"));
 		assertTrue(OtelParameterToMetricObserver.canParseDoubleValue("8 "));
 		assertTrue(OtelParameterToMetricObserver.canParseDoubleValue("8.0"));
+	}
+
+	@Test
+	void testDetermineMeterId() {
+		{
+			final MetricInfo metricInfo = MetricInfo
+				.builder()
+				.name("hw.monitor.metric")
+				.identifyingAttribute(
+					StaticIdentifyingAttribute
+						.builder()
+						.key("type")
+						.value("value")
+						.build()
+				)
+				.build();
+			final Monitor monitor = Monitor
+				.builder()
+				.id("monitor1")
+				.build();
+			assertEquals("monitor1.hw.monitor.metric.type.value", OtelParameterToMetricObserver.determineMeterId(metricInfo, monitor));
+		}
+
+		{
+			final MetricInfo metricInfo = MetricInfo
+				.builder()
+				.name("hw.monitor.metric")
+				.build();
+			final Monitor monitor = Monitor
+				.builder()
+				.id("monitor1")
+				.build();
+			assertEquals("monitor1.hw.monitor.metric", OtelParameterToMetricObserver.determineMeterId(metricInfo, monitor));
+		}
+
+		{
+			final MetricInfo metricInfo = MetricInfo
+				.builder()
+				.name("hw.monitor.metric")
+				.additionalId("1")
+				.build();
+			final Monitor monitor = Monitor
+				.builder()
+				.id("monitor1")
+				.build();
+			assertEquals("monitor1.hw.monitor.metric.1", OtelParameterToMetricObserver.determineMeterId(metricInfo, monitor));
+		}
 	}
 }
