@@ -74,6 +74,7 @@ public class MappingConstants {
 	public static final String OPERATIONS_UNIT = "{operations}";
 	public static final String HERTZ_UNIT = "Hz";
 	public static final String RATIO_UNIT = "1";
+	public static final String VOLTS_UNIT = "V";
 
 	// Descriptions
 	public static final String ALARM_THRESHOLD_OF_ERRORS = "Alarm threshold of the encountered errors.";
@@ -83,6 +84,7 @@ public class MappingConstants {
 	public static final double MHZ_TO_HZ_FACTOR = 1000000.0;
 	public static final double RATIO_FACTOR = 0.01;
 	public static final double MB_TO_B_FACTOR = 1000000.0;
+	public static final double MILLIVOLTS_TO_VOLTS_FACTOR = 0.001;
 
 	/**
 	 * Creates the description of the status mappings.
