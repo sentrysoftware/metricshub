@@ -14,13 +14,15 @@ Once you have configured the [dashboard provider](#Configuring_the_Dashboard_Pro
 
 ## Prerequisites
 
-Before you can start configuring and using **${project.name}** dashboards, you must have:
+Before you can start configuring and using **Hardware Sentry Observability and Sustainability** dashboards, you must have:
 
 1. configured [Hardware Sentry Agent](../configuration/configure-agent.html).
 2. configured the [Prometheus server](../integration/prometheus.html)
 3. run both **${project.name}** and the **Prometheus server**.
 
-## Loading Dashboards in Grafana
+## Configuring the Dashboards
+
+### Loading Dashboards in Grafana
 
 First, download the latest version of **hardware-dashboards-for-grafana.zip** or **hardware-dashboards-for-grafana.tar.gz** from [Sentry Software’s Web site](https://www.sentrysoftware.com/downloads/products-for-opentelemetry.html). The package contains:
 
@@ -29,7 +31,7 @@ First, download the latest version of **hardware-dashboards-for-grafana.zip** or
 * the dashboards (.json files)
 * the provisioning files (.yml files)
 
-### On Windows
+#### On Windows
 
 1. Uncompress **hardware-dashboards-for-grafana.zip** in a temporary folder.
 2. Copy the `provisioning` folder to the `grafana\conf` folder on the Grafana server (default: "C:\Program Files\GrafanaLabs\grafana\conf").
@@ -37,13 +39,13 @@ First, download the latest version of **hardware-dashboards-for-grafana.zip** or
 
     ![Copying Dashboards on Windows](../images/import-dashboards-windows.png)
 
-### On Linux and UNIX
+#### On Linux and UNIX
 
 1. Uncompress **hardware-dashboards-for-grafana.tar.gz** in a temporary folder.
 2. Copy the `provisioning` folder to the `grafana` folder on the Grafana server (default: "/etc/grafana").
 3. Copy the `sustainable_IT` folder in the directory of your choice folder on the Grafana server (ex: "/var/lib/grafana/dashboards").
 
-## Configuring the Dashboard Provider
+### Configuring the Dashboard Provider
 
 1. Go to `%GRAFANA_HOME%\grafana\conf\provisioning\dashboards`.
 2. Open the `hardware-sentry.yml` file.
@@ -73,7 +75,7 @@ providers:
 
 <div class="alert alert-warning"> The path should point to the folder containing the <i>sustainable_IT</i> folder. This folder should only contain dashboards for Grafana.</div>
 
-## Configuring the Data Source
+### Configuring the Data Source
 
 The dashboards for Grafana query the Prometheus server to display the status of the hardware components. A Prometheus data source needs to be configured on the Grafana server.
 
