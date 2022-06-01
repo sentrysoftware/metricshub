@@ -34,6 +34,90 @@ Windows and Linux are equally supported to run **${project.name}**. However, the
 Please check the [Hardware Connector Library](https://www.sentrysoftware.com/docs/hardware-connectors/latest/index.html) documentation for more details on the required protocols, depending on the targeted platform, and whether you need WMI.
 
 > Note: The product does not support 32-bit systems.
+> Note: The same WMI protocol limitation applies to MacOS and Docker
+
+
+## On Docker
+
+### Download
+
+From [Sentry Software's Web site](https://www.sentrysoftware.com/downloads/), download:
+
+- **${project.artifactId}-${project.version}-docker.tar.gz**
+
+### Install
+
+#### Unzip
+
+Unzip and untar the content of **${project.artifactId}-${project.version}-docker.tar.gz** into a docker directory, like **/docker**. There is no need to create a specific subdirectory for `hws-otel-collector` as the zip archive already contains an **hws-otel-collector** directory.
+
+```shell-session
+/ $ cd /docker
+/docker $ sudo tar xf /tmp/${project.artifactId}-${project.version}-docker.tar.gz
+```
+
+#### Build
+
+Build the docker image using the following command. 
+
+```shell-session
+/ $ cd /docker/hws-otel-collector
+/docker/hws-otel-collector $ sudo docker build -t hws-otel-collector:latest .
+```
+
+### Configure
+
+There are 2 configuration files:
+
+- [**./config/otel-config.yaml**](configuration/configure-otel.md): to specify where the _OpenTelemetry Collector_ should send the collected data
+- [**./config/hws-config.yaml**](configuration/configure-agent.md): to specify the hosts to monitor and their credentials
+
+Before starting the _OpenTelemetry Collector_, make sure to configure [**./config/otel-config.yaml**](configuration/configure-otel.md), since a restart of the _Collector_ is required to take into account its changes.
+
+### Start
+
+You can start the **${project.name}** with the below command:
+
+```shell-session
+/$ cd /docker/hws-otel-collector
+/docker/hws-otel-collector$ sudo docker run --name=hws-otel -p 8888:8888 -p 4317:4317 -p 13133:13133 hws-otel-collector:latest
+```
+
+This will start the **${project.name}** with the default _OpenTelemetry Collector_ configuration file: **./config/otel-config.yaml**.
+
+You can start the **${project.name}** with an alternate configuration file path with the command bellow:
+
+```shell-session
+/$ cd /docker/hws-otel-collector
+/docker/hws-otel-collector$ sudo docker run --name=hws-otel -p 8888:8888 -p 4317:4317 -p 13133:13133 -v /docker/hws-otel-collector/config:/opt/hws-otel-collector/config hws-otel-collector:latest
+```
+
+See [Ports and Firewalls](#Ports_and_Firewalls) for port details.
+
+#### Docker Compose Example
+
+You can start the **${project.name}** with docker-compose 
+
+```shell-session
+/docker/hws-otel-collector$ sudo docker-compose up -d --build
+```
+
+Example docker-compose.yaml
+```
+version: "2.1"
+services:
+  hws-otel-collector:
+    build: .                                        # for image we will use ``image: sentrysoftware/hws-otel-collector:latest``
+    container_name: hws-otel-collector
+    ports:
+      - 8888:8888                                   # _OpenTelemetry Collector_ Exporter
+      - 4317:4317                                   # _OpenTelemetry Collector_ gRPC Receiver
+      - 13133:13133                                 # _OpenTelemetry Collector_ HealthCheck
+    volumes:
+      - ./logs:/opt/hws-otel-collector/logs         # redirects logs to ./logs folder
+      - ./config:/opt/hws-otel-collector/config     # redirects config folder to ./config
+    restart: unless-stopped
+```
 
 ## On Linux
 
