@@ -5,7 +5,7 @@
     "name" : "1.1 (System Board CMOS Battery)",
     "monitorType" : "BATTERY",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "System Board CMOS Battery",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -131,7 +131,7 @@
     "name" : "Dell OpenManage Server Administrator",
     "monitorType" : "CONNECTOR",
     "parentId" : "localhost",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : null,
     "discoveryTime" : null,
     "parameters" : {
@@ -195,7 +195,7 @@
     "name" : "1.1 (Intel - Xeon CPU E5-2620 v4 @ 2.10GHz - 4.00 GHz)",
     "monitorType" : "CPU",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "CPU",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -345,7 +345,7 @@
     "name" : "Computer: Dell PowerEdge R630",
     "monitorType" : "ENCLOSURE",
     "parentId" : "localhost",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Computer",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -479,7 +479,7 @@
     "name" : "1.1 (System Board1A)",
     "monitorType" : "FAN",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Fan",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -654,7 +654,7 @@
     "name" : "1.10 (System Board3B)",
     "monitorType" : "FAN",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Fan",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -829,7 +829,7 @@
     "name" : "1.11 (System Board4B)",
     "monitorType" : "FAN",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Fan",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -1004,7 +1004,7 @@
     "name" : "1.12 (System Board5B)",
     "monitorType" : "FAN",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Fan",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -1179,7 +1179,7 @@
     "name" : "1.13 (System Board6B)",
     "monitorType" : "FAN",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Fan",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -1354,7 +1354,7 @@
     "name" : "1.14 (System Board7B)",
     "monitorType" : "FAN",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Fan",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -1529,7 +1529,7 @@
     "name" : "1.2 (System Board2A)",
     "monitorType" : "FAN",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Fan",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -1704,7 +1704,7 @@
     "name" : "1.3 (System Board3A)",
     "monitorType" : "FAN",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Fan",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -1879,7 +1879,7 @@
     "name" : "1.4 (System Board4A)",
     "monitorType" : "FAN",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Fan",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -2054,7 +2054,7 @@
     "name" : "1.5 (System Board5A)",
     "monitorType" : "FAN",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Fan",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -2229,7 +2229,7 @@
     "name" : "1.6 (System Board6A)",
     "monitorType" : "FAN",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Fan",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -2404,7 +2404,7 @@
     "name" : "1.7 (System Board7A)",
     "monitorType" : "FAN",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Fan",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -2579,7 +2579,7 @@
     "name" : "1.8 (System Board1B)",
     "monitorType" : "FAN",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Fan",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -2754,7 +2754,7 @@
     "name" : "1.9 (System Board2B)",
     "monitorType" : "FAN",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Fan",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -2929,7 +2929,7 @@
     "name" : "1.1 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384 MB)",
     "monitorType" : "MEMORY",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "DDR4",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -3115,7 +3115,7 @@
     "name" : "1.10 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384 MB)",
     "monitorType" : "MEMORY",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "DDR4",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -3301,7 +3301,7 @@
     "name" : "1.11 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384 MB)",
     "monitorType" : "MEMORY",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "DDR4",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -3487,7 +3487,7 @@
     "name" : "1.12 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384 MB)",
     "monitorType" : "MEMORY",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "DDR4",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -3673,7 +3673,7 @@
     "name" : "1.2 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384 MB)",
     "monitorType" : "MEMORY",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "DDR4",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -3859,7 +3859,7 @@
     "name" : "1.3 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384 MB)",
     "monitorType" : "MEMORY",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "DDR4",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -4045,7 +4045,7 @@
     "name" : "1.4 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384 MB)",
     "monitorType" : "MEMORY",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "DDR4",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -4231,7 +4231,7 @@
     "name" : "1.5 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384 MB)",
     "monitorType" : "MEMORY",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "DDR4",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -4417,7 +4417,7 @@
     "name" : "1.6 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384 MB)",
     "monitorType" : "MEMORY",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "DDR4",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -4603,7 +4603,7 @@
     "name" : "1.7 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384 MB)",
     "monitorType" : "MEMORY",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "DDR4",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -4789,7 +4789,7 @@
     "name" : "1.8 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384 MB)",
     "monitorType" : "MEMORY",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "DDR4",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -4975,7 +4975,7 @@
     "name" : "1.9 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384 MB)",
     "monitorType" : "MEMORY",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "DDR4",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -5161,7 +5161,7 @@
     "name" : "ESM: 1",
     "monitorType" : "OTHER_DEVICE",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "OtherDevice",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -5266,7 +5266,7 @@
     "name" : "vFlash: SDCardDevice-1.1",
     "monitorType" : "OTHER_DEVICE",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "OtherDevice",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -5372,7 +5372,7 @@
     "name" : "1.1 (AC - 750.0 W)",
     "monitorType" : "POWER_SUPPLY",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "PowerSupply",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -5499,7 +5499,7 @@
     "name" : "1.2 (AC - 750.0 W)",
     "monitorType" : "POWER_SUPPLY",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "PowerSupply",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -5624,9 +5624,9 @@
   }, {
     "id" : "localhost",
     "name" : "localhost",
-    "monitorType" : "TARGET",
+    "monitorType" : "HOST",
     "parentId" : null,
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : null,
     "discoveryTime" : null,
     "parameters" : {
@@ -5706,7 +5706,7 @@
     "name" : "1.1 (System Board Inlet)",
     "monitorType" : "TEMPERATURE",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Temperature",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -5833,7 +5833,7 @@
     "name" : "1.2 (System Board Exhaust)",
     "monitorType" : "TEMPERATURE",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Temperature",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -5960,7 +5960,7 @@
     "name" : "1.3 (CPU1)",
     "monitorType" : "TEMPERATURE",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Temperature",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -6088,7 +6088,7 @@
     "name" : "1.1 (CPU1 VCORE PG)",
     "monitorType" : "VOLTAGE",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Voltage",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -6182,7 +6182,7 @@
     "name" : "1.10 (System Board DIMM PG)",
     "monitorType" : "VOLTAGE",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Voltage",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -6276,7 +6276,7 @@
     "name" : "1.11 (System Board VCCIO PG)",
     "monitorType" : "VOLTAGE",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Voltage",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -6370,7 +6370,7 @@
     "name" : "1.12 (CPU1 M01 VDDQ PG)",
     "monitorType" : "VOLTAGE",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Voltage",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -6464,7 +6464,7 @@
     "name" : "1.13 (System Board NDC PG)",
     "monitorType" : "VOLTAGE",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Voltage",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -6558,7 +6558,7 @@
     "name" : "1.14 (CPU1 M01 VPP PG)",
     "monitorType" : "VOLTAGE",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Voltage",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -6652,7 +6652,7 @@
     "name" : "1.15 (System Board 1.5V PG)",
     "monitorType" : "VOLTAGE",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Voltage",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -6746,7 +6746,7 @@
     "name" : "1.16 (System Board 1.5V AUX PG)",
     "monitorType" : "VOLTAGE",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Voltage",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -6840,7 +6840,7 @@
     "name" : "1.17 (CPU1 FIVR PG)",
     "monitorType" : "VOLTAGE",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Voltage",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -6934,7 +6934,7 @@
     "name" : "1.18 (System Board PS2 PG Fail)",
     "monitorType" : "VOLTAGE",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Voltage",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -7028,7 +7028,7 @@
     "name" : "1.19 (System Board PS1 PG Fail)",
     "monitorType" : "VOLTAGE",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Voltage",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -7122,7 +7122,7 @@
     "name" : "1.2 (System Board 3.3V PG)",
     "monitorType" : "VOLTAGE",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Voltage",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -7216,7 +7216,7 @@
     "name" : "1.20 (System Board BP1 5V PG)",
     "monitorType" : "VOLTAGE",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Voltage",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -7310,7 +7310,7 @@
     "name" : "1.21 (System Board BP2 5V PG)",
     "monitorType" : "VOLTAGE",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Voltage",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -7404,7 +7404,7 @@
     "name" : "1.22 (CPU1 M01 VTT PG)",
     "monitorType" : "VOLTAGE",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Voltage",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -7498,7 +7498,7 @@
     "name" : "1.23 (PS1 Voltage 1)",
     "monitorType" : "VOLTAGE",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Voltage",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -7602,7 +7602,7 @@
     "name" : "1.24 (PS2 Voltage 2)",
     "monitorType" : "VOLTAGE",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Voltage",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -7706,7 +7706,7 @@
     "name" : "1.3 (System Board 5V AUX PG)",
     "monitorType" : "VOLTAGE",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Voltage",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -7800,7 +7800,7 @@
     "name" : "1.4 (CPU1 M23 VPP PG)",
     "monitorType" : "VOLTAGE",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Voltage",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -7894,7 +7894,7 @@
     "name" : "1.5 (System Board 2.5V AUX PG)",
     "monitorType" : "VOLTAGE",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Voltage",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -7988,7 +7988,7 @@
     "name" : "1.6 (System Board 1.05V PG)",
     "monitorType" : "VOLTAGE",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Voltage",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -8082,7 +8082,7 @@
     "name" : "1.7 (CPU1 M23 VDDQ PG)",
     "monitorType" : "VOLTAGE",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Voltage",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -8176,7 +8176,7 @@
     "name" : "1.8 (CPU1 M23 VTT PG)",
     "monitorType" : "VOLTAGE",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Voltage",
     "discoveryTime" : 1634216906333,
     "parameters" : {
@@ -8270,7 +8270,7 @@
     "name" : "1.9 (System Board 5V SWITCH PG)",
     "monitorType" : "VOLTAGE",
     "parentId" : "DellOpenManage_enclosure_localhost_1",
-    "targetId" : "localhost",
+    "hostId" : "localhost",
     "extendedType" : "Voltage",
     "discoveryTime" : 1634216906333,
     "parameters" : {

@@ -29,8 +29,9 @@ import com.sentrysoftware.matrix.connector.model.common.sshinteractive.step.Wait
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
-import com.sentrysoftware.matrix.engine.target.HardwareTarget;
 import com.sentrysoftware.matsya.ssh.SSHClient;
+
+import com.sentrysoftware.matrix.engine.host.HardwareHost;
 
 class SshInteractiveHelperTest {
 
@@ -88,7 +89,7 @@ class SshInteractiveHelperTest {
 				.protocolConfigurations(Map.of(
 						SshProtocol.class,
 						SshProtocol.builder().username("user").password("pwd".toCharArray()).build()))
-				.target(HardwareTarget.builder().hostname("host").build())
+				.host(HardwareHost.builder().hostname("host").build())
 				.build();
 
 		final WaitForPrompt waitForPrompt = new WaitForPrompt();

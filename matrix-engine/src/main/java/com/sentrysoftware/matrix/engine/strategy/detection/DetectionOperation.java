@@ -8,7 +8,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCALHO
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.OPERATING_SYSTEM_TYPE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.REMOTE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HOST_FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.APPLIES_TO_OS;
 
@@ -40,12 +40,14 @@ import com.sentrysoftware.matrix.connector.parser.ConnectorParser;
 import com.sentrysoftware.matrix.engine.strategy.AbstractStrategy;
 import com.sentrysoftware.matrix.engine.strategy.discovery.MonitorBuildingInfo;
 import com.sentrysoftware.matrix.engine.strategy.discovery.MonitorDiscoveryVisitor;
-import com.sentrysoftware.matrix.engine.target.HardwareTarget;
-import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import com.sentrysoftware.matrix.model.parameter.IParameter;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
+
+import com.sentrysoftware.matrix.engine.host.HardwareHost;
+import com.sentrysoftware.matrix.engine.host.HostType;
+
 import com.sentrysoftware.matrix.connector.model.common.OsType;
 
 import lombok.extern.slf4j.Slf4j;
@@ -61,12 +63,12 @@ public class DetectionOperation extends AbstractStrategy {
 		final Set<String> selectedConnectors = strategyConfig.getEngineConfiguration().getSelectedConnectors();
 
 		// Localhost check
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		final boolean isLocalhost = NetworkHelper.isLocalhost(hostname);
 
-		// Create the target
-		log.debug("Hostname {} - Create the Target", hostname);
-		final Monitor target = createTarget(isLocalhost);
+		// Create the host
+		log.debug("Hostname {} - Create the Host", hostname);
+		final Monitor host = createHost(isLocalhost);
 
 		// No selectedConnectors then perform auto detection
 		final List<TestedConnector> testedConnectorList;
@@ -77,7 +79,7 @@ public class DetectionOperation extends AbstractStrategy {
 		}
 
 		// Create the connector instances
-		createConnectors(target, testedConnectorList);
+		createConnectors(host, testedConnectorList);
 
 		return true;
 	}
@@ -91,7 +93,7 @@ public class DetectionOperation extends AbstractStrategy {
 	 */
 	List<TestedConnector> processSelectedConnectors(final Set<String> selectedConnectorKeys) {
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		log.debug("Hostname {} - Process selected connectors: {}",
 				hostname, selectedConnectorKeys);
 
@@ -111,7 +113,7 @@ public class DetectionOperation extends AbstractStrategy {
 	 */
 	List<TestedConnector> performAutoDetection(final boolean isLocalhost) {
 
-		String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		log.debug("Hostname {} - Start Detection", hostname);
 
 		// Get the excluded connectors
@@ -122,15 +124,15 @@ public class DetectionOperation extends AbstractStrategy {
 				.getConnectors()
 				.values());
 
-		final TargetType targetType = strategyConfig.getEngineConfiguration().getTarget().getType();
+		final HostType hostType = strategyConfig.getEngineConfiguration().getHost().getType();
 
 		// Skip connectors with a "hdf.NoAutoDetection" set to "true"
 		connectorStream = filterNoAutoDetectionConnectors(connectorStream);
 
-		// Filter Connectors by the TargetType (target type: NT, LINUX, ESX, ...etc)
-		connectorStream = filterConnectorsByTargetType(connectorStream, targetType);
+		// Filter Connectors by the HostType (host type: NT, LINUX, ESX, ...etc)
+		connectorStream = filterConnectorsByHostType(connectorStream, hostType);
 
-		// Now based on the target location (Local or Remote) filter connectors by
+		// Now based on the host location (Local or Remote) filter connectors by
 		// localSupport or remoteSupport
 		connectorStream = filterConnectorsByLocalAndRemoteSupport(connectorStream, isLocalhost);
 
@@ -204,7 +206,7 @@ public class DetectionOperation extends AbstractStrategy {
 					log.warn(
 							"Hostname {} - {} connector detection. On last resort filter: connector {} has no hardware monitors",
 							hostname,
-							strategyConfig.getEngineConfiguration().getTarget().getHostname(),
+							strategyConfig.getEngineConfiguration().getHost().getHostname(),
 							connectorNameHolder[0]
 							);
 					
@@ -267,42 +269,42 @@ public class DetectionOperation extends AbstractStrategy {
 
 	/**
 	 * Create connector instances
-	 * @param target
+	 * @param host
 	 * @param testedConnectorList
 	 */
-	void createConnectors(final Monitor target, final List<TestedConnector> testedConnectorList) {
+	void createConnectors(final Monitor host, final List<TestedConnector> testedConnectorList) {
 
 		// Loop over the testedConnectors and create them in the HostMonitoring instance
 		for (TestedConnector testedConnector : testedConnectorList) {
-			createConnector(target, testedConnector);
+			createConnector(host, testedConnector);
 		}
 	}
 
 	/**
-	 * Create the given tested connector attached to the passed {@link Monitor} target
-	 * @param target
+	 * Create the given tested connector attached to the passed {@link Monitor} host
+	 * @param host
 	 * @param testedConnector
 	 */
-	void createConnector(final Monitor target, final TestedConnector testedConnector) {
+	void createConnector(final Monitor host, final TestedConnector testedConnector) {
 
 		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
 
 		final Connector connector = testedConnector.getConnector();
 
-		final Monitor monitor = Monitor.builder().id(target.getId() + "@" + connector.getCompiledFilename())
+		final Monitor monitor = Monitor.builder().id(host.getId() + "@" + connector.getCompiledFilename())
 				.name(connector.getDisplayName())
-				.targetId(target.getId())
-				.parentId(target.getId())
+				.hostId(host.getId())
+				.parentId(host.getId())
 				.monitorType(MonitorType.CONNECTOR).build();
 
-		final TextParam testReport = buildTestReportParameter(target.getName(), testedConnector);
+		final TextParam testReport = buildTestReportParameter(host.getName(), testedConnector);
 		final IParameter[] statusAndStatusInformation = buildConnectorStatusAndStatusInformation(testedConnector);
 
 		monitor.collectParameter(testReport);
 		monitor.collectParameter(statusAndStatusInformation[0]); // Status
 		monitor.collectParameter(statusAndStatusInformation[1]); // Status Information
 
-		monitor.addMetadata(TARGET_FQDN, target.getFqdn());
+		monitor.addMetadata(HOST_FQDN, host.getFqdn());
 		monitor.addMetadata(DISPLAY_NAME, connector.getDisplayName());
 		monitor.addMetadata(COMPILED_FILE_NAME, connector.getCompiledFilename());
 		monitor.addMetadata(DESCRIPTION, connector.getComments());
@@ -313,64 +315,64 @@ public class DetectionOperation extends AbstractStrategy {
 				.accept(new MonitorDiscoveryVisitor(MonitorBuildingInfo.builder()
 						.connectorName(connector.getCompiledFilename())
 						.hostMonitoring(hostMonitoring)
-						.hostname(target.getName())
+						.hostname(host.getName())
 						.monitor(monitor)
 						.monitorType(MonitorType.CONNECTOR)
-						.targetMonitor(target)
-						.targetType(strategyConfig.getEngineConfiguration().getTarget().getType())
+						.hostMonitor(host)
+						.hostType(strategyConfig.getEngineConfiguration().getHost().getType())
 						.build()));
 	}
 
 	/**
-	 * Creates the Target.
+	 * Creates the Host.
 	 *
-	 * @param isLocalhost				Whether the target should be localhost or not.
+	 * @param isLocalhost				Whether the host should be localhost or not.
 	 *
-	 * @throws UnknownHostException		If the target's hostname could not be resolved.
+	 * @throws UnknownHostException		If the host's hostname could not be resolved.
 	 */
-	Monitor createTarget(final boolean isLocalhost) throws UnknownHostException {
+	Monitor createHost(final boolean isLocalhost) throws UnknownHostException {
 
 		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
 
-		final HardwareTarget target = strategyConfig.getEngineConfiguration().getTarget();
+		final HardwareHost host = strategyConfig.getEngineConfiguration().getHost();
 
 		hostMonitoring.setLocalhost(isLocalhost);
 
-		String hostname = target.getHostname();
+		String hostname = host.getHostname();
 
-		// Create the target
-		final Monitor targetMonitor = Monitor
+		// Create the host
+		final Monitor hostMonitor = Monitor
 			.builder()
-			.id(target.getId())
-			.targetId(target.getId())
+			.id(host.getId())
+			.hostId(host.getId())
 			.name(hostname)
-			.monitorType(MonitorType.TARGET)
+			.monitorType(MonitorType.HOST)
 			.discoveryTime(strategyTime)
 			.build();
 
 		// Create the location metadata
-		targetMonitor.addMetadata(LOCATION,
+		hostMonitor.addMetadata(LOCATION,
 				isLocalhost ? LOCALHOST: REMOTE);
 
 		// Create the operating system type metadata
-		targetMonitor.addMetadata(OPERATING_SYSTEM_TYPE, target.getType().name());
+		hostMonitor.addMetadata(OPERATING_SYSTEM_TYPE, host.getType().name());
 
 		// Create the fqdn metadata
-		targetMonitor.addMetadata(FQDN, NetworkHelper.getFqdn(hostname));
+		hostMonitor.addMetadata(FQDN, NetworkHelper.getFqdn(hostname));
 
 		// This will create the monitor then set the alert rules
-		targetMonitor.getMonitorType().getMetaMonitor().accept(
+		hostMonitor.getMonitorType().getMetaMonitor().accept(
 				new MonitorDiscoveryVisitor(MonitorBuildingInfo.builder()
 						.hostMonitoring(hostMonitoring)
 						.hostname(hostname)
-						.monitor(targetMonitor)
-						.monitorType(MonitorType.TARGET)
-						.targetType(target.getType())
+						.monitor(hostMonitor)
+						.monitorType(MonitorType.HOST)
+						.hostType(host.getType())
 						.build()));
 
-		log.debug("Hostname {} - Created Target ID: {} ", target.getHostname(), target.getId());
+		log.debug("Hostname {} - Created Host ID: {} ", host.getHostname(), host.getId());
 
-		return hostMonitoring.getTargetMonitor();
+		return hostMonitoring.getHostMonitor();
 	}
 
 	/**
@@ -451,7 +453,7 @@ public class DetectionOperation extends AbstractStrategy {
 
 		final List<TestedConnector> testedConnectors = new ArrayList<>();
 
-		// The user may want to run queries sent to the target one by one instead of everything in parallel
+		// The user may want to run queries sent to the host one by one instead of everything in parallel
 		if (strategyConfig.getEngineConfiguration().isSequential()) {
 
 			log.info("Hostname {} - Running detection in sequential mode", hostname);
@@ -495,7 +497,7 @@ public class DetectionOperation extends AbstractStrategy {
 	 * Run the detection using the criteria defined in the given connector.
 	 * 
 	 * @param connector The connector we wish to test
-	 * @param hostname  The hostname of the target device
+	 * @param hostname  The hostname of the host device
 	 * 
 	 * @return {@link TestedConnector} instance which tells if the connector test succeeded or not.
 	 */
@@ -528,17 +530,17 @@ public class DetectionOperation extends AbstractStrategy {
 	}
 
 	/**
-	 * Filter the connectors by the {@link TargetType}
+	 * Filter the connectors by the {@link HostType}
 	 *
 	 * @param connectorStream
-	 * @param targetType
+	 * @param hostType
 	 *
 	 * @return {@link Stream} of {@link Connector} instances
 	 */
-	Stream<Connector> filterConnectorsByTargetType(final Stream<Connector> connectorStream, final TargetType targetType) {
+	Stream<Connector> filterConnectorsByHostType(final Stream<Connector> connectorStream, final HostType hostType) {
 
 		return connectorStream.filter(connector -> Objects.nonNull(connector.getAppliesToOS())
-				&& connector.getAppliesToOS().contains(targetType.getOsType()));
+				&& connector.getAppliesToOS().contains(hostType.getOsType()));
 
 	}
 

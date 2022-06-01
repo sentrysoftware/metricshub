@@ -91,7 +91,7 @@ public abstract class AbstractStrategy implements IStrategy {
 	 * @param hostMonitoring The {@link SourceTable} and {@link Monitor} container (Namespace)
 	 * @param connector      The connector we currently process
 	 * @param monitorType    The type of the monitor {@link MonitorType} only used for logging
-	 * @param hostname       The hostname of the target only used for logging
+	 * @param hostname       The host's name only used for logging
 	 */
 	public void processSourcesAndComputes(final List<Source> sources, final IHostMonitoring hostMonitoring,
 			final Connector connector, final MonitorType monitorType,
@@ -108,7 +108,7 @@ public abstract class AbstractStrategy implements IStrategy {
 	 * @param hostMonitoring The {@link SourceTable} and {@link Monitor} container (Namespace)
 	 * @param connector      The connector we currently process
 	 * @param monitorType    The type of the monitor {@link MonitorType} only used for logging
-	 * @param hostname       The hostname of the target only used for logging
+	 * @param hostname       The host's name only used for logging
 	 * @param monitor        The monitor used in the mono instance processing
 	 */
 	public void processSourcesAndComputes(final List<Source> sources, final IHostMonitoring hostMonitoring,
@@ -158,7 +158,7 @@ public abstract class AbstractStrategy implements IStrategy {
 			if (computes != null) {
 
 				final ComputeVisitor computeVisitor = new ComputeVisitor(sourceKey, sourceTable, connector,
-						strategyConfig.getEngineConfiguration().getTarget().getHostname(), matsyaClientsExecutor);
+						strategyConfig.getEngineConfiguration().getHost().getHostname(), matsyaClientsExecutor);
 
 				final ComputeUpdaterVisitor computeUpdaterVisitor = new ComputeUpdaterVisitor(computeVisitor, monitor);
 
@@ -379,7 +379,7 @@ public abstract class AbstractStrategy implements IStrategy {
 			final Object objToProcess, @NonNull final String description, @NonNull final T defaultValue) {
 
 		final ReentrantLock forceSerializationLock = getForceSerializationLock(connector);
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 
 		final boolean isLockAcquired;
 		try {
@@ -476,12 +476,12 @@ public abstract class AbstractStrategy implements IStrategy {
 	/**
 	 * Build test report parameter for the given {@link TestedConnector}.
 	 *
-	 * @param targetName		The name of the target against which the test has been performed.
+	 * @param hostName		    The name of the host against which the test has been performed.
 	 * @param testedConnector	The {@link TestedConnector} whose test report parameter should be created.
 	 *
 	 * @return					A {@link TextParam} instance built from the given {@link TestedConnector}.
 	 */
-	protected TextParam buildTestReportParameter(final String targetName, final TestedConnector testedConnector) {
+	protected TextParam buildTestReportParameter(final String hostName, final TestedConnector testedConnector) {
 		final TextParam testReport = TextParam
 				.builder()
 				.collectTime(strategyTime)
@@ -501,7 +501,7 @@ public abstract class AbstractStrategy implements IStrategy {
 		value.append(builtTestResult)
 				.append("\nConclusion: ")
 				.append("TEST on ")
-				.append(targetName)
+				.append(hostName)
 				.append(WHITE_SPACE)
 				.append(getTestedConnectorStatus(testedConnector));
 
@@ -513,14 +513,14 @@ public abstract class AbstractStrategy implements IStrategy {
 	/**
 	 * @param hostMonitoring The {@link IHostMonitoring} instance.
 	 *
-	 * @return	The target {@link Monitor} in the given {@link IHostMonitoring} instance.
+	 * @return	The host {@link Monitor} in the given {@link IHostMonitoring} instance.
 	 */
-	protected Monitor getTargetMonitor(IHostMonitoring hostMonitoring) {
+	protected Monitor getHostMonitor(IHostMonitoring hostMonitoring) {
 
-		Monitor target = hostMonitoring.getTargetMonitor();
-		state(target != null, "target monitor should not be null.");
+		Monitor host = hostMonitoring.getHostMonitor();
+		state(host != null, "host monitor should not be null.");
 
-		return target;
+		return host;
 	}
 
 	/**

@@ -39,11 +39,12 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.Wmi
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
-import com.sentrysoftware.matrix.engine.target.HardwareTarget;
-import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.ConnectorNamespace;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
+
+import com.sentrysoftware.matrix.engine.host.HardwareHost;
+import com.sentrysoftware.matrix.engine.host.HostType;
 
 @ExtendWith(MockitoExtension.class)
 class SourceUpdaterVisitorTest {
@@ -83,7 +84,7 @@ class SourceUpdaterVisitorTest {
 	public static void setUp() {
 		
 		engineConfiguration = EngineConfiguration.builder()
-				.target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.LINUX).build())
+				.host(HardwareHost.builder().hostname("localhost").id("localhost").type(HostType.LINUX).build())
 				.protocolConfigurations(Map.of(SnmpProtocol.class, SnmpProtocol.builder().build())).build();
 
 		metadata.put(DEVICE_ID, ENCLOSURE_DEVICE_ID);

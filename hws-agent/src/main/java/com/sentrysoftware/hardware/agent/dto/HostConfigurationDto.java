@@ -28,7 +28,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 /**
- * DTO to wrap the agent configuration for one specific target.
+ * DTO to wrap the agent configuration for one specific host.
  */
 @Data
 @NoArgsConstructor
@@ -37,7 +37,7 @@ import lombok.NonNull;
 public class HostConfigurationDto {
 
 	@NonNull
-	private HardwareTargetDto target;
+	private HardwareHostDto host;
 
 	@Default
 	private int operationTimeout = EngineConfiguration.DEFAULT_JOB_TIMEOUT;

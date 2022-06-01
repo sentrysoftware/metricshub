@@ -25,7 +25,7 @@ public interface ITJob {
 	/**
 	 * Load the engine required data: {@link EngineConfiguration} and the {@link HostMonitoring}
 	 *
-	 * @param engineConfiguration {@link EngineConfiguration} instance defining the target, the configured protocol, selected connectors and
+	 * @param engineConfiguration {@link EngineConfiguration} instance defining the host, the configured protocol, selected connectors and
 	 *                            timeouts
 	 * @param hostMonitoring      The container of the monitors
 	 * @return The actual {@link ITJob}

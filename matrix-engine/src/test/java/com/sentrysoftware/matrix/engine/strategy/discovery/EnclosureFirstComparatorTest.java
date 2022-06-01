@@ -25,7 +25,7 @@ class EnclosureFirstComparatorTest {
 	final SnmpGetTableSource source2 = SnmpGetTableSource.builder().oid("oid2").key("key2").computes(Collections.singletonList(RightConcat.builder().column(1).string(EMPTY).build())).build();
 
 	final HardwareMonitor hdfConnector = HardwareMonitor.builder().type(MonitorType.CONNECTOR).build();
-	final HardwareMonitor hdfTarget = HardwareMonitor.builder().type(MonitorType.TARGET).build();
+	final HardwareMonitor hdfHost = HardwareMonitor.builder().type(MonitorType.HOST).build();
 	final HardwareMonitor hdfBattery = HardwareMonitor.builder().type(MonitorType.BATTERY).build();
 	final HardwareMonitor hdfBlade = HardwareMonitor.builder().type(MonitorType.BLADE).build();
 	final HardwareMonitor hdfCPU = HardwareMonitor.builder().type(MonitorType.CPU).build();
@@ -46,14 +46,14 @@ class EnclosureFirstComparatorTest {
 	final HardwareMonitor hdfVoltage = HardwareMonitor.builder().type(MonitorType.VOLTAGE).build();
 
 	final List<HardwareMonitor> allPossibleConnectorsType = Arrays.asList(
-			hdfTarget, hdfBattery, hdfBlade, hdfCPU,
+			hdfHost, hdfBattery, hdfBlade, hdfCPU,
 			hdfCpuCore, hdfDiskController, hdfFan,
 			hdfLed, hdfLogicalDisk, hdfLun, hdfMemory,
 			hdfNetworkCard, hdfOtherDevice, hdfPhysicalDisk, hdfPowerSupply,
 			hdfRobotic, hdfTapeDrive, hdfTemperature, hdfVoltage);
 
 	final List<HardwareMonitor> withoutEnclosure = Arrays.asList(
-			hdfTarget, hdfBattery, hdfBlade, hdfCPU,
+			hdfHost, hdfBattery, hdfBlade, hdfCPU,
 			hdfCpuCore, hdfDiskController, hdfFan,
 			hdfLed, hdfLogicalDisk, hdfLun, hdfMemory, hdfNetworkCard,
 			hdfOtherDevice, hdfPhysicalDisk, hdfPowerSupply, hdfRobotic,
@@ -110,7 +110,7 @@ class EnclosureFirstComparatorTest {
 			.build();
 
 	final Connector enclosureDiscoveryOnlyWith2Devices  = Connector.builder().compiledFilename("hdf3")
-			.hardwareMonitors(Arrays.asList(hdfTarget, hdfBattery, hdfEnclosureDiscoveryOnly))
+			.hardwareMonitors(Arrays.asList(hdfHost, hdfBattery, hdfEnclosureDiscoveryOnly))
 			.build();
 
 	final Connector enclosureFullWith2Devices  = Connector.builder().compiledFilename("hdf4")

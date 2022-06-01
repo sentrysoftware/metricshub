@@ -21,9 +21,9 @@ GkwzG6bx8cUhoeQW+/1ERI+2LOyB
 Once a password has been encrypted, it can be used in a `hws-config.yaml` configuration file instead of a readable password:
 
 ```yaml
-targets:
+hosts:
 
-  - target:
+  - host:
       hostname: myhost-01
       type: storage
     http:
