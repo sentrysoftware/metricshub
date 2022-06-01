@@ -22,7 +22,7 @@ import com.sentrysoftware.matrix.common.meta.monitor.PhysicalDisk;
 import com.sentrysoftware.matrix.common.meta.monitor.PowerSupply;
 import com.sentrysoftware.matrix.common.meta.monitor.Robotics;
 import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
-import com.sentrysoftware.matrix.common.meta.monitor.Target;
+import com.sentrysoftware.matrix.common.meta.monitor.Host;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
 import com.sentrysoftware.matrix.common.meta.monitor.Vm;
 import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
@@ -42,7 +42,7 @@ import java.util.Map;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ATTACHED_TO_DEVICE_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ATTACHED_TO_DEVICE_TYPE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HOST_FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TYPE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_WARNING;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EXPECTED_PATH_COUNT;
@@ -57,9 +57,9 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 	private static final String HOST_MONITORING_CANNOT_BE_NULL = "hostMonitoring cannot be null.";
 	private static final String CONNECTOR_NAME_CANNOT_BE_NULL = "connectorName cannot be null.";
 	private static final String MONITOR_CANNOT_BE_NULL = "monitor cannot be null.";
-	private static final String TARGET_ID_CANNOT_BE_NULL = "target id cannot be null.";
-	private static final String TARGET_MONITOR_CANNOT_BE_NULL = "targetMonitor cannot be null.";
-	private static final String TARGET_TYPE_CANNOT_BE_NULL = "targetType cannot be null.";
+	private static final String HOST_ID_CANNOT_BE_NULL = "host id cannot be null.";
+	private static final String HOST_MONITOR_CANNOT_BE_NULL = "hostMonitor cannot be null.";
+	private static final String HOST_TYPE_CANNOT_BE_NULL = "hostType cannot be null.";
 	private static final String MONITOR_TYPE_CANNOT_BE_NULL = "monitorType cannot be null.";
 	public static final String METADATA_CANNOT_BE_NULL = "metadata cannot be null.";
 	private static final String CANNOT_CREATE_MONITOR_ERROR_MSG = "Hostname {} - Cannot create {} with deviceId {}. Connector {}";
@@ -82,7 +82,7 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 	}
 
 	@Override
-	public void visit(Target target) {
+	public void visit(Host host) {
 
 		final Monitor monitor = monitorBuildingInfo.getMonitor();
 
@@ -123,11 +123,11 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 
 	@Override
 	public void visit(Enclosure enclosure) {
-		final Monitor targetMonitor = monitorBuildingInfo.getTargetMonitor();
-		Assert.notNull(targetMonitor, TARGET_MONITOR_CANNOT_BE_NULL);
+		final Monitor hostMonitor = monitorBuildingInfo.getHostMonitor();
+		Assert.notNull(hostMonitor, HOST_MONITOR_CANNOT_BE_NULL);
 
-		final String id = targetMonitor.getId();
-		Assert.notNull(id, TARGET_ID_CANNOT_BE_NULL);
+		final String id = hostMonitor.getId();
+		Assert.notNull(id, HOST_ID_CANNOT_BE_NULL);
 
 		Monitor enclosureMonitor = createMonitor(MonitorNameBuilder.buildEnclosureName(monitorBuildingInfo), null);
 
@@ -255,7 +255,7 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 
 		final Monitor monitor = monitorBuildingInfo.getMonitor();
 		final String connectorName = monitorBuildingInfo.getConnectorName();
-		final Monitor targetMonitor = monitorBuildingInfo.getTargetMonitor();
+		final Monitor hostMonitor = monitorBuildingInfo.getHostMonitor();
 		final IHostMonitoring hostMonitoring = monitorBuildingInfo.getHostMonitoring();
 		final MonitorType monitorType = monitorBuildingInfo.getMonitorType();
 		final String hostname = monitorBuildingInfo.getHostname();
@@ -289,9 +289,9 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 
 		monitor.setName(monitorName);
 		monitor.setParentId(parentId);
-		monitor.setTargetId(targetMonitor.getId());
+		monitor.setHostId(hostMonitor.getId());
 		monitor.setExtendedType(extendedType);
-		monitor.addMetadata(TARGET_FQDN, targetMonitor.getFqdn());
+		monitor.addMetadata(HOST_FQDN, hostMonitor.getFqdn());
 
 		// Finally we can add the monitor
 		return hostMonitoring.addMonitor(
@@ -323,41 +323,41 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 		Assert.notNull(monitorBuildingInfo.getMonitor(), MONITOR_CANNOT_BE_NULL);
 		Assert.notNull(monitorBuildingInfo.getMonitorType(), MONITOR_TYPE_CANNOT_BE_NULL);
 		Assert.isTrue(hasConnectorName(monitorBuildingInfo), CONNECTOR_NAME_CANNOT_BE_NULL);
-		Assert.isTrue(hasTargetMonitor(monitorBuildingInfo), TARGET_MONITOR_CANNOT_BE_NULL);
-		Assert.notNull(monitorBuildingInfo.getTargetType(), TARGET_TYPE_CANNOT_BE_NULL);
+		Assert.isTrue(hasHostMonitor(monitorBuildingInfo), HOST_MONITOR_CANNOT_BE_NULL);
+		Assert.notNull(monitorBuildingInfo.getHostType(), HOST_TYPE_CANNOT_BE_NULL);
 		Assert.notNull(monitorBuildingInfo.getHostMonitoring(), HOST_MONITORING_CANNOT_BE_NULL);
 		Assert.notNull(monitorBuildingInfo.getHostname(), HOSTNAME_CANNOT_BE_NULL);
 	}
 
 	/**
-	 * Check if the given building information embeds the target monitor excluding the target monitor itself.
+	 * Check if the given building information embeds the host monitor excluding the host monitor itself.
 	 * 
 	 * @param monitorBuildingInfo Wraps all the required field used to discover a monitor
-	 * @return <code>true</code> if the target is found otherwise <code>false</code>
+	 * @return <code>true</code> if the host is found otherwise <code>false</code>
 	 */
-	static boolean hasTargetMonitor(final MonitorBuildingInfo monitorBuildingInfo) {
-		return isTargetType(monitorBuildingInfo) || monitorBuildingInfo.getTargetMonitor() != null;
+	static boolean hasHostMonitor(final MonitorBuildingInfo monitorBuildingInfo) {
+		return isHostType(monitorBuildingInfo) || monitorBuildingInfo.getHostMonitor() != null;
 	}
 
 	/**
-	 * Check if the given building information embeds the connector name excluding the target monitor.
+	 * Check if the given building information embeds the connector name excluding the host monitor.
 	 * 
 	 * @param monitorBuildingInfo Wraps all the required field used to discover a monitor
 	 * @return <code>true</code> if the connector name is found otherwise <code>false</code>
 	 */
 	static boolean hasConnectorName(final MonitorBuildingInfo monitorBuildingInfo) {
-		return isTargetType(monitorBuildingInfo) || monitorBuildingInfo.getConnectorName() != null;
+		return isHostType(monitorBuildingInfo) || monitorBuildingInfo.getConnectorName() != null;
 	}
 
 	/**
-	 * Check if the given {@link MonitorBuildingInfo} are defined for a Target monitor
+	 * Check if the given {@link MonitorBuildingInfo} are defined for a Host monitor
 	 * 
 	 * @param monitorBuildingInfo Wraps all the required field used to discover a monitor
-	 * @return <code>true</code> if the monitor is a Target otherwise <code>false</code>
+	 * @return <code>true</code> if the monitor is a Host otherwise <code>false</code>
 	 */
-	static boolean isTargetType(final MonitorBuildingInfo monitorBuildingInfo) {
+	static boolean isHostType(final MonitorBuildingInfo monitorBuildingInfo) {
 		Assert.notNull(monitorBuildingInfo.getMonitorType(), MONITOR_TYPE_CANNOT_BE_NULL);
-		return monitorBuildingInfo.getMonitorType().equals(MonitorType.TARGET);
+		return monitorBuildingInfo.getMonitorType().equals(MonitorType.HOST);
 	}
 
 	/**

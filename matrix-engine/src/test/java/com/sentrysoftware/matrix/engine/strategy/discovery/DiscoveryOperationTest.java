@@ -12,7 +12,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_COUN
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IS_CPU_SENSOR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_NUMBER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HOST_FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.FAN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -58,13 +58,14 @@ import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.SnmpVersion;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
-import com.sentrysoftware.matrix.engine.target.HardwareTarget;
-import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
+
+import com.sentrysoftware.matrix.engine.host.HardwareHost;
+import com.sentrysoftware.matrix.engine.host.HostType;
 
 @ExtendWith(MockitoExtension.class)
 class DiscoveryOperationTest {
@@ -137,13 +138,13 @@ class DiscoveryOperationTest {
 				.timeout(120L).build();
 		engineConfiguration = EngineConfiguration
 				.builder()
-				.target(HardwareTarget.builder().hostname(ECS1_01).id(ECS1_01).type(TargetType.LINUX).build())
+				.host(HardwareHost.builder().hostname(ECS1_01).id(ECS1_01).type(HostType.LINUX).build())
 				.protocolConfigurations(Map.of(SnmpProtocol.class, protocol))
 				.build();
 
 		engineConfigurationSequential = EngineConfiguration
 				.builder()
-				.target(HardwareTarget.builder().hostname(ECS1_01).id(ECS1_01).type(TargetType.LINUX).build())
+				.host(HardwareHost.builder().hostname(ECS1_01).id(ECS1_01).type(HostType.LINUX).build())
 				.protocolConfigurations(Map.of(SnmpProtocol.class, protocol))
 				.sequential(true)
 				.build();
@@ -161,22 +162,22 @@ class DiscoveryOperationTest {
 		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString(), null);
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		final Monitor targetMonitor = Monitor
+		final Monitor hostMonitor = Monitor
 				.builder()
 				.id(ECS1_01)
 				.parentId(null)
-				.targetId(ECS1_01)
+				.hostId(ECS1_01)
 				.name(ECS1_01)
-				.monitorType(MonitorType.TARGET)
+				.monitorType(MonitorType.HOST)
 				.build();
-		hostMonitoring.addMonitor(targetMonitor);
+		hostMonitoring.addMonitor(hostMonitor);
 
 		final Monitor connectorMo1 = Monitor
 				.builder()
 				.monitorType(MonitorType.CONNECTOR)
 				.name(MY_CONNECTOR_1_NAME)
 				.parentId(ECS1_01)
-				.targetId(ECS1_01)
+				.hostId(ECS1_01)
 				.id(MY_CONNECTOR_1_NAME)
 				.build();
 
@@ -185,7 +186,7 @@ class DiscoveryOperationTest {
 				.monitorType(MonitorType.CONNECTOR)
 				.name(MY_CONNECTOR_2_NAME)
 				.parentId(ECS1_01)
-				.targetId(ECS1_01)
+				.hostId(ECS1_01)
 				.id(MY_CONNECTOR_2_NAME)
 				.build();
 
@@ -216,7 +217,7 @@ class DiscoveryOperationTest {
 		final Map<String, Connector> connectors = Map.of(connector1.getCompiledFilename(), connector1, connector2.getCompiledFilename(), connector2);
 		doReturn(connectors).when(store).getConnectors();
 		final Boolean result = discoveryOperation.call();
-		assertEquals(targetMonitor, hostMonitoring.getMonitors().get(MonitorType.TARGET).values().stream().findFirst().get());
+		assertEquals(hostMonitor, hostMonitoring.getMonitors().get(MonitorType.HOST).values().stream().findFirst().get());
 		assertEquals(2, hostMonitoring.getMonitors().get(MonitorType.CONNECTOR).values().size());
 		assertTrue(result);
 	}
@@ -226,18 +227,18 @@ class DiscoveryOperationTest {
 		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString(), null);
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		final Monitor targetMonitor = Monitor
+		final Monitor hostMonitor = Monitor
 				.builder()
 				.id(ECS1_01)
 				.parentId(null)
-				.targetId(ECS1_01)
+				.hostId(ECS1_01)
 				.name(ECS1_01)
-				.monitorType(MonitorType.TARGET)
+				.monitorType(MonitorType.HOST)
 				.build();
-		hostMonitoring.addMonitor(targetMonitor);
+		hostMonitoring.addMonitor(hostMonitor);
 
 		discoveryOperation.call();
-		assertEquals(targetMonitor, hostMonitoring.getMonitors().get(MonitorType.TARGET).values().stream().findFirst().get());
+		assertEquals(hostMonitor, hostMonitoring.getMonitors().get(MonitorType.HOST).values().stream().findFirst().get());
 		assertEquals(1, hostMonitoring.getMonitors().size());
 
 		final Monitor connector = Monitor
@@ -245,7 +246,7 @@ class DiscoveryOperationTest {
 				.monitorType(MonitorType.CONNECTOR)
 				.name(MY_CONNECTOR_1_NAME)
 				.parentId(ECS1_01)
-				.targetId(ECS1_01)
+				.hostId(ECS1_01)
 				.id(MY_CONNECTOR_1_NAME)
 				.build();
 
@@ -253,32 +254,32 @@ class DiscoveryOperationTest {
 		hostMonitoring.removeMonitor(connector);
 
 		discoveryOperation.call();
-		assertEquals(targetMonitor, hostMonitoring.getMonitors().get(MonitorType.TARGET).values().stream().findFirst().get());
+		assertEquals(hostMonitor, hostMonitoring.getMonitors().get(MonitorType.HOST).values().stream().findFirst().get());
 		assertTrue(hostMonitoring.getMonitors().get(MonitorType.CONNECTOR).isEmpty());
 	}
 
 	@Test
-	void testCallNoTargetMonitor() throws Exception {
+	void testCallNoHostMonitor() throws Exception {
 		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString(), null);
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
-		final Monitor targetMonitor = Monitor
+		final Monitor hostMonitor = Monitor
 				.builder()
 				.id(ECS1_01)
 				.parentId(null)
-				.targetId(ECS1_01)
+				.hostId(ECS1_01)
 				.name(ECS1_01)
-				.monitorType(MonitorType.TARGET)
+				.monitorType(MonitorType.HOST)
 				.build();
-		hostMonitoring.addMonitor(targetMonitor);
-		hostMonitoring.removeMonitor(targetMonitor);
+		hostMonitoring.addMonitor(hostMonitor);
+		hostMonitoring.removeMonitor(hostMonitor);
 		discoveryOperation.call();
-		assertTrue(hostMonitoring.getMonitors().get(MonitorType.TARGET).isEmpty());
+		assertTrue(hostMonitoring.getMonitors().get(MonitorType.HOST).isEmpty());
 		assertEquals(1, hostMonitoring.getMonitors().size());
 	}
 
 	@Test
-	void testCallNoTargets() throws Exception {
+	void testCallNoHosts() throws Exception {
 		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString(), null);
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
@@ -290,13 +291,13 @@ class DiscoveryOperationTest {
 	void testDiscoverMultiJobs() throws Exception {
 		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString(), null);
 
-		final Monitor targetMonitor = Monitor
+		final Monitor hostMonitor = Monitor
 				.builder()
 				.id(ECS1_01)
 				.parentId(null)
-				.targetId(ECS1_01)
+				.hostId(ECS1_01)
 				.name(ECS1_01)
-				.monitorType(MonitorType.TARGET)
+				.monitorType(MonitorType.HOST)
 				.build();
 		final HardwareMonitor enclosureMonitor = buildHardwareEnclosureMonitor();
 		final HardwareMonitor fanMonitor = buildHardwareFanMonitor();
@@ -310,7 +311,7 @@ class DiscoveryOperationTest {
 		final List<List<String>> enclosureData = Collections.singletonList(Arrays.asList(ID, POWER_EDGE_54DSF, MODEL_VALUE));
 		final List<List<String>> fanData = Collections.singletonList(Arrays.asList(ID, FAN_1, SPEED_VALUE));
 
-		hostMonitoring.addMonitor(targetMonitor);
+		hostMonitoring.addMonitor(hostMonitor);
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
@@ -329,7 +330,7 @@ class DiscoveryOperationTest {
 		enclosureMetadata.put(ID_COUNT, ID_COUNT_0);
 		enclosureMetadata.put(TYPE, COMPUTER);
 		enclosureMetadata.put(CONNECTOR, MY_CONNECTOR_1_NAME);
-		enclosureMetadata.put(TARGET_FQDN, null);
+		enclosureMetadata.put(HOST_FQDN, null);
 		enclosureMetadata.put(ADDITIONAL_INFORMATION1, INFORMATION1);
 		enclosureMetadata.put(IDENTIFYING_INFORMATION, INFORMATION1);
 
@@ -337,7 +338,7 @@ class DiscoveryOperationTest {
 				.id(ENCLOSURE_ID)
 				.name(ENCLOSURE_NAME)
 				.parentId(ECS1_01)
-				.targetId(ECS1_01)
+				.hostId(ECS1_01)
 				.metadata(enclosureMetadata)
 				.monitorType(MonitorType.ENCLOSURE)
 				.extendedType(COMPUTER)
@@ -353,14 +354,14 @@ class DiscoveryOperationTest {
 		fanMetadata.put(SPEED, SPEED_VALUE);
 		fanMetadata.put(ID_COUNT, ID_COUNT_0);
 		fanMetadata.put(CONNECTOR, MY_CONNECTOR_1_NAME);
-		fanMetadata.put(TARGET_FQDN, null);
+		fanMetadata.put(HOST_FQDN, null);
 		fanMetadata.put(IDENTIFYING_INFORMATION, EMPTY);
 
 		final Monitor expectedFan = Monitor.builder()
 				.id(FAN_ID)
 				.name(FAN_NAME)
 				.parentId(ENCLOSURE_ID)
-				.targetId(ECS1_01)
+				.hostId(ECS1_01)
 				.metadata(fanMetadata)
 				.monitorType(MonitorType.FAN)
 				.extendedType(MonitorType.FAN.getNameInConnector())
@@ -369,7 +370,7 @@ class DiscoveryOperationTest {
 				.discoveryTime(strategyTime)
 				.build();
 
-		discoveryOperation.discover(connector, hostMonitoring, ECS1_01, targetMonitor);
+		discoveryOperation.discover(connector, hostMonitoring, ECS1_01, hostMonitor);
 
 		final Map<String, Monitor> enclosures = hostMonitoring.selectFromType(MonitorType.ENCLOSURE);
 
@@ -414,13 +415,13 @@ class DiscoveryOperationTest {
 	void testDiscover() throws Exception {
 		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString(), null);
 
-		final Monitor targetMonitor = Monitor
+		final Monitor hostMonitor = Monitor
 				.builder()
 				.id(ECS1_01)
 				.parentId(null)
-				.targetId(ECS1_01)
+				.hostId(ECS1_01)
 				.name(ECS1_01)
-				.monitorType(MonitorType.TARGET)
+				.monitorType(MonitorType.HOST)
 				.build();
 		final HardwareMonitor hardwareMonitor = buildHardwareEnclosureMonitor();
 
@@ -432,7 +433,7 @@ class DiscoveryOperationTest {
 
 		final List<List<String>> data = Collections.singletonList(Arrays.asList(ID, POWER_EDGE_54DSF, MODEL_VALUE));
 
-		hostMonitoring.addMonitor(targetMonitor);
+		hostMonitoring.addMonitor(hostMonitor);
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(data).when(matsyaClientsExecutor)
@@ -447,7 +448,7 @@ class DiscoveryOperationTest {
 		metadata.put(ID_COUNT, ID_COUNT_0);
 		metadata.put(TYPE, COMPUTER);
 		metadata.put(CONNECTOR, MY_CONNECTOR_1_NAME);
-		metadata.put(TARGET_FQDN, null);
+		metadata.put(HOST_FQDN, null);
 		metadata.put(ADDITIONAL_INFORMATION1, INFORMATION1);
 		metadata.put(IDENTIFYING_INFORMATION, INFORMATION1);
 
@@ -455,7 +456,7 @@ class DiscoveryOperationTest {
 				.id(ENCLOSURE_ID)
 				.name(ENCLOSURE_NAME)
 				.parentId(ECS1_01)
-				.targetId(ECS1_01)
+				.hostId(ECS1_01)
 				.metadata(metadata)
 				.monitorType(MonitorType.ENCLOSURE)
 				.extendedType(COMPUTER)
@@ -464,7 +465,7 @@ class DiscoveryOperationTest {
 				.discoveryTime(strategyTime)
 				.build();
 
-		discoveryOperation.discover(connector, hostMonitoring, ECS1_01, targetMonitor);
+		discoveryOperation.discover(connector, hostMonitoring, ECS1_01, hostMonitor);
 
 		final Map<String, Monitor> enclosures = hostMonitoring.selectFromType(MonitorType.ENCLOSURE);
 
@@ -475,19 +476,19 @@ class DiscoveryOperationTest {
 	void testDiscoverSameTypeMonitors() throws Exception {
 		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance().createHostMonitoring(UUID.randomUUID().toString(), null);
 
-		final Monitor targetMonitor = Monitor
+		final Monitor hostMonitor = Monitor
 				.builder()
 				.id(ECS1_01)
 				.parentId(null)
-				.targetId(ECS1_01)
+				.hostId(ECS1_01)
 				.name(ECS1_01)
-				.monitorType(MonitorType.TARGET)
+				.monitorType(MonitorType.HOST)
 				.build();
 		final HardwareMonitor hardwareMonitor = buildHardwareEnclosureMonitor();
 
 		final List<List<String>> data = Collections.singletonList(Arrays.asList(ID, POWER_EDGE_54DSF, MODEL_VALUE));
 
-		hostMonitoring.addMonitor(targetMonitor);
+		hostMonitoring.addMonitor(hostMonitor);
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(data).when(matsyaClientsExecutor)
@@ -502,7 +503,7 @@ class DiscoveryOperationTest {
 		metadata.put(ID_COUNT, ID_COUNT_0);
 		metadata.put(TYPE, COMPUTER);
 		metadata.put(CONNECTOR, MY_CONNECTOR_1_NAME);
-		metadata.put(TARGET_FQDN, null);
+		metadata.put(HOST_FQDN, null);
 		metadata.put(ADDITIONAL_INFORMATION1, INFORMATION1);
 		metadata.put(IDENTIFYING_INFORMATION, INFORMATION1);
 
@@ -510,7 +511,7 @@ class DiscoveryOperationTest {
 				.id(ENCLOSURE_ID)
 				.name(ENCLOSURE_NAME)
 				.parentId(ECS1_01)
-				.targetId(ECS1_01)
+				.hostId(ECS1_01)
 				.metadata(metadata)
 				.monitorType(MonitorType.ENCLOSURE)
 				.extendedType(COMPUTER)
@@ -519,7 +520,7 @@ class DiscoveryOperationTest {
 				.discoveryTime(strategyTime)
 				.build();
 
-		discoveryOperation.discoverSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, targetMonitor, ECS1_01);
+		discoveryOperation.discoverSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, hostMonitor, ECS1_01);
 
 		final Map<String, Monitor> enclosures = hostMonitoring.selectFromType(MonitorType.ENCLOSURE);
 
@@ -633,17 +634,17 @@ class DiscoveryOperationTest {
 				MODEL, INSTANCETABLE_COLUMN_3,
 				TYPE, COMPUTER);
 
-		final Monitor targetMonitor = Monitor
+		final Monitor hostMonitor = Monitor
 				.builder()
 				.id(ECS1_01)
 				.parentId(null)
-				.targetId(ECS1_01)
+				.hostId(ECS1_01)
 				.name(ECS1_01)
-				.monitorType(MonitorType.TARGET)
+				.monitorType(MonitorType.HOST)
 				.build();
 
 		discoveryOperation.createSameTypeMonitors(MY_CONNECTOR_1_NAME, hostMonitoring, instanceTable, parameters,
-			targetMonitor , MonitorType.ENCLOSURE, ECS1_01);
+			hostMonitor , MonitorType.ENCLOSURE, ECS1_01);
 
 		assertNull(hostMonitoring.selectFromType(MonitorType.ENCLOSURE));
 	}
@@ -664,17 +665,17 @@ class DiscoveryOperationTest {
 				MODEL, INSTANCETABLE_COLUMN_3,
 				TYPE, COMPUTER);
 
-		final Monitor targetMonitor = Monitor
+		final Monitor hostMonitor = Monitor
 				.builder()
 				.id(ECS1_01)
 				.parentId(null)
-				.targetId(ECS1_01)
+				.hostId(ECS1_01)
 				.name(ECS1_01)
-				.monitorType(MonitorType.TARGET)
+				.monitorType(MonitorType.HOST)
 				.build();
 
 		discoveryOperation.createSameTypeMonitors(MY_CONNECTOR_1_NAME, hostMonitoring, instanceTable, parameters,
-			targetMonitor , MonitorType.ENCLOSURE, ECS1_01);
+			hostMonitor , MonitorType.ENCLOSURE, ECS1_01);
 
 		assertNull(hostMonitoring.selectFromType(MonitorType.ENCLOSURE));
 	}
@@ -691,21 +692,21 @@ class DiscoveryOperationTest {
 				VENDOR, DELL);
 
 		final InstanceTable instanceTable = TextInstanceTable.builder().text(DELL_ENCLOSURE).build();
-		final Monitor targetMonitor = Monitor
+		final Monitor hostMonitor = Monitor
 				.builder()
 				.id(ECS1_01)
 				.parentId(null)
-				.targetId(ECS1_01)
+				.hostId(ECS1_01)
 				.name(ECS1_01)
-				.monitorType(MonitorType.TARGET)
+				.monitorType(MonitorType.HOST)
 				.build();
 
-		hostMonitoring.addMonitor(targetMonitor);
+		hostMonitoring.addMonitor(hostMonitor);
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 		discoveryOperation.createSameTypeMonitors(MY_CONNECTOR_1_NAME, hostMonitoring, instanceTable, parameters,
-			targetMonitor , MonitorType.ENCLOSURE, ECS1_01);
+			hostMonitor , MonitorType.ENCLOSURE, ECS1_01);
 
 		final Map<String, Monitor> enclosures = hostMonitoring.selectFromType(MonitorType.ENCLOSURE);
 		assertEquals(1, enclosures.size());
@@ -715,13 +716,13 @@ class DiscoveryOperationTest {
 		metadata.put(VENDOR, DELL);
 		metadata.put(ID_COUNT, ID_COUNT_0);
 		metadata.put(CONNECTOR, MY_CONNECTOR_1_NAME);
-		metadata.put(TARGET_FQDN, null);
+		metadata.put(HOST_FQDN, null);
 
 		final Monitor expectedEnclosure = Monitor.builder()
 				.id(HARD_CODED_ENCLOSURE_ID)
 				.name(ENCLOSURE_DELL)
 				.parentId(ECS1_01)
-				.targetId(ECS1_01)
+				.hostId(ECS1_01)
 				.metadata(metadata)
 				.monitorType(MonitorType.ENCLOSURE)
 				.extendedType(ENCLOSURE)
@@ -746,20 +747,20 @@ class DiscoveryOperationTest {
 				TYPE, COMPUTER);
 
 		final InstanceTable instanceTable = SourceInstanceTable.builder().sourceKey(ENCLOSURE_SOURCE_KEY).build();
-		final Monitor targetMonitor = Monitor
+		final Monitor hostMonitor = Monitor
 				.builder()
 				.id(ECS1_01)
 				.parentId(null)
-				.targetId(ECS1_01)
+				.hostId(ECS1_01)
 				.name(ECS1_01)
-				.monitorType(MonitorType.TARGET)
+				.monitorType(MonitorType.HOST)
 				.build();
 
 		final List<List<String>> data = Collections.singletonList(Arrays.asList(ID, POWER_EDGE_54DSF, MODEL_VALUE));
 		final SourceTable sourceTable = SourceTable.builder().table(data).build();
 
 		hostMonitoring.getConnectorNamespace(MY_CONNECTOR_1_NAME).addSourceTable(ENCLOSURE_SOURCE_KEY, sourceTable);
-		hostMonitoring.addMonitor(targetMonitor);
+		hostMonitoring.addMonitor(hostMonitor);
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
@@ -768,7 +769,7 @@ class DiscoveryOperationTest {
 			hostMonitoring,
 			instanceTable,
 			parameters,
-			targetMonitor,
+			hostMonitor,
 			MonitorType.ENCLOSURE, ECS1_01);
 
 		final Map<String, Monitor> enclosures = hostMonitoring.selectFromType(MonitorType.ENCLOSURE);
@@ -783,14 +784,14 @@ class DiscoveryOperationTest {
 		metadata.put(ID_COUNT, ID_COUNT_0);
 		metadata.put(TYPE, COMPUTER);
 		metadata.put(CONNECTOR, MY_CONNECTOR_1_NAME);
-		metadata.put(TARGET_FQDN, null);
+		metadata.put(HOST_FQDN, null);
 		metadata.put(IDENTIFYING_INFORMATION, EMPTY);
 
 		final Monitor expectedEnclosure = Monitor.builder()
 				.id(ENCLOSURE_ID)
 				.name(ENCLOSURE_NAME)
 				.parentId(ECS1_01)
-				.targetId(ECS1_01)
+				.hostId(ECS1_01)
 				.metadata(metadata)
 				.monitorType(MonitorType.ENCLOSURE)
 				.extendedType(COMPUTER)
@@ -970,7 +971,7 @@ class DiscoveryOperationTest {
 		final Monitor expectedFan1 = Monitor.builder()
 				.id(FAN_ID + 1)
 				.name(FAN_NAME + 1)
-				.targetId(ECS1_01)
+				.hostId(ECS1_01)
 				.parentId(ENCLOSURE_ID)
 				.monitorType(FAN)
 				.discoveryTime(strategyTime)
@@ -980,7 +981,7 @@ class DiscoveryOperationTest {
 		final Monitor expectedFan2 = Monitor.builder()
 				.id(FAN_ID + 2)
 				.name(FAN_NAME + 2)
-				.targetId(ECS1_01)
+				.hostId(ECS1_01)
 				.parentId(ENCLOSURE_ID)
 				.monitorType(FAN)
 				.discoveryTime(strategyTime)
@@ -990,7 +991,7 @@ class DiscoveryOperationTest {
 		final Monitor expectedFan3 = Monitor.builder()
 				.id(FAN_ID + 3)
 				.name(FAN_NAME + 3)
-				.targetId(ECS1_01)
+				.hostId(ECS1_01)
 				.parentId(ENCLOSURE_ID)
 				.monitorType(FAN)
 				.discoveryTime(strategyTime)
@@ -1000,7 +1001,7 @@ class DiscoveryOperationTest {
 		final Monitor expectedFan4 = Monitor.builder()
 				.id(FAN_ID + 4)
 				.name(FAN_NAME + 4)
-				.targetId(ECS1_01)
+				.hostId(ECS1_01)
 				.parentId(ENCLOSURE_ID)
 				.monitorType(FAN)
 				.discoveryTime(strategyTime - 3600)
@@ -1033,7 +1034,7 @@ class DiscoveryOperationTest {
 		final Monitor fan1 = Monitor.builder()
 				.id(FAN_ID + 1)
 				.name(FAN_NAME + 1)
-				.targetId(ECS1_01)
+				.hostId(ECS1_01)
 				.parentId(ENCLOSURE_ID)
 				.monitorType(FAN)
 				.discoveryTime(strategyTime)
@@ -1042,7 +1043,7 @@ class DiscoveryOperationTest {
 		final Monitor fan2 = Monitor.builder()
 				.id(FAN_ID + 2)
 				.name(FAN_NAME + 2)
-				.targetId(ECS1_01)
+				.hostId(ECS1_01)
 				.parentId(ENCLOSURE_ID)
 				.monitorType(FAN)
 				.discoveryTime(strategyTime)
@@ -1051,7 +1052,7 @@ class DiscoveryOperationTest {
 		final Monitor fan3 = Monitor.builder()
 				.id(FAN_ID + 3)
 				.name(FAN_NAME + 3)
-				.targetId(ECS1_01)
+				.hostId(ECS1_01)
 				.parentId(ENCLOSURE_ID)
 				.monitorType(FAN)
 				.discoveryTime(strategyTime)
@@ -1060,7 +1061,7 @@ class DiscoveryOperationTest {
 		final Monitor fan4 = Monitor.builder()
 				.id(FAN_ID + 4)
 				.name(FAN_NAME + 4)
-				.targetId(ECS1_01)
+				.hostId(ECS1_01)
 				.parentId(ENCLOSURE_ID)
 				.monitorType(FAN)
 				.discoveryTime(strategyTime - 3600)
@@ -1091,7 +1092,7 @@ class DiscoveryOperationTest {
 		Monitor temperatureMonitor1 = Monitor.builder()
 				.id("temperatureMonitorId1")
 				.name("temperatureMonitorName")
-				.targetId(ECS1_01)
+				.hostId(ECS1_01)
 				.parentId(ENCLOSURE_ID)
 				.monitorType(MonitorType.TEMPERATURE)
 				.build();
@@ -1102,22 +1103,22 @@ class DiscoveryOperationTest {
 		Monitor temperatureMonitor2 = Monitor.builder()
 				.id("temperatureMonitorId2")
 				.name("temperatureMonitorNameproc")
-				.targetId(ECS1_01)
+				.hostId(ECS1_01)
 				.parentId(ENCLOSURE_ID)
 				.monitorType(MonitorType.TEMPERATURE)
 				.build();
 		temperatureMonitor2.addMetadata(WARNING_THRESHOLD, "70.0");
 		hostMonitoring.addMonitor(temperatureMonitor2);
 
-		final Monitor targetMonitor = Monitor
+		final Monitor hostMonitor = Monitor
 				.builder()
 				.id(ECS1_01)
 				.parentId(null)
-				.targetId(ECS1_01)
+				.hostId(ECS1_01)
 				.name(ECS1_01)
-				.monitorType(MonitorType.TARGET)
+				.monitorType(MonitorType.HOST)
 				.build();
-		hostMonitoring.addMonitor(targetMonitor);
+		hostMonitoring.addMonitor(hostMonitor);
 
 		discoveryOperation.handleCpuTemperatures(hostMonitoring);
 
@@ -1125,7 +1126,7 @@ class DiscoveryOperationTest {
 		assertEquals("true", cpuSensorMetadata);
 		cpuSensorMetadata = temperatureMonitor2.getMetadata(IS_CPU_SENSOR);
 		assertEquals("true", cpuSensorMetadata);
-		String averageCpuTemperatureWarningMetadata = targetMonitor.getMetadata(AVERAGE_CPU_TEMPERATURE_WARNING);
+		String averageCpuTemperatureWarningMetadata = hostMonitor.getMetadata(AVERAGE_CPU_TEMPERATURE_WARNING);
 		assertEquals("75.0", averageCpuTemperatureWarningMetadata);
 	}
 
@@ -1133,13 +1134,13 @@ class DiscoveryOperationTest {
 	void testDiscoverMultiJobsSequential() throws Exception {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 
-		final Monitor targetMonitor = Monitor
+		final Monitor hostMonitor = Monitor
 				.builder()
 				.id(ECS1_01)
 				.parentId(null)
-				.targetId(ECS1_01)
+				.hostId(ECS1_01)
 				.name(ECS1_01)
-				.monitorType(MonitorType.TARGET)
+				.monitorType(MonitorType.HOST)
 				.build();
 		final HardwareMonitor enclosureMonitor = buildHardwareEnclosureMonitor();
 		final HardwareMonitor fanMonitor = buildHardwareFanMonitor();
@@ -1153,7 +1154,7 @@ class DiscoveryOperationTest {
 		final List<List<String>> enclosureData = Collections.singletonList(Arrays.asList(ID, POWER_EDGE_54DSF, MODEL_VALUE));
 		final List<List<String>> fanData = Collections.singletonList(Arrays.asList(ID, FAN_1, SPEED_VALUE));
 
-		hostMonitoring.addMonitor(targetMonitor);
+		hostMonitoring.addMonitor(hostMonitor);
 
 		doReturn(engineConfigurationSequential).when(strategyConfig).getEngineConfiguration();
 
@@ -1172,7 +1173,7 @@ class DiscoveryOperationTest {
 		enclosureMetadata.put(ID_COUNT, ID_COUNT_0);
 		enclosureMetadata.put(TYPE, COMPUTER);
 		enclosureMetadata.put(CONNECTOR, MY_CONNECTOR_1_NAME);
-		enclosureMetadata.put(TARGET_FQDN, null);
+		enclosureMetadata.put(HOST_FQDN, null);
 		enclosureMetadata.put(ADDITIONAL_INFORMATION1, INFORMATION1);
 		enclosureMetadata.put(IDENTIFYING_INFORMATION, INFORMATION1);
 
@@ -1180,7 +1181,7 @@ class DiscoveryOperationTest {
 				.id(ENCLOSURE_ID)
 				.name(ENCLOSURE_NAME)
 				.parentId(ECS1_01)
-				.targetId(ECS1_01)
+				.hostId(ECS1_01)
 				.metadata(enclosureMetadata)
 				.monitorType(MonitorType.ENCLOSURE)
 				.extendedType(COMPUTER)
@@ -1196,14 +1197,14 @@ class DiscoveryOperationTest {
 		fanMetadata.put(SPEED, SPEED_VALUE);
 		fanMetadata.put(ID_COUNT, ID_COUNT_0);
 		fanMetadata.put(CONNECTOR, MY_CONNECTOR_1_NAME);
-		fanMetadata.put(TARGET_FQDN, null);
+		fanMetadata.put(HOST_FQDN, null);
 		fanMetadata.put(IDENTIFYING_INFORMATION, EMPTY);
 
 		final Monitor expectedFan = Monitor.builder()
 				.id(FAN_ID)
 				.name(FAN_NAME)
 				.parentId(ENCLOSURE_ID)
-				.targetId(ECS1_01)
+				.hostId(ECS1_01)
 				.metadata(fanMetadata)
 				.monitorType(MonitorType.FAN)
 				.extendedType(MonitorType.FAN.getNameInConnector())
@@ -1212,7 +1213,7 @@ class DiscoveryOperationTest {
 				.discoveryTime(strategyTime)
 				.build();
 
-		discoveryOperation.discover(connector, hostMonitoring, ECS1_01, targetMonitor);
+		discoveryOperation.discover(connector, hostMonitoring, ECS1_01, hostMonitor);
 
 		final Map<String, Monitor> enclosures = hostMonitoring.selectFromType(MonitorType.ENCLOSURE);
 

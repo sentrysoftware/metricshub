@@ -362,7 +362,7 @@ public class MatsyaClientsExecutor {
 			)
 		);
 		
-		final String hostname = getStrategyConfig().getEngineConfiguration().getTarget().getHostname();
+		final String hostname = getStrategyConfig().getEngineConfiguration().getHost().getHostname();
 
 		final Callable<String> jflatToCSV = () -> {
 

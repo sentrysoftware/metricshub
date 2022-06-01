@@ -331,7 +331,7 @@ public class OtelAlertHelper {
 	 * @return String value
 	 */
 	static String buildParentInformation(final String childName, String parentId, @NonNull final IHostMonitoring hostMonitoring) {
-		// This is the target or any other root element
+		// This is the host or any other root element
 		if (parentId == null) {
 			return String.format("%s is the root monitor", childName);
 		}
@@ -595,7 +595,7 @@ public class OtelAlertHelper {
 		Assert.notNull(alertInfo.getAlertRule(), "Alert rule cannot be null");
 		Assert.notNull(alertInfo.getMonitor(), "Monitor cannot be null");
 		Assert.notNull(alertInfo.getParameterName(), "Parameter name cannot be null");
-		Assert.notNull(alertInfo.getHardwareTarget(), "Hardware Traget cannot be null");
+		Assert.notNull(alertInfo.getHardwareHost(), "Hardware Traget cannot be null");
 		Assert.notNull(alertInfo.getHostMonitoring(), "HostMonitoring cannot be null");
 	}
 

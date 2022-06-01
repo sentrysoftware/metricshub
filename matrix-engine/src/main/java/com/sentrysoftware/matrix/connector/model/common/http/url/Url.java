@@ -12,7 +12,7 @@ public class Url {
 	/**
 	 * Generate the full URL
 	 * 
-	 * @param hostname    hostname of the target
+	 * @param hostname    hostname
 	 * @param port        port of the request
 	 * @param requestPath request path of the request
 	 * @param protocol    protocol used by the request

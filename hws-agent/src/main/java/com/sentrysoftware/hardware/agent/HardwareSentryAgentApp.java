@@ -29,9 +29,9 @@ public class HardwareSentryAgentApp {
 	 * Initialize the log4j thread context values
 	 */
 	static void initializeLoggerContext() {
-		// Default values for targetId, loggerLevel and port
+		// Default values for hostId, loggerLevel and port
 		ThreadContext.put("port", "");
-		ThreadContext.put("targetId", "");
+		ThreadContext.put("hostId", "");
 		ThreadContext.put("loggerLevel", "OFF");
 		ThreadContext.put("outputDirectory", DEFAULT_OUTPUT_DIRECTORY.toString());
 	}

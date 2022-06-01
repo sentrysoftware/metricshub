@@ -52,7 +52,7 @@ The `hws` command can be used to troubleshoot the monitoring performed by other 
 
 ## The Basics
 
-The `hws` command invokes the *Hardware Sentry Engine* against one target and performs 3 tasks:
+The `hws` command invokes the *Hardware Sentry Engine* against one host and performs 3 tasks:
 
 1. Detection of the instrumentation stack on the targeted host
 2. Discovery of the hardware components
@@ -208,9 +208,9 @@ To exclude specific connectors from being tested in the detection phase, use the
 
 ## Sequential Mode
 
-By default, the *Hardware Sentry Engine* sends the queries simultaneously to the target host. Although the parallel transmission is faster than the sequential one, too many requests at the same time can lead to the failure of the targeted host.
+By default, the *Hardware Sentry Engine* sends the queries simultaneously to the host. Although the parallel transmission is faster than the sequential one, too many requests at the same time can lead to the failure of the targeted host.
 
-Use the `--sequential` option to force all the requests to be executed in a sequential order, thus the monitored target is not overloaded.
+Use the `--sequential` option to force all the requests to be executed in a sequential order, thus the monitored host is not overloaded.
 
 ```batch
 $ hws SERVER01 -t linux --snmp 1 --community COMM02 --sequential

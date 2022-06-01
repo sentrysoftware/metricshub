@@ -19,13 +19,14 @@ import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.SnmpVersion;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
-import com.sentrysoftware.matrix.engine.target.HardwareTarget;
-import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
+
+import com.sentrysoftware.matrix.engine.host.HardwareHost;
+import com.sentrysoftware.matrix.engine.host.HostType;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -51,7 +52,7 @@ import java.util.stream.Stream;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_REPORT_PARAMETER;
-import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.TARGET;
+import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.HOST;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -65,8 +66,8 @@ import static org.mockito.Mockito.doReturn;
 @ExtendWith(MockitoExtension.class)
 class DetectionOperationTest {
 
-	private static final String TARGET_NAME = "target";
-	private static final String TARGET_ID = "targetId";
+	private static final String HOST_NAME = "host";
+	private static final String HOST_ID = "hostId";
 	private static final String COMMUNITY = "public";
 	private static final String VERSION = "4.2.3";
 	private static final String CONNECTOR5_ID = "connector5";
@@ -79,7 +80,7 @@ class DetectionOperationTest {
 	private static final String OID3 = "1.2.3.4.7";
 	private static final String OID4 = "1.2.3.4.8";
 	private static final String OID5 = "1.2.3.4.9";
-	private static final String TARGET_HOSTNAME = "localhost";
+	private static final String HOSTNAME = "localhost";
 	private static final String SUCCESS_SNMP_RESULT1 = OID1 + " ASN_OCT " + VERSION;
 	private static final String SUCCESS_SNMP_RESULT2 = OID2 + " ASN_OCT " + VERSION;
 
@@ -115,22 +116,22 @@ class DetectionOperationTest {
 				.timeout(120L).build();
 		engineConfigurationAuto = EngineConfiguration
 				.builder()
-				.target(HardwareTarget
+				.host(HardwareHost
 						.builder()
-						.hostname(TARGET_HOSTNAME)
-						.id(TARGET_HOSTNAME)
-						.type(TargetType.LINUX)
+						.hostname(HOSTNAME)
+						.id(HOSTNAME)
+						.type(HostType.LINUX)
 						.build())
 				.protocolConfigurations(Map.of(SnmpProtocol.class, protocol))
 				.build();
 
 		engineConfigurationAutoSequential = EngineConfiguration
 				.builder()
-				.target(HardwareTarget
+				.host(HardwareHost
 						.builder()
-						.hostname(TARGET_HOSTNAME)
-						.id(TARGET_HOSTNAME)
-						.type(TargetType.LINUX)
+						.hostname(HOSTNAME)
+						.id(HOSTNAME)
+						.type(HostType.LINUX)
 						.build())
 				.protocolConfigurations(Map.of(SnmpProtocol.class, protocol))
 				.sequential(true)
@@ -184,7 +185,7 @@ class DetectionOperationTest {
 				.build();
 
 		engineConfigurationSelection = EngineConfiguration.builder()
-				.target(HardwareTarget.builder().hostname(TARGET_HOSTNAME).id(TARGET_HOSTNAME).type(TargetType.LINUX).build())
+				.host(HardwareHost.builder().hostname(HOSTNAME).id(HOSTNAME).type(HostType.LINUX).build())
 				.protocolConfigurations(Map.of(SnmpProtocol.class, protocol)).selectedConnectors(Stream
 						.of(connector1, connector2).map(Connector::getCompiledFilename).collect(Collectors.toSet()))
 				.build();
@@ -203,7 +204,7 @@ class DetectionOperationTest {
 						.getConnectors();
 
 		try (MockedStatic<NetworkHelper> networkHelper = Mockito.mockStatic(NetworkHelper.class)) {
-			networkHelper.when(() -> NetworkHelper.isLocalhost(eq(TARGET_HOSTNAME))).thenReturn(false);
+			networkHelper.when(() -> NetworkHelper.isLocalhost(eq(HOSTNAME))).thenReturn(false);
 
 			doReturn(SUCCESS_SNMP_RESULT1).when(matsyaClientsExecutor)
 					.executeSNMPGetNext(eq(OID1), any(), any(), anyBoolean());
@@ -216,18 +217,18 @@ class DetectionOperationTest {
 
 			detectionOperation.call();
 
-			final Monitor target = hostMonitoring.selectFromType(TARGET).get(TARGET_HOSTNAME);
-			assertEquals(TARGET_HOSTNAME, target.getName());
-			assertEquals(TARGET_HOSTNAME, target.getId());
-			assertEquals(TARGET_HOSTNAME, target.getTargetId());
+			final Monitor host = hostMonitoring.selectFromType(HOST).get(HOSTNAME);
+			assertEquals(HOSTNAME, host.getName());
+			assertEquals(HOSTNAME, host.getId());
+			assertEquals(HOSTNAME, host.getHostId());
 
 			final Map<String, Monitor> connectors = hostMonitoring.selectFromType(MonitorType.CONNECTOR);
 			assertEquals(1, connectors.size());
-			Monitor connector = connectors.get(TARGET_HOSTNAME + "@" + CONNECTOR1_ID);
-			assertEquals(TARGET_HOSTNAME, connector.getParentId());
-			assertEquals(TARGET_HOSTNAME + "@" + CONNECTOR1_ID, connector.getId());
+			Monitor connector = connectors.get(HOSTNAME + "@" + CONNECTOR1_ID);
+			assertEquals(HOSTNAME, connector.getParentId());
+			assertEquals(HOSTNAME + "@" + CONNECTOR1_ID, connector.getId());
 			assertEquals(CONNECTOR1_ID, connector.getName());
-			assertEquals(TARGET_HOSTNAME, connector.getTargetId());
+			assertEquals(HOSTNAME, connector.getHostId());
 		}
 
 	}
@@ -251,54 +252,54 @@ class DetectionOperationTest {
 
 		detectionOperation.call();
 
-		final Monitor target = hostMonitoring.selectFromType(MonitorType.TARGET).get(TARGET_HOSTNAME);
-		assertEquals(TARGET_HOSTNAME, target.getName());
-		assertEquals(TARGET_HOSTNAME, target.getId());
-		assertEquals(TARGET_HOSTNAME, target.getTargetId());
+		final Monitor host = hostMonitoring.selectFromType(MonitorType.HOST).get(HOSTNAME);
+		assertEquals(HOSTNAME, host.getName());
+		assertEquals(HOSTNAME, host.getId());
+		assertEquals(HOSTNAME, host.getHostId());
 
 		final Map<String, Monitor> monitors = hostMonitoring.selectFromType(MonitorType.CONNECTOR);
 		assertEquals(2, monitors.size());
-		Monitor connector1Mo = monitors.get(TARGET_HOSTNAME + "@" + CONNECTOR1_ID);
-		assertEquals(TARGET_HOSTNAME, connector1Mo.getParentId());
-		assertEquals(TARGET_HOSTNAME + "@" + CONNECTOR1_ID, connector1Mo.getId());
+		Monitor connector1Mo = monitors.get(HOSTNAME + "@" + CONNECTOR1_ID);
+		assertEquals(HOSTNAME, connector1Mo.getParentId());
+		assertEquals(HOSTNAME + "@" + CONNECTOR1_ID, connector1Mo.getId());
 		assertEquals(CONNECTOR1_ID, connector1Mo.getName());
-		assertEquals(TARGET_HOSTNAME, connector1Mo.getTargetId());
+		assertEquals(HOSTNAME, connector1Mo.getHostId());
 
 		assertNotNull(connector1Mo.getParameters().get(TEST_REPORT_PARAMETER));
 		assertEquals(Status.OK, connector1Mo.getParameter(STATUS_PARAMETER, DiscreteParam.class).getState());
 
-		Monitor connector2Mo = monitors.get(TARGET_HOSTNAME + "@" + CONNECTOR2_ID);
-		assertEquals(TARGET_HOSTNAME, connector2Mo.getParentId());
-		assertEquals(TARGET_HOSTNAME + "@" + CONNECTOR2_ID, connector2Mo.getId());
+		Monitor connector2Mo = monitors.get(HOSTNAME + "@" + CONNECTOR2_ID);
+		assertEquals(HOSTNAME, connector2Mo.getParentId());
+		assertEquals(HOSTNAME + "@" + CONNECTOR2_ID, connector2Mo.getId());
 		assertEquals(CONNECTOR2_ID, connector2Mo.getName());
-		assertEquals(TARGET_HOSTNAME, connector2Mo.getTargetId());
+		assertEquals(HOSTNAME, connector2Mo.getHostId());
 
 		assertNotNull(connector2Mo.getParameters().get(TEST_REPORT_PARAMETER));
 		assertEquals(Status.FAILED, connector2Mo.getParameter(STATUS_PARAMETER, DiscreteParam.class).getState());
 	}
 
 	@Test
-	void testCreateTargetOnExistingTarget() throws UnknownHostException {
+	void testCreateHostOnExistingHost() throws UnknownHostException {
 		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance()
 				.createHostMonitoring(UUID.randomUUID().toString(), null);
 
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(engineConfigurationAuto).when(strategyConfig).getEngineConfiguration();
 
-		final Monitor target = Monitor.builder().id(TARGET_ID).targetId(TARGET_ID).name(TARGET_NAME)
-				.monitorType(MonitorType.TARGET).build();
+		final Monitor host = Monitor.builder().id(HOST_ID).hostId(HOST_ID).name(HOST_NAME)
+				.monitorType(MonitorType.HOST).build();
 
-		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(host);
 
-		detectionOperation.createTarget(false);
+		detectionOperation.createHost(false);
 
-		final Map<String, Monitor> targets = hostMonitoring.selectFromType(MonitorType.TARGET);
-		final Monitor actual = hostMonitoring.selectFromType(MonitorType.TARGET).get(TARGET_HOSTNAME);
-		assertNotNull(targets);
-		assertNotEquals(target, actual);
-		assertEquals(TARGET_HOSTNAME, actual.getName());
-		assertEquals(TARGET_HOSTNAME, actual.getId());
-		assertEquals(TARGET_HOSTNAME, actual.getTargetId());
+		final Map<String, Monitor> hosts = hostMonitoring.selectFromType(MonitorType.HOST);
+		final Monitor actual = hostMonitoring.selectFromType(MonitorType.HOST).get(HOSTNAME);
+		assertNotNull(hosts);
+		assertNotEquals(host, actual);
+		assertEquals(HOSTNAME, actual.getName());
+		assertEquals(HOSTNAME, actual.getId());
+		assertEquals(HOSTNAME, actual.getHostId());
 	}
 
 	@Test
@@ -306,14 +307,14 @@ class DetectionOperationTest {
 		{
 			final TestedConnector testedConnector = TestedConnector.builder().connector(connector1)
 					.criterionTestResults(Collections.emptyList()).build();
-			assertFalse(detectionOperation.isSuccessCriterion(testedConnector, TARGET_HOSTNAME));
+			assertFalse(detectionOperation.isSuccessCriterion(testedConnector, HOSTNAME));
 		}
 
 		{
 			final CriterionTestResult ctr = CriterionTestResult.builder().success(true).build();
 			final TestedConnector testedConnector = TestedConnector.builder().connector(connector1)
 					.criterionTestResults(Stream.of(ctr, ctr).collect(Collectors.toList())).build();
-			assertTrue(detectionOperation.isSuccessCriterion(testedConnector, TARGET_HOSTNAME));
+			assertTrue(detectionOperation.isSuccessCriterion(testedConnector, HOSTNAME));
 		}
 
 		{
@@ -321,7 +322,7 @@ class DetectionOperationTest {
 			final CriterionTestResult ctr2 = CriterionTestResult.builder().success(false).build();
 			final TestedConnector testedConnector = TestedConnector.builder().connector(connector1)
 					.criterionTestResults(Stream.of(ctr1, ctr2).collect(Collectors.toList())).build();
-			assertFalse(detectionOperation.isSuccessCriterion(testedConnector, TARGET_HOSTNAME));
+			assertFalse(detectionOperation.isSuccessCriterion(testedConnector, HOSTNAME));
 		}
 	}
 
@@ -361,19 +362,19 @@ class DetectionOperationTest {
 	void testTestConnectorNoDetectionNoCriteria() {
 		{
 			final Connector connector = Connector.builder().detection(null).build();
-			final TestedConnector actual = detectionOperation.testConnector(connector, TARGET_HOSTNAME);
+			final TestedConnector actual = detectionOperation.testConnector(connector, HOSTNAME);
 			assertEquals(TestedConnector.builder().connector(connector).build(), actual);
 		}
 
 		{
 			final Connector connector1 = Connector.builder()
 					.detection(Detection.builder().criteria(Collections.emptyList()).build()).build();
-			final TestedConnector actual1 = detectionOperation.testConnector(connector1, TARGET_HOSTNAME);
+			final TestedConnector actual1 = detectionOperation.testConnector(connector1, HOSTNAME);
 			assertEquals(TestedConnector.builder().connector(connector1).build(), actual1);
 
 			final Connector connector2 = Connector.builder().detection(Detection.builder().criteria(null).build())
 					.build();
-			final TestedConnector actual2 = detectionOperation.testConnector(connector2, TARGET_HOSTNAME);
+			final TestedConnector actual2 = detectionOperation.testConnector(connector2, HOSTNAME);
 			assertEquals(TestedConnector.builder().connector(connector2).build(), actual2);
 		}
 	}
@@ -400,12 +401,12 @@ class DetectionOperationTest {
 	}
 
 	@Test
-	void testFilterConnectorsByTargetType() {
+	void testFilterConnectorsByHostType() {
 		{
 			Connector connector = Connector.builder().appliesToOS(null).build();
 			final Stream<Connector> stream = Stream.of(connector1, connector2, connector4, connector);
 
-			final Stream<Connector> result = detectionOperation.filterConnectorsByTargetType(stream, TargetType.LINUX);
+			final Stream<Connector> result = detectionOperation.filterConnectorsByHostType(stream, HostType.LINUX);
 			assertEquals(Stream.of(connector1, connector2, connector4).collect(Collectors.toSet()),
 					result.collect(Collectors.toSet()));
 		}
@@ -414,8 +415,8 @@ class DetectionOperationTest {
 			Connector connector = Connector.builder().appliesToOS(null).build();
 			final Stream<Connector> stream = Stream.of(connector1, connector2, connector4, connector);
 
-			final Stream<Connector> result = detectionOperation.filterConnectorsByTargetType(stream,
-					TargetType.STORAGE);
+			final Stream<Connector> result = detectionOperation.filterConnectorsByHostType(stream,
+					HostType.STORAGE);
 			assertEquals(Collections.emptySet(), result.collect(Collectors.toSet()));
 		}
 
@@ -475,7 +476,7 @@ class DetectionOperationTest {
 						.getConnectors();
 
 		try (MockedStatic<NetworkHelper> networkHelper = Mockito.mockStatic(NetworkHelper.class)) {
-			networkHelper.when(() -> NetworkHelper.isLocalhost(eq(TARGET_HOSTNAME))).thenReturn(false);
+			networkHelper.when(() -> NetworkHelper.isLocalhost(eq(HOSTNAME))).thenReturn(false);
 
 			doReturn(SUCCESS_SNMP_RESULT1).when(matsyaClientsExecutor)
 					.executeSNMPGetNext(eq(OID1), any(), any(), anyBoolean());
@@ -488,18 +489,18 @@ class DetectionOperationTest {
 
 			detectionOperation.call();
 
-			final Monitor target = hostMonitoring.selectFromType(TARGET).get(TARGET_HOSTNAME);
-			assertEquals(TARGET_HOSTNAME, target.getName());
-			assertEquals(TARGET_HOSTNAME, target.getId());
-			assertEquals(TARGET_HOSTNAME, target.getTargetId());
+			final Monitor host = hostMonitoring.selectFromType(HOST).get(HOSTNAME);
+			assertEquals(HOSTNAME, host.getName());
+			assertEquals(HOSTNAME, host.getId());
+			assertEquals(HOSTNAME, host.getHostId());
 
 			final Map<String, Monitor> connectors = hostMonitoring.selectFromType(MonitorType.CONNECTOR);
 			assertEquals(1, connectors.size());  // connector 1 supersedes connector 2 that's why we've detected only one connector
-			Monitor connector = connectors.get(TARGET_HOSTNAME + "@" + CONNECTOR1_ID);
-			assertEquals(TARGET_HOSTNAME, connector.getParentId());
-			assertEquals(TARGET_HOSTNAME + "@" + CONNECTOR1_ID, connector.getId());
+			Monitor connector = connectors.get(HOSTNAME + "@" + CONNECTOR1_ID);
+			assertEquals(HOSTNAME, connector.getParentId());
+			assertEquals(HOSTNAME + "@" + CONNECTOR1_ID, connector.getId());
 			assertEquals(CONNECTOR1_ID, connector.getName());
-			assertEquals(TARGET_HOSTNAME, connector.getTargetId());
+			assertEquals(HOSTNAME, connector.getHostId());
 		}
 
 	}

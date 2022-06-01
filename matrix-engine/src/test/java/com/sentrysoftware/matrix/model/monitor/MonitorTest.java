@@ -354,15 +354,15 @@ class MonitorTest {
 		present.setState(null);
 		assertFalse(fan.isMissing());
 
-		// Target cannot be missing
-		final Monitor target = Monitor.builder()
-				.monitorType(MonitorType.TARGET)
+		// Host cannot be missing
+		final Monitor host = Monitor.builder()
+				.monitorType(MonitorType.HOST)
 				.build();
 
-		assertFalse(target.isMissing());
+		assertFalse(host.isMissing());
 
-		target.addParameter(DiscreteParam.present());
-		assertFalse(target.isMissing());
+		host.addParameter(DiscreteParam.present());
+		assertFalse(host.isMissing());
 
 	}
 }

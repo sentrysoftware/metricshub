@@ -1,13 +1,13 @@
 keywords: configuration, protocols, snmp, wbem, wmi, ipmi, ssh, http, os command
-description: How to configure Hardware Sentry Agent to scrape targets with various protocols.
+description: How to configure Hardware Sentry Agent to scrape hosts with various protocols.
 
 # Monitoring Configuration
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
-To collect metrics from your targets, you need to provide the following information to **${project.name}**:
+To collect metrics from your hosts, you need to provide the following information to **${project.name}**:
 
-* the hostname of the target to be monitored
+* the hostname of the host to be monitored
 * its type
 * the protocol to be used.
 
@@ -15,23 +15,23 @@ This information must be provided in the **config/hws-config.yaml** file (an alt
 
 The [YAML syntax](https://yaml.org/) of the configuration file must be strictly respected for **${project.name}** to operate correctly (notably the indentation). As changes in this file are taken into account immediately, there is no need to restart the *OpenTelemetry Collector*.
 
-## Monitored Targets
+## Monitored Hosts
 
-Systems to monitor are defined under `targets` with the below syntax:
+Systems to monitor are defined under `hosts` with the below syntax:
 
 ```yaml
-targets:
+hosts:
 
-- target:
+- host:
     hostname: <hostname>
-    type: <target-type>
+    type: <host-type>
   <protocol-configuration>
 ```
 
 where:
 
-* `<hostname>` is the name of the target, or its IP address
-* `<target-type>` is the type of the target to be monitored. Possible values are:
+* `<hostname>` is the name of the host, or its IP address
+* `<host-type>` is the type of the host to be monitored. Possible values are:
 
     * `win` for [Microsoft Windows systems](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#microsoft-windows)
     * `linux` for [Linux systems](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#linux)
@@ -44,7 +44,7 @@ where:
     * `tru64` for [HP Tru64 systems](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#hp-tru64)
     * `vms` for [HP Open VMS systems](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#hp-openvms)
 
-* `<protocol-configuration>` is the protocol(s) **${project.name}** will use to communicate with the targets: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, or `wbem`. Refer to [Specifying the protocol to be used](#protocol) for more details.
+* `<protocol-configuration>` is the protocol(s) **${project.name}** will use to communicate with the hosts: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, or `wbem`. Refer to [Specifying the protocol to be used](#protocol) for more details.
 
 <a name="protocol"></a>
 
@@ -56,17 +56,17 @@ Use the parameters below to configure the HTTP protocol:
 
 | Parameter | Description                                                                      |
 | --------- | -------------------------------------------------------------------------------- |
-| http      | Protocol used to access the target.                                              |
+| http      | Protocol used to access the host.                                                |
 | port      | The HTTPS port number used to perform SNMP queries (Default: 443).               |
-| username  | Name used to establish the connection with the target via the HTTP protocol.     |
-| password  | Password used to establish the connection with the target via the HTTP protocol. |
+| username  | Name used to establish the connection with the host via the HTTP protocol.       |
+| password  | Password used to establish the connection with the host via the HTTP protocol.   |
 
 #### Example
 
 ```yaml
-targets:
+hosts:
 
-  - target:
+  - host:
       hostname: myhost-01
       type: storage
     http:
@@ -82,16 +82,16 @@ Use the parameters below to configure the IPMI protocol:
 
 | Parameter | Description                                                                      |
 | --------- | -------------------------------------------------------------------------------- |
-| ipmi      | Protocol used to access the target.                                              |
-| username  | Name used to establish the connection with the target via the IPMI protocol.     |
-| password  | Password used to establish the connection with the target via the IPMI protocol. |
+| ipmi      | Protocol used to access the host.                                                |
+| username  | Name used to establish the connection with the host via the IPMI protocol.       |
+| password  | Password used to establish the connection with the host via the IPMI protocol.   |
 
 #### Example
 
 ```yaml
-targets:
+hosts:
 
-- target:
+- host:
     hostname: myhost-01
     type: oob
   ipmi:
@@ -105,7 +105,7 @@ Use the parameters below to configure OS Commands:
 
 | Parameter       | Description                                                                                                                                               |
 | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| osCommand       | Protocol used to access the target.                                                                                                                       |
+| osCommand       | Protocol used to access the host.                                                                                                                         |
 | timeout         | How long until the local OS Commands time out (default: 120s).|
 | useSudo         | Whether sudo is used or not for the local OS Command (true or false).                                                                                     |
 | useSudoCommands | List of commands for which sudo is required.                                                                                                              |
@@ -114,8 +114,8 @@ Use the parameters below to configure OS Commands:
 #### Example
 
 ```yaml
-targets:
-  - target:
+hosts:
+  - host:
       hostname: myhost-01
       type: linux
     osCommand:
@@ -131,7 +131,7 @@ Use the parameters below to configure the SSH protocol:
 
 | Parameter       | Description                                                                                                                                           |
 | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ssh             | Protocol used to access the target.                                                                                                                   |
+| ssh             | Protocol used to access the host.                                                                                                                     |
 | timeout         | How long until the command times out (default: 120s). |
 | useSudo         | Whether sudo is used or not for the SSH Command (true or false).                                                                                      |
 | useSudoCommands | List of commands for which sudo is required.                                                                                                          |
@@ -143,8 +143,8 @@ Use the parameters below to configure the SSH protocol:
 #### Example
 
 ```yaml
-targets:
-  - target:
+hosts:
+  - host:
       hostname: myhost-01
       type: linux
     ssh:
@@ -164,7 +164,7 @@ Use the parameters below to configure the SNMP protocol:
 
 | Parameter        | Description                                                                                                                                           |
 | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| snmp             | Protocol used to access the target.                                                                                                                   |
+| snmp             | Protocol used to access the host.                                                                                                                     |
 | version          | The version of the SNMP protocol (v1, v2c, v3-no-auth, v3-md5, v3-sha).                                                                               |
 | community        | The SNMP Community string to use to perform SNMP v1 queries (Default: public).                                                                        |
 | port             | The SNMP port number used to perform SNMP queries (Default: 161).                                                                                     |
@@ -177,9 +177,9 @@ Use the parameters below to configure the SNMP protocol:
 #### Example
 
 ```yaml
-targets:
+hosts:
 
-- target:
+- host:
     hostname: myhost-01
     type: linux
   snmp:
@@ -188,7 +188,7 @@ targets:
     port: 161
     timeout: 120s
 
-- target:
+- host:
     hostname: myhost-01
     type: linux
   snmp:
@@ -197,7 +197,7 @@ targets:
     port: 161
     timeout: 120s
 
-- target:
+- host:
     hostname: myhost-01
     type: linux
   snmp:
@@ -217,19 +217,19 @@ Use the parameters below to configure the WBEM protocol:
 
 | Parameter | Description                                                                                                                                           |
 | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| wbem      | Protocol used to access the target.                                                                                                                   |
-| protocol  | The protocol used to access the target.                                                                                                               |
+| wbem      | Protocol used to access the host.                                                                                                                     |
+| protocol  | The protocol used to access the host.                                                                                                                 |
 | port      | The HTTPS port number used to perform WBEM queries (Default: 5989 for HTTPS or 5988 for HTTP).                                                        |
 | timeout   | How long until the WBEM request times out (default: 120s). |
-| username  | Name used to establish the connection with the target via the WBEM protocol.                                                                          |
-| password  | Password used to establish the connection with the target via the WBEM protocol.                                                                      |
+| username  | Name used to establish the connection with the host via the WBEM protocol.                                                                            |
+| password  | Password used to establish the connection with the host via the WBEM protocol.                                                                        |
 
 #### Example
 
 ```yaml
-targets:
+hosts:
 
-  - target:
+  - host:
       hostname: myhost-01
       type: storage
     wbem:
@@ -246,17 +246,17 @@ Use the parameters below to configure the WMI protocol:
 
 | Parameter | Description                                                                                                                                          |
 | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| wmi       | Protocol used to access the target.                                                                                                                  |
+| wmi       | Protocol used to access the host.                                                                                                                    |
 | timeout   | How long until the WMI request times out (default: 120s). |
-| username  | Name used to establish the connection with the target via the WMI protocol.                                                                          |
-| password  | Password used to establish the connection with the target via the WMI protocol.                                                                      |
+| username  | Name used to establish the connection with the host via the WMI protocol.                                                                            |
+| password  | Password used to establish the connection with the host via the WMI protocol.                                                                        |
 
 #### Example
 
 ```yaml
-targets:
+hosts:
 
-  - target:
+  - host:
       hostname: myhost-01
       type: WIN
     wmi:
@@ -302,7 +302,7 @@ exporter:
     headers:
       Authorization: Basic <credentials>
 
-targets: # ...
+hosts: # ...
 ```
 
 You should provide a value as `Basic <credentials>` where `<credentials>` are built by first joining your username and password with a colon (`myUsername:myPassword`), and then by encoding the resulting value in `base64`.
@@ -313,22 +313,22 @@ You can also proceed with an additional security level by encrypting the `Basic 
 
 ### Collect Period
 
-By default, **${project.name}** collects metrics from the monitored targets every minute. To change the default collect period:
+By default, **${project.name}** collects metrics from the monitored hosts every minute. To change the default collect period:
 
-* for all your targets, add the `collectPeriod` parameter just before the `targets` section:
+* for all your hosts, add the `collectPeriod` parameter just before the `hosts` section:
 
     ```yaml
     collectPeriod: 2m
 
-    targets: # ...
+    hosts: # ...
     ```
 
-* for a specific target, add the `collectPeriod` parameter in the relevant `target` section:
+* for a specific host, add the `collectPeriod` parameter in the relevant `host` section:
 
     ```yaml
-    targets:
+    hosts:
 
-    - target:
+    - host:
         hostname: myhost
         type: linux
       snmp:
@@ -351,15 +351,15 @@ Use the parameters below to select or exclude connectors:
 
 | Parameter          | Description                                                                          |
 | ------------------ | ------------------------------------------------------------------------------------ |
-| selectedConnectors | Connector(s) to use to monitor the target. No automatic detection will be performed. |
+| selectedConnectors | Connector(s) to use to monitor the host. No automatic detection will be performed.   |
 | excludedConnectors | Connector(s) that must be excluded from the automatic detection.                     |
 
 Connector names must be comma-separated, as shown in the example below:
 
 ```yaml
-targets:
+hosts:
 
-  - target:
+  - host:
       hostname: myhost-01
       type: WIN
     wmi:
@@ -382,20 +382,20 @@ $ hws -l
 
 To disable **${project.name}**'s alerts:
 
-* for all your targets, set the `disableAlerts` parameter to `true` just before the `targets` section:
+* for all your hosts, set the `disableAlerts` parameter to `true` just before the `hosts` section:
 
     ```yaml
     disableAlerts: true
 
-    targets: # ...
+    hosts: # ...
     ```
 
-* for a specific target, set the `disableAlerts` parameter to `true` in the relevant `target` section:
+* for a specific host, set the `disableAlerts` parameter to `true` in the relevant `host` section:
 
     ```yaml
-    targets:
+    hosts:
 
-    - target:
+    - host:
         hostname: myhost
         type: linux
       snmp:
@@ -410,20 +410,20 @@ To disable **${project.name}**'s alerts:
 
 **${project.name}** periodically performs discoveries to detect new components in your monitored environment. By default, **${project.name}** runs a discovery after 30 collects. To change this default discovery cycle:
 
-* for all your targets, add the `discoveryCycle` just before the `targets` section:
+* for all your hosts, add the `discoveryCycle` just before the `hosts` section:
 
     ```yaml
     discoveryCycle: 15
 
-    targets: # ...
+    hosts: # ...
     ```
 
-* for a specific target, add the `discoveryCycle` parameter in the relevant `target` section:
+* for a specific host, add the `discoveryCycle` parameter in the relevant `host` section:
 
     ```yaml
-    targets:
+    hosts:
 
-    - target:
+    - host:
         hostname: myhost
         type: linux
       snmp:
@@ -445,9 +445,9 @@ All labels specified under `extraLabels` for a specific host will be added as ad
 A particular example is the use `extraLabels` to override the `host.name` attribute that is set by default by **${project.name}**. By default, the `host.name` attribute is set with the resolved FQDN to the monitored system, but you can override this value using `extraLabels` as in the example below:
 
 ```yaml
-targets:
+hosts:
 
-- target:
+- host:
     hostname: host01
     type: Linux
   snmp:
@@ -469,20 +469,20 @@ Hardware problem on ${FQDN} with ${MONITOR_NAME}.${NEWLINE}${NEWLINE}${ALERT_DET
 
 To change this default hardware problem template:
 
-* for all your targets, configure the `hardwareProblemTemplate` parameter just before the `targets` section:
+* for all your hosts, configure the `hardwareProblemTemplate` parameter just before the `hosts` section:
 
     ```yaml
     hardwareProblemTemplate: Custom hardware problem on ${FQDN} with ${MONITOR_NAME}.
 
-    targets: # ...
+    hosts: # ...
     ```
 
-* for a specific target, configure the `hardwareProblemTemplate` parameter in the relevant `target` section:
+* for a specific host, configure the `hardwareProblemTemplate` parameter in the relevant `host` section:
 
     ```yaml
-    targets:
+    hosts:
 
-    - target:
+    - host:
         hostname: myhost
         type: linux
       snmp:
@@ -499,26 +499,26 @@ For more information about the alert mechanism and the macros to use, refer to t
 
 ### Hostname Resolution
 
-By default, **${project.name}** resolves the `hostname` of the target to a Fully Qualified Domain Name (FQDN) and displays this value in the [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md) attribute `host.name`. To display the configured hostname instead, set `resolveHostnameToFqdn` to `false`:
+By default, **${project.name}** resolves the `hostname` of the host to a Fully Qualified Domain Name (FQDN) and displays this value in the [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md) attribute `host.name`. To display the configured hostname instead, set `resolveHostnameToFqdn` to `false`:
 
 ```yaml
 resolveHostnameToFqdn: false
 
-targets:
+hosts:
 
-- target:
+- host:
     hostname: host01
     type: Linux
 ```
 
 ### Job Pool Size
 
-By default, **${project.name}** runs up to 20 discovery and collect jobs in parallel. To increase or decrease the number of jobs **${project.name}** can run simultaneously,  add the `jobPoolSize` parameter just before the `targets` section:
+By default, **${project.name}** runs up to 20 discovery and collect jobs in parallel. To increase or decrease the number of jobs **${project.name}** can run simultaneously,  add the `jobPoolSize` parameter just before the `hosts` section:
 
 ```yaml
 jobPoolSize: 20
 
-targets: # ...
+hosts: # ...
 ```
 
 and indicate a number of jobs.
@@ -527,24 +527,24 @@ and indicate a number of jobs.
 
 ### Sequential Mode
 
-By default, **${project.name}** sends the queries to the target host in parallel. Although the parallel mode is faster than the sequential one, too many requests at the same time can lead to the failure of the targeted system.
+By default, **${project.name}** sends the queries to the host in parallel. Although the parallel mode is faster than the sequential one, too many requests at the same time can lead to the failure of the targeted system.
 
 To force all the network calls to be executed in sequential order:
 
-* for all your targets, enable the `sequential` option just before the `targets` section (**NOT RECOMMENDED**):
+* for all your hosts, enable the `sequential` option just before the `hosts` section (**NOT RECOMMENDED**):
 
     ```yaml
     sequential: true
 
-    targets: # ...
+    hosts: # ...
     ```
 
-* for a specific target, enable the `sequential` option in the relevant `target` section:
+* for a specific host, enable the `sequential` option in the relevant `host` section:
 
     ```yaml
-    targets:
+    hosts:
 
-    - target:
+    - host:
         hostname: myhost
         type: linux
       snmp:
@@ -579,7 +579,7 @@ exporter:
   otlp:
     trustedCertificatesFile: security/new-server-cert.crt
 
-targets: # ...
+hosts: # ...
 ```
 
 The file should be stored in the `security` folder and should contain one or more X.509 certificates in PEM format.

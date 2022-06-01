@@ -38,7 +38,7 @@ import org.junit.jupiter.api.Test;
 import com.sentrysoftware.matrix.common.meta.monitor.Fan;
 import com.sentrysoftware.matrix.common.meta.monitor.Gpu;
 import com.sentrysoftware.matrix.common.meta.monitor.OtherDevice;
-import com.sentrysoftware.matrix.common.meta.monitor.Target;
+import com.sentrysoftware.matrix.common.meta.monitor.Host;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
 import com.sentrysoftware.matrix.common.meta.monitor.Vm;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Up;
@@ -67,7 +67,7 @@ class MonitorAlertRulesVisitorTest {
 	}
 
 	@Test 
-	void testProcessTargetProtocolAlertRules() {
+	void testProcessHostProtocolAlertRules() {
 		final Monitor monitor = new Monitor();
 
 		CollectHelper.updateDiscreteParameter(monitor, SNMP_UP_PARAMETER, monitor.getDiscoveryTime(), Up.UP);
@@ -77,7 +77,7 @@ class MonitorAlertRulesVisitorTest {
 		CollectHelper.updateDiscreteParameter(monitor, HTTP_UP_PARAMETER, monitor.getDiscoveryTime(), Up.UP);
 		CollectHelper.updateDiscreteParameter(monitor, IPMI_UP_PARAMETER, monitor.getDiscoveryTime(), Up.UP);
 
-		new MonitorAlertRulesVisitor(monitor).processStaticAlertRules(monitor, new Target());
+		new MonitorAlertRulesVisitor(monitor).processStaticAlertRules(monitor, new Host());
 	
 		final Map<String, List<AlertRule>> alertRulesMap = monitor.getAlertRules();
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()

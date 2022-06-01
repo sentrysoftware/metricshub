@@ -45,6 +45,7 @@ import com.sentrysoftware.matrix.common.meta.monitor.DiskController;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.Fan;
 import com.sentrysoftware.matrix.common.meta.monitor.Gpu;
+import com.sentrysoftware.matrix.common.meta.monitor.Host;
 import com.sentrysoftware.matrix.common.meta.monitor.IMetaMonitor;
 import com.sentrysoftware.matrix.common.meta.monitor.Led;
 import com.sentrysoftware.matrix.common.meta.monitor.LogicalDisk;
@@ -56,7 +57,6 @@ import com.sentrysoftware.matrix.common.meta.monitor.PhysicalDisk;
 import com.sentrysoftware.matrix.common.meta.monitor.PowerSupply;
 import com.sentrysoftware.matrix.common.meta.monitor.Robotics;
 import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
-import com.sentrysoftware.matrix.common.meta.monitor.Target;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
 import com.sentrysoftware.matrix.common.meta.monitor.Vm;
 import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
@@ -138,7 +138,7 @@ public class MetricsMappingOld {
 		matrixParamToMetric.put(MonitorType.TEMPERATURE, buildTemperatureMetricsMapping());
 		matrixParamToMetric.put(MonitorType.VOLTAGE, buildVoltageMetricsMapping());
 		matrixParamToMetric.put(MonitorType.VM, buildVmMetricsMapping());
-		matrixParamToMetric.put(MonitorType.TARGET, buildTargetMetricsMapping());
+		matrixParamToMetric.put(MonitorType.HOST, buildTargetMetricsMapping());
 
 		matrixParamToMetricMap = Collections.unmodifiableMap(matrixParamToMetric);
 
@@ -175,7 +175,7 @@ public class MetricsMappingOld {
 		attributesMap.put(MonitorType.LED, concatDefaultAttributesWithMetadata(MonitorType.LED));
 		attributesMap.put(MonitorType.LOGICAL_DISK, concatDefaultAttributesWithMetadata(MonitorType.LOGICAL_DISK));
 		attributesMap.put(MonitorType.LUN, concatDefaultAttributesWithMetadata(MonitorType.LUN));
-		attributesMap.put(MonitorType.TARGET, concatDefaultAttributesWithMetadata(MonitorType.TARGET));
+		attributesMap.put(MonitorType.HOST, concatDefaultAttributesWithMetadata(MonitorType.HOST));
 		attributesMap.put(MonitorType.MEMORY, concatDefaultAttributesWithMetadata(MonitorType.MEMORY));
 		attributesMap.put(MonitorType.NETWORK_CARD, concatDefaultAttributesWithMetadata(MonitorType.NETWORK_CARD));
 		attributesMap.put(MonitorType.OTHER_DEVICE, concatDefaultAttributesWithMetadata(MonitorType.OTHER_DEVICE));
@@ -224,13 +224,13 @@ public class MetricsMappingOld {
 			.unit(CELSIUS)
 			.description("Number of degrees Celsius (°C) remaining before the temperature reaches the closest warning threshold.")
 			.build());
-		map.put(Target.AMBIENT_TEMPERATURE.getName(), MetricInfo
+		map.put(Host.AMBIENT_TEMPERATURE.getName(), MetricInfo
 			.builder()
 			.name("hw.target.ambient_temperature_celsius")
 			.unit(CELSIUS)
 			.description("Target's current ambient temperature in degrees Celsius (°C).")
 			.build());
-		map.put(Target.CPU_TEMPERATURE.getName(), MetricInfo
+		map.put(Host.CPU_TEMPERATURE.getName(), MetricInfo
 			.builder()
 			.name("hw.target.cpu_temperature_celsius")
 			.unit(CELSIUS)
@@ -242,25 +242,25 @@ public class MetricsMappingOld {
 				.unit(IMetaMonitor.PRESENT.getUnit())
 				.description("Whether the target is found or not.")
 				.build());
-		map.put(Target.SNMP_UP.getName(), MetricInfo
+		map.put(Host.SNMP_UP.getName(), MetricInfo
 				.builder()
 				.name("hw.target.snmp.up")
 				.unit(UP_PARAMETER_UNIT)
 				.description("Whether the SNMP protocol is up or not")
 				.build());
-		map.put(Target.WMI_UP.getName(), MetricInfo
+		map.put(Host.WMI_UP.getName(), MetricInfo
 				.builder()
 				.name("hw.target.wmi.up")
 				.unit(UP_PARAMETER_UNIT)
 				.description("Whether the WMI protocol is up or not")
 				.build());
-		map.put(Target.WBEM_UP.getName(), MetricInfo
+		map.put(Host.WBEM_UP.getName(), MetricInfo
 				.builder()
 				.name("hw.target.wbem.up")
 				.unit(UP_PARAMETER_UNIT)
 				.description("Whether the WBEM protocol is up or not")
 				.build());
-		map.put(Target.SSH_UP.getName(), MetricInfo
+		map.put(Host.SSH_UP.getName(), MetricInfo
 				.builder()
 				.name("hw.target.ssh.up")
 				.unit(UP_PARAMETER_UNIT)

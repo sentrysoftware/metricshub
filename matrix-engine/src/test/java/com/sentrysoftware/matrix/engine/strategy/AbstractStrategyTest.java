@@ -43,10 +43,11 @@ import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceVisitor;
-import com.sentrysoftware.matrix.engine.target.HardwareTarget;
-import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+
+import com.sentrysoftware.matrix.engine.host.HardwareHost;
+import com.sentrysoftware.matrix.engine.host.HostType;
 
 @ExtendWith(MockitoExtension.class)
 class AbstractStrategyTest {
@@ -93,7 +94,7 @@ class AbstractStrategyTest {
 		final SnmpProtocol protocol = SnmpProtocol.builder().community("public").version(SnmpVersion.V1).port(161)
 				.timeout(120L).build();
 		engineConfiguration = EngineConfiguration.builder()
-				.target(HardwareTarget.builder().hostname(HOSTNAME).id(HOSTNAME).type(TargetType.LINUX).build())
+				.host(HardwareHost.builder().hostname(HOSTNAME).id(HOSTNAME).type(HostType.LINUX).build())
 				.protocolConfigurations(Map.of(SnmpProtocol.class, protocol)).build();
 
 		connector = Connector.builder().compiledFilename(MY_CONNECTOR_NAME).build();

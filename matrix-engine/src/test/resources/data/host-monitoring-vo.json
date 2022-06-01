@@ -5,8 +5,8 @@
 			"id": "enclosure-1",
 			"name": "enclosure-1",
 			"monitorType": "ENCLOSURE",
-			"parentId": "targetId",
-			"targetId": "targetId",
+			"parentId": "hostId",
+			"hostId": "hostId",
 			"extendedType": null,
 			"discoveryTime": 1633620837079,
 			"parameters": {
@@ -35,8 +35,8 @@
 			"id": "enclosure-2",
 			"name": "enclosure-2",
 			"monitorType": "ENCLOSURE",
-			"parentId": "targetId",
-			"targetId": "targetId",
+			"parentId": "hostId",
+			"hostId": "hostId",
 			"extendedType": null,
 			"discoveryTime": 1633620837079,
 			"parameters": {

@@ -1,16 +1,17 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
-import static com.sentrysoftware.matrix.engine.target.TargetType.HP_OPEN_VMS;
-import static com.sentrysoftware.matrix.engine.target.TargetType.HP_TRU64_UNIX;
-import static com.sentrysoftware.matrix.engine.target.TargetType.HP_UX;
-import static com.sentrysoftware.matrix.engine.target.TargetType.IBM_AIX;
-import static com.sentrysoftware.matrix.engine.target.TargetType.LINUX;
-import static com.sentrysoftware.matrix.engine.target.TargetType.MGMT_CARD_BLADE_ESXI;
-import static com.sentrysoftware.matrix.engine.target.TargetType.MS_WINDOWS;
-import static com.sentrysoftware.matrix.engine.target.TargetType.NETWORK_SWITCH;
-import static com.sentrysoftware.matrix.engine.target.TargetType.STORAGE;
-import static com.sentrysoftware.matrix.engine.target.TargetType.SUN_SOLARIS;
+
+import static com.sentrysoftware.matrix.engine.host.HostType.HP_OPEN_VMS;
+import static com.sentrysoftware.matrix.engine.host.HostType.HP_TRU64_UNIX;
+import static com.sentrysoftware.matrix.engine.host.HostType.HP_UX;
+import static com.sentrysoftware.matrix.engine.host.HostType.IBM_AIX;
+import static com.sentrysoftware.matrix.engine.host.HostType.LINUX;
+import static com.sentrysoftware.matrix.engine.host.HostType.MGMT_CARD_BLADE_ESXI;
+import static com.sentrysoftware.matrix.engine.host.HostType.MS_WINDOWS;
+import static com.sentrysoftware.matrix.engine.host.HostType.NETWORK_SWITCH;
+import static com.sentrysoftware.matrix.engine.host.HostType.STORAGE;
+import static com.sentrysoftware.matrix.engine.host.HostType.SUN_SOLARIS;
 
 import java.net.InetAddress;
 import java.util.Map;
@@ -24,8 +25,10 @@ import com.sentrysoftware.hardware.agent.dto.metric.StaticIdentifyingAttribute;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.ILocalOs;
 import com.sentrysoftware.matrix.common.meta.parameter.state.IState;
+
+import com.sentrysoftware.matrix.engine.host.HostType;
+
 import com.sentrysoftware.matrix.common.helpers.StringHelper;
-import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
 import com.sentrysoftware.matrix.model.parameter.IParameter;
@@ -72,7 +75,7 @@ public class OtelHelper {
 	static final String AGENT_HOSTNAME = StringHelper
 			.getValue(() -> InetAddress.getLocalHost().getCanonicalHostName(), UNKNOWN);
 
-	static final Map<TargetType, String> TARGET_TYPE_TO_OTEL_OS_TYPE = Map.of(
+	static final Map<HostType, String> HOST_TYPE_TO_OTEL_OS_TYPE = Map.of(
 			HP_OPEN_VMS, OS_TYPE_OPEN_VMS,
 			HP_TRU64_UNIX, OS_TYPE_TRUE64,
 			HP_UX, OS_TYPE_HP_UX,
@@ -84,7 +87,7 @@ public class OtelHelper {
 			STORAGE, OS_TYPE_STORAGE,
 			SUN_SOLARIS, OS_TYPE_SOLARIS);
 
-	static final Map<TargetType, String> TARGET_TYPE_TO_OTEL_HOST_TYPE = Map.of(
+	static final Map<HostType, String> HOST_TYPE_TO_OTEL_HOST_TYPE = Map.of(
 			HP_OPEN_VMS, HOST_TYPE_COMPUTE,
 			HP_TRU64_UNIX, HOST_TYPE_COMPUTE,
 			HP_UX, HOST_TYPE_COMPUTE,
@@ -132,7 +135,7 @@ public class OtelHelper {
 		sdkBuilder.registerShutdownHook(false);
 
 		// We are not instrumenting our code execution and because this method is called
-		// for each target, we must disable the global result
+		// for each host, we must disable the global result
 		sdkBuilder.setResultAsGlobal(false);
 
 		return sdkBuilder.build();
@@ -141,20 +144,20 @@ public class OtelHelper {
 	/**
 	 * Create host resource using the given information
 	 * 
-	 * @param id                    Target id
-	 * @param hostname              Target configured hostname
-	 * @param targetType            Target type
+	 * @param id                    Host id
+	 * @param hostname              Host configured hostname
+	 * @param hostType              Host type
 	 * @param fqdn                  Collected fqdn
 	 * @param resolveHostnameToFqdn Whether we should resolve the hostname to Fqdn
-	 * @param extraLabels           Extra labels configured on the target
+	 * @param extraLabels           Extra labels configured on the host
 	 * @param globalExtraLabels     Global configured extra labels
-	 * @return Resource capturing identifying information about the target for which
+	 * @return Resource capturing identifying information about the host for which
 	 *         signals are reported.
 	 */
 	public static Resource createHostResource(
 			@NonNull final String id,
 			@NonNull String hostname,
-			@NonNull final TargetType targetType,
+			@NonNull final HostType hostType,
 			@NonNull final String fqdn,
 			final boolean resolveHostnameToFqdn,
 			@NonNull final Map<String, String> extraLabels,
@@ -169,18 +172,18 @@ public class OtelHelper {
 		);
 
 		// The host resource os.type
-		final String osType = TARGET_TYPE_TO_OTEL_OS_TYPE.getOrDefault(targetType,
-				targetType.getDisplayName().toLowerCase());
+		final String osType = HOST_TYPE_TO_OTEL_OS_TYPE.getOrDefault(hostType,
+				hostType.getDisplayName().toLowerCase());
 
 		// The host resource host.type
-		final String hostType = TARGET_TYPE_TO_OTEL_HOST_TYPE.getOrDefault(targetType,
-				targetType.getDisplayName().toLowerCase());
+		final String hostTypeStr = HOST_TYPE_TO_OTEL_HOST_TYPE.getOrDefault(hostType,
+				hostType.getDisplayName().toLowerCase());
 
 		// Build attributes
 		final AttributesBuilder builder = Attributes.builder()
 				.put("host.id", id)
 				.put(RESOURCE_HOST_NAME_PROP, hostname)
-				.put("host.type", hostType)
+				.put("host.type", hostTypeStr)
 				.put("os.type", osType)
 				.put("agent.host.name", AGENT_HOSTNAME);
 
@@ -211,10 +214,10 @@ public class OtelHelper {
 	 *   <li>User's extra label <code>fqdn</code> with <code>resolveHostnameToFqdn=true</code></li>
 	 *   <li>User's extra label <code>host.name</code> value</li>
 	 *   <li>Collected <code>fqdn</code> when the <code>resolveHostnameToFqdn=true</code></li>
-	 *   <li>Configured target's <code>hostname</code></li>
+	 *   <li>Configured host's <code>hostname</code></li>
 	 * </ol>
 	 * 
-	 * @param hostname              Configured target's hostname
+	 * @param hostname              Configured host's hostname
 	 * @param collectedFqdn         Collected fqdn
 	 * @param resolveHostnameToFqdn global configuration property to tell the agent
 	 *                              resolve host.name as Fqdn
@@ -242,7 +245,7 @@ public class OtelHelper {
 			return collectedFqdn;
 		}
 
-		// Finally we keep the configured target's hostname
+		// Finally we keep the configured host's hostname
 		return hostname;
 	}
 

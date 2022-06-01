@@ -76,7 +76,7 @@ public class WqlDetectionHelper {
 	/**
 	 * Find the possible WBEM namespaces using the configured {@link WbemProtocol}.
 	 *
-	 * @param hostname	The hostname of the target device.
+	 * @param hostname	The hostname of the host device.
 	 * @param wbemConfig	The user's configured {@link WbemProtocol}.
 	 *
 	 * @return A {@link PossibleNamespacesResult} wrapping the success state, the message in case of errors
@@ -170,7 +170,7 @@ public class WqlDetectionHelper {
 	/**
 	 * Find the possible WMI namespaces on specified hostname with specified credentials.
 	 *
-	 * @param hostname	The hostname of the target device.
+	 * @param hostname	The hostname of the host device.
 	 * @param wmiConfig	WMI configuration (credentials, timeout)
 	 *
 	 * @return A {@link PossibleNamespacesResult} wrapping the success state, the message in case of errors
@@ -254,7 +254,7 @@ public class WqlDetectionHelper {
 	 * <p>
 	 * The namespace in the criterion must be "Automatic".
 	 * <p>
-	 * @param hostname The hostname of the target
+	 * @param hostname The host name
 	 * @param protoConfig WBEM/WMI configuration (credentials, timeout)
 	 * @param criterion WQL detection properties (WQL, expected result, namespace must be "Automatic")
 	 * @param possibleNamespacesResult The possible namespaces to execute the WQL on
@@ -343,7 +343,7 @@ public class WqlDetectionHelper {
 	 * <p>
 	 * Note: "Automatic" namespace is not supported in this method.
 	 * <p>
-	 * @param hostname Hostname of the target
+	 * @param hostname Host name
 	 * @param protoConfig WBEM/WMI configuration (credentials, timeout)
 	 * @param criterion WQL detection properties (WQL, namespace, expected result)
 	 *

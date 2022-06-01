@@ -8,7 +8,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_NUMBER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HOST_FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,8 +30,6 @@ import com.sentrysoftware.matrix.common.meta.parameter.state.Present;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.collect.CollectHelper;
-import com.sentrysoftware.matrix.engine.target.HardwareTarget;
-import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.alert.AlertDetails;
 import com.sentrysoftware.matrix.model.alert.AlertInfo;
 import com.sentrysoftware.matrix.model.alert.AlertRule;
@@ -39,6 +37,9 @@ import com.sentrysoftware.matrix.model.alert.Severity;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+
+import com.sentrysoftware.matrix.engine.host.HardwareHost;
+import com.sentrysoftware.matrix.engine.host.HostType;
 
 public class OtelAlertHelperTest {
 
@@ -217,7 +218,7 @@ public class OtelAlertHelperTest {
 					.alertRule(new AlertRule())
 					.parameterName("unknownParam")
 					.hostMonitoring(new HostMonitoring())
-					.hardwareTarget(HardwareTarget.builder().build())
+					.hardwareHost(HardwareHost.builder().build())
 					.monitor(Monitor.builder().build())
 					.build(), "template"));
 		assertEquals(EMPTY, OtelAlertHelper.buildHardwareProblem(
@@ -226,7 +227,7 @@ public class OtelAlertHelperTest {
 					.alertRule(new AlertRule())
 					.parameterName(STATUS_PARAMETER)
 					.hostMonitoring(new HostMonitoring())
-					.hardwareTarget(HardwareTarget.builder().build())
+					.hardwareHost(HardwareHost.builder().build())
 					.monitor(Monitor.builder().monitorType(MonitorType.BATTERY).build())
 					.build(), ""));
 		assertEquals(EMPTY, OtelAlertHelper.buildHardwareProblem(
@@ -235,45 +236,46 @@ public class OtelAlertHelperTest {
 					.alertRule(new AlertRule())
 					.parameterName(STATUS_PARAMETER)
 					.hostMonitoring(new HostMonitoring())
-					.hardwareTarget(HardwareTarget.builder().build())
+					.hardwareHost(HardwareHost.builder().build())
 					.monitor(Monitor.builder().monitorType(MonitorType.BATTERY).build())
 					.build(), null));
 		assertThrows(IllegalArgumentException.class, () -> OtelAlertHelper.buildHardwareProblem(null, "template"));
 	}
 	/**
-	 * Initialize target, enclosure and disk for alert testing
+	 * Initialize host, enclosure and disk for alert testing
 	 * 
 	 * @param hostMonitoring
 	 */
 	public static void initMonitorsForAlert(final IHostMonitoring hostMonitoring) {
-		final Monitor target = Monitor
+		final Monitor host = Monitor
 				.builder()
 				.id(HOSTNAME)
 				.parentId(null)
-				.targetId(HOSTNAME)
+				.hostId(HOSTNAME)
 				.name(HOSTNAME)
-				.monitorType(MonitorType.TARGET)
+				.monitorType(MonitorType.HOST)
 				.metadata(Map.of(FQDN, HOSTNAME))
 				.build();
 
-		hostMonitoring.addMonitor(target);
+		hostMonitoring.addMonitor(host);
 
 		final Map<String, String> enclosureMetadata = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 		enclosureMetadata.put(ID_COUNT, "1");
 		enclosureMetadata.put(VENDOR, "Pure");
 		enclosureMetadata.put(MODEL, "FA-X20R2");
 		enclosureMetadata.put(SERIAL_NUMBER, "FA-123456789");
-		enclosureMetadata.put(TARGET_FQDN, HOSTNAME);
+		enclosureMetadata.put(HOST_FQDN, HOSTNAME);
 
-		final Monitor enclosure = Monitor.builder()
-				.id("localhost@connector1_enclosure_1")
-				.name("PureStorage FA-X20R2")
-				.parentId(HOSTNAME)
-				.targetId(HOSTNAME)
-				.monitorType(MonitorType.ENCLOSURE)
-				.extendedType(COMPUTER)
-				.metadata(enclosureMetadata)
-				.build();
+		final Monitor enclosure = Monitor
+			.builder()
+			.id("localhost@connector1_enclosure_1")
+			.name("PureStorage FA-X20R2")
+			.parentId(HOSTNAME)
+			.hostId(HOSTNAME)
+			.monitorType(MonitorType.ENCLOSURE)
+			.extendedType(COMPUTER)
+			.metadata(enclosureMetadata)
+			.build();
 
 		hostMonitoring.addMonitor(enclosure);
 
@@ -282,17 +284,18 @@ public class OtelAlertHelperTest {
 		diskMetadata.put(MODEL, "SAS Flash Module");
 		diskMetadata.put(SERIAL_NUMBER, "FM-123456789");
 		diskMetadata.put(SIZE, "1000000000000");
-		diskMetadata.put(TARGET_FQDN, HOSTNAME);
+		diskMetadata.put(HOST_FQDN, HOSTNAME);
 		diskMetadata.put(CONNECTOR, "Connector1");
 
-		final Monitor physicalDisk = Monitor.builder()
-				.id("localhost@connector1_physical_disk_1")
-				.name("SAS Flash Module - CH0.BAY9")
-				.parentId(enclosure.getId())
-				.targetId(HOSTNAME)
-				.metadata(diskMetadata)
-				.monitorType(MonitorType.PHYSICAL_DISK)
-				.build();
+		final Monitor physicalDisk = Monitor
+			.builder()
+			.id("localhost@connector1_physical_disk_1")
+			.name("SAS Flash Module - CH0.BAY9")
+			.parentId(enclosure.getId())
+			.hostId(HOSTNAME)
+			.metadata(diskMetadata)
+			.monitorType(MonitorType.PHYSICAL_DISK)
+			.build();
 
 		hostMonitoring.addMonitor(physicalDisk);
 	}
@@ -321,7 +324,7 @@ public class OtelAlertHelperTest {
 						.alertRule(alertRule)
 						.monitor(monitor)
 						.parameterName(parameterName)
-						.hardwareTarget(HardwareTarget.builder().type(TargetType.LINUX).id(HOSTNAME).hostname(HOSTNAME).build())
+						.hardwareHost(HardwareHost.builder().type(HostType.LINUX).id(HOSTNAME).hostname(HOSTNAME).build())
 						.hostMonitoring(hostMonitoring)
 						.build()
 				);
@@ -386,7 +389,7 @@ public class OtelAlertHelperTest {
 							.id("battery")
 							.name("battery")
 							.parentId("enclosure")
-							.targetId(HOSTNAME)
+							.hostId(HOSTNAME)
 							.monitorType(MonitorType.BATTERY)
 							.build();
 
@@ -482,7 +485,7 @@ public class OtelAlertHelperTest {
 
 	@Test
 	void testBuildParentInformation() {
-		assertEquals("target is the root monitor", OtelAlertHelper.buildParentInformation("target", null, new HostMonitoring()));
+		assertEquals("host is the root monitor", OtelAlertHelper.buildParentInformation("host", null, new HostMonitoring()));
 		assertEquals("No information available on the parent", OtelAlertHelper.buildParentInformation(null, "parent_id", new HostMonitoring()));
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
@@ -493,17 +496,18 @@ public class OtelAlertHelperTest {
 		enclosureMetadata.put(VENDOR, "Pure");
 		enclosureMetadata.put(MODEL, "FA-X20R2");
 		enclosureMetadata.put(SERIAL_NUMBER, "FA-123456789");
-		enclosureMetadata.put(TARGET_FQDN, HOSTNAME);
+		enclosureMetadata.put(HOST_FQDN, HOSTNAME);
 
-		final Monitor enclosure = Monitor.builder()
-				.id("localhost@connector1_enclosure_1")
-				.name("PureStorage FA-X20R2")
-				.parentId(HOSTNAME)
-				.targetId(HOSTNAME)
-				.metadata(enclosureMetadata)
-				.monitorType(MonitorType.ENCLOSURE)
-				.extendedType(COMPUTER)
-				.build();
+		final Monitor enclosure = Monitor
+			.builder()
+			.id("localhost@connector1_enclosure_1")
+			.name("PureStorage FA-X20R2")
+			.parentId(HOSTNAME)
+			.hostId(HOSTNAME)
+			.metadata(enclosureMetadata)
+			.monitorType(MonitorType.ENCLOSURE)
+			.extendedType(COMPUTER)
+			.build();
 
 		hostMonitoring.addMonitor(enclosure);
 

@@ -1,5 +1,26 @@
 package com.sentrysoftware.matrix.common.meta.monitor;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AMBIENT_TEMPERATURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_TEMPERATURE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HTTP_UP_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IPMI_UP_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCATION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_METER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SNMP_UP_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SSH_UP_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UP_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WBEM_UP_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WMI_UP_PARAMETER;
+import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.UP_ALARM_CONDITION;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -20,32 +41,11 @@ import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitor.Monitor.AssertedParameter;
 import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AMBIENT_TEMPERATURE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_TEMPERATURE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HEATING_MARGIN_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCATION;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER_UNIT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SNMP_UP_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WBEM_UP_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SSH_UP_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WMI_UP_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HTTP_UP_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IPMI_UP_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UP_PARAMETER_UNIT;
-
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.UP_ALARM_CONDITION;
-
-public class Target implements IMetaMonitor {
+public class Host implements IMetaMonitor {
 
 	private static final String CONSEQUENCE_MESSAGE = "All connectors relying on this protocol to collect data will not work anymore. The components detected through these connectors will no longer be monitored.";
 
-	private static final List<String> METADATA = List.of(LOCATION);
+	private static final List<String> METADATA = List.of(LOCATION, POWER_METER);
 
 	public static final MetaParameter AMBIENT_TEMPERATURE = MetaParameter.builder()
 			.basicCollect(false)
@@ -110,27 +110,27 @@ public class Target implements IMetaMonitor {
 			.type(new DiscreteParamType(Up::interpret))
 			.build();
 
-	public static final AlertRule SNMP_UP_ALERT_RULE = new AlertRule(Target::checkSnmpStatusAlarmCondition,
+	public static final AlertRule SNMP_UP_ALERT_RULE = new AlertRule(Host::checkSnmpStatusAlarmCondition,
 			UP_ALARM_CONDITION,
 			Severity.ALARM);
 
-	public static final AlertRule WBEM_UP_ALERT_RULE = new AlertRule(Target::checkWbemStatusAlarmCondition,
+	public static final AlertRule WBEM_UP_ALERT_RULE = new AlertRule(Host::checkWbemStatusAlarmCondition,
 			UP_ALARM_CONDITION,
 			Severity.ALARM);
 
-	public static final AlertRule SSH_UP_ALERT_RULE = new AlertRule(Target::checkSshStatusAlarmCondition,
+	public static final AlertRule SSH_UP_ALERT_RULE = new AlertRule(Host::checkSshStatusAlarmCondition,
 			UP_ALARM_CONDITION,
 			Severity.ALARM);
 
-	public static final AlertRule WMI_UP_ALERT_RULE = new AlertRule(Target::checkWmiStatusAlarmCondition,
+	public static final AlertRule WMI_UP_ALERT_RULE = new AlertRule(Host::checkWmiStatusAlarmCondition,
 			UP_ALARM_CONDITION,
 			Severity.ALARM);
 
-	public static final AlertRule HTTP_UP_ALERT_RULE = new AlertRule(Target::checkHttpStatusAlarmCondition,
+	public static final AlertRule HTTP_UP_ALERT_RULE = new AlertRule(Host::checkHttpStatusAlarmCondition,
 			UP_ALARM_CONDITION,
 			Severity.ALARM);
 
-	public static final AlertRule IPMI_UP_ALERT_RULE = new AlertRule(Target::checkIpmiStatusAlarmCondition,
+	public static final AlertRule IPMI_UP_ALERT_RULE = new AlertRule(Host::checkIpmiStatusAlarmCondition,
 			UP_ALARM_CONDITION,
 			Severity.ALARM);
 
@@ -338,7 +338,7 @@ public class Target implements IMetaMonitor {
 
 	@Override
 	public MonitorType getMonitorType() {
-		return MonitorType.TARGET;
+		return MonitorType.HOST;
 	}
 
 	@Override

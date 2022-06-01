@@ -39,8 +39,8 @@ import com.sentrysoftware.matrix.engine.protocol.OsCommandConfig;
 import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WmiProtocol;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
-import com.sentrysoftware.matrix.engine.target.TargetType;
 
+import com.sentrysoftware.matrix.engine.host.HostType;
 import lombok.NonNull;
 
 public class OsCommandHelper {
@@ -292,14 +292,14 @@ public class OsCommandHelper {
 	/**
 	 * Convert a string to be searched in a case insensitive regex.
 	 * 
-	 * @param target The string to searched. (mandatory)
+	 * @param host The string to searched. (mandatory)
 	 * @return The case insensitive regex for this string.
 	 */
-	public static String toCaseInsensitiveRegex(final String target) {
-		isTrue(target != null && !target.isEmpty(), "target cannot be null nor empty.");
-		return target.isBlank() ?
-				target :
-					"(?i)" + Pattern.quote(target);
+	public static String toCaseInsensitiveRegex(final String host) {
+		isTrue(host != null && !host.isEmpty(), "host cannot be null nor empty.");
+		return host.isBlank() ?
+				host :
+					"(?i)" + Pattern.quote(host);
 	}
 
 	/**
@@ -411,7 +411,7 @@ public class OsCommandHelper {
 		final IProtocolConfiguration protocolConfiguration = engineConfiguration
 			.getProtocolConfigurations()
 			.get(
-				!isLocalhost && engineConfiguration.getTarget().getType() == TargetType.MS_WINDOWS
+				!isLocalhost && engineConfiguration.getHost().getType() == HostType.MS_WINDOWS
 					? WmiProtocol.class
 					: SshProtocol.class);
 
@@ -425,7 +425,7 @@ public class OsCommandHelper {
 
 		final Optional<char[]> maybePassword = getPassword(protocolConfiguration);
 
-		final String hostname = engineConfiguration.getTarget().getHostname();
+		final String hostname = engineConfiguration.getHost().getHostname();
 
 		final OsCommandConfig osCommandConfig = 
 				(OsCommandConfig) engineConfiguration.getProtocolConfigurations().get(OsCommandConfig.class);
@@ -483,7 +483,7 @@ public class OsCommandHelper {
 							HardwareConstants.EMPTY;
 
 			// Case Windows Remote
-			} else if (engineConfiguration.getTarget().getType() == TargetType.MS_WINDOWS) {
+			} else if (engineConfiguration.getHost().getType() == HostType.MS_WINDOWS) {
 				final WmiProtocol  wmiProtocol = (WmiProtocol) protocolConfiguration;
 				commandResult = MatsyaClientsExecutor.executeWmiRemoteCommand(
 						command,

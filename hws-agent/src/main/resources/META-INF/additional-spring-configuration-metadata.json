@@ -11,9 +11,9 @@
       "description": "Description for trust.store.password."
     },
     {
-      "name": "target.config.file",
+      "name": "host.config.file",
       "type": "java.lang.String",
-      "description": "Description for target.config.file."
+      "description": "Description for host.config.file."
     },
     {
       "name": "server.ssl.redirect-http",

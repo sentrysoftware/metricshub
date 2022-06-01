@@ -23,7 +23,7 @@ import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo.MetricType;
 import com.sentrysoftware.hardware.agent.dto.metric.StaticIdentifyingAttribute;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.monitor.IMetaMonitor;
-import com.sentrysoftware.matrix.common.meta.monitor.Target;
+import com.sentrysoftware.matrix.common.meta.monitor.Host;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -43,7 +43,7 @@ public class HostMapping {
 		final Map<String, List<MetricInfo>> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(
-			Target.AMBIENT_TEMPERATURE.getName(),
+			Host.AMBIENT_TEMPERATURE.getName(),
 			Collections.singletonList(
 				 MetricInfo
 					.builder()
@@ -124,7 +124,7 @@ public class HostMapping {
 		);
 
 		map.put(
-			Target.SNMP_UP.getName(),
+			Host.SNMP_UP.getName(),
 			Collections.singletonList(
 				MetricInfo
 					.builder()
@@ -142,7 +142,7 @@ public class HostMapping {
 		);
 
 		map.put(
-			Target.WMI_UP.getName(),
+			Host.WMI_UP.getName(),
 			Collections.singletonList(
 				MetricInfo
 					.builder()
@@ -160,7 +160,7 @@ public class HostMapping {
 		);
 
 		map.put(
-			Target.WBEM_UP.getName(),
+			Host.WBEM_UP.getName(),
 			Collections.singletonList(
 				MetricInfo
 					.builder()
@@ -178,7 +178,7 @@ public class HostMapping {
 		);
 
 		map.put(
-			Target.SSH_UP.getName(),
+			Host.SSH_UP.getName(),
 			Collections.singletonList(
 				MetricInfo
 					.builder()
@@ -196,7 +196,7 @@ public class HostMapping {
 		);
 
 		map.put(
-			Target.HTTP_UP.getName(),
+			Host.HTTP_UP.getName(),
 			Collections.singletonList(
 				MetricInfo
 					.builder()
@@ -214,7 +214,7 @@ public class HostMapping {
 		);
 
 		map.put(
-			Target.IPMI_UP.getName(),
+			Host.IPMI_UP.getName(),
 			Collections.singletonList(
 				MetricInfo
 					.builder()

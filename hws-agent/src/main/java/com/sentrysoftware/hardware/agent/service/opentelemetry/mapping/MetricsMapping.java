@@ -53,7 +53,7 @@ public class MetricsMapping {
 		final Map<MonitorType, Map<String, List<MetricInfo>>> matrixParamToMetric = new EnumMap<>(MonitorType.class);
 
 		matrixParamToMetric.put(MonitorType.CONNECTOR, ConnectorMapping.buildConnectorMetricsMapping());
-		matrixParamToMetric.put(MonitorType.TARGET, HostMapping.buildHostMetricsMapping());
+		matrixParamToMetric.put(MonitorType.HOST, HostMapping.buildHostMetricsMapping());
 		matrixParamToMetric.put(MonitorType.ENCLOSURE, EnclosureMapping.buildEnclosureMetricsMapping());
 		matrixParamToMetric.put(MonitorType.BATTERY, BatteryMapping.buildBatteryMetricsMapping());
 		matrixParamToMetric.put(MonitorType.MEMORY, MemoryMapping.buildMemoryMetricsMapping());
@@ -112,7 +112,7 @@ public class MetricsMapping {
 		attributesMap.put(MonitorType.LED, concatDefaultAttributesWithMetadata(MonitorType.LED));
 		attributesMap.put(MonitorType.LOGICAL_DISK, concatDefaultAttributesWithMetadata(MonitorType.LOGICAL_DISK));
 		attributesMap.put(MonitorType.LUN, concatDefaultAttributesWithMetadata(MonitorType.LUN));
-		attributesMap.put(MonitorType.TARGET, concatDefaultAttributesWithMetadata(MonitorType.TARGET));
+		attributesMap.put(MonitorType.HOST, concatDefaultAttributesWithMetadata(MonitorType.HOST));
 		attributesMap.put(MonitorType.MEMORY, concatDefaultAttributesWithMetadata(MonitorType.MEMORY));
 		attributesMap.put(MonitorType.NETWORK_CARD, concatDefaultAttributesWithMetadata(MonitorType.NETWORK_CARD));
 		attributesMap.put(MonitorType.OTHER_DEVICE, concatDefaultAttributesWithMetadata(MonitorType.OTHER_DEVICE));

@@ -41,11 +41,11 @@ import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
+import com.sentrysoftware.matrix.engine.host.HostType;
 
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
@@ -76,13 +76,13 @@ class OtelParameterToMetricObserverTest {
 
 		final String expectedState = MappingConstants.OK_ATTRIBUTE_VALUE;
 
-		final Monitor target = Monitor.builder().id(ID).name("host").build();
-		target.addMetadata(FQDN, "host.my.domain.net");
+		final Monitor host = Monitor.builder().id(ID).name("host").build();
+		host.addMetadata(FQDN, "host.my.domain.net");
 
 		final Resource resource = OtelHelper.createHostResource(
-			target.getId(),
+			host.getId(),
 			"host",
-			TargetType.LINUX,
+			HostType.LINUX,
 			"host.my.domain.net",
 			false,
 			Collections.emptyMap(),
@@ -210,13 +210,13 @@ class OtelParameterToMetricObserverTest {
 
 		final String expectedMetricName = "hw.enclosure.energy";
 
-		final Monitor target = Monitor.builder().id(ID).name("host").build();
+		final Monitor host = Monitor.builder().id(ID).name("host").build();
 
-		target.addMetadata(FQDN, "host.my.domain.net");
+		host.addMetadata(FQDN, "host.my.domain.net");
 		final Resource resource = OtelHelper.createHostResource(
-			target.getId(),
+			host.getId(),
 			"host",
-			TargetType.LINUX,
+			HostType.LINUX,
 			"host.my.domain.net",
 			false,
 			Collections.emptyMap(),
