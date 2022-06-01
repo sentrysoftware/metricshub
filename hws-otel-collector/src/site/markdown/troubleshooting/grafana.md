@@ -1,19 +1,19 @@
 keywords: grafana, dashboard, troubleshooting, no data
-description: How to troubleshoot Grafana dashboards when data is not available or is inaccurate 
+description: How to troubleshoot Grafana dashboards when data is not available or is inaccurate
 
 # Troubleshooting Grafana Dashboards
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
-> This section describes the basic troubleshooting steps to follow.
+This section describes common errors that may occur when using **Hardware Observability and Sustainability dashboards** in Grafana and the basic troubleshooting steps to follow. If you require further assistance, [subscribe to one of our support plans](https://www.sentrysoftware.com/pricing/) and get access to [Sentry Desk](https://www.sentrysoftware.com/desk), our superior customer support.  
 
 ## No sustainability data available
 
 You usually get a "No data" message for sustainability metrics when:
 
-* the query takes too long to complete due to a too slow Prometheus Server
-* **${project.name}** has been running for less than 24 hours and does not have enough data to compute the annual type of metrics (typically, `Annual Energy Usage`, `Annual Cost`, `Annual CO₂ emission`)
-* the `hw.site.pue_ratio`, `hw.site.electricity_cost_dollars`, and `hw.site.carbon_density_grams` options are not properly set in the **config/hws-config.yaml** file.
+* the query takes too long to complete because the performance of the Prometheus Server is low
+* **${project.name}** has been running for less than 24 hours and does not have enough data to compute the annual type of metrics (typically, `Annual Energy Usage`, `Annual Cost`, `Annual CO₂ emissions`)
+* the `hw.site.pue_ratio`, `hw.site.electricity_cost_dollars`, and `hw.site.carbon_density_grams` options are not properly set in the **config/hws-config.yaml** file. [Site and Sustainable IT Settings](./configuration/configure-agent.html#Site_and_Sustainable_IT_Settings) for more details.
 
 ## Energy usage and carbon emissions are oddly low
 
@@ -37,11 +37,13 @@ If you notice that no hardware metrics are displayed for hosts:
 
 1. Connect to your Prometheus server:
   
-     * Search for the missing metric in Prometheus. If the metric corresponding to the monitored host is:
-       * found, **${project.name}** collects data and pushes it to Prometheus. The issue is on the Grafana level. Please proceed to step 2?
-       * not found, **${project.name}** does not collect data:
-          * Open the **config/hws-config.yaml** file and verify that the monitoring configuration is correct
-          * Enable debug and investigate further. It might be a java, a firewall, or a configuration issue. Refer to [Debugging](./debug.html) for more details. If the debug indicates that the issue is related to the instrumentation layer, use [Sentry's Troubleshooting tools](https://d8dt4sd6nzbfc.cloudfront.net/bmc/support/troubleshooting-tools.html) to identify the real source of the problem.
+     * Search for the missing metric. If the metric corresponding to the monitored host is:
+       * found, **${project.name}** collects data and pushes it to Prometheus. The issue is on the Grafana level. Please proceed to step 2.
+       * not found, connect to `http://localhost:24375/metrics` to make sure **${project.name}** is collecting data. If data:
+         * is collected, the Prometheus exporter is not properly set in the `config/otel-config.yaml configuration` file. Refer to [Integration with Prometheus Server](./integration/prometheus.html) for more details.
+         * is not collected:
+            * Open the **config/hws-config.yaml** file and verify that the monitoring configuration is correct
+            * Enable debug and investigate further. It might be a java, a firewall, or a configuration issue. Refer to [Debugging](./debug.html) for more details. If the debug indicates that the issue is related to the instrumentation layer, use [Sentry's Troubleshooting tools](https://d8dt4sd6nzbfc.cloudfront.net/bmc/support/troubleshooting-tools.html) to identify the real source of the problem. If you [subscribed to one of our support plan](https://www.sentrysoftware.com/pricing/), you can also contact our Support Team.
 
 2. When data is available in Prometheus but not in Grafana:
 
