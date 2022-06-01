@@ -278,6 +278,10 @@ public class HardwareConstants {
 	public static final String POWER_METER = "powerMeter";
 	public static final String APPLIES_TO_OS = "appliesToOS";
 	public static final String IP_ADDRESS = "ipAddress";
+	public static final String USED_TIME_PERCENT_WARNING_THRESHOLD = "usedTimePercentWarningThreshold";
+	public static final String USED_TIME_PERCENT_ALARM_THRESHOLD = "usedTimePercentAlarmThreshold";
+	public static final String MEMORY_UTILIZATION_WARNING_THRESHOLD = "memoryUtilizationWarningThreshold";
+	public static final String MEMORY_UTILIZATION_ALARM_THRESHOLD = "memoryUtilizationAlarmThreshold";
 
 	/////////////////////
 	//                 //

@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 public class LedMapping {
 
 	private static final String LED_STATUS_METRIC_NAME = "hw.led.status";
-	private static final String LED_NAME = "led";
+	private static final String MONITOR_TYPE = "led";
 
 	/**
 	 * Build LED metrics map
@@ -35,7 +35,7 @@ public class LedMapping {
 				MetricInfo
 					.builder()
 					.name(LED_STATUS_METRIC_NAME)
-					.description(createStatusDescription(LED_NAME, OK_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -48,7 +48,7 @@ public class LedMapping {
 				MetricInfo
 					.builder()
 					.name(LED_STATUS_METRIC_NAME)
-					.description(createStatusDescription(LED_NAME, DEGRADED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -61,7 +61,7 @@ public class LedMapping {
 				MetricInfo
 					.builder()
 					.name(LED_STATUS_METRIC_NAME)
-					.description(createStatusDescription(LED_NAME, FAILED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -80,7 +80,7 @@ public class LedMapping {
 				MetricInfo
 					.builder()
 					.name(LED_STATUS_METRIC_NAME)
-					.description(createStatusDescription(LED_NAME, ON_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, ON_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -93,7 +93,7 @@ public class LedMapping {
 				MetricInfo
 					.builder()
 					.name(LED_STATUS_METRIC_NAME)
-					.description(createStatusDescription(LED_NAME, BLINKING_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, BLINKING_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -106,7 +106,7 @@ public class LedMapping {
 				MetricInfo
 					.builder()
 					.name(LED_STATUS_METRIC_NAME)
-					.description(createStatusDescription(LED_NAME, OFF_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, OFF_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -125,7 +125,7 @@ public class LedMapping {
 				MetricInfo
 					.builder()
 					.name(LED_STATUS_METRIC_NAME)
-					.description(createPresentDescription(LED_NAME))
+					.description(createPresentDescription(MONITOR_TYPE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()

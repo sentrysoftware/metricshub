@@ -21,7 +21,7 @@ public class BladeMapping {
 
 	private static final String BLADE_STATUS_METRIC_NAME = "hw.blade.status";
 	private static final String BLADE_POWER_STATE_METRIC_NAME = "hw.blade.power_state";
-	private static final String BLADE_NAME = "blade";
+	private static final String MONITOR_TYPE = "blade";
 
 	/**
 	 * Build battery metrics map
@@ -37,7 +37,7 @@ public class BladeMapping {
 				MetricInfo
 					.builder()
 					.name(BLADE_STATUS_METRIC_NAME)
-					.description(createStatusDescription(BLADE_NAME, OK_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -50,7 +50,7 @@ public class BladeMapping {
 				MetricInfo
 					.builder()
 					.name(BLADE_STATUS_METRIC_NAME)
-					.description(createStatusDescription(BLADE_NAME, DEGRADED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -63,7 +63,7 @@ public class BladeMapping {
 				MetricInfo
 					.builder()
 					.name(BLADE_STATUS_METRIC_NAME)
-					.description(createStatusDescription(BLADE_NAME, FAILED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -82,7 +82,7 @@ public class BladeMapping {
 				MetricInfo
 					.builder()
 					.name(BLADE_STATUS_METRIC_NAME)
-					.description(createPresentDescription(BLADE_NAME))
+					.description(createPresentDescription(MONITOR_TYPE))
 					.identifyingAttribute(
 							StaticIdentifyingAttribute
 								.builder()
@@ -101,7 +101,7 @@ public class BladeMapping {
 				MetricInfo
 					.builder()
 					.name(BLADE_POWER_STATE_METRIC_NAME)
-					.description(createPowerStateDescription(BLADE_NAME, OFF_ATTRIBUTE_VALUE))
+					.description(createPowerStateDescription(MONITOR_TYPE, OFF_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 						.builder()
@@ -114,7 +114,7 @@ public class BladeMapping {
 				MetricInfo
 					.builder()
 					.name(BLADE_POWER_STATE_METRIC_NAME)
-					.description(createPowerStateDescription(BLADE_NAME, SUSPENDED_ATTRIBUTE_VALUE))
+					.description(createPowerStateDescription(MONITOR_TYPE, SUSPENDED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -127,7 +127,7 @@ public class BladeMapping {
 				MetricInfo
 					.builder()
 					.name(BLADE_POWER_STATE_METRIC_NAME)
-					.description(createPowerStateDescription(BLADE_NAME, ON_ATTRIBUTE_VALUE))
+					.description(createPowerStateDescription(MONITOR_TYPE, ON_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()

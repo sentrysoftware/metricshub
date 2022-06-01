@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PowerSupplyMapping {
 
-	private static final String POWER_SUPPLY_TYPE = "power supply";
+	private static final String MONITOR_TYPE = "power supply";
 	private static final String POWER_SUPPLY_STATUS_METRIC_NAME = "hw.power_supply.status";
 
 	/**
@@ -36,7 +36,7 @@ public class PowerSupplyMapping {
 				MetricInfo
 					.builder()
 					.name(POWER_SUPPLY_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(POWER_SUPPLY_TYPE, OK_ATTRIBUTE_VALUE))
+					.description(MappingConstants.createStatusDescription(MONITOR_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -49,7 +49,7 @@ public class PowerSupplyMapping {
 				MetricInfo
 					.builder()
 					.name(POWER_SUPPLY_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(POWER_SUPPLY_TYPE, DEGRADED_ATTRIBUTE_VALUE))
+					.description(MappingConstants.createStatusDescription(MONITOR_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -62,7 +62,7 @@ public class PowerSupplyMapping {
 				MetricInfo
 					.builder()
 					.name(POWER_SUPPLY_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(POWER_SUPPLY_TYPE, FAILED_ATTRIBUTE_VALUE))
+					.description(MappingConstants.createStatusDescription(MONITOR_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -81,7 +81,7 @@ public class PowerSupplyMapping {
 				MetricInfo
 					.builder()
 					.name(POWER_SUPPLY_STATUS_METRIC_NAME)
-					.description(MappingConstants.createPresentDescription(POWER_SUPPLY_TYPE))
+					.description(MappingConstants.createPresentDescription(MONITOR_TYPE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -123,9 +123,16 @@ public class PowerSupplyMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.power_supply.power")
+					.name("hw.power_supply.limit")
 					.unit(WATTS_UNIT)
 					.description("Maximum power output.")
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(LIMIT_TYPE_ATTRIBUTE_KEY)
+							.value(MAX_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);

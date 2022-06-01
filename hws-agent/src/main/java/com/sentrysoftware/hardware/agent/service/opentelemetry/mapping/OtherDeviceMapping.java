@@ -1,15 +1,7 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry.mapping;
 
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.DEGRADED_ATTRIBUTE_VALUE;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.DEGRADED_STATUS_PREDICATE;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.FAILED_ATTRIBUTE_VALUE;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.FAILED_STATUS_PREDICATE;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.OK_ATTRIBUTE_VALUE;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.OK_STATUS_PREDICATE;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.PRESENT_ATTRIBUTE_VALUE;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.PRESENT_PREDICATE;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.STATE_ATTRIBUTE_KEY;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.USAGE_UNIT;
+import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.*;
+
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_COUNT_ALARM_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_COUNT_WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VALUE_ALARM_THRESHOLD;
@@ -32,7 +24,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class OtherDeviceMapping {
 
-	private static final String OTHER_DEVICE_NAME = "other device";
+	private static final String MONITOR_TYPE = "other device";
 	private static final String OTHER_DEVICE_STATUS_METRIC_NAME = "hw.other_device.status";
 
 	/**
@@ -49,7 +41,7 @@ public class OtherDeviceMapping {
 				MetricInfo
 					.builder()
 					.name(OTHER_DEVICE_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(OTHER_DEVICE_NAME, OK_ATTRIBUTE_VALUE))
+					.description(MappingConstants.createStatusDescription(MONITOR_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -62,7 +54,7 @@ public class OtherDeviceMapping {
 				MetricInfo
 					.builder()
 					.name(OTHER_DEVICE_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(OTHER_DEVICE_NAME, DEGRADED_ATTRIBUTE_VALUE))
+					.description(MappingConstants.createStatusDescription(MONITOR_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -75,7 +67,7 @@ public class OtherDeviceMapping {
 				MetricInfo
 					.builder()
 					.name(OTHER_DEVICE_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(OTHER_DEVICE_NAME, FAILED_ATTRIBUTE_VALUE))
+					.description(MappingConstants.createStatusDescription(MONITOR_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -94,7 +86,7 @@ public class OtherDeviceMapping {
 				MetricInfo
 					.builder()
 					.name(OTHER_DEVICE_STATUS_METRIC_NAME)
-					.description(MappingConstants.createPresentDescription(OTHER_DEVICE_NAME))
+					.description(MappingConstants.createPresentDescription(MONITOR_TYPE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -147,9 +139,16 @@ public class OtherDeviceMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.other_device.uses_warning")
+					.name("hw.other_device.uses.limit")
 					.description("Number of times the device has been used which will generate a warning when reached.")
 					.unit(USAGE_UNIT)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(LIMIT_TYPE_ATTRIBUTE_KEY)
+							.value(DEGRADED_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);
@@ -159,9 +158,16 @@ public class OtherDeviceMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.other_device.uses_alarm")
+					.name("hw.other_device.uses.limit")
 					.description("Number of times the device has been used which will generate an alarm when reached.")
 					.unit(USAGE_UNIT)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(LIMIT_TYPE_ATTRIBUTE_KEY)
+							.value(CRITICAL_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);
@@ -171,8 +177,15 @@ public class OtherDeviceMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.other_device.value_warning")
+					.name("hw.other_device.value.limit")
 					.description("Device reported value that will generate a warning when reached.")
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(LIMIT_TYPE_ATTRIBUTE_KEY)
+							.value(DEGRADED_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);
@@ -182,8 +195,15 @@ public class OtherDeviceMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.other_device.value_alarm")
+					.name("hw.other_device.value.limit")
 					.description("Device reported value that will generate an alarm when reached.")
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(LIMIT_TYPE_ATTRIBUTE_KEY)
+							.value(CRITICAL_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);

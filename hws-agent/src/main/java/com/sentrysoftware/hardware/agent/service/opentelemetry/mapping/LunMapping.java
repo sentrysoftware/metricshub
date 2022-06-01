@@ -23,7 +23,7 @@ public class LunMapping {
 
 	private static final String LUN_STATUS_METRIC_NAME = "hw.lun.status";
 	private static final String LUN_PATHS_METRIC_NAME = "hw.lun.paths";
-	private static final String LUN_NAME = "LUN";
+	private static final String MONITOR_TYPE = "LUN";
 
 	/**
 	 * Build LUN metrics map
@@ -39,7 +39,7 @@ public class LunMapping {
 				MetricInfo
 					.builder()
 					.name(LUN_STATUS_METRIC_NAME)
-					.description(createStatusDescription(LUN_NAME, OK_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -52,7 +52,7 @@ public class LunMapping {
 				MetricInfo
 					.builder()
 					.name(LUN_STATUS_METRIC_NAME)
-					.description(createStatusDescription(LUN_NAME, DEGRADED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -65,7 +65,7 @@ public class LunMapping {
 				MetricInfo
 					.builder()
 					.name(LUN_STATUS_METRIC_NAME)
-					.description(createStatusDescription(LUN_NAME, FAILED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -84,7 +84,7 @@ public class LunMapping {
 				MetricInfo
 					.builder()
 					.name(LUN_STATUS_METRIC_NAME)
-					.description(createPresentDescription(LUN_NAME))
+					.description(createPresentDescription(MONITOR_TYPE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -151,13 +151,13 @@ public class LunMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.lun.paths_warning")
+					.name("hw.lun.paths.limit")
 					.unit(PATHS_UNIT)
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
-							.key(TYPE_ATTRIBUTE_KEY)
-							.value(AVAILABLE_ATTRIBUTE_VALUE)
+							.key(LIMIT_TYPE_ATTRIBUTE_KEY)
+							.value(LOW_DEGRADED_ATTRIBUTE_VALUE)
 							.build()
 					)
 					.description("Number of available paths that will generate a warning when reached.")

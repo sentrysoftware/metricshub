@@ -1,34 +1,7 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry.mapping;
 
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.ALL_ATTRIBUTE_VALUE;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.BYTES_UNIT;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.DEGRADED_ATTRIBUTE_VALUE;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.DEGRADED_STATUS_PREDICATE;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.DIRECTION_ATTRIBUTE_KEY;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.FULL_DUPLEX_MODE_PREDICATE;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.ERRORS_UNIT;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.FAILED_ATTRIBUTE_VALUE;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.FAILED_STATUS_PREDICATE;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.JOULES_UNIT;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.MEGABITS_TO_BYTES_FACTOR;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.PLUGGED_LINK_STATUS_PREDICATE;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.OK_ATTRIBUTE_VALUE;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.OK_STATUS_PREDICATE;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.PACKETS_UNIT;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.PRESENT_ATTRIBUTE_VALUE;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.PRESENT_PREDICATE;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.RATIO_FACTOR;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.RATIO_UNIT;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.RECEIVE_ATTRIBUTE_VALUE;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.STATE_ATTRIBUTE_KEY;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.TRANSMIT_ATTRIBUTE_VALUE;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.TYPE_ATTRIBUTE_KEY;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.WATTS_UNIT;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.ZERO_BUFFER_CREDIT_ATTRIBUTE_VALUE;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.createEnergyDescription;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.createPowerConsumptionDescription;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.createPresentDescription;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.createStatusDescription;
+import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.*;
+
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_PERCENT_ALARM_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_PERCENT_WARNING_THRESHOLD;
 
@@ -49,7 +22,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class NetworkCardMapping {
 
-	private static final String NETWORK_CARD_NAME = "network card";
+	private static final String MONITOR_TYPE = "network card";
 	private static final String NETWORK_CARD_STATUS_METRIC_NAME = "hw.network.status";
 	/**
 	 * 
@@ -66,7 +39,7 @@ public class NetworkCardMapping {
 				MetricInfo
 					.builder()
 					.name(NETWORK_CARD_STATUS_METRIC_NAME)
-					.description(createStatusDescription(NETWORK_CARD_NAME, OK_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -79,7 +52,7 @@ public class NetworkCardMapping {
 				MetricInfo
 					.builder()
 					.name(NETWORK_CARD_STATUS_METRIC_NAME)
-					.description(createStatusDescription(NETWORK_CARD_NAME, DEGRADED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -92,7 +65,7 @@ public class NetworkCardMapping {
 				MetricInfo
 					.builder()
 					.name(NETWORK_CARD_STATUS_METRIC_NAME)
-					.description(createStatusDescription(NETWORK_CARD_NAME, FAILED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -111,7 +84,7 @@ public class NetworkCardMapping {
 				MetricInfo
 					.builder()
 					.name(NETWORK_CARD_STATUS_METRIC_NAME)
-					.description(createPresentDescription(NETWORK_CARD_NAME))
+					.description(createPresentDescription(MONITOR_TYPE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -129,7 +102,7 @@ public class NetworkCardMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.network.bandwidth_utilization")
+					.name("hw.network.bandwidth.utilization")
 					.factor(RATIO_FACTOR)
 					.description("Ratio of the available bandwidth utilization.")
 					.unit(RATIO_UNIT)
@@ -174,7 +147,7 @@ public class NetworkCardMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.network.bandwidth_limit")
+					.name("hw.network.bandwidth.limit")
 					.factor(MEGABITS_TO_BYTES_FACTOR)
 					.description("Speed that the network adapter and its remote counterpart currently use to communicate with each other.")
 					.unit(BYTES_UNIT)
@@ -301,7 +274,7 @@ public class NetworkCardMapping {
 					.name("hw.network.energy")
 					.unit(JOULES_UNIT)
 					.type(MetricType.COUNTER)
-					.description(createEnergyDescription(NETWORK_CARD_NAME))
+					.description(createEnergyDescription(MONITOR_TYPE))
 					.build()
 			)
 		);
@@ -313,7 +286,7 @@ public class NetworkCardMapping {
 					.builder()
 					.name("hw.network.power")
 					.unit(WATTS_UNIT)
-					.description(createPowerConsumptionDescription(NETWORK_CARD_NAME))
+					.description(createPowerConsumptionDescription(MONITOR_TYPE))
 					.build()
 			)
 		);
@@ -347,10 +320,17 @@ public class NetworkCardMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.network.error_ratio_warning")
+					.name("hw.network.error_ratio.limit")
 					.factor(RATIO_FACTOR)
 					.description("Network interface error ratio that will generate a warning when reached.")
 					.unit(ERRORS_UNIT)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(LIMIT_TYPE_ATTRIBUTE_KEY)
+							.value(DEGRADED_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);
@@ -360,10 +340,17 @@ public class NetworkCardMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.network.error_ratio_alarm")
+					.name("hw.network.error_ratio.limit")
 					.factor(RATIO_FACTOR)
 					.description("Network interface error ratio that will generate an alarm when reached.")
 					.unit(ERRORS_UNIT)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(LIMIT_TYPE_ATTRIBUTE_KEY)
+							.value(CRITICAL_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);

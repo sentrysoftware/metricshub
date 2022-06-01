@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EnclosureMapping {
 
-	private static final String ENCLOSURE_TYPE = "enclosure";
+	private static final String MONITOR_TYPE = "enclosure";
 	private static final String ENCLOSURE_STATUS_METRIC_NAME = "hw.enclosure.status";
 
 	/**
@@ -36,7 +36,7 @@ public class EnclosureMapping {
 				MetricInfo
 					.builder()
 					.name(ENCLOSURE_STATUS_METRIC_NAME)
-					.description(createStatusDescription(ENCLOSURE_TYPE, OK_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -49,7 +49,7 @@ public class EnclosureMapping {
 				MetricInfo
 					.builder()
 					.name(ENCLOSURE_STATUS_METRIC_NAME)
-					.description(createStatusDescription(ENCLOSURE_TYPE, DEGRADED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -62,7 +62,7 @@ public class EnclosureMapping {
 				MetricInfo
 					.builder()
 					.name(ENCLOSURE_STATUS_METRIC_NAME)
-					.description(createStatusDescription(ENCLOSURE_TYPE, FAILED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -81,7 +81,7 @@ public class EnclosureMapping {
 				MetricInfo
 					.builder()
 					.name(ENCLOSURE_STATUS_METRIC_NAME)
-					.description(createPresentDescription(ENCLOSURE_TYPE))
+					.description(createPresentDescription(MONITOR_TYPE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -121,7 +121,7 @@ public class EnclosureMapping {
 					.name("hw.enclosure.energy")
 					.unit(JOULES_UNIT)
 					.type(MetricType.COUNTER)
-					.description(createEnergyDescription(ENCLOSURE_TYPE))
+					.description(createEnergyDescription(MONITOR_TYPE))
 					.build()
 			)
 		);
@@ -133,7 +133,7 @@ public class EnclosureMapping {
 				.builder()
 				.name("hw.enclosure.power")
 				.unit(WATTS_UNIT)
-				.description(createPowerConsumptionDescription(ENCLOSURE_TYPE))
+				.description(createPowerConsumptionDescription(MONITOR_TYPE))
 				.build()
 			)
 		);

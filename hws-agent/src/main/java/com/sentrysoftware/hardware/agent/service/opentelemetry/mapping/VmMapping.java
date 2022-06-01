@@ -21,7 +21,7 @@ public class VmMapping {
 
 	private static final String VM_STATUS_METRIC_NAME = "hw.vm.status";
 	private static final String VM_POWER_STATE_METRIC_NAME = "hw.vm.power_state";
-	private static final String VM_NAME = "virtual machine";
+	private static final String MONITOR_TYPE = "virtual machine";
 
 	/**
 	 * Build virtual machine metrics map
@@ -37,7 +37,7 @@ public class VmMapping {
 				MetricInfo
 					.builder()
 					.name(VM_STATUS_METRIC_NAME)
-					.description(createStatusDescription(VM_NAME, OK_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -50,7 +50,7 @@ public class VmMapping {
 				MetricInfo
 					.builder()
 					.name(VM_STATUS_METRIC_NAME)
-					.description(createStatusDescription(VM_NAME, DEGRADED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -63,7 +63,7 @@ public class VmMapping {
 				MetricInfo
 					.builder()
 					.name(VM_STATUS_METRIC_NAME)
-					.description(createStatusDescription(VM_NAME, FAILED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -82,7 +82,7 @@ public class VmMapping {
 				MetricInfo
 					.builder()
 					.name(VM_STATUS_METRIC_NAME)
-					.description(createPresentDescription(VM_NAME))
+					.description(createPresentDescription(MONITOR_TYPE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -101,7 +101,7 @@ public class VmMapping {
 				MetricInfo
 					.builder()
 					.name(VM_POWER_STATE_METRIC_NAME)
-					.description(createPowerStateDescription(VM_NAME, ON_ATTRIBUTE_VALUE))
+					.description(createPowerStateDescription(MONITOR_TYPE, ON_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -114,7 +114,7 @@ public class VmMapping {
 				MetricInfo
 					.builder()
 					.name(VM_POWER_STATE_METRIC_NAME)
-					.description(createPowerStateDescription(VM_NAME, OFF_ATTRIBUTE_VALUE))
+					.description(createPowerStateDescription(MONITOR_TYPE, OFF_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -127,7 +127,7 @@ public class VmMapping {
 				MetricInfo
 					.builder()
 					.name(VM_POWER_STATE_METRIC_NAME)
-					.description(createPowerStateDescription(VM_NAME, SUSPENDED_ATTRIBUTE_VALUE))
+					.description(createPowerStateDescription(MONITOR_TYPE, SUSPENDED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -146,7 +146,7 @@ public class VmMapping {
 				MetricInfo
 					.builder()
 					.name("hw.vm.power_ratio")
-					.description(String.format("Ratio of host power consumed by the %s.", VM_NAME))
+					.description(String.format("Ratio of host power consumed by the %s.", MONITOR_TYPE))
 					.unit(RATIO_UNIT)
 					.factor(RATIO_FACTOR)
 					.build()
@@ -161,7 +161,7 @@ public class VmMapping {
 					.name("hw.vm.energy")
 					.unit(JOULES_UNIT)
 					.type(MetricType.COUNTER)
-					.description(createEnergyDescription(VM_NAME))
+					.description(createEnergyDescription(MONITOR_TYPE))
 					.build()
 			)
 		);
@@ -173,7 +173,7 @@ public class VmMapping {
 					.builder()
 					.name("hw.vm.power")
 					.unit(WATTS_UNIT)
-					.description(createPowerConsumptionDescription(VM_NAME))
+					.description(createPowerConsumptionDescription(MONITOR_TYPE))
 					.build()
 			)
 		);

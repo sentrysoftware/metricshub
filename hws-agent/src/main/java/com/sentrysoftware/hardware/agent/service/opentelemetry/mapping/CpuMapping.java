@@ -22,7 +22,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CpuMapping {
 
-	private static final String CPU_TYPE = "CPU";
+	private static final String MONITOR_TYPE = "CPU";
 	private static final String CPU_STATUS_METRIC_NAME = "hw.cpu.status";
 
 	/**
@@ -39,7 +39,7 @@ public class CpuMapping {
 				MetricInfo
 					.builder()
 					.name(CPU_STATUS_METRIC_NAME)
-					.description(createStatusDescription(CPU_TYPE, OK_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -52,7 +52,7 @@ public class CpuMapping {
 				MetricInfo
 					.builder()
 					.name(CPU_STATUS_METRIC_NAME)
-					.description(createStatusDescription(CPU_TYPE, DEGRADED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -65,7 +65,7 @@ public class CpuMapping {
 				MetricInfo
 					.builder()
 					.name(CPU_STATUS_METRIC_NAME)
-					.description(createStatusDescription(CPU_TYPE, FAILED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -84,7 +84,7 @@ public class CpuMapping {
 				MetricInfo
 					.builder()
 					.name(CPU_STATUS_METRIC_NAME)
-					.description(createPresentDescription(CPU_TYPE))
+					.description(createPresentDescription(MONITOR_TYPE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -136,7 +136,7 @@ public class CpuMapping {
 							.key(STATE_ATTRIBUTE_KEY)
 							.value(PREDICTED_FAILURE_ATTRIBUTE_VALUE)
 							.build()
-						)
+					)
 					.predicate(PREDICTED_FAILURE_PREDICATE)
 					.build()
 			)
@@ -150,7 +150,7 @@ public class CpuMapping {
 					.name("hw.cpu.energy")
 					.unit(JOULES_UNIT)
 					.type(MetricType.COUNTER)
-					.description(createEnergyDescription(CPU_TYPE))
+					.description(createEnergyDescription(MONITOR_TYPE))
 					.build()
 			)
 		);
@@ -163,7 +163,7 @@ public class CpuMapping {
 					.name("hw.cpu.power")
 					.unit(WATTS_UNIT)
 					.type(MetricType.GAUGE)
-					.description(createPowerConsumptionDescription(CPU_TYPE))
+					.description(createPowerConsumptionDescription(MONITOR_TYPE))
 					.build()
 			)
 		);
@@ -184,10 +184,17 @@ public class CpuMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.cpu.speed_limit")
+					.name("hw.cpu.speed.limit")
 					.unit(HERTZ_UNIT)
 					.factor(MHZ_TO_HZ_FACTOR)
 					.description("CPU maximum speed.")
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(LIMIT_TYPE_ATTRIBUTE_KEY)
+							.value(MAX_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);
@@ -197,9 +204,16 @@ public class CpuMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.cpu.errors_warning")
+					.name("hw.cpu.errors.limit")
 					.unit(ERRORS_UNIT)
 					.description("Number of detected and corrected errors that will generate a warning.")
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(LIMIT_TYPE_ATTRIBUTE_KEY)
+							.value(DEGRADED_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);
@@ -209,9 +223,16 @@ public class CpuMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.cpu.errors_alarm")
+					.name("hw.cpu.errors.limit")
 					.unit(ERRORS_UNIT)
 					.description("Number of detected and corrected errors that will generate an alarm.")
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(LIMIT_TYPE_ATTRIBUTE_KEY)
+							.value(CRITICAL_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);

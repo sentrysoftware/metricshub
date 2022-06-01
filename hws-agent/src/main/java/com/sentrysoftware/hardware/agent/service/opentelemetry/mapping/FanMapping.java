@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 public class FanMapping {
 
 	private static final String FAN_STATUS_METRIC_NAME = "hw.fan.status";
-	private static final String FAN_NAME = "fan";
+	private static final String MONITOR_TYPE = "fan";
 
 	/**
 	 * Build fan metrics map
@@ -41,7 +41,7 @@ public class FanMapping {
 				MetricInfo
 					.builder()
 					.name(FAN_STATUS_METRIC_NAME)
-					.description(createStatusDescription(FAN_NAME, OK_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -54,7 +54,7 @@ public class FanMapping {
 				MetricInfo
 					.builder()
 					.name(FAN_STATUS_METRIC_NAME)
-					.description(createStatusDescription(FAN_NAME, DEGRADED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -67,7 +67,7 @@ public class FanMapping {
 				MetricInfo
 					.builder()
 					.name(FAN_STATUS_METRIC_NAME)
-					.description(createStatusDescription(FAN_NAME, FAILED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -86,7 +86,7 @@ public class FanMapping {
 				MetricInfo
 					.builder()
 					.name(FAN_STATUS_METRIC_NAME)
-					.description(createPresentDescription(FAN_NAME))
+					.description(createPresentDescription(MONITOR_TYPE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -107,7 +107,7 @@ public class FanMapping {
 					.name("hw.fan.energy")
 					.unit(JOULES_UNIT)
 					.type(MetricType.COUNTER)
-					.description(createEnergyDescription(FAN_NAME))
+					.description(createEnergyDescription(MONITOR_TYPE))
 					.build()
 			)
 		);
@@ -120,7 +120,7 @@ public class FanMapping {
 					.name("hw.fan.power")
 					.unit(WATTS_UNIT)
 					.type(MetricType.GAUGE)
-					.description(createPowerConsumptionDescription(FAN_NAME))
+					.description(createPowerConsumptionDescription(MONITOR_TYPE))
 					.build()
 			)
 		);
@@ -168,9 +168,16 @@ public class FanMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.fan.speed_alarm")
+					.name("hw.fan.speed.limit")
 					.unit(RPM_UNIT)
 					.description("Speed of the corresponding fan (in revolutions/minute) that will generate an alarm when reached.")
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(LIMIT_TYPE_ATTRIBUTE_KEY)
+							.value(LOW_CRITICAL_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);
@@ -180,9 +187,16 @@ public class FanMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.fan.speed_warning")
+					.name("hw.fan.speed.limit")
 					.description("Speed of the corresponding fan (in revolutions/minute) that will generate a warning when reached.")
 					.unit(RPM_UNIT)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(LIMIT_TYPE_ATTRIBUTE_KEY)
+							.value(LOW_DEGRADED_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);
@@ -192,10 +206,17 @@ public class FanMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.fan.speed_ratio_alarm")
+					.name("hw.fan.speed_ratio.limit")
 					.unit(RATIO_UNIT)
 					.factor(RATIO_FACTOR)
 					.description("Fan speed ratio that will generate an alarm when reached.")
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(LIMIT_TYPE_ATTRIBUTE_KEY)
+							.value(LOW_CRITICAL_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);
@@ -205,10 +226,17 @@ public class FanMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.fan.speed_ratio_warning")
+					.name("hw.fan.speed_ratio.limit")
 					.description("Fan speed ratio that will generate a warning when reached.")
 					.unit(RATIO_UNIT)
 					.factor(RATIO_FACTOR)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(LIMIT_TYPE_ATTRIBUTE_KEY)
+							.value(LOW_DEGRADED_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);

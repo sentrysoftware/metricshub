@@ -22,7 +22,7 @@ import lombok.NoArgsConstructor;
 public class MemoryMapping{
 
 	private static final String MEMORY_STATUS_METRIC_NAME = "hw.memory.status";
-	private static final String MEMORY_TYPE = "memory";
+	private static final String MONITOR_TYPE = "memory";
 
 
 	/**
@@ -39,7 +39,7 @@ public class MemoryMapping{
 				MetricInfo
 					.builder()
 					.name(MEMORY_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(MEMORY_TYPE, OK_ATTRIBUTE_VALUE))
+					.description(MappingConstants.createStatusDescription(MONITOR_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -52,7 +52,7 @@ public class MemoryMapping{
 				MetricInfo
 					.builder()
 					.name(MEMORY_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(MEMORY_TYPE, DEGRADED_ATTRIBUTE_VALUE))
+					.description(MappingConstants.createStatusDescription(MONITOR_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -65,7 +65,7 @@ public class MemoryMapping{
 				MetricInfo
 					.builder()
 					.name(MEMORY_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(MEMORY_TYPE, FAILED_ATTRIBUTE_VALUE))
+					.description(MappingConstants.createStatusDescription(MONITOR_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -84,7 +84,7 @@ public class MemoryMapping{
 				MetricInfo
 					.builder()
 					.name(MEMORY_STATUS_METRIC_NAME)
-					.description(MappingConstants.createPresentDescription(MEMORY_TYPE))
+					.description(MappingConstants.createPresentDescription(MONITOR_TYPE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -137,7 +137,7 @@ public class MemoryMapping{
 					.name("hw.memory.energy")
 					.unit(JOULES_UNIT)
 					.type(MetricType.COUNTER)
-					.description(createEnergyDescription(MEMORY_TYPE))
+					.description(createEnergyDescription(MONITOR_TYPE))
 					.build()
 			)
 		);
@@ -149,7 +149,7 @@ public class MemoryMapping{
 					.builder()
 					.name("hw.memory.power")
 					.unit(WATTS_UNIT)
-					.description(createPowerConsumptionDescription(MEMORY_TYPE))
+					.description(createPowerConsumptionDescription(MONITOR_TYPE))
 					.build()
 			)
 		);
@@ -183,9 +183,16 @@ public class MemoryMapping{
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.memory.errors_warning")
+					.name("hw.memory.errors.limit")
 					.description(WARNING_THRESHOLD_OF_ERRORS)
 					.unit(ERRORS_UNIT)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(LIMIT_TYPE_ATTRIBUTE_KEY)
+							.value(DEGRADED_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);
@@ -195,9 +202,16 @@ public class MemoryMapping{
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.memory.errors_alarm")
+					.name("hw.memory.errors.limit")
 					.description(ALARM_THRESHOLD_OF_ERRORS)
 					.unit(ERRORS_UNIT)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(LIMIT_TYPE_ATTRIBUTE_KEY)
+							.value(CRITICAL_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);

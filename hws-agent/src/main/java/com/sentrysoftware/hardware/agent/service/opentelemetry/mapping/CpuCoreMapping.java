@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 public class CpuCoreMapping {
 
 	private static final String CPU_CORE_STATUS_METRIC_NAME = "hw.cpu_core.status";
-	private static final String CPU_CORE_NAME = "CPU core";
+	private static final String MONITOR_TYPE = "CPU core";
 
 	/**
 	 * Build cpu core metrics map
@@ -36,7 +36,7 @@ public class CpuCoreMapping {
 				MetricInfo
 					.builder()
 					.name(CPU_CORE_STATUS_METRIC_NAME)
-					.description(createStatusDescription(CPU_CORE_NAME, OK_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -49,7 +49,7 @@ public class CpuCoreMapping {
 				MetricInfo
 					.builder()
 					.name(CPU_CORE_STATUS_METRIC_NAME)
-					.description(createStatusDescription(CPU_CORE_NAME, DEGRADED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -62,7 +62,7 @@ public class CpuCoreMapping {
 				MetricInfo
 					.builder()
 					.name(CPU_CORE_STATUS_METRIC_NAME)
-					.description(createStatusDescription(CPU_CORE_NAME, FAILED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -81,7 +81,7 @@ public class CpuCoreMapping {
 				MetricInfo
 					.builder()
 					.name(CPU_CORE_STATUS_METRIC_NAME)
-					.description(createPresentDescription(CPU_CORE_NAME))
+					.description(createPresentDescription(MONITOR_TYPE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()

@@ -25,7 +25,7 @@ public class LogicalDiskMapping {
 	private static final String LOGICAL_DISK_STATUS_METRIC_NAME = "hw.logical_disk.status";
 	private static final String LOGICAL_DISK_USAGE_METRIC_NAME = "hw.logical_disk.usage";
 	private static final String LOGICAL_DISK_UTILIZATION_METRIC_NAME = "hw.logical_disk.utilization";
-	private static final String LOGICAL_DISK_NAME = "logical disk";
+	private static final String MONITOR_TYPE = "logical disk";
 
 	/**
 	 * Build logical disk metrics map
@@ -41,7 +41,7 @@ public class LogicalDiskMapping {
 				MetricInfo
 					.builder()
 					.name(LOGICAL_DISK_STATUS_METRIC_NAME)
-					.description(createStatusDescription(LOGICAL_DISK_NAME, OK_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -54,7 +54,7 @@ public class LogicalDiskMapping {
 				MetricInfo
 					.builder()
 					.name(LOGICAL_DISK_STATUS_METRIC_NAME)
-					.description(createStatusDescription(LOGICAL_DISK_NAME, DEGRADED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -67,7 +67,7 @@ public class LogicalDiskMapping {
 				MetricInfo
 					.builder()
 					.name(LOGICAL_DISK_STATUS_METRIC_NAME)
-					.description(createStatusDescription(LOGICAL_DISK_NAME, FAILED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -86,7 +86,7 @@ public class LogicalDiskMapping {
 				MetricInfo
 					.builder()
 					.name(LOGICAL_DISK_STATUS_METRIC_NAME)
-					.description(createPresentDescription(LOGICAL_DISK_NAME))
+					.description(createPresentDescription(MONITOR_TYPE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -219,9 +219,16 @@ public class LogicalDiskMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.logical_disk.errors_warning")
+					.name("hw.logical_disk.errors.limit")
 					.description(WARNING_THRESHOLD_OF_ERRORS)
 					.unit(ERRORS_UNIT)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(LIMIT_TYPE_ATTRIBUTE_KEY)
+							.value(DEGRADED_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);
@@ -231,9 +238,16 @@ public class LogicalDiskMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.logical_disk.errors_alarm")
+					.name("hw.logical_disk.errors.limit")
 					.description(ALARM_THRESHOLD_OF_ERRORS)
 					.unit(ERRORS_UNIT)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(LIMIT_TYPE_ATTRIBUTE_KEY)
+							.value(CRITICAL_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);

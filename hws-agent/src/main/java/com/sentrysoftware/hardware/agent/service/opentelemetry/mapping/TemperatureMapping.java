@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 public class TemperatureMapping {
 
 	private static final String TEMPERATURE_STATUS_METRIC_NAME = "hw.temperature.status";
-	private static final String TEMPERATURE_NAME = "temperature";
+	private static final String MONITOR_TYPE = "temperature";
 
 	/**
 	 * Build temperature metrics map
@@ -37,7 +37,7 @@ public class TemperatureMapping {
 				MetricInfo
 					.builder()
 					.name(TEMPERATURE_STATUS_METRIC_NAME)
-					.description(createStatusDescription(TEMPERATURE_NAME, OK_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -50,7 +50,7 @@ public class TemperatureMapping {
 				MetricInfo
 					.builder()
 					.name(TEMPERATURE_STATUS_METRIC_NAME)
-					.description(createStatusDescription(TEMPERATURE_NAME, OK_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -63,7 +63,7 @@ public class TemperatureMapping {
 				MetricInfo
 					.builder()
 					.name(TEMPERATURE_STATUS_METRIC_NAME)
-					.description(createStatusDescription(TEMPERATURE_NAME, OK_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -82,7 +82,7 @@ public class TemperatureMapping {
 				MetricInfo
 					.builder()
 					.name(TEMPERATURE_STATUS_METRIC_NAME)
-					.description(createPresentDescription(TEMPERATURE_NAME))
+					.description(createPresentDescription(MONITOR_TYPE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -100,7 +100,7 @@ public class TemperatureMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.temperature.temperature_celsius")
+					.name("hw.temperature.temperature")
 					.description("Current temperature reading in Celsius degrees.")
 					.unit(CELSIUS_UNIT)
 					.build()
@@ -123,9 +123,16 @@ public class TemperatureMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.temperature.temperature_celsius_warning")
+					.name("hw.temperature.temperature.limit")
 					.description("Current temperature in degrees Celsius (°C) that will generate a warning when reached.")
 					.unit(CELSIUS_UNIT)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(LIMIT_TYPE_ATTRIBUTE_KEY)
+							.value(HIGH_DEGRADED_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);
@@ -135,9 +142,16 @@ public class TemperatureMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.temperature.temperature_celsius_alarm")
+					.name("hw.temperature.temperature.limit")
 					.description("Current temperature in degrees Celsius (°C) that will generate an alarm when reached.")
 					.unit(CELSIUS_UNIT)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(LIMIT_TYPE_ATTRIBUTE_KEY)
+							.value(HIGH_CRITICAL_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);

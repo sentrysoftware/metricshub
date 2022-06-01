@@ -47,6 +47,7 @@ public class MappingConstants {
 	public static final String TASK_ATTRIBUTE_KEY = "task";
 	public static final String DIRECTION_ATTRIBUTE_KEY = "direction";
 	public static final String BATTERY_STATE_ATTRIBUTE_KEY = "battery_state";
+	public static final String LIMIT_TYPE_ATTRIBUTE_KEY = "limit_type";
 
 	// Attribute values
 	public static final String OK_ATTRIBUTE_VALUE = "ok";
@@ -78,6 +79,12 @@ public class MappingConstants {
 	public static final String ZERO_BUFFER_CREDIT_ATTRIBUTE_VALUE = "zero_buffer_credit";
 	public static final String FREE_ATTRIBUTE_VALUE = "free";
 	public static final String USED_ATTRIBUTE_VALUE = "used";
+	public static final String MAX_ATTRIBUTE_VALUE = "max";
+	public static final String CRITICAL_ATTRIBUTE_VALUE = "critical";
+	public static final String LOW_DEGRADED_ATTRIBUTE_VALUE = "low.degraded";
+	public static final String LOW_CRITICAL_ATTRIBUTE_VALUE = "low.critical";
+	public static final String HIGH_DEGRADED_ATTRIBUTE_VALUE = "high.degraded";
+	public static final String HIGH_CRITICAL_ATTRIBUTE_VALUE = "high.critical";
 
 	// Default attribute keys
 	public static final String NAME = "name";

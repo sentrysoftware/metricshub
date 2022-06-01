@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TapeDriveMapping {
 
-	private static final String TAPE_DRIVE_TYPE = "tape drive";
+	private static final String MONITOR_TYPE = "tape drive";
 	private static final String TAPE_DRIVE_STATUS_METRIC_NAME = "hw.tape_drive.status";
 	private static final String TAPE_DRIVE_OPERATIONS_METRIC_NAME = "hw.tape_drive.operations";
 
@@ -39,7 +39,7 @@ public class TapeDriveMapping {
 				MetricInfo
 					.builder()
 					.name(TAPE_DRIVE_STATUS_METRIC_NAME)
-					.description(createStatusDescription(TAPE_DRIVE_TYPE, OK_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -52,7 +52,7 @@ public class TapeDriveMapping {
 				MetricInfo
 					.builder()
 					.name(TAPE_DRIVE_STATUS_METRIC_NAME)
-					.description(createStatusDescription(TAPE_DRIVE_TYPE, DEGRADED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -65,7 +65,7 @@ public class TapeDriveMapping {
 				MetricInfo
 					.builder()
 					.name(TAPE_DRIVE_STATUS_METRIC_NAME)
-					.description(createStatusDescription(TAPE_DRIVE_TYPE, FAILED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -84,7 +84,7 @@ public class TapeDriveMapping {
 				MetricInfo
 					.builder()
 					.name(TAPE_DRIVE_STATUS_METRIC_NAME)
-					.description(createPresentDescription(TAPE_DRIVE_TYPE))
+					.description(createPresentDescription(MONITOR_TYPE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -201,7 +201,7 @@ public class TapeDriveMapping {
 					.name("hw.tape_drive.energy")
 					.unit(JOULES_UNIT)
 					.type(MetricType.COUNTER)
-					.description(createEnergyDescription(TAPE_DRIVE_TYPE))
+					.description(createEnergyDescription(MONITOR_TYPE))
 					.build()
 			)
 		);
@@ -213,7 +213,7 @@ public class TapeDriveMapping {
 					.builder()
 					.name("hw.tape_drive.power")
 					.unit(WATTS_UNIT)
-					.description(createPowerConsumptionDescription(TAPE_DRIVE_TYPE))
+					.description(createPowerConsumptionDescription(MONITOR_TYPE))
 					.build()
 			)
 		);
@@ -234,9 +234,16 @@ public class TapeDriveMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.tape_drive.errors_warning")
+					.name("hw.tape_drive.errors.limit")
 					.description(WARNING_THRESHOLD_OF_ERRORS)
 					.unit(ERRORS_UNIT)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(LIMIT_TYPE_ATTRIBUTE_KEY)
+							.value(DEGRADED_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);
@@ -246,9 +253,16 @@ public class TapeDriveMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.tape_drive.errors_alarm")
+					.name("hw.tape_drive.errors.limit")
 					.description(ALARM_THRESHOLD_OF_ERRORS)
 					.unit(ERRORS_UNIT)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(LIMIT_TYPE_ATTRIBUTE_KEY)
+							.value(CRITICAL_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);

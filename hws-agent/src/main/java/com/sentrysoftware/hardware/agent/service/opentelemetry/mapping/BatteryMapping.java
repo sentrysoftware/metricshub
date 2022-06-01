@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BatteryMapping {
 
-	private static final String BATTERY_TYPE = "battery";
+	private static final String MONITOR_TYPE = "battery";
 	private static final String BATTERY_STATUS_METRIC_NAME = "hw.battery.status";
 
 	/**
@@ -35,7 +35,7 @@ public class BatteryMapping {
 				MetricInfo
 					.builder()
 					.name(BATTERY_STATUS_METRIC_NAME)
-					.description(createStatusDescription(BATTERY_TYPE, OK_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -48,7 +48,7 @@ public class BatteryMapping {
 				MetricInfo
 					.builder()
 					.name(BATTERY_STATUS_METRIC_NAME)
-					.description(createStatusDescription(BATTERY_TYPE, DEGRADED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -61,7 +61,7 @@ public class BatteryMapping {
 				MetricInfo
 					.builder()
 					.name(BATTERY_STATUS_METRIC_NAME)
-					.description(createStatusDescription(BATTERY_TYPE, FAILED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -80,7 +80,7 @@ public class BatteryMapping {
 				MetricInfo
 					.builder()
 					.name(BATTERY_STATUS_METRIC_NAME)
-					.description(MappingConstants.createPresentDescription(BATTERY_TYPE))
+					.description(MappingConstants.createPresentDescription(MONITOR_TYPE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()

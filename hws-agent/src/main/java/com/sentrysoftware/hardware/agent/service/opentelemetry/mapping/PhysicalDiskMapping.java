@@ -22,7 +22,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PhysicalDiskMapping {
 
-	private static final String PHYSICAL_DISK_TYPE = "physical disk";
+	private static final String MONITOR_TYPE = "physical disk";
 	private static final String PHYSICAL_DISK_STATUS_METRIC_NAME = "hw.physical_disk.status";
 
 	/**
@@ -39,7 +39,7 @@ public class PhysicalDiskMapping {
 				MetricInfo
 					.builder()
 					.name(PHYSICAL_DISK_STATUS_METRIC_NAME)
-					.description(createStatusDescription(PHYSICAL_DISK_TYPE, OK_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -52,7 +52,7 @@ public class PhysicalDiskMapping {
 				MetricInfo
 					.builder()
 					.name(PHYSICAL_DISK_STATUS_METRIC_NAME)
-					.description(createStatusDescription(PHYSICAL_DISK_TYPE, DEGRADED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -65,7 +65,7 @@ public class PhysicalDiskMapping {
 				MetricInfo
 					.builder()
 					.name(PHYSICAL_DISK_STATUS_METRIC_NAME)
-					.description(createStatusDescription(PHYSICAL_DISK_TYPE, FAILED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -84,7 +84,7 @@ public class PhysicalDiskMapping {
 				MetricInfo
 					.builder()
 					.name(PHYSICAL_DISK_STATUS_METRIC_NAME)
-					.description(createPresentDescription(PHYSICAL_DISK_TYPE))
+					.description(createPresentDescription(MONITOR_TYPE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -157,7 +157,7 @@ public class PhysicalDiskMapping {
 					.name("hw.physical_disk.energy")
 					.unit(JOULES_UNIT)
 					.type(MetricType.COUNTER)
-					.description(createEnergyDescription(PHYSICAL_DISK_TYPE))
+					.description(createEnergyDescription(MONITOR_TYPE))
 					.build()
 			)
 		);
@@ -169,7 +169,7 @@ public class PhysicalDiskMapping {
 					.builder()
 					.name("hw.physical_disk.power")
 					.unit(WATTS_UNIT)
-					.description(createPowerConsumptionDescription(PHYSICAL_DISK_TYPE))
+					.description(createPowerConsumptionDescription(MONITOR_TYPE))
 					.build()
 			)
 		);
@@ -202,9 +202,16 @@ public class PhysicalDiskMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.physical_disk.errors_warning")
+					.name("hw.physical_disk.errors.limit")
 					.description(WARNING_THRESHOLD_OF_ERRORS)
 					.unit(ERRORS_UNIT)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(LIMIT_TYPE_ATTRIBUTE_KEY)
+							.value(DEGRADED_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);
@@ -214,9 +221,16 @@ public class PhysicalDiskMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.physical_disk.errors_alarm")
+					.name("hw.physical_disk.errors.limit")
 					.description(ALARM_THRESHOLD_OF_ERRORS)
 					.unit(ERRORS_UNIT)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(LIMIT_TYPE_ATTRIBUTE_KEY)
+							.value(CRITICAL_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);

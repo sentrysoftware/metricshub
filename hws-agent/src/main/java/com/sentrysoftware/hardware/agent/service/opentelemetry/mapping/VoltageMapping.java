@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class VoltageMapping {
 
-	private static final String VOLTAGE_NAME = "voltage";
+	private static final String MONITOR_TYPE = "voltage";
 	private static final String VOLTAGE_STATUS_METRIC_NAME = "hw.voltage.status";
 
 	/**
@@ -37,7 +37,7 @@ public class VoltageMapping {
 				MetricInfo
 					.builder()
 					.name(VOLTAGE_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(VOLTAGE_NAME, OK_ATTRIBUTE_VALUE))
+					.description(MappingConstants.createStatusDescription(MONITOR_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -50,7 +50,7 @@ public class VoltageMapping {
 				MetricInfo
 					.builder()
 					.name(VOLTAGE_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(VOLTAGE_NAME, DEGRADED_ATTRIBUTE_VALUE))
+					.description(MappingConstants.createStatusDescription(MONITOR_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -63,7 +63,7 @@ public class VoltageMapping {
 				MetricInfo
 					.builder()
 					.name(VOLTAGE_STATUS_METRIC_NAME)
-					.description(MappingConstants.createStatusDescription(VOLTAGE_NAME, FAILED_ATTRIBUTE_VALUE))
+					.description(MappingConstants.createStatusDescription(MONITOR_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -82,7 +82,7 @@ public class VoltageMapping {
 				MetricInfo
 					.builder()
 					.name(VOLTAGE_STATUS_METRIC_NAME)
-					.description(MappingConstants.createPresentDescription(VOLTAGE_NAME))
+					.description(MappingConstants.createPresentDescription(MONITOR_TYPE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -124,10 +124,17 @@ public class VoltageMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.voltage.voltage_upper")
+					.name("hw.voltage.voltage.limit")
 					.factor(MILLIVOLTS_TO_VOLTS_FACTOR)
 					.unit(VOLTS_UNIT)
 					.description("Upper threshold of the voltage.")
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(LIMIT_TYPE_ATTRIBUTE_KEY)
+							.value(HIGH_CRITICAL_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);
@@ -137,10 +144,17 @@ public class VoltageMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.voltage.voltage_lower")
+					.name("hw.voltage.voltage.limit")
 					.description("Lower threshold of the voltage.")
 					.factor(MILLIVOLTS_TO_VOLTS_FACTOR)
 					.unit(VOLTS_UNIT)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(LIMIT_TYPE_ATTRIBUTE_KEY)
+							.value(LOW_CRITICAL_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);

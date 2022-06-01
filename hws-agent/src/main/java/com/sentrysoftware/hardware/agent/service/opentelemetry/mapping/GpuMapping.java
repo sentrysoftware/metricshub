@@ -1,10 +1,7 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry.mapping;
 
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.*;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CORRECTED_ERROR_WARNING_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CORRECTED_ERROR_ALARM_THRESHOLD;
-
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +23,7 @@ public class GpuMapping {
 	private static final String GPU_ERROR_METRIC_NAME = "hw.gpu.errors";
 	private static final String GPU_IO_METRIC_NAME = "hw.gpu.io";
 	private static final String GPU_UTILIZATION_METRIC_NAME = "hw.gpu.utilization";
-	private static final String GPU_NAME = "GPU";
+	private static final String MONITOR_TYPE = "GPU";
 
 	/**
 	 * Build GPU metrics map
@@ -42,7 +39,7 @@ public class GpuMapping {
 				MetricInfo
 					.builder()
 					.name(GPU_STATUS_METRIC_NAME)
-					.description(createStatusDescription(GPU_NAME, OK_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -55,7 +52,7 @@ public class GpuMapping {
 				MetricInfo
 					.builder()
 					.name(GPU_STATUS_METRIC_NAME)
-					.description(createStatusDescription(GPU_NAME, DEGRADED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -68,7 +65,7 @@ public class GpuMapping {
 				MetricInfo
 					.builder()
 					.name(GPU_STATUS_METRIC_NAME)
-					.description(createStatusDescription(GPU_NAME, FAILED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -88,7 +85,7 @@ public class GpuMapping {
 					.builder()
 					.name(GPU_STATUS_METRIC_NAME)
 					.unit(IMetaMonitor.PREDICTED_FAILURE.getUnit())
-					.description(createStatusDescription(GPU_NAME, PREDICTED_FAILURE_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, PREDICTED_FAILURE_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -107,7 +104,7 @@ public class GpuMapping {
 				MetricInfo
 					.builder()
 					.name(GPU_STATUS_METRIC_NAME)
-					.description(createPresentDescription(GPU_NAME))
+					.description(createPresentDescription(MONITOR_TYPE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -220,7 +217,7 @@ public class GpuMapping {
 					.build()
 			)
 		);
-		
+
 		map.put(
 			Gpu.ENCODER_USED_TIME.getName(),
 			Collections.singletonList(
@@ -276,7 +273,7 @@ public class GpuMapping {
 					.build()
 			)
 		);
-	
+
 		map.put(
 			IMetaMonitor.ENERGY.getName(),
 			Collections.singletonList(
@@ -285,7 +282,7 @@ public class GpuMapping {
 					.name("hw.gpu.energy")
 					.unit(JOULES_UNIT)
 					.type(MetricType.COUNTER)
-					.description(createEnergyDescription(GPU_NAME))
+					.description(createEnergyDescription(MONITOR_TYPE))
 					.build()
 			)
 		);
@@ -297,7 +294,7 @@ public class GpuMapping {
 					.builder()
 					.name("hw.gpu.power")
 					.unit(WATTS_UNIT)
-					.description(createPowerConsumptionDescription(GPU_NAME))
+					.description(createPowerConsumptionDescription(MONITOR_TYPE))
 					.build()
 			)
 		);
@@ -327,38 +324,85 @@ public class GpuMapping {
 		);
 
 		map.put(
-			CORRECTED_ERROR_WARNING_THRESHOLD, 
+			MEMORY_UTILIZATION_ALARM_THRESHOLD,
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.gpu.errors_warning")
+					.name("hw.gpu.memory.utilization.limit")
+					.unit(RATIO_UNIT)
+					.factor(RATIO_FACTOR)
+					.type(MetricType.GAUGE)
+					.description("GPU memory utilization ratio that will generate an alarm when reached.")
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
-							.key(TYPE_ATTRIBUTE_KEY)
-							.value(CORRECTED_ATTRIBUTE_VALUE)
+							.key(LIMIT_TYPE_ATTRIBUTE_KEY)
+							.value(CRITICAL_ATTRIBUTE_VALUE)
 							.build()
 					)
-					.unit(ERRORS_UNIT)
-					.description("Number of detected and corrected errors that will generate a warning.")
-					.build())
+					.build()
+			)
 		);
 
 		map.put(
-			CORRECTED_ERROR_ALARM_THRESHOLD, 
+			MEMORY_UTILIZATION_WARNING_THRESHOLD,
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.gpu.errors_alarm")
+					.name("hw.gpu.memory.utilization.limit")
+					.unit(RATIO_UNIT)
+					.factor(RATIO_FACTOR)
+					.type(MetricType.GAUGE)
+					.description("GPU memory utilization ratio that will generate a warning when reached.")
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
-							.key(TYPE_ATTRIBUTE_KEY)
-							.value(CORRECTED_ATTRIBUTE_VALUE)
+							.key(LIMIT_TYPE_ATTRIBUTE_KEY)
+							.value(DEGRADED_ATTRIBUTE_VALUE)
 							.build()
 					)
-					.unit(ERRORS_UNIT)
-					.description("Number of detected and corrected errors that will generate an alarm.")
+					.build()
+			)
+		);
+
+		map.put(
+			USED_TIME_PERCENT_ALARM_THRESHOLD,
+			Collections.singletonList(
+				MetricInfo
+					.builder()
+					.name("hw.gpu.utilization.limit")
+					.unit(RATIO_UNIT)
+					.factor(RATIO_FACTOR)
+					.type(MetricType.GAUGE)
+					.description("GPU used time ratio that will generate an alarm when reached.")
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(LIMIT_TYPE_ATTRIBUTE_KEY)
+							.value(CRITICAL_ATTRIBUTE_VALUE)
+							.build()
+					)
+					.build()
+			)
+		);
+
+		map.put(
+			USED_TIME_PERCENT_WARNING_THRESHOLD,
+			Collections.singletonList(
+				MetricInfo
+					.builder()
+					.name("hw.gpu.utilization.limit")
+					.unit(RATIO_UNIT)
+					.factor(RATIO_FACTOR)
+					.type(MetricType.GAUGE)
+					.description("GPU used time ratio that will generate a warning when reached.")
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(LIMIT_TYPE_ATTRIBUTE_KEY)
+							.value(DEGRADED_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);

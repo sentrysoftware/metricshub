@@ -21,8 +21,8 @@ public class DiskControllerMapping {
 
 	private static final String DISK_CONTROLLER_ADDITIONAL_ID = "1";
 	private static final String DISK_CONTROLLER_STATUS_METRIC_NAME = "hw.disk_controller.status";
-	private static final String DISK_CONTROLLER_NAME = "disk controller";
-	private static final String DISK_CONTROLLER_BATTERY_NAME = DISK_CONTROLLER_NAME + " " + "battery";
+	private static final String MONITOR_TYPE = "disk controller";
+	private static final String BATTERY_MONITOR_TYPE = MONITOR_TYPE + " " + "battery";
 
 	/**
 	 * Build disk controller metrics map
@@ -38,7 +38,7 @@ public class DiskControllerMapping {
 				MetricInfo
 					.builder()
 					.name(DISK_CONTROLLER_STATUS_METRIC_NAME)
-					.description(createStatusDescription(DISK_CONTROLLER_NAME, OK_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -51,7 +51,7 @@ public class DiskControllerMapping {
 				MetricInfo
 					.builder()
 					.name(DISK_CONTROLLER_STATUS_METRIC_NAME)
-					.description(createStatusDescription(DISK_CONTROLLER_NAME, DEGRADED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -64,7 +64,7 @@ public class DiskControllerMapping {
 				MetricInfo
 					.builder()
 					.name(DISK_CONTROLLER_STATUS_METRIC_NAME)
-					.description(createStatusDescription(DISK_CONTROLLER_NAME, FAILED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -83,7 +83,7 @@ public class DiskControllerMapping {
 				MetricInfo
 					.builder()
 					.name(DISK_CONTROLLER_STATUS_METRIC_NAME)
-					.description(createPresentDescription(DISK_CONTROLLER_NAME))
+					.description(createPresentDescription(MONITOR_TYPE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -102,7 +102,7 @@ public class DiskControllerMapping {
 				MetricInfo
 					.builder()
 					.name(DISK_CONTROLLER_STATUS_METRIC_NAME)
-					.description(createStatusDescription(DISK_CONTROLLER_BATTERY_NAME, OK_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(BATTERY_MONITOR_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -115,7 +115,7 @@ public class DiskControllerMapping {
 				MetricInfo
 					.builder()
 					.name(DISK_CONTROLLER_STATUS_METRIC_NAME)
-					.description(createStatusDescription(DISK_CONTROLLER_BATTERY_NAME, DEGRADED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(BATTERY_MONITOR_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -128,7 +128,7 @@ public class DiskControllerMapping {
 				MetricInfo
 					.builder()
 					.name(DISK_CONTROLLER_STATUS_METRIC_NAME)
-					.description(createStatusDescription(DISK_CONTROLLER_BATTERY_NAME, FAILED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(BATTERY_MONITOR_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -147,7 +147,7 @@ public class DiskControllerMapping {
 				MetricInfo
 					.builder()
 					.name(DISK_CONTROLLER_STATUS_METRIC_NAME)
-					.description(createStatusDescription(DISK_CONTROLLER_NAME, OK_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, OK_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -161,7 +161,7 @@ public class DiskControllerMapping {
 				MetricInfo
 					.builder()
 					.name(DISK_CONTROLLER_STATUS_METRIC_NAME)
-					.description(createStatusDescription(DISK_CONTROLLER_NAME, DEGRADED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, DEGRADED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -175,7 +175,7 @@ public class DiskControllerMapping {
 				MetricInfo
 					.builder()
 					.name(DISK_CONTROLLER_STATUS_METRIC_NAME)
-					.description(createStatusDescription(DISK_CONTROLLER_NAME, FAILED_ATTRIBUTE_VALUE))
+					.description(createStatusDescription(MONITOR_TYPE, FAILED_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -197,7 +197,7 @@ public class DiskControllerMapping {
 					.name("hw.disk_controller.energy")
 					.unit(JOULES_UNIT)
 					.type(MetricType.COUNTER)
-					.description(createEnergyDescription(DISK_CONTROLLER_NAME))
+					.description(createEnergyDescription(MONITOR_TYPE))
 					.build()
 			)
 		);
@@ -209,7 +209,7 @@ public class DiskControllerMapping {
 					.builder()
 					.name("hw.disk_controller.power")
 					.unit(WATTS_UNIT)
-					.description(createPowerConsumptionDescription(DISK_CONTROLLER_NAME))
+					.description(createPowerConsumptionDescription(MONITOR_TYPE))
 					.build()
 			)
 		);
