@@ -84,7 +84,6 @@ public class GpuMapping {
 				MetricInfo
 					.builder()
 					.name(GPU_STATUS_METRIC_NAME)
-					.unit(IMetaMonitor.PREDICTED_FAILURE.getUnit())
 					.description(createStatusDescription(MONITOR_TYPE, PREDICTED_FAILURE_ATTRIBUTE_VALUE))
 					.identifyingAttribute(
 						StaticIdentifyingAttribute

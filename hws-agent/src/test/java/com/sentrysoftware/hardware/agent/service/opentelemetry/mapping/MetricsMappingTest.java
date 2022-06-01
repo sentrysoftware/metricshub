@@ -60,6 +60,8 @@ class MetricsMappingTest {
 						assertNotNull(metricInfo);
 						String metricId;
 						if (metricInfo.getIdentifyingAttribute() != null) {
+							assertNotNull(metricInfo.getIdentifyingAttribute().getKey());
+							assertNotNull(metricInfo.getIdentifyingAttribute().getValue());
 							metricId = String.format("%s.%s.%s", metricInfo.getName(), metricInfo.getIdentifyingAttribute().getKey(), metricInfo.getIdentifyingAttribute().getValue());
 						} else {
 							metricId = metricInfo.getName();
