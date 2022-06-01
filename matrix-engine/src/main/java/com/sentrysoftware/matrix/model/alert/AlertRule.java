@@ -127,7 +127,7 @@ public class AlertRule {
 						trigger.accept(alertInfo);
 					} catch (Exception e) {
 						log.debug("Hostname {} - Exception detected when triggering alert.", StringHelper.getValue(
-								() -> alertInfo.getHardwareTarget().getHostname(), HardwareConstants.EMPTY), e);
+								() -> alertInfo.getHardwareHost().getHostname(), HardwareConstants.EMPTY), e);
 					}
 
 					// Set triggered to true to avoid triggering the same alert in future collects

@@ -11,7 +11,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_NUMBER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HOST_FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_REPORT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TYPE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UNALLOCATED_SPACE_PARAMETER;
@@ -116,7 +116,7 @@ class HostMonitoringCollectorServiceTest {
 				ENERGY_PARAMETER, numberParam))
 			.monitorType(MonitorType.ENCLOSURE)
 			.build();
-		enclosureMonitor.addMetadata(TARGET_FQDN, TARGET_FQDN);
+		enclosureMonitor.addMetadata(HOST_FQDN, HOST_FQDN);
 		enclosureMonitor.addMetadata(DEVICE_ID, "1.1");
 		enclosureMonitor.addMetadata(SERIAL_NUMBER, "XXX888");
 		enclosureMonitor.addMetadata(VENDOR, "Dell");
@@ -133,7 +133,7 @@ class HostMonitoringCollectorServiceTest {
 			.parameters(Map.of(STATUS_PARAMETER, statusParam))
 			.monitorType(MonitorType.FAN)
 			.build();
-		fan1Monitor.addMetadata(TARGET_FQDN, TARGET_FQDN);
+		fan1Monitor.addMetadata(HOST_FQDN, HOST_FQDN);
 		fan1Monitor.addMetadata(DEVICE_ID, "1.11");
 		fan1Monitor.addMetadata(FAN_TYPE, "default cooling");
 
@@ -144,7 +144,7 @@ class HostMonitoringCollectorServiceTest {
 			.parameters(Map.of(STATUS_PARAMETER, statusParam))
 			.monitorType(MonitorType.FAN)
 			.build();
-		fan2Monitor.addMetadata(TARGET_FQDN, TARGET_FQDN);
+		fan2Monitor.addMetadata(HOST_FQDN, HOST_FQDN);
 		fan2Monitor.addMetadata(DEVICE_ID, "1.12");
 		fan2Monitor.addMetadata(FAN_TYPE, "default cooling");
 
@@ -186,7 +186,7 @@ class HostMonitoringCollectorServiceTest {
 				ENERGY_USAGE_PARAMETER, numberParam))
 			.monitorType(MonitorType.ENCLOSURE)
 			.build();
-		enclosureMonitor.addMetadata(TARGET_FQDN, TARGET_FQDN);
+		enclosureMonitor.addMetadata(HOST_FQDN, HOST_FQDN);
 		Map<String, Monitor> enclosures = Map.of(ENCLOSURE_ID, enclosureMonitor);
 
 		Map<MonitorType, Map<String, Monitor>> monitors = new LinkedHashMap<>();

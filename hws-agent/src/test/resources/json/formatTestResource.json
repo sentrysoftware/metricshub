@@ -5,7 +5,7 @@
     "name" : "MS_HW_DellOpenManage",
     "monitorType" : "CONNECTOR",
     "parentId" : "parentId",
-    "targetId" : null,
+    "hostId" : null,
     "extendedType" : null,
     "discoveryTime" : null,
     "parameters" : {
@@ -34,7 +34,7 @@
     "name" : "MS_HW_DellCMC",
     "monitorType" : "CONNECTOR",
     "parentId" : "parentId",
-    "targetId" : null,
+    "hostId" : null,
     "extendedType" : null,
     "discoveryTime" : null,
     "parameters" : {
@@ -61,9 +61,9 @@
   }, {
     "id" : "id3",
     "name" : "MS_HW_DellOpenManage_Device",
-    "monitorType" : "TARGET",
+    "monitorType" : "HOST",
     "parentId" : "id1",
-    "targetId" : null,
+    "hostId" : null,
     "extendedType" : null,
     "discoveryTime" : null,
     "parameters" : {

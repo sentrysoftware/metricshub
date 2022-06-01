@@ -18,8 +18,8 @@ class MonitorTypeTest {
 		MonitorType monitor = MonitorType.CONNECTOR;
 		assertEquals("Connectors", monitor.jsonKey());
 
-		monitor = MonitorType.TARGET;
-		assertEquals("Targets", monitor.jsonKey());
+		monitor = MonitorType.HOST;
+		assertEquals("Hosts", monitor.jsonKey());
 
 		monitor = MonitorType.BATTERY;
 		assertEquals("Batteries", monitor.jsonKey());

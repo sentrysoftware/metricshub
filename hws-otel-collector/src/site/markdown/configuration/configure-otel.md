@@ -23,7 +23,7 @@ By default, **${project.name}**'s configuration file is **config/otel-config.yam
 
 ### Hardware Sentry Agent
 
-The **Hardware Sentry Agent** is the internal component which scrapes targets, collects metrics and pushes OTLP data to the OTLP receiver of the *OpenTelemetry Collector*. The `hws_agent` extension starts the **Hardware Sentry Agent** as a child process of the *OpenTelemetry Collector*, checks that this child process is up and running and restarts it if needed.
+The **Hardware Sentry Agent** is the internal component which scrapes hosts, collects metrics and pushes OTLP data to the OTLP receiver of the *OpenTelemetry Collector*. The `hws_agent` extension starts the **Hardware Sentry Agent** as a child process of the *OpenTelemetry Collector*, checks that this child process is up and running and restarts it if needed.
 
 Configure the `hws_agent` extension as follows:
 ```yaml

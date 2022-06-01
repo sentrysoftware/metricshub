@@ -67,7 +67,7 @@ public abstract class AbstractITJob implements ITJob {
 		assertEquals(expected.getExtendedType(), actual.getExtendedType(), () -> "ExtendedType doesn't match. MonitorType: " + monitorType + ". ID: " + expected.getId());
 		assertEquals(expected.getName(), actual.getName(), () -> "Name doesn't match. MonitorType: " + monitorType + ". ID: " + expected.getId());
 		assertEquals(expected.getParentId(), actual.getParentId(), () -> "ParentId doesn't match. MonitorType: " + monitorType + ". ID: " + expected.getId());
-		assertEquals(expected.getTargetId(), actual.getTargetId(), () -> "TargetId doesn't match. MonitorType: " + monitorType + ". ID: " + expected.getId());
+		assertEquals(expected.getHostId(), actual.getHostId(), () -> "HostId doesn't match. MonitorType: " + monitorType + ". ID: " + expected.getId());
 
 		assertMetadata(expected, actual);
 

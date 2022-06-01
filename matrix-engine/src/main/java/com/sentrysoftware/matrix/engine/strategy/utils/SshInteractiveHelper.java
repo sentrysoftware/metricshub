@@ -57,7 +57,7 @@ public class SshInteractiveHelper {
 			throw new NoCredentialProvidedException();
 		}
 
-		final String hostname = engineConfiguration.getTarget().getHostname();
+		final String hostname = engineConfiguration.getHost().getHostname();
 
 		final int timeout = sshProtocol.getTimeout() != null ?
 				sshProtocol.getTimeout().intValue() :

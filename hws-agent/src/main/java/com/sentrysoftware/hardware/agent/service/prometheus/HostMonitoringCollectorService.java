@@ -23,7 +23,7 @@ import org.springframework.util.Assert;
 import com.sentrysoftware.hardware.agent.dto.MetricInfo;
 import com.sentrysoftware.hardware.agent.dto.MetricInfo.MetricType;
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
-import com.sentrysoftware.hardware.agent.dto.TargetContext;
+import com.sentrysoftware.hardware.agent.dto.HostContext;
 import com.sentrysoftware.hardware.agent.service.ServiceHelper;
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
@@ -160,7 +160,7 @@ public class HostMonitoringCollectorService extends Collector {
 		// Loop over all the monitors and create metrics (Prometheus samples)
 		hostMonitoringMap.entrySet()
 			.stream()
-			.filter(entry -> TargetContext.getTargetId() == null || entry.getKey().equals(TargetContext.getTargetId()))
+			.filter(entry -> HostContext.getHostId() == null || entry.getKey().equals(HostContext.getHostId()))
 			.map(Entry::getValue)
 			.forEach(hostMonitoring -> hostMonitoring
 				.getMonitors()

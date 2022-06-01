@@ -56,9 +56,9 @@ import com.sentrysoftware.matrix.engine.strategy.utils.SshInteractiveHelper;
 import com.sentrysoftware.matrix.engine.strategy.utils.WqlDetectionHelper;
 import com.sentrysoftware.matrix.engine.strategy.utils.WqlDetectionHelper.NamespaceResult;
 import com.sentrysoftware.matrix.engine.strategy.utils.WqlDetectionHelper.PossibleNamespacesResult;
-import com.sentrysoftware.matrix.engine.target.HardwareTarget;
-import com.sentrysoftware.matrix.engine.target.TargetType;
 
+import com.sentrysoftware.matrix.engine.host.HardwareHost;
+import com.sentrysoftware.matrix.engine.host.HostType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -97,9 +97,9 @@ public class CriterionVisitor implements ICriterionVisitor {
 				.get(HttpProtocol.class);
 
 		final String hostname = engineConfiguration
-				.getTarget()
+				.getHost()
 				.getHostname();
-		
+
 		if (protocol == null) {
 			log.debug("Hostname {} - The HTTP credentials are not configured for this host. Cannot process HTTP detection {}.", hostname, criterion);
 			return CriterionTestResult.empty();
@@ -180,19 +180,19 @@ public class CriterionVisitor implements ICriterionVisitor {
 	@Override
 	public CriterionTestResult visit(final Ipmi ipmi) {
 
-		final HardwareTarget target = strategyConfig.getEngineConfiguration().getTarget();
-		final TargetType targetType = target.getType();
+		final HardwareHost host = strategyConfig.getEngineConfiguration().getHost();
+		final HostType hostType = host.getType();
 
-		if (TargetType.MS_WINDOWS.equals(targetType)) {
+		if (HostType.MS_WINDOWS.equals(hostType)) {
 			return processWindowsIpmiDetection(ipmi);
-		} else if (TargetType.LINUX.equals(targetType) || TargetType.SUN_SOLARIS.equals(targetType)) {
-			return processUnixIpmiDetection(targetType);
-		} else if (TargetType.MGMT_CARD_BLADE_ESXI.equals(targetType)) {
+		} else if (HostType.LINUX.equals(hostType) || HostType.SUN_SOLARIS.equals(hostType)) {
+			return processUnixIpmiDetection(hostType);
+		} else if (HostType.MGMT_CARD_BLADE_ESXI.equals(hostType)) {
 			return processOutOfBandIpmiDetection();
 		}
 
-		final String message = String.format("Hostname %s - Failed to perform IPMI detection. %s is an unsupported OS for IPMI.", target.getHostname(),
-				targetType.name());
+		final String message = String.format("Hostname %s - Failed to perform IPMI detection. %s is an unsupported OS for IPMI.", host.getHostname(),
+				hostType.name());
 
 		return CriterionTestResult.builder()
 				.message(message)
@@ -210,8 +210,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 		final IpmiOverLanProtocol protocol = (IpmiOverLanProtocol) strategyConfig.getEngineConfiguration()
 				.getProtocolConfigurations().get(IpmiOverLanProtocol.class);
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-		
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
+
 		if (protocol == null) {
 			log.debug("Hostname {} - The IPMI credentials are not configured for this host. Cannot process IPMI-over-LAN detection.", hostname);
 			return CriterionTestResult.empty();
@@ -247,14 +247,14 @@ public class CriterionVisitor implements ICriterionVisitor {
 	/**
 	 * Process IPMI detection for the Unix system
 	 *
-	 * @param targetType
+	 * @param hostType
 	 *
 	 * @return
 	 */
-	private CriterionTestResult processUnixIpmiDetection(final TargetType targetType) {
+	private CriterionTestResult processUnixIpmiDetection(final HostType hostType) {
 
 		String ipmitoolCommand = strategyConfig.getHostMonitoring().getIpmitoolCommand();
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		final SshProtocol sshProtocol = (SshProtocol) strategyConfig.getEngineConfiguration()
 				.getProtocolConfigurations().get(SshProtocol.class);
 
@@ -270,7 +270,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 		}
 		final int defaultTimeout = osCommandConfig.getTimeout().intValue();
 		if (ipmitoolCommand == null || ipmitoolCommand.isEmpty()) {
-			ipmitoolCommand = buildIpmiCommand(targetType, hostname, sshProtocol, osCommandConfig, defaultTimeout);
+			ipmitoolCommand = buildIpmiCommand(hostType, hostname, sshProtocol, osCommandConfig, defaultTimeout);
 		}
 
 		// buildIpmiCommand method can either return the actual result of the built command or an error. If it an error we display it in the error message
@@ -307,14 +307,14 @@ public class CriterionVisitor implements ICriterionVisitor {
 	 * Check the OS type and version and build the correct IPMI command. If the
 	 * process fails, return the according error
 	 *
-	 * @param targetType
+	 * @param hostType
 	 * @param hostname
 	 * @param sshProtocol
 	 * @param osCommandConfig
 	 * @param defaultTimeout
 	 * @return
 	 */
-	public String buildIpmiCommand(final TargetType targetType, final String hostname, final SshProtocol sshProtocol,
+	public String buildIpmiCommand(final HostType hostType, final String hostname, final SshProtocol sshProtocol,
 			final AbstractCommand osCommandConfig, final int defaultTimeout) {
 		// do we need to use sudo or not?
 		// If we have enabled useSudo (possible only in Web UI and CMA) --> yes
@@ -328,7 +328,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 		}
 
 		// figure out the version of the Solaris OS
-		if (TargetType.SUN_SOLARIS.equals(targetType)) {
+		if (HostType.SUN_SOLARIS.equals(hostType)) {
 			String solarisOsVersion = null;
 			try {
 				// Execute "/usr/bin/uname -r" command in order to obtain the OS Version
@@ -436,7 +436,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 	 */
 	private CriterionTestResult processWindowsIpmiDetection(final Ipmi ipmi) {
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		final WmiProtocol wmiConfig =
 				(WmiProtocol) strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(WmiProtocol.class);
 
@@ -462,12 +462,12 @@ public class CriterionVisitor implements ICriterionVisitor {
 	@Override
 	public CriterionTestResult visit(final Os os) {
 		if (os == null) {
-			log.error("Hostname {} - Malformed OS criterion {}. Cannot process OS detection.", 
-					strategyConfig.getEngineConfiguration().getTarget().getHostname(), os);
+			log.error("Hostname {} - Malformed OS criterion {}. Cannot process OS detection.",
+					strategyConfig.getEngineConfiguration().getHost().getHostname(), os);
 			return CriterionTestResult.empty();
 		}
 
-		final OsType osType = strategyConfig.getEngineConfiguration().getTarget().getType().getOsType();
+		final OsType osType = strategyConfig.getEngineConfiguration().getHost().getType().getOsType();
 
 		if (OsType.SOLARIS.equals(osType) && !isOsTypeIncluded(Arrays.asList(OsType.SOLARIS, OsType.SUNOS), os)
 				|| !OsType.SOLARIS.equals(osType) && !isOsTypeIncluded(Collections.singletonList(osType), os)) {
@@ -555,8 +555,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 	@Override
 	public CriterionTestResult visit(final Process process) {
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-		
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
+
 		if (process == null || process.getProcessCommandLine() == null) {
 			log.error("Hostname {} - Malformed process criterion {}. Cannot process process detection.", hostname, process);
 			return CriterionTestResult.empty();
@@ -614,8 +614,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 			return CriterionTestResult.error(service, "WMI credentials are not configured.");
 		}
 
-		// The target system must be Windows
-		if (!TargetType.MS_WINDOWS.equals(strategyConfig.getEngineConfiguration().getTarget().getType())) {
+		// The host system must be Windows
+		if (!HostType.MS_WINDOWS.equals(strategyConfig.getEngineConfiguration().getHost().getType())) {
 			return CriterionTestResult.error(service, "Host OS is not Windows. Skipping this test.");
 		}
 
@@ -631,7 +631,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 			return CriterionTestResult.success(service, "Service name is not specified. Skipping this test.");
 		}
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 
 		// Build a new WMI criterion to check the service existence
 		Wmi serviceWmiCriterion = Wmi
@@ -663,7 +663,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 	@Override
 	public CriterionTestResult visit(final SnmpGet snmpGet) {
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		if (null == snmpGet || snmpGet.getOid() == null) {
 			log.error("Hostname {} - Malformed SNMP Get criterion {}. Cannot process SNMP Get detection.", hostname, snmpGet);
 			return CriterionTestResult.empty();
@@ -853,7 +853,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 		// Gather the necessary info on the test that needs to be performed
 		final EngineConfiguration engineConfiguration = strategyConfig.getEngineConfiguration();
 
-		final String hostname = engineConfiguration.getTarget().getHostname();
+		final String hostname = engineConfiguration.getHost().getHostname();
 
 		final WbemProtocol wbemConfig =
 				(WbemProtocol) engineConfiguration.getProtocolConfigurations().get(WbemProtocol.class);
@@ -890,7 +890,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 	/**
 	 * Find the namespace to use for the execution of the given {@link Wbem} {@link Criterion}.
 	 *
-	 * @param hostname The hostname of the target device
+	 * @param hostname The hostname of the host device
 	 * @param wbemConfig The WBEM protocol configuration (port, credentials, etc.)
 	 * @param criterion The WQL criterion with an "Automatic" namespace
 	 *
@@ -950,7 +950,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 		// Gather the necessary info on the test that needs to be performed
 		final EngineConfiguration engineConfiguration = strategyConfig.getEngineConfiguration();
 
-		final String hostname = engineConfiguration.getTarget().getHostname();
+		final String hostname = engineConfiguration.getHost().getHostname();
 
 		final WmiProtocol wmiConfig =
 				(WmiProtocol) engineConfiguration.getProtocolConfigurations().get(WmiProtocol.class);
@@ -987,7 +987,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 	/**
 	 * Find the namespace to use for the execution of the given {@link Wmi} {@link Criterion}.
 	 *
-	 * @param hostname The hostname of the target device
+	 * @param hostname The hostname of the host device
 	 * @param wmiConfig The WMI protocol configuration (credentials, etc.)
 	 * @param criterion The WQL criterion with an "Automatic" namespace
 	 *
@@ -1067,8 +1067,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 	@Override
 	public CriterionTestResult visit(final SnmpGetNext snmpGetNext) {
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-		
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
+
 		if (snmpGetNext == null || snmpGetNext.getOid() == null) {
 			log.error("Hostname {} - Malformed SNMP GetNext criterion {}. Cannot process SNMP GetNext detection.", hostname, snmpGetNext);
 			return CriterionTestResult.empty();

@@ -21,7 +21,7 @@ public class ConfigurationFileConfig {
 	 * <ol>
 	 *   <li>If the user has configured the configFilePath via <em>--config=$filePath</em> then it is the chosen file</li>
 	 *   <li>Else if <em>config/hws-config.yaml</em> path exists, the resulting File is the one representing this path</li>
-	 *   <li>Else we copy <em>config/hws-config-example.yaml</em> to the target file <em>config/hws-config.yaml</em> then we return the resulting target file</li>
+	 *   <li>Else we copy <em>config/hws-config-example.yaml</em> to the host file <em>config/hws-config.yaml</em> then we return the resulting host file</li>
 	 * </ol>
 	 * 
 	 * The program fails if

@@ -33,7 +33,7 @@ class PrometheusControllerTest {
 	}
 
 	@Test
-	void testMetricsWithTargetId() throws BusinessException {
+	void testMetricsWithHostId() throws BusinessException {
 
 		final String expected = "enclosure_status{id=\"1\", parentId=\"0\", label=\"encolosure 1\"} 0";
 		doReturn(expected).when(prometheusService).collectMetrics();

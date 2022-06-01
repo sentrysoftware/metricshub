@@ -63,10 +63,10 @@ The first critical task the *Collector* has to complete is to launch the Java pr
 2021-12-22T11:26:16.609+0100	info	service/telemetry.go:116	Serving Prometheus metrics	{"address": ":8888", "level": "basic", "service.instance.id": "05d27cc8-30f6-47cc-8c2f-0c6c1181fa96", "service.version": "latest"}
 2021-12-22T11:26:16.609+0100	info	service/collector.go:239	Starting hws-otel-collector...	{"Version": "1.1-SNAPSHOT (Build 6b2c8efc on Dec 22, 2021 at 10:30:28 AM)", "NumCPU": 12}
 2021-12-22T11:26:16.609+0100	info	service/collector.go:135	Everything is ready. Begin running and processing data.
-2021-12-22T11:26:18.060+0100	debug	hwsagentextension@v0.41.0/process.go:229	[m[36m[2021-12-22T11:26:18,060][INFO ][c.s.h.a.s.TaskSchedulingService] Scheduled Job for target id ecs1-01	{"kind": "extension", "name": "hws_agent"}
-2021-12-22T11:26:18.061+0100	debug	hwsagentextension@v0.41.0/process.go:229	[m[36m[2021-12-22T11:26:18,060][INFO ][c.s.h.a.s.t.StrategyTask] Calling the engine to discover target: ecs1-01.	{"kind": "extension", "name": "hws_agent"}
-2021-12-22T11:26:18.061+0100	debug	hwsagentextension@v0.41.0/process.go:229	[m[36m[2021-12-22T11:26:18,061][INFO ][c.s.h.a.s.TaskSchedulingService] Scheduled Job for target id ankara	{"kind": "extension", "name": "hws_agent"}
-2021-12-22T11:26:18.061+0100	debug	hwsagentextension@v0.41.0/process.go:229	[m[36m[2021-12-22T11:26:18,061][INFO ][c.s.h.a.s.t.StrategyTask] Calling the engine to discover target: ankara.	{"kind": "extension", "name": "hws_agent"}
+2021-12-22T11:26:18.060+0100	debug	hwsagentextension@v0.41.0/process.go:229	[m[36m[2021-12-22T11:26:18,060][INFO ][c.s.h.a.s.TaskSchedulingService] Scheduled Job for host id ecs1-01	{"kind": "extension", "name": "hws_agent"}
+2021-12-22T11:26:18.061+0100	debug	hwsagentextension@v0.41.0/process.go:229	[m[36m[2021-12-22T11:26:18,060][INFO ][c.s.h.a.s.t.StrategyTask] Calling the engine to discover host: ecs1-01.	{"kind": "extension", "name": "hws_agent"}
+2021-12-22T11:26:18.061+0100	debug	hwsagentextension@v0.41.0/process.go:229	[m[36m[2021-12-22T11:26:18,061][INFO ][c.s.h.a.s.TaskSchedulingService] Scheduled Job for host id ankara	{"kind": "extension", "name": "hws_agent"}
+2021-12-22T11:26:18.061+0100	debug	hwsagentextension@v0.41.0/process.go:229	[m[36m[2021-12-22T11:26:18,061][INFO ][c.s.h.a.s.t.StrategyTask] Calling the engine to discover host: ankara.	{"kind": "extension", "name": "hws_agent"}
 2021-12-22T11:26:18.377+0100	debug	hwsagentextension@v0.41.0/process.go:229	[m[36m[2021-12-22T11:26:18,377][INFO ][c.s.h.a.HardwareSentryAgentApp] Started HardwareSentryAgentApp in 2.485 seconds (JVM running for 3.634)	{"kind": "extension", "name": "hws_agent"}
 ```
 
@@ -133,8 +133,8 @@ To enable the debug mode of the core engine, edit the **config/hws-config.yaml**
 
 ```yaml
 loggerLevel: debug
-targets:
-- target:
+hosts:
+- host:
     # [...]
 ```
 
@@ -145,13 +145,13 @@ By default, the debug output file is saved in the **logs** directory under the *
 * **C:\Program Files\hws-otel-collector\logs** on Windows
 * **/usr/local/hws-otel-collector/logs** on Linux
 
-If you want to specify another output directory, edit the **hws-config.yaml** file and add the `outputDirectory` parameter just before the `targets` section:
+If you want to specify another output directory, edit the **hws-config.yaml** file and add the `outputDirectory` parameter just before the `hosts` section:
 
 ```yaml
 loggerLevel: debug
 outputDirectory: C:\Users\<username>\AppData\Local\Temp\logs2021
 
-targets:
-- target:
+hosts:
+- host:
     # [...]
 ```

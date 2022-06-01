@@ -25,10 +25,10 @@ import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WmiProtocol;
-import com.sentrysoftware.matrix.engine.target.HardwareTarget;
-import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.alert.AlertInfo;
 
+import com.sentrysoftware.matrix.engine.host.HardwareHost;
+import com.sentrysoftware.matrix.engine.host.HostType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -59,7 +59,7 @@ public class EngineConfiguration {
 	// 5 minutes
 	public static final int DEFAULT_JOB_TIMEOUT = 5 * 60;
 
-	private HardwareTarget target;
+	private HardwareHost host;
 
 	@Default
 	private Map<Class<? extends IProtocolConfiguration>, IProtocolConfiguration> protocolConfigurations = new HashMap<>();
@@ -80,14 +80,14 @@ public class EngineConfiguration {
 	/**
 	 * Determine the accepted sources that can be executed using the current engine configuration
 	 * 
-	 * @param isLocalhost   Whether the target should be localhost or not
+	 * @param isLocalhost   Whether the host should be localhost or not
 	 * @return {@link Set} of accepted source types
 	 */
 	public Set<Class<? extends Source>> determineAcceptedSources(final boolean isLocalhost) {
 
-		// protocolConfigurations and target cannot never be null
+		// protocolConfigurations and host cannot never be null
 		final Set<Class<? extends IProtocolConfiguration>> protocolTypes = protocolConfigurations.keySet();
-		final TargetType targetType = target.getType();
+		final HostType hostType = host.getType();
 
 		final Set<Class<? extends Source>> sources = PROTOCOL_TO_SOURCES_MAP
 				.entrySet()
@@ -96,18 +96,18 @@ public class EngineConfiguration {
 				.flatMap(v -> v.getValue().stream())
 				.collect(Collectors.toSet());
 
-		// Remove WMI for non-windows target
-		if (!TargetType.MS_WINDOWS.equals(targetType)) {
+		// Remove WMI for non-windows host
+		if (!HostType.MS_WINDOWS.equals(hostType)) {
 			sources.remove(WmiSource.class);
 		}
 
 		// Add IPMI through WMI
-		if (TargetType.MS_WINDOWS.equals(targetType) && sources.contains(WmiSource.class)) {
+		if (HostType.MS_WINDOWS.equals(hostType) && sources.contains(WmiSource.class)) {
 			sources.add(Ipmi.class);
 		}
 
 		// Add IPMI through OSCommand remote (SSH)
-		if ((TargetType.LINUX.equals(targetType) || TargetType.SUN_SOLARIS.equals(targetType))
+		if ((HostType.LINUX.equals(hostType) || HostType.SUN_SOLARIS.equals(hostType))
 				&& protocolTypes.contains(SshProtocol.class) && !isLocalhost) {
 			sources.add(Ipmi.class);
 		}
@@ -118,7 +118,7 @@ public class EngineConfiguration {
 			sources.add(OsCommandSource.class);
 
 			// IPMI executed locally on Linux through OS Command
-			if (TargetType.LINUX.equals(targetType) || TargetType.SUN_SOLARIS.equals(targetType)) {
+			if (HostType.LINUX.equals(hostType) || HostType.SUN_SOLARIS.equals(hostType)) {
 				sources.add(Ipmi.class);
 			}
 		}

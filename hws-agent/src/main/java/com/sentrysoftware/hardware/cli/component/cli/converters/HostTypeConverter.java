@@ -1,17 +1,16 @@
 package com.sentrysoftware.hardware.cli.component.cli.converters;
 
-import com.sentrysoftware.matrix.engine.target.TargetType;
-
+import com.sentrysoftware.matrix.engine.host.HostType;
 import lombok.NonNull;
 import picocli.CommandLine.ITypeConverter;
 import picocli.CommandLine.TypeConversionException;
 
-public class TargetTypeConverter implements ITypeConverter<TargetType> {
+public class HostTypeConverter implements ITypeConverter<HostType> {
 
 	@Override
-	public TargetType convert(@NonNull final String type) throws Exception {
+	public HostType convert(@NonNull final String type) throws Exception {
 		try {
-			return TargetType.interpretValueOf(type);
+			return HostType.interpretValueOf(type);
 		} catch (IllegalArgumentException e) {
 			throw new TypeConversionException(e.getMessage());
 		}

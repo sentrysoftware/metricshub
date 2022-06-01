@@ -12,13 +12,13 @@ extraMetrics:
 exporter:
   otlp:
 
-targets:
+hosts:
 
 ####################################################
 # IPMI protocol configuration                      #
 ####################################################
 
-#  - target:
+#  - host:
 #      hostname: server-1
 #      type: oob
 #    ipmi:
@@ -30,7 +30,7 @@ targets:
 # WMI protocol configuration                       #
 ####################################################
 
-#  - target:
+#  - host:
 #      hostname: server-2
 #      type: win
 #    wmi:
@@ -40,7 +40,7 @@ targets:
 # WMI protocol configuration with credentials      #
 ####################################################
 
-#  - target:
+#  - host:
 #      hostname: server-3
 #      type: win
 #    wmi:
@@ -52,7 +52,7 @@ targets:
 # SNMP v1 protocol configuration                  #
 ####################################################
 
-#  - target:
+#  - host:
 #      hostname: server-4
 #      type: linux
 #    snmp:
@@ -66,7 +66,7 @@ targets:
 # SNMP v2c protocol configuration                  #
 ####################################################
 
-#  - target:
+#  - host:
 #      hostname: server-5
 #      type: oob
 #    snmp:
@@ -79,7 +79,7 @@ targets:
 # SNMP v3 MD5 protocol configuration               #
 ####################################################
 
-#  - target:
+#  - host:
 #      hostname: server-6
 #      type: oob
 #    snmp:
@@ -96,7 +96,7 @@ targets:
 # WBEM protocol configuration                      #
 ####################################################
 
-#  - target:
+#  - host:
 #      hostname: server-7
 #      type: storage
 #    wbem:
@@ -110,7 +110,7 @@ targets:
 # HTTP protocol configuration                      #
 ####################################################
 
-#  - target:
+#  - host:
 #      hostname: server-8
 #      type: storage
 #    http:
@@ -125,7 +125,7 @@ targets:
 # SSH protocol configuration                       #
 ####################################################
 
-#  - target:
+#  - host:
 #      hostname: server-9
 #      type: linux
 #    ssh:
@@ -141,7 +141,7 @@ targets:
 # OSCommand configuration                          #
 ####################################################
 
-#  - target:
+#  - host:
 #      hostname: server-10
 #      type: linux
 #    osCommand:

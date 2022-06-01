@@ -19,7 +19,7 @@ import com.sentrysoftware.matrix.common.meta.monitor.PhysicalDisk;
 import com.sentrysoftware.matrix.common.meta.monitor.PowerSupply;
 import com.sentrysoftware.matrix.common.meta.monitor.Robotics;
 import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
-import com.sentrysoftware.matrix.common.meta.monitor.Target;
+import com.sentrysoftware.matrix.common.meta.monitor.Host;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
 import com.sentrysoftware.matrix.common.meta.monitor.Vm;
 import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
@@ -28,7 +28,7 @@ public interface IMonitorVisitor {
 
 	void visit(MetaConnector metaConnector);
 
-	void visit(Target target);
+	void visit(Host host);
 
 	void visit(Battery battery);
 

@@ -47,10 +47,10 @@ import com.sentrysoftware.matrix.engine.strategy.utils.IpmiHelper;
 import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandResult;
 import com.sentrysoftware.matrix.engine.strategy.utils.SshInteractiveHelper;
-import com.sentrysoftware.matrix.engine.target.HardwareTarget;
-import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
+import com.sentrysoftware.matrix.engine.host.HardwareHost;
+import com.sentrysoftware.matrix.engine.host.HostType;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -71,7 +71,7 @@ public class SourceVisitor implements ISourceVisitor {
 	@Override
 	public SourceTable visit(final HttpSource httpSource) {
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		if (httpSource == null) {
 			log.error("Hostname {} - HttpSource cannot be null, the HttpSource operation will return an empty result.", hostname);
 			return SourceTable.empty();
@@ -122,21 +122,21 @@ public class SourceVisitor implements ISourceVisitor {
 	@Override
 	public SourceTable visit(final Ipmi ipmi) {
 
-		HardwareTarget target = strategyConfig.getEngineConfiguration().getTarget();
-		final TargetType targetType = target.getType();
+		HardwareHost host = strategyConfig.getEngineConfiguration().getHost();
+		final HostType hostType = host.getType();
 
 		String sourceKey = ipmi.getKey();
 
-		if (TargetType.MS_WINDOWS.equals(targetType)) {
+		if (HostType.MS_WINDOWS.equals(hostType)) {
 			return processWindowsIpmiSource(sourceKey);
-		} else if (TargetType.LINUX.equals(targetType) || TargetType.SUN_SOLARIS.equals(targetType)) {
+		} else if (HostType.LINUX.equals(hostType) || HostType.SUN_SOLARIS.equals(hostType)) {
 			return processUnixIpmiSource(sourceKey);
-		} else if (TargetType.MGMT_CARD_BLADE_ESXI.equals(targetType)) {
+		} else if (HostType.MGMT_CARD_BLADE_ESXI.equals(hostType)) {
 			return processOutOfBandIpmiSource(sourceKey);
 		}
 
 		log.info("Hostname {} - Failed to process IPMI source. {} is an unsupported OS for IPMI. Returning an empty table.",
-			target.getHostname(), targetType.name());
+			host.getHostname(), hostType.name());
 
 		return SourceTable.empty();
 	}
@@ -153,7 +153,7 @@ public class SourceVisitor implements ISourceVisitor {
 		final IpmiOverLanProtocol protocol = (IpmiOverLanProtocol) strategyConfig.getEngineConfiguration()
 				.getProtocolConfigurations().get(IpmiOverLanProtocol.class);
 
-		String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		
 		if (protocol == null) {
 			log.warn("Hostname {} - The IPMI credentials are not configured. Cannot process IPMI-over-LAN source.", hostname);
@@ -189,7 +189,7 @@ public class SourceVisitor implements ISourceVisitor {
 	 */
 	SourceTable processUnixIpmiSource(String sourceKey) {
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 
 		// get the ipmiTool command to execute
 		String ipmitoolCommand = strategyConfig.getHostMonitoring().getIpmitoolCommand();
@@ -276,7 +276,7 @@ public class SourceVisitor implements ISourceVisitor {
 			return SourceTable.empty();
 		}
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		final String nameSpaceRootCimv2 = "root/cimv2";
 		final String nameSpaceRootHardware = "root/hardware";
 
@@ -302,7 +302,7 @@ public class SourceVisitor implements ISourceVisitor {
 	@Override
 	public SourceTable visit(final OsCommandSource osCommandSource) {
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		
 		if (osCommandSource == null ||
 				osCommandSource.getCommandLine() == null || osCommandSource.getCommandLine().isEmpty()) {
@@ -358,7 +358,7 @@ public class SourceVisitor implements ISourceVisitor {
 	@Override
 	public SourceTable visit(final ReferenceSource referenceSource) {
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		
 		if (referenceSource == null) {
 			log.error("Hostname {} - ReferenceSource cannot be null, the ReferenceSource operation will return an empty result.", 
@@ -402,7 +402,7 @@ public class SourceVisitor implements ISourceVisitor {
 	@Override
 	public SourceTable visit(final StaticSource staticSource) {
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		
 		if (staticSource == null) {
 			log.error("Hostname {} - Static Source cannot be null, the StaticSource operation will return an empty result.", hostname);
@@ -439,7 +439,7 @@ public class SourceVisitor implements ISourceVisitor {
 	@Override
 	public SourceTable visit(final SnmpGetSource snmpGetSource) {
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		
 		if (snmpGetSource == null) {
 			log.error("Hostname {} - SNMP Get Source cannot be null, the SNMP Get operation will return an empty result.", hostname);
@@ -491,7 +491,7 @@ public class SourceVisitor implements ISourceVisitor {
 	@Override
 	public SourceTable visit(final SnmpGetTableSource snmpGetTableSource) {
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		
 		if (snmpGetTableSource == null) {
 			log.error("Hostname {} - SNMP Get Table Source cannot be null, the SNMP Get Table operation will return an empty result.",
@@ -552,7 +552,7 @@ public class SourceVisitor implements ISourceVisitor {
 	@Override
 	public SourceTable visit(final TableJoinSource tableJoinSource) {
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		
 		if (tableJoinSource == null) {
 			log.error("Hostname {} - Table Join Source cannot be null, the Table Join will return an empty result.", hostname);
@@ -610,7 +610,7 @@ public class SourceVisitor implements ISourceVisitor {
 	@Override
 	public SourceTable visit(final TableUnionSource tableUnionSource) {
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		
 		if (tableUnionSource == null) {
 			log.warn("Hostname {} - Table Union Source cannot be null, the Table Union operation will return an empty result.", hostname);
@@ -666,7 +666,7 @@ public class SourceVisitor implements ISourceVisitor {
 					.getSourceTable(key);
 			if (sourceTable == null) {
 				log.warn("Hostname {} - The following source table {} cannot be found.", 
-						strategyConfig.getEngineConfiguration().getTarget().getHostname(), key);
+						strategyConfig.getEngineConfiguration().getHost().getHostname(), key);
 			}
 			return sourceTable;
 		}
@@ -708,7 +708,7 @@ public class SourceVisitor implements ISourceVisitor {
 		} catch(final Exception e) {
 
 			logSourceError(connector.getCompiledFilename(), sshInteractiveSource.getKey(), "SSH Interactive",
-					strategyConfig.getEngineConfiguration().getTarget().getHostname(), e);
+					strategyConfig.getEngineConfiguration().getHost().getHostname(), e);
 
 			return SourceTable.empty();
 		}
@@ -722,7 +722,7 @@ public class SourceVisitor implements ISourceVisitor {
 	@Override
 	public SourceTable visit(final WbemSource wbemSource) {
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		
 		if (wbemSource == null || wbemSource.getWbemQuery() == null) {
 			log.error("Hostname {} - Malformed WBEM Source {}. Returning an empty table.", hostname, wbemSource);
@@ -789,7 +789,7 @@ public class SourceVisitor implements ISourceVisitor {
 	@Override
 	public SourceTable visit(final WmiSource wmiSource) {
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		
 		if (wmiSource == null || wmiSource.getWbemQuery() == null) {
 			log.warn("Hostname {} - Malformed WMI source {}. Returning an empty table.", hostname, wmiSource);
@@ -987,7 +987,7 @@ public class SourceVisitor implements ISourceVisitor {
 	 * 
 	 * @param connectorName  The name of the connector
 	 * @param sourceKey      The key of the source
-	 * @param hostname       The target's hostname
+	 * @param hostname       The host's hostname
 	 * @param context        Additional information about the operation
 	 * @param throwable      The catched throwable to log
 	 */

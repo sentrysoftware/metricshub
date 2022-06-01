@@ -101,7 +101,7 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 	 */
 	private SourceTable processExecuteForEachEntryOf(final Source source, final String sourceTableKey) {
 		final SourceTable sourceTable = getSourceTable(sourceTableKey);
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		if (sourceTable == null) {
 			log.error("Hostname {} - The SourceTable referenced in the ExecuteForEachEntryOf field cannot be found : {}.", 
 					hostname, sourceTableKey);
@@ -260,7 +260,7 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 
 		// Get the source table defining where we are going to fetch the value
 		final SourceTable sourceTable = getSourceTable(foreignSourceKey);
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		if (sourceTable == null) {
 			log.error("Hostname {} - Could not extract the foreign source table identified by {} and defined in original source {} to set the {} field.",
 					hostname, foreignSourceKey, originalSourceKey, fieldLabel);
