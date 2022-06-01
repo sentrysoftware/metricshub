@@ -79,7 +79,7 @@ Metric: hw.network_card.up
 Current Value     : 0 (Unplugged)
 
 =================================================================
-Metric: hw.network_card.status
+Metric: hw.network_card.status{state="present"}
 -----------------------------------------------------------------
 Current Value     : 1 (Present)
 
