@@ -1,18 +1,21 @@
+# Hardware Sentry OpenTelemetry Collector
 # Internal collect interval
 collectPeriod: 1m
 
 extraLabels:
-  site: Datacenter 1 # Customize with your own site naming (dedicating 1 collector to 1 site is a good practice)
+  site: Datacenter 1 # Customize this value with your own site naming convention. (Dedicating 1 collector to 1 site is a good practice.)
 
 extraMetrics:
-  hw.site.carbon_density_grams: 350 # in g/kWh -- 350g/kWh is the average in Europe
-  hw.site.electricity_cost_dollars: 0.12 # in $/kWh -- $0.12/kWh is the average for non-household in Europe
+  hw.site.carbon_density_grams: 350 # in g/kWh -- 350g/kWh is the average in Europe.
+  hw.site.electricity_cost_dollars: 0.12 # in $/kWh -- $0.12/kWh is the average for non-household in Europe.
   hw.site.pue_ratio: 1.8
 
 exporter:
   otlp:
 
 targets:
+
+# Some templates can be found below:
 
 ####################################################
 # IPMI protocol configuration                      #
