@@ -198,6 +198,7 @@ The following table lists **${project.name}**'s alert rules:
 | Virtual Machine | hw.vm.status                           | ALARM    | hw.vm.status == 1                              | state=failed                     |
 | Voltage         | hw.voltage.status                      | WARN     | hw.voltage.status == 1                         | state=degraded                   |
 | Voltage         | hw.voltage.status                      | ALARM    | hw.voltage.status == 1                         | state=failed                     |
+
 ## Customizing Alert Content
 
 You can customize the content of alerts by configuring macros in the `hardwareProblemTemplate` parameter in the `config/hws-config.yaml` file. See the procedure detailed in the [Hardware Problem Template](configuration/configure-agent.md#Hardware_Problem_Template) section.
