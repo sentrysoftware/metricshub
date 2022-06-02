@@ -53,7 +53,7 @@ public class OtelConfig {
 
 		// No file? we cannot proceed any more...
 		if (!Files.exists(securityFilePath)) {
-			log.debug("There is no Otel security file to load. Expected path: {}", securityFilePath);
+			log.debug("There is no Otel security file to load. Expected path: {}.", securityFilePath);
 			return Optional.empty();
 		}
 

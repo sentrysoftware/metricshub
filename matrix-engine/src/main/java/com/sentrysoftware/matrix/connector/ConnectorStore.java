@@ -60,7 +60,7 @@ public class ConnectorStore {
 						return (Connector) objectInputStream.readObject();
 
 					} catch (ClassNotFoundException | IOException e) {
-						String message = String.format("Error while deserializing connector %s",
+						String message = String.format("Error while deserializing connector %s.",
 								resource.getFilename());
 						log.error(message);
 						log.debug("Exception: ", e);
