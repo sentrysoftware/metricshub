@@ -9,9 +9,9 @@
 # https://opentelemetry.io/docs/collector/configuration/
 #
 
-####################################################
-# INPUTS                                           #
-####################################################
+#═══════════════════════════════════════════════════
+# INPUTS
+#═══════════════════════════════════════════════════
 receivers:
   # OTLP
   # Receives data via gRPC or HTTP using OTLP format. For additional information on the OTLP receiver:
@@ -39,9 +39,9 @@ receivers:
           static_configs:
             - targets: [ localhost:8888 ]
 
-####################################################
-# PROCESSING                                       #
-####################################################
+#═══════════════════════════════════════════════════
+# PROCESSING
+#═══════════════════════════════════════════════════
 processors:
 
   # memory_limiter
@@ -92,9 +92,9 @@ processors:
           new_label: prod_level
           new_value: production
 
-####################################################
-# OUTPUT                                           #
-####################################################
+#═══════════════════════════════════════════════════
+# OUTPUT
+#═══════════════════════════════════════════════════
 exporters:
 
   # BMC Helix
@@ -152,9 +152,9 @@ exporters:
     # Defines if the exporter should scrape host metadata.
     sync_host_metadata: true
 
-####################################################
-# EXTRAS                                           #
-####################################################
+#═══════════════════════════════════════════════════
+# EXTRAS
+#═══════════════════════════════════════════════════
 extensions:
 
   # healthcheck
@@ -175,9 +175,9 @@ extensions:
     htpasswd:
       file: security/.htpasswd
 
-####################################################
-# ACTUAL COLLECTOR PIPELINE DESCRIPTION            #
-####################################################
+#═══════════════════════════════════════════════════
+# ACTUAL COLLECTOR PIPELINE DESCRIPTION
+#═══════════════════════════════════════════════════
 service:
   telemetry:
     logs:

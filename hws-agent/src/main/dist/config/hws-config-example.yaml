@@ -7,7 +7,13 @@ extraLabels:
 
 extraMetrics:
   hw.site.carbon_density_grams: 350 # in g/kWh -- 350g/kWh is the average in Europe.
-  hw.site.electricity_cost_dollars: 0.12 # in $/kWh -- $0.12/kWh is the average for non-household in Europe.
+  # More examples can be found here: https://app.electricitymap.org/map
+  hw.site.electricity_cost_dollars: 0.12 # in $/kWh 
+  # $0.12/kWh is the average for non-household in Europe.
+  # $0.159/kWh is the average for non-household in the USA.
+  # $0.117/kWh is the average for non-household in Canada.
+  # $0.225/kWh is the average for non-household in Australia.
+  # Source : https://www.globalpetrolprices.com/electricity_prices/
   hw.site.pue_ratio: 1.8
 
 exporter:
