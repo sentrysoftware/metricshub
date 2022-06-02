@@ -48,7 +48,7 @@ Severity: WARN
 Body: Hardware problem on netapp9-san.internal.sentrysoftware.net with 0c (FC Port).
 
 Alert Severity    : WARN
-Alert Rule        : hw.network_card.up == 0
+Alert Rule        : hw.network.up == 0
 
 Alert Details
 =============
@@ -74,12 +74,12 @@ Model             : FAS2650
 Serial Number     : 651652000067
 
 =================================================================
-Metric: hw.network_card.up
+Metric: hw.network.up
 -----------------------------------------------------------------
 Current Value     : 0 (Unplugged)
 
 =================================================================
-Metric: hw.network_card.status{state="present"}
+Metric: hw.network.status{state="present"}
 -----------------------------------------------------------------
 Current Value     : 1 (Present)
 
