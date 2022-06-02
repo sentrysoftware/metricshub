@@ -118,10 +118,10 @@ public class MappingConstants {
 	// Factors
 	public static final double MHZ_TO_HZ_FACTOR = 1000000.0;
 	public static final double RATIO_FACTOR = 0.01;
-	public static final double MB_TO_BYTE_FACTOR = 1000000.0;
+	public static final double MEGABYTES_TO_BYTES_FACTOR = 1000000.0;
 	public static final double MILLIVOLTS_TO_VOLTS_FACTOR = 0.001;
 	public static final double MEGABITS_TO_BYTES_FACTOR = 125000.0;
-	public static final double GB_TO_B_FACTOR = 1073741824.0;
+	public static final double GIGABYTES_TO_BYTES_FACTOR = 1073741824.0;
 
 	/**
 	 * Creates the description of the status metrics.

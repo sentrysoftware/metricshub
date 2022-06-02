@@ -108,7 +108,7 @@ public class LogicalDiskMapping {
 					.name(LOGICAL_DISK_USAGE_METRIC_NAME)
 					.description("Amount of unused space in the logical disk.")
 					.unit(BYTES_UNIT)
-					.factor(GB_TO_B_FACTOR) // GB to Bytes.
+					.factor(GIGABYTES_TO_BYTES_FACTOR)
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -128,7 +128,7 @@ public class LogicalDiskMapping {
 					.name(LOGICAL_DISK_USAGE_METRIC_NAME)
 					.description("Amount of used space in the logical disk.")
 					.unit(BYTES_UNIT)
-					.factor(GB_TO_B_FACTOR) // GB to Bytes.
+					.factor(GIGABYTES_TO_BYTES_FACTOR)
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
