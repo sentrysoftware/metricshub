@@ -56,7 +56,7 @@ processors:
   # Filtering of the metrics. Several filter configurations can be specified.
   # For additional information on filtering options:
   # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/filterprocessor
-  # Do not forget to add your filter entries (e.g. "filter/1") to the pipeline in the processors array to activate it.
+  # Add your filter entries (e.g. "filter/1") to the pipeline in the processors array to activate it.
   filter/keep1HostOnly:
     metrics:
       include:
@@ -79,7 +79,7 @@ processors:
     override: false
 
   # metricstransform
-  # Some post-processing of metrics before sending then out. For additional information on all possible actions:
+  # Post-processing to be applied to metrics before sending them out. For additional information on all possible actions:
   # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/metricstransformprocessor
   # Add "metricstransform" to the pipeline in the processors array to activate it.
   metricstransform:
