@@ -316,7 +316,7 @@ public class GpuMapping {
 					.builder()
 					.name("hw.gpu.memory.limit")
 					.unit(BYTES_UNIT)
-					.factor(MB_TO_B_FACTOR) // MB to Bytes  
+					.factor(MB_TO_BYTE_FACTOR) // MB to Bytes
 					.description("GPU memory size.")
 					.build()
 			)

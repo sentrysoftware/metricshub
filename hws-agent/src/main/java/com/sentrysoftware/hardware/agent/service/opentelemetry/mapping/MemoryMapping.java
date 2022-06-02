@@ -172,7 +172,7 @@ public class MemoryMapping{
 					.builder()
 					.name("hw.memory.limit")
 					.unit(BYTES_UNIT)
-					.factor(MB_TO_B_FACTOR) //MB to Bytes
+					.factor(MB_TO_BYTE_FACTOR) //MB to Bytes
 					.description("Memory size.")
 					.build()
 			)
