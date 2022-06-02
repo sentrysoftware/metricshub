@@ -164,7 +164,7 @@ The following table lists **${project.name}**'s alert rules:
 | Network Card    | hw.network.bandwidth.utilization       | WARN     | hw.network.bandwidth.utilization >= 0.8        |                                  |
 | Network Card    | hw.network.error_ratio                 | WARN     | hw.network.error_ratio >= 0.1                  |                                  |
 | Network Card    | hw.network.error_ratio                 | ALARM    | hw.network.error_ratio >= 0.3                  |                                  |
-| Network Card    | hw.network.up                          | WARN     | hw.network.up == 1                             |                                  |
+| Network Card    | hw.network.up                          | WARN     | hw.network.up == 0                             |                                  |
 | Network Card    | hw.network.status                      | ALARM    | hw.network.status == 0                         | state=present                    |
 | Network Card    | hw.network.status                      | WARN     | hw.network.status == 1                         | state=degraded                   |
 | Network Card    | hw.network.status                      | ALARM    | hw.network.status == 1                         | state=failed                     |
