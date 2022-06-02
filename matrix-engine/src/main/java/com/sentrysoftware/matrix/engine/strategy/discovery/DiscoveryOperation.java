@@ -407,7 +407,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 					}
 
 				} else {
-					log.warn("Hostname {} - Column {} doesn't match the instance table source {} for connector {}.", columnIndex,
+					log.warn("Hostname {} - Column {} does not match the instance table source {} for connector {}.", columnIndex,
 							hostname, sourceKey, connectorName);
 				}
 			} else {
