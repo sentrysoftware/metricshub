@@ -157,6 +157,7 @@ public class TapeDriveMapping {
 							.value("mount")
 							.build()
 					)
+					.type(MetricType.COUNTER)
 					.build()
 			)
 		);
@@ -176,6 +177,7 @@ public class TapeDriveMapping {
 							.value("unmount")
 							.build()
 					)
+					.type(MetricType.COUNTER)
 					.build()
 			)
 		);

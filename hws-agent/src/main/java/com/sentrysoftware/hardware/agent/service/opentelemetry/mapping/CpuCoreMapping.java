@@ -9,7 +9,6 @@ import java.util.TreeMap;
 
 import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo;
 import com.sentrysoftware.hardware.agent.dto.metric.StaticIdentifyingAttribute;
-import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo.MetricType;
 import com.sentrysoftware.matrix.common.meta.monitor.IMetaMonitor;
 import com.sentrysoftware.matrix.common.meta.monitor.CpuCore;
 
@@ -115,7 +114,6 @@ public class CpuCoreMapping {
 					.name("hw.cpu_core.speed")
 					.unit(HERTZ_UNIT)
 					.factor(MHZ_TO_HZ_FACTOR)
-					.type(MetricType.COUNTER)
 					.description("Current speed of the CPU core.")
 					.build()
 			)

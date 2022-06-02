@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo;
+import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo.MetricType;
 import com.sentrysoftware.hardware.agent.dto.metric.StaticIdentifyingAttribute;
 import com.sentrysoftware.matrix.common.meta.monitor.IMetaMonitor;
 import com.sentrysoftware.matrix.common.meta.monitor.LogicalDisk;
@@ -187,6 +188,7 @@ public class LogicalDiskMapping {
 					.name("hw.logical_disk.errors")
 					.description("Number of errors encountered by the logical disk since the start of the Hardware Sentry Agent.")
 					.unit(ERRORS_UNIT)
+					.type(MetricType.COUNTER)
 					.build()
 			)
 		);
