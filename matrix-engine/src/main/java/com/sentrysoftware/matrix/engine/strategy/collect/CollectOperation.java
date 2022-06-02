@@ -485,7 +485,7 @@ public class CollectOperation extends AbstractStrategy {
 
 		monitors.forEach(monitor -> {
 
-			log.debug("Hostname {} - Collecting monitor id {}.", hostname, monitor.getId());
+			log.debug("Hostname {} - Collecting monitor ID {}.", hostname, monitor.getId());
 
 			// Process sources and computes
 			processSourcesAndComputes(sources, hostMonitoring, connector, monitorType, hostname, monitor);
