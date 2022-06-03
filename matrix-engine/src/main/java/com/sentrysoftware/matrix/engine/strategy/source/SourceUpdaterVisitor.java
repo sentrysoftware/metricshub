@@ -103,7 +103,7 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 		final SourceTable sourceTable = getSourceTable(sourceTableKey);
 		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		if (sourceTable == null) {
-			log.error("Hostname {} - The SourceTable referenced in the ExecuteForEachEntryOf field cannot be found : {}.", 
+			log.error("Hostname {} - The SourceTable referenced in the ExecuteForEachEntryOf field can't be found : {}", 
 					hostname, sourceTableKey);
 			return SourceTable.empty();
 		}
@@ -116,7 +116,7 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 			try {
 				copy.update(dataValue -> replaceDynamicEntry(dataValue, row));
 			} catch (NumberFormatException e) {
-				log.warn("Hostname {} - The dynamic key from Source is incorrectly formatted : {}.", hostname, copy);
+				log.warn("Hostname {} - The dynamic key from Source is badly formatted : {}", hostname, copy);
 				continue;
 			}
 
@@ -262,7 +262,7 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 		final SourceTable sourceTable = getSourceTable(foreignSourceKey);
 		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		if (sourceTable == null) {
-			log.error("Hostname {} - Could not extract the foreign source table identified by {} and defined in original source {} to set the {} field.",
+			log.error("Hostname {} - Couldn't extract the foreign source table identified by {} and defined in original source {} to set the {} field.",
 					hostname, foreignSourceKey, originalSourceKey, fieldLabel);
 			return null;
 		}
@@ -407,8 +407,8 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 			return key;
 		}
 
-		Assert.notNull(monitor.getMetadata(), "Monitored metadata cannot be null.");
-		Assert.notNull(monitor.getMetadata().get(DEVICE_ID), "Monitored deviceId cannot be null.");
+		Assert.notNull(monitor.getMetadata(), "monitor metadata cannot be null.");
+		Assert.notNull(monitor.getMetadata().get(DEVICE_ID), "monitor deviceId cannot be null.");
 
 		final String deviceId = monitor.getMetadata().get(DEVICE_ID);
 

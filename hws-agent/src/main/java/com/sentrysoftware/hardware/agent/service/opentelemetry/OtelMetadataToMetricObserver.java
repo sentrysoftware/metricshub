@@ -1,9 +1,7 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry;
 
-import java.util.List;
-
+import com.sentrysoftware.hardware.agent.dto.MetricInfo;
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
-import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 
 import io.opentelemetry.api.metrics.ObservableDoubleMeasurement;
@@ -18,19 +16,12 @@ public class OtelMetadataToMetricObserver extends AbstractOtelMetricObserver {
 
 	@Builder
 	public OtelMetadataToMetricObserver(Monitor monitor, SdkMeterProvider sdkMeterProvider,
-			MultiHostsConfigurationDto multiHostsConfigurationDto, List<MetricInfo> metricInfoList, String matrixMetadata) {
-		super(monitor, sdkMeterProvider, multiHostsConfigurationDto, metricInfoList, matrixMetadata);
+			MultiHostsConfigurationDto multiHostsConfigurationDto, MetricInfo metricInfo, String matrixMetadata) {
+		super(monitor, sdkMeterProvider, multiHostsConfigurationDto, metricInfo, matrixMetadata);
 	}
 
-	/**
-	 * Observe the metadata value
-	 * 
-	 * @param metricInfo The metric information (name, unit, description, conversion factor...)
-	 * @param monitor    The monitor we wish to observe its parameter
-	 * @param recorder   An instance observing measurements with double values
-	 */
 	@Override
-	void observe(final MetricInfo metricInfo, final Monitor monitor, final ObservableDoubleMeasurement recorder) {
+	void observe(final Monitor monitor, final ObservableDoubleMeasurement recorder) {
 
 		// We are observing! is the metadata available?
 		if (checkMetadata(monitor, matrixDataKey)) {
@@ -38,7 +29,7 @@ public class OtelMetadataToMetricObserver extends AbstractOtelMetricObserver {
 			// Record the value
 			recorder.record(
 					convertValue(monitor.getMetadata(matrixDataKey), metricInfo.getFactor()),
-					createAttributes(metricInfo, monitor)
+					createAttributes(monitor)
 			);
 		}
 

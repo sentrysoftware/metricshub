@@ -65,7 +65,7 @@ public class CollectHelper {
 
 		final Optional<? extends IState> state = interpreter.apply(stateValue);
 		if (state.isEmpty()) {
-			log.error("Hostname {} - Unexpected state value for instance {}. {} is null.",
+			log.error("Hostname {} - Unexpected state value for instance {}. {} = null",
 					hostname,
 					monitorId,
 					parameterName
@@ -106,7 +106,7 @@ public class CollectHelper {
 				return row.get(columnIndex);
 
 			} else {
-				log.warn("Hostname {} - Collect - Column number {} is invalid for the value table source {}. Column number should not exceed the size of the row. ParameterKey {} - Row {} - MonitorType {}.",
+				log.warn("Hostname {} - Collect - Column {} doesn't match the value table source {}. parameterKey {} - row {} - monitorType {}",
 						hostname,
 						columnIndex,
 						valueTable,
@@ -229,7 +229,7 @@ public class CollectHelper {
 		final double result = minuend - subtrahend;
 
 		if (result < 0 && !MAYBE_NEGATIVE_PARAMETERS.contains(parameterName)) {
-			log.warn("Hostname {} - Suspicious negative value ({} - {}) = {} for parameter {}.", 
+			log.warn("Hostname {} - Suspicious negative value ({} - {}) = {} for parameter {}", 
 					hostname, minuend, subtrahend, result, parameterName);
 			return null;
 		}
@@ -254,7 +254,7 @@ public class CollectHelper {
 		}
 
 		if (divisor == 0) {
-			log.debug("Hostname {} - Couldn't compute ({} / {}) for parameter {}. Division by zero is not allowed.", hostname, dividend, divisor, parameter);
+			log.debug("Hostname {} - Couldn't compute ({} / {}) for parameter {}", hostname, dividend, divisor, parameter);
 			return null;
 		}
 
@@ -521,7 +521,7 @@ public class CollectHelper {
 			);
 
 		} else {
-			log.debug("Hostname {} - Cannot compute energy usage for monitor {}. Current power consumption {} - Current time {} - Previous time {}.",
+			log.debug("Hostname {} - Cannot compute energy usage for monitor {}. Current power consumption {}, current time {}, previous time {}",
 					hostname, monitor.getId(), powerConsumption, collectTime, collectTimePrevious);
 		}
 	}
@@ -571,7 +571,7 @@ public class CollectHelper {
 			);
 
 		} else {
-			log.debug("Hostname {} - Could not compute energy usage for monitor {}. Current raw energy: {} - Previous raw energy: {}.",
+			log.debug("Hostname {} - Cannot compute energy usage for monitor {}. Current raw energy {}, previous raw energy {}",
 					hostname, monitor.getId(), energyRawKw, energyRawKwPrevious);
 		}
 
@@ -588,7 +588,7 @@ public class CollectHelper {
 				powerConsumptionWatts
 			);
 		} else {
-			log.debug("Hostname {} - Cannot compute power consumption for monitor {}. Current raw energy {} - Previous raw energy {} - Current time {} - Previous time {}.",
+			log.debug("Hostname {} - Cannot compute power consumption for monitor {}. Current raw energy {}, previous raw energy {}, current time {}, previous time {}",
 					hostname, monitor.getId(), energyRawKw, energyRawKwPrevious, collectTime, collectTimePrevious);
 		}
 

@@ -59,7 +59,7 @@ class OtelSelfObserverTest {
 				.stream()
 				.collect(Collectors.toMap(MetricData::getName, Function.identity()));
 
-		assertNotNull(metricMap.get("hardware_sentry.agent.info"));
+		assertNotNull(metricMap.get("hw.agent.info"));
 		assertNotNull(metricMap.get("hw.site.carbon_density_grams"));
 		assertNotNull(metricMap.get("hw.site.electricity_cost_dollars"));
 		assertNotNull(metricMap.get("hw.site.pue_ratio"));

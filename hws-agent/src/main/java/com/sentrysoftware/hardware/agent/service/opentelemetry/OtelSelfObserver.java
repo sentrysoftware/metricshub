@@ -1,6 +1,6 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry;
 
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MetricsMapping.AGENT_METRIC_INFO;
+import static com.sentrysoftware.hardware.agent.service.opentelemetry.MetricsMapping.AGENT_METRIC_INFO;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 
 import java.util.Collections;

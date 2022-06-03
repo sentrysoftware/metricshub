@@ -33,7 +33,7 @@ public class SelfClosingGuardService {
 			/* Do nothing */
 		}
 
-		log.info("Parent process terminated. Now exiting application.");
+		log.info("Parent process terminated. Exiting now.");
 
 		// Exit the application
 		exit();

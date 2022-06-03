@@ -329,7 +329,7 @@ public class PslUtils {
 
 			if (fromColumnNumber > columnCount || toColumnNumber > columnCount) {
 
-				log.warn("getColumnRange: Invalid range for a {}-length array: [{}-{}].",
+				log.warn("getColumnRange: Invalid range for a {}-length array: [{}-{}]",
 					columnCount, fromColumnNumber, toColumnNumber);
 
 				fromColumnNumber = 0;
@@ -338,7 +338,7 @@ public class PslUtils {
 
 		} catch (NumberFormatException e) {
 
-			log.warn("getColumnRange: Could not determine the range denoted by {}: {}.", 
+			log.warn("getColumnRange: Could not determine the range denoted by {}: {}", 
 					columns, e.getMessage());
 
 			fromColumnNumber = 0;

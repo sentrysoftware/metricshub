@@ -5,6 +5,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LED_INDICATOR_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LED_INDICATOR_PARAMETER_UNIT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NAME;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER_UNIT;
@@ -73,7 +74,7 @@ public class Led implements IMetaMonitor {
 			STATUS_ALARM_CONDITION,
 			Severity.ALARM);
 
-	private static final List<String> METADATA = List.of(DEVICE_ID, IDENTIFYING_INFORMATION);
+	private static final List<String> METADATA = List.of(DEVICE_ID, NAME, IDENTIFYING_INFORMATION);
 
 	private static final Map<String, MetaParameter> META_PARAMETERS;
 	private static final Map<String, List<AlertRule>> ALERT_RULES;

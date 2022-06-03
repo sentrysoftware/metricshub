@@ -1,9 +1,7 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry;
 
-import java.util.List;
-
+import com.sentrysoftware.hardware.agent.dto.MetricInfo;
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
-import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo;
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 
@@ -21,21 +19,20 @@ public class OtelParameterToMetricObserver extends AbstractOtelMetricObserver {
 
 	@Builder
 	public OtelParameterToMetricObserver(Monitor monitor, SdkMeterProvider sdkMeterProvider,
-			MultiHostsConfigurationDto multiHostsConfigurationDto, List<MetricInfo> metricInfoList, String matrixParameterName) {
+			MultiHostsConfigurationDto multiHostsConfigurationDto, MetricInfo metricInfo, String matrixParameterName) {
 
-		super(monitor, sdkMeterProvider, multiHostsConfigurationDto, metricInfoList, matrixParameterName);
+		super(monitor, sdkMeterProvider, multiHostsConfigurationDto, metricInfo, matrixParameterName);
 
 	}
 
 	/**
 	 * Observe the parameter value
 	 * 
-	 * @param metricInfo The metric information (name, unit, description, conversion factor...)
-	 * @param monitor    The monitor we wish to observe its parameter
-	 * @param recorder   An instance observing measurements with double values
+	 * @param monitor  The monitor we wish to observe its parameter
+	 * @param recorder An instance observing measurements with double values
 	 */
 	@Override
-	void observe(final MetricInfo metricInfo, Monitor monitor, final ObservableDoubleMeasurement recorder) {
+	void observe(final Monitor monitor, final ObservableDoubleMeasurement recorder) {
 
 		// The parameter is not available, we can just stop our callback
 		if (!isParameterAvailable(monitor, matrixDataKey)) {
@@ -44,9 +41,9 @@ public class OtelParameterToMetricObserver extends AbstractOtelMetricObserver {
 
 		// Record the value
 		recorder.record(
-				OtelHelper.getMetricValue(metricInfo, monitor, matrixDataKey),
+				getParameterValue(monitor, matrixDataKey).doubleValue() * metricInfo.getFactor(),
 				// Create the metric attributes
-				createAttributes(metricInfo, monitor)
+				createAttributes(monitor)
 		);
 	}
 

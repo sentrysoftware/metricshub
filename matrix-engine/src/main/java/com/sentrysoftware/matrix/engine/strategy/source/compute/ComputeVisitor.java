@@ -96,7 +96,7 @@ public class ComputeVisitor implements IComputeVisitor {
 		if (computeValue.getColumnIndex() < computeValue.getRow().size()) {
 			return computeValue.getRow().get(computeValue.getColumnIndex());
 		}
-		log.warn("Cannot get value at index {} from the row {}.", computeValue.getColumnIndex(), computeValue.getRow());
+		log.warn("Cannot get value at index {} from the row {}", computeValue.getColumnIndex(), computeValue.getRow());
 		return null;
 	};
 
@@ -305,8 +305,8 @@ public class ComputeVisitor implements IComputeVisitor {
 					awk.getKeepOnlyRegExp());
 
 			if (awk.getSeparators() == null || awk.getSeparators().isEmpty()) {
-				log.info("Hostname {} - No separators indicated in Awk operation, the result remains unchanged.", 
-						hostname);
+				log.info("Hostname {} - No Separators {} indicated in Awk operation, the result remains unchanged.", 
+						hostname, awk.getSeparators());
 			}
 
 			final List<String> awkResultLines = FilterResultHelper.selectedColumns(
@@ -359,7 +359,7 @@ public class ComputeVisitor implements IComputeVisitor {
 					row.set(columnIndex, getWorstStatus(value.split("\n")));
 				}
 
-				log.warn("Hostname {} - Could not perform Array2SimpleStatus conversion compute on row {} at index {}.", 
+				log.warn("Hostname {} - Couldn't perform Array2SimpleStatus conversion compute on row {} at index {}", 
 						hostname, row, columnIndex);
 			});
 	}
@@ -405,7 +405,7 @@ public class ComputeVisitor implements IComputeVisitor {
 					}
 				}
 
-				log.warn("Hostname {} - Could not perform Hex2Dec conversion compute on row {} at index {}.", hostname, row, columnIndex);
+				log.warn("Hostname {} - Couldn't perform Hex2Dec conversion compute on row {} at index {}", hostname, row, columnIndex);
 			});
 	}
 
@@ -1407,7 +1407,7 @@ public class ComputeVisitor implements IComputeVisitor {
 				}
 			}
 		} catch (NumberFormatException e) {
-			log.warn("Hostname {} - There is a NumberFormatException on operand 1: {} or the operand 2: {}.", hostname, op1, op2);
+			log.warn("Hostname {} - There is a NumberFormatException on operand 1: {} or the operand 2 {}", hostname, op1, op2);
 			log.debug("Hostname {} - Stack trace:", hostname, e);
 		}
 	}

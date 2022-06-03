@@ -23,7 +23,7 @@
 		<sentrySkinVersion>5.0</sentrySkinVersion>
 
 		<!-- OpenTelemetry Collector Version -->
-		<otelVersion>0.52.0</otelVersion>
+		<otelVersion>0.49.0</otelVersion>
 
 		<!-- commitId is displayed as Last Commit ID in the about.html page of the documentation -->
 		<commitId>${buildNumber}</commitId>
@@ -327,20 +327,6 @@
 						<configuration>
 							<descriptors>
 								<descriptor>src/assembly/darwin-arm64.xml</descriptor>
-							</descriptors>
-						</configuration>
-					</execution>
-
-					<!-- Docker -->
-					<execution>
-						<id>dist-docker</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-						<configuration>
-							<descriptors>
-								<descriptor>src/assembly/docker.xml</descriptor>
 							</descriptors>
 						</configuration>
 					</execution>

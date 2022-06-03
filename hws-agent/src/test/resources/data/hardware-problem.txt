@@ -1,7 +1,7 @@
 Hardware problem on localhost with SAS Flash Module - CH0.BAY9.
 
 Alert Severity    : ALARM
-Alert Rule        : hw.physical_disk.status{state="failed"} == 1
+Alert Rule        : hw.physical_disk.status == 2
 
 Alert Details
 =============
@@ -21,7 +21,7 @@ Parent ID         : localhost@connector1_enclosure_1
 Manufacturer      : Pure
 Model             : SAS Flash Module
 Serial Number     : FM-123456789
-Size              : 1000000000000 By
+Size              : 1000000000000 B
 
 This object is attached to: PureStorage FA-X20R2
 Type              : Enclosure
@@ -30,33 +30,21 @@ Model             : FA-X20R2
 Serial Number     : FA-123456789
 
 =================================================================
-Metric: hw.physical_disk.energy
------------------------------------------------------------------
-Current Value     : 1000
-Unit              : J
-
-=================================================================
-Metric: hw.physical_disk.status{state="present"}
+Metric: hw.physical_disk.present
 -----------------------------------------------------------------
 Current Value     : 1 (Present)
+Unit              : { 0 = Missing ; 1 = Present }
+Alert Rules       : 
+ - ALARM: hw.physical_disk.present == 0
 
 =================================================================
-Metric: hw.physical_disk.status{state="ok"}
+Metric: hw.physical_disk.status
 -----------------------------------------------------------------
-Current Value     : 0 (Failed)
+Current Value     : 2 (Failed)
+Unit              : { 0 = OK ; 1 = Degraded ; 2 = Failed }
 Status Information: 
 Disk Failure X001256
 
-=================================================================
-Metric: hw.physical_disk.status{state="degraded"}
------------------------------------------------------------------
-Current Value     : 0 (Failed)
-Status Information: 
-Disk Failure X001256
-
-=================================================================
-Metric: hw.physical_disk.status{state="failed"}
------------------------------------------------------------------
-Current Value     : 1 (Failed)
-Status Information: 
-Disk Failure X001256
+Alert Rules       : 
+ - WARN: hw.physical_disk.status == 1
+ - ALARM: hw.physical_disk.status == 2

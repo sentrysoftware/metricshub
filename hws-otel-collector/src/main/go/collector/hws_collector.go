@@ -7,12 +7,6 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	"go.opentelemetry.io/collector/config"
-	"go.opentelemetry.io/collector/config/mapconverter/expandmapconverter"
-	"go.opentelemetry.io/collector/config/mapconverter/overwritepropertiesmapconverter"
-	"go.opentelemetry.io/collector/config/mapprovider/envmapprovider"
-	"go.opentelemetry.io/collector/config/mapprovider/filemapprovider"
-	"go.opentelemetry.io/collector/config/mapprovider/yamlmapprovider"
 	"go.opentelemetry.io/collector/service"
 
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -21,20 +15,7 @@ import (
 // Create a new collector with zap log core as logging option
 func newCollectorWithLogCore(set service.CollectorSettings) (*service.Collector, error) {
 	if set.ConfigProvider == nil {
-		var err error
-		cfgSet := service.ConfigProviderSettings{
-			Locations:     getConfigFlag(),
-			MapProviders:  makeMapProvidersMap(filemapprovider.New(), envmapprovider.New(), yamlmapprovider.New()),
-			MapConverters: []config.MapConverter{expandmapconverter.New()},
-		}
-		// Append the "overwrite properties converter" as the first converter.
-		cfgSet.MapConverters = append(
-			[]config.MapConverter{overwritepropertiesmapconverter.New(getSetFlag())},
-			cfgSet.MapConverters...)
-		set.ConfigProvider, err = service.NewConfigProvider(cfgSet)
-		if err != nil {
-			return nil, err
-		}
+		set.ConfigProvider = service.MustNewDefaultConfigProvider(getConfigFlag(), getSetFlag())
 	}
 
 	cfg, err := set.ConfigProvider.Get(context.Background(), set.Factories)
@@ -69,13 +50,4 @@ func withLogCore(logLevel zapcore.Level) func(zapcore.Core) zapcore.Core {
 		})
 		return zapcore.NewCore(zapcore.NewConsoleEncoder(pe), w, logLevel)
 	}
-}
-
-// Make a new map of the given providers indexed by the provider's Scheme
-func makeMapProvidersMap(providers ...config.MapProvider) map[string]config.MapProvider {
-	ret := make(map[string]config.MapProvider, len(providers))
-	for _, provider := range providers {
-		ret[provider.Scheme()] = provider
-	}
-	return ret
 }

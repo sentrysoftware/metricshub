@@ -38,7 +38,7 @@ public class ConnectorsLoaderService {
 		try {
 			loadConnectors(ConfigHelper.getSubDirectory("lib/connectors", false));
 		} catch (Exception e) {
-			log.error("Connector loader terminated with an exception while trying to add new connectors from the lib/connectors directory. Errors:\n{}\n.",
+			log.error("Connectors loader terminated with an exception. Errors:\n{}\n",
 					StringHelper.getStackMessages(e));
 		}
 	}
@@ -55,7 +55,7 @@ public class ConnectorsLoaderService {
 		log.info("Loading additional connectors.");
 
 		if (!Files.isDirectory(connectorDir) || !Files.exists(connectorDir)) {
-			log.info("The directory {} could not be found. Connector loader terminated.", connectorDir);
+			log.info("The directory {} is not found. End of connectors loader.", connectorDir);
 			return;
 		}
 
@@ -88,7 +88,7 @@ public class ConnectorsLoaderService {
 				try {
 					deserializeAndAddConnector(store, new File(connectorFilePath));
 				} catch (Exception e) {
-					log.error("Exception detected when deserializing connector {}. Errors:\n{}\n.", connectorFilePath,
+					log.error("Exception detected when deserializing connector {}. Errors:\n{}\n", connectorFilePath,
 							StringHelper.getStackMessages(e));
 				}
 
@@ -107,7 +107,7 @@ public class ConnectorsLoaderService {
 
 		});
 
-		log.info("End of connector loader.");
+		log.info("End of connectors loader.");
 	}
 
 	/**
@@ -119,7 +119,7 @@ public class ConnectorsLoaderService {
 	 */
 	private void parseAndAddConnector(final ConnectorStore store, final String sourceFilePath) throws IOException {
 
-		log.info("Parsing connector {}.", sourceFilePath);
+		log.info("Parsing connector {}", sourceFilePath);
 
 		// Parse the connector
 		final Connector connector = connectorParser.parse(sourceFilePath);
@@ -127,12 +127,12 @@ public class ConnectorsLoaderService {
 		// Add the connector to the store
 		store.getConnectors().put(connector.getCompiledFilename(), connector);
 
-		log.info("Added connector {}.", connector.getCompiledFilename());
+		log.info("Added connector {}", connector.getCompiledFilename());
 
 		// Is there any parsing problem in this connector?
 		if (!connector.getProblemList().isEmpty()) {
 
-			log.debug("Problem(s) detected on connector {}.", connector.getCompiledFilename());
+			log.debug("Problem(s) detected on connector {}", connector.getCompiledFilename());
 
 			connector.getProblemList().forEach(log::debug);
 		}
@@ -149,7 +149,7 @@ public class ConnectorsLoaderService {
 	 */
 	void deserializeAndAddConnector(final ConnectorStore store, final File connectorSerialized) throws IOException, ClassNotFoundException {
 
-		log.info("Deserializing connector {}.", connectorSerialized);
+		log.info("Deserializing connector {}", connectorSerialized);
 
 		try (InputStream inputStream = new FileInputStream(connectorSerialized);
 				ObjectInputStream objectInputStream = new ObjectInputStream(inputStream)) {
@@ -158,7 +158,7 @@ public class ConnectorsLoaderService {
 
 			store.getConnectors().put(connector.getCompiledFilename(), connector);
 
-			log.info("Added connector {}.", connector.getCompiledFilename());
+			log.info("Added connector {}", connector.getCompiledFilename());
 
 		}
 

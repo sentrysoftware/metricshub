@@ -1,8 +1,6 @@
 package com.sentrysoftware.matrix.engine.strategy.collect;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ALARM_ON_COLOR;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ALLOCATED_SPACE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ALLOCATED_SPACE_PERCENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_WARNING;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BANDWIDTH_UTILIZATION_PARAMETER;
@@ -44,7 +42,6 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVE
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVED_BYTES_RATE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVED_PACKETS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.RECEIVED_PACKETS_RATE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SNMP_UP_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPACE_GB_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_MBITS_PARAMETER_UNIT;
@@ -65,7 +62,6 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TRANSMI
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TRANSMITTED_PACKETS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TRANSMITTED_PACKETS_RATE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UNALLOCATED_SPACE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UNALLOCATED_SPACE_PERCENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UNMOUNT_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UNMOUNT_COUNT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_REPORT_RECEIVED_BYTES_PARAMETER;
@@ -160,7 +156,6 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	private static final String MAPPING_CANNOT_BE_NULL = "mapping cannot be null.";
 	private static final String MONITOR_CANNOT_BE_NULL = "monitor cannot be null.";
 	private static final String COLLECT_TIME_CANNOT_BE_NULL = "collectTime cannot be null.";
-	private static final double BYTES_TO_GB_CONV_FACTOR = 1024.0 * 1024.0 * 1024.0;
 
 	private static final Map<String, String> GPU_USED_TIME_PARAMETERS = Map.of(
 		DECODER_USED_TIME_PARAMETER, DECODER_USED_TIME_PERCENT_PARAMETER,
@@ -569,7 +564,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		collectErrorCount(ERROR_COUNT_PARAMETER, STARTING_ERROR_COUNT_PARAMETER);
 
-		collectLogicalDiskSpace();
+		collectLogicalDiskUnallocatedSpace();
 
 		collectStatusInformation();
 
@@ -1258,100 +1253,25 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	}
 
 	/**
-	 * Collects space parameters for {@link LogicalDisk}:<br>
-	 * <ul>
-	 * <li>Unallocated space.</li>
-	 * <li>Allocated space.</li>
-	 * <li>Unallocated space percentage.</li>
-	 * <li>Allocated space percentage.</li>
-	 * </ul>
+	 * Collects the unallocated space in GB for {@link LogicalDisk}.
 	 */
-	void collectLogicalDiskSpace() {
+	void collectLogicalDiskUnallocatedSpace() {
 
 		final Monitor monitor = monitorCollectInfo.getMonitor();
 
 		final Double unallocatedSpaceRaw = extractParameterValue(monitor.getMonitorType(),
-				UNALLOCATED_SPACE_PARAMETER);
+			UNALLOCATED_SPACE_PARAMETER);
 
 		if (unallocatedSpaceRaw != null) {
-
-			final double unallocatedSpaceGb = unallocatedSpaceRaw / BYTES_TO_GB_CONV_FACTOR;
 
 			CollectHelper.updateNumberParameter(
 				monitor,
 				UNALLOCATED_SPACE_PARAMETER,
 				SPACE_GB_PARAMETER_UNIT,
 				monitorCollectInfo.getCollectTime(),
-				unallocatedSpaceGb, // Bytes to GB
+				unallocatedSpaceRaw / (1024.0 * 1024.0 * 1024.0), // Bytes to GB
 				unallocatedSpaceRaw
 			);
-
-			final Double sizeRawBytes = NumberHelper.parseDouble(monitor.getMetadata(SIZE), null);
-
-			if (sizeRawBytes != null) {
-
-				// Convert the size to GB
-				double sizeGb = sizeRawBytes / BYTES_TO_GB_CONV_FACTOR;
-
-				// Check if the size is correct to avoid the negative value for the allocated space
-				if (sizeGb < unallocatedSpaceGb) {
-					log.warn(
-						"Hostname {} - The logical disk size ({} GB) is greater than the unallocated space ({} GB). "
-							+ "The following parameters will be ignored:\n{}.\n{}.\n{}.",
-						monitorCollectInfo.getHostname(),
-						sizeGb,
-						unallocatedSpaceGb,
-						ALLOCATED_SPACE_PARAMETER,
-						ALLOCATED_SPACE_PERCENT_PARAMETER,
-						UNALLOCATED_SPACE_PERCENT_PARAMETER
-					);
-					return;
-				}
-
-				// Compute the allocated space
-				final double allocatedSpaceGb = sizeGb - unallocatedSpaceGb;
-
-				// Collect the allocated space parameter
-				CollectHelper.updateNumberParameter(
-					monitor,
-					ALLOCATED_SPACE_PARAMETER,
-					SPACE_GB_PARAMETER_UNIT,
-					monitorCollectInfo.getCollectTime(),
-					allocatedSpaceGb,
-					allocatedSpaceGb
-				);
-
-				// sizeGb equals 0? Avoid the division by zero!
-				if (sizeGb == 0.0) {
-					log.warn(
-						"Hostname {} - The logical disk size equals 0. The following parameters will be ignored:\n{}.\n{}.",
-						monitorCollectInfo.getHostname(),
-						ALLOCATED_SPACE_PERCENT_PARAMETER,
-						UNALLOCATED_SPACE_PERCENT_PARAMETER
-					);
-					return;
-				}
-
-				// Collect the allocated space percentage parameter
-				CollectHelper.updateNumberParameter(
-					monitor,
-					ALLOCATED_SPACE_PERCENT_PARAMETER,
-					PERCENT_PARAMETER_UNIT,
-					monitorCollectInfo.getCollectTime(),
-					allocatedSpaceGb / sizeGb * 100,
-					allocatedSpaceGb / sizeGb * 100
-				);
-
-				// Collect the unallocated space percentage parameter
-				CollectHelper.updateNumberParameter(
-					monitor,
-					UNALLOCATED_SPACE_PERCENT_PARAMETER,
-					PERCENT_PARAMETER_UNIT,
-					monitorCollectInfo.getCollectTime(),
-					unallocatedSpaceGb / sizeGb * 100,
-					unallocatedSpaceGb / sizeGb * 100
-				);
-			}
 		}
 	}
 
@@ -2323,7 +2243,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		if (maxAvailablePathCount == null || availablePathCount > maxAvailablePathCount) {
 
-			log.info("Hostname {} - Number of paths increased to {} for LUN instance [id: {}, name: {}].",
+			log.info("Hostname {} - Number of paths increased to {} for LUN instance [id: {}, name: {}]",
 					monitorCollectInfo.getHostname(), availablePathCount, monitor.getId(), monitor.getName());
 
 			CollectHelper.updateNumberParameter(

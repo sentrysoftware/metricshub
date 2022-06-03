@@ -173,7 +173,7 @@ extensions:
 service:
   telemetry:
     logs:
-      level: info # Change to debug for more details
+      level: info # Change to debug more more details
     metrics:
       address: localhost:8888
       level: basic

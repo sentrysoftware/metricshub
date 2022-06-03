@@ -378,8 +378,6 @@ $ hws -l
 
 [More information on the `hws` command](../troubleshooting/cli.md)
 
-Please make sure the connector names are properly spelled as **Hardware Sentry OpenTelemetry** will only use the valid connectors for monitoring. Any mispelled connector name will be ignored.
-
 ### Disabling Alerts (Not Recommended)
 
 To disable **${project.name}**'s alerts:

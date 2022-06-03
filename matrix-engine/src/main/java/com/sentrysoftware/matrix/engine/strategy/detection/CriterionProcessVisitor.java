@@ -43,7 +43,7 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 	@Override
 	public void visit(final Windows os) {
 
-		Assert.state(wqlDetectionHelper != null, "wqlDetectionHelper cannot be null.");
+		Assert.state(wqlDetectionHelper != null, "wqlDetectionHelper mustn't be null.");
 
 		final WmiProtocol localWmiConfig = WmiProtocol
 				.builder()
@@ -148,7 +148,7 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 								command)),
 				() -> fail(
 						String.format( //NOSONAR
-								"No currently running processes match the following regular expression:\n- Regexp (should match with the command-line): %s\n- Currently running process list:\n%s",
+								"No currently running processes matches the following regular expression:\n- Regexp (should match with the command-line): %s\n- Currently running process list:\n%s",
 								command,
 								result.stream().map(line -> line.stream().collect(Collectors.joining(TABLE_SEP))).collect(Collectors.joining(NEW_LINE)))));
 	}
@@ -158,7 +158,7 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 	 * @param os
 	 */
 	private void notImplemented(final String os) {
-		success(String.format("Process presence check: No tests will be performed for OS: %s.", os));
+		success(String.format("Process presence check: no test will be performed for OS: %s.", os));
 	}
 
 	/**

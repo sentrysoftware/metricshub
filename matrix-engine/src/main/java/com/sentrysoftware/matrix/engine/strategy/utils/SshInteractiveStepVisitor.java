@@ -72,7 +72,7 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 		final String stepName = buildStepName(step);
 
 		if (inPrompt == null || inPrompt.isEmpty()) {
-			log.warn("Hostname {} - {}: No prompts were received.", hostname, stepName);
+			log.warn("Hostname {} - {}: Cannot wait for prompt. Haven't got one yet. hostname: {}", hostname, stepName);
 			return;
 		}
 
@@ -85,7 +85,7 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 		log.info(LOG_RESULT_TEMPLATE, hostname, stepName, maybe);
 
 		if (maybe.isEmpty()) {
-			throw new StepException(String.format("%s - Disconnected or timed out while waiting for the prompt (\"%s\") in the SSH session.",
+			throw new StepException(String.format("%s - Disconnected or timeout while waiting for the prompt (\"%s\") in SSH session",
 					stepName,
 					inPrompt));
 		}
@@ -103,7 +103,7 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 
 		log.info(LOG_BEGIN_OPERATION_TEMPLATE, hostname, stepName, step.toString());
 
-		final String message = String.format("%s - Could not send the password (********) through SSH.", stepName);
+		final String message = String.format("%s - Couldn't send the password (********) through SSH", stepName);
 
 		if (sshProtocol.getPassword() != null) {
 			write(message, String.valueOf(sshProtocol.getPassword()) + HardwareConstants.NEW_LINE);
@@ -118,13 +118,13 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 		final String stepName = buildStepName(step);
 
 		if (step.getText() == null || step.getText().isEmpty()) {
-			log.warn("Hostname {} - {}: No text to send in step.", hostname, stepName);
+			log.warn("Hostname {} - {}: No text to send in step", hostname, stepName);
 			return;
 		}
 
 		log.info(LOG_BEGIN_OPERATION_TEMPLATE, hostname, stepName, step.toString());
 
-		final String message = String.format("%s - Could not send the following text through SSH:\n%s", // NOSONAR
+		final String message = String.format("%s - Couldn't send the following text through SSH:\n%s", // NOSONAR
 				stepName,
 				step.getText());
 
@@ -139,7 +139,7 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 		log.info("Hostname {} - Executing Step [{} with username={}]:\n{}\n", 
 				hostname, stepName, sshProtocol.getUsername(), step.toString());
 
-		final String message = String.format("%s - Could not send the username (%s) through SSH.",
+		final String message = String.format("%s - Couldn't send the username (%s) through SSH",
 				stepName,
 				sshProtocol.getUsername());
 
@@ -166,7 +166,7 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 		final String stepName = buildStepName(step);
 
 		if (step.getText() == null || step.getText().isEmpty()) {
-			log.warn("Hostname {} - {}: No specified text to expect in step.", hostname, stepName);
+			log.warn("Hostname {} - {}: No specified text to wait for in step", hostname, stepName);
 			return;
 		}
 
@@ -176,7 +176,7 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 
 		final Optional<String> maybe = getUntil(stepName, step.getText(), timeout);
 		if (maybe.isEmpty()) {
-			throw new StepException(String.format("%s - Disconnected or timeout while waiting for \"%s\" through SSH.",
+			throw new StepException(String.format("%s - Disconnected or timeout while waiting for \"%s\" through SSH",
 					stepName,
 					step.getText().replaceAll("\\R", HardwareConstants.EMPTY)));
 		}

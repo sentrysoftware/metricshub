@@ -1,41 +1,23 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry;
 
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.JOULES_UNIT;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.OK_ATTRIBUTE_VALUE;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.OK_STATUS_PREDICATE;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.STATE_ATTRIBUTE_KEY;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mockStatic;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
-import com.sentrysoftware.hardware.agent.dto.metric.DynamicIdentifyingAttribute;
-import com.sentrysoftware.hardware.agent.dto.metric.IIdentifyingAttribute;
-import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo;
-import com.sentrysoftware.hardware.agent.dto.metric.StaticIdentifyingAttribute;
-import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo.MetricType;
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.ILocalOs;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.ILocalOsVisitor;
-import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
-import com.sentrysoftware.matrix.engine.strategy.collect.CollectHelper;
-import com.sentrysoftware.matrix.engine.host.HostType;
-import com.sentrysoftware.matrix.model.monitor.Monitor;
-import com.sentrysoftware.matrix.model.monitoring.HostMonitoring.PowerMeter;
 
+import com.sentrysoftware.matrix.engine.host.HostType;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.sdk.resources.Resource;
 
@@ -226,81 +208,4 @@ class OtelHelperTest {
 			}
 		}
 	}
-
-	@Test
-	void testExtractIdentifyingAttribute() {
-		{
-			final MetricInfo metricInfo = MetricInfo
-				.builder()
-				.name("hw.battery.status")
-				.description("Whether the battery status is ok or not.")
-				.identifyingAttribute(
-					StaticIdentifyingAttribute
-						.builder()
-						.key(STATE_ATTRIBUTE_KEY)
-						.value(OK_ATTRIBUTE_VALUE)
-						.build()
-				)
-				.predicate(OK_STATUS_PREDICATE)
-				.build();
-			final Monitor monitor = Monitor.builder().build();
-			CollectHelper.updateDiscreteParameter(monitor, STATUS_PARAMETER, new Date().getTime(), Status.OK);
-			assertEquals(Set.of(new String[] {STATE_ATTRIBUTE_KEY, OK_ATTRIBUTE_VALUE}), Set.of(OtelHelper.extractIdentifyingAttribute(metricInfo, monitor).get()));
-		}
-
-		{
-			final MetricInfo metricInfo = MetricInfo
-				.builder()
-				.name("hw.host.energy")
-				.unit(JOULES_UNIT)
-				.type(MetricType.COUNTER)
-				.description("Energy consumed by the components since the start of the Hardware Sentry agent.")
-				.identifyingAttribute(
-					DynamicIdentifyingAttribute
-						.builder()
-						.key("quality")
-						.value(HardwareConstants.POWER_METER)
-						.build()
-				)
-				.build();
-			final Monitor monitor = Monitor.builder().build();
-			monitor.addMetadata(POWER_METER, PowerMeter.ESTIMATED.name());
-			assertEquals(Set.of(new String[] {"quality", "estimated"}), Set.of(OtelHelper.extractIdentifyingAttribute(metricInfo, monitor).get()));
-		}
-
-		{
-			final MetricInfo metricInfo = MetricInfo
-				.builder()
-				.name("hw.battery.charge")
-				.factor(0.01)
-				.unit("1")
-				.description("Battery charge ratio.")
-				.build();
-			assertTrue(OtelHelper.extractIdentifyingAttribute(metricInfo, Monitor.builder().build()).isEmpty());
-		}
-
-		{
-			final MetricInfo metricInfo = MetricInfo
-					.builder()
-					.name("hw.battery.some.metric")
-					.factor(0.01)
-					.unit("1")
-					.identifyingAttribute(new IIdentifyingAttribute() {
-						
-						@Override
-						public String getValue() {
-							return "";
-						}
-						
-						@Override
-						public String getKey() {
-							return "";
-						}
-					})
-					.build();
-			final Monitor monitor = Monitor.builder().build();
-			assertThrows(IllegalStateException.class, () -> OtelHelper.extractIdentifyingAttribute(metricInfo, monitor));
-		}
-	}
-
 }

@@ -1,8 +1,8 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry;
 
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.ID;
+import static com.sentrysoftware.hardware.agent.service.opentelemetry.MetricsMapping.ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAXIMUM_SPEED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -16,7 +16,6 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
-import com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MetricsMapping;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 
@@ -50,22 +49,22 @@ class OtelMetadataToMetricObserverTest {
 				.extraLabels(Map.of("site", "Datacenter 1"))
 				.build();
 
-		final Monitor physicalDisk = Monitor
+		final Monitor cpu = Monitor
 				.builder()
-				.id("id_disk")
-				.name("disk 1")
+				.id("id_cpu")
+				.name("cpu 1")
 				.parentId("host")
-				.monitorType(MonitorType.PHYSICAL_DISK)
+				.monitorType(MonitorType.CPU)
 				.build();
-		physicalDisk.addMetadata(FQDN, "host.my.domain.net");
+		cpu.addMetadata(FQDN, "host.my.domain.net");
 
 		OtelMetadataToMetricObserver
 			.builder()
-			.monitor(physicalDisk)
+			.monitor(cpu)
 			.sdkMeterProvider(meterProvider)
 			.multiHostsConfigurationDto(multiHostsConfigurationDto)
-			.metricInfoList(MetricsMapping.getMetadataAsMetricInfoList(MonitorType.PHYSICAL_DISK, SIZE).get())
-			.matrixMetadata(SIZE)
+			.metricInfo(MetricsMapping.getMetadataAsMetricInfo(MonitorType.CPU, MAXIMUM_SPEED).get())
+			.matrixMetadata(MAXIMUM_SPEED)
 			.build()
 			.init();
 
@@ -74,7 +73,7 @@ class OtelMetadataToMetricObserverTest {
 
 		assertTrue(metrics.isEmpty());
 
-		physicalDisk.addMetadata(SIZE, "500000000000");
+		cpu.addMetadata(MAXIMUM_SPEED, "5000");
 
 		// Trigger the observe callback
 		metrics = inMemoryReader.collectAllMetrics();
@@ -86,11 +85,11 @@ class OtelMetadataToMetricObserverTest {
 		assertNotNull(metricData.getDescription());
 
 		final DoublePointData dataPoint = metricData.getDoubleGaugeData().getPoints().stream().findFirst().orElse(null);
-		assertEquals(5e11, dataPoint.getValue());
+		assertEquals(5e09, dataPoint.getValue());
 
 		final Attributes actual = dataPoint.getAttributes();
-		assertEquals("id_disk", actual.get(AttributeKey.stringKey("id")));
-		assertEquals("disk 1", actual.get(AttributeKey.stringKey("name")));
+		assertEquals("id_cpu", actual.get(AttributeKey.stringKey("id")));
+		assertEquals("cpu 1", actual.get(AttributeKey.stringKey("label")));
 		assertNull(actual.get(AttributeKey.stringKey("fqdn")));
 		assertEquals("host", actual.get(AttributeKey.stringKey("parent")));
 		assertEquals("Datacenter 1", actual.get(AttributeKey.stringKey("site")));
@@ -98,7 +97,7 @@ class OtelMetadataToMetricObserverTest {
 		assertTrue(actual.get(AttributeKey.stringKey("identifying_information")).isEmpty());
 		assertTrue(actual.get(AttributeKey.stringKey("vendor")).isEmpty());
 		assertTrue(actual.get(AttributeKey.stringKey("model")).isEmpty());
-		assertNull(actual.get(AttributeKey.stringKey("size"))); // Already mapped as metric
+		assertNull(actual.get(AttributeKey.stringKey("maximum_speed"))); // Already mapped as metric
 
 
 	}
@@ -106,10 +105,10 @@ class OtelMetadataToMetricObserverTest {
 	@Test
 	void testCheckMetadata() {
 		assertTrue(OtelMetadataToMetricObserver
-				.checkMetadata(Monitor.builder().metadata(Map.of(SIZE, "500000000000")).build(), SIZE));
-		assertFalse(OtelMetadataToMetricObserver.checkMetadata(null, SIZE));
-		assertFalse(OtelMetadataToMetricObserver.checkMetadata(Monitor.builder().metadata(null).build(), SIZE));
+				.checkMetadata(Monitor.builder().metadata(Map.of(MAXIMUM_SPEED, "5000")).build(), MAXIMUM_SPEED));
+		assertFalse(OtelMetadataToMetricObserver.checkMetadata(null, MAXIMUM_SPEED));
+		assertFalse(OtelMetadataToMetricObserver.checkMetadata(Monitor.builder().metadata(null).build(), MAXIMUM_SPEED));
 		assertFalse(OtelMetadataToMetricObserver.checkMetadata(
-				Monitor.builder().metadata(Map.of(SIZE, "Not-A-Number")).build(), SIZE));
+				Monitor.builder().metadata(Map.of(MAXIMUM_SPEED, "Not-A-Number")).build(), MAXIMUM_SPEED));
 	}
 }
