@@ -1,6 +1,6 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry;
 
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.MetricsMapping.ID;
+import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BIOS_VERSION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
@@ -8,13 +8,13 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IP_ADDRESS;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_NUMBER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_REPORT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TYPE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IP_ADDRESS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -25,22 +25,29 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
+import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo;
+import com.sentrysoftware.hardware.agent.dto.metric.StaticIdentifyingAttribute;
+import com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants;
+import com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MetricsMapping;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
-import com.sentrysoftware.matrix.model.parameter.IParameter;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
-
 import com.sentrysoftware.matrix.engine.host.HostType;
+
+import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
 import io.opentelemetry.sdk.metrics.data.DoublePointData;
@@ -56,61 +63,52 @@ class OtelParameterToMetricObserverTest {
 
 
 	@Test
-	void testInit() {
-		testObservability(DiscreteParam
-					.builder()
-					.state(Status.OK)
-					.collectTime(new Date().getTime())
-					.name(STATUS_PARAMETER)
-					.build(), 
-				"hw.enclosure.status",
-				true
-		);
+	void testInitObserverOnStatusMetric() {
 
-		testObservability(NumberParam
-				.builder()
-				.name(ENERGY_PARAMETER)
-				.collectTime(new Date().getTime())
-				.value(50000.0)
-				.build(), 
-			"hw.enclosure.energy_joules_total",
-			false
-		);
-	}
+		final DiscreteParam parameter = DiscreteParam
+			.builder()
+			.state(Status.OK)
+			.collectTime(new Date().getTime())
+			.name(STATUS_PARAMETER)
+			.build();
 
-	/**
-	 * Test the observability via OpenTelemetry on the given {@link IParameter}
-	 * 
-	 * @param parameter          The Parameter we wish to test
-	 * @param expectedMetricName The expected OpenTelemetry metric name
-	 * @param gauge              whether the metric is measured as gauge or counter
-	 *                           (sum)
-	 */
-	private static void testObservability(final IParameter parameter, String expectedMetricName, boolean gauge) {
+		final String expectedMetricName = "hw.enclosure.status";
+
+		final String expectedState = MappingConstants.OK_ATTRIBUTE_VALUE;
 
 		final Monitor host = Monitor.builder().id(ID).name("host").build();
 		host.addMetadata(FQDN, "host.my.domain.net");
-		final Resource resource = OtelHelper.createHostResource(host.getId(),
-				"host", HostType.LINUX, "host.my.domain.net", false, Collections.emptyMap(), Collections.emptyMap());
+
+		final Resource resource = OtelHelper.createHostResource(
+			host.getId(),
+			"host",
+			HostType.LINUX,
+			"host.my.domain.net",
+			false,
+			Collections.emptyMap(),
+			Collections.emptyMap()
+		);
 
 		final InMemoryMetricReader inMemoryReader = InMemoryMetricReader.create();
-		final SdkMeterProvider meterProvider = SdkMeterProvider.builder()
-				.setResource(resource)
-				.registerMetricReader(inMemoryReader)
-				.build();
+		final SdkMeterProvider meterProvider = SdkMeterProvider
+			.builder()
+			.setResource(resource)
+			.registerMetricReader(inMemoryReader)
+			.build();
 
 		final MultiHostsConfigurationDto multiHostsConfigurationDto= MultiHostsConfigurationDto
-				.builder()
-				.extraLabels(Map.of("site", "Datacenter 1"))
-				.build();
-		
+			.builder()
+			.extraLabels(Map.of("site", "Datacenter 1"))
+			.build();
+
 		final Monitor enclosure = Monitor
-				.builder()
-				.id("id_enclosure")
-				.name("enclosure 1")
-				.parentId("host")
-				.monitorType(MonitorType.ENCLOSURE)
-				.build();
+			.builder()
+			.id("id_enclosure")
+			.name("enclosure 1")
+			.parentId("host")
+			.monitorType(MonitorType.ENCLOSURE)
+			.build();
+
 		enclosure.addMetadata(FQDN, "host.my.domain.net");
 		enclosure.addMetadata(DEVICE_ID, "1");
 		enclosure.addMetadata(SERIAL_NUMBER, "SN 1");
@@ -126,7 +124,140 @@ class OtelParameterToMetricObserverTest {
 			.monitor(enclosure)
 			.sdkMeterProvider(meterProvider)
 			.multiHostsConfigurationDto(multiHostsConfigurationDto)
-			.metricInfo(MetricsMapping.getMetricInfo(MonitorType.ENCLOSURE, parameter.getName()).get())
+			.metricInfoList(MetricsMapping.getMetricInfoList(MonitorType.ENCLOSURE, parameter.getName()).get())
+			.matrixParameterName(parameter.getName())
+			.build()
+			.init();
+
+		// This will trigger the observe callback
+		Collection<MetricData> metrics = inMemoryReader.collectAllMetrics();
+
+		// The parameter is not collected yet
+		assertTrue(metrics.isEmpty());
+
+		enclosure.collectParameter(parameter);
+
+		// Trigger the observe callback
+		metrics = inMemoryReader.collectAllMetrics();
+
+		// We should observe 3 metrics
+		assertEquals(3, metrics.size());
+
+		Map<String, MetricData> metricMap = metrics
+			.stream()
+			.collect(
+				Collectors
+					.toMap(
+						metricData -> 
+							metricData
+							.getDoubleGaugeData()
+							.getPoints()
+							.stream()
+							.findFirst()
+							.orElseThrow()
+							.getAttributes()
+							.get(AttributeKey.stringKey("state")),
+						Function.identity()
+					)
+			);
+
+		MetricData metricData;
+		String key;
+		for (Entry<String, MetricData> metricEntry : metricMap.entrySet()) {
+			key = metricEntry.getKey();
+			int expectedValue = key.equals(expectedState) ? 1 : 0;
+
+			metricData = metricEntry.getValue();
+			assertNotNull(metricData);
+			assertNotNull(metricData.getDescription());
+			assertEquals(expectedMetricName, metricData.getName());
+
+			final  Collection<DoublePointData> points = metricData.getDoubleGaugeData().getPoints();
+
+			final DoublePointData dataPoint = points.stream().findFirst().orElse(null);
+			assertEquals(expectedValue, dataPoint.getValue());
+
+			final Attributes expected = Attributes.builder()
+				.put(MappingConstants.ID, "id_enclosure")
+				.put(MappingConstants.NAME, "enclosure 1")
+				.put(MappingConstants.PARENT, "host")
+				.put("site", "Datacenter 1")
+				.put("device_id", "1")
+				.put("serial_number", "SN 1")
+				.put("vendor", "Dell")
+				.put("model", "PowerEdge T30")
+				.put("bios_version", "v1.1")
+				.put("type", "Server")
+				.put("identifying_information", "Server 1 - Dell")
+				.put("ip_address", "192.168.1.1")
+				.put(MappingConstants.STATE_ATTRIBUTE_KEY, expectedValue == 1 ? expectedState : key)
+				.build();
+
+			assertEquals(expected, dataPoint.getAttributes());
+		}
+
+	}
+
+	@Test
+	void testInitObserverOnEnergy() {
+
+		final NumberParam parameter = NumberParam
+			.builder()
+			.name(ENERGY_PARAMETER)
+			.collectTime(new Date().getTime())
+			.value(50000.0)
+			.build();
+
+		final String expectedMetricName = "hw.enclosure.energy";
+
+		final Monitor host = Monitor.builder().id(ID).name("host").build();
+
+		host.addMetadata(FQDN, "host.my.domain.net");
+		final Resource resource = OtelHelper.createHostResource(
+			host.getId(),
+			"host",
+			HostType.LINUX,
+			"host.my.domain.net",
+			false,
+			Collections.emptyMap(),
+			Collections.emptyMap()
+		);
+
+		final InMemoryMetricReader inMemoryReader = InMemoryMetricReader.create();
+		final SdkMeterProvider meterProvider = SdkMeterProvider.builder()
+			.setResource(resource)
+			.registerMetricReader(inMemoryReader)
+			.build();
+
+		final MultiHostsConfigurationDto multiHostsConfigurationDto= MultiHostsConfigurationDto
+			.builder()
+			.extraLabels(Map.of("site", "Datacenter 1"))
+			.build();
+		
+		final Monitor enclosure = Monitor
+			.builder()
+			.id("id_enclosure")
+			.name("enclosure 1")
+			.parentId("host")
+			.monitorType(MonitorType.ENCLOSURE)
+			.build();
+
+		enclosure.addMetadata(FQDN, "host.my.domain.net");
+		enclosure.addMetadata(DEVICE_ID, "1");
+		enclosure.addMetadata(SERIAL_NUMBER, "SN 1");
+		enclosure.addMetadata(VENDOR, "Dell");
+		enclosure.addMetadata(MODEL, "PowerEdge T30");
+		enclosure.addMetadata(BIOS_VERSION, "v1.1");
+		enclosure.addMetadata(TYPE, "Server");
+		enclosure.addMetadata(IDENTIFYING_INFORMATION, "Server 1 - Dell");
+		enclosure.addMetadata(IP_ADDRESS, "192.168.1.1");
+
+		OtelParameterToMetricObserver
+			.builder()
+			.monitor(enclosure)
+			.sdkMeterProvider(meterProvider)
+			.multiHostsConfigurationDto(multiHostsConfigurationDto)
+			.metricInfoList(MetricsMapping.getMetricInfoList(MonitorType.ENCLOSURE, parameter.getName()).get())
 			.matrixParameterName(parameter.getName())
 			.build()
 			.init();
@@ -151,30 +282,25 @@ class OtelParameterToMetricObserverTest {
 		assertNotNull(metricData.getDescription());
 		assertEquals(expectedMetricName, metricData.getName());
 
-		final  Collection<DoublePointData> points;
-		if (gauge) {
-			points = metricData.getDoubleGaugeData().getPoints();
-		} else {
-			points = metricData.getDoubleSumData().getPoints();
-		}
+		final  Collection<DoublePointData> points = metricData.getDoubleSumData().getPoints();
 
 		final DoublePointData dataPoint = points.stream().findFirst().orElse(null);
 		assertEquals(parameter.numberValue().doubleValue(), dataPoint.getValue());
 
 		final Attributes expected = Attributes.builder()
-				.put("id", "id_enclosure")
-				.put("label", "enclosure 1")
-				.put("parent", "host")
-				.put("site", "Datacenter 1")
-				.put("device_id", "1")
-				.put("serial_number", "SN 1")
-				.put("vendor", "Dell")
-				.put("model", "PowerEdge T30")
-				.put("bios_version", "v1.1")
-				.put("type", "Server")
-				.put("identifying_information", "Server 1 - Dell")
-				.put("ip_address", "192.168.1.1")
-				.build();
+			.put(MappingConstants.ID, "id_enclosure")
+			.put(MappingConstants.NAME, "enclosure 1")
+			.put(MappingConstants.PARENT, "host")
+			.put("site", "Datacenter 1")
+			.put("device_id", "1")
+			.put("serial_number", "SN 1")
+			.put("vendor", "Dell")
+			.put("model", "PowerEdge T30")
+			.put("bios_version", "v1.1")
+			.put("type", "Server")
+			.put("identifying_information", "Server 1 - Dell")
+			.put("ip_address", "192.168.1.1")
+			.build();
 
 		assertEquals(expected, dataPoint.getAttributes());
 	}
@@ -294,12 +420,20 @@ class OtelParameterToMetricObserverTest {
 		enclosure.addMetadata("serialNumber", "Serial1234");
 		enclosure.addMetadata(IP_ADDRESS, "192.168.1.1");
 
-		final Attributes actual = parameterToMetricObserver.createAttributes(enclosure);
+		final MetricInfo metricInfo = MetricsMapping
+			.getMetricInfoList(MonitorType.ENCLOSURE, STATUS_PARAMETER)
+			.get()
+			.stream()
+			.filter(info -> info.getIdentifyingAttribute().getValue().equals(MappingConstants.OK_ATTRIBUTE_VALUE))
+			.findFirst()
+			.orElseThrow();
+
+		final Attributes actual = parameterToMetricObserver.createAttributes(metricInfo, enclosure);
 
 		final Attributes expected = Attributes.builder()
-				.put("id", "id_enclosure")
-				.put("label", "enclosure 1")
-				.put("parent", "host")
+				.put(MappingConstants.ID, "id_enclosure")
+				.put(MappingConstants.NAME, "enclosure 1")
+				.put(MappingConstants.PARENT, "host")
 				.put("site", "Datacenter 1")
 				.put("device_id", "")
 				.put("serial_number", "Serial1234")
@@ -309,6 +443,7 @@ class OtelParameterToMetricObserverTest {
 				.put("type", "")
 				.put("identifying_information", "")
 				.put("ip_address", "192.168.1.1")
+				.put(MappingConstants.STATE_ATTRIBUTE_KEY, MappingConstants.OK_ATTRIBUTE_VALUE)
 				.build();
 
 		assertEquals(expected, actual);
@@ -392,5 +527,52 @@ class OtelParameterToMetricObserverTest {
 		assertTrue(OtelParameterToMetricObserver.canParseDoubleValue("8"));
 		assertTrue(OtelParameterToMetricObserver.canParseDoubleValue("8 "));
 		assertTrue(OtelParameterToMetricObserver.canParseDoubleValue("8.0"));
+	}
+
+	@Test
+	void testDetermineMeterId() {
+		{
+			final MetricInfo metricInfo = MetricInfo
+				.builder()
+				.name("hw.monitor.metric")
+				.identifyingAttribute(
+					StaticIdentifyingAttribute
+						.builder()
+						.key("type")
+						.value("value")
+						.build()
+				)
+				.build();
+			final Monitor monitor = Monitor
+				.builder()
+				.id("monitor1")
+				.build();
+			assertEquals("monitor1.hw.monitor.metric.type.value", OtelParameterToMetricObserver.determineMeterId(metricInfo, monitor));
+		}
+
+		{
+			final MetricInfo metricInfo = MetricInfo
+				.builder()
+				.name("hw.monitor.metric")
+				.build();
+			final Monitor monitor = Monitor
+				.builder()
+				.id("monitor1")
+				.build();
+			assertEquals("monitor1.hw.monitor.metric", OtelParameterToMetricObserver.determineMeterId(metricInfo, monitor));
+		}
+
+		{
+			final MetricInfo metricInfo = MetricInfo
+				.builder()
+				.name("hw.monitor.metric")
+				.additionalId("1")
+				.build();
+			final Monitor monitor = Monitor
+				.builder()
+				.id("monitor1")
+				.build();
+			assertEquals("monitor1.hw.monitor.metric.1", OtelParameterToMetricObserver.determineMeterId(metricInfo, monitor));
+		}
 	}
 }

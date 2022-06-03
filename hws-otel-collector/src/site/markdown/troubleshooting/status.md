@@ -98,7 +98,7 @@ You can choose to integrate these internal metrics in the pipeline of the *OpenT
 service:
   telemetry:
     logs:
-      level: info # Change to debug more more details
+      level: info # Change to debug for more details
   extensions: [health_check, hws_agent]
   pipelines:
     metrics:

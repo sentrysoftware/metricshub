@@ -26,15 +26,11 @@ import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import com.sentrysoftware.hardware.agent.configuration.ConfigHelper;
-import com.sentrysoftware.hardware.agent.dto.HardwareHostDto;
 import com.sentrysoftware.hardware.agent.dto.HostConfigurationDto;
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
-import com.sentrysoftware.hardware.agent.dto.protocol.SnmpProtocolDto;
 import com.sentrysoftware.hardware.agent.service.task.StrategyTask;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-
-import com.sentrysoftware.matrix.engine.host.HostType;
 
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
@@ -122,37 +118,6 @@ class TaskSchedulingServiceTest {
 	}
 
 	@Test
-	void testUpdateConfigurationRemoveObsoleteSchedules() {
-
-		// Current /data/hws-config.yaml has 3 hosts
-		// Let's say we have 4 hosts from the previous configuration but the current contains only 3 hosts
-		// Let's check that 1 host is unscheduled and the existing hosts are never re-scheduled
-		final MultiHostsConfigurationDto previous = ConfigHelper.readConfigurationSafe(configFile);
-		previous.getHosts().add(HostConfigurationDto.builder()
-				.collectPeriod(MultiHostsConfigurationDto.DEFAULT_COLLECT_PERIOD)
-				.discoveryCycle(MultiHostsConfigurationDto.DEFAULT_DISCOVERY_CYCLE)
-				.host(HardwareHostDto
-						.builder()
-						.hostname("host1")
-						.id("host1")
-						.type(HostType.LINUX)
-						.build())
-				.snmp(SnmpProtocolDto.builder().community("public1".toCharArray()).build())
-				.build());
-
-		doReturn(previous.getHosts()).when(multiHostsConfigurationDto).getHosts();
-		final ScheduledFuture<?> mock = spy(ScheduledFuture.class);
-		doReturn(mock).when(hostSchedules).get(any());
-		doReturn(true).when(mock).cancel(true);
-
-		taskSechedulingService.updateConfiguration(configFile);
-
-		verify(mock, times(1)).cancel(true);
-		verify(hostTaskScheduler, never()).schedule(any(StrategyTask.class), any(Trigger.class));
-
-	}
-
-	@Test
 	void testUpdateConfigurationSchedulesNewHosts() {
 		// /data/hws-config.yaml has 3 hosts
 		// let's say, we have nothing in the configuration
@@ -177,4 +142,5 @@ class TaskSchedulingServiceTest {
 		assertEquals(Level.DEBUG, taskSechedulingService.getLoggerLevel("debug"));
 		assertEquals(Level.OFF, taskSechedulingService.getLoggerLevel("unknown"));
 	}
+
 }

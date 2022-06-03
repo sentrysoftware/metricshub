@@ -48,7 +48,7 @@ Severity: WARN
 Body: Hardware problem on netapp9-san.internal.sentrysoftware.net with 0c (FC Port).
 
 Alert Severity    : WARN
-Alert Rule        : hw.network_card.link_status == 1
+Alert Rule        : hw.network.up == 0
 
 Alert Details
 =============
@@ -74,20 +74,15 @@ Model             : FAS2650
 Serial Number     : 651652000067
 
 =================================================================
-Metric: hw.network_card.link_status
+Metric: hw.network.up
 -----------------------------------------------------------------
-Current Value     : 1 (Unplugged)
-Unit              : { 0 = Plugged ; 1 = Unplugged }
-Alert Rules       : 
- - WARN: hw.network_card.link_status == 1
+Current Value     : 0 (Unplugged)
 
 =================================================================
-Metric: hw.network_card.present
+Metric: hw.network.status{state="present"}
 -----------------------------------------------------------------
 Current Value     : 1 (Present)
-Unit              : { 0 = Missing ; 1 = Present }
-Alert Rules       : 
- - ALARM: hw.network_card.present == 0
+
 Attributes:
      -> agent.host.name: STRING(hws-otel-collector.internal.sentrysoftware.net)
      -> host.id: STRING(netapp9-san)
@@ -106,103 +101,103 @@ Alert rules are sets of conditions used to identify the alert's severity and whe
 
 The following table lists **${project.name}**'s alert rules:
 
-| Monitor         | Metric                                      | Severity | Default Alert Conditions                                         |
-| --------------- | ------------------------------------------- | -------- | -------------------------------------------------- |
-| Connector       | hw.connector.status                         | ALARM    | hw.connector.status == 2                           |
-| Battery         | hw.battery.charge_ratio                     | WARN     | hw.battery.charge_ratio <= 0.5                     |
-| Battery         | hw.battery.charge_ratio                     | ALARM    | hw.battery.charge_ratio <= 0.3                     |
-| Battery         | hw.battery.present                          | ALARM    | hw.battery.present == 0                            |
-| Battery         | hw.battery.status                           | WARN     | hw.battery.status == 1                             |
-| Battery         | hw.battery.status                           | ALARM    | hw.battery.status == 2                             |
-| Blade           | hw.blade.present                            | ALARM    | hw.blade.present == 0                              |
-| Blade           | hw.blade.status                             | WARN     | hw.blade.status == 1                               |
-| Blade           | hw.blade.status                             | ALARM    | hw.blade.status == 2                               |
-| CPU             | hw.cpu.corrected_errors_total               | ALARM    | hw.cpu.corrected_errors_total >= 1                 |
-| CPU             | hw.cpu.predicted_failure                    | WARN     | hw.cpu.predicted_failure == 1                      |
-| CPU             | hw.cpu.present                              | ALARM    | hw.cpu.present == 0                                |
-| CPU             | hw.cpu.status                               | WARN     | hw.cpu.status == 1                                 |
-| CPU             | hw.cpu.status                               | ALARM    | hw.cpu.status == 2                                 |
-| CPU Core        | hw.cpu_core.present                         | ALARM    | hw.cpu_core.present == 0                           |
-| CPU Core        | hw.cpu_core.status                          | WARN     | hw.cpu_core.status == 1                            |
-| CPU Core        | hw.cpu_core.status                          | ALARM    | hw.cpu_core.status == 2                            |
-| Disk Controller | hw.disk_controller.battery_status           | WARN     | hw.disk_controller.battery_status == 1             |
-| Disk Controller | hw.disk_controller.battery_status           | ALARM    | hw.disk_controller.battery_status == 2             |
-| Disk Controller | hw.disk_controller.controller_status        | WARN     | hw.disk_controller.controller_status == 1          |
-| Disk Controller | hw.disk_controller.controller_status        | ALARM    | hw.disk_controller.controller_status == 2          |
-| Disk Controller | hw.disk_controller.present                  | ALARM    | hw.disk_controller.present == 0                    |
-| Enclosure       | hw.enclosure.intrusion_status               | ALARM    | hw.enclosure.intrusion_status == 2                 |
-| Enclosure       | hw.enclosure.present                        | ALARM    | hw.enclosure.present == 0                          |
-| Fan             | hw.fan.present                              | ALARM    | hw.fan.present == 0                                |
-| Fan             | hw.fan.speed_rpm                            | ALARM    | hw.fan.speed_rpm == 0                              |
-| Fan             | hw.fan.speed_rpm                            | WARN     | hw.fan.speed_rpm <= 500                            |
-| Fan             | hw.fan.speed_ratio                          | ALARM    | hw.fan.speed_ratio == 0                            |
-| Fan             | hw.fan.speed_ratio                          | WARN     | hw.fan.speed_ratio <= 0.05                         |
-| Fan             | hw.fan.status                               | WARN     | hw.fan.status == 1                                 |
-| Fan             | hw.fan.status                               | ALARM    | hw.fan.status == 2                                 |
-| GPU             | hw.gpu.corrected_errors_total               | ALARM    | hw.gpu.corrected_errors_total >= 1                 |
-| GPU             | hw.gpu.errors_total                         | ALARM    | hw.gpu.errors_total >= 1                           |
-| GPU             | hw.gpu.memory_utilization_ratio             | WARN     | hw.gpu.memory_utilization_ratio >= 0.9             |
-| GPU             | hw.gpu.memory_utilization_ratio             | ALARM    | hw.gpu.memory_utilization_ratio >= 0.99            |
-| GPU             | hw.gpu.predicted_failure                    | WARN     | hw.gpu.predicted_failure == 1                      |
-| GPU             | hw.gpu.present                              | ALARM    | hw.gpu.present == 0                                |
-| GPU             | hw.gpu.status                               | WARN     | hw.gpu.status == 1                                 |
-| GPU             | hw.gpu.status                               | ALARM    | hw.gpu.status == 2                                 |
-| GPU             | hw.gpu.used_time_ratio                      | WARN     | hw.gpu.used_time_ratio >= 0.8                      |
-| GPU             | hw.gpu.used_time_ratio                      | ALARM    | hw.gpu.used_time_ratio >= 0.9                      |
-| LED             | hw.led.color_status                         | WARN     | hw.led.color_status == 1                           |
-| LED             | hw.led.color_status                         | ALARM    | hw.led.color_status == 2                           |
-| LED             | hw.led.status                               | WARN     | hw.led.status == 1                                 |
-| LED             | hw.led.status                               | ALARM    | hw.led.status == 2                                 |
-| Logical Disk    | hw.logical_disk.errors_total                | ALARM    | hw.logical_disk.errors_total >= 1                  |
-| Logical Disk    | hw.logical_disk.status                      | WARN     | hw.logical_disk.status == 1                        |
-| Logical Disk    | hw.logical_disk.status                      | ALARM    | hw.logical_disk.status == 2                        |
-| LUN             | hw.lun.available_paths                      | ALARM    | hw.lun.available_paths < 1                         |
-| LUN             | hw.lun.status                               | WARN     | hw.lun.status == 1                                 |
-| LUN             | hw.lun.status                               | ALARM    | hw.lun.status == 2                                 |
-| Memory Module   | hw.memory.errors_total                      | ALARM    | hw.memory.errors_total >= 1                        |
-| Memory Module   | hw.memory.error_status                      | WARN     | hw.memory.error_status == 1                        |
-| Memory Module   | hw.memory.error_status                      | ALARM    | hw.memory.error_status == 2                        |
-| Memory Module   | hw.memory.predicted_failure                 | WARN     | hw.memory.predicted_failure == 1                   |
-| Memory Module   | hw.memory.present                           | ALARM    | hw.memory.present == 0                             |
-| Memory Module   | hw.memory.status                            | WARN     | hw.memory.status == 1                              |
-| Memory Module   | hw.memory.status                            | ALARM    | hw.memory.status == 2                              |
-| Network Card    | hw.network_card.bandwidth_utilization_ratio | WARN     | hw.network_card.bandwidth_utilization_ratio >= 0.8 |
-| Network Card    | hw.network_card.error_ratio                 | WARN     | hw.network_card.error_ratio >= 0.1                 |
-| Network Card    | hw.network_card.error_ratio                 | ALARM    | hw.network_card.error_ratio >= 0.3                 |
-| Network Card    | hw.network_card.link_status                 | WARN     | hw.network_card.link_status == 1                   |
-| Network Card    | hw.network_card.present                     | ALARM    | hw.network_card.present == 0                       |
-| Network Card    | hw.network_card.status                      | WARN     | hw.network_card.status == 1                        |
-| Network Card    | hw.network_card.status                      | ALARM    | hw.network_card.status == 2                        |
-| Other           | hw.other_device.present                     | ALARM    | hw.other_device.present == 0                       |
-| Other           | hw.other_device.status                      | WARN     | hw.other_device.status == 1                        |
-| Other           | hw.other_device.status                      | ALARM    | hw.other_device.status == 2                        |
-| Physical Disk   | hw.physical_disk.endurance_remaining_ratio  | WARN     | hw.physical_disk.endurance_remaining_ratio <= 0.05 |
-| Physical Disk   | hw.physical_disk.endurance_remaining_ratio  | ALARM    | hw.physical_disk.endurance_remaining_ratio <= 0.02 |
-| Physical Disk   | hw.physical_disk.errors_total               | ALARM    | hw.physical_disk.errors_total >= 1                 |
-| Physical Disk   | hw.physical_disk.predicted_failure          | WARN     | hw.physical_disk.predicted_failure == 1            |
-| Physical Disk   | hw.physical_disk.present                    | ALARM    | hw.physical_disk.present == 0                      |
-| Physical Disk   | hw.physical_disk.status                     | WARN     | hw.physical_disk.status == 1                       |
-| Physical Disk   | hw.physical_disk.status                     | ALARM    | hw.physical_disk.status == 2                       |
-| Power Supply    | hw.power_supply.present                     | ALARM    | hw.power_supply.present == 0                       |
-| Power Supply    | hw.power_supply.status                      | WARN     | hw.power_supply.status == 1                        |
-| Power Supply    | hw.power_supply.status                      | ALARM    | hw.power_supply.status == 2                        |
-| Power Supply    | hw.power_supply.used_capacity_ratio         | WARN     | hw.power_supply.used_capacity_ratio >= 0.9         |
-| Power Supply    | hw.power_supply.used_capacity_ratio         | ALARM    | hw.power_supply.used_capacity_ratio >= 0.99        |
-| Robotics        | hw.robotics.present                         | ALARM    | hw.robotics.present == 0                           |
-| Robotics        | hw.robotics.status                          | WARN     | hw.robotics.status == 1                            |
-| Robotics        | hw.robotics.status                          | ALARM    | hw.robotics.status == 2                            |
-| Tape Drive      | hw.tape_drive.errors_total                  | ALARM    | hw.tape_drive.errors_total >= 1                    |
-| Tape Drive      | hw.tape_drive.needs_cleaning                | WARN     | hw.tape_drive.needs_cleaning == 1                  |
-| Tape Drive      | hw.tape_drive.needs_cleaning                | ALARM    | hw.tape_drive.needs_cleaning == 2                  |
-| Tape Drive      | hw.tape_drive.present                       | ALARM    | hw.tape_drive.present == 0                         |
-| Tape Drive      | hw.tape_drive.status                        | WARN     | hw.tape_drive.status == 1                          |
-| Tape Drive      | hw.tape_drive.status                        | ALARM    | hw.tape_drive.status == 2                          |
-| Temperature     | hw.temperature.status                       | WARN     | hw.temperature.status == 1                         |
-| Temperature     | hw.temperature.status                       | ALARM    | hw.temperature.status == 2                         |
-| Virtual Machine | hw.vm.status                                | WARN     | hw.vm.status == 1                                  |
-| Virtual Machine | hw.vm.status                                | ALARM    | hw.vm.status == 2                                  |
-| Voltage         | hw.voltage.status                           | WARN     | hw.voltage.status == 1                             |
-| Voltage         | hw.voltage.status                           | ALARM    | hw.voltage.status == 2                             |
+| Monitor         | Metric                                 | Severity | Default Alert Conditions                       | Attribute                        |
+| --------------- | -------------------------------------- | -------- | ---------------------------------------------- | -------------------------------- |
+| Connector       | hardware_sentry.connector.status       | ALARM    | hardware_sentry.connector.status == 1          | state=failed                     |
+| Host            | hardware_sentry.host.up                | ALARM    | hardware_sentry.host.up == 0                   | protocol=http                    |
+| Host            | hardware_sentry.host.up                | ALARM    | hardware_sentry.host.up == 0                   | protocol=ipmi                    |
+| Host            | hardware_sentry.host.up                | ALARM    | hardware_sentry.host.up == 0                   | protocol=snmp                    |
+| Host            | hardware_sentry.host.up                | ALARM    | hardware_sentry.host.up == 0                   | protocol=ssh                     |
+| Host            | hardware_sentry.host.up                | ALARM    | hardware_sentry.host.up == 0                   | protocol=wbem                    |
+| Host            | hardware_sentry.host.up                | ALARM    | hardware_sentry.host.up == 0                   | protocol=wmi                     |
+| Battery         | hw.battery.charge                      | WARN     | hw.battery.charge <= 0.5                       |                                  |
+| Battery         | hw.battery.charge                      | ALARM    | hw.battery.charge <= 0.3                       |                                  |
+| Battery         | hw.battery.status                      | ALARM    | hw.battery.status == 0                         | state=present                    |
+| Battery         | hw.battery.status                      | WARN     | hw.battery.status == 1                         | state=degraded                   |
+| Battery         | hw.battery.status                      | ALARM    | hw.battery.status == 1                         | state=failed                     |
+| Blade           | hw.blade.status                        | ALARM    | hw.blade.status == 0                           | state=present                    |
+| Blade           | hw.blade.status                        | WARN     | hw.blade.status == 1                           | state=degraded                   |
+| Blade           | hw.blade.status                        | ALARM    | hw.blade.status == 1                           | state=failed                     |
+| CPU             | hw.cpu.errors                          | ALARM    | hw.cpu.errors >= 1                             |                                  |
+| CPU             | hw.cpu.status                          | WARN     | hw.cpu.status == 1                             | state=predicted_failure          |
+| CPU             | hw.cpu.status                          | ALARM    | hw.cpu.status == 0                             | state=present                    |
+| CPU             | hw.cpu.status                          | WARN     | hw.cpu.status == 1                             | state=degraded                   |
+| CPU             | hw.cpu.status                          | ALARM    | hw.cpu.status == 1                             | state=failed                     |
+| CPU Core        | hw.cpu_core.status                     | ALARM    | hw.cpu_core.status == 0                        | state=present                    |
+| CPU Core        | hw.cpu_core.status                     | WARN     | hw.cpu_core.status == 1                        | state=degraded                   |
+| CPU Core        | hw.cpu_core.status                     | ALARM    | hw.cpu_core.status == 1                        | state=failed                     |
+| Disk Controller | hw.disk_controller.status              | WARN     | hw.disk_controller.status == 1                 | battery_state=degraded           |
+| Disk Controller | hw.disk_controller.status              | ALARM    | hw.disk_controller.status == 1                 | battery_state=failed             |
+| Disk Controller | hw.disk_controller.status              | WARN     | hw.disk_controller.status == 1                 | state=degraded                   |
+| Disk Controller | hw.disk_controller.status              | ALARM    | hw.disk_controller.status == 1                 | state=failed                     |
+| Disk Controller | hw.disk_controller.status              | ALARM    | hw.disk_controller.status == 0                 | state=present                    |
+| Enclosure       | hw.enclosure.status                    | ALARM    | hw.enclosure.status == 1                       | state=open                       |
+| Enclosure       | hw.enclosure.status                    | ALARM    | hw.enclosure.status == 0                       | state=present                    |
+| Fan             | hw.fan.status                          | ALARM    | hw.fan.status == 0                             | state=present                    |
+| Fan             | hw.fan.speed                           | ALARM    | hw.fan.speed == 0                              |                                  |
+| Fan             | hw.fan.speed                           | WARN     | hw.fan.speed <= 500                            |                                  |
+| Fan             | hw.fan.speed_ratio                     | ALARM    | hw.fan.speed_ratio == 0                        |                                  |
+| Fan             | hw.fan.speed_ratio                     | WARN     | hw.fan.speed_ratio <= 0.05                     |                                  |
+| Fan             | hw.fan.status                          | WARN     | hw.fan.status == 1                             | state=degraded                   |
+| Fan             | hw.fan.status                          | ALARM    | hw.fan.status == 1                             | state=failed                     |
+| GPU             | hw.gpu.errors                          | ALARM    | hw.gpu.errors >= 1                             | type=corrected                   |
+| GPU             | hw.gpu.errors                          | ALARM    | hw.gpu.errors >= 1                             | type=all                         |
+| GPU             | hw.gpu.memory.utilization              | WARN     | hw.gpu.memory.utilization >= 0.9               |                                  |
+| GPU             | hw.gpu.memory.utilization              | ALARM    | hw.gpu.memory.utilization >= 0.99              |                                  |
+| GPU             | hw.gpu.status                          | WARN     | hw.gpu.status == 1                             | state=predicted_failure          |
+| GPU             | hw.gpu.status                          | ALARM    | hw.gpu.status == 0                             | state=present                    |
+| GPU             | hw.gpu.status                          | WARN     | hw.gpu.status == 1                             | state=degraded                   |
+| GPU             | hw.gpu.status                          | ALARM    | hw.gpu.status == 1                             | state=failed                     |
+| LED             | hw.led.status                          | WARN     | hw.led.status == 1                             | state=degraded                   |
+| LED             | hw.led.status                          | ALARM    | hw.led.status == 1                             | state=failed                     |
+| Logical Disk    | hw.logical_disk.errors                 | ALARM    | hw.logical_disk.errors >= 1                    |                                  |
+| Logical Disk    | hw.logical_disk.status                 | WARN     | hw.logical_disk.status == 1                    | state=degraded                   |
+| Logical Disk    | hw.logical_disk.status                 | ALARM    | hw.logical_disk.status == 1                    | state=failed                     |
+| LUN             | hw.lun.paths                           | ALARM    | hw.lun.paths < 1                               | type=available                   |
+| LUN             | hw.lun.status                          | WARN     | hw.lun.status == 1                             | state=degraded                   |
+| LUN             | hw.lun.status                          | ALARM    | hw.lun.status == 1                             | state=failed                     |
+| Memory Module   | hw.memory.errors                       | ALARM    | hw.memory.errors >= 1                          |                                  |
+| Memory Module   | hw.memory.status                       | WARN     | hw.memory.status == 1                          | state=predicted_failure          |
+| Memory Module   | hw.memory.status                       | ALARM    | hw.memory.status == 0                          | state=present                    |
+| Memory Module   | hw.memory.status                       | WARN     | hw.memory.status == 1                          | state=degraded                   |
+| Memory Module   | hw.memory.status                       | ALARM    | hw.memory.status == 1                          | state=failed                     |
+| Network Card    | hw.network.bandwidth.utilization       | WARN     | hw.network.bandwidth.utilization >= 0.8        |                                  |
+| Network Card    | hw.network.error_ratio                 | WARN     | hw.network.error_ratio >= 0.1                  |                                  |
+| Network Card    | hw.network.error_ratio                 | ALARM    | hw.network.error_ratio >= 0.3                  |                                  |
+| Network Card    | hw.network.up                          | WARN     | hw.network.up == 0                             |                                  |
+| Network Card    | hw.network.status                      | ALARM    | hw.network.status == 0                         | state=present                    |
+| Network Card    | hw.network.status                      | WARN     | hw.network.status == 1                         | state=degraded                   |
+| Network Card    | hw.network.status                      | ALARM    | hw.network.status == 1                         | state=failed                     |
+| Other           | hw.other_device.status                 | ALARM    | hw.other_device.status == 0                    | state=present                    |
+| Other           | hw.other_device.status                 | WARN     | hw.other_device.status == 1                    | state=degraded                   |
+| Other           | hw.other_device.status                 | ALARM    | hw.other_device.status == 1                    | state=failed                     |
+| Physical Disk   | hw.physical_disk.endurance_utilization | WARN     | hw.physical_disk.endurance_utilization <= 0.05 | state=remaining                  |
+| Physical Disk   | hw.physical_disk.endurance_utilization | ALARM    | hw.physical_disk.endurance_utilization <= 0.02 | state=remaining                  |
+| Physical Disk   | hw.physical_disk.errors                | ALARM    | hw.physical_disk.errors >= 1                   |                                  |
+| Physical Disk   | hw.physical_disk.status                | WARN     | hw.physical_disk.status == 1                   | state=predicted_failure          |
+| Physical Disk   | hw.physical_disk.status                | ALARM    | hw.physical_disk.status == 0                   | state=present                    |
+| Physical Disk   | hw.physical_disk.status                | WARN     | hw.physical_disk.status == 1                   | state=degraded                   |
+| Physical Disk   | hw.physical_disk.status                | ALARM    | hw.physical_disk.status == 1                   | state=failed                     |
+| Power Supply    | hw.power_supply.status                 | ALARM    | hw.power_supply.status == 0                    | state=present                    |
+| Power Supply    | hw.power_supply.status                 | WARN     | hw.power_supply.status == 1                    | state=degraded                   |
+| Power Supply    | hw.power_supply.status                 | ALARM    | hw.power_supply.status == 1                    | state=failed                     |
+| Power Supply    | hw.power_supply.utilization            | WARN     | hw.power_supply.utilization >= 0.9             |                                  |
+| Power Supply    | hw.power_supply.utilization            | ALARM    | hw.power_supply.utilization >= 0.99            |                                  |
+| Robotics        | hw.robotics.status                     | ALARM    | hw.robotics.status == 0                        | state=present                    |
+| Robotics        | hw.robotics.status                     | WARN     | hw.robotics.status == 1                        | state=degraded                   |
+| Robotics        | hw.robotics.status                     | ALARM    | hw.robotics.status == 1                        | state=failed                     |
+| Tape Drive      | hw.tape_drive.errors                   | ALARM    | hw.tape_drive.errors >= 1                      |                                  |
+| Tape Drive      | hw.tape_drive.status                   | WARN     | hw.tape_drive.status == 1                      | state=no_needs_cleaning          |
+| Tape Drive      | hw.tape_drive.status                   | ALARM    | hw.tape_drive.status == 1                      | state=needs_cleaning_immediately |
+| Tape Drive      | hw.tape_drive.status                   | ALARM    | hw.tape_drive.status == 0                      | state=present                    |
+| Tape Drive      | hw.tape_drive.status                   | WARN     | hw.tape_drive.status == 1                      | state=degraded                   |
+| Tape Drive      | hw.tape_drive.status                   | ALARM    | hw.tape_drive.status == 1                      | state=failed                     |
+| Temperature     | hw.temperature.status                  | WARN     | hw.temperature.status == 1                     | state=degraded                   |
+| Temperature     | hw.temperature.status                  | ALARM    | hw.temperature.status == 1                     | state=failed                     |
+| Virtual Machine | hw.vm.status                           | WARN     | hw.vm.status == 1                              | state=degraded                   |
+| Virtual Machine | hw.vm.status                           | ALARM    | hw.vm.status == 1                              | state=failed                     |
+| Voltage         | hw.voltage.status                      | WARN     | hw.voltage.status == 1                         | state=degraded                   |
+| Voltage         | hw.voltage.status                      | ALARM    | hw.voltage.status == 1                         | state=failed                     |
 
 ## Customizing Alert Content
 
@@ -218,19 +213,19 @@ The following macros can be used to obtain more details about the problem. They 
 
 | Macro                   | Description                                                                                                                                                                                                                             |
 | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `${MONITOR_NAME}`       | Name of the monitor that triggered the alert. Example: Fan: 1.1 (CPU1)                                                                                                                                                          |
+| `${MONITOR_NAME}`       | Name of the monitor that triggered the alert. Example: Fan: 1.1 (CPU1)                                                                                                                                                                  |
 | `${MONITOR_ID}`         | Unique identifier of the monitor that triggered the alert.                                                                                                                                                                              |
 | `${MONITOR_TYPE}`       | Type of the monitor that triggered the alert. Example: Physical Disk                                                                                                                                                                    |
-| `${PARENT_ID}`          | Identifier of the parent that the faulty instance is attached to.                                                                                                                                                                   |
-| `${METRIC_NAME}`        | Name of the metric that triggered the alert. Example: hw.battery.status                                                                                                                                                                 |
-| `${METRIC_VALUE}`       | Value of the metric that triggered the alert. Example: 2 (ALARM)                                                                                                                                                                    |
-| `${SEVERITY}`           | Severity of the alert (ALARM, WARN)                                                                                                                                                                                           |
-| `${ALERT_RULE}`         | Alert conditions that triggered the alert. Example: hw.battery.status == 2                                                                                                                                                          |
-| `${ALERT_DATE}`         | ISO date time at which the alert triggered.                                                                                                                                                                                         |
+| `${PARENT_ID}`          | Identifier of the parent that the faulty instance is attached to.                                                                                                                                                                       |
+| `${METRIC_NAME}`        | Name of the metric that triggered the alert. Example: hw.battery.status{state="failed"}                                                                                                                                                 |
+| `${METRIC_VALUE}`       | Value of the metric that triggered the alert. Example: 1 (Failed)                                                                                                                                                                       |
+| `${SEVERITY}`           | Severity of the alert (ALARM, WARN)                                                                                                                                                                                                     |
+| `${ALERT_RULE}`         | Alert conditions that triggered the alert. Example: hw.battery.status{state="failed"} == 1                                                                                                                                              |
+| `${ALERT_DATE}`         | ISO date time at which the alert triggered.                                                                                                                                                                                             |
 | `${CONSEQUENCE}`        | Description of the possible consequence of the detected problem. Example: The temperature of the chip, component or device that was cooled by this fan should grow quickly. This can lead to severe hardware damage and system crashes. |
-| `${RECOMMENDED_ACTION}` | Recommended action to solve the problem. Example: Check if the fan is no longer cooling the system. If so, replace the fan.                                                                                                        |
-| `${PROBLEM}`            | Description of the problem encountered by the monitor. Example: The speed of this fan is critically low (1503 rpm).       |
-| `${ALERT_DETAILS}`      | Severity, alert rule, problem, consequence and recommended action.                                          |
+| `${RECOMMENDED_ACTION}` | Recommended action to solve the problem. Example: Check if the fan is no longer cooling the system. If so, replace the fan.                                                                                                             |
+| `${PROBLEM}`            | Description of the problem encountered by the monitor. Example: The speed of this fan is critically low (1503 rpm).                                                                                                                     |
+| `${ALERT_DETAILS}`      | Severity, alert rule, problem, consequence and recommended action.                                                                                                                                                                      |
 | `${FULLREPORT}`         | Full hardware health report about the monitor that triggered the alert.                                                                                                                                                                 |
 | `${NEWLINE}`            | Linefeed. This is useful to produce multi-line information.                                                                                                                                                                             |
 

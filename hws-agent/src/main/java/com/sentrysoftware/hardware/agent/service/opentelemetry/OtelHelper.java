@@ -1,5 +1,7 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
+
 import static com.sentrysoftware.matrix.engine.host.HostType.HP_OPEN_VMS;
 import static com.sentrysoftware.matrix.engine.host.HostType.HP_TRU64_UNIX;
 import static com.sentrysoftware.matrix.engine.host.HostType.HP_UX;
@@ -16,12 +18,21 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.sentrysoftware.hardware.agent.dto.metric.DynamicIdentifyingAttribute;
+import com.sentrysoftware.hardware.agent.dto.metric.IIdentifyingAttribute;
+import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo;
+import com.sentrysoftware.hardware.agent.dto.metric.StaticIdentifyingAttribute;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.ILocalOs;
+import com.sentrysoftware.matrix.common.meta.parameter.state.IState;
 
 import com.sentrysoftware.matrix.engine.host.HostType;
 
 import com.sentrysoftware.matrix.common.helpers.StringHelper;
+import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
+import com.sentrysoftware.matrix.model.parameter.IParameter;
+import com.sentrysoftware.matrix.model.parameter.NumberParam;
 
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.common.AttributesBuilder;
@@ -279,6 +290,61 @@ public class OtelHelper {
 			return LOCAL_OS_TO_OTEL_OS_TYPE.getOrDefault(localOs.get(), UNKNOWN);
 		}
 		return UNKNOWN;
+	}
+
+	/**
+	 * Extract the identifying attribute from the given {@link MetricInfo}. The
+	 * identifying attribute is a key value pair which could be static or dynamic
+	 * i.e. fetched from the monitor's metadata.
+	 * 
+	 * @param metricInfo The metric information
+	 * @param monitor    The monitor used to fetch the attribute value
+	 * @return {@link Optional} of {@link String} array including the key at the
+	 *         first position and the value in the second one.
+	 */
+	public static Optional<String[]> extractIdentifyingAttribute(final MetricInfo metricInfo, final Monitor monitor) {
+		final IIdentifyingAttribute identifyingAttribute = metricInfo.getIdentifyingAttribute();
+		if (identifyingAttribute != null) {
+			// Simple key-value
+			if (identifyingAttribute instanceof StaticIdentifyingAttribute) {
+				return Optional.of(new String[] { identifyingAttribute.getKey(), identifyingAttribute.getValue() });
+			} else if (identifyingAttribute instanceof DynamicIdentifyingAttribute) {
+				// The value is dynamic extracted from the metadata collection
+				return Optional.of(new String[] { identifyingAttribute.getKey(),
+						StringHelper.getValue(() -> monitor.getMetadata(identifyingAttribute.getValue()).trim().toLowerCase(), EMPTY) });
+			} else {
+				throw new IllegalStateException("Unhandled identifying attribute: " + identifyingAttribute.getClass().getSimpleName());
+			}
+		}
+
+		return Optional.empty();
+	}
+
+	/**
+	 * Get the parameter from the monitor instance then if this parameter is a
+	 * {@link DiscreteParam} then apply the {@link MetricInfo} predicate to decide
+	 * if we should return 1 (true) or 0 (false).<br> If we deal with a
+	 * {@link NumberParam} then simply return the parameter's value converted using
+	 * the metric information factor.
+	 *
+	 * @param metricInfo    The metric information
+	 * @param monitor       The monitor from which we extract the parameter value
+	 * @param parameterName The parameter name we want to extract from the given
+	 *                      monitor instance
+	 * @return {@link Number} value
+	 */
+	public static double getMetricValue(@NonNull final MetricInfo metricInfo, @NonNull final Monitor monitor, @NonNull  final String parameterName) {
+
+		// Extract the parameter from this monitor
+		final IParameter parameter = monitor.getParameters().get(parameterName);
+
+		if (parameter instanceof DiscreteParam && metricInfo.isBooleanMetric()) {
+			final IState state = ((DiscreteParam) parameter).getState();
+			return metricInfo.getPredicate().test(state) ? 1 : 0;
+		}
+
+		// Return the number value for other parameters
+		return parameter.numberValue().doubleValue() * metricInfo.getFactor();
 	}
 
 }
