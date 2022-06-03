@@ -6,8 +6,8 @@ extraLabels:
   site: Datacenter 1 # Customize this value with your own site naming convention. (Dedicating 1 collector to 1 site is a good practice.)
 
 extraMetrics:
-  hw.site.carbon_density_grams: 350 # in g/kWh
-  # The average is 350g/kWh for Europe.
+  hw.site.carbon_density_grams: 230 # in g/kWh
+  # The average is 230g/kWh for Europe.
   # The average is 309g/kWh for Texas, USA.
   # The average is 40g/kWh for Ontario, Canada.
   # The average is 712g/kWh for Queensland, Australia.
@@ -27,9 +27,9 @@ targets:
 
 # Some templates can be found below:
 
-####################################################
-# IPMI protocol configuration                      #
-####################################################
+#═══════════════════════════════════════════════════
+# IPMI protocol configuration                      
+#═══════════════════════════════════════════════════
 
 #  - target:
 #      hostname: server-1
@@ -39,9 +39,9 @@ targets:
 #      password: password
 #      timeout: 120s
 
-####################################################
-# WMI protocol configuration                       #
-####################################################
+#═══════════════════════════════════════════════════
+# WMI protocol configuration                       
+#═══════════════════════════════════════════════════
 
 #  - target:
 #      hostname: server-2
@@ -49,9 +49,9 @@ targets:
 #    wmi:
 #      timeout: 120s
 
-####################################################
-# WMI protocol configuration with credentials      #
-####################################################
+#═══════════════════════════════════════════════════
+# WMI protocol configuration with credentials      
+#═══════════════════════════════════════════════════
 
 #  - target:
 #      hostname: server-3
@@ -61,9 +61,9 @@ targets:
 #      password: password
 #      timeout: 120s
 
-####################################################
-# SNMP v1 protocol configuration                  #
-####################################################
+#═══════════════════════════════════════════════════
+# SNMP v1 protocol configuration                  
+#═══════════════════════════════════════════════════
 
 #  - target:
 #      hostname: server-4
@@ -75,9 +75,9 @@ targets:
 #      timeout: 120s
 #    excludedConnectors: [ SunF15K ]
 
-####################################################
-# SNMP v2c protocol configuration                  #
-####################################################
+#═══════════════════════════════════════════════════
+# SNMP v2c protocol configuration                  
+#═══════════════════════════════════════════════════
 
 #  - target:
 #      hostname: server-5
@@ -88,9 +88,9 @@ targets:
 #      port: 161
 #      timeout: 120s
 
-####################################################
-# SNMP v3 MD5 protocol configuration               #
-####################################################
+#═══════════════════════════════════════════════════
+# SNMP v3 MD5 protocol configuration               
+#═══════════════════════════════════════════════════
 
 #  - target:
 #      hostname: server-6
@@ -105,9 +105,9 @@ targets:
 #      username: username
 #      password: password
 
-####################################################
-# WBEM protocol configuration                      #
-####################################################
+#═══════════════════════════════════════════════════
+# WBEM protocol configuration                      
+#═══════════════════════════════════════════════════
 
 #  - target:
 #      hostname: server-7
@@ -119,9 +119,9 @@ targets:
 #      username: admin
 #      password: password
 
-####################################################
-# HTTP protocol configuration                      #
-####################################################
+#═══════════════════════════════════════════════════
+# HTTP protocol configuration                      
+#═══════════════════════════════════════════════════
 
 #  - target:
 #      hostname: server-8
@@ -134,9 +134,9 @@ targets:
 #    selectedConnectors:
 #    - PureStorageREST
 
-####################################################
-# SSH protocol configuration                       #
-####################################################
+#═══════════════════════════════════════════════════
+# SSH protocol configuration                       
+#═══════════════════════════════════════════════════
 
 #  - target:
 #      hostname: server-9
@@ -150,9 +150,9 @@ targets:
 #      password: mypwd
 #      privateKey: /tmp/ssh-key.txt
 
-####################################################
-# OSCommand configuration                          #
-####################################################
+#═══════════════════════════════════════════════════
+# OSCommand configuration                          
+#═══════════════════════════════════════════════════
 
 #  - target:
 #      hostname: server-10
