@@ -595,7 +595,7 @@ public class OtelAlertHelper {
 		Assert.notNull(alertInfo.getAlertRule(), "Alert rule cannot be null");
 		Assert.notNull(alertInfo.getMonitor(), "Monitor cannot be null");
 		Assert.notNull(alertInfo.getParameterName(), "Parameter name cannot be null");
-		Assert.notNull(alertInfo.getHardwareHost(), "Hardware Traget cannot be null");
+		Assert.notNull(alertInfo.getHardwareHost(), "Hardware host cannot be null");
 		Assert.notNull(alertInfo.getHostMonitoring(), "HostMonitoring cannot be null");
 	}
 

@@ -38,7 +38,7 @@ public class FileWatcherTask extends Thread {
 				Thread.currentThread().interrupt();
 			}
 
-			log.error("Could not start the watcher on file: {}. Error: {}", file.getAbsolutePath(),
+			log.error("The watcher on file could not be started: {}. Error: {}.", file.getAbsolutePath(),
 					e.getMessage());
 			log.debug("Error: ", e);
 		}
@@ -99,10 +99,10 @@ public class FileWatcherTask extends Thread {
 			}
 			onChange.run();
 		} catch (InterruptedException e) {
-			log.info("FileWatcherTask onChange - Received Interrupted Exception: {}", e.getMessage());
+			log.info("FileWatcherTask onChange - Received Interrupted Exception: {}.", e.getMessage());
 			interrupt();
 		} catch (Exception e) {
-			log.info("FileWatcherTask onChange - Error detected: {}", e.getMessage());
+			log.info("FileWatcherTask onChange - Error detected: {}.", e.getMessage());
 		}
 	}
 
