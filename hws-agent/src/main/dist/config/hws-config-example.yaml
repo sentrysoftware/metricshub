@@ -21,8 +21,7 @@ extraMetrics:
   # The average is $0.225/kWh for non-household in Australia.
   # Source: https://www.globalpetrolprices.com/electricity_prices/
   hw.site.pue_ratio: 1.8
-  # Power Usage Effectiveness.
-  # A ratio describing how efficiently a computer data center uses energy. The ideal ratio is 1.
+  # Power Usage Effectiveness. A ratio describing how efficiently a computer data center uses energy
 
 exporter:
   otlp:
