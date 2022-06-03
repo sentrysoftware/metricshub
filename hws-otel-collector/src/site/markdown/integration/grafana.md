@@ -123,6 +123,7 @@ datasources:
   # <bool> allow users to edit datasources from the UI.
   editable: true
 ```
+
 ## Understanding the Dashboards
 
 Monitored systems are grouped into sites. You can easily customize this grouping to represent data centers, server rooms, or applications and services. For each site, you can view its consumption in kilowatts per hour, its related cost in dollars, and carbon footprint in metric tons.
