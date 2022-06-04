@@ -21,9 +21,7 @@
 			<item name="Overview" href="index.html"/>
 			<item name="Release Notes" href="release-notes.html" />
 			<item name="Supported Platforms" href="platform-requirements.html " />
-			<item name="Quick Start" href="start/start.html ">
-           		 <item name="Prometheus / Grafana" href="start/prometheus-grafana.html" />
-			</item>
+			<item name="Quick Start" href="start.html "/>
 			<item name="Installation" href="install.html"/>
 		</menu>
 	
