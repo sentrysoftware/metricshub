@@ -210,7 +210,7 @@ public class TaskSchedulingService {
 
 	/**
 	 * Restart all the hosts scheduling
-	 * 
+	 *
 	 * @param newOtelSdkConfiguration       The new SDK configuration
 	 * @param newMultiHostsConfigurationDto The new configuration
 	 */
@@ -231,7 +231,7 @@ public class TaskSchedulingService {
 
 	/**
 	 * Reschedule the given new hosts
-	 * 
+	 *
 	 * @param newMultiHostsConfigurationDto The new configuration
 	 * @param newHosts                      The new configured hosts
 	 * @param hostsToRemove                 The hosts to remove from the scheduler
@@ -289,7 +289,7 @@ public class TaskSchedulingService {
 
 		// No host monitoring no schedule
 		if (hostMonitoring == null) {
-			log.warn("There is no HostMonitoring for the host id: {}. Skip task schedule.", hostId);
+			log.warn("The host {} has been removed from the configuration. Nothing to monitor and no tasks to schedule.", hostId);
 			return;
 		}
 
@@ -316,7 +316,7 @@ public class TaskSchedulingService {
 		// Don't forget to store the scheduled task in case we want to cancel it due to a configuration change
 		hostSchedules.put(hostId, scheduledFuture);
 
-		log.info("Scheduled Job for host id {}", hostId);
+		log.info("Scheduled job for host id {}", hostId);
 	}
 
 	/**
