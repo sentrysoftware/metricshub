@@ -152,19 +152,17 @@ extraMetrics:
   hw_electricity_cost_dollars: `0.12` # in $/kWh
   hw_pue_ratio: `1.8`
 ```
-The information is also translated into histograms that classify the sites by electricity cost and carbon emissions by kilowatts per hour, from the most consumer to the least. They help you immediately identify the most economical and sustainable sites.
+The collected data is translated into histograms that expose electricity consumption and cost, and carbon emissions in kilowatts per hour, by site. 
 
-![Identifying the Most Efficient Sites](../images/dashboard_cost_co2_sites_efficiency_list.png)
+### Identifying the most power efficient sites
 
-### Identifying the most power consuming sites
+The **Total Power** graph in the **Sites** section of the **Main** dashboard shows the electricity consumption for all your sites for the selected period.
 
-The **Power Distribution** panel shows the breakdown of the electricity consumption among all your sites. Hover the chart to display the amount of kilowatts consumed by a specific site.
+![Viewing Power Distribution by Site](../images/dashboard_power_consumption_per_site.png)
 
-![Viewing Power Distribution by Site](../images/dashboard_power_distribution.png)
+Use the **Yearly Consumption**, graph to identify which of your sites is the most consuming.
 
-Use the **Annual Consumption**, **Annual Cost** and **Annual CO₂** graphs to identify which of your sites is the most consuming.
-
-![Viewing Sites Annual Consumption](../images/dashboard_site_annual_data.png)
+![Viewing Sites Annual Consumption](../images/dashboard_main_sites_yearly_consumption.png)
 
 ### Spotting the top consumer devices
 
