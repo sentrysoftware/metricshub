@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.sentrysoftware.hardware.agent.dto.ErrorCode;
-import com.sentrysoftware.hardware.agent.dto.HardwareTargetDto;
+import com.sentrysoftware.hardware.agent.dto.HardwareHostDto;
 import com.sentrysoftware.hardware.agent.dto.HostConfigurationDto;
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
 import com.sentrysoftware.hardware.agent.dto.protocol.IProtocolConfigDto;
@@ -36,11 +36,11 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
-import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import com.sentrysoftware.matrix.security.SecurityManager;
 
+import com.sentrysoftware.matrix.engine.host.HostType;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -51,23 +51,23 @@ import lombok.extern.slf4j.Slf4j;
 public class ConfigHelper {
 
 	public static final Path DEFAULT_OUTPUT_DIRECTORY = getSubDirectory("logs", true);
-	private static final String TIMEOUT_ERROR = "Timeout value is invalid for hostname %s for protocol %s. Host will not be monitored.";
-	private static final String PORT_ERROR = "Invalid port configured for hostname %s for protocol %s. Host will not be monitored.";
-	private static final String USERNAME_ERROR = "No username configured for hostname %s for protocol %s. Host will not be monitored.";
+	private static final String TIMEOUT_ERROR = "Hostname %s - Timeout value is invalid for protocol %s. Timeout value returned: %s. This host will not be monitored. Please verify the configured timeout value.";
+	private static final String PORT_ERROR = "Hostname %s - Invalid port configured for protocol %s. Port value returned: %s. This host will not be monitored. Please verify the configured port value.";
+	private static final String USERNAME_ERROR = "Hostname %s - No username configured for protocol %s. This host will not be monitored. Please verify the configured username.";
 	private static final Predicate<String> INVALID_STRING_CHECKER = attr -> attr == null || attr.isBlank();
 	private static final Predicate<Integer> INVALID_PORT_CHECKER = attr -> attr == null || attr < 1 || attr > 65535;
 	private static final Predicate<Long> INVALID_TIMEOUT_CHECKER = attr -> attr == null || attr < 0L;
 
 	/**
 	 * Deserialize YAML configuration file.
-	 * 
+	 *
 	 * @param <T>
 	 *
 	 * @param file YAML file
 	 * @param type the value type to return
 	 *
 	 * @return new instance of type T
-	 * 
+	 *
 	 * @throws IOException
 	 *
 	 */
@@ -100,23 +100,28 @@ public class ConfigHelper {
 	}
 
 	/**
-	 * Validate the given target information (hostname and targetType)
+	 * Validate the given host information (hostname and hostType)
 	 *
-	 * @param targetType type of the target
-	 * @param hostname   hostname of the target
+	 * @param hostType   type of the host
+	 * @param hostname   hostname
 	 * @throws BusinessException
 	 */
-	static void validateTarget(final TargetType targetType, final String hostname) throws BusinessException {
+	static void validateHost(final HostType hostType, final String hostname) throws BusinessException {
 
-		validateAttribute(hostname,
+		validateAttribute(
+				hostname,
 				INVALID_STRING_CHECKER,
-				() -> String.format("Invalid hostname: %s", hostname),
+				() -> String.format(
+						"Hostname - %s. Invalid Hostname. This host will not be monitored. Please verify the configured hostname.",
+						hostname),
 				ErrorCode.INVALID_HOSTNAME);
 
-		validateAttribute(targetType,
+		validateAttribute(hostType,
 				Objects::isNull,
-				() -> String.format("No target type configured for hostname: %s", hostname),
-				ErrorCode.NO_TARGET_TYPE);
+				() -> String.format(
+				"Hostname %s - No type configured. This host will not be monitored. Please verify the configured type.",
+				hostname),
+				ErrorCode.NO_HOST_TYPE);
 	}
 
 	/**
@@ -136,14 +141,14 @@ public class ConfigHelper {
 				connector -> engineConfiguration.getSelectedConnectors().contains(connector.getCompiledFilename()))
 				.collect(Collectors.toSet());
 
-		final String hostname = engineConfiguration.getTarget().getHostname();
+		final String hostname = engineConfiguration.getHost().getHostname();
 		final Set<Class<? extends Source>> acceptedSources = engineConfiguration
 				.determineAcceptedSources(NetworkHelper.isLocalhost(hostname));
 
 		for (Connector connector : connectors) {
 			if (acceptedSources.stream().noneMatch(source -> connector.getSourceTypes().contains(source))) {
 				String message = String.format(
-						"Hostname %s - Selected connector %s couldn't be processed due to unsupported protocol.",
+						"Hostname %s - Selected connector %s could not be processed due to unsupported protocol. This host will not be monitored. Please use connectors that are compatible with the configured protocol.",
 						hostname, connector.getCompiledFilename());
 				log.error(message);
 				throw new BusinessException(ErrorCode.UNSUPPORTED_PROTOCOL, message);
@@ -154,8 +159,8 @@ public class ConfigHelper {
 	/**
 	 * Validate the given SNMP information (hostname, SnmpDto)
 	 *
-	 * @param hostname hostname of the target
-	 * @param snmpDto  Snmp object of the target (configuration)
+	 * @param hostname hostname
+	 * @param snmpDto  Snmp object of the host (configuration)
 	 * @throws BusinessException
 	 */
 	static void validateSnmpInfo(final String hostname, SnmpProtocolDto snmpDto)
@@ -165,26 +170,31 @@ public class ConfigHelper {
 		final int intVersion = snmpDto.getVersion().getIntVersion();
 
 		if (intVersion != 3) {
-			validateAttribute(snmpDto.getCommunity(),
+			validateAttribute(
+					snmpDto.getCommunity(),
 					attr -> attr == null || attr.length == 0,
 					() -> String.format(
-							"No community string configured for hostname %s for protocol %s. Host will not be monitored.",
-							hostname, displayName),
+							"Hostname %s - No community string configured for %s. This host will not be monitored.",
+							hostname,
+							displayName),
 					ErrorCode.NO_COMMUNITY_STRING);
 		}
 
-		validateAttribute(snmpDto.getPort(),
+		validateAttribute(
+				snmpDto.getPort(),
 				INVALID_PORT_CHECKER,
-				() -> String.format(PORT_ERROR, hostname, displayName),
+				() -> String.format(PORT_ERROR, hostname, displayName, snmpDto.getPort()),
 				ErrorCode.INVALID_PORT);
 
-		validateAttribute(snmpDto.getTimeout(),
+		validateAttribute(
+				snmpDto.getTimeout(),
 				INVALID_TIMEOUT_CHECKER,
-				() -> String.format(TIMEOUT_ERROR, hostname, displayName),
+				() -> String.format(TIMEOUT_ERROR, hostname, displayName, snmpDto.getTimeout()),
 				ErrorCode.INVALID_TIMEOUT);
 
 		if (intVersion == 3 && snmpDto.getVersion().getAuthType() != null) {
-			validateAttribute(snmpDto.getUsername(),
+			validateAttribute(
+					snmpDto.getUsername(),
 					INVALID_STRING_CHECKER,
 					() -> String.format(USERNAME_ERROR, hostname, displayName),
 					ErrorCode.NO_USERNAME);
@@ -194,9 +204,9 @@ public class ConfigHelper {
 	/**
 	 * Validate the given IPMI information (hostname, username and timeout)
 	 *
-	 * @param hostname hostname of the target
-	 * @param username username of the target
-	 * @param timeout  timeout of the target
+	 * @param hostname hostname
+	 * @param username username of the host
+	 * @param timeout  timeout of the host
 	 * @throws BusinessException
 	 */
 	static void validateIpmiInfo(final String hostname, final String username, final Long timeout)
@@ -204,23 +214,25 @@ public class ConfigHelper {
 
 		final String protocol = "IPMI";
 
-		validateAttribute(username,
+		validateAttribute(
+				username,
 				INVALID_STRING_CHECKER,
 				() -> String.format(USERNAME_ERROR, hostname, protocol),
 				ErrorCode.NO_USERNAME);
 
-		validateAttribute(timeout,
+		validateAttribute(
+				timeout,
 				INVALID_TIMEOUT_CHECKER,
-				() -> String.format(TIMEOUT_ERROR, hostname, protocol),
+				() -> String.format(TIMEOUT_ERROR, hostname, protocol, timeout),
 				ErrorCode.INVALID_TIMEOUT);
 	}
 
 	/**
 	 * Validate the given SSH information (hostname, username, timeout)
 	 *
-	 * @param hostname    hostname of the target
-	 * @param username    username of the target
-	 * @param timeout     timeout of the target
+	 * @param hostname    hostname
+	 * @param username    username of the host
+	 * @param timeout     timeout of the host
 	 * @throws BusinessException
 	 */
 	static void validateSshInfo(final String hostname, final String username, final Long timeout)
@@ -228,24 +240,26 @@ public class ConfigHelper {
 
 		final String protocol = "SSH";
 
-		validateAttribute(username,
+		validateAttribute(
+				username,
 				INVALID_STRING_CHECKER,
 				() -> String.format(USERNAME_ERROR, hostname, protocol),
 				ErrorCode.NO_USERNAME);
 
-		validateAttribute(timeout,
+		validateAttribute(
+				timeout,
 				INVALID_TIMEOUT_CHECKER,
-				() -> String.format(TIMEOUT_ERROR, hostname, protocol),
+				() -> String.format(TIMEOUT_ERROR, hostname, protocol, timeout),
 				ErrorCode.INVALID_TIMEOUT);
 	}
 
 	/**
 	 * Validate the given WBEM information (hostname, username, timeout and port)
 	 *
-	 * @param hostname hostname of the target
-	 * @param username username of the target
-	 * @param timeout  timeout of the target
-	 * @param port     port of the target
+	 * @param hostname hostname
+	 * @param username username of the host
+	 * @param timeout  timeout of the host
+	 * @param port     port of the host
 	 * @throws BusinessException
 	 */
 	static void validateWbemInfo(final String hostname, final String username, final Long timeout, final Integer port)
@@ -253,17 +267,20 @@ public class ConfigHelper {
 
 		final String protocol = "WBEM";
 
-		validateAttribute(timeout,
+		validateAttribute(
+				timeout,
 				INVALID_TIMEOUT_CHECKER,
-				() -> String.format(TIMEOUT_ERROR, hostname, protocol),
+				() -> String.format(TIMEOUT_ERROR, hostname, protocol, timeout),
 				ErrorCode.INVALID_TIMEOUT);
 
-		validateAttribute(port,
+		validateAttribute(
+				port,
 				INVALID_PORT_CHECKER,
-				() -> String.format(PORT_ERROR, hostname, protocol),
+				() -> String.format(PORT_ERROR, hostname, protocol, port),
 				ErrorCode.INVALID_PORT);
 
-		validateAttribute(username,
+		validateAttribute(
+				username,
 				INVALID_STRING_CHECKER,
 				() -> String.format(USERNAME_ERROR, hostname, protocol),
 				ErrorCode.NO_USERNAME);
@@ -272,26 +289,27 @@ public class ConfigHelper {
 	/**
 	 * Validate the given WMI information (hostname and timeout)
 	 *
-	 * @param hostname hostname of the target
-	 * @param timeout  timeout of the target
+	 * @param hostname hostname
+	 * @param timeout  timeout of the host
 	 * @throws BusinessException
 	 */
 	static void validateWmiInfo(final String hostname, final Long timeout) throws BusinessException {
 
 		final String protocol = "WMI";
 
-		validateAttribute(timeout,
+		validateAttribute(
+				timeout,
 				INVALID_TIMEOUT_CHECKER,
-				() -> String.format(TIMEOUT_ERROR, hostname, protocol),
+				() -> String.format(TIMEOUT_ERROR, hostname, protocol, timeout),
 				ErrorCode.INVALID_TIMEOUT);
 	}
 
 	/**
 	 * Validate the given HTTP information (hostname, timeout and port)
 	 *
-	 * @param hostname hostname of the target
-	 * @param timeout  timeout of the target
-	 * @param port     port of the target
+	 * @param hostname hostname
+	 * @param timeout  timeout of the host
+	 * @param port     port of the host
 	 * @throws BusinessException
 	 */
 	static void validateHttpInfo(final String hostname, final Long timeout, final Integer port)
@@ -299,31 +317,34 @@ public class ConfigHelper {
 
 		final String protocol = "HTTP";
 
-		validateAttribute(timeout,
+		validateAttribute(
+				timeout,
 				INVALID_TIMEOUT_CHECKER,
-				() -> String.format(TIMEOUT_ERROR, hostname, protocol),
+				() -> String.format(TIMEOUT_ERROR, hostname, protocol, timeout),
 				ErrorCode.INVALID_TIMEOUT);
 
-		validateAttribute(port,
+		validateAttribute(
+				port,
 				INVALID_PORT_CHECKER,
-				() -> String.format(PORT_ERROR, hostname, protocol),
+				() -> String.format(PORT_ERROR, hostname, protocol, port),
 				ErrorCode.INVALID_PORT);
 	}
 
 	/**
 	 * Validate the given OS Command information (hostname and timeout)
 	 *
-	 * @param hostname    hostname of the target
-	 * @param timeout     timeout of the target
+	 * @param hostname    hostname
+	 * @param timeout     timeout of the host
 	 * @throws BusinessException
 	 */
 	static void validateOsCommandInfo(final String hostname, final Long timeout) throws BusinessException {
 
 		final String protocol = "OSCommand";
 
-		validateAttribute(timeout,
+		validateAttribute(
+				timeout,
 				INVALID_TIMEOUT_CHECKER,
-				() -> String.format(TIMEOUT_ERROR, hostname, protocol),
+				() -> String.format(TIMEOUT_ERROR, hostname, protocol, timeout),
 				ErrorCode.INVALID_TIMEOUT);
 	}
 
@@ -333,14 +354,15 @@ public class ConfigHelper {
 	 *
 	 * @param hostConfigurationDto User's configuration
 	 * @param selectedConnectors   The connector names, the matrix engine should run
-	 * @param excludedConnectors   The connector names, the matrix engine should skip
+	 * @param excludedConnectors   The connector names, the matrix engine should
+	 *                             skip
 	 *
 	 * @return The built {@link EngineConfiguration}.
 	 */
 	static EngineConfiguration buildEngineConfiguration(final HostConfigurationDto hostConfigurationDto,
 			final Set<String> selectedConnectors, final Set<String> excludedConnectors) {
 
-		final HardwareTargetDto target = hostConfigurationDto.getTarget();
+		final HardwareHostDto host = hostConfigurationDto.getHost();
 
 		final Map<Class<? extends IProtocolConfiguration>, IProtocolConfiguration> protocolConfigurations =
 				new HashMap<>(
@@ -364,7 +386,7 @@ public class ConfigHelper {
 			.protocolConfigurations(protocolConfigurations)
 			.selectedConnectors(selectedConnectors)
 			.excludedConnectors(excludedConnectors)
-			.target(target.toHardwareTarget())
+			.host(host.toHardwareHost())
 			.sequential(Boolean.TRUE.equals(hostConfigurationDto.getSequential()))
 			.build();
 	}
@@ -376,14 +398,15 @@ public class ConfigHelper {
 	 * @param acceptedConnectorNames Known connector names (connector compiled file
 	 *                               names)
 	 * @param configConnectors       user's selected or excluded connectors
-	 * @param hostname               target hostname
+	 * @param hostname               hostname
 	 * @param isExcluded             specifies if we are validating excluded or selected connectors
 	 *
 	 * @return {@link Set} containing the selected connector names
 	 * @throws BusinessException
 	 */
 	static Set<String> validateAndGetConnectors(final @NonNull Set<String> acceptedConnectorNames,
-			final Set<String> configConnectors, final String hostname, final boolean isExcluded) throws BusinessException {
+			final Set<String> configConnectors, final String hostname, final boolean isExcluded)
+			throws BusinessException {
 
 		if (configConnectors == null || configConnectors.isEmpty()) {
 			return Collections.emptySet();
@@ -401,31 +424,37 @@ public class ConfigHelper {
 		}
 
 		final String message;
+		configConnectors.removeAll(unknownConnectors);
+
 		if (isExcluded) {
 			message = String.format(
-					"Configured unknown excluded connector(s): %s. Hostname: %s. This target will be monitored, but the unknown connectors will be ignored.",
+					"Hostname %s - Configured unknown excluded connector(s): %s. This host will be monitored, but the unknown connectors will be ignored.",
 					String.join(", ", unknownConnectors),
 					hostname
 					);
 
 			log.error(message);
-			configConnectors.removeAll(unknownConnectors);
+
+			return configConnectors;
+		} else if(!configConnectors.isEmpty()){
+			message = String.format(
+					"Hostname %s - Configured unknown selected connector(s): %s. This host will be monitored, but the unknown connectors will be ignored.",
+					hostname,
+					String.join(", ", unknownConnectors)
+					);
+
+			log.error(message);
 
 			return configConnectors;
 		} else {
 			message = String.format(
-					"Configured unknown selected connector(s): %s. Hostname: %s. This target will not be monitored.",
-					String.join(", ", unknownConnectors),
+					"Hostname %s - Selected connectors are not valid. This host will not be monitored.",
 					hostname
 					);
-
-			log.error(message);
 
 			// Throw the bad configuration exception
 			throw new BusinessException(ErrorCode.BAD_CONNECTOR_CONFIGURATION, message);
 		}
-
-
 	}
 
 	/**
@@ -441,32 +470,32 @@ public class ConfigHelper {
 		try {
 			final MultiHostsConfigurationDto multiHostsConfig = deserializeYamlFile(configFile, MultiHostsConfigurationDto.class);
 
-			multiHostsConfig.getTargets().forEach(configDto -> {
-				HardwareTargetDto target = configDto.getTarget();
-				// Make sure the target id is always set
-				if (target.getId() == null) {
-					target.setId(target.getHostname());
+			multiHostsConfig.getHosts().forEach(configDto -> {
+				HardwareHostDto host = configDto.getHost();
+				// Make sure the host id is always set
+				if (host.getId() == null) {
+					host.setId(host.getHostname());
 				}
 
-				// Set global collect period if there is no specific collect period on the target
+				// Set global collect period if there is no specific collect period on the host
 				if (configDto.getCollectPeriod() == null) {
 					configDto.setCollectPeriod(multiHostsConfig.getCollectPeriod());
 				}
 
-				// Set global collect period if there is no specific collect period on the target
+				// Set global collect period if there is no specific collect period on the host
 				if (configDto.getDiscoveryCycle() == null) {
 					configDto.setDiscoveryCycle(multiHostsConfig.getDiscoveryCycle());
 				}
 
-				// Set the global level in the target log level.
+				// Set the global level in the host log level.
 				// Always the global logger settings wins as the matrix logger
 				// 'com.sentrysoftware', is created only once and handles the Level globally for
-				// all the targets.
+				// all the hosts.
 				configDto.setLoggerLevel(multiHostsConfig.getLoggerLevel());
 				configDto.setOutputDirectory(multiHostsConfig.getOutputDirectory());
 
-				// Set global sequential flag in the target configuration if this target doesn't define the sequential flag
-				// It is more practical to set the flag only once when the requirement is that each target must run the network calls in serial mode
+				// Set global sequential flag in the host configuration if this host doesn't define the sequential flag
+				// It is more practical to set the flag only once when the requirement is that each host must run the network calls in serial mode
 				if (configDto.getSequential() == null) {
 					configDto.setSequential(multiHostsConfig.isSequential());
 				}
@@ -484,7 +513,7 @@ public class ConfigHelper {
 
 			return multiHostsConfig;
 		} catch (Exception e) {
-			log.info("Cannot read the configuration file {}", configFile.getAbsoluteFile());
+			log.info("Cannot read the configuration file {}.", configFile.getAbsoluteFile());
 			log.debug("Exception: ", e);
 			return MultiHostsConfigurationDto.empty();
 
@@ -492,11 +521,11 @@ public class ConfigHelper {
 	}
 
 	/**
-	 * Build the {@link IHostMonitoring} map. Each entry is index by the targetId
-	 * 
-	 * @param multiHostsConfigurationDto DTO that wraps the agent configuration for all the targets
+	 * Build the {@link IHostMonitoring} map. Each entry is index by the hostId
+	 *
+	 * @param multiHostsConfigurationDto DTO that wraps the agent configuration for all the hosts
 	 * @param acceptedConnectorNames     set of accepted compiled connector names
-	 * @return Map of {@link IHostMonitoring} instances indexed by the target id
+	 * @return Map of {@link IHostMonitoring} instances indexed by the host id
 	 */
 	public static Map<String, IHostMonitoring> buildHostMonitoringMap(final MultiHostsConfigurationDto multiHostsConfigurationDto,
 			final Set<String> acceptedConnectorNames) {
@@ -504,8 +533,8 @@ public class ConfigHelper {
 		final Map<String, IHostMonitoring> hostMonitoringMap = new HashMap<>();
 
 		multiHostsConfigurationDto
-			.getTargets()
-			.forEach(hostConfigurationDto -> 
+			.getHosts()
+			.forEach(hostConfigurationDto ->
 				fillHostMonitoringMap(hostMonitoringMap, acceptedConnectorNames, hostConfigurationDto));
 
 		return hostMonitoringMap;
@@ -515,19 +544,19 @@ public class ConfigHelper {
 	/**
 	 * Create a new {@link IHostMonitoring} instance for the given
 	 * {@link HostConfigurationDto} and update the host monitoring map
-	 * 
-	 * @param hostMonitoringMap      Map of {@link IHostMonitoring} instances indexed by the targetId
+	 *
+	 * @param hostMonitoringMap      Map of {@link IHostMonitoring} instances indexed by the hostId
 	 * @param acceptedConnectorNames set of accepted compiled connector names
 	 * @param hostConfigurationDto   the host configuration we wish to process in order to build
-	 *                               the {@link IHostMonitoring} instance
+	 * 								 the {@link IHostMonitoring} instance
 	 */
 	public static void fillHostMonitoringMap(final Map<String, IHostMonitoring> hostMonitoringMap,
 			final Set<String> acceptedConnectorNames, final HostConfigurationDto hostConfigurationDto) {
 
-		final String hostname = hostConfigurationDto.getTarget().getHostname();
+		final String hostname = hostConfigurationDto.getHost().getHostname();
 
 		try {
-			validateTarget(hostConfigurationDto.getTarget().getType(), hostname);
+			validateHost(hostConfigurationDto.getHost().getType(), hostname);
 
 			if (hostConfigurationDto.getOsCommand() != null) {
 				WinRmProtocolDto winRmDto = hostConfigurationDto.getWinRm();
@@ -582,23 +611,23 @@ public class ConfigHelper {
 
 			validateEngineConfiguration(engineConfiguration, connectors.values());
 
-			// targetId can never be null here
-			final String targetId = hostConfigurationDto.getTarget().getId();
+			// hostId can never be null here
+			final String hostId = hostConfigurationDto.getHost().getId();
 
 			hostMonitoringMap.putIfAbsent(
-					targetId,
-					HostMonitoringFactory.getInstance().createHostMonitoring(targetId, engineConfiguration));
+					hostId,
+					HostMonitoringFactory.getInstance().createHostMonitoring(hostId, engineConfiguration));
 
 		} catch (Exception e) {
 
-			log.warn("The given target has been staged as invalid. Target: {}", hostConfigurationDto);
+			log.warn("Hostname {} - The given host has been staged as invalid.", hostConfigurationDto);
 
 		}
 	}
 
 	/**
 	 * Get the directory path of the given file
-	 * 
+	 *
 	 * @param file
 	 * @return {@link Path} instance
 	 */
@@ -622,14 +651,14 @@ public class ConfigHelper {
 		try {
 			return Files.createDirectories(subDirectory).toRealPath();
 		} catch (IOException e) {
-			throw new IllegalStateException("Could not create " + dir + " directory " + subDirectory, e);
+			throw new IllegalStateException("Could not create " + dir + " directory \"" + subDirectory + "\".", e);
 		}
 	}
 
 	/**
 	 * Get the sub path under the home directory. E.g.
 	 * <em>/usr/local/bin/hws-otel-collector/lib/../config</em>
-	 * 
+	 *
 	 * @param subPath sub path to the directory or the file
 	 * @return {@link Path} instance
 	 */
@@ -650,7 +679,7 @@ public class ConfigHelper {
 
 	/**
 	 * Get the directory of the current executable jar.
-	 * 
+	 *
 	 * @return {@link File} instance
 	 */
 	public static File getExecutableDir() {
@@ -658,7 +687,7 @@ public class ConfigHelper {
 		try {
 			me = ResourceHelper.findSource(ConfigHelper.class);
 		} catch (Exception e) {
-			throw new IllegalStateException("Error detected when getting local source file", e);
+			throw new IllegalStateException("Error detected when getting local source file: ", e);
 		}
 
 		if (me == null) {
@@ -669,7 +698,7 @@ public class ConfigHelper {
 
 	/**
 	 * Decrypt the given crypted password.
-	 * 
+	 *
 	 * @param crypted
 	 * @return char array
 	 */

@@ -20,7 +20,7 @@ import com.sentrysoftware.matrix.common.meta.monitor.PhysicalDisk;
 import com.sentrysoftware.matrix.common.meta.monitor.PowerSupply;
 import com.sentrysoftware.matrix.common.meta.monitor.Robotics;
 import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
-import com.sentrysoftware.matrix.common.meta.monitor.Target;
+import com.sentrysoftware.matrix.common.meta.monitor.Host;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
 import com.sentrysoftware.matrix.common.meta.monitor.Vm;
 import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
@@ -33,6 +33,8 @@ import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Up;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
+import com.sentrysoftware.matrix.engine.protocol.HttpProtocol;
+import com.sentrysoftware.matrix.engine.protocol.IpmiOverLanProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
@@ -131,6 +133,8 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WBEM_UP
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WMI_UP_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_PERCENT_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IPMI_UP_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HTTP_UP_PARAMETER;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -142,6 +146,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mockStatic;
 
@@ -163,7 +168,7 @@ class MonitorCollectVisitorTest {
 	private static final String VALUETABLE_COLUMN_6 = "Valuetable.Column(6)";
 	private static final String MONITOR_DEVICE_ID = "1.1";
 	private static final String MONITOR_ID = "myConnecctor1.connector_monitor_ecs1-01_1.1";
-	private static final String TARGET_ID = "target-id";
+	private static final String HOST_ID = "host-id";
 	private static final String MY_CONNECTOR_NAME = "myConnecctor";
 	private static final String VALUE_TABLE = "MonitorType.Collect.Source(1)";
 	private static final String DEVICE_ID = "deviceId";
@@ -217,6 +222,34 @@ class MonitorCollectVisitorTest {
 		.collectTime(collectTime)
 		.state(Status.OK)
 		.build();
+
+	private static final IParameter httpUpParam = DiscreteParam
+			.builder()
+			.name(HTTP_UP_PARAMETER)
+			.collectTime(collectTime)
+			.state(Up.UP)
+			.build();
+
+	private static final IParameter httpDownParam = DiscreteParam
+			.builder()
+			.name(HTTP_UP_PARAMETER)
+			.collectTime(collectTime)
+			.state(Up.DOWN)
+			.build();
+
+	private static final IParameter ipmiUpParam = DiscreteParam
+			.builder()
+			.name(IPMI_UP_PARAMETER)
+			.collectTime(collectTime)
+			.state(Up.UP)
+			.build();
+
+	private static final IParameter ipmiDownParam = DiscreteParam
+			.builder()
+			.name(IPMI_UP_PARAMETER)
+			.collectTime(collectTime)
+			.state(Up.DOWN)
+			.build();
 
 	private static final IParameter snmpUpParam = DiscreteParam
 			.builder()
@@ -284,21 +317,21 @@ class MonitorCollectVisitorTest {
 	}
 
 	@Test
-	void testVisitTarget() {
+	void testVisitHost() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.TARGET).build();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.HOST).build();
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 		monitorCollectVisitor.getMonitorCollectInfo().setEngineConfiguration(EngineConfiguration.builder().build());
 
-		assertDoesNotThrow(() -> monitorCollectVisitor.visit(new Target()));
+		assertDoesNotThrow(() -> monitorCollectVisitor.visit(new Host()));
 	}
 
 	@Test
-	void testVisitTargetNoProtocol() {
+	void testVisitHostNoProtocol() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = Monitor.builder()
 				.id(MONITOR_ID)
-				.monitorType(MonitorType.TARGET)
+				.monitorType(MonitorType.HOST)
 				.build();
 
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
@@ -306,21 +339,130 @@ class MonitorCollectVisitorTest {
 		monitorCollectVisitor.getMonitorCollectInfo().setEngineConfiguration(EngineConfiguration.builder().build());
 
 		monitorCollectVisitor.getMonitorCollectInfo().setMatsyaClientsExecutor(matsyaClientsExecutor);
-		monitorCollectVisitor.visit(new Target());
+		monitorCollectVisitor.visit(new Host());
 
 		assertNull(monitor.getParameters().get(SNMP_UP_PARAMETER));
 		assertNull(monitor.getParameters().get(SSH_UP_PARAMETER));
 		assertNull(monitor.getParameters().get(WMI_UP_PARAMETER));
 		assertNull(monitor.getParameters().get(WBEM_UP_PARAMETER));
+		assertNull(monitor.getParameters().get(HTTP_UP_PARAMETER));
+		assertNull(monitor.getParameters().get(IPMI_UP_PARAMETER));
 
 	}
 
+
 	@Test
-	void testVisitTargetSnmpUp() throws InterruptedException, ExecutionException, TimeoutException {
+	void testVisitHostIpmiUp() throws Exception {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = Monitor.builder()
 				.id(MONITOR_ID)
-				.monitorType(MonitorType.TARGET)
+				.monitorType(MonitorType.HOST)
+				.build();
+
+		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+		monitorCollectVisitor.getMonitorCollectInfo().setEngineConfiguration(
+				EngineConfiguration.builder()
+						.protocolConfigurations(Collections.singletonMap(IpmiOverLanProtocol.class, new IpmiOverLanProtocol()))
+						.build());
+
+		final String ipmiResult = "IPMI up test successful";
+
+		doReturn(ipmiResult).when(matsyaClientsExecutor)
+				.executeIpmiDetection(notNull(), notNull());
+
+		monitorCollectVisitor.getMonitorCollectInfo().setMatsyaClientsExecutor(matsyaClientsExecutor);
+		monitorCollectVisitor.visit(new Host());
+
+		final IParameter actual = monitor.getParameters().get(IPMI_UP_PARAMETER);
+		assertEquals(ipmiUpParam, actual);
+	}
+
+	@Test
+	void testVisitHostIpmiDown() throws Exception{
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		final Monitor monitor = Monitor.builder()
+				.id(MONITOR_ID)
+				.monitorType(MonitorType.HOST)
+				.build();
+
+		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+		monitorCollectVisitor.getMonitorCollectInfo().setEngineConfiguration(
+				EngineConfiguration.builder()
+						.protocolConfigurations(Collections.singletonMap(IpmiOverLanProtocol.class, new IpmiOverLanProtocol()))
+						.build());
+
+		doReturn(null).when(matsyaClientsExecutor)
+				.executeIpmiDetection(notNull(), notNull());
+
+
+		monitorCollectVisitor.getMonitorCollectInfo().setMatsyaClientsExecutor(matsyaClientsExecutor);
+		monitorCollectVisitor.visit(new Host());
+
+		final IParameter actual = monitor.getParameters().get(IPMI_UP_PARAMETER);
+		assertEquals(ipmiDownParam, actual);
+	}
+
+
+	@Test
+	void testVisitHostHttpUp() throws Exception {
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		final Monitor monitor = Monitor.builder()
+				.id(MONITOR_ID)
+				.monitorType(MonitorType.HOST)
+				.build();
+
+		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+		monitorCollectVisitor.getMonitorCollectInfo().setEngineConfiguration(
+				EngineConfiguration.builder()
+						.protocolConfigurations(Collections.singletonMap(HttpProtocol.class, new HttpProtocol()))
+						.build());
+
+		final String httpResult = "HTTP up test successful";
+
+		doReturn(httpResult).when(matsyaClientsExecutor)
+				.executeHttp(notNull(), anyBoolean());
+
+		monitorCollectVisitor.getMonitorCollectInfo().setMatsyaClientsExecutor(matsyaClientsExecutor);
+		monitorCollectVisitor.visit(new Host());
+
+		final IParameter actual = monitor.getParameters().get(HTTP_UP_PARAMETER);
+		assertEquals(httpUpParam, actual);
+	}
+
+	@Test
+	void testVisitHostHttpDown() throws Exception{
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		final Monitor monitor = Monitor.builder()
+				.id(MONITOR_ID)
+				.monitorType(MonitorType.HOST)
+				.build();
+
+		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
+
+		monitorCollectVisitor.getMonitorCollectInfo().setEngineConfiguration(
+				EngineConfiguration.builder()
+						.protocolConfigurations(Collections.singletonMap(HttpProtocol.class, new HttpProtocol()))
+						.build());
+
+		doReturn(null).when(matsyaClientsExecutor)
+				.executeHttp(notNull(), anyBoolean());
+
+		monitorCollectVisitor.getMonitorCollectInfo().setMatsyaClientsExecutor(matsyaClientsExecutor);
+		monitorCollectVisitor.visit(new Host());
+
+		final IParameter actual = monitor.getParameters().get(HTTP_UP_PARAMETER);
+		assertEquals(httpDownParam, actual);
+	}
+
+	@Test
+	void testVisitHostSnmpUp() throws InterruptedException, ExecutionException, TimeoutException {
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		final Monitor monitor = Monitor.builder()
+				.id(MONITOR_ID)
+				.monitorType(MonitorType.HOST)
 				.build();
 
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
@@ -336,18 +478,18 @@ class MonitorCollectVisitorTest {
 				.executeSNMPGetNext(eq("1.3.6.1"), any(), any(), anyBoolean());
 
 		monitorCollectVisitor.getMonitorCollectInfo().setMatsyaClientsExecutor(matsyaClientsExecutor);
-		monitorCollectVisitor.visit(new Target());
+		monitorCollectVisitor.visit(new Host());
 
 		final IParameter actual = monitor.getParameters().get(SNMP_UP_PARAMETER);
 		assertEquals(snmpUpParam, actual);
 	}
 
 	@Test
-	void testVisitTargetSnmpDown() throws InterruptedException, ExecutionException, TimeoutException {
+	void testVisitHostSnmpDown() throws InterruptedException, ExecutionException, TimeoutException {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = Monitor.builder()
 				.id(MONITOR_ID)
-				.monitorType(MonitorType.TARGET)
+				.monitorType(MonitorType.HOST)
 				.build();
 
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
@@ -361,18 +503,18 @@ class MonitorCollectVisitorTest {
 				.executeSNMPGetNext(eq("1.3.6.1"), any(), any(), anyBoolean());
 
 		monitorCollectVisitor.getMonitorCollectInfo().setMatsyaClientsExecutor(matsyaClientsExecutor);
-		monitorCollectVisitor.visit(new Target());
+		monitorCollectVisitor.visit(new Host());
 
 		final IParameter actual = monitor.getParameters().get(SNMP_UP_PARAMETER);
 		assertEquals(snmpDownParam, actual);
 	}
 
 	@Test
-	void testVisitTargetWbemUp() throws MatsyaException {
+	void testVisitHostWbemUp() throws MatsyaException {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = Monitor.builder()
 				.id(MONITOR_ID)
-				.monitorType(MonitorType.TARGET)
+				.monitorType(MonitorType.HOST)
 				.build();
 
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
@@ -388,18 +530,18 @@ class MonitorCollectVisitorTest {
 				.executeWbem(any(), any(), eq("SELECT Name FROM CIM_NameSpace"), any());
 
 		monitorCollectVisitor.getMonitorCollectInfo().setMatsyaClientsExecutor(matsyaClientsExecutor);
-		monitorCollectVisitor.visit(new Target());
+		monitorCollectVisitor.visit(new Host());
 
 		final IParameter actual = monitor.getParameters().get(WBEM_UP_PARAMETER);
 		assertEquals(wbemUpParam, actual);
 	}
 
 	@Test
-	void testVisitTargetWbemDown() throws MatsyaException {
+	void testVisitHostWbemDown() throws MatsyaException {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = Monitor.builder()
 				.id(MONITOR_ID)
-				.monitorType(MonitorType.TARGET)
+				.monitorType(MonitorType.HOST)
 				.build();
 
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
@@ -413,18 +555,18 @@ class MonitorCollectVisitorTest {
 				.thenReturn(null);
 
 		monitorCollectVisitor.getMonitorCollectInfo().setMatsyaClientsExecutor(matsyaClientsExecutor);
-		monitorCollectVisitor.visit(new Target());
+		monitorCollectVisitor.visit(new Host());
 
 		final IParameter actual = monitor.getParameters().get(WBEM_UP_PARAMETER);
 		assertEquals(wbemDownParam, actual);
 	}
 
 	@Test
-	void testVisitTargetWmiUp() throws MatsyaException {
+	void testVisitHostWmiUp() throws MatsyaException {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = Monitor.builder()
 				.id(MONITOR_ID)
-				.monitorType(MonitorType.TARGET)
+				.monitorType(MonitorType.HOST)
 				.build();
 
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
@@ -440,18 +582,18 @@ class MonitorCollectVisitorTest {
 				eq("root\\cimv2"))).thenReturn(wmiResult);
 
 		monitorCollectVisitor.getMonitorCollectInfo().setMatsyaClientsExecutor(matsyaClientsExecutor);
-		monitorCollectVisitor.visit(new Target());
+		monitorCollectVisitor.visit(new Host());
 
 		final IParameter actual = monitor.getParameters().get(WMI_UP_PARAMETER);
 		assertEquals(wmiUpParam, actual);
 	}
 
 	@Test
-	void testVisitTargetWmiDown() throws MatsyaException {
+	void testVisitHostWmiDown() throws MatsyaException {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = Monitor.builder()
 				.id(MONITOR_ID)
-				.monitorType(MonitorType.TARGET)
+				.monitorType(MonitorType.HOST)
 				.build();
 
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
@@ -465,18 +607,18 @@ class MonitorCollectVisitorTest {
 				eq("root\\cimv2"))).thenReturn(null);
 
 		monitorCollectVisitor.getMonitorCollectInfo().setMatsyaClientsExecutor(matsyaClientsExecutor);
-		monitorCollectVisitor.visit(new Target());
+		monitorCollectVisitor.visit(new Host());
 
 		final IParameter actual = monitor.getParameters().get(WMI_UP_PARAMETER);
 		assertEquals(wmiDownParam, actual);
 	}
 
 	@Test
-	void testVisitTargetSshUp() throws MatsyaException {
+	void testVisitHostSshUp() throws MatsyaException {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = Monitor.builder()
 				.id(MONITOR_ID)
-				.monitorType(MonitorType.TARGET)
+				.monitorType(MonitorType.HOST)
 				.build();
 
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
@@ -495,7 +637,7 @@ class MonitorCollectVisitorTest {
 					monitorCollectVisitor.getMonitorCollectInfo().getHostname(), ssh, Math.toIntExact(ssh.getTimeout()),
 					null, null)).thenReturn(SSH_UP_TEST_RESPONSE);
 
-			monitorCollectVisitor.visit(new Target());
+			monitorCollectVisitor.visit(new Host());
 
 			final IParameter actual = monitor.getParameters().get(SSH_UP_PARAMETER);
 			assertEquals(sshUpParam, actual);
@@ -503,11 +645,11 @@ class MonitorCollectVisitorTest {
 	}
 
 	@Test
-	void testVisitTargetSshDown() throws MatsyaException {
+	void testVisitHostSshDown() throws MatsyaException {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
 		final Monitor monitor = Monitor.builder()
 				.id(MONITOR_ID)
-				.monitorType(MonitorType.TARGET)
+				.monitorType(MonitorType.HOST)
 				.build();
 
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
@@ -526,7 +668,7 @@ class MonitorCollectVisitorTest {
 					monitorCollectVisitor.getMonitorCollectInfo().getHostname(), ssh, Math.toIntExact(ssh.getTimeout()),
 					null, null)).thenReturn(null);
 
-			monitorCollectVisitor.visit(new Target());
+			monitorCollectVisitor.visit(new Host());
 
 			final IParameter actual = monitor.getParameters().get(SSH_UP_PARAMETER);
 			assertEquals(sshDownParam, actual);
@@ -872,7 +1014,7 @@ class MonitorCollectVisitorTest {
 	void testCollectDiscreteParameterStatus() {
 
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.TARGET).build();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.HOST).build();
 		final MonitorCollectVisitor monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
 				mapping,
@@ -907,7 +1049,7 @@ class MonitorCollectVisitorTest {
 	@Test
 	void testCollectDiscreteParameterStatusButCannotExtractValue() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.TARGET).build();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.HOST).build();
 		final MonitorCollectVisitor monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
 				mapping,
@@ -952,7 +1094,7 @@ class MonitorCollectVisitorTest {
 	@Test
 	void testCollectNumberParameterIncorrectValue() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.TARGET).build();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.HOST).build();
 		final MonitorCollectVisitor monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
 				mapping,
@@ -973,7 +1115,7 @@ class MonitorCollectVisitorTest {
 	@Test
 	void testCollectNumberParameterValueNotFound() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.TARGET).build();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.HOST).build();
 		final MonitorCollectVisitor monitorCollectVisitor = new MonitorCollectVisitor(
 			buildCollectMonitorInfo(hostMonitoring,
 				Collections.emptyMap(),
@@ -994,7 +1136,7 @@ class MonitorCollectVisitorTest {
 	@Test
 	void testCollectNumberParameter() {
 		final IHostMonitoring hostMonitoring = new HostMonitoring();
-		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.TARGET).build();
+		final Monitor monitor = Monitor.builder().id(MONITOR_ID).monitorType(MonitorType.HOST).build();
 		final MonitorCollectVisitor monitorCollectVisitor = buildMonitorCollectVisitor(hostMonitoring, monitor);
 
 		monitorCollectVisitor.collectNumberParameter(MonitorType.ENCLOSURE,
@@ -1017,7 +1159,7 @@ class MonitorCollectVisitorTest {
 			.collectTime(collectTime)
 			.connectorName(MY_CONNECTOR_NAME)
 			.hostMonitoring(hostMonitoring)
-			.hostname(TARGET_ID)
+			.hostname(HOST_ID)
 			.mapping(mapping)
 			.monitor(monitor)
 			.row(row)
@@ -1032,7 +1174,7 @@ class MonitorCollectVisitorTest {
 			.collectTime(collectTime)
 			.connectorName(MY_CONNECTOR_NAME)
 			.hostMonitoring(hostMonitoring)
-			.hostname(TARGET_ID)
+			.hostname(HOST_ID)
 			.mapping(mapping)
 			.monitor(monitor)
 			.row(row)
@@ -3007,8 +3149,8 @@ class MonitorCollectVisitorTest {
 					.name("lun")
 					.id(DEVICE_ID)
 					.name(DEVICE_ID)
-					.parentId(TARGET_ID)
-					.targetId(TARGET_ID)
+					.parentId(HOST_ID)
+					.hostId(HOST_ID)
 					.monitorType(MonitorType.LUN)
 					.build();
 
@@ -3046,8 +3188,8 @@ class MonitorCollectVisitorTest {
 					.name("lun")
 					.id(DEVICE_ID)
 					.name(DEVICE_ID)
-					.parentId(TARGET_ID)
-					.targetId(TARGET_ID)
+					.parentId(HOST_ID)
+					.hostId(HOST_ID)
 					.monitorType(MonitorType.LUN)
 					.build();
 
@@ -3072,8 +3214,8 @@ class MonitorCollectVisitorTest {
 					.name("lun")
 					.id(DEVICE_ID)
 					.name(DEVICE_ID)
-					.parentId(TARGET_ID)
-					.targetId(TARGET_ID)
+					.parentId(HOST_ID)
+					.hostId(HOST_ID)
 					.monitorType(MonitorType.LUN)
 					.build();
 

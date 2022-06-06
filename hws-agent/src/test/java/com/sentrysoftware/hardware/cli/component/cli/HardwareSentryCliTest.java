@@ -21,9 +21,9 @@ import com.sentrysoftware.hardware.cli.component.cli.protocols.HttpConfigCli;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.SnmpConfigCli;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WbemConfigCli;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WmiConfigCli;
+import com.sentrysoftware.matrix.engine.host.HostType;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
 import com.sentrysoftware.matrix.engine.protocol.TransportProtocols;
-import com.sentrysoftware.matrix.engine.target.TargetType;
 
 import picocli.CommandLine;
 import picocli.CommandLine.MissingParameterException;
@@ -79,7 +79,7 @@ class HardwareSentryCliTest {
 		new CommandLine(sentryCli).parseArgs(args_hdfs);
 
 		assertEquals("hostaa", sentryCli.getHostname()) ;
-		assertEquals(TargetType.HP_UX, sentryCli.getDeviceType());
+		assertEquals(HostType.HP_UX, sentryCli.getDeviceType());
 		assertEquals(SnmpProtocol.SnmpVersion.V2C, sentryCli.getSnmpConfigCli().getSnmpVersion());
 		assertEquals(200, sentryCli.getSnmpConfigCli().getPort());
 		assertEquals("private", sentryCli.getSnmpConfigCli().getCommunity());
@@ -99,7 +99,7 @@ class HardwareSentryCliTest {
 		sentryCli = new HardwareSentryCli();
 		new CommandLine(sentryCli).parseArgs(args_exclud_hdfs);
 		assertEquals("hosta", sentryCli.getHostname()) ;
-		assertEquals(TargetType.HP_UX, sentryCli.getDeviceType());
+		assertEquals(HostType.HP_UX, sentryCli.getDeviceType());
 		assertEquals(SnmpProtocol.SnmpVersion.V2C, sentryCli.getSnmpConfigCli().getSnmpVersion());
 		assertEquals(200, sentryCli.getSnmpConfigCli().getPort());
 		assertEquals("private", sentryCli.getSnmpConfigCli().getCommunity());
@@ -115,7 +115,7 @@ class HardwareSentryCliTest {
 		sentryCli = new HardwareSentryCli();
 		new CommandLine(sentryCli).parseArgs(args_default_snmp);
 		assertEquals("hostaa", sentryCli.getHostname()) ;
-		assertEquals(TargetType.HP_UX, sentryCli.getDeviceType());
+		assertEquals(HostType.HP_UX, sentryCli.getDeviceType());
 		assertEquals(SnmpProtocol.SnmpVersion.V1, sentryCli.getSnmpConfigCli().getSnmpVersion());
 		assertEquals(161, sentryCli.getSnmpConfigCli().getPort());
 		assertEquals("public", sentryCli.getSnmpConfigCli().getCommunity());
@@ -148,7 +148,7 @@ class HardwareSentryCliTest {
 		new CommandLine(sentryCli).parseArgs(args_hdfs);
 
 		assertEquals("hostaa", sentryCli.getHostname());
-		assertEquals(TargetType.HP_UX, sentryCli.getDeviceType());
+		assertEquals(HostType.HP_UX, sentryCli.getDeviceType());
 		assertEquals(TransportProtocols.HTTP, sentryCli.getWbemConfigCli().getProtocol());
 		assertEquals(5989, sentryCli.getWbemConfigCli().getPort());
 		assertEquals("root/emc", sentryCli.getWbemConfigCli().getNamespace());
@@ -170,7 +170,7 @@ class HardwareSentryCliTest {
 		new CommandLine(sentryCli).parseArgs(args_hdfs2);
 
 		assertEquals("dev-hv-01", sentryCli.getHostname());
-		assertEquals(TargetType.MS_WINDOWS, sentryCli.getDeviceType());
+		assertEquals(HostType.MS_WINDOWS, sentryCli.getDeviceType());
 		assertEquals(TransportProtocols.HTTPS, sentryCli.getWbemConfigCli().getProtocol());
 		assertEquals(5989, sentryCli.getWbemConfigCli().getPort());
 		assertEquals("root/emc", sentryCli.getWbemConfigCli().getNamespace());
@@ -192,20 +192,20 @@ class HardwareSentryCliTest {
 		final String TIMEOUT = "60";
 
 		// No HTTP credentials
-		String[] arguments = {HOST, DEVICE_TYPE_OPTION, TargetType.LINUX.toString()};
+		String[] arguments = {HOST, DEVICE_TYPE_OPTION, HostType.LINUX.toString()};
 		HardwareSentryCli hardwareSentryCli = new HardwareSentryCli();
 		CommandLine commandLine = new CommandLine(hardwareSentryCli);
 		commandLine.parseArgs(arguments);
 		assertEquals(HOST, hardwareSentryCli.getHostname());
-		assertEquals(TargetType.LINUX, hardwareSentryCli.getDeviceType());
+		assertEquals(HostType.LINUX, hardwareSentryCli.getDeviceType());
 		assertNull(hardwareSentryCli.getHttpConfigCli());
 
 		// Default values
-		arguments = new String[]{HOST, DEVICE_TYPE_OPTION, TargetType.LINUX.toString(),
+		arguments = new String[]{HOST, DEVICE_TYPE_OPTION, HostType.LINUX.toString(),
 			HTTP_USERNAME_OPTION, USER, HTTP_PASSWORD_OPTION, PASS};
 		commandLine.parseArgs(arguments);
 		assertEquals(HOST, hardwareSentryCli.getHostname());
-		assertEquals(TargetType.LINUX, hardwareSentryCli.getDeviceType());
+		assertEquals(HostType.LINUX, hardwareSentryCli.getDeviceType());
 		HttpConfigCli httpConfigCli = hardwareSentryCli.getHttpConfigCli();
 		assertNotNull(httpConfigCli);
 		assertNull(httpConfigCli.getHttpOrHttps());
@@ -215,12 +215,12 @@ class HardwareSentryCliTest {
 		assertEquals(PASS, new String(httpConfigCli.getPassword()));
 
 		// Explicit values
-		arguments = new String[]{HOST, DEVICE_TYPE_OPTION, TargetType.LINUX.toString(),
+		arguments = new String[]{HOST, DEVICE_TYPE_OPTION, HostType.LINUX.toString(),
 			HTTP_USERNAME_OPTION, USER, HTTP_PASSWORD_OPTION, PASS, HTTP_OPTION,
 			HTTP_PORT_OPTION, PORT, HTTP_TIMEOUT_OPTION, TIMEOUT};
 		commandLine.parseArgs(arguments);
 		assertEquals(HOST, hardwareSentryCli.getHostname());
-		assertEquals(TargetType.LINUX, hardwareSentryCli.getDeviceType());
+		assertEquals(HostType.LINUX, hardwareSentryCli.getDeviceType());
 		httpConfigCli = hardwareSentryCli.getHttpConfigCli();
 		assertNotNull(httpConfigCli);
 		assertTrue(httpConfigCli.getHttpOrHttps().isHttp());
@@ -243,7 +243,7 @@ class HardwareSentryCliTest {
 			new CommandLine(sentryCli).parseArgs(args_hdfs);
 
 			assertEquals("hostaa", sentryCli.getHostname());
-			assertEquals(TargetType.MS_WINDOWS, sentryCli.getDeviceType());
+			assertEquals(HostType.MS_WINDOWS, sentryCli.getDeviceType());
 			assertEquals("root\\ibmsd", sentryCli.getWmiConfigCli().getNamespace());
 			assertEquals(WmiConfigCli.DEFAULT_TIMEOUT, sentryCli.getWmiConfigCli().getTimeout());
 			assertEquals("admin", sentryCli.getWmiConfigCli().getUsername());
@@ -261,7 +261,7 @@ class HardwareSentryCliTest {
 			new CommandLine(sentryCli).parseArgs(args_hdfs);
 
 			assertEquals("localhost", sentryCli.getHostname());
-			assertEquals(TargetType.MS_WINDOWS, sentryCli.getDeviceType());
+			assertEquals(HostType.MS_WINDOWS, sentryCli.getDeviceType());
 			assertNotNull(sentryCli.getWmiConfigCli());
 		}
 
@@ -283,7 +283,7 @@ class HardwareSentryCliTest {
 			new CommandLine(sentryCli).parseArgs(args_hdfs);
 
 			assertEquals("hostaa", sentryCli.getHostname());
-			assertEquals(TargetType.MS_WINDOWS, sentryCli.getDeviceType());
+			assertEquals(HostType.MS_WINDOWS, sentryCli.getDeviceType());
 			assertEquals("root\\cimv2", sentryCli.getWinRmConfigCli().getNamespace());
 			assertEquals("admin", sentryCli.getWinRmConfigCli().getUsername());
 			assertArrayEquals("password".toCharArray(), sentryCli.getWinRmConfigCli().getPassword());

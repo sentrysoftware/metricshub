@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sentrysoftware.hardware.agent.dto.TargetContext;
+import com.sentrysoftware.hardware.agent.dto.HostContext;
 import com.sentrysoftware.hardware.agent.exception.BusinessException;
 import com.sentrysoftware.hardware.agent.service.prometheus.PrometheusService;
 
@@ -39,25 +39,25 @@ public class PrometheusController {
 		return prometheusService.collectMetrics();
 	}
 
-	@GetMapping("metrics/{targetId}")
+	@GetMapping("metrics/{hostId}")
 	@Operation(
-			summary = "Get hardware metrics for a specific target in Prometheus format version 0.0.4.",
-			description = "Get all the hardware metrics collected for a specific target by Hardware Sentry Prometheus exporter."
+			summary = "Get hardware metrics for a specific host in Prometheus format version 0.0.4.",
+			description = "Get all the hardware metrics collected for a specific host by Hardware Sentry Prometheus exporter."
 	)
 	public String metrics(
-					@PathVariable("targetId")
-					@Parameter(description = "The target identifier", example = "ecs1-01")
-					String targetId) throws BusinessException {
+					@PathVariable("hostId")
+					@Parameter(description = "The host identifier", example = "ecs1-01")
+					String hostId) throws BusinessException {
 
 		try {
 
-			TargetContext.setTargetId(targetId);
+			HostContext.setHostId(hostId);
 
 			return prometheusService.collectMetrics();
 
 		} finally {
 
-			TargetContext.clear();
+			HostContext.clear();
 		}
 	}
 }

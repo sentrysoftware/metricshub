@@ -23,8 +23,8 @@
         hw.site.electricity_cost_dollars: 0.02
         hw.site.pue_ratio: 1.8
 
-      targets:
-        - target:
+      hosts:
+        - host:
             hostname: 10.0.24.61
             type: oob
           snmp:
@@ -34,7 +34,7 @@
             timeout: 120
           selectedConnectors: [LenovoIMM]
 
-        - target:
+        - host:
             hostname: ecs1-01
             type: linux
           snmp:
@@ -113,7 +113,7 @@
  ```yaml
       ---
       loggerLevel: debug
-      targets:
+      hosts:
   ```
 
   By default, the debug output files go to the `../logs` directory.
@@ -124,7 +124,7 @@
       ---
       loggerLevel: debug
       outputDirectory: C:\\Users\\nassim\\AppData\\Local\\Temp\\hardware-logs2
-      targets:
+      hosts:
   ```
 
   ## Build Docker Image

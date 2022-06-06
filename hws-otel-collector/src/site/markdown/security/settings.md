@@ -41,7 +41,7 @@ You can use your own certificate to secure the communications between the **Hard
       otlp:
         trustedCertificatesFile: security/my-otel.crt # Your new OTLP gRPC Receiver certificate.
 
-    targets: # ...
+    hosts: # ...
     ```
 
 5. Restart **${project.name}**. See [Installation](../install.md) for more details.
@@ -229,7 +229,7 @@ When you disable TLS on **${project.name}**, the communications between the **Ha
       otlp:
         # trustedCertificatesFile: security/otel.crt
 
-    targets: # ...
+    hosts: # ...
     ```
 
 4. Restart **${project.name}**. See [Installation](../install.md) for more details.
@@ -275,7 +275,7 @@ If you disable the authentication on **${project.name}**, incoming requests will
         headers:
           # Authorization: Basic bXlVc2VybmFtZTpteVBhc3N3b3Jk # Basic <base64-credentials>
 
-    targets: # ...
+    hosts: # ...
     ```
 
 4. Restart **${project.name}**. See [Installation](../install.md) for more details.

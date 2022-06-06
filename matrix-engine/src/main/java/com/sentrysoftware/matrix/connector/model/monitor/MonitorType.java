@@ -20,7 +20,7 @@ import com.sentrysoftware.matrix.common.meta.monitor.PhysicalDisk;
 import com.sentrysoftware.matrix.common.meta.monitor.PowerSupply;
 import com.sentrysoftware.matrix.common.meta.monitor.Robotics;
 import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
-import com.sentrysoftware.matrix.common.meta.monitor.Target;
+import com.sentrysoftware.matrix.common.meta.monitor.Host;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
 import com.sentrysoftware.matrix.common.meta.monitor.Vm;
 import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
@@ -38,7 +38,7 @@ import java.util.Optional;
 public enum MonitorType {
 
 	CONNECTOR("Connector", "Connector", "Connectors", new MetaConnector(), "connector"),
-	TARGET("Target", "Target", "Targets", new Target(), "target"),
+	HOST("Host", "Host", "Hosts", new Host(), "host"),
 	BATTERY("Battery", "Battery", "Batteries", new Battery(), "battery"),
 	BLADE("Blade", "Blade", "Blades", new Blade(), "blade"),
 	CPU("CPU", "CPU", "CPUs", new Cpu(), "cpu"),

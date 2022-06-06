@@ -23,7 +23,7 @@ import org.springframework.util.Assert;
 import com.sentrysoftware.hardware.agent.dto.MetricInfo;
 import com.sentrysoftware.hardware.agent.dto.MetricInfo.MetricType;
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
-import com.sentrysoftware.hardware.agent.dto.TargetContext;
+import com.sentrysoftware.hardware.agent.dto.HostContext;
 import com.sentrysoftware.hardware.agent.service.ServiceHelper;
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
@@ -160,7 +160,7 @@ public class HostMonitoringCollectorService extends Collector {
 		// Loop over all the monitors and create metrics (Prometheus samples)
 		hostMonitoringMap.entrySet()
 			.stream()
-			.filter(entry -> TargetContext.getTargetId() == null || entry.getKey().equals(TargetContext.getTargetId()))
+			.filter(entry -> HostContext.getHostId() == null || entry.getKey().equals(HostContext.getHostId()))
 			.map(Entry::getValue)
 			.forEach(hostMonitoring -> hostMonitoring
 				.getMonitors()
@@ -180,7 +180,7 @@ public class HostMonitoringCollectorService extends Collector {
 	void processSameTypeMonitors(final MonitorType monitorType, final Map<String, Monitor> monitors, final List<MetricFamilySamples> mfs) {
 
 		if (monitors == null || monitors.isEmpty()) {
-			log.info("No monitor found for type {}", monitorType);
+			log.info("No monitor of type {} found.", monitorType);
 			return;
 		}
 
@@ -212,13 +212,13 @@ public class HostMonitoringCollectorService extends Collector {
 
 		final String metricName = PrometheusSpecificities.getInfoMetricName(monitorType);
 		if (metricName == null || metricName.isBlank()) {
-			log.warn("The metric name is not defined for monitor type {}. Received: {}", monitorType, metricName);
+			log.warn("The metric name is not defined for monitor type {}. Received: {}.", monitorType, metricName);
 			return;
 		}
 
 		final List<String> staticLabels = PrometheusSpecificities.getLabels(monitorType);
 		Assert.state(staticLabels != null && !staticLabels.isEmpty(),
-				() -> "The labels are not defined for the monitor type: " + monitorType.getDisplayName());
+				() -> "The labels are not defined for the monitor type: " + monitorType.getDisplayName() + ".");
 
 		// Concatenate extra labels. Sonar doesn't know that the previous 
 		// Assert.state throws the IllegalArgumentException if staticLabels is null, so never null here.

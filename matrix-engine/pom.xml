@@ -250,9 +250,9 @@
 						<exclude>com/sentrysoftware/matrix/model/monitor/*AssertedParameter*</exclude>
 						<exclude>com/sentrysoftware/matrix/model/parameter/*Param*</exclude>
 						<exclude>com/sentrysoftware/matrix/model/alert/**</exclude>
-						<exclude>com/sentrysoftware/matrix/engine/target/HardwareTarget.*</exclude>
-						<exclude>com/sentrysoftware/matrix/engine/target/*HardwareTargetBuilder.*</exclude>
-						<exclude>com/sentrysoftware/matrix/engine/target/TargetType.*</exclude>
+						<exclude>com/sentrysoftware/matrix/engine/host/HardwareHost.*</exclude>
+						<exclude>com/sentrysoftware/matrix/engine/host/*HardwareHostBuilder.*</exclude>
+						<exclude>com/sentrysoftware/matrix/engine/host/HostType.*</exclude>
 						<exclude>com/sentrysoftware/matrix/engine/protocol/**</exclude>
 						<exclude>com/sentrysoftware/matrix/engine/strategy/detection/TestedConnector.*</exclude>
 						<exclude>com/sentrysoftware/matrix/engine/strategy/detection/*TestedConnectorBuilder.*</exclude>

@@ -86,12 +86,12 @@ public abstract class AbstractStrategy implements IStrategy {
 	/**
 	 * Execute each source in the given list of sources then for each source table apply all the attached computes.
 	 * When the {@link SourceTable} is ready it is added to {@link HostMonitoring}
-	 * 
+	 *
 	 * @param sources        The {@link List} of {@link Source} instances we wish to execute
 	 * @param hostMonitoring The {@link SourceTable} and {@link Monitor} container (Namespace)
 	 * @param connector      The connector we currently process
 	 * @param monitorType    The type of the monitor {@link MonitorType} only used for logging
-	 * @param hostname       The hostname of the target only used for logging
+	 * @param hostname       The host's name only used for logging
 	 */
 	public void processSourcesAndComputes(final List<Source> sources, final IHostMonitoring hostMonitoring,
 			final Connector connector, final MonitorType monitorType,
@@ -103,12 +103,12 @@ public abstract class AbstractStrategy implements IStrategy {
 	/**
 	 * Execute each source in the given list of sources then for each source table apply all the attached computes.
 	 * When the {@link SourceTable} is ready it is added to {@link HostMonitoring}
-	 * 
+	 *
 	 * @param sources        The {@link List} of {@link Source} instances we wish to execute
 	 * @param hostMonitoring The {@link SourceTable} and {@link Monitor} container (Namespace)
 	 * @param connector      The connector we currently process
 	 * @param monitorType    The type of the monitor {@link MonitorType} only used for logging
-	 * @param hostname       The hostname of the target only used for logging
+	 * @param hostname       The host's name only used for logging
 	 * @param monitor        The monitor used in the mono instance processing
 	 */
 	public void processSourcesAndComputes(final List<Source> sources, final IHostMonitoring hostMonitoring,
@@ -116,7 +116,7 @@ public abstract class AbstractStrategy implements IStrategy {
 			final String hostname, final Monitor monitor) {
 
 		if (sources == null || sources.isEmpty()) {
-			log.debug("Hostname {} - No source found from connector {} with monitor {}", hostname, connector.getCompiledFilename(), monitorType);
+			log.debug("Hostname {} - No sources found from connector {} with monitor {}.", hostname, connector.getCompiledFilename(), monitorType);
 			return;
 		}
 
@@ -131,7 +131,7 @@ public abstract class AbstractStrategy implements IStrategy {
 			final ISourceVisitor sourceVisitor = new SourceVisitor(strategyConfig, matsyaClientsExecutor, connector);
 			final SourceTable sourceTable;
 
-			final Supplier<SourceTable> executable = () -> 
+			final Supplier<SourceTable> executable = () ->
 				source.accept(new SourceUpdaterVisitor(sourceVisitor, connector, monitor, strategyConfig));
 
 			if (source.isForceSerialization()) {
@@ -141,7 +141,7 @@ public abstract class AbstractStrategy implements IStrategy {
 			}
 
 			if (sourceTable == null) {
-				log.warn("Hostname {} - Received null source table for source key {}. Connector {}. Monitor {}",
+				log.warn("Hostname {} - Received null source table for Source key {} - Connector {} - Monitor {}.",
 						hostname,
 						sourceKey,
 						connector.getCompiledFilename(),
@@ -158,7 +158,7 @@ public abstract class AbstractStrategy implements IStrategy {
 			if (computes != null) {
 
 				final ComputeVisitor computeVisitor = new ComputeVisitor(sourceKey, sourceTable, connector,
-						strategyConfig.getEngineConfiguration().getTarget().getHostname(), matsyaClientsExecutor);
+						strategyConfig.getEngineConfiguration().getHost().getHostname(), matsyaClientsExecutor);
 
 				final ComputeUpdaterVisitor computeUpdaterVisitor = new ComputeUpdaterVisitor(computeVisitor, monitor);
 
@@ -190,9 +190,9 @@ public abstract class AbstractStrategy implements IStrategy {
 
 	/**
 	 * Log a begin entry for the given source
-	 * 
+	 *
 	 * @param <T>
-	 * 
+	 *
 	 * @param operationTag  the tag of the operation. E.g. source or compute
 	 * @param execution     the source or the compute we want to log
 	 * @param executionKey  the source or the compute unique key
@@ -206,7 +206,7 @@ public abstract class AbstractStrategy implements IStrategy {
 			return;
 		}
 
-		log.info("Hostname {} - Begin {} [{} {}] for hardware connector [{}]:\n{}\n", 
+		log.info("Hostname {} - Begin {} [{} {}] for hardware connector [{}]:\n{}\n",
 				hostname,
 				operationTag,
 				execution.getClass().getSimpleName(),
@@ -217,9 +217,9 @@ public abstract class AbstractStrategy implements IStrategy {
 
 	/**
 	 * Log the {@link SourceTable} result.
-	 * 
+	 *
 	 * @param <T>
-	 * 
+	 *
 	 * @param operationTag   the tag of the operation. E.g. source or compute
 	 * @param executionClassName the source or the compute class name we want to log
 	 * @param executionKey   the key of the source or the compute we want to log
@@ -271,7 +271,7 @@ public abstract class AbstractStrategy implements IStrategy {
 	/**
 	 * Return <code>true</code> if the {@link List} of the {@link HardwareMonitor} instances is not null and not empty in the given
 	 * {@link Connector}
-	 * 
+	 *
 	 * @param connector The connector we wish to check
 	 * @param hostname  The system hostname used for debug purpose
 	 * @return boolean value
@@ -281,14 +281,14 @@ public abstract class AbstractStrategy implements IStrategy {
 			log.warn(logMessageTemplate, hostname, connector.getCompiledFilename());
 			return false;
 		}
-	
+
 		return true;
 	}
 
 	/**
 	 * Run the given {@link Connector}'s detection criteria
 	 * and return true if all the criteria are successfully executed.
-	 * 
+	 *
 	 * @param connector	The {@link Connector} that should be tested.
 	 * @param hostname	The hostname against which the {@link Connector} should be tested.
 	 *
@@ -332,7 +332,7 @@ public abstract class AbstractStrategy implements IStrategy {
 	/**
 	 * Accept the criterion visitor which implement the logic that needs to be
 	 * executed for each criterion implementation
-	 * 
+	 *
 	 * @param criterion The criterion we wish to process
 	 * @param connector The {@link Connector} defining the criterion
 	 * @return <code>true</code> if the criterion execution succeeded
@@ -363,10 +363,10 @@ public abstract class AbstractStrategy implements IStrategy {
 	 * to acquire the connector namespace <em>lock</em> before running the
 	 * executable, if the lock cannot be acquired or there is an exception or an
 	 * interruption then the defaultValue is returned
-	 * 
+	 *
 	 * @param <T>          for example {@link CriterionTestResult} or a
 	 *                     {@link SourceTable}
-	 * 
+	 *
 	 * @param executable   the supplier executable function, e.g. visiting a criterion or a
 	 *                     source
 	 * @param connector    the connector the criterion belongs to
@@ -379,7 +379,7 @@ public abstract class AbstractStrategy implements IStrategy {
 			final Object objToProcess, @NonNull final String description, @NonNull final T defaultValue) {
 
 		final ReentrantLock forceSerializationLock = getForceSerializationLock(connector);
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 
 		final boolean isLockAcquired;
 		try {
@@ -387,7 +387,7 @@ public abstract class AbstractStrategy implements IStrategy {
 			isLockAcquired = forceSerializationLock.tryLock(DEFAULT_LOCK_TIMEOUT, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			log.error("Hostname {} - Interrupted exception detected when trying to acquire the force serialization lock to process {} {}. Connector: {}.",
-					hostname, 
+					hostname,
 					description,
 					objToProcess,
 					connector.getCompiledFilename());
@@ -420,7 +420,7 @@ public abstract class AbstractStrategy implements IStrategy {
 
 	/**
 	 * Get the Connector Namespace force serialization lock
-	 *   
+	 *
 	 * @param connector the connector we currently process its criteria/sources/computes/
 	 * @return {@link ReentrantLock} instance. never null.
 	 */
@@ -432,7 +432,7 @@ public abstract class AbstractStrategy implements IStrategy {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param testedConnector The {@link TestedConnector} instance we wish to check it is succeeded or not
 	 * @return SUCCEEDED if the TestedConnector instance shows success = <code>true</code> otherwise FAILED
 	 */
@@ -467,7 +467,7 @@ public abstract class AbstractStrategy implements IStrategy {
 				.builder()
 				.collectTime(strategyTime)
 				.name(STATUS_INFORMATION_PARAMETER)
-				.value(success ? "Connector test succeeded" : "Connector test failed")
+				.value(success ? "Connector test succeeded." : "Connector test failed.")
 				.build();
 
 		return statusAndStatusInformation;
@@ -476,12 +476,12 @@ public abstract class AbstractStrategy implements IStrategy {
 	/**
 	 * Build test report parameter for the given {@link TestedConnector}.
 	 *
-	 * @param targetName		The name of the target against which the test has been performed.
+	 * @param hostName		    The name of the host against which the test has been performed.
 	 * @param testedConnector	The {@link TestedConnector} whose test report parameter should be created.
 	 *
 	 * @return					A {@link TextParam} instance built from the given {@link TestedConnector}.
 	 */
-	protected TextParam buildTestReportParameter(final String targetName, final TestedConnector testedConnector) {
+	protected TextParam buildTestReportParameter(final String hostName, final TestedConnector testedConnector) {
 		final TextParam testReport = TextParam
 				.builder()
 				.collectTime(strategyTime)
@@ -501,7 +501,7 @@ public abstract class AbstractStrategy implements IStrategy {
 		value.append(builtTestResult)
 				.append("\nConclusion: ")
 				.append("TEST on ")
-				.append(targetName)
+				.append(hostName)
 				.append(WHITE_SPACE)
 				.append(getTestedConnectorStatus(testedConnector));
 
@@ -513,19 +513,19 @@ public abstract class AbstractStrategy implements IStrategy {
 	/**
 	 * @param hostMonitoring The {@link IHostMonitoring} instance.
 	 *
-	 * @return	The target {@link Monitor} in the given {@link IHostMonitoring} instance.
+	 * @return	The host {@link Monitor} in the given {@link IHostMonitoring} instance.
 	 */
-	protected Monitor getTargetMonitor(IHostMonitoring hostMonitoring) {
+	protected Monitor getHostMonitor(IHostMonitoring hostMonitoring) {
 
-		Monitor target = hostMonitoring.getTargetMonitor();
-		state(target != null, "target monitor should not be null.");
+		Monitor host = hostMonitoring.getHostMonitor();
+		state(host != null, "Host monitor should not be null.");
 
-		return target;
+		return host;
 	}
 
 	/**
 	 * Get the temperature threshold value from the given metadata map
-	 * 
+	 *
 	 * @param metadata The {@link Monitor}'s metadata.
 	 * @return Double value
 	 */

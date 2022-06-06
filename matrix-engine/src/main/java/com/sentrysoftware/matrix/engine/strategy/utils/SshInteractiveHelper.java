@@ -50,14 +50,14 @@ public class SshInteractiveHelper {
 
 		final SshProtocol sshProtocol =
 				(SshProtocol) engineConfiguration.getProtocolConfigurations().get(SshProtocol.class);
-		state(sshProtocol != null, "Can't find SSHProtocol in ProtocolConfigurations.");
+		state(sshProtocol != null, "Cannot find SSHProtocol in ProtocolConfigurations.");
 
 		final String username = sshProtocol.getUsername();
 		if (username == null || username.isBlank()) {
 			throw new NoCredentialProvidedException();
 		}
 
-		final String hostname = engineConfiguration.getTarget().getHostname();
+		final String hostname = engineConfiguration.getHost().getHostname();
 
 		final int timeout = sshProtocol.getTimeout() != null ?
 				sshProtocol.getTimeout().intValue() :

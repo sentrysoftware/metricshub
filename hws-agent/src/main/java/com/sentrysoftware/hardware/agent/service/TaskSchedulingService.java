@@ -61,7 +61,7 @@ public class TaskSchedulingService {
 	private Map<String, IHostMonitoring> hostMonitoringMap;
 
 	@Autowired
-	private Map<String, ScheduledFuture<?>> targetSchedules;
+	private Map<String, ScheduledFuture<?>> hostSchedules;
 
 	@Autowired
 	private Map<String, String> agentInfo;
@@ -77,10 +77,10 @@ public class TaskSchedulingService {
 		// Schedule self observer
 		scheduleAgentSelfObserver();
 
-		// Loop over each target and get its id then schedule the host monitoring strategy task
+		// Loop over each host and get its id then schedule the host monitoring strategy task
 		multiHostsConfigurationDto
-			.getTargets()
-			.forEach(this::scheduleTargetTask);
+			.getHosts()
+			.forEach(this::scheduleHostTask);
 
 		FileWatcherTask.builder()
 			.file(configFile)
@@ -146,12 +146,12 @@ public class TaskSchedulingService {
 	/**
 	 * Update the configuration:
 	 * <ol>
-	 * <li>Remove the obsolete targets</li>
-	 * <li>Cancel the scheduling of the obsolete targets</li>
-	 * <li>Schedule the new targets</li>
+	 * <li>Remove the obsolete hosts</li>
+	 * <li>Cancel the scheduling of the obsolete hosts</li>
+	 * <li>Schedule the new hosts</li>
 	 * </ol>
 	 *
-	 * @param configFile the target configuration file (YAML file: hws-config.yaml)
+	 * @param configFile the host configuration file (YAML file: hws-config.yaml)
 	 */
 	synchronized void updateConfiguration(final File configFile) {
 
@@ -184,33 +184,33 @@ public class TaskSchedulingService {
 			return;
 		}
 
-		// Do we have new targets?
-		final Set<HostConfigurationDto> newTargets = newMultiHostsConfigurationDto
-				.getTargets()
+		// Do we have new hosts?
+		final Set<HostConfigurationDto> newHosts = newMultiHostsConfigurationDto
+				.getHosts()
 				.stream()
-				.filter(target -> multiHostsConfigurationDto
-						.getTargets()
+				.filter(host -> multiHostsConfigurationDto
+						.getHosts()
 						.stream()
-						.noneMatch(target::equals))
+						.noneMatch(host::equals))
 				.collect(Collectors.toSet());
 
-		// Any target to remove?
-		final Set<HostConfigurationDto> targetsToRemove = multiHostsConfigurationDto
-				.getTargets()
+		// Any host to remove?
+		final Set<HostConfigurationDto> hostsToRemove = multiHostsConfigurationDto
+				.getHosts()
 				.stream()
 				.filter(existing -> newMultiHostsConfigurationDto
-						.getTargets()
+						.getHosts()
 						.stream()
 						.noneMatch(existing::equals))
 				.collect(Collectors.toSet());
 
-		// Clean the scheduling, host monitoring and the internal configuration for the targets that need to be removed
-		rescheduleNewTargets(newMultiHostsConfigurationDto, newTargets, targetsToRemove);
+		// Clean the scheduling, host monitoring and the internal configuration for the hosts that need to be removed
+		rescheduleNewHosts(newMultiHostsConfigurationDto, newHosts, hostsToRemove);
 	}
 
 	/**
-	 * Restart all the targets scheduling
-	 * 
+	 * Restart all the hosts scheduling
+	 *
 	 * @param newOtelSdkConfiguration       The new SDK configuration
 	 * @param newMultiHostsConfigurationDto The new configuration
 	 */
@@ -219,51 +219,51 @@ public class TaskSchedulingService {
 		// Update the SDK configuration
 		otelSdkConfiguration.putAll(newOtelSdkConfiguration);
 
-		// All the targets are considered as new
-		final Set<HostConfigurationDto> newTargets = newMultiHostsConfigurationDto.getTargets();
+		// All the hosts are considered as new
+		final Set<HostConfigurationDto> newHosts = newMultiHostsConfigurationDto.getHosts();
 
-		// All the existing targets are considered as old
-		final Set<HostConfigurationDto> targetsToRemove = multiHostsConfigurationDto.getTargets();
+		// All the existing hosts are considered as old
+		final Set<HostConfigurationDto> hostsToRemove = multiHostsConfigurationDto.getHosts();
 
-		// Now reschedule the new targets
-		rescheduleNewTargets(newMultiHostsConfigurationDto, newTargets, targetsToRemove);
+		// Now reschedule the new hosts
+		rescheduleNewHosts(newMultiHostsConfigurationDto, newHosts, hostsToRemove);
 	}
 
 	/**
-	 * Reschedule the given new targets
-	 * 
+	 * Reschedule the given new hosts
+	 *
 	 * @param newMultiHostsConfigurationDto The new configuration
-	 * @param newTargets                    The new configured targets
-	 * @param targetsToRemove               The targets to remove from the scheduler
+	 * @param newHosts                      The new configured hosts
+	 * @param hostsToRemove                 The hosts to remove from the scheduler
 	 */
-	private void rescheduleNewTargets(final MultiHostsConfigurationDto newMultiHostsConfigurationDto,
-			final Set<HostConfigurationDto> newTargets, final Set<HostConfigurationDto> targetsToRemove) {
+	private void rescheduleNewHosts(final MultiHostsConfigurationDto newMultiHostsConfigurationDto,
+			final Set<HostConfigurationDto> newHosts, final Set<HostConfigurationDto> hostsToRemove) {
 
-		targetsToRemove
+		hostsToRemove
 			.stream()
-			.map(target -> target.getTarget().getId())
-			.forEach(targetId -> {
+			.map(host -> host.getHost().getId())
+			.forEach(hostId -> {
 				// Remove the scheduled task
-				removeScheduledTask(targetId);
+				removeScheduledTask(hostId);
 
 				// Remove the host monitoring
-				hostMonitoringMap.remove(targetId);
+				hostMonitoringMap.remove(hostId);
 			});
 
-		// First create new HostMonitoring instances for the new targets
-		newTargets.forEach(newTarget ->
+		// First create new HostMonitoring instances for the new hosts
+		newHosts.forEach(newHost ->
 			ConfigHelper.fillHostMonitoringMap(
 					hostMonitoringMap,
 					ConnectorStore.getInstance().getConnectors().keySet(),
-					newTarget
+					newHost
 			)
 		);
 
-		// Remove targets from the DTO
-		multiHostsConfigurationDto.getTargets().removeAll(targetsToRemove);
+		// Remove hosts from the DTO
+		multiHostsConfigurationDto.getHosts().removeAll(hostsToRemove);
 
 		// Then update the existing multi-hosts configuration DTO for the next schedules
-		multiHostsConfigurationDto.getTargets().addAll(newTargets);
+		multiHostsConfigurationDto.getHosts().addAll(newHosts);
 
 		// Update the Scheduler job pool size
 		// Just before the last step so that we are sure we are not going to schedule canceled tasks
@@ -274,8 +274,8 @@ public class TaskSchedulingService {
 			taskScheduler.setPoolSize(multiHostsConfigurationDto.getJobPoolSize());
 		}
 
-		// Finally schedule tasks for the new added or updated targets
-		newTargets.forEach(this::scheduleTargetTask);
+		// Finally schedule tasks for the new added or updated hosts
+		newHosts.forEach(this::scheduleHostTask);
 	}
 
 	/**
@@ -283,13 +283,13 @@ public class TaskSchedulingService {
 	 *
 	 * @param hostConfigDto The user's host configuration
 	 */
-	void scheduleTargetTask(final HostConfigurationDto hostConfigDto) {
-		final String targetId = hostConfigDto.getTarget().getId();
-		final IHostMonitoring hostMonitoring = hostMonitoringMap.get(targetId);
+	void scheduleHostTask(final HostConfigurationDto hostConfigDto) {
+		final String hostId = hostConfigDto.getHost().getId();
+		final IHostMonitoring hostMonitoring = hostMonitoringMap.get(hostId);
 
 		// No host monitoring no schedule
 		if (hostMonitoring == null) {
-			log.warn("There is no HostMonitoring for the target id: {}. Skip task schedule.", targetId);
+			log.warn("The host {} has been removed from the configuration. Nothing to monitor and no tasks to schedule.", hostId);
 			return;
 		}
 
@@ -314,21 +314,21 @@ public class TaskSchedulingService {
 		final ScheduledFuture<?> scheduledFuture = taskScheduler.schedule(strategyTask, trigger);
 
 		// Don't forget to store the scheduled task in case we want to cancel it due to a configuration change
-		targetSchedules.put(targetId, scheduledFuture);
+		hostSchedules.put(hostId, scheduledFuture);
 
-		log.info("Scheduled Job for target id {}", targetId);
+		log.info("Scheduled job for host id {}", hostId);
 	}
 
 	/**
 	 * Remove a specific scheduled task
 	 *
-	 * @param targetId unique identifier of the target
+	 * @param hostId unique identifier of the host
 	 */
-	void removeScheduledTask(String targetId) {
-		final ScheduledFuture<?> scheduledFuture = targetSchedules.get(targetId);
+	void removeScheduledTask(String hostId) {
+		final ScheduledFuture<?> scheduledFuture = hostSchedules.get(hostId);
 		if (scheduledFuture != null) {
 			scheduledFuture.cancel(true);
-			targetSchedules.remove(targetId);
+			hostSchedules.remove(hostId);
 		}
 	}
 

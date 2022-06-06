@@ -88,13 +88,13 @@ class JobResultFormatterServiceTest {
 		device1.setId("id3");
 		device1.setName("MS_HW_DellOpenManage_Device");
 		device1.setParentId("id1");
-		device1.setMonitorType(MonitorType.TARGET);
+		device1.setMonitorType(MonitorType.HOST);
 
 		device1.setParameters(parameters);
 
 		map2.put("id3", device1);
 
-		monitoring.put(MonitorType.TARGET, map2);
+		monitoring.put(MonitorType.HOST, map2);
 
 		hostMonitoring.setMonitors(monitoring);
 

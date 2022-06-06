@@ -2,7 +2,7 @@ package com.sentrysoftware.matrix.model.monitor;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TARGET_FQDN;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HOST_FQDN;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,7 +39,7 @@ public class Monitor {
 	private String name;
 	private MonitorType monitorType;
 	private String parentId;
-	private String targetId;
+	private String hostId;
 	private String extendedType;
 	private Long discoveryTime;
 
@@ -192,7 +192,7 @@ public class Monitor {
 
 		String fqdn = metadata.get(FQDN);
 
-		return fqdn != null ? fqdn : metadata.get(TARGET_FQDN);
+		return fqdn != null ? fqdn : metadata.get(HOST_FQDN);
 	}
 
 	/**

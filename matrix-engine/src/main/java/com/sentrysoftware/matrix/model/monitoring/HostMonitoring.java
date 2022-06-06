@@ -54,10 +54,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class HostMonitoring implements IHostMonitoring {
 
-	private static final String MONITOR_ID_CANNOT_BE_NULL = "monitor id cannot be null.";
+	private static final String MONITOR_ID_CANNOT_BE_NULL = "Monitor ID cannot be null.";
 	private static final String PARENT_ID_CANNOT_BE_NULL = "Parent Id cannot be null.";
-	private static final String TARGET_ID_CANNOT_BE_NULL = "Target Id cannot be null.";
-	private static final String MONITOR_TYPE_CANNOT_BE_NULL = "monitor type cannot be null.";
+	private static final String HOST_ID_CANNOT_BE_NULL = "Host Id cannot be null.";
+	private static final String MONITOR_TYPE_CANNOT_BE_NULL = "Monitor type cannot be null.";
 
 	private static final String STRATEGY_TIME = "strategyTime";
 	private static final String STRATEGY_BEAN_NAME = "strategy";
@@ -100,10 +100,10 @@ public class HostMonitoring implements IHostMonitoring {
 		final MonitorType monitorType = monitor.getMonitorType();
 		Assert.notNull(monitorType, MONITOR_TYPE_CANNOT_BE_NULL);
 
-		Assert.isTrue(MonitorType.TARGET.equals(monitorType) || Objects.nonNull(monitor.getParentId()),
+		Assert.isTrue(MonitorType.HOST.equals(monitorType) || Objects.nonNull(monitor.getParentId()),
 			PARENT_ID_CANNOT_BE_NULL);
 
-		Assert.notNull(monitor.getTargetId(), TARGET_ID_CANNOT_BE_NULL);
+		Assert.notNull(monitor.getHostId(), HOST_ID_CANNOT_BE_NULL);
 
 		Monitor created = monitor;
 
@@ -137,7 +137,7 @@ public class HostMonitoring implements IHostMonitoring {
 
 	/**
 	 * Copy the current monitor's information in the monitor previously discovered
-	 * 
+	 *
 	 * @param previous Previously discovered Monitor instance
 	 * @param current  Monitor from the current discovery
 	 * @return merged monitor instance
@@ -146,7 +146,7 @@ public class HostMonitoring implements IHostMonitoring {
 
 		previous.setName(current.getName());
 		previous.setParentId(current.getParentId());
-		previous.setTargetId(current.getTargetId());
+		previous.setHostId(current.getHostId());
 		previous.setExtendedType(current.getExtendedType());
 		previous.setDiscoveryTime(current.getDiscoveryTime());
 		previous.setMetadata(current.getMetadata());
@@ -159,12 +159,12 @@ public class HostMonitoring implements IHostMonitoring {
 			@NonNull final String connectorName, @NonNull final MonitorType monitorType,
 			final String attachedToDeviceId, final String attachedToDeviceType) {
 
-		Assert.notNull(monitor.getTargetId(), TARGET_ID_CANNOT_BE_NULL);
+		Assert.notNull(monitor.getHostId(), HOST_ID_CANNOT_BE_NULL);
 
 		monitor.setMonitorType(monitorType);
 
 		if (monitor.getId() == null) {
-			monitor.setId(buildMonitorId(connectorName, monitorType, monitor.getTargetId(), id));
+			monitor.setId(buildMonitorId(connectorName, monitorType, monitor.getHostId(), id));
 		}
 
 		if (monitor.getParentId() == null) {
@@ -182,7 +182,7 @@ public class HostMonitoring implements IHostMonitoring {
 
 			if (monitor.getParentId() == null) {
 
-				monitor.setParentId(buildParentId(monitor.getTargetId(), connectorName, attachedToDeviceId,
+				monitor.setParentId(buildParentId(monitor.getHostId(), connectorName, attachedToDeviceId,
 					attachedToDeviceType));
 			}
 		}
@@ -196,15 +196,15 @@ public class HostMonitoring implements IHostMonitoring {
 	 * 	<li>If the <code>attachedToDeviceId</code> is present then for sure the parent is going to be the enclosure or another
 	 *  monitor identified with <code>attachedToDeviceType</code>. In that case we deduce the parent key without reading instances from the memory.</li>
 	 *  <li>If the <code>attachedToDeviceId </code> is not present then we will try to get the latest Enclosure monitor with the extended type 'Computer'</li>
-	 *  <li>If the previous conditions fail then the monitor will be attached to the target (main monitor)</li>
+	 *  <li>If the previous conditions fail then the monitor will be attached to the host (main monitor)</li>
 	 * </ol>
-	 * @param targetId             The identifier of the main monitor. Called target in the matrix-engine library
+	 * @param hostId               The identifier of the main monitor. Called host in the matrix-engine library
 	 * @param connectorName        The connector compiled file name.
 	 * @param attachedToDeviceId   The identifier of the monitor we wish to deduce its key
 	 * @param attachedToDeviceType The type of the monitor we wish to deduce its key
 	 * @return {@link String} value containing the key of the parent monitor
 	 */
-	String buildParentId(@NonNull final String targetId, @NonNull final String connectorName, 
+	String buildParentId(@NonNull final String hostId, @NonNull final String connectorName,
 			final String attachedToDeviceId, final String attachedToDeviceType) {
 		// We have a parent defined by the connector
 		if (attachedToDeviceId != null) {
@@ -213,7 +213,7 @@ public class HostMonitoring implements IHostMonitoring {
 			// By default, get the Enclosure
 			final MonitorType monitorType = MonitorType.getByNameInConnectorOptional(attachedToDeviceType)
 					.orElse(MonitorType.ENCLOSURE);
-			return buildMonitorId(connectorName, monitorType, targetId, attachedToDeviceId);
+			return buildMonitorId(connectorName, monitorType, hostId, attachedToDeviceId);
 
 		} else {
 
@@ -248,26 +248,26 @@ public class HostMonitoring implements IHostMonitoring {
 			}
 		}
 
-		// If we have no parent, attach object to the main device (target)
-		return targetId;
+		// If we have no parent, attach object to the main device (host)
+		return hostId;
 	}
 
 	/**
-	 * Build the monitor unique identifier [connectorName]_[monitorType]_[targetId]_[id]
+	 * Build the monitor unique identifier [connectorName]_[monitorType]_[hostId]_[id]
 	 * @param connectorName  The connector compiled file name
 	 * @param monitorType    The type of the monitor. See {@link MonitorType}
-	 * @param targetId       The unique identifier of the main monitor called target
+	 * @param hostId       The unique identifier of the main monitor called host
 	 * @param id             The id of the monitor we wish to build its identifier
 	 * @return {@link String} value containing the key of the monitor
 	 */
-	public static String buildMonitorId(@NonNull final String connectorName, @NonNull final MonitorType monitorType, 
-			@NonNull final String targetId, @NonNull final String id) {
+	public static String buildMonitorId(@NonNull final String connectorName, @NonNull final MonitorType monitorType,
+			@NonNull final String hostId, @NonNull final String id) {
 		return new StringBuilder()
 				.append(connectorName)
 				.append(ID_SEPARATOR)
 				.append(monitorType.getKey())
 				.append(ID_SEPARATOR)
-				.append(targetId)
+				.append(hostId)
 				.append(ID_SEPARATOR)
 				.append(id.replaceAll("\\s*", ""))
 				.toString();
@@ -364,7 +364,7 @@ public class HostMonitoring implements IHostMonitoring {
 
 	/**
 	 * Get the actual {@link HostMonitoring} as {@link HostMonitoringVo}
-	 * 
+	 *
 	 * @return {@link HostMonitoringVo} object
 	 */
 	public HostMonitoringVo getVo() {
@@ -434,9 +434,9 @@ public class HostMonitoring implements IHostMonitoring {
 	@Override
 	public synchronized EngineResult run(final IStrategy... strategies) {
 
-		final String hostname = engineConfiguration.getTarget().getHostname();
+		final String hostname = engineConfiguration.getHost().getHostname();
 
-		log.trace("Hostname {} - Engine called for thread {}", hostname, Thread.currentThread().getName());
+		log.trace("Hostname {} - Engine called for thread {}.", hostname, Thread.currentThread().getName());
 
 		checkEngineConfiguration();
 
@@ -445,9 +445,9 @@ public class HostMonitoring implements IHostMonitoring {
 
 		for (IStrategy strategy : strategies) {
 
-			log.trace("Hostname {} - Calling strategy {}", hostname, strategy.getClass().getSimpleName());
+			log.trace("Hostname {} - Calling strategy {}.", hostname, strategy.getClass().getSimpleName());
 			lastEngineResult = run(strategy);
-			log.info("Hostname {} - {} status {}", 
+			log.info("Hostname {} - {} status {}.",
 					hostname, strategy.getClass().getSimpleName(), lastEngineResult.getOperationStatus());
 
 			if (log.isDebugEnabled()) {
@@ -467,7 +467,7 @@ public class HostMonitoring implements IHostMonitoring {
 	 */
 	private EngineResult run(@NonNull final IStrategy strategy) {
 		final ApplicationContext applicationContext = createApplicationContext(strategy);
-		final String hostname = engineConfiguration.getTarget().getHostname();
+		final String hostname = engineConfiguration.getHost().getHostname();
 
 		try {
 
@@ -484,17 +484,17 @@ public class HostMonitoring implements IHostMonitoring {
 			Throwable cause = e.getCause();
 			if (cause != null) {
 				log.error(
-						"Hostname {} - {} operation failed: {}: {}",
+						"Hostname {} - {} operation failed: {}: {}.",
 						hostname,
 						strategy.getClass().getSimpleName(),
 						cause.getClass().getSimpleName(),
 						cause.getMessage()
 				);
-				log.debug("Hostname {} - Operation failed with ExecutionException", hostname, cause);
+				log.debug("Hostname {} - Operation failed with ExecutionException.", hostname, cause);
 			} else {
-				log.error("Hostname {} - {} operation failed: {}: {}", hostname, strategy.getClass().getSimpleName(),
+				log.error("Hostname {} - {} operation failed: {}: {}.", hostname, strategy.getClass().getSimpleName(),
 						e.getClass().getSimpleName(), e.getMessage());
-				log.debug("Hostname {} - Operation failed with ExecutionException", hostname, e);
+				log.debug("Hostname {} - Operation failed with ExecutionException.", hostname, e);
 			}
 
 			return EngineResult
@@ -505,8 +505,8 @@ public class HostMonitoring implements IHostMonitoring {
 
 		} catch (TimeoutException e) {
 
-			log.error("Hostname {} - {} operation timeout!", hostname, strategy.getClass().getSimpleName());
-			log.debug("Hostname {} - Operation failed with TimeoutException", hostname, e);
+			log.error("Hostname {} - {} operation timed out.", hostname, strategy.getClass().getSimpleName());
+			log.debug("Hostname {} - Operation failed with TimeoutException: ", hostname, e);
 
 			return EngineResult
 				.builder()
@@ -516,8 +516,8 @@ public class HostMonitoring implements IHostMonitoring {
 
 		} catch (InterruptedException e) {
 
-			log.error("Hostname {} - {} operation interrupted", hostname, strategy.getClass().getSimpleName());
-			log.debug("Hostname {} - Operation failed with InterruptedException", hostname, e);
+			log.error("Hostname {} - {} operation interrupted.", hostname, strategy.getClass().getSimpleName());
+			log.debug("Hostname {} - Operation failed with InterruptedException: ", hostname, e);
 
 			Thread.currentThread().interrupt();
 
@@ -529,8 +529,8 @@ public class HostMonitoring implements IHostMonitoring {
 
 		} catch (Exception e) {
 
-			log.error("Hostname {} - {} operation failed with {}", hostname, strategy.getClass().getSimpleName(), e.getClass().getSimpleName());
-			log.debug("Hostname {} - Operation failed with unknown exception", hostname, e);
+			log.error("Hostname {} - {} operation failed with {}.", hostname, strategy.getClass().getSimpleName(), e.getClass().getSimpleName());
+			log.debug("Hostname {} - Operation failed with unknown exception: ", hostname, e);
 
 			return EngineResult
 				.builder()
@@ -545,14 +545,14 @@ public class HostMonitoring implements IHostMonitoring {
 	 */
 	private void checkEngineConfiguration() {
 
-		Assert.notNull(engineConfiguration, "engineConfiguration cannot be null.");
+		Assert.notNull(engineConfiguration, "EngineConfiguration cannot be null.");
 		Assert.notNull(engineConfiguration.getProtocolConfigurations(), "protocolConfigurations cannot be null.");
 		Assert.isTrue(!engineConfiguration.getProtocolConfigurations().isEmpty(), "protocolConfigurations cannot be empty.");
 		Assert.notNull(engineConfiguration.getSelectedConnectors(), "selectedConnectors cannot be null.");
-		Assert.notNull(engineConfiguration.getTarget(), "target cannot be null.");
-		Assert.notNull(engineConfiguration.getTarget().getHostname(), "target hostname cannot be null.");
-		Assert.notNull(engineConfiguration.getTarget().getType(), "target type cannot be null.");
-		Assert.notNull(engineConfiguration.getTarget().getId(), "target id cannot be null.");
+		Assert.notNull(engineConfiguration.getHost(), "Host cannot be null.");
+		Assert.notNull(engineConfiguration.getHost().getHostname(), "Hostname cannot be null.");
+		Assert.notNull(engineConfiguration.getHost().getType(), "Host type cannot be null.");
+		Assert.notNull(engineConfiguration.getHost().getId(), "Host ID cannot be null.");
 	}
 
 	/**
@@ -564,7 +564,7 @@ public class HostMonitoring implements IHostMonitoring {
 	 */
 	private ApplicationContext createApplicationContext(final IStrategy strategy) {
 
-		log.debug("Hostname {} - Creating spring context", engineConfiguration.getTarget().getHostname());
+		log.debug("Hostname {} - Creating spring context", engineConfiguration.getHost().getHostname());
 
 		final StrategyConfig strategyConfig = StrategyConfig
 			.builder()
@@ -617,17 +617,17 @@ public class HostMonitoring implements IHostMonitoring {
 	}
 
 	/**
-	 * Extract the target monitor from the given {@link HostMonitoring}
-	 * 
+	 * Extract the host monitor from the given {@link HostMonitoring}
+	 *
 	 * @return {@link Monitor} instance ready to use
 	 */
-	public Monitor getTargetMonitor() {
-		final Map<String, Monitor> targetMonitors = selectFromType(MonitorType.TARGET);
-		if (targetMonitors == null || targetMonitors.isEmpty()) {
+	public Monitor getHostMonitor() {
+		final Map<String, Monitor> hostMonitors = selectFromType(MonitorType.HOST);
+		if (hostMonitors == null || hostMonitors.isEmpty()) {
 			return null;
 		}
 
-		return targetMonitors.values().stream().findFirst().orElse(null);
+		return hostMonitors.values().stream().findFirst().orElse(null);
 	}
 
 	/**

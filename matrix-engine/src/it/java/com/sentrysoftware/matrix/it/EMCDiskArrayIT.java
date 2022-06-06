@@ -17,12 +17,13 @@ import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
 import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
 import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
 import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
-import com.sentrysoftware.matrix.engine.target.HardwareTarget;
-import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.it.job.ITJob;
 import com.sentrysoftware.matrix.it.job.WbemITJob;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
+
+import com.sentrysoftware.matrix.engine.host.HardwareHost;
+import com.sentrysoftware.matrix.engine.host.HostType;
 
 class EMCDiskArrayIT {
 
@@ -53,7 +54,7 @@ class EMCDiskArrayIT {
 		ConnectorStore.getInstance().getConnectors().put(CONNECTOR_NAME, connector);
 
 		engineConfiguration = EngineConfiguration.builder()
-				.target(HardwareTarget.builder().hostname("0.0.0.0").id("localhost").type(TargetType.STORAGE).build())
+				.host(HardwareHost.builder().hostname("0.0.0.0").id("localhost").type(HostType.STORAGE).build())
 				.selectedConnectors(Set.of(CONNECTOR_NAME))
 				.protocolConfigurations(PROTOCOL_CONFIGURATIONS).build();
 	}

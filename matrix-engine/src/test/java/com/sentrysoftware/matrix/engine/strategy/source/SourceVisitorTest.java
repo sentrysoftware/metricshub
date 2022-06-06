@@ -69,10 +69,11 @@ import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandResult;
 import com.sentrysoftware.matrix.engine.strategy.utils.SshInteractiveHelper;
-import com.sentrysoftware.matrix.engine.target.HardwareTarget;
-import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitoring.ConnectorNamespace;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
+
+import com.sentrysoftware.matrix.engine.host.HardwareHost;
+import com.sentrysoftware.matrix.engine.host.HostType;
 
 @ExtendWith(MockitoExtension.class)
 class SourceVisitorTest {
@@ -113,7 +114,7 @@ class SourceVisitorTest {
 		SnmpProtocol snmpProtocol = SnmpProtocol.builder().community("public").version(SnmpVersion.V1).port(161).timeout(120L).build();
 		HttpProtocol httpProtocol = HttpProtocol.builder().username("username").password("password".toCharArray()).port(161).timeout(120L).build();
 		engineConfiguration = EngineConfiguration.builder()
-				.target(HardwareTarget.builder().hostname(ECS1_01).id(ECS1_01).type(TargetType.LINUX).build())
+				.host(HardwareHost.builder().hostname(ECS1_01).id(ECS1_01).type(HostType.LINUX).build())
 				.protocolConfigurations(Map.of(SnmpProtocol.class, snmpProtocol, HttpProtocol.class, httpProtocol)).build();
 
 	}
@@ -125,13 +126,13 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitHTTPSource() {
+	void testVisitHttpSource() {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(HttpSource.builder().build()));
 
 		// no http protocol
 		EngineConfiguration engineConfigurationNoProtocol = EngineConfiguration.builder()
-				.target(HardwareTarget.builder().hostname(ECS1_01).id(ECS1_01).type(TargetType.LINUX).build())
+				.host(HardwareHost.builder().hostname(ECS1_01).id(ECS1_01).type(HostType.LINUX).build())
 				.build();
 		doReturn(engineConfigurationNoProtocol).when(strategyConfig).getEngineConfiguration();
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(HttpSource.builder().build()));
@@ -146,22 +147,22 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitIPMISourceStorageTarget() {
-		EngineConfiguration engineConfigurationStorageTarget = EngineConfiguration.builder()
-				.target(HardwareTarget.builder().hostname(ECS1_01).id(ECS1_01).type(TargetType.STORAGE).build())
+	void testVisitIpmiSourceStorageHost() {
+		EngineConfiguration engineConfigurationStorageHost = EngineConfiguration.builder()
+				.host(HardwareHost.builder().hostname(ECS1_01).id(ECS1_01).type(HostType.STORAGE).build())
 				.build();
-		doReturn(engineConfigurationStorageTarget).when(strategyConfig).getEngineConfiguration();
+		doReturn(engineConfigurationStorageHost).when(strategyConfig).getEngineConfiguration();
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(new Ipmi()));
 	}
 
 	@Test
-	void testVisitIPMISourceOOBTargetNoIPMIConfig() {
+	void testVisitIpmiSourceOobHostNoIpmiConfig() {
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
-				.target(HardwareTarget.builder()
+				.host(HardwareHost.builder()
 						.hostname(ECS1_01)
 						.id(ECS1_01)
-						.type(TargetType.MGMT_CARD_BLADE_ESXI)
+						.type(HostType.MGMT_CARD_BLADE_ESXI)
 						.build())
 				.protocolConfigurations(Collections.emptyMap())
 				.build();
@@ -170,13 +171,13 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitIPMISourceOOB() throws Exception {
+	void testVisitIpmiSourceOob() throws Exception {
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
-				.target(HardwareTarget.builder()
+				.host(HardwareHost.builder()
 						.hostname(ECS1_01)
 						.id(ECS1_01)
-						.type(TargetType.MGMT_CARD_BLADE_ESXI)
+						.type(HostType.MGMT_CARD_BLADE_ESXI)
 						.build())
 				.protocolConfigurations(Collections.emptyMap())
 				.protocolConfigurations(Map.of(IpmiOverLanProtocol.class, IpmiOverLanProtocol
@@ -192,13 +193,13 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitIPMISourceOOBNullResult() throws Exception {
+	void testVisitIpmiSourceOobNullResult() throws Exception {
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
-				.target(HardwareTarget.builder()
+				.host(HardwareHost.builder()
 						.hostname(ECS1_01)
 						.id(ECS1_01)
-						.type(TargetType.MGMT_CARD_BLADE_ESXI)
+						.type(HostType.MGMT_CARD_BLADE_ESXI)
 						.build())
 				.protocolConfigurations(Collections.emptyMap())
 				.protocolConfigurations(Map.of(IpmiOverLanProtocol.class, IpmiOverLanProtocol
@@ -212,13 +213,13 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitIPMISourceOOBException() throws Exception {
+	void testVisitIpmiSourceOobException() throws Exception {
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
-				.target(HardwareTarget.builder()
+				.host(HardwareHost.builder()
 						.hostname(ECS1_01)
 						.id(ECS1_01)
-						.type(TargetType.MGMT_CARD_BLADE_ESXI)
+						.type(HostType.MGMT_CARD_BLADE_ESXI)
 						.build())
 				.protocolConfigurations(Collections.emptyMap())
 				.protocolConfigurations(Map.of(IpmiOverLanProtocol.class, IpmiOverLanProtocol
@@ -233,7 +234,7 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitOSCommandSource() {
+	void testVisitOsCommandSource() {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		assertEquals(SourceTable.empty(), sourceVisitor.visit((OsCommandSource) null));
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(new OsCommandSource()));
@@ -373,7 +374,7 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitSNMPGetSource() throws InterruptedException, ExecutionException, TimeoutException {
+	void testVisitSnmpGetSource() throws InterruptedException, ExecutionException, TimeoutException {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		assertEquals(SourceTable.empty(), sourceVisitor.visit( SnmpGetSource.builder().oid(null).build()));
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
@@ -382,7 +383,7 @@ class SourceVisitorTest {
 
 		// no snmp protocol
 		EngineConfiguration engineConfigurationNoProtocol = EngineConfiguration.builder()
-				.target(HardwareTarget.builder().hostname(ECS1_01).id(ECS1_01).type(TargetType.LINUX).build())
+				.host(HardwareHost.builder().hostname(ECS1_01).id(ECS1_01).type(HostType.LINUX).build())
 				.build();
 		doReturn(engineConfigurationNoProtocol).when(strategyConfig).getEngineConfiguration();
 		assertEquals(SourceTable.empty(), sourceVisitor
@@ -406,14 +407,14 @@ class SourceVisitorTest {
 
 
 	@Test
-	void testVisitSNMPGetTableNullArgs() throws Exception {
+	void testVisitSnmpGetTableNullArgs() throws Exception {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		assertEquals(SourceTable.empty(), sourceVisitor.visit( SnmpGetTableSource.builder().oid(null).snmpTableSelectColumns(null).build()));
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(SnmpGetTableSource.builder().snmpTableSelectColumns(SNMP_SELECTED_COLUMNS).build()));
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(SnmpGetTableSource.builder().oid(OID).build()));
 		// no snmp protocol
 		EngineConfiguration engineConfigurationNoProtocol = EngineConfiguration.builder()
-				.target(HardwareTarget.builder().hostname(ECS1_01).id(ECS1_01).type(TargetType.LINUX).build())
+				.host(HardwareHost.builder().hostname(ECS1_01).id(ECS1_01).type(HostType.LINUX).build())
 				.build();
 		doReturn(engineConfigurationNoProtocol).when(strategyConfig).getEngineConfiguration();
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(SnmpGetTableSource.builder().oid(OID).snmpTableSelectColumns(SNMP_SELECTED_COLUMNS).build()));
@@ -425,7 +426,7 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitSNMPGetTableExpectedResultNotMatches() throws Exception {
+	void testVisitSnmpGetTableExpectedResultNotMatches() throws Exception {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(new ArrayList<>()).when(matsyaClientsExecutor).executeSNMPTable(any(), any(), any(), any(), eq(true));
 		final SourceTable actual = sourceVisitor.visit(SnmpGetTableSource.builder().oid(OID).snmpTableSelectColumns(SNMP_WRONG_COLUMNS).build());
@@ -435,7 +436,7 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitSNMPGetTableExpectedResultMatches() throws Exception {
+	void testVisitSbmpGetTableExpectedResultMatches() throws Exception {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(EXPECTED_SNMP_TABLE_DATA).when(matsyaClientsExecutor).executeSNMPTable(any(), any(), any(), any(), eq(true));
 		final SourceTable actual = sourceVisitor
@@ -662,7 +663,7 @@ class SourceVisitorTest {
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
 				.protocolConfigurations(Map.of(SshProtocol.class, SshProtocol.builder().build()))
-				.target(new HardwareTarget("id", "host", TargetType.LINUX))
+				.host(new HardwareHost("id", "host", HostType.LINUX))
 				.build();
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
@@ -730,19 +731,19 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitUCSSource() {
+	void testVisitUcsSource() {
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(new UcsSource()));
 	}
 
 	@Test
-	void testVisitWBEMSource() throws MatsyaException {
+	void testVisitWbemSource() throws MatsyaException {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		assertEquals(SourceTable.empty(), sourceVisitor.visit((WbemSource) null));
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(WbemSource.builder().build()));
 
 		WbemSource wbemSource = WbemSource.builder().wbemQuery(WBEM_QUERY).build();
 		EngineConfiguration engineConfiguration = EngineConfiguration.builder()
-				.target(HardwareTarget.builder().hostname(EMC_HOSTNAME).id(EMC_HOSTNAME).type(TargetType.MS_WINDOWS).build())
+				.host(HardwareHost.builder().hostname(EMC_HOSTNAME).id(EMC_HOSTNAME).type(HostType.MS_WINDOWS).build())
 				.protocolConfigurations(Collections.emptyMap()).build();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		
@@ -751,7 +752,7 @@ class SourceVisitorTest {
 
 
 		engineConfiguration = EngineConfiguration.builder()
-				.target(HardwareTarget.builder().hostname(EMC_HOSTNAME).id(EMC_HOSTNAME).type(TargetType.MS_WINDOWS).build())
+				.host(HardwareHost.builder().hostname(EMC_HOSTNAME).id(EMC_HOSTNAME).type(HostType.MS_WINDOWS).build())
 				.protocolConfigurations(Map.of(WbemProtocol.class,
 						WbemProtocol.builder()
 						.build()))
@@ -762,7 +763,7 @@ class SourceVisitorTest {
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(wbemSource));
 
 		engineConfiguration = EngineConfiguration.builder()
-				.target(HardwareTarget.builder().id(EMC_HOSTNAME).type(TargetType.MS_WINDOWS).build())
+				.host(HardwareHost.builder().id(EMC_HOSTNAME).type(HostType.MS_WINDOWS).build())
 				.protocolConfigurations(Map.of(WbemProtocol.class,
 						WbemProtocol.builder()
 						.username(EMC_HOSTNAME)
@@ -776,7 +777,7 @@ class SourceVisitorTest {
 
 
 		engineConfiguration = EngineConfiguration.builder()
-				.target(HardwareTarget.builder().id(EMC_HOSTNAME).type(TargetType.MS_WINDOWS).build())
+				.host(HardwareHost.builder().id(EMC_HOSTNAME).type(HostType.MS_WINDOWS).build())
 				.protocolConfigurations(Map.of(WbemProtocol.class,
 						WbemProtocol.builder()
 						.namespace(ROOT_IBMSD_WMI_NAMESPACE)
@@ -790,7 +791,7 @@ class SourceVisitorTest {
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(wbemSource));
 
 		engineConfiguration = EngineConfiguration.builder()
-				.target(HardwareTarget.builder().type(TargetType.MS_WINDOWS).build())
+				.host(HardwareHost.builder().type(HostType.MS_WINDOWS).build())
 				.protocolConfigurations(Map.of(WbemProtocol.class,
 						WbemProtocol.builder()
 						.port(5989)
@@ -805,7 +806,7 @@ class SourceVisitorTest {
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(wbemSource));
 
 		engineConfiguration = EngineConfiguration.builder()
-				.target(HardwareTarget.builder().id(EMC_HOSTNAME).hostname(EMC_HOSTNAME).type(TargetType.MS_WINDOWS).build())
+				.host(HardwareHost.builder().id(EMC_HOSTNAME).hostname(EMC_HOSTNAME).type(HostType.MS_WINDOWS).build())
 				.protocolConfigurations(Map.of(WbemProtocol.class,
 						WbemProtocol.builder()
 						.port(5989)
@@ -831,17 +832,17 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitWMISourceMalformed() {
+	void testVisitWmiSourceMalformed() {
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		assertEquals(SourceTable.empty(), sourceVisitor.visit((WmiSource) null));
 		assertEquals(SourceTable.empty(), sourceVisitor.visit(WmiSource.builder().build()));
 	}
 
 	@Test
-	void testVisitWMISourceButWMINotConfigured() {
+	void testVisitWmiSourceButWmiNotConfigured() {
 		final WmiSource wmiSource = WmiSource.builder().wbemQuery(WQL).build();
 		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
-				.target(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.MS_WINDOWS).build())
+				.host(HardwareHost.builder().hostname(PC14).id(PC14).type(HostType.MS_WINDOWS).build())
 				.protocolConfigurations(Collections.emptyMap()).build();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
@@ -849,10 +850,10 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitWMISourceNoNamespace() {
+	void testVisitWmiSourceNoNamespace() {
 		final WmiSource wmiSource = WmiSource.builder().wbemQuery(WQL).wbemNamespace("automatic").build();
 		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
-				.target(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.MS_WINDOWS).build())
+				.host(HardwareHost.builder().hostname(PC14).id(PC14).type(HostType.MS_WINDOWS).build())
 				.protocolConfigurations(Map.of(WmiProtocol.class,
 						WmiProtocol.builder()
 						.username(PC14 + "\\" + "Administrator")
@@ -866,14 +867,14 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitWMISource() throws Exception {
+	void testVisitWmiSource() throws Exception {
 		final WmiSource wmiSource = WmiSource.builder().wbemQuery(WQL).wbemNamespace("automatic").build();
 		final WmiProtocol wmiProtocol = WmiProtocol.builder()
 				.username(PC14 + "\\" + "Administrator")
 				.password("password".toCharArray())
 				.build();
 		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
-				.target(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.MS_WINDOWS).build())
+				.host(HardwareHost.builder().hostname(PC14).id(PC14).type(HostType.MS_WINDOWS).build())
 				.protocolConfigurations(Map.of(WmiProtocol.class,
 						wmiProtocol))
 				.build();
@@ -898,7 +899,7 @@ class SourceVisitorTest {
 	}
 
 	@Test
-	void testVisitWMISourceTimeout() throws Exception {
+	void testVisitWmiSourceTimeout() throws Exception {
 
 		final WmiSource wmiSource = WmiSource.builder().wbemQuery(WQL).wbemNamespace("automatic").build();
 		final WmiProtocol wmiProtocol = WmiProtocol.builder()
@@ -906,7 +907,7 @@ class SourceVisitorTest {
 				.password("password".toCharArray())
 				.build();
 		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
-				.target(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.MS_WINDOWS).build())
+				.host(HardwareHost.builder().hostname(PC14).id(PC14).type(HostType.MS_WINDOWS).build())
 				.protocolConfigurations(Map.of(WmiProtocol.class, wmiProtocol))
 				.build();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
@@ -981,7 +982,7 @@ class SourceVisitorTest {
 				.timeout(120L)
 				.build();
 		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
-				.target(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.MS_WINDOWS).build())
+				.host(HardwareHost.builder().hostname(PC14).id(PC14).type(HostType.MS_WINDOWS).build())
 				.protocolConfigurations(Map.of(WmiProtocol.class,
 						wmiProtocol))
 				.build();
@@ -1041,7 +1042,7 @@ class SourceVisitorTest {
 				.timeout(120L)
 				.build();
 		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
-				.target(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.MS_WINDOWS).build())
+				.host(HardwareHost.builder().hostname(PC14).id(PC14).type(HostType.MS_WINDOWS).build())
 				.protocolConfigurations(Map.of(WmiProtocol.class,
 						wmiProtocol))
 				.build();
@@ -1057,7 +1058,7 @@ class SourceVisitorTest {
 	@Test
 	void testProcessWindowsIpmiSourceWmiProtocolNull() throws Exception {
 		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
-				.target(HardwareTarget.builder().hostname(PC14).id(PC14).type(TargetType.MS_WINDOWS).build())
+				.host(HardwareHost.builder().hostname(PC14).id(PC14).type(HostType.MS_WINDOWS).build())
 				.protocolConfigurations(Map.of(HttpProtocol.class,
 						HttpProtocol.builder().username("username").password("password".toCharArray()).port(161).timeout(120L).build()))
 				.build();
@@ -1073,7 +1074,7 @@ class SourceVisitorTest {
 		// classic case
 		final SshProtocol ssh = SshProtocol.builder().username("root").password("nationale".toCharArray()).build();
 		EngineConfiguration engineConfigurationLocal = EngineConfiguration.builder()
-				.target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.LINUX)
+				.host(HardwareHost.builder().hostname("localhost").id("localhost").type(HostType.LINUX)
 						.build())
 				.protocolConfigurations(Map.of(HttpProtocol.class, OsCommandConfig.builder().build(),
 						OsCommandConfig.class, OsCommandConfig.builder().build(),
@@ -1133,7 +1134,7 @@ class SourceVisitorTest {
 
 		// osCommandConfig is null
 		engineConfigurationLocal = EngineConfiguration.builder()
-				.target(HardwareTarget.builder().hostname("localhost").id("localhost").type(TargetType.LINUX)
+				.host(HardwareHost.builder().hostname("localhost").id("localhost").type(HostType.LINUX)
 						.build())
 				.protocolConfigurations(Map.of(HttpProtocol.class, OsCommandConfig.builder().build(),
 						SshProtocol.class, ssh))

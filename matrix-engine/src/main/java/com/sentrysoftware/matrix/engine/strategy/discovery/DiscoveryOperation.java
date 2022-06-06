@@ -35,52 +35,52 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.engine.strategy.AbstractStrategy;
 import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
-import com.sentrysoftware.matrix.engine.target.TargetType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
+import com.sentrysoftware.matrix.engine.host.HostType;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class DiscoveryOperation extends AbstractStrategy {
 
-	private static final String NO_HW_MONITORS_FOUND_MSG = "Hostname {} - Could not discover. No hardware monitors found in the connector {}";
+	private static final String NO_HW_MONITORS_FOUND_MSG = "Hostname {} - Discovery failed. No hardware monitors found in the connector {}.";
 	private static final Pattern INSTANCE_TABLE_PATTERN = Pattern.compile("^\\s*instancetable.column\\((\\d+)\\)\\s*$",
 			Pattern.CASE_INSENSITIVE);
 
 	@Override
 	public Boolean call() throws Exception {
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		log.debug("Hostname {} - Start Discovery", hostname);
 
 		// Get the connectors previously created/selected in the DetectionOperation
 		// strategy
 		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
 
-		// Get the Target monitor
-		final Map<String, Monitor> targets = hostMonitoring.selectFromType(MonitorType.TARGET);
+		// Get the Host monitor
+		final Map<String, Monitor> hosts = hostMonitoring.selectFromType(MonitorType.HOST);
 
-		if (targets == null) {
-			log.error("Hostname {} - No target found. Stop discovery operation", hostname);
+		if (hosts == null) {
+			log.error("Hostname {} - No hosts found. Stopping discovery operation.", hostname);
 			return false;
 		}
 
-		final Monitor targetMonitor = targets.values().stream().findFirst().orElse(null);
-		if (targetMonitor == null) {
-			log.error("Hostname {} - No target monitor found. Stop discovery operation", hostname);
+		final Monitor hostMonitor = hosts.values().stream().findFirst().orElse(null);
+		if (hostMonitor == null) {
+			log.error("Hostname {} - No host monitor found. Stop discovery operation", hostname);
 			return false;
 		}
 
-		// Set the discovery time for the target. 
-		// The missing monitor detection will set the target as present since its
+		// Set the discovery time for the host.
+		// The missing monitor detection will set the host as present since its
 		// discovery time is the same as the current strategy time
-		targetMonitor.setDiscoveryTime(strategyTime);
+		hostMonitor.setDiscoveryTime(strategyTime);
 
 		final Map<String, Monitor> connectorMonitors = hostMonitoring.selectFromType(MonitorType.CONNECTOR);
 
 		if (connectorMonitors == null || connectorMonitors.isEmpty()) {
-			log.error("Hostname {} - No connector detected in the detection operation. Stop discovery operation", hostname);
+			log.error("Hostname {} - No connectors detected in the detection operation. Stopping discovery operation.", hostname);
 			return false;
 		}
 
@@ -104,7 +104,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 
 		connectors.stream()
 		.filter(connector -> super.validateHardwareMonitors(connector, hostname, NO_HW_MONITORS_FOUND_MSG))
-		.forEach(connector -> discover(connector, hostMonitoring, hostname, targetMonitor));
+		.forEach(connector -> discover(connector, hostMonitoring, hostname, hostMonitor));
 
 		return true;
 	}
@@ -115,12 +115,12 @@ public class DiscoveryOperation extends AbstractStrategy {
 	 * @param connector      The connector we wish to interpret and discover
 	 * @param hostMonitoring The monitors container, it also wraps the {@link SourceTable} objects
 	 * @param hostname       The system hostname
-	 * @param targetMonitor  The main {@link MonitorType#TARGET} monitor detected in the {@link DetectionOperation} strategy.
+	 * @param hostMonitor  The main {@link MonitorType#HOST} monitor detected in the {@link DetectionOperation} strategy.
 	 */
 	void discover(final Connector connector, final IHostMonitoring hostMonitoring, final String hostname,
-			final Monitor targetMonitor) {
+			final Monitor hostMonitor) {
 
-		log.debug("Hostname {} - Processing connector {}", hostname, connector.getCompiledFilename());
+		log.debug("Hostname {} - Processing connector {}.", hostname, connector.getCompiledFilename());
 
 		// Perform discovery for the hardware monitor jobs
 		// The discovery order is the following: Enclosure, Blade, DiskController, CPU then the rest
@@ -134,7 +134,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 				&& validateHardwareMonitorFields(hardwareMonitor, connector.getCompiledFilename(), hostname)
 				&& HardwareMonitorComparator.ORDER.contains(hardwareMonitor.getType()))
 			.forEach(hardwareMonitor -> discoverSameTypeMonitors(hardwareMonitor, connector, hostMonitoring,
-				targetMonitor, hostname));
+				hostMonitor, hostname));
 
 
 		final Stream<HardwareMonitor> hardwareMonitors = connector
@@ -144,25 +144,25 @@ public class DiscoveryOperation extends AbstractStrategy {
 						&& validateHardwareMonitorFields(hardwareMonitor, connector.getCompiledFilename(), hostname)
 						&& !HardwareMonitorComparator.ORDER.contains(hardwareMonitor.getType()));
 
-		// The user may want to run queries sent to the target one by one instead of everything in parallel
+		// The user may want to run queries sent to the host one by one instead of everything in parallel
 		if (strategyConfig.getEngineConfiguration().isSequential()) {
 
-			log.info("Hostname {} - Running discovery in sequential mode. Connector: {}", hostname, connector.getCompiledFilename());
+			log.info("Hostname {} - Running discovery in sequential mode. Connector: {}.", hostname, connector.getCompiledFilename());
 
 			hardwareMonitors.forEach(hardwareMonitor -> discoverSameTypeMonitors(hardwareMonitor, connector,
-					hostMonitoring, targetMonitor, hostname));
+					hostMonitoring, hostMonitor, hostname));
 
 		} else {
 
-			log.info("Hostname {} - Running discovery in parallel mode. Connector: {}", hostname, connector.getCompiledFilename());
+			log.info("Hostname {} - Running discovery in parallel mode. Connector: {}.", hostname, connector.getCompiledFilename());
 
 			// Now discover the rest of the monitors in parallel mode
 			final ExecutorService threadsPool = Executors.newFixedThreadPool(MAX_THREADS_COUNT);
 
 			hardwareMonitors
-				.forEach(hardwareMonitor -> 
+				.forEach(hardwareMonitor ->
 					threadsPool.execute(
-							() -> discoverSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, targetMonitor, hostname)
+							() -> discoverSameTypeMonitors(hardwareMonitor, connector, hostMonitoring, hostMonitor, hostname)
 					)
 			);
 
@@ -176,7 +176,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 				if (e instanceof InterruptedException) {
 					Thread.currentThread().interrupt();
 				}
-				log.debug("Hostname {} - Waiting for threads termination aborted with an error", hostname, e);
+				log.debug("Hostname {} - Waiting for threads' termination aborted with an error.", hostname, e);
 			}
 		}
 
@@ -191,11 +191,11 @@ public class DiscoveryOperation extends AbstractStrategy {
 	 * @param connector   	  The connector we currently process
 	 * @param hostMonitoring  The {@link IHostMonitoring} instance wrapping
 	 *                        {@link Monitor} and {@link SourceTable} instances
-	 * @param targetMonitor   The target monitor (main)
+	 * @param hostMonitor     The host monitor (main)
 	 * @param hostname        The user's configured hostname
 	 */
 	void discoverSameTypeMonitors(final HardwareMonitor hardwareMonitor, final Connector connector,
-			final IHostMonitoring hostMonitoring, final Monitor targetMonitor, final String hostname) {
+			final IHostMonitoring hostMonitoring, final Monitor hostMonitor, final String hostname) {
 
 		// Process all the sources with their computes
 		processSourcesAndComputes(
@@ -211,7 +211,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 				hostMonitoring,
 				hardwareMonitor.getDiscovery().getInstanceTable(),
 				hardwareMonitor.getDiscovery().getParameters(),
-				targetMonitor,
+				hostMonitor,
 				hardwareMonitor.getType(),
 				hostname);
 
@@ -228,29 +228,29 @@ public class DiscoveryOperation extends AbstractStrategy {
 	 * @param hostMonitoring		The {@link IHostMonitoring} instance wrapping source tables and monitors.
 	 * @param instanceTable			Defines the source key or the hard coded key.
 	 * @param parameters			The discovery parameters to process (from the connector).
-	 * @param targetMonitor			The main monitor with {@link MonitorType#TARGET} type.
+	 * @param hostMonitor			The main monitor with {@link MonitorType#HOST} type.
 	 * @param monitorType			The current type of the monitor, {@link MonitorType}.
 	 * @param hostname				The user's configured hostname used for debug purpose.
 	 */
 	void createSameTypeMonitors(final String connectorName, final IHostMonitoring hostMonitoring,
 								final InstanceTable instanceTable, final Map<String, String> parameters,
-								final Monitor targetMonitor, final MonitorType monitorType, final String hostname) {
+								final Monitor hostMonitor, final MonitorType monitorType, final String hostname) {
 
 		// Check the instanceTable, so that, we can create the monitor later
 		if (instanceTable == null) {
-			log.warn("Hostname {} - No instance table found with {} during the discovery for the connector {}",
+			log.warn("Hostname {} - No instance tables found with {} during the discovery for the connector {}.",
 					hostname, monitorType.getNameInConnector(), connectorName);
 			return;
 		}
 
 		// Check discovery parameters, so we can create the monitor with the metadata
 		if (parameters == null || parameters.isEmpty()) {
-			log.warn("Hostname {} - No parameter found with {} during the discovery for the connector {}",
+			log.warn("Hostname {} - No parameters found with {} during the discovery for the connector {}.",
 					hostname, monitorType.getNameInConnector(), connectorName);
 			return;
 		}
 
-		final TargetType targetType = strategyConfig.getEngineConfiguration().getTarget().getType();
+		final HostType hostType = strategyConfig.getEngineConfiguration().getHost().getType();
 
 		// Process the instance table
 		if (instanceTable instanceof SourceInstanceTable) {
@@ -261,7 +261,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 			// No sourceKey no monitor
 			if (sourceKey == null) {
 				log.error(
-						"Hostname {} - No source key found with monitor {} for connector {}",
+						"Hostname {} - No source keys found with monitor {} for connector {}.",
 						hostname, monitorType.getNameInConnector(), connectorName);
 				return;
 			}
@@ -273,7 +273,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 			// No sourceTable no monitor
 			if (sourceTable == null) {
 				log.debug(
-						"Hostname {} - No source table created with source key {} for connector {}",
+						"Hostname {} - No source tables created with source key {} for connector {}.",
 						hostname, sourceKey, connectorName);
 				return;
 			}
@@ -295,12 +295,12 @@ public class DiscoveryOperation extends AbstractStrategy {
 				final MonitorBuildingInfo monitorBuildingInfo = MonitorBuildingInfo
 						.builder()
 						.monitor(monitor)
-						.targetMonitor(targetMonitor)
+						.hostMonitor(hostMonitor)
 						.connectorName(connectorName)
 						.hostMonitoring(hostMonitoring)
 						.monitorType(monitorType)
 						.hostname(hostname)
-						.targetType(targetType)
+						.hostType(hostType)
 						.build();
 
 				monitorType.getMetaMonitor().accept(new MonitorDiscoveryVisitor(monitorBuildingInfo));
@@ -321,12 +321,12 @@ public class DiscoveryOperation extends AbstractStrategy {
 			final MonitorBuildingInfo monitorBuildingInfo = MonitorBuildingInfo
 					.builder()
 					.monitor(monitor)
-					.targetMonitor(targetMonitor)
+					.hostMonitor(hostMonitor)
 					.connectorName(connectorName)
 					.hostMonitoring(hostMonitoring)
 					.monitorType(monitorType)
 					.hostname(hostname)
-					.targetType(targetType)
+					.hostType(hostType)
 					.build();
 
 			monitorType.getMetaMonitor().accept(new MonitorDiscoveryVisitor(monitorBuildingInfo));
@@ -385,8 +385,8 @@ public class DiscoveryOperation extends AbstractStrategy {
 	void processSourceTableMetadata(final String connectorName, final Map<String, String> parameters,
 									final String sourceKey, final List<String> row, final Monitor monitor, final int idCount) {
 
-		final String hostname = strategyConfig.getEngineConfiguration().getTarget().getHostname();
-		
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
+
 		// Loop over all the key values defined in the connector's Instance and create a metadata attribute for each entry
 		for (final Entry<String, String> parameter : parameters.entrySet()) {
 
@@ -407,7 +407,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 					}
 
 				} else {
-					log.warn("Hostname {} - Column {} doesn't match the instance table source {} for connector {}", columnIndex,
+					log.warn("Hostname {} - Column {} does not match the instance table source {} for connector {}.", columnIndex,
 							hostname, sourceKey, connectorName);
 				}
 			} else {
@@ -446,12 +446,12 @@ public class DiscoveryOperation extends AbstractStrategy {
 		// Is there any discovery job here ?
 		final MonitorType monitorType = hardwareMonitor.getType();
 		if (monitorType == null) {
-			log.warn("Hostname {} - No type specified for hardware monitor job with connector {}", hostname, connectorName);
+			log.warn("Hostname {} - No monitor types specified for hardware monitor job with connector {}.", hostname, connectorName);
 			return false;
 		}
 
 		if (hardwareMonitor.getDiscovery() == null) {
-			log.warn("Hostname {} - No {} monitor job specified during the discovery for the connector {}",
+			log.warn("Hostname {} - No {} monitor jobs specified during the discovery for the connector {}.",
 					hostname, monitorType.getNameInConnector(), connectorName);
 			return false;
 		}
@@ -481,11 +481,11 @@ public class DiscoveryOperation extends AbstractStrategy {
 		if (temperatureMonitors == null || temperatureMonitors.isEmpty()) {
 			log.debug(
 					"Hostname {} - Could not detect cpu temperature sensors. isCpuSensor and averageCpuTemperatureWarning metadata won't be set.",
-					strategyConfig.getEngineConfiguration().getTarget().getHostname());
+					strategyConfig.getEngineConfiguration().getHost().getHostname());
 			return;
 		}
 
-		final Monitor targetMonitor = getTargetMonitor(hostMonitoring);
+		final Monitor hostMonitor = getHostMonitor(hostMonitoring);
 
 		double cpuTemperatureSensorCount = 0;
 		double cpuTemperatureWarningAverage = 0.0;
@@ -513,7 +513,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 			cpuTemperatureWarningAverage /= cpuTemperatureSensorCount;
 
 			// Set the cpuTemperatureWarningAverage value as String
-			targetMonitor.addMetadata(AVERAGE_CPU_TEMPERATURE_WARNING, String.valueOf(cpuTemperatureWarningAverage));
+			hostMonitor.addMetadata(AVERAGE_CPU_TEMPERATURE_WARNING, String.valueOf(cpuTemperatureWarningAverage));
 		}
 	}
 

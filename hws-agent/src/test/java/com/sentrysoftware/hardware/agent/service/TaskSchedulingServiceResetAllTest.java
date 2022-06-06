@@ -42,7 +42,7 @@ class TaskSchedulingServiceResetAllTest {
 	private File configFile;
 
 	@Mock
-	private ThreadPoolTaskScheduler targetTaskScheduler;
+	private ThreadPoolTaskScheduler hostTaskScheduler;
 
 	@Mock
 	private MultiHostsConfigurationDto multiHostsConfigurationDto;
@@ -51,7 +51,7 @@ class TaskSchedulingServiceResetAllTest {
 	private Map<String, IHostMonitoring> hostMonitoringMap;
 
 	@Mock
-	private Map<String, ScheduledFuture<?>> targetSchedules;
+	private Map<String, ScheduledFuture<?>> hostSchedules;
 
 	@InjectMocks
 	@Autowired
@@ -61,7 +61,7 @@ class TaskSchedulingServiceResetAllTest {
 	@Test
 	void testUpdateConfigurationRestartAll() {
 
-		// Current /data/hws-config.yaml has 3 targets
+		// Current /data/hws-config.yaml has 3 hosts
 		// Let's say we have updated the SDK configuration
 		final MultiHostsConfigurationDto previous = ConfigHelper.readConfigurationSafe(configFile);
 		previous.getExporter().getOtlp().getHeaders().put("accept", "*/*".toCharArray());
@@ -72,19 +72,19 @@ class TaskSchedulingServiceResetAllTest {
 			configHelper.when(() -> ConfigHelper.decrypt(any())).thenAnswer(invocation -> invocation.getArgument(0));
 			configHelper.when(() -> ConfigHelper.fillHostMonitoringMap(any(), any(), any())).thenCallRealMethod();
 
-			doReturn(previous.getTargets(),
-					previous.getTargets().stream().collect(Collectors.toSet()),
-					previous.getTargets().stream().collect(Collectors.toSet()))
-			.when(multiHostsConfigurationDto).getTargets();
+			doReturn(previous.getHosts(),
+					previous.getHosts().stream().collect(Collectors.toSet()),
+					previous.getHosts().stream().collect(Collectors.toSet()))
+			.when(multiHostsConfigurationDto).getHosts();
 			doReturn(new HostMonitoring()).when(hostMonitoringMap).get(any());
 
 			final ScheduledFuture<?> mock = spy(ScheduledFuture.class);
-			doReturn(mock).when(targetSchedules).get(any());
+			doReturn(mock).when(hostSchedules).get(any());
 			doReturn(true).when(mock).cancel(true);
 			taskSechedulingService.updateConfiguration(configFile);
 
 			verify(mock, times(3)).cancel(true);
-			verify(targetTaskScheduler, times(3)).schedule(any(StrategyTask.class), any(Trigger.class));
+			verify(hostTaskScheduler, times(3)).schedule(any(StrategyTask.class), any(Trigger.class));
 		}
 
 	}

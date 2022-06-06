@@ -56,7 +56,7 @@ import com.sentrysoftware.matrix.common.meta.monitor.PhysicalDisk;
 import com.sentrysoftware.matrix.common.meta.monitor.PowerSupply;
 import com.sentrysoftware.matrix.common.meta.monitor.Robotics;
 import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
-import com.sentrysoftware.matrix.common.meta.monitor.Target;
+import com.sentrysoftware.matrix.common.meta.monitor.Host;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
 import com.sentrysoftware.matrix.common.meta.monitor.Vm;
 import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
@@ -138,7 +138,7 @@ public class MetricsMapping {
 		matrixParamToMetric.put(MonitorType.TEMPERATURE, buildTemperatureMetricsMapping());
 		matrixParamToMetric.put(MonitorType.VOLTAGE, buildVoltageMetricsMapping());
 		matrixParamToMetric.put(MonitorType.VM, buildVmMetricsMapping());
-		matrixParamToMetric.put(MonitorType.TARGET, buildTargetMetricsMapping());
+		matrixParamToMetric.put(MonitorType.HOST, buildTargetMetricsMapping());
 
 		matrixParamToMetricMap = Collections.unmodifiableMap(matrixParamToMetric);
 
@@ -175,7 +175,7 @@ public class MetricsMapping {
 		attributesMap.put(MonitorType.LED, concatDefaultAttributesWithMetadata(MonitorType.LED));
 		attributesMap.put(MonitorType.LOGICAL_DISK, concatDefaultAttributesWithMetadata(MonitorType.LOGICAL_DISK));
 		attributesMap.put(MonitorType.LUN, concatDefaultAttributesWithMetadata(MonitorType.LUN));
-		attributesMap.put(MonitorType.TARGET, concatDefaultAttributesWithMetadata(MonitorType.TARGET));
+		attributesMap.put(MonitorType.HOST, concatDefaultAttributesWithMetadata(MonitorType.HOST));
 		attributesMap.put(MonitorType.MEMORY, concatDefaultAttributesWithMetadata(MonitorType.MEMORY));
 		attributesMap.put(MonitorType.NETWORK_CARD, concatDefaultAttributesWithMetadata(MonitorType.NETWORK_CARD));
 		attributesMap.put(MonitorType.OTHER_DEVICE, concatDefaultAttributesWithMetadata(MonitorType.OTHER_DEVICE));
@@ -191,7 +191,7 @@ public class MetricsMapping {
 	}
 
 	/**
-	 * Build target metrics map
+	 * Build host metrics map
 	 *
 	 * @return  {@link Map} where the metrics are indexed by the matrix parameter name
 	 */
@@ -199,72 +199,84 @@ public class MetricsMapping {
 		final Map<String, MetricInfo> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		map.put(IMetaMonitor.STATUS.getName(), MetricInfo
-			.builder()
-			.name("hw.target.status")
-			.unit(IMetaMonitor.STATUS.getUnit())
-			.description("Target status.")
-			.build());
+				.builder()
+				.name("hw.target.status")
+				.unit(IMetaMonitor.STATUS.getUnit())
+				.description("Target status.")
+				.build());
 		map.put(IMetaMonitor.ENERGY.getName(), MetricInfo
-			.builder()
-			.name("hw.target.energy_joules_total")
-			.unit(JOULES)
-			.type(MetricType.COUNTER)
-			.description("Energy consumed by the components since the start of the Hardware Sentry agent.")
-			.build());
+				.builder()
+				.name("hw.target.energy_joules_total")
+				.unit(JOULES)
+				.type(MetricType.COUNTER)
+				.description("Energy consumed by the components since the start of the Hardware Sentry agent.")
+				.build());
 		map.put(IMetaMonitor.POWER_CONSUMPTION.getName(), MetricInfo
-			.builder()
-			.name("hw.target.power_watts")
-			.unit(WATTS)
-			.type(MetricType.GAUGE)
-			.description("Energy consumed by all the components discovered for the monitored target.")
-			.build());
+				.builder()
+				.name("hw.target.power_watts")
+				.unit(WATTS)
+				.type(MetricType.GAUGE)
+				.description("Energy consumed by all the components discovered for the monitored target.")
+				.build());
 		map.put(IMetaMonitor.HEATING_MARGIN.getName(), MetricInfo
-			.builder()
-			.name("hw.target.heating_margin_celsius")
-			.unit(CELSIUS)
-			.description("Number of degrees Celsius (°C) remaining before the temperature reaches the closest warning threshold.")
-			.build());
-		map.put(Target.AMBIENT_TEMPERATURE.getName(), MetricInfo
-			.builder()
-			.name("hw.target.ambient_temperature_celsius")
-			.unit(CELSIUS)
-			.description("Target's current ambient temperature in degrees Celsius (°C).")
-			.build());
-		map.put(Target.CPU_TEMPERATURE.getName(), MetricInfo
-			.builder()
-			.name("hw.target.cpu_temperature_celsius")
-			.unit(CELSIUS)
-			.description("Target's CPU temperature in degrees Celsius (°C).")
-			.build());
+				.builder()
+				.name("hw.target.heating_margin_celsius")
+				.unit(CELSIUS)
+				.description("Number of degrees Celsius (°C) remaining before the temperature reaches the closest warning threshold.")
+				.build());
+		map.put(Host.AMBIENT_TEMPERATURE.getName(), MetricInfo
+				.builder()
+				.name("hw.target.ambient_temperature_celsius")
+				.unit(CELSIUS)
+				.description("Target's current ambient temperature in degrees Celsius (°C).")
+				.build());
+		map.put(Host.CPU_TEMPERATURE.getName(), MetricInfo
+				.builder()
+				.name("hw.target.cpu_temperature_celsius")
+				.unit(CELSIUS)
+				.description("Target's CPU temperature in degrees Celsius (°C).")
+				.build());
 		map.put(IMetaMonitor.PRESENT.getName(), MetricInfo
 				.builder()
 				.name("hw.target.present")
 				.unit(IMetaMonitor.PRESENT.getUnit())
 				.description("Whether the target is found or not.")
 				.build());
-		map.put(Target.SNMP_UP.getName(), MetricInfo
+		map.put(Host.SNMP_UP.getName(), MetricInfo
 				.builder()
 				.name("hw.target.snmp.up")
 				.unit(UP_PARAMETER_UNIT)
-				.description("Whether the SNMP protocol is up or not")
+				.description("Whether the SNMP protocol is up or not.")
 				.build());
-		map.put(Target.WMI_UP.getName(), MetricInfo
+		map.put(Host.WMI_UP.getName(), MetricInfo
 				.builder()
 				.name("hw.target.wmi.up")
 				.unit(UP_PARAMETER_UNIT)
-				.description("Whether the WMI protocol is up or not")
+				.description("Whether the WMI protocol is up or not.")
 				.build());
-		map.put(Target.WBEM_UP.getName(), MetricInfo
+		map.put(Host.WBEM_UP.getName(), MetricInfo
 				.builder()
 				.name("hw.target.wbem.up")
 				.unit(UP_PARAMETER_UNIT)
-				.description("Whether the WBEM protocol is up or not")
+				.description("Whether the WBEM protocol is up or not.")
 				.build());
-		map.put(Target.SSH_UP.getName(), MetricInfo
+		map.put(Host.SSH_UP.getName(), MetricInfo
 				.builder()
 				.name("hw.target.ssh.up")
 				.unit(UP_PARAMETER_UNIT)
-				.description("Whether the SSH protocol is up or not")
+				.description("Whether the SSH protocol is up or not.")
+				.build());
+		map.put(Host.HTTP_UP.getName(), MetricInfo
+				.builder()
+				.name("hw.target.http.up")
+				.unit(UP_PARAMETER_UNIT)
+				.description("Whether the HTTP protocol is up or not.")
+				.build());
+		map.put(Host.IPMI_UP.getName(), MetricInfo
+				.builder()
+				.name("hw.target.ipmi.up")
+				.unit(UP_PARAMETER_UNIT)
+				.description("Whether the IPMI protocol is up or not.")
 				.build());
 
 		return map;
