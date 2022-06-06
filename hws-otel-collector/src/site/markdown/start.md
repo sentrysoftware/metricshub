@@ -11,13 +11,13 @@ This quick start guide walks you through the step-by-step instructions you shoul
 
 ## Step 2: Configure the Hardware Sentry Agent
 
-First, add and define the hosts you wish to monitor to the **config/hws-config.yaml** file. Simply provide the [hostname and type](./configuration/configure-agent.html#Monitored_Targets) of the host to be monitored, the [connection protocol and credentials](./configure-agent.html#Protocols_and_Credentials.
+First, add and define the hosts you wish to monitor to the **config/hws-config.yaml** file. Simply provide the [hostname and type](./configuration/configure-agent.html#Monitored_Targets) of the host to be monitored, the [connection protocol and credentials](./configuration/configure-agent.html#Protocols_and_Credentials).
 
 Then, [define sites and sustainability](./configuration/configure-agent.html#Site_and_Sustainable_IT_Settings) settings. Monitored hosts must be grouped into sites. You must define at least one site to represent a data center, a server room, or applications and services depending on your IT infrastructure and needs.
 
 ## Step 3: Configure the integration with the third-party platform
 
-* [Prometheus](./integration/prometheus.html)
+* [BMC Helix](./integration/helix.html)
 * Datadog
-* [Helix](./integration/helix.html)
 * [Grafana](./integration/grafana.html)
+* [Prometheus](./integration/prometheus.html)
