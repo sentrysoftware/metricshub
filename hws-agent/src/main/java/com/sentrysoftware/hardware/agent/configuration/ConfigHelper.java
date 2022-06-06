@@ -54,6 +54,7 @@ public class ConfigHelper {
 	private static final String TIMEOUT_ERROR = "Hostname %s - Timeout value is invalid for protocol %s. Timeout value returned: %s. This host will not be monitored. Please verify the configured timeout value.";
 	private static final String PORT_ERROR = "Hostname %s - Invalid port configured for protocol %s. Port value returned: %s. This host will not be monitored. Please verify the configured port value.";
 	private static final String USERNAME_ERROR = "Hostname %s - No username configured for protocol %s. This host will not be monitored. Please verify the configured username.";
+	private static final String HOSTNAME_ERROR = "Hostname - %s. Invalid Hostname. This host will not be monitored. Please verify the configured hostname.";
 	private static final Predicate<String> INVALID_STRING_CHECKER = attr -> attr == null || attr.isBlank();
 	private static final Predicate<Integer> INVALID_PORT_CHECKER = attr -> attr == null || attr < 1 || attr > 65535;
 	private static final Predicate<Long> INVALID_TIMEOUT_CHECKER = attr -> attr == null || attr < 0L;
@@ -112,7 +113,7 @@ public class ConfigHelper {
 				hostname,
 				INVALID_STRING_CHECKER,
 				() -> String.format(
-						"Hostname - %s. Invalid Hostname. This host will not be monitored. Please verify the configured hostname.",
+						HOSTNAME_ERROR,
 						hostname),
 				ErrorCode.INVALID_HOSTNAME);
 
@@ -716,10 +717,10 @@ public class ConfigHelper {
 	/**
 	 * Validate the given WinRM information (hostname, port, timeout, username and command)
 	 *
-	 * @param hostname  hostname of the target
-	 * @param port      port of the target
-	 * @param timeout   timeout of the target
-	 * @param username	username used to authenticate to the target
+	 * @param hostname  hostname
+	 * @param port      port of the host
+	 * @param timeout   timeout of the host
+	 * @param username	username used to authenticate to the host
 	 * @throws BusinessException
 	 */
 	static void validateWinRmInfo(final String hostname, final Integer port, final Long timeout, final String username)
@@ -729,17 +730,17 @@ public class ConfigHelper {
 
 		validateAttribute(hostname,
 				INVALID_STRING_CHECKER,
-				() -> String.format(USERNAME_ERROR, hostname, protocol),
+				() -> String.format(HOSTNAME_ERROR, hostname),
 				ErrorCode.INVALID_HOSTNAME);
 
 		validateAttribute(port,
 				INVALID_PORT_CHECKER,
-				() -> String.format(PORT_ERROR, hostname, protocol),
+				() -> String.format(PORT_ERROR, hostname, protocol, port),
 				ErrorCode.INVALID_PORT);
 
 		validateAttribute(timeout,
 				INVALID_TIMEOUT_CHECKER,
-				() -> String.format(TIMEOUT_ERROR, hostname, protocol),
+				() -> String.format(TIMEOUT_ERROR, hostname, protocol, timeout),
 				ErrorCode.INVALID_TIMEOUT);
 
 		validateAttribute(username,

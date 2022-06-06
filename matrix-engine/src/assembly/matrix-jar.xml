@@ -21,6 +21,7 @@
 					<include>djb/**</include>
 					<include>META-INF/**</include>
 					<include>javax/**</include>
+					<include>wsdl/**</include>
 					<include>*.properties</include>
 				</includes>
 				<excludes>
