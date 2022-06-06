@@ -18,7 +18,13 @@ receivers:
   # https://github.com/open-telemetry/opentelemetry-collector/tree/main/receiver/otlpreceiver
   otlp:
     protocols:
-        grpc:
+      grpc:
+        endpoint: localhost:4317
+        tls:
+          cert_file: security/otel.crt
+          key_file: security/otel.key
+        auth:
+          authenticator: basicauth
 
   # prometheus
   # Polls the internal Prometheus exporter embedded with the OpenTelemetry Collector on port 8888 by default.
@@ -31,7 +37,7 @@ receivers:
         - job_name: otel-collector-internal
           scrape_interval: 60s
           static_configs:
-            - targets: ["0.0.0.0:8888"]
+            - targets: [ localhost:8888 ]
 
 #═══════════════════════════════════════════════════
 # PROCESSING
@@ -175,10 +181,17 @@ extensions:
 service:
   telemetry:
     logs:
-      level: info # Change to debug more more details
-  extensions: [health_check, hws_agent]
+      level: info # Change to debug for more details
+    metrics:
+      address: localhost:8888
+      level: basic
+  extensions: [health_check, basicauth, hws_agent]
   pipelines:
     metrics:
       receivers: [otlp, prometheus/internal]
       processors: [memory_limiter, batch, resourcedetection, metricstransform]
-      exporters: [prometheusremotewrite/your-server, prometheus] # List here the platform of your choice
+      exporters: [prometheusremotewrite/your-server] # List here the platform of your choice
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, resourcedetection]
+      exporters: [] # List here the platform of your choice
