@@ -7,7 +7,7 @@ This quick start guide walks you through the step-by-step instructions you shoul
 
 ## Step 1: Install Hardware Sentry OpenTelemetry Collector
 
-[Install Hardware Sentry OpenTelemetry Collector](./install.html) on a system that has network access to the physical servers, switches and storage systems you need to monitor. We recommend to install one instance of the **Hardware Sentry OpenTelemetry Collector** on each "site" (i.e. each datacenter or server room).
+[Install Hardware Sentry OpenTelemetry Collector](./install.html) on a system that has network access to the physical servers, switches and storage systems you need to monitor. We recommend to dedicate one instance of the **Hardware Sentry OpenTelemetry Collector** to one "site" (i.e. each datacenter or server room).
 
 ## Step 2: Configure the Hardware Sentry Agent
 
