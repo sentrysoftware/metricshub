@@ -19,7 +19,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import com.sentrysoftware.hardware.agent.dto.metric.DynamicIdentifyingAttribute;
-import com.sentrysoftware.hardware.agent.dto.metric.IIdentifyingAttribute;
+import com.sentrysoftware.hardware.agent.dto.metric.AbstractIdentifyingAttribute;
 import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo;
 import com.sentrysoftware.hardware.agent.dto.metric.StaticIdentifyingAttribute;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
@@ -303,7 +303,7 @@ public class OtelHelper {
 	 *         first position and the value in the second one.
 	 */
 	public static Optional<String[]> extractIdentifyingAttribute(final MetricInfo metricInfo, final Monitor monitor) {
-		final IIdentifyingAttribute identifyingAttribute = metricInfo.getIdentifyingAttribute();
+		final AbstractIdentifyingAttribute identifyingAttribute = metricInfo.getIdentifyingAttribute();
 		if (identifyingAttribute != null) {
 			// Simple key-value
 			if (identifyingAttribute instanceof StaticIdentifyingAttribute) {

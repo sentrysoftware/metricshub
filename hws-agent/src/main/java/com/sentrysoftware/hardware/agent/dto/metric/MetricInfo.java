@@ -33,7 +33,7 @@ public class MetricInfo {
 	@NonNull
 	private String description = "";
 
-	private IIdentifyingAttribute identifyingAttribute;
+	private AbstractIdentifyingAttribute identifyingAttribute;
 
 	private Predicate<IState> predicate;
 

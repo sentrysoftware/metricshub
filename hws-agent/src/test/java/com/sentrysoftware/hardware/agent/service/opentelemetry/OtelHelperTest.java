@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
 import com.sentrysoftware.hardware.agent.dto.metric.DynamicIdentifyingAttribute;
-import com.sentrysoftware.hardware.agent.dto.metric.IIdentifyingAttribute;
+import com.sentrysoftware.hardware.agent.dto.metric.AbstractIdentifyingAttribute;
 import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo;
 import com.sentrysoftware.hardware.agent.dto.metric.StaticIdentifyingAttribute;
 import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo.MetricType;
@@ -285,18 +285,7 @@ class OtelHelperTest {
 					.name("hw.battery.some.metric")
 					.factor(0.01)
 					.unit("1")
-					.identifyingAttribute(new IIdentifyingAttribute() {
-						
-						@Override
-						public String getValue() {
-							return "";
-						}
-						
-						@Override
-						public String getKey() {
-							return "";
-						}
-					})
+					.identifyingAttribute(new AbstractIdentifyingAttribute("", "") {})
 					.build();
 			final Monitor monitor = Monitor.builder().build();
 			assertThrows(IllegalStateException.class, () -> OtelHelper.extractIdentifyingAttribute(metricInfo, monitor));

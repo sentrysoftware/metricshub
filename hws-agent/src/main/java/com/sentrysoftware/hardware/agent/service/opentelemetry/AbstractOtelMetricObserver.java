@@ -110,7 +110,7 @@ public abstract class AbstractOtelMetricObserver extends AbstractOtelObserver {
 	 * 
 	 * @param metricInfo Metric information (name, unit, description, conversion factor...)
 	 * @param monitor    The monitor we wish to observe its parameter or metadata
-	 * @param observable An instance observing measurements with double values
+	 * @param recorder   An instance observing measurements with double values
 	 */
 	abstract void observe(MetricInfo metricInfo, Monitor monitor, ObservableDoubleMeasurement recorder);
 

@@ -13,7 +13,6 @@ import java.util.stream.Stream;
 
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
 import com.sentrysoftware.hardware.agent.dto.metric.DynamicIdentifyingAttribute;
-import com.sentrysoftware.hardware.agent.dto.metric.IIdentifyingAttribute;
 import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo;
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
