@@ -187,8 +187,8 @@ The following table lists **${project.name}**'s alert rules:
 | Robotics        | hw.robotics.status                     | WARN     | hw.robotics.status == 1                        | state = `degraded`                   |
 | Robotics        | hw.robotics.status                     | ALARM    | hw.robotics.status == 1                        | state = `failed`                     |
 | Tape Drive      | hw.tape_drive.errors                   | ALARM    | hw.tape_drive.errors >= 1                      |                                      |
-| Tape Drive      | hw.tape_drive.status                   | WARN     | hw.tape_drive.status == 1                      | state = `no_needs_cleaning`          |
-| Tape Drive      | hw.tape_drive.status                   | ALARM    | hw.tape_drive.status == 1                      | state = `needs_cleaning_immediately` |
+| Tape Drive      | hw.tape_drive.status                   | WARN     | hw.tape_drive.status == 1                      | state = `needs_cleaning`             |
+| Tape Drive      | hw.tape_drive.status                   | ALARM    | hw.tape_drive.status == 1                      | state = `needs_cleaning`             |
 | Tape Drive      | hw.tape_drive.status                   | ALARM    | hw.tape_drive.status == 0                      | state = `present`                    |
 | Tape Drive      | hw.tape_drive.status                   | WARN     | hw.tape_drive.status == 1                      | state = `degraded`                   |
 | Tape Drive      | hw.tape_drive.status                   | ALARM    | hw.tape_drive.status == 1                      | state = `failed`                     |

@@ -232,7 +232,7 @@ public class GpuMapping {
 		);
 
 		map.put(
-			Gpu.DECODER_USED_TIME.getName(),
+			Gpu.DECODER_USED_TIME_PERCENT.getName(),
 			Collections.singletonList(
 				MetricInfo
 					.builder()
@@ -253,7 +253,7 @@ public class GpuMapping {
 		);
 
 		map.put(
-			Gpu.ENCODER_USED_TIME.getName(),
+			Gpu.ENCODER_USED_TIME_PERCENT.getName(),
 			Collections.singletonList(
 				MetricInfo
 					.builder()
@@ -274,7 +274,7 @@ public class GpuMapping {
 		);
 
 		map.put(
-			Gpu.USED_TIME.getName(),
+			Gpu.USED_TIME_PERCENT.getName(),
 			Collections.singletonList(
 				MetricInfo
 					.builder()

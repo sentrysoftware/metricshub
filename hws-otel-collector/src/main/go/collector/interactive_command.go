@@ -14,7 +14,7 @@ func NewCommand(set service.CollectorSettings) *cobra.Command {
 		Version:      set.BuildInfo.Version,
 		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			featuregate.GetRegistry().Apply(gatesList)
+			featuregate.GetRegistry().Apply(getGatesList())
 			col, err := newCollectorWithLogCore(set)
 			if err != nil {
 				return err

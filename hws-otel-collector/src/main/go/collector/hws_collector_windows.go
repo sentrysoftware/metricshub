@@ -76,7 +76,7 @@ func (s *WindowsService) start(colErrorChannel chan error) error {
 		return err
 	}
 
-	featuregate.GetRegistry().Apply(gatesList)
+	featuregate.GetRegistry().Apply(getGatesList())
 
 	var err error
 	s.col, err = newCollectorWithLogCore(s.settings)

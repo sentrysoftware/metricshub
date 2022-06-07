@@ -23,9 +23,7 @@ public class TapeDriveMapping {
 
 	private static final String UNMOUNT_ATTRIBUTE_VALUE = "unmount";
 	private static final String MOUNT_ATTRIBUTE_VALUE = "mount";
-	private static final String NO_NEEDS_CLEANING_ATTRIBUTE_VALUE = "no_needs_cleaning";
 	private static final String NEEDS_CLEANING_ATTRIBUTE_VALUE = "needs_cleaning";
-	private static final String NEEDS_CLEANING_IMMEDIATELY_ATTRIBUTE_VALUE = "needs_cleaning_immediately";
 	private static final String OPERATIONS_METRIC_DESCRIPTION = createCustomDescriptionWithAttributes(
 		"Number of mount or unmount operations that occurred during the last collect interval",
 		TYPE_ATTRIBUTE_KEY,
@@ -38,7 +36,7 @@ public class TapeDriveMapping {
 		MONITOR_TYPE,
 		STATE_ATTRIBUTE_KEY,
 		OK_ATTRIBUTE_VALUE, DEGRADED_ATTRIBUTE_VALUE, FAILED_ATTRIBUTE_VALUE, PRESENT_ATTRIBUTE_VALUE,
-		NEEDS_CLEANING_ATTRIBUTE_VALUE, NO_NEEDS_CLEANING_ATTRIBUTE_VALUE, NEEDS_CLEANING_IMMEDIATELY_ATTRIBUTE_VALUE
+		NEEDS_CLEANING_ATTRIBUTE_VALUE
 	);
 
 	/**
@@ -119,21 +117,7 @@ public class TapeDriveMapping {
 
 		map.put(
 			TapeDrive.NEEDS_CLEANING.getName(),
-			List.of(
-				MetricInfo
-					.builder()
-					.name(STATUS_METRIC_NAME)
-					.description(STATUS_METRIC_DESCRIPTION)
-					.identifyingAttribute(
-						StaticIdentifyingAttribute
-							.builder()
-							.key(STATE_ATTRIBUTE_KEY)
-							.value(NO_NEEDS_CLEANING_ATTRIBUTE_VALUE)
-							.build()
-					)
-					.predicate(NO_NEEDS_CLEANING_PREDICATE)
-					.type(MetricType.UP_DOWN_COUNTER)
-					.build(),
+			Collections.singletonList(
 				MetricInfo
 					.builder()
 					.name(STATUS_METRIC_NAME)
@@ -146,20 +130,6 @@ public class TapeDriveMapping {
 							.build()
 					)
 					.predicate(CLEANING_NEEDED_PREDICATE)
-					.type(MetricType.UP_DOWN_COUNTER)
-					.build(),
-				MetricInfo
-					.builder()
-					.name(STATUS_METRIC_NAME)
-					.description(STATUS_METRIC_DESCRIPTION)
-					.identifyingAttribute(
-						StaticIdentifyingAttribute
-							.builder()
-							.key(STATE_ATTRIBUTE_KEY)
-							.value(NEEDS_CLEANING_IMMEDIATELY_ATTRIBUTE_VALUE)
-							.build()
-					)
-					.predicate(IMMEDIATELY_CLEANING_NEEDED_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.build()
 			)

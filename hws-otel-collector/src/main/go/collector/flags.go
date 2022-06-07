@@ -30,15 +30,6 @@ func (s *stringArrayValue) String() string {
 func flags() *flag.FlagSet {
 	flagSet := new(flag.FlagSet)
 
-	// Update the default config file
-	if len(configFlag.values) == 0 {
-		defaultConfig, err := getDefaultConfigFile()
-		if err != nil {
-			panic(err)
-		}
-		configFlag.values = []string{defaultConfig}
-	}
-
 	flagSet.Var(configFlag, "config", "Locations to the config file(s), note that only a"+
 		" single location can be set per flag entry e.g. `-config=file:/path/to/first --config=file:path/to/second`.")
 
@@ -56,9 +47,24 @@ func flags() *flag.FlagSet {
 }
 
 func getConfigFlag() []string {
+	// Update the default config file
+	if len(configFlag.values) == 0 {
+		defaultConfig, err := getDefaultConfigFile()
+		if err != nil {
+			panic(err)
+		}
+		configFlag.values = []string{defaultConfig}
+	}
 	return configFlag.values
 }
 
 func getSetFlag() []string {
 	return setFlag.values
+}
+
+func getGatesList() featuregate.FlagValue {
+	// This will update the flag if it doesn't exist
+	// Let's enable the prometheus exporter AutomaticRename feature
+	gatesList.Set("exporter.prometheus.AutomaticRename")
+	return gatesList
 }

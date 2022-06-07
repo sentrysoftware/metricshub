@@ -37,9 +37,7 @@ public class MappingConstants {
 	public static final Predicate<IState> PRESENT_PREDICATE = state -> Present.PRESENT == state;
 	public static final Predicate<IState> INTRUSION_STATUS_PREDICATE = state -> IntrusionStatus.OPEN == state;
 	public static final Predicate<IState> PREDICTED_FAILURE_PREDICATE = state -> PredictedFailure.FAILURE_PREDICTED == state;
-	public static final Predicate<IState> NO_NEEDS_CLEANING_PREDICATE = state -> NeedsCleaning.OK == state;
-	public static final Predicate<IState> CLEANING_NEEDED_PREDICATE = state -> NeedsCleaning.NEEDED == state;
-	public static final Predicate<IState> IMMEDIATELY_CLEANING_NEEDED_PREDICATE = state -> NeedsCleaning.NEEDED_IMMEDIATELY == state;
+	public static final Predicate<IState> CLEANING_NEEDED_PREDICATE = state -> NeedsCleaning.NEEDED == state || NeedsCleaning.NEEDED_IMMEDIATELY == state;
 	public static final Predicate<IState> ON_POWER_STATE_PREDICATE = powerState -> PowerState.ON == powerState;
 	public static final Predicate<IState> OFF_POWER_STATE_PREDICATE = powerState -> PowerState.OFF == powerState;
 	public static final Predicate<IState> SUSPENDED_POWER_STATE_PREDICATE = powerState -> PowerState.SUSPENDED == powerState;
