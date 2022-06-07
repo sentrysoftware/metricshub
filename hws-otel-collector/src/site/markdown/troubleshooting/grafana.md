@@ -11,8 +11,8 @@ This section describes common errors that may occur when using **Hardware Observ
 
 You usually get a "No data" message for sustainability metrics when:
 
-* the query takes too long to complete because the performance of the Prometheus Server is low
-* **${project.name}** has been running for less than 24 hours and does not have enough data to compute the annual type of metrics (typically, `Annual Energy Usage`, `Annual Cost`, `Annual CO₂ emissions`)
+* the query takes too long to complete. This could be due to a network issue, a lack of resources, or the Prometheus server running slow.
+* **${project.name}** has been running for less than 24 hours and does not have enough data to compute the annual type of metrics (typically, `Annual Energy Usage`, `Annual Cost`, `Annual CO₂ Emissions`)
 * the `hw.site.pue_ratio`, `hw.site.electricity_cost_dollars`, and `hw.site.carbon_density_grams` options are not properly set in the **config/hws-config.yaml** file. [Site and Sustainable IT Settings](./configuration/configure-agent.html#Site_and_Sustainable_IT_Settings) for more details.
 
 ## Energy usage and carbon emissions are oddly low
@@ -39,7 +39,7 @@ If you notice that no hardware metrics are displayed for hosts:
   
      * Search for the missing metric. If the metric corresponding to the monitored host is:
        * found, **${project.name}** collects data and pushes it to Prometheus. The issue is on the Grafana level. Please proceed to step 2.
-       * not found, connect to `http://localhost:24375/metrics` to make sure **${project.name}** is collecting data. If data:
+       * not found, connect to the server running the *Hardware Sentry Agent* at `http://<hostname>:24375/metrics` to make sure **${project.name}** is collecting data. If data:
          * is collected, the Prometheus exporter is not properly set in the `config/otel-config.yaml configuration` file. Refer to [Integration with Prometheus Server](./integration/prometheus.html) for more details.
          * is not collected:
             * Open the **config/hws-config.yaml** file and verify that the monitoring configuration is correct
