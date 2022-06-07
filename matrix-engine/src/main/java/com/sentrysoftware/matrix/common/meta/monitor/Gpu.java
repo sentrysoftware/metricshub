@@ -151,11 +151,11 @@ public class Gpu implements IMetaMonitor {
 		.build();
 
 	public static final MetaParameter ERROR_COUNT = MetaParameter.builder()
-			.basicCollect(false)
-			.name(ERROR_COUNT_PARAMETER)
-			.unit(ERROR_COUNT_PARAMETER_UNIT)
-			.type(SimpleParamType.NUMBER)
-			.build();
+		.basicCollect(false)
+		.name(ERROR_COUNT_PARAMETER)
+		.unit(ERROR_COUNT_PARAMETER_UNIT)
+		.type(SimpleParamType.NUMBER)
+		.build();
 
 	private static final List<String> METADATA = List.of(DEVICE_ID, VENDOR, MODEL, DRIVER_VERSION, FIRMWARE_VERSION,
 		SERIAL_NUMBER, SIZE, IDENTIFYING_INFORMATION);

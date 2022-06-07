@@ -117,6 +117,7 @@ public class TaskSchedulingService {
 
 		// Here we go
 		taskScheduler.schedule(meterProvider::forceFlush, trigger);
+
 	}
 
 	/**

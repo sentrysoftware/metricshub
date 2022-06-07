@@ -42,4 +42,13 @@ public class ServiceHelper {
 			.replaceAll(matchResult -> matchResult.group(2).toUpperCase());
 	}
 
+	/**
+	 * Capitalize the given string
+	 * 
+	 * @param value
+	 * @return String value
+	 */
+	public static String capitalize(String value) {
+		return value.substring(0, 1).toUpperCase() + value.substring(1);
+	}
 }

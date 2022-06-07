@@ -67,7 +67,7 @@ class MonitorAlertRulesVisitorTest {
 	}
 
 	@Test 
-	void testProcessTargetProtocolAlertRules() {
+	void testProcessHostProtocolAlertRules() {
 		final Monitor monitor = new Monitor();
 
 		CollectHelper.updateDiscreteParameter(monitor, SNMP_UP_PARAMETER, monitor.getDiscoveryTime(), Up.UP);

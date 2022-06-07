@@ -2,19 +2,24 @@ package com.sentrysoftware.hardware.agent.service.opentelemetry;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.util.Assert;
 
-import com.sentrysoftware.hardware.agent.dto.MetricInfo;
-import com.sentrysoftware.hardware.agent.dto.MetricInfo.MetricType;
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
+import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo;
+import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo.MetricType;
+import com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MetricsMapping;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.common.AttributesBuilder;
+import io.opentelemetry.api.metrics.DoubleGaugeBuilder;
+import io.opentelemetry.api.metrics.LongCounterBuilder;
+import io.opentelemetry.api.metrics.LongUpDownCounterBuilder;
 import io.opentelemetry.api.metrics.Meter;
 import io.opentelemetry.api.metrics.ObservableDoubleMeasurement;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
@@ -27,13 +32,13 @@ import lombok.ToString;
 @ToString(callSuper = true)
 public abstract class AbstractOtelMetricObserver extends AbstractOtelObserver {
 
-	protected final MetricInfo metricInfo;
+	protected final List<MetricInfo> metricInfoList;
 	protected final String matrixDataKey;
 
 	protected AbstractOtelMetricObserver(Monitor monitor, SdkMeterProvider sdkMeterProvider,
-			MultiHostsConfigurationDto multiHostsConfigurationDto, MetricInfo metricInfo, String matrixDataKey) {
+			MultiHostsConfigurationDto multiHostsConfigurationDto, List<MetricInfo> metricInfoList, String matrixDataKey) {
 		super(monitor, sdkMeterProvider, multiHostsConfigurationDto);
-		this.metricInfo = metricInfo;
+		this.metricInfoList = metricInfoList;
 		this.matrixDataKey = matrixDataKey;
 	}
 
@@ -45,28 +50,57 @@ public abstract class AbstractOtelMetricObserver extends AbstractOtelObserver {
 	@Override
 	public void init() {
 
-		final MetricType type = metricInfo.getType();
+		// Loop over each metric information and build the metric callback
+		for (final MetricInfo metricInfo : metricInfoList) {
 
-		// Gets or creates a named meter instance using the unique id of
-		// the monitor as instrumentation library
-		final Meter meter = getMeter();
+			final MetricType type = metricInfo.getType();
 
-		if (type.equals(MetricType.COUNTER)) {
-			// Sum (Counter)
-			meter
-				.counterBuilder(metricInfo.getName())
-				.setDescription(metricInfo.getDescription())
-				.setUnit(metricInfo.getUnit())
-				.ofDoubles()
-				.buildWithCallback(recorder -> observe(monitor, recorder));
+			// Gets or creates a named meter instance using the unique id of
+			// the monitor and the metric identifier as instrument
+			final Meter meter = getMeter(metricInfo);
 
-		} else {
-			// Gauge
-			meter
-				.gaugeBuilder(metricInfo.getName())
-				.setDescription(metricInfo.getDescription())
-				.setUnit(metricInfo.getUnit())
-				.buildWithCallback(recorder -> observe(monitor, recorder));
+			if (type.equals(MetricType.COUNTER)) {
+				// Sum (Counter)
+				final LongCounterBuilder builder = meter
+					.counterBuilder(metricInfo.getName())
+					.setDescription(metricInfo.getDescription());
+
+				// Set the unit if it is available
+				if (!metricInfo.getUnit().isBlank()) {
+					builder.setUnit(metricInfo.getUnit());
+				}
+
+				builder
+					.ofDoubles()
+					.buildWithCallback(recorder -> observe(metricInfo, monitor, recorder));
+
+			} else if (type.equals(MetricType.UP_DOWN_COUNTER)) {
+				// UpDownCounter
+				final LongUpDownCounterBuilder builder = meter
+						.upDownCounterBuilder(metricInfo.getName())
+						.setDescription(metricInfo.getDescription());
+
+				// Set the unit if it is available
+				if (!metricInfo.getUnit().isBlank()) {
+					builder.setUnit(metricInfo.getUnit());
+				}
+
+				builder
+					.ofDoubles()
+					.buildWithCallback(recorder -> observe(metricInfo, monitor, recorder));
+			} else {
+				// Gauge
+				final DoubleGaugeBuilder builder = meter
+						.gaugeBuilder(metricInfo.getName())
+						.setDescription(metricInfo.getDescription());
+
+				// Set the unit if it is available
+				if (!metricInfo.getUnit().isBlank()) {
+					builder.setUnit(metricInfo.getUnit());
+				}
+
+				builder.buildWithCallback(recorder -> observe(metricInfo, monitor, recorder));
+			}
 		}
 
 	}
@@ -74,20 +108,22 @@ public abstract class AbstractOtelMetricObserver extends AbstractOtelObserver {
 	/**
 	 * Observe the metricInfo value
 	 * 
+	 * @param metricInfo Metric information (name, unit, description, conversion factor...)
 	 * @param monitor    The monitor we wish to observe its parameter or metadata
 	 * @param observable An instance observing measurements with double values
 	 */
-	abstract void observe(Monitor monitor, ObservableDoubleMeasurement recorder);
+	abstract void observe(MetricInfo metricInfo, Monitor monitor, ObservableDoubleMeasurement recorder);
 
 	/**
-	 * Create OpenTelemetry {@link Attributes} using known attributes which could be overridden by the user
+	 * Create OpenTelemetry {@link Attributes} using known attributes which could be
+	 * overridden by the user
 	 * 
-	 * @param monitor           The monitor from which we want to extract the
-	 *                          metadata
-
+	 * @param metricInfo Metric information used to append the metric's identifying attributes
+	 * @param monitor    The monitor from which we want to extract the metadata
+	 * 
 	 * @return OpenTelemetry {@link Attributes} instance
 	 */
-	Attributes createAttributes(final Monitor monitor) {
+	Attributes createAttributes(final MetricInfo metricInfo, final Monitor monitor) {
 
 		// This is defined by the internal metrics mapping
 		final Map<String, String> initialAttributesMap = MetricsMapping.getAttributesMap(monitor.getMonitorType());
@@ -115,13 +151,20 @@ public abstract class AbstractOtelMetricObserver extends AbstractOtelObserver {
 					attributesBuilder.put(attributeKey, attributeValue);
 				});
 
+		// Add the identifying attribute to the metric's attributes
+		final Optional<String[]> maybeIdentifyingAttribute =  OtelHelper.extractIdentifyingAttribute(metricInfo, monitor);
+		if (maybeIdentifyingAttribute.isPresent()) {
+			final String[] identifyingAttribute = maybeIdentifyingAttribute.get();
+			attributesBuilder.put(identifyingAttribute[0], identifyingAttribute[1]);
+		}
+
 		return attributesBuilder.build();
 
 	}
 
 	/**
 	 * Convert the metadata value if needed otherwise get the value as it is
-	 * 
+	 *
 	 * @param monitor             The monitor from which we extract the metadata value
 	 * @param matrixMetadataName  The metadata identifier
 	 * @return String value
@@ -135,19 +178,24 @@ public abstract class AbstractOtelMetricObserver extends AbstractOtelObserver {
 		String metricValue = getValueOrElse(monitor.getMetadata(matrixMetadataName), EMPTY);
 
 		// Check if there is a metadata MetricInfo in order to get the factor
-		final Optional<MetricInfo> maybeMetric = MetricsMapping
-				.getMetadataAsMetricInfo(monitor.getMonitorType(), matrixMetadataName);
+		final Optional<List<MetricInfo>> maybeMetrics = MetricsMapping
+				.getMetadataAsMetricInfoList(monitor.getMonitorType(), matrixMetadataName);
 
-		if (!maybeMetric.isPresent()) {
+		if (!maybeMetrics.isPresent()) {
 			return metricValue;
 		}
 
 		// Check the metadata is a number value
 		if (canParseDoubleValue(metricValue)) {
 			// Ok, now we can get the metricInfo related to the given metadata
-			final MetricInfo metric = maybeMetric.get();
+			final Optional<MetricInfo> maybeMetricInfo = maybeMetrics.get().stream().findFirst();
 
-			return convertValue(metricValue, metric.getFactor()).toString();
+			// Convert the value
+			if (maybeMetricInfo.isPresent()) {
+				return convertValue(metricValue, maybeMetricInfo.get().getFactor()).toString();
+			}
+
+			return metricValue;
 		}
 
 		// This is an unexpected metadata value (expected as number value)
