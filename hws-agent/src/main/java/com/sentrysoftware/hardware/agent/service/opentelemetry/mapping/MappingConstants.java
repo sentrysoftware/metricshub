@@ -55,6 +55,8 @@ public class MappingConstants {
 	public static final String DIRECTION_ATTRIBUTE_KEY = "direction";
 	public static final String BATTERY_STATE_ATTRIBUTE_KEY = "battery_state";
 	public static final String LIMIT_TYPE_ATTRIBUTE_KEY = "limit_type";
+	public static final String INFO_ATTRIBUTE_KEY = "info";
+	public static final String SENSOR_LOCATION_ATTRIBUTE_KEY = "sensor_location";
 
 	// Attribute values
 	public static final String OK_ATTRIBUTE_VALUE = "ok";

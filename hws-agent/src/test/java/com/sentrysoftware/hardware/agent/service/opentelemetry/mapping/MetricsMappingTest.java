@@ -46,7 +46,31 @@ class MetricsMappingTest {
 				.get(ServiceHelper.camelCaseToSnakeCase(EXPECTED_PATH_COUNT)));
 
 		assertEquals(HardwareConstants.HOSTNAME, MetricsMapping.getAttributesMap(MonitorType.VM)
-				.get(MetricsMapping.VM_HOST_NAME));
+				.get(VmMapping.VM_HOST_NAME_ATTRIBUTE_KEY));
+
+		MonitorType
+			.MONITOR_TYPES
+			.stream()
+			.filter(monitorType -> MonitorType.HOST != monitorType && MonitorType.CONNECTOR != monitorType)
+			.forEach(monitorType -> 
+				assertEquals(
+					HardwareConstants.IDENTIFYING_INFORMATION,
+					MetricsMapping.getAttributesMap(monitorType).get(MappingConstants.INFO_ATTRIBUTE_KEY),
+					String.format(
+						"The %s metadata name is not overridden for monitor type %s.",
+						HardwareConstants.IDENTIFYING_INFORMATION,
+						monitorType
+					)
+				)
+			);
+
+		assertEquals(HardwareConstants.VOLTAGE_TYPE, MetricsMapping.getAttributesMap(MonitorType.VOLTAGE)
+				.get(MappingConstants.SENSOR_LOCATION_ATTRIBUTE_KEY));
+		assertEquals(HardwareConstants.TEMPERATURE_TYPE, MetricsMapping.getAttributesMap(MonitorType.TEMPERATURE)
+				.get(MappingConstants.SENSOR_LOCATION_ATTRIBUTE_KEY));
+		assertEquals(HardwareConstants.FAN_TYPE, MetricsMapping.getAttributesMap(MonitorType.FAN)
+				.get(MappingConstants.SENSOR_LOCATION_ATTRIBUTE_KEY));
+
 	}
 
 	@Test

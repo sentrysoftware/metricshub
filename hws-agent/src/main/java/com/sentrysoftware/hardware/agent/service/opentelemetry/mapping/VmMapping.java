@@ -1,8 +1,10 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry.mapping;
 
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.*;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HOSTNAME;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -19,6 +21,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class VmMapping {
 
+	public static final String VM_HOST_NAME_ATTRIBUTE_KEY = "vm.host.name";
 	private static final String STATUS_METRIC_NAME = "hw.vm.status";
 	private static final String POWER_STATE_METRIC_NAME = "hw.vm.power_state";
 	private static final String MONITOR_TYPE = "virtual machine";
@@ -197,4 +200,24 @@ public class VmMapping {
 
 		return map;
 	}
+
+	/**
+	 * Build the overridden attribute names to bypass the automatic renaming of the
+	 * internal matrix metadata key
+	 * 
+	 * @return lookup indexed by the internal matrix metadata key
+	 */
+	public static Map<String, String> buildOverriddenAttributeNames() {
+
+		Map<String, String> map = new HashMap<>();
+
+		// Put the VM's specific attribute
+		map.put(HOSTNAME, VM_HOST_NAME_ATTRIBUTE_KEY);
+
+		// Put all the default attributes
+		map.putAll(MetricsMapping.buildDefaultOverriddenAttributeNames());
+
+		return map;
+	}
+
 }

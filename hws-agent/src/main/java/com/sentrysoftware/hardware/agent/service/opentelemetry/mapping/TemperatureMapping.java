@@ -1,10 +1,10 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry.mapping;
 
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.*;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ALARM_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.*;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -138,7 +138,7 @@ public class TemperatureMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.temperature.temperature.limit")
+					.name("hw.temperature.limit")
 					.description(LIMIT_METRIC_DESCRIPTION)
 					.unit(CELSIUS_UNIT)
 					.identifyingAttribute(
@@ -157,7 +157,7 @@ public class TemperatureMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.temperature.temperature.limit")
+					.name("hw.temperature.limit")
 					.description(LIMIT_METRIC_DESCRIPTION)
 					.unit(CELSIUS_UNIT)
 					.identifyingAttribute(
@@ -170,6 +170,25 @@ public class TemperatureMapping {
 					.build()
 			)
 		);
+
+		return map;
+	}
+
+	/**
+	 * Build the overridden attribute names to bypass the automatic renaming of the
+	 * internal matrix metadata key
+	 * 
+	 * @return lookup indexed by the internal matrix metadata key
+	 */
+	public static Map<String, String> buildOverriddenAttributeNames() {
+
+		Map<String, String> map = new HashMap<>();
+
+		// Put the temperature's specific attribute
+		map.put(TEMPERATURE_TYPE, SENSOR_LOCATION_ATTRIBUTE_KEY);
+
+		// Put all the default attributes
+		map.putAll(MetricsMapping.buildDefaultOverriddenAttributeNames());
 
 		return map;
 	}

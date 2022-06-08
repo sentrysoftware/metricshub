@@ -1,10 +1,10 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry.mapping;
 
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.*;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UPPER_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOWER_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.*;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -139,7 +139,7 @@ public class VoltageMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.voltage.voltage.limit")
+					.name("hw.voltage.limit")
 					.factor(MILLIVOLTS_TO_VOLTS_FACTOR)
 					.unit(VOLTS_UNIT)
 					.description(LIMIT_METRIC_DESCRIPTION)
@@ -159,7 +159,7 @@ public class VoltageMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.voltage.voltage.limit")
+					.name("hw.voltage.limit")
 					.description(LIMIT_METRIC_DESCRIPTION)
 					.factor(MILLIVOLTS_TO_VOLTS_FACTOR)
 					.unit(VOLTS_UNIT)
@@ -173,6 +173,25 @@ public class VoltageMapping {
 					.build()
 			)
 		);
+
+		return map;
+	}
+
+	/**
+	 * Build the overridden attribute names to bypass the automatic renaming of the
+	 * internal matrix metadata key
+	 * 
+	 * @return lookup indexed by the internal matrix metadata key
+	 */
+	public static Map<String, String> buildOverriddenAttributeNames() {
+
+		Map<String, String> map = new HashMap<>();
+
+		// Put the temperature's specific attribute
+		map.put(VOLTAGE_TYPE, SENSOR_LOCATION_ATTRIBUTE_KEY);
+
+		// Put all the default attributes
+		map.putAll(MetricsMapping.buildDefaultOverriddenAttributeNames());
 
 		return map;
 	}

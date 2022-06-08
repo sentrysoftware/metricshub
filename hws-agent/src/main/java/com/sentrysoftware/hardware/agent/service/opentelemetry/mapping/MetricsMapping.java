@@ -1,7 +1,7 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry.mapping;
 
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.DEFAULT_ATTRIBUTE_NAMES;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HOSTNAME;
+import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.*;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.*;
 
 import java.util.Collections;
 import java.util.EnumMap;
@@ -41,13 +41,32 @@ public class MetricsMapping {
 			.type(MetricType.GAUGE)
 			.build();
 
-	public static final String VM_HOST_NAME = "vm.host.name";
-
 	static {
 
 		final Map<MonitorType, Map<String, String>> overriddenAttributeNames = new EnumMap<>(MonitorType.class);
 
-		overriddenAttributeNames.put(MonitorType.VM, Map.of(HOSTNAME, VM_HOST_NAME));
+		overriddenAttributeNames.put(MonitorType.VM, VmMapping.buildOverriddenAttributeNames());
+		overriddenAttributeNames.put(MonitorType.ENCLOSURE, buildDefaultOverriddenAttributeNames());
+		overriddenAttributeNames.put(MonitorType.BATTERY, buildDefaultOverriddenAttributeNames());
+		overriddenAttributeNames.put(MonitorType.MEMORY, buildDefaultOverriddenAttributeNames());
+		overriddenAttributeNames.put(MonitorType.OTHER_DEVICE, buildDefaultOverriddenAttributeNames());
+		overriddenAttributeNames.put(MonitorType.PHYSICAL_DISK, buildDefaultOverriddenAttributeNames());
+		overriddenAttributeNames.put(MonitorType.POWER_SUPPLY, buildDefaultOverriddenAttributeNames());
+		overriddenAttributeNames.put(MonitorType.ROBOTICS, buildDefaultOverriddenAttributeNames());
+		overriddenAttributeNames.put(MonitorType.TAPE_DRIVE, buildDefaultOverriddenAttributeNames());
+		overriddenAttributeNames.put(MonitorType.GPU, buildDefaultOverriddenAttributeNames());
+		overriddenAttributeNames.put(MonitorType.CPU, buildDefaultOverriddenAttributeNames());
+		overriddenAttributeNames.put(MonitorType.VOLTAGE, VoltageMapping.buildOverriddenAttributeNames());
+		overriddenAttributeNames.put(MonitorType.TEMPERATURE, TemperatureMapping.buildOverriddenAttributeNames());
+		overriddenAttributeNames.put(MonitorType.CPU_CORE, buildDefaultOverriddenAttributeNames());
+		overriddenAttributeNames.put(MonitorType.DISK_CONTROLLER, buildDefaultOverriddenAttributeNames());
+		overriddenAttributeNames.put(MonitorType.FAN, FanMapping.buildOverriddenAttributeNames());
+		overriddenAttributeNames.put(MonitorType.LUN, buildDefaultOverriddenAttributeNames());
+		overriddenAttributeNames.put(MonitorType.LED, buildDefaultOverriddenAttributeNames());
+		overriddenAttributeNames.put(MonitorType.LOGICAL_DISK, buildDefaultOverriddenAttributeNames());
+		overriddenAttributeNames.put(MonitorType.BLADE, buildDefaultOverriddenAttributeNames());
+		overriddenAttributeNames.put(MonitorType.DISK_CONTROLLER, buildDefaultOverriddenAttributeNames());
+		overriddenAttributeNames.put(MonitorType.NETWORK_CARD, buildDefaultOverriddenAttributeNames());
 
 		monitorTypeToOverriddenAttributeMap = Collections.unmodifiableMap(overriddenAttributeNames);
 
@@ -198,6 +217,18 @@ public class MetricsMapping {
 	 */
 	public static Map<String, String> getAttributesMap(final MonitorType monitorType) {
 		return monitorTypeToAttributeMap.get(monitorType);
+	}
+
+	/**
+	 * Build the default overridden attribute names to bypass the automatic renaming of the
+	 * internal matrix metadata key
+	 * 
+	 * @return lookup indexed by the internal matrix metadata key
+	 */
+	public static Map<String, String> buildDefaultOverriddenAttributeNames() {
+		return Map.of(
+				IDENTIFYING_INFORMATION, INFO_ATTRIBUTE_KEY
+		);
 	}
 
 }

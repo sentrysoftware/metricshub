@@ -3,6 +3,7 @@ package com.sentrysoftware.hardware.agent.service.opentelemetry.mapping;
 import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.*;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -13,10 +14,7 @@ import com.sentrysoftware.hardware.agent.dto.metric.StaticIdentifyingAttribute;
 import com.sentrysoftware.matrix.common.meta.monitor.Fan;
 import com.sentrysoftware.matrix.common.meta.monitor.IMetaMonitor;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ALARM_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_ALARM_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_WARNING_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.*;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -259,6 +257,25 @@ public class FanMapping {
 					.build()
 			)
 		);
+		return map;
+	}
+
+	/**
+	 * Build the overridden attribute names to bypass the automatic renaming of the
+	 * internal matrix metadata key
+	 * 
+	 * @return lookup indexed by the internal matrix metadata key
+	 */
+	public static Map<String, String> buildOverriddenAttributeNames() {
+
+		Map<String, String> map = new HashMap<>();
+
+		// Put the fan's specific attribute
+		map.put(FAN_TYPE, SENSOR_LOCATION_ATTRIBUTE_KEY);
+
+		// Put all the default attributes
+		map.putAll(MetricsMapping.buildDefaultOverriddenAttributeNames());
+
 		return map;
 	}
 }
