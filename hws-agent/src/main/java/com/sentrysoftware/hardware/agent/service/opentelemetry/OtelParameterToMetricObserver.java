@@ -3,7 +3,7 @@ package com.sentrysoftware.hardware.agent.service.opentelemetry;
 import java.util.List;
 
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
-import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo;
+import com.sentrysoftware.hardware.agent.mapping.opentelemetry.dto.MetricInfo;
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 

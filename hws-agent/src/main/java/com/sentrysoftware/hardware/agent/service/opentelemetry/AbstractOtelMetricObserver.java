@@ -9,9 +9,9 @@ import java.util.Optional;
 import org.springframework.util.Assert;
 
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
-import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo;
-import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo.MetricType;
-import com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MetricsMapping;
+import com.sentrysoftware.hardware.agent.mapping.opentelemetry.MetricsMapping;
+import com.sentrysoftware.hardware.agent.mapping.opentelemetry.dto.MetricInfo;
+import com.sentrysoftware.hardware.agent.mapping.opentelemetry.dto.MetricInfo.MetricType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 

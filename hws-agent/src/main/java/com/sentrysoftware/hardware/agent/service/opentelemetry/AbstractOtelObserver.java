@@ -1,8 +1,8 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry;
 
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.ID;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.NAME;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.PARENT;
+import static com.sentrysoftware.hardware.agent.mapping.opentelemetry.MappingConstants.ID;
+import static com.sentrysoftware.hardware.agent.mapping.opentelemetry.MappingConstants.NAME;
+import static com.sentrysoftware.hardware.agent.mapping.opentelemetry.MappingConstants.PARENT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 
 import java.util.Collection;
@@ -12,8 +12,8 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
-import com.sentrysoftware.hardware.agent.dto.metric.DynamicIdentifyingAttribute;
-import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo;
+import com.sentrysoftware.hardware.agent.mapping.opentelemetry.dto.DynamicIdentifyingAttribute;
+import com.sentrysoftware.hardware.agent.mapping.opentelemetry.dto.MetricInfo;
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 

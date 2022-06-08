@@ -1,6 +1,6 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry;
 
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.ID;
+import static com.sentrysoftware.hardware.agent.mapping.opentelemetry.MappingConstants.ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -16,7 +16,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
-import com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MetricsMapping;
+import com.sentrysoftware.hardware.agent.mapping.opentelemetry.MetricsMapping;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 
@@ -95,7 +95,7 @@ class OtelMetadataToMetricObserverTest {
 		assertEquals("host", actual.get(AttributeKey.stringKey("parent")));
 		assertEquals("Datacenter 1", actual.get(AttributeKey.stringKey("site")));
 		assertTrue(actual.get(AttributeKey.stringKey("device_id")).isEmpty());
-		assertTrue(actual.get(AttributeKey.stringKey("identifying_information")).isEmpty());
+		assertTrue(actual.get(AttributeKey.stringKey("info")).isEmpty());
 		assertTrue(actual.get(AttributeKey.stringKey("vendor")).isEmpty());
 		assertTrue(actual.get(AttributeKey.stringKey("model")).isEmpty());
 		assertNull(actual.get(AttributeKey.stringKey("size"))); // Already mapped as metric

@@ -1,9 +1,9 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry;
 
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.JOULES_UNIT;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.OK_ATTRIBUTE_VALUE;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.OK_STATUS_PREDICATE;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.STATE_ATTRIBUTE_KEY;
+import static com.sentrysoftware.hardware.agent.mapping.opentelemetry.MappingConstants.JOULES_UNIT;
+import static com.sentrysoftware.hardware.agent.mapping.opentelemetry.MappingConstants.OK_ATTRIBUTE_VALUE;
+import static com.sentrysoftware.hardware.agent.mapping.opentelemetry.MappingConstants.OK_STATUS_PREDICATE;
+import static com.sentrysoftware.hardware.agent.mapping.opentelemetry.MappingConstants.STATE_ATTRIBUTE_KEY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -21,11 +21,11 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
-import com.sentrysoftware.hardware.agent.dto.metric.DynamicIdentifyingAttribute;
-import com.sentrysoftware.hardware.agent.dto.metric.AbstractIdentifyingAttribute;
-import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo;
-import com.sentrysoftware.hardware.agent.dto.metric.StaticIdentifyingAttribute;
-import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo.MetricType;
+import com.sentrysoftware.hardware.agent.mapping.opentelemetry.dto.AbstractIdentifyingAttribute;
+import com.sentrysoftware.hardware.agent.mapping.opentelemetry.dto.DynamicIdentifyingAttribute;
+import com.sentrysoftware.hardware.agent.mapping.opentelemetry.dto.MetricInfo;
+import com.sentrysoftware.hardware.agent.mapping.opentelemetry.dto.StaticIdentifyingAttribute;
+import com.sentrysoftware.hardware.agent.mapping.opentelemetry.dto.MetricInfo.MetricType;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.ILocalOs;

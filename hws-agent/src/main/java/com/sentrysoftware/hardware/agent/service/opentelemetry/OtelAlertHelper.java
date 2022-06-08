@@ -28,8 +28,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.util.Assert;
 
-import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo;
-import com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MetricsMapping;
+import com.sentrysoftware.hardware.agent.mapping.opentelemetry.MetricsMapping;
+import com.sentrysoftware.hardware.agent.mapping.opentelemetry.dto.MetricInfo;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 import com.sentrysoftware.matrix.common.helpers.StringHelper;

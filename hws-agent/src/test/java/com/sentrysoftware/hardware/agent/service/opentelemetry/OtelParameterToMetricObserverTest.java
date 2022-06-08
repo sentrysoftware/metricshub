@@ -1,6 +1,6 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry;
 
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants.ID;
+import static com.sentrysoftware.hardware.agent.mapping.opentelemetry.MappingConstants.ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BIOS_VERSION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
@@ -33,10 +33,10 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
-import com.sentrysoftware.hardware.agent.dto.metric.MetricInfo;
-import com.sentrysoftware.hardware.agent.dto.metric.StaticIdentifyingAttribute;
-import com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MappingConstants;
-import com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MetricsMapping;
+import com.sentrysoftware.hardware.agent.mapping.opentelemetry.MappingConstants;
+import com.sentrysoftware.hardware.agent.mapping.opentelemetry.MetricsMapping;
+import com.sentrysoftware.hardware.agent.mapping.opentelemetry.dto.MetricInfo;
+import com.sentrysoftware.hardware.agent.mapping.opentelemetry.dto.StaticIdentifyingAttribute;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
@@ -188,7 +188,7 @@ class OtelParameterToMetricObserverTest {
 				.put("model", "PowerEdge T30")
 				.put("bios_version", "v1.1")
 				.put("type", "Server")
-				.put("identifying_information", "Server 1 - Dell")
+				.put("info", "Server 1 - Dell")
 				.put("ip_address", "192.168.1.1")
 				.put(MappingConstants.STATE_ATTRIBUTE_KEY, expectedValue == 1 ? expectedState : key)
 				.build();
@@ -298,7 +298,7 @@ class OtelParameterToMetricObserverTest {
 			.put("model", "PowerEdge T30")
 			.put("bios_version", "v1.1")
 			.put("type", "Server")
-			.put("identifying_information", "Server 1 - Dell")
+			.put("info", "Server 1 - Dell")
 			.put("ip_address", "192.168.1.1")
 			.build();
 
@@ -441,7 +441,7 @@ class OtelParameterToMetricObserverTest {
 				.put("model", "")
 				.put("bios_version", "")
 				.put("type", "")
-				.put("identifying_information", "")
+				.put("info", "")
 				.put("ip_address", "192.168.1.1")
 				.put(MappingConstants.STATE_ATTRIBUTE_KEY, MappingConstants.OK_ATTRIBUTE_VALUE)
 				.build();

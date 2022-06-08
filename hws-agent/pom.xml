@@ -50,6 +50,10 @@
 			<groupId>com.sentrysoftware.hardware.matrix</groupId>
 			<artifactId>matrix-connectors</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.sentrysoftware.hardware.matrix</groupId>
+			<artifactId>hws-agent-mapping</artifactId>
+		</dependency>
 		<!-- OpenAPI -->
 		<dependency>
 			<groupId>org.springdoc</groupId>
@@ -235,7 +239,7 @@
 										<limit>
 											<counter>COMPLEXITY</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.88</minimum>
+											<minimum>0.84</minimum>
 										</limit>
 									</limits>
 								</rule>

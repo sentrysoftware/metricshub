@@ -10,11 +10,11 @@ import org.apache.logging.log4j.ThreadContext;
 
 import com.sentrysoftware.hardware.agent.dto.HostConfigurationDto;
 import com.sentrysoftware.hardware.agent.dto.UserConfiguration;
+import com.sentrysoftware.hardware.agent.mapping.opentelemetry.MetricsMapping;
 import com.sentrysoftware.hardware.agent.service.opentelemetry.OtelAlertHelper;
 import com.sentrysoftware.hardware.agent.service.opentelemetry.OtelHelper;
 import com.sentrysoftware.hardware.agent.service.opentelemetry.OtelMetadataToMetricObserver;
 import com.sentrysoftware.hardware.agent.service.opentelemetry.OtelParameterToMetricObserver;
-import com.sentrysoftware.hardware.agent.service.opentelemetry.mapping.MetricsMapping;
 import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
 import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
 import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
