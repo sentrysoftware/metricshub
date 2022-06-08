@@ -39,7 +39,7 @@ If you notice that no hardware metrics are displayed for hosts:
   
      * Search for the missing metric. If the metric corresponding to the monitored host is:
        * found, **${project.name}** collects data and pushes it to Prometheus. The issue is on the Grafana level. Please proceed to step 2.
-       * not found, connect to the server running the *Hardware Sentry Agent* at `http://<hostname>:24375/metrics` to make sure **${project.name}** is collecting data. If data:
+       * not found, connect to the server running the *Hardware Sentry Agent* and open the URL `http://localhost:24375/metrics` to verify that **${project.name}** is collecting data. If data:
          * is collected, the Prometheus exporter is not properly set in the `config/otel-config.yaml configuration` file. Refer to [Integration with Prometheus Server](./integration/prometheus.html) for more details.
          * is not collected:
             * Open the **config/hws-config.yaml** file and verify that the monitoring configuration is correct
