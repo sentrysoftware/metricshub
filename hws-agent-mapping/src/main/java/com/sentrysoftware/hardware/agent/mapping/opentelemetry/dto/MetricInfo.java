@@ -1,5 +1,6 @@
 package com.sentrysoftware.hardware.agent.mapping.opentelemetry.dto;
 
+import java.util.List;
 import java.util.function.Predicate;
 
 import com.sentrysoftware.matrix.common.meta.parameter.state.IState;
@@ -9,6 +10,7 @@ import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NonNull;
+import lombok.Singular;
 
 @Builder
 @Data
@@ -33,7 +35,8 @@ public class MetricInfo {
 	@NonNull
 	private String description = "";
 
-	private AbstractIdentifyingAttribute identifyingAttribute;
+	@Singular
+	private List<AbstractIdentifyingAttribute> identifyingAttributes;
 
 	private Predicate<IState> predicate;
 

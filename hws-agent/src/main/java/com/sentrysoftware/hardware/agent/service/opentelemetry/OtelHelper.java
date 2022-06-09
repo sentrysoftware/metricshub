@@ -14,6 +14,8 @@ import static com.sentrysoftware.matrix.engine.host.HostType.STORAGE;
 import static com.sentrysoftware.matrix.engine.host.HostType.SUN_SOLARIS;
 
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -293,28 +295,42 @@ public class OtelHelper {
 	}
 
 	/**
-	 * Extract the identifying attribute from the given {@link MetricInfo}. The
+	 * Extract the identifying attributes from the given {@link MetricInfo}. The
 	 * identifying attribute is a key value pair which could be static or dynamic
 	 * i.e. fetched from the monitor's metadata.
 	 * 
 	 * @param metricInfo The metric information
 	 * @param monitor    The monitor used to fetch the attribute value
-	 * @return {@link Optional} of {@link String} array including the key at the
-	 *         first position and the value in the second one.
+	 * @return {@link Optional} of {@link List} where each element in this list is a
+	 *         string array defining the key at the first position and the value at
+	 *         the second one.
 	 */
-	public static Optional<String[]> extractIdentifyingAttribute(final MetricInfo metricInfo, final Monitor monitor) {
-		final AbstractIdentifyingAttribute identifyingAttribute = metricInfo.getIdentifyingAttribute();
-		if (identifyingAttribute != null) {
-			// Simple key-value
-			if (identifyingAttribute instanceof StaticIdentifyingAttribute) {
-				return Optional.of(new String[] { identifyingAttribute.getKey(), identifyingAttribute.getValue() });
-			} else if (identifyingAttribute instanceof DynamicIdentifyingAttribute) {
-				// The value is dynamic extracted from the metadata collection
-				return Optional.of(new String[] { identifyingAttribute.getKey(),
-						StringHelper.getValue(() -> monitor.getMetadata(identifyingAttribute.getValue()).trim().toLowerCase(), EMPTY) });
-			} else {
-				throw new IllegalStateException("Unhandled identifying attribute: " + identifyingAttribute.getClass().getSimpleName());
+	public static Optional<List<String[]>> extractIdentifyingAttribute(final MetricInfo metricInfo, final Monitor monitor) {
+		final List<AbstractIdentifyingAttribute> identifyingAttributes = metricInfo.getIdentifyingAttributes();
+		if (identifyingAttributes != null && !identifyingAttributes.isEmpty()) {
+			final List<String[]> result = new ArrayList<>();
+
+			for (AbstractIdentifyingAttribute identifyingAttribute : identifyingAttributes) {
+				// Simple key-value
+				if (identifyingAttribute instanceof StaticIdentifyingAttribute) {
+					result.add(
+						new String[] { identifyingAttribute.getKey(), identifyingAttribute.getValue() }
+					);
+				} else if (identifyingAttribute instanceof DynamicIdentifyingAttribute) {
+					// The value is dynamic extracted from the metadata collection
+					result.add(
+						new String[] { 
+							identifyingAttribute.getKey(),
+							StringHelper.getValue(() -> monitor.getMetadata(identifyingAttribute.getValue()).trim().toLowerCase(), EMPTY) 
+						}
+					);
+				} else {
+					throw new IllegalStateException("Unhandled identifying attribute: " + identifyingAttribute.getClass().getSimpleName());
+				}
 			}
+
+			return Optional.of(result);
+
 		}
 
 		return Optional.empty();

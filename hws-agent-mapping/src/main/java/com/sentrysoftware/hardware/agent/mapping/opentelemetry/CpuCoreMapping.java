@@ -19,13 +19,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CpuCoreMapping {
 
-	private static final String STATUS_METRIC_NAME = "hw.cpu_core.status";
-	private static final String MONITOR_TYPE = "CPU core";
-	private static final String STATUS_METRIC_DESCRIPTION = createStatusDescription(
-		MONITOR_TYPE,
-		STATE_ATTRIBUTE_KEY,
-		OK_ATTRIBUTE_VALUE, DEGRADED_ATTRIBUTE_VALUE, FAILED_ATTRIBUTE_VALUE, PRESENT_ATTRIBUTE_VALUE
-	);
+	public static final String HW_TYPE_ATTRIBUTE_VALUE = "cpu_core";
 
 	/**
 	 * Build cpu core metrics map
@@ -49,6 +43,13 @@ public class CpuCoreMapping {
 							.value(OK_ATTRIBUTE_VALUE)
 							.build()
 					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.predicate(OK_STATUS_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.build(),
@@ -63,6 +64,13 @@ public class CpuCoreMapping {
 							.value(DEGRADED_ATTRIBUTE_VALUE)
 							.build()
 					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.predicate(DEGRADED_STATUS_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.build(),
@@ -75,6 +83,13 @@ public class CpuCoreMapping {
 							.builder()
 							.key(STATE_ATTRIBUTE_KEY)
 							.value(FAILED_ATTRIBUTE_VALUE)
+							.build()
+					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
 							.build()
 					)
 					.predicate(FAILED_STATUS_PREDICATE)
@@ -95,6 +110,13 @@ public class CpuCoreMapping {
 							.builder()
 							.key(STATE_ATTRIBUTE_KEY)
 							.value(PRESENT_ATTRIBUTE_VALUE)
+							.build()
+					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
 							.build()
 					)
 					.predicate(PRESENT_PREDICATE)

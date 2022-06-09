@@ -57,6 +57,7 @@ public class MappingConstants {
 	public static final String LIMIT_TYPE_ATTRIBUTE_KEY = "limit_type";
 	public static final String INFO_ATTRIBUTE_KEY = "info";
 	public static final String SENSOR_LOCATION_ATTRIBUTE_KEY = "sensor_location";
+	public static final String HW_TYPE_ATTRIBUTE_KEY = "hw.type";
 
 	// Attribute values
 	public static final String OK_ATTRIBUTE_VALUE = "ok";
@@ -121,11 +122,16 @@ public class MappingConstants {
 	public static final String PACKETS_UNIT = "{packets}";
 
 	// Descriptions
-	public static final String WARNING_OR_ALARM_THRESHOLD_OF_ERRORS = createCustomDescriptionWithAttributes(
+	public static final String ERRORS_LIMIT_METRIC_DESCRIPTION = createCustomDescriptionWithAttributes(
 		"Warning or alarm threshold of the encountered errors",
 		LIMIT_TYPE_ATTRIBUTE_KEY,
 		CRITICAL_ATTRIBUTE_VALUE, DEGRADED_ATTRIBUTE_VALUE
 	);
+	public static final String STATUS_METRIC_DESCRIPTION = "Operational status of the monitored device specified with `hw.type` and `id`:"
+		+ " 1 (true) or 0 (false) for each of the possible states.";
+	public static final String POWER_METRIC_DESCRIPTION = "Energy consumed by the monitored device specified with `hw.type` and `id`.";
+	public static final String ENERGY_METRIC_DESCRIPTION = "Energy consumed by the monitored device specified with `hw.type` and `id`"
+		+ " since the start of the Hardware Sentry Agent.";
 
 	// Factors
 	public static final double MHZ_TO_HZ_FACTOR = 1000000.0;
@@ -135,50 +141,24 @@ public class MappingConstants {
 	public static final double MEGABITS_TO_BYTES_FACTOR = 125000.0;
 	public static final double GIGABYTES_TO_BYTES_FACTOR = 1073741824.0;
 
-	/**
-	 * Creates the status description.
-	 *
-	 * @param monitorType     The type of the monitor, as string.
-	 * @param attributeName   The attribute name, as string.
-	 * @param attributeValues Possible attribute values, as string array.
-	 *
-	 * @return {@link String} value
-	 */
-	public static String createStatusDescription(@NonNull String monitorType, @NonNull String attributeName, @NonNull String... attributeValues) {
-
-		return createStatusDescription(monitorType, buildAttributeSection(attributeName, attributeValues));
-	}
+	// Metrics 
+	public static final String STATUS_METRIC_NAME = "hw.status";
+	public static final String ENERGY_METRIC_NAME = "hw.energy";
+	public static final String POWER_METRIC_NAME = "hw.power";
 
 	/**
-	 * Creates the status description.
-	 *
-	 * @param monitorType           The type of the monitor, as string.
-	 * @param formattedAttributes   The formatted attributes value, as string.
-	 *
-	 * @return {@link String} value
-	 */
-	public static String createStatusDescription(@NonNull String monitorType, @NonNull String formattedAttributes) {
-		monitorType = MappingHelper.capitalize(monitorType);
-		return String.format(
-			"%s operational status: 1 (true) or 0 (false) for each of the possible states. Attribute(s): %s.",
-			monitorType,
-			formattedAttributes
-		);
-	}
-
-	/**
-	 * Make the value enclosed in the quotation marks
+	 * Make the value enclosed between backticks
 	 * 
 	 * @param value the value format
 	 * @return String value
 	 */
-	static String makeInQuotationMarks(String value) {
-		return String.format("\"%s\"", value);
+	static String makeBetweenBackticks(String value) {
+		return String.format("`%s`", value);
 	}
 
 	/**
 	 * Build the attribute section formatted as the following example: <br>
-	 * <em>state = "degraded", "failed", "ok" and "present"</em>
+	 * <em>state = `degraded`, `failed`, `ok` and `present`</em>
 	 * @param attributeName
 	 * @param attributeValues
 	 * @return String value
@@ -193,14 +173,14 @@ public class MappingConstants {
 			"%s = %s" ,
 			attributeName,
 			size == 1 ? 
-				makeInQuotationMarks(sortedAttributeValues.get(0)) : 
+				makeBetweenBackticks(sortedAttributeValues.get(0)) : 
 				Stream.of(
 					IntStream
 						.range(0, size - 1)
-						.mapToObj(i -> makeInQuotationMarks(sortedAttributeValues.get(i)))
+						.mapToObj(i -> makeBetweenBackticks(sortedAttributeValues.get(i)))
 						.collect(Collectors.joining(", ")
 					),
-					makeInQuotationMarks(sortedAttributeValues.get(size - 1))
+						makeBetweenBackticks(sortedAttributeValues.get(size - 1))
 				)
 				.collect(Collectors.joining(" and "))
 		);
@@ -213,7 +193,7 @@ public class MappingConstants {
 	 *
 	 * @return {@link String} value
 	 */
-	public static String createEnergyDescription(@NonNull String monitorType) {
+	public static String createCustomEnergyDescription(@NonNull String monitorType) {
 		return String.format("Energy consumed by the %s since the start of the Hardware Sentry Agent.", monitorType);
 	}
 
@@ -224,12 +204,12 @@ public class MappingConstants {
 	 *
 	 * @return {@link String} value
 	 */
-	public static String createPowerConsumptionDescription(@NonNull String monitorType) {
+	public static String createCustomPowerDescription(@NonNull String monitorType) {
 		return String.format("Energy consumed by the %s.", monitorType);
 	}
 
 	/**
-	 * Creates the power state description.
+	 * Creates a custom power state description.
 	 *
 	 * @param monitorType     The type of the monitor, as string.
 	 * @param attributeName   The attribute name, as string.
@@ -237,10 +217,28 @@ public class MappingConstants {
 	 *
 	 * @return {@link String} value
 	 */
-	public static String createPowerStateDescription(@NonNull String monitorType, @NonNull String attributeName, @NonNull String... attributeValues) {
+	public static String createCustomPowerStateDescription(@NonNull String monitorType, @NonNull String attributeName, @NonNull String... attributeValues) {
 		monitorType = MappingHelper.capitalize(monitorType);
 		return String.format(
 			"%s power state: 1 (true) or 0 (false) for each of the possible states. Attribute(s): %s.",
+			monitorType,
+			buildAttributeSection(attributeName, attributeValues)
+		);
+	}
+
+	/**
+	 * Creates a custom status description.
+	 *
+	 * @param monitorType     The type of the monitor, as string.
+	 * @param attributeName   The attribute name, as string.
+	 * @param attributeValues Possible attribute values, as string array.
+	 *
+	 * @return {@link String} value
+	 */
+	public static String createCustomStatusDescription(@NonNull String monitorType, @NonNull String attributeName, @NonNull String... attributeValues) {
+		monitorType = MappingHelper.capitalize(monitorType);
+		return String.format(
+			"%s operational status: 1 (true) or 0 (false) for each of the possible states. Attribute(s): %s.",
 			monitorType,
 			buildAttributeSection(attributeName, attributeValues)
 		);

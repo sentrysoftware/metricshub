@@ -21,13 +21,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TemperatureMapping {
 
-	private static final String STATUS_METRIC_NAME = "hw.temperature.status";
-	private static final String MONITOR_TYPE = "temperature";
-	private static final String STATUS_METRIC_DESCRIPTION = createStatusDescription(
-		MONITOR_TYPE,
-		STATE_ATTRIBUTE_KEY,
-		OK_ATTRIBUTE_VALUE, DEGRADED_ATTRIBUTE_VALUE, FAILED_ATTRIBUTE_VALUE, PRESENT_ATTRIBUTE_VALUE
-	);
+	public static final String HW_TYPE_ATTRIBUTE_VALUE = "temperature";
 	private static final String LIMIT_METRIC_DESCRIPTION = createCustomDescriptionWithAttributes(
 		"Current temperature in degrees Celsius (°C) that will generate a warning or an alarm when reached",
 		LIMIT_TYPE_ATTRIBUTE_KEY,
@@ -56,6 +50,13 @@ public class TemperatureMapping {
 							.value(OK_ATTRIBUTE_VALUE)
 							.build()
 					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.predicate(OK_STATUS_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.build(),
@@ -70,6 +71,13 @@ public class TemperatureMapping {
 							.value(DEGRADED_ATTRIBUTE_VALUE)
 							.build()
 					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.predicate(DEGRADED_STATUS_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.build(),
@@ -82,6 +90,13 @@ public class TemperatureMapping {
 							.builder()
 							.key(STATE_ATTRIBUTE_KEY)
 							.value(FAILED_ATTRIBUTE_VALUE)
+							.build()
+					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
 							.build()
 					)
 					.predicate(FAILED_STATUS_PREDICATE)
@@ -104,6 +119,13 @@ public class TemperatureMapping {
 							.value(PRESENT_ATTRIBUTE_VALUE)
 							.build()
 					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.predicate(PRESENT_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.build()
@@ -115,7 +137,7 @@ public class TemperatureMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.temperature.temperature")
+					.name("hw.temperature")
 					.description("Current temperature reading in Celsius degrees.")
 					.unit(CELSIUS_UNIT)
 					.build()

@@ -19,13 +19,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BatteryMapping {
 
-	private static final String MONITOR_TYPE = "battery";
-	private static final String STATUS_METRIC_DESCRIPTION = createStatusDescription(
-		MONITOR_TYPE,
-		STATE_ATTRIBUTE_KEY,
-		OK_ATTRIBUTE_VALUE, DEGRADED_ATTRIBUTE_VALUE, FAILED_ATTRIBUTE_VALUE, PRESENT_ATTRIBUTE_VALUE
-	);
-	private static final String BATTERY_STATUS_METRIC_NAME = "hw.battery.status";
+	public static final String HW_TYPE_ATTRIBUTE_VALUE = "battery";
 
 	/**
 	 * Build battery metrics map
@@ -40,7 +34,7 @@ public class BatteryMapping {
 			List.of(
 				MetricInfo
 					.builder()
-					.name(BATTERY_STATUS_METRIC_NAME)
+					.name(STATUS_METRIC_NAME)
 					.description(STATUS_METRIC_DESCRIPTION)
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
@@ -48,13 +42,20 @@ public class BatteryMapping {
 							.key(STATE_ATTRIBUTE_KEY)
 							.value(OK_ATTRIBUTE_VALUE)
 							.build()
-						)
+					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.predicate(OK_STATUS_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.build(),
 				MetricInfo
 					.builder()
-					.name(BATTERY_STATUS_METRIC_NAME)
+					.name(STATUS_METRIC_NAME)
 					.description(STATUS_METRIC_DESCRIPTION)
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
@@ -62,13 +63,20 @@ public class BatteryMapping {
 							.key(STATE_ATTRIBUTE_KEY)
 							.value(DEGRADED_ATTRIBUTE_VALUE)
 							.build()
-						)
+					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.predicate(DEGRADED_STATUS_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.build(),
 				MetricInfo
 					.builder()
-					.name(BATTERY_STATUS_METRIC_NAME)
+					.name(STATUS_METRIC_NAME)
 					.description(STATUS_METRIC_DESCRIPTION)
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
@@ -76,7 +84,14 @@ public class BatteryMapping {
 							.key(STATE_ATTRIBUTE_KEY)
 							.value(FAILED_ATTRIBUTE_VALUE)
 							.build()
-						)
+					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.predicate(FAILED_STATUS_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.build()
@@ -88,13 +103,20 @@ public class BatteryMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name(BATTERY_STATUS_METRIC_NAME)
+					.name(STATUS_METRIC_NAME)
 					.description(STATUS_METRIC_DESCRIPTION)
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
 							.key(STATE_ATTRIBUTE_KEY)
 							.value(PRESENT_ATTRIBUTE_VALUE)
+							.build()
+					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
 							.build()
 					)
 					.predicate(PRESENT_PREDICATE)
@@ -143,4 +165,5 @@ public class BatteryMapping {
 
 		return map;
 	}
+
 }

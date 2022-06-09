@@ -20,22 +20,7 @@ import lombok.NoArgsConstructor;
 public class DiskControllerMapping {
 
 	private static final String ADDITIONAL_ID = "1";
-	private static final String STATUS_METRIC_NAME = "hw.disk_controller.status";
-	private static final String MONITOR_TYPE = "disk controller";
-	private static final String STATUS_METRIC_DESCRIPTION = createStatusDescription(
-		MONITOR_TYPE,
-		String.format(
-			"%s, %s",
-			buildAttributeSection(
-				STATE_ATTRIBUTE_KEY,
-				OK_ATTRIBUTE_VALUE, DEGRADED_ATTRIBUTE_VALUE, FAILED_ATTRIBUTE_VALUE, PRESENT_ATTRIBUTE_VALUE
-			),
-			buildAttributeSection(
-				BATTERY_STATE_ATTRIBUTE_KEY,
-				OK_ATTRIBUTE_VALUE, DEGRADED_ATTRIBUTE_VALUE, FAILED_ATTRIBUTE_VALUE
-			)
-		)
-	);
+	public static final String HW_TYPE_ATTRIBUTE_VALUE = "disk_controller";
 
 	/**
 	 * Build disk controller metrics map
@@ -59,6 +44,13 @@ public class DiskControllerMapping {
 							.value(OK_ATTRIBUTE_VALUE)
 							.build()
 					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.predicate(OK_STATUS_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.build(),
@@ -73,6 +65,13 @@ public class DiskControllerMapping {
 							.value(DEGRADED_ATTRIBUTE_VALUE)
 							.build()
 					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.predicate(DEGRADED_STATUS_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.build(),
@@ -85,6 +84,13 @@ public class DiskControllerMapping {
 							.builder()
 							.key(STATE_ATTRIBUTE_KEY)
 							.value(FAILED_ATTRIBUTE_VALUE)
+							.build()
+					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
 							.build()
 					)
 					.predicate(FAILED_STATUS_PREDICATE)
@@ -107,6 +113,13 @@ public class DiskControllerMapping {
 							.value(PRESENT_ATTRIBUTE_VALUE)
 							.build()
 					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.predicate(PRESENT_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.build()
@@ -127,6 +140,13 @@ public class DiskControllerMapping {
 							.value(OK_ATTRIBUTE_VALUE)
 							.build()
 					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.predicate(OK_STATUS_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.build(),
@@ -141,6 +161,13 @@ public class DiskControllerMapping {
 							.value(DEGRADED_ATTRIBUTE_VALUE)
 							.build()
 					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.predicate(DEGRADED_STATUS_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.build(),
@@ -153,6 +180,13 @@ public class DiskControllerMapping {
 							.builder()
 							.key(BATTERY_STATE_ATTRIBUTE_KEY)
 							.value(FAILED_ATTRIBUTE_VALUE)
+							.build()
+					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
 							.build()
 					)
 					.predicate(FAILED_STATUS_PREDICATE)
@@ -175,6 +209,13 @@ public class DiskControllerMapping {
 							.value(OK_ATTRIBUTE_VALUE)
 							.build()
 					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.predicate(OK_STATUS_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.additionalId(ADDITIONAL_ID)
@@ -188,6 +229,13 @@ public class DiskControllerMapping {
 							.builder()
 							.key(STATE_ATTRIBUTE_KEY)
 							.value(DEGRADED_ATTRIBUTE_VALUE)
+							.build()
+					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
 							.build()
 					)
 					.predicate(DEGRADED_STATUS_PREDICATE)
@@ -205,6 +253,13 @@ public class DiskControllerMapping {
 							.value(FAILED_ATTRIBUTE_VALUE)
 							.build()
 					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.predicate(FAILED_STATUS_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.additionalId(ADDITIONAL_ID)
@@ -217,10 +272,17 @@ public class DiskControllerMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.disk_controller.energy")
+					.name("hw.energy")
 					.unit(JOULES_UNIT)
 					.type(MetricType.COUNTER)
-					.description(createEnergyDescription(MONITOR_TYPE))
+					.description(ENERGY_METRIC_DESCRIPTION)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);
@@ -230,9 +292,17 @@ public class DiskControllerMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.disk_controller.power")
+					.name("hw.power")
 					.unit(WATTS_UNIT)
-					.description(createPowerConsumptionDescription(MONITOR_TYPE))
+					.type(MetricType.GAUGE)
+					.description(POWER_METRIC_DESCRIPTION)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);

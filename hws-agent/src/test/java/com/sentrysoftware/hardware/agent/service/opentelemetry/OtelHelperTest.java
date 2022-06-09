@@ -1,9 +1,6 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry;
 
-import static com.sentrysoftware.hardware.agent.mapping.opentelemetry.MappingConstants.JOULES_UNIT;
-import static com.sentrysoftware.hardware.agent.mapping.opentelemetry.MappingConstants.OK_ATTRIBUTE_VALUE;
-import static com.sentrysoftware.hardware.agent.mapping.opentelemetry.MappingConstants.OK_STATUS_PREDICATE;
-import static com.sentrysoftware.hardware.agent.mapping.opentelemetry.MappingConstants.STATE_ATTRIBUTE_KEY;
+import static com.sentrysoftware.hardware.agent.mapping.opentelemetry.MappingConstants.*;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -11,16 +8,19 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mockStatic;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import java.util.Optional;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
+import com.sentrysoftware.hardware.agent.mapping.opentelemetry.BatteryMapping;
 import com.sentrysoftware.hardware.agent.mapping.opentelemetry.dto.AbstractIdentifyingAttribute;
 import com.sentrysoftware.hardware.agent.mapping.opentelemetry.dto.DynamicIdentifyingAttribute;
 import com.sentrysoftware.hardware.agent.mapping.opentelemetry.dto.MetricInfo;
@@ -232,7 +232,7 @@ class OtelHelperTest {
 		{
 			final MetricInfo metricInfo = MetricInfo
 				.builder()
-				.name("hw.battery.status")
+				.name("hw.status")
 				.description("Whether the battery status is ok or not.")
 				.identifyingAttribute(
 					StaticIdentifyingAttribute
@@ -241,11 +241,30 @@ class OtelHelperTest {
 						.value(OK_ATTRIBUTE_VALUE)
 						.build()
 				)
+				.identifyingAttribute(
+					StaticIdentifyingAttribute
+						.builder()
+						.key(HW_TYPE_ATTRIBUTE_KEY)
+						.value(BatteryMapping.HW_TYPE_ATTRIBUTE_VALUE)
+						.build()
+				)
 				.predicate(OK_STATUS_PREDICATE)
 				.build();
 			final Monitor monitor = Monitor.builder().build();
 			CollectHelper.updateDiscreteParameter(monitor, STATUS_PARAMETER, new Date().getTime(), Status.OK);
-			assertEquals(Set.of(new String[] {STATE_ATTRIBUTE_KEY, OK_ATTRIBUTE_VALUE}), Set.of(OtelHelper.extractIdentifyingAttribute(metricInfo, monitor).get()));
+			assertEquals(
+				Set.of(
+					STATE_ATTRIBUTE_KEY, OK_ATTRIBUTE_VALUE,
+					HW_TYPE_ATTRIBUTE_KEY, BatteryMapping.HW_TYPE_ATTRIBUTE_VALUE
+				),
+				OtelHelper
+					.extractIdentifyingAttribute(metricInfo, monitor)
+					.get()
+					.stream()
+					.map(id -> Set.of(id))
+					.flatMap(Collection::stream)
+					.collect(Collectors.toSet())
+			);
 		}
 
 		{
@@ -265,7 +284,17 @@ class OtelHelperTest {
 				.build();
 			final Monitor monitor = Monitor.builder().build();
 			monitor.addMetadata(POWER_METER, PowerMeter.ESTIMATED.name());
-			assertEquals(Set.of(new String[] {"quality", "estimated"}), Set.of(OtelHelper.extractIdentifyingAttribute(metricInfo, monitor).get()));
+			assertEquals(
+				Set.of("quality", "estimated"),
+				OtelHelper
+					.extractIdentifyingAttribute(metricInfo, monitor)
+					.get()
+					.stream()
+					.map(id -> Set.of(id))
+					.flatMap(Collection::stream)
+					.collect(Collectors.toSet()
+				)
+			);
 		}
 
 		{

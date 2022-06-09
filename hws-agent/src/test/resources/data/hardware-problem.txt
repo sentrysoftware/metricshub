@@ -1,7 +1,7 @@
 Hardware problem on localhost with SAS Flash Module - CH0.BAY9.
 
 Alert Severity    : ALARM
-Alert Rule        : hw.physical_disk.status{state="failed"} == 1
+Alert Rule        : hw.status{state="failed", hw.type="physical_disk"} == 1
 
 Alert Details
 =============
@@ -30,32 +30,32 @@ Model             : FA-X20R2
 Serial Number     : FA-123456789
 
 =================================================================
-Metric: hw.physical_disk.energy
+Metric: hw.energy{hw.type="physical_disk"}
 -----------------------------------------------------------------
 Current Value     : 1000
 Unit              : J
 
 =================================================================
-Metric: hw.physical_disk.status{state="present"}
+Metric: hw.status{state="present", hw.type="physical_disk"}
 -----------------------------------------------------------------
 Current Value     : 1 (Present)
 
 =================================================================
-Metric: hw.physical_disk.status{state="ok"}
+Metric: hw.status{state="ok", hw.type="physical_disk"}
 -----------------------------------------------------------------
 Current Value     : 0 (Failed)
 Status Information: 
 Disk Failure X001256
 
 =================================================================
-Metric: hw.physical_disk.status{state="degraded"}
+Metric: hw.status{state="degraded", hw.type="physical_disk"}
 -----------------------------------------------------------------
 Current Value     : 0 (Failed)
 Status Information: 
 Disk Failure X001256
 
 =================================================================
-Metric: hw.physical_disk.status{state="failed"}
+Metric: hw.status{state="failed", hw.type="physical_disk"}
 -----------------------------------------------------------------
 Current Value     : 1 (Failed)
 Status Information: 

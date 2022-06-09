@@ -22,13 +22,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PhysicalDiskMapping {
 
-	private static final String MONITOR_TYPE = "physical disk";
-	private static final String STATUS_METRIC_NAME = "hw.physical_disk.status";
-	private static final String STATUS_METRIC_DESCRIPTION = createStatusDescription(
-		MONITOR_TYPE,
-		STATE_ATTRIBUTE_KEY,
-		OK_ATTRIBUTE_VALUE, DEGRADED_ATTRIBUTE_VALUE, FAILED_ATTRIBUTE_VALUE, PRESENT_ATTRIBUTE_VALUE, PREDICTED_FAILURE_ATTRIBUTE_VALUE
-	);
+	public static final String HW_TYPE_ATTRIBUTE_VALUE = "physical_disk";
 
 	/**
 	 * Build physical disk metrics map
@@ -52,6 +46,13 @@ public class PhysicalDiskMapping {
 							.value(OK_ATTRIBUTE_VALUE)
 							.build()
 					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.predicate(OK_STATUS_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.build(),
@@ -66,6 +67,13 @@ public class PhysicalDiskMapping {
 							.value(DEGRADED_ATTRIBUTE_VALUE)
 							.build()
 					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.predicate(DEGRADED_STATUS_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.build(),
@@ -78,6 +86,13 @@ public class PhysicalDiskMapping {
 							.builder()
 							.key(STATE_ATTRIBUTE_KEY)
 							.value(FAILED_ATTRIBUTE_VALUE)
+							.build()
+					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
 							.build()
 					)
 					.predicate(FAILED_STATUS_PREDICATE)
@@ -98,6 +113,13 @@ public class PhysicalDiskMapping {
 							.builder()
 							.key(STATE_ATTRIBUTE_KEY)
 							.value(PRESENT_ATTRIBUTE_VALUE)
+							.build()
+					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
 							.build()
 					)
 					.predicate(PRESENT_PREDICATE)
@@ -153,6 +175,13 @@ public class PhysicalDiskMapping {
 							.value(PREDICTED_FAILURE_ATTRIBUTE_VALUE)
 							.build()
 					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.predicate(PREDICTED_FAILURE_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.build()
@@ -164,10 +193,17 @@ public class PhysicalDiskMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.physical_disk.energy")
+					.name("hw.energy")
 					.unit(JOULES_UNIT)
 					.type(MetricType.COUNTER)
-					.description(createEnergyDescription(MONITOR_TYPE))
+					.description(ENERGY_METRIC_DESCRIPTION)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);
@@ -177,9 +213,17 @@ public class PhysicalDiskMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.physical_disk.power")
+					.name("hw.power")
 					.unit(WATTS_UNIT)
-					.description(createPowerConsumptionDescription(MONITOR_TYPE))
+					.type(MetricType.GAUGE)
+					.description(POWER_METRIC_DESCRIPTION)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);
@@ -213,7 +257,7 @@ public class PhysicalDiskMapping {
 				MetricInfo
 					.builder()
 					.name("hw.physical_disk.errors.limit")
-					.description(WARNING_OR_ALARM_THRESHOLD_OF_ERRORS)
+					.description(ERRORS_LIMIT_METRIC_DESCRIPTION)
 					.unit(ERRORS_UNIT)
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
@@ -232,7 +276,7 @@ public class PhysicalDiskMapping {
 				MetricInfo
 					.builder()
 					.name("hw.physical_disk.errors.limit")
-					.description(WARNING_OR_ALARM_THRESHOLD_OF_ERRORS)
+					.description(ERRORS_LIMIT_METRIC_DESCRIPTION)
 					.unit(ERRORS_UNIT)
 					.identifyingAttribute(
 						StaticIdentifyingAttribute

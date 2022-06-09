@@ -63,25 +63,25 @@ class MappingConstantsTest {
 
 	@Test
 	void testCreateStatusDescription() {
-		assertThrows(IllegalArgumentException.class, () -> createStatusDescription(null, "state = ok"));
-		assertThrows(IllegalArgumentException.class, () -> createStatusDescription("device", null));
-		assertThrows(IllegalArgumentException.class, () -> createStatusDescription(null, "key", "val"));
-		assertThrows(IllegalArgumentException.class, () -> createStatusDescription(null, "key", "val"));
-		assertThrows(IllegalArgumentException.class, () -> createStatusDescription("physical disk", null, "val"));
-		assertThrows(IllegalArgumentException.class, () -> createStatusDescription("physical disk", "key", (String[]) null));
-		assertNotNull(createStatusDescription("physical disk", "key", "val"));
+		assertThrows(IllegalArgumentException.class, () -> createCustomStatusDescription(null, "state = ok"));
+		assertThrows(IllegalArgumentException.class, () -> createCustomStatusDescription("device", null));
+		assertThrows(IllegalArgumentException.class, () -> createCustomStatusDescription(null, "key", "val"));
+		assertThrows(IllegalArgumentException.class, () -> createCustomStatusDescription(null, "key", "val"));
+		assertThrows(IllegalArgumentException.class, () -> createCustomStatusDescription("physical disk", null, "val"));
+		assertThrows(IllegalArgumentException.class, () -> createCustomStatusDescription("physical disk", "key", (String[]) null));
+		assertNotNull(createCustomStatusDescription("physical disk", "key", "val"));
 	}
 
 	@Test
 	void testCreateEnergyDescription() {
-		assertThrows(IllegalArgumentException.class, () -> createEnergyDescription(null));
-		assertNotNull(createEnergyDescription("physical disk"));
+		assertThrows(IllegalArgumentException.class, () -> createCustomEnergyDescription(null));
+		assertNotNull(createCustomEnergyDescription("physical disk"));
 	}
 
 	@Test
 	void testCreatePowerConsumptionDescription() {
-		assertThrows(IllegalArgumentException.class, () -> createPowerConsumptionDescription(null));
-		assertNotNull(createPowerConsumptionDescription("physical disk"));
+		assertThrows(IllegalArgumentException.class, () -> createCustomPowerDescription(null));
+		assertNotNull(createCustomPowerDescription("physical disk"));
 	}
 
 	@Test
@@ -117,10 +117,10 @@ class MappingConstantsTest {
 
 	@Test
 	void testCreatePowerStateDescription() {
-		assertThrows(IllegalArgumentException.class, () -> createPowerStateDescription(null, "key", "val"));
-		assertThrows(IllegalArgumentException.class, () -> createPowerStateDescription("physical disk", null, "val"));
-		assertThrows(IllegalArgumentException.class, () -> createPowerStateDescription("physical disk", "key", (String[]) null));
-		assertNotNull(createPowerStateDescription("virtual machine", "key", "val"));
+		assertThrows(IllegalArgumentException.class, () -> createCustomPowerStateDescription(null, "key", "val"));
+		assertThrows(IllegalArgumentException.class, () -> createCustomPowerStateDescription("physical disk", null, "val"));
+		assertThrows(IllegalArgumentException.class, () -> createCustomPowerStateDescription("physical disk", "key", (String[]) null));
+		assertNotNull(createCustomPowerStateDescription("virtual machine", "key", "val"));
 	}
 
 	@Test

@@ -22,15 +22,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LogicalDiskMapping {
 
-	private static final String STATUS_METRIC_NAME = "hw.logical_disk.status";
 	static final String USAGE_METRIC_NAME = "hw.logical_disk.usage";
 	private static final String UTILIZATION_METRIC_NAME = "hw.logical_disk.utilization";
-	private static final String MONITOR_TYPE = "logical disk";
-	private static final String STATUS_METRIC_DESCRIPTION = createStatusDescription(
-		MONITOR_TYPE,
-		STATE_ATTRIBUTE_KEY,
-		OK_ATTRIBUTE_VALUE, DEGRADED_ATTRIBUTE_VALUE, FAILED_ATTRIBUTE_VALUE, PRESENT_ATTRIBUTE_VALUE
-	);
+	public static final String HW_TYPE_ATTRIBUTE_VALUE = "logical_disk";
 	private static final String USAGE_METRIC_DESCRIPTION = createCustomDescriptionWithAttributes(
 		"Amount of used or unused space in the logical disk",
 		STATE_ATTRIBUTE_KEY, FREE_ATTRIBUTE_VALUE, USED_ATTRIBUTE_VALUE
@@ -63,6 +57,13 @@ public class LogicalDiskMapping {
 							.value(OK_ATTRIBUTE_VALUE)
 							.build()
 					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.predicate(OK_STATUS_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.build(),
@@ -77,6 +78,13 @@ public class LogicalDiskMapping {
 							.value(DEGRADED_ATTRIBUTE_VALUE)
 							.build()
 					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.predicate(DEGRADED_STATUS_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.build(),
@@ -89,6 +97,13 @@ public class LogicalDiskMapping {
 							.builder()
 							.key(STATE_ATTRIBUTE_KEY)
 							.value(FAILED_ATTRIBUTE_VALUE)
+							.build()
+					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
 							.build()
 					)
 					.predicate(FAILED_STATUS_PREDICATE)
@@ -109,6 +124,13 @@ public class LogicalDiskMapping {
 							.builder()
 							.key(STATE_ATTRIBUTE_KEY)
 							.value(PRESENT_ATTRIBUTE_VALUE)
+							.build()
+					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
 							.build()
 					)
 					.predicate(PRESENT_PREDICATE)
@@ -241,7 +263,7 @@ public class LogicalDiskMapping {
 				MetricInfo
 					.builder()
 					.name("hw.logical_disk.errors.limit")
-					.description(WARNING_OR_ALARM_THRESHOLD_OF_ERRORS)
+					.description(ERRORS_LIMIT_METRIC_DESCRIPTION)
 					.unit(ERRORS_UNIT)
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
@@ -260,7 +282,7 @@ public class LogicalDiskMapping {
 				MetricInfo
 					.builder()
 					.name("hw.logical_disk.errors.limit")
-					.description(WARNING_OR_ALARM_THRESHOLD_OF_ERRORS)
+					.description(ERRORS_LIMIT_METRIC_DESCRIPTION)
 					.unit(ERRORS_UNIT)
 					.identifyingAttribute(
 						StaticIdentifyingAttribute

@@ -19,13 +19,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EnclosureMapping {
 
-	private static final String MONITOR_TYPE = "enclosure";
-	private static final String STATUS_METRIC_NAME = "hw.enclosure.status";
-	private static final String STATUS_METRIC_DESCRIPTION = createStatusDescription(
-		MONITOR_TYPE,
-		STATE_ATTRIBUTE_KEY,
-		OK_ATTRIBUTE_VALUE, DEGRADED_ATTRIBUTE_VALUE, FAILED_ATTRIBUTE_VALUE, PRESENT_ATTRIBUTE_VALUE, OPEN_ATTRIBUTE_VALUE
-	);
+	public static final String HW_TYPE_ATTRIBUTE_VALUE = "enclosure";
 
 	/**
 	 * Build enclosure metrics map
@@ -49,6 +43,13 @@ public class EnclosureMapping {
 							.value(OK_ATTRIBUTE_VALUE)
 							.build()
 					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.predicate(OK_STATUS_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.build(),
@@ -63,6 +64,13 @@ public class EnclosureMapping {
 							.value(DEGRADED_ATTRIBUTE_VALUE)
 							.build()
 					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.predicate(DEGRADED_STATUS_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.build(),
@@ -75,6 +83,13 @@ public class EnclosureMapping {
 							.builder()
 							.key(STATE_ATTRIBUTE_KEY)
 							.value(FAILED_ATTRIBUTE_VALUE)
+							.build()
+					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
 							.build()
 					)
 					.predicate(FAILED_STATUS_PREDICATE)
@@ -97,6 +112,13 @@ public class EnclosureMapping {
 							.value(PRESENT_ATTRIBUTE_VALUE)
 							.build()
 					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.predicate(PRESENT_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.build()
@@ -117,6 +139,13 @@ public class EnclosureMapping {
 							.value(OPEN_ATTRIBUTE_VALUE)
 							.build()
 					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.predicate(INTRUSION_STATUS_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.build()
@@ -131,7 +160,7 @@ public class EnclosureMapping {
 					.name("hw.enclosure.energy")
 					.unit(JOULES_UNIT)
 					.type(MetricType.COUNTER)
-					.description(createEnergyDescription(MONITOR_TYPE))
+					.description(createCustomEnergyDescription(HW_TYPE_ATTRIBUTE_VALUE))
 					.build()
 			)
 		);
@@ -143,7 +172,7 @@ public class EnclosureMapping {
 				.builder()
 				.name("hw.enclosure.power")
 				.unit(WATTS_UNIT)
-				.description(createPowerConsumptionDescription(MONITOR_TYPE))
+				.description(createCustomPowerDescription(HW_TYPE_ATTRIBUTE_VALUE))
 				.build()
 			)
 		);

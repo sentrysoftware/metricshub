@@ -29,15 +29,9 @@ public class TapeDriveMapping {
 		TYPE_ATTRIBUTE_KEY,
 		MOUNT_ATTRIBUTE_VALUE, UNMOUNT_ATTRIBUTE_VALUE
 	);
-	private static final String MONITOR_TYPE = "tape drive";
-	private static final String STATUS_METRIC_NAME = "hw.tape_drive.status";
+	public static final String HW_TYPE_ATTRIBUTE_VALUE = "tape_drive";
 	private static final String OPERATIONS_METRIC_NAME = "hw.tape_drive.operations";
-	private static final String STATUS_METRIC_DESCRIPTION = createStatusDescription(
-		MONITOR_TYPE,
-		STATE_ATTRIBUTE_KEY,
-		OK_ATTRIBUTE_VALUE, DEGRADED_ATTRIBUTE_VALUE, FAILED_ATTRIBUTE_VALUE, PRESENT_ATTRIBUTE_VALUE,
-		NEEDS_CLEANING_ATTRIBUTE_VALUE
-	);
+
 
 	/**
 	 * Build tape drive metrics map
@@ -61,6 +55,13 @@ public class TapeDriveMapping {
 							.value(OK_ATTRIBUTE_VALUE)
 							.build()
 					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.predicate(OK_STATUS_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.build(),
@@ -75,6 +76,13 @@ public class TapeDriveMapping {
 							.value(DEGRADED_ATTRIBUTE_VALUE)
 							.build()
 					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.predicate(DEGRADED_STATUS_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.build(),
@@ -87,6 +95,13 @@ public class TapeDriveMapping {
 							.builder()
 							.key(STATE_ATTRIBUTE_KEY)
 							.value(FAILED_ATTRIBUTE_VALUE)
+							.build()
+					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
 							.build()
 					)
 					.predicate(FAILED_STATUS_PREDICATE)
@@ -109,6 +124,13 @@ public class TapeDriveMapping {
 							.value(PRESENT_ATTRIBUTE_VALUE)
 							.build()
 					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.predicate(PRESENT_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.build()
@@ -127,6 +149,13 @@ public class TapeDriveMapping {
 							.builder()
 							.key(STATE_ATTRIBUTE_KEY)
 							.value(NEEDS_CLEANING_ATTRIBUTE_VALUE)
+							.build()
+					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
 							.build()
 					)
 					.predicate(CLEANING_NEEDED_PREDICATE)
@@ -193,10 +222,17 @@ public class TapeDriveMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.tape_drive.energy")
+					.name("hw.energy")
 					.unit(JOULES_UNIT)
 					.type(MetricType.COUNTER)
-					.description(createEnergyDescription(MONITOR_TYPE))
+					.description(ENERGY_METRIC_DESCRIPTION)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);
@@ -206,9 +242,17 @@ public class TapeDriveMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.tape_drive.power")
+					.name("hw.power")
 					.unit(WATTS_UNIT)
-					.description(createPowerConsumptionDescription(MONITOR_TYPE))
+					.type(MetricType.GAUGE)
+					.description(POWER_METRIC_DESCRIPTION)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);
@@ -230,7 +274,7 @@ public class TapeDriveMapping {
 				MetricInfo
 					.builder()
 					.name("hw.tape_drive.errors.limit")
-					.description(WARNING_OR_ALARM_THRESHOLD_OF_ERRORS)
+					.description(ERRORS_LIMIT_METRIC_DESCRIPTION)
 					.unit(ERRORS_UNIT)
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
@@ -249,7 +293,7 @@ public class TapeDriveMapping {
 				MetricInfo
 					.builder()
 					.name("hw.tape_drive.errors.limit")
-					.description(WARNING_OR_ALARM_THRESHOLD_OF_ERRORS)
+					.description(ERRORS_LIMIT_METRIC_DESCRIPTION)
 					.unit(ERRORS_UNIT)
 					.identifyingAttribute(
 						StaticIdentifyingAttribute

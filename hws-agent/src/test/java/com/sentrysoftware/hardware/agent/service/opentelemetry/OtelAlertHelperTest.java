@@ -88,7 +88,7 @@ public class OtelAlertHelperTest {
 
 			// Inject the alert information and a custom testing trigger verifying that our generated report ;)
 			injectAlertInfoAndTriggerTest(hostMonitoring, physicalDisk,
-					info -> assertEquals("hw.physical_disk.status{state=\"failed\"}", OtelAlertHelper.buildHardwareProblem(info, "${METRIC_NAME}")));
+					info -> assertEquals("hw.status{state=\"failed\", hw.type=\"physical_disk\"}", OtelAlertHelper.buildHardwareProblem(info, "${METRIC_NAME}")));
 
 			CollectHelper.updateDiscreteParameter(physicalDisk, STATUS_PARAMETER, collectTime, Status.FAILED);
 		}
@@ -130,7 +130,7 @@ public class OtelAlertHelperTest {
 
 			// Inject the alert information and a custom testing trigger verifying that our generated report ;)
 			injectAlertInfoAndTriggerTest(hostMonitoring, physicalDisk,
-					info -> assertEquals("hw.physical_disk.status{state=\"failed\"} == 1", OtelAlertHelper.buildHardwareProblem(info, "${ALERT_RULE}")));
+					info -> assertEquals("hw.status{state=\"failed\", hw.type=\"physical_disk\"} == 1", OtelAlertHelper.buildHardwareProblem(info, "${ALERT_RULE}")));
 
 			CollectHelper.updateDiscreteParameter(physicalDisk, STATUS_PARAMETER, collectTime, Status.FAILED);
 		}
@@ -401,7 +401,7 @@ public class OtelAlertHelperTest {
 					.recommendedAction("Do a massage").build());
 
 			final String expected = "Alert Severity    : ALARM\n"
-					+ "Alert Rule        : hw.battery.status{state=\"failed\"} == 1\n"
+					+ "Alert Rule        : hw.status{state=\"failed\", hw.type=\"battery\"} == 1\n"
 					+ "\n"
 					+ "Alert Details\n"
 					+ "=============\n"
@@ -422,7 +422,7 @@ public class OtelAlertHelperTest {
 					.recommendedAction("Do a massage").build());
 
 			final String expected = "Alert Severity    : ALARM\n"
-					+ "Alert Rule        : hw.battery.status{state=\"present\"} == 0\n"
+					+ "Alert Rule        : hw.status{state=\"present\", hw.type=\"battery\"} == 0\n"
 					+ "\n"
 					+ "Alert Details\n"
 					+ "=============\n"
@@ -475,12 +475,12 @@ public class OtelAlertHelperTest {
 				.build();
 		CollectHelper.updateDiscreteParameter(physicalDisk, STATUS_PARAMETER, collectTime, Status.FAILED);
 
-		assertEquals("hw.physical_disk.status{state=\"failed\"}", OtelAlertHelper.buildMetricName(physicalDisk, STATUS_PARAMETER));
+		assertEquals("hw.status{state=\"failed\", hw.type=\"physical_disk\"}", OtelAlertHelper.buildMetricName(physicalDisk, STATUS_PARAMETER));
 		assertThrows(IllegalArgumentException.class, () -> OtelAlertHelper.buildMetricName(null, STATUS_PARAMETER));
 		assertThrows(IllegalArgumentException.class, () -> OtelAlertHelper.buildMetricName(physicalDisk, (String) null));
 
 		CollectHelper.updateNumberParameter(physicalDisk, ENERGY_PARAMETER, EMPTY, collectTime, 1000D, 1000D);
-		assertEquals("hw.physical_disk.energy", OtelAlertHelper.buildMetricName(physicalDisk, ENERGY_PARAMETER));
+		assertEquals("hw.energy{hw.type=\"physical_disk\"}", OtelAlertHelper.buildMetricName(physicalDisk, ENERGY_PARAMETER));
 	}
 
 	@Test

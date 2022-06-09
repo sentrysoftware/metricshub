@@ -6,9 +6,11 @@ import static com.sentrysoftware.hardware.agent.mapping.opentelemetry.MappingCon
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
@@ -93,26 +95,30 @@ public abstract class AbstractOtelObserver {
 	/**
 	 * Determine the unique id to use when creating or getting a {@link Meter}
 	 * 
-	 * @param metricInfo Metric information used to get the {@link IIdentifyingAttribute}, the metric name and the additional id.
+	 * @param metricInfo Metric information used to get the {@link AbstractIdentifyingAttribute}, the metric name and the additional id.
 	 * @param monitor    Monitor defining the monitor id and used to get the {@link DynamicIdentifyingAttribute} instance.
 	 * @return String value
 	 */
 	static String determineMeterId(final MetricInfo metricInfo, final Monitor monitor) {
 		String meterId;
-		final Optional<String[]> maybeIdentifyingAttributes = OtelHelper.extractIdentifyingAttribute(metricInfo,
+		final Optional<List<String[]>> maybeIdentifyingAttributes = OtelHelper.extractIdentifyingAttribute(metricInfo,
 				monitor);
+		final String format = "%s.%s";
 
 		if (maybeIdentifyingAttributes.isPresent()) {
-			final String[] identifyingAttributes = maybeIdentifyingAttributes.get();
-			meterId = String.format("%s.%s.%s.%s", monitor.getId(), metricInfo.getName(), identifyingAttributes[0],
-					identifyingAttributes[1]);
+			final String identifyingAttributes = maybeIdentifyingAttributes
+				.get()
+				.stream()
+				.map(keyValue -> String.format(format, keyValue[0], keyValue[1]))
+				.collect(Collectors.joining("."));
+			meterId = String.format("%s.%s.%s", monitor.getId(), metricInfo.getName(), identifyingAttributes);
 		} else {
-			meterId = String.format("%s.%s", monitor.getId(), metricInfo.getName());
+			meterId = String.format(format, monitor.getId(), metricInfo.getName());
 		}
 
 		final String additionalId = metricInfo.getAdditionalId();
 		if (additionalId != null) {
-			return String.format("%s.%s", meterId, additionalId);
+			return String.format(format, meterId, additionalId);
 		}
 
 		return meterId;

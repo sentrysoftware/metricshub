@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
+import com.sentrysoftware.hardware.agent.mapping.opentelemetry.EnclosureMapping;
 import com.sentrysoftware.hardware.agent.mapping.opentelemetry.MappingConstants;
 import com.sentrysoftware.hardware.agent.mapping.opentelemetry.MetricsMapping;
 import com.sentrysoftware.hardware.agent.mapping.opentelemetry.dto.MetricInfo;
@@ -72,7 +73,7 @@ class OtelParameterToMetricObserverTest {
 			.name(STATUS_PARAMETER)
 			.build();
 
-		final String expectedMetricName = "hw.enclosure.status";
+		final String expectedMetricName = "hw.status";
 
 		final String expectedState = MappingConstants.OK_ATTRIBUTE_VALUE;
 
@@ -191,6 +192,7 @@ class OtelParameterToMetricObserverTest {
 				.put("info", "Server 1 - Dell")
 				.put("ip_address", "192.168.1.1")
 				.put(MappingConstants.STATE_ATTRIBUTE_KEY, expectedValue == 1 ? expectedState : key)
+				.put(MappingConstants.HW_TYPE_ATTRIBUTE_KEY, EnclosureMapping.HW_TYPE_ATTRIBUTE_VALUE)
 				.build();
 
 			assertEquals(expected, dataPoint.getAttributes());
@@ -424,7 +426,11 @@ class OtelParameterToMetricObserverTest {
 			.getMetricInfoList(MonitorType.ENCLOSURE, STATUS_PARAMETER)
 			.get()
 			.stream()
-			.filter(info -> info.getIdentifyingAttribute().getValue().equals(MappingConstants.OK_ATTRIBUTE_VALUE))
+			.filter(info -> info.getIdentifyingAttributes()
+					.stream()
+					.filter(id -> id.getValue().equals(MappingConstants.OK_ATTRIBUTE_VALUE))
+					.findFirst()
+					.isPresent())
 			.findFirst()
 			.orElseThrow();
 
@@ -444,6 +450,7 @@ class OtelParameterToMetricObserverTest {
 				.put("info", "")
 				.put("ip_address", "192.168.1.1")
 				.put(MappingConstants.STATE_ATTRIBUTE_KEY, MappingConstants.OK_ATTRIBUTE_VALUE)
+				.put(MappingConstants.HW_TYPE_ATTRIBUTE_KEY, EnclosureMapping.HW_TYPE_ATTRIBUTE_VALUE)
 				.build();
 
 		assertEquals(expected, actual);

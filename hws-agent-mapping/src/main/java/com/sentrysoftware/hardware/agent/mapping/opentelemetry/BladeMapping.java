@@ -19,18 +19,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BladeMapping {
 
-	private static final String STATUS_METRIC_NAME = "hw.blade.status";
 	private static final String POWER_STATE_METRIC_NAME = "hw.blade.power_state";
-	private static final String MONITOR_TYPE = "blade";
-	private static final String POWER_STATE_METRIC_DESCRIPTION = createPowerStateDescription(
-		MONITOR_TYPE,
+	public static final String HW_TYPE_ATTRIBUTE_VALUE = "blade";
+	private static final String POWER_STATE_METRIC_DESCRIPTION = createCustomPowerStateDescription(
+		HW_TYPE_ATTRIBUTE_VALUE,
 		STATE_ATTRIBUTE_KEY,
 		OFF_ATTRIBUTE_VALUE, SUSPENDED_ATTRIBUTE_VALUE, ON_ATTRIBUTE_VALUE
-	);
-	private static final String STATUS_METRIC_DESCRIPTION = createStatusDescription(
-		MONITOR_TYPE,
-		STATE_ATTRIBUTE_KEY,
-		OK_ATTRIBUTE_VALUE, DEGRADED_ATTRIBUTE_VALUE, FAILED_ATTRIBUTE_VALUE, PRESENT_ATTRIBUTE_VALUE
 	);
 
 	/**
@@ -55,6 +49,13 @@ public class BladeMapping {
 							.value(OK_ATTRIBUTE_VALUE)
 							.build()
 						)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.predicate(OK_STATUS_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.build(),
@@ -69,6 +70,13 @@ public class BladeMapping {
 							.value(DEGRADED_ATTRIBUTE_VALUE)
 							.build()
 						)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.predicate(DEGRADED_STATUS_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.build(),
@@ -85,6 +93,13 @@ public class BladeMapping {
 							.value(FAILED_ATTRIBUTE_VALUE)
 							.build()
 						)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.predicate(FAILED_STATUS_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.build()
@@ -99,11 +114,18 @@ public class BladeMapping {
 					.name(STATUS_METRIC_NAME)
 					.description(STATUS_METRIC_DESCRIPTION)
 					.identifyingAttribute(
-							StaticIdentifyingAttribute
-								.builder()
-								.key(STATE_ATTRIBUTE_KEY)
-								.value(PRESENT_ATTRIBUTE_VALUE)
-								.build()
+						StaticIdentifyingAttribute
+							.builder()
+							.key(STATE_ATTRIBUTE_KEY)
+							.value(PRESENT_ATTRIBUTE_VALUE)
+							.build()
+					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
 					)
 					.predicate(PRESENT_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
@@ -156,7 +178,7 @@ public class BladeMapping {
 					.predicate(ON_POWER_STATE_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.build()
-			)	
+			)
 		);
 
 		return map;

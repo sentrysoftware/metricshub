@@ -7,12 +7,12 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	"go.opentelemetry.io/collector/config"
-	"go.opentelemetry.io/collector/config/mapconverter/expandmapconverter"
-	"go.opentelemetry.io/collector/config/mapconverter/overwritepropertiesmapconverter"
-	"go.opentelemetry.io/collector/config/mapprovider/envmapprovider"
-	"go.opentelemetry.io/collector/config/mapprovider/filemapprovider"
-	"go.opentelemetry.io/collector/config/mapprovider/yamlmapprovider"
+	"go.opentelemetry.io/collector/confmap"
+	"go.opentelemetry.io/collector/confmap/converter/expandconverter"
+	"go.opentelemetry.io/collector/confmap/converter/overwritepropertiesconverter"
+	"go.opentelemetry.io/collector/confmap/provider/envprovider"
+	"go.opentelemetry.io/collector/confmap/provider/fileprovider"
+	"go.opentelemetry.io/collector/confmap/provider/yamlprovider"
 	"go.opentelemetry.io/collector/service"
 
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -24,12 +24,12 @@ func newCollectorWithLogCore(set service.CollectorSettings) (*service.Collector,
 		var err error
 		cfgSet := service.ConfigProviderSettings{
 			Locations:     getConfigFlag(),
-			MapProviders:  makeMapProvidersMap(filemapprovider.New(), envmapprovider.New(), yamlmapprovider.New()),
-			MapConverters: []config.MapConverter{expandmapconverter.New()},
+			MapProviders:  makeMapProvidersMap(fileprovider.New(), envprovider.New(), yamlprovider.New()),
+			MapConverters: []confmap.Converter{expandconverter.New()},
 		}
 		// Append the "overwrite properties converter" as the first converter.
 		cfgSet.MapConverters = append(
-			[]config.MapConverter{overwritepropertiesmapconverter.New(getSetFlag())},
+			[]confmap.Converter{overwritepropertiesconverter.New(getSetFlag())},
 			cfgSet.MapConverters...)
 		set.ConfigProvider, err = service.NewConfigProvider(cfgSet)
 		if err != nil {
@@ -72,8 +72,8 @@ func withLogCore(logLevel zapcore.Level) func(zapcore.Core) zapcore.Core {
 }
 
 // Make a new map of the given providers indexed by the provider's Scheme
-func makeMapProvidersMap(providers ...config.MapProvider) map[string]config.MapProvider {
-	ret := make(map[string]config.MapProvider, len(providers))
+func makeMapProvidersMap(providers ...confmap.Provider) map[string]confmap.Provider {
+	ret := make(map[string]confmap.Provider, len(providers))
 	for _, provider := range providers {
 		ret[provider.Scheme()] = provider
 	}

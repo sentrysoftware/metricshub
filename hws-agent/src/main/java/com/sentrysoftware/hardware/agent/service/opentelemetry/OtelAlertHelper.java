@@ -431,12 +431,17 @@ public class OtelAlertHelper {
 	 */
 	static String getMetricName(@NonNull final Monitor monitor, @NonNull final MetricInfo metricInfo) {
 
-		// Get the identifying attribute
-		final Optional<String[]> maybeIdentifyingAttribute =  OtelHelper.extractIdentifyingAttribute(metricInfo, monitor);
-		if (maybeIdentifyingAttribute.isPresent()) {
-			final String[] identifyingAttribute = maybeIdentifyingAttribute.get();
-			// Example hw.battery.status{state="failed"} NOSONAR
-			return String.format("%s{%s=\"%s\"}", metricInfo.getName(), identifyingAttribute[0], identifyingAttribute[1]);
+		// Get the identifying attributes
+		final Optional<List<String[]>> maybeIdentifyingAttributes =  OtelHelper.extractIdentifyingAttribute(metricInfo, monitor);
+		if (maybeIdentifyingAttributes.isPresent()) {
+			final String identifyingAttributes = maybeIdentifyingAttributes
+				.get()
+				.stream()
+				.map(keyValue -> String.format("%s=\"%s\"", keyValue[0], keyValue[1]))
+				.collect(Collectors.joining(", " , "{", "}"));
+
+			// Example hw.status{state="failed", hw.type="battery"} NOSONAR
+			return String.format("%s%s", metricInfo.getName(), identifyingAttributes);
 		}
 
 		return metricInfo.getName();

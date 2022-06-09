@@ -19,8 +19,8 @@ import lombok.NoArgsConstructor;
 public class ConnectorMapping {
 
 	static final String CONNECTOR_ID_ATTRIBUTE_KEY = "connector_id";
-	private static final String MONITOR_TYPE = "connector";
-	private static final String STATUS_METRIC_DESCRIPTION = createStatusDescription(
+	public static final String MONITOR_TYPE = "connector";
+	private static final String STATUS_METRIC_DESCRIPTION = createCustomStatusDescription(
 		MONITOR_TYPE,
 		STATE_ATTRIBUTE_KEY,
 		OK_ATTRIBUTE_VALUE, DEGRADED_ATTRIBUTE_VALUE, FAILED_ATTRIBUTE_VALUE

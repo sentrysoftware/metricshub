@@ -22,16 +22,12 @@ import lombok.NoArgsConstructor;
 public class VmMapping {
 
 	public static final String VM_HOST_NAME_ATTRIBUTE_KEY = "vm.host.name";
-	private static final String STATUS_METRIC_NAME = "hw.vm.status";
 	private static final String POWER_STATE_METRIC_NAME = "hw.vm.power_state";
-	private static final String MONITOR_TYPE = "virtual machine";
-	private static final String STATUS_METRIC_DESCRIPTION = createStatusDescription(
-		MONITOR_TYPE,
-		STATE_ATTRIBUTE_KEY,
-		OK_ATTRIBUTE_VALUE, DEGRADED_ATTRIBUTE_VALUE, FAILED_ATTRIBUTE_VALUE, PRESENT_ATTRIBUTE_VALUE
-	);
-	private static final String POWER_STATE_METRIC_DESCRIPTION = createPowerStateDescription(
-		MONITOR_TYPE,
+	private static final String MONITOR_TYPE_DESCRIPTION = "virtual machine";
+	public static final String HW_TYPE_ATTRIBUTE_VALUE = "vm";
+
+	private static final String POWER_STATE_METRIC_DESCRIPTION = createCustomPowerStateDescription(
+		MONITOR_TYPE_DESCRIPTION,
 		STATE_ATTRIBUTE_KEY,
 		OFF_ATTRIBUTE_VALUE, SUSPENDED_ATTRIBUTE_VALUE, ON_ATTRIBUTE_VALUE
 	);
@@ -58,6 +54,13 @@ public class VmMapping {
 							.value(OK_ATTRIBUTE_VALUE)
 							.build()
 					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.predicate(OK_STATUS_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.build(),
@@ -72,6 +75,13 @@ public class VmMapping {
 							.value(DEGRADED_ATTRIBUTE_VALUE)
 							.build()
 					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.predicate(DEGRADED_STATUS_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.build(),
@@ -84,6 +94,13 @@ public class VmMapping {
 							.builder()
 							.key(STATE_ATTRIBUTE_KEY)
 							.value(FAILED_ATTRIBUTE_VALUE)
+							.build()
+					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
 							.build()
 					)
 					.predicate(FAILED_STATUS_PREDICATE)
@@ -104,6 +121,13 @@ public class VmMapping {
 							.builder()
 							.key(STATE_ATTRIBUTE_KEY)
 							.value(PRESENT_ATTRIBUTE_VALUE)
+							.build()
+					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
 							.build()
 					)
 					.predicate(PRESENT_PREDICATE)
@@ -166,7 +190,7 @@ public class VmMapping {
 				MetricInfo
 					.builder()
 					.name("hw.vm.power_ratio")
-					.description(String.format("Ratio of host power consumed by the %s.", MONITOR_TYPE))
+					.description(String.format("Ratio of host power consumed by the %s.", MONITOR_TYPE_DESCRIPTION))
 					.unit(RATIO_UNIT)
 					.factor(RATIO_FACTOR)
 					.build()
@@ -178,10 +202,17 @@ public class VmMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.vm.energy")
+					.name("hw.energy")
 					.unit(JOULES_UNIT)
 					.type(MetricType.COUNTER)
-					.description(createEnergyDescription(MONITOR_TYPE))
+					.description(ENERGY_METRIC_DESCRIPTION)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);
@@ -191,9 +222,17 @@ public class VmMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.vm.power")
+					.name("hw.power")
 					.unit(WATTS_UNIT)
-					.description(createPowerConsumptionDescription(MONITOR_TYPE))
+					.type(MetricType.GAUGE)
+					.description(POWER_METRIC_DESCRIPTION)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);

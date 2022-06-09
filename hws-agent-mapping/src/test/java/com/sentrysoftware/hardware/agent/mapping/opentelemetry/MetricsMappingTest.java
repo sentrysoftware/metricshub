@@ -1,15 +1,15 @@
 package com.sentrysoftware.hardware.agent.mapping.opentelemetry;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EXPECTED_PATH_COUNT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAXIMUM_SPEED;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SUPPLY_POWER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.*;
+import static com.sentrysoftware.hardware.agent.mapping.opentelemetry.MappingConstants.*;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -22,12 +22,41 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.hardware.agent.mapping.MappingHelper;
+import com.sentrysoftware.hardware.agent.mapping.opentelemetry.dto.AbstractIdentifyingAttribute;
 import com.sentrysoftware.hardware.agent.mapping.opentelemetry.dto.MetricInfo;
 import com.sentrysoftware.hardware.agent.mapping.opentelemetry.dto.MetricInfo.MetricType;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 
 class MetricsMappingTest {
+
+	private static final Map<MonitorType, String> MONITOR_TYPE_TO_HW_TYPE_ATTRIBUTE_VALUE;
+
+	static {
+		final Map<MonitorType, String> map = new HashMap<>();
+		map.put(MonitorType.BATTERY, BatteryMapping.HW_TYPE_ATTRIBUTE_VALUE);
+		map.put(MonitorType.BLADE, BladeMapping.HW_TYPE_ATTRIBUTE_VALUE);
+		map.put(MonitorType.CPU_CORE, CpuCoreMapping.HW_TYPE_ATTRIBUTE_VALUE);
+		map.put(MonitorType.CPU, CpuMapping.HW_TYPE_ATTRIBUTE_VALUE);
+		map.put(MonitorType.DISK_CONTROLLER, DiskControllerMapping.HW_TYPE_ATTRIBUTE_VALUE);
+		map.put(MonitorType.ENCLOSURE, EnclosureMapping.HW_TYPE_ATTRIBUTE_VALUE);
+		map.put(MonitorType.FAN, FanMapping.HW_TYPE_ATTRIBUTE_VALUE);
+		map.put(MonitorType.GPU, GpuMapping.HW_TYPE_ATTRIBUTE_VALUE);
+		map.put(MonitorType.LED, LedMapping.HW_TYPE_ATTRIBUTE_VALUE);
+		map.put(MonitorType.LOGICAL_DISK, LogicalDiskMapping.HW_TYPE_ATTRIBUTE_VALUE);
+		map.put(MonitorType.LUN, LunMapping.HW_TYPE_ATTRIBUTE_VALUE);
+		map.put(MonitorType.MEMORY, MemoryMapping.HW_TYPE_ATTRIBUTE_VALUE);
+		map.put(MonitorType.NETWORK_CARD, NetworkCardMapping.HW_TYPE_ATTRIBUTE_VALUE);
+		map.put(MonitorType.OTHER_DEVICE, OtherDeviceMapping.HW_TYPE_ATTRIBUTE_VALUE);
+		map.put(MonitorType.PHYSICAL_DISK, PhysicalDiskMapping.HW_TYPE_ATTRIBUTE_VALUE);
+		map.put(MonitorType.POWER_SUPPLY, PowerSupplyMapping.HW_TYPE_ATTRIBUTE_VALUE);
+		map.put(MonitorType.ROBOTICS, RoboticsMapping.HW_TYPE_ATTRIBUTE_VALUE);
+		map.put(MonitorType.TAPE_DRIVE, TapeDriveMapping.HW_TYPE_ATTRIBUTE_VALUE);
+		map.put(MonitorType.TEMPERATURE, TemperatureMapping.HW_TYPE_ATTRIBUTE_VALUE);
+		map.put(MonitorType.VM, VmMapping.HW_TYPE_ATTRIBUTE_VALUE);
+		map.put(MonitorType.VOLTAGE, VoltageMapping.HW_TYPE_ATTRIBUTE_VALUE);
+		MONITOR_TYPE_TO_HW_TYPE_ATTRIBUTE_VALUE = Collections.unmodifiableMap(map);
+	}
 
 	@Test
 	void testGetAttributesMap() {
@@ -122,10 +151,19 @@ class MetricsMappingTest {
 				for (MetricInfo metricInfo : entry.getValue()) {
 					assertNotNull(metricInfo);
 					String metricId;
-					if (metricInfo.getIdentifyingAttribute() != null) {
-						assertNotNull(metricInfo.getIdentifyingAttribute().getKey());
-						assertNotNull(metricInfo.getIdentifyingAttribute().getValue());
-						metricId = String.format("%s.%s.%s", metricInfo.getName(), metricInfo.getIdentifyingAttribute().getKey(), metricInfo.getIdentifyingAttribute().getValue());
+					List<AbstractIdentifyingAttribute> identifyingAttributesList = metricInfo
+						.getIdentifyingAttributes();
+					if (identifyingAttributesList != null) {
+						for (AbstractIdentifyingAttribute identifyingAttribute : identifyingAttributesList) {
+							assertNotNull(identifyingAttribute.getKey());
+							assertNotNull(identifyingAttribute.getValue());
+						}
+						final String identifyingAttributes = identifyingAttributesList
+							.stream()
+							.map(id -> String.format("%s.%s", id.getKey(), id.getValue()))
+							.collect(Collectors.joining("."));
+
+						metricId = String.format("%s.%s", metricInfo.getName(), identifyingAttributes);
 					} else {
 						metricId = metricInfo.getName();
 					}
@@ -163,9 +201,95 @@ class MetricsMappingTest {
 							String.format("This metric (%s) must be an UpDownCounter.", metricInfo.getName())
 						);
 					}
+
+					// Check status metrics
+					assertFalse(
+						metricInfo.getName().matches("^hw\\.\\w+\\.status$"),
+						String.format(
+							"This metric (%s) is not accepted. Metric should be named hw.status",
+							metricInfo.getName()
+						)
+					);
+
+					// Check energy and power metrics
+					if (MonitorType.HOST != monitorType && MonitorType.ENCLOSURE != monitorType) {
+						if (metricInfo.getName().endsWith("energy")) {
+							assertEquals(
+								"hw.energy", metricInfo.getName(),
+								String.format(
+									"This metric (%s) is not accepted. Metric must be named hw.energy.",
+									metricInfo.getName()
+								)
+							);
+							assertMetricWithHwType(monitorType, identifyingAttributesList, "hw.energy");
+						}
+
+						if (metricInfo.getName().endsWith("power")) {
+							assertEquals(
+								"hw.power", metricInfo.getName(),
+								String.format(
+									"This metric (%s) is not accepted. Metric must be named hw.power.",
+									metricInfo.getName()
+								)
+							);
+							assertMetricWithHwType(monitorType, identifyingAttributesList, "hw.power");
+						}
+					}
+
+					if ("hw.status".equals(metricInfo.getName())) {
+						assertMetricWithHwType(monitorType, identifyingAttributesList, "hw.status");
+					}
 				}
 			}
 		}
+	}
+
+	/**
+	 * Verify the given metric having the hw.type attribute
+	 * 
+	 * @param monitorType
+	 * @param identifyingAttributesList
+	 * @param metricName
+	 */
+	private void assertMetricWithHwType(final MonitorType monitorType,
+			final List<AbstractIdentifyingAttribute> identifyingAttributesList, final String metricName) {
+
+		final List<AbstractIdentifyingAttribute> hwTypeAttributeList = identifyingAttributesList
+				.stream()
+				.filter(id -> HW_TYPE_ATTRIBUTE_KEY.equals(id.getKey()))
+				.collect(Collectors.toList());
+
+		assertEquals(
+			1,
+			hwTypeAttributeList.size(),
+			String.format(
+				"The identifying attribute %s on metric %s must be defined only once. Monitor type %s.",
+				HW_TYPE_ATTRIBUTE_KEY,
+				metricName,
+				monitorType
+			)
+		);
+
+		assertNotNull(
+			hwTypeAttributeList.get(0).getValue(),
+			String.format(
+				"The identifying attribute %s value on metric %s is not defined. Monitor type %s.",
+				HW_TYPE_ATTRIBUTE_KEY,
+				metricName,
+				monitorType
+			)
+		);
+
+		assertEquals(
+			MONITOR_TYPE_TO_HW_TYPE_ATTRIBUTE_VALUE.get(monitorType),
+			hwTypeAttributeList.get(0).getValue(),
+			String.format(
+				"Wrong identifying attribute %s value on metric %s. Monitor type %s.",
+				HW_TYPE_ATTRIBUTE_KEY,
+				metricName,
+				monitorType
+			)
+		);
 	}
 
 	@Test

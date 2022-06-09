@@ -21,13 +21,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RoboticsMapping {
 
-	private static final String MONITOR_TYPE = "robotic device";
-	private static final String STATUS_METRIC_NAME = "hw.robotics.status";
-	private static final String STATUS_METRIC_DESCRIPTION = createStatusDescription(
-		MONITOR_TYPE,
-		STATE_ATTRIBUTE_KEY,
-		OK_ATTRIBUTE_VALUE, DEGRADED_ATTRIBUTE_VALUE, FAILED_ATTRIBUTE_VALUE, PRESENT_ATTRIBUTE_VALUE
-	);
+	public static final String HW_TYPE_ATTRIBUTE_VALUE = "robotics";
 
 	/**
 	 * Build robotics metrics map
@@ -51,6 +45,13 @@ public class RoboticsMapping {
 							.value(OK_ATTRIBUTE_VALUE)
 							.build()
 					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.predicate(OK_STATUS_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.build(),
@@ -65,6 +66,13 @@ public class RoboticsMapping {
 							.value(DEGRADED_ATTRIBUTE_VALUE)
 							.build()
 					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.predicate(DEGRADED_STATUS_PREDICATE)
 					.type(MetricType.UP_DOWN_COUNTER)
 					.build(),
@@ -77,6 +85,13 @@ public class RoboticsMapping {
 							.builder()
 							.key(STATE_ATTRIBUTE_KEY)
 							.value(FAILED_ATTRIBUTE_VALUE)
+							.build()
+					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
 							.build()
 					)
 					.predicate(FAILED_STATUS_PREDICATE)
@@ -97,6 +112,13 @@ public class RoboticsMapping {
 							.builder()
 							.key(STATE_ATTRIBUTE_KEY)
 							.value(PRESENT_ATTRIBUTE_VALUE)
+							.build()
+					)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
 							.build()
 					)
 					.predicate(PRESENT_PREDICATE)
@@ -136,10 +158,17 @@ public class RoboticsMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.robotics.energy")
+					.name("hw.energy")
 					.unit(JOULES_UNIT)
 					.type(MetricType.COUNTER)
-					.description(createEnergyDescription(MONITOR_TYPE))
+					.description(ENERGY_METRIC_DESCRIPTION)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);
@@ -149,9 +178,17 @@ public class RoboticsMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.robotics.power")
+					.name("hw.power")
 					.unit(WATTS_UNIT)
-					.description(createPowerConsumptionDescription(MONITOR_TYPE))
+					.type(MetricType.GAUGE)
+					.description(POWER_METRIC_DESCRIPTION)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);
@@ -173,7 +210,7 @@ public class RoboticsMapping {
 				MetricInfo
 					.builder()
 					.name("hw.robotics.errors.limit")
-					.description(WARNING_OR_ALARM_THRESHOLD_OF_ERRORS)
+					.description(ERRORS_LIMIT_METRIC_DESCRIPTION)
 					.unit(ERRORS_UNIT)
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
@@ -192,7 +229,7 @@ public class RoboticsMapping {
 				MetricInfo
 					.builder()
 					.name("hw.robotics.errors.limit")
-					.description(WARNING_OR_ALARM_THRESHOLD_OF_ERRORS)
+					.description(ERRORS_LIMIT_METRIC_DESCRIPTION)
 					.unit(ERRORS_UNIT)
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
