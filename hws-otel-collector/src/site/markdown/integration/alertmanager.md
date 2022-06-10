@@ -24,20 +24,20 @@ Example of the `hw_battery_charge_ratio` metric which represents the charge perc
 
 However, some alerts cannot be configured with hardcoded values, like for temperature sensors. For such metrics, 2 additional metrics have been added to represent the *warning* and *alarm* thresholds. The default alert rules compare the **base metric** to the corresponding **threshold metrics**.
 
-Example of the `hw_temperature_temperature_celsius` metric:
+Example of the `hw_temperature_celsius` metric:
 
-* a `warn` alert is active when the temperature is greater than the value of `hw_temperature_temperature_celsius_warning`
-* a `critical` alert is active when the temperature is greater than the value of `hw_temperature_temperature_celsius_alarm`
+* a `warn` alert is active when the temperature is greater than the value of `hw_temperature_limit_celsius{limit_type="high.degraded"}`
+* a `critical` alert is active when the temperature is greater than the value of `hw_temperature_limit_celsius{limit_type="high.critical"}`
 
 ```yaml
-- name: Temperature-Temperature
+- name: Temperature
   rules:
   - alert: Temperature-Temperature-warn
-    expr:  hw_temperature_temperature_celsius >= hw_temperature_temperature_celsius_warning
+    expr: hw_temperature_celsius >= ignoring(limit_type) hw_temperature_limit_celsius{limit_type="high.degraded"}
     labels:
       severity: 'warn'
   - alert: Temperature-Temperature-critical
-    expr:  hw_temperature_temperature_celsius >= hw_temperature_temperature_celsius_alarm
+    expr: hw_temperature_celsius >= ignoring(limit_type) hw_temperature_limit_celsius{limit_type="high.critical"}
     labels:
       severity: 'critical'
 ```
@@ -46,20 +46,20 @@ The table below summarizes the metrics that should be compared to their correspo
 
 | Base Metric | Dynamic Threshold Metrics |
 |---|---|
-| `rate(hw_cpu_errors_total[1h])` | `hw_cpu_corrected_errors_warning` <br/> `hw_cpu_corrected_errors_alarm` |
-| `hw_fan_speed_rpm` | `hw_fan_speed_rpm_warning` <br/> `hw_fan_speed_rpm_alarm` |
-| `hw_fan_speed_ratio` | `hw_fan_speed_ratio_warning` <br/> `hw_fan_speed_ratio_alarm` |
-| `rate(hw_logical_disk_errors_total[1h])` | `hw_logical_disk_errors_warning` <br/> `hw_logical_disk_errors_alarm` |
-| `hw_lun_available_paths` | `hw_lun_available_paths_warning` |
-| `rate(hw_memory_errors_total[1h])` | `hw_memory_errors_warning` <br/> `hw_memory_errors_alarm` |
-| `hw_network_card_error_ratio` | `hw_network_card_error_ratio_warning` <br/> `hw_network_card_error_ratio_alarm` |
-| `hw_other_device_usage_times` | `hw_other_device_usage_times_warning` <br/> `hw_other_device_usage_times_alarm` |
-| `hw_other_device_value` | `hw_other_device_value_warning` <br/> `hw_other_device_value_alarm` |
-| `rate(hw_physical_disk_errors_total[1h])` | `hw_physical_disk_errors_warning` <br/> `hw_physical_disk_errors_alarm` |
-| `rate(hw_robotics_errors_total[1h])` | `hw_robotics_errors_warning` <br/> `hw_robotics_errors_alarm` |
-| `rate(hw_tape_drive_errors_total[1h])` | `hw_tape_drive_errors_warning` <br/> `hw_tape_drive_errors_alarm` |
-| `hw_temperature_temperature_celsius` | `hw_temperature_temperature_celsius_warning` <br/> `hw_temperature_temperature_celsius_alarm` |
-| `hw_voltage_voltage_volts` | `hw_voltage_voltage_volts_lower` <br/> `hw_voltage_voltage_volts_upper` |
+| `rate(hw_cpu_errors_total[1h])` | `ignoring(limit_type) hw_cpu_errors_limit{limit_type="degraded"}` <br/> `ignoring(limit_type) hw_cpu_errors_limit{limit_type="critical"}` |
+| `hw_fan_speed` | `ignoring(limit_type) hw_fan_speed_limit{limit_type="low.degraded"}` <br/> `ignoring(limit_type) hw_fan_speed_limit{limit_type="low.critical"}` |
+| `hw_fan_speed_ratio` | `ignoring(limit_type) hw_fan_speed_ratio_limit{limit_type="low.degraded"}` <br/> `ignoring(limit_type) hw_fan_speed_ratio_limit{limit_type="low.critical"}` |
+| `rate(hw_logical_disk_errors_total[1h])` | `ignoring(limit_type) hw_logical_disk_errors_limit{limit_type="degraded"}` <br/> `ignoring(limit_type) hw_logical_disk_errors_limit{limit_type="critical"}` |
+| `hw_lun_paths` | `ignoring(limit_type) hw_lun_paths_limit{limit_type="low.degraded"}` |
+| `rate(hw_memory_errors_total[1h])` | `ignoring(limit_type) hw_memory_errors_limit{limit_type="degraded"}` <br/> `ignoring(limit_type) hw_memory_errors_limit{limit_type="critical"}` |
+| `hw_network_card_error_ratio` | `ignoring(limit_type) hw_network_error_ratio_limit{limit_type="degraded"}` <br/> `ignoring(limit_type) hw_network_error_ratio_limit{limit_type="critical"}` |
+| `hw_other_device_uses` | `ignoring(limit_type) hw_other_device_uses_limit{limit_type="degraded"}` <br/> `ignoring(limit_type) hw_other_device_uses_limit{limit_type="critical"}` |
+| `hw_other_device_value` | `ignoring(limit_type) hw_other_device_value_limit{limit_type="degraded"}` <br/> `ignoring(limit_type) hw_other_device_value_limit{limit_type="critical"}` |
+| `rate(hw_physical_disk_errors_total[1h])` | `ignoring(limit_type) hw_physical_disk_errors_limit{limit_type="degraded"}` <br/> `ignoring(limit_type) hw_physical_disk_errors_limit{limit_type="critical"}` |
+| `rate(hw_robotics_errors_total[1h])` | `ignoring(limit_type) hw_robotics_errors_limit{limit_type="degraded"}` <br/> `ignoring(limit_type) hw_robotics_errors_limit{limit_type="critical"}` |
+| `rate(hw_tape_drive_errors_total[1h])` | `ignoring(limit_type) hw_tape_drive_errors_limit{limit_type="degraded"}` <br/> `ignoring(limit_type) hw_tape_drive_errors_limit{limit_type="critical"}` |
+| `hw_temperature_celsius` | `ignoring(limit_type) hw_temperature_limit_celsius{limit_type="high.degraded"}` <br/> `ignoring(limit_type) hw_temperature_limit_celsius{limit_type="high.critical"}` |
+| `hw_voltage_volts` | `ignoring(limit_type) hw_voltage_limit_volts{limit_type="low.degraded"}` <br/> `ignoring(limit_type) hw_voltage_limit_volts{limit_type="low.critical"}` |
 
 ## Install
 
