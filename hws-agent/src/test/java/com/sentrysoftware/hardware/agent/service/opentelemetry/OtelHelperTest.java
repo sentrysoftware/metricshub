@@ -228,7 +228,7 @@ class OtelHelperTest {
 	}
 
 	@Test
-	void testExtractIdentifyingAttribute() {
+	void testExtractIdentifyingAttributes() {
 		{
 			final MetricInfo metricInfo = MetricInfo
 				.builder()
@@ -258,7 +258,7 @@ class OtelHelperTest {
 					HW_TYPE_ATTRIBUTE_KEY, BatteryMapping.HW_TYPE_ATTRIBUTE_VALUE
 				),
 				OtelHelper
-					.extractIdentifyingAttribute(metricInfo, monitor)
+					.extractIdentifyingAttributes(metricInfo, monitor)
 					.get()
 					.stream()
 					.map(id -> Set.of(id))
@@ -287,7 +287,7 @@ class OtelHelperTest {
 			assertEquals(
 				Set.of("quality", "estimated"),
 				OtelHelper
-					.extractIdentifyingAttribute(metricInfo, monitor)
+					.extractIdentifyingAttributes(metricInfo, monitor)
 					.get()
 					.stream()
 					.map(id -> Set.of(id))
@@ -305,7 +305,7 @@ class OtelHelperTest {
 				.unit("1")
 				.description("Battery charge ratio.")
 				.build();
-			assertTrue(OtelHelper.extractIdentifyingAttribute(metricInfo, Monitor.builder().build()).isEmpty());
+			assertTrue(OtelHelper.extractIdentifyingAttributes(metricInfo, Monitor.builder().build()).isEmpty());
 		}
 
 		{
@@ -317,7 +317,7 @@ class OtelHelperTest {
 					.identifyingAttribute(new AbstractIdentifyingAttribute("", "") {})
 					.build();
 			final Monitor monitor = Monitor.builder().build();
-			assertThrows(IllegalStateException.class, () -> OtelHelper.extractIdentifyingAttribute(metricInfo, monitor));
+			assertThrows(IllegalStateException.class, () -> OtelHelper.extractIdentifyingAttributes(metricInfo, monitor));
 		}
 	}
 

@@ -95,13 +95,16 @@ public abstract class AbstractOtelObserver {
 	/**
 	 * Determine the unique id to use when creating or getting a {@link Meter}
 	 * 
-	 * @param metricInfo Metric information used to get the {@link AbstractIdentifyingAttribute}, the metric name and the additional id.
-	 * @param monitor    Monitor defining the monitor id and used to get the {@link DynamicIdentifyingAttribute} instance.
+	 * @param metricInfo Metric information used to get the
+	 *                   {@link AbstractIdentifyingAttribute} list, the metric name
+	 *                   and the additional id.
+	 * @param monitor    Monitor defining the monitor id and used to get the
+	 *                   {@link DynamicIdentifyingAttribute} instance.
 	 * @return String value
 	 */
 	static String determineMeterId(final MetricInfo metricInfo, final Monitor monitor) {
 		String meterId;
-		final Optional<List<String[]>> maybeIdentifyingAttributes = OtelHelper.extractIdentifyingAttribute(metricInfo,
+		final Optional<List<String[]>> maybeIdentifyingAttributes = OtelHelper.extractIdentifyingAttributes(metricInfo,
 				monitor);
 		final String format = "%s.%s";
 

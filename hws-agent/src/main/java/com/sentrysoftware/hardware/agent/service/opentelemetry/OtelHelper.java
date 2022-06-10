@@ -305,7 +305,7 @@ public class OtelHelper {
 	 *         string array defining the key at the first position and the value at
 	 *         the second one.
 	 */
-	public static Optional<List<String[]>> extractIdentifyingAttribute(final MetricInfo metricInfo, final Monitor monitor) {
+	public static Optional<List<String[]>> extractIdentifyingAttributes(final MetricInfo metricInfo, final Monitor monitor) {
 		final List<AbstractIdentifyingAttribute> identifyingAttributes = metricInfo.getIdentifyingAttributes();
 		if (identifyingAttributes != null && !identifyingAttributes.isEmpty()) {
 			final List<String[]> result = new ArrayList<>();

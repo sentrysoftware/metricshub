@@ -432,7 +432,7 @@ public class OtelAlertHelper {
 	static String getMetricName(@NonNull final Monitor monitor, @NonNull final MetricInfo metricInfo) {
 
 		// Get the identifying attributes
-		final Optional<List<String[]>> maybeIdentifyingAttributes =  OtelHelper.extractIdentifyingAttribute(metricInfo, monitor);
+		final Optional<List<String[]>> maybeIdentifyingAttributes =  OtelHelper.extractIdentifyingAttributes(metricInfo, monitor);
 		if (maybeIdentifyingAttributes.isPresent()) {
 			final String identifyingAttributes = maybeIdentifyingAttributes
 				.get()

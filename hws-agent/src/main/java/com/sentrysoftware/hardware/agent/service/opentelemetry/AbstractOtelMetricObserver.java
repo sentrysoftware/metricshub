@@ -151,8 +151,8 @@ public abstract class AbstractOtelMetricObserver extends AbstractOtelObserver {
 					attributesBuilder.put(attributeKey, attributeValue);
 				});
 
-		// Add the identifying attribute to the metric's attributes
-		final Optional<List<String[]>> maybeIdentifyingAttributes =  OtelHelper.extractIdentifyingAttribute(metricInfo, monitor);
+		// Add the identifying attributes to the metric's attributes
+		final Optional<List<String[]>> maybeIdentifyingAttributes =  OtelHelper.extractIdentifyingAttributes(metricInfo, monitor);
 		if (maybeIdentifyingAttributes.isPresent()) {
 			final List<String[]> identifyingAttributes = maybeIdentifyingAttributes.get();
 			identifyingAttributes.forEach(identifyingAttribute ->
