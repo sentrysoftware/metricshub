@@ -29,8 +29,7 @@ func main() {
 	}
 
 	if !checkVersionOrHelp(os.Args) {
-		log.Println("starting Hardware Sentry OpenTelemetry Collector")
-		log.Println("Hardware Sentry OpenTelemetry Collector version:", "${project.version} (Build ${buildNumber} on ${timestamp})")
+		log.Println("starting Hardware Sentry OpenTelemetry Collector version:", "${project.version} (Build ${buildNumber} on ${timestamp})")
 
 		err := backupOtelLogAtStartup()
 		if err != nil {

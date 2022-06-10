@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"go.opentelemetry.io/collector/service"
+	"go.opentelemetry.io/collector/service/featuregate"
 )
 
 // NewCommand constructs a new cobra.Command using the given Collector.
@@ -13,6 +14,7 @@ func NewCommand(set service.CollectorSettings) *cobra.Command {
 		Version:      set.BuildInfo.Version,
 		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			featuregate.GetRegistry().Apply(getGatesList())
 			col, err := newCollectorWithLogCore(set)
 			if err != nil {
 				return err

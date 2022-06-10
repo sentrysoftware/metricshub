@@ -101,7 +101,10 @@ public class HardwareConstants {
 	public static final String TIME_LEFT_PARAMETER = "timeLeft";
 	public static final String COLOR_PARAMETER = "color";
 	public static final String LED_INDICATOR_PARAMETER = "ledIndicator";
+	public static final String ALLOCATED_SPACE_PARAMETER = "allocatedSpace";
+	public static final String ALLOCATED_SPACE_PERCENT_PARAMETER = "allocatedSpacePercent";
 	public static final String UNALLOCATED_SPACE_PARAMETER = "unallocatedSpace";
+	public static final String UNALLOCATED_SPACE_PERCENT_PARAMETER = "unallocatedSpacePercent";
 	public static final String AVAILABLE_PATH_COUNT_PARAMETER = "availablePathCount";
 	public static final String MAX_AVAILABLE_PATH_COUNT_PARAMETER = "maxAvailablePathCount";
 	public static final String AVAILABLE_PATH_INFORMATION_PARAMETER = "availablePathInformation";
@@ -146,6 +149,7 @@ public class HardwareConstants {
 	public static final String DECODER_USED_TIME_PARAMETER = "decoderUsedTime";
 	public static final String DECODER_USED_TIME_PERCENT_PARAMETER = "decoderUsedTimePercent";
 	public static final String POWER_SHARE_PARAMETER = "powerShare";
+	public static final String POWER_SHARE_PERCENT_PARAMETER = "powerSharePercent";
 	public static final String SNMP_UP_PARAMETER = "snmpUp";
 	public static final String SSH_UP_PARAMETER = "sshUp";
 	public static final String WBEM_UP_PARAMETER = "wbemUp";
@@ -274,6 +278,10 @@ public class HardwareConstants {
 	public static final String POWER_METER = "powerMeter";
 	public static final String APPLIES_TO_OS = "appliesToOS";
 	public static final String IP_ADDRESS = "ipAddress";
+	public static final String USED_TIME_PERCENT_WARNING_THRESHOLD = "usedTimePercentWarningThreshold";
+	public static final String USED_TIME_PERCENT_ALARM_THRESHOLD = "usedTimePercentAlarmThreshold";
+	public static final String MEMORY_UTILIZATION_WARNING_THRESHOLD = "memoryUtilizationWarningThreshold";
+	public static final String MEMORY_UTILIZATION_ALARM_THRESHOLD = "memoryUtilizationAlarmThreshold";
 
 	/////////////////////
 	//                 //
