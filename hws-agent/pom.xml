@@ -46,10 +46,11 @@
 			<groupId>com.sentrysoftware.hardware.matrix</groupId>
 			<artifactId>matrix-engine</artifactId>
 		</dependency>
-		<dependency>
+		<!-- <dependency>
 			<groupId>com.sentrysoftware.hardware.matrix</groupId>
 			<artifactId>matrix-connectors</artifactId>
-		</dependency>
+		</dependency> -->
+		<!-- Mapping  -->
 		<dependency>
 			<groupId>com.sentrysoftware.hardware.matrix</groupId>
 			<artifactId>hws-agent-mapping</artifactId>
