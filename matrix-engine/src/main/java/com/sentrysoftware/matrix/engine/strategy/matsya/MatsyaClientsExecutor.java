@@ -1248,17 +1248,19 @@ public class MatsyaClientsExecutor {
 		final List<AuthenticationEnum> authentications = winRmProtocol.getAuthentications();
 		final Long timeout = winRmProtocol.getTimeout();
 
-		trace(() -> log.trace("Executing WinRM WQL request:\n- hostname: {}\n- username: {}\n- query: {}\n"
+		trace(() ->
+			log.trace("Executing WinRM WQL request:\n- hostname: {}\n- username: {}\n- query: {}\n"
 				+ "- protocol: {}\n- port: {}\n- authentications: {}\n- timeout: {}\n- namespace: {}\n",
 				hostname,
 				username,
 				query,
-				httpProtocol.toString(),
+				httpProtocol,
 				port,
 				authentications,
 				timeout,
 				namespace
-		));
+			)
+		);
 
 		// launching the request
 		try {
@@ -1274,19 +1276,24 @@ public class MatsyaClientsExecutor {
 					null,
 					authentications);
 
+			final List<List<String>> table = result.getRows();
 
 			trace(() -> 
-			log.trace("Executed WinRM WQL request:\n- query: {}\n- hostname: {}\n- username: {}\n"
-					+ "- timeout: {} s\n- result:\n{}\n- namespace: {}\n",
-					query,
+				log.trace("Executed WinRM WQL request:\n- hostname: {}\n- username: {}\n- query: {}\n"
+					+ "- protocol: {}\n- port: {}\n- authentications: {}\n- timeout: {}\n- namespace: {}\n- Result:\n{}\n",
 					hostname,
 					username,
+					query,
+					httpProtocol,
+					port,
+					authentications,
 					timeout,
-					TextTableHelper.generateTextTable(result.getRows()),
-					namespace)
+					namespace,
+					TextTableHelper.generateTextTable(table)
+				)
 			);
 
-			return result.getRows();
+			return table;
 		} catch (Exception e) {
 			log.error("Hostname {} - WinRM WQL request failed. Errors:\n{}\n", hostname, StringHelper.getStackMessages(e));
 			throw new MatsyaException(String.format("WinRM WQL request failed on %s.", hostname), e);
@@ -1314,18 +1321,18 @@ public class MatsyaClientsExecutor {
 		final List<AuthenticationEnum> authentications = winRmProtocol.getAuthentications();
 		final Long timeout = winRmProtocol.getTimeout();
 
-		trace(() -> log.trace("Executing WinRM remote command:\n- hostname: {}\n- username: {}\n- command: {}\n"
-				+ "- protocol: {}\n- port: {}\n- force Ntlm: {}\n"
-				+ "- kerberos only: {}\n- timeout: {}\n",
+		trace(() ->
+			log.trace("Executing WinRM remote command:\n- hostname: {}\n- username: {}\n- command: {}\n"
+				+ "- protocol: {}\n- port: {}\n- authentications: {}\n- timeout: {}\n",
 				hostname,
 				username,
 				command,
-				httpProtocol.toString(),
+				httpProtocol,
 				port,
-				authentications != null && authentications.contains(AuthenticationEnum.NTLM),
-				authentications != null && authentications.contains(AuthenticationEnum.KERBEROS),
+				authentications,
 				timeout
-		));
+			)
+		);
 
 		// launching the command
 		try {
@@ -1350,13 +1357,17 @@ public class MatsyaClientsExecutor {
 			String resultStdout = result.getStdout();
 
 			trace(() -> 
-			log.trace("Executed WinRM remote command:\n- command: {}\n- hostname: {}\n- username: {}\n"
-					+ "- timeout: {} s\n- result:\n{}\n",
-					command,
+				log.trace("Executed WinRM remote command:\n- hostname: {}\n- username: {}\n- command: {}\n"
+					+ "- protocol: {}\n- port: {}\n- authentications: {}\n- timeout: {}\n- Result:\n{}\n",
 					hostname,
 					username,
+					command,
+					httpProtocol,
+					port,
+					authentications,
 					timeout,
-					resultStdout)
+					resultStdout
+				)
 			);
 
 			return resultStdout;
