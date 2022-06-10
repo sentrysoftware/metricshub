@@ -2,7 +2,6 @@ package com.sentrysoftware.matrix.common.meta.monitor;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPILED_FILE_NAME;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DESCRIPTION;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DISPLAY_NAME;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEST_REPORT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.APPLIES_TO_OS;
@@ -34,7 +33,7 @@ public class MetaConnector implements IMetaMonitor {
 			.type(SimpleParamType.TEXT)
 			.build();
 
-	private static final List<String> METADATA = List.of(DISPLAY_NAME, COMPILED_FILE_NAME, DESCRIPTION, APPLIES_TO_OS);
+	private static final List<String> METADATA = List.of(COMPILED_FILE_NAME, DESCRIPTION, APPLIES_TO_OS);
 
 	public static final AlertRule STATUS_ALARM_ALERT_RULE = new AlertRule(MetaConnector::checkStatusAlarmCondition,
 			STATUS_ALARM_CONDITION,

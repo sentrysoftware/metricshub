@@ -10,7 +10,7 @@ import org.apache.logging.log4j.ThreadContext;
 
 import com.sentrysoftware.hardware.agent.dto.HostConfigurationDto;
 import com.sentrysoftware.hardware.agent.dto.UserConfiguration;
-import com.sentrysoftware.hardware.agent.service.opentelemetry.MetricsMapping;
+import com.sentrysoftware.hardware.agent.mapping.opentelemetry.MetricsMapping;
 import com.sentrysoftware.hardware.agent.service.opentelemetry.OtelAlertHelper;
 import com.sentrysoftware.hardware.agent.service.opentelemetry.OtelHelper;
 import com.sentrysoftware.hardware.agent.service.opentelemetry.OtelMetadataToMetricObserver;
@@ -193,7 +193,7 @@ public class StrategyTask implements Runnable {
 							.builder()
 							.monitor(monitor)
 							.matrixMetadata(metricEntry.getKey())
-							.metricInfo(metricEntry.getValue())
+							.metricInfoList(metricEntry.getValue())
 							.sdkMeterProvider(autoConfiguredOpenTelemetrySdk.getOpenTelemetrySdk().getSdkMeterProvider())
 							.multiHostsConfigurationDto(userConfiguration.getMultiHostsConfigurationDto())
 							.build()
@@ -215,10 +215,10 @@ public class StrategyTask implements Runnable {
 			.stream()
 			.filter(entry -> monitor.getMonitorType().equals(entry.getKey()))
 			.forEach(entry -> 
-				entry.getValue().forEach((parameterName, metricInfo) -> OtelParameterToMetricObserver
+				entry.getValue().forEach((parameterName, metricInfoList) -> OtelParameterToMetricObserver
 					.builder()
 					.monitor(monitor)
-					.metricInfo(metricInfo)
+					.metricInfoList(metricInfoList)
 					.matrixParameterName(parameterName)
 					.multiHostsConfigurationDto(userConfiguration.getMultiHostsConfigurationDto())
 					.sdkMeterProvider(autoConfiguredOpenTelemetrySdk.getOpenTelemetrySdk().getSdkMeterProvider())

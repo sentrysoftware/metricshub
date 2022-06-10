@@ -1,4 +1,4 @@
-package com.sentrysoftware.hardware.agent.service;
+package com.sentrysoftware.hardware.agent.mapping;
 
 import java.util.regex.Pattern;
 
@@ -6,7 +6,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ServiceHelper {
+public class MappingHelper {
 
 	private static final Pattern CAMEL_CASE_PATTERN = Pattern.compile("([a-z])([A-Z]+)");
 	private static final Pattern SNAKE_CASE_PATTERN = Pattern.compile("(_)([a-z])");
@@ -42,4 +42,13 @@ public class ServiceHelper {
 			.replaceAll(matchResult -> matchResult.group(2).toUpperCase());
 	}
 
+	/**
+	 * Capitalize the given string
+	 * 
+	 * @param value
+	 * @return String value
+	 */
+	public static String capitalize(String value) {
+		return value.substring(0, 1).toUpperCase() + value.substring(1);
+	}
 }

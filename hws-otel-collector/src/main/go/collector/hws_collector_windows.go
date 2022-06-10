@@ -13,6 +13,7 @@ import (
 	"golang.org/x/sys/windows/svc/eventlog"
 
 	"go.opentelemetry.io/collector/service"
+	"go.opentelemetry.io/collector/service/featuregate"
 )
 
 type WindowsService struct {
@@ -74,6 +75,8 @@ func (s *WindowsService) start(colErrorChannel chan error) error {
 	if err := flags().Parse(os.Args[1:]); err != nil {
 		return err
 	}
+
+	featuregate.GetRegistry().Apply(getGatesList())
 
 	var err error
 	s.col, err = newCollectorWithLogCore(s.settings)

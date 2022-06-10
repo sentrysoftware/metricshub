@@ -3,12 +3,15 @@ package main
 import (
 	"flag"
 	"strings"
+
+	"go.opentelemetry.io/collector/service/featuregate"
 )
 
 var (
 	// Command-line flag that control the configuration file.
 	configFlag = new(stringArrayValue)
 	setFlag    = new(stringArrayValue)
+	gatesList  = featuregate.FlagValue{}
 )
 
 type stringArrayValue struct {
@@ -27,15 +30,6 @@ func (s *stringArrayValue) String() string {
 func flags() *flag.FlagSet {
 	flagSet := new(flag.FlagSet)
 
-	// Update the default config file
-	if len(configFlag.values) == 0 {
-		defaultConfig, err := getDefaultConfigFile()
-		if err != nil {
-			panic(err)
-		}
-		configFlag.values = []string{defaultConfig}
-	}
-
 	flagSet.Var(configFlag, "config", "Locations to the config file(s), note that only a"+
 		" single location can be set per flag entry e.g. `-config=file:/path/to/first --config=file:path/to/second`.")
 
@@ -44,13 +38,33 @@ func flags() *flag.FlagSet {
 			" has a higher precedence. Array config properties are overridden and maps are joined, note that only a single"+
 			" (first) array property can be set e.g. -set=processors.attributes.actions.key=some_key. Example --set=processors.batch.timeout=2s")
 
+	flagSet.Var(
+		gatesList,
+		"feature-gates",
+		"Comma-delimited list of feature gate identifiers. Prefix with '-' to disable the feature.  '+' or no prefix will enable the feature.")
+
 	return flagSet
 }
 
 func getConfigFlag() []string {
+	// Update the default config file
+	if len(configFlag.values) == 0 {
+		defaultConfig, err := getDefaultConfigFile()
+		if err != nil {
+			panic(err)
+		}
+		configFlag.values = []string{defaultConfig}
+	}
 	return configFlag.values
 }
 
 func getSetFlag() []string {
 	return setFlag.values
+}
+
+func getGatesList() featuregate.FlagValue {
+	// This will update the flag if it doesn't exist
+	// Let's enable the prometheus exporter AutomaticRename feature
+	gatesList.Set("exporter.prometheus.AutomaticRename")
+	return gatesList
 }

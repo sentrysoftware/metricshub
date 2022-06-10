@@ -1,16 +1,21 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry;
 
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.MetricsMapping.ID;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.MetricsMapping.LABEL;
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.MetricsMapping.PARENT;
+import static com.sentrysoftware.hardware.agent.mapping.opentelemetry.MappingConstants.ID;
+import static com.sentrysoftware.hardware.agent.mapping.opentelemetry.MappingConstants.NAME;
+import static com.sentrysoftware.hardware.agent.mapping.opentelemetry.MappingConstants.PARENT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
+import com.sentrysoftware.hardware.agent.mapping.opentelemetry.dto.DynamicIdentifyingAttribute;
+import com.sentrysoftware.hardware.agent.mapping.opentelemetry.dto.MetricInfo;
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 
@@ -30,7 +35,7 @@ public abstract class AbstractOtelObserver {
 
 	protected static final Map<String, Function<Monitor, String>> ATTRIBUTE_FUNCTIONS = Map.of(
 			ID, Monitor::getId,
-			LABEL, Monitor::getName,
+			NAME, Monitor::getName,
 			PARENT, mo -> getValueOrElse(mo.getParentId(), EMPTY)
 	);
 
@@ -78,11 +83,48 @@ public abstract class AbstractOtelObserver {
 
 	/**
 	 * Gets or creates a named meter instance.
+	 * @param metricInfo Metric information used to create the unique meter
 	 * 
 	 * @return {@link Meter} instance defined by the metrics API
 	 */
-	protected Meter getMeter() {
-		return sdkMeterProvider.get(monitor.getId());
+	protected Meter getMeter(final MetricInfo metricInfo) {
+
+		return sdkMeterProvider.get(determineMeterId(metricInfo, monitor));
+	}
+
+	/**
+	 * Determine the unique id to use when creating or getting a {@link Meter}
+	 * 
+	 * @param metricInfo Metric information used to get the
+	 *                   {@link AbstractIdentifyingAttribute} list, the metric name
+	 *                   and the additional id.
+	 * @param monitor    Monitor defining the monitor id and used to get the
+	 *                   {@link DynamicIdentifyingAttribute} instance.
+	 * @return String value
+	 */
+	static String determineMeterId(final MetricInfo metricInfo, final Monitor monitor) {
+		String meterId;
+		final Optional<List<String[]>> maybeIdentifyingAttributes = OtelHelper.extractIdentifyingAttributes(metricInfo,
+				monitor);
+		final String format = "%s.%s";
+
+		if (maybeIdentifyingAttributes.isPresent()) {
+			final String identifyingAttributes = maybeIdentifyingAttributes
+				.get()
+				.stream()
+				.map(keyValue -> String.format(format, keyValue[0], keyValue[1]))
+				.collect(Collectors.joining("."));
+			meterId = String.format("%s.%s.%s", monitor.getId(), metricInfo.getName(), identifyingAttributes);
+		} else {
+			meterId = String.format(format, monitor.getId(), metricInfo.getName());
+		}
+
+		final String additionalId = metricInfo.getAdditionalId();
+		if (additionalId != null) {
+			return String.format(format, meterId, additionalId);
+		}
+
+		return meterId;
 	}
 
 	/**

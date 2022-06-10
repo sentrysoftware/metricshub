@@ -45,8 +45,8 @@
 		<commons-lang3.version>3.12.0</commons-lang3.version>
 		<slf4j-simple.version>1.7.30</slf4j-simple.version>
 		<emulation.version>2</emulation.version>
-		<openTelemetryVersion>1.13.0</openTelemetryVersion>
-		<openTelemetryAlphaVersion>1.13.0-alpha</openTelemetryAlphaVersion>
+		<openTelemetryVersion>1.14.0</openTelemetryVersion>
+		<openTelemetryAlphaVersion>1.14.0-alpha</openTelemetryAlphaVersion>
 		<grpcVersion>1.34.1</grpcVersion>
 		<protobufVersion>3.11.4</protobufVersion>
 		<protocVersion>${protobufVersion}</protocVersion>
@@ -56,6 +56,7 @@
 		<module>connector-serializer</module>
 		<module>matrix-connectors</module>
 		<module>matrix-engine</module>
+		<module>hws-agent-mapping</module>
 		<module>hws-agent</module>
 	</modules>
 
@@ -89,6 +90,11 @@
 			<dependency>
 				<groupId>com.sentrysoftware.hardware.matrix</groupId>
 				<artifactId>connector-serializer</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sentrysoftware.hardware.matrix</groupId>
+				<artifactId>hws-agent-mapping</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -287,19 +293,9 @@
 			</dependency>
 			<dependency>
 				<groupId>io.opentelemetry</groupId>
-				<artifactId>opentelemetry-sdk-metrics</artifactId>
-				<version>${openTelemetryAlphaVersion}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.opentelemetry</groupId>
-				<artifactId>opentelemetry-sdk-metrics-testing</artifactId>
-				<version>${openTelemetryAlphaVersion}</version>
+				<artifactId>opentelemetry-sdk-testing</artifactId>
+				<version>${openTelemetryVersion}</version>
 				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>io.opentelemetry</groupId>
-				<artifactId>opentelemetry-exporter-otlp-metrics</artifactId>
-				<version>${openTelemetryAlphaVersion}</version>
 			</dependency>
 			<dependency>
 				<groupId>io.opentelemetry</groupId>

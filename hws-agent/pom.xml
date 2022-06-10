@@ -50,6 +50,10 @@
 			<groupId>com.sentrysoftware.hardware.matrix</groupId>
 			<artifactId>matrix-connectors</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.sentrysoftware.hardware.matrix</groupId>
+			<artifactId>hws-agent-mapping</artifactId>
+		</dependency>
 		<!-- OpenAPI -->
 		<dependency>
 			<groupId>org.springdoc</groupId>
@@ -96,15 +100,7 @@
 		</dependency>
 		<dependency>
 			<groupId>io.opentelemetry</groupId>
-			<artifactId>opentelemetry-sdk-metrics</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.opentelemetry</groupId>
 			<artifactId>opentelemetry-sdk-common</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.opentelemetry</groupId>
-			<artifactId>opentelemetry-exporter-otlp-metrics</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>io.opentelemetry</groupId>
@@ -118,7 +114,7 @@
 		<!-- Test -->
 		<dependency>
 			<groupId>io.opentelemetry</groupId>
-			<artifactId>opentelemetry-sdk-metrics-testing</artifactId>
+			<artifactId>opentelemetry-sdk-testing</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -243,7 +239,7 @@
 										<limit>
 											<counter>COMPLEXITY</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.88</minimum>
+											<minimum>0.84</minimum>
 										</limit>
 									</limits>
 								</rule>
