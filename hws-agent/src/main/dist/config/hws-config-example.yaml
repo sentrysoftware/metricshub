@@ -180,8 +180,7 @@ hosts:
 #      username: myusername
 #      password: mypwd
 #      namespace: mynamespace
-#      port: 5986                     #optional
-#      protocol: http                 #optional
-#      forcentlm: true                #optional
-#      kerberosOnly: false            #optional
+#      port: 5985
+#      protocol: http
+#      authentications: [NTLM,KERBEROS]
 

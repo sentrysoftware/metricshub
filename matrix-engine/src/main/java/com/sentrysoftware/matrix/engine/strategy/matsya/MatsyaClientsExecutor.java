@@ -1230,15 +1230,15 @@ public class MatsyaClientsExecutor {
 	 *
 	 * @param hostname The hostname of the device where the WinRM service is running (<code>null</code> for localhost)
 	 * @param winRMProtocol WinRM Protocol configuration (credentials, timeout)
-	 * @param command The command to execute
-	 * @param namespace The namespace on which to execute the quer
+	 * @param query The query to execute
+	 * @param namespace The namespace on which to execute the query
 	 * @return The result of the query
 	 * @throws MatsyaException when anything goes wrong (details in cause)
 	 */
 	public static List<List<String>> executeWqlThroughWinRm(
 			@NonNull final String hostname,
 			@NonNull final WinRmProtocol winRmProtocol,
-			@NonNull final String command,
+			@NonNull final String query,
 			@NonNull final String namespace)
 					throws MatsyaException {
 		final String username = winRmProtocol.getUsername();
@@ -1249,15 +1249,15 @@ public class MatsyaClientsExecutor {
 		final Long timeout = winRmProtocol.getTimeout();
 
 		trace(() -> log.trace("Executing WinRM WQL request:\n- hostname: {}\n- username: {}\n- query: {}\n"
-				+ "- protocol: {}\n- port: {}\n- force Ntlm: {}\n- kerberos only: {}\n- timeout: {}\n",
+				+ "- protocol: {}\n- port: {}\n- authentications: {}\n- timeout: {}\n- namespace: {}\n",
 				hostname,
 				username,
-				command,
+				query,
 				httpProtocol.toString(),
 				port,
-				authentications != null && authentications.contains(AuthenticationEnum.NTLM),
-				authentications != null && authentications.contains(AuthenticationEnum.KERBEROS),
-				timeout
+				authentications,
+				timeout,
+				namespace
 		));
 
 		// launching the request
@@ -1269,20 +1269,21 @@ public class MatsyaClientsExecutor {
 					username,
 					winRmProtocol.getPassword(),
 					namespace,
-					command,
+					query,
 					timeout * 1000L,
 					null,
 					authentications);
 
 
 			trace(() -> 
-			log.trace("Executed WinRM WQL request:\n- command: {}\n- hostname: {}\n- username: {}\n"
-					+ "- timeout: {} s\n- result:\n{}\n",
-					command,
+			log.trace("Executed WinRM WQL request:\n- query: {}\n- hostname: {}\n- username: {}\n"
+					+ "- timeout: {} s\n- result:\n{}\n- namespace: {}\n",
+					query,
 					hostname,
 					username,
 					timeout,
-					result)
+					TextTableHelper.generateTextTable(result.getRows()),
+					namespace)
 			);
 
 			return result.getRows();

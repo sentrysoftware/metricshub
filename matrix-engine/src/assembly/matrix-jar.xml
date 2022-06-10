@@ -26,6 +26,14 @@
 				</includes>
 				<excludes>
 					<exclude>org/slf4j/impl/**</exclude>
+					<exclude>picocli/**</exclude>
+					<exclude>cxf/**</exclude>
+					<exclude>jakarta/**</exclude>
+					<exclude>mozilla/**</exclude>
+					<exclude>net/engio/**</exclude>
+					<exclude>net/vrallev/**</exclude>
+					<exclude>test/**</exclude>
+					<exclude>xsd/**</exclude>
 				</excludes>
 			</unpackOptions>
 		</dependencySet>
