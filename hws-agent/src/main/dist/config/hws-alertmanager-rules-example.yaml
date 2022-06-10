@@ -387,7 +387,7 @@ groups:
 - name: PhysicalDisk-PredictedFailure
   rules:
   - alert: PhysicalDisk-PredictedFailure-warn
-    expr: hw_status{hw_type="physical_disk",state="predicted.failure"}
+    expr: hw_status{hw_type="physical_disk",state="predicted.failure"} == 1
     labels:
       severity: 'warn'
 
@@ -509,11 +509,11 @@ groups:
 
 - name: Temperature
   rules:
-  - alert: Temperature-Temperature-warn
+  - alert: Temperature-High-warn
     expr: hw_temperature_celsius >= ignoring(limit_type) hw_temperature_limit_celsius{limit_type="high.degraded"}
     labels:
       severity: 'warn'
-  - alert: Temperature-Temperature-critical
+  - alert: Temperature-High-critical
     expr: hw_temperature_celsius >= ignoring(limit_type) hw_temperature_limit_celsius{limit_type="high.critical"}
     labels:
       severity: 'critical'
@@ -542,11 +542,11 @@ groups:
 
 - name: Voltage
   rules:
-  - alert: Voltage-Voltage-warn
-    expr:  hw_voltage_volts >= ignoring(limit_type) hw_voltage_limit_volts{limit_type="low.degraded"}
+  - alert: Voltage-Low-Critical
+    expr:  hw_voltage_volts <= ignoring(limit_type) hw_voltage_limit_volts{limit_type="low.critical"}
     labels:
-      severity: 'warn'
-  - alert: Voltage-Voltage-critical
-    expr:  hw_voltage_volts >= ignoring(limit_type) hw_voltage_limit_volts{limit_type="low.critical"}
+      severity: 'critical'
+  - alert: Voltage-High-critical
+    expr:  hw_voltage_volts >= ignoring(limit_type) hw_voltage_limit_volts{limit_type="high.critical"}
     labels:
       severity: 'critical'
