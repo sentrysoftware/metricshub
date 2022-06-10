@@ -50,7 +50,6 @@
 			<groupId>com.sentrysoftware.hardware.matrix</groupId>
 			<artifactId>matrix-connectors</artifactId>
 		</dependency>
-		<!-- Mapping  -->
 		<dependency>
 			<groupId>com.sentrysoftware.hardware.matrix</groupId>
 			<artifactId>hws-agent-mapping</artifactId>
