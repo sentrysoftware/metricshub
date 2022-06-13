@@ -1,11 +1,3 @@
-groups:
-- name: Battery-Present
-  rules:
-  - alert: Battery-Present-critical
-    expr: hw_status{hw_type="battery",state="present"} == 0
-    labels:
-      severity: 'critical'
-
 - name: Battery-Charge
   rules:
   - alert: Battery-Charge-critical
@@ -17,35 +9,6 @@ groups:
     labels:
       severity: 'warn'
 
-- name: Battery-Status
-  rules:
-  - alert: Battery-Status-warn
-    expr: hw_status{hw_type="battery",state="degraded"} == 1
-    labels:
-      severity: 'warn'
-  - alert: Battery-Status-critical
-    expr: hw_status{hw_type="battery",state="failed"} == 1
-    labels:
-      severity: 'critical'
-
-- name: Blade-Present
-  rules:
-  - alert: Blade-Present-critical
-    expr: hw_status{hw_type="blade",state="present"} == 0
-    labels:
-      severity: 'critical'
-
-- name: Blade-Status
-  rules:
-  - alert: Blade-Status-warn
-    expr: hw_status{hw_type="blade",state="degraded"} == 1
-    labels:
-      severity: 'warn'
-  - alert: Blade-Status-critical
-    expr: hw_status{hw_type="blade",state="failed"} == 1
-    labels:
-      severity: 'critical'
-
 - name: Connector-Status
   rules:
   - alert: Connector-Status-warn
@@ -54,13 +17,6 @@ groups:
       severity: 'warn'
   - alert: Connector-Status-critical
     expr: hardware_sentry_connector_status{state="failed"} == 1
-    labels:
-      severity: 'critical'
-
-- name: CPU-Present
-  rules:
-  - alert: CPU-Present-critical
-    expr: hw_status{hw_type="cpu",state="present"} == 0
     labels:
       severity: 'critical'
 
@@ -75,104 +31,25 @@ groups:
     labels:
       severity: 'critical'
 
-- name: CPU-PredictedFailure
+- name: Device-Status
   rules:
-  - alert: CPU-PredictedFailure-warn
-    expr: hw_status{hw_type="cpu",state="predicted.failure"} == 1
+  - alert: Device-Status-warn
+    expr: hw_status{state="degraded"} == 1 OR hw_status{state="predicted_failure"} == 1 OR hw_status{battery_state="degraded"} == 1 OR hw_status{state="needs_cleaning"} == 1
     labels:
       severity: 'warn'
-
-- name: CPU-Status
-  rules:
-  - alert: CPU-Status-warn
-    expr: hw_status{hw_type="cpu",state="degraded"} == 1
-    labels:
-      severity: 'warn'
-  - alert: CPU-Status-critical
-    expr: hw_status{hw_type="cpu",state="failed"} == 1
-    labels:
-      severity: 'critical'
-
-- name: CPUCore-Present
-  rules:
-  - alert: CPUCore-Present-critical
-    expr: hw_status{hw_type="cpu_core",state="present"} == 0
-    labels:
-      severity: 'critical'
-
-- name: CPUCore-Status
-  rules:
-  - alert: CPUCore-Status-warn
-    expr: hw_status{hw_type="cpu_core",state="degraded"} == 1
-    labels:
-      severity: 'warn'
-  - alert: CPUCore-Status-critical
-    expr: hw_status{hw_type="cpu_core",state="failed"} == 1
-    labels:
-      severity: 'critical'
-
-- name: DiskController-Present
-  rules:
-  - alert: DiskController-Present-critical
-    expr: hw_status{hw_type="disk_controller",state="present"} == 0
-    labels:
-      severity: 'critical'
-
-- name: DiskController-Controller-Status
-  rules:
-  - alert: DiskController-Controller-Status-warn
-    expr: hw_status{hw_type="disk_controller",state="degraded"} == 1
-    labels:
-      severity: 'warn'
-  - alert: DiskController-ControllerStatus-critical
-    expr: hw_status{hw_type="disk_controller",state="failed"} == 1
-    labels:
-      severity: 'critical'
-
-- name: DiskController-Battery-Status
-  rules:
-  - alert: DiskController-Battery-Status-warn
-    expr: hw_status{hw_type="disk_controller",battery_state="degraded"} == 1
-    labels:
-      severity: 'warn'
-  - alert: DiskController-Battery-Status-critical
-    expr: hw_status{hw_type="disk_controller",battery_state="failed"} == 1
-    labels:
-      severity: 'critical'
-
-- name: Enclosure-Present
-  rules:
-  - alert: Enclosure-Present-critical
-    expr: hw_status{hw_type="enclosure",state="present"} == 0
-    labels:
-      severity: 'critical'
-
-- name: Enclosure-Status
-  rules:
-  - alert: Enclosure-Status-warn
-    expr: hw_status{hw_type="enclosure",state="degraded"} == 1
-    labels:
-      severity: 'warn'
-  - alert: Enclosure-Status-critical
-    expr: hw_status{hw_type="enclosure",state="failed"} == 1
-    labels:
-      severity: 'critical'
-
-- name: Fan-Present
-  rules:
-  - alert: Fan-Present-critical
-    expr: hw_status{hw_type="fan",state="present"} == 0
+  - alert: Device-Status-critical
+    expr: hw_status{state="failed"} == 1 OR hw_status{state="present"} == 0 OR hw_status{battery_state="failed"} == 1
     labels:
       severity: 'critical'
 
 - name: Fan-Speed
   rules:
   - alert: Fan-Speed-warn
-    expr: hw_fan_speed >= 0 AND hw_fan_speed <= ignoring(limit_type) hw_fan_speed_limit{limit_type="low.degraded"}
+    expr: hw_fan_speed_rpm >= 0 AND hw_fan_speed_rpm <= ignoring(limit_type) hw_fan_speed_limit_rpm{limit_type="low.degraded"}
     labels:
       severity: 'warn'
   - alert: Fan-Speed-critical
-    expr: hw_fan_speed >= 0 AND hw_fan_speed <= ignoring(limit_type) hw_fan_speed_limit{limit_type="low.critical"}
+    expr: hw_fan_speed_rpm >= 0 AND hw_fan_speed_rpm <= ignoring(limit_type) hw_fan_speed_limit_rpm{limit_type="low.critical"}
     labels:
       severity: 'critical'
 
@@ -187,29 +64,6 @@ groups:
     labels:
       severity: 'critical'
 
-- name: Fan-Status
-  rules:
-  - alert: Fan-Status-warn
-    expr: hw_status{hw_type="fan",state="degraded"} == 1
-    labels:
-      severity: 'warn'
-  - alert: Fan-Status-critical
-    expr: hw_status{hw_type="fan",state="failed"} == 1
-    labels:
-      severity: 'critical'
-
-
-- name: LED-Status
-  rules:
-  - alert: LED-Status-warn
-    expr: hw_status{hw_type="led",state="degraded"} == 1
-    labels:
-      severity: 'warn'
-  - alert: LED-Status-critical
-    expr: hw_status{hw_type="led",state="failed"} == 1
-    labels:
-      severity: 'critical'
-
 - name: LogicalDisk-Errors
   rules:
   - alert: LogicalDisk-Errors-warn
@@ -221,41 +75,12 @@ groups:
     labels:
       severity: 'critical'
 
-- name: LogicalDisk-Status
-  rules:
-  - alert: LogicalDisk-Status-warn
-    expr: hw_status{hw_type="logical_disk",state="degraded"} == 1
-    labels:
-      severity: 'warn'
-  - alert: LogicalDisk-Status-critical
-    expr: hw_status{hw_type="logical_disk",state="failed"} == 1
-    labels:
-      severity: 'critical'
-
-- name: LUN-Status
-  rules:
-  - alert: LUN-Status-warn
-    expr: hw_status{hw_type="lun",state="degraded"} == 1
-    labels:
-      severity: 'warn'
-  - alert: LUN-Status-critical
-    expr: hw_status{hw_type="lun",state="failed"} == 1
-    labels:
-      severity: 'critical'
-
 - name: LUN-AvailablePaths
   rules:
   - alert: LUN-AvailablePaths-warn
     expr: hw_lun_paths{type="available"} >= 0 AND hw_lun_paths{type="available"} <= ignoring(limit_type) hw_lun_paths_limit{limit_type="low.degraded"}
     labels:
       severity: 'warn'
-
-- name: Memory-Present
-  rules:
-  - alert: Memory-Present-critical
-    expr: hw_status{hw_type="memory",state="present"} == 0
-    labels:
-      severity: 'critical'
 
 - name: Memory-Errors
   rules:
@@ -268,31 +93,6 @@ groups:
     labels:
       severity: 'critical'
 
-- name: Memory-PredictedFailure
-  rules:
-  - alert: Memory-PredictedFailure-warn
-    expr: hw_status{hw_type="memory",state="predicted.failure"} == 1
-    labels:
-      severity: 'warn'
-
-- name: Memory-Status
-  rules:
-  - alert: Memory-Status-warn
-    expr: hw_status{hw_type="memory",state="degraded"} == 1
-    labels:
-      severity: 'warn'
-  - alert: Memory-Status-critical
-    expr: hw_status{hw_type="memory",state="failed"} == 1
-    labels:
-      severity: 'critical'
-
-- name: NetworkCard-Present
-  rules:
-  - alert: Network-Present-critical
-    expr: hw_status{hw_type="network",state="present"} == 0
-    labels:
-      severity: 'critical'
-
 - name: NetworkCard-ErrorRatio
   rules:
   - alert: NetworkCard-ErrorRatio-warn
@@ -301,35 +101,6 @@ groups:
       severity: 'warn'
   - alert: NetworkCard-ErrorRatio-critical
     expr: hw_network_error_ratio >= ignoring(limit_type) hw_network_error_ratio_limit{limit_type="critical"}
-    labels:
-      severity: 'critical'
-
-- name: NetworkCard-Status
-  rules:
-  - alert: NetworkCard-Status-warn
-    expr: hw_status{hw_type="network",state="degraded"} == 1
-    labels:
-      severity: 'warn'
-  - alert: NetworkCard-Status-critical
-    expr: hw_status{hw_type="network",state="failed"} == 1
-    labels:
-      severity: 'critical'
-
-- name: OtherDevice-Present
-  rules:
-  - alert: OtherDevice-Present-critical
-    expr: hw_status{hw_type="other_device",state="present"} == 0
-    labels:
-      severity: 'critical'
-
-- name: OtherDevice-Status
-  rules:
-  - alert: OtherDevice-Status-warn
-    expr: hw_status{hw_type="other_device",state="degraded"} == 1
-    labels:
-      severity: 'warn'
-  - alert: OtherDevice-Status-critical
-    expr: hw_status{hw_type="other_device",state="failed"} == 1
     labels:
       severity: 'critical'
 
@@ -366,13 +137,6 @@ groups:
     labels:
       severity: 'warn'
 
-- name: PhysicalDisk-Present
-  rules:
-  - alert: PhysicalDisk-Present-critical
-    expr: hw_status{hw_type="physical_disk",state="present"} == 0
-    labels:
-      severity: 'critical'
-
 - name: PhysicalDisk-Errors
   rules:
   - alert: PhysicalDisk-Errors-warn
@@ -381,31 +145,6 @@ groups:
       severity: 'warn'
   - alert: PhysicalDisk-Errors-critical
     expr: rate(hw_physical_disk_errors_total[1h]) >= ignoring(limit_type) hw_physical_disk_errors_limit{limit_type="critical"}
-    labels:
-      severity: 'critical'
-
-- name: PhysicalDisk-PredictedFailure
-  rules:
-  - alert: PhysicalDisk-PredictedFailure-warn
-    expr: hw_status{hw_type="physical_disk",state="predicted.failure"} == 1
-    labels:
-      severity: 'warn'
-
-- name: PhysicalDisk-Status
-  rules:
-  - alert: PhysicalDisk-Status-warn
-    expr: hw_status{hw_type="physical_disk",state="degraded"} == 1
-    labels:
-      severity: 'warn'
-  - alert: PhysicalDisk-Status-critical
-    expr: hw_status{hw_type="physical_disk",state="failed"} == 1
-    labels:
-      severity: 'critical'
-
-- name: PowerSupply-Present
-  rules:
-  - alert: PowerSupply-Present-critical
-    expr: hw_status{hw_type="power_supply",state="present"} == 0
     labels:
       severity: 'critical'
 
@@ -420,24 +159,6 @@ groups:
     labels:
       severity: 'critical'
 
-- name: PowerSupply-Status
-  rules:
-  - alert: PowerSupply-Status-warn
-    expr: hw_status{hw_type="power_supply",state="degraded"} == 1
-    labels:
-      severity: 'warn'
-  - alert: PowerSupply-Status-critical
-    expr: hw_status{hw_type="power_supply",state="failed"} == 1
-    labels:
-      severity: 'critical'
-
-- name: Robotics-Present
-  rules:
-  - alert: Robotics-Present-critical
-    expr: hw_status{hw_type="robotics",state="present"} == 0
-    labels:
-      severity: 'critical'
-
 - name: Robotics-Errors
   rules:
   - alert: Robotics-Errors-warn
@@ -446,24 +167,6 @@ groups:
       severity: 'warn'
   - alert: Robotics-Errors-critical
     expr: rate(hw_robotics_errors_total[1h]) >= ignoring(limit_type) hw_robotics_errors_limit{limit_type="critical"}
-    labels:
-      severity: 'critical'
-
-- name: Robotics-Status
-  rules:
-  - alert: Robotics-Status-warn
-    expr: hw_status{hw_type="robotics",state="degraded"} == 1
-    labels:
-      severity: 'warn'
-  - alert: Robotics-Status-critical
-    expr: hw_status{hw_type="robotics",state="failed"} == 1
-    labels:
-      severity: 'critical'
-
-- name: Tapedrive-Present
-  rules:
-  - alert: Tapedrive-Present-critical
-    expr: hw_status{hw_type="tape_drive",state="present"} == 0
     labels:
       severity: 'critical'
 
@@ -478,35 +181,6 @@ groups:
     labels:
       severity: 'critical'
 
-- name: Tapedrive-NeedsCleaning
-  rules:
-  - alert: Tapedrive-NeedsCleaning-warn
-    expr: hw_status{hw_type="tape_drive",state="needs.cleaning"} == 1
-    labels:
-      severity: 'warn'
-
-- name: Tapedrive-Status
-  rules:
-  - alert: Tapedrive-Status-warn
-    expr: hw_status{hw_type="tape_drive",state="degraded"} == 1
-    labels:
-      severity: 'warn'
-  - alert: Tapedrive-Status-critical
-    expr: hw_status{hw_type="tape_drive",state="failed"} == 1
-    labels:
-      severity: 'critical'
-
-- name: Temperature-Status
-  rules:
-  - alert: Temperature-Status-warn
-    expr: hw_status{hw_type="temperature",state="degraded"} == 1
-    labels:
-      severity: 'warn'
-  - alert: Temperature-Status-critical
-    expr: hw_status{hw_type="temperature",state="failed"} == 1
-    labels:
-      severity: 'critical'
-
 - name: Temperature
   rules:
   - alert: Temperature-High-warn
@@ -515,28 +189,6 @@ groups:
       severity: 'warn'
   - alert: Temperature-High-critical
     expr: hw_temperature_celsius >= ignoring(limit_type) hw_temperature_limit_celsius{limit_type="high.critical"}
-    labels:
-      severity: 'critical'
-
-- name: Vm-Status
-  rules:
-  - alert: Vm-Status-warn
-    expr: hw_status{hw_type="vm",state="degraded"} == 1
-    labels:
-      severity: 'warn'
-  - alert: Vm-Status-critical
-    expr: hw_status{hw_type="vm",state="failed"} == 1
-    labels:
-      severity: 'critical'
-
-- name: Voltage-Status
-  rules:
-  - alert: Voltage-Status-warn
-    expr:  hw_status{hw_type="voltage",state="degraded"} == 1
-    labels:
-      severity: 'warn'
-  - alert: Voltage-Status-critical
-    expr:  hw_status{hw_type="voltage",state="failed"} == 1
     labels:
       severity: 'critical'
 
