@@ -1,4 +1,4 @@
-package com.sentrysoftware.hardware.agent.service.opentelemetry.mapping;
+package com.sentrysoftware.hardware.agent.mapping.opentelemetry;
 
 import static java.nio.file.StandardOpenOption.*;
 
@@ -18,7 +18,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.sentrysoftware.hardware.agent.mapping.opentelemetry.MetricsMapping;
 import com.sentrysoftware.hardware.agent.mapping.opentelemetry.dto.AbstractIdentifyingAttribute;
 import com.sentrysoftware.hardware.agent.mapping.opentelemetry.dto.MetricInfo;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
@@ -38,6 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MetricReport {
 
+	private static final String END_TABLE_ROW = " |";
 	private static final String MONITORS = "*Monitors*";
 	private static final String PROJECT_NAME = "**${project.name}**";
 
@@ -58,6 +58,8 @@ public class MetricReport {
 	private static final String SECTION_HEADING_2 = "## ";
 
 	private static final String METRICS_HEADING = SECTION_HEADING_1 + "Metrics";
+
+	private static final String TOC = "<!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->";
 
 	private static final String NEWLINE = System.lineSeparator();
 
@@ -105,6 +107,7 @@ public class MetricReport {
 		// Assemble document
 		String s = KEYWORDS + NEWLINE +
 				DESCRIPTION_META + NEWLINE +
+				TOC + NEWLINE +
 				NEWLINE +
 				METRICS_HEADING + NEWLINE +
 				NEWLINE +
@@ -247,7 +250,8 @@ public class MetricReport {
 	}
 
 	/**
-	 * creates the section title 
+	 * creates the section title
+	 * 
 	 * @param monitorType
 	 * @return markdown formatted section title
 	 */
@@ -257,21 +261,23 @@ public class MetricReport {
 	}
 
 	/**
-	 * creates the table header 
+	 * creates the table header
+	 * 
 	 * @param headerSizes
 	 * @return markdown formatted table header
 	 */
 	private String createTableHeader(Map<String, Integer> headerSizes) {
-		return createHeaderCell(TYPE_HEADING, headerSizes.get(TYPE_HEADING)) +
-				createHeaderCell(NAME_HEADING, headerSizes.get(NAME_HEADING)) +
-				createHeaderCell(UNIT_HEADING, headerSizes.get(UNIT_HEADING)) +
-				createHeaderCell(DESCRIPTION_HEADING, headerSizes.get(DESCRIPTION_HEADING)) +
-				createHeaderCell(ATTRIBUTES_HEADING, headerSizes.get(ATTRIBUTES_HEADING)) + "|" + NEWLINE +
+		return createTableCell(TYPE_HEADING, headerSizes.get(TYPE_HEADING)) +
+				createTableCell(NAME_HEADING, headerSizes.get(NAME_HEADING)) +
+				createTableCell(UNIT_HEADING, headerSizes.get(UNIT_HEADING)) +
+				createTableCell(DESCRIPTION_HEADING, headerSizes.get(DESCRIPTION_HEADING)) +
+				createTableCell(ATTRIBUTES_HEADING, headerSizes.get(ATTRIBUTES_HEADING)) + "|" + NEWLINE +
 				createHeaderBottom(headerSizes);
 	}
 
 	/**
 	 * gets the minimum size of table column widths to properly format table
+	 * 
 	 * @param metricNameToInfo
 	 * @return headersizes
 	 */
@@ -288,30 +294,26 @@ public class MetricReport {
 		metricNameToInfo.entrySet().forEach(entry -> {
 			MetricData data = entry.getValue();
 
-			if (data != null) {
-				MetricInfo metric = data.metricInfo;
-				String attributes = data.attributes;
-				if (metric != null) {
-					if (metric.getType().toString().length() > headerSizes.get(TYPE_HEADING)) {
-						headerSizes.put(TYPE_HEADING, metric.getType().toString().length());
-					}
+			MetricInfo metric = data.metricInfo;
+			String attributes = data.attributes;
+			if (metric.getType().toString().length() > headerSizes.get(TYPE_HEADING)) {
+				headerSizes.put(TYPE_HEADING, metric.getType().getDisplayName().length());
+			}
 
-					if (metric.getName().length() > headerSizes.get(NAME_HEADING)) {
-						headerSizes.put(NAME_HEADING, metric.getName().length());
-					}
+			if (metric.getName().length() > headerSizes.get(NAME_HEADING)) {
+				headerSizes.put(NAME_HEADING, metric.getName().length());
+			}
 
-					if (metric.getUnit().length() > headerSizes.get(UNIT_HEADING)) {
-						headerSizes.put(UNIT_HEADING, metric.getUnit().length());
-					}
+			if (metric.getUnit().length() > headerSizes.get(UNIT_HEADING)) {
+				headerSizes.put(UNIT_HEADING, metric.getUnit().length());
+			}
 
-					if (metric.getDescription().length() > headerSizes.get(DESCRIPTION_HEADING)) {
-						headerSizes.put(DESCRIPTION_HEADING, metric.getDescription().length());
-					}
+			if (metric.getDescription().length() > headerSizes.get(DESCRIPTION_HEADING)) {
+				headerSizes.put(DESCRIPTION_HEADING, metric.getDescription().length());
+			}
 
-					if (attributes.length() > headerSizes.get(ATTRIBUTES_HEADING)) {
-						headerSizes.put(ATTRIBUTES_HEADING, attributes.length());
-					}
-				}
+			if (attributes.length() > headerSizes.get(ATTRIBUTES_HEADING)) {
+				headerSizes.put(ATTRIBUTES_HEADING, attributes.length());
 			}
 		});
 
@@ -320,25 +322,29 @@ public class MetricReport {
 
 	/**
 	 * creates the dashed bottom of table header
+	 * 
 	 * @param headerSizes
 	 * @return markdown formatted table header bottom
 	 */
 	private String createHeaderBottom(Map<String, Integer> headerSizes) {
 		StringBuilder headerBottom = new StringBuilder("|");
-		headerBottom.append(" " + createPad('-', headerSizes.get(TYPE_HEADING).intValue()) + " |");
-		headerBottom.append(" " + createPad('-', headerSizes.get(NAME_HEADING).intValue()) + " |");
-		headerBottom.append(" " + createPad('-', headerSizes.get(UNIT_HEADING).intValue()) + " |");
-		headerBottom.append(" " + createPad('-', headerSizes.get(DESCRIPTION_HEADING).intValue()) + " |");
-		headerBottom.append(" " + createPad('-', headerSizes.get(ATTRIBUTES_HEADING).intValue()) + " |");
+		headerBottom.append(" " + createPad('-', headerSizes.get(TYPE_HEADING).intValue()) + END_TABLE_ROW);
+		headerBottom.append(" " + createPad('-', headerSizes.get(NAME_HEADING).intValue()) + END_TABLE_ROW);
+		headerBottom.append(" " + createPad('-', headerSizes.get(UNIT_HEADING).intValue()) + END_TABLE_ROW);
+		headerBottom.append(" " + createPad('-', headerSizes.get(DESCRIPTION_HEADING).intValue()) + END_TABLE_ROW);
+		headerBottom.append(" " + createPad('-', headerSizes.get(ATTRIBUTES_HEADING).intValue()) + END_TABLE_ROW);
 		return headerBottom.toString();
 	}
 
-	private String createHeaderCell(String header, int minPadding) {
-
-		int headerLength = header.length();
-		int padding = minPadding - headerLength;
-
-		return "| " + header + createPad(' ', padding) + " ";
+	/**
+	 * creates the markdown formatted table cell
+	 * 
+	 * @param text    content of table cell
+	 * @param padding padding needed for formatting
+	 * @return markdown formatted table cell
+	 */
+	private String createTableCell(String text, int padding) {
+		return "| " + text + createPad(' ', padding - text.length()) + " ";
 	}
 
 	/**
@@ -366,40 +372,16 @@ public class MetricReport {
 	 * @return formatted table row
 	 */
 	private String createMetricRow(MetricInfo metric, String attributes, Map<String, Integer> headerSizes) {
-		String metricType = getMetricTypeDisplayName(metric);
 
 		StringBuilder row = new StringBuilder();
 
-		row.append(createTableCell(metricType, headerSizes.get(TYPE_HEADING)));
+		row.append(createTableCell(metric.getType().getDisplayName(), headerSizes.get(TYPE_HEADING)));
 		row.append(createTableCell(metric.getName(), headerSizes.get(NAME_HEADING)));
 		row.append(createTableCell(metric.getUnit(), headerSizes.get(UNIT_HEADING)));
 		row.append(createTableCell(metric.getDescription(), headerSizes.get(DESCRIPTION_HEADING)));
 		row.append(createTableCell(attributes, headerSizes.get(ATTRIBUTES_HEADING)));
 		row.append("|");
 		return row.toString();
-	}
-
-	/**
-	 * gets the display safe version of MetricType
-	 * @param metric
-	 * @return
-	 */
-	private String getMetricTypeDisplayName(MetricInfo metric) {
-		String metricType;
-		if (MetricInfo.MetricType.GAUGE.equals(metric.getType())) {
-			metricType = "Gauge";
-		} else if (MetricInfo.MetricType.COUNTER.equals(metric.getType())) {
-			metricType = "Counter";
-		} else if (MetricInfo.MetricType.UP_DOWN_COUNTER.equals(metric.getType())) {
-			metricType = "UpDownCounter";
-		} else {
-			throw new IllegalStateException("Unknown metric type : " + metric.getType());
-		}
-		return metricType;
-	}
-
-	private String createTableCell(String text, int padding) {
-		return "| " + text + createPad(' ', padding - text.length()) + " ";
 	}
 
 	@Data
