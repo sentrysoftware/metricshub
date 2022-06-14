@@ -57,7 +57,7 @@ Use the parameters below to configure the HTTP protocol:
 | Parameter | Description                                                                      |
 | --------- | -------------------------------------------------------------------------------- |
 | http      | Protocol used to access the host.                                                |
-| port      | The HTTPS port number used to perform SNMP queries (Default: 443).               |
+| port      | The HTTPS port number used to perform HTTP requests (Default: 443).              |
 | username  | Name used to establish the connection with the host via the HTTP protocol.       |
 | password  | Password used to establish the connection with the host via the HTTP protocol.   |
 
@@ -80,11 +80,11 @@ hosts:
 
 Use the parameters below to configure the IPMI protocol:
 
-| Parameter | Description                                                                      |
-| --------- | -------------------------------------------------------------------------------- |
-| ipmi      | Protocol used to access the host.                                                |
-| username  | Name used to establish the connection with the host via the IPMI protocol.       |
-| password  | Password used to establish the connection with the host via the IPMI protocol.   |
+| Parameter | Description                                                                    |
+| --------- | ------------------------------------------------------------------------------ |
+| ipmi      | Protocol used to access the host.                                              |
+| username  | Name used to establish the connection with the host via the IPMI protocol.     |
+| password  | Password used to establish the connection with the host via the IPMI protocol. |
 
 #### Example
 
@@ -103,13 +103,13 @@ hosts:
 
 Use the parameters below to configure OS Commands:
 
-| Parameter       | Description                                                                                                                                               |
-| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| osCommand       | Protocol used to access the host.                                                                                                                         |
-| timeout         | How long until the local OS Commands time out (default: 120s).|
-| useSudo         | Whether sudo is used or not for the local OS Command (true or false).                                                                                     |
-| useSudoCommands | List of commands for which sudo is required.                                                                                                              |
-| sudoCommand     | Sudo command to be used (Default: sudo).                                                                                                                  |
+| Parameter       | Description                                                           |
+| --------------- | --------------------------------------------------------------------- |
+| osCommand       | Protocol used to access the host.                                     |
+| timeout         | How long until the local OS Commands time out (default: 120s).        |
+| useSudo         | Whether sudo is used or not for the local OS Command (true or false). |
+| useSudoCommands | List of commands for which sudo is required.                          |
+| sudoCommand     | Sudo command to be used (Default: sudo).                              |
 
 #### Example
 
@@ -129,16 +129,16 @@ hosts:
 
 Use the parameters below to configure the SSH protocol:
 
-| Parameter       | Description                                                                                                                                           |
-| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ssh             | Protocol used to access the host.                                                                                                                     |
-| timeout         | How long until the command times out (default: 120s). |
-| useSudo         | Whether sudo is used or not for the SSH Command (true or false).                                                                                      |
-| useSudoCommands | List of commands for which sudo is required.                                                                                                          |
-| sudoCommand     | Sudo command to be used (Default: sudo).                                                                                                              |
-| username        | Name to use for performing the SSH query.                                                                                                             |
-| password        | Password to use for performing the SSH query.                                                                                                         |
-| privateKey      | Private Key File to use to establish the connection to the host through the SSH protocol                                                              |
+| Parameter       | Description                                                                               |
+| --------------- | ----------------------------------------------------------------------------------------- |
+| ssh             | Protocol used to access the host.                                                         |
+| timeout         | How long until the command times out (default: 120s).                                     |
+| useSudo         | Whether sudo is used or not for the SSH Command (true or false).                          |
+| useSudoCommands | List of commands for which sudo is required.                                              |
+| sudoCommand     | Sudo command to be used (Default: sudo).                                                  |
+| username        | Name to use for performing the SSH query.                                                 |
+| password        | Password to use for performing the SSH query.                                             |
+| privateKey      | Private Key File to use to establish the connection to the host through the SSH protocol. |
 
 #### Example
 
@@ -162,17 +162,17 @@ hosts:
 
 Use the parameters below to configure the SNMP protocol:
 
-| Parameter        | Description                                                                                                                                           |
-| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| snmp             | Protocol used to access the host.                                                                                                                     |
-| version          | The version of the SNMP protocol (v1, v2c, v3-no-auth, v3-md5, v3-sha).                                                                               |
-| community        | The SNMP Community string to use to perform SNMP v1 queries (Default: public).                                                                        |
-| port             | The SNMP port number used to perform SNMP queries (Default: 161).                                                                                     |
-| timeout          | How long until the SNMP request times out (default: 120s). |
-| privacy          | _SNMP v3 only_ - The type of encryption protocol (none, aes, des).                                                                                    |
-| privacy password | _SNMP v3 only_ - Password associated to the privacy protocol.                                                                                         |
-| username         | _SNMP v3 only_ - Name to use for performing the SNMP query.                                                                                           |
-| password         | _SNMP v3 only_ - Password to use for performing the SNMP query.                                                                                       |
+| Parameter        | Description                                                                    |
+| ---------------- | ------------------------------------------------------------------------------ |
+| snmp             | Protocol used to access the host.                                              |
+| version          | The version of the SNMP protocol (v1, v2c, v3-no-auth, v3-md5, v3-sha).        |
+| community        | The SNMP Community string to use to perform SNMP v1 queries (Default: public). |
+| port             | The SNMP port number used to perform SNMP queries (Default: 161).              |
+| timeout          | How long until the SNMP request times out (default: 120s).                     |
+| privacy          | _SNMP v3 only_ - The type of encryption protocol (none, aes, des).             |
+| privacy password | _SNMP v3 only_ - Password associated to the privacy protocol.                  |
+| username         | _SNMP v3 only_ - Name to use for performing the SNMP query.                    |
+| password         | _SNMP v3 only_ - Password to use for performing the SNMP query.                |
 
 #### Example
 
@@ -215,14 +215,14 @@ hosts:
 
 Use the parameters below to configure the WBEM protocol:
 
-| Parameter | Description                                                                                                                                           |
-| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| wbem      | Protocol used to access the host.                                                                                                                     |
-| protocol  | The protocol used to access the host.                                                                                                                 |
-| port      | The HTTPS port number used to perform WBEM queries (Default: 5989 for HTTPS or 5988 for HTTP).                                                        |
-| timeout   | How long until the WBEM request times out (default: 120s). |
-| username  | Name used to establish the connection with the host via the WBEM protocol.                                                                            |
-| password  | Password used to establish the connection with the host via the WBEM protocol.                                                                        |
+| Parameter | Description                                                                                    |
+| --------- | ---------------------------------------------------------------------------------------------- |
+| wbem      | Protocol used to access the host.                                                              |
+| protocol  | The protocol used to access the host.                                                          |
+| port      | The HTTPS port number used to perform WBEM queries (Default: 5989 for HTTPS or 5988 for HTTP). |
+| timeout   | How long until the WBEM request times out (default: 120s).                                     |
+| username  | Name used to establish the connection with the host via the WBEM protocol.                     |
+| password  | Password used to establish the connection with the host via the WBEM protocol.                 |
 
 #### Example
 
@@ -244,12 +244,12 @@ hosts:
 
 Use the parameters below to configure the WMI protocol:
 
-| Parameter | Description                                                                                                                                          |
-| --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| wmi       | Protocol used to access the host.                                                                                                                    |
-| timeout   | How long until the WMI request times out (default: 120s). |
-| username  | Name used to establish the connection with the host via the WMI protocol.                                                                            |
-| password  | Password used to establish the connection with the host via the WMI protocol.                                                                        |
+| Parameter | Description                                                                   |
+| --------- | ----------------------------------------------------------------------------- |
+| wmi       | Protocol used to access the host.                                             |
+| timeout   | How long until the WMI request times out (default: 120s).                     |
+| username  | Name used to establish the connection with the host via the WMI protocol.     |
+| password  | Password used to establish the connection with the host via the WMI protocol. |
 
 #### Example
 
@@ -269,17 +269,16 @@ hosts:
 
 Use the parameters below to configure the WinRM protocol:
 
-| Parameter    | Description                                                                                                   |
-| ------------ | ------------------------------------------------------------------------------------------------------------- |
-| winrm        | Protocol used to access the host.                                                                           |
-| timeout      | How long until the WMI request times out (default: 120s).                                                     |
-| username     | Name used to establish the connection with the host via the WinRM protocol.                                 |
-| password     | Password used to establish the connection with the host via the WinRM protocol.                             |
-| namespace    | Namespace of the host to connect to via the WinRM protocol.                                                 |
-| protocol     | The protocol used to access the host (HTTP or HTTPS).                                                       |
-| port         | The port number used to perform WQL queries and commands (Default: 5985 for HTTP or 5986 for HTTPS).          |
-| forcentlm    | Whether to force the use of NTLM to authenticate to the host (Default: false).                              |
-| kerberosonly | Whether to force the use of kerberos to authenticate to the host (Default: false).                          |
+| Parameter       | Description                                                                                          |
+| --------------- | ---------------------------------------------------------------------------------------------------- |
+| winrm           | Protocol used to access the host.                                                                    |
+| timeout         | How long until the WinRM request times out (default: 120s).                                          |
+| username        | Name used to establish the connection with the host via the WinRM protocol.                          |
+| password        | Password used to establish the connection with the host via the WinRM protocol.                      |
+| namespace       | Namespace of the host to connect to via the WinRM protocol.                                          |
+| protocol        | The protocol used to access the host (HTTP or HTTPS).                                                |
+| port            | The port number used to perform WQL queries and commands (Default: 5985 for HTTP or 5986 for HTTPS). |
+| authentications | Ordered list of authentication schemes. Possible values are NTLM and KERBEROS (Default: NTLM).       |
 
 #### Example
 

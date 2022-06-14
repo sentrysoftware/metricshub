@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class WmiProtocol implements IWqlProtocol {
+public class WmiProtocol implements IWinProtocol {
 
 	private String username;
 	private char[] password;

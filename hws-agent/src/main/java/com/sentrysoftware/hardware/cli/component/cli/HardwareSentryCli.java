@@ -83,7 +83,7 @@ import picocli.CommandLine.Spec;
 				"@|bold ${ROOT-COMMAND-NAME}|@ " +
 						"@|yellow HOSTNAME|@ " +
 						"@|yellow -t|@=@|italic TYPE|@ " +
-						"<@|yellow --http|@|@|yellow --https|@|@|yellow --ipmi|@|@|yellow --snmp|@=@|italic VERSION|@|@|yellow --ssh|@|@|yellow --wbem|@|@|yellow --wmi|@|@|yellow --winRM|@> " +
+						"<@|yellow --http|@|@|yellow --https|@|@|yellow --ipmi|@|@|yellow --snmp|@=@|italic VERSION|@|@|yellow --ssh|@|@|yellow --wbem|@|@|yellow --wmi|@|@|yellow --winrm|@> " +
 						"[@|yellow -u|@=@|italic USER|@ [@|yellow -p|@=@|italic P4SSW0RD|@]] [OPTIONS]..."
 		}
 )
@@ -380,7 +380,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 		// No protocol at all?
 		if (httpConfigCli == null && ipmiConfigCli == null && snmpConfigCli == null
 				&& sshConfigCli == null && wbemConfigCli == null && wmiConfigCli == null && winRmConfigCli == null) {
-			throw new ParameterException(spec.commandLine(), "At least one protocol must be specified: --http[s], --ipmi, --snmp, --ssh, --wbem, --wmi, --winRM.");
+			throw new ParameterException(spec.commandLine(), "At least one protocol must be specified: --http[s], --ipmi, --snmp, --ssh, --wbem, --wmi, --winrm.");
 		}
 
 		// SNMP inconsistencies

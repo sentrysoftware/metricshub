@@ -84,17 +84,20 @@ class OsCommandHelperTest {
 
 		checkNoTempEmbeddedFileExist();
 
-		assertThrows(IllegalArgumentException.class, () -> OsCommandHelper.createOsCommandEmbeddedFiles(null, Collections.emptyMap(), null));
+		final Map<Integer, EmbeddedFile> emptyMap = Collections.emptyMap();
+		assertThrows(IllegalArgumentException.class, () -> OsCommandHelper.createOsCommandEmbeddedFiles(null, emptyMap, null));
 
 		assertEquals(Collections.emptyMap(), OsCommandHelper.createOsCommandEmbeddedFiles(commandLine, null, null));
-		assertEquals(Collections.emptyMap(), OsCommandHelper.createOsCommandEmbeddedFiles("", Collections.emptyMap(), null));
-		assertEquals(Collections.emptyMap(), OsCommandHelper.createOsCommandEmbeddedFiles("cmd", Collections.emptyMap(), null));
+		assertEquals(Collections.emptyMap(), OsCommandHelper.createOsCommandEmbeddedFiles("", emptyMap, null));
+		assertEquals(Collections.emptyMap(), OsCommandHelper.createOsCommandEmbeddedFiles("cmd", emptyMap, null));
 
 		// case embeddedFile not found
-		assertThrows(IllegalArgumentException.class, () -> OsCommandHelper.createOsCommandEmbeddedFiles(commandLine, Collections.singletonMap(3, new EmbeddedFile()), null));
+		final Map<Integer, EmbeddedFile> singletonMapEmbeddedNotFound = Collections.singletonMap(3, new EmbeddedFile());
+		assertThrows(IllegalArgumentException.class, () -> OsCommandHelper.createOsCommandEmbeddedFiles(commandLine, singletonMapEmbeddedNotFound, null));
 
 		// case embeddedFile content null
-		assertThrows(IllegalArgumentException.class, () -> OsCommandHelper.createOsCommandEmbeddedFiles(commandLine, Collections.singletonMap(1, new EmbeddedFile()), null));
+		final Map<Integer, EmbeddedFile> singletonMapEmbeddedNoContent = Collections.singletonMap(1, new EmbeddedFile());
+		assertThrows(IllegalArgumentException.class, () -> OsCommandHelper.createOsCommandEmbeddedFiles(commandLine, singletonMapEmbeddedNoContent, null));
 
 		checkNoTempEmbeddedFileExist();
 
@@ -382,24 +385,33 @@ class OsCommandHelperTest {
 
 	@Test
 	void testRunOsCommandCommandLineNull() {
-		assertThrows(IllegalArgumentException.class, () -> OsCommandHelper.runOsCommand(
+		final Map<Integer, EmbeddedFile> emptyMap = Collections.emptyMap();
+		final EngineConfiguration engineConfig = EngineConfiguration.builder().build();
+		assertThrows(IllegalArgumentException.class, () -> OsCommandHelper
+			.runOsCommand(
 				null,
-				EngineConfiguration.builder().build(),
-				Collections.emptyMap(),
+				engineConfig,
+				emptyMap,
 				120L,
 				false,
-				false));
+				false
+			)
+		);
 	}
 
 	@Test
 	void testRunOsCommandEngineConfigurationNull() {
-		assertThrows(IllegalArgumentException.class, () -> OsCommandHelper.runOsCommand(
+		final Map<Integer, EmbeddedFile> emptyMap = Collections.emptyMap();
+		assertThrows(IllegalArgumentException.class, () -> OsCommandHelper
+			.runOsCommand(
 				"cmd",
 				null,
-				Collections.emptyMap(),
+				emptyMap,
 				120L,
 				false,
-				false));
+				false
+			)
+		);
 	}
 
 	@Test
@@ -1075,16 +1087,15 @@ class OsCommandHelperTest {
 					false)).thenCallRealMethod();
 
 			final OsCommandResult expect = new OsCommandResult(result, updatedCommand);
-
-			assertEquals(
-					expect, 
-					OsCommandHelper.runOsCommand(
-							command,
-							engineConfiguration,
-							embeddedFiles,
-							120L,
-							false,
-							false));
+			final OsCommandResult actual = OsCommandHelper.runOsCommand(
+				command,
+				engineConfiguration,
+				embeddedFiles,
+				120L,
+				false,
+				false
+			);
+			assertEquals(expect, actual);
 		}
 	}
 }

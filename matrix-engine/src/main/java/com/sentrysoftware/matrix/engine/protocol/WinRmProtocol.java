@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class WinRmProtocol implements IWqlProtocol {
+public class WinRmProtocol implements IWinProtocol {
 
 	private String username;
 	private char[] password;

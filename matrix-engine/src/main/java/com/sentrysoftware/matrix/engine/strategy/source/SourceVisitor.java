@@ -33,14 +33,12 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.Wb
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WmiSource;
 import com.sentrysoftware.matrix.engine.protocol.AbstractCommand;
 import com.sentrysoftware.matrix.engine.protocol.HttpProtocol;
-import com.sentrysoftware.matrix.engine.protocol.IWqlProtocol;
+import com.sentrysoftware.matrix.engine.protocol.IWinProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IpmiOverLanProtocol;
 import com.sentrysoftware.matrix.engine.protocol.OsCommandConfig;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WinRmProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WmiProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.HttpRequest;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
@@ -273,8 +271,10 @@ public class SourceVisitor implements ISourceVisitor {
 	 */
 	SourceTable processWindowsIpmiSource(String sourceKey) {
 
-		final WmiProtocol wmiProtocol = (WmiProtocol) strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(WmiProtocol.class);
-		if (wmiProtocol == null) {
+		// Find the configured protocol (WinRM or WMI)
+		final IWinProtocol protocol = strategyConfig.getEngineConfiguration().getWinProtocol();
+
+		if (protocol == null) {
 			return SourceTable.empty();
 		}
 
@@ -283,15 +283,15 @@ public class SourceVisitor implements ISourceVisitor {
 		final String nameSpaceRootHardware = "root/hardware";
 
 		String wmiQuery = "SELECT IdentifyingNumber,Name,Vendor FROM Win32_ComputerSystemProduct";
-		List<List<String>> wmiCollection1 = executeIpmiWmiRequest(hostname, wmiProtocol, wmiQuery, nameSpaceRootCimv2,
+		List<List<String>> wmiCollection1 = executeIpmiWmiRequest(hostname, protocol, wmiQuery, nameSpaceRootCimv2,
 			sourceKey);
 
 		wmiQuery = "SELECT BaseUnits,CurrentReading,Description,LowerThresholdCritical,LowerThresholdNonCritical,SensorType,UnitModifier,UpperThresholdCritical,UpperThresholdNonCritical FROM NumericSensor";
-		List<List<String>> wmiCollection2 = executeIpmiWmiRequest(hostname, wmiProtocol, wmiQuery, nameSpaceRootHardware,
+		List<List<String>> wmiCollection2 = executeIpmiWmiRequest(hostname, protocol, wmiQuery, nameSpaceRootHardware,
 			sourceKey);
 
 		wmiQuery = "SELECT CurrentState,Description FROM Sensor";
-		List<List<String>> wmiCollection3 = executeIpmiWmiRequest(hostname, wmiProtocol, wmiQuery,
+		List<List<String>> wmiCollection3 = executeIpmiWmiRequest(hostname, protocol, wmiQuery,
 			nameSpaceRootHardware, sourceKey);
 
 		return SourceTable
@@ -798,16 +798,11 @@ public class SourceVisitor implements ISourceVisitor {
 			return SourceTable.empty();
 		}
 
-		IWqlProtocol protocol = (WmiProtocol) strategyConfig.getEngineConfiguration()
-				.getProtocolConfigurations().get(WmiProtocol.class);
+		// Find the configured protocol (WinRM or WMI)
+		final IWinProtocol protocol = strategyConfig.getEngineConfiguration().getWinProtocol();
 
 		if (protocol == null) {
-			protocol = (WinRmProtocol) strategyConfig.getEngineConfiguration()
-					.getProtocolConfigurations().get(WinRmProtocol.class);
-		}
-
-		if (protocol == null) {
-			log.debug("Hostname {} - The WMI credentials are not configured. Returning an empty table for WMI source {}.",
+			log.debug("Hostname {} - Neither WMI nor WinRM credentials are configured for this host. Returning an empty table for WMI source {}.",
 					hostname, wmiSource.getKey());
 			return SourceTable.empty();
 		}
@@ -876,14 +871,14 @@ public class SourceVisitor implements ISourceVisitor {
 	 * Call the matsya client executor to execute a WMI request.
 	 *
 	 * @param hostname		The host against the query will be run.
-	 * @param wmiProtocol	The information used to connect to the host and perform the query.
+	 * @param winProtocol	The information used to connect to the host and perform the query.
 	 * @param wmiQuery		The query that will be executed.
 	 * @param namespace		The namespace in which the query will be executed.
 	 * @param sourceKey		The key of the source.
 	 *
 	 * @return				The result of the execution of the query.
 	 */
-	private List<List<String>> executeIpmiWmiRequest(final String hostname, final WmiProtocol wmiProtocol,
+	private List<List<String>> executeIpmiWmiRequest(final String hostname, final IWinProtocol winProtocol,
 			final String wmiQuery, final String namespace, final String sourceKey) {
 
 		log.info("Hostname {} - Executing IPMI Query for source [{}]:\nWMI Query: {}:\n", hostname, sourceKey, wmiQuery);
@@ -892,21 +887,22 @@ public class SourceVisitor implements ISourceVisitor {
 
 		try {
 
-			result = matsyaClientsExecutor.executeWmi(
+			result = matsyaClientsExecutor.executeWql(
 				hostname,
-				wmiProtocol,
+				winProtocol,
 				wmiQuery,
 				namespace
 			);
 		} catch (Exception e) {
 
 			logSourceError(connector.getCompiledFilename(),
-					sourceKey,
-					String.format("IPMI WMI query=%s, Hostname=%s, Username=%s, Timeout=%d, Namespace=%s",
-							wmiQuery, hostname, wmiProtocol.getUsername(), wmiProtocol.getTimeout(),
-							namespace),
-					hostname,
-					e
+				sourceKey,
+				String.format("IPMI WMI query=%s, Hostname=%s, Username=%s, Timeout=%d, Namespace=%s",
+						wmiQuery, hostname, winProtocol.getUsername(), winProtocol.getTimeout(),
+						namespace
+				),
+				hostname,
+				e
 			);
 
 			result = Collections.emptyList();

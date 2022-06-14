@@ -1,6 +1,8 @@
 package com.sentrysoftware.matrix.engine;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Collections;
 import java.util.Map;
@@ -16,6 +18,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.Wb
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WmiSource;
 import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WinRmProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WmiProtocol;
 
 import com.sentrysoftware.matrix.engine.host.HardwareHost;
@@ -111,4 +114,36 @@ class EngineConfigurationTest {
 		}
 	}
 
+	@Test
+	void testGetWinProtocol() {
+		assertNull(new EngineConfiguration().getWinProtocol());
+		assertNotNull(
+			EngineConfiguration
+				.builder()
+				.protocolConfigurations(Map.of(WinRmProtocol.class, new WinRmProtocol()))
+				.build()
+				.getWinProtocol()
+		);
+		assertNotNull(
+			EngineConfiguration
+				.builder()
+				.protocolConfigurations(Map.of(WmiProtocol.class, new WmiProtocol()))
+				.build()
+				.getWinProtocol()
+		);
+		assertEquals(
+			WinRmProtocol.class,
+			EngineConfiguration
+				.builder()
+				.protocolConfigurations(
+					Map.of(
+						WmiProtocol.class, new WmiProtocol(),
+						WinRmProtocol.class, new WinRmProtocol()
+					)
+				)
+				.build()
+				.getWinProtocol()
+				.getClass()
+		);
+	}
 }

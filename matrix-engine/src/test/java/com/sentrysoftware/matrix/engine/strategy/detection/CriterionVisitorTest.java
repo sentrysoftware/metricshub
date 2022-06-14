@@ -248,7 +248,7 @@ class CriterionVisitorTest {
 
 		assertNotNull(criterionTestResult);
 		assertFalse(criterionTestResult.isSuccess());
-		assertTrue(criterionTestResult.getMessage().contains("The WMI credentials are not configured for this host."));
+		assertTrue(criterionTestResult.getMessage().contains(CriterionVisitor.NEITHER_WMI_NOR_WINRM_ERROR));
 
 		// wqlDetectionHelper gives unsuccessful result
 		final WmiProtocol wmiProtocol = WmiProtocol.builder()
@@ -1449,7 +1449,7 @@ class CriterionVisitorTest {
 		final Service service = new Service();
 		service.setServiceName("TWGIPC");
 
-		assertTrue(criterionVisitor.visit(service).getMessage().contains("WMI credentials are not configured."));
+		assertTrue(criterionVisitor.visit(service).getMessage().contains(CriterionVisitor.NEITHER_WMI_NOR_WINRM_ERROR));
 	}
 
 	@Test
@@ -2204,7 +2204,7 @@ class CriterionVisitorTest {
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
-		assertTrue(criterionVisitor.visit(wmi).getMessage().contains("Neither WMI nor WinRM credentials are configured for this host."));
+		assertTrue(criterionVisitor.visit(wmi).getMessage().contains(CriterionVisitor.NEITHER_WMI_NOR_WINRM_ERROR));
 	}
 
 }

@@ -837,7 +837,7 @@ class MatsyaClientsExecutorTest {
 					null,
 					null)).thenReturn(winRMWqlExecutorResult);
 
-			List<List<String>> result = MatsyaClientsExecutor.executeWqlThroughWinRm(PUREM_SAN, winRmProtocol, command, namespace);
+			List<List<String>> result = matsyaClientsExecutor.executeWqlThroughWinRm(PUREM_SAN, winRmProtocol, command, namespace);
 			assertNotNull(result);
 			assertEquals(1, result.size());
 			assertLinesMatch(expectedResult.get(0), result.get(0));

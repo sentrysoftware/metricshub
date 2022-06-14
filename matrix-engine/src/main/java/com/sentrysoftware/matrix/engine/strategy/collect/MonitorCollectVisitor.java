@@ -82,6 +82,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VOLTAGE
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_ON_COLOR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WBEM_UP_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WMI_UP_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WINRM_UP_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_COUNT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_COUNT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ZERO_BUFFER_CREDIT_PERCENT_PARAMETER;
@@ -134,6 +135,7 @@ import com.sentrysoftware.matrix.engine.protocol.IpmiOverLanProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WinRmProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WmiProtocol;
 import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
 import com.sentrysoftware.matrix.engine.strategy.matsya.HttpRequest;
@@ -151,7 +153,19 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MonitorCollectVisitor implements IMonitorVisitor {
 
-	private static final String SNMP_UP_TEST_OID = "1.3.6.1";
+	private static final List<String> WBEM_UP_TEST_NAMESPACES = Collections
+		.unmodifiableList(
+			List.of(
+				"root/Interop",
+				"interop",
+				"root/PG_Interop",
+				"PG_Interop"
+			)
+		);
+	static final String WBEM_UP_TEST_WQL = "SELECT Name FROM CIM_NameSpace";
+	static final String WINRM_AND_WMI_UP_TEST_NAMESPACE = "root\\cimv2";
+	static final String WINRM_AND_WMI_UP_TEST_WQL = "Select Name FROM Win32_ComputerSystem";
+	static final String SNMP_UP_TEST_OID = "1.3.6.1";
 	private static final String VALUE_TABLE_CANNOT_BE_NULL = "valueTable cannot be null";
 	private static final String DATA_CANNOT_BE_NULL = "row cannot be null.";
 	private static final String CONNECTOR_NAME_CANNOT_BE_NULL = "connectorName cannot be null.";
@@ -225,6 +239,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		updateWmiUpParameter(hostname, monitor);
 		updateHttpUpParameter(hostname, monitor);
 		updateIpmiUpParameter(hostname, monitor);
+		updateWinRmUpParameter(hostname, monitor);
 
 	}
 
@@ -316,30 +331,86 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 			List<List<String>> wmiResult = null;
 
-			final String wbemQuery = "Select Name FROM Win32_ComputerSystem";
-			final String nameSpace = "root\\cimv2";
-
 			try {
 				// Query to test for response.
-				wmiResult = monitorCollectInfo.getMatsyaClientsExecutor().executeWmi(hostname,
-						wmi, wbemQuery, nameSpace);
+				wmiResult = monitorCollectInfo
+					.getMatsyaClientsExecutor()
+					.executeWmi(
+						hostname,
+						wmi,
+						WINRM_AND_WMI_UP_TEST_WQL,
+						WINRM_AND_WMI_UP_TEST_NAMESPACE
+					);
 
 			} catch (Exception e) {
 				if (WqlDetectionHelper.isAcceptableException(e)) {
 					CollectHelper.updateDiscreteParameter(
-							monitor, WMI_UP_PARAMETER,
-							monitorCollectInfo.getCollectTime(),
-							Up.UP);
+						monitor,
+						WMI_UP_PARAMETER,
+						monitorCollectInfo.getCollectTime(),
+						Up.UP
+					);
 					return;
 				}
 				log.debug("Hostname {} - Checking WMI protocol status. WMI exception when performing a test WMI query: ", hostname, e);
 			}
 
 			CollectHelper.updateDiscreteParameter(
-					monitor,
-					WMI_UP_PARAMETER,
-					monitorCollectInfo.getCollectTime(),
-					wmiResult != null ? Up.UP : Up.DOWN);
+				monitor,
+				WMI_UP_PARAMETER,
+				monitorCollectInfo.getCollectTime(),
+				wmiResult != null ? Up.UP : Up.DOWN
+			);
+
+		}
+	}
+
+	/**
+	 * Update WinRm protocol up parameter
+	 * 
+	 * @param hostname hostname
+	 * @param monitor  monitor
+	 */
+	private void updateWinRmUpParameter(final String hostname, final Monitor monitor) {
+		// Get WinRm Configuration if it exists
+		final WinRmProtocol winRm = (WinRmProtocol) monitorCollectInfo.getEngineConfiguration().getProtocolConfigurations()
+				.get(WinRmProtocol.class);
+
+		// Update the WINRM_UP_PARAMETER
+		if (winRm != null) {
+
+			List<List<String>> winRmResult = null;
+
+			try {
+				// Query to test for response.
+				winRmResult = monitorCollectInfo
+					.getMatsyaClientsExecutor()
+					.executeWqlThroughWinRm(
+						hostname,
+						winRm,
+						WINRM_AND_WMI_UP_TEST_WQL,
+						WINRM_AND_WMI_UP_TEST_NAMESPACE
+					);
+
+			} catch (Exception e) {
+				if (WqlDetectionHelper.isAcceptableException(e)) {
+					CollectHelper.updateDiscreteParameter(
+						monitor,
+						WINRM_UP_PARAMETER,
+						monitorCollectInfo.getCollectTime(),
+						Up.UP
+					);
+					return;
+				}
+				log.debug("Hostname {} - Checking WinRM protocol status. WinRM exception when performing a test WQL query: ", hostname, e);
+			}
+
+			CollectHelper.updateDiscreteParameter(
+				monitor,
+				WINRM_UP_PARAMETER,
+				monitorCollectInfo.getCollectTime(),
+				winRmResult != null ? Up.UP : Up.DOWN
+			);
 
 		}
 	}
@@ -391,19 +462,17 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 			List<List<String>> wbemResult = null;
 
-			// one of these namespaces must respond.
-			final List<String> wbemNamespaceList = Collections.unmodifiableList(List.of(
-					"root/Interop",
-					"interop",
-					"root/PG_Interop",
-					"PG_Interop"));
-
-			for (String wbemNamespace : wbemNamespaceList) {
+			for (String wbemNamespace : WBEM_UP_TEST_NAMESPACES) {
 				try {
 					// Execute wbem query
 					wbemResult = monitorCollectInfo
-							.getMatsyaClientsExecutor()
-							.executeWbem(hostname, wbem, "SELECT Name FROM CIM_NameSpace", wbemNamespace);
+						.getMatsyaClientsExecutor()
+						.executeWbem(
+							hostname,
+							wbem,
+							WBEM_UP_TEST_WQL,
+							wbemNamespace
+						);
 
 					// We have got a result?
 					if (wbemResult != null) {

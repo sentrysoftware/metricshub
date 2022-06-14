@@ -24,6 +24,7 @@ import com.sentrysoftware.hardware.cli.component.cli.protocols.WmiConfigCli;
 import com.sentrysoftware.matrix.engine.host.HostType;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
 import com.sentrysoftware.matrix.engine.protocol.TransportProtocols;
+import com.sentrysoftware.matsya.winrm.service.client.auth.AuthenticationEnum;
 
 import picocli.CommandLine;
 import picocli.CommandLine.MissingParameterException;
@@ -272,15 +273,17 @@ class HardwareSentryCliTest {
 		{
 			String[] args_hdfs = { "hostaa",
 					"-t", "win",
-					"--winrm-namespace", "root\\cimv2",
+					"--winrm-force-namespace", "root\\cimv2",
 					"--winrm-username", "admin",
 					"--winrm-password", "password",
 					"--winrm-timeout", "160",
 					"--winrm-port", "1234",
 					"--winrm-transport", "HTTPS",
-					"--winrm-kerberosonly"};
+					"--winrm-auth", "kerberos"};
 			HardwareSentryCli sentryCli = new HardwareSentryCli();
-			new CommandLine(sentryCli).parseArgs(args_hdfs);
+			CommandLine commandLine = new CommandLine(sentryCli);
+			commandLine.setCaseInsensitiveEnumValuesAllowed(true);
+			commandLine.parseArgs(args_hdfs);
 
 			assertEquals("hostaa", sentryCli.getHostname());
 			assertEquals(HostType.MS_WINDOWS, sentryCli.getDeviceType());
@@ -290,19 +293,21 @@ class HardwareSentryCliTest {
 			assertEquals(160, sentryCli.getWinRmConfigCli().getTimeout());
 			assertEquals(1234, sentryCli.getWinRmConfigCli().getPort());
 			assertEquals(TransportProtocols.HTTPS, sentryCli.getWinRmConfigCli().getProtocol());
-			assertEquals(true, sentryCli.getWinRmConfigCli().isKerberosOnly());
-			assertEquals(false, sentryCli.getWinRmConfigCli().isForceNtlm());
+			assertEquals(1, sentryCli.getWinRmConfigCli().getAuthentications().size());
+			assertEquals(AuthenticationEnum.KERBEROS, sentryCli.getWinRmConfigCli().getAuthentications().get(0));
 		}
 
 		{
 			String[] args_hdfs = { "hostaa",
 					"-t", "win",
-					"--winrm-forcentlm" };
+					"--winrm-auth", "ntlm"};
 			HardwareSentryCli sentryCli = new HardwareSentryCli();
-			new CommandLine(sentryCli).parseArgs(args_hdfs);
+			CommandLine commandLine = new CommandLine(sentryCli);
+			commandLine.setCaseInsensitiveEnumValuesAllowed(true);
+			commandLine.parseArgs(args_hdfs);
 
-			assertEquals(false, sentryCli.getWinRmConfigCli().isKerberosOnly());
-			assertEquals(true, sentryCli.getWinRmConfigCli().isForceNtlm());
+			assertEquals(1, sentryCli.getWinRmConfigCli().getAuthentications().size());
+			assertEquals(AuthenticationEnum.NTLM, sentryCli.getWinRmConfigCli().getAuthentications().get(0));
 		}
 
 	}

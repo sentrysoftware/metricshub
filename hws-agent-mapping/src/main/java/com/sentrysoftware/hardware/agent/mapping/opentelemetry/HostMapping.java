@@ -26,7 +26,10 @@ public class HostMapping {
 	private static final String UP_METRIC_DESCRIPTION = createCustomDescriptionWithAttributes(
 		"Whether the configured protocol is up or not",
 		PROTOCOL_ATTRIBUTE_KEY,
-		SNMP_ATTRIBUTE_VALUE, HTTP_ATTRIBUTE_VALUE, WBEM_ATTRIBUTE_VALUE, SSH_ATTRIBUTE_VALUE, IPMI_ATTRIBUTE_VALUE, WMI_ATTRIBUTE_VALUE
+		SNMP_ATTRIBUTE_VALUE, HTTP_ATTRIBUTE_VALUE,
+		WBEM_ATTRIBUTE_VALUE, SSH_ATTRIBUTE_VALUE,
+		IPMI_ATTRIBUTE_VALUE, WMI_ATTRIBUTE_VALUE,
+		WINRM_ATTRIBUTE_VALUE
 	);
 
 	/**
@@ -232,6 +235,26 @@ public class HostMapping {
 							.builder()
 							.key(PROTOCOL_ATTRIBUTE_KEY)
 							.value(IPMI_ATTRIBUTE_VALUE)
+							.build()
+					)
+					.predicate(UP_PREDICATE)
+					.type(MetricType.UP_DOWN_COUNTER)
+					.build()
+			)
+		);
+
+		map.put(
+			Host.WINRM_UP.getName(),
+			Collections.singletonList(
+				MetricInfo
+					.builder()
+					.name(UP_METRIC_NAME)
+					.description(UP_METRIC_DESCRIPTION)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(PROTOCOL_ATTRIBUTE_KEY)
+							.value(WINRM_ATTRIBUTE_VALUE)
 							.build()
 					)
 					.predicate(UP_PREDICATE)

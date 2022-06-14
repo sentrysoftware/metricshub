@@ -19,6 +19,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERA
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UP_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WBEM_UP_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WMI_UP_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WINRM_UP_PARAMETER;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.UP_ALARM_CONDITION;
 
 import java.util.Collections;
@@ -110,6 +111,13 @@ public class Host implements IMetaMonitor {
 			.type(new DiscreteParamType(Up::interpret))
 			.build();
 
+	public static final MetaParameter WINRM_UP = MetaParameter.builder()
+			.basicCollect(false)
+			.name(WINRM_UP_PARAMETER)
+			.unit(UP_PARAMETER_UNIT)
+			.type(new DiscreteParamType(Up::interpret))
+			.build();
+
 	public static final AlertRule SNMP_UP_ALERT_RULE = new AlertRule(Host::checkSnmpStatusAlarmCondition,
 			UP_ALARM_CONDITION,
 			Severity.ALARM);
@@ -131,6 +139,10 @@ public class Host implements IMetaMonitor {
 			Severity.ALARM);
 
 	public static final AlertRule IPMI_UP_ALERT_RULE = new AlertRule(Host::checkIpmiStatusAlarmCondition,
+			UP_ALARM_CONDITION,
+			Severity.ALARM);
+
+	public static final AlertRule WINRM_UP_ALERT_RULE = new AlertRule(Host::checkWinRmStatusAlarmCondition,
 			UP_ALARM_CONDITION,
 			Severity.ALARM);
 
@@ -156,6 +168,7 @@ public class Host implements IMetaMonitor {
 		map.put(WMI_UP_PARAMETER, WMI_UP);
 		map.put(HTTP_UP_PARAMETER, HTTP_UP);
 		map.put(IPMI_UP_PARAMETER, IPMI_UP);
+		map.put(WINRM_UP_PARAMETER, WINRM_UP);
 
 		META_PARAMETERS = Collections.unmodifiableMap(map);
 
@@ -167,6 +180,7 @@ public class Host implements IMetaMonitor {
 		alertRulesMap.put(WMI_UP_PARAMETER, Collections.singletonList(WMI_UP_ALERT_RULE));
 		alertRulesMap.put(HTTP_UP_PARAMETER, Collections.singletonList(HTTP_UP_ALERT_RULE));
 		alertRulesMap.put(IPMI_UP_PARAMETER, Collections.singletonList(IPMI_UP_ALERT_RULE));
+		alertRulesMap.put(WINRM_UP_PARAMETER, Collections.singletonList(WINRM_UP_ALERT_RULE));
 
 		ALERT_RULES = Collections.unmodifiableMap(alertRulesMap);
 	}
@@ -322,6 +336,33 @@ public class Host implements IMetaMonitor {
 					.consequence(consequence)
 					.recommendedAction(recommendedAction)
 					.build();
+		}
+		return null;
+	}
+
+	/**
+	 * Check condition when the monitor status is in ALARM state.
+	 * 
+	 * @param monitor    The monitor we wish to check its status
+	 * @param conditions The conditions used to detect abnormality
+	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
+	 */
+	public static AlertDetails checkWinRmStatusAlarmCondition(Monitor monitor, Set<AlertCondition> conditions) {
+		final AssertedParameter<DiscreteParam> assertedStatus = monitor.assertStatusParameter(WINRM_UP_PARAMETER,
+				conditions);
+		if (assertedStatus.isAbnormal()) {
+
+			// TODO: Get error message from WinRM protocol and append to problem.
+			String problem = "The WinRM protocol is no longer available.";
+			String consequence = CONSEQUENCE_MESSAGE;
+			String recommendedAction = "Make sure the provided credentials have Administrator privileges, the Winmgmt and WS-Management services are started and WinRM is correctly configured on the monitored host. In addition, verify that no firewall is blocking the access.";
+
+			return AlertDetails
+				.builder()
+				.problem(problem)
+				.consequence(consequence)
+				.recommendedAction(recommendedAction)
+				.build();
 		}
 		return null;
 	}

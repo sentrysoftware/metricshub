@@ -907,7 +907,7 @@ public class MatsyaClientsExecutor {
 	 * @return
 	 * @throws IOException
 	 */
-	public static String runRemoteSshCommand(
+	public static String runRemoteSshCommand( // NOSONAR on arguments
 			@NonNull
 			final String hostname,
 			@NonNull
@@ -1235,7 +1235,7 @@ public class MatsyaClientsExecutor {
 	 * @return The result of the query
 	 * @throws MatsyaException when anything goes wrong (details in cause)
 	 */
-	public static List<List<String>> executeWqlThroughWinRm(
+	public List<List<String>> executeWqlThroughWinRm(
 			@NonNull final String hostname,
 			@NonNull final WinRmProtocol winRmProtocol,
 			@NonNull final String query,

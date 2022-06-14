@@ -35,9 +35,9 @@ import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
+import com.sentrysoftware.matrix.engine.protocol.IWinProtocol;
 import com.sentrysoftware.matrix.engine.protocol.OsCommandConfig;
 import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WmiProtocol;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 
 import com.sentrysoftware.matrix.engine.host.HostType;
@@ -329,23 +329,23 @@ public class OsCommandHelper {
 		if (protocolConfiguration == null) {
 			return defaultTimeout;
 		}
-		final Long timeout = protocolConfiguration instanceof WmiProtocol ?
-				((WmiProtocol) protocolConfiguration).getTimeout() :
+		final Long timeout = protocolConfiguration instanceof IWinProtocol ?
+				((IWinProtocol) protocolConfiguration).getTimeout() :
 					((SshProtocol) protocolConfiguration).getTimeout();
 		return timeout != null ? timeout.intValue() : defaultTimeout;
 	}
 
 	/**
-	 * Get the username from the WMIProtocol or the SSHProtocol.
-	 * @param protocolConfiguration WMIProtocol or SSHProtocol.
+	 * Get the username from the IWinProtocol or the SSHProtocol.
+	 * @param protocolConfiguration IWinProtocol or SSHProtocol.
 	 * @return An optional with the username if found. An empty optional otherwise.
 	 */
 	public static Optional<String> getUsername(final IProtocolConfiguration protocolConfiguration) {
 		if (protocolConfiguration == null) {
 			return Optional.empty();
 		}
-		if (protocolConfiguration instanceof WmiProtocol) {
-			return Optional.ofNullable(((WmiProtocol) protocolConfiguration).getUsername());
+		if (protocolConfiguration instanceof IWinProtocol) {
+			return Optional.ofNullable(((IWinProtocol) protocolConfiguration).getUsername());
 		}
 		if (protocolConfiguration instanceof SshProtocol) {
 			return Optional.ofNullable(((SshProtocol) protocolConfiguration).getUsername());
@@ -354,16 +354,16 @@ public class OsCommandHelper {
 	}
 
 	/**
-	 * Get the password from the WMIProtocol or the SSHProtocol.
-	 * @param protocolConfiguration WMIProtocol or SSHProtocol.
+	 * Get the password from the IWinProtocol or the SSHProtocol.
+	 * @param protocolConfiguration IWinProtocol or SSHProtocol.
 	 * @return An optional with the password if found. An empty optional otherwise.
 	 */
 	public static Optional<char[]> getPassword(final IProtocolConfiguration protocolConfiguration) {
 		if (protocolConfiguration == null) {
 			return Optional.empty();
 		}
-		if (protocolConfiguration instanceof WmiProtocol) {
-			return Optional.ofNullable(((WmiProtocol) protocolConfiguration).getPassword());
+		if (protocolConfiguration instanceof IWinProtocol) {
+			return Optional.ofNullable(((IWinProtocol) protocolConfiguration).getPassword());
 		}
 		if (protocolConfiguration instanceof SshProtocol) {
 			return Optional.ofNullable(((SshProtocol) protocolConfiguration).getPassword());
@@ -374,7 +374,7 @@ public class OsCommandHelper {
 	/**
 	 * <p>Run the OS Command on:
 	 * <li>Local (use java Process)</li>
-	 * <li>Remote windows (use WMI command)</li>
+	 * <li>Remote windows (use WMI/WinRm command)</li>
 	 * <li>Remote Linux (use SSH)<:li>
 	 * <p>It replace Host name, User name, Password, Sudo, Embedded files macros in the command line.</p>
 	 * <p>If necessary, it create embedded files and delete them after the command execution.</p>
@@ -408,12 +408,12 @@ public class OsCommandHelper {
 					TimeoutException,
 					NoCredentialProvidedException {
 
-		final IProtocolConfiguration protocolConfiguration = engineConfiguration
-			.getProtocolConfigurations()
-			.get(
-				!isLocalhost && engineConfiguration.getHost().getType() == HostType.MS_WINDOWS
-					? WmiProtocol.class
-					: SshProtocol.class);
+		final IProtocolConfiguration protocolConfiguration;
+		if(!isLocalhost && engineConfiguration.getHost().getType() == HostType.MS_WINDOWS) {
+			protocolConfiguration = engineConfiguration.getWinProtocol();
+		} else {
+			protocolConfiguration = engineConfiguration.getProtocolConfigurations().get(SshProtocol.class);
+		}
 
 		final Optional<String> maybeUsername = getUsername(protocolConfiguration);
 
@@ -457,7 +457,7 @@ public class OsCommandHelper {
 				.map(password -> updatedEmbeddedFilesCommand.replaceAll(
 						toCaseInsensitiveRegex(HardwareConstants.PASSWORD_MACRO), String.valueOf(password)))
 				.orElse(updatedEmbeddedFilesCommand);
-		
+
 		final String noPasswordCommand = maybePassword
 				.map(password -> updatedEmbeddedFilesCommand.replaceAll(
 						toCaseInsensitiveRegex(HardwareConstants.PASSWORD_MACRO), "********"))
@@ -500,7 +500,7 @@ public class OsCommandHelper {
 						new ArrayList<>(embeddedTempFiles.values()),
 						noPasswordCommand);
 			}
-			
+
 			return new OsCommandResult(commandResult, noPasswordCommand);
 		} finally {
 			//noinspection ResultOfMethodCallIgnored
