@@ -13,11 +13,11 @@ You usually get a "No data" message for sustainability metrics when:
 
 * the query takes too long to complete. This could be due to a network issue, a lack of resources, or the Prometheus server running slow.
 * **${project.name}** has been running for less than 24 hours and does not have enough data to compute the annual type of metrics (typically, `Annual Energy Usage`, `Annual Cost`, `Annual CO₂ Emissions`)
-* the `hw.site.pue_ratio`, `hw.site.electricity_cost_dollars`, and `hw.site.carbon_density_grams` options are not properly set in the **config/hws-config.yaml** file. [Site and Sustainable IT Settings](./configuration/configure-agent.html#Site_and_Sustainable_IT_Settings) for more details.
+* the `hw.site.pue_ratio`, `hw.site.electricity_cost_dollars`, and `hw.site.carbon_density_grams` options are not properly set in the **config/hws-config.yaml** file. Refer to [Site and Sustainable IT Settings](./configuration/configure-agent.html#Site_and_Sustainable_IT_Settings) for more details.
 
 ## Energy usage and carbon emissions are oddly low
 
-If the values of the **Annual Energy Usage**, **Annual Cost** and **Annual CO₂ Emissions** panels seem low compared to the number of sites monitored, open each monitored site and check that values are returned for:
+If the values of the **Annual Energy Usage**, **Annual Cost** and **Annual CO₂ Emissions** panels seem low compared to the number of sites monitored, open each monitored site and verify that values are returned for:
 
 * `PUE`
 * `Electricity cost`
@@ -35,19 +35,26 @@ Refer to [Site and Sustainable IT Settings](./configuration/configure-agent.html
 
 If you notice that no hardware metrics are displayed for hosts:
 
-1. Connect to your Prometheus server:
-  
-     * Search for the missing metric. If the metric corresponding to the monitored host is:
-       * found, **${project.name}** collects data and pushes it to Prometheus. The issue is on the Grafana level. Please proceed to step 2.
-       * not found, connect to the server running the *Hardware Sentry Agent* and open the URL `http://localhost:24375/metrics` to verify that **${project.name}** is collecting data. If data:
-         * is collected, the Prometheus exporter is not properly set in the `config/otel-config.yaml configuration` file. Refer to [Integration with Prometheus Server](./integration/prometheus.html) for more details.
-         * is not collected:
-            * Open the **config/hws-config.yaml** file and verify that the monitoring configuration is correct
-            * Enable debug and investigate further. It might be a java, a firewall, or a configuration issue. Refer to [Debugging](./debug.html) for more details. If the debug indicates that the issue is related to the instrumentation layer, use [Sentry's Troubleshooting tools](https://d8dt4sd6nzbfc.cloudfront.net/bmc/support/troubleshooting-tools.html) to identify the real source of the problem. If you [subscribed to one of our support plan](https://www.sentrysoftware.com/pricing/), you can also contact our Support Team.
+1. Connect to your Prometheus server and search for the missing metric. If the metric corresponding to the monitored host is:
+   * found, **${project.name}** collects data and pushes it to Prometheus. The issue is on the Grafana level. Please proceed to step 2.
+   * not found:
+     * in the `config/otel-config.yaml` file, add `Prometheus` under the `pipelines:metrics:exporters` section to enable the `Prometheus Exporter`:
+      ```yaml
+      pipelines:
+        metrics:
+         receivers: [otlp, prometheus/internal]
+         processors: [memory_limiter, batch, resourcedetection, metricstransform]
+          exporters: [prometheusremotewrite/your-server, prometheus] 
+       ```
+     *  restart **${project.name}**
+     *  connect to the server running the *Hardware Sentry Agent* and open the URL `http://<localhost>:24375/metrics` to verify that **${project.name}** is collecting data. If data:
+        * is collected, the Prometheus exporter is not properly set. Refer to [Integration with Prometheus Server](./integration/prometheus.html) for more details.
+        * is not collected:
+           * Open the **config/hws-config.yaml** file and verify that the monitoring configuration is correct
+           * Enable debug and investigate further. It might be a java, a firewall, or a configuration issue. Refer to [Debugging](./debug.html) for more details. If the debug indicates that the issue is related to the instrumentation layer, use [Sentry Software's Troubleshooting tools](https://d8dt4sd6nzbfc.cloudfront.net/bmc/support/troubleshooting-tools.html) to identify the real source of the problem. If you [subscribed to one of our support plan](https://www.sentrysoftware.com/pricing/), you can also contact our Support Team.
 
 2. When data is available in Prometheus but not in Grafana:
-
-   * Connect to Grafana
-   * Open the **Host** dashboard
-   * Edit the panel of the hardware components for which no data is available
-   * In the **Metrics browser** field, verify that the query and metrics labels are correct and make the corrections required.
+     * Connect to Grafana
+     * Open the **Host** dashboard
+     * Edit the panel of the hardware components for which no data is available
+     * In the **Metrics browser** field, verify that the query and metrics labels are correct and make the corrections required.
