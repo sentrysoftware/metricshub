@@ -41,10 +41,10 @@ public class MetricReport {
 	private static final String MONITORS = "*Monitors*";
 	private static final String PROJECT_NAME = "**${project.name}**";
 
-	private static final String NAME_HEADING = "Metric Name";
+	private static final String NAME_HEADING = "Name";
 	private static final String UNIT_HEADING = "Unit";
 	private static final String ATTRIBUTES_HEADING = "Attributes";
-	private static final String TYPE_HEADING = "Metric Type";
+	private static final String TYPE_HEADING = "Type";
 	private static final String DESCRIPTION_HEADING = "Description";
 
 	private static final String METRIC_TABLE_DESCRIPTION = "The table below provides detailed information about the metrics scrapped by **${project.name}** for each Monitor and metric type.";
@@ -267,10 +267,10 @@ public class MetricReport {
 	 * @return markdown formatted table header
 	 */
 	private String createTableHeader(Map<String, Integer> headerSizes) {
-		return createTableCell(TYPE_HEADING, headerSizes.get(TYPE_HEADING)) +
-				createTableCell(NAME_HEADING, headerSizes.get(NAME_HEADING)) +
-				createTableCell(UNIT_HEADING, headerSizes.get(UNIT_HEADING)) +
+		return 	createTableCell(NAME_HEADING, headerSizes.get(NAME_HEADING)) +
 				createTableCell(DESCRIPTION_HEADING, headerSizes.get(DESCRIPTION_HEADING)) +
+				createTableCell(TYPE_HEADING, headerSizes.get(TYPE_HEADING)) +
+				createTableCell(UNIT_HEADING, headerSizes.get(UNIT_HEADING)) +
 				createTableCell(ATTRIBUTES_HEADING, headerSizes.get(ATTRIBUTES_HEADING)) + "|" + NEWLINE +
 				createHeaderBottom(headerSizes);
 	}
@@ -285,10 +285,10 @@ public class MetricReport {
 
 		Map<String, Integer> headerSizes = new HashMap<>();
 
-		headerSizes.put(TYPE_HEADING, TYPE_HEADING.length());
 		headerSizes.put(NAME_HEADING, NAME_HEADING.length());
-		headerSizes.put(UNIT_HEADING, UNIT_HEADING.length());
 		headerSizes.put(DESCRIPTION_HEADING, DESCRIPTION_HEADING.length());
+		headerSizes.put(TYPE_HEADING, TYPE_HEADING.length());
+		headerSizes.put(UNIT_HEADING, UNIT_HEADING.length());
 		headerSizes.put(ATTRIBUTES_HEADING, ATTRIBUTES_HEADING.length());
 
 		metricNameToInfo.entrySet().forEach(entry -> {
@@ -328,10 +328,10 @@ public class MetricReport {
 	 */
 	private String createHeaderBottom(Map<String, Integer> headerSizes) {
 		StringBuilder headerBottom = new StringBuilder("|");
-		headerBottom.append(" " + createPad('-', headerSizes.get(TYPE_HEADING).intValue()) + END_TABLE_ROW);
 		headerBottom.append(" " + createPad('-', headerSizes.get(NAME_HEADING).intValue()) + END_TABLE_ROW);
-		headerBottom.append(" " + createPad('-', headerSizes.get(UNIT_HEADING).intValue()) + END_TABLE_ROW);
 		headerBottom.append(" " + createPad('-', headerSizes.get(DESCRIPTION_HEADING).intValue()) + END_TABLE_ROW);
+		headerBottom.append(" " + createPad('-', headerSizes.get(TYPE_HEADING).intValue()) + END_TABLE_ROW);
+		headerBottom.append(" " + createPad('-', headerSizes.get(UNIT_HEADING).intValue()) + END_TABLE_ROW);
 		headerBottom.append(" " + createPad('-', headerSizes.get(ATTRIBUTES_HEADING).intValue()) + END_TABLE_ROW);
 		return headerBottom.toString();
 	}
@@ -375,10 +375,10 @@ public class MetricReport {
 
 		StringBuilder row = new StringBuilder();
 
-		row.append(createTableCell(metric.getType().getDisplayName(), headerSizes.get(TYPE_HEADING)));
 		row.append(createTableCell(metric.getName(), headerSizes.get(NAME_HEADING)));
-		row.append(createTableCell(metric.getUnit(), headerSizes.get(UNIT_HEADING)));
 		row.append(createTableCell(metric.getDescription(), headerSizes.get(DESCRIPTION_HEADING)));
+		row.append(createTableCell(metric.getType().getDisplayName(), headerSizes.get(TYPE_HEADING)));
+		row.append(createTableCell(metric.getUnit(), headerSizes.get(UNIT_HEADING)));
 		row.append(createTableCell(attributes, headerSizes.get(ATTRIBUTES_HEADING)));
 		row.append("|");
 		return row.toString();
