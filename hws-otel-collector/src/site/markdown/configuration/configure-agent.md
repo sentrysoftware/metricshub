@@ -288,16 +288,13 @@ hosts:
   - host:
       hostname: server-11
       type: win
-    winRM:
-      timeout: 120
+    winrm:
+      protocol: HTTP
+      port: 5985
       username: myusername
       password: mypwd
-      namespace: mynamespace
-      port: 5986
-      protocol: http
-      forcentlm: true
-      kerberosOnly: false
-
+      timeout: 120s
+      authentications: [NTLM]
 ```
 
 ## Site and Sustainable IT Settings

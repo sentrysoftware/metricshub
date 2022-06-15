@@ -10,7 +10,6 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HTTP_UP
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IPMI_UP_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_METER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SNMP_UP_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SSH_UP_PARAMETER;
@@ -46,7 +45,7 @@ public class Host implements IMetaMonitor {
 
 	private static final String CONSEQUENCE_MESSAGE = "All connectors relying on this protocol to collect data will not work anymore. The components detected through these connectors will no longer be monitored.";
 
-	private static final List<String> METADATA = List.of(LOCATION, POWER_METER);
+	private static final List<String> METADATA = List.of(LOCATION);
 
 	public static final MetaParameter AMBIENT_TEMPERATURE = MetaParameter.builder()
 			.basicCollect(false)
