@@ -10,11 +10,12 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -37,6 +38,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MetricReport {
 
+	private static final String PIPE = "|";
+	private static final String SEPARATOR = ", ";
+	private static final String FILE_NAME = "/metrics.md";
+	private static final char BACKTICK = '`';
+	private static final String START_TABLE_ROW = "| ";
 	private static final String END_TABLE_ROW = " |";
 	private static final String MONITORS = "*Monitors*";
 	private static final String PROJECT_NAME = "**${project.name}**";
@@ -119,7 +125,7 @@ public class MetricReport {
 		byte[] data = s.getBytes();
 
 		try (OutputStream out = new BufferedOutputStream(
-				Files.newOutputStream(Paths.get(outputDirectory.getPath() + "/metrics.md"), CREATE))) {
+				Files.newOutputStream(Paths.get(outputDirectory.getPath() + FILE_NAME), CREATE))) {
 			out.write(data, 0, data.length);
 		}
 	}
@@ -133,7 +139,7 @@ public class MetricReport {
 
 		StringBuilder monitorTables = new StringBuilder();
 
-		Stream.of(MonitorType.values()).forEach(monitorType -> {
+		Stream.of(MonitorType.values()).sorted().forEach(monitorType -> {
 
 			Map<String, List<MetricInfo>> metrics = MetricsMapping.getMatrixParamToMetricMap().get(monitorType);
 			Set<String> attributes = MetricsMapping.getMonitorTypeToAttributeMap().get(monitorType).keySet();
@@ -148,13 +154,13 @@ public class MetricReport {
 			monitorTables.append(NEWLINE);
 			monitorTables.append(NEWLINE);
 
-			Map<String, MetricData> metricNameToInfo = new HashMap<>();
+			TreeMap<String, MetricData> metricNameToInfo = new TreeMap<>();
 			metrics.entrySet().forEach(entry -> {
 				final List<MetricInfo> metricList = entry.getValue();
 				for (MetricInfo metric : metricList) {
 					if (metric != null) {
 						metricNameToInfo.put(metric.getName(),
-								new MetricData(metric, formattedAttributes.stream().collect(Collectors.joining(", "))
+								new MetricData(metric, formattedAttributes.stream().collect(Collectors.joining(SEPARATOR))
 										+ getIdentifyingAttributes(metric)));
 					}
 				}
@@ -165,7 +171,7 @@ public class MetricReport {
 				for (MetricInfo metric : metricList) {
 					if (metric != null) {
 						metricNameToInfo.put(metric.getName(),
-								new MetricData(metric, formattedAttributes.stream().collect(Collectors.joining(", "))
+								new MetricData(metric, formattedAttributes.stream().collect(Collectors.joining(SEPARATOR))
 										+ getIdentifyingAttributes(metric)));
 					}
 				}
@@ -187,11 +193,11 @@ public class MetricReport {
 	 * @param attributes
 	 * @return markdown formatted attributes
 	 */
-	private Set<String> formatAttributes(Set<String> attributes) {
-		Set<String> formattedAttributes = new HashSet<>();
+	private TreeSet<String> formatAttributes(Set<String> attributes) {
+		TreeSet<String> formattedAttributes = new TreeSet<>();
 
 		for (String attribute : attributes) {
-			formattedAttributes.add('`' + attribute + '`');
+			formattedAttributes.add(BACKTICK + attribute + BACKTICK);
 		}
 		return formattedAttributes;
 	}
@@ -243,7 +249,7 @@ public class MetricReport {
 		if (metric.getIdentifyingAttributes() != null) {
 			List<AbstractIdentifyingAttribute> identifyingAttr = metric.getIdentifyingAttributes();
 			for (AbstractIdentifyingAttribute a : identifyingAttr) {
-				attributes.append(", `" + a.getKey() + "`");
+				attributes.append(SEPARATOR + BACKTICK + a.getKey() + BACKTICK);
 			}
 		}
 		return attributes.toString();
@@ -271,7 +277,7 @@ public class MetricReport {
 				createTableCell(DESCRIPTION_HEADING, headerSizes.get(DESCRIPTION_HEADING)) +
 				createTableCell(TYPE_HEADING, headerSizes.get(TYPE_HEADING)) +
 				createTableCell(UNIT_HEADING, headerSizes.get(UNIT_HEADING)) +
-				createTableCell(ATTRIBUTES_HEADING, headerSizes.get(ATTRIBUTES_HEADING)) + "|" + NEWLINE +
+				createTableCell(ATTRIBUTES_HEADING, headerSizes.get(ATTRIBUTES_HEADING)) + PIPE + NEWLINE +
 				createHeaderBottom(headerSizes);
 	}
 
@@ -327,7 +333,7 @@ public class MetricReport {
 	 * @return markdown formatted table header bottom
 	 */
 	private String createHeaderBottom(Map<String, Integer> headerSizes) {
-		StringBuilder headerBottom = new StringBuilder("|");
+		StringBuilder headerBottom = new StringBuilder(PIPE);
 		headerBottom.append(" " + createPad('-', headerSizes.get(NAME_HEADING).intValue()) + END_TABLE_ROW);
 		headerBottom.append(" " + createPad('-', headerSizes.get(DESCRIPTION_HEADING).intValue()) + END_TABLE_ROW);
 		headerBottom.append(" " + createPad('-', headerSizes.get(TYPE_HEADING).intValue()) + END_TABLE_ROW);
@@ -344,7 +350,7 @@ public class MetricReport {
 	 * @return markdown formatted table cell
 	 */
 	private String createTableCell(String text, int padding) {
-		return "| " + text + createPad(' ', padding - text.length()) + " ";
+		return START_TABLE_ROW + text + createPad(' ', padding - text.length()) + " ";
 	}
 
 	/**
@@ -380,7 +386,7 @@ public class MetricReport {
 		row.append(createTableCell(metric.getType().getDisplayName(), headerSizes.get(TYPE_HEADING)));
 		row.append(createTableCell(metric.getUnit(), headerSizes.get(UNIT_HEADING)));
 		row.append(createTableCell(attributes, headerSizes.get(ATTRIBUTES_HEADING)));
-		row.append("|");
+		row.append(PIPE);
 		return row.toString();
 	}
 

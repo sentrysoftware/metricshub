@@ -37,16 +37,16 @@ import java.util.Optional;
 @AllArgsConstructor
 public enum MonitorType {
 
-	CONNECTOR("Connector", "Connector", "Connectors", new MetaConnector(), "connector"),
-	HOST("Host", "Host", "Hosts", new Host(), "host"),
 	BATTERY("Battery", "Battery", "Batteries", new Battery(), "battery"),
 	BLADE("Blade", "Blade", "Blades", new Blade(), "blade"),
+	CONNECTOR("Connector", "Connector", "Connectors", new MetaConnector(), "connector"),
 	CPU("CPU", "CPU", "CPUs", new Cpu(), "cpu"),
 	CPU_CORE("CpuCore", "CPU Core", "CPU Cores", new CpuCore(), "cpucore"),
 	DISK_CONTROLLER("DiskController", "Disk Controller", "Disk Controllers", new DiskController(), "diskcontroller"),
 	ENCLOSURE("Enclosure", "Enclosure", "Enclosures", new Enclosure(), "enclosure"),
 	FAN("Fan", "Fan", "Fans", new Fan(), "fan"),
 	GPU("GPU", "GPU", "GPUs", new Gpu(), "gpu"),
+	HOST("Host", "Host", "Hosts", new Host(), "host"),
 	LED("LED", "LED", "LEDs", new Led(), "led"),
 	LOGICAL_DISK("LogicalDisk", "Logical Disk", "Logical Disks", new LogicalDisk(), "logicaldisk"),
 	LUN("Lun", "LUN", "LUNs", new Lun(), "lun"),
