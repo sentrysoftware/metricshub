@@ -60,10 +60,10 @@ public class MetricReport {
 	private static final String KEYWORDS = "keywords: hardware, metrics, output";
 
 	private static final String SECTION_HEADING_1 = "# ";
-
 	private static final String SECTION_HEADING_2 = "## ";
+	private static final String SECTION_HEADING_3 = "### ";
 
-	private static final String METRICS_HEADING = SECTION_HEADING_1 + "Metrics";
+	private static final String METRICS_HEADING = SECTION_HEADING_2 + "Metrics";
 
 	private static final String TOC = "<!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->";
 
@@ -266,7 +266,7 @@ public class MetricReport {
 	 * @return markdown formatted section title
 	 */
 	private String createMonitorSectionTitle(MonitorType monitorType) {
-		return SECTION_HEADING_2
+		return SECTION_HEADING_3
 				+ (MonitorType.OTHER_DEVICE.equals(monitorType) ? "Other Device" : monitorType.getDisplayName());
 	}
 

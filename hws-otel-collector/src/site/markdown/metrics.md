@@ -2,14 +2,14 @@ keywords: hardware, metrics, output
 description: How ${project.name} exposes hardware metrics.
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
-# Metrics
+## Metrics
 
 **${project.name}** collects the health metrics of all the hardware components that compose your servers, network switches, or storage systems and exposes them as *Monitors* in your monitoring platform(s). Information specific to each *Monitor* is provided as *Attributes* to help you distinguish *Monitor instances*. `device_id`, `host.name`, `vendor`, `serial_number`, `model` are for example some of the *Attributes* available for physical disks.
 > Note: these *Attributes* apply to all monitors: `agent.host.name`, `host.id`, `host.name`, `host.type`, `os.type`
 
 The table below provides detailed information about the metrics scrapped by **${project.name}** for each Monitor and metric type.
 
-## Battery
+### Battery
 
 | Name                 | Description                                                                                                                          | Type          | Unit | Attributes                                                                                              |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------- | ---- | ------------------------------------------------------------------------------------------------------- |
@@ -17,20 +17,20 @@ The table below provides detailed information about the metrics scrapped by **${
 | hw.battery.time_left | Number of seconds left before recharging the battery. Attribute(s): state = `discharging`.                                           | Gauge         | s    | `chemistry`, `device_id`, `id`, `info`, `model`, `name`, `parent`, `type`, `vendor`, `state`            |
 | hw.status            | Operational status of the monitored device specified with `hw.type` and `id`: 1 (true) or 0 (false) for each of the possible states. | UpDownCounter |      | `chemistry`, `device_id`, `id`, `info`, `model`, `name`, `parent`, `type`, `vendor`, `state`, `hw.type` |
 
-## Blade
+### Blade
 
 | Name                 | Description                                                                                                                          | Type          | Unit | Attributes                                                                                              |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------- | ---- | ------------------------------------------------------------------------------------------------------- |
 | hw.blade.power_state | Blade power state: 1 (true) or 0 (false) for each of the possible states. Attribute(s): state = `off`, `on` and `suspended`.         | UpDownCounter |      | `blade_name`, `device_id`, `id`, `info`, `model`, `name`, `parent`, `serial_number`, `state`            |
 | hw.status            | Operational status of the monitored device specified with `hw.type` and `id`: 1 (true) or 0 (false) for each of the possible states. | UpDownCounter |      | `blade_name`, `device_id`, `id`, `info`, `model`, `name`, `parent`, `serial_number`, `state`, `hw.type` |
 
-## Connector
+### Connector
 
 | Name                             | Description                                                                                                                               | Type          | Unit | Attributes                                                                      |
 | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ---- | ------------------------------------------------------------------------------- |
 | hardware_sentry.connector.status | Connector operational status: 1 (true) or 0 (false) for each of the possible states. Attribute(s): state = `degraded`, `failed` and `ok`. | UpDownCounter |      | `applies_to_os`, `connector_id`, `description`, `id`, `name`, `parent`, `state` |
 
-## CPU
+### CPU
 
 | Name                | Description                                                                                                                             | Type          | Unit     | Attributes                                                                         |
 | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ------------- | -------- | ---------------------------------------------------------------------------------- |
@@ -42,7 +42,7 @@ The table below provides detailed information about the metrics scrapped by **${
 | hw.power            | Energy consumed by the monitored device specified with `hw.type` and `id`.                                                              | Gauge         | W        | `device_id`, `id`, `info`, `model`, `name`, `parent`, `vendor`, `hw.type`          |
 | hw.status           | Operational status of the monitored device specified with `hw.type` and `id`: 1 (true) or 0 (false) for each of the possible states.    | UpDownCounter |          | `device_id`, `id`, `info`, `model`, `name`, `parent`, `vendor`, `state`, `hw.type` |
 
-## CPU Core
+### CPU Core
 
 | Name                    | Description                                                                                                                          | Type          | Unit | Attributes                                                      |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------- | ---- | --------------------------------------------------------------- |
@@ -50,7 +50,7 @@ The table below provides detailed information about the metrics scrapped by **${
 | hw.cpu_core.utilization | Ratio of the CPU core usage.                                                                                                         | Gauge         | 1    | `device_id`, `id`, `info`, `name`, `parent`                     |
 | hw.status               | Operational status of the monitored device specified with `hw.type` and `id`: 1 (true) or 0 (false) for each of the possible states. | UpDownCounter |      | `device_id`, `id`, `info`, `name`, `parent`, `state`, `hw.type` |
 
-## Disk Controller
+### Disk Controller
 
 | Name      | Description                                                                                                                          | Type          | Unit | Attributes                                                                                                                                                |
 | --------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------- | ---- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -58,7 +58,7 @@ The table below provides detailed information about the metrics scrapped by **${
 | hw.power  | Energy consumed by the monitored device specified with `hw.type` and `id`.                                                           | Gauge         | W    | `bios_version`, `device_id`, `driver_version`, `firmware_version`, `id`, `info`, `model`, `name`, `parent`, `serial_number`, `vendor`, `hw.type`          |
 | hw.status | Operational status of the monitored device specified with `hw.type` and `id`: 1 (true) or 0 (false) for each of the possible states. | UpDownCounter |      | `bios_version`, `device_id`, `driver_version`, `firmware_version`, `id`, `info`, `model`, `name`, `parent`, `serial_number`, `vendor`, `state`, `hw.type` |
 
-## Enclosure
+### Enclosure
 
 | Name                | Description                                                                                                                          | Type          | Unit | Attributes                                                                                                                                |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------- | ---- | ----------------------------------------------------------------------------------------------------------------------------------------- |
@@ -66,7 +66,7 @@ The table below provides detailed information about the metrics scrapped by **${
 | hw.enclosure.power  | Energy consumed by the enclosure.                                                                                                    | Gauge         | W    | `bios_version`, `device_id`, `id`, `info`, `ip_address`, `model`, `name`, `parent`, `serial_number`, `type`, `vendor`                     |
 | hw.status           | Operational status of the monitored device specified with `hw.type` and `id`: 1 (true) or 0 (false) for each of the possible states. | UpDownCounter |      | `bios_version`, `device_id`, `id`, `info`, `ip_address`, `model`, `name`, `parent`, `serial_number`, `type`, `vendor`, `state`, `hw.type` |
 
-## Fan
+### Fan
 
 | Name                     | Description                                                                                                                                                                 | Type          | Unit  | Attributes                                                                         |
 | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ----- | ---------------------------------------------------------------------------------- |
@@ -78,7 +78,7 @@ The table below provides detailed information about the metrics scrapped by **${
 | hw.power                 | Energy consumed by the monitored device specified with `hw.type` and `id`.                                                                                                  | Gauge         | W     | `device_id`, `id`, `info`, `name`, `parent`, `sensor_location`, `hw.type`          |
 | hw.status                | Operational status of the monitored device specified with `hw.type` and `id`: 1 (true) or 0 (false) for each of the possible states.                                        | UpDownCounter |       | `device_id`, `id`, `info`, `name`, `parent`, `sensor_location`, `state`, `hw.type` |
 
-## GPU
+### GPU
 
 | Name                            | Description                                                                                                                               | Type          | Unit     | Attributes                                                                                                                                |
 | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
@@ -93,7 +93,7 @@ The table below provides detailed information about the metrics scrapped by **${
 | hw.power                        | Energy consumed by the monitored device specified with `hw.type` and `id`.                                                                | Gauge         | W        | `device_id`, `driver_version`, `firmware_version`, `id`, `info`, `model`, `name`, `parent`, `serial_number`, `vendor`, `hw.type`          |
 | hw.status                       | Operational status of the monitored device specified with `hw.type` and `id`: 1 (true) or 0 (false) for each of the possible states.      | UpDownCounter |          | `device_id`, `driver_version`, `firmware_version`, `id`, `info`, `model`, `name`, `parent`, `serial_number`, `vendor`, `state`, `hw.type` |
 
-## Host
+### Host
 
 | Name                            | Description                                                                                                             | Type          | Unit | Attributes                                                    |
 | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------- | ---- | ------------------------------------------------------------- |
@@ -105,13 +105,13 @@ The table below provides detailed information about the metrics scrapped by **${
 | hw.host.heating_margin          | Number of degrees Celsius (°C) remaining before the temperature reaches the closest warning threshold.                  | Gauge         | Cel  | `id`, `location`, `name`, `parent`, `power_meter`             |
 | hw.host.power                   | Energy consumed by all the components discovered for the monitored host.                                                | Gauge         | W    | `id`, `location`, `name`, `parent`, `power_meter`, `quality`  |
 
-## LED
+### LED
 
 | Name      | Description                                                                                                                          | Type          | Unit | Attributes                                                      |
 | --------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------- | ---- | --------------------------------------------------------------- |
 | hw.status | Operational status of the monitored device specified with `hw.type` and `id`: 1 (true) or 0 (false) for each of the possible states. | UpDownCounter |      | `device_id`, `id`, `info`, `name`, `parent`, `state`, `hw.type` |
 
-## Logical Disk
+### Logical Disk
 
 | Name                         | Description                                                                                                                          | Type          | Unit     | Attributes                                                                    |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------- | -------- | ----------------------------------------------------------------------------- |
@@ -122,7 +122,7 @@ The table below provides detailed information about the metrics scrapped by **${
 | hw.logical_disk.utilization  | Ratio of used or unused space in the logical disk. Attribute(s): state = `free` and `used`.                                          | Gauge         | 1        | `device_id`, `id`, `info`, `name`, `parent`, `raid_level`, `state`            |
 | hw.status                    | Operational status of the monitored device specified with `hw.type` and `id`: 1 (true) or 0 (false) for each of the possible states. | UpDownCounter |          | `device_id`, `id`, `info`, `name`, `parent`, `raid_level`, `state`, `hw.type` |
 
-## LUN
+### LUN
 
 | Name               | Description                                                                                                                          | Type          | Unit    | Attributes                                                                                                                      |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------ | ------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------- |
@@ -130,7 +130,7 @@ The table below provides detailed information about the metrics scrapped by **${
 | hw.lun.paths.limit | Number of available paths that will generate a warning when reached. Attribute(s): limit_type = `low.degraded`.                      | Gauge         | {paths} | `array_name`, `device_id`, `id`, `info`, `local_device_name`, `name`, `parent`, `remote_device_name`, `wwn`, `limit_type`       |
 | hw.status          | Operational status of the monitored device specified with `hw.type` and `id`: 1 (true) or 0 (false) for each of the possible states. | UpDownCounter |         | `array_name`, `device_id`, `id`, `info`, `local_device_name`, `name`, `parent`, `remote_device_name`, `wwn`, `state`, `hw.type` |
 
-## Memory Module
+### Memory Module
 
 | Name                   | Description                                                                                                                          | Type          | Unit     | Attributes                                                                                                  |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------- | -------- | ----------------------------------------------------------------------------------------------------------- |
@@ -141,7 +141,7 @@ The table below provides detailed information about the metrics scrapped by **${
 | hw.power               | Energy consumed by the monitored device specified with `hw.type` and `id`.                                                           | Gauge         | W        | `device_id`, `id`, `info`, `model`, `name`, `parent`, `serial_number`, `type`, `vendor`, `hw.type`          |
 | hw.status              | Operational status of the monitored device specified with `hw.type` and `id`: 1 (true) or 0 (false) for each of the possible states. | UpDownCounter |          | `device_id`, `id`, `info`, `model`, `name`, `parent`, `serial_number`, `type`, `vendor`, `state`, `hw.type` |
 
-## Network Card
+### Network Card
 
 | Name                             | Description                                                                                                                                              | Type          | Unit      | Attributes                                                                                                                                                                         |
 | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -158,7 +158,7 @@ The table below provides detailed information about the metrics scrapped by **${
 | hw.power                         | Energy consumed by the monitored device specified with `hw.type` and `id`.                                                                               | Gauge         | W         | `bandwidth`, `device_id`, `id`, `info`, `logical_address`, `model`, `name`, `parent`, `physical_address`, `remote_physical_address`, `serial_number`, `vendor`, `hw.type`          |
 | hw.status                        | Operational status of the monitored device specified with `hw.type` and `id`: 1 (true) or 0 (false) for each of the possible states.                     | UpDownCounter |           | `bandwidth`, `device_id`, `id`, `info`, `logical_address`, `model`, `name`, `parent`, `physical_address`, `remote_physical_address`, `serial_number`, `vendor`, `state`, `hw.type` |
 
-## Other Device
+### Other Device
 
 | Name                        | Description                                                                                                                                            | Type          | Unit   | Attributes                                                                     |
 | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------- | ------ | ------------------------------------------------------------------------------ |
@@ -168,7 +168,7 @@ The table below provides detailed information about the metrics scrapped by **${
 | hw.other_device.value.limit | Device reported value that will generate a warning or an alarm when reached. Attribute(s): limit_type = `critical` and `degraded`.                     | Gauge         |        | `device_id`, `device_type`, `id`, `info`, `name`, `parent`, `limit_type`       |
 | hw.status                   | Operational status of the monitored device specified with `hw.type` and `id`: 1 (true) or 0 (false) for each of the possible states.                   | UpDownCounter |        | `device_id`, `device_type`, `id`, `info`, `name`, `parent`, `state`, `hw.type` |
 
-## Physical Disk
+### Physical Disk
 
 | Name                                   | Description                                                                                                                          | Type          | Unit     | Attributes                                                                                                              |
 | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------- | -------- | ----------------------------------------------------------------------------------------------------------------------- |
@@ -180,7 +180,7 @@ The table below provides detailed information about the metrics scrapped by **${
 | hw.power                               | Energy consumed by the monitored device specified with `hw.type` and `id`.                                                           | Gauge         | W        | `device_id`, `firmware_version`, `id`, `info`, `model`, `name`, `parent`, `serial_number`, `vendor`, `hw.type`          |
 | hw.status                              | Operational status of the monitored device specified with `hw.type` and `id`: 1 (true) or 0 (false) for each of the possible states. | UpDownCounter |          | `device_id`, `firmware_version`, `id`, `info`, `model`, `name`, `parent`, `serial_number`, `vendor`, `state`, `hw.type` |
 
-## Power Supply
+### Power Supply
 
 | Name                        | Description                                                                                                                          | Type          | Unit | Attributes                                                                           |
 | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------- | ---- | ------------------------------------------------------------------------------------ |
@@ -188,7 +188,7 @@ The table below provides detailed information about the metrics scrapped by **${
 | hw.power_supply.utilization | Ratio of the power supply power currently in use.                                                                                    | Gauge         | 1    | `device_id`, `id`, `info`, `name`, `parent`, `power_supply_type`                     |
 | hw.status                   | Operational status of the monitored device specified with `hw.type` and `id`: 1 (true) or 0 (false) for each of the possible states. | UpDownCounter |      | `device_id`, `id`, `info`, `name`, `parent`, `power_supply_type`, `state`, `hw.type` |
 
-## Robotics
+### Robotics
 
 | Name                     | Description                                                                                                                          | Type          | Unit     | Attributes                                                                                                          |
 | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ | ------------- | -------- | ------------------------------------------------------------------------------------------------------------------- |
@@ -199,7 +199,7 @@ The table below provides detailed information about the metrics scrapped by **${
 | hw.robotics.moves        | Number of moves operations that occurred during the last collect interval.                                                           | Counter       | {moves}  | `device_id`, `id`, `info`, `model`, `name`, `parent`, `robotic_type`, `serial_number`, `vendor`                     |
 | hw.status                | Operational status of the monitored device specified with `hw.type` and `id`: 1 (true) or 0 (false) for each of the possible states. | UpDownCounter |          | `device_id`, `id`, `info`, `model`, `name`, `parent`, `robotic_type`, `serial_number`, `vendor`, `state`, `hw.type` |
 
-## Tape Drive
+### Tape Drive
 
 | Name                       | Description                                                                                                                          | Type          | Unit         | Attributes                                                                                          |
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------- | ------------ | --------------------------------------------------------------------------------------------------- |
@@ -210,7 +210,7 @@ The table below provides detailed information about the metrics scrapped by **${
 | hw.tape_drive.errors.limit | Warning or alarm threshold of the encountered errors. Attribute(s): limit_type = `critical` and `degraded`.                          | Gauge         | {errors}     | `device_id`, `id`, `info`, `model`, `name`, `parent`, `serial_number`, `vendor`, `limit_type`       |
 | hw.tape_drive.operations   | Number of mount or unmount operations that occurred during the last collect interval. Attribute(s): type = `mount` and `unmount`.    | Counter       | {operations} | `device_id`, `id`, `info`, `model`, `name`, `parent`, `serial_number`, `vendor`, `type`             |
 
-## Temperature
+### Temperature
 
 | Name                 | Description                                                                                                                                                        | Type          | Unit | Attributes                                                                         |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------- | ---- | ---------------------------------------------------------------------------------- |
@@ -218,7 +218,7 @@ The table below provides detailed information about the metrics scrapped by **${
 | hw.temperature       | Current temperature reading in Celsius degrees.                                                                                                                    | Gauge         | Cel  | `device_id`, `id`, `info`, `name`, `parent`, `sensor_location`                     |
 | hw.temperature.limit | Current temperature in degrees Celsius (°C) that will generate a warning or an alarm when reached. Attribute(s): limit_type = `high.critical` and `high.degraded`. | Gauge         | Cel  | `device_id`, `id`, `info`, `name`, `parent`, `sensor_location`, `limit_type`       |
 
-## Virtual Machine
+### Virtual Machine
 
 | Name              | Description                                                                                                                            | Type          | Unit | Attributes                                                                                |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ---- | ----------------------------------------------------------------------------------------- |
@@ -228,7 +228,7 @@ The table below provides detailed information about the metrics scrapped by **${
 | hw.vm.power_ratio | Ratio of host power consumed by the virtual machine.                                                                                   | Gauge         | 1    | `device_id`, `domain`, `id`, `info`, `name`, `parent`, `vm.host.name`                     |
 | hw.vm.power_state | Virtual machine power state: 1 (true) or 0 (false) for each of the possible states. Attribute(s): state = `off`, `on` and `suspended`. | UpDownCounter |      | `device_id`, `domain`, `id`, `info`, `name`, `parent`, `vm.host.name`, `state`            |
 
-## Voltage
+### Voltage
 
 | Name             | Description                                                                                                                          | Type          | Unit | Attributes                                                                         |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------- | ---- | ---------------------------------------------------------------------------------- |
