@@ -39,6 +39,8 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 	private final String inPrompt;
 	private final String currentSourceTag;
 
+	private boolean capture;
+
 	private static final String LOG_BEGIN_OPERATION_TEMPLATE = "Hostname {} - Executing Step [{}]:\n{}\n";
 	private static final String LOG_BEGIN_OPERATION_TEMPLATE_WITH_TIMEOUT = "Hostname {} - Executing Step [{} with timeout={}]:\n{}\n";
 	private static final String LOG_RESULT_TEMPLATE = "Hostname {} - {}: Got:\n{}";
@@ -55,13 +57,15 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 		final String stepName = buildStepName(step);
 		final int timeout = getTimeout(null);
 
+		capture = step.isCapture();
+
 		log.info(LOG_BEGIN_OPERATION_TEMPLATE_WITH_TIMEOUT, hostname, stepName, timeout, step.toString());
 
 		final Optional<String> maybe = readAll(stepName, timeout);
 
 		log.info(LOG_RESULT_TEMPLATE, hostname, stepName, maybe);
 
-		if (step.isCapture()) {
+		if (capture) {
 			result = maybe;
 		}
 	}
@@ -78,6 +82,8 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 
 		final int timeout = getTimeout(step.getTimeout());
 
+		capture = step.isCapture();
+
 		log.info(LOG_BEGIN_OPERATION_TEMPLATE_WITH_TIMEOUT, hostname, stepName, timeout, step.toString());
 
 		final Optional<String> maybe = getUntil(stepName, inPrompt, timeout);
@@ -90,7 +96,7 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 					inPrompt));
 		}
 
-		if (step.isCapture()) {
+		if (capture) {
 			// Remove the trailing prompt
 			result = maybe.map(getUntilResult -> getUntilResult.substring(0, getUntilResult.length() - inPrompt.length()));
 		}
@@ -170,6 +176,8 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 			return;
 		}
 
+		capture = step.isCapture();
+
 		final int timeout = getTimeout(step.getTimeout());
 
 		log.info(LOG_BEGIN_OPERATION_TEMPLATE_WITH_TIMEOUT, hostname, stepName, timeout, step.toString());
@@ -183,7 +191,7 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 
 		log.info(LOG_RESULT_TEMPLATE, hostname, stepName, maybe);
 
-		if (step.isCapture()) {
+		if (capture) {
 			result = maybe;
 		}
 	}

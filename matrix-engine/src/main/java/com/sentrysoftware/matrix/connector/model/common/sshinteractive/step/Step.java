@@ -22,7 +22,7 @@ public abstract class Step implements Serializable {
 
 	protected boolean capture;
 
-	/** If true this step is not processed. (Mainly when parameter TelnetOnly is setted) */
+	/** If true this step is not processed. (Mainly when parameter TelnetOnly is set) */
 	protected boolean ignored;
 
 	public abstract void accept(final IStepVisitor visitor) throws StepException;
