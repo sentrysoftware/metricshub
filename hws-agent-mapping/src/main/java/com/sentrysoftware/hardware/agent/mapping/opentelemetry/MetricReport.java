@@ -139,7 +139,11 @@ public class MetricReport {
 
 		StringBuilder monitorTables = new StringBuilder();
 
-		Stream.of(MonitorType.values()).sorted().forEach(monitorType -> {
+		Map<String, MonitorType> monitors = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+		Stream.of(MonitorType.values()).forEach(monitorType -> monitors.put(monitorType.toString(), monitorType));
+
+		for(MonitorType monitorType : monitors.values()) {
 
 			Map<String, List<MetricInfo>> metrics = MetricsMapping.getMatrixParamToMetricMap().get(monitorType);
 			Set<String> attributes = MetricsMapping.getMonitorTypeToAttributeMap().get(monitorType).keySet();
@@ -182,7 +186,7 @@ public class MetricReport {
 			monitorTables.append(createTableHeader(headerSizes));
 
 			monitorTables.append(createTableRows(headerSizes, metricNameToInfo));
-		});
+		}
 
 		return monitorTables.toString();
 	}
