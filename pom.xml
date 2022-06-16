@@ -31,9 +31,9 @@
 		<slf4j.version>1.7.30</slf4j.version>
 		<jupiter.version>5.6.2</jupiter.version>
 		<mockito.version>3.6.28</mockito.version>
-		<hardware-connectors.version>27-SNAPSHOT</hardware-connectors.version>
+		<hardware-connectors.version>28-SNAPSHOT</hardware-connectors.version>
 		<spring.version>5.3.16</spring.version>
-		<matsya.version>3.15.00-SNAPSHOT</matsya.version>
+		<matsya.version>3.15.00</matsya.version>
 		<springdoc-openapi.version>1.6.6</springdoc-openapi.version>
 		<picocli.version>4.6.2</picocli.version>
 		<spring-boot.version>2.6.4</spring-boot.version>
