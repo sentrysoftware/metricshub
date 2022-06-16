@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.Singular;
 
@@ -42,10 +43,13 @@ public class MetricInfo {
 
 	private String additionalId;
 
+	@AllArgsConstructor
+	@Getter
 	public enum MetricType {
-		GAUGE, COUNTER, UP_DOWN_COUNTER
+		GAUGE("Gauge"), COUNTER("Counter"), UP_DOWN_COUNTER("UpDownCounter");
+		private String displayName;
 	}
-
+	
 	/**
 	 * Whether the metric must report a boolean state 0 (false) or 1 (true)
 	 * 
