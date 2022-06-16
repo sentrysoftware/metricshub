@@ -76,21 +76,21 @@ class CaptureProcessorTest {
 		CONNECTOR.setDetection(detection);
 
 		CAPTURE_PROCESSOR.parse(CAPTURE_NAME, "0", CONNECTOR);
-		assertFalse(((SshInteractive) CONNECTOR.getDetection().getCriteria().get(0)).getSteps().get(1).isCapture());
+		assertFalse(((SshInteractive) CONNECTOR.getDetection().getCriteria().get(0)).getSteps().get(1).getCapture());
 
 		CAPTURE_PROCESSOR.parse(CAPTURE_NAME, "FALSE", CONNECTOR);
-		assertFalse(((SshInteractive) CONNECTOR.getDetection().getCriteria().get(0)).getSteps().get(1).isCapture());
+		assertFalse(((SshInteractive) CONNECTOR.getDetection().getCriteria().get(0)).getSteps().get(1).getCapture());
 
 		CAPTURE_PROCESSOR.parse(CAPTURE_NAME, "no", CONNECTOR);
-		assertFalse(((SshInteractive) CONNECTOR.getDetection().getCriteria().get(0)).getSteps().get(1).isCapture());
+		assertFalse(((SshInteractive) CONNECTOR.getDetection().getCriteria().get(0)).getSteps().get(1).getCapture());
 
 		CAPTURE_PROCESSOR.parse(CAPTURE_NAME, VALUE, CONNECTOR);
-		assertTrue(((SshInteractive) CONNECTOR.getDetection().getCriteria().get(0)).getSteps().get(1).isCapture());
+		assertTrue(((SshInteractive) CONNECTOR.getDetection().getCriteria().get(0)).getSteps().get(1).getCapture());
 
 		CAPTURE_PROCESSOR.parse(CAPTURE_NAME, "1", CONNECTOR);
-		assertTrue(((SshInteractive) CONNECTOR.getDetection().getCriteria().get(0)).getSteps().get(1).isCapture());
+		assertTrue(((SshInteractive) CONNECTOR.getDetection().getCriteria().get(0)).getSteps().get(1).getCapture());
 
 		CAPTURE_PROCESSOR.parse(CAPTURE_NAME, "YES", CONNECTOR);
-		assertTrue(((SshInteractive) CONNECTOR.getDetection().getCriteria().get(0)).getSteps().get(1).isCapture());
+		assertTrue(((SshInteractive) CONNECTOR.getDetection().getCriteria().get(0)).getSteps().get(1).getCapture());
 	}
 }

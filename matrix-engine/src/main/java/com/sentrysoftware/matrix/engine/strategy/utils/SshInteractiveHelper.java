@@ -74,18 +74,23 @@ public class SshInteractiveHelper {
 
 			String prompt = HardwareConstants.EMPTY;
 
+			Boolean capture = false;
 			for (final Step step : steps) {
 				if (step.isIgnored()) {
 					continue;
 				}
 
 				final ISshInteractiveStepVisitor visitor = new SshInteractiveStepVisitor(
-						sshClient,
-						hostname,
-						sshProtocol,
-						prompt,
-						currentSourceTag);
+					sshClient,
+					hostname,
+					sshProtocol,
+					prompt,
+					currentSourceTag,
+					capture);
+
 				step.accept(visitor);
+
+				capture = visitor.getCapture();
 
 				visitor.getResult().ifPresent(result -> {
 					final String[] array = result.split("\\R");

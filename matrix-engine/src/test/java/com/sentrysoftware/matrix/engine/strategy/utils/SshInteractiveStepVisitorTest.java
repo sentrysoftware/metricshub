@@ -42,7 +42,7 @@ class SshInteractiveStepVisitorTest {
 	void testVisitGetAvailable() throws Exception {
 
 		final SshInteractiveStepVisitor visitor =
-				spy(new SshInteractiveStepVisitor(null, null, mock(SshProtocol.class), null, CURRENT_SOURCE_TAG));
+				spy(new SshInteractiveStepVisitor(null, null, mock(SshProtocol.class), null, CURRENT_SOURCE_TAG, false));
 
 		assertThrows(IllegalArgumentException.class, () -> visitor.visit((GetAvailable) null));
 
@@ -69,7 +69,7 @@ class SshInteractiveStepVisitorTest {
 	@Test
 	void testVisitGetUntilPrompt() throws Exception {
 
-		final SshInteractiveStepVisitor spy = spy(new SshInteractiveStepVisitor(null, null, null, null, CURRENT_SOURCE_TAG));
+		final SshInteractiveStepVisitor spy = spy(new SshInteractiveStepVisitor(null, null, null, null, CURRENT_SOURCE_TAG, false));
 		assertThrows(IllegalArgumentException.class, () -> spy.visit((GetUntilPrompt) null));
 
 		// check with inPrompt null
@@ -78,7 +78,7 @@ class SshInteractiveStepVisitorTest {
 			step.setCapture(true);
 
 			final SshInteractiveStepVisitor visitor =
-					spy(new SshInteractiveStepVisitor(null, null, null, null, CURRENT_SOURCE_TAG));
+					spy(new SshInteractiveStepVisitor(null, null, null, null, CURRENT_SOURCE_TAG, false ));
 
 			visitor.visit(step);
 			verify(visitor, never()).getUntil(anyString(), anyString(), anyInt());
@@ -91,7 +91,7 @@ class SshInteractiveStepVisitorTest {
 			step.setCapture(true);
 
 			final SshInteractiveStepVisitor visitor =
-					spy(new SshInteractiveStepVisitor(null, null, null, "", CURRENT_SOURCE_TAG));
+					spy(new SshInteractiveStepVisitor(null, null, null, "", CURRENT_SOURCE_TAG, false));
 			
 			visitor.visit(step);
 			verify(visitor, never()).getUntil(anyString(), anyString(), anyInt());
@@ -105,7 +105,7 @@ class SshInteractiveStepVisitorTest {
 			step.setCapture(true);
 
 			final SshInteractiveStepVisitor visitor =
-					spy(new SshInteractiveStepVisitor(null, null, null, "prompt>", CURRENT_SOURCE_TAG));
+					spy(new SshInteractiveStepVisitor(null, null, null, "prompt>", CURRENT_SOURCE_TAG, false));
 
 			doReturn(
 					Optional.of("\r"),
@@ -126,7 +126,7 @@ class SshInteractiveStepVisitorTest {
 			step.setCapture(false);
 
 			final SshInteractiveStepVisitor visitor =
-					spy(new SshInteractiveStepVisitor(null, null, null, "prompt>", CURRENT_SOURCE_TAG));
+					spy(new SshInteractiveStepVisitor(null, null, null, "prompt>", CURRENT_SOURCE_TAG, false));
 
 			doReturn(
 					Optional.of("\r"),
@@ -147,7 +147,7 @@ class SshInteractiveStepVisitorTest {
 			step.setCapture(true);
 
 			final SshInteractiveStepVisitor visitor =
-					spy(new SshInteractiveStepVisitor(null, null, null, "prompt>", CURRENT_SOURCE_TAG));
+					spy(new SshInteractiveStepVisitor(null, null, null, "prompt>", CURRENT_SOURCE_TAG, false));
 
 			doReturn(
 					Optional.of("\r"),
@@ -168,7 +168,7 @@ class SshInteractiveStepVisitorTest {
 		final SshProtocol sshProtocol = mock(SshProtocol.class);
 
 		final SshInteractiveStepVisitor visitor =
-				spy(new SshInteractiveStepVisitor(mock(SSHClient.class), null, sshProtocol, null, CURRENT_SOURCE_TAG));
+				spy(new SshInteractiveStepVisitor(mock(SSHClient.class), null, sshProtocol, null, CURRENT_SOURCE_TAG, false));
 
 		assertThrows(IllegalArgumentException.class, () -> visitor.visit((SendPassword) null));
 
@@ -188,7 +188,7 @@ class SshInteractiveStepVisitorTest {
 	void testVisitSendText() throws Exception {
 
 		final SshInteractiveStepVisitor visitor =
-				spy(new SshInteractiveStepVisitor(mock(SSHClient.class), null, null, null, CURRENT_SOURCE_TAG));
+				spy(new SshInteractiveStepVisitor(mock(SSHClient.class), null, null, null, CURRENT_SOURCE_TAG, false));
 
 		assertThrows(IllegalArgumentException.class, () -> visitor.visit((SendText) null));
 
@@ -223,7 +223,7 @@ class SshInteractiveStepVisitorTest {
 		final SshProtocol sshProtocol = mock(SshProtocol.class);
 
 		final SshInteractiveStepVisitor visitor =
-				spy(new SshInteractiveStepVisitor(mock(SSHClient.class), null, sshProtocol, null, CURRENT_SOURCE_TAG));
+				spy(new SshInteractiveStepVisitor(mock(SSHClient.class), null, sshProtocol, null, CURRENT_SOURCE_TAG, false));
 
 		assertThrows(IllegalArgumentException.class, () -> visitor.visit((SendUsername) null));
 
@@ -236,7 +236,7 @@ class SshInteractiveStepVisitorTest {
 	void testVisitSleep() throws Exception {
 
 		final SshInteractiveStepVisitor visitor =
-				spy(new SshInteractiveStepVisitor(null, null, null, null, CURRENT_SOURCE_TAG));
+				spy(new SshInteractiveStepVisitor(null, null, null, null, CURRENT_SOURCE_TAG, false));
 
 		assertThrows(IllegalArgumentException.class, () -> visitor.visit((Sleep) null));
 
@@ -271,7 +271,7 @@ class SshInteractiveStepVisitorTest {
 	@Test
 	void testVisitWaitFor() throws Exception {
 
-		final SshInteractiveStepVisitor spy = spy(new SshInteractiveStepVisitor(null, null, null, null, CURRENT_SOURCE_TAG));
+		final SshInteractiveStepVisitor spy = spy(new SshInteractiveStepVisitor(null, null, null, null, CURRENT_SOURCE_TAG, false));
 		assertThrows(
 				IllegalArgumentException.class,
 				() -> spy.visit((WaitFor) null));
@@ -282,7 +282,7 @@ class SshInteractiveStepVisitorTest {
 			step.setCapture(true);
 
 			final SshInteractiveStepVisitor visitor =
-					spy(new SshInteractiveStepVisitor(null, null, null, null, CURRENT_SOURCE_TAG));
+					spy(new SshInteractiveStepVisitor(null, null, null, null, CURRENT_SOURCE_TAG, false));
 
 			visitor.visit(step);
 			verify(visitor, never()).getUntil(anyString(), anyString(), anyInt());
@@ -296,7 +296,7 @@ class SshInteractiveStepVisitorTest {
 			step.setCapture(true);
 
 			final SshInteractiveStepVisitor visitor =
-					spy(new SshInteractiveStepVisitor(null, null,null, null, CURRENT_SOURCE_TAG));
+					spy(new SshInteractiveStepVisitor(null, null,null, null, CURRENT_SOURCE_TAG, false));
 			
 			visitor.visit(step);
 			verify(visitor, never()).getUntil(anyString(), anyString(), anyInt());
@@ -311,7 +311,7 @@ class SshInteractiveStepVisitorTest {
 			step.setCapture(true);
 
 			final SshInteractiveStepVisitor visitor =
-					spy(new SshInteractiveStepVisitor(null, null, null, null, CURRENT_SOURCE_TAG));
+					spy(new SshInteractiveStepVisitor(null, null, null, null, CURRENT_SOURCE_TAG, false));
 
 			doReturn(
 					Optional.of("\r"),
@@ -333,7 +333,7 @@ class SshInteractiveStepVisitorTest {
 			step.setCapture(false);
 
 			final SshInteractiveStepVisitor visitor =
-					spy(new SshInteractiveStepVisitor(null, null, null, null, CURRENT_SOURCE_TAG));
+					spy(new SshInteractiveStepVisitor(null, null, null, null, CURRENT_SOURCE_TAG, false));
 
 			doReturn(
 					Optional.of("\r"),
@@ -354,7 +354,7 @@ class SshInteractiveStepVisitorTest {
 			step.setCapture(true);
 
 			final SshInteractiveStepVisitor visitor =
-					spy(new SshInteractiveStepVisitor(null, null, null, null, CURRENT_SOURCE_TAG));
+					spy(new SshInteractiveStepVisitor(null, null, null, null, CURRENT_SOURCE_TAG, false));
 
 			doReturn(
 					Optional.of("\r"),
@@ -371,7 +371,7 @@ class SshInteractiveStepVisitorTest {
 	@Test
 	void testVisitWaitForPrompt() throws Exception {
 
-		final SshInteractiveStepVisitor spy = spy(new SshInteractiveStepVisitor(null, null, null, null, CURRENT_SOURCE_TAG));
+		final SshInteractiveStepVisitor spy = spy(new SshInteractiveStepVisitor(null, null, null, null, CURRENT_SOURCE_TAG, false));
 		assertThrows(
 				IllegalArgumentException.class,
 				() -> spy.visit((WaitForPrompt) null));
@@ -382,7 +382,7 @@ class SshInteractiveStepVisitorTest {
 			step.setTimeout(30L);
 
 			final SshInteractiveStepVisitor visitor =
-					spy(new SshInteractiveStepVisitor(null, null, null, null, CURRENT_SOURCE_TAG));
+					spy(new SshInteractiveStepVisitor(null, null, null, null, CURRENT_SOURCE_TAG, false));
 
 			doNothing().when(visitor).write(anyString(), eq(HardwareConstants.NEW_LINE));
 			doReturn(Optional.of("Host plaform v0.0\nprompt>\n"), Optional.empty(), Optional.of("prompt>\n"))
@@ -399,29 +399,29 @@ class SshInteractiveStepVisitorTest {
 
 		assertEquals(
 				CURRENT_SOURCE_TAG + ".step(1) GetAvailable", 
-				spy(new SshInteractiveStepVisitor(null, "host", null, null, CURRENT_SOURCE_TAG)).buildStepName(step));
+				spy(new SshInteractiveStepVisitor(null, "host", null, null, CURRENT_SOURCE_TAG, false)).buildStepName(step));
 	}
 
 	@Test
 	void testGetTimeout() {
 
 		// check timeout from step
-		assertEquals(1, spy(new SshInteractiveStepVisitor(null, null, null, null, CURRENT_SOURCE_TAG)).getTimeout(1L));
+		assertEquals(1, spy(new SshInteractiveStepVisitor(null, null, null, null, CURRENT_SOURCE_TAG, false)).getTimeout(1L));
 
 		// check timeout default
 		{
 			final SshProtocol sshProtocol = mock(SshProtocol.class);
 			doReturn(null).when(sshProtocol).getTimeout();
-			assertEquals(15, spy(new SshInteractiveStepVisitor(null, null, sshProtocol, null, CURRENT_SOURCE_TAG)).getTimeout(null));
-			assertEquals(15, spy(new SshInteractiveStepVisitor(null, null, sshProtocol, null, CURRENT_SOURCE_TAG)).getTimeout(0L));
+			assertEquals(15, spy(new SshInteractiveStepVisitor(null, null, sshProtocol, null, CURRENT_SOURCE_TAG, false)).getTimeout(null));
+			assertEquals(15, spy(new SshInteractiveStepVisitor(null, null, sshProtocol, null, CURRENT_SOURCE_TAG, false)).getTimeout(0L));
 		}
 
 		// check timeout from SSH protocol
 		{
 			final SshProtocol sshProtocol = mock(SshProtocol.class);
 			doReturn(30L).when(sshProtocol).getTimeout();
-			assertEquals(30, spy(new SshInteractiveStepVisitor(null, null, sshProtocol, null, CURRENT_SOURCE_TAG)).getTimeout(null));
-			assertEquals(30, spy(new SshInteractiveStepVisitor(null, null, sshProtocol, null, CURRENT_SOURCE_TAG)).getTimeout(0L));
+			assertEquals(30, spy(new SshInteractiveStepVisitor(null, null, sshProtocol, null, CURRENT_SOURCE_TAG, false)).getTimeout(null));
+			assertEquals(30, spy(new SshInteractiveStepVisitor(null, null, sshProtocol, null, CURRENT_SOURCE_TAG, false)).getTimeout(0L));
 		}
 	}
 
@@ -430,7 +430,7 @@ class SshInteractiveStepVisitorTest {
 		final SSHClient sshClient = mock(SSHClient.class);
 
 		final SshInteractiveStepVisitor visitor =
-				spy(new SshInteractiveStepVisitor(sshClient, null, null, null, CURRENT_SOURCE_TAG));
+				spy(new SshInteractiveStepVisitor(sshClient, null, null, null, CURRENT_SOURCE_TAG, false));
 
 		doThrow(IOException.class).when(sshClient).read(-1, 30);
 		assertThrows(StepException.class, () -> visitor.read("Step(1) GetAvailable: hostname: host", -1, 30));
@@ -444,7 +444,7 @@ class SshInteractiveStepVisitorTest {
 		final SSHClient sshClient = mock(SSHClient.class);
 
 		final SshInteractiveStepVisitor visitor =
-				spy(new SshInteractiveStepVisitor(sshClient, null, null, null, CURRENT_SOURCE_TAG));
+				spy(new SshInteractiveStepVisitor(sshClient, null, null, null, CURRENT_SOURCE_TAG, false));
 
 		final String message = "Step(1) SendText: hostname: host - Couldn't send the following text through SSH:\n";
 

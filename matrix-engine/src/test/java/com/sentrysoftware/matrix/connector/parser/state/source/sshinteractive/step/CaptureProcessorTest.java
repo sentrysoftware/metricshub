@@ -83,39 +83,39 @@ class CaptureProcessorTest {
 		CONNECTOR.setHardwareMonitors(List.of(bladeMonitor, networkCardMonitor));
 
 		CAPTURE_PROCESSOR.parse(DISCOVERY_CAPTURE_NAME, "0", CONNECTOR);
-		assertFalse(((SshInteractiveSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getSteps().get(1).isCapture());
+		assertFalse(((SshInteractiveSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getSteps().get(1).getCapture());
 
 		CAPTURE_PROCESSOR.parse(DISCOVERY_CAPTURE_NAME, "FALSE", CONNECTOR);
-		assertFalse(((SshInteractiveSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getSteps().get(1).isCapture());
+		assertFalse(((SshInteractiveSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getSteps().get(1).getCapture());
 
 		CAPTURE_PROCESSOR.parse(DISCOVERY_CAPTURE_NAME, "no", CONNECTOR);
-		assertFalse(((SshInteractiveSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getSteps().get(1).isCapture());
+		assertFalse(((SshInteractiveSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getSteps().get(1).getCapture());
 
 		CAPTURE_PROCESSOR.parse(COLLECT_CAPTURE_NAME, "0", CONNECTOR);
-		assertFalse(((SshInteractiveSource) CONNECTOR.getHardwareMonitors().get(1).getCollect().getSources().get(0)).getSteps().get(1).isCapture());
+		assertFalse(((SshInteractiveSource) CONNECTOR.getHardwareMonitors().get(1).getCollect().getSources().get(0)).getSteps().get(1).getCapture());
 
 		CAPTURE_PROCESSOR.parse(COLLECT_CAPTURE_NAME, "FALSE", CONNECTOR);
-		assertFalse(((SshInteractiveSource) CONNECTOR.getHardwareMonitors().get(1).getCollect().getSources().get(0)).getSteps().get(1).isCapture());
+		assertFalse(((SshInteractiveSource) CONNECTOR.getHardwareMonitors().get(1).getCollect().getSources().get(0)).getSteps().get(1).getCapture());
 
 		CAPTURE_PROCESSOR.parse(COLLECT_CAPTURE_NAME, "no", CONNECTOR);
-		assertFalse(((SshInteractiveSource) CONNECTOR.getHardwareMonitors().get(1).getCollect().getSources().get(0)).getSteps().get(1).isCapture());
+		assertFalse(((SshInteractiveSource) CONNECTOR.getHardwareMonitors().get(1).getCollect().getSources().get(0)).getSteps().get(1).getCapture());
 
 		CAPTURE_PROCESSOR.parse(DISCOVERY_CAPTURE_NAME, VALUE, CONNECTOR);
-		assertTrue(((SshInteractiveSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getSteps().get(1).isCapture());
+		assertTrue(((SshInteractiveSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getSteps().get(1).getCapture());
 
 		CAPTURE_PROCESSOR.parse(DISCOVERY_CAPTURE_NAME, "1", CONNECTOR);
-		assertTrue(((SshInteractiveSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getSteps().get(1).isCapture());
+		assertTrue(((SshInteractiveSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getSteps().get(1).getCapture());
 
 		CAPTURE_PROCESSOR.parse(DISCOVERY_CAPTURE_NAME, "YES", CONNECTOR);
-		assertTrue(((SshInteractiveSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getSteps().get(1).isCapture());
+		assertTrue(((SshInteractiveSource) CONNECTOR.getHardwareMonitors().get(0).getDiscovery().getSources().get(0)).getSteps().get(1).getCapture());
 
 		CAPTURE_PROCESSOR.parse(COLLECT_CAPTURE_NAME, "1", CONNECTOR);
-		assertTrue(((SshInteractiveSource) CONNECTOR.getHardwareMonitors().get(1).getCollect().getSources().get(0)).getSteps().get(1).isCapture());
+		assertTrue(((SshInteractiveSource) CONNECTOR.getHardwareMonitors().get(1).getCollect().getSources().get(0)).getSteps().get(1).getCapture());
 
 		CAPTURE_PROCESSOR.parse(COLLECT_CAPTURE_NAME, "YES", CONNECTOR);
-		assertTrue(((SshInteractiveSource) CONNECTOR.getHardwareMonitors().get(1).getCollect().getSources().get(0)).getSteps().get(1).isCapture());
+		assertTrue(((SshInteractiveSource) CONNECTOR.getHardwareMonitors().get(1).getCollect().getSources().get(0)).getSteps().get(1).getCapture());
 
 		CAPTURE_PROCESSOR.parse(COLLECT_CAPTURE_NAME, "true", CONNECTOR);
-		assertTrue(((SshInteractiveSource) CONNECTOR.getHardwareMonitors().get(1).getCollect().getSources().get(0)).getSteps().get(1).isCapture());
+		assertTrue(((SshInteractiveSource) CONNECTOR.getHardwareMonitors().get(1).getCollect().getSources().get(0)).getSteps().get(1).getCapture());
 	}
 }
