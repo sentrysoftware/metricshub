@@ -59,7 +59,6 @@ public class MetricReport {
 
 	private static final String KEYWORDS = "keywords: hardware, metrics, output";
 
-	private static final String SECTION_HEADING_1 = "# ";
 	private static final String SECTION_HEADING_2 = "## ";
 	private static final String SECTION_HEADING_3 = "### ";
 
@@ -81,7 +80,7 @@ public class MetricReport {
 	public static void main(String[] args) {
 
 		MetricReport report = new MetricReport(
-				(args != null && args.length > 0) ? args[0] : "./hws-otel-collector/src/site/markdown/");
+				(args != null && args.length > 0) ? args[0] : "../hws-otel-collector/src/site/markdown/");
 		try {
 			report.createMetricReference();
 		} catch (Exception e) {
@@ -141,7 +140,7 @@ public class MetricReport {
 
 		Map<String, MonitorType> monitors = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		Stream.of(MonitorType.values()).forEach(monitorType -> monitors.put(monitorType.toString(), monitorType));
+		Stream.of(MonitorType.values()).forEach(monitorType -> monitors.put(monitorType.getDisplayName(), monitorType));
 
 		for(MonitorType monitorType : monitors.values()) {
 
@@ -158,7 +157,7 @@ public class MetricReport {
 			monitorTables.append(NEWLINE);
 			monitorTables.append(NEWLINE);
 
-			TreeMap<String, MetricData> metricNameToInfo = new TreeMap<>();
+			Map<String, MetricData> metricNameToInfo = new TreeMap<>();
 			metrics.entrySet().forEach(entry -> {
 				final List<MetricInfo> metricList = entry.getValue();
 				for (MetricInfo metric : metricList) {
@@ -358,7 +357,7 @@ public class MetricReport {
 	}
 
 	/**
-	 * creates a pad, with your choice of what the padding characted is
+	 * creates a pad, with your choice of what the padding character is
 	 * 
 	 * @param stuffing the char to stuff with
 	 * @param padding  the amount of padding you need
@@ -377,7 +376,7 @@ public class MetricReport {
 	 * creates a table row for one metric
 	 * 
 	 * @param metric      the metric to print
-	 * @param attributes  relevent attributes
+	 * @param attributes  relevant attributes
 	 * @param headerSizes to format the document
 	 * @return formatted table row
 	 */

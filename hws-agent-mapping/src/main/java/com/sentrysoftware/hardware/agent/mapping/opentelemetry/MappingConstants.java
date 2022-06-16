@@ -113,7 +113,7 @@ public class MappingConstants {
 	public static final String BYTES_UNIT = "By";
 	public static final String MOVES_UNIT = "{moves}";
 	public static final String OPERATIONS_UNIT = "{operations}";
-	public static final String RPM_UNIT = "{rpm}";
+	public static final String RPM_UNIT = "rpm";
 	public static final String PATHS_UNIT = "{paths}";
 	public static final String HERTZ_UNIT = "Hz";
 	public static final String RATIO_UNIT = "1";
