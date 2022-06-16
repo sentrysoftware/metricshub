@@ -1,3 +1,4 @@
+groups:
 - name: Battery-Charge
   rules:
   - alert: Battery-Charge-critical
