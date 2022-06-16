@@ -38,7 +38,7 @@ If you notice that no hardware metrics are displayed for hosts:
 1. Connect to your Prometheus server and search for the missing metric. If the metric corresponding to the monitored host is:
    * found, **${project.name}** collects data and pushes it to Prometheus. The issue is on the Grafana level. Please proceed to step 2.
    * not found:
-     * in the `config/otel-config.yaml` file, add `Prometheus` under the `pipelines:metrics:exporters` section to enable the `Prometheus Exporter`:
+     * in the `config/otel-config.yaml` file, add `prometheus` under the `pipelines:metrics:exporters` section to enable the `Prometheus Exporter`:
       ```yaml
       pipelines:
         metrics:
