@@ -152,6 +152,7 @@ require (
 	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/experimentalmetricmetadata v${otelVersion} // indirect
 	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/resourcetotelemetry v${otelVersion} // indirect
 	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/translator/opencensus v${otelVersion} // indirect
+	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/translator/prometheus v${otelVersion} // indirect
 	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/translator/prometheusremotewrite v${otelVersion} // indirect
 	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/translator/signalfx v${otelVersion} // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
@@ -241,7 +242,10 @@ require (
 )
 
 replace (
-	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/prometheusexporter v${otelVersion} => github.com/sentrysoftware/opentelemetry-collector-contrib/exporter/prometheusexporter v0.38.1-0.20220608180610-3839a1188730
+	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/prometheusexporter v${otelVersion} => github.com/sentrysoftware/opentelemetry-collector-contrib/exporter/prometheusexporter v0.38.1-0.20220613153357-52e44248e432
+	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/prometheusremotewriteexporter v${otelVersion} => github.com/sentrysoftware/opentelemetry-collector-contrib/exporter/prometheusremotewriteexporter v0.38.1-0.20220613153357-52e44248e432
 	github.com/open-telemetry/opentelemetry-collector-contrib/extension/hwsagentextension v${otelVersion} => ../hwsagentextension
+	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/translator/prometheus v${otelVersion} => github.com/sentrysoftware/opentelemetry-collector-contrib/pkg/translator/prometheus v0.0.0-20220613153357-52e44248e432
+	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/translator/prometheusremotewrite v${otelVersion} => github.com/sentrysoftware/opentelemetry-collector-contrib/pkg/translator/prometheusremotewrite v0.0.0-20220613153357-52e44248e432
 
 )

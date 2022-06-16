@@ -64,7 +64,7 @@ func getSetFlag() []string {
 
 func getGatesList() featuregate.FlagValue {
 	// This will update the flag if it doesn't exist
-	// Let's enable the prometheus exporter AutomaticRename feature
-	gatesList.Set("exporter.prometheus.AutomaticRename")
+	// Let's enable the prometheus exporters NormalizeName feature
+	gatesList.Set("pkg.translator.prometheus.NormalizeName")
 	return gatesList
 }
