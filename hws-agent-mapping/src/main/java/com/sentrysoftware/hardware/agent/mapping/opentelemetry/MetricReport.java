@@ -244,7 +244,7 @@ public class MetricReport {
 	}
 
 	/**
-	 * creates the identifying attribute string for a metric
+	 * creates the identifying attribute set for a metric
 	 * 
 	 * @param metric
 	 * @return attribute set
