@@ -19,7 +19,6 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.sentrysoftware.hardware.agent.mapping.opentelemetry.dto.AbstractIdentifyingAttribute;
 import com.sentrysoftware.hardware.agent.mapping.opentelemetry.dto.MetricInfo;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 
@@ -162,9 +161,11 @@ public class MetricReport {
 				final List<MetricInfo> metricList = entry.getValue();
 				for (MetricInfo metric : metricList) {
 					if (metric != null) {
+						final Set<String> finalAttributes = new TreeSet<>();
+						finalAttributes.addAll(formattedAttributes);
+						finalAttributes.addAll(getIdentifyingAttributes(metric));
 						metricNameToInfo.put(metric.getName(),
-								new MetricData(metric, formattedAttributes.stream().collect(Collectors.joining(SEPARATOR))
-										+ getIdentifyingAttributes(metric)));
+								new MetricData(metric, finalAttributes.stream().collect(Collectors.joining(SEPARATOR))));
 					}
 				}
 			});
@@ -173,9 +174,11 @@ public class MetricReport {
 				final List<MetricInfo> metricList = entry.getValue();
 				for (MetricInfo metric : metricList) {
 					if (metric != null) {
+						final Set<String> finalAttributes = new TreeSet<>();
+						finalAttributes.addAll(formattedAttributes);
+						finalAttributes.addAll(getIdentifyingAttributes(metric));
 						metricNameToInfo.put(metric.getName(),
-								new MetricData(metric, formattedAttributes.stream().collect(Collectors.joining(SEPARATOR))
-										+ getIdentifyingAttributes(metric)));
+								new MetricData(metric, finalAttributes.stream().collect(Collectors.joining(SEPARATOR))));
 					}
 				}
 			});
@@ -244,18 +247,17 @@ public class MetricReport {
 	 * creates the identifying attribute string for a metric
 	 * 
 	 * @param metric
-	 * @return markdown formatted attributes string
+	 * @return attribute set
 	 */
-	private static String getIdentifyingAttributes(MetricInfo metric) {
-
-		StringBuilder attributes = new StringBuilder();
+	private static Set<String> getIdentifyingAttributes(MetricInfo metric) {
 		if (metric.getIdentifyingAttributes() != null) {
-			List<AbstractIdentifyingAttribute> identifyingAttr = metric.getIdentifyingAttributes();
-			for (AbstractIdentifyingAttribute a : identifyingAttr) {
-				attributes.append(SEPARATOR + BACKTICK + a.getKey() + BACKTICK);
-			}
+			return metric
+					.getIdentifyingAttributes()
+					.stream()
+					.map(attr -> String.format("`%s`", attr.getKey()))
+					.collect(Collectors.toCollection(TreeSet::new));
 		}
-		return attributes.toString();
+		return Collections.emptySet();
 	}
 
 	/**
