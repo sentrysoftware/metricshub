@@ -139,11 +139,11 @@ public class HardwareSentryCli implements Callable<Integer> {
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline WBEM Options|@:%n")
 	private WbemConfigCli wbemConfigCli;
 
-	@ArgGroup(exclusive = false, heading = "%n@|bold,underline WMI Options|@:%n")
-	private WmiConfigCli wmiConfigCli;
-
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline WinRM Options|@:%n")
 	private WinRmConfigCli winRmConfigCli;
+
+	@ArgGroup(exclusive = false, heading = "%n@|bold,underline WMI Options|@:%n")
+	private WmiConfigCli wmiConfigCli;
 
 	@Option(
 			names = { "-u", "--username" },
