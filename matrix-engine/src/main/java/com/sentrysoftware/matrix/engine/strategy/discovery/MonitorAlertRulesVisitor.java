@@ -289,11 +289,8 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 	@Override
 	public void visit(Gpu gpu) {
 
-		// Process the GPU Instance Alert Rules
-		final Set<String> parametersToSkip = processGpuInstanceAlertRules(monitor);
-
 		// Process the static alert rules
-		processStaticAlertRules(monitor, gpu, parametersToSkip);
+		processStaticAlertRules(monitor, gpu);
 	}
 
 	/**
@@ -660,17 +657,6 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 				OtherDevice::checkUsageCountAlarmCondition));
 
 		return parametersWithAlertRules;
-	}
-
-	/**
-	 * Process the GPU instance alert rules set by the connector
-	 *
-	 * @param monitor The GPU monitor from which we extract the warning and alarm threshold
-	 * @return list of parameters with alert rules otherwise empty list
-	 */
-	Set<String> processGpuInstanceAlertRules(Monitor monitor) {
-
-		return Collections.emptySet();
 	}
 
 	/**

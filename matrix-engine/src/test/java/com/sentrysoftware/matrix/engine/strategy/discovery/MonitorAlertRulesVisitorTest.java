@@ -754,11 +754,4 @@ class MonitorAlertRulesVisitorTest {
 		final Monitor monitor = Monitor.builder().metadata(new HashMap<>()).build();
 		assertDoesNotThrow(() -> new MonitorAlertRulesVisitor(monitor).visit(new Gpu()));
 	}
-
-	@Test
-	void testProcessGpuInstanceAlertRules() {
-		final Monitor monitor = Monitor.builder().metadata(new HashMap<>()).build();
-		assertEquals(Collections.emptySet(), new MonitorAlertRulesVisitor(monitor)
-				.processGpuInstanceAlertRules(monitor));
-	}
 }
