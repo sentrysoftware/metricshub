@@ -167,3 +167,20 @@ hosts:
 #      useSudo: true
 #      useSudoCommands: [ ]
 #      sudoCommand: sudo
+
+#═══════════════════════════════════════════════════
+# WinRM configuration                              
+#═══════════════════════════════════════════════════
+
+#  - host:
+#      hostname: server-11
+#      type: win
+#    winRM:
+#      timeout: 120
+#      username: myusername
+#      password: mypwd
+#      namespace: mynamespace
+#      port: 5985
+#      protocol: http
+#      authentications: [NTLM,KERBEROS]
+

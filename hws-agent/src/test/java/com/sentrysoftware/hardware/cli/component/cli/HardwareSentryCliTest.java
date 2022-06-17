@@ -1,17 +1,12 @@
 package com.sentrysoftware.hardware.cli.component.cli;
 
-import com.sentrysoftware.hardware.cli.component.cli.protocols.HttpConfigCli;
-import com.sentrysoftware.hardware.cli.component.cli.protocols.SnmpConfigCli;
-import com.sentrysoftware.hardware.cli.component.cli.protocols.WbemConfigCli;
-import com.sentrysoftware.hardware.cli.component.cli.protocols.WmiConfigCli;
-import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
-
-import com.sentrysoftware.matrix.engine.host.HostType;
-
-import org.junit.jupiter.api.Test;
-import picocli.CommandLine;
-import picocli.CommandLine.MissingParameterException;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -20,7 +15,19 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+
+import com.sentrysoftware.hardware.cli.component.cli.protocols.HttpConfigCli;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.SnmpConfigCli;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.WbemConfigCli;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.WmiConfigCli;
+import com.sentrysoftware.matrix.engine.host.HostType;
+import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
+import com.sentrysoftware.matrix.engine.protocol.TransportProtocols;
+import com.sentrysoftware.matsya.winrm.service.client.auth.AuthenticationEnum;
+
+import picocli.CommandLine;
+import picocli.CommandLine.MissingParameterException;
 
 class HardwareSentryCliTest {
 
@@ -143,7 +150,7 @@ class HardwareSentryCliTest {
 
 		assertEquals("hostaa", sentryCli.getHostname());
 		assertEquals(HostType.HP_UX, sentryCli.getDeviceType());
-		assertEquals(WbemProtocol.WbemProtocols.HTTP, sentryCli.getWbemConfigCli().getProtocol());
+		assertEquals(TransportProtocols.HTTP, sentryCli.getWbemConfigCli().getProtocol());
 		assertEquals(5989, sentryCli.getWbemConfigCli().getPort());
 		assertEquals("root/emc", sentryCli.getWbemConfigCli().getNamespace());
 		assertEquals(120, sentryCli.getWbemConfigCli().getTimeout());
@@ -165,7 +172,7 @@ class HardwareSentryCliTest {
 
 		assertEquals("dev-hv-01", sentryCli.getHostname());
 		assertEquals(HostType.MS_WINDOWS, sentryCli.getDeviceType());
-		assertEquals(WbemProtocol.WbemProtocols.HTTPS, sentryCli.getWbemConfigCli().getProtocol());
+		assertEquals(TransportProtocols.HTTPS, sentryCli.getWbemConfigCli().getProtocol());
 		assertEquals(5989, sentryCli.getWbemConfigCli().getPort());
 		assertEquals("root/emc", sentryCli.getWbemConfigCli().getNamespace());
 		assertEquals(WbemConfigCli.DEFAULT_TIMEOUT, sentryCli.getWbemConfigCli().getTimeout());
@@ -257,6 +264,50 @@ class HardwareSentryCliTest {
 			assertEquals("localhost", sentryCli.getHostname());
 			assertEquals(HostType.MS_WINDOWS, sentryCli.getDeviceType());
 			assertNotNull(sentryCli.getWmiConfigCli());
+		}
+
+	}
+
+	@Test
+	void winRmArgumentsTest() {
+		{
+			String[] args_hdfs = { "hostaa",
+					"-t", "win",
+					"--winrm-force-namespace", "root\\cimv2",
+					"--winrm-username", "admin",
+					"--winrm-password", "password",
+					"--winrm-timeout", "160",
+					"--winrm-port", "1234",
+					"--winrm-transport", "HTTPS",
+					"--winrm-auth", "kerberos"};
+			HardwareSentryCli sentryCli = new HardwareSentryCli();
+			CommandLine commandLine = new CommandLine(sentryCli);
+			commandLine.setCaseInsensitiveEnumValuesAllowed(true);
+			commandLine.parseArgs(args_hdfs);
+
+			assertEquals("hostaa", sentryCli.getHostname());
+			assertEquals(HostType.MS_WINDOWS, sentryCli.getDeviceType());
+			assertEquals("root\\cimv2", sentryCli.getWinRmConfigCli().getNamespace());
+			assertEquals("admin", sentryCli.getWinRmConfigCli().getUsername());
+			assertArrayEquals("password".toCharArray(), sentryCli.getWinRmConfigCli().getPassword());
+			assertEquals(160, sentryCli.getWinRmConfigCli().getTimeout());
+			assertEquals(1234, sentryCli.getWinRmConfigCli().getPort());
+			assertEquals(TransportProtocols.HTTPS, sentryCli.getWinRmConfigCli().getProtocol());
+			assertEquals(1, sentryCli.getWinRmConfigCli().getAuthentications().size());
+			assertEquals(AuthenticationEnum.KERBEROS, sentryCli.getWinRmConfigCli().getAuthentications().get(0));
+		}
+
+		{
+			String[] args_hdfs = { "hostaa",
+					"-t", "win",
+					"--winrm-auth", "ntlm"};
+			HardwareSentryCli sentryCli = new HardwareSentryCli();
+			CommandLine commandLine = new CommandLine(sentryCli);
+			commandLine.setCaseInsensitiveEnumValuesAllowed(true);
+			commandLine.parseArgs(args_hdfs);
+
+			assertEquals(1, sentryCli.getWinRmConfigCli().getAuthentications().size());
+			assertEquals(AuthenticationEnum.NTLM, sentryCli.getWinRmConfigCli().getAuthentications().get(0));
 		}
 
 	}

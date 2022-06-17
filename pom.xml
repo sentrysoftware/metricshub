@@ -37,7 +37,6 @@
 		<springdoc-openapi.version>1.6.6</springdoc-openapi.version>
 		<picocli.version>4.6.2</picocli.version>
 		<spring-boot.version>2.6.4</spring-boot.version>
-		<prometheus-client.version>0.10.0</prometheus-client.version>
 		<jackson.version>2.13.1</jackson.version>
 		<jaxb.version>2.4.0-b180830.0359</jaxb.version>
 		<snmp4j.version>3.5.1</snmp4j.version>
@@ -188,6 +187,11 @@
 			</dependency>
 			<dependency>
 				<groupId>com.sentrysoftware.patrol.matsya</groupId>
+				<artifactId>module-winrm</artifactId>
+				<version>${matsya.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sentrysoftware.patrol.matsya</groupId>
 				<artifactId>module-wmiclient</artifactId>
 				<version>${matsya.version}</version>
 			</dependency>
@@ -220,16 +224,6 @@
 				<groupId>info.picocli</groupId>
 				<artifactId>picocli</artifactId>
 				<version>${picocli.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.prometheus</groupId>
-				<artifactId>simpleclient</artifactId>
-				<version>${prometheus-client.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.prometheus</groupId>
-				<artifactId>simpleclient_common</artifactId>
-				<version>${prometheus-client.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>

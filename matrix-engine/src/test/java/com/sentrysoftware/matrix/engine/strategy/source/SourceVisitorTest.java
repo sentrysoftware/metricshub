@@ -56,11 +56,13 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.Wb
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WmiSource;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.HttpProtocol;
+import com.sentrysoftware.matrix.engine.protocol.IWinProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IpmiOverLanProtocol;
 import com.sentrysoftware.matrix.engine.protocol.OsCommandConfig;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.SnmpVersion;
 import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
+import com.sentrysoftware.matrix.engine.protocol.TransportProtocols;
 import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WmiProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
@@ -809,7 +811,7 @@ class SourceVisitorTest {
 				.protocolConfigurations(Map.of(WbemProtocol.class,
 						WbemProtocol.builder()
 						.port(5989)
-						.protocol(WbemProtocol.WbemProtocols.HTTPS)
+						.protocol(TransportProtocols.HTTPS)
 						.namespace(ROOT_IBMSD_WMI_NAMESPACE)
 						.username(EMC_HOSTNAME)
 						.password("password".toCharArray())
@@ -888,7 +890,7 @@ class SourceVisitorTest {
 				Arrays.asList("1.2", "2|4587"),
 				Arrays.asList("1.3", "1|4587"));
 		doReturn(expected).when(matsyaClientsExecutor)
-				.executeWmi(
+				.executeWql(
 						PC14,
 						wmiProtocol,
 						WQL,
@@ -916,7 +918,7 @@ class SourceVisitorTest {
 				.automaticWmiNamespace(ROOT_IBMSD_WMI_NAMESPACE)
 				.build()).when(hostMonitoring).getConnectorNamespace(connector);
 		doThrow(new MatsyaException()).when(matsyaClientsExecutor)
-				.executeWmi(
+				.executeWql(
 						PC14,
 						wmiProtocol,
 						WQL,
@@ -974,39 +976,45 @@ class SourceVisitorTest {
 
 	@Test
 	void testProcessWindowsIpmiSource() throws Exception {
-		final WmiProtocol wmiProtocol = WmiProtocol
-				.builder()
-				.username(PC14 + "\\" + "Administrator")
-				.password("password".toCharArray())
-				.timeout(120L)
-				.build();
-		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
-				.host(HardwareHost.builder().hostname(PC14).id(PC14).type(HostType.MS_WINDOWS).build())
-				.protocolConfigurations(Map.of(WmiProtocol.class,
-						wmiProtocol))
-				.build();
+		final IWinProtocol wmiProtocol = WmiProtocol
+			.builder()
+			.username(PC14 + "\\" + "Administrator")
+			.password("password".toCharArray())
+			.timeout(120L)
+			.build();
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+			.builder()
+			.host(HardwareHost.builder().hostname(PC14).id(PC14).type(HostType.MS_WINDOWS).build())
+			.protocolConfigurations(Map.of(WmiProtocol.class, wmiProtocol))
+			.build();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
 		final List<List<String>> wmiResult1 = Arrays.asList(
 				Arrays.asList("IdentifyingNumber", "Name", "Vendor"));
-		doReturn(wmiResult1).when(matsyaClientsExecutor).executeWmi(PC14,
-				wmiProtocol,
-				"SELECT IdentifyingNumber,Name,Vendor FROM Win32_ComputerSystemProduct",
-				"root/cimv2");
+		doReturn(wmiResult1).when(matsyaClientsExecutor).executeWql(
+			PC14,
+			wmiProtocol,
+			"SELECT IdentifyingNumber,Name,Vendor FROM Win32_ComputerSystemProduct",
+			"root/cimv2"
+		);
 
 		final List<List<String>> wmiResult2 = Arrays.asList(
 				Arrays.asList("2", "20", "sensorName(sensorId):description for deviceId", "10", "15", "2", "0", "30", "25"));
-		doReturn(wmiResult2).when(matsyaClientsExecutor).executeWmi(PC14,
-				wmiProtocol,
-				"SELECT BaseUnits,CurrentReading,Description,LowerThresholdCritical,LowerThresholdNonCritical,SensorType,UnitModifier,UpperThresholdCritical,UpperThresholdNonCritical FROM NumericSensor",
-				"root/hardware");
+		doReturn(wmiResult2).when(matsyaClientsExecutor).executeWql(
+			PC14,
+			wmiProtocol,
+			"SELECT BaseUnits,CurrentReading,Description,LowerThresholdCritical,LowerThresholdNonCritical,SensorType,UnitModifier,UpperThresholdCritical,UpperThresholdNonCritical FROM NumericSensor",
+			"root/hardware"
+		);
 
 		final List<List<String>> wmiResult3 = Arrays.asList(
 				Arrays.asList("state", "sensorName(sensorId):description for deviceType deviceId"));
-		doReturn(wmiResult3).when(matsyaClientsExecutor).executeWmi(PC14,
-				wmiProtocol,
-				"SELECT CurrentState,Description FROM Sensor",
-				"root/hardware");
+		doReturn(wmiResult3).when(matsyaClientsExecutor).executeWql(
+			PC14,
+			wmiProtocol,
+			"SELECT CurrentState,Description FROM Sensor",
+			"root/hardware"
+		);
 
 		final List<List<String>> expected = Arrays.asList(
 				Arrays.asList(
@@ -1035,22 +1043,25 @@ class SourceVisitorTest {
 
 	@Test
 	void testProcessWindowsIpmiSourceWmiException() throws Exception {
-		final WmiProtocol wmiProtocol = WmiProtocol.builder()
-				.username(PC14 + "\\" + "Administrator")
-				.password("password".toCharArray())
-				.timeout(120L)
-				.build();
-		final EngineConfiguration engineConfiguration = EngineConfiguration.builder()
-				.host(HardwareHost.builder().hostname(PC14).id(PC14).type(HostType.MS_WINDOWS).build())
-				.protocolConfigurations(Map.of(WmiProtocol.class,
-						wmiProtocol))
-				.build();
+		final IWinProtocol wmiProtocol = WmiProtocol
+			.builder()
+			.username(PC14 + "\\" + "Administrator")
+			.password("password".toCharArray())
+			.timeout(120L)
+			.build();
+		final EngineConfiguration engineConfiguration = EngineConfiguration
+			.builder()
+			.host(HardwareHost.builder().hostname(PC14).id(PC14).type(HostType.MS_WINDOWS).build())
+			.protocolConfigurations(Map.of(WmiProtocol.class,wmiProtocol))
+			.build();
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 
-		doThrow(MatsyaException.class).when(matsyaClientsExecutor).executeWmi(PC14,
-				wmiProtocol,
-				"SELECT IdentifyingNumber,Name,Vendor FROM Win32_ComputerSystemProduct",
-				"root/cimv2");
+		doThrow(MatsyaException.class).when(matsyaClientsExecutor).executeWql(
+			PC14,
+			wmiProtocol,
+			"SELECT IdentifyingNumber,Name,Vendor FROM Win32_ComputerSystemProduct",
+			"root/cimv2"
+		);
 		assertEquals(SourceTable.empty(), sourceVisitor.processWindowsIpmiSource(null));
 	}
 

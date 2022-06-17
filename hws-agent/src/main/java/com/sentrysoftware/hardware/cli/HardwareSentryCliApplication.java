@@ -28,6 +28,9 @@ public class HardwareSentryCliApplication {
 		// Set the exception handler
 		cli.setExecutionExceptionHandler(new PrintExceptionMessageHandler());
 
+		// Allow case insensitive enum values
+		cli.setCaseInsensitiveEnumValuesAllowed(true);
+
 		// Execute the command
 		int exitCode = cli.execute(args);
 

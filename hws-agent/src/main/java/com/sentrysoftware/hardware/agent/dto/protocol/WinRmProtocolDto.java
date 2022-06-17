@@ -2,12 +2,15 @@ package com.sentrysoftware.hardware.agent.dto.protocol;
 
 import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.hardware.agent.deserialization.TimeDeserializer;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.TransportProtocols;
-import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WinRmProtocol;
+import com.sentrysoftware.matsya.winrm.service.client.auth.AuthenticationEnum;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,51 +24,47 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class WbemProtocolDto extends AbstractProtocolDto {
-	
+public class WinRmProtocolDto extends AbstractProtocolDto {
+
+	private String username;
+	private char[] password;
+	private String namespace;
+	@Default
+	private Integer port = 5985;
 	@Default
 	@JsonSetter(nulls = SKIP)
-	TransportProtocols protocol = TransportProtocols.HTTPS;
-
-	@Default
-	private Integer port = 5989;
-
-	private String namespace;
-
+	private TransportProtocols protocol = TransportProtocols.HTTP;
+	private List<AuthenticationEnum> authentications;
 	@Default
 	@JsonDeserialize(using = TimeDeserializer.class)
 	private Long timeout = 120L;
 
-	String username;
-
-	char[] password;
-
 	/**
-	 * Create a new {@link WbemProtocol} instance based on the current members
+	 * Create a new {@link WinRmProtocol} instance based on the current members
 	 *
-	 * @return The {@link WbemProtocol} instance
+	 * @return The {@link WinRmProtocol} instance
 	 */
 	@Override
 	public IProtocolConfiguration toProtocol() {
-		
-		
-		return WbemProtocol
+		return WinRmProtocol
 				.builder()
-				.namespace(namespace)
 				.username(username)
 				.password(super.decrypt(password))
+				.namespace(namespace)
 				.port(port)
 				.protocol(protocol)
+				.authentications(authentications)
 				.timeout(timeout)
 				.build();
 	}
 
 	@Override
 	public String toString() {
-		String desc = protocol + "/" + port;
+		String desc = "WinRM";
 		if (username != null) {
 			desc = desc + " as " + username;
 		}
 		return desc;
 	}
+
 }

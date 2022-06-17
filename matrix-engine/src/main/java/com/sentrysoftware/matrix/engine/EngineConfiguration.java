@@ -18,12 +18,14 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.sshinte
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WbemSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WmiSource;
 import com.sentrysoftware.matrix.engine.protocol.HttpProtocol;
-import com.sentrysoftware.matrix.engine.protocol.IpmiOverLanProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
+import com.sentrysoftware.matrix.engine.protocol.IWinProtocol;
+import com.sentrysoftware.matrix.engine.protocol.IpmiOverLanProtocol;
 import com.sentrysoftware.matrix.engine.protocol.OsCommandConfig;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WinRmProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WmiProtocol;
 import com.sentrysoftware.matrix.model.alert.AlertInfo;
 
@@ -52,7 +54,8 @@ public class EngineConfiguration {
 				SshProtocol.class, Set.of(OsCommandSource.class, SshInteractiveSource.class),
 				HttpProtocol.class, Collections.singleton(HttpSource.class),
 				IpmiOverLanProtocol.class, Collections.singleton(Ipmi.class),
-				OsCommandConfig.class, Collections.singleton(OsCommandSource.class));
+				OsCommandConfig.class, Collections.singleton(OsCommandSource.class),
+				WinRmProtocol.class, Collections.singleton(WmiSource.class));
 
 	}
 
@@ -124,6 +127,25 @@ public class EngineConfiguration {
 		}
 
 		return sources;
+	}
+
+
+	/**
+	 * Get the protocol configuration used to execute requests on Windows machines.
+	 *  (WinRM or WMI)<br> WinRM is prioritized.
+	 * 
+	 * @return {@link IWinProtocol} instance.
+	 */
+	public IWinProtocol getWinProtocol() {
+		// We prioritize WinRM over WMI as it's more efficient.
+		final IWinProtocol protocol = (WinRmProtocol) this.getProtocolConfigurations().get(WinRmProtocol.class);
+
+		// Let's try WMI if the WinRM is not available
+		if (protocol == null) {
+			return (WmiProtocol) this.getProtocolConfigurations().get(WmiProtocol.class);
+		}
+
+		return protocol;
 	}
 
 }

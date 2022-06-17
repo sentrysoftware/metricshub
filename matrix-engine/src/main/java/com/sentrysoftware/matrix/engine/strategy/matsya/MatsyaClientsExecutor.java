@@ -4,7 +4,6 @@ import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static org.springframework.util.Assert.isTrue;
 import static org.springframework.util.Assert.notNull;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -33,14 +32,17 @@ import com.sentrysoftware.matrix.connector.model.common.http.body.Body;
 import com.sentrysoftware.matrix.connector.model.common.http.header.Header;
 import com.sentrysoftware.matrix.connector.model.common.http.url.Url;
 import com.sentrysoftware.matrix.engine.protocol.HttpProtocol;
-import com.sentrysoftware.matrix.engine.protocol.IpmiOverLanProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
+import com.sentrysoftware.matrix.engine.protocol.IpmiOverLanProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.Privacy;
+import com.sentrysoftware.matrix.engine.protocol.TransportProtocols;
 import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WinRmProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WmiProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper;
+import com.sentrysoftware.matsya.HttpProtocolEnum;
 import com.sentrysoftware.matsya.WmiHelper;
 import com.sentrysoftware.matsya.awk.AwkException;
 import com.sentrysoftware.matsya.awk.AwkExecutor;
@@ -54,6 +56,10 @@ import com.sentrysoftware.matsya.ssh.SSHClient;
 import com.sentrysoftware.matsya.tablejoin.TableJoin;
 import com.sentrysoftware.matsya.wbem2.WbemExecutor;
 import com.sentrysoftware.matsya.wbem2.WbemQueryResult;
+import com.sentrysoftware.matsya.windows.remote.WindowsRemoteCommandResult;
+import com.sentrysoftware.matsya.winrm.command.WinRMCommandExecutor;
+import com.sentrysoftware.matsya.winrm.service.client.auth.AuthenticationEnum;
+import com.sentrysoftware.matsya.winrm.wql.WinRMWqlExecutor;
 import com.sentrysoftware.matsya.wmi.WmiStringConverter;
 import com.sentrysoftware.matsya.wmi.remotecommand.WinRemoteCommandExecutor;
 import com.sentrysoftware.matsya.wmi.wbem.WmiWbemServices;
@@ -457,9 +463,45 @@ public class MatsyaClientsExecutor {
 			return executeWbem(hostname, (WbemProtocol) protoConfig, query, namespace);
 		} else if (protoConfig instanceof WmiProtocol) {
 			return executeWmi(hostname, (WmiProtocol) protoConfig, query, namespace);
+		} else if (protoConfig instanceof WinRmProtocol) {
+			return executeWqlThroughWinRm(hostname, (WinRmProtocol) protoConfig, query, namespace);
 		}
 
-		throw new IllegalStateException("WQL queries can be executed only in WBEM and WMI protocols.");
+		throw new IllegalStateException("WQL queries can be executed only in WBEM, WMI and WinRM protocols.");
+	}
+
+	/**
+	 * Perform a WQL remote command query, either against a CIM server (WBEM) or WMI
+	 * <p>
+	 * @param hostname Hostname
+	 * @param protoConfig The WBEMProtocol or WMIProtocol object specifying how to connect to specified host
+	 * @param command Windows remote command to execute
+	 * @param embeddedFiles The list of embedded files used in the wql remote command query
+	 *
+	 * @return A table (as a {@link List} of {@link List} of {@link String}s)
+	 * resulting from the execution of the query.
+	 * @throws MatsyaException when anything wrong happens with the Matsya library
+	 */
+	public static String executeWinRemoteCommand(
+		final String hostname,
+		final IProtocolConfiguration protoConfig,
+		final String command,
+		final List<String> embeddedFiles
+	) throws MatsyaException {
+
+		if (protoConfig instanceof WmiProtocol) {
+			return executeWmiRemoteCommand(
+					command,
+					hostname,
+					((WmiProtocol) protoConfig).getUsername(),
+					((WmiProtocol) protoConfig).getPassword(),
+					((WmiProtocol) protoConfig).getTimeout().intValue(),
+					embeddedFiles);
+		} else if (protoConfig instanceof WinRmProtocol) {
+			return executeRemoteWinRmCommand(hostname, (WinRmProtocol) protoConfig, command);
+		}
+
+		throw new IllegalStateException("Windows commands can be executed only in WMI and WinRM protocols.");
 	}
 
 	/**
@@ -662,7 +704,7 @@ public class MatsyaClientsExecutor {
 
 			trace(() -> 
 				log.trace("Executing WMI remote command:\n- Command: {}\n- Hostname: {}\n- Username: {}\n"
-							+ "- Timeout: {} s\n- Local-files: {}\n- Result:\n{}\n",
+						+ "- Timeout: {} s\n- Local-files: {}\n- Result:\n{}\n",
 						command,
 						hostname,
 						username,
@@ -865,7 +907,7 @@ public class MatsyaClientsExecutor {
 	 * @return
 	 * @throws IOException
 	 */
-	public static String runRemoteSshCommand(
+	public static String runRemoteSshCommand( // NOSONAR on arguments
 			@NonNull
 			final String hostname,
 			@NonNull
@@ -1183,6 +1225,157 @@ public class MatsyaClientsExecutor {
 		return result;
 	}
 
+	/**
+	 * Execute a WinRM query through Matsya
+	 *
+	 * @param hostname The hostname of the device where the WinRM service is running (<code>null</code> for localhost)
+	 * @param winRMProtocol WinRM Protocol configuration (credentials, timeout)
+	 * @param query The query to execute
+	 * @param namespace The namespace on which to execute the query
+	 * @return The result of the query
+	 * @throws MatsyaException when anything goes wrong (details in cause)
+	 */
+	public List<List<String>> executeWqlThroughWinRm(
+			@NonNull final String hostname,
+			@NonNull final WinRmProtocol winRmProtocol,
+			@NonNull final String query,
+			@NonNull final String namespace)
+					throws MatsyaException {
+		final String username = winRmProtocol.getUsername();
+		final HttpProtocolEnum httpProtocol = TransportProtocols.HTTP.equals(winRmProtocol.getProtocol()) ?
+				HttpProtocolEnum.HTTP: HttpProtocolEnum.HTTPS;
+		final Integer port = winRmProtocol.getPort();
+		final List<AuthenticationEnum> authentications = winRmProtocol.getAuthentications();
+		final Long timeout = winRmProtocol.getTimeout();
+
+		trace(() ->
+			log.trace("Executing WinRM WQL request:\n- hostname: {}\n- username: {}\n- query: {}\n"
+				+ "- protocol: {}\n- port: {}\n- authentications: {}\n- timeout: {}\n- namespace: {}\n",
+				hostname,
+				username,
+				query,
+				httpProtocol,
+				port,
+				authentications,
+				timeout,
+				namespace
+			)
+		);
+
+		// launching the request
+		try {
+			WinRMWqlExecutor result = WinRMWqlExecutor.executeWql(
+					httpProtocol,
+					hostname,
+					port,
+					username,
+					winRmProtocol.getPassword(),
+					namespace,
+					query,
+					timeout * 1000L,
+					null,
+					authentications);
+
+			final List<List<String>> table = result.getRows();
+
+			trace(() -> 
+				log.trace("Executed WinRM WQL request:\n- hostname: {}\n- username: {}\n- query: {}\n"
+					+ "- protocol: {}\n- port: {}\n- authentications: {}\n- timeout: {}\n- namespace: {}\n- Result:\n{}\n",
+					hostname,
+					username,
+					query,
+					httpProtocol,
+					port,
+					authentications,
+					timeout,
+					namespace,
+					TextTableHelper.generateTextTable(table)
+				)
+			);
+
+			return table;
+		} catch (Exception e) {
+			log.error("Hostname {} - WinRM WQL request failed. Errors:\n{}\n", hostname, StringHelper.getStackMessages(e));
+			throw new MatsyaException(String.format("WinRM WQL request failed on %s.", hostname), e);
+		}
+	}
+
+	/**
+	 * Execute a WinRM remote command through Matsya
+	 *
+	 * @param hostname The hostname of the device where the WinRM service is running (<code>null</code> for localhost)
+	 * @param winRMProtocol WinRM Protocol configuration (credentials, timeout)
+	 * @param command The command to execute 
+	 * @return The result of the query
+	 * @throws MatsyaException when anything goes wrong (details in cause)
+	 */
+	public static String executeRemoteWinRmCommand(
+			@NonNull final String hostname,
+			@NonNull final WinRmProtocol winRmProtocol,
+			@NonNull final String command)
+					throws MatsyaException {
+		final String username = winRmProtocol.getUsername();
+		final HttpProtocolEnum httpProtocol = TransportProtocols.HTTP.equals(winRmProtocol.getProtocol()) ?
+				HttpProtocolEnum.HTTP : HttpProtocolEnum.HTTPS;
+		final Integer port = winRmProtocol.getPort();
+		final List<AuthenticationEnum> authentications = winRmProtocol.getAuthentications();
+		final Long timeout = winRmProtocol.getTimeout();
+
+		trace(() ->
+			log.trace("Executing WinRM remote command:\n- hostname: {}\n- username: {}\n- command: {}\n"
+				+ "- protocol: {}\n- port: {}\n- authentications: {}\n- timeout: {}\n",
+				hostname,
+				username,
+				command,
+				httpProtocol,
+				port,
+				authentications,
+				timeout
+			)
+		);
+
+		// launching the command
+		try {
+			WindowsRemoteCommandResult result = WinRMCommandExecutor.execute(
+					command,
+					httpProtocol,
+					hostname,
+					port,
+					username,
+					winRmProtocol.getPassword(),
+					null,
+					timeout * 1000L,
+					null,
+					null,
+					authentications);
+
+			// If the command returns an error
+			if (result.getStatusCode() != 0) {
+				throw new MatsyaException(String.format("WinRM remote command failed on %s: %s",hostname, result.getStderr()));
+			}
+
+			String resultStdout = result.getStdout();
+
+			trace(() -> 
+				log.trace("Executed WinRM remote command:\n- hostname: {}\n- username: {}\n- command: {}\n"
+					+ "- protocol: {}\n- port: {}\n- authentications: {}\n- timeout: {}\n- Result:\n{}\n",
+					hostname,
+					username,
+					command,
+					httpProtocol,
+					port,
+					authentications,
+					timeout,
+					resultStdout
+				)
+			);
+
+			return resultStdout;
+		} catch (Exception e) {
+			log.error("Hostname {} - WinRM remote command failed. Errors:\n{}\n", hostname, StringHelper.getStackMessages(e));
+			throw new MatsyaException(String.format("WinRM remote command failed on %s.", hostname), e);
+		}
+	}
 
 	/**
 	 * Run the given runnable if the tracing mode of the logger is enabled

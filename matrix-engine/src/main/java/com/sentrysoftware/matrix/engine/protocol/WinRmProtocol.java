@@ -1,5 +1,9 @@
 package com.sentrysoftware.matrix.engine.protocol;
 
+import java.util.List;
+
+import com.sentrysoftware.matsya.winrm.service.client.auth.AuthenticationEnum;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -10,26 +14,22 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class WbemProtocol implements IProtocolConfiguration {
+public class WinRmProtocol implements IWinProtocol {
 
-	@Default
-	TransportProtocols protocol = TransportProtocols.HTTPS;
-
-	@Default
-	private Integer port = 5989;
-
+	private String username;
+	private char[] password;
 	private String namespace;
-
+	@Default
+	private Integer port = 5985;
+	@Default
+	private TransportProtocols protocol = TransportProtocols.HTTP;
+	private List<AuthenticationEnum> authentications;
 	@Default
 	private Long timeout = 120L;
 
-	String username;
-
-	char[] password;
-
 	@Override
 	public String toString() {
-		String desc = protocol + "/" + port;
+		String desc = "WinRM";
 		if (username != null) {
 			desc = desc + " as " + username;
 		}

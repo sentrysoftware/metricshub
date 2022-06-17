@@ -1,8 +1,8 @@
 package com.sentrysoftware.hardware.cli.component.cli.protocols;
 
-import com.sentrysoftware.hardware.cli.component.cli.converters.WbemTransportProtocolConverter;
+import com.sentrysoftware.hardware.cli.component.cli.converters.TransportProtocolConverter;
+import com.sentrysoftware.matrix.engine.protocol.TransportProtocols;
 import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WbemProtocol.WbemProtocols;
 
 import lombok.Data;
 import picocli.CommandLine.Option;
@@ -25,9 +25,9 @@ public class WbemConfigCli implements IProtocolConfigCli {
 			defaultValue = "HTTPS",
 			paramLabel = "HTTP|HTTPS",
 			description = "Transport protocol for WBEM (default: ${DEFAULT-VALUE})",
-			converter = WbemTransportProtocolConverter.class
+			converter = TransportProtocolConverter.class
 	)
-	WbemProtocol.WbemProtocols protocol;
+	TransportProtocols protocol;
 
 	@Option(
 			names = "--wbem-port",
@@ -81,7 +81,7 @@ public class WbemConfigCli implements IProtocolConfigCli {
 		return WbemProtocol
 				.builder()
 				.protocol(protocol)
-				.port(port != null ? port : protocol == WbemProtocols.HTTP ? 5988 : 5989)
+				.port(port != null ? port : protocol == TransportProtocols.HTTP ? 5988 : 5989)
 				.username(username == null ? defaultUsername : username)
 				.password(username == null ? defaultPassword : password)
 				.namespace(namespace)

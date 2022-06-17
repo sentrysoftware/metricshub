@@ -168,6 +168,15 @@ This command will connect to the `SOLAR08` `Solaris` system using the `SSH` prot
 
 > Note: The system must have been configured to allow `USER` to execute these commands with `sudo`.
 
+### WINRM
+
+```batch
+$ hws carnap-imm -t mgmt --winrm --winrm-username USER --winrm-password ****
+```
+
+This command will connect to the `carnap-imm` system using the `WINRM` protocol to execute commands as `USER`.
+
+
 ## Automatic Detection vs Manual Selection
 
 The **${project.name}** is bundled with Sentry's **Hardware Connector Library**, a library which consists of hundreds of *hardware connectors* that describe how to discover hardware components and detect failures in a given system, with a specific instrumentation stack.

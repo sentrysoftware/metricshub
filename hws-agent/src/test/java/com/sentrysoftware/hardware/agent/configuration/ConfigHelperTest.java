@@ -416,4 +416,19 @@ class ConfigHelperTest {
 		assertThrows(BusinessException.class, () -> ConfigHelper.validateOsCommandInfo("hostname", null));
 		assertDoesNotThrow(() -> ConfigHelper.validateOsCommandInfo("hostname", 60L));
 	}
+
+	@Test
+	void testValidateWinRm() {
+		final String hostname = "hostname";
+		final String username = "username";
+
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWinRmInfo(hostname, 1234, -60L, username));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWinRmInfo(hostname, 1234, null, username));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWinRmInfo(hostname, null, 60L, username));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWinRmInfo(hostname, -1234, 60L, username));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWinRmInfo(hostname, 1234, 60L, null));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWinRmInfo(hostname, 1234, 60L, ""));
+		assertDoesNotThrow(() -> ConfigHelper.validateWinRmInfo(hostname, 1234, 60L, username));
+	}
+
 }

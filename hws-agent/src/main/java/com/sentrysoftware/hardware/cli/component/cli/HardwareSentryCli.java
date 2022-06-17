@@ -15,7 +15,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.sentrysoftware.matrix.connector.model.common.OsType;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.ThreadContext;
@@ -32,11 +31,13 @@ import com.sentrysoftware.hardware.cli.component.cli.protocols.IpmiConfigCli;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.SnmpConfigCli;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.SshConfigCli;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WbemConfigCli;
+import com.sentrysoftware.hardware.cli.component.cli.protocols.WinRmConfigCli;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WmiConfigCli;
 import com.sentrysoftware.hardware.cli.service.ConsoleService;
 import com.sentrysoftware.hardware.cli.service.VersionService;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.common.OsType;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParser;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
@@ -82,7 +83,7 @@ import picocli.CommandLine.Spec;
 				"@|bold ${ROOT-COMMAND-NAME}|@ " +
 						"@|yellow HOSTNAME|@ " +
 						"@|yellow -t|@=@|italic TYPE|@ " +
-						"<@|yellow --http|@|@|yellow --https|@|@|yellow --ipmi|@|@|yellow --snmp|@=@|italic VERSION|@|@|yellow --ssh|@|@|yellow --wbem|@|@|yellow --wmi|@> " +
+						"<@|yellow --http|@|@|yellow --https|@|@|yellow --ipmi|@|@|yellow --snmp|@=@|italic VERSION|@|@|yellow --ssh|@|@|yellow --wbem|@|@|yellow --wmi|@|@|yellow --winrm|@> " +
 						"[@|yellow -u|@=@|italic USER|@ [@|yellow -p|@=@|italic P4SSW0RD|@]] [OPTIONS]..."
 		}
 )
@@ -137,6 +138,9 @@ public class HardwareSentryCli implements Callable<Integer> {
 
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline WBEM Options|@:%n")
 	private WbemConfigCli wbemConfigCli;
+
+	@ArgGroup(exclusive = false, heading = "%n@|bold,underline WinRM Options|@:%n")
+	private WinRmConfigCli winRmConfigCli;
 
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline WMI Options|@:%n")
 	private WmiConfigCli wmiConfigCli;
@@ -366,12 +370,17 @@ public class HardwareSentryCli implements Callable<Integer> {
 					wmiConfigCli.setPassword(System.console().readPassword("%s password for WMI: ", wmiConfigCli.getUsername()));
 				}
 			}
+			if (winRmConfigCli != null) {
+				if (winRmConfigCli.getUsername() != null && winRmConfigCli.getPassword() == null) {
+					winRmConfigCli.setPassword(System.console().readPassword("%s password for WinRM: ", winRmConfigCli.getUsername()));
+				}
+			}
 		}
 
 		// No protocol at all?
 		if (httpConfigCli == null && ipmiConfigCli == null && snmpConfigCli == null
-				&& sshConfigCli == null && wbemConfigCli == null && wmiConfigCli == null) {
-			throw new ParameterException(spec.commandLine(), "At least one protocol must be specified: --http[s], --ipmi, --snmp, --ssh, --wbem, --wmi.");
+				&& sshConfigCli == null && wbemConfigCli == null && wmiConfigCli == null && winRmConfigCli == null) {
+			throw new ParameterException(spec.commandLine(), "At least one protocol must be specified: --http[s], --ipmi, --snmp, --ssh, --wbem, --wmi, --winrm.");
 		}
 
 		// SNMP inconsistencies
@@ -454,7 +463,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 	 */
 	private Map<Class< ? extends IProtocolConfiguration>, IProtocolConfiguration> getProtocols() {
 
-		return Stream.of(httpConfigCli, ipmiConfigCli, snmpConfigCli, sshConfigCli, wbemConfigCli, wmiConfigCli)
+		return Stream.of(httpConfigCli, ipmiConfigCli, snmpConfigCli, sshConfigCli, wbemConfigCli, wmiConfigCli, winRmConfigCli)
 				.filter(Objects::nonNull)
 				.map(protocolConfig -> protocolConfig.toProtocol(username, password))
 				.collect(Collectors.toMap(

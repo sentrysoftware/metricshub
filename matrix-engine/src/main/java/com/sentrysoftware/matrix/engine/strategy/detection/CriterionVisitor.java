@@ -40,12 +40,12 @@ import com.sentrysoftware.matrix.connector.model.detection.criteria.wmi.Wmi;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.AbstractCommand;
 import com.sentrysoftware.matrix.engine.protocol.HttpProtocol;
+import com.sentrysoftware.matrix.engine.protocol.IWinProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IpmiOverLanProtocol;
 import com.sentrysoftware.matrix.engine.protocol.OsCommandConfig;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WmiProtocol;
 import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.matsya.HttpRequest;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
@@ -68,6 +68,7 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 public class CriterionVisitor implements ICriterionVisitor {
 
+	static final String NEITHER_WMI_NOR_WINRM_ERROR = "Neither WMI nor WinRM credentials are configured for this host.";
 	private static final String IPMI_VERSION = "IPMI Version";
 	private static final String SOLARIS_VERSION_COMMAND = "/usr/bin/uname -r";
 	private static final String IPMI_TOOL_SUDO_COMMAND = "PATH=$PATH:/usr/local/bin:/usr/sfw/bin;export PATH;%{SUDO:ipmitool}ipmitool -I ";
@@ -437,11 +438,12 @@ public class CriterionVisitor implements ICriterionVisitor {
 	private CriterionTestResult processWindowsIpmiDetection(final Ipmi ipmi) {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
-		final WmiProtocol wmiConfig =
-				(WmiProtocol) strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(WmiProtocol.class);
 
-		if (wmiConfig == null) {
-			return CriterionTestResult.error(ipmi, "The WMI credentials are not configured for this host. ");
+		// Find the configured protocol (WinRM or WMI)
+		final IWinProtocol protocol = strategyConfig.getEngineConfiguration().getWinProtocol();
+
+		if (protocol == null) {
+			return CriterionTestResult.error(ipmi, NEITHER_WMI_NOR_WINRM_ERROR);
 		}
 
 		Wmi ipmiWmiCriterion = Wmi
@@ -450,7 +452,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 				.wbemNamespace("root\\hardware")
 				.build();
 
-		return wqlDetectionHelper.performDetectionTest(hostname, wmiConfig, ipmiWmiCriterion);
+		return wqlDetectionHelper.performDetectionTest(hostname, protocol, ipmiWmiCriterion);
 	}
 
 	@Override
@@ -607,11 +609,11 @@ public class CriterionVisitor implements ICriterionVisitor {
 			return CriterionTestResult.error(service, "Malformed Service criterion.");
 		}
 
-		// We need WMI for this
-		final WmiProtocol wmiConfig =
-				(WmiProtocol) strategyConfig.getEngineConfiguration().getProtocolConfigurations().get(WmiProtocol.class);
-		if (wmiConfig == null) {
-			return CriterionTestResult.error(service, "WMI credentials are not configured.");
+		// Find the configured protocol (WinRM or WMI)
+		final IWinProtocol protocol = strategyConfig.getEngineConfiguration().getWinProtocol();
+
+		if (protocol == null) {
+			return CriterionTestResult.error(service, NEITHER_WMI_NOR_WINRM_ERROR);
 		}
 
 		// The host system must be Windows
@@ -641,7 +643,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 				.build();
 
 		// Perform this WMI test
-		CriterionTestResult wmiTestResult = wqlDetectionHelper.performDetectionTest(hostname, wmiConfig, serviceWmiCriterion);
+		CriterionTestResult wmiTestResult = wqlDetectionHelper.performDetectionTest(hostname, protocol, serviceWmiCriterion);
 		if (!wmiTestResult.isSuccess()) {
 			return wmiTestResult;
 		}
@@ -938,7 +940,6 @@ public class CriterionVisitor implements ICriterionVisitor {
 		return namespaceResult.getResult();
 	}
 
-
 	@Override
 	public CriterionTestResult visit(final Wmi wmiCriterion) {
 
@@ -952,10 +953,11 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 		final String hostname = engineConfiguration.getHost().getHostname();
 
-		final WmiProtocol wmiConfig =
-				(WmiProtocol) engineConfiguration.getProtocolConfigurations().get(WmiProtocol.class);
-		if (wmiConfig == null) {
-			return CriterionTestResult.error(wmiCriterion, "The WBEM credentials are not configured for this host.");
+		// Find the configured protocol (WinRM or WMI)
+		final IWinProtocol protocol = engineConfiguration.getWinProtocol();
+
+		if (protocol == null) {
+			return CriterionTestResult.error(wmiCriterion, NEITHER_WMI_NOR_WINRM_ERROR);
 		}
 
 		// If namespace is specified as "Automatic"
@@ -968,7 +970,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 			// If not detected already, find the namespace
 			if (cachedNamespace == null) {
-				return findNamespace(hostname, wmiConfig, wmiCriterion);
+				return findNamespace(hostname, protocol, wmiCriterion);
 			}
 
 			// Update the criterion with the cached namespace
@@ -976,24 +978,23 @@ public class CriterionVisitor implements ICriterionVisitor {
 			cachedNamespaceCriterion.setWbemNamespace(cachedNamespace);
 
 			// Run the test
-			return wqlDetectionHelper.performDetectionTest(hostname, wmiConfig, cachedNamespaceCriterion);
+			return wqlDetectionHelper.performDetectionTest(hostname, protocol, cachedNamespaceCriterion);
 		}
 
 		// Run the test
-		return wqlDetectionHelper.performDetectionTest(hostname, wmiConfig, wmiCriterion);
+		return wqlDetectionHelper.performDetectionTest(hostname, protocol, wmiCriterion);
 	}
-
 
 	/**
 	 * Find the namespace to use for the execution of the given {@link Wmi} {@link Criterion}.
 	 *
-	 * @param hostname The hostname of the host device
-	 * @param wmiConfig The WMI protocol configuration (credentials, etc.)
+	 * @param hostname The hostname of the device
+	 * @param winConfig The Win protocol configuration (credentials, etc.)
 	 * @param criterion The WQL criterion with an "Automatic" namespace
 	 *
 	 * @return A {@link CriterionTestResult} telling whether we found the proper namespace for the specified WQL
 	 */
-	CriterionTestResult findNamespace(final String hostname, final WmiProtocol wmiConfig, final Wmi criterion) {
+	CriterionTestResult findNamespace(final String hostname, final IWinProtocol winConfig, final Wmi criterion) {
 
 		// Get the list of possible namespaces on this host
 		Set<String> possibleWmiNamespaces = strategyConfig.getHostMonitoring().getPossibleWmiNamespaces();
@@ -1005,7 +1006,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 				// If we don't have this list already, figure it out now
 				final PossibleNamespacesResult possibleWmiNamespacesResult =
-						wqlDetectionHelper.findPossibleNamespaces(hostname, wmiConfig);
+						wqlDetectionHelper.findPossibleNamespaces(hostname, winConfig);
 
 				// If we can't detect the namespace then we must stop
 				if (!possibleWmiNamespacesResult.isSuccess()) {
@@ -1021,7 +1022,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 		// Perform a namespace detection
 		NamespaceResult namespaceResult =
-				wqlDetectionHelper.detectNamespace(hostname, wmiConfig, criterion, Collections.unmodifiableSet(possibleWmiNamespaces));
+				wqlDetectionHelper.detectNamespace(hostname, winConfig, criterion, Collections.unmodifiableSet(possibleWmiNamespaces));
 
 		// If that was successful, remember it in HostMonitoring, so we don't perform this
 		// (costly) detection again

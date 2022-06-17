@@ -1,8 +1,33 @@
 package com.sentrysoftware.matrix.engine.strategy.matsya;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLON_DOUBLE_SLASH;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static java.net.HttpURLConnection.HTTP_OK;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertLinesMatch;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.internal.verification.VerificationModeFactory.times;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -22,8 +47,10 @@ import com.sentrysoftware.matrix.connector.model.common.http.body.StringBody;
 import com.sentrysoftware.matrix.connector.model.common.http.header.StringHeader;
 import com.sentrysoftware.matrix.engine.protocol.HttpProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IpmiOverLanProtocol;
+import com.sentrysoftware.matrix.engine.protocol.TransportProtocols;
 import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WbemProtocol.WbemProtocols;
+import com.sentrysoftware.matrix.engine.protocol.WinRmProtocol;
+import com.sentrysoftware.matsya.HttpProtocolEnum;
 import com.sentrysoftware.matsya.http.HttpClient;
 import com.sentrysoftware.matsya.http.HttpResponse;
 import com.sentrysoftware.matsya.ipmi.IpmiConfiguration;
@@ -32,30 +59,10 @@ import com.sentrysoftware.matsya.ssh.SSHClient;
 import com.sentrysoftware.matsya.ssh.SSHClient.CommandResult;
 import com.sentrysoftware.matsya.wbem2.WbemExecutor;
 import com.sentrysoftware.matsya.wbem2.WbemQueryResult;
+import com.sentrysoftware.matsya.windows.remote.WindowsRemoteCommandResult;
+import com.sentrysoftware.matsya.winrm.command.WinRMCommandExecutor;
+import com.sentrysoftware.matsya.winrm.wql.WinRMWqlExecutor;
 import com.sentrysoftware.matsya.xflat.exceptions.XFlatException;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COLON_DOUBLE_SLASH;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
-import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
-import static java.net.HttpURLConnection.HTTP_OK;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyMap;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 @ExtendWith(MockitoExtension.class)
 class MatsyaClientsExecutorTest {
@@ -311,7 +318,7 @@ class MatsyaClientsExecutorTest {
 
 			String url = "https://" + DEV_HV_01 + ":5989";
 			assertEquals(Collections.emptyList(), matsyaClientsExecutor.executeWbem(url, WbemProtocol.builder()
-					.protocol(WbemProtocols.HTTPS)
+					.protocol(TransportProtocols.HTTPS)
 					.build(), "SELECT Name FROM EMC_StorageSystem", "root/emc"));
 
 			mockedWbemExecuteQuery.verify(() -> WbemExecutor.executeWql(any(URL.class), anyString(), isNull(),
@@ -787,6 +794,90 @@ class MatsyaClientsExecutorTest {
 
 			assertEquals(sshClient, MatsyaClientsExecutor.connectSshClientTerminal(hostname, username, password, privateKey, timeout));
 			verify(sshClient, never()).close();
+		}
+	}
+
+	@Test
+	void testExecuteWqlThroughWinRm() throws Exception {
+		final int port = 1234;
+		final String username = "user";
+		final char[] password = "password".toCharArray();
+		final String namespace = "namespace";
+		final String command ="SELECT BootDevice,BuildNumber FROM Win32_OperatingSystem";
+		final WinRmProtocol winRmProtocol = WinRmProtocol.builder()
+				.protocol(TransportProtocols.HTTP)
+				.port(port)
+				.username(username)
+				.password(password)
+				.namespace(namespace)
+				.build();
+
+		List<List<String>> expectedResult = new ArrayList<>();
+		List<String> expectedResultLine = new ArrayList<>();
+		expectedResultLine.add("BootDevice1");
+		expectedResultLine.add("BuildNumber1");
+		expectedResult.add(expectedResultLine);
+
+		List<String> resultHeader = new ArrayList<>();
+		expectedResultLine.add("BootDevice");
+		expectedResultLine.add("BuildNumber");
+
+		WinRMWqlExecutor winRMWqlExecutorResult = new WinRMWqlExecutor(30L, resultHeader, expectedResult);
+
+		try (final MockedStatic<WinRMWqlExecutor> winRMWqlExecutor = mockStatic(WinRMWqlExecutor.class)) {
+			winRMWqlExecutor.when(() -> WinRMWqlExecutor.executeWql(
+					HttpProtocolEnum.HTTP,
+					PUREM_SAN,
+					port,
+					username,
+					password,
+					namespace,
+					command,
+					120000L,
+					null,
+					null)).thenReturn(winRMWqlExecutorResult);
+
+			List<List<String>> result = matsyaClientsExecutor.executeWqlThroughWinRm(PUREM_SAN, winRmProtocol, command, namespace);
+			assertNotNull(result);
+			assertEquals(1, result.size());
+			assertLinesMatch(expectedResult.get(0), result.get(0));
+		}
+	}
+
+	@Test
+	void testExecuteRemoteWinRMCommand() throws Exception {
+		final int port = 1234;
+		final String username = "user";
+		final char[] password = "password".toCharArray();
+		final String namespace = "namespace";
+		final String command ="SELECT BootDevice,BuildNumber FROM Win32_OperatingSystem";
+		final WinRmProtocol winRmProtocol = WinRmProtocol.builder()
+				.protocol(TransportProtocols.HTTP)
+				.port(port)
+				.username(username)
+				.password(password)
+				.namespace(namespace)
+				.build();
+
+		final String expectedResult = "BootDevice1|BuildNumber1";
+		WindowsRemoteCommandResult windowsRemoteCommandResult = new WindowsRemoteCommandResult(expectedResult, "", 30L, 0);
+
+		try (final MockedStatic<WinRMCommandExecutor> winRMCommandExecutor = mockStatic(WinRMCommandExecutor.class)) {
+			winRMCommandExecutor.when(() -> WinRMCommandExecutor.execute(
+					command,
+					HttpProtocolEnum.HTTP,
+					PUREM_SAN,
+					port,
+					username,
+					password,
+					null,
+					120000L,
+					null,
+					null,
+					null)).thenReturn(windowsRemoteCommandResult);
+
+			String result = MatsyaClientsExecutor.executeRemoteWinRmCommand(PUREM_SAN, winRmProtocol, command);
+			assertEquals(expectedResult, result);
 		}
 	}
 }

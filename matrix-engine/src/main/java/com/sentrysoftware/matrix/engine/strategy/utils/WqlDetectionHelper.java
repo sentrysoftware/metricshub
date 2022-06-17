@@ -20,8 +20,8 @@ import com.sentrysoftware.javax.wbem.WBEMException;
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.WqlCriterion;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
+import com.sentrysoftware.matrix.engine.protocol.IWinProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WmiProtocol;
 import com.sentrysoftware.matrix.engine.strategy.detection.CriterionTestResult;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
@@ -170,32 +170,32 @@ public class WqlDetectionHelper {
 	/**
 	 * Find the possible WMI namespaces on specified hostname with specified credentials.
 	 *
-	 * @param hostname	The hostname of the host device.
-	 * @param wmiConfig	WMI configuration (credentials, timeout)
+	 * @param hostname	The hostname of the device.
+	 * @param winConfig	Win configuration (credentials, timeout)
 	 *
 	 * @return A {@link PossibleNamespacesResult} wrapping the success state, the message in case of errors
 	 * and the possibleWmiNamespaces {@link Set}.
 	 */
-	public PossibleNamespacesResult findPossibleNamespaces(final String hostname, final WmiProtocol wmiConfig) {
+	public PossibleNamespacesResult findPossibleNamespaces(final String hostname, final IWinProtocol winConfig) {
 
 		// If the user specified a namespace, we return it as if it was the only namespace available
 		// and for which we're going to test our connector
-		if (wmiConfig.getNamespace() != null && !wmiConfig.getNamespace().isBlank()) {
+		if (winConfig.getNamespace() != null && !winConfig.getNamespace().isBlank()) {
 			return PossibleNamespacesResult
 					.builder()
-					.possibleNamespaces(Collections.singleton(wmiConfig.getNamespace()))
+					.possibleNamespaces(Collections.singleton(winConfig.getNamespace()))
 					.success(true)
 					.build();
 		}
 
 		// Possible namespace will be stored in this set
-		Set<String> possibleWmiNamespaces = new TreeSet<String>();
+		Set<String> possibleWmiNamespaces = new TreeSet<>();
 
 		try {
 
-			matsyaClientsExecutor.executeWmi(
+			matsyaClientsExecutor.executeWql(
 					hostname,
-					wmiConfig,
+					winConfig,
 					"SELECT Name FROM __NAMESPACE",
 					"root"
 			).stream()
@@ -205,10 +205,10 @@ public class WqlDetectionHelper {
 			.filter(namespace -> !namespace.isBlank())
 			.filter(namespace -> !namespace.toLowerCase().contains("interop"))
 			.filter(namespace -> !IGNORED_WMI_NAMESPACES.contains(namespace))
-			.filter(namespace -> !IGNORED_WMI_NAMESPACES.stream().anyMatch(ignoredNamespace -> ("root/" + ignoredNamespace).equalsIgnoreCase(namespace)))
-			.filter(namespace -> !IGNORED_WMI_NAMESPACES.stream().anyMatch(ignoredNamespace -> ("root\\" + ignoredNamespace).equalsIgnoreCase(namespace)))
+			.filter(namespace -> IGNORED_WMI_NAMESPACES.stream().noneMatch(ignoredNamespace -> ("root/" + ignoredNamespace).equalsIgnoreCase(namespace)))
+			.filter(namespace -> IGNORED_WMI_NAMESPACES.stream().noneMatch(ignoredNamespace -> ("root\\" + ignoredNamespace).equalsIgnoreCase(namespace)))
 			.map(namespace -> "root/" + namespace)
-			.forEach(namespace -> possibleWmiNamespaces.add(namespace));
+			.forEach(possibleWmiNamespaces::add);
 
 		} catch (final MatsyaException e) {
 

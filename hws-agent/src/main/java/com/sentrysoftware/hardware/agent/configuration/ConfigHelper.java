@@ -26,6 +26,7 @@ import com.sentrysoftware.hardware.agent.dto.HostConfigurationDto;
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
 import com.sentrysoftware.hardware.agent.dto.protocol.IProtocolConfigDto;
 import com.sentrysoftware.hardware.agent.dto.protocol.SnmpProtocolDto;
+import com.sentrysoftware.hardware.agent.dto.protocol.WinRmProtocolDto;
 import com.sentrysoftware.hardware.agent.exception.BusinessException;
 import com.sentrysoftware.hardware.agent.security.PasswordEncrypt;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
@@ -53,6 +54,7 @@ public class ConfigHelper {
 	private static final String TIMEOUT_ERROR = "Hostname %s - Timeout value is invalid for protocol %s. Timeout value returned: %s. This host will not be monitored. Please verify the configured timeout value.";
 	private static final String PORT_ERROR = "Hostname %s - Invalid port configured for protocol %s. Port value returned: %s. This host will not be monitored. Please verify the configured port value.";
 	private static final String USERNAME_ERROR = "Hostname %s - No username configured for protocol %s. This host will not be monitored. Please verify the configured username.";
+	private static final String HOSTNAME_ERROR = "Hostname - %s. Invalid Hostname. This host will not be monitored. Please verify the configured hostname.";
 	private static final Predicate<String> INVALID_STRING_CHECKER = attr -> attr == null || attr.isBlank();
 	private static final Predicate<Integer> INVALID_PORT_CHECKER = attr -> attr == null || attr < 1 || attr > 65535;
 	private static final Predicate<Long> INVALID_TIMEOUT_CHECKER = attr -> attr == null || attr < 0L;
@@ -75,7 +77,8 @@ public class ConfigHelper {
 		// Since 2.13 use JsonMapper.builder().enable(...)
 		return JsonMapper.builder(new YAMLFactory()).configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 				.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false)
-				.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS).build().readValue(file, type);
+				.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+				.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES).build().readValue(file, type);
 
 	}
 
@@ -110,7 +113,7 @@ public class ConfigHelper {
 				hostname,
 				INVALID_STRING_CHECKER,
 				() -> String.format(
-						"Hostname - %s. Invalid Hostname. This host will not be monitored. Please verify the configured hostname.",
+						HOSTNAME_ERROR,
 						hostname),
 				ErrorCode.INVALID_HOSTNAME);
 
@@ -371,8 +374,8 @@ public class ConfigHelper {
 								hostConfigurationDto.getWbem(),
 								hostConfigurationDto.getWmi(),
 								hostConfigurationDto.getOsCommand(),
-								hostConfigurationDto.getIpmi()
-						)
+								hostConfigurationDto.getIpmi(),
+								hostConfigurationDto.getWinRm())
 						.filter(Objects::nonNull)
 						.map(IProtocolConfigDto::toProtocol)
 						.filter(Objects::nonNull)
@@ -556,6 +559,14 @@ public class ConfigHelper {
 		try {
 			validateHost(hostConfigurationDto.getHost().getType(), hostname);
 
+			if (hostConfigurationDto.getOsCommand() != null) {
+				WinRmProtocolDto winRmDto = hostConfigurationDto.getWinRm();
+				validateWinRmInfo(hostname,
+						winRmDto.getPort(),
+						winRmDto.getTimeout(),
+						winRmDto.getUsername());
+			}
+
 			if (hostConfigurationDto.getSnmp() != null)
 				validateSnmpInfo(hostname,
 						hostConfigurationDto.getSnmp());
@@ -701,5 +712,40 @@ public class ConfigHelper {
 			log.debug("Exception", e);
 			return crypted;
 		}
+	}
+
+	/**
+	 * Validate the given WinRM information (hostname, port, timeout, username and command)
+	 *
+	 * @param hostname  hostname
+	 * @param port      port of the host
+	 * @param timeout   timeout of the host
+	 * @param username	username used to authenticate to the host
+	 * @throws BusinessException
+	 */
+	static void validateWinRmInfo(final String hostname, final Integer port, final Long timeout, final String username)
+			throws BusinessException {
+
+		final String protocol = "WinRM";
+
+		validateAttribute(hostname,
+				INVALID_STRING_CHECKER,
+				() -> String.format(HOSTNAME_ERROR, hostname),
+				ErrorCode.INVALID_HOSTNAME);
+
+		validateAttribute(port,
+				INVALID_PORT_CHECKER,
+				() -> String.format(PORT_ERROR, hostname, protocol, port),
+				ErrorCode.INVALID_PORT);
+
+		validateAttribute(timeout,
+				INVALID_TIMEOUT_CHECKER,
+				() -> String.format(TIMEOUT_ERROR, hostname, protocol, timeout),
+				ErrorCode.INVALID_TIMEOUT);
+
+		validateAttribute(username,
+				INVALID_STRING_CHECKER,
+				() -> String.format(USERNAME_ERROR, hostname, protocol),
+				ErrorCode.NO_USERNAME);
 	}
 }

@@ -72,15 +72,6 @@
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-core</artifactId>
 		</dependency>
-		<!-- Prometheus -->
-		<dependency>
-			<groupId>io.prometheus</groupId>
-			<artifactId>simpleclient</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.prometheus</groupId>
-			<artifactId>simpleclient_common</artifactId>
-		</dependency>
 		<!-- OpenTelemetry -->
 		<dependency>
 			<groupId>io.opentelemetry</groupId>
@@ -295,7 +286,7 @@
 				<version>${spring-boot.version}</version>
 				<configuration>
 					<!-- MATSYA is already wrapped in matrix-engine -->
-					<excludeGroupIds>com.sentrysoftware.patrol.matsya</excludeGroupIds>
+					<excludeGroupIds>com.sentrysoftware.patrol.matsya,org.apache.cxf,com.hierynomus,org.bouncycastle,com.sun.jna,com.ctc.wstx</excludeGroupIds>
 					<excludes>
 						<!-- We don't want the sources of the connectors in the JAR -->
 						<exclude>

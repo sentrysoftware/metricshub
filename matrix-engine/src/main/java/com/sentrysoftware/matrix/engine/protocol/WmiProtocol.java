@@ -2,15 +2,15 @@ package com.sentrysoftware.matrix.engine.protocol;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Builder.Default;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class WmiProtocol implements IProtocolConfiguration {
+public class WmiProtocol implements IWinProtocol {
 
 	private String username;
 	private char[] password;

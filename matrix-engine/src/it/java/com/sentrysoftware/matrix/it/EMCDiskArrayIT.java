@@ -12,8 +12,8 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParser;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
+import com.sentrysoftware.matrix.engine.protocol.TransportProtocols;
 import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
-import com.sentrysoftware.matrix.engine.protocol.WbemProtocol.WbemProtocols;
 import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
 import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
 import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
@@ -36,7 +36,7 @@ class EMCDiskArrayIT {
 	private static final Map<Class<? extends IProtocolConfiguration>, IProtocolConfiguration> PROTOCOL_CONFIGURATIONS = Map.of(
 			WbemProtocol.class,
 			WbemProtocol.builder()
-				.protocol(WbemProtocols.HTTPS)
+				.protocol(TransportProtocols.HTTPS)
 				.port(5900)
 				.username("username")
 				.password("password".toCharArray())

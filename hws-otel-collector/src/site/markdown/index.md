@@ -11,7 +11,7 @@ description: ${project.name} is a distribution of the OpenTelemetry Collector th
 
 ![**${project.name}** Architecture](./images/otel-architecture.png)
 
-**${project.name}** is able to monitor any system using `SNMP`, `IPMI`, `HTTP`, `WBEM`, `WMI` or just `SSH`. It can monitor computers, switches and storage systems from **Cisco**, **Dell**, **EMC**, **Fujitsu**, **Hitachi**, **HP**, **IBM**, **Lenovo**, **NetApp**, **Oracle** and many others, thanks to its library of 250+ *Hardware Connectors*.
+**${project.name}** is able to monitor any system using `SNMP`, `IPMI`, `HTTP`, `WBEM`, `WMI`, `WINRM` or just `SSH`. It can monitor computers, switches and storage systems from **Cisco**, **Dell**, **EMC**, **Fujitsu**, **Hitachi**, **HP**, **IBM**, **Lenovo**, **NetApp**, **Oracle** and many others, thanks to its library of 250+ *Hardware Connectors*.
 
 **${project.name}** monitors the health of the internal electronic components of the system:
 
