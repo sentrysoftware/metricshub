@@ -4069,18 +4069,6 @@
       "vendor" : "Amd"
     },
     "alertRules" : {
-      "correctedErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
       "errorCount" : [ {
         "period" : 0,
         "conditions" : [ {
@@ -4126,8 +4114,8 @@
         "firstTriggerTimestamp" : 1649435081483,
         "details" : {
           "problem" : "An imminent failure is predicted for this GPU.",
-          "consequence" : "A system crash is very likely to occur soon.",
-          "recommendedAction" : "Replace this GPU or disable it as soon as possible, if disabling it will not affect the performance of the system."
+          "consequence" : "If part of a cluster of GPUs, this will impact the cluster's overall performance. If used in a system or as passthrough, a system crash is very likely to occur soon.",
+          "recommendedAction" : "Replace this GPU as soon as possible."
         },
         "active" : "ACTIVE",
         "type" : "STATIC"
@@ -4165,8 +4153,8 @@
         "firstTriggerTimestamp" : 1649435081483,
         "details" : {
           "problem" : "This GPU has failed.",
-          "consequence" : "This GPU is not operational. This will impact the overall performance of the system. If it is about to fail this GPU may crash very soon.",
-          "recommendedAction" : "Replace this GPU as soon as possible to prevent a system overload."
+          "consequence" : "This GPU is not operational. This will impact the overall performance of the system or the GPU cluster it is part of.",
+          "recommendedAction" : "Replace this GPU. If used as passthrough, make sure the virtual machines that were using this GPU are still up and running."
         },
         "active" : "ACTIVE",
         "type" : "STATIC"
@@ -4354,18 +4342,6 @@
       "vendor" : "Intel"
     },
     "alertRules" : {
-      "correctedErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
       "errorCount" : [ {
         "period" : 0,
         "conditions" : [ {
@@ -4387,9 +4363,9 @@
         "severity" : "WARN",
         "firstTriggerTimestamp" : 1649435081483,
         "details" : {
-          "problem" : "The GPU memory utilization is outside of expected range (1000 %).",
-          "consequence" : "The memory utilization may not be optimal and therefore lead to lower system performance.",
-          "recommendedAction" : "Check why this GPU memory is used so much."
+          "problem" : "The GPU memory utilization is outside of the expected range (1000 %).",
+          "consequence" : "A high memory utilization may lead to lower system performance.",
+          "recommendedAction" : "Check which processes use most of the GPU's memory and verify that it is an expected behavior."
         },
         "active" : "ACTIVE",
         "type" : "STATIC"
@@ -4401,9 +4377,9 @@
         } ],
         "severity" : "ALARM",
         "details" : {
-          "problem" : "The GPU memory utilization is outside of tolerated range (1000 %).",
-          "consequence" : "The memory utilization may not be optimal and therefore lead to lower system performance.",
-          "recommendedAction" : "Check why this GPU memory utilization is used so much."
+          "problem" : "The GPU memory utilization is outside of the tolerated range (1000 %).",
+          "consequence" : "A high memory utilization may lead to lower system performance.",
+          "recommendedAction" : "Check which processes use most of the GPU's memory and verify that it is an expected behavior."
         },
         "firstTriggerTimestamp" : 1649435081483,
         "active" : "ACTIVE",
@@ -4443,8 +4419,8 @@
         "firstTriggerTimestamp" : 1649435081483,
         "details" : {
           "problem" : "This GPU is degraded or is about to fail.",
-          "consequence" : "If degraded, this GPU may not be fully operational. This could adversely impact the overall performance of the system. If it is about to fail, this GPU is likely to crash very soon.",
-          "recommendedAction" : "Replace this GPU as soon as possible to prevent a system crash."
+          "consequence" : "This GPU may not be fully operational. If the GPU is part of a cluster, this could adversely impact the cluster's performance. If it is used as passthrough, it may crash the virtual machines that uses this GPU.",
+          "recommendedAction" : "Replace this GPU as soon as possible."
         },
         "active" : "ACTIVE",
         "type" : "STATIC"
@@ -4691,18 +4667,6 @@
       "vendor" : "Nvidia"
     },
     "alertRules" : {
-      "correctedErrorCount" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "GTE",
-          "threshold" : 1.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ],
       "errorCount" : [ {
         "period" : 0,
         "conditions" : [ {
@@ -66793,29 +66757,6 @@
       "powerSourceId" : "SuperConnectorOS_enclosure_localhost_1"
     },
     "alertRules" : {
-      "status" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "EQ",
-          "threshold" : 1.0
-        } ],
-        "severity" : "WARN",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      }, {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "EQ",
-          "threshold" : 2.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ]
     }
   }, {
     "id" : "SuperConnectorOS_vm_localhost_weil2",
@@ -66903,29 +66844,6 @@
       "powerSourceId" : "SuperConnectorOS_enclosure_localhost_1"
     },
     "alertRules" : {
-      "status" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "EQ",
-          "threshold" : 1.0
-        } ],
-        "severity" : "WARN",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      }, {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "EQ",
-          "threshold" : 2.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ]
     }
   }, {
     "id" : "SuperConnectorOS_vm_localhost_weil3",
@@ -67013,29 +66931,6 @@
       "powerSourceId" : "SuperConnectorOS_enclosure_localhost_1"
     },
     "alertRules" : {
-      "status" : [ {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "EQ",
-          "threshold" : 1.0
-        } ],
-        "severity" : "WARN",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      }, {
-        "period" : 0,
-        "conditions" : [ {
-          "operator" : "EQ",
-          "threshold" : 2.0
-        } ],
-        "severity" : "ALARM",
-        "firstTriggerTimestamp" : null,
-        "details" : null,
-        "active" : "INACTIVE",
-        "type" : "STATIC"
-      } ]
     }
   }, {
     "id" : "SuperConnectorOS_voltage_localhost_1",

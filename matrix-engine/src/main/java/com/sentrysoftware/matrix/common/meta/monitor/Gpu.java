@@ -54,7 +54,6 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USED_TI
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VENDOR;
 import static com.sentrysoftware.matrix.common.helpers.NumberHelper.formatNumber;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.getValue;
-import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.CORRECTED_ERROR_COUNT_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.ERROR_COUNT_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.MEMORY_UTILIZATION_ALARM_CONDITION;
 import static com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder.MEMORY_UTILIZATION_WARN_CONDITION;
@@ -169,10 +168,6 @@ public class Gpu implements IMetaMonitor {
 	public static final AlertRule STATUS_ALARM_ALERT_RULE = new AlertRule(Gpu::checkStatusAlarmCondition,
 		STATUS_ALARM_CONDITION,
 		Severity.ALARM);
-	public static final AlertRule CORRECTED_ERROR_COUNT_ALERT_RULE = new AlertRule(
-		Gpu::checkCorrectedFewErrorCountCondition,
-		CORRECTED_ERROR_COUNT_ALARM_CONDITION,
-		Severity.ALARM);
 	public static final AlertRule PREDICTED_FAILURE_ALERT_RULE = new AlertRule(Gpu::checkPredictedFailureCondition,
 		STATUS_WARN_CONDITION,
 		Severity.WARN);
@@ -228,8 +223,6 @@ public class Gpu implements IMetaMonitor {
 
 		alertRulesMap.put(PRESENT_PARAMETER, Collections.singletonList(PRESENT_ALERT_RULE));
 		alertRulesMap.put(STATUS_PARAMETER, List.of(STATUS_WARN_ALERT_RULE, STATUS_ALARM_ALERT_RULE));
-		alertRulesMap.put(CORRECTED_ERROR_COUNT_PARAMETER,
-				Collections.singletonList(CORRECTED_ERROR_COUNT_ALERT_RULE));
 		alertRulesMap.put(PREDICTED_FAILURE_PARAMETER, Collections.singletonList(PREDICTED_FAILURE_ALERT_RULE));
 		alertRulesMap.put(USED_TIME_PERCENT_PARAMETER,
 			List.of(USED_TIME_PERCENT_WARN_ALERT_RULE, USED_TIME_PERCENT_ALARM_ALERT_RULE));
@@ -258,10 +251,9 @@ public class Gpu implements IMetaMonitor {
 				.builder()
 				.problem("This GPU is degraded or is about to fail."
 					+ IMetaMonitor.getStatusInformationMessage(monitor))
-				.consequence("If degraded, this GPU may not be fully operational." +
-					" This could adversely impact the overall performance of the system." +
-					" If it is about to fail, this GPU is likely to crash very soon.")
-				.recommendedAction("Replace this GPU as soon as possible to prevent a system crash.")
+				.consequence("This GPU may not be fully operational. If the GPU is part of a cluster, this could adversely impact the cluster's performance." +
+					" If it is used as passthrough, it may crash the virtual machines that uses this GPU.")
+				.recommendedAction("Replace this GPU as soon as possible.")
 				.build();
 		}
 
@@ -284,9 +276,8 @@ public class Gpu implements IMetaMonitor {
 
 			return AlertDetails.builder()
 				.problem("This GPU has failed." + IMetaMonitor.getStatusInformationMessage(monitor))
-				.consequence("This GPU is not operational. This will impact the overall performance of the system." +
-					" If it is about to fail this GPU may crash very soon.")
-				.recommendedAction("Replace this GPU as soon as possible to prevent a system overload.")
+				.consequence("This GPU is not operational. This will impact the overall performance of the system or the GPU cluster it is part of.")
+				.recommendedAction("Replace this GPU. If used as passthrough, make sure the virtual machines that were using this GPU are still up and running.")
 				.build();
 		}
 
@@ -308,13 +299,9 @@ public class Gpu implements IMetaMonitor {
 
 			return AlertDetails.builder()
 				.problem("This GPU is not detected anymore.")
-				.consequence("This could mean that the GPU has been disabled by BIOS," +
-					" or that it has been deallocated for this system" +
-					" (in case of a dynamically reconfigurable machine)." +
-					" The computing capabilities have been reduced" +
-					" and this may impact the overall performance of this computer.")
-				.recommendedAction("Check whether the GPU has been intentionally removed by authorized personnel" +
-					" or whether it has failed. In the latter case, replace the faulty GPU.")
+				.consequence("The GPU is probably no longer operating.")
+				.recommendedAction("Check whether the GPU has been intentionally removed by authorized personnel or whether it has failed." +
+					" In the latter case, replace the faulty GPU.")
 				.build();
 		}
 
@@ -337,63 +324,9 @@ public class Gpu implements IMetaMonitor {
 
 			return AlertDetails.builder()
 				.problem("An imminent failure is predicted for this GPU.")
-				.consequence("A system crash is very likely to occur soon.")
-				.recommendedAction("Replace this GPU or disable it as soon as possible," +
-					" if disabling it will not affect the performance of the system.")
-				.build();
-		}
-
-		return null;
-	}
-
-	/**
-	 * Check condition when the GPU encountered and fixed a few internal errors.
-	 *
-	 * @param monitor    The GPU we wish to check its correctedErrorCount
-	 * @param conditions The conditions used to determine if the alarm is reached
-	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
-	 */
-	public static AlertDetails checkCorrectedFewErrorCountCondition(Monitor monitor, Set<AlertCondition> conditions) {
-
-		final AssertedParameter<NumberParam> assertedCorrectedErrorCount = monitor
-			.assertNumberParameter(CORRECTED_ERROR_COUNT_PARAMETER, conditions);
-
-		if (assertedCorrectedErrorCount.isAbnormal()) {
-
-			return AlertDetails.builder()
-				.problem(String.format("The GPU encountered and fixed a few internal errors (%s).",
-						getValue(() -> formatNumber(assertedCorrectedErrorCount.getParameter().getValue()), EMPTY)))
-				.consequence("The stability of the system may be affected. A system crash is likely to occur soon.")
-				.recommendedAction("Check as soon as possible whether the GPU environment is normal" +
-					" (voltage levels and temperature). If so, the GPU may be defective and needs to be replaced quickly.")
-				.build();
-		}
-
-		return null;
-	}
-
-	/**
-	 * Check condition when the GPU encountered and fixed a large number of internal errors.
-	 *
-	 * @param monitor    The GPU we wish to check its correctedErrorCount
-	 * @param conditions The conditions used to determine if the alarm is reached
-	 * @return {@link AlertDetails} if the abnormality is detected otherwise null
-	 */
-	public static AlertDetails checkCorrectedLargeErrorCountCondition(Monitor monitor, Set<AlertCondition> conditions) {
-
-		final AssertedParameter<NumberParam> assertedCorrectedErrorCount = monitor
-			.assertNumberParameter(CORRECTED_ERROR_COUNT_PARAMETER, conditions);
-
-		if (assertedCorrectedErrorCount.isAbnormal()) {
-
-			return AlertDetails.builder()
-				.problem(String.format("The GPU encountered and fixed a high number of internal errors (%s).",
-						getValue(() -> formatNumber(assertedCorrectedErrorCount.getParameter().getValue()), EMPTY)))
-				.consequence("The stability of the system may be critically affected." +
-					" A system crash is very likely to occur soon.")
-				.recommendedAction("Check as soon as possible if the GPU environment is normal" +
-					" (voltage levels and temperature)." +
-					" If so, the GPU may be defective and needs to be replaced quickly.")
+				.consequence("If part of a cluster of GPUs, this will impact the cluster's overall performance." +
+					" If used in a system or as passthrough, a system crash is very likely to occur soon.")
+				.recommendedAction("Replace this GPU as soon as possible.")
 				.build();
 		}
 
@@ -415,11 +348,13 @@ public class Gpu implements IMetaMonitor {
 		if (assertedUsedTimePercent.isAbnormal()) {
 
 			return AlertDetails.builder()
-				.problem(String.format("The GPU time usage is outside of expected range (%s %s).",
+				.problem(String.format("The GPU time usage is outside of the expected range (%s %s).",
 						getValue(() -> formatNumber(assertedUsedTimePercent.getParameter().getValue()), EMPTY),
 						PERCENT_PARAMETER_UNIT))
-				.consequence("The processing load may not be optimal and therefore lead to lower system performance.")
-				.recommendedAction("Check why this GPU is used this way.")
+				.consequence("The processing load may not be optimal and therefore may lead to lower system performance.")
+				.recommendedAction("Check why this GPU is used this way (it may be normal). " +
+					" If part of a cluster, check if any other GPUs have failed, consequently overloading this GPU."+ 
+					" Look for a driver update that may fix usage issues.")
 				.build();
 		}
 
@@ -441,11 +376,13 @@ public class Gpu implements IMetaMonitor {
 		if (assertedUsedTimePercent.isAbnormal()) {
 
 			return AlertDetails.builder()
-				.problem(String.format("The GPU time usage is outside of tolerated range (%s %s).",
+				.problem(String.format("The GPU time usage is outside of the tolerated range (%s %s).",
 						getValue(() -> formatNumber(assertedUsedTimePercent.getParameter().getValue()), EMPTY),
 						PERCENT_PARAMETER_UNIT))
-				.consequence("The processing load may not be optimal and therefore lead to lower system performance.")
-				.recommendedAction("Check why this GPU is used this way.")
+				.consequence("The processing load may not be optimal and therefore may lead to lower system performance.")
+				.recommendedAction("Check why this GPU is used this way (it may be normal)." +
+					" If part of a cluster, check if any other GPUs have failed, consequently overloading this GPU." +
+					" Look for a driver update that may fix usage issues.")
 				.build();
 		}
 
@@ -467,11 +404,11 @@ public class Gpu implements IMetaMonitor {
 		if (assertedMemoryUtilization.isAbnormal()) {
 
 			return AlertDetails.builder()
-				.problem(String.format("The GPU memory utilization is outside of expected range (%s %s).",
+				.problem(String.format("The GPU memory utilization is outside of the expected range (%s %s).",
 						getValue(() -> formatNumber(assertedMemoryUtilization.getParameter().getValue()), EMPTY),
 						PERCENT_PARAMETER_UNIT))
-				.consequence("The memory utilization may not be optimal and therefore lead to lower system performance.")
-				.recommendedAction("Check why this GPU memory is used so much.")
+				.consequence("A high memory utilization may lead to lower system performance.")
+				.recommendedAction("Check which processes use most of the GPU's memory and verify that it is an expected behavior.")
 				.build();
 		}
 
@@ -493,11 +430,11 @@ public class Gpu implements IMetaMonitor {
 		if (assertedMemoryUtilization.isAbnormal()) {
 
 			return AlertDetails.builder()
-				.problem(String.format("The GPU memory utilization is outside of tolerated range (%s %s).",
+				.problem(String.format("The GPU memory utilization is outside of the tolerated range (%s %s).",
 						getValue(() -> formatNumber(assertedMemoryUtilization.getParameter().getValue()), EMPTY),
 						PERCENT_PARAMETER_UNIT))
-				.consequence("The memory utilization may not be optimal and therefore lead to lower system performance.")
-				.recommendedAction("Check why this GPU memory utilization is used so much.")
+				.consequence("A high memory utilization may lead to lower system performance.")
+				.recommendedAction("Check which processes use most of the GPU's memory and verify that it is an expected behavior.")
 				.build();
 		}
 
@@ -518,12 +455,12 @@ public class Gpu implements IMetaMonitor {
 
 			String serialNumber = monitor.getMetadata(SERIAL_NUMBER);
 			return AlertDetails.builder()
-					.problem(String.format("The GPU encountered errors (%s).",
+					.problem(String.format("The GPU encountered a high number of errors (%s).",
 							getValue(() -> formatNumber(assertedErrorCount.getParameter().getValue()), EMPTY)))
-					.consequence("The stability of the system may be affected. A system crash is likely to occur soon.")
-					.recommendedAction("Check as soon as possible whether the GPU environment is normal (voltage levels and temperature)."
-							+ " If so, the GPU may be defective and needs to be replaced quickly."
-							+ ((serialNumber != null) ? String.format(" Please note this GPU's serial number: %s.", serialNumber) : ""))
+					.consequence("The stability of the system used by this GPU may be critically affected. A system crash is very likely to occur soon.")
+					.recommendedAction("Check as soon as possible if the GPU environment is normal (voltage levels and temperature)." +
+						" If so, the GPU may be defective and needs to be replaced quickly."
+						+ ((serialNumber != null) ? String.format(" Please note this GPU's serial number: %s.", serialNumber) : ""))
 					.build();
 		}
 
