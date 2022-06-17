@@ -1,6 +1,6 @@
 package com.sentrysoftware.matrix.engine.strategy.detection;
 
-
+import com.sentrysoftware.matrix.common.exception.NoConnectorsSelectedException;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
@@ -57,6 +57,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -192,6 +193,21 @@ class DetectionOperationTest {
 
 	}
 
+	@Test()
+	void testCallAutoDetectionKO() throws Exception {
+		final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance()
+				.createHostMonitoring(UUID.randomUUID().toString(), null);
+		doReturn(engineConfigurationAuto).when(strategyConfig).getEngineConfiguration();
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		doReturn(Collections.emptyMap()).when(store).getConnectors();
+
+		try (MockedStatic<NetworkHelper> networkHelper = Mockito.mockStatic(NetworkHelper.class)) {
+			networkHelper.when(() -> NetworkHelper.isLocalhost(eq(HOSTNAME))).thenReturn(false);
+
+			assertThrows(NoConnectorsSelectedException.class, () -> detectionOperation.call());
+		}
+	}
+
 	@Test
 	void testCallAutoDetection() throws Exception {
 
@@ -201,7 +217,7 @@ class DetectionOperationTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(Stream.of(connector1, connector2, connector3, connector4, connector5)
 				.collect(Collectors.toMap(Connector::getCompiledFilename, Function.identity()))).when(store)
-						.getConnectors();
+				.getConnectors();
 
 		try (MockedStatic<NetworkHelper> networkHelper = Mockito.mockStatic(NetworkHelper.class)) {
 			networkHelper.when(() -> NetworkHelper.isLocalhost(eq(HOSTNAME))).thenReturn(false);
@@ -242,7 +258,7 @@ class DetectionOperationTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(Stream.of(connector1, connector2, connector3, connector4, connector5)
 				.collect(Collectors.toMap(Connector::getCompiledFilename, Function.identity()))).when(store)
-						.getConnectors();
+				.getConnectors();
 
 		doReturn(SUCCESS_SNMP_RESULT1).when(matsyaClientsExecutor)
 				.executeSNMPGetNext(eq(OID1), any(), any(), anyBoolean());
@@ -396,7 +412,7 @@ class DetectionOperationTest {
 
 			final Stream<Connector> result = detectionOperation.filterConnectorsByLocalAndRemoteSupport(stream, false);
 			assertEquals(Stream.of(connector1, connector2).collect(Collectors.toSet()),
-						result.collect(Collectors.toSet()));
+					result.collect(Collectors.toSet()));
 		}
 	}
 
@@ -430,25 +446,27 @@ class DetectionOperationTest {
 		// exclude set is empty
 		assertEquals(localStore,
 				DetectionOperation.filterExcludedConnectors(Collections.emptySet(), localStore)
-				.collect(Collectors.toSet()));
+						.collect(Collectors.toSet()));
 
 		// Excludes connector4
 		assertEquals(Stream.of(connector1, connector2, connector3).collect(Collectors.toSet()),
 				DetectionOperation.filterExcludedConnectors(
-				Collections.singleton(connector4.getCompiledFilename()), localStore)
-				.collect(Collectors.toSet()));
+						Collections.singleton(connector4.getCompiledFilename()), localStore)
+						.collect(Collectors.toSet()));
 	}
-
 
 	@Test
 	void testFilterConnectorsByAcceptedProtocols() {
-		Stream<Connector> result = detectionOperation.filterConnectorsByAcceptedSources(Stream.of(connector1, connector2), Set.of(SnmpGetTableSource.class));
+		Stream<Connector> result = detectionOperation
+				.filterConnectorsByAcceptedSources(Stream.of(connector1, connector2), Set.of(SnmpGetTableSource.class));
 		assertEquals(Set.of(connector1, connector2), result.collect(Collectors.toSet()));
 
-		result = detectionOperation.filterConnectorsByAcceptedSources(Stream.of(connector1, connector2, Connector.builder().build()), Set.of(SnmpGetTableSource.class));
+		result = detectionOperation.filterConnectorsByAcceptedSources(
+				Stream.of(connector1, connector2, Connector.builder().build()), Set.of(SnmpGetTableSource.class));
 		assertEquals(Set.of(connector1, connector2), result.collect(Collectors.toSet()));
 
-		result = detectionOperation.filterConnectorsByAcceptedSources(Stream.of(connector1, connector2, Connector.builder().build()), Set.of(OsCommandSource.class));
+		result = detectionOperation.filterConnectorsByAcceptedSources(
+				Stream.of(connector1, connector2, Connector.builder().build()), Set.of(OsCommandSource.class));
 		assertEquals(Collections.emptySet(), result.collect(Collectors.toSet()));
 	}
 
@@ -456,10 +474,13 @@ class DetectionOperationTest {
 	void testFilterNoAutoDetectionConnectors() {
 
 		Connector connector1 = new Connector(); // connector1.getNoAutoDetection() == null
-		Connector connector2 = Connector.builder().noAutoDetection(Boolean.FALSE).build(); // connector2.getNoAutoDetection() == Boolean.FALSE
-		Connector connector3 = Connector.builder().noAutoDetection(Boolean.TRUE).build(); // connector2.getNoAutoDetection() == Boolean.TRUE
+		Connector connector2 = Connector.builder().noAutoDetection(Boolean.FALSE).build(); // connector2.getNoAutoDetection()
+																							// == Boolean.FALSE
+		Connector connector3 = Connector.builder().noAutoDetection(Boolean.TRUE).build(); // connector2.getNoAutoDetection()
+																							// == Boolean.TRUE
 
-		Stream<Connector> connectorsStreamResult = DetectionOperation.filterNoAutoDetectionConnectors(Stream.of(connector1, connector2, connector3));
+		Stream<Connector> connectorsStreamResult = DetectionOperation
+				.filterNoAutoDetectionConnectors(Stream.of(connector1, connector2, connector3));
 		assertNotNull(connectorsStreamResult);
 		Set<Connector> connectorsSetResult = connectorsStreamResult.collect(Collectors.toSet());
 		assertEquals(Set.of(connector1, connector2), connectorsSetResult);
@@ -473,7 +494,7 @@ class DetectionOperationTest {
 		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
 		doReturn(Stream.of(connector1, connector2, connector3, connector4, connector5)
 				.collect(Collectors.toMap(Connector::getCompiledFilename, Function.identity()))).when(store)
-						.getConnectors();
+				.getConnectors();
 
 		try (MockedStatic<NetworkHelper> networkHelper = Mockito.mockStatic(NetworkHelper.class)) {
 			networkHelper.when(() -> NetworkHelper.isLocalhost(eq(HOSTNAME))).thenReturn(false);
@@ -495,7 +516,8 @@ class DetectionOperationTest {
 			assertEquals(HOSTNAME, host.getHostId());
 
 			final Map<String, Monitor> connectors = hostMonitoring.selectFromType(MonitorType.CONNECTOR);
-			assertEquals(1, connectors.size());  // connector 1 supersedes connector 2 that's why we've detected only one connector
+			assertEquals(1, connectors.size()); // connector 1 supersedes connector 2 that's why we've detected only one
+												// connector
 			Monitor connector = connectors.get(HOSTNAME + "@" + CONNECTOR1_ID);
 			assertEquals(HOSTNAME, connector.getParentId());
 			assertEquals(HOSTNAME + "@" + CONNECTOR1_ID, connector.getId());
@@ -508,118 +530,155 @@ class DetectionOperationTest {
 	@Test
 	void testFilterLastResortConnectors() {
 		{
-			// A single "last resort" connector discovering the same hardware monitor as a regular connector
+			// A single "last resort" connector discovering the same hardware monitor as a
+			// regular connector
 			Connector lastResortConnector = Connector.builder().onLastResort(MonitorType.ENCLOSURE).build();
-			TestedConnector testedLastResortConnector = TestedConnector.builder().connector(lastResortConnector).build();
+			TestedConnector testedLastResortConnector = TestedConnector.builder().connector(lastResortConnector)
+					.build();
 
 			List<TestedConnector> testedConnectors = new ArrayList<>();
 			testedConnectors.add(testedLastResortConnector);
-			
+
 			detectionOperation.filterLastResortConnectors(testedConnectors, "localhost");
-			
+
 			// The last resort connector should be kept
 			assertTrue(testedConnectors.size() == 1);
 			assertTrue(testedConnectors.contains(testedLastResortConnector));
 
-			// Test with two connectors: the last resort and a regular one with a matching monitor type
-			Connector regularConnector = Connector.builder().hardwareMonitors(List.of(HardwareMonitor.builder().type(MonitorType.ENCLOSURE)
-					.discovery(Discovery.builder().instanceTable(TextInstanceTable.builder().text("Test").build()).build())
-					.build())).build();
-		
+			// Test with two connectors: the last resort and a regular one with a matching
+			// monitor type
+			Connector regularConnector = Connector.builder()
+					.hardwareMonitors(List.of(HardwareMonitor.builder().type(MonitorType.ENCLOSURE)
+							.discovery(Discovery.builder()
+									.instanceTable(TextInstanceTable.builder().text("Test").build()).build())
+							.build()))
+					.build();
+
 			TestedConnector testedRegularConnector = TestedConnector.builder().connector(regularConnector).build();
 			testedConnectors.add(testedRegularConnector);
 
 			detectionOperation.filterLastResortConnectors(testedConnectors, "localhost");
-			
+
 			// We should only have the regular connector left
 			assertEquals(1, testedConnectors.size());
 			assertTrue(testedConnectors.contains(testedRegularConnector));
 		}
-		
+
 		{
-			// A single "last resort" connector discovering something else than the regular connector
-			// Build a list of two connectors: a regular one and a last resort of Disk Controllers
+			// A single "last resort" connector discovering something else than the regular
+			// connector
+			// Build a list of two connectors: a regular one and a last resort of Disk
+			// Controllers
 			Connector lastResortConnector = Connector.builder().onLastResort(MonitorType.DISK_CONTROLLER).build();
-			TestedConnector testedLastResortConnector = TestedConnector.builder().connector(lastResortConnector).build();
-			
-			Connector regularConnector = Connector.builder().hardwareMonitors(List.of(HardwareMonitor.builder().type(MonitorType.ENCLOSURE)
-					.discovery(Discovery.builder().instanceTable(TextInstanceTable.builder().text("Test").build()).build())
-					.build())).build();	
+			TestedConnector testedLastResortConnector = TestedConnector.builder().connector(lastResortConnector)
+					.build();
+
+			Connector regularConnector = Connector.builder()
+					.hardwareMonitors(List.of(HardwareMonitor.builder().type(MonitorType.ENCLOSURE)
+							.discovery(Discovery.builder()
+									.instanceTable(TextInstanceTable.builder().text("Test").build()).build())
+							.build()))
+					.build();
 			TestedConnector testedRegularConnector = TestedConnector.builder().connector(regularConnector).build();
-			
-			List<TestedConnector> testedConnectors = new ArrayList<>(List.of(testedLastResortConnector, testedRegularConnector));
-			
+
+			List<TestedConnector> testedConnectors = new ArrayList<>(
+					List.of(testedLastResortConnector, testedRegularConnector));
+
 			detectionOperation.filterLastResortConnectors(testedConnectors, "localhost");
-			
-			// Our two connectors should still be in the list as the regular connector does not discover disk controllers
+
+			// Our two connectors should still be in the list as the regular connector does
+			// not discover disk controllers
 			assertEquals(2, testedConnectors.size());
 			assertTrue(testedConnectors.contains(testedRegularConnector));
 			assertTrue(testedConnectors.contains(testedLastResortConnector));
 		}
-		
+
 		{
-			// Two identical "last resort" connectors discovering something else than the regular connector
+			// Two identical "last resort" connectors discovering something else than the
+			// regular connector
 
 			// Regular connector with an enclosure instance table
-			Connector regularConnector = Connector.builder().hardwareMonitors(List.of(HardwareMonitor.builder().type(MonitorType.ENCLOSURE)
-					.discovery(Discovery.builder().instanceTable(TextInstanceTable.builder().text("Test").build()).build())
-					.build())).build();	
+			Connector regularConnector = Connector.builder()
+					.hardwareMonitors(List.of(HardwareMonitor.builder().type(MonitorType.ENCLOSURE)
+							.discovery(Discovery.builder()
+									.instanceTable(TextInstanceTable.builder().text("Test").build()).build())
+							.build()))
+					.build();
 			TestedConnector testedRegularConnector = TestedConnector.builder().connector(regularConnector).build();
 
 			// Last resort connector 1 with a disk controller instance table
 			Connector lastResortConnector1 = new Connector();
 			lastResortConnector1.setOnLastResort(MonitorType.DISK_CONTROLLER);
-			final HardwareMonitor diskControllerMonitor = HardwareMonitor.builder().type(MonitorType.DISK_CONTROLLER).build();
-			diskControllerMonitor.setDiscovery(Discovery.builder().instanceTable(TextInstanceTable.builder().text("Test").build()).build());
+			final HardwareMonitor diskControllerMonitor = HardwareMonitor.builder().type(MonitorType.DISK_CONTROLLER)
+					.build();
+			diskControllerMonitor.setDiscovery(
+					Discovery.builder().instanceTable(TextInstanceTable.builder().text("Test").build()).build());
 			lastResortConnector1.setHardwareMonitors(Collections.singletonList(diskControllerMonitor));
-			TestedConnector testedLastResortConnector1 = TestedConnector.builder().connector(lastResortConnector1).build();
-			
-			// Last resort connector 2 with Disk controller monitor type, no instance table (no need)
+			TestedConnector testedLastResortConnector1 = TestedConnector.builder().connector(lastResortConnector1)
+					.build();
+
+			// Last resort connector 2 with Disk controller monitor type, no instance table
+			// (no need)
 			Connector lastResortConnector2 = Connector.builder().onLastResort(MonitorType.DISK_CONTROLLER).build();
-			TestedConnector testedLastResortConnector2 = TestedConnector.builder().connector(lastResortConnector2).build();
-			
+			TestedConnector testedLastResortConnector2 = TestedConnector.builder().connector(lastResortConnector2)
+					.build();
+
 			// Build the list
-			List<TestedConnector> testedConnectors = new ArrayList<>(List.of(testedLastResortConnector1, testedLastResortConnector2, testedRegularConnector));
-			
+			List<TestedConnector> testedConnectors = new ArrayList<>(
+					List.of(testedLastResortConnector1, testedLastResortConnector2, testedRegularConnector));
+
 			detectionOperation.filterLastResortConnectors(testedConnectors, "localhost");
-			
-			// The regular connector and the first last resort connector should be in the list. The second last resort connector should 
-			// have been removed because we already have a connector that discovers the same monitor type (the first last resort connector) 
+
+			// The regular connector and the first last resort connector should be in the
+			// list. The second last resort connector should
+			// have been removed because we already have a connector that discovers the same
+			// monitor type (the first last resort connector)
 			assertEquals(2, testedConnectors.size());
 			assertTrue(testedConnectors.contains(testedRegularConnector));
 			assertTrue(testedConnectors.contains(testedLastResortConnector1));
 		}
-		
+
 		{
-			// Two different "last resort" connectors discovering something else than the regular connector
-			
+			// Two different "last resort" connectors discovering something else than the
+			// regular connector
+
 			// Regular connector with an enclosure instance table
-			Connector regularConnector = Connector.builder().hardwareMonitors(List.of(HardwareMonitor.builder().type(MonitorType.ENCLOSURE)
-					.discovery(Discovery.builder().instanceTable(TextInstanceTable.builder().text("Test").build()).build())
-					.build())).build();	
+			Connector regularConnector = Connector.builder()
+					.hardwareMonitors(List.of(HardwareMonitor.builder().type(MonitorType.ENCLOSURE)
+							.discovery(Discovery.builder()
+									.instanceTable(TextInstanceTable.builder().text("Test").build()).build())
+							.build()))
+					.build();
 			TestedConnector testedRegularConnector = TestedConnector.builder().connector(regularConnector).build();
 
 			// Last resort connector 1 with a disk controller instance table
 			Connector lastResortConnector1 = new Connector();
 			lastResortConnector1.setOnLastResort(MonitorType.DISK_CONTROLLER);
-			final HardwareMonitor enclosureMonitor = HardwareMonitor.builder().type(MonitorType.DISK_CONTROLLER).build();
-			enclosureMonitor.setDiscovery(Discovery.builder().instanceTable(TextInstanceTable.builder().text("Test").build()).build());
+			final HardwareMonitor enclosureMonitor = HardwareMonitor.builder().type(MonitorType.DISK_CONTROLLER)
+					.build();
+			enclosureMonitor.setDiscovery(
+					Discovery.builder().instanceTable(TextInstanceTable.builder().text("Test").build()).build());
 			lastResortConnector1.setHardwareMonitors(Collections.singletonList(enclosureMonitor));
-			TestedConnector testedLastResortConnector1 = TestedConnector.builder().connector(lastResortConnector1).build();
-			
-			// Last resort connector 2 with Disk controller monitor type, no instance table (no need)
+			TestedConnector testedLastResortConnector1 = TestedConnector.builder().connector(lastResortConnector1)
+					.build();
+
+			// Last resort connector 2 with Disk controller monitor type, no instance table
+			// (no need)
 			Connector lastResortConnector2 = Connector.builder().onLastResort(MonitorType.GPU).build();
 			final HardwareMonitor gpuMonitor = HardwareMonitor.builder().type(MonitorType.GPU).build();
-			gpuMonitor.setDiscovery(Discovery.builder().instanceTable(TextInstanceTable.builder().text("Test").build()).build());
+			gpuMonitor.setDiscovery(
+					Discovery.builder().instanceTable(TextInstanceTable.builder().text("Test").build()).build());
 			lastResortConnector2.setHardwareMonitors(Collections.singletonList(gpuMonitor));
-			TestedConnector testedLastResortConnector2 = TestedConnector.builder().connector(lastResortConnector2).build();
-			
+			TestedConnector testedLastResortConnector2 = TestedConnector.builder().connector(lastResortConnector2)
+					.build();
+
 			// Build the list
-			List<TestedConnector> testedConnectors = new ArrayList<>(List.of(testedLastResortConnector1, testedLastResortConnector2, testedRegularConnector));
-			
+			List<TestedConnector> testedConnectors = new ArrayList<>(
+					List.of(testedLastResortConnector1, testedLastResortConnector2, testedRegularConnector));
+
 			detectionOperation.filterLastResortConnectors(testedConnectors, "localhost");
-			
-			// All connectors should be kept 
+
+			// All connectors should be kept
 			assertEquals(3, testedConnectors.size());
 			assertTrue(testedConnectors.contains(testedRegularConnector));
 			assertTrue(testedConnectors.contains(testedLastResortConnector1));
