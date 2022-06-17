@@ -5771,14 +5771,14 @@
       }
     },
     "metadata" : {
-      "alarmthreshold" : "47.0",
+      "alarmthreshold" : "47",
       "connector" : "DellOpenManage",
       "deviceid" : "1.1",
       "idCount" : "0",
       "identifyingInformation" : "",
       "parameteractivation.temperature" : "System Board Inlet",
       "temperaturetype" : "System Board Inlet",
-      "warningthreshold" : "42.0"
+      "warningthreshold" : "42"
     },
     "alertRules" : {
       "status" : [ {
@@ -5898,14 +5898,14 @@
       }
     },
     "metadata" : {
-      "alarmthreshold" : "75.0",
+      "alarmthreshold" : "75",
       "connector" : "DellOpenManage",
       "deviceid" : "1.2",
       "idCount" : "1",
       "identifyingInformation" : "",
       "parameteractivation.temperature" : "System Board Exhaust",
       "temperaturetype" : "System Board Exhaust",
-      "warningthreshold" : "70.0"
+      "warningthreshold" : "70"
     },
     "alertRules" : {
       "status" : [ {
@@ -6025,7 +6025,7 @@
       }
     },
     "metadata" : {
-      "alarmthreshold" : "90.0",
+      "alarmthreshold" : "90",
       "connector" : "DellOpenManage",
       "deviceid" : "1.3",
       "idCount" : "2",
@@ -6033,7 +6033,7 @@
       "isCpuSensor" : "true",
       "parameteractivation.temperature" : "CPU1",
       "temperaturetype" : "CPU1",
-      "warningthreshold" : "85.0"
+      "warningthreshold" : "85"
     },
     "alertRules" : {
       "status" : [ {

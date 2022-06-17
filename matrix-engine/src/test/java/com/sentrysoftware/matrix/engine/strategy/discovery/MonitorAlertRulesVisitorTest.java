@@ -873,31 +873,45 @@ class MonitorAlertRulesVisitorTest {
 
 	@Test
 	void testProcessGpuInstanceAlertRules() {
-		final Monitor monitor = Monitor.builder().metadata(new HashMap<>()).build();
-		final Set<AlertCondition> userTimePercentWarningConditions = AlertConditionsBuilder.newInstance()
-			.gte(80D)
-			.build();
+		{ 
+			final Monitor monitor = Monitor.builder().build();
+			monitor.addMetadata(USED_TIME_PERCENT_WARNING_THRESHOLD, "80");
+			monitor.addMetadata(USED_TIME_PERCENT_ALARM_THRESHOLD, "90");
+			monitor.addMetadata(MEMORY_UTILIZATION_WARNING_THRESHOLD, "90");
+			monitor.addMetadata(MEMORY_UTILIZATION_ALARM_THRESHOLD, "95");
+			final Set<AlertCondition> userTimePercentWarningConditions = AlertConditionsBuilder.newInstance()
+				.gte(80D)
+				.build();
 
-		final Set<AlertCondition> userTimePercentAlarmConditions = AlertConditionsBuilder.newInstance()
-			.gte(90D)
-			.build();
+			final Set<AlertCondition> userTimePercentAlarmConditions = AlertConditionsBuilder.newInstance()
+				.gte(90D)
+				.build();
 
-		new MonitorAlertRulesVisitor(monitor).processGpuInstanceAlertRules(monitor);
+			new MonitorAlertRulesVisitor(monitor).processGpuInstanceAlertRules(monitor);
 
-		assertAlertRule(monitor.getAlertRules(), USED_TIME_PERCENT_PARAMETER, Severity.WARN, userTimePercentWarningConditions, AlertRuleType.INSTANCE);
-		assertAlertRule(monitor.getAlertRules(), USED_TIME_PERCENT_PARAMETER, Severity.ALARM, userTimePercentAlarmConditions, AlertRuleType.INSTANCE);
+			assertAlertRule(monitor.getAlertRules(), USED_TIME_PERCENT_PARAMETER, Severity.WARN, userTimePercentWarningConditions, AlertRuleType.INSTANCE);
+			assertAlertRule(monitor.getAlertRules(), USED_TIME_PERCENT_PARAMETER, Severity.ALARM, userTimePercentAlarmConditions, AlertRuleType.INSTANCE);
 
-		final Set<AlertCondition> memoryUtilizationWarningConditions = AlertConditionsBuilder.newInstance()
-			.gte(90D)
-			.build();
+			final Set<AlertCondition> memoryUtilizationWarningConditions = AlertConditionsBuilder.newInstance()
+				.gte(90D)
+				.build();
 
-		final Set<AlertCondition> memoryUtilizationAlarmConditions = AlertConditionsBuilder.newInstance()
-			.gte(95D)
-			.build();
+			final Set<AlertCondition> memoryUtilizationAlarmConditions = AlertConditionsBuilder.newInstance()
+				.gte(95D)
+				.build();
 
-		assertAlertRule(monitor.getAlertRules(), MEMORY_UTILIZATION_PARAMETER, Severity.WARN, memoryUtilizationWarningConditions, AlertRuleType.INSTANCE);
-		assertAlertRule(monitor.getAlertRules(), MEMORY_UTILIZATION_PARAMETER, Severity.ALARM, memoryUtilizationAlarmConditions, AlertRuleType.INSTANCE);
+			assertAlertRule(monitor.getAlertRules(), MEMORY_UTILIZATION_PARAMETER, Severity.WARN, memoryUtilizationWarningConditions, AlertRuleType.INSTANCE);
+			assertAlertRule(monitor.getAlertRules(), MEMORY_UTILIZATION_PARAMETER, Severity.ALARM, memoryUtilizationAlarmConditions, AlertRuleType.INSTANCE);
+		}
+		{ 
+			final Monitor monitor = Monitor.builder().build();
 
-		
+			new MonitorAlertRulesVisitor(monitor).processGpuInstanceAlertRules(monitor);
+
+			assertEquals("80", monitor.getMetadata(USED_TIME_PERCENT_WARNING_THRESHOLD));
+			assertEquals("90", monitor.getMetadata(USED_TIME_PERCENT_ALARM_THRESHOLD));
+			assertEquals("90", monitor.getMetadata(MEMORY_UTILIZATION_WARNING_THRESHOLD));
+			assertEquals("95", monitor.getMetadata(MEMORY_UTILIZATION_ALARM_THRESHOLD));
+		}
 	}
 }

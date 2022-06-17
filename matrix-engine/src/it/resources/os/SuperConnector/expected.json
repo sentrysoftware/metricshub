@@ -3634,8 +3634,8 @@
       "fantype" : "CPU",
       "idCount" : "0",
       "identifyingInformation" : "Fan Module: A Slot: 0",
-      "percentalarmthreshold" : "",
-      "percentwarningthreshold" : ""
+      "percentalarmthreshold" : "0",
+      "percentwarningthreshold" : "5"
     },
     "alertRules" : {
       "present" : [ {
@@ -3826,8 +3826,8 @@
       "fantype" : "Front",
       "idCount" : "1",
       "identifyingInformation" : "Fan Module: B Slot: 1",
-      "percentalarmthreshold" : "",
-      "percentwarningthreshold" : ""
+      "percentalarmthreshold" : "0",
+      "percentwarningthreshold" : "5"
     },
     "alertRules" : {
       "present" : [ {
@@ -4096,7 +4096,7 @@
         "period" : 0,
         "conditions" : [ {
           "operator" : "GTE",
-          "threshold" : 99.0
+          "threshold" : 95.0
         } ],
         "severity" : "ALARM",
         "firstTriggerTimestamp" : null,
@@ -4373,7 +4373,7 @@
         "period" : 0,
         "conditions" : [ {
           "operator" : "GTE",
-          "threshold" : 99.0
+          "threshold" : 95.0
         } ],
         "severity" : "ALARM",
         "details" : {
@@ -4694,7 +4694,7 @@
         "period" : 0,
         "conditions" : [ {
           "operator" : "GTE",
-          "threshold" : 99.0
+          "threshold" : 95.0
         } ],
         "severity" : "ALARM",
         "firstTriggerTimestamp" : null,
@@ -5825,7 +5825,7 @@
       "arrayname" : "Intel",
       "attachedtodeviceid" : "1",
       "attachedtodevicetype" : "Enclosure",
-      "availablePathWarning" : "1.0",
+      "availablePathWarning" : "1",
       "connector" : "SuperConnectorOS",
       "deviceid" : "2",
       "devicetype" : "LUN",
@@ -5960,7 +5960,7 @@
       "arrayname" : "Hitachi",
       "attachedtodeviceid" : "1",
       "attachedtodevicetype" : "Enclosure",
-      "availablePathWarning" : "2.0",
+      "availablePathWarning" : "2",
       "connector" : "SuperConnectorOS",
       "deviceid" : "3",
       "devicetype" : "LUN",
@@ -6962,7 +6962,7 @@
         "period" : 0,
         "conditions" : [ {
           "operator" : "GTE",
-          "threshold" : 10.0
+          "threshold" : 20.0
         } ],
         "severity" : "WARN",
         "firstTriggerTimestamp" : null,
@@ -7222,7 +7222,7 @@
         "period" : 0,
         "conditions" : [ {
           "operator" : "GTE",
-          "threshold" : 10.0
+          "threshold" : 20.0
         } ],
         "severity" : "WARN",
         "firstTriggerTimestamp" : null,
@@ -7512,7 +7512,7 @@
         "period" : 0,
         "conditions" : [ {
           "operator" : "GTE",
-          "threshold" : 10.0
+          "threshold" : 20.0
         } ],
         "severity" : "WARN",
         "firstTriggerTimestamp" : null,
@@ -7802,7 +7802,7 @@
         "period" : 0,
         "conditions" : [ {
           "operator" : "GTE",
-          "threshold" : 10.0
+          "threshold" : 20.0
         } ],
         "severity" : "WARN",
         "firstTriggerTimestamp" : null,
