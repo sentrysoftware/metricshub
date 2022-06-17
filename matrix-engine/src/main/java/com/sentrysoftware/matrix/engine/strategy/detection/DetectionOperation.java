@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.sentrysoftware.matrix.common.exception.NoConnectorsSelectedException;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
@@ -76,6 +77,11 @@ public class DetectionOperation extends AbstractStrategy {
 			testedConnectorList = performAutoDetection(isLocalhost);
 		} else {
 			testedConnectorList = processSelectedConnectors(selectedConnectors);
+		}
+
+		if(testedConnectorList.isEmpty()) {
+			log.debug("Hostname {} - Error - No connectors were selected during DetectionOperation", hostname);
+			throw new NoConnectorsSelectedException();
 		}
 
 		// Create the connector instances
