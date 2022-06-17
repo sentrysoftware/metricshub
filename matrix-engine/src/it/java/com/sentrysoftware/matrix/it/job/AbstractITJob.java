@@ -90,7 +90,14 @@ public abstract class AbstractITJob implements ITJob {
 
 			assertNotNull(expectedAlertRules, () -> "Expected alert rules cannot be null for monitor identifier: " + expected.getId());
 			for (AlertRule expectedAlertRule : expectedAlertRules) {
-				final AlertRule actualAlertRule = actual.getAlertRules().get(expectedEntry.getKey()).stream()
+
+				final List<AlertRule> actualAlertRules = actual.getAlertRules().get(parameterName);
+
+				assertNotNull(actualAlertRules, 
+						() -> "Cannot find actual alert rules on monitor: " + expected.getId() + ". For parameter: "
+								+ parameterName);
+
+				final AlertRule actualAlertRule = actualAlertRules.stream()
 						.filter(rule -> rule.same(expectedAlertRule)).findFirst().orElse(null);
 
 				assertNotNull(actualAlertRule,

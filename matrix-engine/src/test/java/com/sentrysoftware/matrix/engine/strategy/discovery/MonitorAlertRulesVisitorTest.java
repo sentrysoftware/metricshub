@@ -1,28 +1,12 @@
 package com.sentrysoftware.matrix.engine.strategy.discovery;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_COUNT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_WARNING;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_PERCENT_ALARM_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_PERCENT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_PERCENT_WARNING_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_PERCENT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STATUS_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VALUE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VOLTAGE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SNMP_UP_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SSH_UP_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WMI_UP_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WBEM_UP_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HTTP_UP_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IPMI_UP_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.*;
 
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -39,11 +23,13 @@ import com.sentrysoftware.matrix.common.meta.monitor.Fan;
 import com.sentrysoftware.matrix.common.meta.monitor.Gpu;
 import com.sentrysoftware.matrix.common.meta.monitor.OtherDevice;
 import com.sentrysoftware.matrix.common.meta.monitor.Host;
+import com.sentrysoftware.matrix.common.meta.monitor.NetworkCard;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
 import com.sentrysoftware.matrix.common.meta.monitor.Vm;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Up;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.collect.CollectHelper;
+import com.sentrysoftware.matrix.engine.strategy.discovery.MonitorAlertRulesVisitor.ThresholdInfo;
 import com.sentrysoftware.matrix.model.alert.AlertCondition;
 import com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder;
 import com.sentrysoftware.matrix.model.alert.AlertRule;
@@ -81,8 +67,8 @@ class MonitorAlertRulesVisitorTest {
 	
 		final Map<String, List<AlertRule>> alertRulesMap = monitor.getAlertRules();
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
-				.eq(0D)
-				.build();
+			.eq(0D)
+			.build();
 
 		assertAlertRule(alertRulesMap, SNMP_UP_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.STATIC);
 		assertAlertRule(alertRulesMap, SSH_UP_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.STATIC);
@@ -97,20 +83,29 @@ class MonitorAlertRulesVisitorTest {
 		// WARN > ALARM
 		final Monitor monitor = new Monitor();
 		final Set<String> result = new MonitorAlertRulesVisitor(monitor)
-				.updateFanInstanceSpeedAlertRules(monitor, SPEED_PARAMETER, 500D, 0D);
+			.updateFanInstanceSpeedAlertRules(
+				monitor,
+				SPEED_PARAMETER,
+				new ThresholdInfo(WARNING_THRESHOLD, 500D),
+				new ThresholdInfo(ALARM_THRESHOLD, 0D),
+				false
+			);
 		assertEquals(Set.of(SPEED_PARAMETER), result);
 		final Map<String, List<AlertRule>> alertRulesMap = monitor.getAlertRules();
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
-				.lte(500D)
-				.build();
+			.lte(500D)
+			.build();
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
-				.gte(0D)
-				.lte(0D)
-				.build();
+			.gte(0D)
+			.lte(0D)
+			.build();
 
 		assertAlertRule(alertRulesMap, SPEED_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
 		assertAlertRule(alertRulesMap, SPEED_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
+
+		assertEquals("500", monitor.getMetadata(WARNING_THRESHOLD));
+		assertEquals("0", monitor.getMetadata(ALARM_THRESHOLD));
 
 	}
 
@@ -119,21 +114,29 @@ class MonitorAlertRulesVisitorTest {
 		// WARN < ALARM
 		final Monitor monitor = new Monitor();
 		final Set<String> result = new MonitorAlertRulesVisitor(monitor)
-				.updateFanInstanceSpeedAlertRules(monitor, SPEED_PARAMETER, 5D, 500D);
+			.updateFanInstanceSpeedAlertRules(
+				monitor,
+				SPEED_PARAMETER,
+				new ThresholdInfo(WARNING_THRESHOLD, 5D),
+				new ThresholdInfo(ALARM_THRESHOLD, 500D),
+				false
+			);
 		assertEquals(Set.of(SPEED_PARAMETER), result);
 		final Map<String, List<AlertRule>> alertRulesMap = monitor.getAlertRules();
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
-				.lte(500D)
-				.build();
+			.lte(500D)
+			.build();
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
-				.gte(0D)
-				.lte(5D)
-				.build();
+			.gte(0D)
+			.lte(5D)
+			.build();
 
 		assertAlertRule(alertRulesMap, SPEED_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
 		assertAlertRule(alertRulesMap, SPEED_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
 
+		assertEquals("500", monitor.getMetadata(WARNING_THRESHOLD));
+		assertEquals("5", monitor.getMetadata(ALARM_THRESHOLD));
 	}
 
 	@Test
@@ -141,21 +144,29 @@ class MonitorAlertRulesVisitorTest {
 		// WARN null, ALARM OK
 		final Monitor monitor = new Monitor();
 		final Set<String> result = new MonitorAlertRulesVisitor(monitor)
-				.updateFanInstanceSpeedAlertRules(monitor, SPEED_PARAMETER, null, 5D);
+			.updateFanInstanceSpeedAlertRules(
+				monitor,
+				SPEED_PARAMETER,
+				new ThresholdInfo(WARNING_THRESHOLD, null),
+				new ThresholdInfo(ALARM_THRESHOLD, 5D),
+				false
+			);
 		assertEquals(Set.of(SPEED_PARAMETER), result);
 		final Map<String, List<AlertRule>> alertRulesMap = monitor.getAlertRules();
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
-				.lte(5.5)
-				.build();
+			.lte(5.5)
+			.build();
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
-				.gte(0D)
-				.lte(5D)
-				.build();
+			.gte(0D)
+			.lte(5D)
+			.build();
 
 		assertAlertRule(alertRulesMap, SPEED_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
 		assertAlertRule(alertRulesMap, SPEED_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
 
+		assertEquals("5.5", monitor.getMetadata(WARNING_THRESHOLD));
+		assertEquals("5", monitor.getMetadata(ALARM_THRESHOLD));
 	}
 
 	@Test
@@ -163,22 +174,29 @@ class MonitorAlertRulesVisitorTest {
 		// WARN OK, ALARM null
 		final Monitor monitor = new Monitor();
 		final Set<String> result = new MonitorAlertRulesVisitor(monitor)
-				.updateFanInstanceSpeedAlertRules(monitor, SPEED_PARAMETER, 5D, null);
+			.updateFanInstanceSpeedAlertRules(
+				monitor,
+				SPEED_PARAMETER,
+				new ThresholdInfo(WARNING_THRESHOLD, 5D),
+				new ThresholdInfo(ALARM_THRESHOLD, null),
+				false
+			);
 		assertEquals(Set.of(SPEED_PARAMETER), result);
 		final Map<String, List<AlertRule>> alertRulesMap = monitor.getAlertRules();
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
-				.lte(5D)
-				.build();
+			.lte(5D)
+			.build();
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
-				.gte(0D)
-				.lte(4.5)
-				.build();
-
+			.gte(0D)
+			.lte(4.5)
+			.build();
 
 		assertAlertRule(alertRulesMap, SPEED_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
 		assertAlertRule(alertRulesMap, SPEED_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
 
+		assertEquals("5", monitor.getMetadata(WARNING_THRESHOLD));
+		assertEquals("4.5", monitor.getMetadata(ALARM_THRESHOLD));
 	}
 
 	@Test
@@ -186,11 +204,20 @@ class MonitorAlertRulesVisitorTest {
 		// WARN null, ALARM null
 		final Monitor monitor = new Monitor();
 		final Set<String> result = new MonitorAlertRulesVisitor(monitor)
-				.updateFanInstanceSpeedAlertRules(monitor, SPEED_PARAMETER, null, null);
+			.updateFanInstanceSpeedAlertRules(
+				monitor,
+				SPEED_PARAMETER,
+				new ThresholdInfo(WARNING_THRESHOLD, null),
+				new ThresholdInfo(ALARM_THRESHOLD, null),
+				false
+			);
 		final Map<String, List<AlertRule>> alertRulesMap = monitor.getAlertRules();
 
 		assertTrue(alertRulesMap.isEmpty());
 		assertTrue(result.isEmpty());
+
+		assertEquals("500", monitor.getMetadata(WARNING_THRESHOLD));
+		assertEquals("0", monitor.getMetadata(ALARM_THRESHOLD));
 	}
 
 	@Test
@@ -199,27 +226,31 @@ class MonitorAlertRulesVisitorTest {
 		final Monitor monitor = new Monitor();
 
 		final Set<String> result = new MonitorAlertRulesVisitor(monitor)
-				.updateWarningToAlarmAlertRules(
-						monitor,
-						TEMPERATURE_PARAMETER,
-						50D,
-						60D,
-						Temperature::checkTemperatureAbnormallyHighCondition,
-						Temperature::checkTemperatureCriticallyHighCondition);
+			.updateWarningToAlarmAlertRules(
+				monitor,
+				TEMPERATURE_PARAMETER,
+				new ThresholdInfo(WARNING_THRESHOLD, 50D),
+				new ThresholdInfo(ALARM_THRESHOLD, 60D),
+				Temperature::checkTemperatureAbnormallyHighCondition,
+				Temperature::checkTemperatureCriticallyHighCondition
+			);
 
 		assertEquals(Set.of(TEMPERATURE_PARAMETER), result);
 
 		final Map<String, List<AlertRule>> alertRulesMap = monitor.getAlertRules();
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
-				.gte(50D)
-				.build();
+			.gte(50D)
+			.build();
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
-				.gte(60D)
-				.build();
+			.gte(60D)
+			.build();
 
 		assertAlertRule(alertRulesMap, TEMPERATURE_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
 		assertAlertRule(alertRulesMap, TEMPERATURE_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
+
+		assertEquals("50", monitor.getMetadata(WARNING_THRESHOLD));
+		assertEquals("60", monitor.getMetadata(ALARM_THRESHOLD));
 	}
 
 	@Test
@@ -228,27 +259,31 @@ class MonitorAlertRulesVisitorTest {
 		final Monitor monitor = new Monitor();
 
 		final Set<String> result = new MonitorAlertRulesVisitor(monitor)
-				.updateWarningToAlarmAlertRules(
-						monitor,
-						TEMPERATURE_PARAMETER,
-						60D,
-						50D,
-						Temperature::checkTemperatureAbnormallyHighCondition,
-						Temperature::checkTemperatureCriticallyHighCondition);
+			.updateWarningToAlarmAlertRules(
+				monitor,
+				TEMPERATURE_PARAMETER,
+				new ThresholdInfo(WARNING_THRESHOLD, 60D),
+				new ThresholdInfo(ALARM_THRESHOLD, 50D),
+				Temperature::checkTemperatureAbnormallyHighCondition,
+				Temperature::checkTemperatureCriticallyHighCondition
+			);
 
 		assertEquals(Set.of(TEMPERATURE_PARAMETER), result);
 
 		final Map<String, List<AlertRule>> alertRulesMap = monitor.getAlertRules();
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
-				.gte(50D)
-				.build();
+			.gte(50D)
+			.build();
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
-				.gte(60D)
-				.build();
+			.gte(60D)
+			.build();
 
 		assertAlertRule(alertRulesMap, TEMPERATURE_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
 		assertAlertRule(alertRulesMap, TEMPERATURE_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
+
+		assertEquals("50", monitor.getMetadata(WARNING_THRESHOLD));
+		assertEquals("60", monitor.getMetadata(ALARM_THRESHOLD));
 	}
 
 	@Test
@@ -257,24 +292,28 @@ class MonitorAlertRulesVisitorTest {
 		final Monitor monitor = new Monitor();
 
 		final Set<String> result = new MonitorAlertRulesVisitor(monitor)
-				.updateWarningToAlarmAlertRules(
-						monitor,
-						TEMPERATURE_PARAMETER,
-						40D,
-						null,
-						Temperature::checkTemperatureAbnormallyHighCondition,
-						Temperature::checkTemperatureCriticallyHighCondition);
+			.updateWarningToAlarmAlertRules(
+				monitor,
+				TEMPERATURE_PARAMETER,
+				new ThresholdInfo(WARNING_THRESHOLD, 40D),
+				new ThresholdInfo(ALARM_THRESHOLD, null),
+				Temperature::checkTemperatureAbnormallyHighCondition,
+				Temperature::checkTemperatureCriticallyHighCondition
+			);
 
 		assertEquals(Set.of(TEMPERATURE_PARAMETER), result);
 
 		final Map<String, List<AlertRule>> alertRulesMap = monitor.getAlertRules();
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
-				.gte(40D)
-				.build();
+			.gte(40D)
+			.build();
 
 		assertAlertRule(alertRulesMap, TEMPERATURE_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
 		assertEquals(1, alertRulesMap.get(TEMPERATURE_PARAMETER).size());
+
+		assertEquals("40", monitor.getMetadata(WARNING_THRESHOLD));
+		assertNull(monitor.getMetadata(ALARM_THRESHOLD));
 	}
 
 	@Test
@@ -283,24 +322,28 @@ class MonitorAlertRulesVisitorTest {
 		final Monitor monitor = new Monitor();
 
 		final Set<String> result = new MonitorAlertRulesVisitor(monitor)
-				.updateWarningToAlarmAlertRules(
-						monitor,
-						TEMPERATURE_PARAMETER,
-						null,
-						40D,
-						Temperature::checkTemperatureAbnormallyHighCondition,
-						Temperature::checkTemperatureCriticallyHighCondition);
+			.updateWarningToAlarmAlertRules(
+				monitor,
+				TEMPERATURE_PARAMETER,
+				new ThresholdInfo(WARNING_THRESHOLD, null),
+				new ThresholdInfo(ALARM_THRESHOLD, 40D),
+				Temperature::checkTemperatureAbnormallyHighCondition,
+				Temperature::checkTemperatureCriticallyHighCondition
+			);
 
 		assertEquals(Set.of(TEMPERATURE_PARAMETER), result);
 
 		final Map<String, List<AlertRule>> alertRulesMap = monitor.getAlertRules();
 
-		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
-				.gte(40D)
-				.build();
+		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
+			.gte(40D)
+			.build();
 
-		assertAlertRule(alertRulesMap, TEMPERATURE_PARAMETER, Severity.ALARM, warningConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(alertRulesMap, TEMPERATURE_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
 		assertEquals(1, alertRulesMap.get(TEMPERATURE_PARAMETER).size());
+
+		assertEquals("40", monitor.getMetadata(ALARM_THRESHOLD));
+		assertNull(monitor.getMetadata(WARNING_THRESHOLD));
 	}
 
 	@Test
@@ -309,160 +352,190 @@ class MonitorAlertRulesVisitorTest {
 		final Monitor monitor = new Monitor();
 
 		final Set<String> result = new MonitorAlertRulesVisitor(monitor)
-				.updateWarningToAlarmAlertRules(
-						monitor,
-						TEMPERATURE_PARAMETER,
-						null,
-						null,
-						Temperature::checkTemperatureAbnormallyHighCondition,
-						Temperature::checkTemperatureCriticallyHighCondition);
+			.updateWarningToAlarmAlertRules(
+				monitor,
+				TEMPERATURE_PARAMETER,
+				new ThresholdInfo(WARNING_THRESHOLD, null),
+				new ThresholdInfo(ALARM_THRESHOLD, null),
+				Temperature::checkTemperatureAbnormallyHighCondition,
+				Temperature::checkTemperatureCriticallyHighCondition
+			);
 
 		final Map<String, List<AlertRule>> alertRulesMap = monitor.getAlertRules();
 
 		assertTrue(alertRulesMap.isEmpty());
 		assertTrue(result.isEmpty());
+
+		assertNull(monitor.getMetadata(WARNING_THRESHOLD));
+		assertNull(monitor.getMetadata(ALARM_THRESHOLD));
 	}
 
 	@Test
 	void testUpdateVoltageInstanceAlertRulesUseCase1() {
 		// Lower OK <  Upper OK
 		final Monitor monitor = new Monitor();
+		monitor.addMetadata(LOWER_THRESHOLD, "50");
+		monitor.addMetadata(UPPER_THRESHOLD, "1000");
 
-		final Set<String> result = new MonitorAlertRulesVisitor(monitor)
-				.updateVoltageInstanceAlertRules(monitor, 50D, 1000D);
+		final Set<String> result = new MonitorAlertRulesVisitor(monitor).updateVoltageInstanceAlertRules(monitor);
 
 		assertEquals(Set.of(VOLTAGE_PARAMETER), result);
 
 		final Map<String, List<AlertRule>> alertRulesMap = monitor.getAlertRules();
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
-				.lte(50D)
-				.build();
+			.lte(50D)
+			.build();
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
-				.gte(1000D)
-				.build();
+			.gte(1000D)
+			.build();
 
 		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, Severity.ALARM, warningConditions, AlertRuleType.INSTANCE);
 		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
+
+		assertEquals("50", monitor.getMetadata(LOWER_THRESHOLD));
+		assertEquals("1000", monitor.getMetadata(UPPER_THRESHOLD));
 	}
 
 	@Test
 	void testUpdateVoltageInstanceAlertRulesUseCase2() {
 		// Lower OK >  Upper OK
 		final Monitor monitor = new Monitor();
+		monitor.addMetadata(LOWER_THRESHOLD, "1000");
+		monitor.addMetadata(UPPER_THRESHOLD, "50");
 
-		final Set<String> result = new MonitorAlertRulesVisitor(monitor)
-				.updateVoltageInstanceAlertRules(monitor, 1000D, 50D);
+		final Set<String> result = new MonitorAlertRulesVisitor(monitor).updateVoltageInstanceAlertRules(monitor);
 
 		assertEquals(Set.of(VOLTAGE_PARAMETER), result);
 
 		final Map<String, List<AlertRule>> alertRulesMap = monitor.getAlertRules();
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
-				.lte(50D)
-				.build();
+			.lte(50D)
+			.build();
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
-				.gte(1000D)
-				.build();
+			.gte(1000D)
+			.build();
 
 		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, Severity.ALARM, warningConditions, AlertRuleType.INSTANCE);
 		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
+
+		assertEquals("50", monitor.getMetadata(LOWER_THRESHOLD));
+		assertEquals("1000", monitor.getMetadata(UPPER_THRESHOLD));
 	}
 
 	@Test
 	void testUpdateVoltageInstanceAlertRulesUseCase3() {
 		// Lower null,  Upper OK > 0
 		final Monitor monitor = new Monitor();
+		monitor.addMetadata(LOWER_THRESHOLD, null);
+		monitor.addMetadata(UPPER_THRESHOLD, "1000");
 
-		final Set<String> result = new MonitorAlertRulesVisitor(monitor)
-				.updateVoltageInstanceAlertRules(monitor, null, 1000D);
+		final Set<String> result = new MonitorAlertRulesVisitor(monitor).updateVoltageInstanceAlertRules(monitor);
 
 		assertEquals(Set.of(VOLTAGE_PARAMETER), result);
 
 		final Map<String, List<AlertRule>> alertRulesMap = monitor.getAlertRules();
 
 		Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
-				.gte(1000D)
-				.build();
+			.gte(1000D)
+			.build();
 		Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
-				.gte(1100D)
-				.build();
+			.gte(1100D)
+			.build();
 
 		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
 		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
+
+		assertEquals("1000", monitor.getMetadata(LOWER_THRESHOLD));
+		assertEquals("1100", monitor.getMetadata(UPPER_THRESHOLD));
 	}
 
 	@Test
 	void testUpdateVoltageInstanceAlertRulesUseCase4() {
 		// Lower null,  Upper OK < 0
 		final Monitor monitor = new Monitor();
+		monitor.addMetadata(LOWER_THRESHOLD, null);
+		monitor.addMetadata(UPPER_THRESHOLD, "-50");
 
-		final Set<String> result = new MonitorAlertRulesVisitor(monitor)
-				.updateVoltageInstanceAlertRules(monitor, null, -50D);
+		final Set<String> result = new MonitorAlertRulesVisitor(monitor).updateVoltageInstanceAlertRules(monitor);
 
 		assertEquals(Set.of(VOLTAGE_PARAMETER), result);
 
 		final Map<String, List<AlertRule>> alertRulesMap = monitor.getAlertRules();
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
-				.lte(-50D)
-				.build();
+			.lte(-50D)
+			.build();
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
-				.lte(-55D)
-				.build();
+			.lte(-55D)
+			.build();
 
 		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
 		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
+
+		assertEquals("-50", monitor.getMetadata(UPPER_THRESHOLD));
+		assertEquals("-55", monitor.getMetadata(LOWER_THRESHOLD));
 	}
 
 	@Test
 	void testUpdateVoltageInstanceAlertRulesUseCase5() {
 		// Lower OK > 0,  Upper null
 		final Monitor monitor = new Monitor();
+		monitor.addMetadata(LOWER_THRESHOLD, "50");
+		monitor.addMetadata(UPPER_THRESHOLD, null);
 
 		final Set<String> result = new MonitorAlertRulesVisitor(monitor)
-				.updateVoltageInstanceAlertRules(monitor, 50D, null);
+				.updateVoltageInstanceAlertRules(monitor);
 
 		assertEquals(Set.of(VOLTAGE_PARAMETER), result);
 
 		final Map<String, List<AlertRule>> alertRulesMap = monitor.getAlertRules();
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
-				.lte(50D)
-				.gte(0D)
-				.build();
+			.lte(50D)
+			.gte(0D)
+			.build();
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
-				.lte(45D)
-				.gte(0D)
-				.build();
+			.lte(45D)
+			.gte(0D)
+			.build();
 
 		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
 		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
+
+		assertEquals("45", monitor.getMetadata(LOWER_THRESHOLD));
+		assertEquals("50", monitor.getMetadata(UPPER_THRESHOLD));
 	}
 
 	@Test
 	void testUpdateVoltageInstanceAlertRulesUseCase6() {
 		// Lower OK < 0,  Upper null
 		final Monitor monitor = new Monitor();
+		monitor.addMetadata(LOWER_THRESHOLD, "-50");
+		monitor.addMetadata(UPPER_THRESHOLD, null);
 
 		final Set<String> result = new MonitorAlertRulesVisitor(monitor)
-				.updateVoltageInstanceAlertRules(monitor, -50D, null);
+				.updateVoltageInstanceAlertRules(monitor);
 
 		assertEquals(Set.of(VOLTAGE_PARAMETER), result);
 
 		final Map<String, List<AlertRule>> alertRulesMap = monitor.getAlertRules();
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
-				.gte(-50D)
-				.lte(0D)
-				.build();
+			.gte(-50D)
+			.lte(0D)
+			.build();
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
-				.gte(-45D)
-				.lte(0D)
-				.build();
+			.gte(-45D)
+			.lte(0D)
+			.build();
 
 		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
 		assertAlertRule(alertRulesMap, VOLTAGE_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
+
+		assertEquals("-45", monitor.getMetadata(UPPER_THRESHOLD));
+		assertEquals("-50", monitor.getMetadata(LOWER_THRESHOLD));
 	}
 
 	@Test
@@ -471,12 +544,15 @@ class MonitorAlertRulesVisitorTest {
 		final Monitor monitor = new Monitor();
 
 		final Set<String> result = new MonitorAlertRulesVisitor(monitor)
-				.updateVoltageInstanceAlertRules(monitor, null, null);
+				.updateVoltageInstanceAlertRules(monitor);
 
 		final Map<String, List<AlertRule>> alertRulesMap = monitor.getAlertRules();
 
 		assertTrue(alertRulesMap.isEmpty());
 		assertTrue(result.isEmpty());
+
+		assertNull(monitor.getMetadata(LOWER_THRESHOLD));
+		assertNull(monitor.getMetadata(UPPER_THRESHOLD));
 	}
 
 	@Test
@@ -485,23 +561,32 @@ class MonitorAlertRulesVisitorTest {
 		final Monitor monitor = new Monitor();
 
 		final Set<String> result = new MonitorAlertRulesVisitor(monitor)
-				.updateWarningToAlarmEnhancedAlertRules(monitor, VALUE_PARAMETER, 100D, 200D,
-						OtherDevice::checkValueWarnCondition,
-						OtherDevice::checkValueAlarmCondition);
+			.updateWarningToAlarmEnhancedAlertRules(
+				monitor,
+				VALUE_PARAMETER,
+				new ThresholdInfo(VALUE_WARNING_THRESHOLD, 100D),
+				new ThresholdInfo(VALUE_ALARM_THRESHOLD, 200D),
+				OtherDevice::checkValueWarnCondition,
+				OtherDevice::checkValueAlarmCondition,
+				false
+			);
 
 		assertEquals(Set.of(VALUE_PARAMETER), result);
 
 		final Map<String, List<AlertRule>> alertRulesMap = monitor.getAlertRules();
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
-				.gte(100D)
-				.build();
+			.gte(100D)
+			.build();
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
-				.gte(200D)
-				.build();
+			.gte(200D)
+			.build();
 
 		assertAlertRule(alertRulesMap, VALUE_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
 		assertAlertRule(alertRulesMap, VALUE_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
+
+		assertEquals("100", monitor.getMetadata(VALUE_WARNING_THRESHOLD));
+		assertEquals("200", monitor.getMetadata(VALUE_ALARM_THRESHOLD));
 	}
 
 	@Test
@@ -510,23 +595,32 @@ class MonitorAlertRulesVisitorTest {
 		final Monitor monitor = new Monitor();
 
 		final Set<String> result = new MonitorAlertRulesVisitor(monitor)
-				.updateWarningToAlarmEnhancedAlertRules(monitor, VALUE_PARAMETER, 200D, 100D,
-						OtherDevice::checkValueWarnCondition,
-						OtherDevice::checkValueAlarmCondition);
+			.updateWarningToAlarmEnhancedAlertRules(
+				monitor,
+				VALUE_PARAMETER,
+				new ThresholdInfo(VALUE_WARNING_THRESHOLD, 200D),
+				new ThresholdInfo(VALUE_ALARM_THRESHOLD, 100D),
+				OtherDevice::checkValueWarnCondition,
+				OtherDevice::checkValueAlarmCondition,
+				false
+			);
 
 		assertEquals(Set.of(VALUE_PARAMETER), result);
 
 		final Map<String, List<AlertRule>> alertRulesMap = monitor.getAlertRules();
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
-				.gte(100D)
-				.build();
+			.gte(100D)
+			.build();
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
-				.gte(200D)
-				.build();
+			.gte(200D)
+			.build();
 
 		assertAlertRule(alertRulesMap, VALUE_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
 		assertAlertRule(alertRulesMap, VALUE_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
+
+		assertEquals("100", monitor.getMetadata(VALUE_WARNING_THRESHOLD));
+		assertEquals("200", monitor.getMetadata(VALUE_ALARM_THRESHOLD));
 	}
 
 	@Test
@@ -535,23 +629,32 @@ class MonitorAlertRulesVisitorTest {
 		final Monitor monitor = new Monitor();
 
 		final Set<String> result = new MonitorAlertRulesVisitor(monitor)
-				.updateWarningToAlarmEnhancedAlertRules(monitor, VALUE_PARAMETER, null, 100D,
-						OtherDevice::checkValueWarnCondition,
-						OtherDevice::checkValueAlarmCondition);
+			.updateWarningToAlarmEnhancedAlertRules(
+				monitor,
+				VALUE_PARAMETER,
+				new ThresholdInfo(VALUE_WARNING_THRESHOLD, null),
+				new ThresholdInfo(VALUE_ALARM_THRESHOLD, 100D),
+				OtherDevice::checkValueWarnCondition,
+				OtherDevice::checkValueAlarmCondition,
+				false
+			);
 
 		assertEquals(Set.of(VALUE_PARAMETER), result);
 
 		final Map<String, List<AlertRule>> alertRulesMap = monitor.getAlertRules();
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
-				.gte(90D)
-				.build();
+			.gte(90D)
+			.build();
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
-				.gte(100D)
-				.build();
+			.gte(100D)
+			.build();
 
 		assertAlertRule(alertRulesMap, VALUE_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
 		assertAlertRule(alertRulesMap, VALUE_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
+
+		assertEquals("90", monitor.getMetadata(VALUE_WARNING_THRESHOLD));
+		assertEquals("100", monitor.getMetadata(VALUE_ALARM_THRESHOLD));
 	}
 
 	@Test
@@ -560,23 +663,32 @@ class MonitorAlertRulesVisitorTest {
 		final Monitor monitor = new Monitor();
 
 		final Set<String> result = new MonitorAlertRulesVisitor(monitor)
-				.updateWarningToAlarmEnhancedAlertRules(monitor, VALUE_PARAMETER, 90D, null,
-						OtherDevice::checkValueWarnCondition,
-						OtherDevice::checkValueAlarmCondition);
+			.updateWarningToAlarmEnhancedAlertRules(
+				monitor,
+				VALUE_PARAMETER,
+				new ThresholdInfo(VALUE_WARNING_THRESHOLD, 90D),
+				new ThresholdInfo(VALUE_ALARM_THRESHOLD, null),
+				OtherDevice::checkValueWarnCondition,
+				OtherDevice::checkValueAlarmCondition,
+				false
+			);
 
 		assertEquals(Set.of(VALUE_PARAMETER), result);
 
 		final Map<String, List<AlertRule>> alertRulesMap = monitor.getAlertRules();
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
-				.gte(90D)
-				.build();
+			.gte(90D)
+			.build();
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
-				.gte(99D)
-				.build();
+			.gte(99D)
+			.build();
 
 		assertAlertRule(alertRulesMap, VALUE_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
 		assertAlertRule(alertRulesMap, VALUE_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
+
+		assertEquals("90", monitor.getMetadata(VALUE_WARNING_THRESHOLD));
+		assertEquals("99", monitor.getMetadata(VALUE_ALARM_THRESHOLD));
 	}
 
 	@Test
@@ -585,14 +697,23 @@ class MonitorAlertRulesVisitorTest {
 		final Monitor monitor = new Monitor();
 
 		final Set<String> result = new MonitorAlertRulesVisitor(monitor)
-				.updateWarningToAlarmEnhancedAlertRules(monitor, VALUE_PARAMETER, null, null,
-						OtherDevice::checkValueWarnCondition,
-						OtherDevice::checkValueAlarmCondition);
+			.updateWarningToAlarmEnhancedAlertRules(
+				monitor,
+				VALUE_PARAMETER,
+				new ThresholdInfo(VALUE_WARNING_THRESHOLD, null),
+				new ThresholdInfo(VALUE_ALARM_THRESHOLD, null),
+				OtherDevice::checkValueWarnCondition,
+				OtherDevice::checkValueAlarmCondition,
+				false
+			);
 
 		final Map<String, List<AlertRule>> alertRulesMap = monitor.getAlertRules();
 
 		assertTrue(alertRulesMap.isEmpty());
 		assertTrue(result.isEmpty());
+
+		assertNull(monitor.getMetadata(VALUE_WARNING_THRESHOLD));
+		assertNull(monitor.getMetadata(VALUE_ALARM_THRESHOLD));
 	}
 
 	/**
@@ -607,10 +728,10 @@ class MonitorAlertRulesVisitorTest {
 	private void assertAlertRule(final Map<String, List<AlertRule>> actualAlertRules, final String parameterName,
 			final Severity expectedSeverity, final Set<AlertCondition> expectedConditions, final AlertRuleType expectedType) {
 		final AlertRule alertRule = actualAlertRules.get(parameterName)
-				.stream()
-				.filter(rule -> expectedSeverity.equals(rule.getSeverity())
-							&& expectedConditions.equals(rule.getConditions()))
-				.findFirst().orElse(null);
+			.stream()
+			.filter(rule -> expectedSeverity.equals(rule.getSeverity()) && expectedConditions.equals(rule.getConditions()))
+			.findFirst()
+			.orElse(null);
 
 		assertNotNull(alertRule);
 		assertEquals(expectedType, alertRule.getType());
@@ -638,13 +759,13 @@ class MonitorAlertRulesVisitorTest {
 		final Monitor monitor = new Monitor();
 		monitor.addMetadata(AVAILABLE_PATH_WARNING, "2");
 
-		final Set<String> result = new MonitorAlertRulesVisitor(monitor)
-				.processLunInstanceAlertRules(monitor);
+		final Set<String> result = new MonitorAlertRulesVisitor(monitor).processLunInstanceAlertRules(monitor);
+
 		assertEquals(Collections.singleton(AVAILABLE_PATH_COUNT_PARAMETER), result);
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
-				.lte(2D)
-				.build();
+			.lte(2D)
+			.build();
 
 		assertAlertRule(monitor.getAlertRules(), AVAILABLE_PATH_COUNT_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
 	}
@@ -653,8 +774,8 @@ class MonitorAlertRulesVisitorTest {
 	void testProcessLunInstanceAlertRulesNoMetadataThreshold() {
 		final Monitor monitor = new Monitor();
 
-		final Set<String> result = new MonitorAlertRulesVisitor(monitor)
-				.processLunInstanceAlertRules(monitor);
+		final Set<String> result = new MonitorAlertRulesVisitor(monitor).processLunInstanceAlertRules(monitor);
+
 		assertTrue(result.isEmpty());
 		assertTrue(monitor.getAlertRules().isEmpty());
 	}
@@ -663,22 +784,20 @@ class MonitorAlertRulesVisitorTest {
 	void testProcessLunInstanceAlertRulesSameThresholdsAsStatic() {
 		final Monitor monitor = new Monitor();
 		monitor.addMetadata(AVAILABLE_PATH_WARNING, "0");
-		final Set<String> result = new MonitorAlertRulesVisitor(monitor)
-				.processLunInstanceAlertRules(monitor);
+		final Set<String> result = new MonitorAlertRulesVisitor(monitor).processLunInstanceAlertRules(monitor);
+
 		assertTrue(result.isEmpty());
 		assertTrue(monitor.getAlertRules().isEmpty());
 	}
 
 	@Test
-	void testProcessNetworkCardInstanceAlertRulesNonValidThresholds() {
+	void testVisitNetworkCardInstanceAlertRulesNonValidThresholds() {
 		{
 			final Monitor monitor = new Monitor();
 			monitor.addMetadata(ERROR_PERCENT_WARNING_THRESHOLD, "-1");
 			monitor.addMetadata(ERROR_PERCENT_ALARM_THRESHOLD, "100");
 
-			final Set<String> result = new MonitorAlertRulesVisitor(monitor)
-					.processNetworkCardInstanceAlertRules(monitor);
-			assertEquals(Collections.singleton(ERROR_PERCENT_PARAMETER), result);
+			new MonitorAlertRulesVisitor(monitor).visit(new NetworkCard());
 
 			assertErrorPercentDefault(monitor);
 		}
@@ -688,9 +807,7 @@ class MonitorAlertRulesVisitorTest {
 			monitor.addMetadata(ERROR_PERCENT_WARNING_THRESHOLD, "20");
 			monitor.addMetadata(ERROR_PERCENT_ALARM_THRESHOLD, "-100");
 
-			final Set<String> result = new MonitorAlertRulesVisitor(monitor)
-					.processNetworkCardInstanceAlertRules(monitor);
-			assertEquals(Collections.singleton(ERROR_PERCENT_PARAMETER), result);
+			new MonitorAlertRulesVisitor(monitor).visit(new NetworkCard());
 
 			assertErrorPercentDefault(monitor);
 		}
@@ -700,9 +817,7 @@ class MonitorAlertRulesVisitorTest {
 			monitor.addMetadata(ERROR_PERCENT_WARNING_THRESHOLD, "-20");
 			monitor.addMetadata(ERROR_PERCENT_ALARM_THRESHOLD, "-100");
 
-			final Set<String> result = new MonitorAlertRulesVisitor(monitor)
-					.processNetworkCardInstanceAlertRules(monitor);
-			assertEquals(Collections.singleton(ERROR_PERCENT_PARAMETER), result);
+			new MonitorAlertRulesVisitor(monitor).visit(new NetworkCard());
 
 			assertErrorPercentDefault(monitor);
 		}
@@ -710,15 +825,15 @@ class MonitorAlertRulesVisitorTest {
 
 	private void assertErrorPercentDefault(final Monitor monitor) {
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
-				.gte(20D)
-				.build();
+			.gte(20D)
+			.build();
 
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
-				.gte(30D)
-				.build();
+			.gte(30D)
+			.build();
 
-		assertAlertRule(monitor.getAlertRules(), ERROR_PERCENT_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
-		assertAlertRule(monitor.getAlertRules(), ERROR_PERCENT_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(monitor.getAlertRules(), ERROR_PERCENT_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.STATIC);
+		assertAlertRule(monitor.getAlertRules(), ERROR_PERCENT_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.STATIC);
 	}
 
 	@Test
@@ -728,16 +843,17 @@ class MonitorAlertRulesVisitorTest {
 		monitor.addMetadata(ERROR_PERCENT_ALARM_THRESHOLD, "90");
 
 		final Set<String> result = new MonitorAlertRulesVisitor(monitor)
-				.processNetworkCardInstanceAlertRules(monitor);
+			.processNetworkCardInstanceAlertRules(monitor);
+
 		assertEquals(Collections.singleton(ERROR_PERCENT_PARAMETER), result);
 
 		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
-				.gte(80D)
-				.build();
+			.gte(80D)
+			.build();
 
 		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
-				.gte(90D)
-				.build();
+			.gte(90D)
+			.build();
 
 		assertAlertRule(monitor.getAlertRules(), ERROR_PERCENT_PARAMETER, Severity.WARN, warningConditions, AlertRuleType.INSTANCE);
 		assertAlertRule(monitor.getAlertRules(), ERROR_PERCENT_PARAMETER, Severity.ALARM, alarmConditions, AlertRuleType.INSTANCE);
@@ -758,7 +874,30 @@ class MonitorAlertRulesVisitorTest {
 	@Test
 	void testProcessGpuInstanceAlertRules() {
 		final Monitor monitor = Monitor.builder().metadata(new HashMap<>()).build();
-		assertEquals(Collections.emptySet(), new MonitorAlertRulesVisitor(monitor)
-				.processGpuInstanceAlertRules(monitor));
+		final Set<AlertCondition> userTimePercentWarningConditions = AlertConditionsBuilder.newInstance()
+			.gte(80D)
+			.build();
+
+		final Set<AlertCondition> userTimePercentAlarmConditions = AlertConditionsBuilder.newInstance()
+			.gte(90D)
+			.build();
+
+		new MonitorAlertRulesVisitor(monitor).processGpuInstanceAlertRules(monitor);
+
+		assertAlertRule(monitor.getAlertRules(), USED_TIME_PERCENT_PARAMETER, Severity.WARN, userTimePercentWarningConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(monitor.getAlertRules(), USED_TIME_PERCENT_PARAMETER, Severity.ALARM, userTimePercentAlarmConditions, AlertRuleType.INSTANCE);
+
+		final Set<AlertCondition> memoryUtilizationWarningConditions = AlertConditionsBuilder.newInstance()
+			.gte(90D)
+			.build();
+
+		final Set<AlertCondition> memoryUtilizationAlarmConditions = AlertConditionsBuilder.newInstance()
+			.gte(95D)
+			.build();
+
+		assertAlertRule(monitor.getAlertRules(), MEMORY_UTILIZATION_PARAMETER, Severity.WARN, memoryUtilizationWarningConditions, AlertRuleType.INSTANCE);
+		assertAlertRule(monitor.getAlertRules(), MEMORY_UTILIZATION_PARAMETER, Severity.ALARM, memoryUtilizationAlarmConditions, AlertRuleType.INSTANCE);
+
+		
 	}
 }

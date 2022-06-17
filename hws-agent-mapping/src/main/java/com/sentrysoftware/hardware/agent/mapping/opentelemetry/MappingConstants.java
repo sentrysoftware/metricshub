@@ -62,8 +62,8 @@ public class MappingConstants {
 	// Attribute values
 	public static final String OK_ATTRIBUTE_VALUE = "ok";
 	public static final String CORRECTED_ATTRIBUTE_VALUE = "corrected";
-	public static final String DECODER_ATTRIBUTE_VALUE = "decorder";
-	public static final String ENCODER_ATTRIBUTE_VALUE = "encorder";
+	public static final String DECODER_ATTRIBUTE_VALUE = "decoder";
+	public static final String ENCODER_ATTRIBUTE_VALUE = "encoder";
 	public static final String GENERAL_ATTRIBUTE_VALUE = "general";
 	public static final String RECEIVE_ATTRIBUTE_VALUE = "receive";
 	public static final String TRANSMIT_ATTRIBUTE_VALUE = "transmit";

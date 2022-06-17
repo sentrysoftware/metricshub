@@ -14,6 +14,9 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SERIAL_NUMBER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HOST_FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ALARM_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_ALARM_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.FAN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -356,6 +359,10 @@ class DiscoveryOperationTest {
 		fanMetadata.put(CONNECTOR, MY_CONNECTOR_1_NAME);
 		fanMetadata.put(HOST_FQDN, null);
 		fanMetadata.put(IDENTIFYING_INFORMATION, EMPTY);
+		fanMetadata.put(WARNING_THRESHOLD, "500");
+		fanMetadata.put(ALARM_THRESHOLD, "0");
+		fanMetadata.put(PERCENT_WARNING_THRESHOLD, "5");
+		fanMetadata.put(PERCENT_ALARM_THRESHOLD, "0");
 
 		final Monitor expectedFan = Monitor.builder()
 				.id(FAN_ID)
@@ -1199,6 +1206,10 @@ class DiscoveryOperationTest {
 		fanMetadata.put(CONNECTOR, MY_CONNECTOR_1_NAME);
 		fanMetadata.put(HOST_FQDN, null);
 		fanMetadata.put(IDENTIFYING_INFORMATION, EMPTY);
+		fanMetadata.put(WARNING_THRESHOLD, "500");
+		fanMetadata.put(ALARM_THRESHOLD, "0");
+		fanMetadata.put(PERCENT_WARNING_THRESHOLD, "5");
+		fanMetadata.put(PERCENT_ALARM_THRESHOLD, "0");
 
 		final Monitor expectedFan = Monitor.builder()
 				.id(FAN_ID)

@@ -1,7 +1,5 @@
 package com.sentrysoftware.matrix.engine.strategy.discovery;
 
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
-import com.sentrysoftware.matrix.common.helpers.NumberHelper;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.common.meta.monitor.Battery;
 import com.sentrysoftware.matrix.common.meta.monitor.Blade;
@@ -28,7 +26,6 @@ import com.sentrysoftware.matrix.common.meta.monitor.Vm;
 import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
-import com.sentrysoftware.matrix.engine.strategy.collect.CollectHelper;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
@@ -44,10 +41,6 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ATTACHE
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HOST_FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TYPE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_WARNING;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EXPECTED_PATH_COUNT;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_PERCENT_WARNING_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_PERCENT_ALARM_THRESHOLD;
 
 @Slf4j
 public class MonitorDiscoveryVisitor implements IMonitorVisitor {
@@ -169,12 +162,7 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 	@Override
 	public void visit(Lun lun) {
 
-		final Monitor lunMonitor = createMonitor(MonitorNameBuilder.buildLunName(monitorBuildingInfo), null);
-
-		if (lunMonitor != null) {
-			setExpectedPathCount(lunMonitor);
-		}
-
+		createMonitor(MonitorNameBuilder.buildLunName(monitorBuildingInfo), null);
 	}
 
 	@Override
@@ -186,11 +174,7 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 	@Override
 	public void visit(NetworkCard networkCard) {
 
-		final Monitor networkCardMonitor = createMonitor(MonitorNameBuilder.buildNetworkCardName(monitorBuildingInfo), null);
-
-		if (networkCardMonitor != null) {
-			normalizeErrorPercentThresholds(networkCardMonitor);
-		}
+		createMonitor(MonitorNameBuilder.buildNetworkCardName(monitorBuildingInfo), null);
 	}
 
 	@Override
@@ -360,33 +344,4 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 		return monitorBuildingInfo.getMonitorType().equals(MonitorType.HOST);
 	}
 
-	/**
-	 * Set the Expected Path Count metadata
-	 * 
-	 * @param lun the monitor we wish to update its expectedPathCount metadata
-	 */
-	void setExpectedPathCount(@NonNull final Monitor lun) {
-		// For now, it has been decided that expectedPathCount = availablePathWarning + 1
-		final Double availablePathWarning = NumberHelper.parseDouble(lun.getMetadata(AVAILABLE_PATH_WARNING), null);
-
-		if (availablePathWarning != null) {
-			lun.addMetadata(EXPECTED_PATH_COUNT, Double.toString(availablePathWarning + 1));
-		}
-	}
-
-	/**
-	 * Normalize the network card error percent thresholds
-	 * 
-	 * @param networkCard The monitor we wish to update its {@value HardwareConstants#ERROR_PERCENT_WARNING_THRESHOLD}
-	 *                    and {@value HardwareConstants#ERROR_PERCENT_ALARM_THRESHOLD} metadata
-	 */
-	void normalizeErrorPercentThresholds(@NonNull final Monitor networkCard) {
-		final Double errorPercentWarningThreshold = NumberHelper.parseDouble(networkCard.getMetadata(ERROR_PERCENT_WARNING_THRESHOLD), null);
-		final Double errorPercentAlarmThreshold = NumberHelper.parseDouble(networkCard.getMetadata(ERROR_PERCENT_ALARM_THRESHOLD), null);
-
-		if (!CollectHelper.isValidPercentage(errorPercentWarningThreshold) || !CollectHelper.isValidPercentage(errorPercentAlarmThreshold)) {
-			networkCard.addMetadata(ERROR_PERCENT_WARNING_THRESHOLD, "20");
-			networkCard.addMetadata(ERROR_PERCENT_ALARM_THRESHOLD, "30");
-		}
-	}
 }
