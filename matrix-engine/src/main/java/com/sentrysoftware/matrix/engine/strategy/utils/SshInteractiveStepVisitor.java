@@ -39,6 +39,10 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 	private final String inPrompt;
 	private final String currentSourceTag;
 
+	@Getter
+	@NonNull
+	private Boolean capture;
+
 	private static final String LOG_BEGIN_OPERATION_TEMPLATE = "Hostname {} - Executing Step [{}]:\n{}\n";
 	private static final String LOG_BEGIN_OPERATION_TEMPLATE_WITH_TIMEOUT = "Hostname {} - Executing Step [{} with timeout={}]:\n{}\n";
 	private static final String LOG_RESULT_TEMPLATE = "Hostname {} - {}: Got:\n{}";
@@ -54,6 +58,10 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 
 		final String stepName = buildStepName(step);
 		final int timeout = getTimeout(null);
+		
+		if(step.getCapture() != null) {
+			capture = step.getCapture();
+		}
 
 		log.info(LOG_BEGIN_OPERATION_TEMPLATE_WITH_TIMEOUT, hostname, stepName, timeout, step.toString());
 
@@ -61,7 +69,7 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 
 		log.info(LOG_RESULT_TEMPLATE, hostname, stepName, maybe);
 
-		if (step.isCapture()) {
+		if (Boolean.TRUE.equals(capture)) {
 			result = maybe;
 		}
 	}
@@ -78,6 +86,10 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 
 		final int timeout = getTimeout(step.getTimeout());
 
+		if(step.getCapture() != null) {
+			capture = step.getCapture();
+		}
+
 		log.info(LOG_BEGIN_OPERATION_TEMPLATE_WITH_TIMEOUT, hostname, stepName, timeout, step.toString());
 
 		final Optional<String> maybe = getUntil(stepName, inPrompt, timeout);
@@ -90,7 +102,7 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 					inPrompt));
 		}
 
-		if (step.isCapture()) {
+		if (Boolean.TRUE.equals(capture)) {
 			// Remove the trailing prompt
 			result = maybe.map(getUntilResult -> getUntilResult.substring(0, getUntilResult.length() - inPrompt.length()));
 		}
@@ -169,6 +181,10 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 			log.warn("Hostname {} - {}: No specified text to expect in step.", hostname, stepName);
 			return;
 		}
+		
+		if(step.getCapture() != null) {
+			capture = step.getCapture();
+		}
 
 		final int timeout = getTimeout(step.getTimeout());
 
@@ -183,7 +199,7 @@ public class SshInteractiveStepVisitor implements ISshInteractiveStepVisitor {
 
 		log.info(LOG_RESULT_TEMPLATE, hostname, stepName, maybe);
 
-		if (step.isCapture()) {
+		if (Boolean.TRUE.equals(capture)) {
 			result = maybe;
 		}
 	}

@@ -1,14 +1,18 @@
 package com.sentrysoftware.matrix.connector.model.common.sshinteractive.step;
 
 import java.io.Serializable;
+import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
 
 import com.sentrysoftware.matrix.common.exception.StepException;
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+
+import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
 @Data
 @RequiredArgsConstructor
@@ -20,9 +24,9 @@ public abstract class Step implements Serializable {
 	@NonNull
 	protected Integer index;
 
-	protected boolean capture;
+	protected Boolean capture;
 
-	/** If true this step is not processed. (Mainly when parameter TelnetOnly is setted) */
+	/** If true this step is not processed. (Mainly when parameter TelnetOnly is set) */
 	protected boolean ignored;
 
 	public abstract void accept(final IStepVisitor visitor) throws StepException;
@@ -31,11 +35,15 @@ public abstract class Step implements Serializable {
 
 	@Override
 	public String toString() {
-		return new StringBuilder("- type=").append(this.getClass().getSimpleName())
-				.append("\n- index=").append(index)
-				.append("\n- capture=").append(capture)
-				.append("\n- ignored=").append(ignored)
-				.toString();
+		final StringJoiner stringJoiner = new StringJoiner(HardwareConstants.NEW_LINE);
+
+		stringJoiner.add(new StringBuilder("- type=").append(this.getClass().getSimpleName()));
+
+		addNonNull(stringJoiner, "- index=", index);
+		addNonNull(stringJoiner, "- capture=", capture);
+		addNonNull(stringJoiner, "- ignored=", ignored);
+
+		return stringJoiner.toString();
 	}
 
 	public abstract void update(UnaryOperator<String> updater);

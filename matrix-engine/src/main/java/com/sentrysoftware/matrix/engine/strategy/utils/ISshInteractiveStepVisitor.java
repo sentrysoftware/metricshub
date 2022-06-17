@@ -9,4 +9,6 @@ public interface ISshInteractiveStepVisitor extends IStepVisitor {
 	public Optional<String> getResult();
 
 	public Optional<String> getPrompt();
+
+	public Boolean getCapture();
 }
