@@ -1,6 +1,6 @@
 package com.sentrysoftware.matrix.engine.strategy.detection;
 
-import com.sentrysoftware.matrix.common.exception.NoConnectorsSelectedException;
+import com.sentrysoftware.matrix.common.exception.DetectionOperationException;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 import com.sentrysoftware.matrix.connector.ConnectorStore;
@@ -204,7 +204,7 @@ class DetectionOperationTest {
 		try (MockedStatic<NetworkHelper> networkHelper = Mockito.mockStatic(NetworkHelper.class)) {
 			networkHelper.when(() -> NetworkHelper.isLocalhost(eq(HOSTNAME))).thenReturn(false);
 
-			assertThrows(NoConnectorsSelectedException.class, () -> detectionOperation.call());
+			assertThrows(DetectionOperationException.class, () -> detectionOperation.call());
 		}
 	}
 
