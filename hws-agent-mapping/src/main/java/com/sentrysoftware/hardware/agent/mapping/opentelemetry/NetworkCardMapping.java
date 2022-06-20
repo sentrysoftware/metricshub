@@ -391,7 +391,7 @@ public class NetworkCardMapping {
 					.name("hw.network.error_ratio.limit")
 					.factor(RATIO_FACTOR)
 					.description(ERROR_RATIO_METRIC_DESCRIPTION)
-					.unit(ERRORS_UNIT)
+					.unit(RATIO_UNIT)
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -411,7 +411,7 @@ public class NetworkCardMapping {
 					.name("hw.network.error_ratio.limit")
 					.factor(RATIO_FACTOR)
 					.description(ERROR_RATIO_METRIC_DESCRIPTION)
-					.unit(ERRORS_UNIT)
+					.unit(RATIO_UNIT)
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()

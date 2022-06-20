@@ -3,7 +3,7 @@ description: How ${project.name} exposes hardware metrics.
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
-## Metrics
+## Monitors and Metrics
 
 **${project.name}** collects the health metrics of all the hardware components that compose your servers, network switches, or storage systems and exposes them as _monitors_ in your monitoring platform(s). Information specific to each _monitor_ is provided as _attributes_ to help you distinguish _monitor instances_. `device_id`, `vendor`, `serial_number`, `model` are for example some of the _attributes_ available for physical disks.
 
@@ -11,7 +11,7 @@ The tables below provide detailed information about the metrics scrapped by **${
 
 ### Battery
 
-| Name                 | Description                                                                                                                                                           | Type          | Unit | Attributes                                                                                              |
+| Metric               | Description                                                                                                                                                           | Type          | Unit | Attributes                                                                                              |
 | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ---- | ------------------------------------------------------------------------------------------------------- |
 | hw.battery.charge    | Battery charge ratio.                                                                                                                                                 | Gauge         |      | `chemistry`, `device_id`, `id`, `info`, `model`, `name`, `parent`, `type`, `vendor`                     |
 | hw.battery.time_left | Number of seconds left before recharging the battery when `state` is `discharging`.                                                                                   | Gauge         | s    | `chemistry`, `device_id`, `id`, `info`, `model`, `name`, `parent`, `state`, `type`, `vendor`            |
@@ -19,20 +19,20 @@ The tables below provide detailed information about the metrics scrapped by **${
 
 ### Blade
 
-| Name                 | Description                                                                                                                                                         | Type          | Unit | Attributes                                                                                              |
+| Metric               | Description                                                                                                                                                         | Type          | Unit | Attributes                                                                                              |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ---- | ------------------------------------------------------------------------------------------------------- |
 | hw.blade.power_state | Blade power state. Each of the possible states (`off`, `on` and `suspended`) will either take the value 1 (true) or 0 (false).                                      | UpDownCounter |      | `blade_name`, `device_id`, `id`, `info`, `model`, `name`, `parent`, `serial_number`, `state`            |
 | hw.status            | Operational status of the monitored blade. Each of the possible states (`degraded`, `failed`, `ok` and `present`) will either take the value 1 (true) or 0 (false). | UpDownCounter |      | `blade_name`, `device_id`, `hw.type`, `id`, `info`, `model`, `name`, `parent`, `serial_number`, `state` |
 
 ### Connector
 
-| Name                             | Description                                                                                                                                 | Type          | Unit | Attributes                                                                      |
+| Metric                           | Description                                                                                                                                 | Type          | Unit | Attributes                                                                      |
 | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ---- | ------------------------------------------------------------------------------- |
 | hardware_sentry.connector.status | Connector operational status. Each of the possible states (`degraded`, `failed` and `ok`) will either take the value 1 (true) or 0 (false). | UpDownCounter |      | `applies_to_os`, `connector_id`, `description`, `id`, `name`, `parent`, `state` |
 
 ### CPU
 
-| Name                | Description                                                                                                                                                                            | Type          | Unit     | Attributes                                                                         |
+| Metric              | Description                                                                                                                                                                            | Type          | Unit     | Attributes                                                                         |
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | -------- | ---------------------------------------------------------------------------------- |
 | hw.cpu.errors       | Number of detected and corrected errors.                                                                                                                                               | Counter       | {errors} | `device_id`, `id`, `info`, `model`, `name`, `parent`, `vendor`                     |
 | hw.cpu.errors.limit | Number of detected and corrected errors that will generate a warning or an alarm when `limit_type` is `degraded` or `critical`.                                                        | Gauge         | {errors} | `device_id`, `id`, `info`, `limit_type`, `model`, `name`, `parent`, `vendor`       |
@@ -44,7 +44,7 @@ The tables below provide detailed information about the metrics scrapped by **${
 
 ### CPU Core
 
-| Name                    | Description                                                                                                                                                            | Type          | Unit | Attributes                                                      |
+| Metric                  | Description                                                                                                                                                            | Type          | Unit | Attributes                                                      |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ---- | --------------------------------------------------------------- |
 | hw.cpu_core.speed       | Current speed of the CPU core.                                                                                                                                         | Gauge         | Hz   | `device_id`, `id`, `info`, `name`, `parent`                     |
 | hw.cpu_core.utilization | Ratio of the CPU core usage.                                                                                                                                           | Gauge         |      | `device_id`, `id`, `info`, `name`, `parent`                     |
@@ -52,7 +52,7 @@ The tables below provide detailed information about the metrics scrapped by **${
 
 ### Disk Controller
 
-| Name      | Description                                                                                                                                                                   | Type          | Unit | Attributes                                                                                                                                                |
+| Metric    | Description                                                                                                                                                                   | Type          | Unit | Attributes                                                                                                                                                |
 | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ---- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | hw.energy | Energy consumed by the monitored disk controller since the start of the Hardware Sentry Agent.                                                                                | Counter       | J    | `bios_version`, `device_id`, `driver_version`, `firmware_version`, `hw.type`, `id`, `info`, `model`, `name`, `parent`, `serial_number`, `vendor`          |
 | hw.power  | Energy consumed by the monitored disk controller.                                                                                                                             | Gauge         | W    | `bios_version`, `device_id`, `driver_version`, `firmware_version`, `hw.type`, `id`, `info`, `model`, `name`, `parent`, `serial_number`, `vendor`          |
@@ -60,7 +60,7 @@ The tables below provide detailed information about the metrics scrapped by **${
 
 ### Enclosure
 
-| Name                | Description                                                                                                                                                                     | Type          | Unit | Attributes                                                                                                                                |
+| Metric              | Description                                                                                                                                                                     | Type          | Unit | Attributes                                                                                                                                |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ---- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | hw.enclosure.energy | Energy consumed by the enclosure since the start of the Hardware Sentry Agent.                                                                                                  | Counter       | J    | `bios_version`, `device_id`, `id`, `info`, `ip_address`, `model`, `name`, `parent`, `serial_number`, `type`, `vendor`                     |
 | hw.enclosure.power  | Energy consumed by the enclosure.                                                                                                                                               | Gauge         | W    | `bios_version`, `device_id`, `id`, `info`, `ip_address`, `model`, `name`, `parent`, `serial_number`, `type`, `vendor`                     |
@@ -68,7 +68,7 @@ The tables below provide detailed information about the metrics scrapped by **${
 
 ### Fan
 
-| Name                     | Description                                                                                                                                                       | Type          | Unit | Attributes                                                                         |
+| Metric                   | Description                                                                                                                                                       | Type          | Unit | Attributes                                                                         |
 | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ---- | ---------------------------------------------------------------------------------- |
 | hw.energy                | Energy consumed by the monitored fan since the start of the Hardware Sentry Agent.                                                                                | Counter       | J    | `device_id`, `hw.type`, `id`, `info`, `name`, `parent`, `sensor_location`          |
 | hw.fan.speed             | Fan speed.                                                                                                                                                        | Gauge         | rpm  | `device_id`, `id`, `info`, `name`, `parent`, `sensor_location`                     |
@@ -80,7 +80,7 @@ The tables below provide detailed information about the metrics scrapped by **${
 
 ### GPU
 
-| Name                            | Description                                                                                                                                                                            | Type          | Unit     | Attributes                                                                                                                                |
+| Metric                          | Description                                                                                                                                                                            | Type          | Unit     | Attributes                                                                                                                                |
 | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | hw.energy                       | Energy consumed by the monitored GPU since the start of the Hardware Sentry Agent.                                                                                                     | Counter       | J        | `device_id`, `driver_version`, `firmware_version`, `hw.type`, `id`, `info`, `model`, `name`, `parent`, `serial_number`, `vendor`          |
 | hw.gpu.errors                   | Number of errors encountered by the GPU since the start of the Hardware Sentry Agent. Possible error types: `all` and `corrected`.                                                     | Counter       | {errors} | `device_id`, `driver_version`, `firmware_version`, `id`, `info`, `model`, `name`, `parent`, `serial_number`, `type`, `vendor`             |
@@ -95,7 +95,7 @@ The tables below provide detailed information about the metrics scrapped by **${
 
 ### Host
 
-| Name                            | Description                                                                                                                                                   | Type          | Unit | Attributes                                     |
+| Metric                          | Description                                                                                                                                                   | Type          | Unit | Attributes                                     |
 | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ---- | ---------------------------------------------- |
 | hardware_sentry.host.configured | Whether the host is configured or not.                                                                                                                        | UpDownCounter |      | `id`, `location`, `name`, `parent`             |
 | hardware_sentry.host.up         | Whether the configured protocol (`http`, `ipmi`, `snmp`, `ssh`, `wbem`, `winrm` and `wmi`) is up (1) or not (0).                                              | UpDownCounter |      | `id`, `location`, `name`, `parent`, `protocol` |
@@ -107,13 +107,13 @@ The tables below provide detailed information about the metrics scrapped by **${
 
 ### LED
 
-| Name      | Description                                                                                                                                                                                | Type          | Unit | Attributes                                                      |
+| Metric    | Description                                                                                                                                                                                | Type          | Unit | Attributes                                                      |
 | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------- | ---- | --------------------------------------------------------------- |
 | hw.status | Operational status of the monitored LED. Each of the possible states (`blinking`, `degraded`, `failed`, `off`, `ok`, `on` and `present`) will either take the value 1 (true) or 0 (false). | UpDownCounter |      | `device_id`, `hw.type`, `id`, `info`, `name`, `parent`, `state` |
 
 ### Logical Disk
 
-| Name                         | Description                                                                                                                                                                | Type          | Unit     | Attributes                                                                    |
+| Metric                       | Description                                                                                                                                                                | Type          | Unit     | Attributes                                                                    |
 | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | -------- | ----------------------------------------------------------------------------- |
 | hw.logical_disk.errors       | Number of errors encountered by the logical disk since the start of the Hardware Sentry Agent.                                                                             | Counter       | {errors} | `device_id`, `id`, `info`, `name`, `parent`, `raid_level`                     |
 | hw.logical_disk.errors.limit | Number of errors encountered that will generate a warning or an alarm when `limit_type` is `degraded` or `critical`                                                        | Gauge         | {errors} | `device_id`, `id`, `info`, `limit_type`, `name`, `parent`, `raid_level`       |
@@ -124,7 +124,7 @@ The tables below provide detailed information about the metrics scrapped by **${
 
 ### LUN
 
-| Name               | Description                                                                                                                                                       | Type          | Unit    | Attributes                                                                                                                      |
+| Metric             | Description                                                                                                                                                       | Type          | Unit    | Attributes                                                                                                                      |
 | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | hw.lun.paths       | Number of `expected` or `available` paths.                                                                                                                        | Gauge         | {paths} | `array_name`, `device_id`, `id`, `info`, `local_device_name`, `name`, `parent`, `remote_device_name`, `type`, `wwn`             |
 | hw.lun.paths.limit | Number of available paths that will generate a warning when `limit_type` is `low.degraded`.                                                                       | Gauge         | {paths} | `array_name`, `device_id`, `id`, `info`, `limit_type`, `local_device_name`, `name`, `parent`, `remote_device_name`, `wwn`       |
@@ -132,7 +132,7 @@ The tables below provide detailed information about the metrics scrapped by **${
 
 ### Memory Module
 
-| Name                   | Description                                                                                                                                                                                      | Type          | Unit     | Attributes                                                                                                  |
+| Metric                 | Description                                                                                                                                                                                      | Type          | Unit     | Attributes                                                                                                  |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------- | -------- | ----------------------------------------------------------------------------------------------------------- |
 | hw.energy              | Energy consumed by the monitored memory module since the start of the Hardware Sentry Agent.                                                                                                     | Counter       | J        | `device_id`, `hw.type`, `id`, `info`, `model`, `name`, `parent`, `serial_number`, `type`, `vendor`          |
 | hw.memory.errors       | Number of errors encountered by the memory since the start of the Hardware Sentry Agent.                                                                                                         | Counter       | {errors} | `device_id`, `id`, `info`, `model`, `name`, `parent`, `serial_number`, `type`, `vendor`                     |
@@ -143,7 +143,7 @@ The tables below provide detailed information about the metrics scrapped by **${
 
 ### Network Card
 
-| Name                             | Description                                                                                                                                                                | Type          | Unit      | Attributes                                                                                                                                                                         |
+| Metric                           | Description                                                                                                                                                                | Type          | Unit      | Attributes                                                                                                                                                                         |
 | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | hw.energy                        | Energy consumed by the monitored network card since the start of the Hardware Sentry Agent.                                                                                | Counter       | J         | `bandwidth`, `device_id`, `hw.type`, `id`, `info`, `logical_address`, `model`, `name`, `parent`, `physical_address`, `remote_physical_address`, `serial_number`, `vendor`          |
 | hw.network.bandwidth.limit       | Speed that the network adapter and its remote counterpart currently use to communicate with each other.                                                                    | Gauge         | By        | `bandwidth`, `device_id`, `id`, `info`, `logical_address`, `model`, `name`, `parent`, `physical_address`, `remote_physical_address`, `serial_number`, `vendor`                     |
@@ -160,7 +160,7 @@ The tables below provide detailed information about the metrics scrapped by **${
 
 ### Other Device
 
-| Name                        | Description                                                                                                                                                          | Type          | Unit   | Attributes                                                                     |
+| Metric                      | Description                                                                                                                                                          | Type          | Unit   | Attributes                                                                     |
 | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------ | ------------------------------------------------------------------------------ |
 | hw.other_device.uses        | Number of times the device has been used.                                                                                                                            | Counter       | {uses} | `device_id`, `device_type`, `id`, `info`, `name`, `parent`                     |
 | hw.other_device.uses.limit  | Number of times the device has been used which will generate a warning or an alarm when `limit_type` is `degraded` or `critical`.                                    | Gauge         | {uses} | `device_id`, `device_type`, `id`, `info`, `limit_type`, `name`, `parent`       |
@@ -170,7 +170,7 @@ The tables below provide detailed information about the metrics scrapped by **${
 
 ### Physical Disk
 
-| Name                                   | Description                                                                                                                                                                                      | Type          | Unit     | Attributes                                                                                                              |
+| Metric                                 | Description                                                                                                                                                                                      | Type          | Unit     | Attributes                                                                                                              |
 | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------- | -------- | ----------------------------------------------------------------------------------------------------------------------- |
 | hw.energy                              | Energy consumed by the monitored physical disk since the start of the Hardware Sentry Agent.                                                                                                     | Counter       | J        | `device_id`, `firmware_version`, `hw.type`, `id`, `info`, `model`, `name`, `parent`, `serial_number`, `vendor`          |
 | hw.physical_disk.endurance_utilization | Physical disk remaining endurance ratio.                                                                                                                                                         | Gauge         |          | `device_id`, `firmware_version`, `id`, `info`, `model`, `name`, `parent`, `serial_number`, `state`, `vendor`            |
@@ -182,7 +182,7 @@ The tables below provide detailed information about the metrics scrapped by **${
 
 ### Power Supply
 
-| Name                        | Description                                                                                                                                                                | Type          | Unit | Attributes                                                                           |
+| Metric                      | Description                                                                                                                                                                | Type          | Unit | Attributes                                                                           |
 | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ---- | ------------------------------------------------------------------------------------ |
 | hw.power_supply.limit       | Maximum power output.                                                                                                                                                      | Gauge         | W    | `device_id`, `id`, `info`, `limit_type`, `name`, `parent`, `power_supply_type`       |
 | hw.power_supply.utilization | Ratio of the power supply power currently in use.                                                                                                                          | Gauge         |      | `device_id`, `id`, `info`, `name`, `parent`, `power_supply_type`                     |
@@ -190,7 +190,7 @@ The tables below provide detailed information about the metrics scrapped by **${
 
 ### Robotics
 
-| Name                     | Description                                                                                                                                                                  | Type          | Unit     | Attributes                                                                                                          |
+| Metric                   | Description                                                                                                                                                                  | Type          | Unit     | Attributes                                                                                                          |
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | -------- | ------------------------------------------------------------------------------------------------------------------- |
 | hw.energy                | Energy consumed by the monitored robotic device since the start of the Hardware Sentry Agent.                                                                                | Counter       | J        | `device_id`, `hw.type`, `id`, `info`, `model`, `name`, `parent`, `robotic_type`, `serial_number`, `vendor`          |
 | hw.power                 | Energy consumed by the monitored robotic device.                                                                                                                             | Gauge         | W        | `device_id`, `hw.type`, `id`, `info`, `model`, `name`, `parent`, `robotic_type`, `serial_number`, `vendor`          |
@@ -201,7 +201,7 @@ The tables below provide detailed information about the metrics scrapped by **${
 
 ### Tape Drive
 
-| Name                       | Description                                                                                                                                                                                | Type          | Unit         | Attributes                                                                                          |
+| Metric                     | Description                                                                                                                                                                                | Type          | Unit         | Attributes                                                                                          |
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------- | ------------ | --------------------------------------------------------------------------------------------------- |
 | hw.energy                  | Energy consumed by the monitored tape drive since the start of the Hardware Sentry Agent.                                                                                                  | Counter       | J            | `device_id`, `hw.type`, `id`, `info`, `model`, `name`, `parent`, `serial_number`, `vendor`          |
 | hw.power                   | Energy consumed by the monitored device tape drive.                                                                                                                                        | Gauge         | W            | `device_id`, `hw.type`, `id`, `info`, `model`, `name`, `parent`, `serial_number`, `vendor`          |
@@ -212,7 +212,7 @@ The tables below provide detailed information about the metrics scrapped by **${
 
 ### Temperature
 
-| Name                 | Description                                                                                                                                                                      | Type          | Unit | Attributes                                                                         |
+| Metric               | Description                                                                                                                                                                      | Type          | Unit | Attributes                                                                         |
 | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ---- | ---------------------------------------------------------------------------------- |
 | hw.status            | Operational status of the monitored temperature sensor. Each of the possible states (`degraded`, `failed`, `ok` and `present`) will either take the value 1 (true) or 0 (false). | UpDownCounter |      | `device_id`, `hw.type`, `id`, `info`, `name`, `parent`, `sensor_location`, `state` |
 | hw.temperature       | Current temperature reading in Celsius degrees.                                                                                                                                  | Gauge         | Cel  | `device_id`, `id`, `info`, `name`, `parent`, `sensor_location`                     |
@@ -220,7 +220,7 @@ The tables below provide detailed information about the metrics scrapped by **${
 
 ### Virtual Machine
 
-| Name              | Description                                                                                                                              | Type          | Unit | Attributes                                                                       |
+| Metric            | Description                                                                                                                              | Type          | Unit | Attributes                                                                       |
 | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ---- | -------------------------------------------------------------------------------- |
 | hw.energy         | Energy consumed by the monitored virtual machine since the start of the Hardware Sentry Agent.                                           | Counter       | J    | `device_id`, `domain`, `hw.type`, `id`, `info`, `name`, `parent`, `vm.host.name` |
 | hw.power          | Energy consumed by the monitored virtual machine.                                                                                        | Gauge         | W    | `device_id`, `domain`, `hw.type`, `id`, `info`, `name`, `parent`, `vm.host.name` |
@@ -230,7 +230,7 @@ The tables below provide detailed information about the metrics scrapped by **${
 
 ### Voltage
 
-| Name             | Description                                                                                                                                                                  | Type          | Unit | Attributes                                                                         |
+| Metric           | Description                                                                                                                                                                  | Type          | Unit | Attributes                                                                         |
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ---- | ---------------------------------------------------------------------------------- |
 | hw.status        | Operational status of the monitored voltage sensor. Each of the possible states (`degraded`, `failed`, `ok` and `present`) will either take the value 1 (true) or 0 (false). | UpDownCounter |      | `device_id`, `hw.type`, `id`, `info`, `name`, `parent`, `sensor_location`, `state` |
 | hw.voltage       | Voltage output.                                                                                                                                                              | Gauge         | V    | `device_id`, `id`, `info`, `name`, `parent`, `sensor_location`                     |
