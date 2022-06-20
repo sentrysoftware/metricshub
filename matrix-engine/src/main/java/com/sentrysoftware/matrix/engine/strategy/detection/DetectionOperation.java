@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.sentrysoftware.matrix.common.exception.DetectionOperationException;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
@@ -76,6 +77,12 @@ public class DetectionOperation extends AbstractStrategy {
 			testedConnectorList = performAutoDetection(isLocalhost);
 		} else {
 			testedConnectorList = processSelectedConnectors(selectedConnectors);
+		}
+
+		if (testedConnectorList.isEmpty()) {
+			String message = String.format("Hostname %s - No connectors match the host", hostname);
+			log.error(message);
+			throw new DetectionOperationException(message);
 		}
 
 		// Create the connector instances
