@@ -143,7 +143,7 @@ The following table lists **${project.name}**'s alert rules:
 | GPU             | hw.gpu.errors                          | ALARM    | hw.gpu.errors >= 1                             | type = `corrected`                                     |
 | GPU             | hw.gpu.errors                          | ALARM    | hw.gpu.errors >= 1                             | type = `all`                                           |
 | GPU             | hw.gpu.memory.utilization              | WARN     | hw.gpu.memory.utilization >= 0.9               |                                                        |
-| GPU             | hw.gpu.memory.utilization              | ALARM    | hw.gpu.memory.utilization >= 0.99              |                                                        |
+| GPU             | hw.gpu.memory.utilization              | ALARM    | hw.gpu.memory.utilization >= 0.95              |                                                        |
 | GPU             | hw.status                              | WARN     | hw.status == 1                                 | hw.type = `gpu` state = `predicted_failure`            |
 | GPU             | hw.status                              | ALARM    | hw.status == 0                                 | hw.type = `gpu` state = `present`                      |
 | GPU             | hw.status                              | WARN     | hw.status == 1                                 | hw.type = `gpu` state = `degraded`                     |
@@ -164,7 +164,7 @@ The following table lists **${project.name}**'s alert rules:
 | Memory Module   | hw.status                              | WARN     | hw.status == 1                                 | hw.type = `memory` state = `degraded`                  |
 | Memory Module   | hw.status                              | ALARM    | hw.status == 1                                 | hw.type = `memory` state = `failed`                    |
 | Network Card    | hw.network.bandwidth.utilization       | WARN     | hw.network.bandwidth.utilization >= 0.8        |                                                        |
-| Network Card    | hw.network.error_ratio                 | WARN     | hw.network.error_ratio >= 0.1                  |                                                        |
+| Network Card    | hw.network.error_ratio                 | WARN     | hw.network.error_ratio >= 0.2                  |                                                        |
 | Network Card    | hw.network.error_ratio                 | ALARM    | hw.network.error_ratio >= 0.3                  |                                                        |
 | Network Card    | hw.network.up                          | WARN     | hw.network.up == 0                             |                                                        |
 | Network Card    | hw.status                              | ALARM    | hw.status == 0                                 | hw.type = `network` state = `present`                  |
