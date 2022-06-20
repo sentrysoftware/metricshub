@@ -131,7 +131,10 @@ public class MonitorDiscoveryVisitor implements IMonitorVisitor {
 
 		Monitor enclosureMonitor = createMonitor(MonitorNameBuilder.buildEnclosureName(monitorBuildingInfo), null);
 
-		discoverEnclosureIpAddress(enclosureMonitor);
+		// Check if this enclosure is really created.
+		if (enclosureMonitor != null) {
+			discoverEnclosureIpAddress(enclosureMonitor);
+		}
 	}
 	
 	private void discoverEnclosureIpAddress(Monitor enclosureMonitor) {
