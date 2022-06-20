@@ -129,6 +129,7 @@ import com.sentrysoftware.matrix.common.meta.parameter.state.LedIndicator;
 import com.sentrysoftware.matrix.common.meta.parameter.state.LinkStatus;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Up;
+import com.sentrysoftware.matrix.connector.model.common.http.ResultContent;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.protocol.HttpProtocol;
 import com.sentrysoftware.matrix.engine.protocol.IpmiOverLanProtocol;
@@ -299,6 +300,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 						.method("GET")
 						.url("/")
 						.httpProtocol(http)
+						.resultContent(ResultContent.ALL)
 						.build();
 
 				httpResult = monitorCollectInfo.getMatsyaClientsExecutor().executeHttp(request, true);
