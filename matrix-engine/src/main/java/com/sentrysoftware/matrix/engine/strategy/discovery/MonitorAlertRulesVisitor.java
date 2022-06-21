@@ -166,7 +166,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 	public void visit(LogicalDisk logicalDisk) {
 
 		// Process instance alert rules
-		final Set<String> parametersToSkip = processErrorCountAlertRules(monitor, 
+		final Set<String> parametersToSkip = processErrorCountAlertRules(monitor,
 				LogicalDisk::checkErrorCountCondition,
 				LogicalDisk::checkHighErrorCountCondition);
 
@@ -189,7 +189,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 		// Process instance alert rules
 		final Set<String> parametersToSkip = processErrorCountAlertRules(monitor,
-				Memory::checkErrorCountCondition, 
+				Memory::checkErrorCountCondition,
 				Memory::checkHighErrorCountCondition);
 
 		// Process static alert rules
@@ -210,7 +210,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 	public void visit(OtherDevice otherDevice) {
 
 		// Process instance alert rules
-		final Set<String> parametersToSkip = processOtherDecviceInstanceAlertRules(monitor);
+		final Set<String> parametersToSkip = processOtherDeviceInstanceAlertRules(monitor);
 
 		// Process static alert rules
 		processStaticAlertRules(monitor, otherDevice, parametersToSkip);
@@ -289,17 +289,14 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 	@Override
 	public void visit(Gpu gpu) {
 
-		// Process the GPU Instance Alert Rules
-		final Set<String> parametersToSkip = processGpuInstanceAlertRules(monitor);
-
 		// Process the static alert rules
-		processStaticAlertRules(monitor, gpu, parametersToSkip);
+		processStaticAlertRules(monitor, gpu);
 	}
 
 	/**
 	 * Process the alert rules for the given monitor, if some alert rules are already defined for a parameter, means they are top priority so we
 	 * will skip them
-	 * 
+	 *
 	 * @param monitor          The monitor on which we set the parameter alert rules
 	 * @param metaMonitor      The meta monitor instance, e.g. {@link Fan} instance, from which we want to extract the static alert rules
 	 * @param parametersToSkip The parameters to skip (priority parameters)
@@ -318,7 +315,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	/**
 	 * Process the alert rules for the given monitor
-	 * 
+	 *
 	 * @param monitor     The monitor on which we set the parameter alert rules
 	 * @param metaMonitor The meta monitor instance, e.g. {@link Fan} instance, from which we want to extract the static alert rules
 	 */
@@ -328,7 +325,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	/**
 	 * Process the voltage instance alert rules
-	 * 
+	 *
 	 * @param monitor The monitor we wish to process the alert rules
 	 * @return set of parameters with alert rules otherwise empty list
 	 */
@@ -346,20 +343,20 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	/**
 	 * Build the Fan instance alert rules
-	 * 
-	 * @param monitor          The monitor we wish to process the alert rules 
-	 * @param parameterName    The name of the parameter we wish to build the alert rules 
-	 * @param warningThreshold The warning threshold 
+	 *
+	 * @param monitor          The monitor we wish to process the alert rules
+	 * @param parameterName    The name of the parameter we wish to build the alert rules
+	 * @param warningThreshold The warning threshold
 	 * @param alarmThreshold   The alarm threshold
 	 * @return Singleton set of the updated parameter or empty
 	 */
 	Set<String> updateFanInstanceSpeedAlertRules(final Monitor monitor, final String parameterName, Double warningThreshold, Double alarmThreshold) {
 
-		final BiFunction<Monitor, Set<AlertCondition>, AlertDetails> outOfRangeSpeedChecker = 
+		final BiFunction<Monitor, Set<AlertCondition>, AlertDetails> outOfRangeSpeedChecker =
 				(mo, conditions) -> Fan.checkOutOfRangeSpeedCondition(mo, parameterName, conditions);
-		final BiFunction<Monitor, Set<AlertCondition>, AlertDetails> lowSpeedChecker = 
+		final BiFunction<Monitor, Set<AlertCondition>, AlertDetails> lowSpeedChecker =
 				(mo, conditions) -> Fan.checkLowSpeedCondition(mo, parameterName, conditions);
-		final BiFunction<Monitor, Set<AlertCondition>, AlertDetails> zeroSpeedConditionChecker = 
+		final BiFunction<Monitor, Set<AlertCondition>, AlertDetails> zeroSpeedConditionChecker =
 				(mo, conditions) -> Fan.checkZeroSpeedCondition(mo, parameterName, conditions);
 
 		if (warningThreshold != null && alarmThreshold != null) {
@@ -407,9 +404,9 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	/**
 	 * Build the voltage instance alert rules
-	 * 
-	 * @param monitor          The monitor we wish to process the alert rules 
-	 * @param lowerThreshold   The voltage lower threshold 
+	 *
+	 * @param monitor          The monitor we wish to process the alert rules
+	 * @param lowerThreshold   The voltage lower threshold
 	 * @param upperThreshold   The voltage upper threshold
 	 * @return Singleton list of the updated parameter or empty
 	 */
@@ -509,7 +506,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	/**
 	 * Process the temperature instance alert rules
-	 * 
+	 *
 	 * @param monitor The monitor we wish to process the alert rules
 	 * @return list of parameters with alert rules otherwise empty list
 	 */
@@ -532,7 +529,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	/**
 	 * Process the error count instance alert rules
-	 * 
+	 *
 	 * @param monitor The monitor we wish to process the alert rules
 	 * @return list of parameters with alert rules otherwise empty list
 	 */
@@ -557,7 +554,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	/**
 	 * Process the Cpu instance alert rules set by the connector
-	 * 
+	 *
 	 * @param monitor The CPU monitor from which we extract the warning and alarm threshold
 	 * @return list of parameters with alert rules otherwise empty list
 	 */
@@ -571,14 +568,14 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 		return updateWarningToAlarmAlertRules(monitor,
 				CORRECTED_ERROR_COUNT_PARAMETER,
 				correctedErrorWarningThreshold,
-				correctedErrorAlarmThreshold, 
-				Cpu::checkCorrectedFiewErrorCountCondition, 
+				correctedErrorAlarmThreshold,
+				Cpu::checkCorrectedFiewErrorCountCondition,
 				Cpu::checkCorrectedLargeErrorCountCondition);
 	}
 
 	/**
 	 * Process the LUN instance alert rules set by the connector
-	 * 
+	 *
 	 * @param monitor The LUN monitor from which we extract the warning or the alarm threshold
 	 * @return set of parameters with alert rules otherwise empty list
 	 */
@@ -606,7 +603,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	/**
 	 * Process the network card instance alert rules set by the connector
-	 * 
+	 *
 	 * @param monitor The network card monitor from which we extract the warning and the alarm threshold
 	 * @return list of parameters with alert rules otherwise empty list
 	 */
@@ -625,18 +622,18 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 		return updateWarningToAlarmAlertRules(monitor,
 				ERROR_PERCENT_PARAMETER,
 				errorPercentWarningThreshold,
-				errorPercentAlarmThreshold, 
+				errorPercentAlarmThreshold,
 				NetworkCard::checkErrorPercentWarnCondition,
 				NetworkCard::checkErrorPercentAlarmCondition);
 	}
 
 	/**
 	 * Process the OtherDevice instance alert rules set by the connector
-	 * 
+	 *
 	 * @param monitor The OtherDevice monitor from which we extract the warning and the alarm threshold
 	 * @return set of parameters with alert rules otherwise empty list
 	 */
-	Set<String> processOtherDecviceInstanceAlertRules(Monitor monitor) {
+	Set<String> processOtherDeviceInstanceAlertRules(Monitor monitor) {
 
 		final Map<String, String> metadata = monitor.getMetadata();
 
@@ -663,37 +660,16 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 	}
 
 	/**
-	 * Process the Gpu instance alert rules set by the connector
-	 *
-	 * @param monitor The GPU monitor from which we extract the warning and alarm threshold
-	 * @return list of parameters with alert rules otherwise empty list
-	 */
-	Set<String> processGpuInstanceAlertRules(Monitor monitor) {
-
-		final Map<String, String> metadata = monitor.getMetadata();
-
-		final Double correctedErrorWarningThreshold = NumberHelper.parseDouble(metadata.get(CORRECTED_ERROR_WARNING_THRESHOLD), null);
-		final Double correctedErrorAlarmThreshold = NumberHelper.parseDouble(metadata.get(CORRECTED_ERROR_ALARM_THRESHOLD), null);
-
-		return updateWarningToAlarmAlertRules(monitor,
-			CORRECTED_ERROR_COUNT_PARAMETER,
-			correctedErrorWarningThreshold,
-			correctedErrorAlarmThreshold,
-			Gpu::checkCorrectedFewErrorCountCondition,
-			Gpu::checkCorrectedLargeErrorCountCondition);
-	}
-
-	/**
 	 * Update the warning to alarm enhanced instance alert rules
-	 * 
-	 * @param monitor          The monitor we wish to process the alert rules 
-	 * @param parameterName    The name of the parameter we wish to build the alert rules 
-	 * @param warningThreshold The warning threshold 
+	 *
+	 * @param monitor          The monitor we wish to process the alert rules
+	 * @param parameterName    The name of the parameter we wish to build the alert rules
+	 * @param warningThreshold The warning threshold
 	 * @param alarmThreshold   The alarm threshold
 	 * @return Singleton list of the updated parameter or empty
 	 */
 	Set<String> updateWarningToAlarmEnhancedAlertRules(final Monitor monitor, final String parameterName,
-			Double warningThreshold, Double alarmThreshold, 
+			Double warningThreshold, Double alarmThreshold,
 			final BiFunction<Monitor, Set<AlertCondition>, AlertDetails> warnConditionsChecker,
 			final BiFunction<Monitor, Set<AlertCondition>, AlertDetails> alarmConditionsChecker) {
 
@@ -736,7 +712,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	/**
 	 * Check if the given threshold value is valid
-	 * 
+	 *
 	 * @param value The value we wish to check
 	 * @return <code>true</code> if the value is valid otherwise false
 	 */
@@ -751,7 +727,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	/**
 	 * Build alert rules <em>WARN = (value >= warningThreshold & ALARM < alarmThreshold)</em> and <em>ALARM = (value >= alarmThreshold)</em>
-	 * 
+	 *
 	 * @param monitor                The monitor we wish to build the alert rules
 	 * @param parameterName          The name of the parameter we wish to build the alert rules
 	 * @param warningThreshold       The warning threshold value
@@ -780,7 +756,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 			final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
 					.gte(alarmThreshold)
 					.build();
-	
+
 			final AlertRule warnAlertRule = new AlertRule(warnConditionsChecker, warningConditions, Severity.WARN, AlertRuleType.INSTANCE);
 			final AlertRule alarmAlertRule = new AlertRule(alarmConditionsChecker, alarmConditions, Severity.ALARM, AlertRuleType.INSTANCE);
 
@@ -819,7 +795,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	/**
 	 * Process Fan alert rules using the monitor instance metadata
-	 * 
+	 *
 	 * @param monitor The monitor we wish to process
 	 * @return list of parameters with alert rules otherwise empty list
 	 */
