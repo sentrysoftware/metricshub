@@ -171,10 +171,10 @@ This command will connect to the `SOLAR08` `Solaris` system using the `SSH` prot
 ### WinRM
 
 ```batch
-$ hws carnap-imm -t mgmt --winrm --winrm-username USER --winrm-password ****
+$ hws WIN004 -t mgmt --winrm --winrm-username USER --winrm-password ****
 ```
 
-This command will connect to the `carnap-imm` system using the `WinRM` protocol to execute commands as `USER`.
+This command will connect to the `WIN004` system using the `WinRM` protocol to execute commands as `USER`.
 
 
 ## Automatic Detection vs Manual Selection
