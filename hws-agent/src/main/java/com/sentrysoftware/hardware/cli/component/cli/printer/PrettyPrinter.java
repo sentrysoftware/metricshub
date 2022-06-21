@@ -41,7 +41,7 @@ public class PrettyPrinter {
 			HardwareConstants.DISK_CONTROLLER_NUMBER.toLowerCase()
 	);
 
-	private static final Pattern PARAMETER_ACTIVATION_PATTERN  = Pattern.compile("parameteractivation", Pattern.CASE_INSENSITIVE);
+	private static final Pattern PARAMETER_ACTIVATION_PATTERN = Pattern.compile("parameteractivation", Pattern.CASE_INSENSITIVE);
 
 	private PrintWriter out;
 	private IHostMonitoring result;
