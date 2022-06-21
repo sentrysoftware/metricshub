@@ -179,7 +179,6 @@ hosts:
 #      timeout: 120
 #      username: myusername
 #      password: mypwd
-#      namespace: mynamespace
 #      port: 5985
 #      protocol: http
 #      authentications: [NTLM,KERBEROS]
