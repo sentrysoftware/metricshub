@@ -54,7 +54,7 @@ public class AlertConditionsBuilder {
 			.unmodifiableSet(AlertConditionsBuilder.newInstance().gte(30D).build());
 
 	public static final Set<AlertCondition> ERROR_PERCENT_WARN_CONDITION = Collections
-			.unmodifiableSet(AlertConditionsBuilder.newInstance().gte(10D).build());
+			.unmodifiableSet(AlertConditionsBuilder.newInstance().gte(20D).build());
 
 	public static final Set<AlertCondition> ENDURANCE_REMAINING_ALARM_CONDITION = Collections
 			.unmodifiableSet(AlertConditionsBuilder.newInstance().lte(2D).build());
@@ -75,7 +75,7 @@ public class AlertConditionsBuilder {
 			.unmodifiableSet(AlertConditionsBuilder.newInstance().gte(80D).build());
 
 	public static final Set<AlertCondition> MEMORY_UTILIZATION_ALARM_CONDITION = Collections
-		.unmodifiableSet(AlertConditionsBuilder.newInstance().gte(99D).build());
+		.unmodifiableSet(AlertConditionsBuilder.newInstance().gte(95D).build());
 
 	public static final Set<AlertCondition> MEMORY_UTILIZATION_WARN_CONDITION = Collections
 		.unmodifiableSet(AlertConditionsBuilder.newInstance().gte(90D).build());

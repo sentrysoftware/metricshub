@@ -873,7 +873,7 @@ class CollectOperationTest {
 				.hostId(TEST_HOST_01)
 				.parentId(ENCLOSURE_BIS_ID)
 				.monitorType(MonitorType.FAN)
-				.metadata(Map.of(CONNECTOR, MY_OTHER_CONNECTOR_NAME))
+				.metadata(new HashMap<>(Map.of(CONNECTOR, MY_OTHER_CONNECTOR_NAME)))
 				.build();
 
 		final Monitor fan3 = Monitor
@@ -1870,7 +1870,7 @@ class CollectOperationTest {
 		assertNull(host.getParameter(CONNECTED_PORTS_COUNT_PARAMETER, NumberParam.class));
 		assertNull(host.getParameter(TOTAL_BANDWIDTH_PARAMETER, NumberParam.class));
 
-		Monitor networkCard = buildMonitor(NETWORK_CARD, "myConnector1.connector_temperature_test-host-01_1.1", "network card", Collections.emptyMap());
+		Monitor networkCard = buildMonitor(NETWORK_CARD, "myConnector1.connector_temperature_test-host-01_1.1", "network card", new TreeMap<>(String.CASE_INSENSITIVE_ORDER));
 		networkCard.collectParameter(DiscreteParam
 				.builder()
 				.name(LINK_STATUS_PARAMETER)

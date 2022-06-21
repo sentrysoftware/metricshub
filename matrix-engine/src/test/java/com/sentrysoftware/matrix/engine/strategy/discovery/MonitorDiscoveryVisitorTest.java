@@ -1,13 +1,17 @@
 package com.sentrysoftware.matrix.engine.strategy.discovery;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ALARM_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_WARNING;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_PERCENT_ALARM_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_PERCENT_WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EXPECTED_PATH_COUNT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ID_COUNT;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_ALARM_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HOST_FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TYPE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -312,6 +316,10 @@ class MonitorDiscoveryVisitorTest {
 		metadata.put(ID_COUNT, _0);
 		metadata.put(DISPLAY_ID, MONITOR_NAME);
 		metadata.put(HOST_FQDN, null);
+		metadata.put(WARNING_THRESHOLD, "500");
+		metadata.put(ALARM_THRESHOLD, "0");
+		metadata.put(PERCENT_WARNING_THRESHOLD, "5");
+		metadata.put(PERCENT_ALARM_THRESHOLD, "0");
 
 		final Monitor expectedMonitor = Monitor.builder()
 				.id(FAN_ID)

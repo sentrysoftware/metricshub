@@ -187,9 +187,11 @@ public class Gpu implements IMetaMonitor {
 		Gpu::checkMemoryUtilizationAlarmCondition,
 		MEMORY_UTILIZATION_ALARM_CONDITION,
 		Severity.ALARM);
-	public static final AlertRule ERROR_COUNT_ALERT_RULE = new AlertRule(Gpu::checkErrorCountCondition,
-			ERROR_COUNT_ALARM_CONDITION,
-			Severity.ALARM);
+	public static final AlertRule ERROR_COUNT_ALERT_RULE = new AlertRule(
+		Gpu::checkErrorCountCondition,
+		ERROR_COUNT_ALARM_CONDITION,
+		Severity.ALARM
+	);
 
 	private static final Map<String, MetaParameter> META_PARAMETERS;
 	private static final Map<String, List<AlertRule>> ALERT_RULES;

@@ -2368,7 +2368,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 			// If the available path count is 1 or 0, this code is never reached as 0 is the ALARM threshold
 			// when the LUN cannot be accessed anymore.
-			monitor.addMetadata(AVAILABLE_PATH_WARNING, Double.toString(availablePathCount - 1));
+			monitor.addMetadata(AVAILABLE_PATH_WARNING, NumberHelper.formatNumber(availablePathCount - 1));
 
 		}
 

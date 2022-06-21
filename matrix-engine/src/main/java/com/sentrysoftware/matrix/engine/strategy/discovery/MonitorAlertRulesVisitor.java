@@ -1,32 +1,6 @@
 package com.sentrysoftware.matrix.engine.strategy.discovery;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ALARM_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_COUNT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AVAILABLE_PATH_WARNING;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CORRECTED_ERROR_ALARM_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CORRECTED_ERROR_COUNT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CORRECTED_ERROR_WARNING_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_ALARM_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_COUNT_WARNING_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_PERCENT_ALARM_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_PERCENT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ERROR_PERCENT_WARNING_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOWER_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_ALARM_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_WARNING_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_PERCENT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.UPPER_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_COUNT_ALARM_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_COUNT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USAGE_COUNT_WARNING_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VALUE_ALARM_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VALUE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VALUE_WARNING_THRESHOLD;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.VOLTAGE_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WARNING_THRESHOLD;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.*;
 import static com.sentrysoftware.matrix.engine.strategy.discovery.MonitorDiscoveryVisitor.METADATA_CANNOT_BE_NULL;
 
 import java.util.ArrayList;
@@ -49,6 +23,7 @@ import com.sentrysoftware.matrix.common.meta.monitor.DiskController;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.Fan;
 import com.sentrysoftware.matrix.common.meta.monitor.Gpu;
+import com.sentrysoftware.matrix.common.meta.monitor.Host;
 import com.sentrysoftware.matrix.common.meta.monitor.IMetaMonitor;
 import com.sentrysoftware.matrix.common.meta.monitor.Led;
 import com.sentrysoftware.matrix.common.meta.monitor.LogicalDisk;
@@ -61,11 +36,11 @@ import com.sentrysoftware.matrix.common.meta.monitor.PhysicalDisk;
 import com.sentrysoftware.matrix.common.meta.monitor.PowerSupply;
 import com.sentrysoftware.matrix.common.meta.monitor.Robotics;
 import com.sentrysoftware.matrix.common.meta.monitor.TapeDrive;
-import com.sentrysoftware.matrix.common.meta.monitor.Host;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
 import com.sentrysoftware.matrix.common.meta.monitor.Vm;
 import com.sentrysoftware.matrix.common.meta.monitor.Voltage;
 import com.sentrysoftware.matrix.engine.strategy.IMonitorVisitor;
+import com.sentrysoftware.matrix.engine.strategy.collect.CollectHelper;
 import com.sentrysoftware.matrix.model.alert.AlertCondition;
 import com.sentrysoftware.matrix.model.alert.AlertConditionsBuilder;
 import com.sentrysoftware.matrix.model.alert.AlertDetails;
@@ -74,7 +49,11 @@ import com.sentrysoftware.matrix.model.alert.AlertRule.AlertRuleType;
 import com.sentrysoftware.matrix.model.alert.Severity;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 
 public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
@@ -166,9 +145,11 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 	public void visit(LogicalDisk logicalDisk) {
 
 		// Process instance alert rules
-		final Set<String> parametersToSkip = processErrorCountAlertRules(monitor,
-				LogicalDisk::checkErrorCountCondition,
-				LogicalDisk::checkHighErrorCountCondition);
+		final Set<String> parametersToSkip = processErrorCountAlertRules(
+			monitor,
+			LogicalDisk::checkErrorCountCondition,
+			LogicalDisk::checkHighErrorCountCondition
+		);
 
 		// Process static alert rules
 		processStaticAlertRules(monitor, logicalDisk, parametersToSkip);
@@ -188,9 +169,11 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 	public void visit(Memory memory) {
 
 		// Process instance alert rules
-		final Set<String> parametersToSkip = processErrorCountAlertRules(monitor,
-				Memory::checkErrorCountCondition,
-				Memory::checkHighErrorCountCondition);
+		final Set<String> parametersToSkip = processErrorCountAlertRules(
+			monitor,
+			Memory::checkErrorCountCondition,
+			Memory::checkHighErrorCountCondition
+		);
 
 		// Process static alert rules
 		processStaticAlertRules(monitor, memory, parametersToSkip);
@@ -210,7 +193,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 	public void visit(OtherDevice otherDevice) {
 
 		// Process instance alert rules
-		final Set<String> parametersToSkip = processOtherDeviceInstanceAlertRules(monitor);
+		final Set<String> parametersToSkip = processOtherDecviceInstanceAlertRules(monitor);
 
 		// Process static alert rules
 		processStaticAlertRules(monitor, otherDevice, parametersToSkip);
@@ -220,9 +203,11 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 	public void visit(PhysicalDisk physicalDisk) {
 
 		// Process instance alert rules
-		final Set<String> parametersToSkip = processErrorCountAlertRules(monitor,
-				(mo, conditions) -> PhysicalDisk.checkErrorCountCondition(mo, ERROR_COUNT_PARAMETER, conditions),
-				(mo, conditions) -> PhysicalDisk.checkHighErrorCountCondition(mo, ERROR_COUNT_PARAMETER, conditions));
+		final Set<String> parametersToSkip = processErrorCountAlertRules(
+			monitor,
+			(mo, conditions) -> PhysicalDisk.checkErrorCountCondition(mo, ERROR_COUNT_PARAMETER, conditions),
+			(mo, conditions) -> PhysicalDisk.checkHighErrorCountCondition(mo, ERROR_COUNT_PARAMETER, conditions)
+		);
 
 		// Process static alert rules
 		processStaticAlertRules(monitor, physicalDisk, parametersToSkip);
@@ -239,9 +224,11 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 	public void visit(TapeDrive tapeDrive) {
 
 		// Process instance alert rules
-		final Set<String> parametersToSkip = processErrorCountAlertRules(monitor,
-				TapeDrive::checkErrorCountCondition,
-				TapeDrive::checkHighErrorCountCondition);
+		final Set<String> parametersToSkip = processErrorCountAlertRules(
+			monitor,
+			TapeDrive::checkErrorCountCondition,
+			TapeDrive::checkHighErrorCountCondition
+		);
 
 		// Process static alert rules
 		processStaticAlertRules(monitor, tapeDrive, parametersToSkip);
@@ -261,7 +248,7 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 	public void visit(Voltage voltage) {
 
 		// Process instance alert rules
-		final Set<String> parametersToSkip = processVoltageAlertRules(monitor);
+		final Set<String> parametersToSkip = updateVoltageInstanceAlertRules(monitor);
 
 		// Process static alert rules
 		processStaticAlertRules(monitor, voltage, parametersToSkip);
@@ -271,9 +258,11 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 	public void visit(Robotics robotics) {
 
 		// Process instance alert rules
-		final Set<String> parametersToSkip = processErrorCountAlertRules(monitor,
-				Robotics::checkErrorCountCondition,
-				Robotics::checkHighErrorCountCondition);
+		final Set<String> parametersToSkip = processErrorCountAlertRules(
+			monitor,
+			Robotics::checkErrorCountCondition,
+			Robotics::checkHighErrorCountCondition
+		);
 
 		// Process static alert rules
 		processStaticAlertRules(monitor, robotics, parametersToSkip);
@@ -289,14 +278,17 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 	@Override
 	public void visit(Gpu gpu) {
 
+		// Process the GPU Instance Alert Rules
+		final Set<String> parametersToSkip = processGpuInstanceAlertRules(monitor);
+
 		// Process the static alert rules
-		processStaticAlertRules(monitor, gpu);
+		processStaticAlertRules(monitor, gpu, parametersToSkip);
 	}
 
 	/**
 	 * Process the alert rules for the given monitor, if some alert rules are already defined for a parameter, means they are top priority so we
 	 * will skip them
-	 *
+	 * 
 	 * @param monitor          The monitor on which we set the parameter alert rules
 	 * @param metaMonitor      The meta monitor instance, e.g. {@link Fan} instance, from which we want to extract the static alert rules
 	 * @param parametersToSkip The parameters to skip (priority parameters)
@@ -306,16 +298,22 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 		metaMonitor.getStaticAlertRules().entrySet()
 			.stream()
 			.filter(entry -> !parametersToSkip.contains(entry.getKey()))
-			.forEach(entry -> monitor.addAlertRules(entry.getKey(), entry.getValue()
-					.stream()
-					.map(AlertRule::copy)
-					.collect(Collectors.toCollection(ArrayList::new))));
+			.forEach(entry -> monitor
+				.addAlertRules(
+					entry.getKey(),
+					entry
+						.getValue()
+						.stream()
+						.map(AlertRule::copy)
+						.collect(Collectors.toCollection(ArrayList::new))
+				)
+			);
 
 	}
 
 	/**
 	 * Process the alert rules for the given monitor
-	 *
+	 * 
 	 * @param monitor     The monitor on which we set the parameter alert rules
 	 * @param metaMonitor The meta monitor instance, e.g. {@link Fan} instance, from which we want to extract the static alert rules
 	 */
@@ -323,42 +321,30 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 		processStaticAlertRules(monitor, metaMonitor, Collections.emptySet());
 	}
 
-	/**
-	 * Process the voltage instance alert rules
-	 *
-	 * @param monitor The monitor we wish to process the alert rules
-	 * @return set of parameters with alert rules otherwise empty list
-	 */
-	Set<String> processVoltageAlertRules(Monitor monitor) {
-
-		final Map<String, String> metadata = monitor.getMetadata();
-
-		// warning threshold and alarm threshold on the error count
-		final Double upperThreshold = NumberHelper.parseDouble(metadata.get(UPPER_THRESHOLD), null);
-		final Double lowerThreshold = NumberHelper.parseDouble(metadata.get(LOWER_THRESHOLD), null);
-
-		return updateVoltageInstanceAlertRules(monitor, lowerThreshold, upperThreshold);
-
-	}
 
 	/**
 	 * Build the Fan instance alert rules
-	 *
-	 * @param monitor          The monitor we wish to process the alert rules
-	 * @param parameterName    The name of the parameter we wish to build the alert rules
-	 * @param warningThreshold The warning threshold
-	 * @param alarmThreshold   The alarm threshold
+	 * 
+	 * @param monitor              The monitor we wish to process the alert rules 
+	 * @param parameterName        The name of the parameter we wish to build the alert rules 
+	 * @param warningThresholdInfo The warning threshold info containing the value and the threshold metadata key
+	 * @param alarmThresholdInfo   The alarm threshold info containing the value and the threshold metadata key
+	 * @param isPercent            Whether we should handle percentage threshold value
 	 * @return Singleton set of the updated parameter or empty
 	 */
-	Set<String> updateFanInstanceSpeedAlertRules(final Monitor monitor, final String parameterName, Double warningThreshold, Double alarmThreshold) {
+	Set<String> updateFanInstanceSpeedAlertRules(final Monitor monitor, final String parameterName,
+			ThresholdInfo warningThresholdInfo, ThresholdInfo alarmThresholdInfo,
+			boolean isPercent) {
 
-		final BiFunction<Monitor, Set<AlertCondition>, AlertDetails> outOfRangeSpeedChecker =
-				(mo, conditions) -> Fan.checkOutOfRangeSpeedCondition(mo, parameterName, conditions);
-		final BiFunction<Monitor, Set<AlertCondition>, AlertDetails> lowSpeedChecker =
-				(mo, conditions) -> Fan.checkLowSpeedCondition(mo, parameterName, conditions);
-		final BiFunction<Monitor, Set<AlertCondition>, AlertDetails> zeroSpeedConditionChecker =
-				(mo, conditions) -> Fan.checkZeroSpeedCondition(mo, parameterName, conditions);
+		final BiFunction<Monitor, Set<AlertCondition>, AlertDetails> outOfRangeSpeedChecker = 
+			(mo, conditions) -> Fan.checkOutOfRangeSpeedCondition(mo, parameterName, conditions);
+		final BiFunction<Monitor, Set<AlertCondition>, AlertDetails> lowSpeedChecker = 
+			(mo, conditions) -> Fan.checkLowSpeedCondition(mo, parameterName, conditions);
+		final BiFunction<Monitor, Set<AlertCondition>, AlertDetails> zeroSpeedConditionChecker = 
+			(mo, conditions) -> Fan.checkZeroSpeedCondition(mo, parameterName, conditions);
 
+		Double warningThreshold = warningThresholdInfo.getThreshold();
+		Double alarmThreshold = alarmThresholdInfo.getThreshold();
 		if (warningThreshold != null && alarmThreshold != null) {
 
 			// Check that warning is above alarm
@@ -375,19 +361,23 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 			// Only Warning thresholds is provided. Alarm threshold will be 90% of warning threshold
 			alarmThreshold = warningThreshold * 0.9;
 		} else {
+			// Update metadata thresholds
+			monitor.addMetadata(warningThresholdInfo.getMetadataKey(), isPercent ? "5" : "500");
+			monitor.addMetadata(alarmThresholdInfo.getMetadataKey(), "0");
 			// Means the static rules will take over
 			return Collections.emptySet();
 		}
 
-		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
-				.gte(0D)
-				.lte(alarmThreshold)
-				.build();
+		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder
+			.newInstance()
+			.gte(0D)
+			.lte(alarmThreshold)
+			.build();
 
-		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
-				.lte(warningThreshold)
-				.build();
-
+		final Set<AlertCondition> warningConditions = AlertConditionsBuilder
+			.newInstance()
+			.lte(warningThreshold)
+			.build();
 
 		// Get the good checker producing the consistent problem, consequence and recommended action
 		final var alarmChecker = alarmThreshold > 0 ? lowSpeedChecker : zeroSpeedConditionChecker;
@@ -399,18 +389,23 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 		// Add them to the monitor, they will be inserted only if they are updated.
 		monitor.addAlertRules(parameterName, new ArrayList<>(Arrays.asList(warnAlertRule, alarmAlertRule)));
 
+		// Update metadata thresholds
+		monitor.addMetadata(warningThresholdInfo.getMetadataKey(), NumberHelper.formatNumber(warningThreshold));
+		monitor.addMetadata(alarmThresholdInfo.getMetadataKey(), NumberHelper.formatNumber(alarmThreshold));
+
+		// Return a list of one parameter as we are handling only one
 		return Collections.singleton(parameterName);
 	}
 
 	/**
 	 * Build the voltage instance alert rules
-	 *
-	 * @param monitor          The monitor we wish to process the alert rules
-	 * @param lowerThreshold   The voltage lower threshold
-	 * @param upperThreshold   The voltage upper threshold
+	 * 
+	 * @param monitor The monitor we wish to process the alert rules
 	 * @return Singleton list of the updated parameter or empty
 	 */
-	Set<String> updateVoltageInstanceAlertRules(final Monitor monitor, Double lowerThreshold, Double upperThreshold) {
+	Set<String> updateVoltageInstanceAlertRules(final Monitor monitor) {
+		Double upperThreshold = NumberHelper.parseDouble(monitor.getMetadata(UPPER_THRESHOLD), null);
+		Double lowerThreshold = NumberHelper.parseDouble(monitor.getMetadata(LOWER_THRESHOLD), null);
 
 		final AlertRule alertRule1;
 		final AlertRule alertRule2;
@@ -423,38 +418,57 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 				upperThreshold = swap;
 			}
 
-			final Set<AlertCondition> alarm1Conditions = AlertConditionsBuilder.newInstance()
-					.lte(lowerThreshold)
-					.build();
-			final Set<AlertCondition> alarm2Conditions = AlertConditionsBuilder.newInstance()
-					.gte(upperThreshold)
-					.build();
+			final Set<AlertCondition> alarm1Conditions = AlertConditionsBuilder
+				.newInstance()
+				.lte(lowerThreshold)
+				.build();
+			final Set<AlertCondition> alarm2Conditions = AlertConditionsBuilder
+				.newInstance()
+				.gte(upperThreshold)
+				.build();
 
 			// Create the alert rule
 			alertRule1 = new AlertRule(Voltage::checkVoltageOutOfRangeCondition, alarm1Conditions, Severity.ALARM, AlertRuleType.INSTANCE);
 			alertRule2 = new AlertRule(Voltage::checkVoltageOutOfRangeCondition, alarm2Conditions, Severity.ALARM, AlertRuleType.INSTANCE);
 
+			// Update metadata thresholds
+			monitor.addMetadata(UPPER_THRESHOLD, NumberHelper.formatNumber(upperThreshold));
+			monitor.addMetadata(LOWER_THRESHOLD, NumberHelper.formatNumber(lowerThreshold));
+
 		} else if (upperThreshold != null) {
-			// The upper threshold becomes a warning
 			double warningThreshold = upperThreshold;
 			double alarmThreshold = upperThreshold * 1.1;
 			final Set<AlertCondition> warningConditions;
 			final Set<AlertCondition> alarmConditions;
 
 			if (warningThreshold > 0) {
-				warningConditions = AlertConditionsBuilder.newInstance()
-						.gte(warningThreshold)
-						.build();
-				alarmConditions = AlertConditionsBuilder.newInstance()
-						.gte(alarmThreshold)
-						.build();
+				// The upper threshold is the alarm and the lower threshold is the warning
+				warningConditions = AlertConditionsBuilder
+					.newInstance()
+					.gte(warningThreshold)
+					.build();
+				alarmConditions = AlertConditionsBuilder
+					.newInstance()
+					.gte(alarmThreshold)
+					.build();
+
+				// Update metadata thresholds
+				monitor.addMetadata(UPPER_THRESHOLD, NumberHelper.formatNumber(alarmThreshold));
+				monitor.addMetadata(LOWER_THRESHOLD, NumberHelper.formatNumber(warningThreshold));
 			} else {
-				warningConditions = AlertConditionsBuilder.newInstance()
-						.lte(warningThreshold)
-						.build();
-				alarmConditions = AlertConditionsBuilder.newInstance()
-						.lte(alarmThreshold)
-						.build();
+				// The upper threshold is the warning and the lower threshold is the alarm
+				warningConditions = AlertConditionsBuilder
+					.newInstance()
+					.lte(warningThreshold)
+					.build();
+				alarmConditions = AlertConditionsBuilder
+					.newInstance()
+					.lte(alarmThreshold)
+					.build();
+
+				// Update metadata thresholds
+				monitor.addMetadata(UPPER_THRESHOLD, NumberHelper.formatNumber(warningThreshold));
+				monitor.addMetadata(LOWER_THRESHOLD, NumberHelper.formatNumber(alarmThreshold));
 			}
 
 			// Create the alert rule
@@ -462,7 +476,6 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 			alertRule2 = new AlertRule(Voltage::checkVoltageOutOfRangeCondition, alarmConditions, Severity.ALARM, AlertRuleType.INSTANCE);
 
 		} else if (lowerThreshold != null) {
-			// The upper threshold becomes a warning
 			double warningThreshold = lowerThreshold;
 			double alarmThreshold = lowerThreshold * 0.9;
 
@@ -470,23 +483,38 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 			final Set<AlertCondition> alarmConditions;
 
 			if (warningThreshold > 0) {
-				warningConditions = AlertConditionsBuilder.newInstance()
-						.lte(warningThreshold)
-						.gte(0D)
-						.build();
-				alarmConditions = AlertConditionsBuilder.newInstance()
-						.lte(alarmThreshold)
-						.gte(0D)
-						.build();
+				// The upper threshold is the warning and the lower threshold is the alarm
+				warningConditions = AlertConditionsBuilder
+					.newInstance()
+					.lte(warningThreshold)
+					.gte(0D)
+					.build();
+				alarmConditions = AlertConditionsBuilder
+					.newInstance()
+					.lte(alarmThreshold)
+					.gte(0D)
+					.build();
+
+				// Update metadata thresholds
+				monitor.addMetadata(UPPER_THRESHOLD, NumberHelper.formatNumber(warningThreshold));
+				monitor.addMetadata(LOWER_THRESHOLD, NumberHelper.formatNumber(alarmThreshold));
+
 			} else {
-				warningConditions = AlertConditionsBuilder.newInstance()
-						.gte(warningThreshold)
-						.lte(0D)
-						.build();
-				alarmConditions = AlertConditionsBuilder.newInstance()
-						.gte(alarmThreshold)
-						.lte(0D)
-						.build();
+				// The lower threshold is the warning and the upper threshold is the alarm
+				warningConditions = AlertConditionsBuilder
+					.newInstance()
+					.gte(warningThreshold)
+					.lte(0D)
+					.build();
+				alarmConditions = AlertConditionsBuilder
+					.newInstance()
+					.gte(alarmThreshold)
+					.lte(0D)
+					.build();
+
+				// Update metadata thresholds
+				monitor.addMetadata(UPPER_THRESHOLD, NumberHelper.formatNumber(alarmThreshold));
+				monitor.addMetadata(LOWER_THRESHOLD, NumberHelper.formatNumber(warningThreshold));
 			}
 
 			// Create the alert rule
@@ -506,30 +534,30 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	/**
 	 * Process the temperature instance alert rules
-	 *
+	 * 
 	 * @param monitor The monitor we wish to process the alert rules
 	 * @return list of parameters with alert rules otherwise empty list
 	 */
 	Set<String> processTemperatureAlertRules(Monitor monitor) {
 
-		final Map<String, String> metadata = monitor.getMetadata();
+		// warning threshold and alarm threshold on the temperature
+		final ThresholdInfo warningThreshold = ThresholdInfo.buildFromMetadata(monitor, WARNING_THRESHOLD);
+		final ThresholdInfo alarmThreshold = ThresholdInfo.buildFromMetadata(monitor, ALARM_THRESHOLD);
 
-		// warning threshold and alarm threshold on the error count
-		final Double warningThreshold = NumberHelper.parseDouble(metadata.get(WARNING_THRESHOLD), null);
-		final Double alarmThreshold = NumberHelper.parseDouble(metadata.get(ALARM_THRESHOLD), null);
-
-		return updateWarningToAlarmAlertRules(
-				monitor,
-				TEMPERATURE_PARAMETER,
-				warningThreshold,
-				alarmThreshold,
-				Temperature::checkTemperatureAbnormallyHighCondition,
-				Temperature::checkTemperatureCriticallyHighCondition);
+		return updateWarningToAlarmEnhancedAlertRules(
+			monitor,
+			TEMPERATURE_PARAMETER,
+			warningThreshold,
+			alarmThreshold,
+			Temperature::checkTemperatureAbnormallyHighCondition,
+			Temperature::checkTemperatureCriticallyHighCondition,
+			false
+		);
 	}
 
 	/**
 	 * Process the error count instance alert rules
-	 *
+	 * 
 	 * @param monitor The monitor we wish to process the alert rules
 	 * @return list of parameters with alert rules otherwise empty list
 	 */
@@ -537,45 +565,44 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 			final BiFunction<Monitor, Set<AlertCondition>, AlertDetails> warnConditionsChecker,
 			final BiFunction<Monitor, Set<AlertCondition>, AlertDetails> alarmConditionsChecker) {
 
-		final Map<String, String> metadata = monitor.getMetadata();
-
 		// warning threshold and alarm threshold on the error count
-		final Double warningThreshold = NumberHelper.parseDouble(metadata.get(ERROR_COUNT_WARNING_THRESHOLD), null);
-		final Double alarmThreshold = NumberHelper.parseDouble(metadata.get(ERROR_COUNT_ALARM_THRESHOLD), null);
+		final ThresholdInfo warningThreshold = ThresholdInfo.buildFromMetadata(monitor, ERROR_COUNT_WARNING_THRESHOLD);
+		final ThresholdInfo alarmThreshold = ThresholdInfo.buildFromMetadata(monitor, ERROR_COUNT_ALARM_THRESHOLD);
 
 		return updateWarningToAlarmAlertRules(
-				monitor,
-				ERROR_COUNT_PARAMETER,
-				warningThreshold,
-				alarmThreshold,
-				warnConditionsChecker,
-				alarmConditionsChecker);
+			monitor,
+			ERROR_COUNT_PARAMETER,
+			warningThreshold,
+			alarmThreshold,
+			warnConditionsChecker,
+			alarmConditionsChecker
+		);
 	}
 
 	/**
-	 * Process the Cpu instance alert rules set by the connector
-	 *
+	 * Process the CPU instance alert rules set by the connector
+	 * 
 	 * @param monitor The CPU monitor from which we extract the warning and alarm threshold
 	 * @return list of parameters with alert rules otherwise empty list
 	 */
 	Set<String> processCpuInstanceAlertRules(Monitor monitor) {
 
-		final Map<String, String> metadata = monitor.getMetadata();
+		final ThresholdInfo correctedErrorWarningThreshold = ThresholdInfo.buildFromMetadata(monitor, CORRECTED_ERROR_WARNING_THRESHOLD);
+		final ThresholdInfo correctedErrorAlarmThreshold = ThresholdInfo.buildFromMetadata(monitor, CORRECTED_ERROR_ALARM_THRESHOLD);
 
-		final Double correctedErrorWarningThreshold = NumberHelper.parseDouble(metadata.get(CORRECTED_ERROR_WARNING_THRESHOLD), null);
-		final Double correctedErrorAlarmThreshold = NumberHelper.parseDouble(metadata.get(CORRECTED_ERROR_ALARM_THRESHOLD), null);
-
-		return updateWarningToAlarmAlertRules(monitor,
-				CORRECTED_ERROR_COUNT_PARAMETER,
-				correctedErrorWarningThreshold,
-				correctedErrorAlarmThreshold,
-				Cpu::checkCorrectedFiewErrorCountCondition,
-				Cpu::checkCorrectedLargeErrorCountCondition);
+		return updateWarningToAlarmAlertRules(
+			monitor,
+			CORRECTED_ERROR_COUNT_PARAMETER,
+			correctedErrorWarningThreshold,
+			correctedErrorAlarmThreshold,
+			Cpu::checkCorrectedFiewErrorCountCondition,
+			Cpu::checkCorrectedLargeErrorCountCondition
+		);
 	}
 
 	/**
 	 * Process the LUN instance alert rules set by the connector
-	 *
+	 * 
 	 * @param monitor The LUN monitor from which we extract the warning or the alarm threshold
 	 * @return set of parameters with alert rules otherwise empty list
 	 */
@@ -586,9 +613,13 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 		final Double availablePathWarning = NumberHelper.parseDouble(metadata.get(AVAILABLE_PATH_WARNING), null);
 
 		if (availablePathWarning != null && availablePathWarning > 0) {
-			final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
-					.lte(availablePathWarning)
-					.build();
+			// For now, it has been decided that expectedPathCount = availablePathWarning + 1
+			monitor.addMetadata(EXPECTED_PATH_COUNT, NumberHelper.formatNumber(availablePathWarning + 1));
+
+			final Set<AlertCondition> warningConditions = AlertConditionsBuilder
+				.newInstance()
+				.lte(availablePathWarning)
+				.build();
 
 			final AlertRule warnAlertRule = new AlertRule(Lun::checkLowerAvailablePathCountCondition, warningConditions, Severity.WARN, AlertRuleType.INSTANCE);
 
@@ -603,75 +634,157 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	/**
 	 * Process the network card instance alert rules set by the connector
-	 *
+	 * 
 	 * @param monitor The network card monitor from which we extract the warning and the alarm threshold
 	 * @return list of parameters with alert rules otherwise empty list
 	 */
 	Set<String> processNetworkCardInstanceAlertRules(Monitor monitor) {
 
-		final Map<String, String> metadata = monitor.getMetadata();
+		final ThresholdInfo errorPercentWarningThreshold = ThresholdInfo.buildFromMetadata(monitor, ERROR_PERCENT_WARNING_THRESHOLD);
+		final ThresholdInfo errorPercentAlarmThreshold = ThresholdInfo.buildFromMetadata(monitor, ERROR_PERCENT_ALARM_THRESHOLD);
 
-		Double errorPercentWarningThreshold = NumberHelper.parseDouble(metadata.get(ERROR_PERCENT_WARNING_THRESHOLD), null);
-		Double errorPercentAlarmThreshold = NumberHelper.parseDouble(metadata.get(ERROR_PERCENT_ALARM_THRESHOLD), null);
-
-		if (!isValidErrorPercentThresholdValue(errorPercentWarningThreshold) || !isValidErrorPercentThresholdValue(errorPercentAlarmThreshold)) {
-			errorPercentWarningThreshold = 20D;
-			errorPercentAlarmThreshold = 30D;
+		if (!CollectHelper.isValidPercentage(errorPercentWarningThreshold.getThreshold())
+				|| !CollectHelper.isValidPercentage(errorPercentAlarmThreshold.getThreshold())) {
+			// Update metadata thresholds
+			monitor.addMetadata(ERROR_PERCENT_WARNING_THRESHOLD, "20");
+			monitor.addMetadata(ERROR_PERCENT_ALARM_THRESHOLD, "30");
+			// Means the static alert rule takes over
+			return Collections.emptySet();
 		}
 
-		return updateWarningToAlarmAlertRules(monitor,
-				ERROR_PERCENT_PARAMETER,
-				errorPercentWarningThreshold,
-				errorPercentAlarmThreshold,
-				NetworkCard::checkErrorPercentWarnCondition,
-				NetworkCard::checkErrorPercentAlarmCondition);
+		return updateWarningToAlarmAlertRules(
+			monitor,
+			ERROR_PERCENT_PARAMETER,
+			errorPercentWarningThreshold,
+			errorPercentAlarmThreshold,
+			NetworkCard::checkErrorPercentWarnCondition,
+			NetworkCard::checkErrorPercentAlarmCondition
+		);
 	}
 
 	/**
 	 * Process the OtherDevice instance alert rules set by the connector
-	 *
+	 * 
 	 * @param monitor The OtherDevice monitor from which we extract the warning and the alarm threshold
 	 * @return set of parameters with alert rules otherwise empty list
 	 */
-	Set<String> processOtherDeviceInstanceAlertRules(Monitor monitor) {
-
-		final Map<String, String> metadata = monitor.getMetadata();
-
-		final Double valueWarningThreshold = NumberHelper.parseDouble(metadata.get(VALUE_WARNING_THRESHOLD), null);
-		final Double valueAlarmThreshold = NumberHelper.parseDouble(metadata.get(VALUE_ALARM_THRESHOLD), null);
+	Set<String> processOtherDecviceInstanceAlertRules(Monitor monitor) {
 
 		final Set<String> parametersWithAlertRules = new HashSet<>();
-		parametersWithAlertRules.addAll(updateWarningToAlarmEnhancedAlertRules(monitor,
+
+		// Value thresholds
+		final ThresholdInfo valueWarningThreshold = ThresholdInfo.buildFromMetadata(monitor, VALUE_WARNING_THRESHOLD);
+		final ThresholdInfo valueAlarmThreshold = ThresholdInfo.buildFromMetadata(monitor, VALUE_ALARM_THRESHOLD);
+
+		parametersWithAlertRules.addAll(
+			updateWarningToAlarmEnhancedAlertRules(monitor,
 				VALUE_PARAMETER,
-				valueWarningThreshold, valueAlarmThreshold,
+				valueWarningThreshold,
+				valueAlarmThreshold,
 				OtherDevice::checkValueWarnCondition,
-				OtherDevice::checkValueAlarmCondition));
+				OtherDevice::checkValueAlarmCondition,
+				false
+			)
+		);
 
-		final Double usageCountWarningThreshold = NumberHelper.parseDouble(metadata.get(USAGE_COUNT_WARNING_THRESHOLD), null);
-		final Double usageCountAlarmThreshold = NumberHelper.parseDouble(metadata.get(USAGE_COUNT_ALARM_THRESHOLD), null);
+		// Usage count thresholds
+		final ThresholdInfo usageCountWarningThreshold = ThresholdInfo.buildFromMetadata(monitor, USAGE_COUNT_WARNING_THRESHOLD);
+		final ThresholdInfo usageCountAlarmThreshold = ThresholdInfo.buildFromMetadata(monitor, USAGE_COUNT_ALARM_THRESHOLD);
 
-		parametersWithAlertRules.addAll(updateWarningToAlarmEnhancedAlertRules(monitor,
+		parametersWithAlertRules.addAll(
+			updateWarningToAlarmEnhancedAlertRules(
+				monitor,
 				USAGE_COUNT_PARAMETER,
-				usageCountWarningThreshold, usageCountAlarmThreshold,
+				usageCountWarningThreshold,
+				usageCountAlarmThreshold,
 				OtherDevice::checkUsageCountWarnCondition,
-				OtherDevice::checkUsageCountAlarmCondition));
+				OtherDevice::checkUsageCountAlarmCondition,
+				false
+			)
+		);
+
+		return parametersWithAlertRules;
+	}
+
+	/**
+	 * Process the GPU instance alert rules set by the connector
+	 *
+	 * @param monitor The GPU monitor from which we extract the warning and alarm threshold
+	 * @return list of parameters with alert rules otherwise empty list
+	 */
+	Set<String> processGpuInstanceAlertRules(Monitor monitor) {
+
+		final Set<String> parametersWithAlertRules = new HashSet<>();
+
+		final ThresholdInfo usedTimePercentWarningThreshold = ThresholdInfo.buildFromMetadata(monitor, USED_TIME_PERCENT_WARNING_THRESHOLD);
+		final ThresholdInfo usedTimePercentAlarmThreshold = ThresholdInfo.buildFromMetadata(monitor, USED_TIME_PERCENT_ALARM_THRESHOLD);
+
+		// Default thresholds: WARN = 80, ALARM = 90
+		if (usedTimePercentWarningThreshold.getThreshold() == null &&
+				usedTimePercentAlarmThreshold.getThreshold() == null) {
+			// Update metadata thresholds
+			monitor.addMetadata(USED_TIME_PERCENT_WARNING_THRESHOLD, "80");
+			monitor.addMetadata(USED_TIME_PERCENT_ALARM_THRESHOLD, "90");
+		} else {
+			// Update metadata thresholds and instance alert rules
+			parametersWithAlertRules.addAll(
+				updateWarningToAlarmEnhancedAlertRules(
+					monitor,
+					USED_TIME_PERCENT_PARAMETER,
+					usedTimePercentWarningThreshold,
+					usedTimePercentAlarmThreshold,
+					Gpu::checkUsedTimePercentWarnCondition,
+					Gpu::checkUsedTimePercentAlarmCondition,
+					true
+				)
+			);
+		}
+
+		final ThresholdInfo memoryUtilizationWarningThreshold = ThresholdInfo.buildFromMetadata(monitor, MEMORY_UTILIZATION_WARNING_THRESHOLD);
+		final ThresholdInfo memoryUtilizationAlarmThreshold = ThresholdInfo.buildFromMetadata(monitor, MEMORY_UTILIZATION_ALARM_THRESHOLD);
+
+		// Default threshold of WARN = 90, ALARM = 95
+		if (memoryUtilizationWarningThreshold.getThreshold() == null &&
+				memoryUtilizationAlarmThreshold.getThreshold() == null) {
+			// Update metadata thresholds
+			monitor.addMetadata(MEMORY_UTILIZATION_WARNING_THRESHOLD, "90");
+			monitor.addMetadata(MEMORY_UTILIZATION_ALARM_THRESHOLD, "95");
+		} else {
+			// Update metadata thresholds and instance alert rules
+			parametersWithAlertRules.addAll(
+				updateWarningToAlarmEnhancedAlertRules(
+					monitor,
+					MEMORY_UTILIZATION_PARAMETER,
+					memoryUtilizationWarningThreshold,
+					memoryUtilizationAlarmThreshold,
+					Gpu::checkMemoryUtilizationWarnCondition,
+					Gpu::checkMemoryUtilizationAlarmCondition,
+					true
+				)
+			);
+		}
 
 		return parametersWithAlertRules;
 	}
 
 	/**
 	 * Update the warning to alarm enhanced instance alert rules
-	 *
-	 * @param monitor          The monitor we wish to process the alert rules
-	 * @param parameterName    The name of the parameter we wish to build the alert rules
-	 * @param warningThreshold The warning threshold
-	 * @param alarmThreshold   The alarm threshold
+	 * 
+	 * @param monitor              The monitor we wish to process the alert rules 
+	 * @param parameterName        The name of the parameter we wish to build the alert rules 
+	 * @param warningThresholdInfo The warning threshold information containing the value and the threshold metadata key
+	 * @param alarmThresholdInfo   The alarm threshold information containing the value and the threshold metadata key
+	 * @param enhancePercentAlarm  Whether we should enhance the percent alarm threshold
 	 * @return Singleton list of the updated parameter or empty
 	 */
 	Set<String> updateWarningToAlarmEnhancedAlertRules(final Monitor monitor, final String parameterName,
-			Double warningThreshold, Double alarmThreshold,
+			final ThresholdInfo warningThresholdInfo, final ThresholdInfo alarmThresholdInfo, 
 			final BiFunction<Monitor, Set<AlertCondition>, AlertDetails> warnConditionsChecker,
-			final BiFunction<Monitor, Set<AlertCondition>, AlertDetails> alarmConditionsChecker) {
+			final BiFunction<Monitor, Set<AlertCondition>, AlertDetails> alarmConditionsChecker,
+			final boolean enhancePercentAlarm) {
+
+		Double warningThreshold = warningThresholdInfo.getThreshold();
+		Double alarmThreshold = alarmThresholdInfo.getThreshold();
 
 		if (warningThreshold != null && alarmThreshold != null) {
 
@@ -686,19 +799,29 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 			// Only alarm threshold is provided. Warning threshold will be 90% of alarm threshold
 			warningThreshold = alarmThreshold * 0.9;
 		} else if (warningThreshold != null) {
-			// Only warning thresholds is provided. Alarm threshold will be 110% of warning threshold
-			alarmThreshold = warningThreshold * 1.1;
+			// Only warning thresholds is provided.
+
+			if (enhancePercentAlarm && warningThreshold < 100) {
+				// Percent alarm threshold is computed from the complement of the warning threshold to 100% 
+				alarmThreshold = 100 - ((100 - warningThreshold) * 0.5);
+			} else {
+				// Alarm threshold will be 110% of warning threshold
+				alarmThreshold = warningThreshold * 1.1;
+			}
+
 		} else {
 			// Means the static rules will take over
 			return Collections.emptySet();
 		}
 
-		final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
-				.gte(warningThreshold)
-				.build();
-		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
-				.gte(alarmThreshold)
-				.build();
+		final Set<AlertCondition> warningConditions = AlertConditionsBuilder
+			.newInstance()
+			.gte(warningThreshold)
+			.build();
+		final Set<AlertCondition> alarmConditions = AlertConditionsBuilder
+			.newInstance()
+			.gte(alarmThreshold)
+			.build();
 
 		// Create the alert rule
 		final AlertRule alarmAlertRule = new AlertRule(alarmConditionsChecker, alarmConditions, Severity.ALARM, AlertRuleType.INSTANCE);
@@ -707,39 +830,31 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 		// Add them to the monitor, they will be inserted only if they are updated.
 		monitor.addAlertRules(parameterName, new ArrayList<>(Arrays.asList(warnAlertRule, alarmAlertRule)));
 
+		// Update metadata thresholds
+		monitor.addMetadata(warningThresholdInfo.getMetadataKey(), NumberHelper.formatNumber(warningThreshold));
+		monitor.addMetadata(alarmThresholdInfo.getMetadataKey(), NumberHelper.formatNumber(alarmThreshold));
+
 		return Collections.singleton(parameterName);
 	}
 
 	/**
-	 * Check if the given threshold value is valid
-	 *
-	 * @param value The value we wish to check
-	 * @return <code>true</code> if the value is valid otherwise false
-	 */
-	static boolean isValidErrorPercentThresholdValue(Double value) {
-		// Value is null means there is no threshold, so it a valid value
-		if (value == null) {
-			return true;
-		}
-
-		return value >= 0;
-	}
-
-	/**
 	 * Build alert rules <em>WARN = (value >= warningThreshold & ALARM < alarmThreshold)</em> and <em>ALARM = (value >= alarmThreshold)</em>
-	 *
+	 * 
 	 * @param monitor                The monitor we wish to build the alert rules
 	 * @param parameterName          The name of the parameter we wish to build the alert rules
-	 * @param warningThreshold       The warning threshold value
-	 * @param alarmThreshold         The alarm threshold value
+	 * @param warningThresholdInfo   The warning threshold information containing the value and threshold metadata key
+	 * @param alarmThresholdInfo     The alarm threshold information containing the value and threshold metadata key
 	 * @param warnConditionsChecker  The warning conditions checker function
 	 * @param alarmConditionsChecker The alarm conditions checker function
 	 * @return Singleton set of the updated parameter
 	 */
 	Set<String> updateWarningToAlarmAlertRules(final Monitor monitor, final String parameterName,
-			Double warningThreshold, Double alarmThreshold,
+			final ThresholdInfo warningThresholdInfo, final ThresholdInfo alarmThresholdInfo,
 			final BiFunction<Monitor, Set<AlertCondition>, AlertDetails> warnConditionsChecker,
 			final BiFunction<Monitor, Set<AlertCondition>, AlertDetails> alarmConditionsChecker) {
+
+		Double warningThreshold = warningThresholdInfo.getThreshold();
+		Double alarmThreshold = alarmThresholdInfo.getThreshold();
 
 		if (warningThreshold != null && alarmThreshold != null) {
 
@@ -750,42 +865,56 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 				alarmThreshold = swap;
 			}
 
-			final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
-					.gte(warningThreshold)
-					.build();
-			final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
-					.gte(alarmThreshold)
-					.build();
-
+			final Set<AlertCondition> warningConditions = AlertConditionsBuilder
+				.newInstance()
+				.gte(warningThreshold)
+				.build();
+			final Set<AlertCondition> alarmConditions = AlertConditionsBuilder
+				.newInstance()
+				.gte(alarmThreshold)
+				.build();
+	
 			final AlertRule warnAlertRule = new AlertRule(warnConditionsChecker, warningConditions, Severity.WARN, AlertRuleType.INSTANCE);
 			final AlertRule alarmAlertRule = new AlertRule(alarmConditionsChecker, alarmConditions, Severity.ALARM, AlertRuleType.INSTANCE);
 
 			// Add them to the monitor, they will be inserted only if they are updated.
 			monitor.addAlertRules(parameterName, new ArrayList<>(Arrays.asList(warnAlertRule, alarmAlertRule)));
 
+			// Update metadata thresholds
+			monitor.addMetadata(warningThresholdInfo.getMetadataKey(), NumberHelper.formatNumber(warningThreshold));
+			monitor.addMetadata(alarmThresholdInfo.getMetadataKey(), NumberHelper.formatNumber(alarmThreshold));
+
 			return Collections.singleton(parameterName);
 
 		} else if (warningThreshold != null) {
 
-			final Set<AlertCondition> warningConditions = AlertConditionsBuilder.newInstance()
-					.gte(warningThreshold)
-					.build();
+			final Set<AlertCondition> warningConditions = AlertConditionsBuilder
+				.newInstance()
+				.gte(warningThreshold)
+				.build();
 			final AlertRule warnAlertRule = new AlertRule(warnConditionsChecker, warningConditions, Severity.WARN, AlertRuleType.INSTANCE);
 
 			// Add to the monitor, it will be inserted only if updated.
 			monitor.addAlertRules(parameterName, new ArrayList<>(Collections.singletonList(warnAlertRule)));
 
+			// Update metadata thresholds
+			monitor.addMetadata(warningThresholdInfo.getMetadataKey(), NumberHelper.formatNumber(warningThreshold));
+
 			return Collections.singleton(parameterName);
 
 		} else if (alarmThreshold != null) {
 
-			final Set<AlertCondition> alarmConditions = AlertConditionsBuilder.newInstance()
-					.gte(alarmThreshold)
-					.build();
+			final Set<AlertCondition> alarmConditions = AlertConditionsBuilder
+				.newInstance()
+				.gte(alarmThreshold)
+				.build();
 			final AlertRule alarmAlertRule = new AlertRule(alarmConditionsChecker, alarmConditions, Severity.ALARM, AlertRuleType.INSTANCE);
 
 			// Add to the monitor, it will be inserted only if updated.
 			monitor.addAlertRules(parameterName, new ArrayList<>(Collections.singletonList(alarmAlertRule)));
+
+			// Update metadata thresholds
+			monitor.addMetadata(alarmThresholdInfo.getMetadataKey(), NumberHelper.formatNumber(alarmThreshold));
 
 			return Collections.singleton(parameterName);
 		}
@@ -795,27 +924,65 @@ public class MonitorAlertRulesVisitor implements IMonitorVisitor {
 
 	/**
 	 * Process Fan alert rules using the monitor instance metadata
-	 *
+	 * 
 	 * @param monitor The monitor we wish to process
 	 * @return list of parameters with alert rules otherwise empty list
 	 */
 	Set<String> processFanInstanceAlertRules(final Monitor monitor) {
 
-		final Map<String, String> metadata = monitor.getMetadata();
-
 		// warning threshold and alarm threshold on speed
-		final Double warningThreshold = NumberHelper.parseDouble(metadata.get(WARNING_THRESHOLD), null);
-		final Double alarmThreshold = NumberHelper.parseDouble(metadata.get(ALARM_THRESHOLD), null);
+		final ThresholdInfo warningThreshold = ThresholdInfo.buildFromMetadata(monitor, WARNING_THRESHOLD);
+		final ThresholdInfo alarmThreshold = ThresholdInfo.buildFromMetadata(monitor, ALARM_THRESHOLD);
 
 		final Set<String> parametersWithAlertRules = new HashSet<>();
-		parametersWithAlertRules.addAll(updateFanInstanceSpeedAlertRules(monitor, SPEED_PARAMETER, warningThreshold, alarmThreshold));
+		parametersWithAlertRules.addAll(
+			updateFanInstanceSpeedAlertRules(
+				monitor,
+				SPEED_PARAMETER,
+				warningThreshold,
+				alarmThreshold,
+				false
+			)
+		);
 
 		// percent warning threshold and percent alarm threshold on speed percentage
-		final Double percentWarningThreshold = NumberHelper.parseDouble(metadata.get(PERCENT_WARNING_THRESHOLD), null);
-		final Double percentAlarmThreshold = NumberHelper.parseDouble(metadata.get(PERCENT_ALARM_THRESHOLD), null);
-		parametersWithAlertRules.addAll(updateFanInstanceSpeedAlertRules(monitor, SPEED_PERCENT_PARAMETER, percentWarningThreshold, percentAlarmThreshold));
+		final ThresholdInfo percentWarningThreshold = ThresholdInfo.buildFromMetadata(monitor, PERCENT_WARNING_THRESHOLD);
+		final ThresholdInfo percentAlarmThreshold = ThresholdInfo.buildFromMetadata(monitor, PERCENT_ALARM_THRESHOLD);
+		parametersWithAlertRules.addAll(
+			updateFanInstanceSpeedAlertRules(
+				monitor,
+				SPEED_PERCENT_PARAMETER,
+				percentWarningThreshold,
+				percentAlarmThreshold,
+				true
+			)
+		);
 
 		return parametersWithAlertRules;
 	}
 
+	@AllArgsConstructor
+	@Builder
+	public static class ThresholdInfo {
+		@Getter
+		private String metadataKey;
+		@Getter
+		@Setter
+		private Double threshold;
+
+		/**
+		 * Build a new {@link ThresholdInfo} instance that wraps the metadata key and its value
+		 * 
+		 * @param monitor     The monitor from which we extract the metadata threshold value
+		 * @param metadataKey The metadata unique key used to extract the threshold value
+		 * @return {@link ThresholdInfo} instance ready to use
+		 */
+		static ThresholdInfo buildFromMetadata(final Monitor monitor, final String metadataKey) {
+			return ThresholdInfo
+				.builder()
+				.metadataKey(metadataKey)
+				.threshold(NumberHelper.parseDouble(monitor.getMetadata(metadataKey), null))
+				.build();
+		}
+	}
 }
