@@ -75,8 +75,8 @@ class PrettyPrinterTest {
 		final String actual = new String(out.toByteArray(), StandardCharsets.UTF_8).toLowerCase();
 
 		assertFalse(actual.contains(PARAMETER_ACTIVATION_STATUS_METADATA));
-		assertFalse(actual.contains(ID_COUNT));
-		assertFalse(actual.contains(DISPLAY_ID));
+		assertFalse(actual.contains(ID_COUNT.toLowerCase()));
+		assertFalse(actual.contains(DISPLAY_ID.toLowerCase()));
 	}
 
 }
