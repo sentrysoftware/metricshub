@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.fusesource.jansi.Ansi;
@@ -39,6 +40,8 @@ public class PrettyPrinter {
 			HardwareConstants.CPU_THERMAL_DISSIPATION_RATE_PARAMETER.toLowerCase(),
 			HardwareConstants.DISK_CONTROLLER_NUMBER.toLowerCase()
 	);
+
+	private static final Pattern PARAMETER_ACTIVATION_PATTERN = Pattern.compile("parameteractivation", Pattern.CASE_INSENSITIVE);
 
 	private PrintWriter out;
 	private IHostMonitoring result;
@@ -147,6 +150,7 @@ public class PrettyPrinter {
 				.entrySet()
 				.stream()
 				.filter(e -> !EXCLUDED_METADATA.contains(e.getKey().toLowerCase()))
+				.filter(e -> !PARAMETER_ACTIVATION_PATTERN.matcher(e.getKey()).find())
 				.filter(e -> e.getValue() != null && !e.getValue().isBlank())
 				.sorted((e1, e2) -> e1.getKey().compareToIgnoreCase(e2.getKey()))
 				.map(metadata -> Ansi.ansi()
