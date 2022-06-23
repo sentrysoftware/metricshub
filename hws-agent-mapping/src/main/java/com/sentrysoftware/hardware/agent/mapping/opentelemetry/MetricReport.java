@@ -40,12 +40,10 @@ public class MetricReport {
 	private static final String PIPE = "|";
 	private static final String SEPARATOR = ", ";
 	private static final String FILE_NAME = "/metrics.md";
-	private static final char BACKTICK = '`';
 	private static final String START_TABLE_ROW = "| ";
 	private static final String END_TABLE_ROW = " |";
 	private static final String MONITORS = "*Monitors*";
 	private static final String PROJECT_NAME = "**${project.name}**";
-
 	private static final String NAME_HEADING = "Name";
 	private static final String UNIT_HEADING = "Unit";
 	private static final String ATTRIBUTES_HEADING = "Attributes";
@@ -160,26 +158,14 @@ public class MetricReport {
 			metrics.entrySet().forEach(entry -> {
 				final List<MetricInfo> metricList = entry.getValue();
 				for (MetricInfo metric : metricList) {
-					if (metric != null) {
-						final Set<String> finalAttributes = new TreeSet<>();
-						finalAttributes.addAll(formattedAttributes);
-						finalAttributes.addAll(getIdentifyingAttributes(metric));
-						metricNameToInfo.put(metric.getName(),
-								new MetricData(metric, finalAttributes.stream().collect(Collectors.joining(SEPARATOR))));
-					}
+					processMetric(formattedAttributes, metricNameToInfo, metric);
 				}
 			});
 
 			metaToMetrics.entrySet().stream().forEach(entry -> {
 				final List<MetricInfo> metricList = entry.getValue();
 				for (MetricInfo metric : metricList) {
-					if (metric != null) {
-						final Set<String> finalAttributes = new TreeSet<>();
-						finalAttributes.addAll(formattedAttributes);
-						finalAttributes.addAll(getIdentifyingAttributes(metric));
-						metricNameToInfo.put(metric.getName(),
-								new MetricData(metric, finalAttributes.stream().collect(Collectors.joining(SEPARATOR))));
-					}
+					processMetric(formattedAttributes, metricNameToInfo, metric);
 				}
 			});
 
@@ -194,18 +180,47 @@ public class MetricReport {
 	}
 
 	/**
+	 * Process the given metric info and update the metricNameToInfo map
+	 * 
+	 * @param formattedAttributes
+	 * @param metricNameToInfo
+	 * @param metric
+	 */
+	private void processMetric(Set<String> formattedAttributes, Map<String, MetricData> metricNameToInfo,
+			MetricInfo metric) {
+		if (metric != null) {
+			Set<String> finalAttributes = new TreeSet<>();
+			if (metricNameToInfo.containsKey(metric.getName())) {
+				finalAttributes = metricNameToInfo.get(metric.getName()).getAttributes();
+			}
+			finalAttributes.addAll(formattedAttributes);
+			finalAttributes.addAll(getIdentifyingAttributes(metric));
+			metricNameToInfo.put(metric.getName(), new MetricData(metric, finalAttributes));
+		}
+	}
+
+	/**
 	 * applies the monospace formatting to attributes
 	 * 
 	 * @param attributes
-	 * @return markdown formatted attributes
+	 * @return TreeSet of formatted attributes
 	 */
-	private TreeSet<String> formatAttributes(Set<String> attributes) {
-		TreeSet<String> formattedAttributes = new TreeSet<>();
+	private Set<String> formatAttributes(Set<String> attributes) {
+		return attributes
+			.stream()
+			.map(this::formatAttribute)
+			.collect(Collectors.toCollection(TreeSet::new));
 
-		for (String attribute : attributes) {
-			formattedAttributes.add(BACKTICK + attribute + BACKTICK);
-		}
-		return formattedAttributes;
+	}
+
+	/**
+	 * Put the attribute between backticks
+	 * 
+	 * @param attribute
+	 * @return String value
+	 */
+	private String formatAttribute(final String attribute) {
+		return String.format("`%s`", attribute);
 	}
 
 	/**
@@ -221,7 +236,7 @@ public class MetricReport {
 		for (Entry<String, MetricData> entry : metricNameToInfo.entrySet()) {
 			row.append(NEWLINE);
 			row.append(
-					createMetricRow(entry.getValue().getMetricInfo(), entry.getValue().getAttributes(), headerSizes));
+					createMetricRow(entry.getValue().getMetricInfo(), entry.getValue().getAttributesAsString(), headerSizes));
 		}
 
 		return row.toString();
@@ -249,13 +264,13 @@ public class MetricReport {
 	 * @param metric
 	 * @return attribute set
 	 */
-	private static Set<String> getIdentifyingAttributes(MetricInfo metric) {
+	private Set<String> getIdentifyingAttributes(MetricInfo metric) {
 		if (metric.getIdentifyingAttributes() != null) {
 			return metric
-					.getIdentifyingAttributes()
-					.stream()
-					.map(attr -> String.format("`%s`", attr.getKey()))
-					.collect(Collectors.toCollection(TreeSet::new));
+				.getIdentifyingAttributes()
+				.stream()
+				.map(attr -> formatAttribute(attr.getKey()))
+				.collect(Collectors.toCollection(TreeSet::new));
 		}
 		return Collections.emptySet();
 	}
@@ -306,7 +321,7 @@ public class MetricReport {
 			MetricData data = entry.getValue();
 
 			MetricInfo metric = data.metricInfo;
-			String attributes = data.attributes;
+			String attributes = data.getAttributesAsString();
 			if (metric.getType().toString().length() > headerSizes.get(TYPE_HEADING)) {
 				headerSizes.put(TYPE_HEADING, metric.getType().getDisplayName().length());
 			}
@@ -399,7 +414,18 @@ public class MetricReport {
 	@AllArgsConstructor
 	static class MetricData {
 		private MetricInfo metricInfo;
-		private String attributes;
+		private Set<String> attributes;
 
+		/**
+		 * Concatenates the attributes, separated by the specified separator: {@value #SEPARATOR}
+		 * 
+		 * @return String value
+		 */
+		public String getAttributesAsString() {
+			if (attributes != null) {
+				return attributes.stream().collect(Collectors.joining(SEPARATOR));
+			}
+			return "";
+		}
 	}
 }
