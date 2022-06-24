@@ -537,7 +537,7 @@ class OsCommandHelperTest {
 		wmiProtocol.setUsername("user");
 		wmiProtocol.setPassword("pwd".toCharArray());
 
-		final HardwareHost hardwareHost = new HardwareHost("id", "localhost", HostType.MS_WINDOWS);
+		final HardwareHost hardwareHost = new HardwareHost("id", "host", HostType.MS_WINDOWS);
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
@@ -556,7 +556,7 @@ class OsCommandHelperTest {
 						null,
 						120L,
 						false,
-						false));
+						true));
 	}
 
 	@Test
@@ -568,7 +568,7 @@ class OsCommandHelperTest {
 				.password("pwd".toCharArray())
 				.build();
 
-		final HardwareHost hardwareHost = new HardwareHost("id", "localhost", HostType.LINUX);
+		final HardwareHost hardwareHost = new HardwareHost("id", "host", HostType.LINUX);
 
 		final EngineConfiguration engineConfiguration = EngineConfiguration
 				.builder()
@@ -587,7 +587,7 @@ class OsCommandHelperTest {
 						null,
 						120L,
 						false,
-						false));
+						true));
 	}
 
 	@Test

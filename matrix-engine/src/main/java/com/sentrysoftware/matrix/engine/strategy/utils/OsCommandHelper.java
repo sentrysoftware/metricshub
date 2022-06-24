@@ -473,7 +473,7 @@ public class OsCommandHelper {
 			final String commandResult;
 
 			// Case local execution or command intended for a remote host but executed locally
-			if (HardwareConstants.LOCALHOST.equalsIgnoreCase(hostname) || isExecuteLocally) {
+			if (isLocalhost || isExecuteLocally) {
 				final String localCommandResult = runLocalCommand(
 						command,
 						timeout,
