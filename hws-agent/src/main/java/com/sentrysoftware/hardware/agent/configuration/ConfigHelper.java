@@ -559,7 +559,7 @@ public class ConfigHelper {
 		try {
 			validateHost(hostConfigurationDto.getHost().getType(), hostname);
 
-			if (hostConfigurationDto.getOsCommand() != null) {
+			if (hostConfigurationDto.getWinRm() != null) {
 				WinRmProtocolDto winRmDto = hostConfigurationDto.getWinRm();
 				validateWinRmInfo(hostname,
 						winRmDto.getPort(),

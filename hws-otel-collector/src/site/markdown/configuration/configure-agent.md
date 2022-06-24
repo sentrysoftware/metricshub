@@ -103,13 +103,13 @@ hosts:
 
 Use the parameters below to configure OS Commands:
 
-| Parameter       | Description                                                           |
-| --------------- | --------------------------------------------------------------------- |
-| osCommand       | Protocol used to access the host.                                     |
-| timeout         | How long until the local OS Commands time out (Default: 120s).        |
-| useSudo         | Whether sudo is used or not for the local OS Command (true or false). |
-| useSudoCommands | List of commands for which sudo is required.                          |
-| sudoCommand     | Sudo command to be used (Default: sudo).                              |
+| Parameter       | Description                                                                           |
+| --------------- | ------------------------------------------------------------------------------------- |
+| osCommand       | Protocol used to access the host.                                                     |
+| timeout         | How long until the local OS Commands time out (Default: 120s).                        |
+| useSudo         | Whether sudo is used or not for the local OS Command: true or false (Default: false). |
+| useSudoCommands | List of commands for which sudo is required.                                          |
+| sudoCommand     | Sudo command to be used (Default: sudo).                                              |
 
 #### Example
 
