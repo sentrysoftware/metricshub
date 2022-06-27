@@ -36,6 +36,7 @@
 		</menu>
 
 		<menu name="Integrations">
+			<item name="Datadog" href="integration/datadog.html"/>
 			<item name="Prometheus Server" href="integration/prometheus.html"/>
 			<item name="Prometheus AlertManager" href="integration/alertmanager.html"/>
 			<item name="Grafana Dashboards" href="integration/grafana.html"/>
