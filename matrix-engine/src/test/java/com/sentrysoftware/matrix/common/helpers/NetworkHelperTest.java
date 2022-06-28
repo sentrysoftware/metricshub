@@ -7,7 +7,6 @@ import static org.mockito.Mockito.mockStatic;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -17,7 +16,6 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_S
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class NetworkHelperTest {
@@ -58,10 +56,11 @@ class NetworkHelperTest {
 		assertEquals(hostname, NetworkHelper.getFqdn(hostname));
 
 		// hostname cannot be resolved
-		assertThrows(UnknownHostException.class, () -> NetworkHelper.getFqdn(UUID.randomUUID().toString()));
+		hostname = UUID.randomUUID().toString();
+		assertEquals(hostname, NetworkHelper.getFqdn(hostname));
 
 		// hostname can be resolved
-		assertNotNull(NetworkHelper.getFqdn(hostname));
+		assertNotNull(NetworkHelper.getFqdn("localhost"));
 	}
 
 	@Test
