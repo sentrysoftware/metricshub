@@ -145,10 +145,10 @@ This command will connect to the `WIN005` `Win`dows system using `SNMP` version 
 ### Ouf-of-band Management Card, IPMI-over-LAN
 
 ```batch
-$ hws MGMT06 -t management --ipmi -u root
+$ hws MGMT06 -t management --ipmi -u USER
 ```
 
-This command will connect to the `MGMT06` out-of-band `management` card (typically a BMC chip) using the `IPMI`-over-LAN protocol as `root`.
+This command will connect to the `MGMT06` out-of-band `management` card (typically a BMC chip) using the `IPMI`-over-LAN protocol as `USER`.
 
 ### VMware ESX, WBEM
 
@@ -171,7 +171,7 @@ This command will connect to the `SOLAR08` `Solaris` system using the `SSH` prot
 ### WinRM
 
 ```batch
-$ hws WIN004 -t mgmt --winrm --winrm-username USER --winrm-password ****
+$ hws WIN004 -t mgmt --winrm --winrm-username USER --winrm-password MYSECRET
 ```
 
 This command will connect to the `WIN004` system using the `WinRM` protocol to execute commands as `USER`.
