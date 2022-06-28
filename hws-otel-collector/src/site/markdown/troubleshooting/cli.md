@@ -125,20 +125,20 @@ This command will connect to the `CISC03` SAN switch (`sto`rage) using `SNMP` ve
 ### Windows, WMI and SNMP v2c
 
 ```batch
-C:\> hws WIN004 -t win --snmp 2 --wmi
+C:\> hws WIN04 -t win --snmp 2 --wmi
 ```
 
-This command will connect to the `WIN004` `Win`dows system using `SNMP` version `2`c with the **public** (default) community, and `WMI` as the current.
+This command will connect to the `WIN04` `Win`dows system using `SNMP` version `2`c with the **public** (default) community, and `WMI` as the current.
 
 > Note: The WMI protocol can only be used from a Windows system to monitor another Windows system.
 
 ### Windows, WMI and SNMP v3 (Alternate Credentials)
 
 ```batch
-C:\> hws WIN005 -t win --snmp 3-sha --snmp-username USERA --wmi --wmi-username WINUSER
+C:\> hws WIN05 -t win --snmp 3-sha --snmp-username USERA --wmi --wmi-username WINUSER
 ```
 
-This command will connect to the `WIN005` `Win`dows system using `SNMP` version `3` as `USERA`, and `WMI` as `WINUSER`. Both passwords will be asked for interactively.
+This command will connect to the `WIN05` `Win`dows system using `SNMP` version `3` as `USERA`, and `WMI` as `WINUSER`. Both passwords will be asked for interactively.
 
 > Note: Instead of using the common `-u` or `--username` options, we had to use the `--snmp-username` and `--wmi-username` options to specify different credentials for SNMP and WMI.
 
@@ -153,10 +153,10 @@ This command will connect to the `MGMT06` out-of-band `management` card (typical
 ### VMware ESX, WBEM
 
 ```batch
-$ hws ESX007 -t esx --wbem -u admin
+$ hws ESX07 -t esx --wbem -u admin
 ```
 
-This command will connect to the `ESX007` VMware `ESX` host using the `WBEM` protocol (HTTPS/5989 by default) with the `admin` account.
+This command will connect to the `ESX07` VMware `ESX` host using the `WBEM` protocol (HTTPS/5989 by default) with the `admin` account.
 
 ### Solaris, SSH
 
@@ -171,10 +171,10 @@ This command will connect to the `SOLAR08` `Solaris` system using the `SSH` prot
 ### WinRM
 
 ```batch
-$ hws WIN004 -t mgmt --winrm --winrm-username USER --winrm-password MYSECRET
+$ hws WIN04 -t mgmt --winrm --winrm-username USER --winrm-password MYSECRET
 ```
 
-This command will connect to the `WIN004` system using the `WinRM` protocol to execute commands as `USER`.
+This command will connect to the `WIN04` system using the `WinRM` protocol to execute commands as `USER`.
 
 
 ## Automatic Detection vs Manual Selection
