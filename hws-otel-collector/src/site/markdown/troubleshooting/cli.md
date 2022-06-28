@@ -171,10 +171,10 @@ This command will connect to the `SOLAR08` `Solaris` system using the `SSH` prot
 ### WinRM
 
 ```batch
-$ hws WIN04 -t mgmt --winrm --winrm-username USER --winrm-password MYSECRET
+$ hws WIN09 -t mgmt --winrm --winrm-username USER --winrm-password MYSECRET
 ```
 
-This command will connect to the `WIN04` system using the `WinRM` protocol to execute commands as `USER`.
+This command will connect to the `WIN09` system using the `WinRM` protocol to execute commands as `USER`.
 
 
 ## Automatic Detection vs Manual Selection
