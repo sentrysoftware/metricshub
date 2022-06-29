@@ -22,21 +22,6 @@ import lombok.NoArgsConstructor;
 public class NetworkCardMapping {
 
 	public static final String HW_TYPE_ATTRIBUTE_VALUE = "network";
-	private static final String ERRORS_METRIC_DESCRIPTION = createCustomDescriptionWithAttributes(
-		"Number of errors encountered by the network interface since the start of the Hardware Sentry Agent",
-		TYPE_ATTRIBUTE_KEY,
-		ALL_ATTRIBUTE_VALUE, ZERO_BUFFER_CREDIT_ATTRIBUTE_VALUE
-	);
-	private static final String IO_METRIC_DESCRIPTION = createCustomDescriptionWithAttributes(
-		"Total number of bytes received or transmitted through the network interface",
-		DIRECTION_ATTRIBUTE_KEY,
-		RECEIVE_ATTRIBUTE_VALUE, TRANSMIT_ATTRIBUTE_VALUE
-	);
-	private static final String PACKET_METRIC_DESCRIPTION = createCustomDescriptionWithAttributes(
-		"Total number of packets received or transmitted through the network interface",
-		DIRECTION_ATTRIBUTE_KEY,
-		RECEIVE_ATTRIBUTE_VALUE, TRANSMIT_ATTRIBUTE_VALUE
-	);
 	private static final String ERROR_RATIO_METRIC_DESCRIPTION = createCustomDescriptionWithAttributes(
 		"Network interface error ratio that will generate a warning or an alarm when reached",
 		LIMIT_TYPE_ATTRIBUTE_KEY,
@@ -179,10 +164,17 @@ public class NetworkCardMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.network.errors")
-					.unit(ERRORS_UNIT)
+					.name(ERRORS_METRIC_NAME)
 					.type(MetricType.COUNTER)
+					.unit(ERRORS_UNIT)
 					.description(ERRORS_METRIC_DESCRIPTION)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -225,17 +217,10 @@ public class NetworkCardMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.network.io")
+					.name("hw.network.io.receive")
 					.unit(BYTES_UNIT)
 					.type(MetricType.COUNTER)
-					.description(IO_METRIC_DESCRIPTION)
-					.identifyingAttribute(
-						StaticIdentifyingAttribute
-							.builder()
-							.key(DIRECTION_ATTRIBUTE_KEY)
-							.value(RECEIVE_ATTRIBUTE_VALUE)
-							.build()
-					)
+					.description("Total number of bytes received through the network interface.")
 					.build()
 			)
 		);
@@ -245,17 +230,10 @@ public class NetworkCardMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.network.packets")
+					.name("hw.network.packets.receive")
 					.unit(PACKETS_UNIT)
 					.type(MetricType.COUNTER)
-					.description(PACKET_METRIC_DESCRIPTION)
-					.identifyingAttribute(
-						StaticIdentifyingAttribute
-							.builder()
-							.key(DIRECTION_ATTRIBUTE_KEY)
-							.value(RECEIVE_ATTRIBUTE_VALUE)
-							.build()
-					)
+					.description("Total number of packets received through the network interface.")
 					.build()
 			)
 		);
@@ -265,17 +243,10 @@ public class NetworkCardMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.network.io")
+					.name("hw.network.io.transmit")
 					.unit(BYTES_UNIT)
 					.type(MetricType.COUNTER)
-					.description(IO_METRIC_DESCRIPTION)
-					.identifyingAttribute(
-						StaticIdentifyingAttribute
-							.builder()
-							.key(DIRECTION_ATTRIBUTE_KEY)
-							.value(TRANSMIT_ATTRIBUTE_VALUE)
-							.build()
-					)
+					.description("Total number of bytes transmitted through the network interface.")
 					.build()
 			)
 		);
@@ -285,17 +256,10 @@ public class NetworkCardMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.network.packets")
+					.name("hw.network.packets.transmit")
 					.unit(PACKETS_UNIT)
 					.type(MetricType.COUNTER)
-					.description(PACKET_METRIC_DESCRIPTION)
-					.identifyingAttribute(
-						StaticIdentifyingAttribute
-							.builder()
-							.key(DIRECTION_ATTRIBUTE_KEY)
-							.value(TRANSMIT_ATTRIBUTE_VALUE)
-							.build()
-					)
+					.description("Total number of packets transmitted through the network interface.")
 					.build()
 			)
 		);
@@ -305,16 +269,24 @@ public class NetworkCardMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.network.errors")
+					.name(ERRORS_METRIC_NAME)
 					.type(MetricType.COUNTER)
+					.unit(ERRORS_UNIT)
 					.description(ERRORS_METRIC_DESCRIPTION)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
 							.key(TYPE_ATTRIBUTE_KEY)
 							.value(ZERO_BUFFER_CREDIT_ATTRIBUTE_VALUE)
 							.build()
-						)
+					)
 					.build()
 			)
 		);

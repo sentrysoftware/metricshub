@@ -52,7 +52,6 @@ public class MappingConstants {
 	public static final String PROTOCOL_ATTRIBUTE_KEY = "protocol";
 	public static final String TYPE_ATTRIBUTE_KEY = "type";
 	public static final String TASK_ATTRIBUTE_KEY = "task";
-	public static final String DIRECTION_ATTRIBUTE_KEY = "direction";
 	public static final String BATTERY_STATE_ATTRIBUTE_KEY = "battery_state";
 	public static final String LIMIT_TYPE_ATTRIBUTE_KEY = "limit_type";
 	public static final String INFO_ATTRIBUTE_KEY = "info";
@@ -65,8 +64,6 @@ public class MappingConstants {
 	public static final String DECODER_ATTRIBUTE_VALUE = "decoder";
 	public static final String ENCODER_ATTRIBUTE_VALUE = "encoder";
 	public static final String GENERAL_ATTRIBUTE_VALUE = "general";
-	public static final String RECEIVE_ATTRIBUTE_VALUE = "receive";
-	public static final String TRANSMIT_ATTRIBUTE_VALUE = "transmit";
 	public static final String ALL_ATTRIBUTE_VALUE = "all";
 	public static final String DEGRADED_ATTRIBUTE_VALUE = "degraded";
 	public static final String FAILED_ATTRIBUTE_VALUE = "failed";
@@ -133,7 +130,7 @@ public class MappingConstants {
 	public static final String POWER_METRIC_DESCRIPTION = "Energy consumed by the monitored device specified with `hw.type` and `id`.";
 	public static final String ENERGY_METRIC_DESCRIPTION = "Energy consumed by the monitored device specified with `hw.type` and `id`"
 		+ " since the start of the Hardware Sentry Agent.";
-
+	public static final String ERRORS_METRIC_DESCRIPTION = "Errors encountered by the component.";
 	// Factors
 	public static final double MHZ_TO_HZ_FACTOR = 1000000.0;
 	public static final double RATIO_FACTOR = 0.01;
@@ -146,6 +143,8 @@ public class MappingConstants {
 	public static final String STATUS_METRIC_NAME = "hw.status";
 	public static final String ENERGY_METRIC_NAME = "hw.energy";
 	public static final String POWER_METRIC_NAME = "hw.power";
+	public static final String ERRORS_METRIC_NAME = "hw.errors";
+	public static final String ERRORS_LIMIT_METRIC_NAME = "hw.errors.limit";
 
 	/**
 	 * Make the value enclosed between backticks

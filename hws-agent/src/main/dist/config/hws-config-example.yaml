@@ -101,11 +101,11 @@ hosts:
 #      hostname: server-6
 #      type: oob
 #    snmp:
-#      version: v3_md5
+#      version: v3-md5
 #      community: public
 #      port: 161
 #      timeout: 120
-#      privacy: DES
+#      privacy: des
 #      privacyPassword: privacy_password
 #      username: username
 #      password: password
@@ -175,11 +175,11 @@ hosts:
 #  - host:
 #      hostname: server-11
 #      type: win
-#    winRM:
+#    winrm:
 #      timeout: 120
 #      username: myusername
 #      password: mypwd
 #      port: 5985
 #      protocol: http
-#      authentications: [NTLM,KERBEROS]
+#      authentications: [ntlm, kerberos]
 

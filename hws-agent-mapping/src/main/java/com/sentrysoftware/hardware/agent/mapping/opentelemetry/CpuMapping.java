@@ -22,11 +22,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CpuMapping {
 
-	public static final String ERROR_LIMIT_DESCRIPTION = createCustomDescriptionWithAttributes(
-		"Number of detected and corrected errors that will generate a warning or an alarm",
-		LIMIT_TYPE_ATTRIBUTE_KEY,
-		DEGRADED_ATTRIBUTE_VALUE, CRITICAL_ATTRIBUTE_VALUE
-	);
 	public static final String HW_TYPE_ATTRIBUTE_VALUE = "cpu";
 
 	/**
@@ -138,10 +133,17 @@ public class CpuMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.cpu.errors")
+					.name(ERRORS_METRIC_NAME)
 					.type(MetricType.COUNTER)
 					.unit(ERRORS_UNIT)
-					.description("Number of detected and corrected errors.")
+					.description(ERRORS_METRIC_DESCRIPTION)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);
@@ -268,9 +270,16 @@ public class CpuMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.cpu.errors.limit")
+					.name(ERRORS_LIMIT_METRIC_NAME)
 					.unit(ERRORS_UNIT)
-					.description(ERROR_LIMIT_DESCRIPTION)
+					.description(ERRORS_LIMIT_METRIC_DESCRIPTION)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -287,9 +296,16 @@ public class CpuMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.cpu.errors.limit")
+					.name(ERRORS_LIMIT_METRIC_NAME)
 					.unit(ERRORS_UNIT)
-					.description(ERROR_LIMIT_DESCRIPTION)
+					.description(ERRORS_LIMIT_METRIC_DESCRIPTION)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()

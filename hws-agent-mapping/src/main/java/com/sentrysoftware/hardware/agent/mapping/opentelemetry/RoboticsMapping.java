@@ -145,10 +145,17 @@ public class RoboticsMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.robotics.errors")
-					.unit(ERRORS_UNIT)
+					.name(ERRORS_METRIC_NAME)
 					.type(MetricType.COUNTER)
-					.description("Number of errors encountered by the robotic device since the start of the Hardware Sentry Agent.")
+					.unit(ERRORS_UNIT)
+					.description(ERRORS_METRIC_DESCRIPTION)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);
@@ -209,9 +216,16 @@ public class RoboticsMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.robotics.errors.limit")
-					.description(ERRORS_LIMIT_METRIC_DESCRIPTION)
+					.name(ERRORS_LIMIT_METRIC_NAME)
 					.unit(ERRORS_UNIT)
+					.description(ERRORS_LIMIT_METRIC_DESCRIPTION)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -228,9 +242,16 @@ public class RoboticsMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.robotics.errors.limit")
-					.description(ERRORS_LIMIT_METRIC_DESCRIPTION)
+					.name(ERRORS_LIMIT_METRIC_NAME)
 					.unit(ERRORS_UNIT)
+					.description(ERRORS_LIMIT_METRIC_DESCRIPTION)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
