@@ -81,14 +81,14 @@ public class NetworkHelper {
 	 */
 	
 	public static String resolveDns(final String hostname) {	
-		
+
 		String ipAddress = null;
 		InetAddress inetAddress = null;
-		
+
 		if (hostname != null && !hostname.isBlank()) {	
 			try { 
 				inetAddress = InetAddress.getByName(hostname);
-				
+
 				if (inetAddress != null) {
 					ipAddress = inetAddress.getHostAddress();
 				}
@@ -97,7 +97,7 @@ public class NetworkHelper {
 				log.debug("UnknownHostException: ", e);
 			}
 		}
-		
+
 		return ipAddress;
 	}
 
@@ -105,26 +105,21 @@ public class NetworkHelper {
 	 * @param hostname					The hostname whose FQDN is being searched for.
 	 *
 	 * @return							The FQDN of the given hostname
-	 * @throws UnknownHostException		If the given hostname cannot be resolved.
 	 */
-	public static String getFqdn(String hostname) throws UnknownHostException  {
-
-		String fqdn = hostname;
-		InetAddress inetAddress = null;
+	public static String getFqdn(final String hostname) {
 
 		if (hostname != null && !hostname.isBlank()) {
 			try {
-				inetAddress = InetAddress.getByName(hostname);
+				final InetAddress inetAddress = InetAddress.getByName(hostname);
+				if (inetAddress != null) {
+					return inetAddress.getCanonicalHostName();
+				}
 			} catch (UnknownHostException e) {
-				log.error("Hostname {} - Could not resolve the hostname to a valid IP address. The host is considered remote.", hostname);
-				throw e;
+				log.error("Hostname {} - Could not resolve the hostname to a valid IP address. Cannot retrieve FQDN. Using hostname as FQDN.", hostname);
+				return hostname;
 			}
 		}
 
-		if (inetAddress != null) {
-			fqdn = inetAddress.getCanonicalHostName();
-		}
-
-		return fqdn;
+		return hostname;
 	}
 }
