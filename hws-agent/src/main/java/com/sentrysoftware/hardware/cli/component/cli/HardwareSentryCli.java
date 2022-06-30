@@ -450,8 +450,8 @@ public class HardwareSentryCli implements Callable<Integer> {
 			// Update the Log level at the root level
 			LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
 			Configuration config = loggerContext.getConfiguration();
-			LoggerConfig loggerConfig = config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME);
-			loggerConfig.setLevel(logLevel);
+			LoggerConfig sentryLoggerConfig = config.getLoggerConfig("com.sentrysoftware");
+			sentryLoggerConfig.setLevel(logLevel);
 			loggerContext.updateLoggers();
 
 		}
