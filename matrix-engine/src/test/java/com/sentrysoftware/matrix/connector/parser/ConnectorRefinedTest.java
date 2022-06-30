@@ -884,4 +884,64 @@ class ConnectorRefinedTest {
 			assertEquals(OptionalInt.of(1), connectorEntry.extractComputeIndex());
 		}
 	}
+
+	@Test
+	void testProcessCode() {
+		{
+			final ConnectorRefined connectorRefined = new ConnectorRefined();
+			connectorRefined.processCode("Detection.Criteria(1).Step(9).Type=\"SendText\"\n"
+					+ "Detection.Criteria(1).Step(9).Text=\"exit\\n\"");
+			final Map<String, String> codeMap = connectorRefined.getCodeMap();
+			assertEquals("SendText", codeMap.get("detection.criteria(1).step(9).type"));
+			assertEquals("exit\n", codeMap.get("detection.criteria(1).step(9).text"));
+		}
+		{
+			final ConnectorRefined connectorRefined = new ConnectorRefined();
+			connectorRefined.processCode("PhysicalDisk.Discovery.Source(1).Compute(3).SubSeparators=\" \\t\"");
+			final Map<String, String> codeMap = connectorRefined.getCodeMap();
+			assertEquals(" \t", codeMap.get("physicaldisk.discovery.source(1).compute(3).subseparators"));
+		}
+		{
+			final ConnectorRefined connectorRefined = new ConnectorRefined();
+			connectorRefined.processCode("PhysicalDisk.Collect.Source(1).CommandLine=\"/bin/echo \"\"select path %PhysicalDisk.Collect.DeviceID%;wait;information;wait;infolog\"\"|/usr/bin/stm -c\\n/bin/echo \"\"select path %PhysicalDisk.Collect.DeviceID%;wait;veroptions execctrl iterations 1 behavior errorcount 10 testcoverage mincoverage gentactlog no reporterrors reportwarnings queries querynondes;verify;wait;currdevstatus\"\"|/usr/bin/stm -c\"");
+			final Map<String, String> codeMap = connectorRefined.getCodeMap();
+			final String expected = "/bin/echo \"select path %PhysicalDisk.Collect.DeviceID%;wait;information;wait;infolog\"|/usr/bin/stm -c\n"
+				+ "/bin/echo \"select path %PhysicalDisk.Collect.DeviceID%;wait;veroptions execctrl iterations 1 behavior errorcount 10 testcoverage mincoverage gentactlog no reporterrors reportwarnings queries querynondes;verify;wait;currdevstatus\"|/usr/bin/stm -c";
+			assertEquals(expected, codeMap.get("physicaldisk.collect.source(1).commandline"));
+		}
+	}
+
+	@Test
+	void testProcessDefineDirectives() {
+		{
+			// Simple use case
+			final String rawCode = "#define _IsiStatusCommand /usr/bin/isi status -w\n"
+					+ "Enclosure.Discovery.Source(2).CommandLine=\"/bin/zsh -c \"\"%{SUDO:/usr/bin/isi} _IsiStatusCommand \"\" \"";
+
+				final String actual = new ConnectorRefined().processDefineDirectives(rawCode);
+				final String expected = "\nEnclosure.Discovery.Source(2).CommandLine=\"/bin/zsh -c \"\"%{SUDO:/usr/bin/isi} /usr/bin/isi status -w \"\" \"";
+
+				assertEquals(expected, actual);
+		}
+		{
+			// Using the Matcher.quoteReplacement we are sure we avoid the 'java.lang.IndexOutOfBoundsException: No group 1 error' when the $1 is interpreted
+			final String rawCode = "#define _IsiStatusCommand /usr/bin/isi($1) status -w\n"
+					+ "Enclosure.Discovery.Source(2).CommandLine=\"/bin/zsh -c \"\"%{SUDO:/usr/bin/isi} _IsiStatusCommand \"\" \"";
+
+				final String actual = new ConnectorRefined().processDefineDirectives(rawCode);
+				final String expected = "\nEnclosure.Discovery.Source(2).CommandLine=\"/bin/zsh -c \"\"%{SUDO:/usr/bin/isi} /usr/bin/isi($1) status -w \"\" \"";
+
+				assertEquals(expected, actual);
+		}
+		{
+			// Using the Matcher.quoteReplacement we are sure the \w+ stays \w+ when the Matcher's appendReplacement method is called
+			final String rawCode = "#define _IsiStatusCommand /usr/bin/isi(\\w+) status -w\n"
+					+ "Enclosure.Discovery.Source(2).CommandLine=\"/bin/zsh -c \"\"%{SUDO:/usr/bin/isi} _IsiStatusCommand \"\" \"";
+
+				final String actual = new ConnectorRefined().processDefineDirectives(rawCode);
+				final String expected = "\nEnclosure.Discovery.Source(2).CommandLine=\"/bin/zsh -c \"\"%{SUDO:/usr/bin/isi} /usr/bin/isi(\\w+) status -w \"\" \"";
+
+				assertEquals(expected, actual);
+		}
+	}
 }

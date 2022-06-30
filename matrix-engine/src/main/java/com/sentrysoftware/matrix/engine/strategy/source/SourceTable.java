@@ -85,14 +85,13 @@ public class SourceTable {
 		return new ArrayList<>();
 	}
 
-
 	/**
 	 * Transform a line to a list
 	 * a1,b1,c1, => [ a1, b1, c1 ]
 	 * @param line 
 	 *             The CSV line we wish to parse 
 	 * @param separator 
-	 *             The cells serparator
+	 *             The cells separator
 	 * @return {@link List} of {@link String}
 	 */
 	 public static List<String> lineToList(String line, final String separator) {
