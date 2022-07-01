@@ -21,14 +21,14 @@ groups:
     labels:
       severity: 'critical'
 
-- name: CPU-Errors
+- name: Device-Errors
   rules:
-  - alert: CPU-Errors-warn
-    expr: rate(hw_cpu_errors_total[1h]) >= ignoring(limit_type) hw_cpu_errors_limit{limit_type="degraded"}
+  - alert: Device-Errors-warn
+    expr: rate(hw_errors_total[1h]) >= ignoring(limit_type) hw_errors_limit{limit_type="degraded"}
     labels:
       severity: 'warn'
-  - alert: CPU-Errors-critical
-    expr: rate(hw_cpu_errors_total[1h]) >= ignoring(limit_type) hw_cpu_errors_limit{limit_type="critical"}
+  - alert: Device-Errors-critical
+    expr: rate(hw_errors_total[1h]) >= ignoring(limit_type) hw_errors_limit{limit_type="critical"}
     labels:
       severity: 'critical'
 
@@ -65,34 +65,12 @@ groups:
     labels:
       severity: 'critical'
 
-- name: LogicalDisk-Errors
-  rules:
-  - alert: LogicalDisk-Errors-warn
-    expr: rate(hw_logical_disk_errors_total[1h]) >= ignoring(limit_type) hw_logical_disk_errors_limit{limit_type="degraded"}
-    labels:
-      severity: 'warn'
-  - alert: LogicalDisk-Errors-critical
-    expr: rate(hw_logical_disk_errors_total[1h]) >= ignoring(limit_type) hw_logical_disk_errors_limit{limit_type="critical"}
-    labels:
-      severity: 'critical'
-
 - name: LUN-AvailablePaths
   rules:
   - alert: LUN-AvailablePaths-warn
     expr: hw_lun_paths{type="available"} >= 0 AND hw_lun_paths{type="available"} <= ignoring(limit_type) hw_lun_paths_limit{limit_type="low.degraded"}
     labels:
       severity: 'warn'
-
-- name: Memory-Errors
-  rules:
-  - alert: Memory-Errors-warn
-    expr: rate(hw_memory_errors_total[1h]) >= ignoring(limit_type) hw_memory_errors_limit{limit_type="degraded"}
-    labels:
-      severity: 'warn'
-  - alert: Memory-Errors-critical
-    expr: rate(hw_memory_errors_total[1h]) >= ignoring(limit_type) hw_memory_errors_limit{limit_type="critical"}
-    labels:
-      severity: 'critical'
 
 - name: NetworkCard-ErrorRatio
   rules:
@@ -138,17 +116,6 @@ groups:
     labels:
       severity: 'warn'
 
-- name: PhysicalDisk-Errors
-  rules:
-  - alert: PhysicalDisk-Errors-warn
-    expr: rate(hw_physical_disk_errors_total[1h]) >= ignoring(limit_type) hw_physical_disk_errors_limit{limit_type="degraded"}
-    labels:
-      severity: 'warn'
-  - alert: PhysicalDisk-Errors-critical
-    expr: rate(hw_physical_disk_errors_total[1h]) >= ignoring(limit_type) hw_physical_disk_errors_limit{limit_type="critical"}
-    labels:
-      severity: 'critical'
-
 - name: PowerSupply-UsedCapacity
   rules:
   - alert: PowerSupply-UsedCapacity-warn
@@ -157,28 +124,6 @@ groups:
       severity: 'warn'
   - alert: PowerSupply-UsedCapacity-critical
     expr: hw_power_supply_utilization_ratio >= 0.99 AND hw_power_supply_utilization_ratio <= 1
-    labels:
-      severity: 'critical'
-
-- name: Robotics-Errors
-  rules:
-  - alert: Robotics-Errors-warn
-    expr: rate(hw_robotics_errors_total[1h]) >= ignoring(limit_type) hw_robotics_errors_limit{limit_type="degraded"}
-    labels:
-      severity: 'warn'
-  - alert: Robotics-Errors-critical
-    expr: rate(hw_robotics_errors_total[1h]) >= ignoring(limit_type) hw_robotics_errors_limit{limit_type="critical"}
-    labels:
-      severity: 'critical'
-
-- name: Tapedrive-Errors
-  rules:
-  - alert: Tapedrive-Errors-warn
-    expr: rate(hw_tape_drive_errors_total[1h]) >= ignoring(limit_type) hw_tape_drive_errors_limit{limit_type="degraded"}
-    labels:
-      severity: 'warn'
-  - alert: Tapedrive-Errors-critical
-    expr: rate(hw_tape_drive_errors_total[1h]) >= ignoring(limit_type) hw_tape_drive_errors_limit{limit_type="critical"}
     labels:
       severity: 'critical'
 

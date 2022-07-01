@@ -19,20 +19,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class GpuMapping {
 
-	private static final String ERROR_METRIC_NAME = "hw.gpu.errors";
-	private static final String IO_METRIC_NAME = "hw.gpu.io";
 	private static final String UTILIZATION_METRIC_NAME = "hw.gpu.utilization";
 	public static final String HW_TYPE_ATTRIBUTE_VALUE = "gpu";
-	private static final String ERROR_METRIC_DESCRIPTION = createCustomDescriptionWithAttributes(
-		"Number of errors encountered by the GPU since the start of the Hardware Sentry Agent",
-		TYPE_ATTRIBUTE_KEY,
-		ALL_ATTRIBUTE_VALUE, CORRECTED_ATTRIBUTE_VALUE
-	);
-	private static final String IO_METRIC_DESCRIPTION = createCustomDescriptionWithAttributes(
-		"Number of bytes received or transmitted through the GPU",
-		DIRECTION_ATTRIBUTE_KEY,
-		TRANSMIT_ATTRIBUTE_VALUE, RECEIVE_ATTRIBUTE_VALUE
-	);
 	private static final String UTILIZATION_METRIC_DESCRIPTION = createCustomDescriptionWithAttributes(
 		"Ratio of time spent by the GPU",
 		TASK_ATTRIBUTE_KEY,
@@ -185,8 +173,17 @@ public class GpuMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name(ERROR_METRIC_NAME)
+					.name(ERRORS_METRIC_NAME)
+					.type(MetricType.COUNTER)
 					.unit(ERRORS_UNIT)
+					.description(ERRORS_METRIC_DESCRIPTION)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -194,8 +191,6 @@ public class GpuMapping {
 							.value(ALL_ATTRIBUTE_VALUE)
 							.build()
 					)
-					.type(MetricType.COUNTER)
-					.description(ERROR_METRIC_DESCRIPTION)
 					.build()
 			)
 		);
@@ -205,8 +200,17 @@ public class GpuMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name(ERROR_METRIC_NAME)
+					.name(ERRORS_METRIC_NAME)
+					.type(MetricType.COUNTER)
 					.unit(ERRORS_UNIT)
+					.description(ERRORS_METRIC_DESCRIPTION)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -214,8 +218,6 @@ public class GpuMapping {
 							.value(CORRECTED_ATTRIBUTE_VALUE)
 							.build()
 					)
-					.type(MetricType.COUNTER)
-					.description(ERROR_METRIC_DESCRIPTION)
 					.build()
 			)
 		);
@@ -225,17 +227,10 @@ public class GpuMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name(IO_METRIC_NAME)
+					.name("hw.gpu.io.receive")
 					.unit(BYTES_UNIT)
-					.identifyingAttribute(
-						StaticIdentifyingAttribute
-							.builder()
-							.key(DIRECTION_ATTRIBUTE_KEY)
-							.value(RECEIVE_ATTRIBUTE_VALUE)
-							.build()
-					)
 					.type(MetricType.COUNTER)
-					.description(IO_METRIC_DESCRIPTION)
+					.description("Number of bytes received through the GPU.")
 					.build()
 			)
 		);
@@ -245,17 +240,10 @@ public class GpuMapping {
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name(IO_METRIC_NAME)
+					.name("hw.gpu.io.transmit")
 					.unit(BYTES_UNIT)
-					.identifyingAttribute(
-						StaticIdentifyingAttribute
-							.builder()
-							.key(DIRECTION_ATTRIBUTE_KEY)
-							.value(TRANSMIT_ATTRIBUTE_VALUE)
-							.build()
-					)
 					.type(MetricType.COUNTER)
-					.description(IO_METRIC_DESCRIPTION)
+					.description("Number of bytes transmitted through the GPU.")
 					.build()
 			)
 		);

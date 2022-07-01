@@ -126,20 +126,27 @@ public class MemoryMapping{
 					.build()
 			)
 		);
-		
+
 		map.put(
 			IMetaMonitor.ERROR_COUNT.getName(),
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.memory.errors")
-					.unit(ERRORS_UNIT)
+					.name(ERRORS_METRIC_NAME)
 					.type(MetricType.COUNTER)
-					.description("Number of errors encountered by the memory since the start of the Hardware Sentry Agent.")
+					.unit(ERRORS_UNIT)
+					.description(ERRORS_METRIC_DESCRIPTION)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);
-		
+
 		map.put(
 			IMetaMonitor.PREDICTED_FAILURE.getName(),
 			Collections.singletonList(
@@ -236,9 +243,16 @@ public class MemoryMapping{
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.memory.errors.limit")
-					.description(ERRORS_LIMIT_METRIC_DESCRIPTION)
+					.name(ERRORS_LIMIT_METRIC_NAME)
 					.unit(ERRORS_UNIT)
+					.description(ERRORS_LIMIT_METRIC_DESCRIPTION)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()
@@ -255,9 +269,16 @@ public class MemoryMapping{
 			Collections.singletonList(
 				MetricInfo
 					.builder()
-					.name("hw.memory.errors.limit")
-					.description(ERRORS_LIMIT_METRIC_DESCRIPTION)
+					.name(ERRORS_LIMIT_METRIC_NAME)
 					.unit(ERRORS_UNIT)
+					.description(ERRORS_LIMIT_METRIC_DESCRIPTION)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(HW_TYPE_ATTRIBUTE_KEY)
+							.value(HW_TYPE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.identifyingAttribute(
 						StaticIdentifyingAttribute
 							.builder()

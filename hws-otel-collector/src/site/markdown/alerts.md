@@ -118,7 +118,7 @@ The following table lists **${project.name}**'s alert rules:
 | Blade           | hw.status                              | ALARM    | hw.status == 0                                 | hw.type = `blade` state = `present`                    |
 | Blade           | hw.status                              | WARN     | hw.status == 1                                 | hw.type = `blade` state = `degraded`                   |
 | Blade           | hw.status                              | ALARM    | hw.status == 1                                 | hw.type = `blade` state = `failed`                     |
-| CPU             | hw.cpu.errors                          | ALARM    | hw.cpu.errors >= 1                             |                                                        |
+| CPU             | hw.errors                              | ALARM    | hw.errors >= 1                                 | hw.type = `cpu`                                        |
 | CPU             | hw.status                              | WARN     | hw.status == 1                                 | hw.type = `cpu` state = `predicted_failure`            |
 | CPU             | hw.status                              | ALARM    | hw.status == 0                                 | hw.type = `cpu` state = `present`                      |
 | CPU             | hw.status                              | WARN     | hw.status == 1                                 | hw.type = `cpu` state = `degraded`                     |
@@ -140,8 +140,8 @@ The following table lists **${project.name}**'s alert rules:
 | Fan             | hw.status                              | ALARM    | hw.status == 0                                 | hw.type = `fan` state = `present`                      |
 | Fan             | hw.status                              | WARN     | hw.status == 1                                 | hw.type = `fan` state = `degraded`                     |
 | Fan             | hw.status                              | ALARM    | hw.status == 1                                 | hw.type = `fan` state = `failed`                       |
-| GPU             | hw.gpu.errors                          | ALARM    | hw.gpu.errors >= 1                             | type = `corrected`                                     |
-| GPU             | hw.gpu.errors                          | ALARM    | hw.gpu.errors >= 1                             | type = `all`                                           |
+| GPU             | hw.errors                              | ALARM    | hw.errors >= 1                                 | hw.type = `gpu` type = `corrected`                     |
+| GPU             | hw.errors                              | ALARM    | hw.errors >= 1                                 | hw.type = `gpu` type = `all`                           |
 | GPU             | hw.gpu.memory.utilization              | WARN     | hw.gpu.memory.utilization >= 0.9               |                                                        |
 | GPU             | hw.gpu.memory.utilization              | ALARM    | hw.gpu.memory.utilization >= 0.95              |                                                        |
 | GPU             | hw.status                              | WARN     | hw.status == 1                                 | hw.type = `gpu` state = `predicted_failure`            |
@@ -150,7 +150,7 @@ The following table lists **${project.name}**'s alert rules:
 | GPU             | hw.status                              | ALARM    | hw.status == 1                                 | hw.type = `gpu` state = `failed`                       |
 | LED             | hw.status                              | WARN     | hw.status == 1                                 | hw.type = `led` state = `degraded`                     |
 | LED             | hw.status                              | ALARM    | hw.status == 1                                 | hw.type = `led` state = `failed`                       |
-| Logical Disk    | hw.logical_disk.errors                 | ALARM    | hw.logical_disk.errors >= 1                    |                                                        |
+| Logical Disk    | hw.errors                              | ALARM    | hw.errors >= 1                                 | hw.type = `logical_disk`                               |
 | Logical Disk    | hw.status                              | ALARM    | hw.status == 0                                 | hw.type = `logical_disk` state = `present`             |
 | Logical Disk    | hw.status                              | WARN     | hw.status == 1                                 | hw.type = `logical_disk` state = `degraded`            |
 | Logical Disk    | hw.status                              | ALARM    | hw.status == 1                                 | hw.type = `logical_disk` state = `failed`              |
@@ -158,7 +158,7 @@ The following table lists **${project.name}**'s alert rules:
 | LUN             | hw.status                              | ALARM    | hw.status == 0                                 | hw.type = `lun` state = `present`                      |
 | LUN             | hw.status                              | WARN     | hw.status == 1                                 | hw.type = `lun` state = `degraded`                     |
 | LUN             | hw.status                              | ALARM    | hw.status == 1                                 | hw.type = `lun` state = `failed`                       |
-| Memory Module   | hw.memory.errors                       | ALARM    | hw.memory.errors >= 1                          |                                                        |
+| Memory Module   | hw.errors                              | ALARM    | hw.errors >= 1                                 | hw.type = `memory`                                     |
 | Memory Module   | hw.status                              | WARN     | hw.status == 1                                 | hw.type = `memory` state = `predicted_failure`         |
 | Memory Module   | hw.status                              | ALARM    | hw.status == 0                                 | hw.type = `memory` state = `present`                   |
 | Memory Module   | hw.status                              | WARN     | hw.status == 1                                 | hw.type = `memory` state = `degraded`                  |
@@ -175,7 +175,7 @@ The following table lists **${project.name}**'s alert rules:
 | Other           | hw.status                              | ALARM    | hw.status == 1                                 | hw.type = `other_device` state = `failed`              |
 | Physical Disk   | hw.physical_disk.endurance_utilization | WARN     | hw.physical_disk.endurance_utilization <= 0.05 | state = `remaining`                                    |
 | Physical Disk   | hw.physical_disk.endurance_utilization | ALARM    | hw.physical_disk.endurance_utilization <= 0.02 | state = `remaining`                                    |
-| Physical Disk   | hw.physical_disk.errors                | ALARM    | hw.physical_disk.errors >= 1                   |                                                        |
+| Physical Disk   | hw.errors                              | ALARM    | hw.errors >= 1                                 | hw.type = `physical_disk`                              |
 | Physical Disk   | hw.status                              | WARN     | hw.status == 1                                 | hw.type = `physical_disk` state = `predicted_failure`  |
 | Physical Disk   | hw.status                              | ALARM    | hw.status == 0                                 | hw.type = `physical_disk` state = `present`            |
 | Physical Disk   | hw.status                              | WARN     | hw.status == 1                                 | hw.type = `physical_disk` state = `degraded`           |
@@ -188,7 +188,7 @@ The following table lists **${project.name}**'s alert rules:
 | Robotics        | hw.status                              | ALARM    | hw.status == 0                                 | hw.type = `robotics` state = `present`                 |
 | Robotics        | hw.status                              | WARN     | hw.status == 1                                 | hw.type = `robotics` state = `degraded`                |
 | Robotics        | hw.status                              | ALARM    | hw.status == 1                                 | hw.type = `robotics` state = `failed`                  |
-| Tape Drive      | hw.tape_drive.errors                   | ALARM    | hw.tape_drive.errors >= 1                      |                                                        |
+| Tape Drive      | hw.errors                              | ALARM    | hw.errors >= 1                                 | hw.type = `tape_drive`                                 |
 | Tape Drive      | hw.status                              | WARN     | hw.status == 1                                 | hw.type = `tape_drive` state = `needs_cleaning`        |
 | Tape Drive      | hw.status                              | ALARM    | hw.status == 1                                 | hw.type = `tape_drive` state = `needs_cleaning`        |
 | Tape Drive      | hw.status                              | ALARM    | hw.status == 0                                 | hw.type = `tape_drive` state = `present`               |
