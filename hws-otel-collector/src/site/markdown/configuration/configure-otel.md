@@ -13,7 +13,7 @@ As a regular [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/)
 * [the destination of the processed data (`exporters`)](https://opentelemetry.io/docs/collector/configuration/#exporters)
 * [the pipeline](https://opentelemetry.io/docs/collector/configuration/#service)
 
-![Internal architecture of the ${project.name}](../images/otel-internal-architecture.png)
+![Internal architecture of the ${project.name}](../images/hws-internal-architecture.png)
 
 This version of **${project.name}** leverages **version ${otelVersion}** of OpenTelemetry.
 
