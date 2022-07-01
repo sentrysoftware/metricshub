@@ -52,7 +52,7 @@ description: ${project.name} is a distribution of the OpenTelemetry Collector th
     * Its [configuration file](configuration/configure-agent.md) (hosts to monitor, credentials, etc.)
     * The monitoring engine, with the **Hardware Connector Library**
 
-![Internal architecture of the ${project.name}](images/otel-internal-architecture.png)
+![Internal architecture of the ${project.name}](images/hws-internal-architecture.png)
 
 The *OpenTelemetry Collector* is in charge of:
 
