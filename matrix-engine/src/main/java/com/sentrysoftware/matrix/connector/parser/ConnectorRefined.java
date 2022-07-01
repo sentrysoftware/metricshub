@@ -189,7 +189,17 @@ public class ConnectorRefined {
 		}
 	}
 
-	private void processCode(String rawCode) {
+	/**
+	 * Process the raw code, read each <i>key=value</i> and fill the local
+	 * <code>codeMap</code>.<br>
+	 * This method extracts <em>values</em> located between double quotes.<br>
+	 * Processes each value to replace <em>\\n</em> and <em>\\t</em> with <em>\n</em> and <em>\t</em>.<br>
+	 * Processes each value to replace two double quotes <em>""</em> with only one double quotes
+	 * <em>"</em>.
+	 * 
+	 * @param rawCode Connector's raw code
+	 */
+	void processCode(String rawCode) {
 
 		Matcher codeMatcher = CODE_PATTERN.matcher(rawCode);
 
@@ -203,7 +213,10 @@ public class ConnectorRefined {
 			if (value.endsWith("\"")) {
 				value = value.substring(0, value.length() - 1);
 			}
-			value = value.replace("\\\\t", "\t").replace("\\\\n", "\n").replace("\"\"", "\"");
+			value = value
+				.replace("\\t", "\t")
+				.replace("\\n", "\n")
+				.replace("\"\"", "\"");
 
 			put(codeMatcher.group(1), value);
 		}
@@ -355,7 +368,15 @@ public class ConnectorRefined {
 		return rawCode;
 	}
 
-	private String processDefineDirectives(String rawCode) {
+	/**
+	 * Search the <em>#define key value</em> entries and replace all the referenced
+	 * keys by the corresponding value in the rawCode. This method discards the
+	 * <em>#define</em> entry from the resulting raw code.
+	 * 
+	 * @param rawCode Connector's raw code
+	 * @return raw code as string value
+	 */
+	String processDefineDirectives(String rawCode) {
 
 		Map<String, String> defineMap = new HashMap<>();
 		Matcher defineMatcher = DEFINE_PATTERN.matcher(rawCode);
@@ -370,14 +391,12 @@ public class ConnectorRefined {
 
 		for (Entry<String, String> defineEntry : defineMap.entrySet()) {
 
-			// Protect the defined value as it's going to be a replacement string in regex functions below
-			// backslash and dollars needs to be protected as they are normally used to reference groups, etc.
-			// Replacing backslashes with double backslashes with double protection means (gasp) 8 backslashes! :-D
-			String defineValue = defineEntry.getValue().replace("\\\\", "\\\\\\\\").replace("\\$", "\\\\\\$");
+			// Protect defineValue against appendReplacement special processing
+			String defineValue = Matcher.quoteReplacement(defineEntry.getValue());
 
 			// Usual regex replacement code loop
 			tempRawCode = new StringBuffer();
-			Pattern defineEntryPattern = Pattern.compile("\\b" + defineEntry.getKey() + "\\b");
+			Pattern defineEntryPattern = Pattern.compile("\\b" + Pattern.quote(defineEntry.getKey()) + "\\b");
 			Matcher defineEntryMatcher = defineEntryPattern.matcher(rawCode);
 
 			while (defineEntryMatcher.find()) {
