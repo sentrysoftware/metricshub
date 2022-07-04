@@ -8,8 +8,11 @@
 		</Console>
 	</Appenders>
 	<Loggers>
-		<Root level="error">
+		<Root level="off">
 			<AppenderRef ref="Console" />
 		</Root>
+		<logger name="com.sentrysoftware" level="error" additivity="false">
+			<AppenderRef ref="Console" />
+		</logger>
 	</Loggers>
 </Configuration>
