@@ -1,5 +1,7 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry;
 
+import static com.sentrysoftware.hardware.agent.configuration.AgentConfig.*;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -15,7 +17,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
 
+import io.opentelemetry.api.common.AttributeKey;
+import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
+import io.opentelemetry.sdk.metrics.data.GaugeData;
+import io.opentelemetry.sdk.metrics.data.LongPointData;
 import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.resources.Resource;
 import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
@@ -29,7 +35,11 @@ class OtelSelfObserverTest {
 
 	@Test
 	void testInit() {
-		final Resource resource = OtelHelper.createServiceResource(agentInfo.get("project_name"), Collections.emptyMap());
+		final Resource resource = OtelHelper
+			.createServiceResource(
+				agentInfo.get(AGENT_INFO_NAME_ATTRIBUTE_KEY),
+				Collections.emptyMap()
+			);
 		InMemoryMetricReader inMemoryReader = InMemoryMetricReader.create();
 		final SdkMeterProvider sdkMeterProvider = initOpenTelemetryMetrics(resource, inMemoryReader);
 	
@@ -59,7 +69,25 @@ class OtelSelfObserverTest {
 				.stream()
 				.collect(Collectors.toMap(MetricData::getName, Function.identity()));
 
-		assertNotNull(metricMap.get("hardware_sentry.agent.info"));
+		final MetricData agentInfoMetric = metricMap.get("hardware_sentry.agent.info");
+		assertNotNull(agentInfoMetric);
+
+		final GaugeData<LongPointData> longGaugeData = agentInfoMetric.getLongGaugeData();
+		final LongPointData dataPoint = longGaugeData.getPoints().stream().findAny().orElse(null);
+		assertNotNull(dataPoint);
+		assertEquals(1, dataPoint.getValue());
+
+		final Attributes attributes = dataPoint.getAttributes();
+		assertEquals("Hardware Sentry Agent", attributes.get(AttributeKey.stringKey(AGENT_INFO_NAME_ATTRIBUTE_KEY)));
+		assertEquals("2", attributes.get(AttributeKey.stringKey(AGENT_INFO_VERSION_ATTRIBUTE_KEY)));
+		assertEquals("80", attributes.get(AttributeKey.stringKey(AGENT_INFO_HC_VERSION_ATTRIBUTE_KEY)));
+		assertEquals(
+			"Sep 15, 2021 at 5:27:55 PM Central European Summer Time",
+			attributes.get(AttributeKey.stringKey(AGENT_INFO_BUILD_DATE_ATTRIBUTE_KEY))
+		);
+		assertEquals("f9435eed", attributes.get(AttributeKey.stringKey(AGENT_INFO_BUILD_NUMBER_ATTRIBUTE_KEY)));
+		assertEquals("0.55.0", attributes.get(AttributeKey.stringKey(AGENT_INFO_OTEL_VERSION_ATTRIBUTE_KEY)));
+
 		assertNotNull(metricMap.get("hw.site.carbon_density_grams"));
 		assertNotNull(metricMap.get("hw.site.electricity_cost_dollars"));
 		assertNotNull(metricMap.get("hw.site.pue_ratio"));

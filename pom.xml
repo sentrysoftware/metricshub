@@ -49,6 +49,7 @@
 		<grpcVersion>1.34.1</grpcVersion>
 		<protobufVersion>3.11.4</protobufVersion>
 		<protocVersion>${protobufVersion}</protocVersion>
+		<otelVersion>0.54.0</otelVersion>
 	</properties>
 
 	<modules>

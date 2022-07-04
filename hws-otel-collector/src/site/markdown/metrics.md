@@ -9,6 +9,12 @@ description: How ${project.name} exposes hardware metrics.
 
 The tables below provide detailed information about the metrics scrapped by **${project.name}** for each _monitor_. The _attributes_ `agent.host.name`, `host.id`, `host.name`, `host.type`, `os.type` are not listed since they apply to all monitors.
 
+### Agent
+
+| Metric                     | Description                        | Type  | Unit | Attributes                                                                    |
+| -------------------------- | ---------------------------------- | ----- | ---- | ----------------------------------------------------------------------------- |
+| hardware_sentry.agent.info | Hardware Sentry Agent information. | Gauge |      | `build_date`, `build_number`, `hc_version`, `name`, `otel_version`, `version` |
+
 ### Battery
 
 | Metric               | Description                                                                                                                                                           | Type          | Unit | Attributes                                                                                              |
