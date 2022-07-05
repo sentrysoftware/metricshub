@@ -1,5 +1,7 @@
 package com.sentrysoftware.hardware.agent.service;
 
+import static com.sentrysoftware.hardware.agent.configuration.AgentConfig.AGENT_INFO_NAME_ATTRIBUTE_KEY;
+
 import java.io.File;
 import java.util.Map;
 import java.util.Set;
@@ -97,7 +99,13 @@ public class TaskSchedulingService {
 	 */
 	void scheduleAgentSelfObserver() {
 
-		final Resource resource = OtelHelper.createServiceResource(agentInfo.get("project_name"), multiHostsConfigurationDto.getExtraLabels());
+		// Create the service resource
+		final Resource resource = OtelHelper
+			.createServiceResource(
+				agentInfo.get(AGENT_INFO_NAME_ATTRIBUTE_KEY),
+				multiHostsConfigurationDto.getExtraLabels()
+			);
+
 		final AutoConfiguredOpenTelemetrySdk autoConfiguredOpenTelemetrySdk = OtelHelper.initOpenTelemetrySdk(resource, otelSdkConfiguration);
 
 		// Need a periodic trigger because we need the job to be scheduled based on the configured collect period

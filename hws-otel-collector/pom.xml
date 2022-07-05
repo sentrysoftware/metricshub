@@ -22,9 +22,6 @@
 		<!-- Sentry Skin Version (to be used in site.xml and therefore be consistent with the Velocity Tool artifact!) -->
 		<sentrySkinVersion>5.0</sentrySkinVersion>
 
-		<!-- OpenTelemetry Collector Version -->
-		<otelVersion>0.54.0</otelVersion>
-
 		<!-- commitId is displayed as Last Commit ID in the about.html page of the documentation -->
 		<commitId>${buildNumber}</commitId>
 

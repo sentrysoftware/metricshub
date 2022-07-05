@@ -15,10 +15,11 @@ trust:
     password: Sentry
 project:
   name: "Hardware Sentry Agent"
-  version: "10"
+  version: "2"
 buildNumber: "f9435eed"
 buildDate: "Sep 15, 2021 at 5:27:55 PM Central European Summer Time"
-hcVersion: "25"
+hcVersion: "80"
+otelVersion: "0.55.0"
 spring:
   main:
     banner-mode: "off"

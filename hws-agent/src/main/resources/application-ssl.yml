@@ -19,6 +19,7 @@ project:
 buildNumber: "@buildNumber@"
 buildDate: "@timestamp@"
 hcVersion: "@hardware-connectors.version@"
+otelVersion: "@otelVersion@"
 spring:
   main:
     banner-mode: "off"
