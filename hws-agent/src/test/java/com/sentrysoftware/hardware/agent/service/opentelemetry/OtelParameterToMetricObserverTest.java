@@ -5,6 +5,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BIOS_VE
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.ENERGY_USAGE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.IDENTIFYING_INFORMATION;
@@ -38,15 +39,19 @@ import com.sentrysoftware.hardware.agent.mapping.opentelemetry.MappingConstants;
 import com.sentrysoftware.hardware.agent.mapping.opentelemetry.MetricsMapping;
 import com.sentrysoftware.hardware.agent.mapping.opentelemetry.dto.MetricInfo;
 import com.sentrysoftware.hardware.agent.mapping.opentelemetry.dto.StaticIdentifyingAttribute;
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.MetaConnector;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
+import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import com.sentrysoftware.matrix.model.parameter.DiscreteParam;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
 import com.sentrysoftware.matrix.engine.host.HostType;
+import com.sentrysoftware.matrix.engine.strategy.collect.CollectHelper;
 
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
@@ -58,10 +63,11 @@ import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
 
 class OtelParameterToMetricObserverTest {
 
+	private static final String HOSTNAME = "host.my.domain.sentrysoftware.org";
+	private static final long COLLECT_TIME = System.currentTimeMillis();
 	private static final String LABEL_VALUE = "monitor";
 	private static final String PARENT_ID = "parent_id";
 	private static final String MAXIMUM_SPEED = "maximumSpeed";
-
 
 	@Test
 	void testInitObserverOnStatusMetric() {
@@ -78,13 +84,13 @@ class OtelParameterToMetricObserverTest {
 		final String expectedState = MappingConstants.OK_ATTRIBUTE_VALUE;
 
 		final Monitor host = Monitor.builder().id(ID).name("host").build();
-		host.addMetadata(FQDN, "host.my.domain.net");
+		host.addMetadata(FQDN, HOSTNAME);
 
 		final Resource resource = OtelHelper.createHostResource(
 			host.getId(),
 			"host",
 			HostType.LINUX,
-			"host.my.domain.net",
+			HOSTNAME,
 			false,
 			Collections.emptyMap(),
 			Collections.emptyMap()
@@ -110,7 +116,7 @@ class OtelParameterToMetricObserverTest {
 			.monitorType(MonitorType.ENCLOSURE)
 			.build();
 
-		enclosure.addMetadata(FQDN, "host.my.domain.net");
+		enclosure.addMetadata(FQDN, HOSTNAME);
 		enclosure.addMetadata(DEVICE_ID, "1");
 		enclosure.addMetadata(SERIAL_NUMBER, "SN 1");
 		enclosure.addMetadata(VENDOR, "Dell");
@@ -206,20 +212,23 @@ class OtelParameterToMetricObserverTest {
 		final NumberParam parameter = NumberParam
 			.builder()
 			.name(ENERGY_PARAMETER)
-			.collectTime(new Date().getTime())
+			.collectTime(COLLECT_TIME)
 			.value(50000.0)
 			.build();
+		parameter.setPreviousCollectTime(COLLECT_TIME - 120000);
+		parameter.setRawValue(50000.0);
+		parameter.setPreviousRawValue(49950.0);
 
 		final String expectedMetricName = "hw.enclosure.energy";
 
 		final Monitor host = Monitor.builder().id(ID).name("host").build();
 
-		host.addMetadata(FQDN, "host.my.domain.net");
+		host.addMetadata(FQDN, HOSTNAME);
 		final Resource resource = OtelHelper.createHostResource(
 			host.getId(),
 			"host",
 			HostType.LINUX,
-			"host.my.domain.net",
+			HOSTNAME,
 			false,
 			Collections.emptyMap(),
 			Collections.emptyMap()
@@ -244,7 +253,7 @@ class OtelParameterToMetricObserverTest {
 			.monitorType(MonitorType.ENCLOSURE)
 			.build();
 
-		enclosure.addMetadata(FQDN, "host.my.domain.net");
+		enclosure.addMetadata(FQDN, HOSTNAME);
 		enclosure.addMetadata(DEVICE_ID, "1");
 		enclosure.addMetadata(SERIAL_NUMBER, "SN 1");
 		enclosure.addMetadata(VENDOR, "Dell");
@@ -308,51 +317,183 @@ class OtelParameterToMetricObserverTest {
 	}
 
 	@Test
+	void testInitObserverNoEnergy() {
+
+		final NumberParam energyParameter = NumberParam
+			.builder()
+			.name(ENERGY_PARAMETER)
+			.collectTime(COLLECT_TIME)
+			.value(50000.0)
+			.build();
+		energyParameter.setPreviousCollectTime(COLLECT_TIME - 120000);
+		energyParameter.setRawValue(50000.0);
+		energyParameter.setPreviousRawValue(50000.0);
+
+		final NumberParam powerParameter = NumberParam
+			.builder()
+			.name(POWER_CONSUMPTION_PARAMETER)
+			.collectTime(COLLECT_TIME)
+			.value(0.0)
+			.build();
+		powerParameter.setPreviousCollectTime(COLLECT_TIME - 120000);
+		powerParameter.setRawValue(0.0);
+		powerParameter.setPreviousRawValue(120.0);
+
+		final Monitor host = Monitor.builder().id(ID).name("host").build();
+
+		host.addMetadata(FQDN, HOSTNAME);
+		final Resource resource = OtelHelper.createHostResource(
+			host.getId(),
+			"host",
+			HostType.LINUX,
+			HOSTNAME,
+			false,
+			Collections.emptyMap(),
+			Collections.emptyMap()
+		);
+
+		final InMemoryMetricReader inMemoryReader = InMemoryMetricReader.create();
+		final SdkMeterProvider meterProvider = SdkMeterProvider.builder()
+			.setResource(resource)
+			.registerMetricReader(inMemoryReader)
+			.build();
+
+		final MultiHostsConfigurationDto multiHostsConfigurationDto= MultiHostsConfigurationDto
+			.builder()
+			.build();
+
+		final Monitor enclosure = Monitor
+			.builder()
+			.id("id_enclosure")
+			.name("enclosure 1")
+			.parentId("host")
+			.monitorType(MonitorType.ENCLOSURE)
+			.build();
+
+		enclosure.addMetadata(FQDN, HOSTNAME);
+		enclosure.addMetadata(DEVICE_ID, "1");
+		enclosure.addMetadata(SERIAL_NUMBER, "SN 1");
+		enclosure.addMetadata(VENDOR, "Dell");
+		enclosure.addMetadata(MODEL, "PowerEdge T30");
+		enclosure.addMetadata(BIOS_VERSION, "v1.1");
+		enclosure.addMetadata(TYPE, "Server");
+		enclosure.addMetadata(IDENTIFYING_INFORMATION, "Server 1 - Dell");
+		enclosure.addMetadata(IP_ADDRESS, "192.168.1.1");
+
+		OtelParameterToMetricObserver
+			.builder()
+			.monitor(enclosure)
+			.sdkMeterProvider(meterProvider)
+			.multiHostsConfigurationDto(multiHostsConfigurationDto)
+			.metricInfoList(MetricsMapping.getMetricInfoList(MonitorType.ENCLOSURE, energyParameter.getName()).get())
+			.matrixParameterName(energyParameter.getName())
+			.build()
+			.init();
+
+		OtelParameterToMetricObserver
+			.builder()
+			.monitor(enclosure)
+			.sdkMeterProvider(meterProvider)
+			.multiHostsConfigurationDto(multiHostsConfigurationDto)
+			.metricInfoList(MetricsMapping.getMetricInfoList(MonitorType.ENCLOSURE, powerParameter.getName()).get())
+			.matrixParameterName(powerParameter.getName())
+			.build()
+			.init();
+
+		// This will trigger the observe callback
+		Collection<MetricData> metrics = inMemoryReader.collectAllMetrics();
+
+		// The parameter is not collected yet
+		assertTrue(metrics.isEmpty());
+
+		enclosure.collectParameter(energyParameter);
+		enclosure.collectParameter(powerParameter);
+
+		// Trigger the observe callback
+		metrics = inMemoryReader.collectAllMetrics();
+
+		// We shouldn't observe a value
+		assertTrue(metrics.isEmpty());
+
+	}
+
+	@Test
 	void testIsParameterAvailable() {
 
 		{
-			final DiscreteParam statusParam = DiscreteParam.builder().name(STATUS_PARAMETER).state(Status.OK).build();
-			final Monitor monitor = Monitor.builder()
-						.id(ID)
-						.parentId(PARENT_ID)
-						.name(LABEL_VALUE)
-						.parameters(Map.of(STATUS_PARAMETER, statusParam))
-						.build();
+			final DiscreteParam statusParam = DiscreteParam
+				.builder()
+				.name(STATUS_PARAMETER)
+				.state(Status.OK)
+				.collectTime(COLLECT_TIME)
+				.build();
+			final Monitor monitor = Monitor
+				.builder()
+				.id(ID)
+				.parentId(PARENT_ID)
+				.name(LABEL_VALUE)
+				.parameters(Map.of(STATUS_PARAMETER, statusParam))
+				.build();
 			assertTrue(OtelParameterToMetricObserver.isParameterAvailable(monitor, Enclosure.STATUS.getName()));
 		}
 
 		{
 
 			final DiscreteParam statusParamNotAvailable = DiscreteParam
-					.builder()
-					.name(STATUS_PARAMETER)
-					.state(Status.OK)
-					.build();
+				.builder()
+				.name(STATUS_PARAMETER)
+				.state(Status.OK)
+				.collectTime(COLLECT_TIME)
+				.build();
 
 			statusParamNotAvailable.setState(null);
 
-			final Monitor monitor = Monitor.builder()
-						.id(ID)
-						.parentId(PARENT_ID)
-						.name(LABEL_VALUE)
-						.parameters(Map.of(STATUS_PARAMETER, statusParamNotAvailable))
-						.build();
+			final Monitor monitor = Monitor
+				.builder()
+				.id(ID)
+				.parentId(PARENT_ID)
+				.name(LABEL_VALUE)
+				.parameters(Map.of(STATUS_PARAMETER, statusParamNotAvailable))
+				.build();
 			assertFalse(OtelParameterToMetricObserver.isParameterAvailable(monitor, Enclosure.STATUS.getName()));
 
 		}
 
 		{
-			final TextParam textParam = TextParam.builder().name(TEST_REPORT_PARAMETER).value("text").build();
-			final Monitor monitor = Monitor.builder()
-						.id(ID)
-						.parentId(PARENT_ID)
-						.name(LABEL_VALUE)
-						.parameters(Map.of(TEST_REPORT_PARAMETER, textParam))
-						.build();
+			final TextParam textParam = TextParam
+				.builder()
+				.name(TEST_REPORT_PARAMETER)
+				.value("text")
+				.collectTime(COLLECT_TIME)
+				.build();
+			final Monitor monitor = Monitor
+				.builder()
+				.id(ID)
+				.parentId(PARENT_ID)
+				.name(LABEL_VALUE)
+				.parameters(Map.of(TEST_REPORT_PARAMETER, textParam))
+				.build();
 			assertFalse(OtelParameterToMetricObserver.isParameterAvailable(monitor, MetaConnector.TEST_REPORT.getName()));
 
 		}
 
+		{
+			final DiscreteParam statusParam = DiscreteParam
+				.builder()
+				.name(STATUS_PARAMETER)
+				.state(Status.OK)
+				.build();
+			statusParam.setCollectTime(COLLECT_TIME);
+			statusParam.setPreviousCollectTime(COLLECT_TIME);
+			final Monitor monitor = Monitor
+				.builder()
+				.id(ID)
+				.parentId(PARENT_ID)
+				.name(LABEL_VALUE)
+				.parameters(Map.of(STATUS_PARAMETER, statusParam))
+				.build();
+			assertFalse(OtelParameterToMetricObserver.isParameterAvailable(monitor, Enclosure.STATUS.getName()));
+		}
 	}
 
 	@Test
@@ -418,7 +559,7 @@ class OtelParameterToMetricObserverTest {
 					.monitorType(MonitorType.ENCLOSURE)
 					.parentId("host")
 					.build();
-		enclosure.addMetadata(FQDN, "host.my.domain.net");
+		enclosure.addMetadata(FQDN, HOSTNAME);
 		enclosure.addMetadata("serialNumber", "Serial1234");
 		enclosure.addMetadata(IP_ADDRESS, "192.168.1.1");
 
@@ -581,5 +722,40 @@ class OtelParameterToMetricObserverTest {
 				.build();
 			assertEquals("monitor1.hw.monitor.metric.1", OtelParameterToMetricObserver.determineMeterId(metricInfo, monitor));
 		}
+	}
+
+	@Test
+	void testHasNoEnergyUsage() {
+		final Monitor host = Monitor
+				.builder()
+				.id("hostname")
+				.parentId(null)
+				.hostId(HOSTNAME)
+				.name(HOSTNAME)
+				.monitorType(MonitorType.HOST)
+				.metadata(Map.of(FQDN, HOSTNAME))
+				.build();
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		hostMonitoring.addMonitor(host);
+
+		// Energy is not collected
+		assertTrue(OtelParameterToMetricObserver.hasNoEnergyUsage(host));
+
+		// Collect 1
+		CollectHelper.collectEnergyUsageFromPower(host, COLLECT_TIME, 120D, HOSTNAME);
+
+		// We need two collects to get the energy usage
+		assertTrue(OtelParameterToMetricObserver.hasNoEnergyUsage(host));
+
+		// Collect 2
+		hostMonitoring.saveParameters();
+		CollectHelper.collectEnergyUsageFromPower(host, COLLECT_TIME + 120000, 120D, HOSTNAME);
+
+		// OK, now energy is available
+		assertFalse(OtelParameterToMetricObserver.hasNoEnergyUsage(host));
+
+		// Weird case
+		host.getParameter(HardwareConstants.ENERGY_PARAMETER, NumberParam.class).setRawValue(null);
+		assertTrue(OtelParameterToMetricObserver.hasNoEnergyUsage(host));
 	}
 }

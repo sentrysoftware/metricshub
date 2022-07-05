@@ -2,6 +2,7 @@ package com.sentrysoftware.hardware.agent.service.opentelemetry;
 
 import static com.sentrysoftware.hardware.agent.mapping.opentelemetry.MappingConstants.ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SIZE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -17,9 +18,11 @@ import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
 import com.sentrysoftware.hardware.agent.mapping.opentelemetry.MetricsMapping;
+import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
-
+import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
+import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import com.sentrysoftware.matrix.engine.host.HostType;
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
@@ -31,8 +34,12 @@ import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
 
 class OtelMetadataToMetricObserverTest {
 
+	private static final String CONNECTOR_NAME = "Connector";
+
 	@Test
 	void testInit() {
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		hostMonitoring.addConnectorState(CONNECTOR_NAME, Status.OK);
 
 		final Monitor host = Monitor.builder().id(ID).name("host").build();
 		host.addMetadata(FQDN, "host.my.domain.net");
@@ -58,6 +65,7 @@ class OtelMetadataToMetricObserverTest {
 				.monitorType(MonitorType.PHYSICAL_DISK)
 				.build();
 		physicalDisk.addMetadata(FQDN, "host.my.domain.net");
+		physicalDisk.addMetadata(CONNECTOR, CONNECTOR_NAME);
 
 		OtelMetadataToMetricObserver
 			.builder()
@@ -66,6 +74,7 @@ class OtelMetadataToMetricObserverTest {
 			.multiHostsConfigurationDto(multiHostsConfigurationDto)
 			.metricInfoList(MetricsMapping.getMetadataAsMetricInfoList(MonitorType.PHYSICAL_DISK, SIZE).get())
 			.matrixMetadata(SIZE)
+			.hostMonitoring(hostMonitoring)
 			.build()
 			.init();
 
@@ -105,11 +114,85 @@ class OtelMetadataToMetricObserverTest {
 
 	@Test
 	void testCheckMetadata() {
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		hostMonitoring.addConnectorState(CONNECTOR_NAME, Status.OK);
+
 		assertTrue(OtelMetadataToMetricObserver
-				.checkMetadata(Monitor.builder().metadata(Map.of(SIZE, "500000000000")).build(), SIZE));
-		assertFalse(OtelMetadataToMetricObserver.checkMetadata(null, SIZE));
-		assertFalse(OtelMetadataToMetricObserver.checkMetadata(Monitor.builder().metadata(null).build(), SIZE));
-		assertFalse(OtelMetadataToMetricObserver.checkMetadata(
-				Monitor.builder().metadata(Map.of(SIZE, "Not-A-Number")).build(), SIZE));
+			.checkMetadata(
+				Monitor
+					.builder()
+					.monitorType(MonitorType.PHYSICAL_DISK)
+					.metadata(
+						Map.of(
+							SIZE, "500000000000",
+							CONNECTOR, CONNECTOR_NAME
+						)
+					)
+					.build(),
+				SIZE,
+				hostMonitoring
+			)
+		);
+
+		assertFalse(OtelMetadataToMetricObserver.checkMetadata(null, SIZE, hostMonitoring));
+
+		assertFalse(OtelMetadataToMetricObserver
+			.checkMetadata(
+				Monitor
+					.builder()
+					.monitorType(MonitorType.PHYSICAL_DISK)
+					.metadata(null)
+					.build(),
+				SIZE,
+				hostMonitoring
+			)
+		);
+		assertFalse(OtelMetadataToMetricObserver
+			.checkMetadata(
+				Monitor
+					.builder()
+					.monitorType(MonitorType.PHYSICAL_DISK)
+					.metadata(
+						Map.of(
+							SIZE, "Not-A-Number",
+							CONNECTOR, CONNECTOR_NAME
+						)
+					)
+					.build(),
+				SIZE,
+				hostMonitoring
+			)
+		);
+
+		hostMonitoring.addConnectorState(CONNECTOR_NAME, Status.FAILED);
+		assertFalse(OtelMetadataToMetricObserver
+			.checkMetadata(
+				Monitor
+					.builder()
+					.monitorType(MonitorType.PHYSICAL_DISK)
+					.metadata(
+						Map.of(
+							SIZE, "500000000000",
+							CONNECTOR, CONNECTOR_NAME
+						)
+					)
+					.build(),
+				SIZE,
+				hostMonitoring
+			)
+		);
+
+		assertTrue(OtelMetadataToMetricObserver
+			.checkMetadata(
+				Monitor
+					.builder()
+					.monitorType(MonitorType.HOST)
+					.metadata(Map.of("someMetadataOnHost", "500000000000"))
+					.build(),
+				"someMetadataOnHost",
+				hostMonitoring
+			)
+		);
+
 	}
 }

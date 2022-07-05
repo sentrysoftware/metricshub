@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.model.monitoring;
 import java.util.Map;
 import java.util.Set;
 
+import com.sentrysoftware.matrix.common.meta.parameter.state.IState;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
@@ -73,4 +74,8 @@ public interface IHostMonitoring {
 	Monitor getHostMonitor();
 
 	HostMonitoringVo getVo();
+
+	void addConnectorState(final String connectorName, final IState state);
+
+	boolean isConnectorStatusOk(final Monitor monitor);
 }

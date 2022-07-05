@@ -4,8 +4,10 @@ import java.util.List;
 
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
 import com.sentrysoftware.hardware.agent.mapping.opentelemetry.dto.MetricInfo;
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.meta.parameter.MetaParameter;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
+import com.sentrysoftware.matrix.model.parameter.NumberParam;
 
 import io.opentelemetry.api.metrics.ObservableDoubleMeasurement;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
@@ -42,12 +44,33 @@ public class OtelParameterToMetricObserver extends AbstractOtelMetricObserver {
 			return;
 		}
 
+		// Special case for the energy metrics as the power cannot be reported as 0
+		if ((matrixDataKey.equalsIgnoreCase(HardwareConstants.ENERGY_PARAMETER) || matrixDataKey.equalsIgnoreCase(HardwareConstants.POWER_CONSUMPTION))
+				&& hasNoEnergyUsage(monitor)) {
+			return;
+		}
+
 		// Record the value
 		recorder.record(
 				OtelHelper.getMetricValue(metricInfo, monitor, matrixDataKey),
 				// Create the metric attributes
 				createAttributes(metricInfo, monitor)
 		);
+	}
+
+	/**
+	 * Return true if the given monitor has no energy usage. Means the current energy raw value
+	 * equals the previous one.
+	 * 
+	 * @param monitor Monitor instance from which we want to extract the `energy` parameter
+	 * @return boolean value
+	 */
+	static boolean hasNoEnergyUsage(final Monitor monitor) {
+		final NumberParam energy = monitor.getParameter(HardwareConstants.ENERGY_PARAMETER, NumberParam.class);
+		if (energy == null || energy.getRawValue() == null) {
+			return true;
+		}
+		return energy.getRawValue().equals(energy.getPreviousRawValue());
 	}
 
 	/**
@@ -59,7 +82,8 @@ public class OtelParameterToMetricObserver extends AbstractOtelMetricObserver {
 	 */
 	public static boolean isParameterAvailable(final Monitor monitor, final String parameterName) {
 		return checkParameter(monitor, parameterName)
-				&& getParameterValue(monitor, parameterName) != null;
+				&& getParameterValue(monitor, parameterName) != null
+				&& monitor.isParameterUpdated(parameterName);
 	}
 
 	/**

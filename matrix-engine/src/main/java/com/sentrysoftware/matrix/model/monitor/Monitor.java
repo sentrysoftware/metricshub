@@ -213,7 +213,7 @@ public class Monitor {
 		return AssertedParameter
 				.<DiscreteParam>builder()
 				.parameter(presentParam)
-				.abnormal(allConditionsMatched(conditions, presentValue))
+				.abnormal(isAbnormal(conditions, presentValue))
 				.build();
 
 	}
@@ -251,17 +251,18 @@ public class Monitor {
 		return AssertedParameter
 				.<DiscreteParam>builder()
 				.parameter(status)
-				.abnormal(allConditionsMatched(conditions, statusValue))
+				.abnormal(isAbnormal(conditions, statusValue))
 				.build();
 	}
 
 	/**
+	 * Check if the given value is abnormal by applying all the set of {@link AlertCondition}
 	 * 
-	 * @param conditions
-	 * @param value
-	 * @return
+	 * @param conditions The conditions used to check abnormality
+	 * @param value      The value to check
+	 * @return boolean value
 	 */
-	private static boolean allConditionsMatched(final Set<AlertCondition> conditions, final Double value) {
+	private static boolean isAbnormal(final Set<AlertCondition> conditions, final Double value) {
 		return value != null && conditions != null && !conditions.isEmpty() 
 				&& conditions.stream()
 					.allMatch(condition -> condition
@@ -284,7 +285,7 @@ public class Monitor {
 		return AssertedParameter
 				.<NumberParam>builder()
 				.parameter(parameter)
-				.abnormal(allConditionsMatched(conditions, value))
+				.abnormal(isAbnormal(conditions, value))
 				.build();
 	}
 
@@ -294,4 +295,16 @@ public class Monitor {
 		private T parameter;
 		private boolean abnormal;
 	}
+
+	/**
+	 * Check if the given parameter is correctly updated.
+	 * 
+	 * @param parameterName name of the parameter we wish to check.
+	 * @return boolean value
+	 */
+	public boolean isParameterUpdated(final String parameterName) {
+		final IParameter parameter = getParameters().get(parameterName);
+		return parameter != null && parameter.isUpdated();
+	}
+
 }
