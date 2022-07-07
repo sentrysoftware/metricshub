@@ -33,16 +33,16 @@ where:
 * `<hostname>` is the name of the host, or its IP address
 * `<host-type>` is the type of the host to be monitored. Possible values are:
 
-    * `win` for [Microsoft Windows systems](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#microsoft-windows)
-    * `linux` for [Linux systems](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#linux)
-    * `network` for [network devices](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#network-device)
-    * `oob` for [Out-of-band management cards](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#out-of-band), [VMware ESX systems](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#vmware-esx), and [blade chassis](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#blade-chassis")
-    * `storage` for [storage systems](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#storage-system)
-    * `aix` for [IBM AIX systems](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#ibm-aix)
-    * `hpux` for [HP UX systems](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#hp-ux)
-    * `solaris` for [Oracle Solaris systems](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#oracle-solaris)
-    * `tru64` for [HP Tru64 systems](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#hp-tru64)
-    * `vms` for [HP Open VMS systems](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html#hp-openvms)
+    * `win` for [Microsoft Windows systems](../platform-requirements.html#!#microsoft-windows)
+    * `linux` for [Linux systems](../platform-requirements.html#!#linux)
+    * `network` for [network devices](../platform-requirements.html#!#network-device)
+    * `oob` for [Out-of-band management cards](../platform-requirements.html#!#out-of-band), [VMware ESX systems](../platform-requirements.html#!#vmware-esx), and [blade chassis](../platform-requirements.html#!#blade-chassis")
+    * `storage` for [storage systems](../platform-requirements.html#!#storage-system)
+    * `aix` for [IBM AIX systems](../platform-requirements.html#!#ibm-aix)
+    * `hpux` for [HP UX systems](../platform-requirements.html#!#hp-ux)
+    * `solaris` for [Oracle Solaris systems](../platform-requirements.html#!#oracle-solaris)
+    * `tru64` for [HP Tru64 systems](../platform-requirements.html#!#hp-tru64)
+    * `vms` for [HP Open VMS systems](../platform-requirements.html#!#hp-openvms)
 
 * `<protocol-configuration>` is the protocol(s) **${project.name}** will use to communicate with the hosts: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Specifying the protocol to be used](#protocol) for more details.
 
@@ -401,7 +401,7 @@ hosts:
     excludedConnectors: [ VMwareESXiDisksStorage ]
 ```
 
-The exhaustive list of connectors is available in the [Hardware Connector Library User Documentation<](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html). The list of connectors in the current installation of **${project.name}** can be obtained with the below command:
+The exhaustive list of connectors is available in the [Hardware Connector Library User Documentation<](../platform-requirements.html#!). The list of connectors in the current installation of **${project.name}** can be obtained with the below command:
 
 ```shell-session
 $ hws -l

@@ -5,8 +5,6 @@ description: How ${project.name} triggers alerts and how you can customize the a
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
-## Overview
-
 An alert is a notification that a hardware problem has occurred, such as a critical low speed on a fan leading to an increase in CPU temperature.
 
 **${project.name}** defines a set of conditions that trigger alerts when failures are detected. These alerts are sent as OpenTelemetry `logs` from the **Hardware Sentry Agent**'s internal `OTLP Exporter` to the **OpenTelemetry Collector**'s internal `OTLP Receiver`.

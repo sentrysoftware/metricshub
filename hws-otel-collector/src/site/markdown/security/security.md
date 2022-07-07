@@ -5,10 +5,7 @@ description: Security mechanisms to encrypt passwords and secure the configurati
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
-## Overview
-
 **${project.name}** provides a set of security mechanisms to secure:
-
 - The **Hardware Sentry Agent**'s passwords stored in the YAML configuration file
 - The communications instantiated between the **Hardware Sentry Agent** and the **OpenTelemetry Collector**.
 
