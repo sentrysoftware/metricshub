@@ -725,7 +725,7 @@ class OtelParameterToMetricObserverTest {
 	}
 
 	@Test
-	void testHasNoEnergyUsage() {
+	void testIncreasedEnergyUsage() {
 		final Monitor host = Monitor
 				.builder()
 				.id("hostname")
@@ -739,23 +739,29 @@ class OtelParameterToMetricObserverTest {
 		hostMonitoring.addMonitor(host);
 
 		// Energy is not collected
-		assertTrue(OtelParameterToMetricObserver.hasNoEnergyUsage(host));
+		assertFalse(OtelParameterToMetricObserver.increasedEnergyUsage(host));
 
 		// Collect 1
 		CollectHelper.collectEnergyUsageFromPower(host, COLLECT_TIME, 120D, HOSTNAME);
 
 		// We need two collects to get the energy usage
-		assertTrue(OtelParameterToMetricObserver.hasNoEnergyUsage(host));
+		assertFalse(OtelParameterToMetricObserver.increasedEnergyUsage(host));
 
 		// Collect 2
 		hostMonitoring.saveParameters();
 		CollectHelper.collectEnergyUsageFromPower(host, COLLECT_TIME + 120000, 120D, HOSTNAME);
-
+		assertEquals(14400.0, host.getParameter(ENERGY_PARAMETER, NumberParam.class).getRawValue());
 		// OK, now energy is available
-		assertFalse(OtelParameterToMetricObserver.hasNoEnergyUsage(host));
+		assertTrue(OtelParameterToMetricObserver.increasedEnergyUsage(host));
+
+		// Collect 3 decreased energy
+		hostMonitoring.saveParameters();
+		CollectHelper.collectPowerFromEnergyUsage(host, COLLECT_TIME + 120000 * 2, 14300.0, HOSTNAME);
+		// The energy is available but not increased
+		assertFalse(OtelParameterToMetricObserver.increasedEnergyUsage(host));
 
 		// Weird case
 		host.getParameter(HardwareConstants.ENERGY_PARAMETER, NumberParam.class).setRawValue(null);
-		assertTrue(OtelParameterToMetricObserver.hasNoEnergyUsage(host));
+		assertFalse(OtelParameterToMetricObserver.increasedEnergyUsage(host));
 	}
 }

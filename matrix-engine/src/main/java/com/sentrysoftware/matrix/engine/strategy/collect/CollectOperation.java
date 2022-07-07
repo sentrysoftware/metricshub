@@ -197,7 +197,7 @@ public class CollectOperation extends AbstractStrategy {
 		// Skip this collect if the connector has failed
 		if (Status.FAILED.equals(state)) {
 			log.error(
-				"Hostname {} - The connector {} doesn't match the host. Stopping the connector's collect.",
+				"Hostname {} - The connector {} no longer matches the host. Stopping the connector's collect.",
 				hostname,
 				connector.getCompiledFilename()
 			);
@@ -268,6 +268,8 @@ public class CollectOperation extends AbstractStrategy {
 	 * @param connector        The connector we wish to test
 	 * @param connectorMonitor The connector monitor we wish to collect its status and testReport parameters
 	 * @param hostname         The system hostname
+	 * 
+	 * @return the current state of the connector
 	 */
 	IState collectConnectorMonitor(final Connector connector, final Monitor connectorMonitor, final String hostname) {
 

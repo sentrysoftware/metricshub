@@ -194,5 +194,16 @@ class OtelMetadataToMetricObserverTest {
 			)
 		);
 
+		assertFalse(OtelMetadataToMetricObserver
+			.checkMetadata(
+				Monitor
+					.builder()
+					.monitorType(MonitorType.HOST)
+					.metadata(Map.of("someMetadataOnHost", "500000000000"))
+					.build(),
+				"someMetadataOnHost",
+				null
+			)
+		);
 	}
 }

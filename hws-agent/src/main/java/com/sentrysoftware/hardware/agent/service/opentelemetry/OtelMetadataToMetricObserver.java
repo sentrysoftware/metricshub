@@ -58,7 +58,7 @@ public class OtelMetadataToMetricObserver extends AbstractOtelMetricObserver {
 	 * @return <code>true</code> if the metadata is collected otherwise <code>false</code>
 	 */
 	static boolean checkMetadata(final Monitor monitor, final String metadata, final IHostMonitoring hostMonitoring) {
-		if (monitor == null || monitor.getMetadata() == null) {
+		if (monitor == null || monitor.getMetadata() == null || hostMonitoring == null) {
 			return false;
 		}
 
