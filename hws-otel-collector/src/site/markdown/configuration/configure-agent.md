@@ -5,6 +5,8 @@ description: How to configure Hardware Sentry Agent to scrape hosts with various
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
+## Observability settings
+
 To collect metrics from your hosts, you need to provide the following information to **${project.name}**:
 
 * the hostname of the host to be monitored
@@ -15,7 +17,7 @@ This information must be provided in the **config/hws-config.yaml** file (an alt
 
 The [YAML syntax](https://yaml.org/) of the configuration file must be strictly respected for **${project.name}** to operate correctly (notably the indentation). As changes in this file are taken into account immediately, there is no need to restart the *OpenTelemetry Collector*.
 
-## Monitored Hosts
+### Monitored hosts
 
 Systems to monitor are defined under `hosts` with the below syntax:
 
@@ -48,9 +50,9 @@ where:
 
 <a name="protocol"></a>
 
-## Protocols and Credentials
+### Protocols and credentials
 
-### HTTP
+#### HTTP
 
 Use the parameters below to configure the HTTP protocol:
 
@@ -61,7 +63,7 @@ Use the parameters below to configure the HTTP protocol:
 | username  | Name used to establish the connection with the host via the HTTP protocol.       |
 | password  | Password used to establish the connection with the host via the HTTP protocol.   |
 
-#### Example
+##### Example
 
 ```yaml
 hosts:
@@ -76,7 +78,7 @@ hosts:
       password: mypwd
 ```
 
-### IPMI
+#### IPMI
 
 Use the parameters below to configure the IPMI protocol:
 
@@ -86,7 +88,7 @@ Use the parameters below to configure the IPMI protocol:
 | username  | Name used to establish the connection with the host via the IPMI protocol.     |
 | password  | Password used to establish the connection with the host via the IPMI protocol. |
 
-#### Example
+##### Example
 
 ```yaml
 hosts:
@@ -99,7 +101,7 @@ hosts:
     password: mypwd
 ```
 
-### OS Commands
+#### OS commands
 
 Use the parameters below to configure OS Commands:
 
@@ -111,7 +113,7 @@ Use the parameters below to configure OS Commands:
 | useSudoCommands | List of commands for which sudo is required.                                          |
 | sudoCommand     | Sudo command to be used (Default: sudo).                                              |
 
-#### Example
+##### Example
 
 ```yaml
 hosts:
@@ -125,7 +127,7 @@ hosts:
       sudoCommand: sudo
 ```
 
-### SSH
+#### SSH
 
 Use the parameters below to configure the SSH protocol:
 
@@ -140,7 +142,7 @@ Use the parameters below to configure the SSH protocol:
 | password        | Password to use for performing the SSH query.                                             |
 | privateKey      | Private Key File to use to establish the connection to the host through the SSH protocol. |
 
-#### Example
+##### Example
 
 ```yaml
 hosts:
@@ -158,7 +160,7 @@ hosts:
 
 ```
 
-### SNMP
+#### SNMP
 
 Use the parameters below to configure the SNMP protocol:
 
@@ -174,7 +176,7 @@ Use the parameters below to configure the SNMP protocol:
 | username         | _SNMP v3 only_ - Name to use for performing the SNMP query.                    |
 | password         | _SNMP v3 only_ - Password to use for performing the SNMP query.                |
 
-#### Example
+##### Example
 
 ```yaml
 hosts:
@@ -211,7 +213,7 @@ hosts:
     password: mypwd
 ```
 
-### WBEM
+#### WBEM
 
 Use the parameters below to configure the WBEM protocol:
 
@@ -224,7 +226,7 @@ Use the parameters below to configure the WBEM protocol:
 | username  | Name used to establish the connection with the host via the WBEM protocol.                     |
 | password  | Password used to establish the connection with the host via the WBEM protocol.                 |
 
-#### Example
+##### Example
 
 ```yaml
 hosts:
@@ -240,7 +242,7 @@ hosts:
       password: mypwd
 ```
 
-### WMI
+#### WMI
 
 Use the parameters below to configure the WMI protocol:
 
@@ -251,7 +253,7 @@ Use the parameters below to configure the WMI protocol:
 | username  | Name used to establish the connection with the host via the WMI protocol.     |
 | password  | Password used to establish the connection with the host via the WMI protocol. |
 
-#### Example
+##### Example
 
 ```yaml
 hosts:
@@ -265,7 +267,7 @@ hosts:
       password: mypwd
 ```
 
-### WinRM
+#### WinRM
 
 Use the parameters below to configure the WinRM protocol:
 
@@ -279,7 +281,7 @@ Use the parameters below to configure the WinRM protocol:
 | port            | The port number used to perform WQL queries and commands (Default: 5985 for HTTP or 5986 for HTTPS). |
 | authentications | Ordered list of authentication schemes: NTLM, KERBEROS (Default: NTLM).                              |
 
-#### Example
+##### Example
 
 ```yaml
 hosts:
@@ -296,7 +298,7 @@ hosts:
       authentications: [NTLM]
 ```
 
-## Site and Sustainable IT Settings
+## Sustainability settings
 
 You can specify additional labels to be added to each collected metric, with the `extraLabels` property:
 
@@ -319,9 +321,9 @@ extraMetrics:
 
 The above example configures the *OpenTelemetry Collector* to expose the carbon density and price per kWh of the electricity in the monitored site. These metrics can be leveraged in [Grafana dashboards](../integration/grafana.md) to calculate the carbon footprint, with different carbon densities for each monitored site, for example.
 
-## Other Configuration Settings
+## Other configuration settings
 
-### Basic Authentication Header
+### Basic authentication header
 
 The **${project.name}**'s internal `OTLP Exporter` authenticates itself with the [OTLP gRPC Receiver](configure-otel.md#OTLP_gRPC) by including the HTTP `Authorization` request header with the credentials. A predefined *Basic Authentication Header* value is stored internally and included in each request when sending telemetry data.
 
@@ -342,7 +344,7 @@ You can also proceed with an additional security level by encrypting the `Basic 
 
 > **Warning**: If you update the *Basic Authentication Header*, you must generate a new `.htpasswd` file for the [OpenTelemetry Collector Basic Authenticator](configure-otel.md#Basic_Authenticator).
 
-### Collect Period
+### Collect period
 
 By default, **${project.name}** collects metrics from the monitored hosts every minute. To change the default collect period:
 
@@ -439,7 +441,7 @@ To disable **${project.name}**'s alerts:
       disableAlerts: true
     ```
 
-### Discovery Cycle
+### Discovery cycle
 
 **${project.name}** periodically performs discoveries to detect new components in your monitored environment. By default, **${project.name}** runs a discovery after 30 collects. To change this default discovery cycle:
 
@@ -471,7 +473,7 @@ and indicate the number of collects after which a discovery will be performed.
 
 > **Warning**: Running discoveries too frequently can cause CPU-intensive workloads.
 
-### Extra Labels
+### Extra labels
 
 All labels specified under `extraLabels` for a specific host will be added as additional attributes to the corresponding [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md). The attributes of a *Resource* typically end up added to each metric attached to that *Resource* when exported to time series platforms like Prometheus.
 
@@ -492,7 +494,7 @@ hosts:
     app: Jenkins
 ```
 
-### Hardware Problem Template
+### Hardware Problem template
 
 When detecting a hardware problem, **${project.name}** triggers an alert as OpenTelemetry log. The alert body is built from the following template:
 
@@ -530,7 +532,7 @@ and indicate the template to use when building alert messages.
 
 For more information about the alert mechanism and the macros to use, refer to the [Alerts](../alerts.md) page.
 
-### Hostname Resolution
+### Hostname resolution
 
 By default, **${project.name}** resolves the `hostname` of the host to a Fully Qualified Domain Name (FQDN) and displays this value in the [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md) attribute `host.name`. To display the configured hostname instead, set `resolveHostnameToFqdn` to `false`:
 
@@ -544,7 +546,7 @@ hosts:
     type: Linux
 ```
 
-### Job Pool Size
+### Job pool size
 
 By default, **${project.name}** runs up to 20 discovery and collect jobs in parallel. To increase or decrease the number of jobs **${project.name}** can run simultaneously,  add the `jobPoolSize` parameter just before the `hosts` section:
 
@@ -558,7 +560,7 @@ and indicate a number of jobs.
 
 > **Warning**: Running too many jobs in parallel can lead to an OutOfMemory error.
 
-### Sequential Mode
+### Sequential mode
 
 By default, **${project.name}** sends the queries to the host in parallel. Although the parallel mode is faster than the sequential one, too many requests at the same time can lead to the failure of the targeted system.
 
@@ -590,7 +592,7 @@ To force all the network calls to be executed in sequential order:
 
 > **Warning**: Sending requests in sequential mode slows down the monitoring significantly. Instead of using the sequential mode, you could increase the maximum number of allowed concurrent requests in the monitored system, if the manufacturer allows it.
 
-### Timeout, Duration and Period Format
+### Timeout, duration and period format
 
 Timeouts, durations and periods are specified with the below format:
 
@@ -601,7 +603,7 @@ Timeouts, durations and periods are specified with the below format:
 | h    | hours                           | 1h, 1h30m        |
 | d    | days (based on a 24-hour day)   | 1d               |
 
-### Trusted Certificates File
+### Trusted certificates file
 
 A TLS handshake takes place when the **Hardware Sentry Agent**'s `OTLP Exporter` instantiates a communication with the `OTLP gRPC Receiver`. By default, the internal `OTLP Exporter` client is configured to trust the `OTLP gRPC Receiver`'s certificate `security/otel.crt`.
 
