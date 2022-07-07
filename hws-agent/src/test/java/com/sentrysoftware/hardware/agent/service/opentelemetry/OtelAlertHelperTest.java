@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
@@ -30,6 +31,7 @@ import com.sentrysoftware.matrix.common.meta.parameter.state.Present;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.strategy.collect.CollectHelper;
+import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
 import com.sentrysoftware.matrix.model.alert.AlertDetails;
 import com.sentrysoftware.matrix.model.alert.AlertInfo;
 import com.sentrysoftware.matrix.model.alert.AlertRule;
@@ -45,12 +47,14 @@ public class OtelAlertHelperTest {
 
 	private static long collectTime = System.currentTimeMillis(); 
 	private static final String HOSTNAME = "localhost";
+	private static final String CONNECTOR_NAME = "Connector1";
 
 	@Test
 	void testBuildHardwareProblem() {
 
 		{
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			hostMonitoring.addConnectorState(CONNECTOR_NAME, Status.OK);
 
 			initMonitorsForAlert(hostMonitoring);
 
@@ -67,6 +71,7 @@ public class OtelAlertHelperTest {
 
 		{
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			hostMonitoring.addConnectorState(CONNECTOR_NAME, Status.OK);
 
 			initMonitorsForAlert(hostMonitoring);
 
@@ -81,6 +86,7 @@ public class OtelAlertHelperTest {
 
 		{
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			hostMonitoring.addConnectorState(CONNECTOR_NAME, Status.OK);
 
 			initMonitorsForAlert(hostMonitoring);
 
@@ -95,6 +101,7 @@ public class OtelAlertHelperTest {
 
 		{
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			hostMonitoring.addConnectorState(CONNECTOR_NAME, Status.OK);
 
 			initMonitorsForAlert(hostMonitoring);
 
@@ -109,6 +116,7 @@ public class OtelAlertHelperTest {
 
 		{
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			hostMonitoring.addConnectorState(CONNECTOR_NAME, Status.OK);
 
 			initMonitorsForAlert(hostMonitoring);
 
@@ -123,6 +131,7 @@ public class OtelAlertHelperTest {
 
 		{
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			hostMonitoring.addConnectorState(CONNECTOR_NAME, Status.OK);
 
 			initMonitorsForAlert(hostMonitoring);
 
@@ -137,6 +146,7 @@ public class OtelAlertHelperTest {
 
 		{
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			hostMonitoring.addConnectorState(CONNECTOR_NAME, Status.OK);
 
 			initMonitorsForAlert(hostMonitoring);
 
@@ -153,6 +163,7 @@ public class OtelAlertHelperTest {
 
 		{
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			hostMonitoring.addConnectorState(CONNECTOR_NAME, Status.OK);
 
 			initMonitorsForAlert(hostMonitoring);
 
@@ -167,6 +178,7 @@ public class OtelAlertHelperTest {
 
 		{
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			hostMonitoring.addConnectorState(CONNECTOR_NAME, Status.OK);
 
 			initMonitorsForAlert(hostMonitoring);
 
@@ -181,6 +193,7 @@ public class OtelAlertHelperTest {
 
 		{
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			hostMonitoring.addConnectorState(CONNECTOR_NAME, Status.OK);
 
 			initMonitorsForAlert(hostMonitoring);
 
@@ -195,6 +208,7 @@ public class OtelAlertHelperTest {
 
 		{
 			final IHostMonitoring hostMonitoring = new HostMonitoring();
+			hostMonitoring.addConnectorState(CONNECTOR_NAME, Status.OK);
 
 			initMonitorsForAlert(hostMonitoring);
 
@@ -248,14 +262,14 @@ public class OtelAlertHelperTest {
 	 */
 	public static void initMonitorsForAlert(final IHostMonitoring hostMonitoring) {
 		final Monitor host = Monitor
-				.builder()
-				.id(HOSTNAME)
-				.parentId(null)
-				.hostId(HOSTNAME)
-				.name(HOSTNAME)
-				.monitorType(MonitorType.HOST)
-				.metadata(Map.of(FQDN, HOSTNAME))
-				.build();
+			.builder()
+			.id(HOSTNAME)
+			.parentId(null)
+			.hostId(HOSTNAME)
+			.name(HOSTNAME)
+			.monitorType(MonitorType.HOST)
+			.metadata(Map.of(FQDN, HOSTNAME))
+			.build();
 
 		hostMonitoring.addMonitor(host);
 
@@ -265,6 +279,7 @@ public class OtelAlertHelperTest {
 		enclosureMetadata.put(MODEL, "FA-X20R2");
 		enclosureMetadata.put(SERIAL_NUMBER, "FA-123456789");
 		enclosureMetadata.put(HOST_FQDN, HOSTNAME);
+		enclosureMetadata.put(CONNECTOR, CONNECTOR_NAME);
 
 		final Monitor enclosure = Monitor
 			.builder()
@@ -285,7 +300,7 @@ public class OtelAlertHelperTest {
 		diskMetadata.put(SERIAL_NUMBER, "FM-123456789");
 		diskMetadata.put(SIZE, "1000000000000");
 		diskMetadata.put(HOST_FQDN, HOSTNAME);
-		diskMetadata.put(CONNECTOR, "Connector1");
+		diskMetadata.put(CONNECTOR, CONNECTOR_NAME);
 
 		final Monitor physicalDisk = Monitor
 			.builder()
@@ -298,6 +313,8 @@ public class OtelAlertHelperTest {
 			.build();
 
 		hostMonitoring.addMonitor(physicalDisk);
+
+		refreshPresentParameters(hostMonitoring);
 	}
 
 	/**
@@ -522,4 +539,19 @@ public class OtelAlertHelperTest {
 		assertThrows(IllegalArgumentException.class, () -> OtelAlertHelper.buildParentInformation("disk", id, null));
 	}
 
+	/**
+	 * Refresh present parameter collect time on all the monitors
+	 * 
+	 * @param hostMonitoring monitors wraper
+	 */
+	static void refreshPresentParameters(final IHostMonitoring hostMonitoring) {
+		hostMonitoring
+			.getMonitors()
+			.values()
+			.stream()
+			.map(Map::values)
+			.flatMap(Collection::stream)
+			.filter(monitor -> monitor.getMonitorType().getMetaMonitor().hasPresentParameter())
+			.forEach(monitor -> CollectOperation.refreshPresentCollectTime(monitor, collectTime));
+	}
 }

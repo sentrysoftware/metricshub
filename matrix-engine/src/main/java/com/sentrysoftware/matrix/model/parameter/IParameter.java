@@ -38,4 +38,11 @@ public interface IParameter {
 	 */
 	public Long getCollectTime();
 
+	/**
+	 * Return true if the parameter has been updated in a specific collect
+	 * 
+	 * @return boolean value
+	 */
+	public boolean isUpdated();
+
 }

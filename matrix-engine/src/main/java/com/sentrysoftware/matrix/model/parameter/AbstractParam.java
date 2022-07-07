@@ -22,4 +22,14 @@ public abstract class AbstractParam implements IParameter {
 	public void save() {
 		previousCollectTime = collectTime;
 	}
+
+	@Override
+	public boolean isUpdated() {
+		if (collectTime == null) {
+			return false;
+		}
+
+		return !collectTime.equals(previousCollectTime);
+	}
+
 }

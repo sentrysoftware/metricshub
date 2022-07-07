@@ -62,6 +62,7 @@ import com.sentrysoftware.matrix.common.meta.parameter.state.IState;
 import com.sentrysoftware.matrix.common.meta.parameter.state.LinkStatus;
 import com.sentrysoftware.matrix.common.meta.parameter.state.PowerState;
 import com.sentrysoftware.matrix.common.meta.parameter.state.Present;
+import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
@@ -186,7 +187,22 @@ public class CollectOperation extends AbstractStrategy {
 		log.debug("Hostname {} - Collect - Processing connector {}.", hostname, connector.getCompiledFilename());
 
 		// Re-test the connector and collect the connector monitor
-		collectConnectorMonitor(connector, connectorMonitor, hostname);
+		final IState state = collectConnectorMonitor(connector, connectorMonitor, hostname);
+
+		// Update the connector status in the host monitoring
+		// This will be used to decide whether we should continue the connector's collect or not
+		// It is also useful in the post collect to decide if we should compute additional parameters
+		hostMonitoring.addConnectorState(connector.getCompiledFilename(), state);
+
+		// Skip this collect if the connector has failed
+		if (Status.FAILED.equals(state)) {
+			log.error(
+				"Hostname {} - The connector {} no longer matches the host. Stopping the connector's collect.",
+				hostname,
+				connector.getCompiledFilename()
+			);
+			return;
+		}
 
 		// Perform collect for the hardware monitor jobs
 		// The collect order is the following: Enclosure, Blade, DiskController, CPU then the rest
@@ -248,12 +264,14 @@ public class CollectOperation extends AbstractStrategy {
 
 	/**
 	 * Run the collect for the given <code>connectorMonitor</code>
-	 *
+	 * 
 	 * @param connector        The connector we wish to test
 	 * @param connectorMonitor The connector monitor we wish to collect its status and testReport parameters
 	 * @param hostname         The system hostname
+	 * 
+	 * @return the current state of the connector
 	 */
-	void collectConnectorMonitor(final Connector connector, final Monitor connectorMonitor, final String hostname) {
+	IState collectConnectorMonitor(final Connector connector, final Monitor connectorMonitor, final String hostname) {
 
 		log.debug("Hostname {} - Start Connector Monitor {} Collect.", hostname, connectorMonitor.getId());
 
@@ -273,6 +291,8 @@ public class CollectOperation extends AbstractStrategy {
 		connectorMonitor.collectParameter(testReport);
 
 		log.debug("Hostname {} - End of the Connector Monitor {} Collect. Status: {}.", hostname, connectorMonitor.getId(), status.getState());
+
+		return status.getState();
 	}
 
 	/**
@@ -651,7 +671,7 @@ public class CollectOperation extends AbstractStrategy {
 	 * @param monitor		The {@link Monitor} whose {@link Present}'s collect time should be refreshed.
 	 * @param collectTime	The new collect time.
 	 */
-	static void refreshPresentCollectTime(final Monitor monitor, final Long collectTime) {
+	public static void refreshPresentCollectTime(final Monitor monitor, final Long collectTime) {
 		final DiscreteParam presentParam = monitor.getParameter(PRESENT_PARAMETER, DiscreteParam.class);
 		if (presentParam != null) {
 			presentParam.setCollectTime(collectTime);
@@ -663,13 +683,14 @@ public class CollectOperation extends AbstractStrategy {
 	 */
 	private void refreshPresentParameters() {
 		strategyConfig.getHostMonitoring()
-		.getMonitors()
-		.values()
-		.stream()
-		.map(Map::values)
-		.flatMap(Collection::stream)
-		.filter(monitor -> monitor.getMonitorType().getMetaMonitor().hasPresentParameter())
-		.forEach(monitor -> refreshPresentCollectTime(monitor, strategyTime));
+			.getMonitors()
+			.values()
+			.stream()
+			.map(Map::values)
+			.flatMap(Collection::stream)
+			.filter(monitor -> strategyConfig.getHostMonitoring().isConnectorStatusOk(monitor))
+			.filter(monitor -> monitor.getMonitorType().getMetaMonitor().hasPresentParameter())
+			.forEach(monitor -> refreshPresentCollectTime(monitor, strategyTime));
 	}
 
 	/**
@@ -687,6 +708,8 @@ public class CollectOperation extends AbstractStrategy {
 				.values()
 				.stream()
 				.filter(monitor -> !monitor.isMissing())
+				.filter(strategyConfig.getHostMonitoring()::isConnectorStatusOk)
+				.filter(monitor -> monitor.isParameterUpdated(POWER_CONSUMPTION_PARAMETER))
 				.map(monitor -> CollectHelper.getNumberParamValue(monitor, POWER_CONSUMPTION_PARAMETER))
 				.filter(Objects::nonNull)
 				.reduce(Double::sum)
@@ -765,7 +788,8 @@ public class CollectOperation extends AbstractStrategy {
 		Double minimumHeatingMargin = temperatureMonitors
 			.values()
 			.stream()
-			.filter(monitor -> monitor.getParameter(TEMPERATURE_PARAMETER, NumberParam.class) != null)
+			.filter(hostMonitoring::isConnectorStatusOk)
+			.filter(monitor -> monitor.isParameterUpdated(TEMPERATURE_PARAMETER))
 			.map(monitor -> computeTemperatureHeatingMargin(monitor.getMetadata(),
 				monitor.getParameter(TEMPERATURE_PARAMETER, NumberParam.class)))
 			.filter(Objects::nonNull)
@@ -826,10 +850,13 @@ public class CollectOperation extends AbstractStrategy {
 		for (final Monitor temperatureMonitor : temperatureMonitors.values()) {
 
 			// Get the temperature value
-			final Double temperatureValue = CollectHelper.getNumberParamValue(temperatureMonitor, TEMPERATURE_PARAMETER);
+			final Double temperatureValue;
 
-			// If there is not temperature value, no need to continue process this monitor.
-			if (temperatureValue == null) {
+			// Skip this monitor if the connector has failed
+			// Also, if there is not temperature value, no need to continue process this monitor
+			if (!hostMonitoring.isConnectorStatusOk(temperatureMonitor)
+					|| !temperatureMonitor.isParameterUpdated(TEMPERATURE_PARAMETER)
+					|| (temperatureValue = CollectHelper.getNumberParamValue(temperatureMonitor, TEMPERATURE_PARAMETER)) == null) {
 				continue;
 			}
 
@@ -1069,6 +1096,7 @@ public class CollectOperation extends AbstractStrategy {
 			.map(Map::values)
 			.flatMap(Collection::stream)
 			.filter(monitor -> !monitor.isMissing()) // Skip missing
+			.filter(strategyConfig.getHostMonitoring()::isConnectorStatusOk) // Skip monitor if its connector has failed
 			.filter(monitor -> !MonitorType.HOST.equals(monitor.getMonitorType())) // We already sum the values for the host
 			.filter(monitor -> !MonitorType.ENCLOSURE.equals(monitor.getMonitorType())) // Skip the enclosure
 			.filter(monitor -> !MonitorType.VM.equals(monitor.getMonitorType())) // Skip VM monitors as their power is already computed based on the host's power
@@ -1122,6 +1150,7 @@ public class CollectOperation extends AbstractStrategy {
 		cpus.values()
 			.stream()
 			.filter(cpu -> !cpu.isMissing())
+			.filter(hostMonitoring::isConnectorStatusOk)
 			.forEach(cpu -> estimateCpuPowerConsumption(cpu, host, collectTime, hostname));
 	}
 
@@ -1182,7 +1211,12 @@ public class CollectOperation extends AbstractStrategy {
 			return;
 		}
 
-		Collection<Monitor> allVms = allVMsById.values();
+		Collection<Monitor> allVms = allVMsById
+			.values()
+			.stream()
+			.filter(vm -> !vm.isMissing())
+			.filter(strategyConfig.getHostMonitoring()::isConnectorStatusOk)
+			.collect(Collectors.toList());
 
 		// Getting all the power shares by power source ID (only for online VMs)
 		Map<String, Double> totalPowerSharesByPowerSource = allVms
@@ -1326,6 +1360,7 @@ public class CollectOperation extends AbstractStrategy {
 		diskControllers.values()
 			.stream()
 			.filter(dc -> !dc.isMissing())
+			.filter(hostMonitoring::isConnectorStatusOk)
 			.forEach(dc -> CollectHelper.collectEnergyUsageFromPower(
 				dc,
 				collectTime,
@@ -1354,6 +1389,7 @@ public class CollectOperation extends AbstractStrategy {
 		memories.values()
 			.stream()
 			.filter(memory -> !memory.isMissing())
+			.filter(hostMonitoring::isConnectorStatusOk)
 			.forEach(memory -> CollectHelper.collectEnergyUsageFromPower(
 				memory,
 				collectTime,
@@ -1383,6 +1419,7 @@ public class CollectOperation extends AbstractStrategy {
 			.values()
 			.stream()
 			.filter(disk -> !disk.isMissing())
+			.filter(hostMonitoring::isConnectorStatusOk)
 			.forEach(monitor -> {
 
 				// Physical disk characteristics
