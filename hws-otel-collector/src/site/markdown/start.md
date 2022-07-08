@@ -18,6 +18,6 @@ Then, [define sites and sustainability](./configuration/configure-agent.html#Sit
 ## Step 3: Configure the integration with the third-party platform
 
 * [BMC Helix](./integration/helix.html)
-* Datadog
+* [Datadog](./integration/datadog.html)
 * [Grafana](./integration/grafana.html)
 * [Prometheus](./integration/prometheus.html)

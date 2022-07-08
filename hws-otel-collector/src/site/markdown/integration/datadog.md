@@ -5,7 +5,7 @@ description: How to push to Datadog the hardware metrics collected by ${project.
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
-**${project.name}** integrates seamlessly with your Datadog platform. The **Hardware Sentry** app, available through the [Datadog marketplace](https://app.datadoghq.com/marketplace), includes a collection of dashboards and monitors designed to collect and expose observability and sustainability data for your IT infrastructure in a turn-key solution.
+**${project.name}** integrates seamlessly with your Datadog environment. The **Hardware Sentry** app, available through the [Datadog marketplace](https://app.datadoghq.com/marketplace), includes a collection of dashboards and monitors designed to collect and expose observability and sustainability data for your IT infrastructure in a turn-key solution.
 
 ![${project.name} integration with Datadog](../images/hws-datadog-integration-architecture-diagram.png)
 
@@ -72,15 +72,15 @@ You also need to update the `extraMetrics` section as shown in the example below
 
 ```yaml 
 extraMetrics:
-  hw_carbon_density_grams: `350` # in g/kWh
-  hw_electricity_cost_dollars: `0.12` # in $/kWh
-  hw_pue_ratio: `1.8`
+  hw.site.carbon_density_grams: 350 # in g/kWh
+  hw.site.electricity_cost_dollars: 0.12 # in $/kWh
+  hw.site.pue_ratio: 1.8
 ```
 
 where:
-* `hw_carbon_density_grams` is the **carbon density in grams per kiloWatthour**. This information is required to calculate the carbon emissions of your IT infrastructure. The carbon density corresponds to the amount of CO₂ emissions produced per kWh of electricity and varies depending on the country and the region where the data center is located. See the [electricityMap Web site](https://app.electricitymap.org/map) for reference. 
-* `hw_electricity_cost_dollars` is the **electricity price in dollars per kiloWattHour**. This information is required to calculate the energy cost of your IT infrastructure. Refer to your energy contract to know the tariff by kilowatt per hour charged by your supplier or refer to the [GlobalPetrolPrices Web site](https://www.globalpetrolprices.com/electricity_prices/#:~:text=The%20world%20average%20price%20is,1%2C000%2C000%20kWh%20consumption%20per%20year).
-* `hw_pue_ratio` is the **Power Usage Effectiveness (PUE)** of your site. By default, sites are set with a PUE of 1.8, which is the average value for typical data centers.
+* `hw.site.carbon_density_grams` is the **carbon density in grams per kiloWatthour**. This information is required to calculate the carbon emissions of your IT infrastructure. The carbon density corresponds to the amount of CO₂ emissions produced per kWh of electricity and varies depending on the country and the region where the data center is located. See the [electricityMap Web site](https://app.electricitymap.org/map) for reference. 
+* `hw.site.electricity_cost_dollars` is the **electricity price in dollars per kiloWattHour**. This information is required to calculate the energy cost of your IT infrastructure. Refer to your energy contract to know the tariff by kilowatt per hour charged by your supplier or refer to the [GlobalPetrolPrices Web site](https://www.globalpetrolprices.com/electricity_prices/#:~:text=The%20world%20average%20price%20is,1%2C000%2C000%20kWh%20consumption%20per%20year).
+* `hw.site.pue_ratio` is the **Power Usage Effectiveness (PUE)** of your site. By default, sites are set with a PUE of 1.8, which is the average value for typical data centers.
 
 ### Configuring the hosts to monitored
 
@@ -126,13 +126,13 @@ Click the **Alert** or **Warn** widget to access the **Triggered Monitors** page
 
 ### Estimating the energy usage and carbon footprint of your infrastructure
 
-After collecting metrics for a few hours, **{project.name}** can estimate the power consumption, energy costs, and carbon emissions of the IT infrastructure on a daily, monthly, and yearly basis. This information is available in the **Hardware Sentry - Main** and **Hardware Sentry - Site** dashboards:
+After collecting metrics for a few hours, **${project.name}** can estimate the power consumption, energy costs, and carbon emissions of the IT infrastructure on a daily, monthly, and yearly basis. This information is available in the **Hardware Sentry - Main** and **Hardware Sentry - Site** dashboards:
 
 ![Datadog Dashboards -Estimated consumption and emissions](../images/datadog-main-estimated-consumption-and-emissions.png)
 
 The **Margin of Error** indicates the percentage of error in the estimate. The lower its value, the more reliable it is.
 
-**${project.name]$** also reports the power consumption, energy costs, the CO₂ emissions of each monitored host in the corresponding **Hardware Sentry - Host** dashboard:
+**${project.name}** also reports the power consumption, energy costs, the CO₂ emissions of each monitored host in the corresponding **Hardware Sentry - Host** dashboard:
 
 ![Datadog Dashboards - Reporting the host's power consumption and carbon footprint](../images/datadog-host-power-consumption-and-emissions.png)
 
@@ -144,14 +144,14 @@ The **Power, Cost and CO₂ Emissions** widget available in the **Hardware Sentr
 
 * is the most energy-intensive (**Yearly Energy Usage (Wh)**)
 * has the highest energy costs (**Yearly Cost ($)**)
-* is the most harmful for the environment (**Yearly CO₂ Emissions (tons**).
+* is the most harmful for the environment (**Yearly CO₂ Emissions (tons**)).
 
 ![Datadog Dashboards - Power, Cost and CO₂ Emissions by Site](../images/datadog-main-power-costs-emissions.png)
 
 To find the first responses to your questions, refer to the **Sites** widget of the **Hardware Sentry - Main** dashboard as it provides:
 
 * the **number of hosts** composing the site. A bigger site would logically consume more energy than a smaller one
-* the **ambient temperature** and **heating margin** of each site. You can consider increasing the temperature of a site by a few degrees if its ambient temperature is particularly low compared to the ASHRAE recommendations and if you have an acceptable heating margin.
+* the **ambient temperature** and **heating margin** of each site. You can consider increasing the temperature of a site by a few degrees if its ambient temperature is particularly low compared to the [ASHRAE recommendations](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjZ_Ke56Oj4AhXawoUKHY2fBogQFnoECCEQAQ&url=https%3A%2F%2Ftpc.ashrae.org%2FFileDownload%3Fidx%3Dc81e88e4-998d-426d-ad24-bdedfb746178&usg=AOvVaw0CU3GVE4AuY5IJ0Q2u7Iin) and if you have an acceptable heating margin.
 
 ![Datadog Dashboards - Sites monitored](../images/datadog-main-sites.png)
 
