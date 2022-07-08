@@ -5,29 +5,32 @@ description: A simple YAML file configures where ${project.name} must send the d
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
-As a regular [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/), several properties of **${project.name}** are [configurable](https://opentelemetry.io/docs/collector/configuration/):
+**${project.name}** comes with a default configuration file (`config/otel-config-example.yaml`) which is intended to work for most situations and only requires minor changes for **${project.name}** to operate properly (refer to the *Integration* pages for more information).
 
-* [the components added to the collector (`extensions`)](https://opentelemetry.io/docs/collector/configuration/#extensions)
-* [the source(s) of the data (`receivers`)](https://opentelemetry.io/docs/collector/configuration/#receivers)
-* [the processing of the collected data (`processors`)](https://opentelemetry.io/docs/collector/configuration/#processors)
-* [the destination of the processed data (`exporters`)](https://opentelemetry.io/docs/collector/configuration/#exporters)
-* [the pipeline](https://opentelemetry.io/docs/collector/configuration/#service)
+  > This page is therefore intended for **advanced users** who have a **deep knowledge of OpenTelemetry** and wish to learn more about the properties available in `config/otel-config.yaml`.
+
+As a regular *OpenTelemetry Collector*, **${project.name}** consists of:
+
+* receivers
+* processors
+* exporters
+* and several extensions.
 
 ![Internal architecture of the ${project.name}](../images/hws-internal-architecture.png)
 
 This version of **${project.name}** leverages **version ${otelVersion}** of OpenTelemetry.
 
-By default, **${project.name}**'s configuration file is **config/otel-config.yaml**. You can start the *OpenTelemetry Collector* with the path to an alternate file (see [Installation](../install.md)).
-
 ## Receivers
 
 ### OTLP gRPC
 
-The primary data source is [`OTLP Receiver`](https://github.com/open-telemetry/opentelemetry-collector/tree/main/receiver/otlpreceiver), which is configured to receive the metrics collected by the  **Hardware Sentry Agent** via [gRPC](https://grpc.io/) on port **TCP/4317**.
+> **Warning**: Only update this section if you customized the [Hardware Sentry Agent extension settings](#Hardware_Sentry_Agent).
 
-To make network communications encrypted, by default, the `OTLP Receiver` is configured with the self-signed certificate `security/otel.crt` and the private key `security/otel.key` to enable the TLS protocol
+The **Hardware Sentry Agent** pushes the collected data to the [`OTLP Receiver`](https://github.com/open-telemetry/opentelemetry-collector/tree/main/receiver/otlpreceiver) via [gRPC](https://grpc.io/) on port **TCP/4317**.
 
-Clients requests are authenticated through the [Basic Authenticator](#Basic_Authenticator) type `basicauth`.
+The `OTLP Receiver` is configured by default with the self-signed certificate `security/otel.crt` and the private key `security/otel.key` to enable the TLS protocol. If you wish to set your own certificate file, configure the **Hardware Sentry Agent** with the correct [Trusted Certificates File](configure-agent.html#Trusted_certificates_file). Because the `OTLP Exporter` of the **Hardware Sentry Agent** performs hostname verification, you will also have to add the `localhost` entry (`DNS:localhost,IP:127.0.0.1`) to the `Subject Alternative Name (SAN)` extension of the new generated certificate.
+
+Clients requests are authenticated with the [Basic Authenticator extension](#Basic_Authenticator).
 
 ```yaml
   otlp:
@@ -40,12 +43,6 @@ Clients requests are authenticated through the [Basic Authenticator](#Basic_Auth
         auth:
           authenticator: basicauth
 ```
-
-If you want to set your own certificate file, please make sure to configure the **Hardware Sentry Agent** to set the correct [Trusted Certificates File](configure-agent.md#Trusted_Certificates_File).
-
-Since the communication operates on the same host, you need to add the `localhost` entry (`DNS:localhost,IP:127.0.0.1`) to the `Subject Alternative Name (SAN)` extension of your new generated certificate because the **Hardware Sentry Agent**'s `OTLP Exporter` performs the hostname verification by default.
-
-> **Warning**: Do not edit this section unless you want the **Hardware Sentry Agent** to use a different configuration. See [Hardware Sentry Agent](#Hardware_Sentry_Agent).
 
 ### OpenTelemetry Collector Internal Exporter for Prometheus
 
@@ -75,21 +72,16 @@ service:
 
 By default, the collected metrics go through 5 processors:
 
+* [`metricstransform`](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/metricstransformprocessor) to enrich the collected metrics, typically with labels required by the observability platforms. The `metricstransform` processor has [many options to add, rename, delete labels and metrics](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/metricstransformprocessor). Note that **Hardware Sentry Agent** can also be configured to [enrich the collected metrics with extra labels](configure-agent.html#Extra_labels).
 * [`memory_limiter`](https://github.com/open-telemetry/opentelemetry-collector/tree/main/processor/memorylimiterprocessor) to limit the memory consumed by the *OpenTelemetry Collector* process (configurable)
-* [`filter`](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/filterprocessor) to filter the metrics
-* [`batch`](https://github.com/open-telemetry/opentelemetry-collector/tree/main/processor/batchprocessor) to process data in batches of 10 seconds (configurable)
-* [`resourcedetection`](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/resourcedetectionprocessor) to associate local metrics with the actual host name of the system the collector is running on (instead of simply `localhost`)
-* [`metricstransform`](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/metricstransformprocessor) to enrich the collected metrics.
-
-This `metricstransform` processor is particularly useful when the receiving platform requires specific metrics labels that are not set by default by the **Hardware Sentry Agent**. The `metricstransform` processor has [many options to add, rename, delete labels and metrics](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/metricstransformprocessor).
-
-Note that **Hardware Sentry Agent** can also be configured to [provide additional labels to the collected metrics](configure-agent.md).
+* [`resourcedetection`](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/resourcedetectionprocessor) to find out the actual host name of the system monitored
+* [`filter`](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/filterprocessor) to include or exclude metrics
+* [`batch`](https://github.com/open-telemetry/opentelemetry-collector/tree/main/processor/batchprocessor) to process data in batches of 10 seconds (configurable).
 
 ## Exporters
 
 The `exporters` section defines the destination of the collected metrics. **${project.name}** version **${project.version}** includes support for the below exporters:
 
-* [OLTP/HTTP Exporter](https://github.com/open-telemetry/opentelemetry-collector/blob/main/exporter/otlphttpexporter/README.md)
 * [OLTP/gRPC Exporter](https://github.com/open-telemetry/opentelemetry-collector/blob/main/exporter/otlpexporter/README.md)
 * [Prometheus Remote Write Exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/prometheusremotewriteexporter)
 * [Prometheus Exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/prometheusexporter)
@@ -97,16 +89,33 @@ The `exporters` section defines the destination of the collected metrics. **${pr
 * [Logging Exporter](https://github.com/open-telemetry/opentelemetry-collector/tree/main/exporter/loggingexporter)
 * [Splunk SignalFx Exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/signalfxexporter)
 
-You can configure several exporters in the same instance of the *OpenTelemetry Collector* so the collected metrics are sent to multiple platforms.
+You can configure several exporters in the same instance of the *OpenTelemetry Collector* to sent the collected metrics to multiple platforms.
 
 Use the above links to learn how to configure these exporters. Specific integration scenarios are also described for:
 
-* [Prometheus Server](../integration/prometheus.md)
+* [Datadog](../integration/datadog.md)
+* [Prometheus Server](../integration/prometheus/prometheus.md)
 * [BMC Helix](../integration/helix.md)
 
 ## Extensions
 
-### Hardware Sentry Agent
+### HealthCheck
+
+The [healthcheck](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/healthcheckextension) extension checks the status of **${project.name}** . It is activated by default and runs on port 13133 ([`http://localhost:13133`](http://localhost:13133)).
+
+Refer to [Health Check Endpoint](../troubleshooting/status.html#Health_Check_endpoint) for more details.
+
+### zpages
+
+The **zpages** extension provides debug information about all the different components. It notably provides:
+
+* general information about **${project.name}**
+* details about the active pipeline
+* activity details of each receiver and exporter configured in the pipeline.
+
+Refer to [zPages](../troubleshooting/status.#zPages) for more details.
+
+### Hardware Sentry Agent (`hws_agent`)
 
 The **Hardware Sentry Agent** is the internal component which scrapes hosts, collects metrics and pushes OTLP data to the OTLP receiver of the *OpenTelemetry Collector*. The `hws_agent` extension starts the **Hardware Sentry Agent** as a child process of the *OpenTelemetry Collector*, checks that this child process is up and running and restarts it if needed.
 
@@ -120,15 +129,15 @@ Configure the `hws_agent` extension as follows:
 ```
 where:
 - `grpc` is the endpoint to which the **Hardware Sentry Agent** will push OpenTelemetry data. By default, the **Hardware Sentry Agent** pushes metrics to the local *OTLP receiver* using [gRPC](https://grpc.io/) on port **TCP/4317** (By default: `https://localhost:4317`).
-- `extra_args` specifies a list of additional arguments to be used by the **Hardware Sentry Agent**. By default, the **Hardware Sentry Agent**'s configuration file is **./config/hws-config.yaml** but you can provide an alternate configuration file by adding a new extra argument. Example: `--config=C:\Program Files\hws-otel-collector\config\hws-config-2.yaml`.
+- `extra_args` specifies a list of additional arguments to be used by the **Hardware Sentry Agent**. By default, the **Hardware Sentry Agent**'s configuration file is `./config/hws-config.yaml but you can provide an alternate configuration file by adding a new extra argument. Example: `--config=C:\Program Files\hws-otel-collector\config\hws-config-2.yaml`.
 - `restart_delay` specifies the period of time after which the **Hardware Sentry Agent** is restarted when a problem has been detected. If not set, the **Hardware Sentry Agent** will be restarted after 10 seconds.
 - `retries` specifies the number of restarts to be triggered until the **Hardware Sentry Agent** is up and running again. If not set, the extension will try restarting the **Hardware Sentry Agent** until it is up and running.
 
-To know how to configure the **Hardware Sentry Agent**, see [Monitoring Configuration](configure-agent.md)
+To know how to configure the **Hardware Sentry Agent**, see [Monitoring Configuration](configure-agent.md).
 
 ### Basic Authenticator
 
-The [`Basic Authentication Extension`](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/basicauthextension) authenticates the `OTLP Exporter` requests by comparing the *Authorization* header sent by the `OTLP Exporter` and the credentials provided in the `security/.htpasswd` file.
+The [`Basic Authenticator`](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/basicauthextension) extension authenticates the `OTLP Exporter` requests by comparing the *Authorization* header sent by the `OTLP Exporter` and the credentials provided in the `security/.htpasswd` file.
 Refer to the [Apache htpasswd](https://httpd.apache.org/docs/2.4/programs/htpasswd.html) documentation to know how to manage user files for basic authentication.
 
 ```yaml
