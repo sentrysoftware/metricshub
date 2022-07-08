@@ -393,6 +393,18 @@
 		AND fixVersion > 25
 		AND fixVersion <= ${formattedHcVersion.majorVersion}
 	)
+	OR
+	(
+		project = HWGRAF
+		AND fixVersion >= 2.0
+		AND fixVersion <= ${formattedHwGrafVersion.majorVersion}.${formattedHwGrafVersion.minorVersion}
+	)
+	OR
+	(
+		project = DDOG
+		AND fixVersion > 1.0.00
+		AND fixVersion <= ${formattedDDogVersion.majorVersion}.${formattedDDogVersion.minorVersion}.${formattedDDogVersion.incrementalVersion}
+	)
 )
 AND issuetype in standardIssueTypes()
 ORDER BY priority DESC, created ASC
