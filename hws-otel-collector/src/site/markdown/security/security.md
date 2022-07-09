@@ -6,20 +6,19 @@ description: Security mechanisms to encrypt passwords and secure the configurati
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
 **${project.name}** provides a set of security mechanisms to secure:
-- The **Hardware Sentry Agent**'s passwords stored in the YAML configuration file
-- The communications instantiated between the **Hardware Sentry Agent** and the **OpenTelemetry Collector**.
+
+* The **Hardware Sentry Agent**'s passwords stored in the `config/hws-config.yaml` file
+* The communications instantiated between the **Hardware Sentry Agent** and the **OpenTelemetry Collector**.
 
 ## Encryption
 
-**${project.name}** includes the `hws` CLI which can be used to encrypt the passwords configured in the `config/hws-config.yaml` file using the `hws-encrypt`  command to prevent sensitive data from being exposed. See [Passwords Encryption](passwords.md#Passwords_Encryption) for more details.
+Use the `hws-encrypt`  command to encrypt the passwords specified in the `config/hws-config.yaml` file. See [Passwords Encryption](passwords.md#Passwords_Encryption) for more details.
 
 ## OpenTelemetry Collector Security
 
-### Receiver Security
+### Receiver security
 
-By default, the internal `OTLP gRPC Receiver` of **${project.name}** only opens the `gRPC` listener on `localhost` to prevent malicious attacks.
-
-The endpoint for the `OTLP gRPC Receiver` is configured as follows in the `config/otel-config.yaml` file:
+To prevent malicious attacks, the `gRPC` listener is by default only opened on `localhost`:
 
 ```yaml
   otlp:
@@ -28,7 +27,7 @@ The endpoint for the `OTLP gRPC Receiver` is configured as follows in the `confi
         endpoint: localhost:4317
 ```
 
-### Transport Security
+### Transport security
 
 **${project.name}** secures the communications instantiated from the **Hardware Sentry Agent**'s internal `OTLP Exporter` to the **OpenTelemetry Collector**'s internal `OTLP gRPC Receiver` through TLS.
 
@@ -42,16 +41,13 @@ The `OTLP gRPC Receiver` is configured as follows in the `config/otel-config.yam
         tls:
           cert_file: security/otel.crt
           key_file: security/otel.key
-
 ```
 
 To customize the default TLS settings, see [Customizing TLS Certificates](settings.md#Customizing_TLS_Certificates).
 
-### Requests Authentication
+### Requests authentication
 
-Once TLS is established, the `OTLP gRPC Receiver` authenticates any incoming request by using the `basicauth` authenticator.
-
-The `OTLP gRPC Receiver` is configured as follows in the `config/otel-config.yaml` file:
+Once TLS is established, the `OTLP gRPC Receiver` uses the `basicauth` authenticator to authenticate any incoming request:
 
 ```yaml
   otlp:
