@@ -103,7 +103,7 @@ Use the above links to learn how to configure these exporters. Specific integrat
 
 The [healthcheck](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/healthcheckextension) extension checks the status of **${project.name}** . It is activated by default and runs on port 13133 ([`http://localhost:13133`](http://localhost:13133)).
 
-Refer to [Health Check Endpoint](../troubleshooting/status.html#Health_Check_endpoint) for more details.
+Refer to [Check the collector is up and running](../troubleshooting/status.html#Check_collector_is_up_and_running) for more details.
 
 ### zpages
 
@@ -113,7 +113,7 @@ The **zpages** extension provides debug information about all the different comp
 * details about the active pipeline
 * activity details of each receiver and exporter configured in the pipeline.
 
-Refer to [zPages](../troubleshooting/status.#zPages) for more details.
+Refer to [Check the pipelines status](../troubleshooting/status.html#Check_the_pipelines_status) for more details.
 
 ### Hardware Sentry Agent (`hws_agent`)
 
