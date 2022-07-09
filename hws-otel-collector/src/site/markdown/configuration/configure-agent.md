@@ -1,21 +1,54 @@
 keywords: configuration, protocols, snmp, wbem, wmi, ipmi, ssh, http, os command, winrm
 description: How to configure Hardware Sentry Agent to scrape hosts with various protocols.
 
-# Monitoring Configuration
+# Configure the Hardware Sentry Agent
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
-## Observability settings
+The **Hardware Sentry Agent** collects the hardware health of the monitored systems and pushes the collected data to the OTLP receiver. **${project.name}** then processes the hardware observability and sustainability metrics and exposes them by site in the backend platform of your choice (Datadog, BMC Helix, Prometheus, Grafana, etc.).
 
-To collect metrics from your hosts, you need to provide the following information to **${project.name}**:
+To ensure this process runs smoothly, you need to configure a few settings in the `config/hws-config.yaml` file to allow **${project.name}** to:
+
+* group the monitored systems into sites
+* calculate the electricity costs and the carbon footprint of your sites
+* monitor the systems that compose your sites.
+
+Note that all changes made to the  `config/hws-config.yaml` file are taken into account immediately. There is therefore no need to restart the *OpenTelemetry Collector*.
+
+## Configure a site
+
+A site represents the data center or the server room in which all the systems to be monitored are located. Configure your site in the `extraLabels` section of the `config/hws-config.yaml` file as shown in the example below:
+
+```yaml
+extraLabels:
+  site: boston 
+```
+
+## Configure the sustainability settings
+
+To obtain the electricity costs and carbon footprint of your site, configure the `extraMetrics` section of the `config/hws-config.yaml` file as follows:
+
+```yaml 
+extraMetrics:
+  hw.site.carbon_density_grams: 350 # in g/kWh
+  hw.site.electricity_cost_dollars: 0.12 # in $/kWh
+  hw.site.pue_ratio: 1.8
+```
+
+where:
+* `hw.site.carbon_density_grams` is the **carbon density in grams per kiloWatthour**. This information is required to calculate the carbon emissions of your site. The carbon density corresponds to the amount of CO₂ emissions produced per kWh of electricity and varies depending on the country and the region where the data center is located. See the [electricityMap Web site](https://app.electricitymap.org/map) for reference. 
+* `hw.site.electricity_cost_dollars` is the **electricity price in dollars per kiloWattHour**. This information is required to calculate the energy cost of your site. Refer to your energy contract to know the tariff by kilowatt per hour charged by your supplier or refer to the [GlobalPetrolPrices Web site](https://www.globalpetrolprices.com/electricity_prices/#:~:text=The%20world%20average%20price%20is,1%2C000%2C000%20kWh%20consumption%20per%20year).
+* `hw.site.pue_ratio` is the **Power Usage Effectiveness (PUE)** of your site. By default, sites are set with a PUE of 1.8, which is the average value for typical data centers.
+
+## Configure the monitored hosts
+
+To collect metrics from your hosts, you must provide the following information in the `config/hws-config.yaml` file:
 
 * the hostname of the host to be monitored
 * its type
 * the protocol to be used.
 
-This information must be provided in the **config/hws-config.yaml** file (an alternate path can be specified in [otel-config.yaml](configure-otel.md)).
-
-The [YAML syntax](https://yaml.org/) of the configuration file must be strictly respected for **${project.name}** to operate correctly (notably the indentation). As changes in this file are taken into account immediately, there is no need to restart the *OpenTelemetry Collector*.
+> **Important**: Because a typo or incorrect indentation in the `hws-config.yaml` file could cause your hardware monitoring to fail, it is highly recommended to install the [vscode-yaml](https://github.com/redhat-developer/vscode-yaml) extension in your editor to benefit from tooltips and autocompletion suggested by the **Hardware Sentry Configuration** JSON Format.
 
 ### Monitored hosts
 
@@ -45,8 +78,17 @@ where:
     * `solaris` for [Oracle Solaris systems](../platform-requirements.html#!#oracle-solaris)
     * `tru64` for [HP Tru64 systems](../platform-requirements.html#!#hp-tru64)
     * `vms` for [HP Open VMS systems](../platform-requirements.html#!#hp-openvms)
+  
+* `<protocol-configuration>` is the protocol(s) **${project.name}** will use to communicate with the hosts: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](#protocol) for more details.
 
-* `<protocol-configuration>` is the protocol(s) **${project.name}** will use to communicate with the hosts: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Specifying the protocol to be used](#protocol) for more details.
+Depending on the protocol used, you may have to set a timeout, using the format below:
+
+| Unit | Description                     | Examples         |
+| ---- | ------------------------------- | ---------------- |
+| s    | seconds                         | 120s             |
+| m    | minutes                         | 90m, 1m15s       |
+| h    | hours                           | 1h, 1h30m        |
+| d    | days (based on a 24-hour day)   | 1d               |
 
 <a name="protocol"></a>
 
@@ -298,122 +340,11 @@ hosts:
       authentications: [NTLM]
 ```
 
-## Sustainability settings
+## Additional settings (Optional)
 
-You can specify additional labels to be added to each collected metric, with the `extraLabels` property:
+### Alert Settings
 
-```yaml
-extraLabels:
-  site: Datacenter 1 # Customize with your own site naming (dedicating 1 collector to 1 site is a good practice)
-  label_name: "Label Value"
-```
-
-This is an easy way to add a label to all metrics collected by this instance of the **${project.name}**. We recommend that you run at least one separate instance of the *OpenTelemetry Collector* for each site, and specify a different `site` label value for each of them. This will be particularly useful to group monitored systems per their physical location.
-
-Similarly, you can specify additional static metrics to be exposed with the `extraMetrics` property:
-
-```yaml
-extraMetrics:
-  hw.site.carbon_density_grams: 350 # in g/kWh -- 350g/kWh is the average in Europe
-  hw.site.electricity_cost_dollars: 0.12 # in $/kWh -- $0.12/kWh is the average for non-household in Europe
-  hw.site.pue_ratio: 1.8
-```
-
-The above example configures the *OpenTelemetry Collector* to expose the carbon density and price per kWh of the electricity in the monitored site. These metrics can be leveraged in [Grafana dashboards](../integration/grafana.md) to calculate the carbon footprint, with different carbon densities for each monitored site, for example.
-
-## Other configuration settings
-
-### Basic authentication header
-
-The **${project.name}**'s internal `OTLP Exporter` authenticates itself with the [OTLP gRPC Receiver](configure-otel.md#OTLP_gRPC) by including the HTTP `Authorization` request header with the credentials. A predefined *Basic Authentication Header* value is stored internally and included in each request when sending telemetry data.
-
-To override the default value of the *Basic Authentication Header*, add a new `Authorization` header under the `exporter:otlp:headers` section:
-
-```yaml
-exporter:
-  otlp:
-    headers:
-      Authorization: Basic <credentials>
-
-hosts: # ...
-```
-
-You should provide a value as `Basic <credentials>` where `<credentials>` are built by first joining your username and password with a colon (`myUsername:myPassword`), and then by encoding the resulting value in `base64`.
-
-You can also proceed with an additional security level by encrypting the `Basic <credentials>` value. See [Encrypting Passwords](../security/passwords.md#Encrypting_Passwords).
-
-> **Warning**: If you update the *Basic Authentication Header*, you must generate a new `.htpasswd` file for the [OpenTelemetry Collector Basic Authenticator](configure-otel.md#Basic_Authenticator).
-
-### Collect period
-
-By default, **${project.name}** collects metrics from the monitored hosts every minute. To change the default collect period:
-
-* for all your hosts, add the `collectPeriod` parameter just before the `hosts` section:
-
-    ```yaml
-    collectPeriod: 2m
-
-    hosts: # ...
-    ```
-
-* for a specific host, add the `collectPeriod` parameter in the relevant `host` section:
-
-    ```yaml
-    hosts:
-
-    - host:
-        hostname: myhost
-        type: linux
-      snmp:
-        version: v1
-        community: public
-        port: 161
-        timeout: 120s
-      collectPeriod: 1m30s # Customized
-    ```
-
-There is a decorelation between the internal collect period and the scrape interval configured in [config/otel-config.yaml](configure-otel.md). **You need to make sure the internal collect period is shorter than the scrape interval** to avoid gaps or duplicate points, which would affect rate calculations.
-
-> **Warning**: Collecting metrics too frequently can cause CPU-intensive workloads.
-
-### Connectors
-
-The **${project.name}** comes with the [Hardware Connector Library](https://www.sentrysoftware.com/docs/hardware-connectors/latest/), a library that consists of hundreds of hardware connectors that describe how to discover hardware components and detect failures. When running **${project.name}**, the connectors are automatically selected based on the device type provided and the enabled protocols. You can however indicate to **${project.name}** which connectors should be used or excluded.
-
-Use the parameters below to select or exclude connectors:
-
-| Parameter          | Description                                                                          |
-| ------------------ | ------------------------------------------------------------------------------------ |
-| selectedConnectors | Connector(s) to use to monitor the host. No automatic detection will be performed.   |
-| excludedConnectors | Connector(s) that must be excluded from the automatic detection.                     |
-
-Connector names must be comma-separated, as shown in the example below:
-
-```yaml
-hosts:
-
-  - host:
-      hostname: myhost-01
-      type: WIN
-    wmi:
-      timeout: 120s
-      username: myusername
-      password: mypwd
-    selectedConnectors: [ VMwareESX4i, VMwareESXi ]
-    excludedConnectors: [ VMwareESXiDisksStorage ]
-```
-
-The exhaustive list of connectors is available in the [Hardware Connector Library User Documentation<](../platform-requirements.html#!). The list of connectors in the current installation of **${project.name}** can be obtained with the below command:
-
-```shell-session
-$ hws -l
-```
-
-[More information on the `hws` command](../troubleshooting/cli.md)
-
-Please make sure the connector names are properly spelled as **Hardware Sentry OpenTelemetry** will only use the valid connectors for monitoring. Any mispelled connector name will be ignored.
-
-### Disabling Alerts (Not Recommended)
+#### Disabling Alerts (Not Recommended)
 
 To disable **${project.name}**'s alerts:
 
@@ -441,60 +372,7 @@ To disable **${project.name}**'s alerts:
       disableAlerts: true
     ```
 
-### Discovery cycle
-
-**${project.name}** periodically performs discoveries to detect new components in your monitored environment. By default, **${project.name}** runs a discovery after 30 collects. To change this default discovery cycle:
-
-* for all your hosts, add the `discoveryCycle` just before the `hosts` section:
-
-    ```yaml
-    discoveryCycle: 15
-
-    hosts: # ...
-    ```
-
-* for a specific host, add the `discoveryCycle` parameter in the relevant `host` section:
-
-    ```yaml
-    hosts:
-
-    - host:
-        hostname: myhost
-        type: linux
-      snmp:
-        version: v1
-        community: public
-        port: 161
-        timeout: 120s
-      discoveryCycle: 5 # Customized
-    ```
-
-and indicate the number of collects after which a discovery will be performed.
-
-> **Warning**: Running discoveries too frequently can cause CPU-intensive workloads.
-
-### Extra labels
-
-All labels specified under `extraLabels` for a specific host will be added as additional attributes to the corresponding [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md). The attributes of a *Resource* typically end up added to each metric attached to that *Resource* when exported to time series platforms like Prometheus.
-
-A particular example is the use `extraLabels` to override the `host.name` attribute that is set by default by **${project.name}**. By default, the `host.name` attribute is set with the resolved FQDN to the monitored system, but you can override this value using `extraLabels` as in the example below:
-
-```yaml
-hosts:
-
-- host:
-    hostname: host01
-    type: Linux
-  snmp:
-    version: v1
-    port: 161
-    timeout: 120
-  extraLabels:
-    host.name: host01.internal.domain.net
-    app: Jenkins
-```
-
-### Hardware Problem template
+#### Hardware Problem template
 
 When detecting a hardware problem, **${project.name}** triggers an alert as OpenTelemetry log. The alert body is built from the following template:
 
@@ -532,7 +410,154 @@ and indicate the template to use when building alert messages.
 
 For more information about the alert mechanism and the macros to use, refer to the [Alerts](../alerts.md) page.
 
-### Hostname resolution
+### Authentication Settings
+
+#### Basic authentication header
+
+The **${project.name}**'s internal `OTLP Exporter` authenticates itself with the [OTLP gRPC Receiver](configure-otel.md#OTLP_gRPC) by including the HTTP `Authorization` request header with the credentials. A predefined *Basic Authentication Header* value is stored internally and included in each request when sending telemetry data.
+
+To override the default value of the *Basic Authentication Header*, add a new `Authorization` header under the `exporter:otlp:headers` section:
+
+```yaml
+exporter:
+  otlp:
+    headers:
+      Authorization: Basic <credentials>
+
+hosts: # ...
+```
+
+where `<credentials>` corresponds to the encoding in `base64` of the value `myUsername:myPassword`.
+
+For more security, encrypt the `Basic <credentials>` value. See [Encrypting Passwords](../security/passwords.md#Encrypting_Passwords) for more details.
+
+> **Warning**: If you update the *Basic Authentication Header*, you must generate a new `.htpasswd` file for the [OpenTelemetry Collector Basic Authenticator](configure-otel.md#Basic_Authenticator).
+
+### Monitoring Settings
+
+#### Collect period
+
+By default, **${project.name}** collects metrics from the monitored hosts every minute. To change the default collect period:
+
+* for all your hosts, add the `collectPeriod` parameter just before the `hosts` section:
+
+    ```yaml
+    collectPeriod: 2m
+
+    hosts: # ...
+    ```
+
+* for a specific host, add the `collectPeriod` parameter in the relevant `host` section:
+
+    ```yaml
+    hosts:
+
+    - host:
+        hostname: myhost
+        type: linux
+      snmp:
+        version: v1
+        community: public
+        port: 161
+        timeout: 120s
+      collectPeriod: 1m30s # Customized
+    ```
+
+> **Important**: To avoid data gaps or duplicates, make sure the *internal collect period* is shorter than the *scrape interval* configured in [config/otel-config.yaml](configure-otel.md).
+
+> **Warning**: Collecting metrics too frequently can cause CPU-intensive workloads.
+
+#### Connectors
+
+The **${project.name}** comes with the *Hardware Connector Library*, a library that consists of hundreds of hardware connectors that describe how to discover hardware components and detect failures. When running **${project.name}**, the connectors are automatically selected based on the device type provided and the enabled protocols. You can however indicate to **${project.name}** which connectors should be used or excluded.
+
+Use the parameters below to select or exclude connectors:
+
+| Parameter          | Description                                                                          |
+| ------------------ | ------------------------------------------------------------------------------------ |
+| selectedConnectors | Connector(s) to use to monitor the host. No automatic detection will be performed.   |
+| excludedConnectors | Connector(s) that must be excluded from the automatic detection.                     |
+
+Connector names must be comma-separated, as shown in the example below:
+
+```yaml
+hosts:
+
+  - host:
+      hostname: myhost-01
+      type: WIN
+    wmi:
+      timeout: 120s
+      username: myusername
+      password: mypwd
+    selectedConnectors: [ VMwareESX4i, VMwareESXi ]
+    excludedConnectors: [ VMwareESXiDisksStorage ]
+```
+
+> **Note**: Any mispelled connector will be ignored.
+
+To know which connectors are available, refer to [Monitored Systems](../platform-requirements.html#!) or run the below command:
+
+```shell-session
+$ hws -l
+```
+
+For more information about the `hws` command, refer to [Hardware Sentry CLI (hws)](../troubleshooting/cli.md)
+
+#### Discovery cycle
+
+**${project.name}** periodically performs discoveries to detect new components in your monitored environment. By default, **${project.name}** runs a discovery after 30 collects. To change this default discovery cycle:
+
+* for all your hosts, add the `discoveryCycle` just before the `hosts` section:
+
+    ```yaml
+    discoveryCycle: 15
+
+    hosts: # ...
+    ```
+
+* for a specific host, add the `discoveryCycle` parameter in the relevant `host` section:
+
+    ```yaml
+    hosts:
+
+    - host:
+        hostname: myhost
+        type: linux
+      snmp:
+        version: v1
+        community: public
+        port: 161
+        timeout: 120s
+      discoveryCycle: 5 # Customized
+    ```
+
+and indicate the number of collects after which a discovery will be performed.
+
+> **Warning**: Running discoveries too frequently can cause CPU-intensive workloads.
+
+#### Extra labels
+
+Add labels in the `extraLabels` section to override the data collected by the **Hardware Sentry Agent** or add additional attributes to the [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md). These attributes are added to each metric of that *Resource* when exported to time series platforms like Prometheus. 
+
+In the example below, we override the `host.name` attribute resolved by **${project.name}** with `host01.internal.domain.net` and indicate that it is the `Jenkins` app:
+
+```yaml
+hosts:
+
+- host:
+    hostname: host01
+    type: Linux
+  snmp:
+    version: v1
+    port: 161
+    timeout: 120
+  extraLabels:
+    host.name: host01.internal.domain.net
+    app: Jenkins
+```
+
+#### Hostname resolution
 
 By default, **${project.name}** resolves the `hostname` of the host to a Fully Qualified Domain Name (FQDN) and displays this value in the [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md) attribute `host.name`. To display the configured hostname instead, set `resolveHostnameToFqdn` to `false`:
 
@@ -546,7 +571,7 @@ hosts:
     type: Linux
 ```
 
-### Job pool size
+#### Job pool size
 
 By default, **${project.name}** runs up to 20 discovery and collect jobs in parallel. To increase or decrease the number of jobs **${project.name}** can run simultaneously,  add the `jobPoolSize` parameter just before the `hosts` section:
 
@@ -560,7 +585,7 @@ and indicate a number of jobs.
 
 > **Warning**: Running too many jobs in parallel can lead to an OutOfMemory error.
 
-### Sequential mode
+#### Sequential mode
 
 By default, **${project.name}** sends the queries to the host in parallel. Although the parallel mode is faster than the sequential one, too many requests at the same time can lead to the failure of the targeted system.
 
@@ -592,18 +617,9 @@ To force all the network calls to be executed in sequential order:
 
 > **Warning**: Sending requests in sequential mode slows down the monitoring significantly. Instead of using the sequential mode, you could increase the maximum number of allowed concurrent requests in the monitored system, if the manufacturer allows it.
 
-### Timeout, duration and period format
+### Security settings
 
-Timeouts, durations and periods are specified with the below format:
-
-| Unit | Description                     | Examples         |
-| ---- | ------------------------------- | ---------------- |
-| s    | seconds                         | 120s             |
-| m    | minutes                         | 90m, 1m15s       |
-| h    | hours                           | 1h, 1h30m        |
-| d    | days (based on a 24-hour day)   | 1d               |
-
-### Trusted certificates file
+#### Trusted certificates file
 
 A TLS handshake takes place when the **Hardware Sentry Agent**'s `OTLP Exporter` instantiates a communication with the `OTLP gRPC Receiver`. By default, the internal `OTLP Exporter` client is configured to trust the `OTLP gRPC Receiver`'s certificate `security/otel.crt`.
 
@@ -617,4 +633,4 @@ exporter:
 hosts: # ...
 ```
 
-The file should be stored in the `security` folder and should contain one or more X.509 certificates in PEM format.
+The file should be stored in the `security` folder and should contain one or more X.509 certificates in PEM format. 
