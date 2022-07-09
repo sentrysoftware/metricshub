@@ -233,7 +233,10 @@ The following macros can be used to obtain more details about the problem. They 
 
 ## Receiving Alerts
 
-To receive **${project.name}**'s alerts, your observability platlform (`Exporter`) must support the OpenTelemetry `logs` pipeline and needs to be declared in the `service:pipelines:logs:exporters` list in the `config/otel-config.yaml` file:
+To receive **${project.name}**'s alerts:
+
+* make sure your observability platlform (`Exporter`) supports the OpenTelemetry `logs`
+* add `logging` in the `service:pipelines:logs:exporters` section of the `config/otel-config.yaml` file:
 
 ```yaml
 

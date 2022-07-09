@@ -1,7 +1,7 @@
 keywords: otel, prometheus, collector, gRPC
 description: A simple YAML file configures where ${project.name} must send the data it collects.
 
-# Configure the OpenTelemetry Collector
+# OpenTelemetry Advanced Settings
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
@@ -94,7 +94,7 @@ You can configure several exporters in the same instance of the *OpenTelemetry C
 Use the above links to learn how to configure these exporters. Specific integration scenarios are also described for:
 
 * [Datadog](../integration/datadog.md)
-* [Prometheus Server](../integration/prometheus/prometheus.md)
+* [Prometheus Server](../prometheus/prometheus.md)
 * [BMC Helix](../integration/helix.md)
 
 ## Extensions
@@ -133,7 +133,7 @@ where:
 - `restart_delay` specifies the period of time after which the **Hardware Sentry Agent** is restarted when a problem has been detected. If not set, the **Hardware Sentry Agent** will be restarted after 10 seconds.
 - `retries` specifies the number of restarts to be triggered until the **Hardware Sentry Agent** is up and running again. If not set, the extension will try restarting the **Hardware Sentry Agent** until it is up and running.
 
-To know how to configure the **Hardware Sentry Agent**, see [Monitoring Configuration](configure-agent.md).
+Refer to [Configure the Hardware Sentry Agent](configure-agent.md) for more details.
 
 ### Basic Authenticator
 

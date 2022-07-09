@@ -7,7 +7,7 @@ description: Where to download the installation package of the ${project.name}.
 
 You can install **${project.name}** on the operating system of your choice as they are equally supported. However, if you wish to monitor your Windows systems through WMI, you would have to run **Hardware Sentry** on Windows. WMI is neither supported by Docker, Linux, nor MacOS.
 
-Refer to the [Hardware Connector Library](https://www.sentrysoftware.com/docs/hardware-connectors/latest/index.html) documentation to verify whether you need WMI to monitor your systems
+Refer to  [Monitored Systems](./platform-requirements.html) documentation to verify whether you need WMI to monitor your systems.
 
 ## Prerequisites
 
