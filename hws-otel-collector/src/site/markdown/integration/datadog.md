@@ -17,13 +17,14 @@ Before you can start viewing the metrics collected by **${project.name}** in Dat
 
 1. Susbcribed to **Hardware Sentry** from the [Datadog Marketplace](https://app.datadoghq.com/marketplace)
 2. Created an API key in Datadog as explained in the [Datadog User Documentation](https://docs.datadoghq.com/account_management/api-app-keys/#add-an-api-key-or-client-token)
-3. [Installed Hardware Sentry OpenTelemetry Collector](../install.html) on a system that has network access to the physical servers, switches and storage systems you need to monitor. It is recommended to dedicate one collector per site, or data center, or server room, etc.
+3. [Installed Hardware Sentry OpenTelemetry Collector](../install.html) on one or more systems that has network access to the physical servers, switches and storage systems you need to monitor. It is recommended to dedicate one collector per site, or data center, or server room, etc.
 
 ## Configuring the integration
 
 ### Pushing metrics to Datadog
 
-Edit the `exporters` section of the `config/otel-config.yaml` configuration file as follows:
+1. Browse to open the **${project.name}** configuration directory (`hws-otel-collector\config` by default) and open the `config/otel-config.yaml` configuration file.
+2. Find the `exporters` section and edit it as follows:
 
 ```yaml
 exporters:
@@ -31,7 +32,7 @@ exporters:
   # <https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/datadogexporter>
   datadog/api:
     api:
-      key: <apikey> #
+      key: <apikey>
       # site: datadoghq.eu # Uncomment for Europe only
     metrics:
       resource_attributes_as_tags: true # IMPORTANT
@@ -43,12 +44,8 @@ and declare the exporter in the `pipelines` section as follows:
 
 ```yaml
 service:
-  extensions: [health_check]
-  pipelines:
-    metrics:
-      receivers: [prometheus_exec/hws-exporter,prometheus/internal]
-      processors: [memory_limiter,batch,metricstransform]
-      exporters: [datadog/api] # Datadog must be listed here
+  metrics:
+    exporters: [datadog/api] # Datadog must be listed here
 ```
 
 Restart **${project.name}** to apply your changes.
@@ -66,7 +63,7 @@ extraLabels:
   site: boston 
 ```
 
-You must define at least one site, but add as many sites as needed. Note that it is recommended to dedicate one collector per site.
+You must define at least one site, but add as many sites as needed.
 
 You also need to update the `extraMetrics` section as shown in the example below to allow **${project.name}** to calculate the electricity costs and the carbon footprint of your site:
 
@@ -108,7 +105,7 @@ The **Coverage** widget available in the **Hardware Sentry - Main** dashboard in
 
 ![Datadog Dashboards - Monitoring Coverage](../images/datadog-main-coverage.png)
 
-If the coverage is below 90%, verify that your hosts are properly configured in the **config/hws-config.yaml** file.
+If the coverage is below 100%, verify that your hosts are properly configured in the **config/hws-config.yaml** file.
 
 You can also check the **Hardware Sentry Agents Information** widget at the bottom of the **Hardware Sentry - Main** dashboard to ensure your **Hardware Sentry Agents** in charge of collecting data are up and running.
 
@@ -126,17 +123,17 @@ Click the **Alert** or **Warn** widget to access the **Triggered Monitors** page
 
 ### Estimating the energy usage and carbon footprint of your infrastructure
 
-After collecting metrics for a few hours, **${project.name}** can estimate the power consumption, energy costs, and carbon emissions of the IT infrastructure on a daily, monthly, and yearly basis. This information is available in the **Hardware Sentry - Main** and **Hardware Sentry - Site** dashboards:
+After collecting metrics for a few hours, **{project.name}** can estimate the power consumption, energy costs, and carbon emissions of your overall IT infrastructure, sites and even hosts on a daily, monthly, and yearly basis.
 
 ![Datadog Dashboards -Estimated consumption and emissions](../images/datadog-main-estimated-consumption-and-emissions.png)
 
-The **Margin of Error** indicates the percentage of error in the estimate. The lower its value, the more reliable it is.
+The **Margin of Error** indicates the percentage of error in the estimate. A lower value means a more accurate estimation.
 
 **${project.name}** also reports the power consumption, energy costs, the CO₂ emissions of each monitored host in the corresponding **Hardware Sentry - Host** dashboard:
 
 ![Datadog Dashboards - Reporting the host's power consumption and carbon footprint](../images/datadog-host-power-consumption-and-emissions.png)
 
-The **Power per Device Type** widget indicates how much power consumes the internal components of the monitored host.
+The **Power per Device Type** widget provides an estimation about the power consumed by the internal components of the monitored host.
 
 ### Comparing the efficiency and environmental impact of your sites
 
@@ -161,7 +158,7 @@ If you want to follow the temperature optimization lead, click the site to open 
 
 The **Site Temperature Optimization** widget exposes the heating margin at the site (*Heating Margin*) and hosts levels (*Heating Margin Host Distribution* ) as well as its evolution over time (*Site Heating Margin (°C)* widget). But this widget is particularly interesting to estimate the savings you could make if you increase the temperature of your site to the **Recommended Site Temperature** and how you could significantly reduce its carbon footprint.
 
-Note that the accuracy of the estimated values increases proportionally with the **Monitoring Confidence** percentage.
+Note that the accuracy of the estimated values increases proportionally with the **Monitoring Confidence** percentage. That percentage is based on the number of hosts reporting temperature readings. The more hosts report readings, the higher the monitoring confidence is.
 
 ### Detecting overheating risks for hosts
 
