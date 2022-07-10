@@ -8,7 +8,7 @@ description: How to import and configure Hardware Sentry's Observability and Sus
 The **Hardware Sentry Observability and Sustainability** dashboards for Grafana give you immediate visibility into your monitored environment. The organized panels expose health metrics for all monitored hardware systems and bring real-time metrics and projected trends on electricity consumption and costs, as well as CO₂ emissions for your entire infrastructure.
 Once you have configured the [dashboard provider](#Configuring_the_Dashboard_Provider) and the [data source](#Configuring_the_Data_Source), the dashboards are automatically available from the **Dashboard** menu on the **Home** page.
 
-![Hardware Sentry Observability and Sustainability Dashboard](../images/grafana-sustainable-it.png)
+![Hardware Sentry Observability and Sustainability Dashboard - Main View](../images/dashboard_main.png)
 
 > **Warning**: The current version of the **Hardware Sentry Observability and Sustainability** dashboards has been tested with Grafana v8.5.0 Note that previous versions of Grafana may not be fully compatible with the built-in dashboards.
 
@@ -201,9 +201,13 @@ Some hardware devices do not expose their overall temperature and are therefore 
 
 The **Site Temperature Optimization** panel exposes detailed information about the heating margin for a specific site, including the temperature collected by hosts. But this panel is particularly interesting to estimate the savings you could make if you increase the temperature of your facilities to the **Recommended Site Temperature** and how you can significantly reduce the carbon footprint of a site.
 
-Note that the accuracy of the estimated values increases proportionally with the **Monitoring Confidence** percentage.
+![Optimizing a Site Temperature](../images/dashboard_site_temp_optimization.png)
+
+Note that the accuracy of the estimated values increases proportionally with the **Monitoring Confidence** percentage. This percentage is based on the number of hosts reporting temperature readings. The higher number of readings, the higher the monitoring confidence level.
 
 ### Monitoring the agent collection status
 
 The **Hardware Sentry Agent Status** panel at the bottom of the **Main** dashboard, lists all the agents configured to collect data, by sites. This panel enables you to view the agents' hostnames, and verify that the agent and connector versions are up-to-date.
 The **Last Seen** column indicates the last time an agent was seen during the past 6 hours. An agent going undetected for more that 2 minutes may indicate a potential problem with the host, the connection or the agent configuration.
+
+![Verifying Hardware Sentry Agent Status](../images/dashboard_main-agent-status-collect.png)
