@@ -8,7 +8,7 @@ description: How to import and configure Hardware Sentry's Observability and Sus
 The **Hardware Sentry Observability and Sustainability** dashboards for Grafana give you immediate visibility into your monitored environment. The organized panels expose health metrics for all monitored hardware systems and bring real-time metrics and projected trends on electricity consumption and costs, as well as CO₂ emissions for your entire infrastructure.
 Once you have configured the [dashboard provider](#Configuring_the_Dashboard_Provider) and the [data source](#Configuring_the_Data_Source), the dashboards are automatically available from the **Dashboard** menu on the **Home** page.
 
-![Hardware Sentry Observability and Sustainability Dashboard - Main View](../images/dashboard_main.png)
+![Hardware Sentry - Main View](../images/dashboard_main.png)
 
 > **Warning**: The current version of the **Hardware Sentry Observability and Sustainability** dashboards has been tested with Grafana v8.5.0 Note that previous versions of Grafana may not be fully compatible with the built-in dashboards.
 
@@ -17,7 +17,7 @@ Once you have configured the [dashboard provider](#Configuring_the_Dashboard_Pro
 Before you can start configuring and using **Hardware Sentry Observability and Sustainability** dashboards, you must have:
 
 1. configured [Hardware Sentry Agent](../configuration/configure-agent.html)
-2. configured the [Prometheus server](../integration/(../prometheus/prometheus.html)
+2. configured the [Prometheus server](../integration/prometheus.html)
 3. run both **${project.name}** and the **Prometheus server**.
 
 ## Configuring the Dashboards
@@ -124,7 +124,7 @@ datasources:
   editable: true
 ```
 
-## Understanding the Dashboards
+## Using Hardware Sentry Dashboards
 
 Monitored systems are grouped into sites. You can easily customize this grouping to represent data centers, server rooms, or applications and services to view their consumption in kilowatts per hour, related cost in dollars, and carbon footprint in metric tons.
 
@@ -153,6 +153,7 @@ extraMetrics:
 ```
 
 The collected data is translated into histograms that expose electricity consumption and cost, and carbon emissions in kilowatts per hour, by site.
+
 
 ### Spotting the top consumer sites
 
