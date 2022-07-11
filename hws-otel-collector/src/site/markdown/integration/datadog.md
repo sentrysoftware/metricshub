@@ -23,7 +23,7 @@ Before you can start viewing the metrics collected by **${project.name}** in Dat
 
 ### Pushing metrics to Datadog
 
-1. Browse to open the **${project.name}** configuration directory (`hws-otel-collector\config` by default) and open the `config/otel-config.yaml` configuration file.
+1. Browse to open the **${project.name}** configuration directory (`hws-otel-collector/config` by default) and open the `config/otel-config.yaml` configuration file.
 2. Find the `exporters` section and edit it as follows:
 
 ```yaml
@@ -44,8 +44,9 @@ and declare the exporter in the `pipelines` section as follows:
 
 ```yaml
 service:
-  metrics:
-    exporters: [datadog/api] # Datadog must be listed here
+  pipelines:
+    metrics:
+      exporters: [datadog/api] # Datadog must be listed here
 ```
 
 Restart **${project.name}** to apply your changes.
@@ -183,4 +184,4 @@ The **Hardware Sentry - Host** dashboard exposes all the observability and susta
 
 Information about the monitoring itself (host information, connectors used, etc.) is provided in the **Monitoring Information** section.
 
-![Datadog Dashboard - Host monitoring information](../images/datadog-host-monitoring-information.png).
+![Datadog Dashboard - Host monitoring information](../images/datadog-host-monitoring-information.png)
