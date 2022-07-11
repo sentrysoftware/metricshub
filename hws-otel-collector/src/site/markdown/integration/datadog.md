@@ -33,7 +33,7 @@ exporters:
   datadog/api:
     api:
       key: <apikey>
-      # site: datadoghq.eu # Uncomment for Europe only
+      # site: datadoghq.eu # Specify the Datadog site you are on (datadoghq.com for the US (default), datadoghq.eu for Europe, ddog-gov.com for Governement sites). Refer to https://docs.datadoghq.com/getting_started/site/ for more details. 
     metrics:
       resource_attributes_as_tags: true # IMPORTANT
 ```
