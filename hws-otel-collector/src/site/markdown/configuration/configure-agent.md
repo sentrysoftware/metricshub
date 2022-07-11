@@ -302,7 +302,7 @@ You can specify additional labels to be added to each collected metric, with the
 
 ```yaml
 extraLabels:
-  site: Datacenter 1 # Customize with your own site naming (dedicating 1 collector to 1 site is a good practice)
+  site: data center 1 # Customize with your own site naming (dedicating 1 collector to 1 site is a good practice)
   label_name: "Label Value"
 ```
 

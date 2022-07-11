@@ -54,7 +54,7 @@ class OtelMetadataToMetricObserverTest {
 
 		final MultiHostsConfigurationDto multiHostsConfigurationDto= MultiHostsConfigurationDto
 				.builder()
-				.extraLabels(Map.of("site", "Datacenter 1"))
+				.extraLabels(Map.of("site", "data center 1"))
 				.build();
 
 		final Monitor physicalDisk = Monitor
@@ -102,7 +102,7 @@ class OtelMetadataToMetricObserverTest {
 		assertEquals("disk 1", actual.get(AttributeKey.stringKey("name")));
 		assertNull(actual.get(AttributeKey.stringKey("fqdn")));
 		assertEquals("host", actual.get(AttributeKey.stringKey("parent")));
-		assertEquals("Datacenter 1", actual.get(AttributeKey.stringKey("site")));
+		assertEquals("data center 1", actual.get(AttributeKey.stringKey("site")));
 		assertTrue(actual.get(AttributeKey.stringKey("device_id")).isEmpty());
 		assertTrue(actual.get(AttributeKey.stringKey("info")).isEmpty());
 		assertTrue(actual.get(AttributeKey.stringKey("vendor")).isEmpty());

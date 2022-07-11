@@ -3,7 +3,7 @@
 collectPeriod: 1m
 
 extraLabels:
-  site: Datacenter 1 # Customize this value with your own site naming convention. (Dedicating 1 collector to 1 site is a good practice.)
+  site: data center 1 # Customize this value with your own site naming convention. (Dedicating 1 collector to 1 site is a good practice.)
 
 extraMetrics:
   hw.site.carbon_density_grams: 230 # in g/kWh
