@@ -68,16 +68,17 @@ where:
 * `<hostname>` is the name of the host, or its IP address
 * `<host-type>` is the type of the host to be monitored. Possible values are:
 
-    * `win` for [Microsoft Windows systems](../platform-requirements.html#!#microsoft-windows)
-    * `linux` for [Linux systems](../platform-requirements.html#!#linux)
-    * `network` for [network devices](../platform-requirements.html#!#network-device)
-    * `oob` for [Out-of-band management cards](../platform-requirements.html#!#out-of-band), [VMware ESX systems](../platform-requirements.html#!#vmware-esx), and [blade chassis](../platform-requirements.html#!#blade-chassis")
-    * `storage` for [storage systems](../platform-requirements.html#!#storage-system)
-    * `aix` for [IBM AIX systems](../platform-requirements.html#!#ibm-aix)
-    * `hpux` for [HP UX systems](../platform-requirements.html#!#hp-ux)
-    * `solaris` for [Oracle Solaris systems](../platform-requirements.html#!#oracle-solaris)
-    * `tru64` for [HP Tru64 systems](../platform-requirements.html#!#hp-tru64)
-    * `vms` for [HP Open VMS systems](../platform-requirements.html#!#hp-openvms)
+    * `win` for Microsoft Windows systems
+    * `linux` for Linux systems
+    * `network` for network devices
+    * `oob` for Out-of-band management cards
+    * `storage` for storage systems
+    * `aix` for IBM AIX systems
+    * `hpux` for HP UX systems
+    * `solaris` for Oracle Solaris systems
+    * `tru64` for HP Tru64 systems
+    * `vms` for HP Open VMS systems
+  Refer to [Monitored Systems](../platform-requirements.html) for more details.
   
 * `<protocol-configuration>` is the protocol(s) **${project.name}** will use to communicate with the hosts: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](#protocol) for more details.
 
