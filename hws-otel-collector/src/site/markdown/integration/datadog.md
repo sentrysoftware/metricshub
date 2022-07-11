@@ -15,7 +15,7 @@ Integrating **Hardware Sentry** with your Datadog SaaS platform only requires a 
 
 Before you can start viewing the metrics collected by **${project.name}** in Datadog, you must have:
 
-1. Susbcribed to **Hardware Sentry** from the [Datadog Marketplace](https://app.datadoghq.com/marketplace)
+1. Subscribed to **Hardware Sentry** from the [Datadog Marketplace](https://app.datadoghq.com/marketplace)
 2. Created an API key in Datadog as explained in the [Datadog User Documentation](https://docs.datadoghq.com/account_management/api-app-keys/#add-an-api-key-or-client-token)
 3. [Installed Hardware Sentry OpenTelemetry Collector](../install.html) on one or more systems that has network access to the physical servers, switches and storage systems you need to monitor. It is recommended to dedicate one collector per site, or data center, or server room, etc.
 
@@ -53,18 +53,14 @@ Restart **${project.name}** to apply your changes.
 
 Refer to [Configuring the OpenTelemetry Collector](../configuration/configure-otel.html) for more details.
 
-### Configuring sites and sustainability settings
+### Configuring site and sustainability settings
 
-Monitored systems are grouped into sites. You can easily customize this grouping to represent data centers or server rooms to view their consumption in kilowatts per hour, related cost in dollars, and carbon footprint in metric tons.
-
-To define sites, open the `config/hws-config.yaml` file and customize the `extraLabels` section as shown in the example below:
+A site represents the data center or the server room in which all the systems to be monitored are located. Configure your site in the `extraLabels` section of the `config/hws-config.yaml` file as shown in the example below:
 
 ```yaml
 extraLabels:
   site: boston 
 ```
-
-You must define at least one site, but add as many sites as needed.
 
 You also need to update the `extraMetrics` section as shown in the example below to allow **${project.name}** to calculate the electricity costs and the carbon footprint of your site:
 
@@ -87,6 +83,8 @@ For each host to be monitored, you need to specify its hostname, type, and proto
 ### Adding monitors
 
 To be notified in Datadog about any hardware failure, go to **Monitors > New Monitor** and add all the *Recommended* monitors for **Hardware Sentry**.
+
+Creating your own monitors based on the ones listed as recommended allows you to customize the notification settings of each monitor.
 
 ## Using the Hardware Sentry dashboards
 
@@ -149,7 +147,7 @@ The **Power, Cost and CO₂ Emissions** widget available in the **Hardware Sentr
 To find the first responses to your questions, refer to the **Sites** widget of the **Hardware Sentry - Main** dashboard as it provides:
 
 * the **number of hosts** composing the site. A bigger site would logically consume more energy than a smaller one
-* the **ambient temperature** and **heating margin** of each site. You can consider increasing the temperature of a site by a few degrees if its ambient temperature is particularly low compared to the [ASHRAE recommendations](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjZ_Ke56Oj4AhXawoUKHY2fBogQFnoECCEQAQ&url=https%3A%2F%2Ftpc.ashrae.org%2FFileDownload%3Fidx%3Dc81e88e4-998d-426d-ad24-bdedfb746178&usg=AOvVaw0CU3GVE4AuY5IJ0Q2u7Iin) and if you have an acceptable heating margin.
+* the **ambient temperature** and **heating margin** of each site. You can consider increasing the temperature of a site by a few degrees if its ambient temperature is particularly low compared to the [ASHRAE](https://www.ashrae.org/) recommendations and if you have an acceptable heating margin.
 
 ![Datadog Dashboards - Sites monitored](../images/datadog-main-sites.png)
 
@@ -171,7 +169,9 @@ Click the host to access its details.
 
 ### Observing the hardware health and environmental impact of the monitored hosts
 
-The **Hardware Sentry - Host** dashboard exposes all the observability and sustainability data available for the monitored host, and notably:
+The **Hardware Sentry - Host** dashboard summarizes the essential hardware health and sustainability data available for the monitored host. You can access it from the list of hosts in the **Hardware Sentry - Sites** dashboard: click on a **host > View hardware dashboard**.
+
+This dashboard includes:
 
 * the status of its internal components
 * the network traffic
