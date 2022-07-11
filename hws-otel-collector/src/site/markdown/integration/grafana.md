@@ -35,7 +35,7 @@ First, download the latest version of **hardware-dashboards-for-grafana.zip** or
 
 1. Uncompress **hardware-dashboards-for-grafana.zip** in a temporary folder.
 2. Copy the `provisioning` folder to the `grafana\conf` folder on the Grafana server (default: "C:\Program Files\GrafanaLabs\grafana\conf").
-3. Copy the `sustainable_IT` folder in the directory of your choice on the Grafana server (ex: "C:\Program Files\GrafanaLabs\grafana\public\dashboards").
+3. Copy the `Hardware Sentry` folder in the directory of your choice on the Grafana server (ex: "C:\Program Files\GrafanaLabs\grafana\public\dashboards").
 
     ![Copying Dashboards on Windows](../images/import-dashboards-windows.png)
 
@@ -69,7 +69,7 @@ providers:
     updateIntervalSeconds: 60
     allowUiUpdates: true
     options:
-    path: 'C:/Program Files/GrafanaLabs/grafana/public/dashboards'
+    path: 'C:\Program Files\GrafanaLabs\grafana\public\dashboards'
     foldersFromFilesStructure: true
 ```
 
@@ -135,7 +135,7 @@ extraLabels:
   site: <sitename> 
 ```
 
-You must define at least one site, but add as many sites as needed. Note that it is recommended to dedicate one collector per site.
+You must define at least one site, but add as many sites as needed.
 
 Also, you need to provide the information listed below that **${project.name}** will use as a reference to calculate the electricity costs and the carbon footprint of your monitored environment:
 
@@ -159,7 +159,7 @@ The collected data is translated into histograms that expose electricity consump
 
 On average, and apart from the cooling systems, servers account for the greatest shares of direct electricity use in data centers, followed by storage and network devices.
 
-The **Sites** section of the **Main** dashboard reports on the power consumption of all monitored sites. This metric corresponds to total power consumption of all devices in a site.
+The **Sites** section of the **Main** dashboard reports on the power consumption of all monitored sites. This metric corresponds to total power consumption of all hosts in a site.
 
 ![Power Consumption by Site](../images/dashboard_main_top_consumer_sites.png)
 
@@ -169,7 +169,7 @@ This information indicates the power consumption ratio used to sustain computing
 
 ![Viewing Power and Host Distribution by Type](../images/dashboard_main_power_hosts_info.png)
 
-The **Top Consumers** panel lists the top ten devices that consume the most electricity per site. The data is automatically refreshed according to the defined collection interval (default: 2m).
+The **Top Consumers** panel lists the top ten hosts that consume the most electricity across your entire infrastructure. The data is automatically refreshed according to the defined collection interval (default: 2m).
 
 This information can help you implement the best strategy for efficiency, such as replacing older equipment with more efficient ones or moving servers to a site with a lower electricity cost.
 
@@ -187,23 +187,23 @@ In most data centers, the air conditioning system ensures the entire room’s am
 
 ![Monitoring the Ambient Temperature](../images/dashboard_main_ambient_temp.png)
 
-The **Heating Margin** column exposes the number of degrees Celsius (°C) remaining before the temperature reaches the closest warning threshold for each monitored site. **${project.name}** collects one day of heating margin measurements for each hardware device and exposes the minimum (critical) value of all the hardware devices in the site.
+The **Heating Margin** column exposes the number of degrees Celsius (°C) remaining before the temperature reaches the closest warning temperature threshold of a monitored host for each monitored site. 
 
 Additionally, the **Hosts Temperatures** section exposes the ambient temperature per host and helps you quickly identify the hosts that report the highest temperature.
 
 ![Monitoring the Hosts Temperature](../images/dashboard_main_hosts_temp.png)
 
-These indicators can help you optimize your overall data center's ambient temperature by acting at the site or the host's level. Increasing the ambient temperature in a facility by 1 degree Celsius can lower your electricity consumption by 5% and reduce your carbon emission by 5%, based on an average PUE of 1.80 (default).
+These indicators can help you optimize your overall data center's ambient temperature by acting at the site or the host's level. Increasing the ambient temperature in a facility by 1 degree Celsius can lower your electricity consumption and reduce your carbon emission by 5%, based on an average PUE of 1.80 (default).
 
-Some hardware devices do not expose their overall temperature and are therefore not included in the heating margin computation. **${project.name}** provides the percentage of the **Monitoring Confidence** per site in the **site** dashboard. When there is not enough data to generate the daily, monthly, or yearly values, an extrapolation is applied to the current aggregation to calculate an estimation. The more data is available to calculate the costs and carbon emissions, the more confidence you can have in the estimate.
+Some hardware devices do not expose their overall temperature and are therefore not included in the heating margin computation. **${project.name}** provides the percentage of the **Monitoring Confidence** per site in the **site** dashboard. 
 
 ### Estimating potential savings per site
 
-The **Site Temperature Optimization** panel exposes detailed information about the heating margin for a specific site, including the temperature collected by hosts. But this panel is particularly interesting to estimate the savings you could make if you increase the temperature of your facilities to the **Recommended Site Temperature** and how you can significantly reduce the carbon footprint of a site.
+The **Site Temperature Optimization** panel exposes detailed information about the heating margin for a specific site, including the temperature collected by hosts. This panel is particularly interesting to estimate the savings you could make if you increase the temperature of your facilities to the **Recommended Site Temperature** and how you can significantly reduce the carbon footprint of a site.
 
 ![Optimizing a Site Temperature](../images/dashboard_site_temp_optimization.png)
 
-Note that the accuracy of the estimated values increases proportionally with the **Monitoring Confidence** percentage. This percentage is based on the number of hosts reporting temperature readings. The higher number of readings, the higher the monitoring confidence level.
+Note that the accuracy of the estimated values increases proportionally with the **Monitoring Confidence** percentage. This percentage is based on the number of hosts reporting temperature readings. The higher the number of hosts reporting temperature readings, the higher the confidence.
 
 ### Monitoring the agent collection status
 
