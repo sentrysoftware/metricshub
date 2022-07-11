@@ -17,7 +17,7 @@
       outputDirectory: C:\\Users\\nassim\\AppData\\Local\\Temp\\hardware-logs2
       exportTimestamps: false
       extraLabels: 
-        site: 'Datacenter 1'
+        site: data center 1
       extraMetrics: 
         hw.site.carbon_density_grams: 0.066
         hw.site.electricity_cost_dollars: 0.02
@@ -28,10 +28,10 @@
             hostname: 10.0.24.61
             type: oob
           snmp:
-            version: V2c
+            version: v2c
             community: public
             port: 161
-            timeout: 120
+            timeout: 120s
           selectedConnectors: [LenovoIMM]
 
         - host:

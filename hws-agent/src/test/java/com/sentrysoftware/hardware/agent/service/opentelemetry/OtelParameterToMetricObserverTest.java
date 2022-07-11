@@ -105,7 +105,7 @@ class OtelParameterToMetricObserverTest {
 
 		final MultiHostsConfigurationDto multiHostsConfigurationDto= MultiHostsConfigurationDto
 			.builder()
-			.extraLabels(Map.of("site", "Datacenter 1"))
+			.extraLabels(Map.of("site", "data center 1"))
 			.build();
 
 		final Monitor enclosure = Monitor
@@ -188,7 +188,7 @@ class OtelParameterToMetricObserverTest {
 				.put(MappingConstants.ID, "id_enclosure")
 				.put(MappingConstants.NAME, "enclosure 1")
 				.put(MappingConstants.PARENT, "host")
-				.put("site", "Datacenter 1")
+				.put("site", "data center 1")
 				.put("device_id", "1")
 				.put("serial_number", "SN 1")
 				.put("vendor", "Dell")
@@ -242,7 +242,7 @@ class OtelParameterToMetricObserverTest {
 
 		final MultiHostsConfigurationDto multiHostsConfigurationDto= MultiHostsConfigurationDto
 			.builder()
-			.extraLabels(Map.of("site", "Datacenter 1"))
+			.extraLabels(Map.of("site", "data center 1"))
 			.build();
 		
 		final Monitor enclosure = Monitor
@@ -302,7 +302,7 @@ class OtelParameterToMetricObserverTest {
 			.put(MappingConstants.ID, "id_enclosure")
 			.put(MappingConstants.NAME, "enclosure 1")
 			.put(MappingConstants.PARENT, "host")
-			.put("site", "Datacenter 1")
+			.put("site", "data center 1")
 			.put("device_id", "1")
 			.put("serial_number", "SN 1")
 			.put("vendor", "Dell")
@@ -548,7 +548,7 @@ class OtelParameterToMetricObserverTest {
 			.builder()
 			.multiHostsConfigurationDto(MultiHostsConfigurationDto
 					.builder()
-					.extraLabels(Map.of("site", "Datacenter 1"))
+					.extraLabels(Map.of("site", "data center 1"))
 					.build())
 			.build();
 
@@ -581,7 +581,7 @@ class OtelParameterToMetricObserverTest {
 				.put(MappingConstants.ID, "id_enclosure")
 				.put(MappingConstants.NAME, "enclosure 1")
 				.put(MappingConstants.PARENT, "host")
-				.put("site", "Datacenter 1")
+				.put("site", "data center 1")
 				.put("device_id", "")
 				.put("serial_number", "Serial1234")
 				.put("vendor", "")
