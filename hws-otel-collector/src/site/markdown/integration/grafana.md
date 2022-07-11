@@ -17,7 +17,7 @@ Once you have configured the [dashboard provider](#Configuring_the_Dashboard_Pro
 Before you can start configuring and using **Hardware Sentry Observability and Sustainability** dashboards, you must have:
 
 1. configured [Hardware Sentry Agent](../configuration/configure-agent.html)
-2. configured the [Prometheus server](../integration/prometheus.html)
+2. configured the [Prometheus server](../integration/(../prometheus/prometheus.html)
 3. run both **${project.name}** and the **Prometheus server**.
 
 ## Configuring the Dashboards
@@ -130,10 +130,9 @@ Monitored systems are grouped into sites. You can easily customize this grouping
 
 To define sites, open the `config/hws-config.yaml` file and customize the `extraLabels` as shown in the example below:
 
-```
-  yaml
+```yaml
 extraLabels:
-  site: <sitename> #
+  site: <sitename> 
 ```
 
 You must define at least one site, but add as many sites as needed. Note that it is recommended to dedicate one collector per site.
@@ -146,7 +145,7 @@ Also, you need to provide the information listed below that **${project.name}** 
 
 To customize these settings, open the `config/hws-config.yaml` file and configure the `extraMetrics` section as shown in the example below:
 
-```
+```yaml
 extraMetrics:
   hw_carbon_density_grams: `350` # in g/kWh
   hw_electricity_cost_dollars: `0.12` # in $/kWh
@@ -183,13 +182,13 @@ Click on one of the histogram's bar to drill down to the host level and get deta
 
 Data centers are energy-intensive facilities. This energy is converted into heat that must be dissipated away from the equipment racks to maintain an optimal room temperature. Therefore, the hardware devices' temperature is a critical parameter that must be closely monitored.
 
-In most data centers, the air conditioning system ensures the entire room’s ambient temperature is maintained at 18 degrees Celsius, which is generally unnecessarily low to avoid overheating problems. Computer systems can safely operate with an ambient temperature significantly higher (see Google’s example, where they raised the temperature of their data centers to 80°F, i.e. 26.7°C). This is the fastest and cheapest method to reduce the energy consumed by a data center and improve its PUE. From the **Sites** section of the **Main** dashboard, use the **Ambient Temperature** panel to spot the warmer sites. From cold blue to warm red, the color code helps you rapidly identify the sites where the overall temperature can be optimized.
+In most data centers, the air conditioning system ensures the entire room’s ambient temperature is maintained at 18 degrees Celsius, which is generally unnecessarily low to avoid overheating problems. Computer systems can safely operate with an ambient temperature significantly higher (see Google’s example, where they raised the temperature of their data centers to 80°F, i.e. 26.7°C). This is the fastest and cheapest method to reduce the energy consumed by a data center and improve its PUE. From the **Sites** section of the **Main** dashboard, refer to the **Ambient Temperature** column to spot the warmer sites. From cold blue to warm red, the color code helps you rapidly identify the sites where the overall temperature can be optimized.
 
 ![Monitoring the Ambient Temperature](../images/dashboard_main_ambient_temp.png)
 
-The **Heating Margin** panel exposes the number of degrees Celsius (°C) remaining before the temperature reaches the closest warning threshold for each monitored site. **${project.name}** collects one day of heating margin measurements for each hardware device and exposes the minimum (critical) value of all the hardware devices in the site.
+The **Heating Margin** column exposes the number of degrees Celsius (°C) remaining before the temperature reaches the closest warning threshold for each monitored site. **${project.name}** collects one day of heating margin measurements for each hardware device and exposes the minimum (critical) value of all the hardware devices in the site.
 
-Additionally, the **Hosts Temperature** section exposes the ambient temperature per host and helps you quickly identify the hosts that report the highest temperature.
+Additionally, the **Hosts Temperatures** section exposes the ambient temperature per host and helps you quickly identify the hosts that report the highest temperature.
 
 ![Monitoring the Hosts Temperature](../images/dashboard_main_hosts_temp.png)
 
