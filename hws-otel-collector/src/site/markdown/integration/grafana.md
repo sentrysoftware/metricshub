@@ -17,7 +17,7 @@ Once you have configured the [dashboard provider](#Configuring_the_Dashboard_Pro
 Before you can start configuring and using **Hardware Sentry Observability and Sustainability** dashboards, you must have:
 
 1. configured [Hardware Sentry Agent](../configuration/configure-agent.html)
-2. configured the [Prometheus server](../integration/prometheus.html)
+2. configured the [Prometheus server](../integration/(../prometheus/prometheus.html)
 3. run both **${project.name}** and the **Prometheus server**.
 
 ## Configuring the Dashboards
