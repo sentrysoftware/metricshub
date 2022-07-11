@@ -13,23 +13,29 @@ Thanks to its internal library of 250+ *Hardware Connectors*, **${project.name}*
 
 **${project.name}** monitors the health of the internal electronic components of the system:
 
+* Batteries
+* Blades
 * CPUs
-* Memory modules
 * GPUs
+* LEDs
+* Memory modules
 * Network cards
+* Power supplies
+* Robotics
 * Sensors
   * Temperatures
   * Voltages
   * Fans
   * Power
-* Power supplies
 * Storage
   * Controllers
-    * Disks
-    * RAIDs
-    * HBAs
-    * LUNs
-    * Tape drives
+  * Disks
+  * RAIDs
+  * HBAs
+  * LUNs
+  * Tape drives
+* Virtual Machines
+* etc.
 
 **${project.name}** also reports the energy usage and costs, as well as the carbon emissions of the monitored systems.
 

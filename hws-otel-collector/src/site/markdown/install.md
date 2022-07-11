@@ -7,7 +7,7 @@ description: Where to download the installation package of the ${project.name}.
 
 You can install **${project.name}** on the operating system of your choice as they are equally supported. However, if you wish to monitor your Windows systems through WMI, you would have to run **Hardware Sentry** on Windows. WMI is neither supported by Docker, Linux, nor MacOS.
 
-Refer to  [Monitored Systems](./platform-requirements.html) documentation to verify whether you need WMI to monitor your systems.
+Refer to  [Monitored Systems](./hdf-reference.html) documentation to verify whether you need WMI to monitor your systems.
 
 ## Prerequisites
 
@@ -20,21 +20,19 @@ Run the following command to verify the version installed on:
 * Docker:
 
   ```bash
-  docker exec <containerId> java --version
+  docker exec <containerId> java -version
   ```
 
 * Linux or MacOS:
 
   ```bash
   $JAVA_HOME/bin/java -version
-  java -version
   ```
 
 * On Windows:
 
   ```bash
   %JAVA_HOME%\bin\java -version
-  java -version
   ```
 
 If needed, you can download the latest versions of the Java Runtime Environment from [Adoptium (formerly AdoptOpenJDK)](https://adoptium.net/).
