@@ -168,8 +168,10 @@ service:
       receivers: [otlp, prometheus/internal]
       processors: [memory_limiter, batch, resourcedetection, metricstransform]
       exporters: [prometheusremotewrite/your-server] # List here the platform of your choice
-    logs:
-      receivers: [otlp]
-      processors: [memory_limiter, batch, resourcedetection]
-      exporters: [] # List here the platform of your choice     
+
+    # Uncomment the section below to enable logging of hardware alerts.
+    # logs:
+    #   receivers: [otlp]
+    #   processors: [memory_limiter, batch, resourcedetection]
+    #   exporters: [logging] # List here the platform of your choice
 ```

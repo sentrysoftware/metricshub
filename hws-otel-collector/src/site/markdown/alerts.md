@@ -203,7 +203,7 @@ Alert rules are sets of conditions used to identify the alert's severity and whe
 
 ## Customizing Alert Content
 
-You can customize the content of alerts by addinf macros in the `hardwareProblemTemplate` parameter in the `config/hws-config.yaml` file. See the procedure detailed in the [Hardware Problem Template](configuration/configure-agent.md#Alert_Settings) section.
+You can customize the content of alerts by adding macros in the `hardwareProblemTemplate` parameter in the `config/hws-config.yaml` file. See the procedure detailed in the [Hardware Problem Template](configuration/configure-agent.md#Hardware_Problem_template) section.
 
 The default alert content template is:
 
@@ -233,9 +233,9 @@ The following macros can be used to obtain more details about the problem. They 
 
 ## Receiving Alerts
 
-To receive **${project.name}**'s alerts:
+To export alerts to the console:
 
-* make sure your observability platlform (`Exporter`) supports the OpenTelemetry `logs`
+* make sure your observability platform (`Exporter`) supports the OpenTelemetry `logs`
 * add `logging` in the `service:pipelines:logs:exporters` section of the `config/otel-config.yaml` file:
 
 ```yaml

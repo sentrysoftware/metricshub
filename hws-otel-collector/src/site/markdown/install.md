@@ -5,9 +5,9 @@ description: Where to download the installation package of the ${project.name}.
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
-You can install **${project.name}** on the operating system of your choice as they are equally supported. However, if you wish to monitor your Windows systems through WMI, you would have to run **Hardware Sentry** on Windows. WMI is neither supported by Docker, Linux, nor MacOS.
+You can install **${project.name}** on the operating system of your choice as they are equally supported.
 
-Refer to  [Monitored Systems](./hdf-reference.html) documentation to verify whether you need WMI to monitor your systems.
+> Note: Starting from v2.0.00, you can retrieve hardware information exposed by WMI from Linux and MacOs systems through the Windows Remote Management (WinRM) protocol.
 
 ## Prerequisites
 

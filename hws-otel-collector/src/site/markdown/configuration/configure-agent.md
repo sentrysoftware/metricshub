@@ -278,7 +278,7 @@ hosts:
       hostname: myhost-01
       type: storage
     wbem:
-      protocol: HTTPS
+      protocol: https
       port: 5989
       timeout: 120s
       username: myusername
@@ -303,7 +303,7 @@ hosts:
 
   - host:
       hostname: myhost-01
-      type: WIN
+      type: win
     wmi:
       timeout: 120s
       username: myusername
@@ -333,12 +333,12 @@ hosts:
       hostname: server-11
       type: win
     winrm:
-      protocol: HTTP
+      protocol: http
       port: 5985
       username: myusername
       password: mypwd
       timeout: 120s
-      authentications: [NTLM]
+      authentications: [ntml]
 ```
 
 ## Additional settings (Optional)
@@ -428,7 +428,7 @@ exporter:
 hosts: # ...
 ```
 
-where `<credentials>` corresponds to the encoding in `base64` of the value `myUsername:myPassword`.
+where `<credentials>` are built by first joining your username and password with a colon (`myUsername:myPassword`) and then encoding the value in `base64`.
 
 For more security, encrypt the `Basic <credentials>` value. See [Encrypting Passwords](../security/passwords.md#Encrypting_Passwords) for more details.
 
@@ -464,8 +464,6 @@ By default, **${project.name}** collects metrics from the monitored hosts every 
       collectPeriod: 1m30s # Customized
     ```
 
-> **Important**: To avoid data gaps or duplicates, make sure the *internal collect period* is shorter than the *scrape interval* configured in [config/otel-config.yaml](configure-otel.md).
-
 > **Warning**: Collecting metrics too frequently can cause CPU-intensive workloads.
 
 #### Connectors
@@ -486,7 +484,7 @@ hosts:
 
   - host:
       hostname: myhost-01
-      type: WIN
+      type: win
     wmi:
       timeout: 120s
       username: myusername
