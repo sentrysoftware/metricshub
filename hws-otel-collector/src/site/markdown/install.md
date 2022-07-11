@@ -1,4 +1,4 @@
-keywords: installation package
+keywords: install, upgrade
 description: Where to download the installation package of the ${project.name}.
 
 # Installation

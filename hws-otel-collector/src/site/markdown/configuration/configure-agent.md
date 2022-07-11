@@ -1,4 +1,4 @@
-keywords: configuration, protocols, snmp, wbem, wmi, ipmi, ssh, http, os command, winrm
+keywords: agent, configuration, protocols, snmp, wbem, wmi, ipmi, ssh, http, os command, winrm, sites
 description: How to configure Hardware Sentry Agent to scrape hosts with various protocols.
 
 # Configure the Hardware Sentry Agent

@@ -1,4 +1,4 @@
-keywords: grafana, dashboard, sustainable, sustainability, green
+keywords: grafana, dashboards
 description: How to import and configure Hardware Sentry's Sustainable IT Dashboards for Grafana.
 
 # Grafana Dashboards

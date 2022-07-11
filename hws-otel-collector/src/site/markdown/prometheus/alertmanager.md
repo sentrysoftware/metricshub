@@ -1,4 +1,4 @@
-keywords: alerts, rules, thresholds, prometheus
+keywords: AlertManager, alerts, rules, thresholds, prometheus
 description: ${project.name} ships with pre-made alert rules for Prometheus AlertManager, to trigger alerts when a hardware problem is detected.
 
 # Prometheus AlertManager

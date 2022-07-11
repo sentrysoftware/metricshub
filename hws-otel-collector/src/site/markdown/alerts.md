@@ -1,4 +1,4 @@
-keywords: hardware, monitoring, alert, otel, log
+keywords: alerts
 description: How ${project.name} triggers alerts and how you can customize the alert's content.
 
 # Alerts

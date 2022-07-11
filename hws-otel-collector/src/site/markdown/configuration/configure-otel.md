@@ -1,4 +1,4 @@
-keywords: otel, prometheus, collector, gRPC
+keywords: receivers, processors, exporters
 description: A simple YAML file configures where ${project.name} must send the data it collects.
 
 # OpenTelemetry Advanced Settings

@@ -1,4 +1,4 @@
-keywords: grafana, dashboard, troubleshooting, no data
+keywords: grafana, troubleshooting
 description: How to troubleshoot Grafana dashboards when sustainable data is not available or is inaccurate or hardware metrics are missing
 
 # Troubleshooting Grafana Dashboards

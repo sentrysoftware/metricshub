@@ -1,4 +1,4 @@
-keywords: configuration, prometheus server, examples, helix, bmc
+keywords: configuration, helix, bmc
 description: How to integrate the hardware metrics collected by **${project.name}** into BMC Helix Operations Management
 
 # Integration with BMC Helix Operations Management

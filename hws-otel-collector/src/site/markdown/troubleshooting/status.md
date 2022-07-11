@@ -1,4 +1,4 @@
-keywords: status, check, health
+keywords: troubleshooting, status, check, health
 description: There are several ways to easily assess the status of ${project.name}
 
 # Health Check

@@ -1,4 +1,4 @@
-keywords: hardware, metrics, output
+keywords: metrics
 description: How ${project.name} exposes hardware metrics.
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->

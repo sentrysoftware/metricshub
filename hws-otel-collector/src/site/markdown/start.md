@@ -1,4 +1,4 @@
-keywords: quick start, step-by-step procedure, prometheus, grafana, datadog
+keywords: quick start, datadog, helix, prometheus, grafana
 description: Short step-by-step instruction to follow for installing and configuring Hardware Sentry OpenTelemetry Collector with third-party platforms.
 
 # Quick Start

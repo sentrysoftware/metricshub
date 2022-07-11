@@ -10,7 +10,7 @@
 	<custom>
 		<projectVersion>${project.version}</projectVersion>
 		<bodyClass>sentry-hardware</bodyClass>
-		<keywords>hardware,prometheus,exporter,opentelemetry,otel</keywords>
+		<keywords>hardware,observability, opentelemetry,otel, sustainability</keywords>
 		<publishDate>${timestamp}</publishDate>
 		<noDefaultLinks>true</noDefaultLinks>
 	</custom>
