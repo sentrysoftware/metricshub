@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
@@ -26,9 +27,12 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.util.Assert;
 
+import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 import com.sentrysoftware.matrix.common.helpers.StreamUtils;
 import com.sentrysoftware.matrix.common.meta.monitor.DiskController;
+import com.sentrysoftware.matrix.common.meta.parameter.state.IState;
+import com.sentrysoftware.matrix.common.meta.parameter.state.Status;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
@@ -86,6 +90,9 @@ public class HostMonitoring implements IHostMonitoring {
 	private Map<String, ConnectorNamespace> connectorNamespaces = new HashMap<>();
 
 	private PowerMeter powerMeter;
+
+	@Getter(value = AccessLevel.PRIVATE)
+	private Map<String, IState> connectorStates = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 	@Override
 	public void clear() {
@@ -663,4 +670,21 @@ public class HostMonitoring implements IHostMonitoring {
 	public enum PowerMeter {
 		MEASURED, ESTIMATED;
 	}
+
+	@Override
+	public boolean isConnectorStatusOk(final Monitor monitor) {
+		final MonitorType monitorType = monitor.getMonitorType();
+		// No connector is attached to the root level
+		if (MonitorType.HOST == monitorType)  {
+			return true;
+		}
+		final String connectorName = monitor.getMetadata(HardwareConstants.CONNECTOR);
+		return connectorName != null && Status.OK.equals(connectorStates.get(connectorName));
+	}
+
+	@Override
+	public void addConnectorState(final String connectorName, final IState state) {
+		connectorStates.put(connectorName, state);
+	}
+
 }

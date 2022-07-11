@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.model.monitoring;
 
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPUTER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.STORAGE;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.ENCLOSURE;
 import static com.sentrysoftware.matrix.connector.model.monitor.MonitorType.FAN;
@@ -549,5 +550,31 @@ class HostMonitoringTest {
 			.build();
 		hostMonitoring.setMonitors(Map.of(FAN, Map.of(FAN_ID, expected)));
 		assertEquals(expected, hostMonitoring.findById(FAN_ID));
+	}
+
+	@Test
+	void testIsConnectorStatusOk() {
+
+		final IHostMonitoring hostMonitoring = new HostMonitoring();
+		assertFalse(hostMonitoring.isConnectorStatusOk(Monitor.builder().monitorType(FAN).build()));
+
+		final Monitor monitor = Monitor
+			.builder()
+			.metadata(Map.of(CONNECTOR, CONNECTOR_NAME))
+			.monitorType(FAN)
+			.build();
+
+		hostMonitoring.addConnectorState(CONNECTOR_NAME, Status.OK);
+		assertTrue(hostMonitoring.isConnectorStatusOk(monitor));
+
+		hostMonitoring.addConnectorState(CONNECTOR_NAME, Status.FAILED);
+		assertFalse(hostMonitoring.isConnectorStatusOk(monitor));
+
+		final Monitor host = Monitor
+			.builder()
+			.metadata(Map.of(CONNECTOR, CONNECTOR_NAME))
+			.monitorType(HOST)
+			.build();
+		assertTrue(hostMonitoring.isConnectorStatusOk(host));
 	}
 }

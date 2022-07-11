@@ -18,7 +18,7 @@
 	<description>Hardware Sentry Agent</description>
 
 	<properties>
-		<log4j2.version>2.17.0</log4j2.version>
+		<log4j2.version>2.18.0</log4j2.version>
 	</properties>
 
 	<dependencies>
@@ -130,8 +130,16 @@
 		</dependency>
 		<!-- Log4j2 -->
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-log4j2</artifactId>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-slf4j-impl</artifactId>
 		</dependency>
 		<!-- CLI jansi -->
 		<dependency>

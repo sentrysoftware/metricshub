@@ -463,7 +463,7 @@ public class CollectHelper {
 	 * @param powerConsumption The power consumption value. Never null
 	 * @param hostname         The system host name used for debug purpose
 	 */
-	static void collectEnergyUsageFromPower(final Monitor monitor, final Long collectTime, final Double powerConsumption, String hostname) {
+	public static void collectEnergyUsageFromPower(final Monitor monitor, final Long collectTime, final Double powerConsumption, String hostname) {
 
 		updateNumberParameter(
 			monitor,
@@ -533,7 +533,7 @@ public class CollectHelper {
 	 * @param energyRawKw       The cumulative energy value in kW. Never null
 	 * @param hostname          The system host name used for debug purpose
 	 */
-	static void collectPowerFromEnergyUsage(final Monitor monitor, final Long collectTime, @NonNull final Double energyRawKw, final String hostname) {
+	public static void collectPowerFromEnergyUsage(final Monitor monitor, final Long collectTime, @NonNull final Double energyRawKw, final String hostname) {
 
 		// Update the raw value for energy usage
 		updateNumberParameter(

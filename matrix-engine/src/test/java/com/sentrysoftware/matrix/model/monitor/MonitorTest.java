@@ -38,6 +38,8 @@ import com.sentrysoftware.matrix.model.parameter.NumberParam;
 
 class MonitorTest {
 
+	private static final Long COLLECT_TIME = System.currentTimeMillis();
+
 	@Test
 	void testAddAlertRules() {
 		final Monitor monitor = Monitor.builder().build();
@@ -363,6 +365,42 @@ class MonitorTest {
 
 		host.addParameter(DiscreteParam.present());
 		assertFalse(host.isMissing());
+
+	}
+
+	@Test
+	void testIsParameterUpdated() {
+
+		final DiscreteParam statusParam = DiscreteParam
+			.builder()
+			.name(STATUS_PARAMETER)
+			.state(Status.OK)
+			.collectTime(COLLECT_TIME)
+			.build();
+		final Monitor monitor = Monitor
+			.builder()
+			.id("id")
+			.parentId("parent")
+			.name("device")
+			.build();
+
+		// Not collected yet
+		assertFalse(monitor.isParameterUpdated(STATUS_PARAMETER));
+
+		// Collect 1
+		monitor.collectParameter(statusParam);
+		// It is the first collect! so by default the parameter is updated
+		assertTrue(monitor.isParameterUpdated(STATUS_PARAMETER));
+
+		// Save the parameter! currentTime is copied in the previousCollectTime
+		statusParam.save();
+		// Collected! but the collectTime is not updated, so the parameter is not updated
+		assertFalse(monitor.isParameterUpdated(STATUS_PARAMETER));
+
+		// Collect 2
+		statusParam.setCollectTime(COLLECT_TIME + 120000);
+		// The collectTime has been updated so the parameter becomes updated 
+		assertTrue(monitor.isParameterUpdated(STATUS_PARAMETER));
 
 	}
 }

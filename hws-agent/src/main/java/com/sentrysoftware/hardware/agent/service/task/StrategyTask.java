@@ -196,6 +196,7 @@ public class StrategyTask implements Runnable {
 							.metricInfoList(metricEntry.getValue())
 							.sdkMeterProvider(autoConfiguredOpenTelemetrySdk.getOpenTelemetrySdk().getSdkMeterProvider())
 							.multiHostsConfigurationDto(userConfiguration.getMultiHostsConfigurationDto())
+							.hostMonitoring(strategyTaskInfo.getHostMonitoring())
 							.build()
 							.init()
 					)

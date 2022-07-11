@@ -36,7 +36,7 @@ Resource labels:
      -> host.name: STRING(netapp9-san.internal.sentrysoftware.net)
      -> host.type: STRING(storage)
      -> os.type: STRING(storage)
-     -> site: STRING(Datacenter 1)
+     -> site: STRING(data center 1)
 ScopeLogs #0
 ScopeLogs SchemaURL: 
 InstrumentationScope netapp9-san 
@@ -87,7 +87,7 @@ Attributes:
      -> host.name: STRING(netapp9-san.internal.sentrysoftware.net)
      -> host.type: STRING(storage)
      -> os.type: STRING(storage)
-     -> site: STRING(Datacenter 1)
+     -> site: STRING(data center 1)
 Trace ID: 
 Span ID: 
 Flags: 0
