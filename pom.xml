@@ -455,7 +455,7 @@
 						</goals>
 						<configuration>
 							<versionString>${hwgraf.version}</versionString>
-							<formattedPropertyPrefix>formattedHwgrafVersion</formattedPropertyPrefix>
+							<formattedPropertyPrefix>formattedHwGrafVersion</formattedPropertyPrefix>
 						</configuration>
 					</execution>
 					<execution>
@@ -466,7 +466,7 @@
 						</goals>
 						<configuration>
 							<versionString>${ddog.version}</versionString>
-							<formattedPropertyPrefix>formattedDdogVersion</formattedPropertyPrefix>
+							<formattedPropertyPrefix>formattedDDogVersion</formattedPropertyPrefix>
 						</configuration>
 					</execution>
 					<!-- Same as above, but when run with simple `mvn site` -->
