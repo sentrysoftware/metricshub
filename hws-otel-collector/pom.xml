@@ -396,8 +396,8 @@
 	OR
 	(
 		project = HWGRAF
-		AND fixVersion >= 2.0
-		AND fixVersion <= ${formattedHwGrafVersion.majorVersion}.${formattedHwGrafVersion.minorVersion}
+		AND fixVersion >= 2
+		AND fixVersion <= ${formattedHwGrafVersion.majorVersion}
 	)
 	OR
 	(
