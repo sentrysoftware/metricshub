@@ -48,7 +48,7 @@ To collect metrics from your hosts, you must provide the following information i
 * its type
 * the protocol to be used.
 
-> **Important**: Because a typo or incorrect indentation in the `hws-config.yaml` file could cause your hardware monitoring to fail, it is highly recommended to install the [vscode-yaml](https://github.com/redhat-developer/vscode-yaml) extension in your editor to benefit from tooltips and autocompletion suggested by the **Hardware Sentry Configuration** JSON Format.
+> **Important**: Because a typo or incorrect indentation in the `hws-config.yaml` file could cause your hardware monitoring to fail, it is highly recommended to install the [vscode-yaml](https://github.com/redhat-developer/vscode-yaml) extension in your editor to benefit from tooltips and autocompletion suggested by the [Hardware Sentry Configuration](https://json.schemastore.org/hws-config.json) JSON Schema.
 
 ### Monitored hosts
 
