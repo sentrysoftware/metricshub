@@ -122,7 +122,7 @@ Click the **Alert** or **Warn** widget to access the **Triggered Monitors** page
 
 ### Estimating the energy usage and carbon footprint of your infrastructure
 
-After collecting metrics for a few hours, **{project.name}** can estimate the power consumption, energy costs, and carbon emissions of your overall IT infrastructure, sites and even hosts on a daily, monthly, and yearly basis.
+After collecting metrics for a few hours, **${project.name}** can estimate the power consumption, energy costs, and carbon emissions of your overall IT infrastructure, sites and even hosts on a daily, monthly, and yearly basis.
 
 ![Datadog Dashboards -Estimated consumption and emissions](../images/datadog-main-estimated-consumption-and-emissions.png)
 
