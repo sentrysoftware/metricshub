@@ -208,6 +208,6 @@ Note that the accuracy of the estimated values increases proportionally with the
 ### Monitoring the agent collection status
 
 The **Hardware Sentry Agent Status** panel at the bottom of the **Main** dashboard, lists all the agents configured to collect data, by sites. This panel enables you to view the agents' hostnames, and verify that the agent and connector versions are up-to-date.
-The **Last Seen** column indicates the last time an agent was seen during the past 6 hours. An agent going undetected for more that 2 minutes may indicate a potential problem with the host, the connection or the agent configuration.
+The **Last Seen** column indicates the last time an agent was seen during the past 6 hours. An agent going undetected for more than 2 minutes may indicate a potential problem with the host, the connection or the agent configuration.
 
 ![Verifying Hardware Sentry Agent Status](../images/dashboard_main-agent-status-collect.png)
