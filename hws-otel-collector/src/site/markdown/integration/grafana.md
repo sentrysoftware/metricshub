@@ -147,9 +147,9 @@ To customize these settings, open the `config/hws-config.yaml` file and configur
 
 ```yaml
 extraMetrics:
-  hw_carbon_density_grams: `350` # in g/kWh
-  hw_electricity_cost_dollars: `0.12` # in $/kWh
-  hw_pue_ratio: `1.8`
+  hw.site.carbon_density_grams: 350 # in g/kWh
+  hw.site.electricity_cost_dollars: 0.12 # in $/kWh
+  hw.site.pue_ratio: 1.8
 ```
 
 The collected data is translated into histograms that expose electricity consumption and cost, and carbon emissions in kilowatts per hour, by site.
