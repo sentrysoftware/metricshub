@@ -1,11 +1,9 @@
-keywords: hardware, monitoring, alert, otel, log
+keywords: alerts
 description: How ${project.name} triggers alerts and how you can customize the alert's content.
 
 # Alerts
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
-
-## Overview
 
 An alert is a notification that a hardware problem has occurred, such as a critical low speed on a fan leading to an increase in CPU temperature.
 
@@ -13,19 +11,19 @@ An alert is a notification that a hardware problem has occurred, such as a criti
 
 ## Alert Content
 
-**${project.name}**'s alert reports the following information:
+The alerts report:
 
-- The host's Fully Qualified Domain Name.
-- The resource's attributes.
-- The faulty component with its identifying information (Serial Number, Model, Manufacturer, Bios Version, Driver Version, Physical Address).
-- The parent dependency and its identifying information.
-- The alert severity (WARN, ALARM).
-- The alert rule.
-- The date at which the alert is triggered.
-- The metric that triggered the alert.
-- The status information of the component.
-- The encountered problem, consequence and recommended action.
-- A complete hardware health report on the faulty component.
+* the host's Fully Qualified Domain Name
+* the resource's attributes
+* the faulty component with its identifying information (Serial Number, Model, Manufacturer, Bios Version, Driver Version, Physical Address)
+* the parent dependency and its identifying information
+* the alert severity (WARN, ALARM)
+* the alert rule
+* the date at which the alert is triggered
+* the metric that triggered the alert
+* the status information of the component
+* the encountered problem, consequence and recommended action
+* a complete hardware health report on the faulty component
 
 Here is an example of an alert triggered by an unplugged cable on a network interface. This alert log has been captured using the OpenTelemetry [Logging Exporter](https://github.com/open-telemetry/opentelemetry-collector/tree/main/exporter/loggingexporter):
 
@@ -97,9 +95,8 @@ Flags: 0
 
 ## Alert Rules
 
-Alert rules are sets of conditions used to identify the alert's severity and whether the alert should be triggered or not.
-
-The following table lists **${project.name}**'s alert rules:
+Alert rules are sets of conditions used to identify the alert's severity and whether the alert should be triggered or not. These alert rules apply to 
+ **${project.name}**:
 
 | Monitor         | Metric Name                            | Severity | Default Alert Conditions                       | Attributes                                             |
 | --------------- | -------------------------------------- | -------- | ---------------------------------------------- | ------------------------------------------------------ |
@@ -206,7 +203,7 @@ The following table lists **${project.name}**'s alert rules:
 
 ## Customizing Alert Content
 
-You can customize the content of alerts by configuring macros in the `hardwareProblemTemplate` parameter in the `config/hws-config.yaml` file. See the procedure detailed in the [Hardware Problem Template](configuration/configure-agent.md#Hardware_Problem_Template) section.
+You can customize the content of alerts by adding macros in the `hardwareProblemTemplate` parameter in the `config/hws-config.yaml` file. See the procedure detailed in the [Hardware Problem Template](configuration/configure-agent.md#Hardware_Problem_template) section.
 
 The default alert content template is:
 
@@ -236,7 +233,9 @@ The following macros can be used to obtain more details about the problem. They 
 
 ## Receiving Alerts
 
-To receive **${project.name}**'s alerts, your `Exporter` must support the OpenTelemetry `logs` pipeline and needs to be declared in the `service:pipelines:logs:exporters` list in the `config/otel-config.yaml` file:
+To receive **${project.name}**'s alerts, your `Exporter` must support the OpenTelemetry `logs` pipeline.
+
+For troubleshooting purposes, you can add `logging` in the `service:pipelines:logs:exporters` section of the `config/otel-config.yaml` file:
 
 ```yaml
 
@@ -249,3 +248,5 @@ service:
       processors: [memory_limiter, batch, resourcedetection]
       exporters: [logging] # List here the platform of your choice
 ```
+
+Alerts will then be exported to the console.

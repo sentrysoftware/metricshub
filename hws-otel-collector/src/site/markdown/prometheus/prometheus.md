@@ -1,4 +1,4 @@
-keywords: job, configuration, prometheus
+keywords: configuration, prometheus
 description: How to configure the Prometheus server to pull information from the Hardware Sentry Exporter for Prometheus
 
 # Integration with Prometheus Server

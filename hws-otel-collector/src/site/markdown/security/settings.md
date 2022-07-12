@@ -187,7 +187,7 @@ Access to the `htpasswd` tool:
 
    The `Authorization` header must be provided as `Basic <base64-credentials>`, where `<base64-credentials>` is the `base64` value you have generated in the previous step.
 
-7. Restart **${project.name}**. See [Installation](../install.md) for more details.
+7. Restart **${project.name}**.
 
 ## Disabling TLS (Not recommended)
 
@@ -232,7 +232,7 @@ When you disable TLS on **${project.name}**, the communications between the **Ha
     hosts: # ...
     ```
 
-4. Restart **${project.name}**. See [Installation](../install.md) for more details.
+4. Restart **${project.name}**.
 
 ## Disabling Authentication (Not Recommended)
 
@@ -278,4 +278,4 @@ If you disable the authentication on **${project.name}**, incoming requests will
     hosts: # ...
     ```
 
-4. Restart **${project.name}**. See [Installation](../install.md) for more details.
+4. Restart **${project.name}**.

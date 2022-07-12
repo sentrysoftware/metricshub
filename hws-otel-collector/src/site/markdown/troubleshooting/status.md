@@ -1,28 +1,22 @@
-keywords: status, check, health
+keywords: troubleshooting, status, check, health
 description: There are several ways to easily assess the status of ${project.name}
 
 # Health Check
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
-General troubleshooting information is [available in the OpenTelemetry Collector's Troubleshooting Guide](https://github.com/open-telemetry/opentelemetry-collector/blob/main/docs/troubleshooting.md).
+## Check the collector is up and running
 
-## Processes
-
-When running properly, **${project.name}** has 2 processes running:
+Verify that both processes are running:
 
 * `hws-otel-collector`
 * `java -jar lib/hws-agent-${project.version}.jar`
 
-Make sure both processes are running.
-
 On Windows, if you configured **${project.name}** to run as a service, you will need to verify the status of that service.
 
-## Health Check endpoint
+## Check the collector status
 
-The **${project.name}** includes the [healthcheck](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/healthcheckextension) extension, which is activated by default on and runs on port 13133.
-
-To check the status of **${project.name}**, you can therefore use your browser to connect to [`http://localhost:13133`](http://localhost:13133), which will typically responds with:
+Connect to [`http://localhost:13133`](http://localhost:13133), which typically responds with:
 
 ```json
 {"status":"Server available","upSince":"2021-10-25T00:59:24.340626+02:00","uptime":"12h12m21.5832293s"}
@@ -35,11 +29,9 @@ $ curl http://localhost:13133
 {"status":"Server available","upSince":"2021-10-25T00:59:24.340626+02:00","uptime":"12h13m33.8777673s"}
 ```
 
-## zPages
+## Check the pipelines status
 
-The **${project.name}** includes the [zPages](https://github.com/open-telemetry/opentelemetry-collector/tree/main/extension/zpagesextension) extension, which runs on port 55679 by default.
-
-**zPages** is not activated by default. To activate it, add `zpages` to the list of extensions in the pipeline definition in **config/otel-config.yaml**, and restart the *Collector*:
+Add `zpages` in the `service:extensions` section of the **config/otel-config.yaml** file:
 
 ```yaml
 service:
@@ -47,17 +39,19 @@ service:
   # [...]
 ```
 
-To check the status of OpenTelemetry Collector pipelines, you can use then your browser and connect to:
+Restart the *Collector*.
 
-* [`http://localhost:55679/debug/servicez`](http://localhost:55679/debug/servicez) for general information on the Collector
-* [`http://localhost:55679/debug/pipelinez`](http://localhost:55679/debug/pipelinez) for details on the active pipeline
+Connect to:
+
+* [`http://localhost:55679/debug/servicez`](http://localhost:55679/debug/servicez) for general information about the Collector
+* [`http://localhost:55679/debug/pipelinez`](http://localhost:55679/debug/pipelinez) for details about the active pipeline
 * [`http://localhost:55679/debug/tracez`](http://localhost:55679/debug/tracez) for activity details of each receiver and exporter in the pipeline
 
-## Internal Otel Exporter
+## Check the collector is running properly
 
 The *OpenTelemetry Collector* runs an internal Prometheus Exporter on port 8888, exposing metrics related to its operations, notably the number of metrics being processed in its pipeline, and how many errors have been encountered pushing these metrics to the outside.
 
-These metrics can be scraped with a *Prometheus Server*, or simply visualized in browser by connecting to `http://localhost:8888/metrics`.
+These metrics can be scraped with a *Prometheus Server*, or simply visualized by connecting to `http://localhost:8888/metrics`.
 
 ```text
 # HELP otelcol_exporter_queue_size Current size of the retry queue (in batches)
@@ -106,3 +100,5 @@ service:
       processors: [memory_limiter, batch, resourcedetection, metricstransform]
       exporters: [...] # List here the platform of your choice
 ```
+
+> Additional troubleshooting information is available in the [OpenTelemetry Collector's Troubleshooting Guide](https://github.com/open-telemetry/opentelemetry-collector/blob/main/docs/troubleshooting.md).

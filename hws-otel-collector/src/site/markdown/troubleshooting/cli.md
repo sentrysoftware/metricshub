@@ -1,4 +1,4 @@
-keywords: overview
+keywords: cli
 description: The hws CLI is the core Hardware Sentry engine wrapped in a command line interface. System administrators can easily invoke this tool in a shell to discover the hardware components of the specified host and report any hardware-related problem.
 
 # Hardware Sentry CLI (`hws`)
@@ -27,7 +27,7 @@ Supported systems include:
 * SAN switches
 * Storage systems (disk arrays, filers, tape libraries)
 
-The detailed list of supported systems (manufacturer and product family and the required instrumentation stack) is listed in [Sentry's Hardware Connectors Library](https://www.sentrysoftware.com/docs/hardware-connectors/latest/platform-requirements.html).
+The detailed list of supported systems (manufacturer and product family and the required instrumentation stack) is listed in [Sentry's Hardware Connectors Library](../platform-requirements.html).
 
 The quantity and quality of the information that **${project.name}** will gather depends on the instrumentation stack available on the targeted host.
 

@@ -10,7 +10,7 @@
 	<custom>
 		<projectVersion>${project.version}</projectVersion>
 		<bodyClass>sentry-hardware</bodyClass>
-		<keywords>hardware,prometheus,exporter,opentelemetry,otel</keywords>
+		<keywords>hardware,observability, opentelemetry,otel, sustainability</keywords>
 		<publishDate>${timestamp}</publishDate>
 		<noDefaultLinks>true</noDefaultLinks>
 	</custom>
@@ -18,28 +18,29 @@
 	<body>
 
 		<menu name="Getting Started">
-			<item name="Overview" href="index.html"/>
 			<item name="Release Notes" href="release-notes.html" />
-			<item name="Supported Platforms" href="platform-requirements.html " />
+			<item name="Overview" href="index.html"/>
+			<item name="Monitored Systems" href="platform-requirements.html " />
 			<item name="Quick Start" href="start.html "/>
 			<item name="Installation" href="install.html"/>
 		</menu>
 	
 		<menu name="Configuration">
-			<item name="OpenTelemetry Collector" href="configuration/configure-otel.html" />
 			<item name="Hardware Sentry Agent" href="configuration/configure-agent.html" />
 			<item name="Security" href="security/security.html">
 				<item name="Password Encryption" href="security/passwords.html" />
 				<item name="Security Settings" href="security/settings.html" />
 			</item>
-			<item  name="Alerts" href="alerts.html"/>
+			<item name="Alerts" href="alerts.html"/>
+			<item name="OpenTelemetry Advanced Settings" href="configuration/configure-otel.html" />
 		</menu>
 
 		<menu name="Integrations">
 			<item name="Datadog" href="integration/datadog.html"/>
-			<item name="Prometheus Server" href="integration/prometheus.html"/>
-			<item name="Prometheus AlertManager" href="integration/alertmanager.html"/>
-			<item name="Grafana Dashboards" href="integration/grafana.html"/>
+			<item name="Prometheus/Grafana" href="prometheus/prometheus.html">
+				<item name="Prometheus AlertManager" href="prometheus/alertmanager.html" />
+				<item name="Grafana Dashboards" href="prometheus/grafana.html" />
+			</item>
 			<item name="BMC Helix" href="integration/helix.html"/>
 		</menu>
 

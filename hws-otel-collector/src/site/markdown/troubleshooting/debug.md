@@ -1,4 +1,4 @@
-keywords: debug, prometheus exporter, hardware
+keywords: debug
 description: There are several options to debug ${project.name} and troubleshoot its activity.
 
 # Debugging
