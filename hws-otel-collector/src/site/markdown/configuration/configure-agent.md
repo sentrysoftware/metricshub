@@ -607,7 +607,7 @@ To force all the network calls to be executed in sequential order:
 
 > **Warning**: Sending requests in sequential mode slows down the monitoring significantly. Instead of using the sequential mode, you could increase the maximum number of allowed concurrent requests in the monitored system, if the manufacturer allows it.
 
-### Timeout, Duration and Period Format
+#### Timeout, Duration and Period Format
 
 Timeouts, durations and periods are specified with the below format:
 

@@ -24,8 +24,7 @@ This version of **${project.name}** leverages **version ${otelVersion}** of Open
 
 ### OTLP gRPC
 
-> **Warning**: Only update this section if you customized the [Hardware Sentry Agent extension settings](#Hardware_Sentry_Agent).
-
+> **Warning**: Only update this section if you customized the [Hardware Sentry Agent extension settings](#Hardware_Sentry_Agent_28hws_agent29).
 The **Hardware Sentry Agent** pushes the collected data to the [`OTLP Receiver`](https://github.com/open-telemetry/opentelemetry-collector/tree/main/receiver/otlpreceiver) via [gRPC](https://grpc.io/) on port **TCP/4317**.
 
 The `OTLP Receiver` is configured by default with the self-signed certificate `security/otel.crt` and the private key `security/otel.key` to enable the TLS protocol. If you wish to set your own certificate file, configure the **Hardware Sentry Agent** with the correct [Trusted Certificates File](configure-agent.html#Trusted_certificates_file). Because the `OTLP Exporter` of the **Hardware Sentry Agent** performs hostname verification, you will also have to add the `localhost` entry (`DNS:localhost,IP:127.0.0.1`) to the `Subject Alternative Name (SAN)` extension of the new generated certificate.
