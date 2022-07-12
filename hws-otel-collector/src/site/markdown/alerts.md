@@ -233,10 +233,9 @@ The following macros can be used to obtain more details about the problem. They 
 
 ## Receiving Alerts
 
-To export alerts to the console:
+To receive **${project.name}**'s alerts, your `Exporter` must support the OpenTelemetry `logs` pipeline.
 
-* make sure your observability platform (`Exporter`) supports the OpenTelemetry `logs`
-* add `logging` in the `service:pipelines:logs:exporters` section of the `config/otel-config.yaml` file:
+For troubleshooting purposes, you can add `logging` in the `service:pipelines:logs:exporters` section of the `config/otel-config.yaml` file:
 
 ```yaml
 
@@ -249,3 +248,5 @@ service:
       processors: [memory_limiter, batch, resourcedetection]
       exporters: [logging] # List here the platform of your choice
 ```
+
+Alerts will then be exported to the console.
