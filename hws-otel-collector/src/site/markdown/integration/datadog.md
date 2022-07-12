@@ -26,30 +26,30 @@ Before you can start viewing the metrics collected by **${project.name}** in Dat
 1. Browse to open the **${project.name}** configuration directory (`hws-otel-collector/config` by default) and open the `config/otel-config.yaml` configuration file.
 2. Find the `exporters` section and edit it as follows:
 
-```yaml
-exporters:
-  # Datadog
-  # <https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/datadogexporter>
-  datadog/api:
-    api:
-      key: <apikey>
-      # site: datadoghq.eu # Specify the Datadog site you are on (datadoghq.com for the US (default), datadoghq.eu for Europe, ddog-gov.com for Governement sites). Refer to https://docs.datadoghq.com/getting_started/site/ for more details. 
-    metrics:
-      resource_attributes_as_tags: true # IMPORTANT
-```
+    ```yaml
+    exporters:
+      # Datadog
+      # <https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/datadogexporter>
+      datadog/api:
+        api:
+          key: <apikey>
+          # site: datadoghq.eu # Specify the Datadog site you are on (datadoghq.com for the US (default), datadoghq.eu for Europe, ddog-gov.com for Governement sites). Refer to https://docs.datadoghq.com/getting_started/site/ for more details. 
+        metrics:
+          resource_attributes_as_tags: true # IMPORTANT
+    ```
 
-where `<apikey>` corresponds to your Datadog API key.
+      where `<apikey>` corresponds to your Datadog API key.
 
-and declare the exporter in the `pipelines` section as follows:
+3. Declare the exporter in the `pipelines` section as follows:
 
-```yaml
-service:
-  pipelines:
-    metrics:
-      exporters: [datadog/api] # Datadog must be listed here
-```
+    ```yaml
+    service:
+      pipelines:
+        metrics:
+          exporters: [datadog/api] # Datadog must be listed here
+    ```
 
-Restart **${project.name}** to apply your changes.
+4. Restart **${project.name}** to apply your changes.
 
 Refer to [Configuring the OpenTelemetry Collector](../configuration/configure-otel.html) for more details.
 
@@ -140,7 +140,7 @@ The **Power, Cost and CO₂ Emissions** widget available in the **Hardware Sentr
 
 * is the most energy-intensive (**Yearly Energy Usage (Wh)**)
 * has the highest energy costs (**Yearly Cost ($)**)
-* is the most harmful for the environment (**Yearly CO₂ Emissions (tons**)).
+* is the most harmful for the environment (**Yearly CO₂ Emissions (tons)**).
 
 ![Datadog Dashboards - Power, Cost and CO₂ Emissions by Site](../images/datadog-main-power-costs-emissions.png)
 
