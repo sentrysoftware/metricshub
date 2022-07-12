@@ -76,7 +76,7 @@ where:
 * `hw.site.electricity_cost_dollars` is the **electricity price in dollars per kiloWattHour**. This information is required to calculate the energy cost of your IT infrastructure. Refer to your energy contract to know the tariff by kilowatt per hour charged by your supplier or refer to the [GlobalPetrolPrices Web site](https://www.globalpetrolprices.com/electricity_prices/#:~:text=The%20world%20average%20price%20is,1%2C000%2C000%20kWh%20consumption%20per%20year).
 * `hw.site.pue_ratio` is the **Power Usage Effectiveness (PUE)** of your site. By default, sites are set with a PUE of 1.8, which is the average value for typical data centers.
 
-### Configuring the hosts to monitored
+### Configuring the hosts to be monitored
 
 For each host to be monitored, you need to specify its hostname, type, and protocol to be used in the **config/hws-config.yaml** file. Refer to [Configuring the Hardware Sentry Agent](../configuration/configure-agent.html) for more details.
 
