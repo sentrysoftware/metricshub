@@ -50,6 +50,8 @@
 		<protobufVersion>3.11.4</protobufVersion>
 		<protocVersion>${protobufVersion}</protocVersion>
 		<otelVersion>0.55.0</otelVersion>
+		<ddog.version>1.0.00</ddog.version>
+		<hwgraf.version>2.0</hwgraf.version>
 	</properties>
 
 	<modules>
@@ -445,6 +447,28 @@
 							<formattedPropertyPrefix>formattedHcVersion</formattedPropertyPrefix>
 						</configuration>
 					</execution>
+					<execution>
+						<id>parse-hwgraf-version</id>
+						<phase>initialize</phase>
+						<goals>
+							<goal>parse-version</goal>
+						</goals>
+						<configuration>
+							<versionString>${hwgraf.version}</versionString>
+							<formattedPropertyPrefix>formattedHwGrafVersion</formattedPropertyPrefix>
+						</configuration>
+					</execution>
+					<execution>
+						<id>parse-ddog-version</id>
+						<phase>initialize</phase>
+						<goals>
+							<goal>parse-version</goal>
+						</goals>
+						<configuration>
+							<versionString>${ddog.version}</versionString>
+							<formattedPropertyPrefix>formattedDDogVersion</formattedPropertyPrefix>
+						</configuration>
+					</execution>
 					<!-- Same as above, but when run with simple `mvn site` -->
 					<execution>
 						<id>parse-version-for-site</id>
@@ -462,6 +486,28 @@
 						<configuration>
 							<versionString>${hardware-connectors.version}</versionString>
 							<formattedPropertyPrefix>formattedHcVersion</formattedPropertyPrefix>
+						</configuration>
+					</execution>
+					<execution>
+						<id>parse-hwgraf-version-for-site</id>
+						<phase>pre-site</phase>
+						<goals>
+							<goal>parse-version</goal>
+						</goals>
+						<configuration>
+							<versionString>${hwgraf.version}</versionString>
+							<formattedPropertyPrefix>formattedHwGrafVersion</formattedPropertyPrefix>
+						</configuration>
+					</execution>
+					<execution>
+						<id>parse-ddog-version-for-site</id>
+						<phase>pre-site</phase>
+						<goals>
+							<goal>parse-version</goal>
+						</goals>
+						<configuration>
+							<versionString>${ddog.version}</versionString>
+							<formattedPropertyPrefix>formattedDDogVersion</formattedPropertyPrefix>
 						</configuration>
 					</execution>
 				</executions>
