@@ -49,18 +49,14 @@ From [Sentry Software's Web site](https://www.sentrysoftware.com/downloads/), do
 
 #### Install
 
-##### Unzip
-
-Unzip and untar the content of **${project.artifactId}-${project.version}-docker.tar.gz** into a docker directory, like **/docker**. There is no need to create a specific subdirectory for `hws-otel-collector` as the archive already contains an **hws-otel-collector** directory.
+First, unzip and untar the content of **${project.artifactId}-${project.version}-docker.tar.gz** into a docker directory, like **/docker**. There is no need to create a specific subdirectory for `hws-otel-collector` as the archive already contains an **hws-otel-collector** directory.
 
 ```shell-session
 / $ cd /docker
 /docker $ sudo tar xf /tmp/${project.artifactId}-${project.version}-docker.tar.gz
 ```
 
-##### Build
-
-Build the docker image using the following command. 
+Then, build the docker image using the following command:
 
 ```shell-session
 / $ cd /docker/hws-otel-collector
@@ -96,9 +92,9 @@ You can start the **${project.name}** with an alternate configuration file path 
 
 See [Ports and Firewalls](#Ports_and_Firewalls) for port details.
 
-##### Docker Compose Example
+**Docker Compose Example**
 
-You can start the **${project.name}** with docker-compose 
+You can start the **${project.name}** with docker-compose:
 
 ```shell-session
 /docker/hws-otel-collector$ sudo docker-compose up -d --build

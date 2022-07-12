@@ -89,7 +89,7 @@ The `exporters` section defines the destination of the collected metrics. **${pr
 * [Logging Exporter](https://github.com/open-telemetry/opentelemetry-collector/tree/main/exporter/loggingexporter)
 * [Splunk SignalFx Exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/signalfxexporter)
 
-You can configure several exporters in the same instance of the *OpenTelemetry Collector* to sent the collected metrics to multiple platforms.
+You can configure several exporters in the same instance of the *OpenTelemetry Collector* to send the collected metrics to multiple platforms.
 
 Use the above links to learn how to configure these exporters. Specific integration scenarios are also described for:
 

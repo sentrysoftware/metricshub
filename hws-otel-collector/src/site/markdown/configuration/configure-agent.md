@@ -5,13 +5,13 @@ description: How to configure Hardware Sentry Agent to scrape hosts with various
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
-The **Hardware Sentry Agent** collects the hardware health of the monitored systems and pushes the collected data to the OTLP receiver. **${project.name}** then processes the hardware observability and sustainability metrics and exposes them by site in the backend platform of your choice (Datadog, BMC Helix, Prometheus, Grafana, etc.).
+The **Hardware Sentry Agent** collects the hardware health of the monitored systems and pushes the collected data to the OTLP receiver. **${project.name}** then processes the hardware observability and sustainability metrics and exposes them in the backend platform of your choice (Datadog, BMC Helix, Prometheus, Grafana, etc.).
 
 To ensure this process runs smoothly, you need to configure a few settings in the `config/hws-config.yaml` file to allow **${project.name}** to:
 
-* group the monitored systems into sites
-* calculate the electricity costs and the carbon footprint of your sites
-* monitor the systems that compose your sites.
+* identify which site is monitored with this agent
+* calculate the electricity costs and the carbon footprint of this site
+* monitor the systems in this site.
 
 Note that all changes made to the  `config/hws-config.yaml` file are taken into account immediately. There is therefore no need to restart the *OpenTelemetry Collector*.
 
@@ -37,7 +37,7 @@ extraMetrics:
 
 where:
 * `hw.site.carbon_density_grams` is the **carbon density in grams per kiloWatthour**. This information is required to calculate the carbon emissions of your site. The carbon density corresponds to the amount of CO₂ emissions produced per kWh of electricity and varies depending on the country and the region where the data center is located. See the [electricityMap Web site](https://app.electricitymap.org/map) for reference. 
-* `hw.site.electricity_cost_dollars` is the **electricity price in dollars per kiloWattHour**. This information is required to calculate the energy cost of your site. Refer to your energy contract to know the tariff by kilowatt per hour charged by your supplier or refer to the [GlobalPetrolPrices Web site](https://www.globalpetrolprices.com/electricity_prices/#:~:text=The%20world%20average%20price%20is,1%2C000%2C000%20kWh%20consumption%20per%20year).
+* `hw.site.electricity_cost_dollars` is the **electricity price in dollars per kiloWattHour**. This information is required to calculate the energy cost of your site. Refer to your energy contract to know the tariff by kilowatt per hour charged by your supplier or refer to the [GlobalPetrolPrices Web site](https://www.globalpetrolprices.com/electricity_prices/).
 * `hw.site.pue_ratio` is the **Power Usage Effectiveness (PUE)** of your site. By default, sites are set with a PUE of 1.8, which is the average value for typical data centers.
 
 ## Configure the monitored hosts
@@ -82,15 +82,6 @@ where:
   
 * `<protocol-configuration>` is the protocol(s) **${project.name}** will use to communicate with the hosts: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](#protocol) for more details.
 
-Depending on the protocol used, you may have to set a timeout, using the format below:
-
-| Unit | Description                     | Examples         |
-| ---- | ------------------------------- | ---------------- |
-| s    | seconds                         | 120s             |
-| m    | minutes                         | 90m, 1m15s       |
-| h    | hours                           | 1h, 1h30m        |
-| d    | days (based on a 24-hour day)   | 1d               |
-
 <a name="protocol"></a>
 
 ### Protocols and credentials
@@ -106,7 +97,7 @@ Use the parameters below to configure the HTTP protocol:
 | username  | Name used to establish the connection with the host via the HTTP protocol.       |
 | password  | Password used to establish the connection with the host via the HTTP protocol.   |
 
-##### Example
+**Example**
 
 ```yaml
 hosts:
@@ -131,7 +122,7 @@ Use the parameters below to configure the IPMI protocol:
 | username  | Name used to establish the connection with the host via the IPMI protocol.     |
 | password  | Password used to establish the connection with the host via the IPMI protocol. |
 
-##### Example
+**Example**
 
 ```yaml
 hosts:
@@ -146,7 +137,7 @@ hosts:
 
 #### OS commands
 
-Use the parameters below to configure OS Commands:
+Use the parameters below to configure OS Commands that are executed locally:
 
 | Parameter       | Description                                                                           |
 | --------------- | ------------------------------------------------------------------------------------- |
@@ -156,7 +147,7 @@ Use the parameters below to configure OS Commands:
 | useSudoCommands | List of commands for which sudo is required.                                          |
 | sudoCommand     | Sudo command to be used (Default: sudo).                                              |
 
-##### Example
+**Example**
 
 ```yaml
 hosts:
@@ -185,7 +176,7 @@ Use the parameters below to configure the SSH protocol:
 | password        | Password to use for performing the SSH query.                                             |
 | privateKey      | Private Key File to use to establish the connection to the host through the SSH protocol. |
 
-##### Example
+**Example**
 
 ```yaml
 hosts:
@@ -219,7 +210,7 @@ Use the parameters below to configure the SNMP protocol:
 | username         | _SNMP v3 only_ - Name to use for performing the SNMP query.                    |
 | password         | _SNMP v3 only_ - Password to use for performing the SNMP query.                |
 
-##### Example
+**Example**
 
 ```yaml
 hosts:
@@ -269,7 +260,7 @@ Use the parameters below to configure the WBEM protocol:
 | username  | Name used to establish the connection with the host via the WBEM protocol.                     |
 | password  | Password used to establish the connection with the host via the WBEM protocol.                 |
 
-##### Example
+**Example**
 
 ```yaml
 hosts:
@@ -296,7 +287,7 @@ Use the parameters below to configure the WMI protocol:
 | username  | Name used to establish the connection with the host via the WMI protocol.     |
 | password  | Password used to establish the connection with the host via the WMI protocol. |
 
-##### Example
+**Example**
 
 ```yaml
 hosts:
@@ -324,7 +315,7 @@ Use the parameters below to configure the WinRM protocol:
 | port            | The port number used to perform WQL queries and commands (Default: 5985 for HTTP or 5986 for HTTPS). |
 | authentications | Ordered list of authentication schemes: NTLM, KERBEROS (Default: NTLM).                              |
 
-##### Example
+**Example**
 
 ```yaml
 hosts:
@@ -615,6 +606,17 @@ To force all the network calls to be executed in sequential order:
     ```
 
 > **Warning**: Sending requests in sequential mode slows down the monitoring significantly. Instead of using the sequential mode, you could increase the maximum number of allowed concurrent requests in the monitored system, if the manufacturer allows it.
+
+### Timeout, Duration and Period Format
+
+Timeouts, durations and periods are specified with the below format:
+
+| Unit | Description                     | Examples         |
+| ---- | ------------------------------- | ---------------- |
+| s    | seconds                         | 120s             |
+| m    | minutes                         | 90m, 1m15s       |
+| h    | hours                           | 1h, 1h30m        |
+| d    | days (based on a 24-hour day)   | 1d               |
 
 ### Security settings
 
