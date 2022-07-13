@@ -54,7 +54,7 @@ class EMCDiskArrayIT {
 		ConnectorStore.getInstance().getConnectors().put(CONNECTOR_NAME, connector);
 
 		engineConfiguration = EngineConfiguration.builder()
-				.host(HardwareHost.builder().hostname("0.0.0.0").id("localhost").type(HostType.STORAGE).build())
+				.host(HardwareHost.builder().hostname("localhost").id("localhost").type(HostType.STORAGE).build())
 				.selectedConnectors(Set.of(CONNECTOR_NAME))
 				.protocolConfigurations(PROTOCOL_CONFIGURATIONS).build();
 	}
