@@ -140,11 +140,18 @@ groups:
 
 - name: Voltage
   rules:
-  - alert: Voltage-Low-Critical
+  - alert: Voltage-Low-critical
     expr:  hw_voltage_volts <= ignoring(limit_type) hw_voltage_limit_volts{limit_type="low.critical"}
     labels:
       severity: 'critical'
   - alert: Voltage-High-critical
     expr:  hw_voltage_volts >= ignoring(limit_type) hw_voltage_limit_volts{limit_type="high.critical"}
+    labels:
+      severity: 'critical'
+
+- name: Protocol-Status
+  rules:
+  - alert: Protocol-Status-critical
+    expr: hardware_sentry_host_up == 0
     labels:
       severity: 'critical'
