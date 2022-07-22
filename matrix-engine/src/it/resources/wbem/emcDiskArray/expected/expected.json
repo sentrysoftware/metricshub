@@ -65,8 +65,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-SPS-3A (Aggregate)",
       "displayid" : "SB-1-+-SPS-3A (Aggregate)",
       "idCount" : "0",
-      "identifyingInformation" : "",
-      "hostFqdn" : "0.0.0.0"
+      "identifyingInformation" : ""
     },
     "alertRules" : {
       "charge" : [ {
@@ -193,8 +192,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-SPS-3B (Aggregate)",
       "displayid" : "SB-1-+-SPS-3B (Aggregate)",
       "idCount" : "1",
-      "identifyingInformation" : "",
-      "hostFqdn" : "0.0.0.0"
+      "identifyingInformation" : ""
     },
     "alertRules" : {
       "charge" : [ {
@@ -296,7 +294,7 @@
         "collectTime" : 1634216914543,
         "previousCollectTime" : null,
         "unit" : null,
-        "value" : "Received Result: SYMMETRIX-+-000297800620;3|15|;. Wbem test succeeded:\n- WQL Query: SELECT Name,Dedicated FROM EMC_StorageSystem\n- Namespace: root/emc\n\nResult: SYMMETRIX-+-000297800620;3|15|;\nReceived Result: 0;\n1;\n2;\n3;\n4;\n380;\n381;\n382;\n383;\n388;\n5;\n6;\n7;\n8;\n384;\n385;\n386;\n387;. Wbem test succeeded:\n- WQL Query: SELECT DeviceID FROM EMC_DiskDrive\n- Namespace: root/emc\n\nResult: 0;\n1;\n2;\n3;\n4;\n380;\n381;\n382;\n383;\n388;\n5;\n6;\n7;\n8;\n384;\n385;\n386;\n387;\nConclusion: TEST on 0.0.0.0 SUCCEEDED",
+        "value" : "Received Result: SYMMETRIX-+-000297800620;3|15|;. Wbem test succeeded:\n- WQL Query: SELECT Name,Dedicated FROM EMC_StorageSystem\n- Namespace: root/emc\n\nResult: SYMMETRIX-+-000297800620;3|15|;\nReceived Result: 0;\n1;\n2;\n3;\n4;\n380;\n381;\n382;\n383;\n388;\n5;\n6;\n7;\n8;\n384;\n385;\n386;\n387;. Wbem test succeeded:\n- WQL Query: SELECT DeviceID FROM EMC_DiskDrive\n- Namespace: root/emc\n\nResult: 0;\n1;\n2;\n3;\n4;\n380;\n381;\n382;\n383;\n388;\n5;\n6;\n7;\n8;\n384;\n385;\n386;\n387;\nConclusion: TEST on localhost SUCCEEDED",
         "previousValue" : null,
         "type" : "TextParam"
       }
@@ -304,8 +302,7 @@
     "metadata" : {
       "compiledFileName" : "EMCDiskArray",
       "description" : "This connector discovers the enclosure and the disks of EMC SAN disk arrays, as well as the storage pools and storage volumes. It will also discover and monitor the FC ports of the array and the various environment sensors when available (temperatures, fans, power supplies, etc.). It relies on the WBEM technology and supports SMI-S compliant disk arrays only.",
-      "displayName" : "EMC SMI-S Agent (ECOM)",
-      "hostFqdn" : "0.0.0.0"
+      "displayName" : "EMC SMI-S Agent (ECOM)"
     },
     "alertRules" : {
       "status" : [ {
@@ -390,7 +387,6 @@
       "model" : "VMAX250F",
       "parameteractivation.status" : "2|32769|",
       "serialnumber" : "000297800620",
-      "hostFqdn" : "0.0.0.0",
       "type" : "Storage",
       "vendor" : "EMC"
     },
@@ -495,8 +491,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-0",
       "displayid" : "SB-1-+-ES-1-+-DIR-1-+-FAN-0",
       "idCount" : "0",
-      "identifyingInformation" : "",
-      "hostFqdn" : "0.0.0.0"
+      "identifyingInformation" : ""
     },
     "alertRules" : {
       "present" : [ {
@@ -656,8 +651,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-1",
       "displayid" : "SB-1-+-ES-1-+-DIR-1-+-FAN-1",
       "idCount" : "1",
-      "identifyingInformation" : "",
-      "hostFqdn" : "0.0.0.0"
+      "identifyingInformation" : ""
     },
     "alertRules" : {
       "present" : [ {
@@ -817,8 +811,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-2",
       "displayid" : "SB-1-+-ES-1-+-DIR-1-+-FAN-2",
       "idCount" : "2",
-      "identifyingInformation" : "",
-      "hostFqdn" : "0.0.0.0"
+      "identifyingInformation" : ""
     },
     "alertRules" : {
       "present" : [ {
@@ -978,8 +971,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-3",
       "displayid" : "SB-1-+-ES-1-+-DIR-1-+-FAN-3",
       "idCount" : "3",
-      "identifyingInformation" : "",
-      "hostFqdn" : "0.0.0.0"
+      "identifyingInformation" : ""
     },
     "alertRules" : {
       "present" : [ {
@@ -1139,8 +1131,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-FAN-4",
       "displayid" : "SB-1-+-ES-1-+-DIR-1-+-FAN-4",
       "idCount" : "4",
-      "identifyingInformation" : "",
-      "hostFqdn" : "0.0.0.0"
+      "identifyingInformation" : ""
     },
     "alertRules" : {
       "present" : [ {
@@ -1300,8 +1291,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-0",
       "displayid" : "SB-1-+-ES-1-+-DIR-2-+-FAN-0",
       "idCount" : "5",
-      "identifyingInformation" : "",
-      "hostFqdn" : "0.0.0.0"
+      "identifyingInformation" : ""
     },
     "alertRules" : {
       "present" : [ {
@@ -1461,8 +1451,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-1",
       "displayid" : "SB-1-+-ES-1-+-DIR-2-+-FAN-1",
       "idCount" : "6",
-      "identifyingInformation" : "",
-      "hostFqdn" : "0.0.0.0"
+      "identifyingInformation" : ""
     },
     "alertRules" : {
       "present" : [ {
@@ -1622,8 +1611,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-2",
       "displayid" : "SB-1-+-ES-1-+-DIR-2-+-FAN-2",
       "idCount" : "7",
-      "identifyingInformation" : "",
-      "hostFqdn" : "0.0.0.0"
+      "identifyingInformation" : ""
     },
     "alertRules" : {
       "present" : [ {
@@ -1783,8 +1771,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-3",
       "displayid" : "SB-1-+-ES-1-+-DIR-2-+-FAN-3",
       "idCount" : "8",
-      "identifyingInformation" : "",
-      "hostFqdn" : "0.0.0.0"
+      "identifyingInformation" : ""
     },
     "alertRules" : {
       "present" : [ {
@@ -1944,8 +1931,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-FAN-4",
       "displayid" : "SB-1-+-ES-1-+-DIR-2-+-FAN-4",
       "idCount" : "9",
-      "identifyingInformation" : "",
-      "hostFqdn" : "0.0.0.0"
+      "identifyingInformation" : ""
     },
     "alertRules" : {
       "present" : [ {
@@ -2146,8 +2132,7 @@
       "idCount" : "4",
       "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B020",
-      "physicaladdresstype" : "WWN",
-      "hostFqdn" : "0.0.0.0"
+      "physicaladdresstype" : "WWN"
     },
     "alertRules" : {
       "bandwidthUtilization" : [ {
@@ -2349,8 +2334,7 @@
       "idCount" : "5",
       "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B021",
-      "physicaladdresstype" : "WWN",
-      "hostFqdn" : "0.0.0.0"
+      "physicaladdresstype" : "WWN"
     },
     "alertRules" : {
       "bandwidthUtilization" : [ {
@@ -2552,8 +2536,7 @@
       "idCount" : "0",
       "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B004",
-      "physicaladdresstype" : "WWN",
-      "hostFqdn" : "0.0.0.0"
+      "physicaladdresstype" : "WWN"
     },
     "alertRules" : {
       "bandwidthUtilization" : [ {
@@ -2755,8 +2738,7 @@
       "idCount" : "1",
       "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B005",
-      "physicaladdresstype" : "WWN",
-      "hostFqdn" : "0.0.0.0"
+      "physicaladdresstype" : "WWN"
     },
     "alertRules" : {
       "bandwidthUtilization" : [ {
@@ -2958,8 +2940,7 @@
       "idCount" : "2",
       "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B006",
-      "physicaladdresstype" : "WWN",
-      "hostFqdn" : "0.0.0.0"
+      "physicaladdresstype" : "WWN"
     },
     "alertRules" : {
       "bandwidthUtilization" : [ {
@@ -3161,8 +3142,7 @@
       "idCount" : "3",
       "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B007",
-      "physicaladdresstype" : "WWN",
-      "hostFqdn" : "0.0.0.0"
+      "physicaladdresstype" : "WWN"
     },
     "alertRules" : {
       "bandwidthUtilization" : [ {
@@ -3364,8 +3344,7 @@
       "idCount" : "10",
       "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B060",
-      "physicaladdresstype" : "WWN",
-      "hostFqdn" : "0.0.0.0"
+      "physicaladdresstype" : "WWN"
     },
     "alertRules" : {
       "bandwidthUtilization" : [ {
@@ -3567,8 +3546,7 @@
       "idCount" : "11",
       "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B061",
-      "physicaladdresstype" : "WWN",
-      "hostFqdn" : "0.0.0.0"
+      "physicaladdresstype" : "WWN"
     },
     "alertRules" : {
       "bandwidthUtilization" : [ {
@@ -3770,8 +3748,7 @@
       "idCount" : "6",
       "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B044",
-      "physicaladdresstype" : "WWN",
-      "hostFqdn" : "0.0.0.0"
+      "physicaladdresstype" : "WWN"
     },
     "alertRules" : {
       "bandwidthUtilization" : [ {
@@ -3977,8 +3954,7 @@
       "idCount" : "7",
       "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B045",
-      "physicaladdresstype" : "WWN",
-      "hostFqdn" : "0.0.0.0"
+      "physicaladdresstype" : "WWN"
     },
     "alertRules" : {
       "bandwidthUtilization" : [ {
@@ -4180,8 +4156,7 @@
       "idCount" : "8",
       "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B046",
-      "physicaladdresstype" : "WWN",
-      "hostFqdn" : "0.0.0.0"
+      "physicaladdresstype" : "WWN"
     },
     "alertRules" : {
       "bandwidthUtilization" : [ {
@@ -4383,8 +4358,7 @@
       "idCount" : "9",
       "identifyingInformation" : "",
       "physicaladdress" : "50000975A809B047",
-      "physicaladdresstype" : "WWN",
-      "hostFqdn" : "0.0.0.0"
+      "physicaladdresstype" : "WWN"
     },
     "alertRules" : {
       "bandwidthUtilization" : [ {
@@ -4538,8 +4512,7 @@
       "displayid" : "SYMMETRIX-+-000297800620-+-DF-1C",
       "idCount" : "4",
       "identifyingInformation" : "Location: Slot - 1",
-      "serialnumber" : "",
-      "hostFqdn" : "0.0.0.0"
+      "serialnumber" : ""
     },
     "alertRules" : {
       "present" : [ {
@@ -4646,8 +4619,7 @@
       "displayid" : "SYMMETRIX-+-000297800620-+-DF-2C",
       "idCount" : "5",
       "identifyingInformation" : "Location: Slot - 2",
-      "serialnumber" : "",
-      "hostFqdn" : "0.0.0.0"
+      "serialnumber" : ""
     },
     "alertRules" : {
       "present" : [ {
@@ -4754,8 +4726,7 @@
       "displayid" : "SYMMETRIX-+-000297800620-+-ED-1B",
       "idCount" : "2",
       "identifyingInformation" : "Location: Slot - 1",
-      "serialnumber" : "",
-      "hostFqdn" : "0.0.0.0"
+      "serialnumber" : ""
     },
     "alertRules" : {
       "present" : [ {
@@ -4862,8 +4833,7 @@
       "displayid" : "SYMMETRIX-+-000297800620-+-ED-2B",
       "idCount" : "3",
       "identifyingInformation" : "Location: Slot - 2",
-      "serialnumber" : "",
-      "hostFqdn" : "0.0.0.0"
+      "serialnumber" : ""
     },
     "alertRules" : {
       "present" : [ {
@@ -4970,8 +4940,7 @@
       "displayid" : "SYMMETRIX-+-000297800620-+-FA-1D",
       "idCount" : "6",
       "identifyingInformation" : "Location: Slot - 1",
-      "serialnumber" : "",
-      "hostFqdn" : "0.0.0.0"
+      "serialnumber" : ""
     },
     "alertRules" : {
       "present" : [ {
@@ -5078,8 +5047,7 @@
       "displayid" : "SYMMETRIX-+-000297800620-+-FA-2D",
       "idCount" : "7",
       "identifyingInformation" : "Location: Slot - 2",
-      "serialnumber" : "",
-      "hostFqdn" : "0.0.0.0"
+      "serialnumber" : ""
     },
     "alertRules" : {
       "present" : [ {
@@ -5186,8 +5154,7 @@
       "displayid" : "SYMMETRIX-+-000297800620-+-IM-1A",
       "idCount" : "0",
       "identifyingInformation" : "Location: Slot - 1",
-      "serialnumber" : "",
-      "hostFqdn" : "0.0.0.0"
+      "serialnumber" : ""
     },
     "alertRules" : {
       "present" : [ {
@@ -5294,8 +5261,7 @@
       "displayid" : "SYMMETRIX-+-000297800620-+-IM-2A",
       "idCount" : "1",
       "identifyingInformation" : "Location: Slot - 2",
-      "serialnumber" : "",
-      "hostFqdn" : "0.0.0.0"
+      "serialnumber" : ""
     },
     "alertRules" : {
       "present" : [ {
@@ -5414,7 +5380,6 @@
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
-      "hostFqdn" : "0.0.0.0",
       "vendor" : ""
     },
     "alertRules" : {
@@ -5581,7 +5546,6 @@
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
-      "hostFqdn" : "0.0.0.0",
       "vendor" : ""
     },
     "alertRules" : {
@@ -5748,7 +5712,6 @@
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
-      "hostFqdn" : "0.0.0.0",
       "vendor" : ""
     },
     "alertRules" : {
@@ -5915,7 +5878,6 @@
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
-      "hostFqdn" : "0.0.0.0",
       "vendor" : ""
     },
     "alertRules" : {
@@ -6082,7 +6044,6 @@
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
-      "hostFqdn" : "0.0.0.0",
       "vendor" : ""
     },
     "alertRules" : {
@@ -6249,7 +6210,6 @@
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
-      "hostFqdn" : "0.0.0.0",
       "vendor" : ""
     },
     "alertRules" : {
@@ -6416,7 +6376,6 @@
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
-      "hostFqdn" : "0.0.0.0",
       "vendor" : ""
     },
     "alertRules" : {
@@ -6583,7 +6542,6 @@
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
-      "hostFqdn" : "0.0.0.0",
       "vendor" : ""
     },
     "alertRules" : {
@@ -6750,7 +6708,6 @@
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
-      "hostFqdn" : "0.0.0.0",
       "vendor" : ""
     },
     "alertRules" : {
@@ -6917,7 +6874,6 @@
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
-      "hostFqdn" : "0.0.0.0",
       "vendor" : ""
     },
     "alertRules" : {
@@ -7084,7 +7040,6 @@
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
-      "hostFqdn" : "0.0.0.0",
       "vendor" : ""
     },
     "alertRules" : {
@@ -7251,7 +7206,6 @@
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
-      "hostFqdn" : "0.0.0.0",
       "vendor" : ""
     },
     "alertRules" : {
@@ -7418,7 +7372,6 @@
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
-      "hostFqdn" : "0.0.0.0",
       "vendor" : ""
     },
     "alertRules" : {
@@ -7585,7 +7538,6 @@
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
-      "hostFqdn" : "0.0.0.0",
       "vendor" : ""
     },
     "alertRules" : {
@@ -7752,7 +7704,6 @@
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
-      "hostFqdn" : "0.0.0.0",
       "vendor" : ""
     },
     "alertRules" : {
@@ -7919,7 +7870,6 @@
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
-      "hostFqdn" : "0.0.0.0",
       "vendor" : ""
     },
     "alertRules" : {
@@ -8086,7 +8036,6 @@
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
-      "hostFqdn" : "0.0.0.0",
       "vendor" : ""
     },
     "alertRules" : {
@@ -8253,7 +8202,6 @@
       "model" : "",
       "serialnumber" : "",
       "size" : "9.40589056E11",
-      "hostFqdn" : "0.0.0.0",
       "vendor" : ""
     },
     "alertRules" : {
@@ -8405,8 +8353,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-PS-A",
       "displayid" : "SB-1-+-ES-1-+-DIR-1-+-PS-A",
       "idCount" : "0",
-      "identifyingInformation" : "",
-      "hostFqdn" : "0.0.0.0"
+      "identifyingInformation" : ""
     },
     "alertRules" : {
       "present" : [ {
@@ -8533,8 +8480,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-1-+-PS-B",
       "displayid" : "SB-1-+-ES-1-+-DIR-1-+-PS-B",
       "idCount" : "1",
-      "identifyingInformation" : "",
-      "hostFqdn" : "0.0.0.0"
+      "identifyingInformation" : ""
     },
     "alertRules" : {
       "present" : [ {
@@ -8661,8 +8607,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-PS-A",
       "displayid" : "SB-1-+-ES-1-+-DIR-2-+-PS-A",
       "idCount" : "2",
-      "identifyingInformation" : "",
-      "hostFqdn" : "0.0.0.0"
+      "identifyingInformation" : ""
     },
     "alertRules" : {
       "present" : [ {
@@ -8789,8 +8734,7 @@
       "deviceid" : "SYMMETRIX-+-000297800620SB-1-+-ES-1-+-DIR-2-+-PS-B",
       "displayid" : "SB-1-+-ES-1-+-DIR-2-+-PS-B",
       "idCount" : "3",
-      "identifyingInformation" : "",
-      "hostFqdn" : "0.0.0.0"
+      "identifyingInformation" : ""
     },
     "alertRules" : {
       "present" : [ {
@@ -8854,7 +8798,7 @@
     }
   }, {
     "id" : "localhost",
-    "name" : "0.0.0.0",
+    "name" : "localhost",
     "monitorType" : "HOST",
     "parentId" : null,
     "hostId" : "localhost",
@@ -8896,7 +8840,6 @@
       }
     },
     "metadata" : {
-      "fqdn" : "0.0.0.0",
       "location" : "localhost",
       "operatingSystemType" : "STORAGE",
       "powerMeter" : "estimated"

@@ -43,7 +43,7 @@
 		<snmp4j-agent.version>3.5.0</snmp4j-agent.version>
 		<commons-lang3.version>3.12.0</commons-lang3.version>
 		<slf4j-simple.version>1.7.30</slf4j-simple.version>
-		<emulation.version>2</emulation.version>
+		<emulation.version>3-SNAPSHOT</emulation.version>
 		<openTelemetryVersion>1.15.0</openTelemetryVersion>
 		<openTelemetryAlphaVersion>1.15.0-alpha</openTelemetryAlphaVersion>
 		<grpcVersion>1.47.0</grpcVersion>

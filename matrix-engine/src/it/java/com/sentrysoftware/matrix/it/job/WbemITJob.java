@@ -29,7 +29,7 @@ public class WbemITJob extends AbstractITJob {
 		emulatorImageConfiguration.setImage(recordDataPaths[0]);
 
 		try (final EmulatorServer emulatorServer = weldContainer.select(EmulatorServer.class).get()) {
-			final Thread thread = new Thread(emulatorServer);
+			Thread thread = new Thread(emulatorServer);
 			thread.start();
 		}
 
