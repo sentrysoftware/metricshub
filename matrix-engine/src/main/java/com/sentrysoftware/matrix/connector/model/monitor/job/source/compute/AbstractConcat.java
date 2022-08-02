@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.connector.model.monitor.job.source.compute;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
 import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 
@@ -19,8 +20,8 @@ public abstract class AbstractConcat extends Compute {
 
 	private static final long serialVersionUID = -4171343812982964238L;
 
-	private Integer column;
-	private String string;
+	protected Integer column;
+	protected String string;
 
 	protected AbstractConcat(Integer index, Integer column, String string) {
 
@@ -41,5 +42,10 @@ public abstract class AbstractConcat extends Compute {
 		addNonNull(stringJoiner, "- string=", string);
 
 		return stringJoiner.toString();
+	}
+
+	@Override
+	public void update(UnaryOperator<String> updater) {
+		string = updater.apply(string);
 	}
 }

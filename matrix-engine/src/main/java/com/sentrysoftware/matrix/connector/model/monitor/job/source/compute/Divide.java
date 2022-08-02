@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.connector.model.monitor.job.source.compute;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
 import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.engine.strategy.source.compute.IComputeVisitor;
@@ -45,5 +46,20 @@ public class Divide extends Compute {
 		addNonNull(stringJoiner, "- divideBy=", divideBy);
 
 		return stringJoiner.toString();
+	}
+
+	@Override
+	public Divide copy() {
+		return Divide
+			.builder()
+			.index(index)
+			.column(column)
+			.divideBy(divideBy)
+			.build();
+	}
+
+	@Override
+	public void update(UnaryOperator<String> updater) {
+		divideBy = updater.apply(divideBy);
 	}
 }

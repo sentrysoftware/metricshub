@@ -1,6 +1,8 @@
 package com.sentrysoftware.matrix.connector.model.monitor.job.source.compute;
 
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.engine.strategy.source.compute.IComputeVisitor;
 
@@ -29,5 +31,23 @@ public class KeepOnlyMatchingLines extends AbstractMatchingLines {
 	@Override
 	public String toString() {
 		return super.toString();
+	}
+
+	@Override
+	public KeepOnlyMatchingLines copy() {
+		return KeepOnlyMatchingLines
+			.builder()
+			.index(index)
+			.column(column)
+			.regExp(regExp)
+			.valueSet(valueSet == null ? null :
+				valueSet
+					.stream()
+					.collect(Collectors
+						.toCollection(() -> new TreeSet<>(String.CASE_INSENSITIVE_ORDER))
+					)
+			)
+			.build();
+
 	}
 }

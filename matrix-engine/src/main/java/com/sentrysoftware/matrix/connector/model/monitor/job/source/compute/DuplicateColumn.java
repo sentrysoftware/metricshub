@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.connector.model.monitor.job.source.compute;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
 import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.engine.strategy.source.compute.IComputeVisitor;
@@ -41,5 +42,19 @@ public class DuplicateColumn extends Compute {
 		addNonNull(stringJoiner, "- column=", column);
 
 		return stringJoiner.toString();
+	}
+
+	@Override
+	public DuplicateColumn copy() {
+		return DuplicateColumn
+			.builder()
+			.index(index)
+			.column(column)
+			.build();
+	}
+
+	@Override
+	public void update(UnaryOperator<String> updater) {
+		// Not implemented because this class doesn't define any string member
 	}
 }

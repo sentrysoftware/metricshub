@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.connector.model.monitor.job.source.compute;
 
 import java.io.Serializable;
+import java.util.function.UnaryOperator;
 
 import com.sentrysoftware.matrix.engine.strategy.source.compute.IComputeVisitor;
 
@@ -21,10 +22,15 @@ public abstract class Compute implements Serializable {
 
 	public abstract void accept(final IComputeVisitor computeVisitor);
 
+	public abstract Compute copy();
+
+	public abstract void update(UnaryOperator<String> updater);
+
 	@Override
 	public String toString() {
-		return new StringBuilder("- type=").append(this.getClass().getSimpleName())
-				.append("\n- index=").append(index)
-				.toString();
+		return new StringBuilder("- type=")
+			.append(this.getClass().getSimpleName())
+			.append("\n- index=").append(index)
+			.toString();
 	}
 }

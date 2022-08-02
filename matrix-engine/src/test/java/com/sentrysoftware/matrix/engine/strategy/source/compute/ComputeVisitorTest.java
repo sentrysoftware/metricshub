@@ -2285,7 +2285,7 @@ class ComputeVisitorTest {
 				List.of("equipmentFan", "sys/chassis-1/fan-module-1-8/fan-2", "NWG150306VZ", "N20-FAN5", "Cisco Systems Inc", "operable"));
 
 		assertEquals(expected, sourceTable.getTable());
-		assertNull(sourceTable.getRawData());
+		assertNotNull(sourceTable.getRawData());
 	}
 
 	@Test

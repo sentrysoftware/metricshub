@@ -1,5 +1,7 @@
 package com.sentrysoftware.matrix.engine.strategy.source;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.*;
+
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -522,4 +524,189 @@ class SourceUpdaterVisitorTest {
 				.build();
 	}
 
+	@Test
+	void testExtractSourceReferenceContent() {
+
+		// Value extracted from raw data
+		{
+			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+			final ConnectorNamespace connectorNamespace = ConnectorNamespace
+				.builder()
+				.build();
+			final SourceTable sourceTable = SourceTable
+				.builder()
+				.rawData("value")
+				.build();
+			connectorNamespace.addSourceTable("enclosure.collect.source(1)", sourceTable);
+			doReturn(connectorNamespace).when(hostMonitoring).getConnectorNamespace(connector);
+			doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+			final String actual = SourceUpdaterVisitor.extractSourceReferenceContent(
+				strategyConfig,
+				connector,
+				HttpSource.class.getSimpleName(),
+				"enclosure.collect.source(2)",
+				"enclosure.collect.source(1)"
+			);
+
+			assertEquals("value", actual);
+		}
+
+		// Value extracted from raw data and ends with ";"
+		{
+			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+			final ConnectorNamespace connectorNamespace = ConnectorNamespace
+				.builder()
+				.build();
+			final SourceTable sourceTable = SourceTable
+				.builder()
+				.table(null)
+				.rawData("value;")
+				.build();
+			connectorNamespace.addSourceTable("enclosure.collect.source(1)", sourceTable);
+			doReturn(connectorNamespace).when(hostMonitoring).getConnectorNamespace(connector);
+			doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+			final String actual = SourceUpdaterVisitor.extractSourceReferenceContent(
+				strategyConfig,
+				connector,
+				HttpSource.class.getSimpleName(),
+				"enclosure.collect.source(2)",
+				"enclosure.collect.source(1)"
+			);
+
+			assertEquals("value", actual);
+		}
+
+		// Value extracted from table
+		{
+			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+			final ConnectorNamespace connectorNamespace = ConnectorNamespace
+				.builder()
+				.build();
+			final SourceTable sourceTable = SourceTable
+				.builder()
+				.table(List.of(List.of("value")))
+				.build();
+			connectorNamespace.addSourceTable("enclosure.collect.source(1)", sourceTable);
+			doReturn(connectorNamespace).when(hostMonitoring).getConnectorNamespace(connector);
+			doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+			final String actual = SourceUpdaterVisitor.extractSourceReferenceContent(
+				strategyConfig,
+				connector,
+				HttpSource.class.getSimpleName(),
+				"enclosure.collect.source(2)",
+				"enclosure.collect.source(1)"
+			);
+
+			assertEquals("value", actual);
+		}
+	}
+
+	@Test
+	void testExtractSourceReferenceContentEadgeCases() {
+
+		// Data not available
+		{
+			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+			final ConnectorNamespace connectorNamespace = ConnectorNamespace
+				.builder()
+				.build();
+			final SourceTable sourceTable = SourceTable
+				.builder()
+				.build();
+			connectorNamespace.addSourceTable("enclosure.collect.source(1)", sourceTable);
+			doReturn(connectorNamespace).when(hostMonitoring).getConnectorNamespace(connector);
+			doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+			final String actual = SourceUpdaterVisitor.extractSourceReferenceContent(
+				strategyConfig,
+				connector,
+				HttpSource.class.getSimpleName(),
+				"enclosure.collect.source(2)",
+				"enclosure.collect.source(1)"
+			);
+
+			assertEquals(EMPTY, actual);
+		}
+
+		// No source table at all
+		{
+			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+			final ConnectorNamespace connectorNamespace = ConnectorNamespace
+				.builder()
+				.build();
+			doReturn(connectorNamespace).when(hostMonitoring).getConnectorNamespace(connector);
+			doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+			final String actual = SourceUpdaterVisitor.extractSourceReferenceContent(
+				strategyConfig,
+				connector,
+				HttpSource.class.getSimpleName(),
+				"enclosure.collect.source(2)",
+				"enclosure.collect.source(1)"
+			);
+
+			assertEquals(EMPTY, actual);
+		}
+
+		// Source table with empty table
+		{
+			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+			final ConnectorNamespace connectorNamespace = ConnectorNamespace
+				.builder()
+				.build();
+			final SourceTable sourceTable = SourceTable
+					.builder()
+					.table(Collections.emptyList())
+					.build();
+			connectorNamespace.addSourceTable("enclosure.collect.source(1)", sourceTable);
+			doReturn(connectorNamespace).when(hostMonitoring).getConnectorNamespace(connector);
+			doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+			final String actual = SourceUpdaterVisitor.extractSourceReferenceContent(
+				strategyConfig,
+				connector,
+				HttpSource.class.getSimpleName(),
+				"enclosure.collect.source(2)",
+				"enclosure.collect.source(1)"
+			);
+
+			assertEquals(EMPTY, actual);
+		}
+	}
+
+	@Test
+	void testReplaceSourceReferenceContent() {
+		doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();
+		final ConnectorNamespace connectorNamespace = ConnectorNamespace
+			.builder()
+			.build();
+		final SourceTable sourceTable = SourceTable
+			.builder()
+			.rawData("FlashSystem 900 FA")
+			.build();
+		connectorNamespace.addSourceTable("enclosure.collect.source(1)", sourceTable);
+		doReturn(connectorNamespace).when(hostMonitoring).getConnectorNamespace(connector);
+		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
+
+		final String actual = SourceUpdaterVisitor.replaceSourceReferenceContent(
+			"Model: %enclosure.collect.source(1)%",
+			strategyConfig,
+			connector,
+			HttpSource.class.getSimpleName(),
+			"enclosure.collect.source(2)"
+		);
+
+		assertEquals("Model: FlashSystem 900 FA", actual);
+	}
+
+	@Test
+	void testReplaceSourceReferenceSkipReplacement() {
+		assertNull(sourceUpdaterVisitor.replaceSourceReference(null, HttpSource.builder().build()));
+		assertEquals(EMPTY, sourceUpdaterVisitor.replaceSourceReference(EMPTY, ReferenceSource.builder().build()));
+		assertEquals(EMPTY, sourceUpdaterVisitor.replaceSourceReference(EMPTY, TableJoinSource.builder().build()));
+		assertEquals(EMPTY, sourceUpdaterVisitor.replaceSourceReference(EMPTY, TableUnionSource.builder().build()));
+	}
 }

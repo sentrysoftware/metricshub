@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
+import com.sentrysoftware.matrix.engine.strategy.source.SourceUpdaterVisitor;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.*;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 
@@ -117,6 +118,7 @@ class ComputeUpdaterVisitorTest {
 	void testVisitJson2CSV() {
 		final Json2Csv json2Csv = Json2Csv.builder().build();
 		doNothing().when(computeVisitor).visit(any(Json2Csv.class));
+		doReturn(Map.of(DEVICE_ID, DEVICE_ID)).when(monitor).getMetadata();
 		computeUpdaterVisitor.visit(json2Csv);
 		verify(computeVisitor, times(1)).visit(any(Json2Csv.class));
 	}
@@ -222,7 +224,7 @@ class ComputeUpdaterVisitorTest {
 	}
 
 	@Test
-	void testDoSubstringReplacements() {
+	void testReplaceDeviceId() {
 		{
 			final Substring substring = Substring.builder()
 					.column(1)
@@ -231,7 +233,7 @@ class ComputeUpdaterVisitorTest {
 					.build();
 
 			doReturn(Map.of(DEVICE_ID, "1")).when(monitor).getMetadata();
-			ComputeUpdaterVisitor.doSubstringReplacements(substring, monitor);
+			substring.update(value -> SourceUpdaterVisitor.replaceDeviceId(value, monitor));
 
 			final Substring expected = Substring.builder()
 					.column(1)
@@ -250,7 +252,7 @@ class ComputeUpdaterVisitorTest {
 					.build();
 
 
-			ComputeUpdaterVisitor.doSubstringReplacements(substring, monitor);
+			substring.update(value -> SourceUpdaterVisitor.replaceDeviceId(value, monitor));
 
 			final Substring expected = Substring.builder()
 					.column(1)
@@ -269,7 +271,7 @@ class ComputeUpdaterVisitorTest {
 					.build();
 
 			// no monitor (multi instance collect)
-			ComputeUpdaterVisitor.doSubstringReplacements(substring, null);
+			substring.update(value -> SourceUpdaterVisitor.replaceDeviceId(value, monitor));
 
 			final Substring expected = Substring.builder()
 					.column(1)
@@ -281,9 +283,4 @@ class ComputeUpdaterVisitorTest {
 		}
 	}
 
-	@Test
-	void testMonoInstanceReplace() {
-		assertEquals("110", ComputeUpdaterVisitor.monoInstanceReplace("1%PowerSupply.Collect.DeviceID%0", "1"));
-		assertEquals("88", ComputeUpdaterVisitor.monoInstanceReplace("88", "1"));
-	}
 }

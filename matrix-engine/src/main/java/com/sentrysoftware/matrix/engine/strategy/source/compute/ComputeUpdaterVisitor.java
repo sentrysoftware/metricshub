@@ -1,17 +1,13 @@
 package com.sentrysoftware.matrix.engine.strategy.source.compute;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
+import static com.sentrysoftware.matrix.engine.strategy.source.SourceUpdaterVisitor.replaceSourceReferenceContent;
 
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.springframework.util.Assert;
-
+import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.And;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.ArrayTranslate;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Awk;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Compute;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Convert;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Divide;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.DuplicateColumn;
@@ -30,19 +26,20 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Subs
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Substring;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Translate;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Xml2Csv;
+import com.sentrysoftware.matrix.engine.strategy.StrategyConfig;
 import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
+import com.sentrysoftware.matrix.engine.strategy.source.SourceUpdaterVisitor;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 
 import lombok.AllArgsConstructor;
-import lombok.NonNull;
 
 @AllArgsConstructor
 public class ComputeUpdaterVisitor implements IComputeVisitor {
 
-	private static final Pattern MONO_INSTANCE_REPLACEMENT_PATTERN = Pattern.compile("%\\w+\\.collect\\.deviceid%", Pattern.CASE_INSENSITIVE);
-
 	private IComputeVisitor computeVisitor;
 	private Monitor monitor;
+	private Connector connector;
+	private StrategyConfig strategyConfig;
 
 	@Override
 	public void visit(final ArrayTranslate arrayTranslate) {
@@ -51,154 +48,107 @@ public class ComputeUpdaterVisitor implements IComputeVisitor {
 
 	@Override
 	public void visit(final And and) {
-		and.accept(computeVisitor);
+		processCompute(and);
 	}
 
 	@Override
 	public void visit(final Add add) {
-		add.accept(computeVisitor);
+		processCompute(add);
 	}
 
 	@Override
 	public void visit(final Awk awk) {
-		awk.accept(computeVisitor);
+		processCompute(awk);
 	}
 
 	@Override
 	public void visit(final Convert convert) {
-		convert.accept(computeVisitor);
+		processCompute(convert);
 	}
 
 	@Override
 	public void visit(final Divide divide) {
-		divide.accept(computeVisitor);
+		processCompute(divide);
 	}
 
 	@Override
 	public void visit(final DuplicateColumn duplicateColumn) {
-		duplicateColumn.accept(computeVisitor);
+		processCompute(duplicateColumn);
 	}
 
 	@Override
 	public void visit(final ExcludeMatchingLines excludeMatchingLines) {
-		excludeMatchingLines.accept(computeVisitor);
+		processCompute(excludeMatchingLines);
 	}
 
 	@Override
 	public void visit(final Extract extract) {
-		extract.accept(computeVisitor);
+		processCompute(extract);
 	}
 
 	@Override
 	public void visit(final ExtractPropertyFromWbemPath extractPropertyFromWbemPath) {
-		extractPropertyFromWbemPath.accept(computeVisitor);
+		processCompute(extractPropertyFromWbemPath);
 	}
 
 	@Override
 	public void visit(final Json2Csv json2csv) {
-		json2csv.accept(computeVisitor);
+		processCompute(json2csv);
 	}
 
 	@Override
 	public void visit(final KeepColumns keepColumns) {
-		keepColumns.accept(computeVisitor);
+		processCompute(keepColumns);
 	}
 
 	@Override
 	public void visit(final KeepOnlyMatchingLines keepOnlyMatchingLines) {
-		keepOnlyMatchingLines.accept(computeVisitor);
+		processCompute(keepOnlyMatchingLines);
 	}
 
 	@Override
 	public void visit(final LeftConcat leftConcat) {
-		leftConcat.accept(computeVisitor);
+		processCompute(leftConcat);
 	}
 
 	@Override
 	public void visit(final Multiply multiply) {
-		multiply.accept(computeVisitor);
+		processCompute(multiply);
 	}
 
 	@Override
 	public void visit(final PerBitTranslation perBitTranslation) {
-		perBitTranslation.accept(computeVisitor);
+		processCompute(perBitTranslation);
 	}
 
 	@Override
 	public void visit(final Replace replace) {
-		replace.accept(computeVisitor);
+		processCompute(replace);
 	}
 
 	@Override
 	public void visit(final RightConcat rightConcat) {
-		rightConcat.accept(computeVisitor);
+		processCompute(rightConcat);
 	}
 
 	@Override
 	public void visit(final Substract substract) {
-		substract.accept(computeVisitor);
+		processCompute(substract);
 	}
 
 	@Override
 	public void visit(final Substring substring) {
-		if (monitor != null) {
-			final Substring copy = substring.copy();
-			doSubstringReplacements(copy, monitor);
-			copy.accept(computeVisitor);
-			return;
-		}
-		substring.accept(computeVisitor);
-	}
-
-	/**
-	 * Replace the Substring Start/Length fields by the monitor id (mono-instance handling)
-	 * 
-	 * @param substring The substring instance we want to update
-	 * @param monitor   The monitor we currently collect
-	 */
-	static void doSubstringReplacements(final Substring substring, final Monitor monitor) {
-		if (!ComputeVisitor.checkSubstring(substring) || monitor == null) {
-			return;
-		}
-
-		Map<String, String> metadata = monitor.getMetadata();
-		Assert.notNull(metadata, "monitor metadata cannot be null.");
-
-		final String deviceId = metadata.get(DEVICE_ID);
-		Assert.notNull(deviceId, "monitor deviceId cannot be null.");
-
-		substring.setStart(monoInstanceReplace(substring.getStart(), deviceId));
-		substring.setLength(monoInstanceReplace(substring.getLength(), deviceId));
-	}
-
-	/**
-	 * Perform the mono instance replacement on the given value
-	 * 
-	 * @param value       The value we wish to perform the replacement
-	 * @param replacement The new string to use
-	 * @return {@link String} value
-	 */
-	static String monoInstanceReplace(@NonNull final String value, @NonNull final String replacement) {
-
-		final Matcher matcher = MONO_INSTANCE_REPLACEMENT_PATTERN.matcher(value);
-
-		final StringBuffer sb = new StringBuffer();
-		while (matcher.find()) {
-			matcher.appendReplacement(sb, Matcher.quoteReplacement(replacement));
-		}
-		matcher.appendTail(sb);
-
-		return sb.toString();
+		processCompute(substring);
 	}
 
 	@Override
 	public void visit(final Translate translate) {
-		translate.accept(computeVisitor);
+		processCompute(translate);
 	}
 
 	@Override
 	public void visit(final Xml2Csv xml2csv) {
-		xml2csv.accept(computeVisitor);
+		processCompute(xml2csv);
 	}
 
 	@Override
@@ -210,4 +160,51 @@ public class ComputeUpdaterVisitor implements IComputeVisitor {
 	public SourceTable getSourceTable() {
 		return computeVisitor.getSourceTable();
 	}
+
+
+	/**
+	 * Copy the given compute, replace device id when running mono-instance collects, replace
+	 * source reference and finally call the compute visitor
+	 * 
+	 * @param origin original compute instance
+	 */
+	private void processCompute(final Compute origin) {
+
+		// Deep copy
+		final Compute copy = origin.copy();
+
+		// Replace device id (mono instance)
+		copy.update(value -> SourceUpdaterVisitor.replaceDeviceId(value, monitor));
+
+		// Replace source reference
+		copy.update(value -> replaceSourceReference(value, copy));
+
+		// Call the next compute visitor
+		copy.accept(computeVisitor);
+	}
+
+	/**
+	 * Replace referenced source in the given compute attributes
+	 * 
+	 * @param value The value containing a source reference such as %Enclosure.Discovery.Source(1)%.
+	 * @param compute {@link Compute} instance we wish to update with the content of the referenced source
+	 * @return String value
+	 */
+	private String replaceSourceReference(final String value, final Compute compute) {
+
+		// Null check
+		if (value == null) {
+			return value;
+		}
+
+		return replaceSourceReferenceContent(
+			value,
+			strategyConfig,
+			connector,
+			compute.getClass().getSimpleName(),
+			compute.getIndex()
+		);
+
+	}
+
 }

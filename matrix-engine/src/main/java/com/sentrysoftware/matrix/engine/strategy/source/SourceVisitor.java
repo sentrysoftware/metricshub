@@ -60,7 +60,7 @@ public class SourceVisitor implements ISourceVisitor {
 
 	private static final String WBEM = "wbem";
 
-	private static final Pattern SOURCE_PATTERN = Pattern.compile(
+	public static final Pattern SOURCE_PATTERN = Pattern.compile(
 			"^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\)(.*))\\s*$",
 			Pattern.CASE_INSENSITIVE);
 
@@ -92,15 +92,15 @@ public class SourceVisitor implements ISourceVisitor {
 
 			final String result = matsyaClientsExecutor.executeHttp(
 					HttpRequest.builder()
-					.hostname(hostname)
-					.method(httpSource.getMethod())
-					.url(httpSource.getUrl())
-					.header(httpSource.getHeader())
-					.body(httpSource.getBody())
-					.resultContent(httpSource.getResultContent())
-					.authenticationToken(httpSource.getAuthenticationToken())
-					.httpProtocol(protocol)
-					.build(),
+						.hostname(hostname)
+						.method(httpSource.getMethod())
+						.url(httpSource.getUrl())
+						.header(httpSource.getHeader())
+						.body(httpSource.getBody())
+						.resultContent(httpSource.getResultContent())
+						.authenticationToken(httpSource.getAuthenticationToken())
+						.httpProtocol(protocol)
+						.build(),
 					true);
 
 			if (result != null && !result.isEmpty()) {
@@ -434,6 +434,7 @@ public class SourceVisitor implements ISourceVisitor {
 				.collect(Collectors.toList());
 
 		sourceTable.setTable(table);
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 
 		return sourceTable;
 	}
@@ -555,7 +556,7 @@ public class SourceVisitor implements ISourceVisitor {
 	public SourceTable visit(final TableJoinSource tableJoinSource) {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
-		
+
 		if (tableJoinSource == null) {
 			log.error("Hostname {} - Table Join Source cannot be null, the Table Join will return an empty result.", hostname);
 			return SourceTable.empty();
@@ -675,6 +676,7 @@ public class SourceVisitor implements ISourceVisitor {
 
 		return SourceTable.builder()
 				.table(SourceTable.csvToTable(key, TABLE_SEP))
+				.rawData(key)
 				.build();
 	}
 

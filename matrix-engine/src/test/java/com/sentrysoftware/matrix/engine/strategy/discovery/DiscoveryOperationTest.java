@@ -926,7 +926,14 @@ class DiscoveryOperationTest {
 				.computes(Collections.singletonList(LeftConcat.builder().column(1).string(EMPTY).build()))
 				.build();
 		final List<List<String>> data = Arrays.asList(Arrays.asList("val1", "val2"), Arrays.asList("val3, val4"));
-		final SourceTable expected = SourceTable.builder().table(data).headers(Arrays.asList("1", "2")).build();
+		final SourceTable expected = SourceTable
+			.builder()
+			.table(data)
+			.rawData("val1;val2;\n"
+				+ "val3, val4;"
+			)
+			.headers(Arrays.asList("1", "2"))
+			.build();
 
 		doReturn(engineConfiguration).when(strategyConfig).getEngineConfiguration();
 		doReturn(data).when(matsyaClientsExecutor)
@@ -946,6 +953,10 @@ class DiscoveryOperationTest {
 				.snmpTableSelectColumns(Arrays.asList("1", "2"))
 				.build();
 		source.setComputes(null);
+
+		// Raw data are null because the source has no compute and
+		// all the computes now set the raw data at the end of the processing
+		expected.setRawData(null);
 
 		discoveryOperation.processSourcesAndComputes(
 				Collections.singletonList(source),

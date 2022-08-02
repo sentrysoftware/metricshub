@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.connector.model.monitor.job.source.compute;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
 import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.common.ConversionType;
@@ -45,6 +46,21 @@ public class Convert extends Compute {
 		addNonNull(stringJoiner, "- conversionType=", conversionType != null ? conversionType.getName() : null);
 
 		return stringJoiner.toString();
+	}
+
+	@Override
+	public Convert copy() {
+		return Convert
+			.builder()
+			.index(index)
+			.column(column)
+			.conversionType(conversionType)
+			.build();
+	}
+
+	@Override
+	public void update(UnaryOperator<String> updater) {
+		// Not implemented because this class doesn't define string members
 	}
 
 }

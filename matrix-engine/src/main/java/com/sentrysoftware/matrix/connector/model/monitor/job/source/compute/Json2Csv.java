@@ -6,6 +6,8 @@ import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.engine.strategy.source.compute.IComputeVisitor;
@@ -49,5 +51,27 @@ public class Json2Csv extends Compute {
 		addNonNull(stringJoiner, "- separator=", separator);
 
 		return stringJoiner.toString();
+	}
+	@Override
+	public Json2Csv copy() {
+		return Json2Csv
+			.builder()
+			.index(index)
+			.entryKey(entryKey)
+			.properties(properties == null ? null : new ArrayList<>(properties))
+			.separator(separator)
+			.build();
+	}
+
+	@Override
+	public void update(UnaryOperator<String> updater) {
+		entryKey = updater.apply(entryKey);
+		separator = updater.apply(separator);
+		if (properties != null && !properties.isEmpty()) {
+			properties = properties
+				.stream()
+				.map(updater::apply)
+				.collect(Collectors.toCollection(ArrayList::new));
+		}
 	}
 }

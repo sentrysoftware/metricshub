@@ -218,6 +218,7 @@ public class ComputeVisitor implements IComputeVisitor {
 		}
 
 		sourceTable.setTable(resultTable);
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 
 	}
 
@@ -259,6 +260,7 @@ public class ComputeVisitor implements IComputeVisitor {
 			}
 		}
 
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	@Override
@@ -362,6 +364,7 @@ public class ComputeVisitor implements IComputeVisitor {
 				log.warn("Hostname {} - Could not perform Array2SimpleStatus conversion compute on row {} at index {}.", 
 						hostname, row, columnIndex);
 			});
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	/**
@@ -407,6 +410,7 @@ public class ComputeVisitor implements IComputeVisitor {
 
 				log.warn("Hostname {} - Could not perform Hex2Dec conversion compute on row {} at index {}.", hostname, row, columnIndex);
 			});
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	/**
@@ -470,7 +474,7 @@ public class ComputeVisitor implements IComputeVisitor {
 				elementList.add(columnIndex, elementList.get(columnIndex));
 			}
 		}
-
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	@Override
@@ -533,6 +537,7 @@ public class ComputeVisitor implements IComputeVisitor {
 		}
 
 		sourceTable.setTable(resultTable);
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 
 	}
 
@@ -579,7 +584,7 @@ public class ComputeVisitor implements IComputeVisitor {
 				}
 			}
 		}
-
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	@Override
@@ -647,7 +652,7 @@ public class ComputeVisitor implements IComputeVisitor {
 		}
 
 		sourceTable.setTable(resultTable);
-
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	@Override
@@ -693,7 +698,7 @@ public class ComputeVisitor implements IComputeVisitor {
 					.collect(Collectors.toList());
 
 			sourceTable.setTable(filteredTable);
-
+			sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 		}
 	}
 
@@ -788,7 +793,7 @@ public class ComputeVisitor implements IComputeVisitor {
 				sourceTable.getTable()
 				.forEach(line -> line.add(abstractConcat.getString()));
 			}
-
+			sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 		}
 	}
 
@@ -902,7 +907,7 @@ public class ComputeVisitor implements IComputeVisitor {
 				line.set(columnIndex, columnResult);
 			}
 		}
-
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 
@@ -1021,7 +1026,7 @@ public class ComputeVisitor implements IComputeVisitor {
 		sourceTable.setTable(SourceTable.csvToTable(
 				SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false),
 				TABLE_SEP));
-
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	@Override
@@ -1145,6 +1150,8 @@ public class ComputeVisitor implements IComputeVisitor {
 
 			log.warn("Hostname {} - Cannot perform substring on row {} on column index {}", hostname, row, columnIndex);
 		});
+
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	/**
@@ -1264,6 +1271,7 @@ public class ComputeVisitor implements IComputeVisitor {
 							TABLE_SEP));
 		}
 
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	@Override
@@ -1282,7 +1290,7 @@ public class ComputeVisitor implements IComputeVisitor {
 
 			if (xmlResult != null && !xmlResult.isEmpty()) {
 				sourceTable.setTable(xmlResult);
-				sourceTable.setRawData(null);
+				sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 			}
 		} catch (Exception e) {
 			logComputeError(connector.getCompiledFilename(),
@@ -1351,6 +1359,8 @@ public class ComputeVisitor implements IComputeVisitor {
 
 			performMathComputeOnLine(computeOperation, columnIndex, op2, op2Index, line);
 		}
+
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	/**

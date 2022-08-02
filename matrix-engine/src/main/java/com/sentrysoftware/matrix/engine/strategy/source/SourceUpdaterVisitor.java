@@ -3,6 +3,9 @@ package com.sentrysoftware.matrix.engine.strategy.source;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DEVICE_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.NEW_LINE;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SEMICOLON;
+import static com.sentrysoftware.matrix.engine.strategy.source.SourceVisitor.SOURCE_PATTERN;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +13,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.util.Assert;
 
@@ -44,8 +48,8 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 
 	private static final Pattern MONO_INSTANCE_REPLACEMENT_PATTERN = Pattern.compile("%\\w+\\.collect\\.deviceid%", Pattern.CASE_INSENSITIVE);
 
-	private static final Pattern SOURCE_PATTERN = Pattern.compile(
-			"^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\)(.*))\\s*$",
+	public static final Pattern SOURCE_REFERENCE_PATTERN = Pattern.compile(
+			"%((\\w+)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\))%",
 			Pattern.CASE_INSENSITIVE);
 
 	private static final Pattern DYNAMIC_ENTRY_PATTERN = Pattern.compile(
@@ -121,6 +125,8 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 			}
 
 			copy.update(dataValue -> replaceDeviceId(dataValue, monitor));
+
+			copy.update(value -> replaceSourceReference(value, copy));
 
 			concatEntryResult(source, result, row, copy.accept(sourceVisitor));
 		}
@@ -367,7 +373,139 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 
 		copy.update(value -> replaceDeviceId(value, monitor));
 
+		copy.update(value -> replaceSourceReference(value, copy));
+
 		return copy.accept(sourceVisitor);
+
+	}
+
+	/**
+	 * Replace referenced source in the given source attributes
+	 * 
+	 * @param value The value containing a source reference such as %Enclosure.Discovery.Source(1)%.
+	 * @param source {@link Source} instance we wish to update with the content of the referenced source
+	 * @return String value
+	 */
+	String replaceSourceReference(final String value, final Source source) {
+
+		// Source shouldn't be replaced when it is an instance of TableJoinSource, TableUnionSource and ReferenceSource
+		// All these sources need the reference to perform the job correctly. See SourceVisitor implementation.
+		if (value == null
+				|| source instanceof ReferenceSource
+				|| source instanceof TableUnionSource
+				|| source instanceof TableJoinSource) {
+			return value;
+		}
+
+		return replaceSourceReferenceContent(
+			value,
+			strategyConfig,
+			connector,
+			source.getClass().getSimpleName(),
+			source.getKey()
+		);
+
+	}
+
+	/**
+	 * Replace source reference content in the given value
+	 * 
+	 * @param value          The value containing source key such as %Enclosure.Discovery.Source(1)%
+	 * @param strategyConfig The current {@link StrategyConfig} instance wrapping the host configuration and the host monitoring instance
+	 * @param connector      The connector defining all the operations we currently try to interpret and execute
+	 * @param operationType  The type of the operation required for debug purpose. E.g. Substring, SnmpGetTableSource, ...
+	 * @param operationKey   The unique key of the operation used required for debug purpose
+	 * @return {@link String} value
+	 */
+	public static String replaceSourceReferenceContent(final String value, final StrategyConfig strategyConfig,
+			final Connector connector, final String operationType,
+			final Object operationKey) {
+
+		final Matcher matcher = SOURCE_REFERENCE_PATTERN.matcher(value);
+
+		final StringBuffer sb = new StringBuffer();
+
+		while (matcher.find()) {
+			final String sourceKey = matcher.group(1);
+			final String sourceReferenceContent =  extractSourceReferenceContent(
+				strategyConfig,
+				connector,
+				operationType,
+				operationKey,
+				sourceKey
+			);
+			matcher.appendReplacement(sb, Matcher.quoteReplacement(sourceReferenceContent));
+		}
+
+		matcher.appendTail(sb);
+
+		return sb.toString();
+	}
+
+	/**
+	 * Extract the source reference content
+	 * 
+	 * @param strategyConfig The current {@link StrategyConfig} instance wrapping the host configuration and the host monitoring instance
+	 * @param connector      The connector defining all the operations we currently try to interpret and execute
+	 * @param operationType  The type of the operation required for debug purpose. E.g. Substring, SnmpGetTableSource, ...
+	 * @param operationKey   The unique key of the operation required for debug purpose
+	 * @param sourceRefKey   The unique id of the source to extract
+	 * @return String value
+	 */
+	static String extractSourceReferenceContent(final StrategyConfig strategyConfig, final Connector connector,
+			final String operationType, final Object operationKey, final String sourceRefKey) {
+
+		// Get the source table from the connector namespace
+		final SourceTable sourceTable = strategyConfig
+			.getHostMonitoring()
+			.getConnectorNamespace(connector)
+			.getSourceTable(sourceRefKey);
+
+		// Hostname used for the debug messages
+		final String hostname = strategyConfig
+			.getEngineConfiguration()
+			.getHost()
+			.getHostname();
+
+		if (sourceTable == null) {
+			log.error("Hostname {} - The source table is not available. Couldn't extract {} referenced in {} ({}). The source reference will be replaced with an empty value.", hostname, sourceRefKey, operationType, operationKey);
+			return EMPTY;
+		}
+
+		String sourceReferenceContent = null;
+
+		// Try the table
+		final List<List<String>> table = sourceTable.getTable();
+		if (table != null && !table.isEmpty()) {
+			log.debug("Hostname {} - Get {} referenced in {} ({}) from list table.", hostname, sourceRefKey, operationType, operationKey);
+			sourceReferenceContent = SourceTable.tableToCsv(table, SEMICOLON, false);
+		}
+
+		// Try raw data
+		final String rawData = sourceTable.getRawData();
+		if (sourceReferenceContent == null && rawData != null) {
+			log.debug("Hostname {} - Get {} referenced in {} ({}) from raw data.", hostname, sourceRefKey, operationType, operationKey);
+			sourceReferenceContent = rawData;
+		}
+
+		if (sourceReferenceContent != null) {
+			// Remove last semicolon from the rows containing only one cell.
+			// For instance the last semicolon leads to HTTP Errors when the reference is defined in the Header attribute
+			return Stream
+				.of(sourceReferenceContent.split(NEW_LINE))
+				.map(val -> {
+					final int indexOfSemicolon = val.indexOf(SEMICOLON);
+					if (indexOfSemicolon == val.length() - 1) {
+						return val.replace(SEMICOLON, EMPTY);
+					}
+					return val;
+				})
+				.collect(Collectors.joining(NEW_LINE));
+		}
+
+		log.error("Hostname {} - Neither the raw data nor the table is available. Couldn't extract {} referenced in {} ({}). The source reference will be replaced with an empty value.", hostname, sourceRefKey, operationType, operationKey);
+
+		return EMPTY;
 	}
 
 	/**
@@ -398,11 +536,11 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 	/**
 	 * Replace the deviceId in the key by the one in the metadata in MonoInstance collects.
 	 * 
-	 * @param key The key where to replace the deviceId.
+	 * @param key     The key where to replace the deviceId.
 	 * @param monitor Can be null, in that case key is directly returned.
 	 * @return String value
 	 */
-	static String replaceDeviceId(final String key, final Monitor monitor) {
+	public static String replaceDeviceId(final String key, final Monitor monitor) {
 		if (monitor == null || key == null) {
 			return key;
 		}
