@@ -605,7 +605,7 @@ class SourceUpdaterVisitorTest {
 	}
 
 	@Test
-	void testExtractSourceReferenceContentEadgeCases() {
+	void testExtractSourceReferenceContentEdgeCases() {
 
 		// Data not available
 		{
