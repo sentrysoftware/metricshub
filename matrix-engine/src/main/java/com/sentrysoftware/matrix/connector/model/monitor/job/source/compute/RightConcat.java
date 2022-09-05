@@ -28,4 +28,14 @@ public class RightConcat extends AbstractConcat {
 	public String toString() {
 		return super.toString();
 	}
+
+	@Override
+	public RightConcat copy() {
+		return RightConcat
+			.builder()
+			.index(index)
+			.column(column)
+			.string(string)
+			.build();
+	}
 }

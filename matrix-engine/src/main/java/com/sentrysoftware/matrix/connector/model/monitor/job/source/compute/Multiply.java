@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.connector.model.monitor.job.source.compute;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
 import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.engine.strategy.source.compute.IComputeVisitor;
@@ -45,5 +46,20 @@ public class Multiply extends Compute {
 		addNonNull(stringJoiner, "- multiplyBy=", multiplyBy);
 
 		return stringJoiner.toString();
+	}
+
+	@Override
+	public Multiply copy() {
+		return Multiply
+			.builder()
+			.index(index)
+			.column(column)
+			.multiplyBy(multiplyBy)
+			.build();
+	}
+
+	@Override
+	public void update(UnaryOperator<String> updater) {
+		multiplyBy = updater.apply(multiplyBy);
 	}
 }

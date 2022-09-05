@@ -5,6 +5,8 @@ import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
@@ -57,5 +59,34 @@ public class Awk extends Compute {
 		addNonNull(stringJoiner, "- selectColumns=", selectColumns);
 
 		return stringJoiner.toString();
+	}
+
+	@Override
+	public Awk copy() {
+		return Awk
+			.builder()
+			.index(index)
+			.awkScript(awkScript != null ? awkScript.copy() : null)
+			.excludeRegExp(excludeRegExp)
+			.keepOnlyRegExp(keepOnlyRegExp)
+			.separators(separators)
+			.selectColumns(selectColumns != null ? new ArrayList<>(selectColumns) : null)
+			.build();
+	}
+
+	@Override
+	public void update(UnaryOperator<String> updater) {
+		if (awkScript != null) {
+			awkScript.update(updater);
+		}
+		excludeRegExp = updater.apply(excludeRegExp);
+		keepOnlyRegExp = updater.apply(keepOnlyRegExp);
+		separators = updater.apply(separators);
+		if (selectColumns != null && !selectColumns.isEmpty()) {
+			selectColumns = selectColumns
+				.stream()
+				.map(updater::apply)
+				.collect(Collectors.toCollection(ArrayList::new));
+		}
 	}
 }

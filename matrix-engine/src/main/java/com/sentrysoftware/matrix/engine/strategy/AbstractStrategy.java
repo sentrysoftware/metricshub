@@ -157,10 +157,20 @@ public abstract class AbstractStrategy implements IStrategy {
 
 			if (computes != null) {
 
-				final ComputeVisitor computeVisitor = new ComputeVisitor(sourceKey, sourceTable, connector,
-						strategyConfig.getEngineConfiguration().getHost().getHostname(), matsyaClientsExecutor);
+				final ComputeVisitor computeVisitor = new ComputeVisitor(
+					sourceKey,
+					sourceTable,
+					connector,
+					hostname,
+					matsyaClientsExecutor
+				);
 
-				final ComputeUpdaterVisitor computeUpdaterVisitor = new ComputeUpdaterVisitor(computeVisitor, monitor);
+				final ComputeUpdaterVisitor computeUpdaterVisitor = new ComputeUpdaterVisitor(
+					computeVisitor,
+					monitor,
+					connector,
+					strategyConfig
+				);
 
 				for (final Compute compute : computes) {
 

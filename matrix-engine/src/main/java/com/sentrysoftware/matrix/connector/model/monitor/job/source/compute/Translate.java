@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.connector.model.monitor.job.source.compute;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
 import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
@@ -45,5 +46,22 @@ public class Translate extends Compute {
 		addNonNull(stringJoiner, "- translationTable=", translationTable != null ? translationTable.getName() : null);
 
 		return stringJoiner.toString();
+	}
+
+	@Override
+	public Translate copy() {
+		return Translate
+			.builder()
+			.index(index)
+			.column(column)
+			.translationTable(translationTable != null ? translationTable.copy() : null)
+			.build();
+	}
+
+	@Override
+	public void update(UnaryOperator<String> updater) {
+		if (translationTable != null) {
+			translationTable.update(updater);
+		}
 	}
 }

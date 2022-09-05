@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.connector.model.monitor.job.source.compute;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
 import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.engine.strategy.source.compute.IComputeVisitor;
@@ -21,7 +22,7 @@ public class Substract extends Compute {
 
 	private Integer column;
 	// Number value or Column(n), hence the String type 
-	private String substract;
+	private String substract; // NOSONAR
 
 	@Builder
 	public Substract(Integer index, Integer column, String substract) {
@@ -45,5 +46,20 @@ public class Substract extends Compute {
 		addNonNull(stringJoiner, "- substract=", substract);
 
 		return stringJoiner.toString();
+	}
+
+	@Override
+	public Substract copy() {
+		return Substract
+			.builder()
+			.index(index)
+			.column(column)
+			.substract(substract)
+			.build();
+	}
+
+	@Override
+	public void update(UnaryOperator<String> updater) {
+		substract = updater.apply(substract);
 	}
 }

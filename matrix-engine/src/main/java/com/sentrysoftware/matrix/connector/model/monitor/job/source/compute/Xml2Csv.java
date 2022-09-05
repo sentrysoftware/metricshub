@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.connector.model.monitor.job.source.compute;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
 import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.engine.strategy.source.compute.IComputeVisitor;
@@ -44,5 +45,21 @@ public class Xml2Csv extends Compute {
 		addNonNull(stringJoiner, "- properties=", properties);
 
 		return stringJoiner.toString();
+	}
+
+	@Override
+	public Xml2Csv copy() {
+		return Xml2Csv
+			.builder()
+			.index(index)
+			.recordTag(recordTag)
+			.properties(properties)
+			.build();
+	}
+
+	@Override
+	public void update(UnaryOperator<String> updater) {
+		recordTag = updater.apply(recordTag);
+		properties = updater.apply(properties);
 	}
 }

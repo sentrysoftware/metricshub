@@ -969,8 +969,14 @@ class SourceVisitorTest {
 		}
 
 		{
-			assertEquals(SourceTable.builder().table(Arrays.asList(Arrays.asList("val1", "val2", "val3"))).build(),
-					sourceVisitor.getSourceTable("val1;val2;val3;"));
+			assertEquals(
+				SourceTable
+					.builder()
+					.rawData("val1;val2;val3;")
+					.table(Arrays.asList(Arrays.asList("val1", "val2", "val3")))
+					.build(),
+				sourceVisitor.getSourceTable("val1;val2;val3;")
+			);
 		}
 	}
 

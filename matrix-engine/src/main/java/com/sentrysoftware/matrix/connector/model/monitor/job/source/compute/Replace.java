@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.connector.model.monitor.job.source.compute;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
 import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
 
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.engine.strategy.source.compute.IComputeVisitor;
@@ -20,7 +21,7 @@ public class Replace extends Compute {
 	private static final long serialVersionUID = -1177932638215228955L;
 
 	private Integer column;
-	private String replace;
+	private String replace; // NOSONAR
 	private String replaceBy;
 
 	@Builder
@@ -47,5 +48,22 @@ public class Replace extends Compute {
 		addNonNull(stringJoiner, "- replaceBy=", replaceBy);
 
 		return stringJoiner.toString();
+	}
+
+	@Override
+	public Replace copy() {
+		return Replace
+			.builder()
+			.index(index)
+			.column(column)
+			.replace(replace)
+			.replaceBy(replaceBy)
+			.build();
+	}
+
+	@Override
+	public void update(UnaryOperator<String> updater) {
+		replace = updater.apply(replace);
+		replaceBy = updater.apply(replaceBy);
 	}
 }

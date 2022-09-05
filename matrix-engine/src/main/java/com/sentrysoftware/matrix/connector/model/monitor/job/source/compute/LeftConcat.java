@@ -29,4 +29,14 @@ public class LeftConcat extends AbstractConcat {
 		return super.toString();
 	}
 
+	@Override
+	public LeftConcat copy() {
+		return LeftConcat
+			.builder()
+			.index(index)
+			.column(column)
+			.string(string)
+			.build();
+	}
+
 }
