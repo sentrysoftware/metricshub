@@ -1,6 +1,6 @@
-package com.sentrysoftware.hardware.agent.service.opentelemetry;
+package com.sentrysoftware.hardware.agent.service.opentelemetry.signal;
 
-import static com.sentrysoftware.hardware.agent.service.opentelemetry.OtelParameterToMetricObserver.isParameterAvailable;
+import static com.sentrysoftware.hardware.agent.service.opentelemetry.signal.OtelParameterToMetricObserver.isParameterAvailable;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BIOS_VERSION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DRIVER_VERSION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;

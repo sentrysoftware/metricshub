@@ -1,4 +1,4 @@
-package com.sentrysoftware.hardware.agent.service.opentelemetry;
+package com.sentrysoftware.hardware.agent.service.opentelemetry.signal;
 
 import static com.sentrysoftware.hardware.agent.mapping.opentelemetry.MappingConstants.ID;
 import static com.sentrysoftware.hardware.agent.mapping.opentelemetry.MappingConstants.NAME;

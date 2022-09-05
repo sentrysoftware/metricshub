@@ -1,4 +1,4 @@
-package com.sentrysoftware.hardware.agent.service.opentelemetry;
+package com.sentrysoftware.hardware.agent.service.opentelemetry.signal;
 
 import static com.sentrysoftware.hardware.agent.configuration.AgentConfig.*;
 
