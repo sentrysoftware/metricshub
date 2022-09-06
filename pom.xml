@@ -49,7 +49,7 @@
 		<grpcVersion>1.47.0</grpcVersion>
 		<protobufVersion>3.11.4</protobufVersion>
 		<protocVersion>${protobufVersion}</protocVersion>
-		<otelVersion>0.55.0</otelVersion>
+		<otelVersion>0.61.0</otelVersion>
 		<ddog.version>1.0.00</ddog.version>
 		<hwgraf.version>2</hwgraf.version>
 	</properties>
@@ -65,10 +65,10 @@
 	<!-- Activate the hws-otel-collector module... unless the nogo property is set -->
 	<profiles>
 		<profile>
-			<id>Go</id>
+			<id>otel</id>
 			<activation>
 				<property>
-					<name>!nogo</name>
+					<name>!nootel</name>
 				</property>
 			</activation>
 			<modules>

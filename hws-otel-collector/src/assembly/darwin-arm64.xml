@@ -32,9 +32,13 @@
 
 	<files>
 		<file>
-			<source>${project.build.directory}/darwin-arm64/${project.artifactId}</source>
-			<outputDirectory>bin</outputDirectory>
+			<source>${project.build.directory}/darwin-arm64/otelcol-contrib</source>
+			<outputDirectory>otel</outputDirectory>
 			<fileMode>0755</fileMode>
+		</file>
+		<file>
+			<source>${project.build.directory}/darwin-arm64/LICENSE</source>
+			<outputDirectory>otel</outputDirectory>
 		</file>
 	</files>
 

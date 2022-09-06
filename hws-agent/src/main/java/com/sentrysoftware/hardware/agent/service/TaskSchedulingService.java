@@ -5,6 +5,8 @@ import static com.sentrysoftware.hardware.agent.configuration.AgentConfig.AGENT_
 import java.io.File;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -12,9 +14,7 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 
 import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.config.Configurator;
+import org.apache.logging.log4j.ThreadContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -22,10 +22,15 @@ import org.springframework.scheduling.support.PeriodicTrigger;
 import org.springframework.stereotype.Service;
 
 import com.sentrysoftware.hardware.agent.configuration.ConfigHelper;
+import com.sentrysoftware.hardware.agent.configuration.OtelCollectorProcessConfig;
 import com.sentrysoftware.hardware.agent.configuration.OtelConfig;
 import com.sentrysoftware.hardware.agent.dto.HostConfigurationDto;
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
 import com.sentrysoftware.hardware.agent.dto.UserConfiguration;
+import com.sentrysoftware.hardware.agent.dto.opentelemetry.OtelCollectorConfigDto;
+import com.sentrysoftware.hardware.agent.dto.opentelemetry.OtelCollectorOutput;
+import com.sentrysoftware.hardware.agent.process.config.ProcessConfig;
+import com.sentrysoftware.hardware.agent.service.opentelemetry.process.OtelCollectorProcess;
 import com.sentrysoftware.hardware.agent.service.opentelemetry.signal.OtelHelper;
 import com.sentrysoftware.hardware.agent.service.opentelemetry.signal.OtelSelfObserver;
 import com.sentrysoftware.hardware.agent.service.task.FileWatcherTask;
@@ -46,9 +51,6 @@ public class TaskSchedulingService {
 
 	@Value("${server.port:8080}")
 	private int serverPort;
-
-	@Value("#{ '${grpc}'.isBlank() ? 'https://localhost:4317' : '${grpc}' }")
-	private String grpcEndpoint;
 
 	@Autowired
 	private File configFile;
@@ -71,10 +73,18 @@ public class TaskSchedulingService {
 	@Autowired
 	private Map<String, String> otelSdkConfiguration;
 
+	@Autowired
+	private OtelCollectorProcess otelCollectorProcess;
+
+	@Autowired
+	private ProcessConfig processConfig;
+
 	@PostConstruct
 	public void startScheduling() {
 
 		configureLoggerLevel();
+
+		startOtelCollector();
 
 		// Schedule self observer
 		scheduleAgentSelfObserver();
@@ -91,6 +101,65 @@ public class TaskSchedulingService {
 			.onChange(() -> updateConfiguration(configFile))
 			.build()
 			.start();
+	}
+
+	/**
+	 * Start the OpenTelemetry Collector process. If the configuration specifies
+	 * that the collector must be disabled, this method skips the collector startup.
+	 */
+	void startOtelCollector() {
+
+		if (multiHostsConfigurationDto.getOtelCollector().isDisabled()) {
+			log.info("The Hardware Sentry Agent is configured to not start the OpenTelemetry Collector.");
+			return;
+		}
+
+		// The subprocess must be ran using a separate thread so that it creates a log context for himself only.
+		// The process output will be redirected to a dedicated file, see how log4j2.xml is configured using the 
+		// thread context pattern.
+		final ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
+
+		// Run the execution
+		singleThreadExecutor.submit(() -> {
+			// Configure logger 
+			ThreadContext.put("logId", OtelCollectorConfigDto.EXECUTABLE_OUTPUT_ID);
+
+			// Get the global application level
+			final Level globalLevel = getLoggerLevel(multiHostsConfigurationDto.getLoggerLevel());
+
+			String loggerLevel = globalLevel.name();
+			// User might want to disable logging for the process
+			if (multiHostsConfigurationDto.getOtelCollector().getOutput() != OtelCollectorOutput.LOG) {
+				loggerLevel = Level.OFF.name();
+			}
+
+			ThreadContext.put("loggerLevel", loggerLevel);
+
+			String outputDirectory = multiHostsConfigurationDto.getOutputDirectory();
+			if (outputDirectory  != null) {
+				ThreadContext.put("outputDirectory", outputDirectory);
+			}
+
+			// Start the executable
+			try {
+				otelCollectorProcess.start();
+			} catch (Exception e) {
+				log.error("Could not start process using command line: {}.", otelCollectorProcess.getProcessConfig().getCommandLine());
+				log.debug("Error: ", e);
+			}
+		});
+
+		try {
+			singleThreadExecutor.awaitTermination(multiHostsConfigurationDto.getOtelCollector().getStartupDelay(), TimeUnit.SECONDS);
+		} catch (Exception e) { // NOSONAR
+			log.error(
+				"Startup process has been interrupted after {} seconds. Command line: {}.",
+				multiHostsConfigurationDto.getOtelCollector().getStartupDelay(),
+				otelCollectorProcess.getProcessConfig().getCommandLine()
+			);
+			log.debug("Error: ", e);
+		}
+
 	}
 
 	/**
@@ -133,9 +202,15 @@ public class TaskSchedulingService {
 	 */
 	void configureLoggerLevel() {
 
-		final Logger logger = LogManager.getLogger("com.sentrysoftware");
+		final Level loggerLevel = getLoggerLevel(multiHostsConfigurationDto.getLoggerLevel());
 
-		Configurator.setAllLevels(logger.getName(), getLoggerLevel(multiHostsConfigurationDto.getLoggerLevel()));
+		ThreadContext.put("logId", String.format("hws-agent-%d-global", serverPort));
+		ThreadContext.put("loggerLevel", loggerLevel.toString());
+
+		String outputDirectory = multiHostsConfigurationDto.getOutputDirectory();
+		if (outputDirectory  != null) {
+			ThreadContext.put("outputDirectory", outputDirectory);
+		}
 	}
 
 	/**
@@ -144,7 +219,7 @@ public class TaskSchedulingService {
 	 * @param loggerLevel string value from the configuration (e.g. off, debug, info, warn, error, trace, all)
 	 * @return log4j {@link Level} instance
 	 */
-	Level getLoggerLevel(final String loggerLevel) {
+	static Level getLoggerLevel(final String loggerLevel) {
 
 		final Level level = loggerLevel != null ? Level.getLevel(loggerLevel.toUpperCase()) : null;
 
@@ -183,8 +258,28 @@ public class TaskSchedulingService {
 		// Make sure the logger is configured correctly
 		configureLoggerLevel();
 
-		final Map<String, String> newOtelSdkConfiguration = new OtelConfig()
-				.otelSdkConfiguration(newMultiHostsConfigurationDto, grpcEndpoint);
+		// Configuration updated? if yes stop then start the collector
+		if (!newMultiHostsConfigurationDto.getOtelCollector().equals(multiHostsConfigurationDto.getOtelCollector())) {
+
+			// Stop the collector
+			otelCollectorProcess.stop();
+
+			// Update the global configuration
+			multiHostsConfigurationDto.setOtelCollector(newMultiHostsConfigurationDto.getOtelCollector());
+
+			final OtelCollectorProcessConfig config = new  OtelCollectorProcessConfig();
+
+			// Get a new ProcessConfig based on what the user has configured
+			final ProcessConfig newProcessConfig = config.processConfig(newMultiHostsConfigurationDto);
+
+			// Update the process configuration
+			processConfig.update(newProcessConfig);
+
+			// Start the OpenTelemetry Collector
+			startOtelCollector();
+		}
+
+		final Map<String, String> newOtelSdkConfiguration = new OtelConfig().otelSdkConfiguration(newMultiHostsConfigurationDto);
 
 		// The SDK configuration has been updated? reschedule everything
 		if (!MapHelper.areEqual(otelSdkConfiguration, newOtelSdkConfiguration)) {

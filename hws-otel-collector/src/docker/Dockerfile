@@ -6,6 +6,6 @@ COPY . /opt/hws-otel-collector
 
 WORKDIR /opt/hws-otel-collector/bin
 
-RUN chmod +x hws-otel-collector
+RUN chmod +x hws-agent
 
-ENTRYPOINT ["./hws-otel-collector"]
+ENTRYPOINT ["./hws-agent"]

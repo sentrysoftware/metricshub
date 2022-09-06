@@ -1,7 +1,6 @@
 package com.sentrysoftware.hardware.agent.dto;
 
 import static com.fasterxml.jackson.annotation.Nulls.SKIP;
-import static com.sentrysoftware.hardware.agent.configuration.ConfigHelper.DEFAULT_OUTPUT_DIRECTORY;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -71,11 +70,8 @@ public class HostConfigurationDto {
 	private Long collectPeriod;
 	private Integer discoveryCycle;
 
-	@Default
-	private String loggerLevel = "OFF";
-
-	@Default
-	private String outputDirectory = DEFAULT_OUTPUT_DIRECTORY.toString();
+	private String loggerLevel;
+	private String outputDirectory;
 
 	@Default
 	@JsonSetter(nulls = SKIP)

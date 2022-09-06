@@ -18,7 +18,8 @@
 	<description>A custom OpenTelemetry Collector that runs Hardware Sentry Agent and exports to various formats and platforms</description>
 
 	<properties>
-
+		<!-- OpenTelemetry Collector Contrib base binaries URL -->
+		<otelColContribBaseUrl>https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v${otelVersion}</otelColContribBaseUrl>
 		<!-- Sentry Skin Version (to be used in site.xml and therefore be consistent with the Velocity Tool artifact!) -->
 		<sentrySkinVersion>5.0</sentrySkinVersion>
 
@@ -41,192 +42,60 @@
 
 		<plugins>
 
-			<!-- resources -->
+			<!-- Download otelcol-contrib binaries -->
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-resources-plugin</artifactId>
+				<groupId>com.googlecode.maven-download-plugin</groupId>
+				<artifactId>download-maven-plugin</artifactId>
 				<executions>
 					<execution>
-						<id>copy-go-resources</id>
-						<phase>process-resources</phase>
+						<id>install-otelcol-contrib-windows-amd64</id>
+						<phase>generate-resources</phase>
 						<goals>
-							<goal>copy-resources</goal>
+							<goal>wget</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>${project.build.directory}/hws-otel-collector</outputDirectory>
-							<resources>
-								<resource>
-									<directory>src/main/go</directory>
-									<filtering>true</filtering>
-								</resource>
-							</resources>
+							<url>${otelColContribBaseUrl}/otelcol-contrib_${otelVersion}_windows_amd64.tar.gz</url>
+							<unpack>true</unpack>
+							<outputDirectory>${project.build.directory}/windows-amd64</outputDirectory>
+						</configuration>
+					</execution>
+					<execution>
+						<id>install-otelcol-contrib-linux-amd64</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>wget</goal>
+						</goals>
+						<configuration>
+							<url>${otelColContribBaseUrl}/otelcol-contrib_${otelVersion}_linux_amd64.tar.gz</url>
+							<unpack>true</unpack>
+							<outputDirectory>${project.build.directory}/linux-amd64</outputDirectory>
+						</configuration>
+					</execution>
+					<execution>
+						<id>install-otelcol-contrib-darwin-amd64</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>wget</goal>
+						</goals>
+						<configuration>
+							<url>${otelColContribBaseUrl}/otelcol-contrib_${otelVersion}_darwin_amd64.tar.gz</url>
+							<unpack>true</unpack>
+							<outputDirectory>${project.build.directory}/darwin-amd64</outputDirectory>
+						</configuration>
+					</execution>
+					<execution>
+						<id>install-otelcol-contrib-darwin-arm64</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>wget</goal>
+						</goals>
+						<configuration>
+							<url>${otelColContribBaseUrl}/otelcol-contrib_${otelVersion}_darwin_arm64.tar.gz</url>
+							<unpack>true</unpack>
+							<outputDirectory>${project.build.directory}/darwin-arm64</outputDirectory>
 						</configuration>
 					</execution>
 				</executions>
-			</plugin>
-
-			<!-- mvn-golang-wrapper -->
-			<plugin>
-				<groupId>com.igormaznitsa</groupId>
-				<artifactId>mvn-golang-wrapper</artifactId>
-				<version>2.3.9</version>
-				<extensions>true</extensions>
-				<configuration>
-					<goVersion>1.17</goVersion>
-				</configuration>
-
-				<executions>
-
-					<!-- go mod tidy -compat=1.17 -->
-					<!-- Ensure that the go.mod file matches the source code in the module -->
-					<execution>
-						<phase>compile</phase>
-						<id>mod-tidy</id>
-						<goals>
-							<goal>mod</goal>
-						</goals>
-						<configuration>
-							<sources>${project.build.directory}/hws-otel-collector/collector</sources>
-							<command>tidy</command>
-							<arguments>
-								<argument>-compat=1.17</argument>
-							</arguments>
-							<env>
-								<CGO_ENABLED>0</CGO_ENABLED>
-							</env>
-						</configuration>
-					</execution>
-
-					<!-- go mod download all -->
-					<!-- Download the named modules into the module cache -->
-					<execution>
-						<phase>compile</phase>
-						<id>mod-download-all</id>
-						<goals>
-							<goal>mod</goal>
-						</goals>
-						<configuration>
-							<sources>${project.build.directory}/hws-otel-collector/collector</sources>
-							<command>download</command>
-							<arguments>
-								<argument>all</argument>
-							</arguments>
-							<env>
-								<CGO_ENABLED>0</CGO_ENABLED>
-							</env>
-						</configuration>
-					</execution>
-
-					<!-- go build -buildmode=default -ldflags -s -w -o target\windows-amd64\hws-otel-collector.exe -trimpath -->
-					<!-- Build the Windows-AMD64 collector -->
-					<execution>
-						<phase>compile</phase>
-						<id>build-win</id>
-						<goals>
-							<goal>build</goal>
-						</goals>
-						<configuration>
-							<sources>${project.build.directory}/hws-otel-collector/collector</sources>
-							<resultFolder>${project.build.directory}/windows-amd64</resultFolder>
-							<resultName>${project.artifactId}.exe</resultName>
-							<ldFlags>
-								<ldFlag>-s</ldFlag>
-								<ldFlag>-w</ldFlag>
-							</ldFlags>
-							<buildFlags>
-								<buildFlag>-trimpath</buildFlag>
-							</buildFlags>
-							<targetOs>windows</targetOs>
-							<targetArch>amd64</targetArch>
-							<env>
-								<CGO_ENABLED>0</CGO_ENABLED>
-							</env>
-						</configuration>
-					</execution>
-
-					<!-- go build -buildmode=default -ldflags -s -w -o target/linux-amd64/hws-otel-collector -trimpath -->
-					<!-- Build the Linux-AMD64 collector -->
-					<execution>
-						<phase>compile</phase>
-						<id>build-linux</id>
-						<goals>
-							<goal>build</goal>
-						</goals>
-						<configuration>
-							<sources>${project.build.directory}/hws-otel-collector/collector</sources>
-							<resultFolder>${project.build.directory}/linux-amd64</resultFolder>
-							<resultName>${project.artifactId}</resultName>
-							<ldFlags>
-								<ldFlag>-s</ldFlag>
-								<ldFlag>-w</ldFlag>
-							</ldFlags>
-							<buildFlags>
-								<buildFlag>-trimpath</buildFlag>
-							</buildFlags>
-							<targetOs>linux</targetOs>
-							<targetArch>amd64</targetArch>
-							<env>
-								<CGO_ENABLED>0</CGO_ENABLED>
-							</env>
-						</configuration>
-					</execution>
-
-					<!-- go build -buildmode=default -ldflags -s -w -o target/darwin-amd64/hws-otel-collector -trimpath -->
-					<!-- Build the Darwin-AMD64 collector -->
-					<execution>
-						<phase>compile</phase>
-						<id>build-darwin-amd64</id>
-						<goals>
-							<goal>build</goal>
-						</goals>
-						<configuration>
-							<sources>${project.build.directory}/hws-otel-collector/collector</sources>
-							<resultFolder>${project.build.directory}/darwin-amd64</resultFolder>
-							<resultName>${project.artifactId}</resultName>
-							<ldFlags>
-								<ldFlag>-s</ldFlag>
-								<ldFlag>-w</ldFlag>
-							</ldFlags>
-							<buildFlags>
-								<buildFlag>-trimpath</buildFlag>
-							</buildFlags>
-							<targetOs>darwin</targetOs>
-							<targetArch>amd64</targetArch>
-							<env>
-								<CGO_ENABLED>0</CGO_ENABLED>
-							</env>
-						</configuration>
-					</execution>
-
-					<!-- go build -buildmode=default -ldflags -s -w -o target/darwin-arm64/hws-otel-collector -trimpath -->
-					<!-- Build the Darwin-ARM64 collector -->
-					<execution>
-						<phase>compile</phase>
-						<id>build-darwin-arm64</id>
-						<goals>
-							<goal>build</goal>
-						</goals>
-						<configuration>
-							<sources>${project.build.directory}/hws-otel-collector/collector</sources>
-							<resultFolder>${project.build.directory}/darwin-arm64</resultFolder>
-							<resultName>${project.artifactId}</resultName>
-							<ldFlags>
-								<ldFlag>-s</ldFlag>
-								<ldFlag>-w</ldFlag>
-							</ldFlags>
-							<buildFlags>
-								<buildFlag>-trimpath</buildFlag>
-							</buildFlags>
-							<targetOs>darwin</targetOs>
-							<targetArch>arm64</targetArch>
-							<env>
-								<CGO_ENABLED>0</CGO_ENABLED>
-							</env>
-						</configuration>
-					</execution>
-
-				</executions>
-
 			</plugin>
 
 			<!-- site -->

@@ -34,9 +34,13 @@
 
 	<files>
 		<file>
-			<source>${project.build.directory}/windows-amd64/${project.artifactId}.exe</source>
-			<outputDirectory>bin</outputDirectory>
+			<source>${project.build.directory}/windows-amd64/otelcol-contrib.exe</source>
+			<outputDirectory>otel</outputDirectory>
 			<fileMode>0755</fileMode>
+		</file>
+		<file>
+			<source>${project.build.directory}/windows-amd64/LICENSE</source>
+			<outputDirectory>otel</outputDirectory>
 		</file>
 	</files>
 

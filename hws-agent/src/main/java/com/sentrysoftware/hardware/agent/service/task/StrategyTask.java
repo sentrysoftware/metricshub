@@ -236,9 +236,8 @@ public class StrategyTask implements Runnable {
 	 */
 	void configureLoggerContext(final String hostId) {
 
-		ThreadContext.put("hostId", hostId);
+		ThreadContext.put("logId", String.format("hws-agent-%d-%s", strategyTaskInfo.getServerPort(), hostId));
 		ThreadContext.put("loggerLevel", strategyTaskInfo.getLoggerLevel());
-		ThreadContext.put("port", String.valueOf(strategyTaskInfo.getServerPort()));
 
 		String outputDirectory = strategyTaskInfo.getOutputDirectory();
 		if (outputDirectory  != null) {
