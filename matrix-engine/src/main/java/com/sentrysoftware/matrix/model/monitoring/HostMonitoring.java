@@ -687,4 +687,5 @@ public class HostMonitoring implements IHostMonitoring {
 		connectorStates.put(connectorName, state);
 	}
 
+	private String vCenterTicket;
 }

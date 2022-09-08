@@ -183,3 +183,17 @@ hosts:
 #      protocol: http
 #      authentications: [ntlm, kerberos]
 
+#═══════════════════════════════════════════════════
+# vCenter WBEM configuration                              
+#═══════════════════════════════════════════════════
+
+#  - host:
+#      hostname: server-12
+#      type: oob
+#    wbem:
+#      protocol: https
+#      port: 5989
+#      timeout: 120s
+#      username: admin
+#      password: password
+#      vcenter: server-vcenter

@@ -23,6 +23,7 @@ import java.util.concurrent.TimeoutException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.sentrysoftware.javax.wbem.WBEMException;
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
@@ -54,6 +55,7 @@ import com.sentrysoftware.matsya.jflat.JFlat;
 import com.sentrysoftware.matsya.snmp.SNMPClient;
 import com.sentrysoftware.matsya.ssh.SSHClient;
 import com.sentrysoftware.matsya.tablejoin.TableJoin;
+import com.sentrysoftware.matsya.vcenter.VCenterClient;
 import com.sentrysoftware.matsya.wbem2.WbemExecutor;
 import com.sentrysoftware.matsya.wbem2.WbemQueryResult;
 import com.sentrysoftware.matsya.windows.remote.WindowsRemoteCommandResult;
@@ -524,6 +526,116 @@ public class MatsyaClientsExecutor {
 			@NonNull final String namespace
 	) throws MatsyaException {
 
+		// handle vCenter case
+		if (wbemConfig.getVCenter() != null) {
+			return doVCenterQuery(hostname, wbemConfig, query, namespace);
+		} else {
+			return doWbemQuery(hostname, wbemConfig, query, namespace);
+		}
+
+	}
+
+	/**
+	 * 
+	 * @param hostname
+	 * @param wbemConfig
+	 * @param query
+	 * @param namespace
+	 * @return
+	 * @throws MatsyaException
+	 */
+	private List<List<String>> doVCenterQuery(
+			@NonNull final String hostname,
+			@NonNull final WbemProtocol wbemConfig,
+			@NonNull final String query,
+			@NonNull final String namespace) throws MatsyaException {
+		String ticket = strategyConfig.getHostMonitoring().getVCenterTicket();
+
+		if (ticket == null) {
+			ticket = refreshVCenterTicket(wbemConfig.getVCenter(), wbemConfig.getUsername(), wbemConfig.getPassword(), hostname, wbemConfig.getTimeout());
+		}
+
+		final WbemProtocol vCenterWbemConfig = WbemProtocol
+				.builder()
+				.username(ticket)
+				.password(ticket.toCharArray())
+				.namespace(wbemConfig.getNamespace())
+				.port(wbemConfig.getPort())
+				.protocol(wbemConfig.getProtocol())
+				.timeout(wbemConfig.getTimeout())
+				.build();
+
+		try {
+			return doWbemQuery(hostname, vCenterWbemConfig, query, namespace);
+		} catch (MatsyaException e) {
+			if (isRefreshTicketNeeded(e.getCause())) {
+				ticket = refreshVCenterTicket(wbemConfig.getVCenter(), wbemConfig.getUsername(), wbemConfig.getPassword(), hostname, wbemConfig.getTimeout());
+				vCenterWbemConfig.setUsername(ticket);
+				vCenterWbemConfig.setPassword(ticket.toCharArray());
+				return doWbemQuery(hostname, vCenterWbemConfig, query, namespace);
+			} else {
+				throw e;
+			}
+		} finally {
+			strategyConfig.getHostMonitoring().setVCenterTicket(ticket);
+		}
+	}
+
+	/**
+	 * 
+	 * @param vCenter
+	 * @param username
+	 * @param password
+	 * @param hostname
+	 * @param timeout
+	 * @return
+	 * @throws MatsyaException
+	 */
+	private String refreshVCenterTicket(
+			@NonNull String vCenter,
+			@NonNull String username,
+			@NonNull char[] password,
+			@NonNull String hostname, 
+			Long timeout) throws MatsyaException {
+
+		try {
+			String ticket = execute(
+				() -> VCenterClient.requestCertificate(vCenter, username, new String(password), hostname),
+				timeout
+			);
+			if (ticket == null) {
+				throw new MatsyaException("Cannot get the ticket through matsya vCenter module");
+			}
+			return ticket;
+		} catch (Exception e) {
+			// Add log
+			throw new MatsyaException("vCenter refresh ticket query failed on " + hostname + ".", e);
+		}
+	}
+
+	/**
+	 * Assess whether the exception (or any of its causes) is an access denied error saying that we must refresh the vCenter ticket
+	 * <p>
+	 * @param t Exception to verify
+	 * @return whether specified exception tells us that the ticket needs to be refreshed
+	 */
+	public static boolean isRefreshTicketNeeded(Throwable t) {
+
+		if (t == null) {
+			return false;
+		}
+
+		if (t instanceof WBEMException) {
+			final int cimErrorType = ((WBEMException) t).getID();
+			return cimErrorType == WBEMException.CIM_ERR_ACCESS_DENIED;
+		}
+
+		// Now check recursively the cause
+		return isRefreshTicketNeeded(t.getCause());
+	}
+
+	private List<List<String>> doWbemQuery(final String hostname, final WbemProtocol wbemConfig, final String query,
+			final String namespace) throws MatsyaException {
 		try {
 			String urlSpec = String.format(
 					"%s://%s:%d",
@@ -580,7 +692,6 @@ public class MatsyaClientsExecutor {
 		} catch (Exception e) {
 			throw new MatsyaException("WBEM query failed on " + hostname + ".", e);
 		}
-
 	}
 
 

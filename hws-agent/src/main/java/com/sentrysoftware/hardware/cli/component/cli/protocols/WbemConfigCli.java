@@ -69,7 +69,16 @@ public class WbemConfigCli implements IProtocolConfigCli {
 			paramLabel = "NAMESPACE",
 			description = "Force a specific namespace for connectors that perform namespace auto-detection (advanced)"
 	)
+	
 	String namespace;
+	
+	@Option(
+			names = "--wbem-vcenter",
+			order = 8,
+			paramLabel = "VCENTER",
+			description = "VCenter hostname providing the authentication ticket (if applicable)"
+	)
+	String vcenter;
 
 	/**
 	 * @param defaultUsername Username specified at the top level of the CLI (with the --username option)
@@ -86,6 +95,7 @@ public class WbemConfigCli implements IProtocolConfigCli {
 				.password(username == null ? defaultPassword : password)
 				.namespace(namespace)
 				.timeout(timeout)
+				.vCenter(vcenter)
 				.build();
 	}
 

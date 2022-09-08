@@ -58,6 +58,7 @@ public class ConfigHelper {
 	private static final Predicate<String> INVALID_STRING_CHECKER = attr -> attr == null || attr.isBlank();
 	private static final Predicate<Integer> INVALID_PORT_CHECKER = attr -> attr == null || attr < 1 || attr > 65535;
 	private static final Predicate<Long> INVALID_TIMEOUT_CHECKER = attr -> attr == null || attr < 0L;
+	private static final Predicate<String> EMPTY_STRING_CHECKER = attr -> attr != null && attr.isBlank();
 
 	/**
 	 * Deserialize YAML configuration file.
@@ -263,7 +264,7 @@ public class ConfigHelper {
 	 * @param port     port of the host
 	 * @throws BusinessException
 	 */
-	static void validateWbemInfo(final String hostname, final String username, final Long timeout, final Integer port)
+	static void validateWbemInfo(final String hostname, final String username, final Long timeout, final Integer port, final String vCenter)
 			throws BusinessException {
 
 		final String protocol = "WBEM";
@@ -284,6 +285,15 @@ public class ConfigHelper {
 				username,
 				INVALID_STRING_CHECKER,
 				() -> String.format(USERNAME_ERROR, hostname, protocol),
+				ErrorCode.EMPTY_VCENTER);
+		
+		validateAttribute(
+				username,
+				EMPTY_STRING_CHECKER,
+				() -> String.format("Hostname %s - Empty vCenter hostname configured for protocol %s. This host will not be monitored. Please verify the configured vCenter hostname.",
+						hostname,
+						protocol,
+						vCenter),
 				ErrorCode.NO_USERNAME);
 	}
 
@@ -585,7 +595,8 @@ public class ConfigHelper {
 				validateWbemInfo(hostname,
 						hostConfigurationDto.getWbem().getUsername(),
 						hostConfigurationDto.getWbem().getTimeout(),
-						hostConfigurationDto.getWbem().getPort());
+						hostConfigurationDto.getWbem().getPort(),
+						hostConfigurationDto.getWbem().getVCenter());
 
 			if (hostConfigurationDto.getWmi() != null)
 				validateWmiInfo(hostname,

@@ -309,6 +309,11 @@
 				<artifactId>grpc-netty-shaded</artifactId>
 				<version>${grpcVersion}</version>
 			</dependency>
+			<dependency>
+				<groupId>com.sentrysoftware.patrol.matsya</groupId>
+				<artifactId>module-vcenter</artifactId>
+				<version>${matsya.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
