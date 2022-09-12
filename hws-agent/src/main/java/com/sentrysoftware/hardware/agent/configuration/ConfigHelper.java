@@ -286,14 +286,13 @@ public class ConfigHelper {
 				INVALID_STRING_CHECKER,
 				() -> String.format(USERNAME_ERROR, hostname, protocol),
 				ErrorCode.EMPTY_VCENTER);
-		
+
 		validateAttribute(
-				username,
+				vCenter,
 				EMPTY_STRING_CHECKER,
 				() -> String.format("Hostname %s - Empty vCenter hostname configured for protocol %s. This host will not be monitored. Please verify the configured vCenter hostname.",
 						hostname,
-						protocol,
-						vCenter),
+						protocol),
 				ErrorCode.NO_USERNAME);
 	}
 

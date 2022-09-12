@@ -86,6 +86,8 @@ public class HostMonitoring implements IHostMonitoring {
 
 	private EngineConfiguration engineConfiguration;
 
+	private String vCenterTicket;
+
 	@Getter(value = AccessLevel.PRIVATE)
 	private Map<String, ConnectorNamespace> connectorNamespaces = new HashMap<>();
 
@@ -686,6 +688,4 @@ public class HostMonitoring implements IHostMonitoring {
 	public void addConnectorState(final String connectorName, final IState state) {
 		connectorStates.put(connectorName, state);
 	}
-
-	private String vCenterTicket;
 }

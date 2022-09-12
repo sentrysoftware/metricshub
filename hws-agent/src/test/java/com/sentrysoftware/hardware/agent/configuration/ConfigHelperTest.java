@@ -392,6 +392,7 @@ class ConfigHelperTest {
 		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbemInfo("hostname", "username", 60L, 66666, "vcenter"));
 		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbemInfo("hostname", "username", 60L, null, ""));
 		assertDoesNotThrow(() -> ConfigHelper.validateWbemInfo("hostname", "username", 60L, 1234, "vcenter"));
+		assertDoesNotThrow(() -> ConfigHelper.validateWbemInfo("hostname", "username", 60L, 1234, null));
 	}
 
 	@Test
