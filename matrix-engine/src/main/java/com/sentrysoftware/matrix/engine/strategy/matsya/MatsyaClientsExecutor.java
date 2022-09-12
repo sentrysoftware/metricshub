@@ -507,7 +507,7 @@ public class MatsyaClientsExecutor {
 	}
 
 	/**
-	 * Perform a WBEM query.
+	 * Determine if a vCenter server is configured and call the appropriate method to run the WBEM query.
 	 * <p>
 	 * @param hostname Hostname
 	 * @param wbemConfig WBEM Protocol configuration, incl. credentials
@@ -532,17 +532,20 @@ public class MatsyaClientsExecutor {
 		} else {
 			return doWbemQuery(hostname, wbemConfig, query, namespace);
 		}
-
 	}
 
 	/**
-	 * 
-	 * @param hostname
-	 * @param wbemConfig
-	 * @param query
-	 * @param namespace
-	 * @return
-	 * @throws MatsyaException
+	 * Perform a WBEM query using vCenter ticket authentication.
+	 * <p>
+	 * @param hostname Hostname
+	 * @param wbemConfig WBEM Protocol configuration, incl. credentials
+	 * @param query WQL query to execute
+	 * @param namespace WBEM namespace
+	 *
+	 * @return A table (as a {@link List} of {@link List} of {@link String}s)
+	 * resulting from the execution of the query.
+	 *
+	 * @throws MatsyaException when anything goes wrong (details in cause)
 	 */
 	private List<List<String>> doVCenterQuery(
 			@NonNull final String hostname,
@@ -582,14 +585,15 @@ public class MatsyaClientsExecutor {
 	}
 
 	/**
-	 * 
-	 * @param vCenter
-	 * @param username
-	 * @param password
-	 * @param hostname
-	 * @param timeout
-	 * @return
-	 * @throws MatsyaException
+	 * Perform a query to a vCenterServer in order to obtain an authentication ticket.
+	 * <p>
+	 * @param vCenter vCenter server FQDN or IP
+	 * @param username Username
+	 * @param password Password
+	 * @param hostname Hostname
+	 * @param timeout Timeout
+	 * @return A ticket String
+	 * @throws MatsyaException when anything goes wrong (details in cause)
 	 */
 	private String refreshVCenterTicket(
 			@NonNull String vCenter,
@@ -598,6 +602,7 @@ public class MatsyaClientsExecutor {
 			@NonNull String hostname, 
 			Long timeout) throws MatsyaException {
 
+		VCenterClient.setDebug(() -> true, log::debug);
 		try {
 			String ticket = execute(
 				() -> VCenterClient.requestCertificate(vCenter, username, new String(password), hostname),
@@ -614,12 +619,12 @@ public class MatsyaClientsExecutor {
 	}
 
 	/**
-	 * Assess whether the exception (or any of its causes) is an access denied error saying that we must refresh the vCenter ticket
+	 * Assess whether the exception (or any of its causes) is an access denied error saying that we must refresh the vCenter ticket.
 	 * <p>
 	 * @param t Exception to verify
 	 * @return whether specified exception tells us that the ticket needs to be refreshed
 	 */
-	public static boolean isRefreshTicketNeeded(Throwable t) {
+	private static boolean isRefreshTicketNeeded(Throwable t) {
 
 		if (t == null) {
 			return false;
@@ -633,7 +638,20 @@ public class MatsyaClientsExecutor {
 		// Now check recursively the cause
 		return isRefreshTicketNeeded(t.getCause());
 	}
-
+	
+	/**
+	 * Perform a WBEM query.
+	 * <p>
+	 * @param hostname Hostname
+	 * @param wbemConfig WBEM Protocol configuration, incl. credentials
+	 * @param query WQL query to execute
+	 * @param namespace WBEM namespace
+	 *
+	 * @return A table (as a {@link List} of {@link List} of {@link String}s)
+	 * resulting from the execution of the query.
+	 *
+	 * @throws MatsyaException when anything goes wrong (details in cause)
+	 */
 	private List<List<String>> doWbemQuery(final String hostname, final WbemProtocol wbemConfig, final String query,
 			final String namespace) throws MatsyaException {
 		try {
