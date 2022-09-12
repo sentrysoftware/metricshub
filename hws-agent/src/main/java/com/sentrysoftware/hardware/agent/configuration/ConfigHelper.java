@@ -256,12 +256,13 @@ public class ConfigHelper {
 	}
 
 	/**
-	 * Validate the given WBEM information (hostname, username, timeout and port)
+	 * Validate the given WBEM information (hostname, username, timeout, port and vCenter)
 	 *
 	 * @param hostname hostname
 	 * @param username username of the host
 	 * @param timeout  timeout of the host
 	 * @param port     port of the host
+	 * @param vCenter  vCenter server of the host
 	 * @throws BusinessException
 	 */
 	static void validateWbemInfo(final String hostname, final String username, final Long timeout, final Integer port, final String vCenter)
