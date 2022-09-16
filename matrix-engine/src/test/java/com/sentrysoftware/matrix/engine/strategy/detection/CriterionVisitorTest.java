@@ -226,6 +226,12 @@ class CriterionVisitorTest {
 		assertNotNull(criterionTestResult);
 		assertEquals(FOO, criterionTestResult.getResult());
 		assertTrue(criterionTestResult.isSuccess());
+		
+		// HTTP is not null, protocol is not null, expectedResult is not null, result is not null and case does not match
+		doReturn("foo").when(matsyaClientsExecutor).executeHttp(any(), eq(false));
+		http.setExpectedResult(FOO);
+		criterionTestResult = criterionVisitor.visit(http);
+		assertTrue(criterionTestResult.isSuccess());
 	}
 
 	@Test
@@ -2044,7 +2050,26 @@ class CriterionVisitorTest {
 						"\n\n" +
 						"Result: " + result,
 					criterionTestResult.getMessage());
-			assertEquals(result, criterionTestResult.getResult());
+		}
+		
+		// Test to see if case insensitive matches are allowed
+		
+		try (final MockedStatic<SshInteractiveHelper> mockedSshInteractiveHelper = mockStatic(SshInteractiveHelper.class)) {
+
+			String result = "\n\n\nHP BLADESYSTEM ONBOARD ADMINISTRATOR\n" +
+					"(C) Copyright 2006-2015 Hewlett-Packard Development Company, L.P.\n";
+
+			mockedSshInteractiveHelper.when(() -> SshInteractiveHelper.runSshInteractive(engineConfiguration, steps, "sshInteractive detection.criteria(1)")).thenReturn(List.of(result));
+
+			final CriterionTestResult criterionTestResult = criterionVisitor.visit(sshInteractive);
+
+			assertNotNull(criterionTestResult);
+			assertTrue(criterionTestResult.isSuccess());
+			assertEquals(
+					"SshInteractive test succeeded:\n" + sshInteractive.toString() +
+						"\n\n" +
+						"Result: " + result,
+					criterionTestResult.getMessage());
 		}
 	}
 
