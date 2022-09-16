@@ -153,7 +153,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 		} else {
 
-			final Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(expectedResult));
+			final Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(expectedResult), Pattern.CASE_INSENSITIVE);
 			if (result != null && pattern.matcher(result).find()) {
 
 				message = String.format("Hostname %s - HTTP test succeeded. Returned result: %s.", hostname, result);
@@ -810,7 +810,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 			}
 
 			final Matcher matcher = Pattern
-					.compile(PslUtils.psl2JavaRegex(sshInteractive.getExpectedResult()))
+					.compile(PslUtils.psl2JavaRegex(sshInteractive.getExpectedResult()), Pattern.CASE_INSENSITIVE)
 					.matcher(result);
 			return matcher.find() ?
 					CriterionTestResult.success(
