@@ -1,5 +1,5 @@
-keywords: grafana, dashboard, observability, sustainability, green, power consumption, carbon, CO₂
-description: How to import and configure Hardware Sentry Dashboards for Grafana.
+keywords: grafana, dashboard, green, power consumption, carbon, CO₂
+description: How to import, configure, and use Hardware Sentry Dashboards for Grafana.
 
 # Grafana Dashboards
 
@@ -7,8 +7,6 @@ description: How to import and configure Hardware Sentry Dashboards for Grafana.
 
 The **Hardware Sentry** dashboards for Grafana give you immediate visibility into your monitored environment. The organized panels expose health metrics for all monitored hardware systems and bring real-time metrics and projected trends on electricity consumption and costs, as well as CO₂ emissions for your entire infrastructure.
 Once you have configured the [dashboard provider](#Configuring_the_Dashboard_Provider) and the [data source](#Configuring_the_Data_Source), the dashboards are automatically available from the **Dashboard** menu on the **Home** page.
-
-<!-- Update screenshot -->
 
 ![Hardware Sentry - Main View](../images/grafana-main.png)
 
@@ -149,10 +147,10 @@ If the value displayed is below 100%, check the monitoring coverage of each **Si
 
 ### Monitoring the agent collection status
 
-The **Hardware Sentry Agent Status** panel at the bottom of the **Main** dashboard, lists all the agents configured to collect data, by sites. This panel enables you to view the agents' hostnames, and verify that the agent and connector versions are up-to-date.
+The **Hardware Sentry Agent Status** panel, at the bottom of the **Main** dashboard, lists all the agents configured to collect data, by sites. This panel enables you to view the agents' hostnames, and verify that the agent and connector versions are up-to-date.
 The **Last Seen** column indicates the last time an agent was seen during the past 6 hours. An agent going undetected for more than 2 minutes may indicate a potential problem with the host, the connection or the agent configuration.
 
-![Verifying Hardware Sentry Agent Status](../images/dashboard_main-agent-status-collect.png)
+![Verifying Hardware Sentry Agent Status](../images/grafana-main-agent-status-collect.png)
 
 ### Observing the hardware health of the monitored hosts
 
@@ -175,13 +173,11 @@ Information about the monitoring itself (host information, connectors used, etc.
 
 The **Main** and **Site** dashboards provide the number of **Critical Alerts** and **Warning Alerts** detected by **${project.name}**. Additional information about the **Current Alerts** is provided in the **Main** and **Host** dashboards.
 
-In the example below, we can see that the two critical issues detected concern the charge level of the X2-BBU (Eaton 5P 1550) battery.
-
-![Grafana Dashboards - Number of critical and warning alerts](../images/grafana-alerts.png)
+![Grafana Dashboards - Number of critical and warning alerts](../images/grafana-main-alerts.png)
 
 ### Reporting the energy usage and carbon emissions of your infrastructure
 
-The **Power, Cost, and CO₂ emissions** section of the **Main** dashboard reports how much kWh your infrastructure consumes daily, monthly, and yearly,  the associated cost, as well as carbon footprint.
+The **Power, Cost, and CO₂ emissions** section of the **Main** dashboard reports how much kWh your infrastructure consumes daily, monthly, and yearly,  the associated cost and carbon emissions.
 
 ![Grafana - Reporting the energy usage and carbon emissions](../images/grafana-main-power-cost-carbon-emissions.png)
 
@@ -211,15 +207,15 @@ In most data centers, the air conditioning system ensures the entire room’s am
 
 From the **Sites** section of the **Main** dashboard, refer to the **Ambient Temperature** column to spot the warmer sites. From cold blue to warm red, the color code helps you rapidly identify the sites where the overall temperature can be optimized.
 
-![Monitoring the Ambient Temperature](../images/grafana-main-ambient-temp.png)
+![Grafana - Monitoring the Ambient Temperature](../images/grafana-main-ambient-temperature.png)
 
 The **Heating Margin** column exposes the number of degrees Celsius (°C) remaining before the temperature reaches the closest warning temperature threshold of a monitored host for each monitored site.
 
 > Note: Some hardware devices do not expose their overall temperature and are therefore not included in the heating margin computation. **${project.name}** provides the percentage of the **Monitoring Confidence** per site in the **Site** dashboard.
 
-Scroll down to the **Hosts Temperatures** section to assess the ambient temperature per host andidentify the hosts that report the highest temperature.
+Scroll down to the **Hosts Temperatures** section to assess the ambient temperature per host and identify the hosts that report the highest temperature.
 
-![Monitoring the Hosts Temperature](../images/grafana-main-hosts-temp.png)
+![Grafana - Monitoring the Hosts Temperature](../images/grafana-main-hosts-temp.png)
 
 These indicators can help you optimize your overall data center's ambient temperature by acting at the site or the host's level. Increasing the ambient temperature in a facility by 1 degree Celsius can lower your electricity consumption and reduce your carbon emission by 5%, based on an average PUE of 1.80 (default).
 
