@@ -600,7 +600,7 @@ public class MatsyaClientsExecutor {
 			@NonNull String username,
 			@NonNull char[] password,
 			@NonNull String hostname, 
-			Long timeout) throws MatsyaException {
+			@NonNull Long timeout) throws MatsyaException {
 
 		VCenterClient.setDebug(() -> true, log::debug);
 		try {
@@ -613,7 +613,7 @@ public class MatsyaClientsExecutor {
 			}
 			return ticket;
 		} catch (Exception e) {
-			// Add log
+			log.error("Hostname {} - Vcenter ticket refresh query failed. Exception: {}", e);
 			throw new MatsyaException("vCenter refresh ticket query failed on " + hostname + ".", e);
 		}
 	}
