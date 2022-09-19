@@ -60,7 +60,7 @@ goto error
 set HWS_JAR=%HWS_HOME%\lib\${project.artifactId}-${project.version}.jar
 set HWS_CLI_LOADER="-Dloader.main=com.sentrysoftware.hardware.cli.HardwareSentryCliApplication org.springframework.boot.loader.PropertiesLauncher"
 
-"%JAVACMD%" %HWS_JAVA_OPTS% -cp "%HWS_JAR%" "%HWS_CLI_LOADER%" %*
+"%JAVACMD%" %HWS_JAVA_OPTS% --add-exports java.xml/com.sun.org.apache.xerces.internal.parsers=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/sun.net.www.protocol.http=ALL-UNNAMED --add-opens java.base/sun.security.ssl=ALL-UNNAMED -cp "%HWS_JAR%" "%HWS_CLI_LOADER%" %*
 if ERRORLEVEL 1 goto error
 goto end
 
