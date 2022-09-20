@@ -26,15 +26,15 @@ First, download from [Sentry Software’s Web site](https://www.sentrysoftware.c
 
 | **Grafana** | **Hardware Dashboards for Grafana** |
 | ----------- | ----------------------------------- |
-| v8.5        | v2                                  |
 | v9.x.x      | v3                                  |
+| v8.5        | v2                                  |
 
 The **hardware-dashboards-for-grafana.zip** and **hardware-dashboards-for-grafana.tar.gz** packages contain:
 
 ![Dashboards Package](../images/hardware-dashboards-for-grafana-folders.png)
 
-* the dashboards (.json files)
-* the provisioning files (.yml files).
+- the dashboards (.json files)
+- the provisioning files (.yml files).
 
 #### On Windows
 
@@ -139,11 +139,11 @@ The following dashboards are now loaded in Grafana:
 
 ### Verifying that your IT infrastructure is fully monitored
 
-The **Hardware Sentry Agent** monitors the hardware health of all the configured systems. A simple configuration issue and a part of your infrastructure is left unsupervised. The **Coverage** panel available in the **Overall information** section of the **Main** dashboard allows you to identify configuration issues.
+The **Coverage** panel available in the **Overall information** section of the **Main** dashboard indicates the percentage of hosts that are actually monitored.
 
 ![Grafana Dashboards - Monitoring Coverage](../images/grafana-main-coverage.png)
 
-If the value displayed is below 100%, check the monitoring coverage of each **Site** to identify which configuration needs to be reviewed. Then open the corresponding **config/hws-config.yaml** file and verify that hosts are properly set.
+A host is considered as *not monitored* if no connector matches the configured system. If the value displayed is below 100%, open each **Site** to identify the hosts for which no data is available. Then open the corresponding **config/hws-config.yaml** file and verify the host configuration. If you manually specified the connectors to be used, check the `selectedConnectors` and `excludedConnectors` parameters (See [Configuring the Hardware Sentry Agent](../configuration/configure-agent.html)).
 
 ### Monitoring the agent collection status
 
@@ -156,12 +156,12 @@ The **Last Seen** column indicates the last time an agent was seen during the pa
 
 The **Host** dashboard provides the essential hardware health and sustainability data available for the monitored host:
 
-* the status of its internal components
-* the network traffic
-* the storage usage
-* the power consumption and related carbon emissions
-* the temperature information
-* etc.
+- the status of its internal components
+- the network traffic
+- the storage usage
+- the power consumption and related carbon emissions
+- the temperature information
+- etc.
 
 ![Grafana Dashboards - Hardware health of the monitored host](../images/grafana-host.png)
 
@@ -177,7 +177,7 @@ The **Main** and **Site** dashboards provide the number of **Critical Alerts** a
 
 ### Reporting the energy usage and carbon emissions of your infrastructure
 
-The **Power, Cost, and CO₂ emissions** section of the **Main** dashboard reports how much kWh your infrastructure consumes daily, monthly, and yearly,  the associated cost and carbon emissions.
+The **Power, Cost, and CO₂ emissions** section of the **Main** dashboard reports how much kWh your infrastructure consumes daily, monthly, and yearly, the associated cost and carbon emissions.
 
 ![Grafana - Reporting the energy usage and carbon emissions](../images/grafana-main-power-cost-carbon-emissions.png)
 
@@ -203,7 +203,7 @@ Click on one of the histogram's bar to drill down to the host level and get deta
 
 Data centers are energy-intensive facilities. This energy is converted into heat that must be dissipated away from the equipment racks to maintain an optimal room temperature. Therefore, the hardware devices' temperature is a critical parameter that must be closely monitored.
 
-In most data centers, the air conditioning system ensures the entire room’s ambient temperature is maintained at 18 degrees Celsius, which is generally unnecessarily low to avoid overheating problems. Computer systems can safely operate with an ambient temperature significantly higher (see Google’s example, where they raised the temperature of their data centers to 80°F, i.e. 26.7°C). This is the fastest and cheapest method to reduce the energy consumed by a data center and improve its PUE. 
+In most data centers, the air conditioning system ensures the entire room’s ambient temperature is maintained at 65 degrees Fahrenheit (18 degrees Celsius), which is generally unnecessarily low to avoid overheating problems. Computer systems can safely operate with an ambient temperature significantly higher (see Google’s example, where they raised the temperature of their data centers to 80°F, i.e. 26.7°C). This is the fastest and cheapest method to reduce the energy consumed by a data center and improve its PUE.
 
 From the **Sites** section of the **Main** dashboard, refer to the **Ambient Temperature** column to spot the warmer sites. From cold blue to warm red, the color code helps you rapidly identify the sites where the overall temperature can be optimized.
 
