@@ -23,7 +23,7 @@ Before you can start viewing the metrics collected by **${project.name}** in Dat
 
 ### Pushing metrics to Datadog
 
-1. Browse to open the **${project.name}** configuration directory (`hws-otel-collector/config` by default) and open the `config/otel-config.yaml` configuration file.
+1. Browse to open the **${project.name}** configuration directory (`hws-otel-collector/otel` by default) and open the `otel/otel-config.yaml` configuration file.
 2. Find the `exporters` section and edit it as follows:
 
     ```yaml

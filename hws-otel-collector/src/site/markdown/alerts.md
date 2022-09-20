@@ -235,7 +235,7 @@ The following macros can be used to obtain more details about the problem. They 
 
 To receive **${project.name}**'s alerts, your `Exporter` must support the OpenTelemetry `logs` pipeline.
 
-For troubleshooting purposes, you can add `logging` in the `service:pipelines:logs:exporters` section of the `config/otel-config.yaml` file:
+For troubleshooting purposes, you can add `logging` in the `service:pipelines:logs:exporters` section of the `otel/otel-config.yaml` file:
 
 ```yaml
 

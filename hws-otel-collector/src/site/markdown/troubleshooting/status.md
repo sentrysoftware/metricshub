@@ -9,7 +9,7 @@ description: There are several ways to easily assess the status of ${project.nam
 
 Verify that both processes are running:
 
-* `hws-otel-collector`
+* `otelcol-contrib`
 * `java -jar lib/hws-agent-${project.version}.jar`
 
 On Windows, if you configured **${project.name}** to run as a service, you will need to verify the status of that service.
@@ -31,7 +31,7 @@ $ curl http://localhost:13133
 
 ## Check the pipelines status
 
-Add `zpages` in the `service:extensions` section of the **config/otel-config.yaml** file:
+Add `zpages` in the `service:extensions` section of the **otel/otel-config.yaml** file:
 
 ```yaml
 service:
@@ -81,9 +81,9 @@ otelcol_process_runtime_total_sys_memory_bytes{service_instance_id="xxxxxxxxx-xx
 ...
 ```
 
-The above processor time utilization and memory consumption metrics pertain to the `hws-otel-collector` process only, and do not represent the activity of the internal **Hardware Sentry Agent**.
+The above processor time utilization and memory consumption metrics pertain to the `otelcol-contrib` process only, and do not represent the activity of the internal **Hardware Sentry Agent**.
 
-You can choose to integrate these internal metrics in the pipeline of the *OpenTelemetry Collector* to push them to the platform of your choice. To do so, [edit the config/otel-config.yaml configuration file](../configuration/configure-otel.md) to add `prometheus/internal` in the list of receivers:
+You can choose to integrate these internal metrics in the pipeline of the *OpenTelemetry Collector* to push them to the platform of your choice. To do so, [edit the otel/otel-config.yaml configuration file](../configuration/configure-otel.md) to add `prometheus/internal` in the list of receivers:
 
 ```yaml
 # [...]
@@ -93,7 +93,7 @@ service:
   telemetry:
     logs:
       level: info # Change to debug for more details
-  extensions: [health_check, hws_agent]
+  extensions: [health_check]
   pipelines:
     metrics:
       receivers: [otlp, prometheus/internal]

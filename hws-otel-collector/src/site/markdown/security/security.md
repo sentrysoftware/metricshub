@@ -31,7 +31,7 @@ To prevent malicious attacks, the `gRPC` listener is by default only opened on `
 
 **${project.name}** secures the communications instantiated from the **Hardware Sentry Agent**'s internal `OTLP Exporter` to the **OpenTelemetry Collector**'s internal `OTLP gRPC Receiver` through TLS.
 
-The `OTLP gRPC Receiver` is configured as follows in the `config/otel-config.yaml` file:
+The `OTLP gRPC Receiver` is configured as follows in the `otel/otel-config.yaml` file:
 
 ```yaml
   otlp:
@@ -39,8 +39,8 @@ The `OTLP gRPC Receiver` is configured as follows in the `config/otel-config.yam
       grpc:
         endpoint: localhost:4317
         tls:
-          cert_file: security/otel.crt
-          key_file: security/otel.key
+          cert_file: ../security/otel.crt
+          key_file: ../security/otel.key
 ```
 
 To customize the default TLS settings, see [Customizing TLS Certificates](settings.md#Customizing_TLS_Certificates).
@@ -55,8 +55,8 @@ Once TLS is established, the `OTLP gRPC Receiver` uses the `basicauth` authentic
       grpc:
         endpoint: localhost:4317
         tls:
-          cert_file: security/otel.crt
-          key_file: security/otel.key
+          cert_file: ../security/otel.crt
+          key_file: ../security/otel.key
         auth:
           authenticator: basicauth
 ```

@@ -5,9 +5,9 @@ description: A simple YAML file configures where ${project.name} must send the d
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
-**${project.name}** comes with a default configuration file (`config/otel-config-example.yaml`) which is intended to work for most situations and only requires minor changes for **${project.name}** to operate properly (refer to the *Integration* pages for more information).
+**${project.name}** comes with a default configuration file (`otel/otel-config-example.yaml`) which is intended to work for most situations and only requires minor changes for **${project.name}** to operate properly (refer to the *Integration* pages for more information).
 
-  > This page is therefore intended for **advanced users** who have a **deep knowledge of OpenTelemetry** and wish to learn more about the properties available in `config/otel-config.yaml`.
+  > This page is therefore intended for **advanced users** who have a **deep knowledge of OpenTelemetry** and wish to learn more about the properties available in `otel/otel-config.yaml`.
 
 As a regular *OpenTelemetry Collector*, **${project.name}** consists of:
 
@@ -24,7 +24,7 @@ This version of **${project.name}** leverages **version ${otelVersion}** of Open
 
 ### OTLP gRPC
 
-> **Warning**: Only update this section if you customized the [Hardware Sentry Agent extension settings](#Hardware_Sentry_Agent_28hws_agent29).
+> **Warning**: Only update this section if you customized the [Hardware Sentry Agent settings](configure-agent.md#additional-settings-optional).
 The **Hardware Sentry Agent** pushes the collected data to the [`OTLP Receiver`](https://github.com/open-telemetry/opentelemetry-collector/tree/main/receiver/otlpreceiver) via [gRPC](https://grpc.io/) on port **TCP/4317**.
 
 The `OTLP Receiver` is configured by default with the self-signed certificate `security/otel.crt` and the private key `security/otel.key` to enable the TLS protocol. If you wish to set your own certificate file, configure the **Hardware Sentry Agent** with the correct [Trusted Certificates File](configure-agent.html#Trusted_certificates_file). Because the `OTLP Exporter` of the **Hardware Sentry Agent** performs hostname verification, you will also have to add the `localhost` entry (`DNS:localhost,IP:127.0.0.1`) to the `Subject Alternative Name (SAN)` extension of the new generated certificate.
@@ -37,8 +37,8 @@ Clients requests are authenticated with the [Basic Authenticator extension](#Bas
       grpc:
         endpoint: localhost:4317
         tls:
-          cert_file: security/otel.crt
-          key_file: security/otel.key
+          cert_file: ../security/otel.crt
+          key_file: ../security/otel.key
         auth:
           authenticator: basicauth
 ```
@@ -79,7 +79,7 @@ By default, the collected metrics go through 5 processors:
 
 ## Exporters
 
-The `exporters` section defines the destination of the collected metrics. **${project.name}** version **${project.version}** includes support for the below exporters:
+The `exporters` section defines the destination of the collected metrics. **${project.name}** version **${project.version}** includes support for all the [OpenTelemetry Collector Contrib exporters](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter), such as:
 
 * [OLTP/gRPC Exporter](https://github.com/open-telemetry/opentelemetry-collector/blob/main/exporter/otlpexporter/README.md)
 * [Prometheus Remote Write Exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/prometheusremotewriteexporter)
@@ -87,6 +87,9 @@ The `exporters` section defines the destination of the collected metrics. **${pr
 * [Datadog Exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/datadogexporter)
 * [Logging Exporter](https://github.com/open-telemetry/opentelemetry-collector/tree/main/exporter/loggingexporter)
 * [Splunk SignalFx Exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/signalfxexporter)
+* [Dynatrace Exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/dynatraceexporter)
+* [Instana Exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/instanaexporter)
+* and [many more...](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter)
 
 You can configure several exporters in the same instance of the *OpenTelemetry Collector* to send the collected metrics to multiple platforms.
 
@@ -114,26 +117,6 @@ The **zpages** extension provides debug information about all the different comp
 
 Refer to [Check the pipelines status](../troubleshooting/status.html#Check_the_pipelines_status) for more details.
 
-### Hardware Sentry Agent (`hws_agent`)
-
-The **Hardware Sentry Agent** is the internal component which scrapes hosts, collects metrics and pushes OTLP data to the OTLP receiver of the *OpenTelemetry Collector*. The `hws_agent` extension starts the **Hardware Sentry Agent** as a child process of the *OpenTelemetry Collector*, checks that this child process is up and running and restarts it if needed.
-
-Configure the `hws_agent` extension as follows:
-```yaml
-  hws_agent:
-    grpc: <http|https>://<host>:<port>   # Default: https://localhost:4317
-    extra_args: [ <string> ... ]         # Example: [ --config=config/alternate-configuration-file.yaml ]
-    restart_delay: <duration>            # Default: 10s
-    retries: <int>                       # Default: -1 (Means no limit)
-```
-where:
-- `grpc` is the endpoint to which the **Hardware Sentry Agent** will push OpenTelemetry data. By default, the **Hardware Sentry Agent** pushes metrics to the local *OTLP receiver* using [gRPC](https://grpc.io/) on port **TCP/4317** (By default: `https://localhost:4317`).
-- `extra_args` specifies a list of additional arguments to be used by the **Hardware Sentry Agent**. By default, the **Hardware Sentry Agent**'s configuration file is `./config/hws-config.yaml` but you can provide an alternate configuration file by adding a new extra argument. Example: `--config=C:\Program Files\hws-otel-collector\config\hws-config-2.yaml`.
-- `restart_delay` specifies the period of time after which the **Hardware Sentry Agent** is restarted when a problem has been detected. If not set, the **Hardware Sentry Agent** will be restarted after 10 seconds.
-- `retries` specifies the number of restarts to be triggered until the **Hardware Sentry Agent** is up and running again. If not set, the extension will try restarting the **Hardware Sentry Agent** until it is up and running.
-
-Refer to [Configure the Hardware Sentry Agent](configure-agent.md) for more details.
-
 ### Basic Authenticator
 
 The [`Basic Authenticator`](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/basicauthextension) extension authenticates the `OTLP Exporter` requests by comparing the *Authorization* header sent by the `OTLP Exporter` and the credentials provided in the `security/.htpasswd` file.
@@ -142,7 +125,7 @@ Refer to the [Apache htpasswd](https://httpd.apache.org/docs/2.4/programs/htpass
 ```yaml
   basicauth:
     htpasswd:
-      file: security/.htpasswd
+      file: ../security/.htpasswd
 ```
 
 The `.htpasswd` file is stored in the `security` directory.
@@ -161,7 +144,7 @@ service:
     metrics:
       address: localhost:8888
       level: basic
-  extensions: [health_check, basicauth, hws_agent]
+  extensions: [health_check, basicauth]
   pipelines:
     metrics:
       receivers: [otlp, prometheus/internal]

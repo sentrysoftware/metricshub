@@ -21,7 +21,7 @@ Your Prometheus Server must be configured to allow the *Remote Write* feature:
 * [Enable the Remote Write Receiver](https://prometheus.io/docs/prometheus/latest/feature_flags/#remote-write-receiver) with the `--web.enable-remote-write-receiver` option
 * [Configure the Remote Write Receiver](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#remote_write)
 
-Once *Remote Write* is enabled and configured on your Prometheus Server, edit the `exporters` section of the [config/otel-config.yaml](../configuration/configure-otel.md) configuration file as in the below example:
+Once *Remote Write* is enabled and configured on your Prometheus Server, edit the `exporters` section of the [otel/otel-config.yaml](../configuration/configure-otel.md) configuration file as in the below example:
 
 ```yaml
 exporters:
@@ -35,11 +35,11 @@ You can customize the [`prometheusremotewrite` exporter configuration](https://g
 
 It is recommended to keep the `resource_to_telemetry_conversion` option enabled, so that all the resource attributes will be converted to metric labels.
 
-Make sure to declare the exporter in the pipeline section of **config/otel-config.yaml**:
+Make sure to declare the exporter in the pipeline section of **otel/otel-config.yaml**:
 
 ```yaml
 service:
-  extensions: [health_check, hws_agent]
+  extensions: [health_check]
   pipelines:
     metrics:
       receivers: [otlp, prometheus/internal]
@@ -51,7 +51,7 @@ service:
 
 In this setup, each instance of **${project.name}** exposes the collected metrics via HTTP, and the Prometheus Server connects to each instance to scrape the `/metrics` endpoint. You need to ensure the Prometheus Server has network access to each collector.
 
-**${project.name}** can be configured to expose metrics using the [OpenTelemetry Prometheus exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/prometheusexporter) on the TCP port configured in the [`exporters` section of **config/otel-config.yaml**](../configuration/configure-otel.md). The Prometheus Server will communicate directly with the OpenTelemetry Prometheus exporter.
+**${project.name}** can be configured to expose metrics using the [OpenTelemetry Prometheus exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/prometheusexporter) on the TCP port configured in the [`exporters` section of **otel/otel-config.yaml**](../configuration/configure-otel.md). The Prometheus Server will communicate directly with the OpenTelemetry Prometheus exporter.
 
 ```yaml
 exporters:
@@ -66,11 +66,11 @@ The `metric_expiration` value must be significantly greater than the internal po
 
 It is recommended to keep the `resource_to_telemetry_conversion` option enabled, so that all the resource attributes will be converted to metric labels.
 
-Make sure to declare the exporter in the pipeline section of **config/otel-config.yaml**:
+Make sure to declare the exporter in the pipeline section of **otel/otel-config.yaml**:
 
 ```yaml
 service:
-  extensions: [health_check, hws_agent]
+  extensions: [health_check]
   pipelines:
     metrics:
       receivers: [otlp, prometheus/internal]

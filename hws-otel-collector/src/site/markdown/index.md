@@ -41,39 +41,37 @@ Thanks to its internal library of 250+ *Hardware Connectors*, **${project.name}*
 
 ## What's in the box?
 
-**${project.name}** includes:
-
-* a standard *OpenTelemetry Collector*
-* the Hardware Sentry Agent
-* the Hardware Connector Library
-* Hardware Sentry CLI (`hws`)
-
-### OpenTelemetry Collector
-
 **${project.name}** is comprised of:
 
-* The *OpenTelemetry Collector* executable
+* The **Hardware Sentry Agent**
+  * Its [configuration file](configuration/configure-agent.md) (`hws-config.yaml`)
+  * The monitoring engine, with the **Hardware Connector Library**
+* The *OpenTelemetry Collector Contrib* executable
   * The *OpenTelemetry* [configuration file](configuration/configure-otel.md) (`otel-config.yaml`)
-  * The **Hardware Sentry Agent**
-    * Its [configuration file](configuration/configure-agent.md) (`hws-config.yaml`)
-    * The monitoring engine, with the **Hardware Connector Library**
+* Hardware Sentry CLI (`hws`)
 
 ![Internal architecture of the ${project.name}](images/hws-internal-architecture.png)
 
-The *OpenTelemetry Collector* is in charge of:
-
-1. Spawning the internal **Hardware Sentry Agent**
-2. Pulling its metrics periodically (internally)
-3. Pushing these metrics to the specified platform
-
 ### Hardware Sentry Agent
 
-The internal **Hardware Sentry Agent** is the engine that performs the actual monitoring of the systems, based on its [configuration file](configuration/configure-agent.md), which specifies:
+The **Hardware Sentry Agent** is the engine that performs the actual monitoring of the systems, based on its [configuration file](configuration/configure-agent.md), which specifies:
 
-* its internal polling cycle
-* the hostnames and credentials of the systems to monitor.
+* Its internal polling cycle
+* The hostnames and credentials of the systems to monitor.
 
-The **Hardware Sentry Agent** is the internal component which is responsible of scraping hosts, collecting metrics and pushing OTLP data to the OTLP receiver of the OpenTelemetry Collector.
+The **Hardware Sentry Agent** is responsible for:
+
+1. Spawning the **OpenTelemetry Collector Contrib**
+2. Scraping hosts
+3. Collecting metrics
+4. Pushing OTLP data to the OTLP receiver of the OpenTelemetry Collector.
+
+### OpenTelemetry Collector Contrib
+
+The *OpenTelemetry Collector Contrib* is responsible for:
+
+1. Pulling its metrics periodically (internally)
+2. Pushing these metrics to the specified platform.
 
 ### Hardware Connector Library
 

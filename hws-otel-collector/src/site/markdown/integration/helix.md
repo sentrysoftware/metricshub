@@ -9,7 +9,7 @@ description: How to integrate the hardware metrics collected by **${project.name
 
 ## Configuration
 
-Edit the `exporters` section of the [config/otel-config.yaml](../configuration/configure-otel.md) configuration file as in the below example:
+Edit the `exporters` section of the [otel/otel-config.yaml](../configuration/configure-otel.md) configuration file as in the below example:
 
 ```yaml
   prometheusremotewrite/helix:
@@ -30,7 +30,7 @@ To get your API Key, connect to **BMC Helix Operations Management**, go to the *
 
 ![Copy API Key](../images/helix-api-key.png)
 
-Then, make sure to declare the exporter in the pipeline section of **config/otel-config.yaml**:
+Then, make sure to declare the exporter in the pipeline section of **otel/otel-config.yaml**:
 
 ```yaml
 service:

@@ -19,7 +19,7 @@ You can use your own certificate to secure the communications between the **Hard
 
 1. Generate your new private key and certificate files (for example: `my-otel.key` and `my-otel.crt`).
 2. Copy the generated certificate and private key files into the `security` directory.
-3. In the `config/otel-config.yaml` file, update the `tls:cert_file` and `tls:key_file` attributes of the `OTLP gRPC Receiver`:
+3. In the `otel/otel-config.yaml` file, update the `tls:cert_file` and `tls:key_file` attributes of the `OTLP gRPC Receiver`:
 
     ```yaml
     receivers:
@@ -28,8 +28,8 @@ You can use your own certificate to secure the communications between the **Hard
           grpc:
             endpoint: localhost:4317
             tls:
-              cert_file: security/my-otel.crt  # Your new certificate file.
-              key_file: security/my-otel.key   # Your new private key file.
+              cert_file: ../security/my-otel.crt  # Your new certificate file.
+              key_file: ../security/my-otel.key   # Your new private key file.
             auth:
               authenticator: basicauth
     ```
@@ -75,7 +75,7 @@ OpenSSL is a command line tool to generate X.509 certificates. It can be used to
    ```
 
 4. Generate the X.509 certificate for the `OTLP gRPC Receiver`:
-   
+
    ```batch
    $ openssl x509 -req -days 365000 -set_serial 01 \
      -in my-otel.req \
@@ -109,7 +109,6 @@ OpenSSL is a command line tool to generate X.509 certificates. It can be used to
 
 You can use your own paswword to have the `OTLP gRPC Receiver` authenticate any incoming request.
 
-
 ### Prerequisites
 
 Access to the `htpasswd` tool:
@@ -128,7 +127,7 @@ Access to the `htpasswd` tool:
 
 2. Copy the `.htpasswd-otel` file into the `security` directory.
 
-3. In the `config/otel-config.yaml` file, update the `file` attribute of the `basicauth` extension:
+3. In the `otel/otel-config.yaml` file, update the `file` attribute of the `basicauth` extension:
 
    ```yaml
    extensions:
@@ -137,11 +136,11 @@ Access to the `htpasswd` tool:
 
      basicauth:
        htpasswd:
-         file: security/.htpasswd-otel  # Your new htpasswd file
+         file: ../security/.htpasswd-otel  # Your new htpasswd file
    ```
 
-4. In the `config/otel-config.yaml` file:
-   
+4. In the `otel/otel-config.yaml` file:
+
    - make sure the `basicauth` is declared as a service extension :
 
     ```yaml
@@ -149,7 +148,7 @@ Access to the `htpasswd` tool:
 
       # ...
 
-      extensions: [health_check, basicauth, hws_agent] # basicauth is added to the extensions list
+      extensions: [health_check, basicauth] # basicauth is added to the extensions list
       pipelines:
       
       # ...
@@ -174,7 +173,7 @@ Access to the `htpasswd` tool:
    bXlVc2VybmFtZTpteVBhc3N3b3Jk
    ```
 
-6. In the `config/otel-config.yaml` file, add a new `Authorization` header under the `exporter:otlp:headers` section:
+6. In the `otel/otel-config.yaml` file, add a new `Authorization` header under the `exporter:otlp:headers` section:
 
    ```yaml
    exporter:
@@ -193,7 +192,7 @@ Access to the `htpasswd` tool:
 
 When you disable TLS on **${project.name}**, the communications between the **Hardware Sentry Agent** and the **OpenTelemetry Collector** are not encrypted anymore.
 
-1. In the `config/otel-config.yaml` file, remove or comment out the `tls` section from the `OTLP gRPC Receiver` configuration:
+1. In the `otel/otel-config.yaml` file, remove or comment out the `tls` section from the `OTLP gRPC Receiver` configuration:
 
     ```yaml
     receivers:
@@ -201,25 +200,21 @@ When you disable TLS on **${project.name}**, the communications between the **Ha
         protocols:
           grpc:
             endpoint: localhost:4317
-            #tls:                              # No TLS
-            #  cert_file: security/my-otel.crt
-            #  key_file: security/my-otel.key
+            #tls:                                 # No TLS
+            #  cert_file: ../security/my-otel.crt
+            #  key_file: ../security/my-otel.key
             auth:
               authenticator: basicauth
     ```
 
-2. In the `config/otel-config.yaml` file, update the `grpc` endpoint of the `hws-agent` extension to enable `HTTP`:
+2. In the `config/hws-config.yaml` file, update the `OTLP Exporter` endpoint to enable `HTTP`:
 
     ```yaml
-    extensions:
+    exporter:
+      otlp:
+        endpoint: http://localhost:4317
 
-      # ...
-
-      # hwsagent
-      # Starts the Hardware Sentry Agent as a child process of the OpenTelemetry Collector
-      hws_agent:
-        grpc: http://localhost:4317
-      # ...
+    hosts: # ...
     ```
 
 3. Remove or comment out the `trustedCertificatesFile` attribute of the `OTLP Exporter` in the `config/hws-config.yaml` file:
@@ -227,6 +222,7 @@ When you disable TLS on **${project.name}**, the communications between the **Ha
     ```yaml
     exporter:
       otlp:
+        endpoint: http://localhost:4317
         # trustedCertificatesFile: security/otel.crt
 
     hosts: # ...
@@ -238,7 +234,7 @@ When you disable TLS on **${project.name}**, the communications between the **Ha
 
 If you disable the authentication on **${project.name}**, incoming requests will no longer be authenticated by the **OpenTelemetry Collector**'s `OTLP gRPC Receiver` and might expose you to malicious attacks.
 
-1. In the `config/otel-config.yaml` file, remove or comment out the `auth` section from the `OTLP gRPC Receiver` configuration:
+1. In the `otel/otel-config.yaml` file, remove or comment out the `auth` section from the `OTLP gRPC Receiver` configuration:
 
     ```yaml
     receivers:
@@ -247,20 +243,20 @@ If you disable the authentication on **${project.name}**, incoming requests will
           grpc:
             endpoint: localhost:4317
             tls:
-              cert_file: security/my-otel.crt
-              key_file: security/my-otel.key
+              cert_file: ../security/my-otel.crt
+              key_file: ../security/my-otel.key
             # auth:
               # authenticator: basicauth   # No authentication
     ```
 
-2. In the `config/otel-config.yaml` file, remove the `basicauth` extension from the service extensions list:
+2. In the `otel/otel-config.yaml` file, remove the `basicauth` extension from the service extensions list:
 
    ```yaml
    service:
 
      # ...
 
-     extensions: [health_check, hws_agent] # basicauth is not added to the extensions list
+     extensions: [health_check] # basicauth is not added to the extensions list
      pipelines:
      
      # ...

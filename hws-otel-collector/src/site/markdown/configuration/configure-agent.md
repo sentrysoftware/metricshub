@@ -13,7 +13,7 @@ To ensure this process runs smoothly, you need to configure a few settings in th
 * calculate the electricity costs and the carbon footprint of this site
 * monitor the systems in this site.
 
-Note that all changes made to the  `config/hws-config.yaml` file are taken into account immediately. There is therefore no need to restart the *OpenTelemetry Collector*.
+Note that all changes made to the  `config/hws-config.yaml` file are taken into account immediately. There is therefore no need to restart **${project.name}**.
 
 ## Configure a site
 
@@ -402,11 +402,12 @@ and indicate the template to use when building alert messages.
 
 For more information about the alert mechanism and the macros to use, refer to the [Alerts](../alerts.md) page.
 
+
 ### Authentication Settings
 
 #### Basic authentication header
 
-The **${project.name}**'s internal `OTLP Exporter` authenticates itself with the [OTLP gRPC Receiver](configure-otel.md#OTLP_gRPC) by including the HTTP `Authorization` request header with the credentials. A predefined *Basic Authentication Header* value is stored internally and included in each request when sending telemetry data.
+The **Hardware Sentry Agent**'s internal `OTLP Exporter` authenticates itself with the _OpenTelemetry Collector_'s [OTLP gRPC Receiver](configure-otel.md#OTLP_gRPC) by including the HTTP `Authorization` request header with the credentials. A predefined *Basic Authentication Header* value is stored internally and included in each request when sending telemetry data.
 
 To override the default value of the *Basic Authentication Header*, add a new `Authorization` header under the `exporter:otlp:headers` section:
 
@@ -424,6 +425,19 @@ where `<credentials>` are built by first joining your username and password with
 For more security, encrypt the `Basic <credentials>` value. See [Encrypting Passwords](../security/passwords.md#Encrypting_Passwords) for more details.
 
 > **Warning**: If you update the *Basic Authentication Header*, you must generate a new `.htpasswd` file for the [OpenTelemetry Collector Basic Authenticator](configure-otel.md#Basic_Authenticator).
+
+#### OTLP endpoint
+
+**Hardware Sentry Agent**'s internal `OTLP Exporter` pushes telemetry [signals](https://opentelemetry.io/docs/concepts/signals/) to the [`OTLP Receiver`](https://github.com/open-telemetry/opentelemetry-collector/tree/main/receiver/otlpreceiver) through [gRPC](https://grpc.io/) on port **TCP/4317**. By default, the internal `OTLP Exporter` is configured to push data to the `OTLP Receiver` endpoint `https://localhost:4317`.
+
+To override the OTLP endpoint, configure the `endpoint` property under the `exporter:otlp` section:
+```yaml
+exporter:
+  otlp:
+    endpoint: https://my-host:4317
+
+hosts: #...
+```
 
 ### Monitoring Settings
 
@@ -618,6 +632,122 @@ Timeouts, durations and periods are specified with the below format:
 | h    | hours                           | 1h, 1h30m        |
 | d    | days (based on a 24-hour day)   | 1d               |
 
+### OpenTelemetry Collector process settings
+
+**Hardware Sentry Agent** launches the _OpenTelemetry Collector_ as a child process by running the `otel/otelcol-contrib` executable which reads the `otel/otel-config.yaml` file to start its internal components.
+
+To customize the way the _OpenTelemetry Collector_ process is started, update the `otelCollector` section in `config/hws-config.yaml`:
+
+```yaml
+otelCollector:
+  commandLine: [<otelcol-contrib>, <arguments...>]
+  environment:
+    <ENV_KEY1>: <ENV_VALUE1>
+    <ENV_KEY2>: <ENV_VALUE2>
+    # ...
+  output: log|console|silent
+  workingDir: <PATH>
+  disabled: false
+
+hosts: # ...
+```
+
+> **Note**: It is not recommended to change these settings unless you have a specific need.
+
+#### Command line
+
+By default, **Hardware Sentry Agent** launches the _OpenTelemetry Collector_ process using the following command line: `otel/otelcol-contrib --config otel/otel-config.yaml --feature-gates=pkg.translator.prometheus.NormalizeName`.
+
+If you want to run your own distribution of the _OpenTelemetry Collector_ or update the default program's arguments such as the `--feature-gates` options, you need to override the _OpenTelemetry Collector_ default command line by setting the `commandLine` property under the `otelCollector` section:
+
+```yaml
+otelCollector:
+  commandLine: 
+    - /opt/hws-otel-collector/otel/my-otelcol
+    - --config
+    - /opt/hws-otel-collector/otel/my-otel-config.yaml
+    - --feature-gates=pkg.translator.prometheus.NormalizeName
+
+hosts: # ...
+```
+
+#### Disabling the collector (Not recommended)
+
+In some cases, you might want the **Hardware Sentry Agent** to send OpenTelemetry signals directly to an existing _OpenTelemetry Collector_ running the `gRPC OTLP Receiver`, in which case, running a local _OpenTelemetry Collector_ is unnecessary.
+
+To disable the _OpenTelemetry Collector_, set the `disabled` property to `true` under the `otelCollector` section:
+
+```yaml
+otelCollector:
+  disabled: true
+
+hosts: # ...
+```
+
+#### Environment
+
+When **${project.name}** is installed as a Windows service, the _OpenTelemetry Collector_ attempts to run as a Windows service and may fail to start if it cannot connect to the Windows service controller. To address this potential problem, the **Hardware Sentry Agent** forces the _OpenTelemetry Collector_ to be started as if it were running in an interactive terminal by setting the `NO_WINDOWS_SERVICE` environment variable to `1`.
+
+To define new [environment variables](https://opentelemetry.io/docs/collector/configuration/#configuration-environment-variables) to be used by the _OpenTelemetry Collector_, such as `HTTPS_PROXY`, add new entries to the `otelCollector:environment` section:
+
+```yaml
+otelCollector:
+  environment:
+    HTTPS_PROXY: https://my-proxy.domain.internal.net
+    NO_WINDOWS_SERVICE: 1
+
+hosts: # ...
+```
+
+#### Process output
+
+By default, the **Hardware Sentry Agent** listens to the _OpenTelemetry Collector_ standard output (STDOUT) and standard error (STDERR) and streams every output line to the `logs/otelcol-\${timestamp}.log` file when the logger is enabled.
+
+To print the _OpenTelemetry Collector_ output to the console, set the `output` property to `console` under the `otelCollector` section:
+
+```yaml
+otelCollector:
+  output: console  # Default: log
+
+hosts: # ...
+```
+
+To disable the _OpenTelemetry Collector_ output processor, set the `output` property to `silent` under the `otelCollector` section:
+
+```yaml
+otelCollector:
+  output: silent   # Default: log
+
+hosts: # ...
+```
+
+#### Working directory
+
+You may use relative paths in the `otel/otel-config.yaml` file and these paths are relative to the working directory of the OpenTelemetry Collector. If the working directory is incorrect, it can prevent the _OpenTelemetry Collector_ from starting.
+
+By default, the working directory is set to `hws-otel-collector/otel`. In heavily customized setups, you may need to set the right working directory for the _OpenTelemetry Collector_ process.
+
+**`otel/otel-config.yaml` example:**
+
+```yaml
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        tls:
+          cert_file: ../security/otel.crt  # This is the relative path to the certificate file, assuming that the working directory is 'hws-otel-collector/otel'
+
+```
+
+To configure the working directory of the _OpenTelemetry Collector_, update the `workingDir` attribute under the `otelCollector` section in `config/hws-config.yaml`:
+
+```yaml
+otelCollector:
+  workingDir: /opt/hws-otel-collector
+
+hosts: # ...
+```
+
 ### Security settings
 
 #### Trusted certificates file
@@ -634,4 +764,4 @@ exporter:
 hosts: # ...
 ```
 
-The file should be stored in the `security` folder and should contain one or more X.509 certificates in PEM format. 
+The file should be stored in the `security` folder and should contain one or more X.509 certificates in PEM format.
