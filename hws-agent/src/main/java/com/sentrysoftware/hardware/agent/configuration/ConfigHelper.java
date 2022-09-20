@@ -58,6 +58,7 @@ public class ConfigHelper {
 	private static final Predicate<String> INVALID_STRING_CHECKER = attr -> attr == null || attr.isBlank();
 	private static final Predicate<Integer> INVALID_PORT_CHECKER = attr -> attr == null || attr < 1 || attr > 65535;
 	private static final Predicate<Long> INVALID_TIMEOUT_CHECKER = attr -> attr == null || attr < 0L;
+	private static final Predicate<String> EMPTY_STRING_CHECKER = attr -> attr != null && attr.isBlank();
 
 	/**
 	 * Deserialize YAML configuration file.
@@ -255,15 +256,16 @@ public class ConfigHelper {
 	}
 
 	/**
-	 * Validate the given WBEM information (hostname, username, timeout and port)
+	 * Validate the given WBEM information (hostname, username, timeout, port and vCenter)
 	 *
 	 * @param hostname hostname
 	 * @param username username of the host
 	 * @param timeout  timeout of the host
 	 * @param port     port of the host
+	 * @param vCenter  vCenter server of the host
 	 * @throws BusinessException
 	 */
-	static void validateWbemInfo(final String hostname, final String username, final Long timeout, final Integer port)
+	static void validateWbemInfo(final String hostname, final String username, final Long timeout, final Integer port, final String vCenter)
 			throws BusinessException {
 
 		final String protocol = "WBEM";
@@ -285,6 +287,14 @@ public class ConfigHelper {
 				INVALID_STRING_CHECKER,
 				() -> String.format(USERNAME_ERROR, hostname, protocol),
 				ErrorCode.NO_USERNAME);
+
+		validateAttribute(
+				vCenter,
+				EMPTY_STRING_CHECKER,
+				() -> String.format("Hostname %s - Empty vCenter hostname configured for protocol %s. This host will not be monitored. Please verify the configured vCenter hostname.",
+						hostname,
+						protocol),
+				ErrorCode.EMPTY_VCENTER);
 	}
 
 	/**
@@ -585,7 +595,8 @@ public class ConfigHelper {
 				validateWbemInfo(hostname,
 						hostConfigurationDto.getWbem().getUsername(),
 						hostConfigurationDto.getWbem().getTimeout(),
-						hostConfigurationDto.getWbem().getPort());
+						hostConfigurationDto.getWbem().getPort(),
+						hostConfigurationDto.getWbem().getVCenter());
 
 			if (hostConfigurationDto.getWmi() != null)
 				validateWmiInfo(hostname,

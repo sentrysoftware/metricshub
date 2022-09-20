@@ -315,6 +315,20 @@
 					</execution>
 				</executions>
 			</plugin>
+			
+			<!-- maven-jar-plugin -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifestEntries>
+							<Add-Exports>java.xml/com.sun.org.apache.xerces.internal.parsers</Add-Exports>
+							<Add-Opens>java.base/java.lang java.base/java.util java.base/sun.net.www.protocol.http java.base/sun.security.ssl</Add-Opens>
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
 
 			<!-- assembly -->
 			<plugin>

@@ -39,6 +39,8 @@ public class WbemProtocolDto extends AbstractProtocolDto {
 	String username;
 
 	char[] password;
+	
+	String vCenter;
 
 	/**
 	 * Create a new {@link WbemProtocol} instance based on the current members
@@ -57,6 +59,7 @@ public class WbemProtocolDto extends AbstractProtocolDto {
 				.port(port)
 				.protocol(protocol)
 				.timeout(timeout)
+				.vCenter(vCenter)
 				.build();
 	}
 

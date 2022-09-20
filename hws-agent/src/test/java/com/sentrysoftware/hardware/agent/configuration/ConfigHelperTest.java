@@ -383,14 +383,16 @@ class ConfigHelperTest {
 
 	@Test
 	void testValidateWbemInfo() {		
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbemInfo("hostname", null, -60L, 1234));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbemInfo("hostname", "", null, 1234));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbemInfo("hostname", "username", -60L, 1234));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbemInfo("hostname", "username", null, 1234));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbemInfo("hostname", "username", 60L, -1));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbemInfo("hostname", "username", 60L, null));
-		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbemInfo("hostname", "username", 60L, 66666));
-		assertDoesNotThrow(() -> ConfigHelper.validateWbemInfo("hostname", "username", 60L, 1234));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbemInfo("hostname", null, -60L, 1234, "vcenter"));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbemInfo("hostname", "", null, 1234, "vcenter"));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbemInfo("hostname", "username", -60L, 1234, "vcenter"));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbemInfo("hostname", "username", null, 1234, "vcenter"));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbemInfo("hostname", "username", 60L, -1, "vcenter"));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbemInfo("hostname", "username", 60L, null, "vcenter"));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbemInfo("hostname", "username", 60L, 66666, "vcenter"));
+		assertThrows(BusinessException.class, () -> ConfigHelper.validateWbemInfo("hostname", "username", 60L, null, ""));
+		assertDoesNotThrow(() -> ConfigHelper.validateWbemInfo("hostname", "username", 60L, 1234, "vcenter"));
+		assertDoesNotThrow(() -> ConfigHelper.validateWbemInfo("hostname", "username", 60L, 1234, null));
 	}
 
 	@Test

@@ -26,6 +26,8 @@ public class WbemProtocol implements IProtocolConfiguration {
 	String username;
 
 	char[] password;
+	
+	String vCenter;
 
 	@Override
 	public String toString() {

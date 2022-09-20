@@ -78,4 +78,8 @@ public interface IHostMonitoring {
 	void addConnectorState(final String connectorName, final IState state);
 
 	boolean isConnectorStatusOk(final Monitor monitor);
+
+	String getVCenterTicket();
+
+	void setVCenterTicket(String ticket);
 }

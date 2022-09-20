@@ -15,6 +15,7 @@ import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -57,6 +58,7 @@ import com.sentrysoftware.matsya.ipmi.IpmiConfiguration;
 import com.sentrysoftware.matsya.ipmi.MatsyaIpmiClient;
 import com.sentrysoftware.matsya.ssh.SSHClient;
 import com.sentrysoftware.matsya.ssh.SSHClient.CommandResult;
+import com.sentrysoftware.matsya.vcenter.VCenterClient;
 import com.sentrysoftware.matsya.wbem2.WbemExecutor;
 import com.sentrysoftware.matsya.wbem2.WbemQueryResult;
 import com.sentrysoftware.matsya.windows.remote.WindowsRemoteCommandResult;
@@ -324,6 +326,35 @@ class MatsyaClientsExecutorTest {
 			mockedWbemExecuteQuery.verify(() -> WbemExecutor.executeWql(any(URL.class), anyString(), isNull(),
 				isNull(), anyString(), anyInt(), isNull()));
 		}
+
+        try (MockedStatic<VCenterClient> mockedRequestCertificate = mockStatic(VCenterClient.class)) {
+            mockedRequestCertificate.when(() -> VCenterClient.requestCertificate(
+                anyString(), // vCenterName
+                anyString(), // username
+                anyString(), // password
+                anyString())) // hostname
+                .thenReturn("ticket");
+
+            try (MockedStatic<WbemExecutor> mockedWbemExecuteQuery = mockStatic(WbemExecutor.class)) {
+                WbemQueryResult wbemQueryResult = new WbemQueryResult(Collections.emptyList(), Collections.emptyList());
+                mockedWbemExecuteQuery.when(() -> WbemExecutor.executeWql(
+                    any(URL.class),
+                    anyString(), // namespace
+                    notNull(), // username
+                    notNull(), // password
+                    anyString(), // query
+                    anyInt(), // timeout
+                    isNull()))
+                    .thenReturn(wbemQueryResult);
+
+                String url = "https://" + DEV_HV_01 + ":5989";
+                assertEquals(Collections.emptyList(), matsyaClientsExecutor.executeWbem(url, WbemProtocol.builder()
+                        .protocol(TransportProtocols.HTTPS)
+                        .username("username")
+                        .password("password".toCharArray())
+                        .build(), "SELECT Name FROM EMC_StorageSystem", "root/emc"));
+            }
+        }
 	}
 
 	@Test
