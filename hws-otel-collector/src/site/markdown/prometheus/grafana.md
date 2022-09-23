@@ -139,11 +139,15 @@ The following dashboards are now loaded in Grafana:
 
 ### Verifying that your IT infrastructure is fully monitored
 
-The **Coverage** panel available in the **Overall information** section of the **Main** dashboard indicates the percentage of hosts that are actually monitored.
+The **Coverage** panel available in the **Overall Information** section of the **Main** dashboard indicates the percentage of hosts that are actually monitored.
 
 ![Grafana Dashboards - Monitoring Coverage](../images/grafana-main-coverage.png)
 
-A host is considered as *not monitored* if no connector matches the configured system. If the value displayed is below 100%, open each **Site** to identify the hosts for which no data is available. Then open the corresponding **config/hws-config.yaml** file and verify the host configuration. If you manually specified the connectors to be used, check the `selectedConnectors` and `excludedConnectors` parameters (See [Configuring the Hardware Sentry Agent](../configuration/configure-agent.html)).
+A host is considered as *not monitored* if no connectors match the configured system. If the value displayed is below 100%, open each **Site** to identify the hosts for which no data is available. Then access each host page and check the status of the configured **Protocol(s)** and matching **Connector(s)**:
+
+![Grafana Dashboards - Protocol and connector status](../images/grafana-host-protocol-and-connector-status.png)
+
+If their status is not OK, open the corresponding **config/hws-config.yaml** file and verify the host configuration. If you manually specified the connectors to be used, check the `selectedConnectors` and `excludedConnectors` parameters (See [Configuring the Hardware Sentry Agent](../configuration/configure-agent.html)).
 
 ### Monitoring the agent collection status
 
