@@ -42,7 +42,7 @@ public class PropertiesProcessor extends Json2CsvProcessor {
 				.limit(splitValue.length - 1L)
 				.map(String::trim)
 				.collect(Collectors.toList());
-			
+
 		} catch (NumberFormatException e) {
 			throw new IllegalStateException(
 					"PropertiesProcessor parse: Could not select properties from Source ("
