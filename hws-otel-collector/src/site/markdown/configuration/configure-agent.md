@@ -334,9 +334,9 @@ hosts:
 
 ## Additional settings (Optional)
 
-### Alert Settings
+### Alert settings
 
-#### Disabling Alerts (Not Recommended)
+#### Disabling alerts (Not Recommended)
 
 To disable **${project.name}**'s alerts:
 
@@ -364,7 +364,7 @@ To disable **${project.name}**'s alerts:
       disableAlerts: true
     ```
 
-#### Hardware Problem template
+#### Hardware problem template
 
 When detecting a hardware problem, **${project.name}** triggers an alert as OpenTelemetry log. The alert body is built from the following template:
 
@@ -403,7 +403,7 @@ and indicate the template to use when building alert messages.
 For more information about the alert mechanism and the macros to use, refer to the [Alerts](../alerts.md) page.
 
 
-### Authentication Settings
+### Authentication settings
 
 #### Basic authentication header
 
@@ -428,9 +428,12 @@ For more security, encrypt the `Basic <credentials>` value. See [Encrypting Pass
 
 #### OTLP endpoint
 
-**Hardware Sentry Agent**'s internal `OTLP Exporter` pushes telemetry [signals](https://opentelemetry.io/docs/concepts/signals/) to the [`OTLP Receiver`](https://github.com/open-telemetry/opentelemetry-collector/tree/main/receiver/otlpreceiver) through [gRPC](https://grpc.io/) on port **TCP/4317**. By default, the internal `OTLP Exporter` is configured to push data to the `OTLP Receiver` endpoint `https://localhost:4317`.
+The **Hardware Sentry Agent**'s internal `OTLP Exporter` pushes telemetry [signals](https://opentelemetry.io/docs/concepts/signals/) to the [`OTLP Receiver`](https://github.com/open-telemetry/opentelemetry-collector/tree/main/receiver/otlpreceiver) through [gRPC](https://grpc.io/) on port **TCP/4317**.
+
+By default, the internal `OTLP Exporter` is configured to push data to the `OTLP Receiver` endpoint `https://localhost:4317`.
 
 To override the OTLP endpoint, configure the `endpoint` property under the `exporter:otlp` section:
+
 ```yaml
 exporter:
   otlp:
@@ -439,7 +442,7 @@ exporter:
 hosts: #...
 ```
 
-### Monitoring Settings
+### Monitoring settings
 
 #### Collect period
 
@@ -621,7 +624,7 @@ To force all the network calls to be executed in sequential order:
 
 > **Warning**: Sending requests in sequential mode slows down the monitoring significantly. Instead of using the sequential mode, you could increase the maximum number of allowed concurrent requests in the monitored system, if the manufacturer allows it.
 
-#### Timeout, Duration and Period Format
+#### Timeout, duration and period Format
 
 Timeouts, durations and periods are specified with the below format:
 
@@ -634,7 +637,9 @@ Timeouts, durations and periods are specified with the below format:
 
 ### OpenTelemetry Collector process settings
 
-**Hardware Sentry Agent** launches the _OpenTelemetry Collector_ as a child process by running the `otel/otelcol-contrib` executable which reads the `otel/otel-config.yaml` file to start its internal components.
+> **Note**: These settings should not be changed unless specifically required.
+
+The **Hardware Sentry Agent** launches the _OpenTelemetry Collector_ as a child process by running the `otel/otelcol-contrib` executable which reads the `otel/otel-config.yaml` file to start its internal components.
 
 To customize the way the _OpenTelemetry Collector_ process is started, update the `otelCollector` section in `config/hws-config.yaml`:
 
@@ -652,13 +657,11 @@ otelCollector:
 hosts: # ...
 ```
 
-> **Note**: It is not recommended to change these settings unless you have a specific need.
-
 #### Command line
 
-By default, **Hardware Sentry Agent** launches the _OpenTelemetry Collector_ process using the following command line: `otel/otelcol-contrib --config otel/otel-config.yaml --feature-gates=pkg.translator.prometheus.NormalizeName`.
+By default, the **Hardware Sentry Agent** launches the _OpenTelemetry Collector_ process using the following command line: `otel/otelcol-contrib --config otel/otel-config.yaml --feature-gates=pkg.translator.prometheus.NormalizeName`.
 
-If you want to run your own distribution of the _OpenTelemetry Collector_ or update the default program's arguments such as the `--feature-gates` options, you need to override the _OpenTelemetry Collector_ default command line by setting the `commandLine` property under the `otelCollector` section:
+If you want to run your own distribution of the _OpenTelemetry Collector_ or update the default program's arguments such as the `--feature-gates` flag, you need to override the _OpenTelemetry Collector_ default command line by setting the `commandLine` property under the `otelCollector` section:
 
 ```yaml
 otelCollector:
@@ -686,9 +689,9 @@ hosts: # ...
 
 #### Environment
 
-When **${project.name}** is installed as a Windows service, the _OpenTelemetry Collector_ attempts to run as a Windows service and may fail to start if it cannot connect to the Windows service controller. To address this potential problem, the **Hardware Sentry Agent** forces the _OpenTelemetry Collector_ to be started as if it were running in an interactive terminal by setting the `NO_WINDOWS_SERVICE` environment variable to `1`.
+When **${project.name}** is installed as a Windows service, the _OpenTelemetry Collector_ may fail to start if it cannot connect to the Windows service controller. To address this issue, you can set the `NO_WINDOWS_SERVICE` environment variable to `1` to force the _OpenTelemetry Collector_ to be started as if it were running in an interactive terminal.
 
-To define new [environment variables](https://opentelemetry.io/docs/collector/configuration/#configuration-environment-variables) to be used by the _OpenTelemetry Collector_, such as `HTTPS_PROXY`, add new entries to the `otelCollector:environment` section:
+You can set additional [environment variables](https://opentelemetry.io/docs/collector/configuration/#configuration-environment-variables) to be used by the _OpenTelemetry Collector_ in the `otelCollector:environment` section (e.g.: HTTPS_PROXY):
 
 ```yaml
 otelCollector:
@@ -701,7 +704,7 @@ hosts: # ...
 
 #### Process output
 
-By default, the **Hardware Sentry Agent** listens to the _OpenTelemetry Collector_ standard output (STDOUT) and standard error (STDERR) and streams every output line to the `logs/otelcol-\${timestamp}.log` file when the logger is enabled.
+By default, the **Hardware Sentry Agent** listens to the _OpenTelemetry Collector_ standard output (STDOUT) and standard error (STDERR) and streams each output line to the `logs/otelcol-\${timestamp}.log` file when the logger is enabled.
 
 To print the _OpenTelemetry Collector_ output to the console, set the `output` property to `console` under the `otelCollector` section:
 
@@ -723,9 +726,7 @@ hosts: # ...
 
 #### Working directory
 
-You may use relative paths in the `otel/otel-config.yaml` file and these paths are relative to the working directory of the OpenTelemetry Collector. If the working directory is incorrect, it can prevent the _OpenTelemetry Collector_ from starting.
-
-By default, the working directory is set to `hws-otel-collector/otel`. In heavily customized setups, you may need to set the right working directory for the _OpenTelemetry Collector_ process.
+By default, the _OpenTelemetry Collector_ working directory is set to `hws-otel-collector/otel`. In heavily customized setups, you may need to set the right working directory for the _OpenTelemetry Collector_ process.
 
 **`otel/otel-config.yaml` example:**
 
@@ -747,6 +748,8 @@ otelCollector:
 
 hosts: # ...
 ```
+
+You may use relative paths in the `otel/otel-config.yaml` file and these paths are relative to the working directory of the OpenTelemetry Collector. If the working directory is incorrect, it can prevent the _OpenTelemetry Collector_ from starting.
 
 ### Security settings
 

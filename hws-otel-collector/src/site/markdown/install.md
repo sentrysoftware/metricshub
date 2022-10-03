@@ -331,7 +331,7 @@ You can start the **${project.name}** with an alternate configuration file with 
 
 It is recommended to install and run the **${project.name}** as a _Windows Service_.
 
-Download and install the [very latest version of NSSM](https://nssm.cc/download) so that it's available in your `%PATH%` (to make things easier).
+Download and install the [very latest version of NSSM](https://nssm.cc/download) to make this version available in the `%PATH%` and therefore guarantee the correct execution of the service.
 
 Run the below command to create the service (assuming the product has been installed in **c:\Program Files**):
 
