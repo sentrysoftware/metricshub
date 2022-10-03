@@ -43,6 +43,8 @@ import com.sentrysoftware.matrix.connector.parser.ConnectorParser;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
 import com.sentrysoftware.matrix.engine.EngineResult;
 import com.sentrysoftware.matrix.engine.OperationStatus;
+import com.sentrysoftware.matrix.engine.host.HardwareHost;
+import com.sentrysoftware.matrix.engine.host.HostType;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.Privacy;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.SnmpVersion;
@@ -52,8 +54,6 @@ import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoringFactory;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
-import com.sentrysoftware.matrix.engine.host.HardwareHost;
-import com.sentrysoftware.matrix.engine.host.HostType;
 import lombok.Data;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
@@ -334,47 +334,7 @@ public class HardwareSentryCli implements Callable<Integer> {
 
 		// Passwords
 		if (interactive) {
-			if (username != null && password == null) {
-				password = System.console().readPassword("%s password: ", username);
-			}
-			if (httpConfigCli != null) {
-				if (httpConfigCli.getUsername() != null && httpConfigCli.getPassword() == null) {
-					httpConfigCli.setPassword(System.console().readPassword("%s password for HTTP: ", httpConfigCli.getUsername()));
-				}
-			}
-			if (ipmiConfigCli != null) {
-				if (ipmiConfigCli.getUsername() != null && ipmiConfigCli.getPassword() == null) {
-					ipmiConfigCli.setPassword(System.console().readPassword("%s password for IPMI: ", ipmiConfigCli.getUsername()));
-				}
-			}
-			if (snmpConfigCli != null) {
-				if (snmpConfigCli.getUsername() != null && snmpConfigCli.getPassword() == null) {
-					snmpConfigCli.setPassword(System.console().readPassword("%s password for SNMP: ", snmpConfigCli.getUsername()));
-				}
-				if (snmpConfigCli.getPrivacy() == Privacy.AES || snmpConfigCli.getPrivacy() == Privacy.DES) {
-					snmpConfigCli.setPrivacyPassword(System.console().readPassword("SNMP Privacy password: "));
-				}
-			}
-			if (sshConfigCli != null) {
-				if (sshConfigCli.getUsername() != null && sshConfigCli.getPassword() == null) {
-					sshConfigCli.setPassword(System.console().readPassword("%s password for SSH: ", sshConfigCli.getUsername()));
-				}
-			}
-			if (wbemConfigCli != null) {
-				if (wbemConfigCli.getUsername() != null && wbemConfigCli.getPassword() == null) {
-					wbemConfigCli.setPassword(System.console().readPassword("%s password for WBEM: ", wbemConfigCli.getUsername()));
-				}
-			}
-			if (wmiConfigCli != null) {
-				if (wmiConfigCli.getUsername() != null && wmiConfigCli.getPassword() == null) {
-					wmiConfigCli.setPassword(System.console().readPassword("%s password for WMI: ", wmiConfigCli.getUsername()));
-				}
-			}
-			if (winRmConfigCli != null) {
-				if (winRmConfigCli.getUsername() != null && winRmConfigCli.getPassword() == null) {
-					winRmConfigCli.setPassword(System.console().readPassword("%s password for WinRM: ", winRmConfigCli.getUsername()));
-				}
-			}
+			tryInteractivePasswords(System.console()::readPassword);
 		}
 
 		// No protocol at all?
@@ -426,6 +386,136 @@ public class HardwareSentryCli implements Callable<Integer> {
 
 	}
 
+
+	interface CliPasswordReader<R> {
+		/**
+		 * Applies this function to the given arguments to read a password
+		 *
+		 * @param fmt  A format string
+		 * @param args Arguments referenced by the format specifiers in the format string
+		 * @return the function result
+		 */
+		R read(String fmt, Object... args);
+	}
+
+	/**
+	 * Try to start the interactive mode to request and set protocol passwords
+	 * 
+	 * @param passwordReader password reader which displays the prompt text and wait for user's input
+	 */
+	void tryInteractivePasswords(final CliPasswordReader<char[]> passwordReader) {
+
+		tryInteractiveGlobalPassword(passwordReader);
+
+		tryInteractiveHttpPassword(passwordReader);
+
+		tryInteractiveIpmiPassword(passwordReader);
+
+		tryInteractiveSnmpPasswords(passwordReader);
+
+		tryInteractiveSshPassword(passwordReader);
+
+		tryInteractiveWbemPassword(passwordReader);
+
+		tryInteractiveWmiPassword(passwordReader);
+
+		tryInteractiveWinRmPassword(passwordReader);
+
+	}
+
+	/**
+	 * Try to start the interactive mode to request and set WinRm password
+	 * 
+	 * @param passwordReader password reader which displays the prompt text and wait for user's input
+	 */
+	private void tryInteractiveWinRmPassword(final CliPasswordReader<char[]> passwordReader) {
+		if (winRmConfigCli != null && winRmConfigCli.getUsername() != null && winRmConfigCli.getPassword() == null) {
+			winRmConfigCli.setPassword(passwordReader.read("%s password for WinRM: ", winRmConfigCli.getUsername()));
+		}
+	}
+
+	/**
+	 * Try to start the interactive mode to request and set WMI password
+	 * 
+	 * @param passwordReader password reader which displays the prompt text and wait for user's input
+	 */
+	private void tryInteractiveWmiPassword(final CliPasswordReader<char[]> passwordReader) {
+		if (wmiConfigCli != null && wmiConfigCli.getUsername() != null && wmiConfigCli.getPassword() == null) {
+			wmiConfigCli.setPassword(passwordReader.read("%s password for WMI: ", wmiConfigCli.getUsername()));
+		}
+	}
+
+	/**
+	 * Try to start the interactive mode to request and set WBEM password
+	 * 
+	 * @param passwordReader password reader which displays the prompt text and wait for user's input
+	 */
+	private void tryInteractiveWbemPassword(final CliPasswordReader<char[]> passwordReader) {
+		if (wbemConfigCli != null && wbemConfigCli.getUsername() != null && wbemConfigCli.getPassword() == null) {
+			wbemConfigCli.setPassword(passwordReader.read("%s password for WBEM: ", wbemConfigCli.getUsername()));
+		}
+	}
+
+	/**
+	 * Try to start the interactive mode to request and set SSH password
+	 * 
+	 * @param passwordReader password reader which displays the prompt text and wait for user's input
+	 */
+	private void tryInteractiveSshPassword(final CliPasswordReader<char[]> passwordReader) {
+		if (sshConfigCli != null && sshConfigCli.getUsername() != null && sshConfigCli.getPassword() == null) {
+			sshConfigCli.setPassword(passwordReader.read("%s password for SSH: ", sshConfigCli.getUsername()));
+		}
+	}
+
+	/**
+	 * Try to start the interactive mode to request and set SNMP passwords (Privacy Password and Password)
+	 * 
+	 * @param passwordReader password reader which displays the prompt text and wait for user's input
+	 */
+	private void tryInteractiveSnmpPasswords(final CliPasswordReader<char[]> passwordReader) {
+		if (snmpConfigCli != null) {
+			if (snmpConfigCli.getUsername() != null && snmpConfigCli.getPassword() == null) {
+				snmpConfigCli.setPassword(passwordReader.read("%s password for SNMP: ", snmpConfigCli.getUsername()));
+			}
+			if ((snmpConfigCli.getPrivacy() == Privacy.AES || snmpConfigCli.getPrivacy() == Privacy.DES)
+					&& snmpConfigCli.getPrivacyPassword() == null) {
+				snmpConfigCli.setPrivacyPassword(passwordReader.read("SNMP Privacy password: "));
+			}
+		}
+	}
+
+	/**
+	 * Try to start the interactive mode to request and set IPMI password
+	 * 
+	 * @param passwordReader password reader which displays the prompt text and wait for user's input
+	 */
+	private void tryInteractiveIpmiPassword(final CliPasswordReader<char[]> passwordReader) {
+		if (ipmiConfigCli != null && ipmiConfigCli.getUsername() != null && ipmiConfigCli.getPassword() == null) {
+			ipmiConfigCli.setPassword(passwordReader.read("%s password for IPMI: ", ipmiConfigCli.getUsername()));
+		}
+	}
+
+	/**
+	 * Try to start the interactive mode to request and set HTTP password
+	 * 
+	 * @param passwordReader password reader which displays the prompt text and wait for user's input
+	 */
+	private void tryInteractiveHttpPassword(final CliPasswordReader<char[]> passwordReader) {
+		if (httpConfigCli != null && httpConfigCli.getUsername() != null && httpConfigCli.getPassword() == null) {
+			httpConfigCli.setPassword(passwordReader.read("%s password for HTTP: ", httpConfigCli.getUsername()));
+		}
+	}
+
+	/**
+	 * Try to start the interactive mode to request and set global password
+	 * 
+	 * @param passwordReader password reader which displays the prompt text and wait for user's input
+	 */
+	private void tryInteractiveGlobalPassword(final CliPasswordReader<char[]> passwordReader) {
+		if (username != null && password == null) {
+			password = passwordReader.read("%s password: ", username);
+		}
+	}
 
 	/**
 	 * Set Log4j logging level according to the verbose flags
