@@ -21,7 +21,7 @@ Your Prometheus Server must be configured to allow the *Remote Write* feature:
 * [Enable the Remote Write Receiver](https://prometheus.io/docs/prometheus/latest/feature_flags/#remote-write-receiver) with the `--web.enable-remote-write-receiver` option
 * [Configure the Remote Write Receiver](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#remote_write)
 
-Once *Remote Write* is enabled and configured on your Prometheus Server, edit the `exporters` section of the [otel/otel-config.yaml](../configuration/configure-otel.md) configuration file as in the below example:
+Once *Remote Write* is enabled and configured on your Prometheus Server, edit the `exporters` section of the [otel/otel-config.yaml](../configuration/configure-otel.md) configuration file as in the example below:
 
 ```yaml
 exporters:
