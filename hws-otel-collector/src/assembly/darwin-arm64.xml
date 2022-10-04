@@ -40,6 +40,10 @@
 			<source>${project.build.directory}/darwin-arm64/LICENSE</source>
 			<outputDirectory>otel</outputDirectory>
 		</file>
+		<file>
+			<source>${project.build.directory}/otel/opentelemetry-javaagent.jar</source>
+			<outputDirectory>otel</outputDirectory>
+		</file>
 	</files>
 
 </assembly>
