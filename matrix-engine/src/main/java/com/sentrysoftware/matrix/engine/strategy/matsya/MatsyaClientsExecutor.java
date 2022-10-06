@@ -709,7 +709,7 @@ public class MatsyaClientsExecutor {
 
 			trace(() -> 
 				log.trace("Executed WBEM request:\n- Hostname: {}\n- Port: {}\n- Protocol: {}\n- URL: {}\n"
-							+ "- Username: {}\n- Query: {}\n- Namespace: {}\n- Timeout: {} s\n- Result:\n{}\n response-time: {}\n",
+							+ "- Username: {}\n- Query: {}\n- Namespace: {}\n- Timeout: {} s\n- Result:\n{}\n- response-time: {}\n",
 						hostname,
 						wbemConfig.getPort(),
 						wbemConfig.getProtocol().toString(),
