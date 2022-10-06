@@ -691,6 +691,8 @@ public class MatsyaClientsExecutor {
 				)
 			);
 
+			final long startTime = System.currentTimeMillis();
+
 			WbemQueryResult wbemQueryResult = WbemExecutor.executeWql(
 				url,
 				namespace,
@@ -701,11 +703,13 @@ public class MatsyaClientsExecutor {
 				null
 			);
 
+			final long responseTime = System.currentTimeMillis() - startTime;
+
 			List<List<String>> result = wbemQueryResult.getValues();
 
 			trace(() -> 
 				log.trace("Executed WBEM request:\n- Hostname: {}\n- Port: {}\n- Protocol: {}\n- URL: {}\n"
-							+ "- Username: {}\n- Query: {}\n- Namespace: {}\n- Timeout: {} s\n- Result:\n{}\n",
+							+ "- Username: {}\n- Query: {}\n- Namespace: {}\n- Timeout: {} s\n- Result:\n{}\n response-time: {}\n",
 						hostname,
 						wbemConfig.getPort(),
 						wbemConfig.getProtocol().toString(),
@@ -714,7 +718,8 @@ public class MatsyaClientsExecutor {
 						query,
 						namespace,
 						wbemConfig.getTimeout(),
-						TextTableHelper.generateTextTable(wbemQueryResult.getProperties(), result)
+						TextTableHelper.generateTextTable(wbemQueryResult.getProperties(), result),
+						responseTime
 				)
 			);
 
