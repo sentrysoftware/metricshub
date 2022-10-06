@@ -1307,17 +1307,22 @@ public class MatsyaClientsExecutor {
 			)
 		);
 
+		final long startTime = System.currentTimeMillis();
+
 		String result = MatsyaIpmiClient.getChassisStatusAsStringResult(buildIpmiConfiguration(hostname,
 			ipmiOverLanProtocol));
 
+		final long responseTime = System.currentTimeMillis() - startTime;
+
 		trace(() -> 
 			log.trace("Executed IPMI detection request:\n- Hostname: {}\n- Username: {}\n- SkipAuth: {}\n"
-						+ "- Timeout: {} s\n- Result:\n{}\n",
+						+ "- Timeout: {} s\n- Result:\n{}\n- response-time: {}\n",
 					hostname,
 					ipmiOverLanProtocol.getUsername(),
 					ipmiOverLanProtocol.isSkipAuth(),
 					ipmiOverLanProtocol.getTimeout(),
-					result
+					result,
+					responseTime
 			)
 		);
 
@@ -1371,17 +1376,22 @@ public class MatsyaClientsExecutor {
 			)
 		);
 
+		final long startTime = System.currentTimeMillis();
+
 		String result = MatsyaIpmiClient.getFrusAndSensorsAsStringResult(buildIpmiConfiguration(hostname,
 			ipmiOverLanProtocol));
 
+		final long responseTime = System.currentTimeMillis() - startTime;
+
 		trace(() -> 
 			log.trace("Executed IPMI FRUs and Sensors request:\n- Hostname: {}\n- Username: {}\n- SkipAuth: {}\n"
-						+ "- Timeout: {} s\n- Result:\n{}\n",
+						+ "- Timeout: {} s\n- Result:\n{}\n- response-time: {}\n",
 					hostname,
 					ipmiOverLanProtocol.getUsername(),
 					ipmiOverLanProtocol.isSkipAuth(),
 					ipmiOverLanProtocol.getTimeout(),
-					result
+					result,
+					responseTime
 			)
 		);
 
