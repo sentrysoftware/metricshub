@@ -108,11 +108,11 @@ groups:
 - name: PhysicalDisk-EnduranceRemaining
   rules:
   - alert: PhysicalDisk-EnduranceRemaining-critical
-    expr: hw_physical_disk_endurance_utilization_ratio >= 0 AND hw_physical_disk_endurance_utilization_ratio < 2
+    expr: hw_physical_disk_endurance_utilization_ratio >= 0 AND hw_physical_disk_endurance_utilization_ratio < 0.02
     labels:
       severity: 'critical'
   - alert: PhysicalDisk-EnduranceRemaining-warn
-    expr: hw_physical_disk_endurance_utilization_ratio >= 0 AND hw_physical_disk_endurance_utilization_ratio <= 5
+    expr: hw_physical_disk_endurance_utilization_ratio >= 0 AND hw_physical_disk_endurance_utilization_ratio <= 0.05
     labels:
       severity: 'warn'
 
