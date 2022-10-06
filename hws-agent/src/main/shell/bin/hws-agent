@@ -62,4 +62,16 @@ fi
 
 HWS_JAR=`echo "$HWS_HOME"/lib/${project.artifactId}-${project.version}.jar`
 
+# Option that enables traces and metrics exports using the OTel agent
+HWS_AUTO_INST='-javaagent:"%HWS_HOME%\otel\opentelemetry-javaagent.jar" -Dotel.resource.attributes=service.name=agent-service -Dotel.traces.exporter=otlp -Dotel.metrics.exporter=otlp -Dotel.exporter.otlp.endpoint=https://localhost:4317 -Dotel.exporter.otlp.certificate="%HWS_HOME%\security\otel.crt" -Dotel.exporter.otlp.headers="Authorization=Basic aHdzOlNlbnRyeVNvZnR3YXJlMSE="'
+
+# Auto-instrumentation is enabled by default
+for arg in "$@" ; do
+  if [ "$arg" = "--no-auto-instrumentation" ] ; then
+    echo "Auto-instrumentation is disabled" && HWS_AUTO_INST="" && break
+  fi
+done
+
+HWS_JAVA_OPTS="$HWS_JAVA_OPTS $HWS_AUTO_INST"
+
 exec "$JAVACMD" $HWS_JAVA_OPTS -jar "${HWS_JAR}" "$@"
