@@ -774,9 +774,13 @@ public class MatsyaClientsExecutor {
 				wmiConfig.getPassword()
 		)) {
 
+			final long startTime = System.currentTimeMillis();
+
 			// Execute the WQL and get the result
 			final List<Map<String, Object>> result = wbemServices.executeWql(wbemQuery, wmiConfig.getTimeout() * 1000);
 
+			final long responseTime = System.currentTimeMillis() - startTime;
+			
 			// Extract the exact property names (case sensitive), in the right order
 			final List<String> properties = WmiHelper.extractPropertiesFromResult(result, wbemQuery);
 
@@ -786,14 +790,15 @@ public class MatsyaClientsExecutor {
 			trace(() -> 
 				log.trace(
 						"Executed WMI request:\n- Hostname: {}\n- Network-resource: {}\n- Username: {}\n- Query: {}\n"
-							+ "- Namespace: {}\n- Timeout: {} s\n- Result:\n{}\n",
+							+ "- Namespace: {}\n- Timeout: {} s\n- Result:\n{}\n- response-time: {}\n",
 						hostname,
 						networkResource,
 						wmiConfig.getUsername(),
 						wbemQuery,
 						namespace,
 						wmiConfig.getTimeout(),
-						TextTableHelper.generateTextTable(properties, resultTable)
+						TextTableHelper.generateTextTable(properties, resultTable),
+						responseTime
 				)
 			);
 
