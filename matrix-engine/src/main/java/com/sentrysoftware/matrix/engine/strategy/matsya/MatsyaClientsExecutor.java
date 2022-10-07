@@ -854,7 +854,7 @@ public class MatsyaClientsExecutor {
 			final long responseTime = System.currentTimeMillis() - startTime;
 			
 			trace(() -> 
-				log.trace("Executing WMI remote command:\n- Command: {}\n- Hostname: {}\n- Username: {}\n"
+				log.trace("Executed WMI remote command:\n- Command: {}\n- Hostname: {}\n- Username: {}\n"
 						+ "- Timeout: {} s\n- Local-files: {}\n- Result:\n{}\n- response-time: {}\n",
 						command,
 						hostname,
