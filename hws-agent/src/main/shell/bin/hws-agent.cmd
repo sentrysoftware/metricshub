@@ -59,6 +59,17 @@ goto error
 
 set HWS_JAR=%HWS_HOME%\lib\${project.artifactId}-${project.version}.jar
 
+@REM Option that enables traces and metrics exports using the OTel agent
+set HWS_AUTO_INST=-javaagent:"%HWS_HOME%\otel\opentelemetry-javaagent.jar" -Dotel.resource.attributes=service.name=Hardware-Sentry-Agent -Dotel.traces.exporter=otlp -Dotel.metrics.exporter=otlp -Dotel.exporter.otlp.endpoint=https://localhost:4317 -Dotel.exporter.otlp.certificate="%HWS_HOME%\security\otel.crt" -Dotel.exporter.otlp.headers="Authorization=Basic aHdzOlNlbnRyeVNvZnR3YXJlMSE="
+
+@REM Auto-instrumentation option is enabled by default
+set ARGS=%*
+if "%1"=="" goto noArgs
+if not x%ARGS:--no-auto-instrumentation=%==x%ARGS% echo Auto-instrumentation is disabled && set "HWS_AUTO_INST="
+:noArgs
+
+set "HWS_JAVA_OPTS=%HWS_JAVA_OPTS% %HWS_AUTO_INST%"
+
 "%JAVACMD%" %HWS_JAVA_OPTS% -jar "%HWS_JAR%" %*
 if ERRORLEVEL 1 goto error
 goto end
