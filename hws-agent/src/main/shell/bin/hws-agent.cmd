@@ -60,7 +60,7 @@ goto error
 set HWS_JAR=%HWS_HOME%\lib\${project.artifactId}-${project.version}.jar
 
 @REM Option that enables traces and metrics exports using the OTel agent
-set HWS_AUTO_INST=-javaagent:"%HWS_HOME%\otel\opentelemetry-javaagent.jar" -Dotel.resource.attributes=service.name=agent-service -Dotel.traces.exporter=otlp -Dotel.metrics.exporter=otlp -Dotel.exporter.otlp.endpoint=https://localhost:4317 -Dotel.exporter.otlp.certificate="%HWS_HOME%\security\otel.crt" -Dotel.exporter.otlp.headers="Authorization=Basic aHdzOlNlbnRyeVNvZnR3YXJlMSE="
+set HWS_AUTO_INST=-javaagent:"%HWS_HOME%\otel\opentelemetry-javaagent.jar" -Dotel.resource.attributes=service.name=Hardware-Sentry-Agent -Dotel.traces.exporter=otlp -Dotel.metrics.exporter=otlp -Dotel.exporter.otlp.endpoint=https://localhost:4317 -Dotel.exporter.otlp.certificate="%HWS_HOME%\security\otel.crt" -Dotel.exporter.otlp.headers="Authorization=Basic aHdzOlNlbnRyeVNvZnR3YXJlMSE="
 
 @REM Auto-instrumentation option is enabled by default
 set ARGS=%*
