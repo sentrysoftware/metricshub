@@ -1,0 +1,25 @@
+--runtime-image "${env.JAVA_RUNTIME_HOME}"
+--input hws/lib
+--icon hws.png
+--type rpm
+--main-jar hws-agent-${project.version}.jar
+--name hws
+--description "Hardware Sentry"
+--vendor "Sentry Software"
+--app-version ${project.version.noSnapshot}
+--dest "${project.build.directory}"
+--resource-dir override
+--app-content hws/security,hws/otel,hws/config,hws/site,hws/LICENSE
+--license-file hws/LICENSE
+--main-class org.springframework.boot.loader.PropertiesLauncher
+--java-options -Dloader.main=com.sentrysoftware.hardware.cli.HardwareSentryCliApplication
+--java-options --add-exports
+--java-options java.xml/com.sun.org.apache.xerces.internal.parsers=ALL-UNNAMED
+--java-options --add-opens
+--java-options java.base/java.lang=ALL-UNNAMED
+--java-options --add-opens
+--java-options java.base/java.util=ALL-UNNAMED
+--java-options --add-opens
+--java-options java.base/sun.net.www.protocol.http=ALL-UNNAMED
+--java-options --add-opens
+--java-options java.base/sun.security.ssl=ALL-UNNAMED

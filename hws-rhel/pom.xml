@@ -1,0 +1,183 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.sentrysoftware.hardware.matrix</groupId>
+		<artifactId>matrix</artifactId>
+		<version>2.0.01-SNAPSHOT</version>
+	</parent>
+	<artifactId>hws-rhel</artifactId>
+	<packaging>pom</packaging>
+
+	<name>Hardware Sentry for RHEL</name>
+	<description>Hardware Sentry Package for RHEL/Centos (.rpm)</description>
+
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>hws-agent</artifactId>
+			<version>${project.version}</version>
+			<classifier>dist</classifier>
+			<type>zip</type>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>hws-doc</artifactId>
+			<version>${project.version}</version>
+			<classifier>site</classifier>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+
+			<!-- Unpack hws-agent and documentation -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>unpack-hws-agent</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>unpack-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/jpackage/hws</outputDirectory>
+							<includeArtifactIds>hws-agent</includeArtifactIds>
+						</configuration>
+					</execution>
+					<execution>
+						<id>unpack-hws-doc</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>unpack-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/jpackage/hws/site</outputDirectory>
+							<includeArtifactIds>hws-doc</includeArtifactIds>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Download OpenTelemetry Collector Contrib binary -->
+			<plugin>
+				<groupId>com.googlecode.maven-download-plugin</groupId>
+				<artifactId>download-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>download-otelcol-contrib-linux-amd64</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>wget</goal>
+						</goals>
+						<configuration>
+							<url>${otelColContribBaseUrl}/otelcol-contrib_${otelVersion}_linux_amd64.tar.gz</url>
+							<unpack>true</unpack>
+							<outputDirectory>${project.build.directory}/jpackage/hws/otel</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- JPackage resources -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}</outputDirectory>
+							<resources>
+								<resource>
+									<directory>src/main/resources</directory>
+									<filtering>true</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Run jpackage command to generate Hardware Sentry .rpm -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>package-rpm</id>
+						<phase>package</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>${env.JPACKAGE_HOME}/bin/jpackage</executable>
+							<arguments>
+								<argument>--add-launcher</argument>
+								<argument>hws-encrypt=hws-encrypt.properties</argument>
+								<argument>--add-launcher</argument>
+								<argument>agent=hws-agent.properties</argument>
+								<argument>@jpackage.txt</argument>
+							</arguments>
+							<workingDirectory>${project.build.directory}/jpackage</workingDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Rename the package -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>rename-package</id>
+						<phase>package</phase>
+						<configuration>
+							<target>
+								<copy file="${project.build.directory}/hws-${project.version.noSnapshot}-1.x86_64.rpm" tofile="${project.build.directory}/${project.artifactId}-${project.version}-1.x86_64.rpm"/>
+								<delete file="${project.build.directory}/hws-${project.version.noSnapshot}-1.x86_64.rpm"/>
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Attach artifacts -->
+			<plugin>
+				<groupId>org.sonatype.plugins</groupId>
+				<artifactId>attach-artifact-maven-plugin</artifactId>
+				<version>1.0</version>
+				<executions>
+					<execution>
+						<id>attach-artifacts</id>
+						<phase>package</phase>
+						<goals>
+							<goal>attach-artifact</goal>
+						</goals>
+						<configuration>
+							<artifacts>
+								<artifact>
+									<file>${project.build.directory}/${project.artifactId}-${project.version}-1.x86_64.rpm</file>
+									<type>rpm</type>
+									<artifactId>${project.artifactId}</artifactId>
+									<classifier>1.x86_64</classifier>
+								</artifact>
+							</artifacts>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+		</plugins>
+	</build>
+
+</project>
