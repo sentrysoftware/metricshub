@@ -69,6 +69,7 @@ public class OtelConfig {
 
 		properties.put("otel.metrics.exporter", "otlp");
 		properties.put("otel.logs.exporter", "otlp");
+		properties.put("otel.traces.exporter", "otlp");
 		properties.put("otel.exporter.otlp.endpoint", otlpEndpoint);
 		properties.put("otel.metric.export.interval", String.valueOf(Duration.ofDays(365 * 10L).toMillis()));
 
