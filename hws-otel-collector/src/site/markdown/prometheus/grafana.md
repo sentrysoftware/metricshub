@@ -12,7 +12,7 @@ Once you have installed and loaded the dashboards, they are automatically availa
 
 ## Prerequisites
 
-Before you can start configuring and using the **Hardware dashboards for Grafana** dashboards, you must have:
+Before using the **Hardware Dashboards for Grafana**, you must have:
 
 1. configured the [Hardware Sentry Agent](../configuration/configure-agent.html)
 2. configured the [Prometheus Server](prometheus.md)
@@ -31,7 +31,7 @@ Download from [Sentry Software’s Web site](https://www.sentrysoftware.com/down
 
 If you are using a version older than v4, first delete the following folders on the Grafana server:
 
-- `provisioning`: this folder is generally located in `grafana\conf` on Windows, `/etc/grafana` on Linux
+- `provisioning`: this folder is generally located in `C:\Program Files\GrafanaLabs\grafana\conf` on Windows, `/etc/grafana` on Linux
 - `Hardware Sentry`: this folder is generally located in `C:\Program Files\GrafanaLabs\grafana\public\dashboards` on Windows, `/var/lib/grafana/dashboards` on Linux.
 
 Then log on to Grafana, go to **Dashboards > Browse** and delete the **Sustainable_IT** dashboard.
@@ -75,7 +75,7 @@ The **Coverage** panel available in the **Overall Information** section of the *
 
 ![Grafana Dashboards - Monitoring Coverage](../images/grafana-main-coverage.png)
 
-A host is considered as _not monitored_ if no connectors match the configured system. If the value displayed is below 100%, open each **Site** to identify the hosts for which no data is available. Then access each host page and check the status of the configured **Protocol(s)** and matching **Connector(s)**:
+A **host** is considered as _not monitored_ if no connectors match the configured system. If the value displayed is below 100%, open each **Site** to identify the hosts for which no data is available. Then access each host page and check the status of the configured **Protocol(s)** and matching **Connector(s)**:
 
 ![Grafana Dashboards - Protocol and connector status](../images/grafana-host-protocol-and-connector-status.png)
 
