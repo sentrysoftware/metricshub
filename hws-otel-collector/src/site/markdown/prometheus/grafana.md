@@ -5,34 +5,27 @@ description: How to import, configure, and use Hardware Sentry Dashboards for Gr
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
-The **Hardware Dashboards for Grafana** give you immediate visibility into your monitored environment. The organized panels expose health metrics for all monitored hardware systems and bring real-time metrics and projected trends on electricity consumption and costs, as well as CO₂ emissions for your entire infrastructure.
+The **Hardware Sentry - Main**, **Hardware Sentry - Site**, and **Hardware Sentry - Host** dashboards give you immediate visibility into your monitored environment. The organized panels expose health metrics for all monitored hardware systems and bring real-time metrics and projected trends on electricity consumption and costs, as well as CO₂ emissions for your entire infrastructure.
 Once you have installed and loaded the dashboards, they are automatically available from the **Dashboard** menu on the **Home** page.
 
 ![Hardware Sentry - Main View](../images/grafana-main.png)
 
+> The **Hardware Sentry - Main**, **Hardware Sentry - Site**, and **Hardware Sentry - Host** dashboards are compatible with Grafana v9.x.x.
+
 ## Prerequisites
 
-Before using the **Hardware Dashboards for Grafana**, you must have:
+Before using the dashboards, you must have:
 
 1. configured the [Hardware Sentry Agent](../configuration/configure-agent.html)
 2. configured the [Prometheus Server](prometheus.md)
 3. run both **${project.name}** and the **Prometheus server**.
 
-## Preparing for the installation
+## Upgrading
 
-Download from [Sentry Software’s Web site](https://www.sentrysoftware.com/downloads/products-for-opentelemetry.html), the package of the **Hardware Dashboards for Grafana** compatible with your version of Grafana:
+If you are using **Hardware Dashboards for Grafana v1** or **Hardware Dashboards for Grafana v2**, which were previously available from Sentry Software's Website,  first delete the following folders on the Grafana server:
 
-| **Grafana** | **Hardware Dashboards for Grafana** |
-| ----------- | ----------------------------------- |
-| v9.x.x      | v4                                  |
-| v8.5        | v2                                  |
-
-## Upgrading from v2
-
-If you are using a version older than v4, first delete the following folders on the Grafana server:
-
-- `provisioning`: this folder is generally located in `C:\Program Files\GrafanaLabs\grafana\conf` on Windows, `/etc/grafana` on Linux
-- `Hardware Sentry`: this folder is generally located in `C:\Program Files\GrafanaLabs\grafana\public\dashboards` on Windows, `/var/lib/grafana/dashboards` on Linux.
+* `provisioning`: this folder is generally located in `C:\Program Files\GrafanaLabs\grafana\conf` on Windows, `/etc/grafana` on Linux
+* `Hardware Sentry`: this folder is generally located in `C:\Program Files\GrafanaLabs\grafana\public\dashboards` on Windows, `/var/lib/grafana/dashboards` on Linux.
 
 Then log on to Grafana, go to **Dashboards > Browse** and delete the **Sustainable_IT** dashboard.
 
@@ -40,24 +33,18 @@ Restart the Grafana server before installing the dashboards.
 
 ## Installing the dashboards
 
-### On Windows
+1. Download the following dashboards from GrafanaLabs and save them in the directory of your choice on the Grafana server (ex: `C:\Program Files\GrafanaLabs\grafana\public\dashboards` for Windows, `/var/lib/grafana/dashboards` for Linux and UNIX):
 
-1. Uncompress **hardware-dashboards-for-grafana.zip** in a temporary folder.
-2. Copy the `.json` files in the directory of your choice on the Grafana server (ex: `C:\Program Files\GrafanaLabs\grafana\public\dashboards`).
+   * [Hardware Sentry - Main](https://grafana.com/grafana/dashboards/17223-hardware-sentry-main/)
+   * [Hardware Sentry - Site](https://grafana.com/grafana/dashboards/17229-hardware-sentry-site/)
+   * [Hardware Sentry - Host](https://grafana.com/grafana/dashboards/17230-hardware-sentry-host/)
 
-### On Linux and UNIX
-
-1. Uncompress **hardware-dashboards-for-grafana.tar.gz** in a temporary folder.
-2. Copy the `.json` files in the directory of your choice on the Grafana server (ex: `/var/lib/grafana/dashboards`).
-
-## Loading the dashboards in Grafana
-
-1. Log on to Grafana
-2. Under the **Dashboards** icon, click **Browse** first, then **Import**
-3. Click **Upload JSON File**
-4. Browse to the folder containing the **Hardware Sentry - Main**, **Hardware Sentry - Host**, and **Hardware Sentry - Site** files. Select one of them
-5. Select the **Prometheus** datasource, and click **Load**
-6. Repeat the procedure for the other 2 files.
+2. Log on to Grafana
+3. Under the **Dashboards** icon, click **Browse** first, then **Import**
+4. Click **Upload JSON File**
+5. Browse to the folder containing the three `hardware-sentry` json files. Select one of them
+6. Select the **Prometheus** datasource, and click **Import**
+7. Repeat the procedure for the other 2 files.
 
 The following dashboards are now loaded in Grafana:
 
