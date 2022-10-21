@@ -38,6 +38,9 @@ Restart the Grafana server before importing the dashboards.
    * Under the **Dashboards** icon, click **Browse** first, then **Import**
    * In the **Import via grafana.com** field, paste the dashboard ID and click **Load**
    *  Select the **Prometheus** datasource, and click **Import**
+
+      ![Grafana Dashboards - Importing the Hardware Sentry - Main Dashboard](../images/grafana-importing-dashboard.png)
+
 3. Repeat the procedure for the following dashboards:
    * **[Hardware Sentry - Site](https://grafana.com/grafana/dashboards/17229-hardware-sentry-site/)**
    * **[Hardware Sentry - Host](https://grafana.com/grafana/dashboards/17230-hardware-sentry-host/)**
