@@ -1,5 +1,5 @@
 keywords: grafana, dashboard, green, power consumption, carbon, CO₂
-description: How to load and use Hardware Sentry Dashboards for Grafana.
+description: How to import, configure, and use Hardware Sentry Dashboards for Grafana.
 
 # Grafana Dashboards
 
@@ -33,17 +33,20 @@ Restart the Grafana server before importing the dashboards.
 
 ## Importing
 
-1. On GrafanaLabs, copy the ID of the **[Hardware Sentry - Main](https://grafana.com/grafana/dashboards/17223-hardware-sentry-main/)** dashboard
-2. In Grafana,
-   * Under the **Dashboards** icon, click **Browse** first, then **Import**
-   * In the **Import via grafana.com** field, paste the dashboard ID and click **Load**
-   *  Select the **Prometheus** datasource, and click **Import**
+1. Log on to Grafana
+2. Under the **Dashboards** icon, click **Browse** first, then **Import**
+3. In the **Import via grafana.com** field, enter:
+
+   * `17223` for the **[Hardware Sentry - Main](https://grafana.com/grafana/dashboards/17223-hardware-sentry-main/)** dashboard
+   * `17229` for the **[Hardware Sentry - Site](https://grafana.com/grafana/dashboards/17229-hardware-sentry-site/)** dashboard
+   * `17230` for the **[Hardware Sentry - Host](https://grafana.com/grafana/dashboards/17230-hardware-sentry-host/)** dashboard
+
+4. Select the **Prometheus** datasource
 
       ![Grafana Dashboards - Importing the Hardware Sentry - Main Dashboard](../images/grafana-importing-dashboard.png)
 
-3. Repeat the procedure for the following dashboards:
-   * **[Hardware Sentry - Site](https://grafana.com/grafana/dashboards/17229-hardware-sentry-site/)**
-   * **[Hardware Sentry - Host](https://grafana.com/grafana/dashboards/17230-hardware-sentry-host/)**
+5. Click **Import**
+6. Repeat the procedure to import all the **Hardware Sentry dashboards**.
 
 The **Hardware Sentry** dashboards are now loaded in Grafana:
 
