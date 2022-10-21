@@ -1,12 +1,12 @@
 keywords: grafana, dashboard, green, power consumption, carbon, CO₂
-description: How to import, configure, and use Hardware Sentry Dashboards for Grafana.
+description: How to load and use Hardware Sentry Dashboards for Grafana.
 
 # Grafana Dashboards
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
-The **Hardware Sentry - Main**, **Hardware Sentry - Site**, and **Hardware Sentry - Host** dashboards give you immediate visibility into your monitored environment. The organized panels expose health metrics for all monitored hardware systems and bring real-time metrics and projected trends on electricity consumption and costs, as well as CO₂ emissions for your entire infrastructure.
-Once you have installed and loaded the dashboards, they are automatically available from the **Dashboard** menu on the **Home** page.
+The **Hardware Sentry - Main**, **Hardware Sentry - Site**, and **Hardware Sentry - Host** dashboards give you immediate visibility into your monitored environment. The organized panels expose health metrics for all monitored systems and bring real-time metrics and projected trends on electricity consumption and costs, as well as CO₂ emissions for your entire infrastructure.
+Once you have imported the dashboards, they are automatically available from the **Dashboard** menu on the **Home** page.
 
 ![Hardware Sentry - Main View](../images/grafana-main.png)
 
@@ -22,39 +22,35 @@ Before using the dashboards, you must have:
 
 ## Upgrading
 
-If you are using **Hardware Dashboards for Grafana v1** or **Hardware Dashboards for Grafana v2**, which were previously available from Sentry Software's Website,  first delete the following folders on the Grafana server:
+If you are using **Hardware Dashboards for Grafana v1** or **Hardware Dashboards for Grafana v2**, which were previously available from Sentry Software's Website, first delete the following folders on the Grafana server:
 
-* `provisioning`: this folder is generally located in `C:\Program Files\GrafanaLabs\grafana\conf` on Windows, `/etc/grafana` on Linux
-* `Hardware Sentry`: this folder is generally located in `C:\Program Files\GrafanaLabs\grafana\public\dashboards` on Windows, `/var/lib/grafana/dashboards` on Linux.
+- `provisioning`: this folder is generally located in `C:\Program Files\GrafanaLabs\grafana\conf` on Windows, `/etc/grafana` on Linux
+- `Hardware Sentry`: this folder is generally located in `C:\Program Files\GrafanaLabs\grafana\public\dashboards` on Windows, `/var/lib/grafana/dashboards` on Linux.
 
 Then log on to Grafana, go to **Dashboards > Browse** and delete the **Sustainable_IT** dashboard.
 
-Restart the Grafana server before installing the dashboards.
+Restart the Grafana server before importing the dashboards.
 
-## Installing the dashboards
+## Importing
 
-1. Download the following dashboards from GrafanaLabs and save them in the directory of your choice on the Grafana server (ex: `C:\Program Files\GrafanaLabs\grafana\public\dashboards` for Windows, `/var/lib/grafana/dashboards` for Linux and UNIX):
+1. On GrafanaLabs, copy the ID of the **[Hardware Sentry - Main](https://grafana.com/grafana/dashboards/17223-hardware-sentry-main/)** dashboard
+2. In Grafana,
+   * Under the **Dashboards** icon, click **Browse** first, then **Import**
+   * In the **Import via grafana.com** field, paste the dashboard ID and click **Load**
+   *  Select the **Prometheus** datasource, and click **Import**
+3. Repeat the procedure for the following dashboards:
+   * **[Hardware Sentry - Site](https://grafana.com/grafana/dashboards/17229-hardware-sentry-site/)**
+   * **[Hardware Sentry - Host](https://grafana.com/grafana/dashboards/17230-hardware-sentry-host/)**
 
-   * [Hardware Sentry - Main](https://grafana.com/grafana/dashboards/17223-hardware-sentry-main/)
-   * [Hardware Sentry - Site](https://grafana.com/grafana/dashboards/17229-hardware-sentry-site/)
-   * [Hardware Sentry - Host](https://grafana.com/grafana/dashboards/17230-hardware-sentry-host/)
-
-2. Log on to Grafana
-3. Under the **Dashboards** icon, click **Browse** first, then **Import**
-4. Click **Upload JSON File**
-5. Browse to the folder containing the three `hardware-sentry` json files. Select one of them
-6. Select the **Prometheus** datasource, and click **Import**
-7. Repeat the procedure for the other 2 files.
-
-The following dashboards are now loaded in Grafana:
+The **Hardware Sentry** dashboards are now loaded in Grafana:
 
 | Dashboard                  | Description                                                                                 |
 | -------------------------- | ------------------------------------------------------------------------------------------- |
-| **Hardware Sentry - Main** | Overview of all monitored hosts                                                             |
+| **Hardware Sentry - Main** | Overview of all monitored sites                                                             |
 | **Hardware Sentry - Site** | Metrics associated to one _site_ (a data center or a server room) and its monitored _hosts_ |
-| **Hardware Sentry - Host** | Metrics associated to one _host_ and its internal devices                                   |
+| **Hardware Sentry - Host** | Metrics associated to one _host_ and its internal components                                |
 
-## Using Hardware Sentry Dashboards
+## Using
 
 ### Verifying that your IT infrastructure is fully monitored
 
@@ -79,12 +75,12 @@ The **Last Seen** column indicates the last time an agent was seen during the pa
 
 The **Hardware Sentry - Host** dashboard provides the essential hardware health and sustainability data available for the monitored host:
 
-* the status of its internal components
-* the network traffic
-* the storage usage
-* the power consumption and related carbon emissions
-* the temperature information
-* etc.
+- the status of its internal components
+- the network traffic
+- the storage usage
+- the power consumption and related carbon emissions
+- the temperature information
+- etc.
 
 ![Grafana Dashboards - Hardware health of the monitored host](../images/grafana-host.png)
 
