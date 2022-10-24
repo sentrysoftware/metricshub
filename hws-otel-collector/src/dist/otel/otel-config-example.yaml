@@ -187,6 +187,10 @@ service:
       receivers: [otlp, prometheus/internal]
       processors: [memory_limiter, batch, resourcedetection, metricstransform]
       exporters: [prometheusremotewrite/your-server] # List here the platform of your choice
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, resourcedetection]
+      exporters: [datadog/api]
 
     # Uncomment the section below to enable logging of hardware alerts.
     # logs:
