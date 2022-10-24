@@ -27,7 +27,7 @@ If you are using **Hardware Dashboards for Grafana v1** or **Hardware Dashboards
 - `provisioning`: this folder is generally located in `C:\Program Files\GrafanaLabs\grafana\conf` on Windows, `/etc/grafana` on Linux
 - `Hardware Sentry`: this folder is generally located in `C:\Program Files\GrafanaLabs\grafana\public\dashboards` on Windows, `/var/lib/grafana/dashboards` on Linux.
 
-Then log on to Grafana, go to **Dashboards > Browse** and delete the **Sustainable_IT** or **Hardware Sentry** dashboard.
+Then log on to Grafana, go to **Dashboards > Browse** and delete the **Sustainable_IT** or **Hardware Sentry** folder.
 
 Restart the Grafana server before importing the dashboards.
 
