@@ -190,7 +190,7 @@ service:
     traces:
       receivers: [otlp]
       processors: [memory_limiter, batch, resourcedetection]
-      exporters: [datadog/api]
+      exporters: [datadog/api] # List here the platform on which you want to see the traces
 
     # Uncomment the section below to enable logging of hardware alerts.
     # logs:
