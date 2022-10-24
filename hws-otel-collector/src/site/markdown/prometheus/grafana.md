@@ -27,7 +27,7 @@ If you are using **Hardware Dashboards for Grafana v1** or **Hardware Dashboards
 - `provisioning`: this folder is generally located in `C:\Program Files\GrafanaLabs\grafana\conf` on Windows, `/etc/grafana` on Linux
 - `Hardware Sentry`: this folder is generally located in `C:\Program Files\GrafanaLabs\grafana\public\dashboards` on Windows, `/var/lib/grafana/dashboards` on Linux.
 
-Then log on to Grafana, go to **Dashboards > Browse** and delete the **Sustainable_IT** dashboard.
+Then log on to Grafana, go to **Dashboards > Browse** and delete the **Sustainable_IT** or **Hardware Sentry** dashboard.
 
 Restart the Grafana server before importing the dashboards.
 
@@ -37,13 +37,13 @@ Restart the Grafana server before importing the dashboards.
 2. Under the **Dashboards** icon, click **Browse** first, then **Import**
 3. In the **Import via grafana.com** field, enter:
 
-   * `17223` for the **[Hardware Sentry - Main](https://grafana.com/grafana/dashboards/17223-hardware-sentry-main/)** dashboard
-   * `17229` for the **[Hardware Sentry - Site](https://grafana.com/grafana/dashboards/17229-hardware-sentry-site/)** dashboard
-   * `17230` for the **[Hardware Sentry - Host](https://grafana.com/grafana/dashboards/17230-hardware-sentry-host/)** dashboard
+   - `17223` for the **[Hardware Sentry - Main](https://grafana.com/grafana/dashboards/17223-hardware-sentry-main/)** dashboard
+   - `17229` for the **[Hardware Sentry - Site](https://grafana.com/grafana/dashboards/17229-hardware-sentry-site/)** dashboard
+   - `17230` for the **[Hardware Sentry - Host](https://grafana.com/grafana/dashboards/17230-hardware-sentry-host/)** dashboard
 
 4. Select the **Prometheus** datasource
 
-      ![Grafana Dashboards - Importing the Hardware Sentry - Main Dashboard](../images/grafana-importing-dashboard.png)
+   ![Grafana Dashboards - Importing the Hardware Sentry - Main Dashboard](../images/grafana-importing-dashboard.png)
 
 5. Click **Import**
 6. Repeat the procedure to import all the **Hardware Sentry dashboards**.
@@ -52,7 +52,7 @@ The **Hardware Sentry** dashboards are now loaded in Grafana:
 
 | Dashboard                  | Description                                                                                 |
 | -------------------------- | ------------------------------------------------------------------------------------------- |
-| **Hardware Sentry - Main** | Overview of all monitored sites                                                             |
+| **Hardware Sentry - Main** | Overview of all monitored _sites_                                                           |
 | **Hardware Sentry - Site** | Metrics associated to one _site_ (a data center or a server room) and its monitored _hosts_ |
 | **Hardware Sentry - Host** | Metrics associated to one _host_ and its internal components                                |
 
