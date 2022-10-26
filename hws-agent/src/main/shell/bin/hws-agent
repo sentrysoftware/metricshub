@@ -61,9 +61,12 @@ if [ ! -x "$JAVACMD" ] ; then
 fi
 
 HWS_JAR=`echo "$HWS_HOME"/lib/${project.artifactId}-${project.version}.jar`
+OTEL_JAR=`echo "$HWS_HOME"/otel/opentelemetry-javaagent.jar`
+OTLP_CERT=`echo "$HWS_HOME"/security/otel.crt`
+OTLP_HEADER="Authorization=Basic aHdzOlNlbnRyeVNvZnR3YXJlMSE="
 
 # Option that enables traces and metrics exports using the OTel agent
-HWS_AUTO_INST='-javaagent:"$HWS_HOME\otel\opentelemetry-javaagent.jar" -Dotel.resource.attributes=service.name=agent-service -Dotel.traces.exporter=otlp -Dotel.metrics.exporter=otlp -Dotel.exporter.otlp.endpoint=https://localhost:4317 -Dotel.exporter.otlp.certificate="$HWS_HOME\security\otel.crt" -Dotel.exporter.otlp.headers="Authorization=Basic aHdzOlNlbnRyeVNvZnR3YXJlMSE="'
+HWS_AUTO_INST="enabled"
 
 # Auto-instrumentation is enabled by default
 for arg in "$@" ; do
@@ -72,6 +75,9 @@ for arg in "$@" ; do
   fi
 done
 
-HWS_JAVA_OPTS="$HWS_JAVA_OPTS $HWS_AUTO_INST"
-
-exec "$JAVACMD" $HWS_JAVA_OPTS -jar "${HWS_JAR}" "$@"
+# If HWS_AUTO_INST is empty, launches the HWS agent without the OpenTelemetry javaagent
+if [ -z "$HWS_AUTO_INST" ] ; then
+  exec "$JAVACMD" $HWS_JAVA_OPTS -jar "${HWS_JAR}" "$@"
+else
+  exec "$JAVACMD" $HWS_JAVA_OPTS -javaagent:"$OTEL_JAR" -Dotel.resource.attributes=service.name=Hardware-Sentry-Agent -Dotel.traces.exporter=otlp -Dotel.metrics.exporter=otlp -Dotel.exporter.otlp.endpoint=https://localhost:4317 -Dotel.exporter.otlp.certificate="$OTLP_CERT" -Dotel.exporter.otlp.headers="$OTLP_HEADER" -jar "${HWS_JAR}" "$@"
+fi

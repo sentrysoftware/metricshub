@@ -13,10 +13,13 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tableun
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ucs.UcsSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WbemSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WmiSource;
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 
 public interface ISourceVisitor {
 
-	SourceTable visit(final HttpSource httpSource);
+	@WithSpan("HTTP Source")
+	SourceTable visit(@SpanAttribute("HttpSource") final HttpSource httpSource);
 
 	SourceTable visit(final Ipmi ipmi);
 
@@ -26,9 +29,11 @@ public interface ISourceVisitor {
 
 	SourceTable visit(final StaticSource staticSource);
 
-	SourceTable visit(final SnmpGetSource snmpGetSource);
+	@WithSpan("SNMP Get")
+	SourceTable visit(@SpanAttribute("SNMPGetSource") final SnmpGetSource snmpGetSource);
 
-	SourceTable visit(final SnmpGetTableSource snmpGetTableSource);
+	@WithSpan("SNMP Table")
+	SourceTable visit(@SpanAttribute("SNMPTable") final SnmpGetTableSource snmpGetTableSource);
 
 	SourceTable visit(final TableJoinSource tableJoinSource);
 
