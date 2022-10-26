@@ -51,6 +51,9 @@ import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
 import com.sentrysoftware.matrix.engine.host.HardwareHost;
 import com.sentrysoftware.matrix.engine.host.HostType;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -69,7 +72,8 @@ public class SourceVisitor implements ISourceVisitor {
 	private Connector connector;
 
 	@Override
-	public SourceTable visit(final HttpSource httpSource) {
+	@WithSpan("SourceHTTPExec")
+	public SourceTable visit(@SpanAttribute("HttpSource") final HttpSource httpSource) {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		if (httpSource == null) {
@@ -120,7 +124,8 @@ public class SourceVisitor implements ISourceVisitor {
 	}
 
 	@Override
-	public SourceTable visit(final Ipmi ipmi) {
+	@WithSpan("SourceIPMIExec")
+	public SourceTable visit(@SpanAttribute("Ipmi") final Ipmi ipmi) {
 
 		HardwareHost host = strategyConfig.getEngineConfiguration().getHost();
 		final HostType hostType = host.getType();
@@ -302,7 +307,8 @@ public class SourceVisitor implements ISourceVisitor {
 	}
 
 	@Override
-	public SourceTable visit(final OsCommandSource osCommandSource) {
+	@WithSpan("SourceOSCommandExec")
+	public SourceTable visit(@SpanAttribute("OsCommandSource") final OsCommandSource osCommandSource) {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		
@@ -358,7 +364,8 @@ public class SourceVisitor implements ISourceVisitor {
 	}
 
 	@Override
-	public SourceTable visit(final ReferenceSource referenceSource) {
+	@WithSpan("SourceReferenceExec")
+	public SourceTable visit(@SpanAttribute("ReferenceSource") final ReferenceSource referenceSource) {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		
@@ -402,7 +409,8 @@ public class SourceVisitor implements ISourceVisitor {
 	}
 
 	@Override
-	public SourceTable visit(final StaticSource staticSource) {
+	@WithSpan("SourceStaticExec")
+	public SourceTable visit(@SpanAttribute("StaticSource") final StaticSource staticSource) {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		
@@ -440,7 +448,8 @@ public class SourceVisitor implements ISourceVisitor {
 	}
 
 	@Override
-	public SourceTable visit(final SnmpGetSource snmpGetSource) {
+	@WithSpan("SourceSNMPGetExec")
+	public SourceTable visit(@SpanAttribute("SnmpGetSource") final SnmpGetSource snmpGetSource) {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		
@@ -492,7 +501,8 @@ public class SourceVisitor implements ISourceVisitor {
 	}
 
 	@Override
-	public SourceTable visit(final SnmpGetTableSource snmpGetTableSource) {
+	@WithSpan("SourceSNMPGetTableExec")
+	public SourceTable visit(@SpanAttribute("SnmpGetTableSource") final SnmpGetTableSource snmpGetTableSource) {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		
@@ -553,7 +563,8 @@ public class SourceVisitor implements ISourceVisitor {
 	}
 
 	@Override
-	public SourceTable visit(final TableJoinSource tableJoinSource) {
+	@WithSpan("SourceTableJoinExec")
+	public SourceTable visit(@SpanAttribute("TableJoinSource") final TableJoinSource tableJoinSource) {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 
@@ -611,7 +622,8 @@ public class SourceVisitor implements ISourceVisitor {
 	}
 
 	@Override
-	public SourceTable visit(final TableUnionSource tableUnionSource) {
+	@WithSpan("SourceTableUnionExec")
+	public SourceTable visit(@SpanAttribute("TableUnionSource") final TableUnionSource tableUnionSource) {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		
@@ -681,7 +693,8 @@ public class SourceVisitor implements ISourceVisitor {
 	}
 
 	@Override
-	public SourceTable visit(final SshInteractiveSource sshInteractiveSource) {
+	@WithSpan("SourceSSHInteractiveExec")
+	public SourceTable visit(@SpanAttribute("SshInteractiveSource") final SshInteractiveSource sshInteractiveSource) {
 
 		try {
 			final List<String> result =
@@ -719,12 +732,14 @@ public class SourceVisitor implements ISourceVisitor {
 	}
 
 	@Override
-	public SourceTable visit(final UcsSource ucsSource) {
+	@WithSpan("SourceUCSExec")
+	public SourceTable visit(@SpanAttribute("UcsSource") final UcsSource ucsSource) {
 		return SourceTable.empty();
 	}
 
 	@Override
-	public SourceTable visit(final WbemSource wbemSource) {
+	@WithSpan("SourceWBEMExec")
+	public SourceTable visit(@SpanAttribute("WbemSource") final WbemSource wbemSource) {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		
@@ -791,7 +806,8 @@ public class SourceVisitor implements ISourceVisitor {
 	}
 
 	@Override
-	public SourceTable visit(final WmiSource wmiSource) {
+	@WithSpan("SourceWMIExec")
+	public SourceTable visit(@SpanAttribute("WmiSource") final WmiSource wmiSource) {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		

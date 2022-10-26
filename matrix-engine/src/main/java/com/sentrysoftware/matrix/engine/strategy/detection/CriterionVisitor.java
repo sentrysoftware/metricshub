@@ -59,6 +59,8 @@ import com.sentrysoftware.matrix.engine.strategy.utils.WqlDetectionHelper.Possib
 
 import com.sentrysoftware.matrix.engine.host.HardwareHost;
 import com.sentrysoftware.matrix.engine.host.HostType;
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -85,7 +87,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 	private Connector connector;
 
 	@Override
-	public CriterionTestResult visit(final Http criterion) {
+	@WithSpan("CriterionHTTPExec")
+	public CriterionTestResult visit(@SpanAttribute("Http") final Http criterion) {
 
 		if (criterion == null) {
 			return CriterionTestResult.empty();
@@ -179,7 +182,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 	}
 
 	@Override
-	public CriterionTestResult visit(final Ipmi ipmi) {
+	@WithSpan("CriterionIPMIExec")
+	public CriterionTestResult visit(@SpanAttribute("Ipmi") final Ipmi ipmi) {
 
 		final HardwareHost host = strategyConfig.getEngineConfiguration().getHost();
 		final HostType hostType = host.getType();
@@ -456,13 +460,15 @@ public class CriterionVisitor implements ICriterionVisitor {
 	}
 
 	@Override
-	public CriterionTestResult visit(final KmVersion kmVersion) {
+	@WithSpan("CriterionKmVersionExec")
+	public CriterionTestResult visit(@SpanAttribute("KmVersion") final KmVersion kmVersion) {
 		// Not implemented yet
 		return CriterionTestResult.empty();
 	}
 
 	@Override
-	public CriterionTestResult visit(final Os os) {
+	@WithSpan("CriterionOsExec")
+	public CriterionTestResult visit(@SpanAttribute("Os") final Os os) {
 		if (os == null) {
 			log.error("Hostname {} - Malformed OS criterion {}. Cannot process OS detection.",
 					strategyConfig.getEngineConfiguration().getHost().getHostname(), os);
@@ -512,7 +518,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 	}
 
 	@Override
-	public CriterionTestResult visit(final OsCommand osCommand) {
+	@WithSpan("CriterionOsCommandExec")
+	public CriterionTestResult visit(@SpanAttribute("OsCommand") final OsCommand osCommand) {
 		if (osCommand == null || osCommand.getCommandLine() == null) {
 			return CriterionTestResult.error(osCommand, "Malformed OSCommand criterion.");
 		}
@@ -556,7 +563,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 	}
 
 	@Override
-	public CriterionTestResult visit(final Process process) {
+	@WithSpan("CriterionProcessExec")
+	public CriterionTestResult visit(@SpanAttribute("Process") final Process process) {
 		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 
 		if (process == null || process.getProcessCommandLine() == null) {
@@ -602,7 +610,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 	}
 
 	@Override
-	public CriterionTestResult visit(final Service service) {
+	@WithSpan("CriterionServiceExec")
+	public CriterionTestResult visit(@SpanAttribute("Service") final Service service) {
 
 		// Sanity checks
 		if (service == null  ||  service.getServiceName() == null) {
@@ -664,7 +673,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 	}
 
 	@Override
-	public CriterionTestResult visit(final SnmpGet snmpGet) {
+	@WithSpan("CriterionSNMPGetExec")
+	public CriterionTestResult visit(@SpanAttribute("SnmpGet") final SnmpGet snmpGet) {
 		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		if (null == snmpGet || snmpGet.getOid() == null) {
 			log.error("Hostname {} - Malformed SNMP Get criterion {}. Cannot process SNMP Get detection.", hostname, snmpGet);
@@ -787,7 +797,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 	}
 
 	@Override
-	public CriterionTestResult visit(final SshInteractive sshInteractive) {
+	@WithSpan("CriterionSSHInteractiveExec")
+	public CriterionTestResult visit(@SpanAttribute("SshInteractive") final SshInteractive sshInteractive) {
 		if (sshInteractive == null || sshInteractive.getSteps() == null) {
 			return CriterionTestResult.error(sshInteractive, "Malformed SshInteractive criterion.");
 		}
@@ -839,13 +850,15 @@ public class CriterionVisitor implements ICriterionVisitor {
 	}
 
 	@Override
-	public CriterionTestResult visit(final Ucs ucs) {
+	@WithSpan("CriterionUcsExec")
+	public CriterionTestResult visit(@SpanAttribute("Ucs") final Ucs ucs) {
 		// Not implemented yet
 		return CriterionTestResult.empty();
 	}
 
 	@Override
-	public CriterionTestResult visit(final Wbem wbemCriterion) {
+	@WithSpan("CriterionWBEMExec")
+	public CriterionTestResult visit(@SpanAttribute("WbemCriterion") final Wbem wbemCriterion) {
 
 		// Sanity check
 		if (wbemCriterion == null || wbemCriterion.getWbemQuery() == null) {
@@ -941,7 +954,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 	}
 
 	@Override
-	public CriterionTestResult visit(final Wmi wmiCriterion) {
+	@WithSpan("CriterionWMIExec")
+	public CriterionTestResult visit(@SpanAttribute("WmiCriterion") final Wmi wmiCriterion) {
 
 		// Sanity check
 		if (wmiCriterion == null || wmiCriterion.getWbemQuery() == null) {
@@ -1066,7 +1080,8 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 
 	@Override
-	public CriterionTestResult visit(final SnmpGetNext snmpGetNext) {
+	@WithSpan("CriterionSNMPGetNextExec")
+	public CriterionTestResult visit(@SpanAttribute("SnmpGetNext") final SnmpGetNext snmpGetNext) {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 

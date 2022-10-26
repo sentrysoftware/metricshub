@@ -18,8 +18,7 @@ import io.opentelemetry.instrumentation.annotations.WithSpan;
 
 public interface ISourceVisitor {
 
-	@WithSpan("HTTP Source")
-	SourceTable visit(@SpanAttribute("HttpSource") final HttpSource httpSource);
+	SourceTable visit(final HttpSource httpSource);
 
 	SourceTable visit(final Ipmi ipmi);
 
@@ -29,11 +28,9 @@ public interface ISourceVisitor {
 
 	SourceTable visit(final StaticSource staticSource);
 
-	@WithSpan("SNMP Get")
-	SourceTable visit(@SpanAttribute("SNMPGetSource") final SnmpGetSource snmpGetSource);
+	SourceTable visit(final SnmpGetSource snmpGetSource);
 
-	@WithSpan("SNMP Table")
-	SourceTable visit(@SpanAttribute("SNMPTable") final SnmpGetTableSource snmpGetTableSource);
+	SourceTable visit(final SnmpGetTableSource snmpGetTableSource);
 
 	SourceTable visit(final TableJoinSource tableJoinSource);
 

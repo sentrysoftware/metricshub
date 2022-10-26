@@ -56,6 +56,8 @@ import com.sentrysoftware.matrix.engine.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.engine.strategy.utils.FilterResultHelper;
 import com.sentrysoftware.matrix.engine.strategy.utils.PslUtils;
 
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -119,7 +121,8 @@ public class ComputeVisitor implements IComputeVisitor {
 	}
 
 	@Override
-	public void visit(final Add add) {
+	@WithSpan("ComputeAddExec")
+	public void visit(@SpanAttribute("Add") final Add add) {
 
 		if (add == null) {
 			log.warn("Hostname {} - Compute Operation (Add) is null, the table remains unchanged.", hostname);
@@ -143,7 +146,8 @@ public class ComputeVisitor implements IComputeVisitor {
 	}
 
 	@Override
-	public void visit(final ArrayTranslate arrayTranslate) {
+	@WithSpan("ComputeArrayTranslateExec")
+	public void visit(@SpanAttribute("ArrayTranslate") final ArrayTranslate arrayTranslate) {
 
 		if (arrayTranslate == null) {
 			log.warn("Hostname {} - The Source (Array Translate) to visit is null, the array translate computation cannot be performed.", hostname);
@@ -223,7 +227,8 @@ public class ComputeVisitor implements IComputeVisitor {
 	}
 
 	@Override
-	public void visit(final And and) {
+	@WithSpan("ComputeAndExec")
+	public void visit(@SpanAttribute("And") final And and) {
 
 		if (and == null) {
 			log.warn("Hostname {} - Compute Operation (And) is null, the table remains unchanged.", hostname);
@@ -264,7 +269,8 @@ public class ComputeVisitor implements IComputeVisitor {
 	}
 
 	@Override
-	public void visit(final Awk awk) {
+	@WithSpan("ComputeAwkExec")
+	public void visit(@SpanAttribute("Awk") final Awk awk) {
 
 		if (awk == null) {
 			log.warn("Hostname {} - Compute Operation (Awk) is null, the table remains unchanged.", hostname);
@@ -329,7 +335,8 @@ public class ComputeVisitor implements IComputeVisitor {
 	}
 
 	@Override
-	public void visit(final Convert convert) {
+	@WithSpan("ComputeConvertExec")
+	public void visit(@SpanAttribute("Convert") final Convert convert) {
 
 		if (!checkConvert(convert)) {
 			log.warn("Hostname {} - The convert {} is not valid, the table remains unchanged.",
@@ -427,7 +434,8 @@ public class ComputeVisitor implements IComputeVisitor {
 	}
 
 	@Override
-	public void visit(final Divide divide) {
+	@WithSpan("ComputeDivideExec")
+	public void visit(@SpanAttribute("Divide") final Divide divide) {
 		
 		if (divide == null) {
 			log.warn("Hostname {} - Compute Operation (Divide) is null, the table remains unchanged.", hostname);
@@ -454,7 +462,8 @@ public class ComputeVisitor implements IComputeVisitor {
 	}
 
 	@Override
-	public void visit(final DuplicateColumn duplicateColumn) {
+	@WithSpan("ComputeDuplicateColumnExec")
+	public void visit(@SpanAttribute("DuplicateColumn") final DuplicateColumn duplicateColumn) {
 
 		if (duplicateColumn == null) {
 			log.warn("Hostname {} - Duplicate Column object is null, the table remains unchanged.", hostname);
@@ -478,13 +487,15 @@ public class ComputeVisitor implements IComputeVisitor {
 	}
 
 	@Override
-	public void visit(final ExcludeMatchingLines excludeMatchingLines) {
+	@WithSpan("ComputeExcludeMatchingLinesExec")
+	public void visit(@SpanAttribute("ExcludeMatchingLines") final ExcludeMatchingLines excludeMatchingLines) {
 
 		processAbstractMatchingLines(excludeMatchingLines);
 	}
 
 	@Override
-	public void visit(final Extract extract) {
+	@WithSpan("ComputeExtractExec")
+	public void visit(@SpanAttribute("Extract") final Extract extract) {
 
 		if (extract == null) {
 			log.warn("Hostname {} - Extract object is null, the table remains unchanged.", hostname);
@@ -542,7 +553,8 @@ public class ComputeVisitor implements IComputeVisitor {
 	}
 
 	@Override
-	public void visit(final ExtractPropertyFromWbemPath extractPropertyFromWbemPath) {
+	@WithSpan("ComputeExtractPropertyFromWbemPathExec")
+	public void visit(@SpanAttribute("ExtractPropertyFromWbemPath") final ExtractPropertyFromWbemPath extractPropertyFromWbemPath) {
 
 		if (extractPropertyFromWbemPath == null) {
 			log.warn("Hostname {} - Compute Operation (ExtractPropertyFromWbemPath) is null, the table remains unchanged.", hostname);
@@ -588,7 +600,8 @@ public class ComputeVisitor implements IComputeVisitor {
 	}
 
 	@Override
-	public void visit(final Json2Csv json2csv) {
+	@WithSpan("ComputeJson2CsvExec")
+	public void visit(@SpanAttribute("Json2Csv") final Json2Csv json2csv) {
 
 		if (json2csv == null) {
 			log.warn("Hostname {} - Compute Operation (Json2CSV) is null, the table remains unchanged.", hostname);
@@ -615,7 +628,8 @@ public class ComputeVisitor implements IComputeVisitor {
 	}
 
 	@Override
-	public void visit(final KeepColumns keepColumns) {
+	@WithSpan("ComputeKeepColumnsExec")
+	public void visit(@SpanAttribute("KeepColumns") final KeepColumns keepColumns) {
 
 		if (keepColumns == null) {
 			log.warn("Hostname {} - KeepColumns object is null, the table remains unchanged.", hostname);
@@ -656,7 +670,8 @@ public class ComputeVisitor implements IComputeVisitor {
 	}
 
 	@Override
-	public void visit(final KeepOnlyMatchingLines keepOnlyMatchingLines) {
+	@WithSpan("ComputeKeepOnlyMatchingLinesExec")
+	public void visit(@SpanAttribute("KeepOnlyMatchingLines") final KeepOnlyMatchingLines keepOnlyMatchingLines) {
 
 		processAbstractMatchingLines(keepOnlyMatchingLines);
 	}
@@ -741,7 +756,8 @@ public class ComputeVisitor implements IComputeVisitor {
 	}
 
 	@Override
-	public void visit(final LeftConcat leftConcat) {
+	@WithSpan("ComputeLeftConcatExec")
+	public void visit(@SpanAttribute("LeftConcat") final LeftConcat leftConcat) {
 
 		processAbstractConcat(leftConcat);
 	}
@@ -848,7 +864,8 @@ public class ComputeVisitor implements IComputeVisitor {
 	}
 
 	@Override
-	public void visit(final Multiply multiply) {
+	@WithSpan("ComputeMultiplyExec")
+	public void visit(@SpanAttribute("Multiply") final Multiply multiply) {
 		
 		if (multiply == null) {
 			log.warn("Hostname {} - Compute Operation (Multiply) is null, the table remains unchanged.", hostname);
@@ -874,7 +891,8 @@ public class ComputeVisitor implements IComputeVisitor {
 	}
 
 	@Override
-	public void visit(final PerBitTranslation perBitTranslation) {
+	@WithSpan("ComputePerBitTranslationExec")
+	public void visit(@SpanAttribute("PerBitTranslation") final PerBitTranslation perBitTranslation) {
 
 		if (!perBitTranslationCheck(perBitTranslation)) {
 			return;
@@ -957,7 +975,8 @@ public class ComputeVisitor implements IComputeVisitor {
 	}
 
 	@Override
-	public void visit(final Replace replace) {
+	@WithSpan("ComputeReplaceExec")
+	public void visit(@SpanAttribute("Replace") final Replace replace) {
 
 		if (replace == null) {
 			log.warn("Hostname {} - Compute Operation (Replace) is null, the table remains unchanged.", hostname);
@@ -1030,13 +1049,15 @@ public class ComputeVisitor implements IComputeVisitor {
 	}
 
 	@Override
-	public void visit(final RightConcat rightConcat) {
+	@WithSpan("ComputeRightConcatExec")
+	public void visit(@SpanAttribute("RightConcat") final RightConcat rightConcat) {
 
 		processAbstractConcat(rightConcat);
 	}
 
 	@Override
-	public void visit(final Substract substract) {
+	@WithSpan("ComputeSubtractExec")
+	public void visit(@SpanAttribute("Subtract") final Substract substract) {
 
 		if (substract == null) {
 			log.warn("Hostname {} - Compute Operation (Substract) is null, the table remains unchanged.", hostname);
@@ -1064,7 +1085,8 @@ public class ComputeVisitor implements IComputeVisitor {
 	}
 
 	@Override
-	public void visit(final Substring substring) {
+	@WithSpan("ComputeSubstringExec")
+	public void visit(@SpanAttribute("Substring") final Substring substring) {
 
 		if (!checkSubstring(substring)) {
 			log.warn("Hostname {} - The substring {} is not valid, the table remains unchanged.", hostname, substring);
@@ -1216,7 +1238,8 @@ public class ComputeVisitor implements IComputeVisitor {
 	}
 
 	@Override
-	public void visit(final Translate translate) {
+	@WithSpan("ComputeTranslateExec")
+	public void visit(@SpanAttribute("Translate") final Translate translate) {
 
 		if (translate == null) {
 			log.warn("Hostname {} - The Source (Translate) to visit is null, the translate computation cannot be performed.", hostname);
@@ -1275,7 +1298,8 @@ public class ComputeVisitor implements IComputeVisitor {
 	}
 
 	@Override
-	public void visit(final Xml2Csv xml2csv) {
+	@WithSpan("ComputeXml2CsvExec")
+	public void visit(@SpanAttribute("Xml2Csv") final Xml2Csv xml2csv) {
 		
 		if (xml2csv == null) {
 			log.warn("Hostname {} - Compute Operation (Xml2Csv) is null, the table remains unchanged.", hostname);
