@@ -188,6 +188,12 @@ service:
       processors: [memory_limiter, batch, resourcedetection, metricstransform]
       exporters: [prometheusremotewrite/your-server] # List here the platform of your choice
 
+    # Uncomment the section below to enable tracing of hardware sentry agent.
+    # traces:
+    #   receivers: [otlp]
+    #   processors: [memory_limiter, batch, resourcedetection]
+    #   exporters: [logging, datadog/api] # List here the platforms on which you want to see the traces
+
     # Uncomment the section below to enable logging of hardware alerts.
     # logs:
     #   receivers: [otlp]
