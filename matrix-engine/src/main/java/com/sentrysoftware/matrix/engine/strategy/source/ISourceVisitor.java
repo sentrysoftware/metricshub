@@ -13,8 +13,6 @@ import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.tableun
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.ucs.UcsSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wbem.WbemSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WmiSource;
-import io.opentelemetry.instrumentation.annotations.SpanAttribute;
-import io.opentelemetry.instrumentation.annotations.WithSpan;
 
 public interface ISourceVisitor {
 

@@ -51,7 +51,6 @@ import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
 import com.sentrysoftware.matrix.engine.host.HardwareHost;
 import com.sentrysoftware.matrix.engine.host.HostType;
-import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.AllArgsConstructor;
@@ -72,7 +71,7 @@ public class SourceVisitor implements ISourceVisitor {
 	private Connector connector;
 
 	@Override
-	@WithSpan("SourceHTTPExec")
+	@WithSpan("SourceHttpExec")
 	public SourceTable visit(@SpanAttribute("HttpSource") final HttpSource httpSource) {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
@@ -124,7 +123,7 @@ public class SourceVisitor implements ISourceVisitor {
 	}
 
 	@Override
-	@WithSpan("SourceIPMIExec")
+	@WithSpan("SourceIpmiExec")
 	public SourceTable visit(@SpanAttribute("Ipmi") final Ipmi ipmi) {
 
 		HardwareHost host = strategyConfig.getEngineConfiguration().getHost();
@@ -307,7 +306,7 @@ public class SourceVisitor implements ISourceVisitor {
 	}
 
 	@Override
-	@WithSpan("SourceOSCommandExec")
+	@WithSpan("SourceOsCommandExec")
 	public SourceTable visit(@SpanAttribute("OsCommandSource") final OsCommandSource osCommandSource) {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
@@ -448,7 +447,7 @@ public class SourceVisitor implements ISourceVisitor {
 	}
 
 	@Override
-	@WithSpan("SourceSNMPGetExec")
+	@WithSpan("SourceSnmpGetExec")
 	public SourceTable visit(@SpanAttribute("SnmpGetSource") final SnmpGetSource snmpGetSource) {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
@@ -501,7 +500,7 @@ public class SourceVisitor implements ISourceVisitor {
 	}
 
 	@Override
-	@WithSpan("SourceSNMPGetTableExec")
+	@WithSpan("SourceSnmpGetTableExec")
 	public SourceTable visit(@SpanAttribute("SnmpGetTableSource") final SnmpGetTableSource snmpGetTableSource) {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
@@ -693,7 +692,7 @@ public class SourceVisitor implements ISourceVisitor {
 	}
 
 	@Override
-	@WithSpan("SourceSSHInteractiveExec")
+	@WithSpan("SourceSshInteractiveExec")
 	public SourceTable visit(@SpanAttribute("SshInteractiveSource") final SshInteractiveSource sshInteractiveSource) {
 
 		try {
@@ -732,13 +731,13 @@ public class SourceVisitor implements ISourceVisitor {
 	}
 
 	@Override
-	@WithSpan("SourceUCSExec")
+	@WithSpan("SourceUcsExec")
 	public SourceTable visit(@SpanAttribute("UcsSource") final UcsSource ucsSource) {
 		return SourceTable.empty();
 	}
 
 	@Override
-	@WithSpan("SourceWBEMExec")
+	@WithSpan("SourceWbemExec")
 	public SourceTable visit(@SpanAttribute("WbemSource") final WbemSource wbemSource) {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
@@ -806,7 +805,7 @@ public class SourceVisitor implements ISourceVisitor {
 	}
 
 	@Override
-	@WithSpan("SourceWMIExec")
+	@WithSpan("SourceWmiExec")
 	public SourceTable visit(@SpanAttribute("WmiSource") final WmiSource wmiSource) {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
@@ -836,7 +835,7 @@ public class SourceVisitor implements ISourceVisitor {
 
 		try {
 
-			final List<List<String>> table =
+		final List<List<String>> table =
 					matsyaClientsExecutor.executeWql(hostname, protocol, wmiSource.getWbemQuery(), namespace);
 
 			return SourceTable

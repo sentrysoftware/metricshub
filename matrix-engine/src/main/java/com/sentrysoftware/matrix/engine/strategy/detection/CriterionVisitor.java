@@ -87,7 +87,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 	private Connector connector;
 
 	@Override
-	@WithSpan("CriterionHTTPExec")
+	@WithSpan("CriterionHttpExec")
 	public CriterionTestResult visit(@SpanAttribute("Http") final Http criterion) {
 
 		if (criterion == null) {
@@ -182,7 +182,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 	}
 
 	@Override
-	@WithSpan("CriterionIPMIExec")
+	@WithSpan("CriterionIpmiExec")
 	public CriterionTestResult visit(@SpanAttribute("Ipmi") final Ipmi ipmi) {
 
 		final HardwareHost host = strategyConfig.getEngineConfiguration().getHost();
@@ -673,7 +673,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 	}
 
 	@Override
-	@WithSpan("CriterionSNMPGetExec")
+	@WithSpan("CriterionSnmpGetExec")
 	public CriterionTestResult visit(@SpanAttribute("SnmpGet") final SnmpGet snmpGet) {
 		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		if (null == snmpGet || snmpGet.getOid() == null) {
@@ -797,7 +797,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 	}
 
 	@Override
-	@WithSpan("CriterionSSHInteractiveExec")
+	@WithSpan("CriterionSshInteractiveExec")
 	public CriterionTestResult visit(@SpanAttribute("SshInteractive") final SshInteractive sshInteractive) {
 		if (sshInteractive == null || sshInteractive.getSteps() == null) {
 			return CriterionTestResult.error(sshInteractive, "Malformed SshInteractive criterion.");
@@ -857,7 +857,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 	}
 
 	@Override
-	@WithSpan("CriterionWBEMExec")
+	@WithSpan("CriterionWbemExec")
 	public CriterionTestResult visit(@SpanAttribute("WbemCriterion") final Wbem wbemCriterion) {
 
 		// Sanity check
@@ -954,7 +954,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 	}
 
 	@Override
-	@WithSpan("CriterionWMIExec")
+	@WithSpan("CriterionWmiExec")
 	public CriterionTestResult visit(@SpanAttribute("WmiCriterion") final Wmi wmiCriterion) {
 
 		// Sanity check
@@ -1080,7 +1080,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 
 	@Override
-	@WithSpan("CriterionSNMPGetNextExec")
+	@WithSpan("CriterionSnmpGetNextExec")
 	public CriterionTestResult visit(@SpanAttribute("SnmpGetNext") final SnmpGetNext snmpGetNext) {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
