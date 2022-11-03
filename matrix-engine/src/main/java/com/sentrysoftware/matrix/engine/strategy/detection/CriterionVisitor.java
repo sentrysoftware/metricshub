@@ -183,7 +183,7 @@ public class CriterionVisitor implements ICriterionVisitor {
 
 	@Override
 	@WithSpan("Criterion IPMI Exec")
-	public CriterionTestResult visit(@SpanAttribute("criterion.definition")  final Ipmi ipmi) {
+	public CriterionTestResult visit(@SpanAttribute("criterion.definition") final Ipmi ipmi) {
 
 		final HardwareHost host = strategyConfig.getEngineConfiguration().getHost();
 		final HostType hostType = host.getType();
