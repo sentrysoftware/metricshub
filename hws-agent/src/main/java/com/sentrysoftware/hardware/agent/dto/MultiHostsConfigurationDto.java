@@ -10,6 +10,7 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.sentrysoftware.hardware.agent.deserialization.HostsDeserializer;
 import com.sentrysoftware.hardware.agent.deserialization.TimeDeserializer;
 import com.sentrysoftware.hardware.agent.dto.exporter.ExporterConfigDto;
 import com.sentrysoftware.hardware.agent.dto.exporter.OtlpConfigDto;
@@ -36,8 +37,13 @@ public class MultiHostsConfigurationDto {
 
 	@Default
 	@JsonSetter(nulls = SKIP)
+	@JsonDeserialize(using = HostsDeserializer.class)
 	private Set<HostConfigurationDto> hosts = new HashSet<>();
 
+	@Default
+	@JsonSetter(nulls = SKIP)
+	private Set<HostGroupConfigurationDto> hostGroups = new HashSet<>();
+	
 	@Default
 	private int jobPoolSize = DEFAULT_JOB_POOL_SIZE;
 
