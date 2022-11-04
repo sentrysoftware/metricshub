@@ -117,11 +117,11 @@ public class StrategyTask implements Runnable {
 
 		// Emit the log to OpenTelemetry Collector
 		logEmitter
-			.logBuilder()
+			.logRecordBuilder()
 			.setBody(message)
 			.setSeverity(severity)
 			.setSeverityText(severity.name())
-			.setAttributes(autoConfiguredOpenTelemetrySdk.getResource().getAttributes())
+			.setAllAttributes(autoConfiguredOpenTelemetrySdk.getResource().getAttributes())
 			.setContext(Context.current())
 			.setEpoch(OtelAlertHelper.getAlertTime(alertInfo), TimeUnit.MILLISECONDS)
 			.emit();

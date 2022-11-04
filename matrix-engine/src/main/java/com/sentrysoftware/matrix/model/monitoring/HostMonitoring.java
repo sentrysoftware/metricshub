@@ -23,6 +23,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.util.Assert;
@@ -440,8 +442,9 @@ public class HostMonitoring implements IHostMonitoring {
 	 *
 	 * @return				The {@link EngineResult} resulting from the execution of the last given {@link IStrategy}.
 	 */
+	@WithSpan
 	@Override
-	public synchronized EngineResult run(final IStrategy... strategies) {
+	public synchronized EngineResult run(@SpanAttribute("hostMonitoring.strategies") final IStrategy... strategies) {
 
 		final String hostname = engineConfiguration.getHost().getHostname();
 
@@ -474,7 +477,8 @@ public class HostMonitoring implements IHostMonitoring {
 	 *
 	 * @return			The {@link EngineResult} resulting from the execution of the given {@link IStrategy}.
 	 */
-	private EngineResult run(@NonNull final IStrategy strategy) {
+	@WithSpan
+	private EngineResult run(@NonNull @SpanAttribute("hostMonitoring.strategy") final IStrategy strategy) {
 		final ApplicationContext applicationContext = createApplicationContext(strategy);
 		final String hostname = engineConfiguration.getHost().getHostname();
 

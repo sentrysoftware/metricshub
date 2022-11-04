@@ -24,6 +24,7 @@
 					<include>wsdl/**</include>
 					<include>xsd/**</include>
 					<include>*.properties</include>
+					<include>io/**</include>
 				</includes>
 				<excludes>
 					<exclude>org/slf4j/impl/**</exclude>
