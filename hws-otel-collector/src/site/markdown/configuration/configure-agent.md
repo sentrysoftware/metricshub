@@ -259,7 +259,7 @@ Use the parameters below to configure the WBEM protocol:
 | timeout   | How long until the WBEM request times out (Default: 120s).                                     |
 | username  | Name used to establish the connection with the host via the WBEM protocol.                     |
 | password  | Password used to establish the connection with the host via the WBEM protocol.                 |
-|vcenter    | vCenter hostname providing the authentication ticket, if applicable.|
+| vcenter    | vCenter hostname providing the authentication ticket, if applicable.|
 
 **Example**
 
