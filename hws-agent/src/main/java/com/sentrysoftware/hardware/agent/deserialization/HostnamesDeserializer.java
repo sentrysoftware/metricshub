@@ -24,11 +24,10 @@ public class HostnamesDeserializer extends JsonDeserializer<IHostnames> {
 				.set(parser.readValueAs(new TypeReference<Set<String>>(){}))
 				.build();
 		}
-		
+
 		return HostnameMapDto
 			.builder()
 			.map(parser.readValueAs(new TypeReference<Map<String, HostnameInfoDto>>(){}))
 			.build();
 	}
-
 }
