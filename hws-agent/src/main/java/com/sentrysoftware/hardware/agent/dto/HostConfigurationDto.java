@@ -1,8 +1,18 @@
 package com.sentrysoftware.hardware.agent.dto;
 
-import java.util.Map;
-import java.util.Set;
+import static com.fasterxml.jackson.annotation.Nulls.SKIP;
+import static com.sentrysoftware.hardware.agent.configuration.ConfigHelper.DEFAULT_OUTPUT_DIRECTORY;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.sentrysoftware.hardware.agent.deserialization.TimeDeserializer;
 import com.sentrysoftware.hardware.agent.dto.protocol.HttpProtocolDto;
 import com.sentrysoftware.hardware.agent.dto.protocol.IpmiOverLanProtocolDto;
 import com.sentrysoftware.hardware.agent.dto.protocol.OsCommandConfigDto;
@@ -11,79 +21,149 @@ import com.sentrysoftware.hardware.agent.dto.protocol.SshProtocolDto;
 import com.sentrysoftware.hardware.agent.dto.protocol.WbemProtocolDto;
 import com.sentrysoftware.hardware.agent.dto.protocol.WinRmProtocolDto;
 import com.sentrysoftware.hardware.agent.dto.protocol.WmiProtocolDto;
+import com.sentrysoftware.matrix.engine.EngineConfiguration;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.ToString;
 
 /**
  * DTO to wrap the agent configuration for one specific host.
  */
 @Data
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
-public class HostConfigurationDto extends AbstractHostConfiguration {
+@AllArgsConstructor
+@Builder
+public class HostConfigurationDto {
 
-	@NonNull
 	private HardwareHostDto host;
 
-	private boolean generated;
+	private HardwareHostGroupDto hostGroup;
+	
+	@Default
+	private int operationTimeout = EngineConfiguration.DEFAULT_JOB_TIMEOUT;
 
-	@Builder
-	public HostConfigurationDto(
-		int operationTimeout,
-		SnmpProtocolDto snmp,
-		IpmiOverLanProtocolDto ipmi,
-		SshProtocolDto ssh,
-		WbemProtocolDto wbem,
-		WmiProtocolDto wmi,
-		HttpProtocolDto http,
-		OsCommandConfigDto osCommand,
-		WinRmProtocolDto winRm,
-		Set<String> selectedConnectors,
-		Set<String> excludedConnectors,
-		Long collectPeriod,
-		Integer discoveryCycle,
-		String loggerLevel,
-		String outputDirectory, 
-		Map<String, String> extraLabels,
-		Boolean sequential,
-		String hardwareProblemTemplate,
-		Boolean disableAlerts,
-		HardwareHostDto host,
-		boolean generated
-	) {
-		super(
-			operationTimeout,
-			snmp,
-			ipmi,
-			ssh,
-			wbem,
-			wmi,
-			http,
-			osCommand,
-			winRm,
-			selectedConnectors,
-			excludedConnectors,
-			collectPeriod,
-			discoveryCycle,
-			loggerLevel,
-			outputDirectory,
-			extraLabels,
-			sequential,
-			hardwareProblemTemplate,
-			disableAlerts
-		);
+	private SnmpProtocolDto snmp;
 
-		if (host == null) {
-			throw new IllegalArgumentException("host field is marked non-null but is null.");
+	private IpmiOverLanProtocolDto ipmi;
+
+	private SshProtocolDto ssh;
+
+	private WbemProtocolDto wbem;
+
+	private WmiProtocolDto wmi;
+
+	private HttpProtocolDto http;
+
+	private OsCommandConfigDto osCommand;
+
+	private WinRmProtocolDto winRm;
+
+	@Default
+	@JsonSetter(nulls = SKIP)
+	private Set<String> selectedConnectors = new HashSet<>();
+
+	@Default
+	@JsonSetter(nulls = SKIP)
+	private Set<String> excludedConnectors = new HashSet<>();
+
+	@JsonDeserialize(using = TimeDeserializer.class)
+	private Long collectPeriod;
+	private Integer discoveryCycle;
+
+	@Default
+	private String loggerLevel = "OFF";
+
+	@Default
+	private String outputDirectory = DEFAULT_OUTPUT_DIRECTORY.toString();
+
+	@Default
+	@JsonSetter(nulls = SKIP)
+	private Map<String, String> extraLabels = new HashMap<>();
+
+	private Boolean sequential;
+
+	private String hardwareProblemTemplate;
+
+	private Boolean disableAlerts;
+
+	/** Extract hosts from hostGroup
+	 * 
+	 * @return
+	 */
+	public Set<HostConfigurationDto> resolveHostGroups() {
+		Set<String> hostnames = hostGroup.getHostnames().getEntries();
+		return hostnames
+			.stream()
+			.map(hostname -> HostConfigurationDto
+				.builder()
+				.host(HardwareHostDto
+					.builder()
+					.hostname(hostname)
+					.id(hostname)
+					.type(hostGroup.getType())
+					.build()
+				)
+				.operationTimeout(operationTimeout)
+				.snmp(snmp)
+				.ipmi(ipmi)
+				.ssh(ssh)
+				.wbem(wbem)
+				.wmi(wmi)
+				.http(http)
+				.osCommand(osCommand)
+				.winRm(winRm)
+				.selectedConnectors(selectedConnectors)
+				.excludedConnectors(excludedConnectors)
+				.collectPeriod(collectPeriod)
+				.discoveryCycle(discoveryCycle)
+				.loggerLevel(loggerLevel)
+				.outputDirectory(outputDirectory)
+				.extraLabels(mergeExtraLabels(hostname))
+				.sequential(sequential)
+				.hardwareProblemTemplate(hardwareProblemTemplate)
+				.disableAlerts(disableAlerts)
+				.build()
+			)
+			.collect(Collectors.toSet());
+	}
+
+	/** Merge hostGroup extraLabels with host extraLabels (Priority to host)
+	 * 
+	 * @param hostname
+	 * @return
+	 */
+	private Map<String, String> mergeExtraLabels(String hostname) {
+		final Map<String, String> finalExtraLabels = new HashMap<>();
+		finalExtraLabels.putAll(extraLabels);
+		Optional<HostnameInfoDto> possibleHostnameInfo = hostGroup.getHostnames().getHostnameInfo(hostname);
+		if (possibleHostnameInfo.isPresent()) {
+			HostnameInfoDto hostnameInfo = possibleHostnameInfo.get();
+			Map<String, String> hostnameExtraLabels = hostnameInfo.getExtraLabels();
+			if (hostnameExtraLabels != null) {
+				finalExtraLabels.putAll(hostnameExtraLabels);
+			}
 		}
 
-		this.host = host;
-		this.generated = generated;
+		return finalExtraLabels;
 	}
+
+	/**
+	 * 
+	 * @return Whether the given hostConfigurationDto is a hostGroup or not.
+	 */
+	public boolean isHostGroup() {
+		return hostGroup != null;
+	}
+	
+	/**
+	 * 
+	 * @return Whether the given hostConfigurationDto is a single host or not.
+	 */
+	public boolean isSingleHost() {
+		return host != null;
+	}
+	
 }

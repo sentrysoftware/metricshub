@@ -436,7 +436,9 @@ class ConfigHelperTest {
 	@Test
 	void testHostGroups() {
 		MultiHostsConfigurationDto multiHostsConfigurationDto = ConfigHelper.readConfigurationSafe(new File("src/test/resources/data/hws-config-hostgroups.yaml"));
-		assertEquals(5, multiHostsConfigurationDto.getHosts().size());
+		assertEquals(7, multiHostsConfigurationDto.getResolvedHosts().size());
+
+		MultiHostsConfigurationDto expectedMultiHostsConfigurationDto = MultiHostsConfigurationDto.builder().build();
 
 		HostConfigurationDto testHost = HostConfigurationDto
 			.builder()
@@ -446,9 +448,33 @@ class ConfigHelperTest {
 				.type(HostType.LINUX)
 				.build())
 			.snmp(SnmpProtocolDto.builder().build())
+			.collectPeriod(180L)
+			.discoveryCycle(45)
 			.selectedConnectors(Set.of(DELL_OPEN_MANAGE_CONNECTOR))
 			.build();
-		
-		assertTrue(multiHostsConfigurationDto.getHosts().contains(testHost));
+
+		expectedMultiHostsConfigurationDto.getHosts().add(testHost);
+		ConfigHelper.normalizeHostConfigurations(expectedMultiHostsConfigurationDto);
+
+		assertEquals(testHost, multiHostsConfigurationDto.getResolvedHosts().stream().filter(host -> "host1".equals(host.getHost().getHostname())).findFirst().orElse(null));		
+
+		testHost = HostConfigurationDto
+			.builder()
+			.host(HardwareHostDto
+				.builder()
+				.hostname("192.168.7.34")
+				.type(HostType.MS_WINDOWS)
+				.build())
+			.snmp(SnmpProtocolDto.builder().build())
+			.extraLabels(Map.of("host.id", "id1", "host.name", "test1.lab.local"))
+			.collectPeriod(180L)
+			.discoveryCycle(45)
+			.selectedConnectors(Set.of(DELL_OPEN_MANAGE_CONNECTOR))
+			.build();
+
+		expectedMultiHostsConfigurationDto.getHosts().add(testHost);
+		ConfigHelper.normalizeHostConfigurations(expectedMultiHostsConfigurationDto);
+
+		assertEquals(testHost, multiHostsConfigurationDto.getResolvedHosts().stream().filter(host -> "192.168.7.34".equals(host.getHost().getHostname())).findFirst().orElse(null));
 	}
 }

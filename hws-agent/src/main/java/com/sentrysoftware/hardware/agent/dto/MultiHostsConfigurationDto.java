@@ -3,14 +3,16 @@ package com.sentrysoftware.hardware.agent.dto;
 import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 import static com.sentrysoftware.hardware.agent.configuration.ConfigHelper.DEFAULT_OUTPUT_DIRECTORY;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.sentrysoftware.hardware.agent.deserialization.HostsDeserializer;
 import com.sentrysoftware.hardware.agent.deserialization.TimeDeserializer;
 import com.sentrysoftware.hardware.agent.dto.exporter.ExporterConfigDto;
 import com.sentrysoftware.hardware.agent.dto.exporter.OtlpConfigDto;
@@ -37,12 +39,7 @@ public class MultiHostsConfigurationDto {
 
 	@Default
 	@JsonSetter(nulls = SKIP)
-	@JsonDeserialize(using = HostsDeserializer.class)
 	private Set<HostConfigurationDto> hosts = new HashSet<>();
-
-	@Default
-	@JsonSetter(nulls = SKIP)
-	private Set<HostGroupConfigurationDto> hostGroups = new HashSet<>();
 	
 	@Default
 	private int jobPoolSize = DEFAULT_JOB_POOL_SIZE;
@@ -120,5 +117,14 @@ public class MultiHostsConfigurationDto {
 	 */
 	public boolean hasExporterConfig() {
 		return exporter != null;
+	}
+	
+	public Set<HostConfigurationDto> getResolvedHosts() {
+		return hosts
+			.stream()
+			.flatMap(hostConfigurationDto ->
+				hostConfigurationDto.isHostGroup() ? hostConfigurationDto.resolveHostGroups().stream() : Stream.of(hostConfigurationDto)
+			)
+			.collect(Collectors.toSet());
 	}
 }
