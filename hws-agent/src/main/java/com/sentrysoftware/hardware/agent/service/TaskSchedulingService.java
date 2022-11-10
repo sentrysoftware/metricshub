@@ -264,17 +264,17 @@ public class TaskSchedulingService {
 
 		// First create new HostMonitoring instances for the new hosts
 		newHosts
-			.stream()
-			.flatMap(newHost ->
-				newHost.isHostGroup() ? newHost.resolveHostGroups().stream() : Stream.of(newHost)
+		.stream()
+		.flatMap(newHost ->
+			newHost.isHostGroup() ? newHost.resolveHostGroups().stream() : Stream.of(newHost)
+		)
+		.forEach(newHost ->
+			ConfigHelper.fillHostMonitoringMap(
+				hostMonitoringMap,
+				ConnectorStore.getInstance().getConnectors().keySet(),
+				newHost
 			)
-			.forEach(newHost ->
-				ConfigHelper.fillHostMonitoringMap(
-						hostMonitoringMap,
-						ConnectorStore.getInstance().getConnectors().keySet(),
-						newHost
-				)
-			);
+		);
 
 		// Remove hosts from the DTO
 		multiHostsConfigurationDto.getHosts().removeAll(hostsToRemove);

@@ -492,16 +492,18 @@ public class ConfigHelper {
 		}
 	}
 
-	/**
+	/** 
+	 * Normalizes the host configuration and sets global values if no specific values are specified
+	 * 
 	 * @param multiHostsConfig
 	 */
 	static void normalizeHostConfigurations(final MultiHostsConfigurationDto multiHostsConfig) {
 		multiHostsConfig.getHosts().forEach(configDto -> {
 			validateHostConfiguration(configDto);
-			
+
 			if (configDto.isSingleHost()) {
 				HardwareHostDto host = configDto.getHost();
-			
+
 				// Make sure the host id is always set
 				if (host.getId() == null) {
 					host.setId(host.getHostname());
@@ -771,9 +773,10 @@ public class ConfigHelper {
 				() -> String.format(USERNAME_ERROR, hostname, protocol),
 				ErrorCode.NO_USERNAME);
 	}
-	
-	/** Validate the given hostConfigurationDto.
-	 * 
+
+	/** 
+	 * Validate the given hostConfigurationDto.
+     *
 	 * @param hostConfigurationDto
 	 */
 	private static void validateHostConfiguration(HostConfigurationDto hostConfigurationDto) {

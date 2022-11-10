@@ -117,7 +117,12 @@ public class MultiHostsConfigurationDto {
 	public boolean hasExporterConfig() {
 		return exporter != null;
 	}
-	
+
+	/** Creates a Set of hosts, extracting hosts from hostGroups if applicable
+	 * 
+	 * 
+	 * @return a Set of HostConfigurationDto instances
+	 */
 	public Set<HostConfigurationDto> getResolvedHosts() {
 		return hosts
 			.stream()

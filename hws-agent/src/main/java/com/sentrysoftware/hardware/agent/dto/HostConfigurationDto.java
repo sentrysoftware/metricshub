@@ -89,9 +89,10 @@ public class HostConfigurationDto {
 
 	private Boolean disableAlerts;
 
-	/** Extract hosts from hostGroup
-	 * 
-	 * @return
+	/**
+	 * Extract hosts from hostGroup
+     *
+	 * @return a Set of HostConfigurationDto instances
 	 */
 	public Set<HostConfigurationDto> resolveHostGroups() {
 		Set<String> hostnames = hostGroup.getHostnames().getEntries();
@@ -130,18 +131,23 @@ public class HostConfigurationDto {
 			.collect(Collectors.toSet());
 	}
 
-	/** Merge hostGroup extraLabels with host extraLabels (Priority to host)
-	 * 
-	 * @param hostname
-	 * @return
+	/** 
+	 * Merge hostGroup extraLabels with host extraLabels (Priority to host)
+     *
+	 * @param hostname configured hostname
+	 * @return Map of merged extra labels
 	 */
 	private Map<String, String> mergeExtraLabels(String hostname) {
 		final Map<String, String> finalExtraLabels = new HashMap<>();
 		finalExtraLabels.putAll(extraLabels);
 		Optional<HostnameInfoDto> possibleHostnameInfo = hostGroup.getHostnames().getHostnameInfo(hostname);
+
+		// Get the extra labels from the hostGroups
 		if (possibleHostnameInfo.isPresent()) {
 			HostnameInfoDto hostnameInfo = possibleHostnameInfo.get();
 			Map<String, String> hostnameExtraLabels = hostnameInfo.getExtraLabels();
+
+			// If there are extraLabels in the hostGroup, add them to the map to be returned
 			if (hostnameExtraLabels != null) {
 				finalExtraLabels.putAll(hostnameExtraLabels);
 			}
