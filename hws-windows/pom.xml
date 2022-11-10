@@ -158,8 +158,7 @@
 						<phase>package</phase>
 						<configuration>
 							<target>
-								<copy file="${project.build.directory}/hws-${project.version.noSnapshot}.msi" tofile="${project.build.directory}/${project.artifactId}-${project.version}.msi"/>
-								<delete file="${project.build.directory}/hws-${project.version.noSnapshot}.msi"/>
+								<move file="${project.build.directory}/hws-${project.version.noSnapshot}.msi" tofile="${project.build.directory}/${project.artifactId}-${project.version}.msi"/>
 							</target>
 						</configuration>
 						<goals>

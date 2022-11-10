@@ -28,11 +28,11 @@ case "$1" in
     ;;
 esac
 
-[ -L /opt/hws/config ] && rm /opt/hws/config
-[ -L /opt/hws/security ] && rm /opt/hws/security
-[ -L /opt/hws/otel ] && rm /opt/hws/otel
-[ -L /opt/hws/site ] && rm /opt/hws/site
-[ -L /opt/hws/logs ] && rm /opt/hws/logs
-[ -L /opt/hws/LICENSE ] && rm /opt/hws/LICENSE
+[ -L /opt/hws/config ] && rm -f /opt/hws/config
+[ -L /opt/hws/security ] && rm -f /opt/hws/security
+[ -L /opt/hws/otel ] && rm -f /opt/hws/otel
+[ -L /opt/hws/site ] && rm -f /opt/hws/site
+[ -L /opt/hws/logs ] && rm -f /opt/hws/logs
+[ -L /opt/hws/LICENSE ] && rm -f /opt/hws/LICENSE
 
 exit 0

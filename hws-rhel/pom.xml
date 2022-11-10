@@ -140,8 +140,7 @@
 						<phase>package</phase>
 						<configuration>
 							<target>
-								<copy file="${project.build.directory}/hws-${project.version.noSnapshot}-1.x86_64.rpm" tofile="${project.build.directory}/${project.artifactId}-${project.version}-1.x86_64.rpm"/>
-								<delete file="${project.build.directory}/hws-${project.version.noSnapshot}-1.x86_64.rpm"/>
+								<move file="${project.build.directory}/hws-${project.version.noSnapshot}-1.x86_64.rpm" tofile="${project.build.directory}/${project.artifactId}-${project.version}-1.x86_64.rpm"/>
 							</target>
 						</configuration>
 						<goals>

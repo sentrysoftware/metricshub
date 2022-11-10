@@ -7,7 +7,7 @@
                   Start="auto"
                   Id="si_APPLICATION_LAUNCHER_ID"
                   Name="Hardware Sentry Agent"
-                  Description="Hardware Sentry Agent monitors the health of hardware components in your datacenter."
+                  Description="Hardware Sentry monitors the hardware health and energy usage of servers, network devices and storage systems in your data center."
                   ErrorControl="normal"
                   Account="LocalSystem"
                   Vital="yes"

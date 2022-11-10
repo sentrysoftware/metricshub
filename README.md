@@ -34,7 +34,7 @@ $ mvn clean package
 
 - Windows host.
 - Define the `JPACKAGE_HOME` system env variable in order to access the jpackage tool. Example: `JPACKAGE_HOME=C:\Program Files\Java\jdk-19`
-- WixToolSet installed under `C:\Program Files (x86)\WiX Toolset v3`.
+- WixToolSet installed under `C:\Program Files (x86)\WiX Toolset v3.11`.
 - Define the `JAVA_RUNTIME_HOME` system env variable in order to embed the runtime image in the final package. Example: `JAVA_RUNTIME_HOME=C:\Program Files\Java\jdk-11.0.16.1+1-jre`
 
 ### Debian Build Rules (.DEB)
