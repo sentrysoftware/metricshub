@@ -158,6 +158,14 @@ $ hws ESX07 -t esx --wbem -u admin
 
 This command will connect to the `ESX07` VMware `ESX` host using the `WBEM` protocol (HTTPS/5989 by default) with the `admin` account.
 
+### VMware vCenter, WBEM
+
+```batch
+$ hws ESX08 -t esx --wbem -u admin --wbem-vcenter=vcenter01
+```
+
+This command uses the multi-tier authentication `vcenter01` server, which provides a connection ticket to access the `ESX08` VMware `ESX` host via the `WBEM` protocol (HTTPS/5989 by default) with the `admin` account.
+
 ### Solaris, SSH
 
 ```batch
