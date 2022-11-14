@@ -111,46 +111,64 @@ class MatsyaClientsExecutorTest {
 	void testExecuteHttpWithoutSendHttpRequest() {
 
 		// http is null
-		assertThrows(IllegalArgumentException.class, () -> matsyaClientsExecutor.executeHttp(null, false));
+		assertThrows(
+			IllegalArgumentException.class,
+			() -> matsyaClientsExecutor.executeHttp(null, false)
+		);
 
 		// http is not null, protocol is null
 		HttpRequest httpRequest = new HttpRequest();
-		assertThrows(IllegalArgumentException.class, () -> matsyaClientsExecutor.executeHttp(httpRequest, false));
+		assertThrows(
+			IllegalArgumentException.class,
+			() -> matsyaClientsExecutor.executeHttp(httpRequest, false)
+		);
 
 		// http is not null, protocol is not null, hostname is null
 		HttpProtocol httpProtocol = new HttpProtocol();
 		httpRequest.setHttpProtocol(httpProtocol);
-		assertThrows(IllegalArgumentException.class,
-			() -> matsyaClientsExecutor.executeHttp(httpRequest, false));
+		assertThrows(
+			IllegalArgumentException.class,
+			() -> matsyaClientsExecutor.executeHttp(httpRequest, false)
+		);
 
 		// http is not null, protocol is not null, hostname is not null, header is null, body is null, url is null
 		httpRequest.setHostname(PUREM_SAN);
-		assertThrows(IllegalArgumentException.class,
-			() -> matsyaClientsExecutor.executeHttp(httpRequest, false));
+		assertThrows(
+			IllegalArgumentException.class,
+			() -> matsyaClientsExecutor.executeHttp(httpRequest, false)
+		);
 
-		// http is not null, protocol is not null, hostname is not null, header is not null, username is null
+		// http is not null, protocol is not null, hostname is not null, header is not null but invalid
 		httpRequest.setHeader(StringHeader.builder().header(FOO).build());
-		assertThrows(IllegalArgumentException.class,
-			() -> matsyaClientsExecutor.executeHttp(httpRequest, false));
+		assertThrows(
+			IllegalArgumentException.class,
+			() -> matsyaClientsExecutor.executeHttp(httpRequest, false)
+		);
 
-		// http is not null, protocol is not null, hostname is not null, header is not null, username is not null,
-		// password is null
+		// http is not null, protocol is not null, hostname is not null, header is not null and valid, username is not null,
+		// password is null, url is null
 		httpProtocol.setUsername(FOO);
-		assertThrows(IllegalArgumentException.class,
-			() -> matsyaClientsExecutor.executeHttp(httpRequest, false));
+		httpRequest.setHeader(StringHeader.builder().header(FOO + ":" + FOO).build());
+		assertThrows(
+			IllegalArgumentException.class,
+			() -> matsyaClientsExecutor.executeHttp(httpRequest, false)
+		);
 
 		// http is not null, protocol is not null, hostname is not null, header is not null, username is not null,
-		// password is not null, invalid header
+		// password is not null, url is null
 		httpProtocol.setPassword(FOO.toCharArray());
-		assertThrows(IllegalArgumentException.class,
-			() -> matsyaClientsExecutor.executeHttp(httpRequest, false));
+		assertThrows(
+			IllegalArgumentException.class,
+			() -> matsyaClientsExecutor.executeHttp(httpRequest, false)
+		);
 
 		// http is not null, protocol is not null, hostname is not null, header is not null, username is not null,
 		// password is not null, header content is not null and valid, body content is not null, url is null
-		httpRequest.setHeader(StringHeader.builder().header(FOO + ":" + FOO).build());
 		httpRequest.setBody(StringBody.builder().body(FOO).build());
-		assertThrows(IllegalArgumentException.class,
-			() -> matsyaClientsExecutor.executeHttp(httpRequest, false));
+		assertThrows(
+			IllegalArgumentException.class,
+			() -> matsyaClientsExecutor.executeHttp(httpRequest, false)
+		);
 	}
 
 	@Test
@@ -176,7 +194,7 @@ class MatsyaClientsExecutorTest {
 				+ FOO;
 			mockedHttpClient.when(() -> HttpClient.sendRequest(
 				anyString(), // URL
-				isNull(), // method
+				anyString(), // method
 				isNull(),
 				anyString(), // username
 				any(char[].class), // password
@@ -191,14 +209,14 @@ class MatsyaClientsExecutorTest {
 				isNull()))
 				.thenThrow(IOException.class);
 			assertNull(matsyaClientsExecutor.executeHttp(httpRequest, true));
-			mockedHttpClient.verify(() -> HttpClient.sendRequest(eq(fullHttpUrl), isNull(), isNull(), anyString(),
+			mockedHttpClient.verify(() -> HttpClient.sendRequest(eq(fullHttpUrl), anyString(), isNull(), anyString(),
 				any(char[].class), isNull(), eq(0), isNull(), isNull(), isNull(), anyMap(), anyString(), anyInt(),
 				isNull()));
 
 			// protocol.getHttps() is false, logMode is false
 			httpProtocol.setHttps(false);
 			assertNull(matsyaClientsExecutor.executeHttp(httpRequest, false));
-			mockedHttpClient.verify(times(2), () -> HttpClient.sendRequest(eq(fullHttpUrl), isNull(), isNull(),
+			mockedHttpClient.verify(times(2), () -> HttpClient.sendRequest(eq(fullHttpUrl), anyString(), isNull(),
 				anyString(), any(char[].class), isNull(), eq(0), isNull(), isNull(), isNull(), anyMap(), anyString(),
 				anyInt(), isNull()));
 
@@ -206,14 +224,14 @@ class MatsyaClientsExecutorTest {
 			String fullHttpsUrl = "https" + COLON_DOUBLE_SLASH + PUREM_SAN + ":" + DEFAULT_PORT + "/" + FOO;
 			httpProtocol.setHttps(true);
 			assertNull(matsyaClientsExecutor.executeHttp(httpRequest, false));
-			mockedHttpClient.verify(() -> HttpClient.sendRequest(eq(fullHttpsUrl), isNull(), isNull(),
+			mockedHttpClient.verify(() -> HttpClient.sendRequest(eq(fullHttpsUrl), anyString(), isNull(),
 				anyString(), any(char[].class), isNull(), eq(0), isNull(), isNull(), isNull(), anyMap(), anyString(),
 				anyInt(), isNull()));
 
 			// protocol.getHttps() is true, url starts with /
 			httpRequest.setUrl("/" + FOO);
 			assertNull(matsyaClientsExecutor.executeHttp(httpRequest, false));
-			mockedHttpClient.verify(times(2), () -> HttpClient.sendRequest(eq(fullHttpsUrl), isNull(), isNull(),
+			mockedHttpClient.verify(times(2), () -> HttpClient.sendRequest(eq(fullHttpsUrl), anyString(), isNull(),
 				anyString(), any(char[].class), isNull(), eq(0), isNull(), isNull(), isNull(), anyMap(), anyString(),
 				anyInt(), isNull()));
 
@@ -222,7 +240,7 @@ class MatsyaClientsExecutorTest {
 			httpResponse.setStatusCode(HTTP_BAD_REQUEST);
 			mockedHttpClient.when(() -> HttpClient.sendRequest(
 				anyString(), // URL
-				isNull(), // method
+				anyString(), // method
 				isNull(),
 				anyString(), // username
 				any(char[].class), // password
@@ -239,7 +257,7 @@ class MatsyaClientsExecutorTest {
 			String result = matsyaClientsExecutor.executeHttp(httpRequest, false);
 			assertNotNull(result);
 			assertEquals("", result);
-			mockedHttpClient.verify(times(5), () -> HttpClient.sendRequest(anyString(), isNull(), isNull(),
+			mockedHttpClient.verify(times(5), () -> HttpClient.sendRequest(anyString(), anyString(), isNull(),
 				anyString(), any(char[].class), isNull(), eq(0), isNull(), isNull(), isNull(), anyMap(), anyString(),
 				anyInt(), isNull()));
 
@@ -249,7 +267,7 @@ class MatsyaClientsExecutorTest {
 			httpResponse.appendBody(BAZ);
 			mockedHttpClient.when(() -> HttpClient.sendRequest(
 				anyString(), // URL
-				isNull(), // method
+				anyString(), // method
 				isNull(),
 				anyString(), // username
 				any(char[].class), // password
@@ -267,7 +285,7 @@ class MatsyaClientsExecutorTest {
 			result = matsyaClientsExecutor.executeHttp(httpRequest, false);
 			assertNotNull(result);
 			assertEquals(BAZ, result);
-			mockedHttpClient.verify(times(6), () -> HttpClient.sendRequest(anyString(), isNull(), isNull(),
+			mockedHttpClient.verify(times(6), () -> HttpClient.sendRequest(anyString(), anyString(), isNull(),
 				anyString(), any(char[].class), isNull(), eq(0), isNull(), isNull(), isNull(), anyMap(), anyString(),
 				anyInt(), isNull()));
 
@@ -276,7 +294,7 @@ class MatsyaClientsExecutorTest {
 			result = matsyaClientsExecutor.executeHttp(httpRequest, false);
 			assertNotNull(result);
 			assertEquals(FOO + ": " + BAR + NEW_LINE, result);
-			mockedHttpClient.verify(times(7), () -> HttpClient.sendRequest(anyString(), isNull(), isNull(),
+			mockedHttpClient.verify(times(7), () -> HttpClient.sendRequest(anyString(), anyString(), isNull(),
 				anyString(), any(char[].class), isNull(), eq(0), isNull(), isNull(), isNull(), anyMap(), anyString(),
 				anyInt(), isNull()));
 
@@ -285,7 +303,7 @@ class MatsyaClientsExecutorTest {
 			result = matsyaClientsExecutor.executeHttp(httpRequest, false);
 			assertNotNull(result);
 			assertEquals(String.valueOf(HTTP_OK), result);
-			mockedHttpClient.verify(times(8), () -> HttpClient.sendRequest(anyString(), isNull(), isNull(),
+			mockedHttpClient.verify(times(8), () -> HttpClient.sendRequest(anyString(), anyString(), isNull(),
 				anyString(), any(char[].class), isNull(), eq(0), isNull(), isNull(), isNull(), anyMap(), anyString(),
 				anyInt(), isNull()));
 
@@ -294,7 +312,7 @@ class MatsyaClientsExecutorTest {
 			result = matsyaClientsExecutor.executeHttp(httpRequest, false);
 			assertNotNull(result);
 			assertEquals(FOO + ": " + BAR + NEW_LINE + NEW_LINE + BAZ, result);
-			mockedHttpClient.verify(times(9), () -> HttpClient.sendRequest(anyString(), isNull(), isNull(),
+			mockedHttpClient.verify(times(9), () -> HttpClient.sendRequest(anyString(), anyString(), isNull(),
 				anyString(), any(char[].class), isNull(), eq(0), isNull(), isNull(), isNull(), anyMap(), anyString(),
 				anyInt(), isNull()));
 		}

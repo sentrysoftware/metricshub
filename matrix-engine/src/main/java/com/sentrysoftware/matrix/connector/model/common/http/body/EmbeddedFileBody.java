@@ -1,16 +1,11 @@
 package com.sentrysoftware.matrix.connector.model.common.http.body;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.AUTHENTICATION_TOKEN_MACRO;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.BASIC_AUTH_BASE64_MACRO;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PASSWORD_BASE64_MACRO;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PASSWORD_MACRO;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.USERNAME_MACRO;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HOSTNAME_MACRO;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 
-import java.util.Base64;
 import java.util.function.UnaryOperator;
 
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
+import com.sentrysoftware.matrix.engine.strategy.matsya.HttpMacrosUpdater;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,24 +24,22 @@ public class EmbeddedFileBody implements Body {
 	private EmbeddedFile body;
 
 	@Override
-	public String getContent(@NonNull String username, @NonNull char[] password, String authenticationToken, @NonNull String hostname) {
+	public String getContent(String username, char[] password, String authenticationToken, @NonNull String hostname) {
 
 		if (body == null) {
-			return null;
+			return EMPTY;
 		}
 
-		String passwordAsString = String.valueOf(password);
-
-		return body
-			.getContent()
-			.replace(USERNAME_MACRO, username)
-			.replace(HOSTNAME_MACRO, hostname)
-			.replace(AUTHENTICATION_TOKEN_MACRO, authenticationToken == null ? "" : authenticationToken)
-			.replace(PASSWORD_MACRO, passwordAsString)
-			.replace(PASSWORD_BASE64_MACRO, Base64.getEncoder().encodeToString(passwordAsString.getBytes()))
-			.replace(BASIC_AUTH_BASE64_MACRO, Base64.getEncoder().encodeToString((username + ":" + passwordAsString).getBytes()));
+		return HttpMacrosUpdater.update(
+			body.getContent(),
+			username,
+			password,
+			authenticationToken,
+			hostname
+		);
 	}
 
+	@Override
 	public Body copy() {
 		return EmbeddedFileBody.builder().body(body.copy()).build();
 	}
