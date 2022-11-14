@@ -118,8 +118,8 @@ public class MultiHostsConfigurationDto {
 		return exporter != null;
 	}
 
-	/** Creates a Set of hosts, extracting hosts from hostGroups if applicable
-	 * 
+	/** 
+	 * Creates a Set of hosts, extracting hosts from hostGroups if applicable
 	 * 
 	 * @return a Set of HostConfigurationDto instances
 	 */
