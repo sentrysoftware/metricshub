@@ -57,15 +57,15 @@ Systems to monitor are defined under `hosts` with the below syntax:
 ```yaml
 hosts:
 
-- host:
-    hostname: <hostname>
+- hostGroup:
+    hostnames: <hostnames>
     type: <host-type>
   <protocol-configuration>
 ```
 
 where:
 
-* `<hostname>` is the name of the host, or its IP address
+* `<hostnames>` is the list of hosts that share the same characteristics (host type, protocol, credentials, etc.). The hostnames or IP addresses provided must be delimited by a comma.
 * `<host-type>` is the type of the host to be monitored. Possible values are:
 
     * `win` for Microsoft Windows systems
@@ -102,7 +102,7 @@ Use the parameters below to configure the HTTP protocol:
 ```yaml
 hosts:
 
-  - host:
+  - hostGroup:
       hostname: myhost-01
       type: storage
     http:
@@ -127,7 +127,7 @@ Use the parameters below to configure the IPMI protocol:
 ```yaml
 hosts:
 
-- host:
+- hostGroup:
     hostname: myhost-01
     type: oob
   ipmi:
@@ -151,7 +151,7 @@ Use the parameters below to configure OS Commands that are executed locally:
 
 ```yaml
 hosts:
-  - host:
+  - hostGroup:
       hostname: myhost-01
       type: linux
     osCommand:
@@ -180,7 +180,7 @@ Use the parameters below to configure the SSH protocol:
 
 ```yaml
 hosts:
-  - host:
+  - hostGroup:
       hostname: myhost-01
       type: linux
     ssh:
@@ -215,7 +215,7 @@ Use the parameters below to configure the SNMP protocol:
 ```yaml
 hosts:
 
-- host:
+- hostGroup:
     hostname: myhost-01
     type: linux
   snmp:
@@ -224,7 +224,7 @@ hosts:
     port: 161
     timeout: 120s
 
-- host:
+- hostGroup:
     hostname: myhost-01
     type: linux
   snmp:
@@ -233,7 +233,7 @@ hosts:
     port: 161
     timeout: 120s
 
-- host:
+- hostGroup:
     hostname: myhost-01
     type: linux
   snmp:
@@ -266,7 +266,7 @@ Use the parameters below to configure the WBEM protocol:
 ```yaml
 hosts:
 
-  - host:
+  - hostGroup:
       hostname: myhost-01
       type: storage
     wbem:
@@ -293,7 +293,7 @@ Use the parameters below to configure the WMI protocol:
 ```yaml
 hosts:
 
-  - host:
+  - hostGroup:
       hostname: myhost-01
       type: win
     wmi:
@@ -321,7 +321,7 @@ Use the parameters below to configure the WinRM protocol:
 ```yaml
 hosts:
 
-  - host:
+  - hostGroup:
       hostname: server-11
       type: win
     winrm:
@@ -354,7 +354,7 @@ To disable **${project.name}**'s alerts:
     ```yaml
     hosts:
 
-    - host:
+    - hostGroup:
         hostname: myhost
         type: linux
       snmp:
@@ -388,7 +388,7 @@ To change this default hardware problem template:
     ```yaml
     hosts:
 
-    - host:
+    - hostGroup:
         hostname: myhost
         type: linux
       snmp:
@@ -445,7 +445,7 @@ By default, **${project.name}** collects metrics from the monitored hosts every 
     ```yaml
     hosts:
 
-    - host:
+    - hostGroup:
         hostname: myhost
         type: linux
       snmp:
@@ -474,7 +474,7 @@ Connector names must be comma-separated, as shown in the example below:
 ```yaml
 hosts:
 
-  - host:
+  - hostGroup:
       hostname: myhost-01
       type: win
     wmi:
@@ -512,7 +512,7 @@ For more information about the `hws` command, refer to [Hardware Sentry CLI (hws
     ```yaml
     hosts:
 
-    - host:
+    - hostGroup:
         hostname: myhost
         type: linux
       snmp:
@@ -536,7 +536,7 @@ In the example below, we override the `host.name` attribute resolved by **${proj
 ```yaml
 hosts:
 
-- host:
+- hostGroup:
     hostname: host01
     type: Linux
   snmp:
@@ -557,7 +557,7 @@ resolveHostnameToFqdn: false
 
 hosts:
 
-- host:
+- hostGroup:
     hostname: host01
     type: Linux
 ```
@@ -595,7 +595,7 @@ To force all the network calls to be executed in sequential order:
     ```yaml
     hosts:
 
-    - host:
+    - hostGroup:
         hostname: myhost
         type: linux
       snmp:
