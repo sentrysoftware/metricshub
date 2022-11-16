@@ -5,145 +5,66 @@ description: How to import, configure, and use Hardware Sentry Dashboards for Gr
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
-The **Hardware Sentry** dashboards for Grafana give you immediate visibility into your monitored environment. The organized panels expose health metrics for all monitored hardware systems and bring real-time metrics and projected trends on electricity consumption and costs, as well as CO₂ emissions for your entire infrastructure.
-Once you have configured the [dashboard provider](#Configuring_the_Dashboard_Provider) and the [data source](#Configuring_the_Data_Source), the dashboards are automatically available from the **Dashboard** menu on the **Home** page.
+The **Hardware Sentry - Main**, **Hardware Sentry - Site**, and **Hardware Sentry - Host** dashboards give you immediate visibility into your monitored environment. The organized panels expose health metrics for all monitored systems and bring real-time metrics and projected trends on electricity consumption and costs, as well as CO₂ emissions for your entire infrastructure.
+Once you have imported the dashboards, they are automatically available from the **Dashboard** menu on the **Home** page.
 
 ![Hardware Sentry - Main View](../images/grafana-main.png)
 
+> The **Hardware Sentry - Main**, **Hardware Sentry - Site**, and **Hardware Sentry - Host** dashboards are compatible with Grafana v9.x.x.
+
 ## Prerequisites
 
-Before you can start configuring and using **Hardware Sentry** dashboards, you must have:
+Before using the dashboards, you must have:
 
 1. configured the [Hardware Sentry Agent](../configuration/configure-agent.html)
 2. configured the [Prometheus Server](prometheus.md)
 3. run both **${project.name}** and the **Prometheus server**.
 
-## Configuring the Dashboards
+## Upgrading
 
-### Loading Dashboards in Grafana
+If you are using **Hardware Dashboards for Grafana v1** or **Hardware Dashboards for Grafana v2**, which were previously available from Sentry Software's Website, first delete the following folders on the Grafana server:
 
-First, download from [Sentry Software’s Web site](https://www.sentrysoftware.com/downloads/products-for-opentelemetry.html), the package of the **Hardware Dashboards for Grafana** compatible with your version of Grafana:
+- `provisioning`: this folder is generally located in `C:\Program Files\GrafanaLabs\grafana\conf` on Windows, `/etc/grafana` on Linux
+- `Hardware Sentry`: this folder is generally located in `C:\Program Files\GrafanaLabs\grafana\public\dashboards` on Windows, `/var/lib/grafana/dashboards` on Linux.
 
-| **Grafana** | **Hardware Dashboards for Grafana** |
-| ----------- | ----------------------------------- |
-| v9.x.x      | v3                                  |
-| v8.5        | v2                                  |
+Then log on to Grafana, go to **Dashboards > Browse** and delete the **Sustainable_IT** or **Hardware Sentry** folder.
 
-The **hardware-dashboards-for-grafana.zip** and **hardware-dashboards-for-grafana.tar.gz** packages contain:
+Restart the Grafana server before importing the dashboards.
 
-![Dashboards Package](../images/hardware-dashboards-for-grafana-folders.png)
+## Importing
 
-- the dashboards (.json files)
-- the provisioning files (.yml files).
+1. Log on to Grafana
+2. Under the **Dashboards** icon, click **Browse** first, then **Import**
+3. In the **Import via grafana.com** field, enter:
 
-#### On Windows
+   - `17223` for the **[Hardware Sentry - Main](https://grafana.com/grafana/dashboards/17223-hardware-sentry-main/)** dashboard
+   - `17229` for the **[Hardware Sentry - Site](https://grafana.com/grafana/dashboards/17229-hardware-sentry-site/)** dashboard
+   - `17230` for the **[Hardware Sentry - Host](https://grafana.com/grafana/dashboards/17230-hardware-sentry-host/)** dashboard
 
-1. Uncompress **hardware-dashboards-for-grafana.zip** in a temporary folder.
-2. Copy the `provisioning` folder to the `grafana\conf` folder on the Grafana server (default: "C:\Program Files\GrafanaLabs\grafana\conf").
-3. Copy the `Hardware Sentry` folder in the directory of your choice on the Grafana server (ex: "C:\Program Files\GrafanaLabs\grafana\public\dashboards").
+4. Select the **Prometheus** datasource
 
-   ![Copying Dashboards on Windows](../images/import-dashboards-windows.png)
+   ![Grafana Dashboards - Importing the Hardware Sentry - Main Dashboard](../images/grafana-importing-dashboard.png)
 
-#### On Linux and UNIX
+5. Click **Import**
+6. Repeat the procedure to import all the **Hardware Sentry dashboards**.
 
-1. Uncompress **hardware-dashboards-for-grafana.tar.gz** in a temporary folder.
-2. Copy the `provisioning` folder to the `grafana` folder on the Grafana server (default: "/etc/grafana").
-3. Copy the `Hardware Sentry` folder in the directory of your choice folder on the Grafana server (ex: "/var/lib/grafana/dashboards").
+The **Hardware Sentry** dashboards are now loaded in Grafana:
 
-### Configuring the Dashboard Provider
+| Dashboard                  | Description                                                                                 |
+| -------------------------- | ------------------------------------------------------------------------------------------- |
+| **Hardware Sentry - Main** | Overview of all monitored _sites_                                                           |
+| **Hardware Sentry - Site** | Metrics associated to one _site_ (a data center or a server room) and its monitored _hosts_ |
+| **Hardware Sentry - Host** | Metrics associated to one _host_ and its internal components                                |
 
-1. Go to `%GRAFANA_HOME%\grafana\conf\provisioning\dashboards`.
-2. Open the `hardware-sentry.yml` file.
-
-   ![Configuring Dashboard Provider](../images/import_grafana_dashboard_provider-config.png)
-
-3. Search for the `path: ''` parameter.
-4. Specify the path to the folder where you uncompressed the _Hardware Sentry_ folder and save your changes.
-
-Example:
-
-```yaml
-apiVersion: 1
-
-providers:
-- name: 'Sentry Software'
-    orgId: 1
-    folder: 'Hardware Sentry'
-    folderUid: ''
-    type: file
-    updateIntervalSeconds: 60
-    allowUiUpdates: true
-    options:
-    path: 'C:\Program Files\GrafanaLabs\grafana\public\dashboards'
-    foldersFromFilesStructure: true
-```
-
-<div class="alert alert-warning"> The path should point to the folder containing the <i>Hardware Sentry</i> folder. This folder should only contain dashboards for Grafana.</div>
-
-### Configuring the Data Source
-
-The dashboards for Grafana query the Prometheus server to display the status of the hardware components. A Prometheus data source needs to be configured on the Grafana server.
-
-1. In `\grafana\conf\provisioning\datasources`, open the _hardware-sentry-prometheus.yml_ file.
-   ![Configuring Data Source Provider](../images/import_grafana_dashboards_config.png)
-2. Enter the required settings to connect to your Prometheus server and save your changes. This will create a new data source called **hardware_sentry_prometheus** in Grafana.
-3. Restart the Grafana service.
-
-Example:
-
-```yaml
-# config file version
-apiVersion: 1
-
-datasources:
-  # <string, required> name of the datasource. Required
-  - name: hardware_sentry_prometheus
-    # <string, required> datasource type. Required
-    type: prometheus
-    # <string, required> access mode. direct or proxy. Required
-    access: proxy
-    # <int> org id. will default to orgId 1 if not specified
-    orgId: 1
-    # <string> url
-    url: http://myhost-01:9090
-    # <string> database password, if used
-    password:
-    # <string> database user, if used
-    user:
-    # <string> database name, if used
-    database:
-    # <bool> enable/disable basic auth
-    basicAuth: false
-    # <string> basic auth username, if used
-    basicAuthUser:
-    # <string> basic auth password, if used
-    basicAuthPassword:
-    # <bool> enable/disable with credentials headers
-    withCredentials:
-    # <bool> mark as default datasource. Max one per org
-    isDefault: true
-    version: 1
-    # <bool> allow users to edit datasources from the UI.
-    editable: true
-```
-
-The following dashboards are now loaded in Grafana:
-
-| Dashboard  | Description                                                                                 |
-| ---------- | ------------------------------------------------------------------------------------------- |
-| **[Main]** | Overview of all monitored hosts                                                             |
-| **Site**   | Metrics associated to one _site_ (a data center or a server room) and its monitored _hosts_ |
-| **Host**   | Metrics associated to one _host_ and its internal devices                                   |
-
-## Using Hardware Sentry Dashboards
+## Using
 
 ### Verifying that your IT infrastructure is fully monitored
 
-The **Coverage** panel available in the **Overall Information** section of the **Main** dashboard indicates the percentage of hosts that are actually monitored.
+The **Coverage** panel available in the **Overall Information** section of the **Hardware Sentry - Main** dashboard indicates the percentage of hosts that are actually monitored.
 
 ![Grafana Dashboards - Monitoring Coverage](../images/grafana-main-coverage.png)
 
-A host is considered as *not monitored* if no connectors match the configured system. If the value displayed is below 100%, open each **Site** to identify the hosts for which no data is available. Then access each host page and check the status of the configured **Protocol(s)** and matching **Connector(s)**:
+A **host** is considered as _not monitored_ if no connectors match the configured system. If the value displayed is below 100%, open each **Site** to identify the hosts for which no data is available. Then access each host page and check the status of the configured **Protocol(s)** and matching **Connector(s)**:
 
 ![Grafana Dashboards - Protocol and connector status](../images/grafana-host-protocol-and-connector-status.png)
 
@@ -151,14 +72,14 @@ If their status is not OK, open the corresponding **config/hws-config.yaml** fil
 
 ### Monitoring the agent collection status
 
-The **Hardware Sentry Agent Status** panel, at the bottom of the **Main** dashboard, lists all the agents configured to collect data, by sites. This panel enables you to view the agents' hostnames, and verify that the agent and connector versions are up-to-date.
+The **Hardware Sentry Agent Status** panel, at the bottom of the **Hardware Sentry - Main** dashboard, lists all the agents configured to collect data, by sites. This panel enables you to view the agents' hostnames, and verify that the agent and connector versions are up-to-date.
 The **Last Seen** column indicates the last time an agent was seen during the past 6 hours. An agent going undetected for more than 2 minutes may indicate a potential problem with the host, the connection or the agent configuration.
 
 ![Verifying Hardware Sentry Agent Status](../images/grafana-main-agent-status-collect.png)
 
 ### Observing the hardware health of the monitored hosts
 
-The **Host** dashboard provides the essential hardware health and sustainability data available for the monitored host:
+The **Hardware Sentry - Host** dashboard provides the essential hardware health and sustainability data available for the monitored host:
 
 - the status of its internal components
 - the network traffic
@@ -175,13 +96,13 @@ Information about the monitoring itself (host information, connectors used, etc.
 
 ### Detecting hardware failures
 
-The **Main** and **Site** dashboards provide the number of **Critical Alerts** and **Warning Alerts** detected by **${project.name}**. Additional information about the **Current Alerts** is provided in the **Main** and **Host** dashboards.
+The **Hardware Sentry - Main** and **Hardware Sentry - Site** dashboards provide the number of **Critical Alerts** and **Warning Alerts** detected by **${project.name}**. Additional information about the **Current Alerts** is provided in the **Hardware Sentry - Main** and **Hardware Sentry - Host** dashboards.
 
 ![Grafana Dashboards - Number of critical and warning alerts](../images/grafana-main-alerts.png)
 
 ### Reporting the energy usage and carbon emissions of your infrastructure
 
-The **Power, Cost, and CO₂ emissions** section of the **Main** dashboard reports how much kWh your infrastructure consumes daily, monthly, and yearly, the associated cost and carbon emissions.
+The **Power, Cost, and CO₂ emissions** section of the **Hardware Sentry - Main** dashboard reports how much kWh your infrastructure consumes daily, monthly, and yearly, the associated cost and carbon emissions.
 
 ![Grafana - Reporting the energy usage and carbon emissions](../images/grafana-main-power-cost-carbon-emissions.png)
 
@@ -189,7 +110,7 @@ The accuracy of this information is provided with the **Margin of Error**. A low
 
 ### Spotting the top consumer sites
 
-You can spot the top consumer server rooms in the **Sites** section of the **Main** dashboard by referring to the **Total Power** column. This column displays the total power consumption of all hosts in a site.
+You can spot the top consumer server rooms in the **Sites** section of the **Hardware Sentry - Main** dashboard by referring to the **Total Power** column. This column displays the total power consumption of all hosts in a site.
 
 ![Grafana - Spotting the top consumer data centers](../images/grafana-main-top-consumer-datacenters.png)
 
@@ -209,7 +130,7 @@ Data centers are energy-intensive facilities. This energy is converted into heat
 
 In most data centers, the air conditioning system ensures the entire room’s ambient temperature is maintained at 65 degrees Fahrenheit (18 degrees Celsius), which is generally unnecessarily low to avoid overheating problems. Computer systems can safely operate with an ambient temperature significantly higher (see Google’s example, where they raised the temperature of their data centers to 80°F, i.e. 26.7°C). This is the fastest and cheapest method to reduce the energy consumed by a data center and improve its PUE.
 
-From the **Sites** section of the **Main** dashboard, refer to the **Ambient Temperature** column to spot the warmer sites. From cold blue to warm red, the color code helps you rapidly identify the sites where the overall temperature can be optimized.
+From the **Sites** section of the **Hardware Sentry - Main** dashboard, refer to the **Ambient Temperature** column to spot the warmer sites. From cold blue to warm red, the color code helps you rapidly identify the sites where the overall temperature can be optimized.
 
 ![Grafana - Monitoring the Ambient Temperature](../images/grafana-main-ambient-temperature.png)
 

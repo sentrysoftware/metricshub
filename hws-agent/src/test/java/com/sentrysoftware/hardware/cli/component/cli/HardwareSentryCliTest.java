@@ -22,8 +22,14 @@ import com.sentrysoftware.hardware.cli.component.cli.protocols.SnmpConfigCli;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WbemConfigCli;
 import com.sentrysoftware.hardware.cli.component.cli.protocols.WmiConfigCli;
 import com.sentrysoftware.matrix.engine.host.HostType;
+import com.sentrysoftware.matrix.engine.protocol.HttpProtocol;
+import com.sentrysoftware.matrix.engine.protocol.IpmiOverLanProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
+import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
 import com.sentrysoftware.matrix.engine.protocol.TransportProtocols;
+import com.sentrysoftware.matrix.engine.protocol.WbemProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WinRmProtocol;
+import com.sentrysoftware.matrix.engine.protocol.WmiProtocol;
 import com.sentrysoftware.matsya.winrm.service.client.auth.AuthenticationEnum;
 
 import picocli.CommandLine;
@@ -412,4 +418,435 @@ class HardwareSentryCliTest {
 
 	}
 
+	@Test
+	void testTryInteractivePasswordsSnmp() {
+		{
+			// Not interactive (snmp-privacy-password)
+			final String[] arguments = { "hostaa",
+					"-t", "hpux",
+					"--snmp", "v3",
+					"--snmp-port", "200",
+					"--snmp-community", "private",
+					"--snmp-timeout", "60",
+					"--snmp-username", "user",
+					"--snmp-password", "*****",
+					"--snmp-privacy", "AES", 
+					"--snmp-privacy-password", "****"};
+			final HardwareSentryCli sentryCli = new HardwareSentryCli();
+			new CommandLine(sentryCli).parseArgs(arguments);
+			sentryCli.tryInteractivePasswords((fmt, args) -> "*******".toCharArray());
+			assertEquals("****", new String(sentryCli.getSnmpConfigCli().toProtocol(sentryCli.username, sentryCli.password).getPrivacyPassword()));
+
+		}
+
+		{
+			// Interactive (snmp-privacy-password)
+			final String[] arguments = { "hostaa",
+					"-t", "hpux",
+					"--snmp", "v3",
+					"--snmp-port", "200",
+					"--snmp-community", "private",
+					"--snmp-timeout", "60",
+					"--snmp-username", "user",
+					"--snmp-password", "*****",
+					"--snmp-privacy", "DES"};
+			final HardwareSentryCli sentryCli = new HardwareSentryCli();
+			new CommandLine(sentryCli).parseArgs(arguments);
+			sentryCli.tryInteractivePasswords((fmt, args) -> "****".toCharArray());
+			assertEquals("****", new String(sentryCli.getSnmpConfigCli().toProtocol(sentryCli.username, sentryCli.password).getPrivacyPassword()));
+
+		}
+
+		{
+			// Not interactive (snmp-password)
+			final String[] arguments = { "hostaa",
+					"-t", "hpux",
+					"--snmp", "v3",
+					"--snmp-port", "200",
+					"--snmp-community", "private",
+					"--snmp-timeout", "60",
+					"--snmp-username", "user",
+					"--snmp-password", "*****",
+					"--snmp-privacy", "AES", 
+					"--snmp-privacy-password", "****"};
+			final HardwareSentryCli sentryCli = new HardwareSentryCli();
+			new CommandLine(sentryCli).parseArgs(arguments);
+			sentryCli.tryInteractivePasswords((fmt, args) -> "*******".toCharArray());
+			assertEquals("*****", new String(sentryCli.getSnmpConfigCli().toProtocol(sentryCli.username, sentryCli.password).getPassword()));
+
+		}
+
+		{
+			// Interactive (snmp-password)
+			final String[] arguments = { "hostaa",
+					"-t", "hpux",
+					"--snmp", "v3",
+					"--snmp-port", "200",
+					"--snmp-community", "private",
+					"--snmp-timeout", "60",
+					"--snmp-username", "user",
+					"--snmp-privacy", "AES", 
+					"--snmp-privacy-password", "****"};
+			final HardwareSentryCli sentryCli = new HardwareSentryCli();
+			new CommandLine(sentryCli).parseArgs(arguments);
+			sentryCli.tryInteractivePasswords((fmt, args) -> "****".toCharArray());
+			assertEquals("****", new String(sentryCli.getSnmpConfigCli().toProtocol(sentryCli.username, sentryCli.password).getPassword()));
+
+		}
+
+		{
+			// Snmp v2c (no passwords)
+			final String[] arguments = { "hostaa",
+					"-t", "hpux",
+					"--snmp", "v2c",
+					"--snmp-port", "200",
+					"--snmp-community", "private",
+					"--snmp-timeout", "60"};
+			final HardwareSentryCli sentryCli = new HardwareSentryCli();
+			new CommandLine(sentryCli).parseArgs(arguments);
+			sentryCli.tryInteractivePasswords((fmt, args) -> "****".toCharArray());
+			assertNull(sentryCli.getSnmpConfigCli().toProtocol(sentryCli.username, sentryCli.password).getPassword());
+
+		}
+	}
+
+	@Test
+	void testTryInteractivePasswordsGlobal() {
+		{
+			// Interactive for the global password
+			final String[] arguments = { "hostaa",
+					"-t", "win",
+					"--username", "admin",
+					"--winrm-force-namespace", "root\\cimv2",
+					"--winrm-timeout", "160",
+					"--winrm-port", "1234",
+					"--winrm-transport", "https",
+					"--winrm-auth", "kerberos"};
+
+			final HardwareSentryCli sentryCli = new HardwareSentryCli();
+			final CommandLine commandLine = new CommandLine(sentryCli);
+			commandLine.setCaseInsensitiveEnumValuesAllowed(true);
+			commandLine.parseArgs(arguments);
+			sentryCli.tryInteractivePasswords((fmt, args) -> "****".toCharArray());
+			final WinRmProtocol protocol = sentryCli.getWinRmConfigCli().toProtocol(sentryCli.username, sentryCli.password);
+			assertEquals("****", new String(protocol.getPassword()));
+			assertEquals("admin", new String(protocol.getUsername()));
+		}
+
+		{
+			// Not interactive as the password is provided
+			final String[] arguments = { "hostaa",
+					"-t", "win",
+					"--username", "admin",
+					"--password", "****",
+					"--winrm-force-namespace", "root\\cimv2",
+					"--winrm-timeout", "160",
+					"--winrm-port", "1234",
+					"--winrm-transport", "https",
+					"--winrm-auth", "kerberos"};
+
+			final HardwareSentryCli sentryCli = new HardwareSentryCli();
+			final CommandLine commandLine = new CommandLine(sentryCli);
+			commandLine.setCaseInsensitiveEnumValuesAllowed(true);
+			commandLine.parseArgs(arguments);
+			sentryCli.tryInteractivePasswords((fmt, args) -> "***********".toCharArray());
+			final WinRmProtocol protocol = sentryCli.getWinRmConfigCli().toProtocol(sentryCli.username, sentryCli.password);
+			assertEquals("****", new String(protocol.getPassword()));
+			assertEquals("admin", new String(protocol.getUsername()));
+		}
+	}
+
+	@Test
+	void testTryInteractivePasswordsHttp() {
+		{
+			// Interactive
+			final String[] arguments = { "hostaa",
+					"-t", "win",
+					"--http",
+					"--http-username", "admin",
+					"--http-port", "4433",
+					"--http-timeout", "160"};
+
+			final HardwareSentryCli sentryCli = new HardwareSentryCli();
+			new CommandLine(sentryCli).parseArgs(arguments);
+			sentryCli.tryInteractivePasswords((fmt, args) -> "****".toCharArray());
+			final HttpProtocol protocol = sentryCli.getHttpConfigCli().toProtocol(sentryCli.username, sentryCli.password);
+			assertEquals("****", new String(protocol.getPassword()));
+		}
+
+		{
+			// Not interactive
+			final String[] arguments = { "hostaa",
+					"-t", "win",
+					"--http",
+					"--http-username", "admin",
+					"--http-password", "****",
+					"--http-port", "4433",
+					"--http-timeout", "160"};
+
+			final HardwareSentryCli sentryCli = new HardwareSentryCli();
+			new CommandLine(sentryCli).parseArgs(arguments);
+			sentryCli.tryInteractivePasswords((fmt, args) -> "***********".toCharArray());
+			final HttpProtocol protocol = sentryCli.getHttpConfigCli().toProtocol(sentryCli.username, sentryCli.password);
+			assertEquals("****", new String(protocol.getPassword()));
+		}
+
+		{
+			// Not interactive because the username is not configured
+			final String[] arguments = { "hostaa",
+					"-t", "win",
+					"--http",
+					"--http-port", "4433",
+					"--http-timeout", "160"};
+
+			final HardwareSentryCli sentryCli = new HardwareSentryCli();
+			new CommandLine(sentryCli).parseArgs(arguments);
+			sentryCli.tryInteractivePasswords((fmt, args) -> "***********".toCharArray());
+			final HttpProtocol protocol = sentryCli.getHttpConfigCli().toProtocol(sentryCli.username, sentryCli.password);
+			assertNull(protocol.getPassword());
+		}
+	}
+
+	@Test
+	void testTryInteractivePasswordsWbem() {
+		{
+			// Interactive
+			final String[] arguments = { "hostaa",
+					"-t", "win",
+					"--wbem",
+					"--wbem-username", "admin",
+					"--wbem-port", "4433",
+					"--wbem-timeout", "160"};
+
+			final HardwareSentryCli sentryCli = new HardwareSentryCli();
+			new CommandLine(sentryCli).parseArgs(arguments);
+			sentryCli.tryInteractivePasswords((fmt, args) -> "****".toCharArray());
+			final WbemProtocol protocol = sentryCli.getWbemConfigCli().toProtocol(sentryCli.username, sentryCli.password);
+			assertEquals("****", new String(protocol.getPassword()));
+		}
+
+		{
+			// Not interactive
+			final String[] arguments = { "hostaa",
+					"-t", "win",
+					"--wbem",
+					"--wbem-username", "admin",
+					"--wbem-password", "****",
+					"--wbem-port", "4433",
+					"--wbem-timeout", "160"};
+
+			final HardwareSentryCli sentryCli = new HardwareSentryCli();
+			new CommandLine(sentryCli).parseArgs(arguments);
+			sentryCli.tryInteractivePasswords((fmt, args) -> "*********".toCharArray());
+			final WbemProtocol protocol = sentryCli.getWbemConfigCli().toProtocol(sentryCli.username, sentryCli.password);
+			assertEquals("****", new String(protocol.getPassword()));
+		}
+
+		{
+			// Not interactive because the username is not configured
+			final String[] arguments = { "hostaa",
+					"-t", "win",
+					"--wbem",
+					"--wbem-port", "4433",
+					"--wbem-timeout", "160"};
+
+			final HardwareSentryCli sentryCli = new HardwareSentryCli();
+			new CommandLine(sentryCli).parseArgs(arguments);
+			sentryCli.tryInteractivePasswords((fmt, args) -> "***********".toCharArray());
+			final WbemProtocol protocol = sentryCli.getWbemConfigCli().toProtocol(sentryCli.username, sentryCli.password);
+			assertNull(protocol.getPassword());
+		}
+	}
+
+	@Test
+	void testTryInteractivePasswordsWmi() {
+		{
+			// Interactive
+			final String[] arguments = { "hostaa",
+					"-t", "win",
+					"--wmi",
+					"--wmi-username", "admin",
+					"--wmi-timeout", "160"};
+
+			final HardwareSentryCli sentryCli = new HardwareSentryCli();
+			new CommandLine(sentryCli).parseArgs(arguments);
+			sentryCli.tryInteractivePasswords((fmt, args) -> "****".toCharArray());
+			final WmiProtocol protocol = sentryCli.getWmiConfigCli().toProtocol(sentryCli.username, sentryCli.password);
+			assertEquals("****", new String(protocol.getPassword()));
+		}
+
+		{
+			// Not interactive
+			final String[] arguments = { "hostaa",
+					"-t", "win",
+					"--wmi",
+					"--wmi-username", "admin",
+					"--wmi-password", "****",
+					"--wmi-timeout", "160"};
+
+			final HardwareSentryCli sentryCli = new HardwareSentryCli();
+			new CommandLine(sentryCli).parseArgs(arguments);
+			sentryCli.tryInteractivePasswords((fmt, args) -> "*********".toCharArray());
+			final WmiProtocol protocol = sentryCli.getWmiConfigCli().toProtocol(sentryCli.username, sentryCli.password);
+			assertEquals("****", new String(protocol.getPassword()));
+		}
+
+		{
+			// Not interactive because the username is not configured
+			final String[] arguments = { "hostaa",
+					"-t", "win",
+					"--wmi",
+					"--wmi-timeout", "160"};
+
+			final HardwareSentryCli sentryCli = new HardwareSentryCli();
+			new CommandLine(sentryCli).parseArgs(arguments);
+			sentryCli.tryInteractivePasswords((fmt, args) -> "*********".toCharArray());
+			final WmiProtocol protocol = sentryCli.getWmiConfigCli().toProtocol(sentryCli.username, sentryCli.password);
+			assertNull(protocol.getPassword());
+		}
+	}
+
+	@Test
+	void testTryInteractivePasswordsWinRm() {
+		{
+			// Interactive
+			final String[] arguments = { "hostaa",
+					"-t", "win",
+					"--winrm",
+					"--winrm-username", "admin",
+					"--winrm-timeout", "160"};
+
+			final HardwareSentryCli sentryCli = new HardwareSentryCli();
+			new CommandLine(sentryCli).parseArgs(arguments);
+			sentryCli.tryInteractivePasswords((fmt, args) -> "****".toCharArray());
+			final WinRmProtocol protocol = sentryCli.getWinRmConfigCli().toProtocol(sentryCli.username, sentryCli.password);
+			assertEquals("****", new String(protocol.getPassword()));
+		}
+
+		{
+			// Not interactive
+			final String[] arguments = { "hostaa",
+					"-t", "win",
+					"--winrm",
+					"--winrm-username", "admin",
+					"--winrm-password", "****",
+					"--winrm-timeout", "160"};
+
+			final HardwareSentryCli sentryCli = new HardwareSentryCli();
+			new CommandLine(sentryCli).parseArgs(arguments);
+			sentryCli.tryInteractivePasswords((fmt, args) -> "********".toCharArray());
+			final WinRmProtocol protocol = sentryCli.getWinRmConfigCli().toProtocol(sentryCli.username, sentryCli.password);
+			assertEquals("****", new String(protocol.getPassword()));
+		}
+
+		{
+			// Not interactive because the username is not configured
+			final String[] arguments = { "hostaa",
+					"-t", "win",
+					"--winrm",
+					"--winrm-timeout", "160"};
+
+			final HardwareSentryCli sentryCli = new HardwareSentryCli();
+			new CommandLine(sentryCli).parseArgs(arguments);
+			sentryCli.tryInteractivePasswords((fmt, args) -> "********".toCharArray());
+			final WinRmProtocol protocol = sentryCli.getWinRmConfigCli().toProtocol(sentryCli.username, sentryCli.password);
+			assertNull(protocol.getPassword());
+		}
+	}
+
+	@Test
+	void testTryInteractivePasswordsSsh() {
+		{
+			// Interactive
+			final String[] arguments = { "hostaa",
+					"-t", "win",
+					"--ssh",
+					"--ssh-username", "admin",
+					"--ssh-timeout", "160"};
+
+			final HardwareSentryCli sentryCli = new HardwareSentryCli();
+			new CommandLine(sentryCli).parseArgs(arguments);
+			sentryCli.tryInteractivePasswords((fmt, args) -> "****".toCharArray());
+			final SshProtocol protocol = sentryCli.getSshConfigCli().toProtocol(sentryCli.username, sentryCli.password);
+			assertEquals("****", new String(protocol.getPassword()));
+		}
+
+		{
+			// Not interactive
+			final String[] arguments = { "hostaa",
+					"-t", "win",
+					"--ssh",
+					"--ssh-username", "admin",
+					"--ssh-password", "****",
+					"--ssh-timeout", "160"};
+
+			final HardwareSentryCli sentryCli = new HardwareSentryCli();
+			new CommandLine(sentryCli).parseArgs(arguments);
+			sentryCli.tryInteractivePasswords((fmt, args) -> "**********".toCharArray());
+			final SshProtocol protocol = sentryCli.getSshConfigCli().toProtocol(sentryCli.username, sentryCli.password);
+			assertEquals("****", new String(protocol.getPassword()));
+		}
+
+		{
+			// Not interactive because the username is not configured
+			final String[] arguments = { "hostaa",
+					"-t", "win",
+					"--ssh",
+					"--ssh-timeout", "160"};
+
+			final HardwareSentryCli sentryCli = new HardwareSentryCli();
+			new CommandLine(sentryCli).parseArgs(arguments);
+			sentryCli.tryInteractivePasswords((fmt, args) -> "****".toCharArray());
+			final SshProtocol protocol = sentryCli.getSshConfigCli().toProtocol(sentryCli.username, sentryCli.password);
+			assertNull(protocol.getPassword());
+		}
+	}
+
+	@Test
+	void testTryInteractivePasswordsIpmi() {
+		{
+			// Interactive
+			final String[] arguments = { "hostaa",
+					"-t", "win",
+					"--ipmi",
+					"--ipmi-username", "admin",
+					"--ipmi-timeout", "160"};
+	
+			final HardwareSentryCli sentryCli = new HardwareSentryCli();
+			new CommandLine(sentryCli).parseArgs(arguments);
+			sentryCli.tryInteractivePasswords((fmt, args) -> "****".toCharArray());
+			final IpmiOverLanProtocol protocol = sentryCli.getIpmiConfigCli().toProtocol(sentryCli.username, sentryCli.password);
+			assertEquals("****", new String(protocol.getPassword()));
+		}
+	
+		{
+			// Not interactive
+			final String[] arguments = { "hostaa",
+					"-t", "win",
+					"--ipmi",
+					"--ipmi-username", "admin",
+					"--ipmi-password", "****",
+					"--ipmi-timeout", "160"};
+	
+			final HardwareSentryCli sentryCli = new HardwareSentryCli();
+			new CommandLine(sentryCli).parseArgs(arguments);
+			sentryCli.tryInteractivePasswords((fmt, args) -> "**********".toCharArray());
+			final IpmiOverLanProtocol protocol = sentryCli.getIpmiConfigCli().toProtocol(sentryCli.username, sentryCli.password);
+			assertEquals("****", new String(protocol.getPassword()));
+		}
+	
+		{
+			// Not interactive because the username is not configured
+			final String[] arguments = { "hostaa",
+					"-t", "win",
+					"--ipmi",
+					"--ipmi-timeout", "160"};
+	
+			final HardwareSentryCli sentryCli = new HardwareSentryCli();
+			new CommandLine(sentryCli).parseArgs(arguments);
+			sentryCli.tryInteractivePasswords((fmt, args) -> "**********".toCharArray());
+			final IpmiOverLanProtocol protocol = sentryCli.getIpmiConfigCli().toProtocol(sentryCli.username, sentryCli.password);
+			assertNull(protocol.getPassword());
+		}
+	}
 }

@@ -7,9 +7,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Json2Csv;
+import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
 
 public class PropertiesProcessor extends Json2CsvProcessor {
 	private static final Pattern PROPERTIES_KEY_PATTERN = Pattern.compile(
@@ -29,8 +32,17 @@ public class PropertiesProcessor extends Json2CsvProcessor {
 		List<String> selectColumns = new ArrayList<>();
 
 		try {
-			Arrays.stream(value.split(SEMICOLON))
-			.forEach(selectColumn -> selectColumns.add(selectColumn.trim()));
+			String[] splitValue = (!value.endsWith(SEMICOLON)
+					? value + SEMICOLON
+					: value)
+					.split(SEMICOLON, -1);
+			
+			selectColumns = Stream
+				.of(splitValue)
+				.limit(splitValue.length - 1L)
+				.map(String::trim)
+				.collect(Collectors.toList());
+
 		} catch (NumberFormatException e) {
 			throw new IllegalStateException(
 					"PropertiesProcessor parse: Could not select properties from Source ("

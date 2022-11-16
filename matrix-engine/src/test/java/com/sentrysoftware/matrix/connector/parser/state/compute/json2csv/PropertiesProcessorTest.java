@@ -22,10 +22,9 @@ public class PropertiesProcessorTest {
 	private final Connector connector = new Connector();
 
 	private static final String PROPERTIES_KEY = "enclosure.collect.source(1).compute(1).properties";
-	private static final String VALUE = "instanceId;instanceName;serialNumber;hostOrIpAddress;modelSeries";
-	private static final List<String> VALUE_RESULT = 
-			new ArrayList<>(Arrays.asList("instanceId", "instanceName", "serialNumber", "hostOrIpAddress", "modelSeries"));
-
+	private static String VALUE = "instanceId;instanceName;serialNumber;hostOrIpAddress;modelSeries";
+	private static List<String> result;
+	
 	@Test
 	void testParse() {
 
@@ -55,7 +54,20 @@ public class PropertiesProcessorTest {
 		.getHardwareMonitors()
 		.add(hardwareMonitor);
 
+		
+		result = new ArrayList<>(Arrays.asList("instanceId", "instanceName", "serialNumber", "hostOrIpAddress", "modelSeries"));
+		
 		propertiesProcessor.parse(PROPERTIES_KEY, VALUE, connector);
-		assertEquals(VALUE_RESULT, json2Csv.getProperties());
+		assertEquals(result, json2Csv.getProperties());
+		
+		// Testing with 1 and 2 additional separators
+		
+		propertiesProcessor.parse(PROPERTIES_KEY, VALUE + ";", connector);
+		assertEquals(result, json2Csv.getProperties());
+		
+		result.add("");
+		
+		propertiesProcessor.parse(PROPERTIES_KEY, VALUE + ";;", connector);
+		assertEquals(result, json2Csv.getProperties());
 	}
 }
