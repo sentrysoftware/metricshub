@@ -19,6 +19,8 @@
 
 	<properties>
 		<log4j2.version>2.18.0</log4j2.version>
+		<!-- OpenTelemetry Javaagent location -->
+		<otelJavaAgentUrl>https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar</otelJavaAgentUrl>
 	</properties>
 
 	<dependencies>
@@ -329,6 +331,26 @@
 						</manifestEntries>
 					</archive>
 				</configuration>
+			</plugin>
+
+			<plugin>
+			<groupId>com.googlecode.maven-download-plugin</groupId>
+			<artifactId>download-maven-plugin</artifactId>
+			<executions>
+				<execution>
+					<id>install-otel-javaagent</id>
+					<phase>generate-resources</phase>
+					<goals>
+						<goal>wget</goal>
+					</goals>
+					<configuration>
+						<url>${otelJavaAgentUrl}</url>
+						<!-- We want the jar not the decompressed folders -->
+						<unpack>false</unpack>
+						<outputDirectory>${project.build.directory}/otel</outputDirectory>
+					</configuration>
+				</execution>
+			</executions>
 			</plugin>
 
 			<!-- assembly -->
