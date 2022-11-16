@@ -1,0 +1,78 @@
+---
+hosts:
+
+  - host:
+      hostname: 357306c9-07e9-431b-bc71-b7712daabbbf
+      type: LINUX
+      id: 357306c9-07e9-431b-bc71-b7712daabbbf-1
+    snmp:
+      version: V1
+      community: public
+      port: 161
+      timeout: 120
+    selectedConnectors:
+      - DellOpenManage
+    excludedConnectors: []
+    collectPeriod: 180
+    discoveryCycle: 45
+
+  - host:
+      hostname: 85f8514e-1b4d-4766-87af-09a84ca2a397
+      type: LINUX
+    snmp:
+      version: V1
+      community: public
+      port: 161
+      timeout: 120
+    selectedConnectors:
+      - DellOpenManage
+    excludedConnectors: []
+
+  - host:
+      hostname: 3ba095eb-d5e8-4acd-81f4-dc81e29982e7
+      type: LINUX
+    snmp:
+      version: V1
+      community: public
+      port: 161
+      timeout: 120
+    selectedConnectors:
+      - DellOpenManage
+    excludedConnectors: []
+
+  - hostGroup: 
+      hostnames: [ host1, host2 ]
+      type: linux
+    snmp:
+      version: v1
+      community: public
+      port: 161
+      timeout: 120
+    selectedConnectors:
+      - DellOpenManage
+    excludedConnectors: []
+    collectPeriod: 180
+    discoveryCycle: 45
+    
+  - hostGroup:
+      type: windows
+      hostnames:
+        192.168.7.34:
+          extraLabels:
+            host.name: test1.lab.local
+            host.id: id1
+        192.168.7.35:
+          extraLabels:
+            host.name: test2.lab.local
+            host.id: id2
+    snmp:
+      version: v1
+      community: public
+      port: 161
+      timeout: 120
+    selectedConnectors:
+      - DellOpenManage
+    excludedConnectors: []
+    collectPeriod: 180
+    discoveryCycle: 45
+    

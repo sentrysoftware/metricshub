@@ -481,46 +481,7 @@ public class ConfigHelper {
 		try {
 			final MultiHostsConfigurationDto multiHostsConfig = deserializeYamlFile(configFile, MultiHostsConfigurationDto.class);
 
-			multiHostsConfig.getHosts().forEach(configDto -> {
-				HardwareHostDto host = configDto.getHost();
-				// Make sure the host id is always set
-				if (host.getId() == null) {
-					host.setId(host.getHostname());
-				}
-
-				// Set global collect period if there is no specific collect period on the host
-				if (configDto.getCollectPeriod() == null) {
-					configDto.setCollectPeriod(multiHostsConfig.getCollectPeriod());
-				}
-
-				// Set global collect period if there is no specific collect period on the host
-				if (configDto.getDiscoveryCycle() == null) {
-					configDto.setDiscoveryCycle(multiHostsConfig.getDiscoveryCycle());
-				}
-
-				// Set the global level in the host log level.
-				// Always the global logger settings wins as the matrix logger
-				// 'com.sentrysoftware', is created only once and handles the Level globally for
-				// all the hosts.
-				configDto.setLoggerLevel(multiHostsConfig.getLoggerLevel());
-				configDto.setOutputDirectory(multiHostsConfig.getOutputDirectory());
-
-				// Set global sequential flag in the host configuration if this host doesn't define the sequential flag
-				// It is more practical to set the flag only once when the requirement is that each host must run the network calls in serial mode
-				if (configDto.getSequential() == null) {
-					configDto.setSequential(multiHostsConfig.isSequential());
-				}
-
-				// Set the hardware problem template for alerting
-				if (configDto.getHardwareProblemTemplate() == null) {
-					configDto.setHardwareProblemTemplate(multiHostsConfig.getHardwareProblemTemplate());
-				}
-
-				// Set the disableAlerts flag to enable or disable alerting
-				if (configDto.getDisableAlerts() == null) {
-					configDto.setDisableAlerts(multiHostsConfig.isDisableAlerts());
-				}
-			});
+			normalizeHostConfigurations(multiHostsConfig);
 
 			return multiHostsConfig;
 		} catch (Exception e) {
@@ -529,6 +490,59 @@ public class ConfigHelper {
 			return MultiHostsConfigurationDto.empty();
 
 		}
+	}
+
+	/** 
+	 * Normalizes the host configuration and sets global values if no specific values are specified
+	 * 
+	 * @param multiHostsConfig
+	 */
+	static void normalizeHostConfigurations(final MultiHostsConfigurationDto multiHostsConfig) {
+		multiHostsConfig.getHosts().forEach(configDto -> {
+			validateHostConfiguration(configDto);
+
+			if (configDto.isSingleHost()) {
+				HardwareHostDto host = configDto.getHost();
+
+				// Make sure the host id is always set
+				if (host.getId() == null) {
+					host.setId(host.getHostname());
+				}
+			}
+
+			// Set global collect period if there is no specific collect period on the host
+			if (configDto.getCollectPeriod() == null) {
+				configDto.setCollectPeriod(multiHostsConfig.getCollectPeriod());
+			}
+
+			// Set global collect period if there is no specific collect period on the host
+			if (configDto.getDiscoveryCycle() == null) {
+				configDto.setDiscoveryCycle(multiHostsConfig.getDiscoveryCycle());
+			}
+
+			// Set the global level in the host log level.
+			// Always the global logger settings wins as the matrix logger
+			// 'com.sentrysoftware', is created only once and handles the Level globally for
+			// all the hosts.
+			configDto.setLoggerLevel(multiHostsConfig.getLoggerLevel());
+			configDto.setOutputDirectory(multiHostsConfig.getOutputDirectory());
+
+			// Set global sequential flag in the host configuration if this host doesn't define the sequential flag
+			// It is more practical to set the flag only once when the requirement is that each host must run the network calls in serial mode
+			if (configDto.getSequential() == null) {
+				configDto.setSequential(multiHostsConfig.isSequential());
+			}
+
+			// Set the hardware problem template for alerting
+			if (configDto.getHardwareProblemTemplate() == null) {
+				configDto.setHardwareProblemTemplate(multiHostsConfig.getHardwareProblemTemplate());
+			}
+
+			// Set the disableAlerts flag to enable or disable alerting
+			if (configDto.getDisableAlerts() == null) {
+				configDto.setDisableAlerts(multiHostsConfig.isDisableAlerts());
+			}
+		});
 	}
 
 	/**
@@ -544,7 +558,7 @@ public class ConfigHelper {
 		final Map<String, IHostMonitoring> hostMonitoringMap = new HashMap<>();
 
 		multiHostsConfigurationDto
-			.getHosts()
+			.getResolvedHosts()
 			.forEach(hostConfigurationDto ->
 				fillHostMonitoringMap(hostMonitoringMap, acceptedConnectorNames, hostConfigurationDto));
 
@@ -758,5 +772,20 @@ public class ConfigHelper {
 				INVALID_STRING_CHECKER,
 				() -> String.format(USERNAME_ERROR, hostname, protocol),
 				ErrorCode.NO_USERNAME);
+	}
+
+	/** 
+	 * Validate the given hostConfigurationDto.
+     *
+	 * @param hostConfigurationDto
+	 */
+	private static void validateHostConfiguration(HostConfigurationDto hostConfigurationDto) {
+		if (!hostConfigurationDto.isHostGroup() && !hostConfigurationDto.isSingleHost()) {
+			throw new IllegalStateException(String.format("Neither `host` nor `hostGroup` is defined for the host configuration: %s", hostConfigurationDto.toString()));
+		}
+		
+		if (hostConfigurationDto.isHostGroup() && hostConfigurationDto.isSingleHost()) {
+			throw new IllegalStateException(String.format("Host configuration cannot contain both `hosts` and `hostGroup` fields: %s", hostConfigurationDto.toString()));
+		}
 	}
 }

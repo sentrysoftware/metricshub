@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
 
@@ -81,7 +82,7 @@ public class TaskSchedulingService {
 
 		// Loop over each host and get its id then schedule the host monitoring strategy task
 		multiHostsConfigurationDto
-			.getHosts()
+			.getResolvedHosts()
 			.forEach(this::scheduleHostTask);
 
 		FileWatcherTask.builder()
@@ -249,6 +250,9 @@ public class TaskSchedulingService {
 
 		hostsToRemove
 			.stream()
+			.flatMap(host ->
+				host.isHostGroup() ? host.resolveHostGroups().stream() : Stream.of(host)
+			)
 			.map(host -> host.getHost().getId())
 			.forEach(hostId -> {
 				// Remove the scheduled task
@@ -259,11 +263,16 @@ public class TaskSchedulingService {
 			});
 
 		// First create new HostMonitoring instances for the new hosts
-		newHosts.forEach(newHost ->
+		newHosts
+		.stream()
+		.flatMap(newHost ->
+			newHost.isHostGroup() ? newHost.resolveHostGroups().stream() : Stream.of(newHost)
+		)
+		.forEach(newHost ->
 			ConfigHelper.fillHostMonitoringMap(
-					hostMonitoringMap,
-					ConnectorStore.getInstance().getConnectors().keySet(),
-					newHost
+				hostMonitoringMap,
+				ConnectorStore.getInstance().getConnectors().keySet(),
+				newHost
 			)
 		);
 
@@ -283,7 +292,12 @@ public class TaskSchedulingService {
 		}
 
 		// Finally schedule tasks for the new added or updated hosts
-		newHosts.forEach(this::scheduleHostTask);
+		newHosts
+			.stream()
+			.flatMap(host ->
+				host.isHostGroup() ? host.resolveHostGroups().stream() : Stream.of(host)
+			)
+			.forEach(this::scheduleHostTask);
 	}
 
 	/**
