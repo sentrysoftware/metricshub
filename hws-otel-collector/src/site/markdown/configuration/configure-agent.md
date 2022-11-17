@@ -48,24 +48,28 @@ To collect metrics from your hosts, you must provide the following information i
 * its type
 * the protocol to be used.
 
+You can either configure your hosts individually or several at a times if they share the same characteristics (device type, protocols, credentials, etc.)?
+
 > **Important**: Because a typo or incorrect indentation in the `hws-config.yaml` file could cause your hardware monitoring to fail, it is highly recommended to install the [vscode-yaml](https://github.com/redhat-developer/vscode-yaml) extension in your editor to benefit from tooltips and autocompletion suggested by the [Hardware Sentry Configuration](https://json.schemastore.org/hws-config.json) JSON Schema.
 
 ### Monitored hosts
+
+#### Single host
 
 Systems to monitor are defined under `hosts` with the below syntax:
 
 ```yaml
 hosts:
 
-- hostGroup:
-    hostnames: <hostnames>
+- host:
+    hostname: <hostname>
     type: <host-type>
   <protocol-configuration>
 ```
 
 where:
 
-* `<hostnames>` is the list of hosts that share the same characteristics (host type, protocol, credentials, etc.). The hostnames or IP addresses provided must be delimited by a comma.
+* `<hostname>` is the name of the host, or its IP address.
 * `<host-type>` is the type of the host to be monitored. Possible values are:
 
     * `win` for Microsoft Windows systems
@@ -80,6 +84,49 @@ where:
     * `vms` for HP Open VMS systems
   Refer to [Monitored Systems](../platform-requirements.html) for more details.
   
+* `<protocol-configuration>` is the protocol(s) **${project.name}** will use to communicate with the hosts: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](#protocol) for more details.
+
+#### Multiple hosts
+
+You can group hosts that share the same characteristics (device type, protocols, credentials, etc.) using one of the below syntax:
+
+```yaml
+hosts:
+
+- host:
+    hostnames: [ <hostname>,<hostname>, etc.]
+    type: <host-type>
+  <protocol-configuration>
+
+```
+where:
+
+* `<hostnames>` is a comma-delimited list of hosts to be monitored. Provide their hostname or IP address.
+* `<host-type>` is the type of the host to be monitored.
+* `<protocol-configuration>` is the protocol(s) **${project.name}** will use to communicate with the hosts: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](#protocol) for more details.
+
+or
+
+```yaml
+hosts:
+- hostGroup:
+    type: <host-type>
+    hostnames:
+      server-01:
+        extraLabels:
+          host.name: server-01.local.net
+          host.id: my-server-01-id
+      server-02:
+        extraLabels:
+          host.name: server-02.local.net
+          host.id: my-server-02-id
+  <protocol-configuration>
+```
+
+where:
+
+* `<hostnames>` is a group of hosts to be monitored. For each host, provide its hostname and `extraLabels`.
+* `<host-type>` is the type of the host to be monitored. Possible values are:
 * `<protocol-configuration>` is the protocol(s) **${project.name}** will use to communicate with the hosts: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](#protocol) for more details.
 
 <a name="protocol"></a>
@@ -102,7 +149,7 @@ Use the parameters below to configure the HTTP protocol:
 ```yaml
 hosts:
 
-  - hostGroup:
+  - host:
       hostname: myhost-01
       type: storage
     http:
@@ -127,7 +174,7 @@ Use the parameters below to configure the IPMI protocol:
 ```yaml
 hosts:
 
-- hostGroup:
+- host:
     hostname: myhost-01
     type: oob
   ipmi:
@@ -151,7 +198,7 @@ Use the parameters below to configure OS Commands that are executed locally:
 
 ```yaml
 hosts:
-  - hostGroup:
+  - host:
       hostname: myhost-01
       type: linux
     osCommand:
@@ -180,7 +227,7 @@ Use the parameters below to configure the SSH protocol:
 
 ```yaml
 hosts:
-  - hostGroup:
+  - host:
       hostname: myhost-01
       type: linux
     ssh:
@@ -215,7 +262,7 @@ Use the parameters below to configure the SNMP protocol:
 ```yaml
 hosts:
 
-- hostGroup:
+- host:
     hostname: myhost-01
     type: linux
   snmp:
@@ -224,7 +271,7 @@ hosts:
     port: 161
     timeout: 120s
 
-- hostGroup:
+- host:
     hostname: myhost-01
     type: linux
   snmp:
@@ -233,7 +280,7 @@ hosts:
     port: 161
     timeout: 120s
 
-- hostGroup:
+- host:
     hostname: myhost-01
     type: linux
   snmp:
@@ -266,7 +313,7 @@ Use the parameters below to configure the WBEM protocol:
 ```yaml
 hosts:
 
-  - hostGroup:
+  - host:
       hostname: myhost-01
       type: storage
     wbem:
@@ -293,7 +340,7 @@ Use the parameters below to configure the WMI protocol:
 ```yaml
 hosts:
 
-  - hostGroup:
+  - host:
       hostname: myhost-01
       type: win
     wmi:
@@ -321,7 +368,7 @@ Use the parameters below to configure the WinRM protocol:
 ```yaml
 hosts:
 
-  - hostGroup:
+  - host:
       hostname: server-11
       type: win
     winrm:
@@ -354,7 +401,7 @@ To disable **${project.name}**'s alerts:
     ```yaml
     hosts:
 
-    - hostGroup:
+    - host:
         hostname: myhost
         type: linux
       snmp:
@@ -388,7 +435,7 @@ To change this default hardware problem template:
     ```yaml
     hosts:
 
-    - hostGroup:
+    - host:
         hostname: myhost
         type: linux
       snmp:
@@ -445,7 +492,7 @@ By default, **${project.name}** collects metrics from the monitored hosts every 
     ```yaml
     hosts:
 
-    - hostGroup:
+    - host:
         hostname: myhost
         type: linux
       snmp:
@@ -474,7 +521,7 @@ Connector names must be comma-separated, as shown in the example below:
 ```yaml
 hosts:
 
-  - hostGroup:
+  - host:
       hostname: myhost-01
       type: win
     wmi:
@@ -512,7 +559,7 @@ For more information about the `hws` command, refer to [Hardware Sentry CLI (hws
     ```yaml
     hosts:
 
-    - hostGroup:
+    - host:
         hostname: myhost
         type: linux
       snmp:
@@ -536,7 +583,7 @@ In the example below, we override the `host.name` attribute resolved by **${proj
 ```yaml
 hosts:
 
-- hostGroup:
+- host:
     hostname: host01
     type: Linux
   snmp:
@@ -548,6 +595,25 @@ hosts:
     app: Jenkins
 ```
 
+In the example below, we configure several hosts which share the same characteristics (`hostGroup`) and override the `host.name` attributes resolved by **${project.name}** with `server-01.local.net` and `server-02.local.net` and indicate that these hosts are `Jenkins` apps:
+
+```yaml
+hosts:
+- hostGroup:
+    type: <host-type>
+    hostnames:
+      server-01:
+        extraLabels:
+          host.name: server-01.local.net
+          host.id: my-server-01-id
+          app: Jenkins
+      server-02:
+        extraLabels:
+          host.name: server-02.local.net
+          host.id: my-server-02-id
+          app: Jenkins
+```
+
 #### Hostname resolution
 
 By default, **${project.name}** resolves the `hostname` of the host to a Fully Qualified Domain Name (FQDN) and displays this value in the [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md) attribute `host.name`. To display the configured hostname instead, set `resolveHostnameToFqdn` to `false`:
@@ -557,7 +623,7 @@ resolveHostnameToFqdn: false
 
 hosts:
 
-- hostGroup:
+- host:
     hostname: host01
     type: Linux
 ```
@@ -595,7 +661,7 @@ To force all the network calls to be executed in sequential order:
     ```yaml
     hosts:
 
-    - hostGroup:
+    - host:
         hostname: myhost
         type: linux
       snmp:
