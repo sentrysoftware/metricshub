@@ -94,7 +94,7 @@ You can group hosts that share the same characteristics (device type, protocols,
 hosts:
 
 - host:
-    hostnames: [ <hostname>,<hostname>, etc.]
+    hostnames: [ <hostname1>,<hostname2>, etc.]
     type: <host-type>
   <protocol-configuration>
 
