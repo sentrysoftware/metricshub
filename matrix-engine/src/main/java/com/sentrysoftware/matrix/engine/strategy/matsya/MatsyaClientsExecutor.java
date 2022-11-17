@@ -931,11 +931,12 @@ public class MatsyaClientsExecutor {
 		final char[] password = httpProtocol.getPassword();
 
 		// Update macros in the authentication token
+		final String httpRequestAuthToken = httpRequest.getAuthenticationToken();
 		final String authenticationToken = HttpMacrosUpdater.update(
-			httpRequest.getAuthenticationToken(),
+			httpRequestAuthToken,
 			username,
 			password,
-			httpRequest.getAuthenticationToken(),
+			httpRequestAuthToken,
 			hostname
 		);
 
@@ -963,10 +964,13 @@ public class MatsyaClientsExecutor {
 		final String bodyContentProtected = body == null ?
 				EMPTY : body.getContent(username, CHAR_ARRAY_MASK, MASK, hostname);
 
-		// Get the URL and update the known HTTP macros
-		notNull(httpRequest.getUrl(), "URL cannot be null.");
+		// Get the HTTP request URL
+		final String httpRequestUrl = httpRequest.getUrl();
+		notNull(httpRequestUrl, "HTTP request URL cannot be null.");
+
+		// Update the known HTTP macros
 		final String url = HttpMacrosUpdater.update(
-			httpRequest.getUrl(),
+			httpRequestUrl,
 			username,
 			password,
 			authenticationToken,
@@ -974,7 +978,7 @@ public class MatsyaClientsExecutor {
 		);
 
 		// Set the protocol http or https
-		final String protocol = httpProtocol.getHttps() != null && httpProtocol.getHttps() ? "https" : "http";
+		final String protocol = Boolean.TRUE.equals(httpProtocol.getHttps()) ? "https" : "http";
 
 		// Build the full URL
 		final String fullUrl = Url.format(hostname, httpProtocol.getPort(), url, protocol);
