@@ -127,7 +127,7 @@ hosts:
 where:
 
 * `<hostnames>` is a group of hosts to be monitored. For each host, provide its hostname and `extraLabels`.
-* `<host-type>` is the type of the host to be monitored. Possible values are:
+* `<host-type>` is the type of the host to be monitored.
 * `<protocol-configuration>` is the protocol(s) **${project.name}** will use to communicate with the hosts: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](#protocol) for more details.
 
 <a name="protocol"></a>
