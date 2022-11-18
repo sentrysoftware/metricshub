@@ -124,7 +124,7 @@ hosts:
 
 where:
 
-* `<hostnames>` is the name of the host, or its IP address. Using this format, you can provide `extraLabels` for each configured host.
+* `<hostname>` is the name of the host, or its IP address. Using this format, you can provide `extraLabels` for each configured host.
 * `<host-type>` is the type of the host to be monitored.
 * `<protocol-configuration>` is the protocol(s) **${project.name}** will use to communicate with the hosts: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](#protocol) for more details.
 
