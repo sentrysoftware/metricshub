@@ -102,7 +102,7 @@ hosts:
 
 where:
 
-* `<hostnames>` is a comma-delimited list of hosts to be monitored. Provide their hostname or IP address.
+* `<hostname1>,<hostname2>, etc.` is a comma-delimited list of hosts to be monitored. Provide their hostname or IP address.
 * `<host-type>` is the type of the host to be monitored.
 * `<protocol-configuration>` is the protocol(s) **${project.name}** will use to communicate with the hosts: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](#protocol) for more details.
 
@@ -113,20 +113,18 @@ hosts:
 - hostGroup:
     type: <host-type>
     hostnames:
-      server-01:
+      <hostname>:
         extraLabels:
           host.name: server-01.local.net
           host.id: my-server-01-id
-      server-02:
-        extraLabels:
-          host.name: server-02.local.net
-          host.id: my-server-02-id
+    # <hostname>:
+    #   extraLabels:
   <protocol-configuration>
 ```
 
 where:
 
-* `<hostnames>` is a group of hosts to be monitored. For each host, provide its hostname and `extraLabels`.
+* `<hostnames>` is the name of the host, or its IP address. Using this format, you can provide `extraLabels` for each configured host.
 * `<host-type>` is the type of the host to be monitored.
 * `<protocol-configuration>` is the protocol(s) **${project.name}** will use to communicate with the hosts: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](#protocol) for more details.
 
