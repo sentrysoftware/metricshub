@@ -8,6 +8,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Collectors;
@@ -87,6 +88,7 @@ class TaskSchedulingServiceRemovalTest {
 				.build());
 
 		doReturn(previous.getHosts()).when(multiHostsConfigurationDto).getHosts();
+		doReturn(previous.getOtelCollector()).when(multiHostsConfigurationDto).getOtelCollector();
 		final ScheduledFuture<?> mock = Mockito.mock(ScheduledFuture.class);
 		doReturn(mock).when(hostSchedules).get(any());
 		doReturn(true).when(mock).cancel(true);
@@ -112,12 +114,15 @@ class TaskSchedulingServiceRemovalTest {
 			configHelper.when(() -> ConfigHelper.readConfigurationSafe(any())).thenReturn(previous);
 			configHelper.when(() -> ConfigHelper.decrypt(any())).thenAnswer(invocation -> invocation.getArgument(0));
 			configHelper.when(() -> ConfigHelper.fillHostMonitoringMap(any(), any(), any())).thenCallRealMethod();
+			configHelper.when(() -> ConfigHelper.getSubPath(any())).thenAnswer(invocation -> Paths.get(invocation.getArgument(0).toString()));
 
 			doReturn(
 				previous.getHosts(),
 				previous.getHosts().stream().collect(Collectors.toSet()),
 				previous.getHosts().stream().collect(Collectors.toSet())
 			).when(multiHostsConfigurationDto).getHosts();
+
+			doReturn(previous.getOtelCollector()).when(multiHostsConfigurationDto).getOtelCollector();
 
 			doReturn(new HostMonitoring()).when(hostMonitoringMap).get(any());
 

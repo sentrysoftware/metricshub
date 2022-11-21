@@ -1,11 +1,14 @@
 package com.sentrysoftware.hardware.agent.dto.exporter;
 
+import static com.fasterxml.jackson.annotation.Nulls.SKIP;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.sentrysoftware.hardware.agent.configuration.ConfigHelper;
 
 import lombok.AllArgsConstructor;
@@ -20,6 +23,9 @@ import lombok.NoArgsConstructor;
 @Builder
 public class OtlpConfigDto {
 
+	@Default
+	@JsonSetter(nulls = SKIP)
+	private String endpoint = "https://localhost:4317";
 	private String trustedCertificatesFile;
 
 	@Default
@@ -46,6 +52,16 @@ public class OtlpConfigDto {
 				.collect(Collectors.joining(","));
 
 		return Optional.of(result);
+	}
+
+	/**
+	 * Whether the OTLP <code>endpoint</code> is defined or not.
+	 * 
+	 * @return <code>true</code> if the <code>endpoint</code> is not
+	 *         <code>null</code> and not blank
+	 */
+	public boolean hasEndpoint() {
+		return endpoint != null && !endpoint.isBlank();
 	}
 
 }

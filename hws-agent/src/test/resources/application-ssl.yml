@@ -23,4 +23,3 @@ otelVersion: "0.55.0"
 spring:
   main:
     banner-mode: "off"
-grpc: http://localhost:4317

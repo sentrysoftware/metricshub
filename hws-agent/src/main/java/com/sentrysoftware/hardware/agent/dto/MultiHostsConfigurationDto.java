@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.hardware.agent.deserialization.TimeDeserializer;
 import com.sentrysoftware.hardware.agent.dto.exporter.ExporterConfigDto;
 import com.sentrysoftware.hardware.agent.dto.exporter.OtlpConfigDto;
+import com.sentrysoftware.hardware.agent.dto.opentelemetry.OtelCollectorConfigDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -81,6 +82,10 @@ public class MultiHostsConfigurationDto {
 
 	@Default
 	private boolean disableAlerts = false;
+
+	@Default
+	@JsonSetter(nulls = SKIP)
+	private OtelCollectorConfigDto otelCollector = OtelCollectorConfigDto.builder().build();
 
 	/**
 	 * Build a new empty instance

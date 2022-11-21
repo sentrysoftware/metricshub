@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -29,11 +28,11 @@ public class OtelConfig {
 	 * @param fileDir         The directory of the security file
 	 * @param defaultFilename the default security filename
 	 * @param file            Defines the security file
-	 * @param grpcEndpoint    OpenTelemetry gRPC receiver endpoint
+	 * @param otlpEndpoint    OpenTelemetry gRPC OTLP receiver endpoint
 	 * @return Optional of {@link Path}
 	 */
 	static Optional<String> getSecurityFilePath(@NonNull final String fileDir, @NonNull final String defaultFilename,
-			final String file, @NonNull final String grpcEndpoint) {
+			final String file, @NonNull final String otlpEndpoint) {
 		final Path securityFilePath;
 		// No security file path? we will use the default one
 		if (file == null || file.isBlank()) {
@@ -44,10 +43,10 @@ public class OtelConfig {
 		}
 
 		// No security for HTTP
-		if (grpcEndpoint.toLowerCase().startsWith("http://")) {
+		if (otlpEndpoint.toLowerCase().startsWith("http://")) {
 			log.debug(
-					"There is no Otel security file to load for the gRPC exporter[endpoint: {}]. The security file {} is loaded only for https connections.",
-					grpcEndpoint, securityFilePath);
+					"There is no Otel security file to load for the gRPC OTLP exporter[endpoint: {}]. The security file {} is loaded only for https connections.",
+					otlpEndpoint, securityFilePath);
 			return Optional.empty();
 		}
 
@@ -61,28 +60,40 @@ public class OtelConfig {
 	}
 
 	@Bean
-	public Map<String, String> otelSdkConfiguration(final MultiHostsConfigurationDto multiHostsConfigurationDto,
-			@Value("#{ '${grpc}'.isBlank() ? 'https://localhost:4317' : '${grpc}' }") final String grpcEndpoint) {
+	public Map<String, String> otelSdkConfiguration(final MultiHostsConfigurationDto multiHostsConfigurationDto) {
 
 		final Map<String, String> properties = new HashMap<>();
 
+		// Default OTLP endpoint
+		String otlpEndpoint = "https://localhost:4317";
+
 		properties.put("otel.metrics.exporter", "otlp");
 		properties.put("otel.logs.exporter", "otlp");
-		properties.put("otel.exporter.otlp.endpoint", grpcEndpoint);
+		properties.put("otel.exporter.otlp.endpoint", otlpEndpoint);
 		properties.put("otel.metric.export.interval", String.valueOf(Duration.ofDays(365 * 10L).toMillis()));
 
 		String certificatesFileToTrust = null;
+
+		// Does the user configured OTLP?
 		if (multiHostsConfigurationDto.hasExporterOtlpConfig()) {
 
 			final OtlpConfigDto otlpConfig = multiHostsConfigurationDto.getExporter().getOtlp();
 
+			// Endpoint overridden?
+			if (otlpConfig.hasEndpoint()) {
+				otlpEndpoint = otlpConfig.getEndpoint();
+				properties.put("otel.exporter.otlp.endpoint", otlpEndpoint);
+			}
+
+			// Headers
 			otlpConfig.getHeadersInOtlpFormat()
 					.ifPresent(headers -> properties.put("otel.exporter.otlp.headers", headers));
 
 			certificatesFileToTrust = otlpConfig.getTrustedCertificatesFile();
 		}
 
-		getSecurityFilePath(SECURITY_DIR_NAME, "otel.crt", certificatesFileToTrust, grpcEndpoint)
+		// Certificate file path
+		getSecurityFilePath(SECURITY_DIR_NAME, "otel.crt", certificatesFileToTrust, otlpEndpoint)
 			.ifPresent(
 				trustedCertificatesFile -> properties.put("otel.exporter.otlp.certificate", trustedCertificatesFile));
 

@@ -520,12 +520,15 @@ public class ConfigHelper {
 				configDto.setDiscoveryCycle(multiHostsConfig.getDiscoveryCycle());
 			}
 
-			// Set the global level in the host log level.
-			// Always the global logger settings wins as the matrix logger
-			// 'com.sentrysoftware', is created only once and handles the Level globally for
-			// all the hosts.
-			configDto.setLoggerLevel(multiHostsConfig.getLoggerLevel());
-			configDto.setOutputDirectory(multiHostsConfig.getOutputDirectory());
+			// Set the global level in the host log level configuration
+			if (configDto.getLoggerLevel() == null) {
+				configDto.setLoggerLevel(multiHostsConfig.getLoggerLevel());
+			}
+
+			// Set the global output directory in the host configuration
+			if (configDto.getOutputDirectory() == null) {
+				configDto.setOutputDirectory(multiHostsConfig.getOutputDirectory());
+			}
 
 			// Set global sequential flag in the host configuration if this host doesn't define the sequential flag
 			// It is more practical to set the flag only once when the requirement is that each host must run the network calls in serial mode

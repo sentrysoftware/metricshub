@@ -28,6 +28,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import com.sentrysoftware.hardware.agent.configuration.ConfigHelper;
 import com.sentrysoftware.hardware.agent.dto.HostConfigurationDto;
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
+import com.sentrysoftware.hardware.agent.dto.opentelemetry.OtelCollectorConfigDto;
 import com.sentrysoftware.hardware.agent.service.task.StrategyTask;
 import com.sentrysoftware.matrix.model.monitoring.HostMonitoring;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
@@ -55,12 +56,12 @@ class TaskSchedulingServiceTest {
 
 	@InjectMocks
 	@Autowired
-	public TaskSchedulingService taskSechedulingService;
+	public TaskSchedulingService taskSchedulingService;
 
 	@Test
 	void testRemoveScheduledTaskNotFound() {
 		doReturn(null).when(hostSchedules).get("host");
-		assertDoesNotThrow(() -> taskSechedulingService.removeScheduledTask("host"));
+		assertDoesNotThrow(() -> taskSchedulingService.removeScheduledTask("host"));
 		verify(hostSchedules, never()).remove(any());
 	}
 
@@ -69,7 +70,7 @@ class TaskSchedulingServiceTest {
 		final ScheduledFuture<?> mock = spy(ScheduledFuture.class);
 		doReturn(mock).when(hostSchedules).get("host");
 		doReturn(true).when(mock).cancel(true);
-		assertDoesNotThrow(() -> taskSechedulingService.removeScheduledTask("host"));
+		assertDoesNotThrow(() -> taskSchedulingService.removeScheduledTask("host"));
 		verify(hostSchedules).remove("host");
 	}
 
@@ -88,7 +89,7 @@ class TaskSchedulingServiceTest {
 
 		doReturn(null).when(hostMonitoringMap).get(HOST_ID);
 
-		taskSechedulingService.scheduleHostTask(hostConfigDto);
+		taskSchedulingService.scheduleHostTask(hostConfigDto);
 
 		verify(hostTaskScheduler, never()).schedule(any(StrategyTask.class), any(Trigger.class));
 
@@ -111,7 +112,7 @@ class TaskSchedulingServiceTest {
 		final ScheduledFuture<?> mock = spy(ScheduledFuture.class);
 		doReturn(mock).when(hostTaskScheduler).schedule(any(StrategyTask.class), any(Trigger.class));
 
-		taskSechedulingService.scheduleHostTask(hostConfigDto);
+		taskSchedulingService.scheduleHostTask(hostConfigDto);
 
 		verify(hostSchedules, times(1)).put(any(String.class), any());
 
@@ -130,17 +131,18 @@ class TaskSchedulingServiceTest {
 		final ScheduledFuture<?> mock = spy(ScheduledFuture.class);
 		doReturn(mock).when(hostTaskScheduler).schedule(any(StrategyTask.class), any(Trigger.class));
 		doReturn(new HostMonitoring()).when(hostMonitoringMap).get(any());
+		doReturn(OtelCollectorConfigDto.builder().build()).when(multiHostsConfigurationDto).getOtelCollector();
 
-		taskSechedulingService.updateConfiguration(configFile);
+		taskSchedulingService.updateConfiguration(configFile);
 
 		verify(hostTaskScheduler, times(3)).schedule(any(StrategyTask.class), any(Trigger.class));
 	}
 
 	@Test
 	void testGetLoggerLevel() {
-		assertEquals(Level.OFF, taskSechedulingService.getLoggerLevel(null));
-		assertEquals(Level.DEBUG, taskSechedulingService.getLoggerLevel("debug"));
-		assertEquals(Level.OFF, taskSechedulingService.getLoggerLevel("unknown"));
+		assertEquals(Level.OFF, TaskSchedulingService.getLoggerLevel(null));
+		assertEquals(Level.DEBUG, TaskSchedulingService.getLoggerLevel("debug"));
+		assertEquals(Level.OFF, TaskSchedulingService.getLoggerLevel("unknown"));
 	}
 
 }

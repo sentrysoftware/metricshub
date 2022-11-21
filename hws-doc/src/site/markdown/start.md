@@ -1,0 +1,23 @@
+keywords: quick start, datadog, helix, prometheus, grafana
+description: Short step-by-step instruction to follow for installing and configuring Hardware Sentry with third-party platforms.
+
+# Quick Start
+
+This quick start guide walks you through the step-by-step instructions you should complete for integrating **${solutionName}** with supported third-party platforms to visualize health and sustainability metrics in easy-to-read dashboards.
+
+## Step 1: Install Hardware Sentry
+
+[Install Hardware Sentry](./install.html) on a system that has network access to the physical servers, switches and storage systems you need to monitor. We recommend to dedicate one instance of the **Hardware Sentry** to one "site" (i.e. each data center or server room).
+
+## Step 2: Configure the Hardware Sentry Agent
+
+First, add and define the hosts you wish to monitor to the **config/hws-config.yaml** file. Simply provide the [hostname and type](./configuration/configure-agent.html#Monitored_hosts) of the host to be monitored, the [protocols and credentials](./configuration/configure-agent.html#Protocols_and_credentials).
+
+Then, [define sites and sustainability](./configuration/configure-agent.html#Configure_the_sustainability_settings) settings. Monitored hosts must be grouped into sites. You must define at least one site to represent a data center, a server room, or applications and services depending on your IT infrastructure and needs.
+
+## Step 3: Configure the integration with the third-party platform
+
+* [BMC Helix](./integration/helix.html)
+* [Datadog](./integration/datadog.html)
+* [Grafana](./prometheus/grafana.html)
+* [Prometheus](./prometheus/prometheus.html)
