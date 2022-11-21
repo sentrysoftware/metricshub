@@ -216,16 +216,16 @@ hosts:
 #═══════════════════════════════════════════════════
 
 #  - hostGroup:
+#      type: storage
 #      hostnames:
 #        server-15:
 #          extraLabels:
 #            host.name: server-15.local.net
 #            host.id: server-15.local.net
-#        server-15:
+#        server-16:
 #          extraLabels:
 #            host.name: server-16.local.net
 #            host.id: server-16.local.net
-#      type: storage
 #    snmp:
 #      version: v2c
 #      community: public
