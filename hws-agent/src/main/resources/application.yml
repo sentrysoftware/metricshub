@@ -12,4 +12,3 @@ spring:
   main:
     banner-mode: "off"
     web-application-type: none
-grpc: https://localhost:4317

@@ -44,15 +44,14 @@ class OtelConfigTest {
 	@Test
 	void testOtelSdkConfiguration() {
 		assertDoesNotThrow(
-				() -> new OtelConfig().otelSdkConfiguration(new MultiHostsConfigurationDto(), HTTPS_GRPC_ENDPOINT));
+				() -> new OtelConfig().otelSdkConfiguration(new MultiHostsConfigurationDto()));
 	}
 
 	@Test
 	void testOtelSdkConfigurationHeaders() {
 
 		{
-			final Map<String, String> sdkConfig = new OtelConfig().otelSdkConfiguration(MultiHostsConfigurationDto.empty(),
-					HTTPS_GRPC_ENDPOINT);
+			final Map<String, String> sdkConfig = new OtelConfig().otelSdkConfiguration(MultiHostsConfigurationDto.empty());
 			assertTrue(sdkConfig.containsKey("otel.exporter.otlp.headers"));
 		}
 
@@ -63,7 +62,7 @@ class OtelConfigTest {
 							.otlp(OtlpConfigDto.builder().headers(null).build())
 							.build())
 					.build();
-			final Map<String, String> sdkConfig = new OtelConfig().otelSdkConfiguration(mHCD, HTTPS_GRPC_ENDPOINT);
+			final Map<String, String> sdkConfig = new OtelConfig().otelSdkConfiguration(mHCD);
 			assertFalse(sdkConfig.containsKey("otel.exporter.otlp.headers"));
 		}
 
@@ -75,7 +74,7 @@ class OtelConfigTest {
 							.otlp(OtlpConfigDto.builder().headers(Collections.emptyMap()).build())
 							.build())
 					.build();
-			final Map<String, String> sdkConfig = new OtelConfig().otelSdkConfiguration(mHCD, HTTPS_GRPC_ENDPOINT);
+			final Map<String, String> sdkConfig = new OtelConfig().otelSdkConfiguration(mHCD);
 			assertFalse(sdkConfig.containsKey("otel.exporter.otlp.headers"));
 		}
 
@@ -84,7 +83,7 @@ class OtelConfigTest {
 					.builder()
 					.exporter(ExporterConfigDto.builder().otlp(null).build())
 					.build();
-			final Map<String, String> sdkConfig = new OtelConfig().otelSdkConfiguration(mHCD, HTTPS_GRPC_ENDPOINT);
+			final Map<String, String> sdkConfig = new OtelConfig().otelSdkConfiguration(mHCD);
 			assertFalse(sdkConfig.containsKey("otel.exporter.otlp.headers"));
 		}
 
@@ -93,7 +92,7 @@ class OtelConfigTest {
 					.builder()
 					.exporter(null)
 					.build();
-			final Map<String, String> sdkConfig = new OtelConfig().otelSdkConfiguration(mHCD, HTTPS_GRPC_ENDPOINT);
+			final Map<String, String> sdkConfig = new OtelConfig().otelSdkConfiguration(mHCD);
 			assertFalse(sdkConfig.containsKey("otel.exporter.otlp.headers"));
 		}
 
