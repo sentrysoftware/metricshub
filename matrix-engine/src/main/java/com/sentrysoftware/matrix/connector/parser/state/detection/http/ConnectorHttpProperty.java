@@ -27,7 +27,9 @@ public class ConnectorHttpProperty {
 					new UrlProcessor(),
 					new HeaderProcessor(),
 					new BodyProcessor(),
-					new ResultContentProcessor())
+					new ResultContentProcessor(),
+					new AuthenticationTokenProcessor()
+				)
 				.collect(Collectors.toSet());
 	}
 }
