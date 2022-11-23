@@ -1,6 +1,6 @@
 package com.sentrysoftware.hardware.agent.service;
 
-import static com.sentrysoftware.hardware.agent.configuration.AgentConfig.AGENT_INFO_NAME_ATTRIBUTE_KEY;
+import static com.sentrysoftware.hardware.agent.configuration.AgentInfoConfig.AGENT_INFO_NAME_ATTRIBUTE_KEY;
 
 import java.io.File;
 import java.util.Map;
@@ -83,7 +83,7 @@ public class TaskSchedulingService {
 	@PostConstruct
 	public void startScheduling() {
 
-		configureLoggerLevel();
+		configureGlobalLogger(multiHostsConfigurationDto, serverPort);
 
 		startOtelCollector();
 
@@ -198,17 +198,20 @@ public class TaskSchedulingService {
 	}
 
 	/**
-	 * Configure the 'com.sentrysoftware' logger based on the user's command. See
-	 * log4j2.xml
+	 * Configure the 'com.sentrysoftware' logger based on the user's command.<br>
+	 * See src/main/resources/log4j2.xml
+	 * 
+	 * @param multiHostsConfigDto User's configuration
+	 * @param serverPort          Application port number
 	 */
-	void configureLoggerLevel() {
+	public static void configureGlobalLogger(final MultiHostsConfigurationDto multiHostsConfigDto, final int serverPort) {
 
-		final Level loggerLevel = getLoggerLevel(multiHostsConfigurationDto.getLoggerLevel());
+		final Level loggerLevel = getLoggerLevel(multiHostsConfigDto.getLoggerLevel());
 
 		ThreadContext.put("logId", String.format("hws-agent-%d-global", serverPort));
 		ThreadContext.put("loggerLevel", loggerLevel.toString());
 
-		String outputDirectory = multiHostsConfigurationDto.getOutputDirectory();
+		final String outputDirectory = multiHostsConfigDto.getOutputDirectory();
 		if (outputDirectory  != null) {
 			ThreadContext.put("outputDirectory", outputDirectory);
 		}
@@ -257,7 +260,7 @@ public class TaskSchedulingService {
 		multiHostsConfigurationDto.setDisableAlerts(newMultiHostsConfigurationDto.isDisableAlerts());
 
 		// Make sure the logger is configured correctly
-		configureLoggerLevel();
+		configureGlobalLogger(multiHostsConfigurationDto, serverPort);
 
 		// Configuration updated? if yes stop then start the collector
 		if (!newMultiHostsConfigurationDto.getOtelCollector().equals(multiHostsConfigurationDto.getOtelCollector())) {

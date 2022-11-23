@@ -649,7 +649,7 @@ public class ConfigHelper {
 
 		} catch (Exception e) {
 
-			log.warn("Hostname {} - The given host has been staged as invalid.", hostConfigurationDto);
+			log.warn("Hostname {} - The given host has been staged as invalid.", hostname);
 
 		}
 	}
