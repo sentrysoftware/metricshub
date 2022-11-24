@@ -69,7 +69,9 @@ public class ConfigurationFileConfig {
 			log.info("Hardware Connector Library version: {}", agentInfo.get(AGENT_INFO_HC_VERSION_ATTRIBUTE_KEY));
 			log.info("OpenTelemetry Collector Contrib version: {}", agentInfo.get(AGENT_INFO_OTEL_VERSION_ATTRIBUTE_KEY));
 			log.info("Java version: {}", System.getProperty("java.version"));
+			log.info("Java Runtime Environment directory: {}", System.getProperty("java.home"));
 			log.info("Operating System: {} {}", System.getProperty("os.name"), System.getProperty("os.arch"));
+			log.info("User working directory: {}", System.getProperty("user.dir"));
 		}
 
 	}
