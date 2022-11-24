@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.sentrysoftware.hardware.agent.dto.HardwareHostDto;
 import com.sentrysoftware.hardware.agent.dto.HostConfigurationDto;
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
 import com.sentrysoftware.hardware.agent.dto.protocol.SnmpProtocolDto;
@@ -26,13 +27,12 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetTableSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WmiSource;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
+import com.sentrysoftware.matrix.engine.host.HardwareHost;
+import com.sentrysoftware.matrix.engine.host.HostType;
 import com.sentrysoftware.matrix.engine.protocol.IProtocolConfiguration;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol;
 import com.sentrysoftware.matrix.engine.protocol.SnmpProtocol.SnmpVersion;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
-
-import com.sentrysoftware.matrix.engine.host.HardwareHost;
-import com.sentrysoftware.matrix.engine.host.HostType;
 
 @SpringBootTest
 class ConfigHelperTest {
@@ -433,4 +433,48 @@ class ConfigHelperTest {
 		assertDoesNotThrow(() -> ConfigHelper.validateWinRmInfo(hostname, 1234, 60L, username));
 	}
 
+	@Test
+	void testHostGroups() {
+		MultiHostsConfigurationDto multiHostsConfigurationDto = ConfigHelper.readConfigurationSafe(new File("src/test/resources/data/hws-config-hostgroups.yaml"));
+		assertEquals(7, multiHostsConfigurationDto.getResolvedHosts().size());
+
+		MultiHostsConfigurationDto expectedMultiHostsConfigurationDto = MultiHostsConfigurationDto.builder().build();
+
+		HostConfigurationDto testHost = HostConfigurationDto
+			.builder()
+			.host(HardwareHostDto
+				.builder()
+				.hostname("host1")
+				.type(HostType.LINUX)
+				.build())
+			.snmp(SnmpProtocolDto.builder().build())
+			.collectPeriod(180L)
+			.discoveryCycle(45)
+			.selectedConnectors(Set.of(DELL_OPEN_MANAGE_CONNECTOR))
+			.build();
+
+		expectedMultiHostsConfigurationDto.getHosts().add(testHost);
+		ConfigHelper.normalizeHostConfigurations(expectedMultiHostsConfigurationDto);
+
+		assertEquals(testHost, multiHostsConfigurationDto.getResolvedHosts().stream().filter(host -> "host1".equals(host.getHost().getHostname())).findFirst().orElse(null));		
+
+		testHost = HostConfigurationDto
+			.builder()
+			.host(HardwareHostDto
+				.builder()
+				.hostname("192.168.7.34")
+				.type(HostType.MS_WINDOWS)
+				.build())
+			.snmp(SnmpProtocolDto.builder().build())
+			.extraLabels(Map.of("host.id", "id1", "host.name", "test1.lab.local"))
+			.collectPeriod(180L)
+			.discoveryCycle(45)
+			.selectedConnectors(Set.of(DELL_OPEN_MANAGE_CONNECTOR))
+			.build();
+
+		expectedMultiHostsConfigurationDto.getHosts().add(testHost);
+		ConfigHelper.normalizeHostConfigurations(expectedMultiHostsConfigurationDto);
+
+		assertEquals(testHost, multiHostsConfigurationDto.getResolvedHosts().stream().filter(host -> "192.168.7.34".equals(host.getHost().getHostname())).findFirst().orElse(null));
+	}
 }

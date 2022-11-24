@@ -48,9 +48,13 @@ To collect metrics from your hosts, you must provide the following information i
 * its type
 * the protocol to be used.
 
+You can either configure your hosts individually or several at a times if they share the same characteristics (device type, protocols, credentials, etc.).
+
 > **Important**: Because a typo or incorrect indentation in the `hws-config.yaml` file could cause your hardware monitoring to fail, it is highly recommended to install the [vscode-yaml](https://github.com/redhat-developer/vscode-yaml) extension in your editor to benefit from tooltips and autocompletion suggested by the [Hardware Sentry Configuration](https://json.schemastore.org/hws-config.json) JSON Schema.
 
 ### Monitored hosts
+
+#### Single host
 
 Systems to monitor are defined under `hosts` with the below syntax:
 
@@ -65,7 +69,7 @@ hosts:
 
 where:
 
-* `<hostname>` is the name of the host, or its IP address
+* `<hostname>` is the name of the host, or its IP address.
 * `<host-type>` is the type of the host to be monitored. Possible values are:
 
     * `win` for Microsoft Windows systems
@@ -80,6 +84,48 @@ where:
     * `vms` for HP Open VMS systems
   Refer to [Monitored Systems](../platform-requirements.html) for more details.
   
+* `<protocol-configuration>` is the protocol(s) **${solutionName}** will use to communicate with the hosts: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](#protocol) for more details.
+
+#### Multiple hosts
+
+You can group hosts that share the same characteristics (device type, protocols, credentials, etc.) using one of the below syntax:
+
+```yaml
+hosts:
+
+- host:
+    hostnames: [ <hostname1>,<hostname2>, etc.]
+    type: <host-type>
+  <protocol-configuration>
+
+```
+
+where:
+
+* `<hostname1>,<hostname2>, etc.` is a comma-delimited list of hosts to be monitored. Provide their hostname or IP address.
+* `<host-type>` is the type of the host to be monitored.
+* `<protocol-configuration>` is the protocol(s) **${solutionName}** will use to communicate with the hosts: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](#protocol) for more details.
+
+or
+
+```yaml
+hosts:
+- hostGroup:
+    type: <host-type>
+    hostnames:
+      <hostname>:
+        extraLabels:
+          host.name: server-01.local.net
+          host.id: my-server-01-id
+    # <hostname>:
+    #   extraLabels:
+  <protocol-configuration>
+```
+
+where:
+
+* `<hostname>` is the name of the host, or its IP address. Using this format, you can provide `extraLabels` for each configured host.
+* `<host-type>` is the type of the host to be monitored.
 * `<protocol-configuration>` is the protocol(s) **${solutionName}** will use to communicate with the hosts: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](#protocol) for more details.
 
 <a name="protocol"></a>
@@ -563,6 +609,25 @@ hosts:
   extraLabels:
     host.name: host01.internal.domain.net
     app: Jenkins
+```
+
+In the example below, we configure several hosts which share the same characteristics (`hostGroup`) and override the `host.name` attributes resolved by **${solutionName}** with `server-01.local.net` and `server-02.local.net` and indicate that these hosts are `Jenkins` apps:
+
+```yaml
+hosts:
+- hostGroup:
+    type: <host-type>
+    hostnames:
+      server-01:
+        extraLabels:
+          host.name: server-01.local.net
+          host.id: my-server-01-id
+          app: Jenkins
+      server-02:
+        extraLabels:
+          host.name: server-02.local.net
+          host.id: my-server-02-id
+          app: Jenkins
 ```
 
 #### Hostname resolution

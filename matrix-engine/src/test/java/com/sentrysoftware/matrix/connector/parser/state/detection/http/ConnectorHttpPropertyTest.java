@@ -27,7 +27,8 @@ class ConnectorHttpPropertyTest {
 				UrlProcessor.class,
 				HeaderProcessor.class,
 				BodyProcessor.class,
-				ResultContentProcessor.class)
+				ResultContentProcessor.class,
+				AuthenticationTokenProcessor.class)
 				.collect(Collectors.toSet()),
 			ConnectorHttpProperty
 				.getConnectorProperties()

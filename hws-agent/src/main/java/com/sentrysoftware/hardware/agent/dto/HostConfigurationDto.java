@@ -5,7 +5,9 @@ import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -25,7 +27,6 @@ import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 
 /**
  * DTO to wrap the agent configuration for one specific host.
@@ -36,9 +37,10 @@ import lombok.NonNull;
 @Builder
 public class HostConfigurationDto {
 
-	@NonNull
 	private HardwareHostDto host;
 
+	private HardwareHostGroupDto hostGroup;
+	
 	@Default
 	private int operationTimeout = EngineConfiguration.DEFAULT_JOB_TIMEOUT;
 
@@ -82,4 +84,88 @@ public class HostConfigurationDto {
 	private String hardwareProblemTemplate;
 
 	private Boolean disableAlerts;
+
+	/**
+	 * Extract hosts from hostGroup
+     *
+	 * @return a Set of HostConfigurationDto instances
+	 */
+	public Set<HostConfigurationDto> resolveHostGroups() {
+		Set<String> hostnames = hostGroup.getHostnames().getEntries();
+		return hostnames
+			.stream()
+			.map(hostname -> HostConfigurationDto
+				.builder()
+				.host(HardwareHostDto
+					.builder()
+					.hostname(hostname)
+					.id(hostname)
+					.type(hostGroup.getType())
+					.build()
+				)
+				.operationTimeout(operationTimeout)
+				.snmp(snmp)
+				.ipmi(ipmi)
+				.ssh(ssh)
+				.wbem(wbem)
+				.wmi(wmi)
+				.http(http)
+				.osCommand(osCommand)
+				.winRm(winRm)
+				.selectedConnectors(selectedConnectors)
+				.excludedConnectors(excludedConnectors)
+				.collectPeriod(collectPeriod)
+				.discoveryCycle(discoveryCycle)
+				.loggerLevel(loggerLevel)
+				.outputDirectory(outputDirectory)
+				.extraLabels(mergeExtraLabels(hostname))
+				.sequential(sequential)
+				.hardwareProblemTemplate(hardwareProblemTemplate)
+				.disableAlerts(disableAlerts)
+				.build()
+			)
+			.collect(Collectors.toSet());
+	}
+
+	/** 
+	 * Merge hostGroup extraLabels with host extraLabels (Priority to host)
+     *
+	 * @param hostname configured hostname
+	 * @return Map of merged extra labels
+	 */
+	private Map<String, String> mergeExtraLabels(String hostname) {
+		final Map<String, String> finalExtraLabels = new HashMap<>();
+		finalExtraLabels.putAll(extraLabels);
+		Optional<HostnameInfoDto> possibleHostnameInfo = hostGroup.getHostnames().getHostnameInfo(hostname);
+
+		// Get the extra labels from the hostGroups
+		if (possibleHostnameInfo.isPresent()) {
+			HostnameInfoDto hostnameInfo = possibleHostnameInfo.get();
+			Map<String, String> hostnameExtraLabels = hostnameInfo.getExtraLabels();
+
+			// If there are extraLabels in the hostGroup, add them to the map to be returned
+			if (hostnameExtraLabels != null) {
+				finalExtraLabels.putAll(hostnameExtraLabels);
+			}
+		}
+
+		return finalExtraLabels;
+	}
+
+	/**
+	 * 
+	 * @return Whether the given hostConfigurationDto is a hostGroup or not.
+	 */
+	public boolean isHostGroup() {
+		return hostGroup != null;
+	}
+	
+	/**
+	 * 
+	 * @return Whether the given hostConfigurationDto is a single host or not.
+	 */
+	public boolean isSingleHost() {
+		return host != null;
+	}
+	
 }
