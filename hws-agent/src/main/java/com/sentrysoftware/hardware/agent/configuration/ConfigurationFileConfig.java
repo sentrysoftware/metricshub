@@ -35,6 +35,7 @@ public class ConfigurationFileConfig {
 	/**
 	 * Create the configuration file bean.
 	 * 
+	 * @param agentInfo key-value pair attributes containing the agent information.
 	 * @return File instance
 	 * 
 	 * @throws IOException
