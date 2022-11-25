@@ -109,7 +109,9 @@ public class CriterionVisitor implements ICriterionVisitor {
 			return CriterionTestResult.empty();
 		}
 
-		final String result = matsyaClientsExecutor.executeHttp(HttpRequest.builder()
+		final String result = matsyaClientsExecutor.executeHttp(
+			HttpRequest
+				.builder()
 				.hostname(hostname)
 				.method(criterion.getMethod())
 				.url(criterion.getUrl())
@@ -117,8 +119,10 @@ public class CriterionVisitor implements ICriterionVisitor {
 				.body(criterion.getBody())
 				.httpProtocol(protocol)
 				.resultContent(criterion.getResultContent())
+				.authenticationToken(criterion.getAuthenticationToken())
 				.build(),
-				false);
+			false
+		);
 
 		final TestResult testResult = checkHttpResult(hostname, result, criterion.getExpectedResult());
 

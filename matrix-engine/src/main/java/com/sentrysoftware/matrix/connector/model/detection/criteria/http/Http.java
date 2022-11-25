@@ -29,10 +29,20 @@ public class Http extends Criterion {
 	private String expectedResult;
 	private String errorMessage;
 	private ResultContent resultContent = ResultContent.BODY;
+	private String authenticationToken;
 
 	@Builder
-	public Http(boolean forceSerialization, String method, String url, Header header, Body body,
-			String expectedResult, String errorMessage, ResultContent resultContent, int index) {
+	public Http( // NOSONAR
+		boolean forceSerialization,
+		String method,
+		String url,
+		Header header,
+		Body body,
+		String expectedResult,
+		String errorMessage,
+		ResultContent resultContent,
+		String authenticationToken,
+		int index) {
 
 		super(forceSerialization, index);
 		this.method = method;
@@ -42,6 +52,7 @@ public class Http extends Criterion {
 		this.expectedResult = expectedResult;
 		this.errorMessage = errorMessage;
 		this.resultContent = resultContent == null ? ResultContent.BODY : resultContent;
+		this.authenticationToken = authenticationToken;
 	}
 
 	@Override
