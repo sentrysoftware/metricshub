@@ -14,7 +14,7 @@ public class ConfigurationFileConfig {
 	/**
 	 * Create the configuration file bean.
 	 * 
-	 * @param agentInfo key-value pair attributes containing the agent information.
+	 * @param configFilePath The path of the configuration file (hws-config.yaml) 
 	 * @return File instance
 	 * 
 	 * @throws IOException
