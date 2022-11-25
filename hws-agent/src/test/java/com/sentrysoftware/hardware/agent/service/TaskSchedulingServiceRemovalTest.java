@@ -1,6 +1,7 @@
 package com.sentrysoftware.hardware.agent.service;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
@@ -13,6 +14,7 @@ import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.Level;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -115,7 +117,8 @@ class TaskSchedulingServiceRemovalTest {
 			configHelper.when(() -> ConfigHelper.decrypt(any())).thenAnswer(invocation -> invocation.getArgument(0));
 			configHelper.when(() -> ConfigHelper.fillHostMonitoringMap(any(), any(), any())).thenCallRealMethod();
 			configHelper.when(() -> ConfigHelper.getSubPath(any())).thenAnswer(invocation -> Paths.get(invocation.getArgument(0).toString()));
-
+			configHelper.when(() -> ConfigHelper.getLoggerLevel(anyString())).thenReturn(Level.OFF);
+	
 			doReturn(
 				previous.getHosts(),
 				previous.getHosts().stream().collect(Collectors.toSet()),
