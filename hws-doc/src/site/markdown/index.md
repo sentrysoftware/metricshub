@@ -52,6 +52,8 @@ Thanks to its internal library of 250+ *Hardware Connectors*, **${solutionName}*
 
 ![Internal architecture of the ${solutionName}](images/hws-internal-architecture.png)
 
+> Note: **${solutionName}** is shipped with Java Runtime Environment 11. 
+
 ### Hardware Sentry Agent
 
 The **Hardware Sentry Agent** is the engine that performs the actual monitoring of the systems, based on its [configuration file](configuration/configure-agent.md), which specifies:
