@@ -11,7 +11,7 @@ The **Hardware Sentry Agent** (core engine) is a Java process which launches the
 
 The **OpenTelemetry Collector** is in charge of pulling metrics, traces, and logs periodically and pushing them to the observability platform. Enable its debug mode, if data is missing (the monitoring coverage is incomplete). 
 
-## Hardware Sentry Agent (core engine)
+## Hardware Sentry Agent
 
 To enable the debug mode of the core engine, edit the **config/hws-config.yaml** file and add the `loggerLevel` property:
 
@@ -105,7 +105,7 @@ Finally look for any connection issues or authentication failures to the configu
 
 You can enable the `logging` exporter in the **otel/otel-config.yaml** file to check which metrics, labels, and values are sent by the _Collector_ to the observability platforms and verify that the configured processors did not alter the collected data.
 
-First, list the  `logging` exporter under the `exporters` section and set `loglevel` to `debug`:
+First, list the `logging` exporter under the `exporters` section and set `loglevel` to `debug`:
 
 ```yaml
 exporters:

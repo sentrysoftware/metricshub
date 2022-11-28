@@ -48,7 +48,7 @@ Only a few options are required to run the `hws` command:
 
 ![Usage of hws](../images/hws-usage.png)
 
-The `hws` command can be used to troubleshoot the monitoring performed by other *Hardware Sentry* products such as the KM for PATROL.
+The `hws` command can be used to troubleshoot the monitoring performed by the **Hardware Sentry Agent** (the core engine) or by other *Hardware Sentry* products such as the KM for PATROL.
 
 ## The Basics
 
