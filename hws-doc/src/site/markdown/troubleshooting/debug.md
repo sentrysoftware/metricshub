@@ -22,7 +22,7 @@ hosts:
     # [...]
 ```
 
-Set `loggerlevel` to either `all`, `trace`, `debug`, `info`, `warn`, `error`, `fatal`, `off`.
+Set `loggerlevel` to either `all`, `trace`, `debug`, `info`, `warn`, `error`, or `fatal`.
 
 The debug output file is saved by default in the **logs** directory located under the **Hardware Sentry** home directory.
 
@@ -41,6 +41,8 @@ hosts:
 - host:
     # [...]
 ```
+
+Set `loggerlevel` to `off` to disable the debug mode.
 
 ## OpenTelemetry Collector
 
@@ -114,7 +116,7 @@ exporters:
     loglevel: debug
 ```
 
-then declare the `logging` exporter in the pipeline:
+Then, declare the `logging` exporter in the pipeline:
 
 ```yaml
 service:

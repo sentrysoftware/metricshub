@@ -792,7 +792,7 @@ hosts: # ...
 
 #### Working directory
 
-By default, the _OpenTelemetry Collector_ working directory is set to `hws/otel`. If your working directory is different (typically in heavily customized setups),update the `workingDir` attribute under the `otelCollector` section in `config/hws-config.yaml`:
+By default, the _OpenTelemetry Collector_ working directory is set to `hws/otel`. If your working directory is different (typically in heavily customized setups), add the `workingDir` attribute under the `otelCollector` section in `config/hws-config.yaml`:
 
 ```yaml
 otelCollector:
