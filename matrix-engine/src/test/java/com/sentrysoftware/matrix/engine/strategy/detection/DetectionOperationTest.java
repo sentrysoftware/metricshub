@@ -7,7 +7,9 @@ import com.sentrysoftware.matrix.connector.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.OsType;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.oscommand.OsCommand;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.snmp.SnmpGetNext;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.sshinteractive.SshInteractive;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.discovery.Discovery;
@@ -683,6 +685,69 @@ class DetectionOperationTest {
 			assertTrue(testedConnectors.contains(testedRegularConnector));
 			assertTrue(testedConnectors.contains(testedLastResortConnector1));
 			assertTrue(testedConnectors.contains(testedLastResortConnector2));
+		}
+	}
+
+	@Test
+	void testVerifySsh() {
+		{			
+			final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance()
+					.createHostMonitoring(UUID.randomUUID().toString(), null);
+			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();		
+
+			OsCommand criterion = OsCommand.builder()
+				.executeLocally(true)
+				.build();
+
+			Connector connector = Connector.builder()
+				.detection(Detection.builder().criteria(Collections.singletonList(criterion)).build())
+				.build();
+
+			TestedConnector testedConnector = TestedConnector.builder().connector(connector).build();
+			detectionOperation.verifySsh(testedConnector);
+			assertTrue(strategyConfig.getHostMonitoring().isOsCommandExists());
+			assertFalse(strategyConfig.getHostMonitoring().isSshInteractiveExists());
+			assertFalse(strategyConfig.getHostMonitoring().isOsCommandExecutesRemotely());
+			assertTrue(strategyConfig.getHostMonitoring().isOsCommandExecutesLocally());
+		}
+		{			
+			final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance()
+					.createHostMonitoring(UUID.randomUUID().toString(), null);
+			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();		
+
+			OsCommand criterion = OsCommand.builder()
+					.executeLocally(false)
+					.build();
+
+			Connector connector = Connector.builder()
+					.detection(Detection.builder().criteria(Collections.singletonList(criterion)).build())
+					.build();
+
+			TestedConnector testedConnector = TestedConnector.builder().connector(connector).build();
+			detectionOperation.verifySsh(testedConnector);
+			assertTrue(strategyConfig.getHostMonitoring().isOsCommandExists());
+			assertFalse(strategyConfig.getHostMonitoring().isSshInteractiveExists());
+			assertTrue(strategyConfig.getHostMonitoring().isOsCommandExecutesRemotely());
+			assertFalse(strategyConfig.getHostMonitoring().isOsCommandExecutesLocally());
+		}
+		{	
+			final IHostMonitoring hostMonitoring = HostMonitoringFactory.getInstance()
+				.createHostMonitoring(UUID.randomUUID().toString(), null);
+			doReturn(hostMonitoring).when(strategyConfig).getHostMonitoring();		
+
+			SshInteractive criterion = SshInteractive.builder()
+					.build();
+
+			Connector connector = Connector.builder()
+				.detection(Detection.builder().criteria(Collections.singletonList(criterion)).build())
+				.build();
+
+			TestedConnector testedConnector = TestedConnector.builder().connector(connector).build();
+			detectionOperation.verifySsh(testedConnector);
+			assertTrue(strategyConfig.getHostMonitoring().isSshInteractiveExists());
+			assertFalse(strategyConfig.getHostMonitoring().isOsCommandExists());
+			assertFalse(strategyConfig.getHostMonitoring().isOsCommandExecutesRemotely());
+			assertFalse(strategyConfig.getHostMonitoring().isOsCommandExecutesLocally());
 		}
 	}
 }

@@ -1,17 +1,16 @@
 package com.sentrysoftware.matrix.engine.strategy.detection;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.APPLIES_TO_OS;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPILED_FILE_NAME;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DESCRIPTION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DISPLAY_NAME;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HOST_FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCALHOST;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.OPERATING_SYSTEM_TYPE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.REMOTE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HOST_FQDN;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.APPLIES_TO_OS;
-
 
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -32,12 +31,17 @@ import java.util.stream.Stream;
 import com.sentrysoftware.matrix.common.exception.DetectionOperationException;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.common.OsType;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.oscommand.OsCommand;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.sshinteractive.SshInteractive;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParser;
+import com.sentrysoftware.matrix.engine.host.HardwareHost;
+import com.sentrysoftware.matrix.engine.host.HostType;
 import com.sentrysoftware.matrix.engine.strategy.AbstractStrategy;
 import com.sentrysoftware.matrix.engine.strategy.discovery.MonitorBuildingInfo;
 import com.sentrysoftware.matrix.engine.strategy.discovery.MonitorDiscoveryVisitor;
@@ -45,11 +49,6 @@ import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import com.sentrysoftware.matrix.model.parameter.IParameter;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
-
-import com.sentrysoftware.matrix.engine.host.HardwareHost;
-import com.sentrysoftware.matrix.engine.host.HostType;
-
-import com.sentrysoftware.matrix.connector.model.common.OsType;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -280,10 +279,53 @@ public class DetectionOperation extends AbstractStrategy {
 	 * @param testedConnectorList
 	 */
 	void createConnectors(final Monitor host, final List<TestedConnector> testedConnectorList) {
-
-		// Loop over the testedConnectors and create them in the HostMonitoring instance
+		// Loop over the testedConnectors and create them in the HostMonitoring instance		
 		for (TestedConnector testedConnector : testedConnectorList) {
 			createConnector(host, testedConnector);
+
+			if (testedConnector.getConnector().getDetection() != null 
+					|| testedConnector.getConnector().getDetection().getCriteria() != null) {
+				verifySsh(testedConnector);
+			}
+		}
+	}
+
+	/**
+	 * Verify if the connector contains ssh or osCommand sources and if they are run locally or remotely
+	 * @param testedConnector
+	 */
+	void verifySsh(TestedConnector testedConnector) {
+		List<Criterion> criteria = testedConnector
+				.getConnector()
+				.getDetection()
+				.getCriteria();
+
+		if (criteria
+				.stream()
+				.anyMatch(OsCommand.class::isInstance)) {
+			strategyConfig.getHostMonitoring().setOsCommandExists(true);
+
+			if (criteria
+					.stream()
+					.filter(OsCommand.class::isInstance)
+					.map(OsCommand.class::cast)
+					.anyMatch(OsCommand::isExecuteLocally)) {
+				strategyConfig.getHostMonitoring().setOsCommandExecutesLocally(true);
+			}
+
+			if (criteria
+					.stream()
+					.filter(OsCommand.class::isInstance)
+					.map(OsCommand.class::cast)
+					.anyMatch(osCommand -> !osCommand.isExecuteLocally())) {
+				strategyConfig.getHostMonitoring().setOsCommandExecutesRemotely(true);
+			}
+		}
+
+		if (criteria
+				.stream()
+				.anyMatch(SshInteractive.class::isInstance)) {
+			strategyConfig.getHostMonitoring().setSshInteractiveExists(true);
 		}
 	}
 
@@ -317,6 +359,7 @@ public class DetectionOperation extends AbstractStrategy {
 		monitor.addMetadata(DESCRIPTION, connector.getComments());
 		monitor.addMetadata(CONNECTOR, connector.getCompiledFilename());
 		monitor.addMetadata(APPLIES_TO_OS, connector.getAppliesToOS().stream().map(OsType::getDisplayName).collect(Collectors.joining(",")));
+		monitor.addMetadata(CONNECTOR, APPLIES_TO_OS);
 
 		monitor.getMonitorType().getMetaMonitor()
 				.accept(new MonitorDiscoveryVisitor(MonitorBuildingInfo.builder()

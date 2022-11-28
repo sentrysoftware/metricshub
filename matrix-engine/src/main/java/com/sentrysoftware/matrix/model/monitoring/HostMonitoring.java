@@ -88,6 +88,14 @@ public class HostMonitoring implements IHostMonitoring {
 
 	private String vCenterTicket;
 
+	private boolean osCommandExecutesLocally;
+
+	private boolean osCommandExecutesRemotely;
+
+	private boolean sshInteractiveExists;
+
+	private boolean osCommandExists;
+
 	@Getter(value = AccessLevel.PRIVATE)
 	private Map<String, ConnectorNamespace> connectorNamespaces = new HashMap<>();
 

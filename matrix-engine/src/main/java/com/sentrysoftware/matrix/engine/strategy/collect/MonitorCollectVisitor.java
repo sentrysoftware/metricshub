@@ -413,7 +413,6 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				monitorCollectInfo.getCollectTime(),
 				winRmResult != null ? Up.UP : Up.DOWN
 			);
-
 		}
 	}
 
@@ -430,19 +429,40 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 
 		// Update the SSH_UP_PARAMETER
 		if (ssh != null) {
-			String sshResult = null;
-			try {
-				sshResult = OsCommandHelper.runSshCommand("echo SSH_UP_TEST", hostname, ssh,
-						Math.toIntExact(ssh.getTimeout()), null, null);
+			if (monitorCollectInfo.getHostMonitoring().isOsCommandExists() || monitorCollectInfo.getHostMonitoring().isSshInteractiveExists()) {
+				Up state = Up.UP;  
 
-			} catch (Exception e) {
-				log.debug("Hostname {} - Checking SSH protocol status. SSH exception when performing a test SSH command: ", hostname, e);
-			} finally {
+				if(monitorCollectInfo.getHostMonitoring().isOsCommandExecutesLocally()) {
+				     try {
+				        if (OsCommandHelper.runLocalCommand("echo SSH_UP_TEST", Math.toIntExact(ssh.getTimeout()), null) == null) {
+				        	log.debug("Hostname {} - Checking SSH protocol status. Local OS command has not returned any results.", hostname);
+							state = Up.DOWN;
+				        }
+				     } catch (Exception e) {
+				    	log.debug("Hostname {} - Checking SSH protocol status. SSH exception when performing a local OS command test: ", hostname, e);
+						state = Up.DOWN;
+				     }
+				  }
+
+				if(monitorCollectInfo.getHostMonitoring().isOsCommandExecutesRemotely()) {
+				     try {
+				        if (OsCommandHelper.runSshCommand("echo SSH_UP_TEST", hostname, ssh, Math.toIntExact(ssh.getTimeout()), null, null) == null) {
+				        	log.debug("Hostname {} - Checking SSH protocol status. Remote SSH command has not returned any results. ", hostname);
+							state = Up.DOWN;
+				        }
+				     } catch (Exception e) {
+				    	 log.debug("Hostname {} - Checking SSH protocol status. SSH exception when performing a remote SSH command test: ", hostname, e);
+				    	 state = Up.DOWN;
+				     }
+				}
+
+				// Set the parameter at the end
 				CollectHelper.updateDiscreteParameter(
 						monitor,
 						SSH_UP_PARAMETER,
 						monitorCollectInfo.getCollectTime(),
-						sshResult != null ? Up.UP : Up.DOWN);
+						state
+						);
 			}
 		}
 	}
