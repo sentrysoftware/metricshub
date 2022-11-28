@@ -1,20 +1,19 @@
 keywords: debug
-description: There are several options to debug ${solutionName} and troubleshoot its activity.
+description: How to enable the debug mode of the Hardware Sentry Agent (core engine) and the OpenTelemetry Collector.
 
 # Debugging
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
-As there are 2 separate processes in **${solutionName}**, there are 2 separate debugging mechanisms. Depending on the issue you're experiencing, you may need to troubleshoot one or the other of these main components:
+Depending on the issue you are experiencing, you will have to either enable the debug mode for the **Hardware Sentry Agent** or for the **OpenTelemetry Collector**.
 
-1. **Hardware Sentry Agent**, a Java process that launches the _OpenTelemetry Collector_ and performs the actual hardware monitoring, connecting to each of the monitored hosts and retrieving information about their hardware components (core engine).
-2. **OpenTelemetry Collector**, which is in charge of pulling metrics, traces and logs periodically and pushing them to the destination.
+The **Hardware Sentry Agent** (core engine) is a Java process which launches the _OpenTelemetry Collector_ and performs the hardware monitoring by connecting to each of the configured hosts and retrieving information about their hardware components. Enable its debug mode if there's no data available in your observability platform.
 
-If you're not getting any data at all at the destination framework, you are probably facing issues with the _Collector_. If some data is missing (the monitoring coverage is incomplete), it's more likely a problem with the core engine.
+The **OpenTelemetry Collector** is in charge of pulling metrics, traces, and logs periodically and pushing them to the observability platform. Enable its debug mode, if data is missing (the monitoring coverage is incomplete). 
 
-## Hardware Sentry Agent
+## Hardware Sentry Agent (core engine)
 
-To enable the debug mode of the core engine, edit the **config/hws-config.yaml** file and add the `loggerLevel` property as in the below example:
+To enable the debug mode of the core engine, edit the **config/hws-config.yaml** file and add the `loggerLevel` property:
 
 ```yaml
 loggerLevel: debug
@@ -23,14 +22,16 @@ hosts:
     # [...]
 ```
 
-Possible values are: `all`, `trace`, `debug`, `info`, `warn`, `error`, `fatal`, `off`.
+Set `loggerlevel` to either `all`, `trace`, `debug`, `info`, `warn`, `error`, `fatal`, `off`.
 
-By default, the debug output file is saved in the **logs** directory under the **Hardware Sentry** home directory, examples:
+The debug output file is saved by default in the **logs** directory located under the **Hardware Sentry** home directory.
+
+Examples:
 
 * **C:\Program Files\hws\logs** on Windows
 * **/opt/hws/logs** on Linux
 
-If you want to specify another output directory, edit the **hws-config.yaml** file and add the `outputDirectory` parameter just before the `hosts` section:
+To specify a different output directory, edit the **hws-config.yaml** file and add the `outputDirectory` parameter before the `hosts` section:
 
 ```yaml
 loggerLevel: debug
@@ -43,13 +44,7 @@ hosts:
 
 ## OpenTelemetry Collector
 
-The **${solutionName}** writes details about its operations (from initialization, to pipeline, to termination) to the **logs/otelcol-\\${timestamp}.log** file, where `\${timestamp}` is the time at which the log was started.
-
-This **logs/otelcol-\\${timestamp}.log** file is reset each time the _Collector_ is started. Previous logs are identified with the `\${timestamp}` value, example: `otelcol-2022-09-19-02-05-18.log`.
-
-The **${solutionName}** rotates the **otelcol-\\${timestamp}.log** file when it reaches a maximum size of **100MB** and retains old log files for **2 days**. 
-
-The level of details in **logs/otelcol-\\${timestamp}.log** is configured in **otel/otel-config.yaml**. Set the log level to `error`, `warn`, `info` (default), or `debug` to get more details as in the below example:
+To get more details about the **${solutionName}** operations (initialization, pipeline, termination), first set the log `level` to `error`, `warn`, or `debug` in the **otel/otel-config.yaml** file:
 
 ```yaml
 service:
@@ -61,11 +56,15 @@ service:
   # [...]
 ```
 
-You need to restart the **${solutionName}** for these new settings to be taken into account.
+Then, restart **${solutionName}** for these new settings to be taken into account.
+
+Finally, check the **logs/otelcol-\\${timestamp}.log** file, where `\${timestamp}` is the time at which the log was started.
+
+> Note: The **logs/otelcol-\\${timestamp}.log** file is reset each time the *Collector* is started. Previous logs are identified with the `\${timestamp}` value (ex: `otelcol-2022-09-19-02-05-18.log`). **${solutionName}** rotates the **otelcol-\\${timestamp}.log** file when it reaches a maximum size of **100MB** and retains old log files for **2 days**.
 
 ### What to look for in otelcol-\\${timestamp}.log
 
-The first critical task the **Hardware Sentry Agent** has to complete is to launch _OpenTelemetry Collector_. Check in **logs/otelcol-\\${timestamp}.log** that the sub-process is properly started and did not encounter any issue:
+First check that the **Hardware Sentry Agent** successfully launched the _OpenTelemetry Collector_:
 
 ```log
 [2022-09-19T14:05:18,459][INFO ][c.s.h.a.p.r.Executable] Started process command line: [C:\Program Files\hws\app\..\otel\otelcol-contrib, --config, "C:\Program Files\hws\app\..\otel\otel-config.yaml", --feature-gates=pkg.translator.prometheus.NormalizeName]
@@ -98,13 +97,15 @@ The first critical task the **Hardware Sentry Agent** has to complete is to laun
 
 ```
 
-The **logs/otelcol-\\${timestamp}.log** file will also include details about the processing steps and the connection to the output framework (Prometheus, BMC Helix, etc.). Any connection issue of authentication failures with the outside will be displayed in this log file.
+Then check that the exporters and processors properly started. 
+
+Finally look for any connection issues or authentication failures to the configured observability platform(s) (Datadog, BMC Helix, Prometheus, Grafana, etc.).
 
 ### Getting more details about the exported data
 
-By default, details about the collected metrics is not displayed in **logs/otelcol-\\${timestamp}.log**. To see which metrics, which labels and values are sent by the _Collector_, you need to enable the `logging` exporter in **otel/otel-config.yaml**.
+You can enable the `logging` exporter in the **otel/otel-config.yaml** file to check which metrics, labels, and values are sent by the _Collector_ to the observability platforms and verify that the configured processors did not alter the collected data.
 
-Make sure the `logging` exporter is listed under `exporters` with log level set to `debug`:
+First, list the  `logging` exporter under the `exporters` section and set `loglevel` to `debug`:
 
 ```yaml
 exporters:
@@ -113,7 +114,7 @@ exporters:
     loglevel: debug
 ```
 
-Then add `logging` to the metrics exporters in the pipeline:
+then declare the `logging` exporter in the pipeline:
 
 ```yaml
 service:
@@ -124,13 +125,15 @@ service:
       exporters: [prometheusremotewrite/your-server,logging] # <-- added logging
 ```
 
-Restart the _Collector_ for the configuration to be taken into account.
+Restart the _Collector_ for the new settings to be taken into account.
 
-The `logging` exporter acts as a regular exporter (like the Prometheus exporter, for example) and outputs all metrics going through the pipeline. Details about the metric name, its labels and value is displayed in **logs/otelcol-\\${timestamp}.log**. This allows you to verify that the accuracy of the collected metrics before being sent to the receiving framework, and that the configured processors did not alter the data.
+The metric name, its labels and value are listed in the **logs/otelcol-\\${timestamp}.log** file.
 
-Do not leave the `logging` exporter enabled for too long as its output is verbose and may affect the overall performance of _Collector_ while filling up your file system.
+> **Important**: Disable the `logging` exporter when unused as its operation may affect the overall performance of the _Collector_ and fill your file system.
 
-If you are monitoring a large number of systems with one _Collector_, you may get overwhelmed by the quantity of data in the logs. Do not hesitate to configure the `filter` processor to keep only certain metrics in the output as in the example below:
+### Reducing the amount of information logged
+
+To reduce the amount of information logged, you can configure the `filter` processor to only log metrics of specific hosts. In the example below, we configured the `filter/keep1HostOnly` processor to only log information about systems whose hostname contains `my-server.big-corp.com`:
 
 ```yaml
 processors:
@@ -142,7 +145,7 @@ processors:
         - Label("host.name") == "my-server.big-corp.com"
 ```
 
-Declare the `filter/keep1HostOnly` processor in the pipeline and restart the _Collector_:
+We then declared the `filter/keep1HostOnly` processor in the pipeline and restarted the _Collector_:
 
 ```yaml
 service:
@@ -153,4 +156,4 @@ service:
       exporters: # exporters
 ```
 
-Remove the `filter` processor from your pipeline once the troubleshooting is completed.
+> **Important**: Remove the `filter` processor from your pipeline once the troubleshooting is completed.

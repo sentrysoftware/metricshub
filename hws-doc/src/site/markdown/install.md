@@ -1,5 +1,5 @@
-keywords: install, upgrade
-description: Where to download the installation package of the ${solutionName}.
+keywords: install, upgrade, firewalls
+description: How to install ${solutionName} on Debian Linux, Docker, Red Hat Enterprise Linux, Windows.
 
 # Installation
 
@@ -17,25 +17,25 @@ You can install **${solutionName}** on the operating system of your choice as th
 
 From [Sentry Software's Web site](https://www.sentrysoftware.com/downloads/), download:
 
-- **hws-debian-${project.version}-amd64.deb**
+* **hws-debian-${project.version}-amd64.deb**
 
 #### Install
 
-Once you have downloaded the Debian package, run the following `dpkg` command to install **${solutionName}**:
+Once you have downloaded the Debian package, run the following `dpkg` command:
 
 ```shell-session
 / $ cd /usr/local
 /usr/local $ sudo dpkg -i hws-debian-${project.version}-amd64.deb
 ```
 
-This deploys the **${solutionName}**'s files under `/opt/hws` and starts the **Hardware Sentry Agent** as a service.
+When complete, the **${solutionName}**'s files are deployed in `/opt/hws` and the **Hardware Sentry Agent** is started as a service.
 
 #### Configure
 
 There are 2 configuration files:
 
-- [**./otel/otel-config.yaml**](configuration/configure-otel.md): to specify where the _OpenTelemetry Collector_ should send the collected data
-- [**./config/hws-config.yaml**](configuration/configure-agent.md): to specify the hosts to monitor and their credentials
+* [**./otel/otel-config.yaml**](configuration/configure-otel.md): to specify where the _OpenTelemetry Collector_ should send the collected data
+* [**./config/hws-config.yaml**](configuration/configure-agent.md): to specify the hosts to monitor and their credentials
 
 Before starting **${solutionName}**, make sure to configure [**./otel/otel-config.yaml**](configuration/configure-otel.md), since a restart of the _Collector_ is required to take into account its changes.
 
@@ -76,7 +76,7 @@ systemctl stop hws-agent
 
 #### Uninstall
 
-To uninstall **${solutionName}**, run the below `dpkg` command:
+To uninstall **${solutionName}**, run the command below:
 
 ```shell-session
 sudo dpkg -r hws
@@ -88,7 +88,7 @@ sudo dpkg -r hws
 
 From [Sentry Software's Web site](https://www.sentrysoftware.com/downloads/), download:
 
-- **hws-debian-${project.version}-docker.tar.gz**
+* **hws-debian-${project.version}-docker.tar.gz**
 
 #### Install
 
@@ -110,8 +110,8 @@ Then, build the docker image using the following command:
 
 There are 2 configuration files:
 
-- [**./lib/otel/otel-config.yaml**](configuration/configure-otel.md): to specify where the _OpenTelemetry Collector_ should send the collected data
-- [**./lib/config/hws-config.yaml**](configuration/configure-agent.md): to specify the hosts to monitor and their credentials
+* [**./lib/otel/otel-config.yaml**](configuration/configure-otel.md): to specify where the _OpenTelemetry Collector_ should send the collected data
+* [**./lib/config/hws-config.yaml**](configuration/configure-agent.md): to specify the hosts to monitor and their credentials
 
 Before starting **${solutionName}**, make sure to configure [**./lib/otel/otel-config.yaml**](configuration/configure-otel.md), since a restart of the _Collector_ is required to take into account its changes.
 
@@ -129,7 +129,7 @@ This will start **${solutionName}** with:
 * The default **Hardware Sentry Agent** configuration file: **./lib/config/hws-config.yaml**.
 * The default _OpenTelemetry Collector_ configuration file: **./lib/otel/otel-config.yaml**.
 
-You can start **${solutionName}** with an alternate configuration file path with the command bellow:
+You can start **${solutionName}** with an alternate configuration file path with the command below:
 
 ```shell-session
 / $ cd /docker/hws
@@ -171,7 +171,7 @@ services:
 
 From [Sentry Software's Web site](https://www.sentrysoftware.com/downloads/), download:
 
-- **hws-rhel-${project.version}-1.x86_64.rpm**
+* **hws-rhel-${project.version}-1.x86_64.rpm**
 
 #### Install
 
@@ -182,14 +182,14 @@ Once you have downloaded the RPM package, run the following `rpm` command to ins
 /usr/local $ sudo rpm -i hws-rhel-${project.version}-1.x86_64.rpm
 ```
 
-This deploys the **${solutionName}**'s files under `/opt/hws` and starts the **Hardware Sentry Agent** as a service.
+When complete, the **${solutionName}**'s files are deployed in `/opt/hws` and the **Hardware Sentry Agent** is started as a service.
 
 #### Configure
 
 There are 2 configuration files:
 
-- [**./otel/otel-config.yaml**](configuration/configure-otel.md): to specify where the _OpenTelemetry Collector_ should send the collected data
-- [**./config/hws-config.yaml**](configuration/configure-agent.md): to specify the hosts to monitor and their credentials
+* [**./otel/otel-config.yaml**](configuration/configure-otel.md): to specify where the _OpenTelemetry Collector_ should send the collected data
+* [**./config/hws-config.yaml**](configuration/configure-agent.md): to specify the hosts to monitor and their credentials
 
 Before starting **${solutionName}**, make sure to configure [**./otel/otel-config.yaml**](configuration/configure-otel.md), since a restart of the _Collector_ is required to take into account its changes.
 
@@ -230,7 +230,7 @@ systemctl stop hws-agent
 
 #### Uninstall
 
-To uninstall **${solutionName}**, run the below `rpm` command:
+To uninstall **${solutionName}**, run the command below:
 
 ```shell-session
 sudo rpm -e hws-${project.version}-1.x86_64
@@ -242,20 +242,13 @@ sudo rpm -e hws-${project.version}-1.x86_64
 
 From [Sentry Software's Web site](https://www.sentrysoftware.com/downloads/), download:
 
-- **hws-windows-${project.version}.msi**
+* **hws-windows-${project.version}.msi**
 
 #### Install
 
-Once you have downloaded the MSI package:
+Double-click the `.msi` file you previously downloaded. The Installation Wizard will automatically start and guide you through the installation process.
 
-- Double-click the file to run it, you will be prompted to read and accept the terms in the license agreement.
-- Validate the destination folder.
-- Click Install to begin the installation.
-- Click Finish to exit the setup wizard.
-
-This deploys the **${solutionName}**'s files to the destination folder (by default under `C:\Program Files\hws`) and starts the **Hardware Sentry Agent** as a Windows service.
-
-The service appears in **services.msc**:
+When complete, the **${solutionName}**'s files are deployed to the destination folder (by default under `C:\Program Files\hws`) and the **Hardware Sentry Agent** is started as a service and appears in **services.msc**.
 
 ![**${solutionName}** running as a service on Windows](images/hws-win-service.png)
 
@@ -263,13 +256,13 @@ The service appears in **services.msc**:
 
 There are 2 configuration files:
 
-- [**./otel/otel-config.yaml**](configuration/configure-otel.md): to specify where the _OpenTelemetry Collector_ should send the collected data
-- [**./config/hws-config.yaml**](configuration/configure-agent.md): to specify the hosts to monitor and their credentials
+* [**./otel/otel-config.yaml**](configuration/configure-otel.md): to specify where the _OpenTelemetry Collector_ should send the collected data
+* [**./config/hws-config.yaml**](configuration/configure-agent.md): to specify the hosts to monitor and their credentials
 
 and two configuration examples:
 
-- **./otel/otel-config-example.yaml**, a configuration example of the _OpenTelemetry Collector_.
-- **./config/hws-config-example.yaml**, a configuration example of the **Hardware Sentry Agent**.
+* **./otel/otel-config-example.yaml**, a configuration example of the _OpenTelemetry Collector_.
+* **./config/hws-config-example.yaml**, a configuration example of the **Hardware Sentry Agent**.
 
 Before starting **${solutionName}**, make sure to configure [**./otel/otel-config.yaml**](configuration/configure-otel.md), since a restart of the _Collector_ is required to take into account its changes.
 
@@ -293,11 +286,11 @@ agent --config="c:\Program Files\hws\config\my-hws-config.yaml"
 
 #### Uninstall
 
-To uninstall **${solutionName}**, double-click the **hws-windows-${project.version}.msi** file, once you're prompted, click *Remove* to remove **${solutionName}** from your computer.
+To uninstall **${solutionName}**, double-click the **hws-windows-${project.version}.msi** file and click **Remove** when prompted.
 
 ## Upgrade
 
-> Warning: It is recommended to make a backup copy of the `hws-keystore.p12` file stored in `hws/security` if you previously encrypted your passwords as specified in [Encrypting Passwords](security/passwords.md).
+> **Warning**: It is highly recommended to make a backup copy of the `hws-keystore.p12` file stored in `hws/security` if you previously encrypted your passwords as specified in [Encrypting Passwords](security/passwords.md).
 
 Install the latest version to upgrade **${solutionName}**.
 
