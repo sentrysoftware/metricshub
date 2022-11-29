@@ -292,7 +292,14 @@ To uninstall **${solutionName}**, double-click the **hws-windows-${project.versi
 
 > **Warning**: It is highly recommended to make a backup copy of the `hws-keystore.p12` file stored in `hws/security` if you previously encrypted your passwords as specified in [Encrypting Passwords](security/passwords.md).
 
-Install the latest version to upgrade **${solutionName}**.
+If you are upgrading from v2.0.00, perform the actions below before installing **Hardware Sentry** v3.0.00:
+
+**On Windows**:
+
+* If you installed the version 2.0.00 as a Windows service, stop and remove the service before installing **Hardware Sentry** v3.0.00
+* If you are running the collector in an interactive terminal, stop the collector process (`hws-otel-collector.exe`) before installing **Hardware Sentry** v3.0.00.
+
+**On Linux**, stop the `hws-otel-collector`.
 
 ## Post-install
 
