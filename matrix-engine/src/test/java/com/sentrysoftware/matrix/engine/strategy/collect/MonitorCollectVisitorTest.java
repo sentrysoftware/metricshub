@@ -805,8 +805,7 @@ class MonitorCollectVisitorTest {
 		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
 
 			hostMonitoring.setLocalhost(true);
-			hostMonitoring.setSshInteractiveExists(true);
-			hostMonitoring.setOsCommandExists(true);
+			hostMonitoring.setMustCheckSshStatus(true);
 			hostMonitoring.setOsCommandExecutesRemotely(true);
 			hostMonitoring.setOsCommandExecutesLocally(true);
 
@@ -843,8 +842,7 @@ class MonitorCollectVisitorTest {
 		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
 
 			hostMonitoring.setLocalhost(true);
-			hostMonitoring.setSshInteractiveExists(true);
-			hostMonitoring.setOsCommandExists(true);
+			hostMonitoring.setMustCheckSshStatus(true);
 			hostMonitoring.setOsCommandExecutesRemotely(true);
 			hostMonitoring.setOsCommandExecutesLocally(true);
 

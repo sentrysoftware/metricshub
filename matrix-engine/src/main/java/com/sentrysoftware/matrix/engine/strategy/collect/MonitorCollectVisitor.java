@@ -428,43 +428,67 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 				.get(SshProtocol.class);
 
 		// Update the SSH_UP_PARAMETER
-		if (ssh != null) {
-			if (monitorCollectInfo.getHostMonitoring().isOsCommandExists() || monitorCollectInfo.getHostMonitoring().isSshInteractiveExists()) {
-				Up state = Up.UP;  
+		if (ssh != null && monitorCollectInfo.getHostMonitoring().isMustCheckSshStatus()) {
+			Up state = Up.UP;
 
-				if(monitorCollectInfo.getHostMonitoring().isOsCommandExecutesLocally()) {
-				     try {
-				        if (OsCommandHelper.runLocalCommand("echo SSH_UP_TEST", Math.toIntExact(ssh.getTimeout()), null) == null) {
-				        	log.debug("Hostname {} - Checking SSH protocol status. Local OS command has not returned any results.", hostname);
-							state = Up.DOWN;
-				        }
-				     } catch (Exception e) {
-				    	log.debug("Hostname {} - Checking SSH protocol status. SSH exception when performing a local OS command test: ", hostname, e);
-						state = Up.DOWN;
-				     }
-				  }
-
-				if(monitorCollectInfo.getHostMonitoring().isOsCommandExecutesRemotely()) {
-				     try {
-				        if (OsCommandHelper.runSshCommand("echo SSH_UP_TEST", hostname, ssh, Math.toIntExact(ssh.getTimeout()), null, null) == null) {
-				        	log.debug("Hostname {} - Checking SSH protocol status. Remote SSH command has not returned any results. ", hostname);
-							state = Up.DOWN;
-				        }
-				     } catch (Exception e) {
-				    	 log.debug("Hostname {} - Checking SSH protocol status. SSH exception when performing a remote SSH command test: ", hostname, e);
-				    	 state = Up.DOWN;
-				     }
-				}
-
-				// Set the parameter at the end
-				CollectHelper.updateDiscreteParameter(
-						monitor,
-						SSH_UP_PARAMETER,
-						monitorCollectInfo.getCollectTime(),
-						state
-						);
+			if(monitorCollectInfo.getHostMonitoring().isOsCommandExecutesLocally()) {
+				state = sshTestExecutesLocally(hostname, ssh, state);
 			}
+
+			if(monitorCollectInfo.getHostMonitoring().isOsCommandExecutesRemotely()) {
+				state = sshTestExecutesRemotely(hostname, ssh, state);
+			}
+
+			// Set the parameter at the end
+			CollectHelper.updateDiscreteParameter(
+					monitor,
+					SSH_UP_PARAMETER,
+					monitorCollectInfo.getCollectTime(),
+					state
+				);
 		}
+	}
+
+	/**
+	 * Test whether remote ssh is responding.
+	 * 
+	 * @param hostname
+	 * @param ssh
+	 * @param state
+	 * @return
+	 */
+	private Up sshTestExecutesRemotely(final String hostname, final SshProtocol ssh, Up state) {
+		try {
+			if (OsCommandHelper.runSshCommand("echo SSH_UP_TEST", hostname, ssh, Math.toIntExact(ssh.getTimeout()), null, null) == null) {
+				log.debug("Hostname {} - Checking SSH protocol status. Remote SSH command has not returned any results. ", hostname);
+				state = Up.DOWN;
+			}
+		} catch (Exception e) {
+			log.debug("Hostname {} - Checking SSH protocol status. SSH exception when performing a remote SSH command test: ", hostname, e);
+			state = Up.DOWN;
+		}
+		return state;
+	}
+
+	/**
+	 * 
+	 * 
+	 * @param hostname
+	 * @param ssh
+	 * @param state
+	 * @return
+	 */
+	private Up sshTestExecutesLocally(final String hostname, final SshProtocol ssh, Up state) {
+		try {
+			if (OsCommandHelper.runLocalCommand("echo SSH_UP_TEST", Math.toIntExact(ssh.getTimeout()), null) == null) {
+				log.debug("Hostname {} - Checking SSH protocol status. Local OS command has not returned any results.", hostname);
+				state = Up.DOWN;
+			}
+		} catch (Exception e) {
+			log.debug("Hostname {} - Checking SSH protocol status. SSH exception when performing a local OS command test: ", hostname, e);
+			state = Up.DOWN;
+		}
+		return state;
 	}
 
 	/**

@@ -92,9 +92,7 @@ public class HostMonitoring implements IHostMonitoring {
 
 	private boolean osCommandExecutesRemotely;
 
-	private boolean sshInteractiveExists;
-
-	private boolean osCommandExists;
+	private boolean mustCheckSshStatus;
 
 	@Getter(value = AccessLevel.PRIVATE)
 	private Map<String, ConnectorNamespace> connectorNamespaces = new HashMap<>();

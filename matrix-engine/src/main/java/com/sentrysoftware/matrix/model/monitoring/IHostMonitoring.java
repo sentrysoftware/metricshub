@@ -91,11 +91,7 @@ public interface IHostMonitoring {
 	
 	void setOsCommandExecutesRemotely(boolean osCommandExecutesRemotely);
 	
-	boolean isSshInteractiveExists();
-	
-	void setSshInteractiveExists(boolean sshInteractiveExists);
-	
-	boolean isOsCommandExists();
-	
-	void setOsCommandExists(boolean osCommandExists);
+	boolean isMustCheckSshStatus();
+
+	void setMustCheckSshStatus(boolean mustCheckSshStatus);
 }

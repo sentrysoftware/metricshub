@@ -39,6 +39,8 @@ import com.sentrysoftware.matrix.connector.model.detection.criteria.sshinteracti
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OsCommandSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.sshinteractive.SshInteractiveSource;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParser;
 import com.sentrysoftware.matrix.engine.host.HardwareHost;
 import com.sentrysoftware.matrix.engine.host.HostType;
@@ -283,50 +285,64 @@ public class DetectionOperation extends AbstractStrategy {
 		for (TestedConnector testedConnector : testedConnectorList) {
 			createConnector(host, testedConnector);
 
-			if (testedConnector.getConnector().getDetection() != null 
-					|| testedConnector.getConnector().getDetection().getCriteria() != null) {
-				verifySsh(testedConnector);
-			}
+			verifySsh(testedConnector.getConnector());
 		}
 	}
 
 	/**
-	 * Verify if the connector contains ssh or osCommand sources and if they are run locally or remotely
-	 * @param testedConnector
+	 * Verify SSH on the given connector so that the {@link HardwareConstants#SSH_UP_PARAMETER} collect
+	 * can properly assess whether commands are working or not.
+	 * 
+	 * @param connector Hardware {@link Connector} instance defining sources and
+	 *                  criteria
 	 */
-	void verifySsh(TestedConnector testedConnector) {
-		List<Criterion> criteria = testedConnector
-				.getConnector()
-				.getDetection()
-				.getCriteria();
+	void verifySsh(final Connector connector) {
 
-		if (criteria
-				.stream()
-				.anyMatch(OsCommand.class::isInstance)) {
-			strategyConfig.getHostMonitoring().setOsCommandExists(true);
+		final Set<Class<? extends Source>> sourceTypes = connector.getSourceTypes();
 
-			if (criteria
-					.stream()
-					.filter(OsCommand.class::isInstance)
-					.map(OsCommand.class::cast)
-					.anyMatch(OsCommand::isExecuteLocally)) {
-				strategyConfig.getHostMonitoring().setOsCommandExecutesLocally(true);
+		if (sourceTypes.contains(OsCommandSource.class)
+			|| sourceTypes.contains(SshInteractiveSource.class)) {
+
+			strategyConfig.getHostMonitoring().setMustCheckSshStatus(true);
+
+			final Detection detection = connector.getDetection();
+			if (detection != null && detection.getCriteria() != null) {
+				verifySshCriteria(detection.getCriteria());
 			}
 
-			if (criteria
-					.stream()
-					.filter(OsCommand.class::isInstance)
-					.map(OsCommand.class::cast)
-					.anyMatch(osCommand -> !osCommand.isExecuteLocally())) {
-				strategyConfig.getHostMonitoring().setOsCommandExecutesRemotely(true);
+		}
+	}
+
+	/**
+	 * Verify the given list of criterion instances to check if they will run locally or remotely
+	 * 
+	 * @param criteria Connector detection criteria list
+	 */
+	void verifySshCriteria(final List<Criterion> criteria) {
+
+		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
+
+		boolean osCommandExecuteLocally = false;
+		boolean osCommandExecuteRemotely = false;
+
+		for (final Criterion criterion: criteria) {
+
+			if (criterion instanceof OsCommand) {
+				final OsCommand osCommand = (OsCommand) criterion;
+				boolean executeLocally = osCommand.isExecuteLocally();
+				osCommandExecuteLocally = osCommandExecuteLocally ? osCommandExecuteLocally : executeLocally;
+				osCommandExecuteRemotely = osCommandExecuteRemotely ? osCommandExecuteRemotely : !executeLocally;
+			} else if (criterion instanceof SshInteractive) {
+				osCommandExecuteRemotely = true;
+			}
+			
+			if (osCommandExecuteLocally && osCommandExecuteRemotely) {
+				break;
 			}
 		}
 
-		if (criteria
-				.stream()
-				.anyMatch(SshInteractive.class::isInstance)) {
-			strategyConfig.getHostMonitoring().setSshInteractiveExists(true);
-		}
+		hostMonitoring.setOsCommandExecutesLocally(osCommandExecuteLocally);
+		hostMonitoring.setOsCommandExecutesRemotely(osCommandExecuteRemotely);
 	}
 
 	/**
