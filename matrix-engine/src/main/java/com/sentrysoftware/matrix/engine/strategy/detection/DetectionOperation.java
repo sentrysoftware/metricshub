@@ -335,7 +335,7 @@ public class DetectionOperation extends AbstractStrategy {
 			} else if (criterion instanceof SshInteractive) {
 				osCommandExecuteRemotely = true;
 			}
-			
+
 			if (osCommandExecuteLocally && osCommandExecuteRemotely) {
 				break;
 			}

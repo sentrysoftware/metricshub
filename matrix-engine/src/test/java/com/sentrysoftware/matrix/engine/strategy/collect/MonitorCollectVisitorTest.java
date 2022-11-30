@@ -851,13 +851,12 @@ class MonitorCollectVisitorTest {
 				oscmd.when(() -> OsCommandHelper.runSshCommand(ECHO_SSH_UP_TEST,
 						monitorCollectVisitor.getMonitorCollectInfo().getHostname(), ssh, Math.toIntExact(ssh.getTimeout()),
 						null, null)).thenReturn(SSH_UP_TEST_RESPONSE);
-	
-				oscmd.when(() -> OsCommandHelper.runLocalCommand(ECHO_SSH_UP_TEST, 
+
+				oscmd.when(() -> OsCommandHelper.runLocalCommand(ECHO_SSH_UP_TEST,
 						Math.toIntExact(ssh.getTimeout()), null)).thenReturn(null);
-	
-	
+
 				monitorCollectVisitor.visit(new Host());
-	
+
 				final IParameter actual = monitor.getParameters().get(SSH_UP_PARAMETER);
 				assertEquals(sshDownParam, actual);
 			}
@@ -867,13 +866,12 @@ class MonitorCollectVisitorTest {
 				oscmd.when(() -> OsCommandHelper.runSshCommand(ECHO_SSH_UP_TEST,
 						monitorCollectVisitor.getMonitorCollectInfo().getHostname(), ssh, Math.toIntExact(ssh.getTimeout()),
 						null, null)).thenReturn(null);
-	
+
 				oscmd.when(() -> OsCommandHelper.runLocalCommand(ECHO_SSH_UP_TEST, 
 						Math.toIntExact(ssh.getTimeout()), null)).thenReturn(SSH_UP_TEST_RESPONSE);
-	
-	
+
 				monitorCollectVisitor.visit(new Host());
-	
+
 				final IParameter actual = monitor.getParameters().get(SSH_UP_PARAMETER);
 				assertEquals(sshDownParam, actual);
 			}
