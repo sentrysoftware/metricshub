@@ -432,11 +432,18 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			Up state = Up.UP;
 
 			if(monitorCollectInfo.getHostMonitoring().isOsCommandExecutesLocally()) {
-				state = sshTestExecutesLocally(hostname, ssh, state);
+				state = sshTestExecutesLocally(hostname,
+						ssh,
+						state
+				);
 			}
 
 			if(monitorCollectInfo.getHostMonitoring().isOsCommandExecutesRemotely()) {
-				state = sshTestExecutesRemotely(hostname, ssh, state);
+				state = sshTestExecutesRemotely(
+						hostname,
+						ssh,
+						state
+				);
 			}
 
 			// Set the parameter at the end
@@ -454,9 +461,10 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	 * 
 	 * @param hostname
 	 * @param ssh
+	 * @param currentState
 	 * @return the new state parameter of the ssh protocol.
 	 */
-	private Up sshTestExecutesRemotely(final String hostname, final SshProtocol ssh, Up state) {
+	private Up sshTestExecutesRemotely(final String hostname, final SshProtocol ssh, Up currentState) {
 		try {
 			if (OsCommandHelper.runSshCommand("echo SSH_UP_TEST", hostname, ssh, Math.toIntExact(ssh.getTimeout()), null, null) == null) {
 				log.debug("Hostname {} - Checking SSH protocol status. Remote SSH command has not returned any results. ", hostname);
@@ -466,7 +474,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 			log.debug("Hostname {} - Checking SSH protocol status. SSH exception when performing a remote SSH command test: ", hostname, e);
 			return Up.DOWN;
 		}
-		return state;
+		return currentState;
 	}
 
 	/**
@@ -474,6 +482,7 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 	 * 
 	 * @param hostname
 	 * @param ssh
+	 * @param currentState
 	 * @return the new state parameter of the ssh protocol
 	 */
 	private Up sshTestExecutesLocally(final String hostname, final SshProtocol ssh, Up currentState) {
