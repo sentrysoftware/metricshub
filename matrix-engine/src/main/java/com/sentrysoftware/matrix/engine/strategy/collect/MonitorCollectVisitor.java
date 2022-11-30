@@ -431,27 +431,20 @@ public class MonitorCollectVisitor implements IMonitorVisitor {
 		if (ssh != null && monitorCollectInfo.getHostMonitoring().isMustCheckSshStatus()) {
 			Up state = Up.UP;
 
-			if(monitorCollectInfo.getHostMonitoring().isOsCommandExecutesLocally()) {
-				state = sshTestExecutesLocally(hostname,
-						ssh,
-						state
-				);
+			if (monitorCollectInfo.getHostMonitoring().isOsCommandExecutesLocally()) {
+				state = sshTestExecutesLocally(hostname, ssh, state);
 			}
 
-			if(monitorCollectInfo.getHostMonitoring().isOsCommandExecutesRemotely()) {
-				state = sshTestExecutesRemotely(
-						hostname,
-						ssh,
-						state
-				);
+			if (monitorCollectInfo.getHostMonitoring().isOsCommandExecutesRemotely()) {
+				state = sshTestExecutesRemotely(hostname, ssh, state);
 			}
 
 			// Set the parameter at the end
 			CollectHelper.updateDiscreteParameter(
-					monitor,
-					SSH_UP_PARAMETER,
-					monitorCollectInfo.getCollectTime(),
-					state
+				monitor,
+				SSH_UP_PARAMETER,
+				monitorCollectInfo.getCollectTime(),
+				state
 			);
 		}
 	}
