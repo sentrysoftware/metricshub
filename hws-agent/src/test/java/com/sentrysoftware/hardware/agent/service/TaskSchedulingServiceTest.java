@@ -1,7 +1,6 @@
 package com.sentrysoftware.hardware.agent.service;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
@@ -14,7 +13,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 
-import org.apache.logging.log4j.Level;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -136,13 +134,6 @@ class TaskSchedulingServiceTest {
 		taskSchedulingService.updateConfiguration(configFile);
 
 		verify(hostTaskScheduler, times(3)).schedule(any(StrategyTask.class), any(Trigger.class));
-	}
-
-	@Test
-	void testGetLoggerLevel() {
-		assertEquals(Level.OFF, TaskSchedulingService.getLoggerLevel(null));
-		assertEquals(Level.DEBUG, TaskSchedulingService.getLoggerLevel("debug"));
-		assertEquals(Level.OFF, TaskSchedulingService.getLoggerLevel("unknown"));
 	}
 
 }

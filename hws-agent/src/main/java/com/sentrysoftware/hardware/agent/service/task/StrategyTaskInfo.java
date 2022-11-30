@@ -18,7 +18,6 @@ public class StrategyTaskInfo {
 	private IHostMonitoring hostMonitoring;
 
 	private int discoveryCycle;
-	private int serverPort;
 	private String loggerLevel;
 	private String outputDirectory;
 }

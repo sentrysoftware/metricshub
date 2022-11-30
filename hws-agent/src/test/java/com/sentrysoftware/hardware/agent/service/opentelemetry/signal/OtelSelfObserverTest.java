@@ -1,6 +1,6 @@
 package com.sentrysoftware.hardware.agent.service.opentelemetry.signal;
 
-import static com.sentrysoftware.hardware.agent.configuration.AgentConfig.*;
+import static com.sentrysoftware.hardware.agent.configuration.AgentInfoConfig.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

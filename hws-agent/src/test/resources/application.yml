@@ -12,3 +12,4 @@ otelVersion: "0.55.0"
 spring:
   main:
     banner-mode: "off"
+    web-application-type: none
