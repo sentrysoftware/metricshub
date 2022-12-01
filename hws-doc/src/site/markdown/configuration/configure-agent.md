@@ -15,8 +15,7 @@ To ensure this process runs smoothly, you need to configure a few settings in th
 
 Note that all changes made to the  `config/hws-config.yaml` file are taken into account immediately. There is therefore no need to restart **${solutionName}**.
 
-> **Important**: We highly recommend using Visual Studio Code to edit **${solutionName}**'s configuration files (.yaml).
- Typos or incorrect indentation will make configuration files unreadable and prevent **${solutionName}** from operating correctly.
+> **Important**: We recommend using an editor supporting the [Schemastore](https://www.schemastore.org/json#editors) to edit **${solutionName}**'s configuration YAML files (Example: [Visual Studio Code](https://code.visualstudio.com/download) and [vscode.dev](https://vscode.dev), with [RedHat's YAML extension](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml)).
 
 ## Configure a site
 
