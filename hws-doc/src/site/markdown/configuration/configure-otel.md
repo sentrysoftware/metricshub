@@ -9,7 +9,7 @@ description: A simple YAML file configures where ${solutionName} must send the d
 
   > This page is therefore intended for **advanced users** who have a **deep knowledge of OpenTelemetry** and wish to learn more about the properties available in `otel/otel-config.yaml`.
 
-**Important**: We highly recommend using Visual Studio Code to edit **${solutionName}**'s configuration files (.yaml).
+> **Important**: We highly recommend using Visual Studio Code to edit **${solutionName}**'s configuration files (.yaml).
 Typos or incorrect indentation will make configuration files unreadable and prevent **${solutionName}** from operating correctly.
 
 As a regular *OpenTelemetry Collector*, **${solutionName}** consists of:
