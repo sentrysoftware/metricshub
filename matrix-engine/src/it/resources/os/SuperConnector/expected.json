@@ -66327,8 +66327,8 @@
         "collectTime" : 1649435081386,
         "previousCollectTime" : null,
         "unit" : "degrees Celsius",
-        "value" : 38.0,
-        "rawValue" : 38.0,
+        "value" : 31.0,
+        "rawValue" : 31.0,
         "previousRawValue" : null,
         "type" : "NumberParam"
       },
