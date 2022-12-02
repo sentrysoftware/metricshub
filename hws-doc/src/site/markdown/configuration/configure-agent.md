@@ -15,6 +15,8 @@ To ensure this process runs smoothly, you need to configure a few settings in th
 
 Note that all changes made to the  `config/hws-config.yaml` file are taken into account immediately. There is therefore no need to restart **${solutionName}**.
 
+> **Important**: We recommend using an editor supporting the [Schemastore](https://www.schemastore.org/json#editors) to edit **${solutionName}**'s configuration YAML files (Example: [Visual Studio Code](https://code.visualstudio.com/download) and [vscode.dev](https://vscode.dev), with [RedHat's YAML extension](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml)).
+
 ## Configure a site
 
 A site represents the data center or the server room in which all the systems to be monitored are located. Configure your site in the `extraLabels` section of the `config/hws-config.yaml` file as shown in the example below:
@@ -49,8 +51,6 @@ To collect metrics from your hosts, you must provide the following information i
 * the protocol to be used.
 
 You can either configure your hosts individually or several at a times if they share the same characteristics (device type, protocols, credentials, etc.).
-
-> **Important**: Because a typo or incorrect indentation in the `hws-config.yaml` file could cause your hardware monitoring to fail, it is highly recommended to install the [vscode-yaml](https://github.com/redhat-developer/vscode-yaml) extension in your editor to benefit from tooltips and autocompletion suggested by the [Hardware Sentry Configuration](https://json.schemastore.org/hws-config.json) JSON Schema.
 
 ### Monitored hosts
 
