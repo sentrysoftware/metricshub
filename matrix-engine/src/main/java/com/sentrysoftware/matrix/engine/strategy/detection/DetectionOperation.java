@@ -1,17 +1,16 @@
 package com.sentrysoftware.matrix.engine.strategy.detection;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.APPLIES_TO_OS;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.COMPILED_FILE_NAME;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DESCRIPTION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.DISPLAY_NAME;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.FQDN;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HOST_FQDN;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCALHOST;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LOCATION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.OPERATING_SYSTEM_TYPE;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.REMOTE;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.HOST_FQDN;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.CONNECTOR;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.APPLIES_TO_OS;
-
 
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -32,12 +31,19 @@ import java.util.stream.Stream;
 import com.sentrysoftware.matrix.common.exception.DetectionOperationException;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.common.OsType;
 import com.sentrysoftware.matrix.connector.model.detection.Detection;
 import com.sentrysoftware.matrix.connector.model.detection.criteria.Criterion;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.oscommand.OsCommand;
+import com.sentrysoftware.matrix.connector.model.detection.criteria.sshinteractive.SshInteractive;
 import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.oscommand.OsCommandSource;
+import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.sshinteractive.SshInteractiveSource;
 import com.sentrysoftware.matrix.connector.parser.ConnectorParser;
+import com.sentrysoftware.matrix.engine.host.HardwareHost;
+import com.sentrysoftware.matrix.engine.host.HostType;
 import com.sentrysoftware.matrix.engine.strategy.AbstractStrategy;
 import com.sentrysoftware.matrix.engine.strategy.discovery.MonitorBuildingInfo;
 import com.sentrysoftware.matrix.engine.strategy.discovery.MonitorDiscoveryVisitor;
@@ -46,12 +52,8 @@ import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import com.sentrysoftware.matrix.model.parameter.IParameter;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
 
-import com.sentrysoftware.matrix.engine.host.HardwareHost;
-import com.sentrysoftware.matrix.engine.host.HostType;
-
-import com.sentrysoftware.matrix.connector.model.common.OsType;
-
 import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 import lombok.extern.slf4j.Slf4j;
 
 
@@ -282,11 +284,68 @@ public class DetectionOperation extends AbstractStrategy {
 	 * @param testedConnectorList
 	 */
 	void createConnectors(final Monitor host, final List<TestedConnector> testedConnectorList) {
-
-		// Loop over the testedConnectors and create them in the HostMonitoring instance
+		// Loop over the testedConnectors and create them in the HostMonitoring instance		
 		for (TestedConnector testedConnector : testedConnectorList) {
 			createConnector(host, testedConnector);
+
+			verifySsh(testedConnector.getConnector());
 		}
+	}
+
+	/**
+	 * Verify SSH on the given connector so that the {@link HardwareConstants#SSH_UP_PARAMETER} collect
+	 * can properly assess whether commands are working or not.
+	 * 
+	 * @param connector Hardware {@link Connector} instance defining sources and
+	 *                  criteria
+	 */
+	void verifySsh(final Connector connector) {
+
+		final Set<Class<? extends Source>> sourceTypes = connector.getSourceTypes();
+
+		if (sourceTypes.contains(OsCommandSource.class)
+			|| sourceTypes.contains(SshInteractiveSource.class)) {
+
+			strategyConfig.getHostMonitoring().setMustCheckSshStatus(true);
+
+			final Detection detection = connector.getDetection();
+			if (detection != null && detection.getCriteria() != null) {
+				verifySshCriteria(detection.getCriteria());
+			}
+
+		}
+	}
+
+	/**
+	 * Verify the given list of criterion instances to check if they will run locally or remotely
+	 * 
+	 * @param criteria Connector detection criteria list
+	 */
+	void verifySshCriteria(final List<Criterion> criteria) {
+
+		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
+
+		boolean osCommandExecuteLocally = false;
+		boolean osCommandExecuteRemotely = false;
+
+		for (final Criterion criterion: criteria) {
+
+			if (criterion instanceof OsCommand) {
+				final OsCommand osCommand = (OsCommand) criterion;
+				boolean executeLocally = osCommand.isExecuteLocally();
+				osCommandExecuteLocally = osCommandExecuteLocally ? osCommandExecuteLocally : executeLocally;
+				osCommandExecuteRemotely = osCommandExecuteRemotely ? osCommandExecuteRemotely : !executeLocally;
+			} else if (criterion instanceof SshInteractive) {
+				osCommandExecuteRemotely = true;
+			}
+
+			if (osCommandExecuteLocally && osCommandExecuteRemotely) {
+				break;
+			}
+		}
+
+		hostMonitoring.setOsCommandExecutesLocally(osCommandExecuteLocally);
+		hostMonitoring.setOsCommandExecutesRemotely(osCommandExecuteRemotely);
 	}
 
 	/**
@@ -319,6 +378,7 @@ public class DetectionOperation extends AbstractStrategy {
 		monitor.addMetadata(DESCRIPTION, connector.getComments());
 		monitor.addMetadata(CONNECTOR, connector.getCompiledFilename());
 		monitor.addMetadata(APPLIES_TO_OS, connector.getAppliesToOS().stream().map(OsType::getDisplayName).collect(Collectors.joining(",")));
+		monitor.addMetadata(CONNECTOR, APPLIES_TO_OS);
 
 		monitor.getMonitorType().getMetaMonitor()
 				.accept(new MonitorDiscoveryVisitor(MonitorBuildingInfo.builder()

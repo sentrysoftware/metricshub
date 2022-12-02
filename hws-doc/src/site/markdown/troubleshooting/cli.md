@@ -48,7 +48,7 @@ Only a few options are required to run the `hws` command:
 
 ![Usage of hws](../images/hws-usage.png)
 
-The `hws` command can be used to troubleshoot the monitoring performed by other *Hardware Sentry* products such as the KM for PATROL, or the **${solutionName}**.
+The `hws` command can be used to troubleshoot the monitoring performed by the **Hardware Sentry Agent** (the core engine) or by other *Hardware Sentry* products such as the KM for PATROL.
 
 ## The Basics
 
@@ -184,10 +184,9 @@ $ hws WIN09 -t mgmt --winrm --winrm-username USER --winrm-password MYSECRET
 
 This command will connect to the `WIN09` system using the `WinRM` protocol to execute commands as `USER`.
 
-
 ## Automatic Detection vs Manual Selection
 
-The **${solutionName}** is bundled with Sentry's **Hardware Connector Library**, a library which consists of hundreds of *hardware connectors* that describe how to discover hardware components and detect failures in a given system, with a specific instrumentation stack.
+**${solutionName}** is bundled with Sentry's **Hardware Connector Library**, a library which consists of hundreds of *hardware connectors* that describe how to discover hardware components and detect failures in a given system, with a specific instrumentation stack.
 
 Examples of connectors:
 
@@ -207,7 +206,7 @@ To force specific connectors to be used, add the `--force CONNECTOR,...` option,
 
 Using the `--force` option will shorten the detection phase, as only the specified connectors will be tested.
 
-To get the list of connectors bundled in the **${solutionName}** and their corresponding internal name (**id**), you can run the below command:
+To get the list of connectors bundled in **${solutionName}** and their corresponding internal name (**id**), you can run the below command:
 
 ```batch
 $ hws --list

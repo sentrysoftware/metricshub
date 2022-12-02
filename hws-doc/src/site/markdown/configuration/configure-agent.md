@@ -523,7 +523,7 @@ By default, **${solutionName}** collects metrics from the monitored hosts every 
 
 #### Connectors
 
-The **${solutionName}** comes with the *Hardware Connector Library*, a library that consists of hundreds of hardware connectors that describe how to discover hardware components and detect failures. When running **${solutionName}**, the connectors are automatically selected based on the device type provided and the enabled protocols. You can however indicate to **${solutionName}** which connectors should be used or excluded.
+**${solutionName}** comes with the *Hardware Connector Library*, a library that consists of hundreds of hardware connectors that describe how to discover hardware components and detect failures. When running **${solutionName}**, the connectors are automatically selected based on the device type provided and the enabled protocols. You can however indicate to **${solutionName}** which connectors should be used or excluded.
 
 Use the parameters below to select or exclude connectors:
 
@@ -690,7 +690,7 @@ To force all the network calls to be executed in sequential order:
 
 > **Warning**: Sending requests in sequential mode slows down the monitoring significantly. Instead of using the sequential mode, you could increase the maximum number of allowed concurrent requests in the monitored system, if the manufacturer allows it.
 
-#### Timeout, duration and period Format
+#### Timeout, duration and period format
 
 Timeouts, durations and periods are specified with the below format:
 
@@ -792,21 +792,7 @@ hosts: # ...
 
 #### Working directory
 
-By default, the _OpenTelemetry Collector_ working directory is set to `hws/otel`. In heavily customized setups, you may need to set the right working directory for the _OpenTelemetry Collector_ process.
-
-**`otel/otel-config.yaml` example:**
-
-```yaml
-receivers:
-  otlp:
-    protocols:
-      grpc:
-        tls:
-          cert_file: ../security/otel.crt  # This is the relative path to the certificate file, assuming that the working directory is 'hws/otel'
-
-```
-
-To configure the working directory of the _OpenTelemetry Collector_, update the `workingDir` attribute under the `otelCollector` section in `config/hws-config.yaml`:
+By default, the _OpenTelemetry Collector_ working directory is set to `hws/otel`. If your working directory is different (typically in heavily customized setups), add the `workingDir` attribute under the `otelCollector` section in `config/hws-config.yaml`:
 
 ```yaml
 otelCollector:
@@ -815,7 +801,7 @@ otelCollector:
 hosts: # ...
 ```
 
-You may use relative paths in the `otel/otel-config.yaml` file and these paths are relative to the working directory of the OpenTelemetry Collector. If the working directory is incorrect, it can prevent the _OpenTelemetry Collector_ from starting.
+> **Important**: The _OpenTelemetry Collector_ might not start if the value set for the `workingDir` attribute is not correct, more especially if the `otel/otel-config.yaml` file uses relative paths.
 
 ### Security settings
 

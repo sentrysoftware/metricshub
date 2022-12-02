@@ -28,6 +28,7 @@
 				</includes>
 				<excludes>
 					<exclude>org/slf4j/impl/**</exclude>
+					<exclude>org/springframework/**</exclude>
 				</excludes>
 			</unpackOptions>
 		</dependencySet>

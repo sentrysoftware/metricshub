@@ -82,4 +82,16 @@ public interface IHostMonitoring {
 	String getVCenterTicket();
 
 	void setVCenterTicket(String ticket);
+	
+	boolean isOsCommandExecutesLocally();
+	
+	void setOsCommandExecutesLocally(boolean osCommandExecutesLocally);
+	
+	boolean isOsCommandExecutesRemotely();
+	
+	void setOsCommandExecutesRemotely(boolean osCommandExecutesRemotely);
+	
+	boolean isMustCheckSshStatus();
+
+	void setMustCheckSshStatus(boolean mustCheckSshStatus);
 }
