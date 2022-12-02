@@ -15,6 +15,8 @@ To ensure this process runs smoothly, you need to configure a few settings in th
 
 Note that all changes made to the  `config/hws-config.yaml` file are taken into account immediately. There is therefore no need to restart **${solutionName}**.
 
+> **Important**: We recommend using an editor supporting the [Schemastore](https://www.schemastore.org/json#editors) to edit **${solutionName}**'s configuration YAML files (Example: [Visual Studio Code](https://code.visualstudio.com/download) and [vscode.dev](https://vscode.dev), with [RedHat's YAML extension](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml)).
+
 ## Configure a site
 
 A site represents the data center or the server room in which all the systems to be monitored are located. Configure your site in the `extraLabels` section of the `config/hws-config.yaml` file as shown in the example below:
@@ -49,8 +51,6 @@ To collect metrics from your hosts, you must provide the following information i
 * the protocol to be used.
 
 You can either configure your hosts individually or several at a times if they share the same characteristics (device type, protocols, credentials, etc.).
-
-> **Important**: Because a typo or incorrect indentation in the `hws-config.yaml` file could cause your hardware monitoring to fail, it is highly recommended to install the [vscode-yaml](https://github.com/redhat-developer/vscode-yaml) extension in your editor to benefit from tooltips and autocompletion suggested by the [Hardware Sentry Configuration](https://json.schemastore.org/hws-config.json) JSON Schema.
 
 ### Monitored hosts
 
@@ -523,7 +523,7 @@ By default, **${solutionName}** collects metrics from the monitored hosts every 
 
 #### Connectors
 
-The **${solutionName}** comes with the *Hardware Connector Library*, a library that consists of hundreds of hardware connectors that describe how to discover hardware components and detect failures. When running **${solutionName}**, the connectors are automatically selected based on the device type provided and the enabled protocols. You can however indicate to **${solutionName}** which connectors should be used or excluded.
+**${solutionName}** comes with the *Hardware Connector Library*, a library that consists of hundreds of hardware connectors that describe how to discover hardware components and detect failures. When running **${solutionName}**, the connectors are automatically selected based on the device type provided and the enabled protocols. You can however indicate to **${solutionName}** which connectors should be used or excluded.
 
 Use the parameters below to select or exclude connectors:
 
@@ -690,7 +690,7 @@ To force all the network calls to be executed in sequential order:
 
 > **Warning**: Sending requests in sequential mode slows down the monitoring significantly. Instead of using the sequential mode, you could increase the maximum number of allowed concurrent requests in the monitored system, if the manufacturer allows it.
 
-#### Timeout, duration and period Format
+#### Timeout, duration and period format
 
 Timeouts, durations and periods are specified with the below format:
 
@@ -792,21 +792,7 @@ hosts: # ...
 
 #### Working directory
 
-By default, the _OpenTelemetry Collector_ working directory is set to `hws/otel`. In heavily customized setups, you may need to set the right working directory for the _OpenTelemetry Collector_ process.
-
-**`otel/otel-config.yaml` example:**
-
-```yaml
-receivers:
-  otlp:
-    protocols:
-      grpc:
-        tls:
-          cert_file: ../security/otel.crt  # This is the relative path to the certificate file, assuming that the working directory is 'hws/otel'
-
-```
-
-To configure the working directory of the _OpenTelemetry Collector_, update the `workingDir` attribute under the `otelCollector` section in `config/hws-config.yaml`:
+By default, the _OpenTelemetry Collector_ working directory is set to `hws/otel`. If your working directory is different (typically in heavily customized setups), add the `workingDir` attribute under the `otelCollector` section in `config/hws-config.yaml`:
 
 ```yaml
 otelCollector:
@@ -815,7 +801,7 @@ otelCollector:
 hosts: # ...
 ```
 
-You may use relative paths in the `otel/otel-config.yaml` file and these paths are relative to the working directory of the OpenTelemetry Collector. If the working directory is incorrect, it can prevent the _OpenTelemetry Collector_ from starting.
+> **Important**: The _OpenTelemetry Collector_ might not start if the value set for the `workingDir` attribute is not correct, more especially if the `otel/otel-config.yaml` file uses relative paths.
 
 ### Security settings
 

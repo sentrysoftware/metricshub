@@ -1,6 +1,8 @@
 package com.sentrysoftware.hardware.agent.service;
 
-import static com.sentrysoftware.hardware.agent.configuration.AgentConfig.AGENT_INFO_NAME_ATTRIBUTE_KEY;
+import static com.sentrysoftware.hardware.agent.configuration.AgentInfoConfig.AGENT_INFO_NAME_ATTRIBUTE_KEY;
+import static com.sentrysoftware.hardware.agent.configuration.ConfigHelper.configureGlobalLogger;
+import static com.sentrysoftware.hardware.agent.configuration.ConfigHelper.getLoggerLevel;
 
 import java.io.File;
 import java.util.Map;
@@ -17,7 +19,6 @@ import javax.annotation.PostConstruct;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.ThreadContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.support.PeriodicTrigger;
 import org.springframework.stereotype.Service;
@@ -50,9 +51,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TaskSchedulingService {
 
-	@Value("${server.port:8080}")
-	private int serverPort;
-
 	@Autowired
 	private File configFile;
 
@@ -82,8 +80,6 @@ public class TaskSchedulingService {
 
 	@PostConstruct
 	public void startScheduling() {
-
-		configureLoggerLevel();
 
 		startOtelCollector();
 
@@ -198,36 +194,6 @@ public class TaskSchedulingService {
 	}
 
 	/**
-	 * Configure the 'com.sentrysoftware' logger based on the user's command. See
-	 * log4j2.xml
-	 */
-	void configureLoggerLevel() {
-
-		final Level loggerLevel = getLoggerLevel(multiHostsConfigurationDto.getLoggerLevel());
-
-		ThreadContext.put("logId", String.format("hws-agent-%d-global", serverPort));
-		ThreadContext.put("loggerLevel", loggerLevel.toString());
-
-		String outputDirectory = multiHostsConfigurationDto.getOutputDirectory();
-		if (outputDirectory  != null) {
-			ThreadContext.put("outputDirectory", outputDirectory);
-		}
-	}
-
-	/**
-	 * Get the Log4j log level from the configured logLevel string
-	 *
-	 * @param loggerLevel string value from the configuration (e.g. off, debug, info, warn, error, trace, all)
-	 * @return log4j {@link Level} instance
-	 */
-	static Level getLoggerLevel(final String loggerLevel) {
-
-		final Level level = loggerLevel != null ? Level.getLevel(loggerLevel.toUpperCase()) : null;
-
-		return level != null ? level : Level.OFF;
-	}
-
-	/**
 	 * Update the configuration:
 	 * <ol>
 	 * <li>Remove the obsolete hosts</li>
@@ -257,7 +223,7 @@ public class TaskSchedulingService {
 		multiHostsConfigurationDto.setDisableAlerts(newMultiHostsConfigurationDto.isDisableAlerts());
 
 		// Make sure the logger is configured correctly
-		configureLoggerLevel();
+		configureGlobalLogger(multiHostsConfigurationDto);
 
 		// Configuration updated? if yes stop then start the collector
 		if (!newMultiHostsConfigurationDto.getOtelCollector().equals(multiHostsConfigurationDto.getOtelCollector())) {
@@ -418,7 +384,6 @@ public class TaskSchedulingService {
 					.discoveryCycle(hostConfigDto.getDiscoveryCycle())
 					.loggerLevel(getLoggerLevel(hostConfigDto.getLoggerLevel()).name())
 					.outputDirectory(hostConfigDto.getOutputDirectory())
-					.serverPort(serverPort)
 					.build(),
 				new UserConfiguration(multiHostsConfigurationDto, hostConfigDto),
 				otelSdkConfiguration

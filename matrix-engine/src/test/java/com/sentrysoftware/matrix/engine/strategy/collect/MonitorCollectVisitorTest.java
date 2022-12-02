@@ -805,10 +805,16 @@ class MonitorCollectVisitorTest {
 		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
 
 			hostMonitoring.setLocalhost(true);
+			hostMonitoring.setMustCheckSshStatus(true);
+			hostMonitoring.setOsCommandExecutesRemotely(true);
+			hostMonitoring.setOsCommandExecutesLocally(true);
 
 			oscmd.when(() -> OsCommandHelper.runSshCommand(ECHO_SSH_UP_TEST,
 					monitorCollectVisitor.getMonitorCollectInfo().getHostname(), ssh, Math.toIntExact(ssh.getTimeout()),
 					null, null)).thenReturn(SSH_UP_TEST_RESPONSE);
+
+			oscmd.when(() -> OsCommandHelper.runLocalCommand(ECHO_SSH_UP_TEST, 
+					Math.toIntExact(ssh.getTimeout()), null)).thenReturn(SSH_UP_TEST_RESPONSE);
 
 			monitorCollectVisitor.visit(new Host());
 
@@ -836,15 +842,39 @@ class MonitorCollectVisitorTest {
 		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
 
 			hostMonitoring.setLocalhost(true);
+			hostMonitoring.setMustCheckSshStatus(true);
+			hostMonitoring.setOsCommandExecutesRemotely(true);
+			hostMonitoring.setOsCommandExecutesLocally(true);
 
-			oscmd.when(() -> OsCommandHelper.runSshCommand(ECHO_SSH_UP_TEST,
-					monitorCollectVisitor.getMonitorCollectInfo().getHostname(), ssh, Math.toIntExact(ssh.getTimeout()),
-					null, null)).thenReturn(null);
+			// Remote Up, Local Down 
+			{
+				oscmd.when(() -> OsCommandHelper.runSshCommand(ECHO_SSH_UP_TEST,
+						monitorCollectVisitor.getMonitorCollectInfo().getHostname(), ssh, Math.toIntExact(ssh.getTimeout()),
+						null, null)).thenReturn(SSH_UP_TEST_RESPONSE);
 
-			monitorCollectVisitor.visit(new Host());
+				oscmd.when(() -> OsCommandHelper.runLocalCommand(ECHO_SSH_UP_TEST,
+						Math.toIntExact(ssh.getTimeout()), null)).thenReturn(null);
 
-			final IParameter actual = monitor.getParameters().get(SSH_UP_PARAMETER);
-			assertEquals(sshDownParam, actual);
+				monitorCollectVisitor.visit(new Host());
+
+				final IParameter actual = monitor.getParameters().get(SSH_UP_PARAMETER);
+				assertEquals(sshDownParam, actual);
+			}
+
+			// Remote Down, Local Up
+			{
+				oscmd.when(() -> OsCommandHelper.runSshCommand(ECHO_SSH_UP_TEST,
+						monitorCollectVisitor.getMonitorCollectInfo().getHostname(), ssh, Math.toIntExact(ssh.getTimeout()),
+						null, null)).thenReturn(null);
+
+				oscmd.when(() -> OsCommandHelper.runLocalCommand(ECHO_SSH_UP_TEST, 
+						Math.toIntExact(ssh.getTimeout()), null)).thenReturn(SSH_UP_TEST_RESPONSE);
+
+				monitorCollectVisitor.visit(new Host());
+
+				final IParameter actual = monitor.getParameters().get(SSH_UP_PARAMETER);
+				assertEquals(sshDownParam, actual);
+			}
 		}
 	}
 

@@ -9,6 +9,8 @@ description: A simple YAML file configures where ${solutionName} must send the d
 
   > This page is therefore intended for **advanced users** who have a **deep knowledge of OpenTelemetry** and wish to learn more about the properties available in `otel/otel-config.yaml`.
 
+> **Important**: We recommend using an editor supporting the [Schemastore](https://www.schemastore.org/json#editors) to edit **${solutionName}**'s configuration YAML files (Example: [Visual Studio Code](https://code.visualstudio.com/download) and [vscode.dev](https://vscode.dev), with [RedHat's YAML extension](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml)).
+
 As a regular *OpenTelemetry Collector*, **${solutionName}** consists of:
 
 * receivers
