@@ -12,6 +12,8 @@ There are 2 ways to integrate **${solutionName}** with [Prometheus Server](https
 
 We recommend the **Push** method as its network requirements (firewall) are lower and the configuration simpler.
 
+![${solutionName} integration with Prometheus and Grafana](../images/hardware-sentry-opentelemetry-collector-grafana.png)
+
 ## Push (*Remote Write*)
 
 In this setup, each instance of **${solutionName}** is configured to send the collected metrics to the Prometheus Server, using the *Remote Write Protocol*.
