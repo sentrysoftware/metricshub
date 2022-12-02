@@ -1796,8 +1796,8 @@ BEGIN {
 
 	# Temperature  Collect
 	# Temperature  COLLECT;TempId;TempStatus;TempStatusInformation;Temperature
-	print "COLLECT;1;OK;Temp ok;38"
-	print "COLLECT;2;OK;Temp ok;98"
+	print "COLLECT;1;OK;Temp ok;31"
+	print "COLLECT;2;OK;Temp ok;34"
 }
 EmbeddedFile(19).End
 
