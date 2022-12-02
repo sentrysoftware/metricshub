@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -15,6 +16,9 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.ThreadContext;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -481,46 +485,7 @@ public class ConfigHelper {
 		try {
 			final MultiHostsConfigurationDto multiHostsConfig = deserializeYamlFile(configFile, MultiHostsConfigurationDto.class);
 
-			multiHostsConfig.getHosts().forEach(configDto -> {
-				HardwareHostDto host = configDto.getHost();
-				// Make sure the host id is always set
-				if (host.getId() == null) {
-					host.setId(host.getHostname());
-				}
-
-				// Set global collect period if there is no specific collect period on the host
-				if (configDto.getCollectPeriod() == null) {
-					configDto.setCollectPeriod(multiHostsConfig.getCollectPeriod());
-				}
-
-				// Set global collect period if there is no specific collect period on the host
-				if (configDto.getDiscoveryCycle() == null) {
-					configDto.setDiscoveryCycle(multiHostsConfig.getDiscoveryCycle());
-				}
-
-				// Set the global level in the host log level.
-				// Always the global logger settings wins as the matrix logger
-				// 'com.sentrysoftware', is created only once and handles the Level globally for
-				// all the hosts.
-				configDto.setLoggerLevel(multiHostsConfig.getLoggerLevel());
-				configDto.setOutputDirectory(multiHostsConfig.getOutputDirectory());
-
-				// Set global sequential flag in the host configuration if this host doesn't define the sequential flag
-				// It is more practical to set the flag only once when the requirement is that each host must run the network calls in serial mode
-				if (configDto.getSequential() == null) {
-					configDto.setSequential(multiHostsConfig.isSequential());
-				}
-
-				// Set the hardware problem template for alerting
-				if (configDto.getHardwareProblemTemplate() == null) {
-					configDto.setHardwareProblemTemplate(multiHostsConfig.getHardwareProblemTemplate());
-				}
-
-				// Set the disableAlerts flag to enable or disable alerting
-				if (configDto.getDisableAlerts() == null) {
-					configDto.setDisableAlerts(multiHostsConfig.isDisableAlerts());
-				}
-			});
+			normalizeHostConfigurations(multiHostsConfig);
 
 			return multiHostsConfig;
 		} catch (Exception e) {
@@ -529,6 +494,62 @@ public class ConfigHelper {
 			return MultiHostsConfigurationDto.empty();
 
 		}
+	}
+
+	/** 
+	 * Normalizes the host configuration and sets global values if no specific values are specified
+	 * 
+	 * @param multiHostsConfig
+	 */
+	static void normalizeHostConfigurations(final MultiHostsConfigurationDto multiHostsConfig) {
+		multiHostsConfig.getHosts().forEach(configDto -> {
+			validateHostConfiguration(configDto);
+
+			if (configDto.isSingleHost()) {
+				HardwareHostDto host = configDto.getHost();
+
+				// Make sure the host id is always set
+				if (host.getId() == null) {
+					host.setId(host.getHostname());
+				}
+			}
+
+			// Set global collect period if there is no specific collect period on the host
+			if (configDto.getCollectPeriod() == null) {
+				configDto.setCollectPeriod(multiHostsConfig.getCollectPeriod());
+			}
+
+			// Set global collect period if there is no specific collect period on the host
+			if (configDto.getDiscoveryCycle() == null) {
+				configDto.setDiscoveryCycle(multiHostsConfig.getDiscoveryCycle());
+			}
+
+			// Set the global level in the host log level configuration
+			if (configDto.getLoggerLevel() == null) {
+				configDto.setLoggerLevel(multiHostsConfig.getLoggerLevel());
+			}
+
+			// Set the global output directory in the host configuration
+			if (configDto.getOutputDirectory() == null) {
+				configDto.setOutputDirectory(multiHostsConfig.getOutputDirectory());
+			}
+
+			// Set global sequential flag in the host configuration if this host doesn't define the sequential flag
+			// It is more practical to set the flag only once when the requirement is that each host must run the network calls in serial mode
+			if (configDto.getSequential() == null) {
+				configDto.setSequential(multiHostsConfig.isSequential());
+			}
+
+			// Set the hardware problem template for alerting
+			if (configDto.getHardwareProblemTemplate() == null) {
+				configDto.setHardwareProblemTemplate(multiHostsConfig.getHardwareProblemTemplate());
+			}
+
+			// Set the disableAlerts flag to enable or disable alerting
+			if (configDto.getDisableAlerts() == null) {
+				configDto.setDisableAlerts(multiHostsConfig.isDisableAlerts());
+			}
+		});
 	}
 
 	/**
@@ -544,7 +565,7 @@ public class ConfigHelper {
 		final Map<String, IHostMonitoring> hostMonitoringMap = new HashMap<>();
 
 		multiHostsConfigurationDto
-			.getHosts()
+			.getResolvedHosts()
 			.forEach(hostConfigurationDto ->
 				fillHostMonitoringMap(hostMonitoringMap, acceptedConnectorNames, hostConfigurationDto));
 
@@ -632,7 +653,7 @@ public class ConfigHelper {
 
 		} catch (Exception e) {
 
-			log.warn("Hostname {} - The given host has been staged as invalid.", hostConfigurationDto);
+			log.warn("Hostname {} - The given host has been staged as invalid.", hostname);
 
 		}
 	}
@@ -758,5 +779,107 @@ public class ConfigHelper {
 				INVALID_STRING_CHECKER,
 				() -> String.format(USERNAME_ERROR, hostname, protocol),
 				ErrorCode.NO_USERNAME);
+	}
+
+	/** 
+	 * Validate the given hostConfigurationDto.
+     *
+	 * @param hostConfigurationDto
+	 */
+	private static void validateHostConfiguration(HostConfigurationDto hostConfigurationDto) {
+		if (!hostConfigurationDto.isHostGroup() && !hostConfigurationDto.isSingleHost()) {
+			throw new IllegalStateException(String.format("Neither `host` nor `hostGroup` is defined for the host configuration: %s", hostConfigurationDto.toString()));
+		}
+		
+		if (hostConfigurationDto.isHostGroup() && hostConfigurationDto.isSingleHost()) {
+			throw new IllegalStateException(String.format("Host configuration cannot contain both `hosts` and `hostGroup` fields: %s", hostConfigurationDto.toString()));
+		}
+	}
+
+	/**
+	 * Find the application's configuration file (hws-config.yaml).<br>
+	 * <ol>
+	 *   <li>If the user has configured the configFilePath via <em>--config=$filePath</em> then it is the chosen file</li>
+	 *   <li>Else if <em>config/hws-config.yaml</em> path exists, the resulting File is the one representing this path</li>
+	 *   <li>Else we copy <em>config/hws-config-example.yaml</em> to the host file <em>config/hws-config.yaml</em> then we return the resulting host file</li>
+	 * </ol>
+	 * 
+	 * The program fails if
+	 * <ul>
+	 *   <li>The configured file path doesn't exist</li>
+	 *   <li>config/hws-config-example.yaml is not present</li>
+	 *   <li>If an I/O error occurs</li>
+	 * </ul>
+	 * 
+	 * @param configFilePath The configuration file passed by the user. E.g. --config=/opt/hws/config/my-hws-config.yaml
+	 * @return {@link File} instance
+	 * @throws IOException
+	 */
+	public static File findConfigFile(final String configFilePath) throws IOException {
+		// The user has configured a configuration file path
+		if (!configFilePath.isBlank()) {
+			final File configFile = new File(configFilePath);
+			if (configFile.exists()) {
+				return configFile;
+			}
+			throw new IllegalStateException("Cannot find " + configFilePath
+					+ ". Please make sure the file exists on your system");
+		}
+
+		// Get the configuration file path from ../config/hws-config.yaml
+		final Path configPath = ConfigHelper.getSubPath("config/hws-config.yaml");
+
+		// If it exists then we are good we can just return the resulting File
+		if (Files.exists(configPath)) {
+			return configPath.toFile();
+		}
+
+		// Now we will proceed with a copy of hws-config-example.yaml to config/hws-config.yaml
+		final Path exampleConfigPath = ConfigHelper.getSubPath("config/hws-config-example.yaml");
+
+		// Bad configuration
+		if (!Files.exists(exampleConfigPath)) {
+			throw new IllegalStateException("Cannot find hws-config-example.yaml. Please create the configuration file "
+					+ configPath.toAbsolutePath() + " before starting the Hardware Sentry Agent");
+		}
+
+		return Files.copy(exampleConfigPath, configPath, StandardCopyOption.REPLACE_EXISTING).toFile();
+
+	}
+
+	/**
+	 * Configure the 'com.sentrysoftware' logger based on the user's command.<br>
+	 * See src/main/resources/log4j2.xml
+	 * 
+	 * @param multiHostsConfigDto User's configuration
+	 * @param serverPort          Application port number
+	 */
+	public static void configureGlobalLogger(final MultiHostsConfigurationDto multiHostsConfigDto) {
+
+		final Level loggerLevel = getLoggerLevel(multiHostsConfigDto.getLoggerLevel());
+
+		ThreadContext.put("logId", "hws-agent-global");
+		ThreadContext.put("loggerLevel", loggerLevel.toString());
+
+		final String outputDirectory = multiHostsConfigDto.getOutputDirectory();
+		if (outputDirectory  != null) {
+			ThreadContext.put("outputDirectory", outputDirectory);
+		}
+
+	}
+
+
+	/**
+	 * Get the Log4j log level from the configured logLevel string
+	 *
+	 * @param loggerLevel string value from the configuration (e.g. off, debug, info, warn, error, trace, all)
+	 * @return log4j {@link Level} instance
+	 */
+	public static Level getLoggerLevel(final String loggerLevel) {
+
+		final Level level = loggerLevel != null ? Level.getLevel(loggerLevel.toUpperCase()) : null;
+
+		return level != null ? level : Level.OFF;
+
 	}
 }

@@ -1,5 +1,7 @@
 package com.sentrysoftware.matrix.engine.strategy.matsya;
 
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
+
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static org.springframework.util.Assert.isTrue;
 import static org.springframework.util.Assert.notNull;
@@ -10,6 +12,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -25,7 +28,6 @@ import org.springframework.stereotype.Component;
 
 import com.sentrysoftware.javax.wbem.WBEMException;
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
-import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.NetworkHelper;
 import com.sentrysoftware.matrix.common.helpers.StringHelper;
 import com.sentrysoftware.matrix.common.helpers.TextTableHelper;
@@ -905,6 +907,8 @@ public class MatsyaClientsExecutor {
 	}
 
 	/**
+	 * Executes the given HTTP request through MATSYA
+	 * 
 	 * @param httpRequest	The {@link HttpRequest} values.
 	 * @param logMode		Whether or not logging is enabled.
 	 *
@@ -912,48 +916,87 @@ public class MatsyaClientsExecutor {
 	 */
 	public String executeHttp(@NonNull HttpRequest httpRequest, boolean logMode) {
 
-		HttpProtocol httpProtocol = httpRequest.getHttpProtocol();
-		String hostname = httpRequest.getHostname();
+		final HttpProtocol httpProtocol = httpRequest.getHttpProtocol();
 		notNull(httpProtocol, PROTOCOL_CANNOT_BE_NULL);
+
+		final String hostname = httpRequest.getHostname();
 		notNull(hostname, HOSTNAME_CANNOT_BE_NULL);
 
-		String method = httpRequest.getMethod();
+		// Get the HTTP method (GET, POST, DELETE, PUT, ...). Default: GET
+		String requestMethod = httpRequest.getMethod();
+		final String method = requestMethod != null ? requestMethod : "GET";
 
-		String username = httpProtocol.getUsername();
-		char[] password = httpProtocol.getPassword();
-		String authenticationToken = httpRequest.getAuthenticationToken();
+		// Username and password
+		final String username = httpProtocol.getUsername();
+		final char[] password = httpProtocol.getPassword();
 
-		Header header = httpRequest.getHeader();
-		Map<String, String> headerContent = header == null ? null : header.getContent(username, password, authenticationToken, hostname);
+		// Update macros in the authentication token
+		final String httpRequestAuthToken = httpRequest.getAuthenticationToken();
+		final String authenticationToken = HttpMacrosUpdater.update(
+			httpRequestAuthToken,
+			username,
+			password,
+			httpRequestAuthToken,
+			hostname
+		);
 
-		Map<String, String> headerContentProtected = header == null ? null : header.getContent(username, CHAR_ARRAY_MASK, MASK, hostname);
+		// Get the header to send
+		final Header header = httpRequest.getHeader();
 
-		Body body = httpRequest.getBody();
-		String bodyContent = body == null ? null : body.getContent(username, password, authenticationToken, hostname);
-		String bodyContentProtected = body == null ? HardwareConstants.EMPTY
-				: body.getContent(username, CHAR_ARRAY_MASK, MASK, hostname);
+		// This will get the header content as a new map by updating all the known macros
+		final Map<String, String> headerContent = header == null ? 
+				Collections.emptyMap() : header.getContent(username, password, authenticationToken, hostname);
 
-		String url = httpRequest.getUrl();
-		notNull(url, "URL cannot be null.");
+		// This will get the header content as a new map by updating all the known macros
+		// except sensitive data such as password and authentication token
+		final Map<String, String> headerContentProtected = header == null ?
+				Collections.emptyMap() : header.getContent(username, CHAR_ARRAY_MASK, MASK, hostname);
 
-		String protocol = httpProtocol.getHttps() != null && httpProtocol.getHttps() ? "https" : "http";
-		String fullUrl = Url.format(hostname, httpProtocol.getPort(), url, protocol);
+		// Get the body to send
+		final Body body = httpRequest.getBody();
+
+		// This will get the body content as map by updating all the known macros
+		final String bodyContent = body == null ?
+				EMPTY : body.getContent(username, password, authenticationToken, hostname);
+
+		// This will get the body content as map by updating all the known macros
+		// except sensitive data such as password and authentication token
+		final String bodyContentProtected = body == null ?
+				EMPTY : body.getContent(username, CHAR_ARRAY_MASK, MASK, hostname);
+
+		// Get the HTTP request URL
+		final String httpRequestUrl = httpRequest.getUrl();
+		notNull(httpRequestUrl, "HTTP request URL cannot be null.");
+
+		// Update the known HTTP macros
+		final String url = HttpMacrosUpdater.update(
+			httpRequestUrl,
+			username,
+			password,
+			authenticationToken,
+			hostname
+		);
+
+		// Set the protocol http or https
+		final String protocol = Boolean.TRUE.equals(httpProtocol.getHttps()) ? "https" : "http";
+
+		// Build the full URL
+		final String fullUrl = Url.format(hostname, httpProtocol.getPort(), url, protocol);
 
 		trace(() -> 
 			log.trace(
-					"Executing HTTP request: {} {}\n- hostname: {}\n- url: {}\n- Protocol: {}\n- Port: {}\n"
-						+ "- Request-headers:\n{}\n- Request-body:\n{}\n- Timeout: {} s\n- Get-result-content: {}\n",
-					method,
-					fullUrl,
-					hostname,
-					url,
-					protocol,
-					httpProtocol.getPort(),
-					StringHelper.prettyHttpHeaders(headerContentProtected),
-					bodyContentProtected,
-					httpProtocol.getTimeout().intValue(),
-					httpRequest.getResultContent()
-
+				"Executing HTTP request: {} {}\n- hostname: {}\n- url: {}\n- Protocol: {}\n- Port: {}\n"
+					+ "- Request-headers:\n{}\n- Request-body:\n{}\n- Timeout: {} s\n- Get-result-content: {}\n",
+				method,
+				fullUrl,
+				hostname,
+				url,
+				protocol,
+				httpProtocol.getPort(),
+				StringHelper.prettyHttpHeaders(headerContentProtected),
+				bodyContentProtected,
+				httpProtocol.getTimeout().intValue(),
+				httpRequest.getResultContent()
 			)
 		);
 
@@ -962,9 +1005,17 @@ public class MatsyaClientsExecutor {
 			final long startTime = System.currentTimeMillis();
 
 			// Sending the request
-			HttpResponse httpResponse = sendHttpRequest(fullUrl, method, username, password, headerContent, bodyContent,
-					httpProtocol.getTimeout().intValue());
+			HttpResponse httpResponse = sendHttpRequest(
+				fullUrl,
+				method,
+				username,
+				password,
+				headerContent,
+				bodyContent,
+				httpProtocol.getTimeout().intValue()
+			);
 
+			// Compute the response time
 			final long responseTime = System.currentTimeMillis() - startTime;
 
 			// The request returned an error
@@ -985,10 +1036,10 @@ public class MatsyaClientsExecutor {
 
 			trace(() -> 
 				log.trace(
-						"Executed HTTP request: {} {}\n- Hostname: {}\n- Url: {}\n- Protocol: {}\n- Port: {}\n"
-							+ "- Request-headers:\n{}\n- Request-body:\n{}\n- Timeout: {} s\n"
-							+ "- get-result-content: {}\n- response-status: {}\n- response-headers:\n{}\n"
-							+ "- response-body:\n{}\n- response-time: {}\n",
+					"Executed HTTP request: {} {}\n- Hostname: {}\n- Url: {}\n- Protocol: {}\n- Port: {}\n"
+						+ "- Request-headers:\n{}\n- Request-body:\n{}\n- Timeout: {} s\n"
+						+ "- get-result-content: {}\n- response-status: {}\n- response-headers:\n{}\n"
+						+ "- response-body:\n{}\n- response-time: {}\n",
 					method,
 					fullUrl,
 					hostname,

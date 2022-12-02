@@ -11,10 +11,10 @@ import org.apache.logging.log4j.ThreadContext;
 import com.sentrysoftware.hardware.agent.dto.HostConfigurationDto;
 import com.sentrysoftware.hardware.agent.dto.UserConfiguration;
 import com.sentrysoftware.hardware.agent.mapping.opentelemetry.MetricsMapping;
-import com.sentrysoftware.hardware.agent.service.opentelemetry.OtelAlertHelper;
-import com.sentrysoftware.hardware.agent.service.opentelemetry.OtelHelper;
-import com.sentrysoftware.hardware.agent.service.opentelemetry.OtelMetadataToMetricObserver;
-import com.sentrysoftware.hardware.agent.service.opentelemetry.OtelParameterToMetricObserver;
+import com.sentrysoftware.hardware.agent.service.opentelemetry.signal.OtelAlertHelper;
+import com.sentrysoftware.hardware.agent.service.opentelemetry.signal.OtelHelper;
+import com.sentrysoftware.hardware.agent.service.opentelemetry.signal.OtelMetadataToMetricObserver;
+import com.sentrysoftware.hardware.agent.service.opentelemetry.signal.OtelParameterToMetricObserver;
 import com.sentrysoftware.matrix.engine.strategy.collect.CollectOperation;
 import com.sentrysoftware.matrix.engine.strategy.detection.DetectionOperation;
 import com.sentrysoftware.matrix.engine.strategy.discovery.DiscoveryOperation;
@@ -236,9 +236,8 @@ public class StrategyTask implements Runnable {
 	 */
 	void configureLoggerContext(final String hostId) {
 
-		ThreadContext.put("hostId", hostId);
+		ThreadContext.put("logId", String.format("hws-agent-%s", hostId));
 		ThreadContext.put("loggerLevel", strategyTaskInfo.getLoggerLevel());
-		ThreadContext.put("port", String.valueOf(strategyTaskInfo.getServerPort()));
 
 		String outputDirectory = strategyTaskInfo.getOutputDirectory();
 		if (outputDirectory  != null) {

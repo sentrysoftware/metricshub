@@ -3,7 +3,6 @@ package com.sentrysoftware.matrix.connector.parser.state.compute.json2csv;
 import static com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants.SEMICOLON;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,7 +11,6 @@ import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.compute.Json2Csv;
-import com.sentrysoftware.matrix.connector.parser.ConnectorParserConstants;
 
 public class PropertiesProcessor extends Json2CsvProcessor {
 	private static final Pattern PROPERTIES_KEY_PATTERN = Pattern.compile(

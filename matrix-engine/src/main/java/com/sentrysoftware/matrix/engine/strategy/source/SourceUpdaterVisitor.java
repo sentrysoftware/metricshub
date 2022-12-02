@@ -67,10 +67,13 @@ public class SourceUpdaterVisitor implements ISourceVisitor {
 		final HttpSource copy = httpSource.copy();
 
 		// Replace HTTP Authentication token
-		copy.setAuthenticationToken(extractHttpTokenFromSource(
+		copy.setAuthenticationToken(
+			extractHttpTokenFromSource(
 				copy.getKey(),
 				copy.getAuthenticationToken(),
-				"authenticationToken"));
+				"authenticationToken"
+			)
+		);
 
 		return processSource(copy);
 	}

@@ -7,12 +7,15 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.hardware.agent.deserialization.TimeDeserializer;
 import com.sentrysoftware.hardware.agent.dto.exporter.ExporterConfigDto;
 import com.sentrysoftware.hardware.agent.dto.exporter.OtlpConfigDto;
+import com.sentrysoftware.hardware.agent.dto.opentelemetry.OtelCollectorConfigDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,7 +40,7 @@ public class MultiHostsConfigurationDto {
 	@Default
 	@JsonSetter(nulls = SKIP)
 	private Set<HostConfigurationDto> hosts = new HashSet<>();
-
+	
 	@Default
 	private int jobPoolSize = DEFAULT_JOB_POOL_SIZE;
 
@@ -80,6 +83,10 @@ public class MultiHostsConfigurationDto {
 	@Default
 	private boolean disableAlerts = false;
 
+	@Default
+	@JsonSetter(nulls = SKIP)
+	private OtelCollectorConfigDto otelCollector = OtelCollectorConfigDto.builder().build();
+
 	/**
 	 * Build a new empty instance
 	 * 
@@ -114,5 +121,19 @@ public class MultiHostsConfigurationDto {
 	 */
 	public boolean hasExporterConfig() {
 		return exporter != null;
+	}
+
+	/** 
+	 * Creates a Set of hosts, extracting hosts from hostGroups if applicable
+	 * 
+	 * @return a Set of HostConfigurationDto instances
+	 */
+	public Set<HostConfigurationDto> getResolvedHosts() {
+		return hosts
+			.stream()
+			.flatMap(hostConfigurationDto ->
+				hostConfigurationDto.isHostGroup() ? hostConfigurationDto.resolveHostGroups().stream() : Stream.of(hostConfigurationDto)
+			)
+			.collect(Collectors.toSet());
 	}
 }

@@ -12,7 +12,7 @@
 
 	<groupId>com.sentrysoftware.hardware.matrix</groupId>
 	<artifactId>matrix</artifactId>
-	<version>2.0.01-SNAPSHOT</version>
+	<version>3.0.00-SNAPSHOT</version>
 
 	<packaging>pom</packaging>
 
@@ -31,9 +31,9 @@
 		<slf4j.version>1.7.30</slf4j.version>
 		<jupiter.version>5.6.2</jupiter.version>
 		<mockito.version>3.6.28</mockito.version>
-		<hardware-connectors.version>29</hardware-connectors.version>
+		<hardware-connectors.version>30</hardware-connectors.version>
 		<spring.version>5.3.21</spring.version>
-		<matsya.version>3.15.00</matsya.version>
+		<matsya.version>3.16.00</matsya.version>
 		<springdoc-openapi.version>1.6.6</springdoc-openapi.version>
 		<picocli.version>4.6.2</picocli.version>
 		<spring-boot.version>2.7.1</spring-boot.version>
@@ -49,9 +49,10 @@
 		<grpcVersion>1.47.0</grpcVersion>
 		<protobufVersion>3.11.4</protobufVersion>
 		<protocVersion>${protobufVersion}</protocVersion>
-		<otelVersion>0.55.0</otelVersion>
+		<otelVersion>0.61.0</otelVersion>
 		<ddog.version>1.0.00</ddog.version>
 		<hwgraf.version>2</hwgraf.version>
+		<otelColContribBaseUrl>https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v${otelVersion}</otelColContribBaseUrl>
 	</properties>
 
 	<modules>
@@ -60,19 +61,62 @@
 		<module>matrix-engine</module>
 		<module>hws-agent-mapping</module>
 		<module>hws-agent</module>
+		<module>hws-doc</module>
 	</modules>
 
-	<!-- Activate the hws-otel-collector module... unless the nogo property is set -->
 	<profiles>
 		<profile>
-			<id>Go</id>
+			<id>windows</id>
 			<activation>
-				<property>
-					<name>!nogo</name>
+				<os>
+		        	<family>Windows</family>
+		        	<arch>amd64</arch>
+		      	</os>
+		      	<property>
+					<name>env.JPACKAGE_HOME</name>
 				</property>
+				<file>
+					<exists>C:\Program Files (x86)\WiX Toolset v3.11</exists>
+				</file>
 			</activation>
 			<modules>
-				<module>hws-otel-collector</module>
+				<module>hws-windows</module>
+			</modules>
+		</profile>
+		<profile>
+			<id>rhel</id>
+			<activation>
+				<os>
+		        	<family>Linux</family>
+		        	<arch>amd64</arch>
+		      	</os>
+		      	<property>
+					<name>env.JPACKAGE_HOME</name>
+				</property>
+				<file>
+					<exists>/etc/redhat-release</exists>
+				</file>
+			</activation>
+			<modules>
+				<module>hws-rhel</module>
+			</modules>
+		</profile>
+		<profile>
+			<id>debian</id>
+			<activation>
+				<os>
+		        	<family>Linux</family>
+		        	<arch>amd64</arch>
+		      	</os>
+		      	<property>
+					<name>env.JPACKAGE_HOME</name>
+				</property>
+				<file>
+					<exists>/etc/debian_version</exists>
+				</file>
+			</activation>
+			<modules>
+				<module>hws-debian</module>
 			</modules>
 		</profile>
 	</profiles>
@@ -216,6 +260,11 @@
 			<dependency>
 				<groupId>com.sentrysoftware.patrol.matsya</groupId>
 				<artifactId>module-xflat</artifactId>
+				<version>${matsya.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sentrysoftware.patrol.matsya</groupId>
+				<artifactId>module-jutils</artifactId>
 				<version>${matsya.version}</version>
 			</dependency>
 			<dependency>
@@ -513,6 +562,20 @@
 						<configuration>
 							<versionString>${ddog.version}</versionString>
 							<formattedPropertyPrefix>formattedDDogVersion</formattedPropertyPrefix>
+						</configuration>
+					</execution>
+					<execution>
+						<id>build-no-snapshot-version</id>
+						<phase>initialize</phase>
+						<goals>
+							<goal>regex-property</goal>
+						</goals>
+						<configuration>
+							<name>project.version.noSnapshot</name>
+							<value>${project.version}</value>
+							<regex>^([0-9a-zA-Z.]+)(-SNAPSHOT)?$</regex>
+							<replacement>$1</replacement>
+							<failIfNoMatch>false</failIfNoMatch>
 						</configuration>
 					</execution>
 				</executions>
