@@ -66322,16 +66322,6 @@
     "extendedType" : null,
     "discoveryTime" : 1649435081190,
     "parameters" : {
-      "ambientTemperature" : {
-        "name" : "ambientTemperature",
-        "collectTime" : 1649435081386,
-        "previousCollectTime" : null,
-        "unit" : "degrees Celsius",
-        "value" : 38.0,
-        "rawValue" : 38.0,
-        "previousRawValue" : null,
-        "type" : "NumberParam"
-      },
       "cpuTemperature" : {
         "name" : "cpuTemperature",
         "collectTime" : 1649435081386,
