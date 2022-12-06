@@ -11,7 +11,7 @@ description: How to integrate the hardware metrics collected by **${solutionName
 
 ## Prerequisites
 
-1. [Download](https://www.sentrysoftware.com/downloads/products-for-opentelemetry.html#hardware-sentry-opentelemetry-collector-1-0-00), [install](../install.html) and [configure](../configuration/configure-otel.html) Hardware Sentry OpenTelemetry Collector
+1. [Download](https://www.sentrysoftware.com/downloads/products-for-opentelemetry.html#hardware-sentry-opentelemetry-collector-1-0-00), [install](../install.html) and [configure](../configuration/configure-otel.html) ${solutionName}
 2. [Configure](#Configuration) the monitoring of the host(s)
 3. Verify that the metrics are stored in the Prometheus Server
 4. [Download](#Dashboards) the latest version of hardware-dashboards-for-helix.zip or hardware-dashboards-for-helix.tar.gz from the Sentry Software's'Web site.
@@ -124,8 +124,6 @@ Click the histogram bar of a host to view detailed information about a specific 
 ### Optimizing a site's temperature
 
 Data centers are energy-intensive facilities. This energy is converted into heat that must be dissipated away from the equipment racks to maintain an optimal room temperature. Therefore, the hardware devices' temperature is a critical parameter that must be closely monitored.
-
-In most data centers, the air conditioning system ensures the entire room’s ambient temperature is maintained at 65 degrees Fahrenheit (18 degrees Celsius), which is generally unnecessarily low to avoid overheating problems. Computer systems can safely operate with an ambient temperature significantly higher (see Google’s example, where they raised the temperature of their data centers to 80°F, i.e., 26.7°C). This is the fastest and cheapest method to reduce the energy consumed by a data center and improve its PUE.
 
 The **Heating Margin** panel exposes the number of degrees Celsius (°C) remaining before the temperature reaches the closest warning temperature threshold of a monitored host for each site.
 
