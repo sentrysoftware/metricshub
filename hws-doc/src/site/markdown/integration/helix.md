@@ -3,18 +3,19 @@ description: How to integrate the hardware metrics collected by **${solutionName
 
 # Integration with BMC Helix Operations Management
 
-**${solutionName}** can easily integrate with BMC Helix Operations Management to expose hardware health and performance metrics into Helix Dashboards. This is achieved by using the standard Prometheus *Remote Write* protocol, which can be ingested by the BMC Helix platform.
+<!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
+
+**${solutionName}** easily integrates with BMC Helix Operations Management to expose hardware health, performance metrics, and sustainability indicators into Helix Dashboards. The integration is achieved by using the standard Prometheus *Remote Write* protocol, which can be ingested by the BMC Helix platform.
 
 ![${solutionName} integration with BMC Helix](../images/helix-architecture.png)
 
 ## Prerequisites
 
-1. [Install](../install.html) and [configure](../configuration/configure-otel.html) Hardware Sentry OpenTelemetry Collector
+1. [Download](https://www.sentrysoftware.com/downloads/products-for-opentelemetry.html#hardware-sentry-opentelemetry-collector-1-0-00), [install](../install.html) and [configure](../configuration/configure-otel.html) Hardware Sentry OpenTelemetry Collector
 2. [Configure](#Configuration) the monitoring of the host(s)
-3. Check the metrics are stored in the Prometheus Server
-4. [Download](https://www.sentrysoftware.com/downloads/products-for-opentelemetry.html#hardware-sentry-opentelemetry-collector-1-0-00)
-5. [Download](#Dashboards) the latest version of hardware-dashboards-for-helix.zip or hardware-dashboards-for-helix.tar.gz from the Sentry Software's'Web site.
-6. [Import](https://docs.bmc.com/docs/helixdashboards/223/sharing-and-importing-dashboards-1102359494.html?src=search) Hardware Sentry dashboards into BMC Helix.
+3. Verify that the metrics are stored in the Prometheus Server
+4. [Download](#Dashboards) the latest version of hardware-dashboards-for-helix.zip or hardware-dashboards-for-helix.tar.gz from the Sentry Software's'Web site.
+5. [Import](https://docs.bmc.com/docs/helixdashboards/223/sharing-and-importing-dashboards-1102359494.html?src=search) Hardware Sentry dashboards into BMC Helix.
 
 ## Configuration
 
@@ -52,70 +53,86 @@ service:
 ```
 ## Using Hardware Sentry dashboards in BMC Helix
 
-**Hardware Sentry** comes with a set of dashboards which leverage the metrics collected by **${project.name}**:
+**${solutionName}** comes with a set of 3 dashboards that expose health, performance and sustainability metrics and indicators:
 
-* **Main**: Global hardware and sustainability information for your entire monitored infrastructure  
-* **Site**: Deep insight into the health and performance of a specific site (server room)
+* **Main**: Global hardware and sustainability information for your entire monitored infrastructure
+* **Site**: Deep insight into a specific site (server room)
 * **Host**: Detailed metrics for a host and its internal components
 
-Dashboards are organized into panels exposing systems' health metrics, real-time and projected data on energy consumption and costs, as well as carbon emissions for your monitored infrastructure.
+Dashboards are organized into panels exposing systems' health and performance metrics, real-time and projected data on energy consumption and costs, as well as carbon emissions for your monitored infrastructure.
 
-Access the **Hardware Sentry** dashboards from the **BMC Helix Dashboards Home Page** or browse the **Dashboards** menu and select the **Hardware Sentry** folder.
+Access the **${solutionName}** dashboards from the **BMC Helix Dashboards Home Page** or browse the **Dashboards** menu and select the **${solutionName}** folder.
+
+![Helix Dashboards - Accessing Hardware Sentry dashboards](../images/helix-dashboards-folder.png)
 
 ### Understanding the monitoring coverage of your IT infrastructure
 
-The **Coverage** panel exposes the percentage of hosts that are actually monitored in your entire infrastructure or in one specific site depending on the dashboard you are viewing (**Main** or **Site**).
+The ability to monitor your entire IT infrastructure is essential if you want to prevent or fix performance issues before they affect your customers and business. Reaching 100% coverage is a legitimate goal. The **Coverage** panels of the **Hardware Sentry - Main** and **Hardware Sentry - Site** dashboards expose the percentage of hosts that are actually monitored.
 
-A coverage percentage below 100% indicates that some hosts are not monitored adequatly:
+A coverage percentage below 100% indicates that some hosts are not monitored adequatly. In such a case, you can:
 
 * Review your hosts configuration in the **config/hws-config.yaml** file.
-* Check the **Hardware Sentry Agents Status** panel at the bottom of the **Main** dashboard make sure that the **Hardware Sentry Agents** responsible for collecting data are fully operational.
-* Open each **Site** dashboard to spot the hosts with no collected data. Then, from the host page verify the status of the configured **Protocol(s)** and matching **Connector(s)**. If their status is *Down* or *Failed*, open the **config/hws-config.yaml** file and verify the host configuration. If you have manually defined the connectors, check the `selectedConnectors` and `excludedConnectors` parameters (See [Configuring the Hardware Sentry Agent](../configuration/configure-agent.html)).
+* Check the **Hardware Sentry Agents Status** panel at the bottom of the **Main** dashboard to make sure that the **Hardware Sentry Agents** responsible for collecting data are fully operational.
+* Open each **Site** dashboard to spot the hosts with no collected data. Then, from the host page, verify the configured **Protocol(s)** status and matching **Connector(s)**. If their status is *Down* or *Failed*, open the **config/hws-config.yaml** file and verify the host configuration. If you have manually defined the connectors, check the `selectedConnectors` and `excludedConnectors` parameters (See [Configuring the Hardware Sentry Agent](../configuration/configure-agent.html)).
 
-Note: A low coverage value will automatically increase the *Margin of Error*, minimizing the accuracy of the data and estimated trends reported in the **Power, Costs and CO2 Emissions** panel.
+> Note: A low coverage value will automatically increase the *Margin of Error*, minimizing the accuracy of the estimated trends reported in the **Power, Costs, and CO2 Emissions** panel.
 
 ### Verifying the agent collection status
 
-The **Hardware Sentry Agent Status** panel, at the bottom of the **Hardware Sentry - Main** dashboard, lists all the agents configured to collect data, by sites. It displays the agents' hostnames, and indicates if the agent and connector versions are up-to-date.
-The **Last Seen** column indicates the last time an agent was seen over the past 6 hours. An agent going undetected for more than 2 minutes may indicate a potential problem with the host, the connection or the agent configuration.
+An agent going undetected for more than 2 minutes may indicate a potential problem with the host, the connection, or the agent configuration.
+
+The **Hardware Sentry Agent Status** panel at the bottom of the **Hardware Sentry - Main** dashboard lists all the agents configured to collect data by sites. It displays the agents' hostnames and indicates if the agent and connector versions are up-to-date.
+
+The **Last Seen** column indicates the last time an agent was seen over the past 6 hours.
 
 ### Monitoring energy usage and carbon emissions
 
-The **Power, Cost, and CO₂ emissions** section of the **Hardware Sentry - Main** and **Hardware Sentry - Site** dashboards display live and historical metrics about the kWh your infrastructure consumes daily, monthly, and yearly as well as the associated cost and carbon emissions.
+In addition to detailed operational data, **${solutionName}** dashboards expose unified, accurate, and continuous views of measured power consumption, energy costs, and carbon emissions. These indicators allow IT administrators to assess the current situation, identify excessive energy usage or other inefficiencies, and take action to gain in efficiency.
 
-----
-Screenshot
-----
+The **Power, Cost, and CO₂ emissions** section of the **Hardware Sentry - Main** and **Hardware Sentry - Site** dashboards display live, and historical metrics about the kWh your infrastructure consumes daily, monthly, and yearly as well as the associated costs and carbon emission levels.
 
-The **Margin of Error** panel indicates the percentage points the reported values could differ from the real values. This value represents the level of confidence in the reported values. Therefore, the lower the **Margin of Error**, the more accurate the estimate.
+![Helix Dashboards - Monitoring energy usage and carbon emissions](../images/helix-power-costs-CO2emissions-main.png)
 
-**${project.name}** also reports the power consumption, energy costs, the CO₂ emissions of each monitored host in the corresponding **Hardware Sentry - Host** dashboard:
+The **Margin of Error** panel indicates the level of confidence in the estimated values. The lower the **Margin of Error**, the more accurate the estimate.
 
-----
-Screenshot
-----
+**${solutionName}** also reports the power consumption, energy costs, and the CO₂ emissions of each monitored host in the corresponding **Hardware Sentry - Host** dashboard.
 
-The **Power per Device Type** panel shows an estimation of the power consumed by the internal components, by type, of the monitored host.
+![Helix Dashboards - Monitoring energy usage and carbon emissions](../images/helix-power-costs-CO2emissions-host.png)
+
+The **Power per Device Type** panel shows an estimation of the energy consumed by the internal components, by type, of the monitored host.
 
 ### Identifying the top consumer sites
 
+High electricity consumption in a server room (site), the resulting costs, and CO2 emission levels can be multifactorial: a large number of servers, servers that no longer meet high-efficiency standards, unused and not decommissioned servers, etc.
+Hardware Sentry can help you identify the most energy-intensive sites to reduce your electricity bills and carbon emissions.
+
 The **Total Power** column of the **Sites** section in the **Hardware Sentry - Main** dashboard displays the total power consumption of the monitored hosts by site.
-The sites with the higher **Total Power** are the most energy consuming.
+The sites with the higher **Total Power** are the most energy-consuming.
 
-----
-Screenshot
-----
+![Helix Dashboards - Identifying the top consumer sites](../images/helix-total-power-per-site.png)
 
-Scroll down to the **Top Consumers** panel available in the **Power and Host Information** section where the **Top Consumenrs** panel lists the top ten most energy intensive hosts in your entire infrastructure.
+Scroll down to the **Top Consumers** panel available in the **Power and Host Information** section. The **Top Consumers** panel lists the top ten most energy-intensive hosts in your entire infrastructure.
 
-----
-Screenshot
-----
+![Helix Dashboards - Identifying the top consumer sites](../images/helix-top-consumer-sites.png)
 
 > Note: Metrics are automatically updated according to the collection interval (By default: 2m).
 
 Replacing older equipment with more efficient ones or moving servers to a site with a lower electricity cost can help you improve your sustainability goals and reduce your energy costs.
 
-Click the histogram bar of a host view detailed information about a specific system.
+Click the histogram bar of a host to view detailed information about a specific system.
 
-XXXXXXXXXX
+### Optimizing a site's temperature
+
+Data centers are energy-intensive facilities. This energy is converted into heat that must be dissipated away from the equipment racks to maintain an optimal room temperature. Therefore, the hardware devices' temperature is a critical parameter that must be closely monitored.
+
+In most data centers, the air conditioning system ensures the entire room’s ambient temperature is maintained at 65 degrees Fahrenheit (18 degrees Celsius), which is generally unnecessarily low to avoid overheating problems. Computer systems can safely operate with an ambient temperature significantly higher (see Google’s example, where they raised the temperature of their data centers to 80°F, i.e., 26.7°C). This is the fastest and cheapest method to reduce the energy consumed by a data center and improve its PUE.
+
+The **Heating Margin** panel exposes the number of degrees Celsius (°C) remaining before the temperature reaches the closest warning temperature threshold of a monitored host for each site.
+
+> Note: Some hardware devices do not expose their overall temperature and are, therefore, not included in the heating margin computation. **${solutionName}** provides the percentage of the **Monitoring Confidence** per site in the **Site** dashboard.
+
+![Helix Dashboards - Viewing potential savings](../images/helix-site-temperature-optimization.png)
+
+Combining the temperature indicators collected from each monitored server and component, **${solutionName}** calculates the **Recommended Site Temperature** that determines the temperature at which the site can safely operate. Increasing a server room temperature can generate substantial savings on your electricity bill (**Potential Yearly Savings**) and significantly reduce your facility's carbon emissions ( **Potential Yearly CO2 Reduction**).
+
+![Helix Dashboards - Viewing potential savings](../images/helix-power-CO2emissions-savings.png)
