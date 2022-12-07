@@ -40,6 +40,7 @@ import java.text.StringCharacterIterator;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -302,7 +303,7 @@ public class MonitorNameBuilder {
 
 		value *= Long.signum(bytes);
 
-		return String.format("%.1f %cB", value / 1024.0, ci.current());
+		return String.format(Locale.US, "%.1f %cB", value / 1024.0, ci.current());
 	}
 
 	/**
@@ -335,7 +336,7 @@ public class MonitorNameBuilder {
 			ci.next();
 		}
 
-		return String.format("%.1f %cB", bytes / 1000.0, ci.current());
+		return String.format(Locale.US, "%.1f %cB", bytes / 1000.0, ci.current());
 	}
 
 	/**
@@ -482,9 +483,9 @@ public class MonitorNameBuilder {
 			try {
 				double cpuMaxSpeedD = Double.parseDouble(cpuMaxSpeed);
 				if (cpuMaxSpeedD < 1000D) {
-					cpuMaxSpeed = String.format("%.0f MHz", cpuMaxSpeedD);
+					cpuMaxSpeed = String.format(Locale.US, "%.0f MHz", cpuMaxSpeedD);
 				} else {
-					cpuMaxSpeed = String.format("%.2f GHz", (cpuMaxSpeedD / 1000D));
+					cpuMaxSpeed = String.format(Locale.US, "%.2f GHz", (cpuMaxSpeedD / 1000D));
 				}
 			} catch (NumberFormatException nfe) {
 				cpuMaxSpeed = null;
@@ -818,7 +819,7 @@ public class MonitorNameBuilder {
 			try {
 				double memorySizeD = Double.parseDouble(memorySize);
 				if (memorySizeD > 50D) {
-					memorySize = String.format("%.0f MB", memorySizeD);
+					memorySize = String.format(Locale.US, "%.0f MB", memorySizeD);
 				} else {
 					memorySize = null;
 				}
@@ -1195,7 +1196,7 @@ public class MonitorNameBuilder {
 
 		// Formatting the size
 		Double size = NumberHelper.parseDouble(metadata.get(SIZE), 0.0);
-		String formattedSize = size > 0.0 ? String.format(" - %.2f GB", size / 1024.0) : EMPTY;
+		String formattedSize = size > 0.0 ? String.format(Locale.US, " - %.2f GB", size / 1024.0) : EMPTY;
 
 		// There is a vendor AND a model => add both with the size,
 		// provided the vendor is not contained in the model already
