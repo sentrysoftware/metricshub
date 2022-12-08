@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.ServerSocket;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -58,8 +59,6 @@ import lombok.Getter;
 
 public class SnmpAgent implements VariableProvider {
 
-	public static final int DEFAULT_AGENT_PORT = 8888;
-
 	private static final String CONFIG_FILE_PATH = "src/it/resources/snmp/SampleAgentConfig.properties";
 
 	private static final Pattern SNMP_LINE_REGEX = Pattern.compile("(.*)\\s+(ASN_INTEGER|ASN_OCTET_STR|" + "ASN_NULL|ASN_OBJECT_ID|"
@@ -94,6 +93,7 @@ public class SnmpAgent implements VariableProvider {
 	protected AgentConfigManager agent;
 	protected MOServer server;
 	private ThreadPool threadPool;
+	private int port;
 
 	@Getter
 	private boolean started;
@@ -119,9 +119,12 @@ public class SnmpAgent implements VariableProvider {
 		// Create a new messageDispatcher
 		final MessageDispatcher messageDispatcher = new MessageDispatcherImpl();
 
-		// Listen via UPD layer on port 8888
+		// Listen via UPD layer on the available port
 		// Unix-based systems declare ports < 1024 as "privileged" unfortunately unix machines like Jenkins will reject 161...
-		addListenAddresses(messageDispatcher, List.of("udp:0.0.0.0/" + DEFAULT_AGENT_PORT));
+		try (ServerSocket serverSocket = new ServerSocket(0)) {
+			port = serverSocket.getLocalPort();
+			addListenAddresses(messageDispatcher, List.of("udp:0.0.0.0/" + port));
+		}
 
 		threadPool = ThreadPool.create("snmp4JAgent", 3);
 
@@ -129,6 +132,7 @@ public class SnmpAgent implements VariableProvider {
 		agent = new AgentConfigurationManager(new OctetString(MPv3.createLocalEngineID()), messageDispatcher, null, moServers, threadPool,
 				configurationFactory, new DefaultMOPersistenceProvider(moServers, configFile.getAbsolutePath()),
 				new EngineBootsCounterFile(bootCounterFile));
+
 	}
 
 	@SuppressWarnings("unchecked")
@@ -411,5 +415,9 @@ public class SnmpAgent implements VariableProvider {
 	 */
 	private void register(ManagedObject<?> mo) {
 		((DefaultMOServer) server).getRegistry().put(mo.getScope(), mo);
+	}
+
+	public int getPort() {
+		return port;
 	}
 }

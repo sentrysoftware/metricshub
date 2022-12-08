@@ -40,15 +40,19 @@ class DellOpenManageIT {
 		ConnectorStore.getInstance().getConnectors().put(CONNECTOR_NAME, connector);
 
 		// Configure the engine
-		final SnmpProtocol protocol = SnmpProtocol.builder()
-				.community("public")
-				.version(SnmpVersion.V1)
-				.timeout(120L).build();
+		final SnmpProtocol protocol = SnmpProtocol
+			.builder()
+			.community("public")
+			.version(SnmpVersion.V1)
+			.timeout(120L)
+			.build();
 
-		engineConfiguration = EngineConfiguration.builder()
-				.host(HardwareHost.builder().hostname("localhost").id("localhost").type(HostType.LINUX).build())
-				.selectedConnectors(Set.of(CONNECTOR_NAME))
-				.protocolConfigurations(Map.of(SnmpProtocol.class, protocol)).build();
+		engineConfiguration = EngineConfiguration
+			.builder()
+			.host(HardwareHost.builder().hostname("localhost").id("localhost").type(HostType.LINUX).build())
+			.selectedConnectors(Set.of(CONNECTOR_NAME))
+			.protocolConfigurations(Map.of(SnmpProtocol.class, protocol))
+			.build();
 
 	}
 
