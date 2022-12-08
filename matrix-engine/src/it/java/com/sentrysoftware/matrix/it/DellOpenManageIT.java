@@ -21,10 +21,15 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Paths;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
 class DellOpenManageIT {
+
+	static {
+		Locale.setDefault(Locale.US);
+	}
 
 	private static final String CONNECTOR_NAME = "DellOpenManage";
 	private static final String CONNECTOR_PATH = Paths.get("src", "it", "resources", "snmp", "DellOpenManage", CONNECTOR_NAME + ".hdfs").toAbsolutePath().toString();

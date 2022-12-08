@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.it;
 
 import java.nio.file.Paths;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,6 +28,10 @@ import com.sentrysoftware.matrix.engine.host.HardwareHost;
 import com.sentrysoftware.matrix.engine.host.HostType;
 
 class EMCDiskArrayIT {
+
+	static {
+		Locale.setDefault(Locale.US);
+	}
 
 	private static final String INPUT_PATH = Paths.get("src", "it", "resources", "wbem", "emcDiskArray", "input").toAbsolutePath().toString();
 

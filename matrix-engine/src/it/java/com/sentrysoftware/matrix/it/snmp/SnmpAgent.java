@@ -9,6 +9,7 @@ import java.net.ServerSocket;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.BiFunction;
@@ -58,6 +59,10 @@ import com.sentrysoftware.matrix.it.job.ITJobUtils;
 import lombok.Getter;
 
 public class SnmpAgent implements VariableProvider {
+
+	static {
+		Locale.setDefault(Locale.US);
+	}
 
 	private static final String CONFIG_FILE_PATH = "src/it/resources/snmp/SampleAgentConfig.properties";
 

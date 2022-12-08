@@ -5,6 +5,7 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.ThreadContext;
@@ -20,6 +21,10 @@ import lombok.extern.slf4j.Slf4j;
 @SpringBootApplication
 @Slf4j
 public class HardwareSentryAgentApp {
+
+	static {
+		Locale.setDefault(Locale.US);
+	}
 
 	private static final String SSL_ENABLED = "server.ssl.enabled";
 	private static final String CONFIG = "config";

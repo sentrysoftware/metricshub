@@ -1,5 +1,7 @@
 package com.sentrysoftware.hardware.cli;
 
+import java.util.Locale;
+
 import org.fusesource.jansi.AnsiConsole;
 
 import com.sentrysoftware.hardware.cli.component.cli.HardwareSentryCli;
@@ -8,6 +10,10 @@ import com.sentrysoftware.hardware.cli.component.cli.printer.PrintExceptionMessa
 import picocli.CommandLine;
 
 public class HardwareSentryCliApplication {
+
+	static {
+		Locale.setDefault(Locale.US);
+	}
 
 	public static void main(String[] args) {
 
