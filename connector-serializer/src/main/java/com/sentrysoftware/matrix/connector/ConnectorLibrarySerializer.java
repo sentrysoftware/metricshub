@@ -9,6 +9,7 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -26,6 +27,10 @@ import lombok.NonNull;
  * and serialize them in a target directory.
  */
 public class ConnectorLibrarySerializer {
+
+	static {
+		Locale.setDefault(Locale.US);
+	}
 
 	/**
 	 * Main method to be called by the exec-maven-plugin.

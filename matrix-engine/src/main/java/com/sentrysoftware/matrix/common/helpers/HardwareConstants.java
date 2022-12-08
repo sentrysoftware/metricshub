@@ -1,13 +1,8 @@
 package com.sentrysoftware.matrix.common.helpers;
 
-import java.util.Locale;
 import java.util.regex.Pattern;
 
 public class HardwareConstants {
-
-	static {
-		Locale.setDefault(Locale.US);
-	}
 
 	private HardwareConstants() {
 	}
