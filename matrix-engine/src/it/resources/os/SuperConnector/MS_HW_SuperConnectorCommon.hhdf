@@ -1376,45 +1376,7 @@ BEGIN {
 	print "COLLECT;1;OK;30000000000000000"
 	print "COLLECT;2;OK;5000000000000000"
 	print "COLLECT;3;OK;20000000000000000"
-
-  OS = ENVIRON["OS"]
-  tmpfile = "/tmp/MSHW/MSHW_logical_disk.log"
-  if ( OS ~ /NT/ )
-  {
-   tmpfile = ENVIRON["TEMP"]"\\MSHW\\MSHW_logical_disk.log"
-   # Check if a file exist for NT platform
-   "IF EXIST %TEMP%\\MSHW\\MSHW_logical_disk.log type %TEMP%\\MSHW\\MSHW_logical_disk.log" | getline readline
-   if (length(readline) == 0)
-   {
-     print "COLLECT;4;OK;0;0"
-   }
-   else
-   {
-     split (readline,tab,";")
-     UnallocatedSpace = 20000000000000000
-     ErrorCount = tab[5] + 11
-     print tab[1]";"tab[2]";"tab[3]";"UnallocatedSpace";"ErrorCount";" > tmpfile
-     print readline
-   }
-  }
-  else
-  {
-    # Check if a file exist for unix platform
-    if (!system("test -e " tmpfile))
-    {
-      "cat /tmp/MSHW/MSHW_logical_disk.log"  | getline readline
-     split (readline,tab,";")
-     UnallocatedSpace = 20000000000000000
-     ErrorCount = tab[5] + 11
-     print tab[1]";"tab[2]";"tab[3]";"UnallocatedSpace";"ErrorCount";" > tmpfile
-     print readline
-    }
-      else
-    {
-      print "COLLECT;4;OK;0;0"
-    }
-  }
-  print "COLLECT;4;OK;20000000000000000;5" > tmpfile
+    print "COLLECT;4;OK;20000000000000000;5"
 
 }
 EmbeddedFile(11).End
@@ -1443,43 +1405,7 @@ BEGIN {
 	# Memory  COLLECT;MemoryID;MemStatus;PredictedFailure;ErrorStatus;LastError;ErrorCount
   print "COLLECT;1;OK;0;OK;Memory OK;0;"
   print "COLLECT;2;WARN;0;WARN;;;"
-
-  OS = ENVIRON["OS"]
-  tmpfile = "/tmp/MSHW/MSHW_memory.log"
-  if ( OS ~ /NT/ )
-  {
-   tmpfile = ENVIRON["TEMP"]"\\MSHW\\MSHW_memory.log"
-   # Check if a file exist for NT platform
-   "IF EXIST %TEMP%\\MSHW\\MSHW_memory.log type %TEMP%\\MSHW\\MSHW_memory.log" | getline readline
-   if (length(readline) == 0)
-   {
-     print "COLLECT;3;ALARM;1;ALARM;Memory fail to retrieve status;0;"
-   }
-   else
-   {
-     split (readline,tab,";")
-     ErrorCount = tab[7] + 5
-     print tab[1]";"tab[2]";"tab[3]";"tab[4]";"tab[5]";"tab[6]";"ErrorCount";" > tmpfile
-     print readline
-   }
-  }
-  else
-  {
-    # Check if a file exist for unix platform
-    if (!system("test -e " tmpfile))
-    {
-      "cat /tmp/MSHW/MSHW_memory.log"  | getline readline
-      split (readline,tab,";")
-      ErrorCount = tab[7] + 5
-      print tab[1]";"tab[2]";"tab[3]";"tab[4]";"tab[5]";"tab[6]";"ErrorCount";" > tmpfile
-      print readline
-    }
-      else
-    {
-      print "COLLECT;3;ALARM;1;ALARM;Memory fail to retrieve status;0;"
-    }
-  }
-  print "COLLECT;3;ALARM;1;ALARM;Memory fail to retrieve status;5;" > tmpfile
+  print "COLLECT;3;ALARM;1;ALARM;Memory fail to retrieve status;5;"
 }
 EmbeddedFile(12).End
 
@@ -1509,53 +1435,7 @@ BEGIN {
 	print "COLLECT;1;OK;OK;1000;1000;5;5222;4111"
 	print "COLLECT;2;OK;OK;1000;1000;5;5222;4111"
 	print "COLLECT;3;OK;OK;1000;1000;5;5222;4111;0;0;0;"
-
-  OS = ENVIRON["OS"]
-  tmpfile = "/tmp/MSHW/MSHW_network.log"
-  if ( OS ~ /NT/ )
-  {
-   tmpfile = ENVIRON["TEMP"]"\\MSHW\\MSHW_network.log"
-   # Check if a file exist for NT platform
-   "IF EXIST %TEMP%\\MSHW\\MSHW_network.log type %TEMP%\\MSHW\\MSHW_network.log" | getline readline
-   if (length(readline) == 0)
-   {
-     print "COLLECT;4;OK;OK;56000;1;0;0;0;0;0;0;"
-   }
-   else
-   {
-     split (readline,tab,";")
-     ErrorCount = tab[7] + 5
-     ReceivedBytes = tab[8] + 8000000
-     TransmittedBytes = tab[9] + 5000000
-     ReceivedPackets = tab[10] + 100
-     TransmittedPackets = tab[11] + 999
-     ZeroBufferCreditCount = tab[12] + 55
-     print tab[1]";"tab[2]";"tab[3]";"tab[4]";"tab[5]";"tab[6]";"ErrorCount";"ReceivedBytes";"TransmittedBytes";"ReceivedPackets";"TransmittedPackets";"ZeroBufferCreditCount";" > tmpfile
-     print readline
-   }
-  }
-  else
-  {
-    # Check if a file exist for unix platform
-    if (!system("test -e " tmpfile))
-    {
-      "cat /tmp/MSHW/MSHW_network.log"  | getline readline
-      split (readline,tab,";")
-      ErrorCount = tab[7] + 5
-      ReceivedBytes = tab[8] + 8000000
-      TransmittedBytes = tab[9] + 5000000
-      ReceivedPackets = tab[10] + 100
-      TransmittedPackets = tab[11] + 999
-      ZeroBufferCreditCount = tab[12] + 55
-      print tab[1]";"tab[2]";"tab[3]";"tab[4]";"tab[5]";"tab[6]";"ErrorCount";"ReceivedBytes";"TransmittedBytes";"ReceivedPackets";"TransmittedPackets";"ZeroBufferCreditCount";" > tmpfile
-      print readline
-    }
-      else
-    {
-      print "COLLECT;4;OK;OK;56000;1;0;0;0;0;0;0;"
-    }
-  }
-  print "COLLECT;4;OK;OK;56000;1;10;10000000;40000000;10;40;95" > tmpfile
+  	print "COLLECT;4;OK;OK;56000;1;10;10000000;40000000;10;40;95"
 }
 EmbeddedFile(13).End
 
@@ -1667,45 +1547,7 @@ BEGIN {
 	# Robotic  COLLECT;RoboId;RoboStatus;RobotStatusInformation;MoveCount;ErrorCount
 	print "COLLECT;1;OK;;50;2"
 	print "COLLECT;2;ALARM;Cassette blocked;250;30"
-
-    OS = ENVIRON["OS"]
-    tmpfile = "/tmp/MSHW/MSHW_robotic.log"
-    if ( OS ~ /NT/ )
-    {
-     tmpfile = ENVIRON["TEMP"]"\\MSHW\\MSHW_robotic.log"
-     # Check if a file exist for NT platform
-     "IF EXIST %TEMP%\\MSHW\\MSHW_robotic.log type %TEMP%\\MSHW\\MSHW_robotic.log" | getline readline
-     if (length(readline) == 0)
-     {
-       print "COLLECT;3;OK;;0;0;"
-     }
-     else
-     {
-       split (readline,tab,";")
-	   MoveCount = tab[5] + 100
-       ErrorCount = tab[6] + 33
-       print tab[1]";"tab[2]";"tab[3]";"tab[4]";"MoveCount";"ErrorCount";" > tmpfile
-       print readline
-     }
-    }
-    else
-    {
-      # Check if a file exist for unix platform
-      if (!system("test -e " tmpfile))
-      {
-        "cat /tmp/MSHW/MSHW_robotic.log"  | getline readline
-        split (readline,tab,";")
-	      MoveCount = tab[5] + 100
-        ErrorCount = tab[6] + 33
-        print tab[1]";"tab[2]";"tab[3]";"tab[4]";"MoveCount";"ErrorCount";" > tmpfile
-        print readline
-      }
-        else
-      {
-         print "COLLECT;3;OK;;0;0;"
-      }
-    }
-      print "COLLECT;3;OK;;1;10;" > tmpfile
+    print "COLLECT;3;OK;;1;10;"
 }
 EmbeddedFile(17).End
 
@@ -1732,47 +1574,7 @@ BEGIN {
 	# TapeDrive  COLLECT;TdId;TdStatus;StatusInformation;MountCount;UnmountCount;ErrorCount;NeedsCleaning
 	print "COLLECT;1;OK;All good;2;2;2;1;"
     print "COLLECT;2;ALARM;Critical failure;0;0;0;0;"
-
-	OS = ENVIRON["OS"]
-    tmpfile = "/tmp//MSHW/MSHW_tape.log"
-    if ( OS ~ /NT/ )
-    {
-     tmpfile = ENVIRON["TEMP"]"\\MSHW\\MSHW_tape.log"
-     # Check if a file exist for NT platform
-     "IF EXIST %TEMP%\\MSHW\\MSHW_tape.log type %TEMP%\\MSHW\\MSHW_tape.log" | getline readline
-     if (length(readline) == 0)
-     {
-       print "COLLECT;3;UNKNOWN;;0;0;0;2;"
-     }
-     else
-     {
-       split (readline,tab,";")
-	   MountCount = tab[5] + 1
-	   UnmountCount = tab[6] + 2
-       ErrorCount = tab[7] + 3
-       print tab[1]";"tab[2]";"tab[3]";"tab[4]";"MountCount";"UnmountCount";"ErrorCount";"2";" > tmpfile
-       print readline
-     }
-    }
-    else
-    {
-      # Check if a file exist for unix platform
-      if (!system("test -e " tmpfile))
-      {
-       "cat /tmp/MSHW/MSHW_tape.log"  | getline readline
-       split (readline,tab,";")
-	   MountCount = tab[5] + 1
-	   UnmountCount = tab[6] + 2
-       ErrorCount = tab[7] + 3
-       print tab[1]";"tab[2]";"tab[3]";"tab[4]";"MountCount";"UnmountCount";"ErrorCount";"2";" > tmpfile
-       print readline
-      }
-        else
-      {
-       print "COLLECT;3;UNKNOWN;;0;0;0;2;"
-      }
-    }
-    print "COLLECT;3;UNKNOWN;;5;10;15;2;" > tmpfile
+    print "COLLECT;3;UNKNOWN;;5;10;15;2;"
 }
 EmbeddedFile(18).End
 
@@ -1892,58 +1694,7 @@ BEGIN {
 	print "COLLECT;"500";OK;Disk OK;False;1;1;1;41;1;1;1;1;"1
 	print "COLLECT;"501";OK;Disk OK;False;1;1;1;41;1;1;1;1;"5
 	print "COLLECT;"502";OK;Disk OK;False;1;1;1;41;1;1;1;1;"10
-
-  OS = ENVIRON["OS"]
-  tmpfile = "/tmp/MSHW/MSHW_physicaldisk.log"
-  if ( OS ~ /NT/ )
-  {
-   tmpfile = ENVIRON["TEMP"]"\\MSHW\\MSHW_physicaldisk.log"
-   # Check if a file exist for NT platform
-   "IF EXIST %TEMP%\\MSHW\\MSHW_physicaldisk.log type %TEMP%\\MSHW\\MSHW_physicaldisk.log" | getline readline
-   if (length(readline) == 0)
-   {
-   	# COLLECT;PdID;PdStatus;StatusInformation;PredictedFailure;ErrorCount;DeviceNotReadyErrorCount;MediaErrorCount;NoDeviceErrorCount;HardErrorCount;IllegalRequestErrorCount;RecoverableErrorCount;TransportErrorCount;EnduranceRemaining
-    print "COLLECT;"503";OK;Disk OK;False;0;0;0;0;0;0;0;0;"1
-   }
-   else
-   {
-     split (readline,tab,";")
-     ErrorCount = tab[6] + 5
-     DeviceNotReadyErrorCount = tab[7] + 0.5
-     MediaErrorCount = tab[8] + 0.5
-     NoDeviceErrorCount = tab[9] + 0.5
-     HardErrorCount = tab[10] + 500000
-     IllegalRequestErrorCount = tab[11] + 500000
-	 RecoverableErrorCount = tab[12] + 5
-     TransportErrorCount = tab[13] + 5
-     print tab[1]";"tab[2]";"tab[3]";"tab[4]";"tab[5]";"ErrorCount";"DeviceNotReadyErrorCount";"DeviceNotReadyErrorCount";"NoDeviceErrorCount";"HardErrorCount";"IllegalRequestErrorCount";"RecoverableErrorCount";"TransportErrorCount";"1";" > tmpfile
-     print readline
-   }
-  }
-  else
-  {
-    # Check if a file exist for unix platform
-    if (!system("test -e " tmpfile))
-    {
-      "cat /tmp/MSHW/MSHW_physicaldisk.log"  | getline readline
-      split (readline,tab,";")
-      ErrorCount = tab[6] + 5
-      DeviceNotReadyErrorCount = tab[7] + 0.5
-      MediaErrorCount = tab[8] + 0.5
-      NoDeviceErrorCount = tab[9] + 0.5
-      HardErrorCount = tab[10] + 500000
-      IllegalRequestErrorCount = tab[11] + 500000
-	  RecoverableErrorCount = tab[12] + 5
-      TransportErrorCount = tab[13] + 5
-      print tab[1]";"tab[2]";"tab[3]";"tab[4]";"tab[5]";"ErrorCount";"DeviceNotReadyErrorCount";"DeviceNotReadyErrorCount";"NoDeviceErrorCount";"HardErrorCount";"IllegalRequestErrorCount";"RecoverableErrorCount";"TransportErrorCount";"1";" > tmpfile
-      print readline
-    }
-      else
-    {
-     print "COLLECT;"503";OK;Disk OK;False;0;0;0;0;0;0;0;0;"1
-    }
-  }
-  print "COLLECT;"503";OK;Disk OK;False;10;20;30;40;50;60;70;80;"1 > tmpfile
+  	print "COLLECT;"503";OK;Disk OK;False;15;20;30;40;50;60;70;80;"1
 
 }
 EmbeddedFile(21).End
@@ -1970,55 +1721,8 @@ BEGIN {
   # UsedTime;DecoderUsedTime;EncoderUsedTime;ReceivedBytes;TransmittedBytes
   print "COLLECT;GPUNvidia;OK;Normal;0;10;122;10;60;50;55;15000;37500;800;"
   print "COLLECT;GPUAMD150;ALARM;Overheat;1;13;154;150;150;150;18;"";"";654;"
+  print "COLLECT;GPUINTEL;WARN;Idle;;1;1;;;;1000;;;0;15;20;25;30000000;40000000"
 
-  OS = ENVIRON["OS"]
-  tmpfile = "/tmp/MSHW/MSHW_librehardwaremonitor.log"
-  if ( OS ~ /NT/ )
-  {
-   tmpfile = ENVIRON["TEMP"]"\\MSHW\\MSHW_librehardwaremonitor.log"
-   # Check if a file exist for NT platform
-   "IF EXIST %TEMP%\\MSHW\\MSHW_librehardwaremonitor.log type %TEMP%\\MSHW\\MSHW_librehardwaremonitor.log" | getline readline
-   if (length(readline) == 0)
-   {
-     print "COLLECT;GPUINTEL;WARN;Idle;0;0;0;0;0;0;0;0;0;0;0;0;0;0;"
-   }
-   else
-   {
-     split (readline,tab,";")
-     CorrectedErrorCount = tab[6] + 5
-     ErrorCount = tab[7] + 5
-     UsedTime = tab[15] + 0.5
-     DecoderUsedTime = tab[16] + 0.5
-     EncoderUsedTime = tab[17] + 0.5
-     ReceivedBytes = tab[18] + 500000
-     TransmittedBytes = tab[19] + 500000
-     print tab[1]";"tab[2]";"tab[3]";"tab[4]";"tab[5]";"CorrectedErrorCount";"ErrorCount";"tab[8]";"tab[9]";"tab[10]";"tab[11]";"tab[12]";"tab[13]";"tab[14]";"UsedTime";"DecoderUsedTime";"EncoderUsedTime";"ReceivedBytes";"TransmittedBytes";" > tmpfile
-     print readline
-   }
-  }
-  else
-  {
-    # Check if a file exist for unix platform
-    if (!system("test -e " tmpfile))
-    {
-      "cat /tmp/MSHW/MSHW_librehardwaremonitor.log"  | getline readline
-      split (readline,tab,";")
-      CorrectedErrorCount = tab[6] + 5
-      ErrorCount = tab[7] + 5
-      UsedTime = tab[15] + 0.5
-      DecoderUsedTime = tab[16] + 0.5
-      EncoderUsedTime = tab[17] + 0.5
-      ReceivedBytes = tab[18] + 500000
-      TransmittedBytes = tab[19] + 500000
-      print tab[1]";"tab[2]";"tab[3]";"tab[4]";"tab[5]";"CorrectedErrorCount";"ErrorCount";"tab[8]";"tab[9]";"tab[10]";"tab[11]";"tab[12]";"tab[13]";"tab[14]";"UsedTime";"DecoderUsedTime";"EncoderUsedTime";"ReceivedBytes";"TransmittedBytes";" > tmpfile
-      print readline
-    }
-      else
-    {
-      print "COLLECT;GPUINTEL;WARN;Idle;0;0;0;0;0;0;0;0;0;0;0;0;0;0;"
-    }
-  }
-  print "COLLECT;GPUINTEL;WARN;Idle;;1;1;;;;1000;;;0;15;20;25;30000000;40000000" > tmpfile
 }
 EmbeddedFile(22).End
 
