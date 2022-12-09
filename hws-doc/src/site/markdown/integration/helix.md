@@ -14,7 +14,7 @@ description: How to integrate the hardware metrics collected by **${solutionName
 1. [Download](https://www.sentrysoftware.com/downloads/products-for-opentelemetry.html#hardware-sentry-opentelemetry-collector-1-0-00) and [install](../install.html) **${solutionName}**
 2. [Configure](#Configuration) the monitoring of the host(s)
 3. Verify that the metrics are stored in the Prometheus Server
-4. [Download](#Dashboards) the latest version of the ${solutionName} Dashboards for BMC Helix from the Sentry Software's Web site.
+4. [Download](https://www.sentrysoftware.com/downloads/products-for-opentelemetry.html#hardware-sentry-opentelemetry-collector-2-0-00) the latest version of the ${solutionName} Dashboards for BMC Helix from the Sentry Software's Web site
 5. [Import](https://docs.bmc.com/docs/helixdashboards/223/sharing-and-importing-dashboards-1102359494.html?src=search) ${solutionName} dashboards into BMC Helix.
 
 ## Configuration
@@ -79,7 +79,7 @@ A coverage percentage below 100% indicates that some hosts are not monitored ade
 
 ### Monitoring energy usage and carbon emissions
 
-In addition to detailed operational data, **${solutionName}** dashboards expose unified, accurate, and continuous views of measured power consumption, energy costs, and carbon emissions. These indicators allow IT administrators to assess the current situation, identify excessive energy usage or other issues, and take action to gain in efficiency.
+In addition to detailed operational data, **${solutionName}** dashboards expose unified, accurate, and continuous views of power consumption, energy costs, and carbon emissions. These indicators allow IT administrators to assess the current situation, identify excessive energy usage or other issues, and take action to gain in efficiency.
 
 The **Power, Cost, and CO₂ emissions** section of the **${solutionName} - Main** and **${solutionName} - Site** dashboards display live, and historical metrics about the amount of kWh your infrastructure consumes daily, monthly, and yearly as well as the associated costs and carbon emission levels.
 
@@ -91,7 +91,7 @@ The **Margin of Error** panel indicates the level of confidence in the estimated
 
 ![Helix Dashboards - Monitoring energy usage and carbon emissions](../images/helix-power-costs-CO2emissions-host.png)
 
-The **Power per Device Type** panel shows an estimation of the energy consumed by the internal components, by type, of the monitored host.
+The **Power per Device Type** panel shows the distribution of the energy consumed by the internal components, by type, for the monitored host.
 
 ### Identifying the top consumer sites
 
@@ -124,5 +124,3 @@ The **Heating Margin** panel exposes the number of degrees Celsius (°C) remaini
 ![Helix Dashboards - Viewing potential savings](../images/helix-site-temperature-optimization.png)
 
 Combining the temperature indicators collected from each monitored server and component, **${solutionName}** calculates the **Recommended Site Temperature** that determines the temperature at which the site can safely operate. Increasing a server room temperature can generate substantial savings on your electricity bill (**Potential Yearly Savings**) and significantly reduce your facility's carbon emissions ( **Potential Yearly CO₂ Reduction**).
-
-![Helix Dashboards - Viewing potential savings](../images/helix-power-CO2emissions-savings.png)
