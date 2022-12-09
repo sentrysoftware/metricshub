@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -36,6 +37,10 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class MetricReport {
+
+	static {
+		Locale.setDefault(Locale.US);
+	}
 
 	private static final String PIPE = "|";
 	private static final String SEPARATOR = ", ";

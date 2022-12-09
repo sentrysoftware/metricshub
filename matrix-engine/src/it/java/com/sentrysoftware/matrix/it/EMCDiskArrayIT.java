@@ -1,10 +1,12 @@
 package com.sentrysoftware.matrix.it;
 
 import java.nio.file.Paths;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.connector.ConnectorStore;
@@ -26,6 +28,10 @@ import com.sentrysoftware.matrix.engine.host.HardwareHost;
 import com.sentrysoftware.matrix.engine.host.HostType;
 
 class EMCDiskArrayIT {
+
+	static {
+		Locale.setDefault(Locale.US);
+	}
 
 	private static final String INPUT_PATH = Paths.get("src", "it", "resources", "wbem", "emcDiskArray", "input").toAbsolutePath().toString();
 
@@ -60,6 +66,7 @@ class EMCDiskArrayIT {
 	}
 
 	@Test
+	@Disabled("See Ticket HWS-620 Investigate EMCDiskArrayIT test fails one time in two")
 	void test() throws Exception {
 
 		final ITJob itJob = new WbemITJob();

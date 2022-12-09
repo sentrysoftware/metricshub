@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -31,6 +32,10 @@ import com.sentrysoftware.matrix.engine.host.HardwareHost;
 import com.sentrysoftware.matrix.engine.host.HostType;
 
 class SuperConnectorIT {
+
+	static {
+		Locale.setDefault(Locale.US);
+	}
 
 	private static final String EXPECTED_PATH = "os/SuperConnector/expected.json";
 

@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.BiFunction;
@@ -57,6 +58,10 @@ import com.sentrysoftware.matrix.it.job.ITJobUtils;
 import lombok.Getter;
 
 public class SnmpAgent implements VariableProvider {
+
+	static {
+		Locale.setDefault(Locale.US);
+	}
 
 	public static final int DEFAULT_AGENT_PORT = 8888;
 
