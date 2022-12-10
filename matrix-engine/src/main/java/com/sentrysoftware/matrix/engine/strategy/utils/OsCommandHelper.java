@@ -24,6 +24,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -41,12 +42,15 @@ import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 
 import com.sentrysoftware.matrix.engine.host.HostType;
+
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class OsCommandHelper {
 
-	private OsCommandHelper() {
-	}
+	static final Function<String, File> TEMP_FILE_CREATOR = OsCommandHelper::createEmbeddedTempFile;
 
 	private static final Pattern SUDO_PATTERN = Pattern.compile("%\\{SUDO:([^\\}]*)\\}", Pattern.CASE_INSENSITIVE);
 
@@ -57,17 +61,20 @@ public class OsCommandHelper {
 	/**
 	 * Create the temporary embedded files in the given command line.
 	 * 
-	 * @param commandLine The command line we wish to process.
-	 * @param embeddedFiles The embedded files of the connector.
+	 * @param commandLine     The command line we wish to process.
+	 * @param embeddedFiles   The embedded files of the connector.
 	 * @param osCommandConfig The OS Command Configuration.
+	 * @param tempFileCreator The function that creates a temporary file.
 	 * @return a Map with key, the EmbeddedFile tag and value a File for the temporary embedded file created.
 	 * @throws IOException If an error occurred in the temp file creation.
 	 */
 	public static Map<String, File> createOsCommandEmbeddedFiles(
-			@NonNull
-			final String commandLine, 
-			final Map<Integer, EmbeddedFile> embeddedFiles,
-			final OsCommandConfig osCommandConfig) throws IOException {
+		@NonNull
+		final String commandLine, 
+		final Map<Integer, EmbeddedFile> embeddedFiles,
+		final OsCommandConfig osCommandConfig,
+		final Function<String, File> tempFileCreator
+	) throws IOException {
 
 		if (embeddedFiles == null) {
 			return Collections.emptyMap();
@@ -95,9 +102,9 @@ public class OsCommandHelper {
 							notNull(content, () -> "EmbeddedFile content is null. EmbeddedFile Index: " + index);
 
 							try {
-								return createEmbeddedFile(embeddedFile, osCommandConfig);
+								return createTempFileWithEmbeddedFileContent(embeddedFile, osCommandConfig, tempFileCreator);
 							} catch (final IOException e) {
-								throw new RuntimeException(e);
+								throw new TempFileCreationException(e);
 							}
 						});
 			}
@@ -106,7 +113,7 @@ public class OsCommandHelper {
 		} catch (final Exception e) {
 			//noinspection ResultOfMethodCallIgnored
 			embeddedTempFiles.values().forEach(File::delete);
-			if (e instanceof RuntimeException && e.getCause() instanceof IOException) {
+			if (e instanceof TempFileCreationException) {
 				throw (IOException) e.getCause();
 			}
 			throw e;
@@ -116,20 +123,23 @@ public class OsCommandHelper {
 	/**
 	 * Create a temporary file with the content of the embeddedFile.
 	 * 
-	 * @param embeddedFile (mandatory)
+	 * @param embeddedFile    {@link EmbeddedFile} instance used to write the file content (mandatory)
 	 * @param osCommandConfig The OS Command Configuration.
+	 * @param tempFileCreator The function that creates a temporary file. 
 	 * @return The File.
 	 * @throws IOException
 	 */
-	static File createEmbeddedFile(
+	static File createTempFileWithEmbeddedFileContent(
 			final EmbeddedFile embeddedFile,
-			final OsCommandConfig osCommandConfig) throws IOException {
+			final OsCommandConfig osCommandConfig,
+			Function<String, File> tempFileCreator
+	) throws IOException {
 
 		final String extension = embeddedFile.getType() != null ? 
 				"." + embeddedFile.getType() : 
 					HardwareConstants.EMPTY;
 
-		final File tempFile = File.createTempFile(EMBEDDED_TEMP_FILE_PREFIX, extension);
+		final File tempFile = tempFileCreator.apply(extension);
 
 		try (final BufferedWriter bufferedWriter = Files.newBufferedWriter(
 				Paths.get(tempFile.getAbsolutePath()),
@@ -138,6 +148,21 @@ public class OsCommandHelper {
 					replaceSudo(embeddedFile.getContent(), osCommandConfig));
 		}
 		return tempFile;
+	}
+
+	/**
+	 * Create a temporary file with the given extension.<br>
+	 * The temporary file name is prefixed with {@value #EMBEDDED_TEMP_FILE_PREFIX}
+	 * 
+	 * @param extension File's name suffix (e.g. .bat)
+	 * @return {@link File} instance
+	 */
+	static File createEmbeddedTempFile(final String extension) {
+		try {
+			return File.createTempFile(EMBEDDED_TEMP_FILE_PREFIX, extension);
+		} catch (IOException e) {
+			throw new TempFileCreationException(e);
+		}
 	}
 
 	/**
@@ -431,9 +456,11 @@ public class OsCommandHelper {
 				(OsCommandConfig) engineConfiguration.getProtocolConfigurations().get(OsCommandConfig.class);
 
 		final Map<String, File> embeddedTempFiles = createOsCommandEmbeddedFiles(
-				commandLine, 
-				embeddedFiles,
-				osCommandConfig);
+			commandLine, 
+			embeddedFiles,
+			osCommandConfig, 
+			TEMP_FILE_CREATOR
+		);
 
 		final String updatedUserCommand = maybeUsername
 				.map(username -> commandLine.replaceAll(
@@ -507,4 +534,17 @@ public class OsCommandHelper {
 			embeddedTempFiles.values().forEach(File::delete);
 		}
 	}
+
+	/**
+	 * This class is used to manage exceptions that can be thrown by the functional interface
+	 * implementations used to create embedded temporary files.
+	 */
+	static class TempFileCreationException extends RuntimeException {
+		private static final long serialVersionUID = 1L;
+
+		public TempFileCreationException(final IOException cause) {
+			super(cause);
+		}
+	}
+
 }
