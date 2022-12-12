@@ -19,6 +19,22 @@ description: How to integrate the hardware metrics collected by **${solutionName
 
 ## Configuration
 
+First connect to **BMC Helix Operations Management**, go to the **Administration** &gt; **Repository** page, and click on the **Copy API Key** button to get your API Key.
+
+![Copy API Key](../images/helix-api-key.png)
+
+Then, declare the exporter in the pipeline section of **otel/otel-config.yaml**:
+
+```yaml
+service:
+  extensions: [health_check]
+  pipelines:
+    metrics:
+      receivers: [prometheus_exec/hws-exporter,prometheus/internal]
+      processors: [memory_limiter,batch,metricstransform]
+      exporters: [prometheusremotewrite/helix] # Your helix config must be listed here
+```
+
 Edit the `exporters` section of the [otel/otel-config.yaml](../configuration/configure-otel.md) configuration file as in the below example:
 
 ```yaml
@@ -36,21 +52,6 @@ where:
 * `<apiToken>` is the API Key of your BMC Helix environment
 * `resource_to_telemetry_conversion` converts all the resource attributes to metric labels when enabled
 
-First connect to **BMC Helix Operations Management**, go to the **Administration** &gt; **Repository** page, and click on the **Copy API Key** button to get your API Key.
-
-![Copy API Key](../images/helix-api-key.png)
-
-Then, declare the exporter in the pipeline section of **otel/otel-config.yaml**:
-
-```yaml
-service:
-  extensions: [health_check]
-  pipelines:
-    metrics:
-      receivers: [prometheus_exec/hws-exporter,prometheus/internal]
-      processors: [memory_limiter,batch,metricstransform]
-      exporters: [prometheusremotewrite/helix] # Your helix config must be listed here
-```
 ## Using ${solutionName} dashboards in BMC Helix
 
 **${solutionName}** comes with a set of 3 dashboards that expose health, performance and sustainability metrics and indicators:
@@ -96,7 +97,6 @@ The **Power per Device Type** panel shows the distribution of the energy consume
 ### Identifying the top consumer sites
 
 Operating servers that no longer meet high efficiency standards can result in high electricity consumption, costs, and carbon emission levels. **${solutionName}** can help you identify the most energy-intensive sites and hosts to reduce your electricity bills and carbon emissions.
-**${solutionName}** can help you identify the most energy-intensive sites to reduce your electricity bills and carbon emissions.
 
 The **Total Power** column of the **Sites** section in the **${solutionName} - Main** dashboard displays the total power consumption of the monitored hosts by site.
 The sites with the higher **Total Power** are the most energy-consuming.
