@@ -16,6 +16,8 @@ Enter the password to encrypt: <type the password>
 GkwzG6bx8cUhoeQW+/1ERI+2LOyB
 ```
 
+> User must have Administrator privileges.
+
 ## Using Encrypted Passwords
 
 Once a password has been encrypted, it can be used in a `hws-config.yaml` configuration file instead of a readable password:
