@@ -18,7 +18,7 @@ They describe the internal "path" that the **${solutionName}** application takes
 * HTTP
 * SNMP
 * SSH
-* Local Command Request
+* OS Command
 * IPMI
 * WMI
 * WBEM
