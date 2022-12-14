@@ -5,7 +5,6 @@ description: How to configure the self-monitoring of ${solutionName}.
 
 <!-- MACRO{toc|fromDepth=1|toDepth=3|id=toc} -->
 
-
 > **Important**: Self-monitoring is intended to help advanced users debug or troubleshoot **${solutionName}**. We recommend using it cautiously, as an incorrect configuration can lead to monitoring issues.
 
 **${solutionName}** can monitor itself, granting you a way to access additional metrics, such as the number of requests for a specific protocol, or the current state of the JVM.

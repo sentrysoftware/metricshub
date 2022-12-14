@@ -33,7 +33,6 @@
 			</item>
 			<item name="Alerts" href="alerts.html"/>
 			<item name="OpenTelemetry Advanced Settings" href="configuration/configure-otel.html" />
-			<item name="Automatic Instrumentation" href="auto-instrumentation.html" />
 		</menu>
 
 		<menu name="Integrations">
@@ -50,7 +49,7 @@
 			<item name="Debugging" href="troubleshooting/debug.html" />
 			<item name="Grafana Dashboards" href="troubleshooting/grafana.html" />
 			<item name="Hardware Sentry CLI (&lt;code&gt;hws&lt;/code&gt;)" href="troubleshooting/cli.html" />
-			<item name="Self-Monitoring" href="auto-instrumentation.html" />
+			<item name="Self-Monitoring" href="troubleshooting/auto-instrumentation.html" />
 		</menu>
 
 		<menu name="Appendix">
