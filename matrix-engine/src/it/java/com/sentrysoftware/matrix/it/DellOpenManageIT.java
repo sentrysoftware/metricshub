@@ -21,10 +21,15 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Paths;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
 class DellOpenManageIT {
+
+	static {
+		Locale.setDefault(Locale.US);
+	}
 
 	private static final String CONNECTOR_NAME = "DellOpenManage";
 	private static final String CONNECTOR_PATH = Paths.get("src", "it", "resources", "snmp", "DellOpenManage", CONNECTOR_NAME + ".hdfs").toAbsolutePath().toString();
@@ -40,15 +45,19 @@ class DellOpenManageIT {
 		ConnectorStore.getInstance().getConnectors().put(CONNECTOR_NAME, connector);
 
 		// Configure the engine
-		final SnmpProtocol protocol = SnmpProtocol.builder()
-				.community("public")
-				.version(SnmpVersion.V1)
-				.timeout(120L).build();
+		final SnmpProtocol protocol = SnmpProtocol
+			.builder()
+			.community("public")
+			.version(SnmpVersion.V1)
+			.timeout(120L)
+			.build();
 
-		engineConfiguration = EngineConfiguration.builder()
-				.host(HardwareHost.builder().hostname("localhost").id("localhost").type(HostType.LINUX).build())
-				.selectedConnectors(Set.of(CONNECTOR_NAME))
-				.protocolConfigurations(Map.of(SnmpProtocol.class, protocol)).build();
+		engineConfiguration = EngineConfiguration
+			.builder()
+			.host(HardwareHost.builder().hostname("localhost").id("localhost").type(HostType.LINUX).build())
+			.selectedConnectors(Set.of(CONNECTOR_NAME))
+			.protocolConfigurations(Map.of(SnmpProtocol.class, protocol))
+			.build();
 
 	}
 

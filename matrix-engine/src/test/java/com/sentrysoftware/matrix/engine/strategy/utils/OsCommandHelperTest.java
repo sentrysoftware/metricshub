@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.engine.strategy.utils;
 
+import static com.sentrysoftware.matrix.engine.strategy.utils.OsCommandHelper.TEMP_FILE_CREATOR;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -28,11 +29,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.MockedStatic;
 
 import com.sentrysoftware.matrix.common.exception.NoCredentialProvidedException;
@@ -40,13 +43,12 @@ import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import com.sentrysoftware.matrix.engine.EngineConfiguration;
+import com.sentrysoftware.matrix.engine.host.HardwareHost;
+import com.sentrysoftware.matrix.engine.host.HostType;
 import com.sentrysoftware.matrix.engine.protocol.OsCommandConfig;
 import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
 import com.sentrysoftware.matrix.engine.protocol.WmiProtocol;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
-
-import com.sentrysoftware.matrix.engine.host.HardwareHost;
-import com.sentrysoftware.matrix.engine.host.HostType;
 
 class OsCommandHelperTest {
 
@@ -54,25 +56,41 @@ class OsCommandHelperTest {
 
 	private static final String EMBEDDED_TEMP_FILE_PREFIX = "SEN_Embedded_";
 
+	@TempDir
+	static File tempDir;
 
-	@AfterAll
-	static void cleanTempEmbeddedFiles() {
-		for (final File file : getTempEmbeddedFiles()) {
-			file.delete();
-		}
-	}
+	static Function<String, File> jUnitTempFileCreator;
 
-	private static File[] getTempEmbeddedFiles() {
-		final File tempDirectory = new File(System.getProperty("java.io.tmpdir"));
-
-		return  tempDirectory.listFiles(new FilenameFilter() {
-			@Override
-			public boolean accept(final File directory, final String fileName) {
-				return fileName.startsWith(EMBEDDED_TEMP_FILE_PREFIX);
+	/**
+	 * Setup unit tests.
+	 */
+	@BeforeAll
+	static void setup() {
+		// Initialize temporary file creator for JUnit tests.
+		jUnitTempFileCreator = extension -> {
+			try {
+				return File.createTempFile(EMBEDDED_TEMP_FILE_PREFIX, extension, tempDir);
+			} catch (IOException e) {
+				throw new OsCommandHelper.TempFileCreationException(e);
 			}
-		});
+		};
 	}
 
+	/**
+	 * Retrieve temporary embedded files using the {@link FilenameFilter}.
+	 * 
+	 * @return Array of {@link File} instances
+	 */
+	private static File[] getTempEmbeddedFiles() {
+
+		return tempDir.listFiles(
+			(directory, fileName) -> fileName.startsWith(EMBEDDED_TEMP_FILE_PREFIX)
+		);
+	}
+
+	/**
+	 * Assert that temporary embedded files are removed correctly.
+	 */
 	private static void checkNoTempEmbeddedFileExist() {
 		assertEquals(0, getTempEmbeddedFiles().length);
 	}
@@ -85,19 +103,64 @@ class OsCommandHelperTest {
 		checkNoTempEmbeddedFileExist();
 
 		final Map<Integer, EmbeddedFile> emptyMap = Collections.emptyMap();
-		assertThrows(IllegalArgumentException.class, () -> OsCommandHelper.createOsCommandEmbeddedFiles(null, emptyMap, null));
 
-		assertEquals(Collections.emptyMap(), OsCommandHelper.createOsCommandEmbeddedFiles(commandLine, null, null));
-		assertEquals(Collections.emptyMap(), OsCommandHelper.createOsCommandEmbeddedFiles("", emptyMap, null));
-		assertEquals(Collections.emptyMap(), OsCommandHelper.createOsCommandEmbeddedFiles("cmd", emptyMap, null));
+		assertThrows(IllegalArgumentException.class, () -> OsCommandHelper
+			.createOsCommandEmbeddedFiles(
+				null,
+				emptyMap,
+				null,
+				jUnitTempFileCreator
+			)
+		);
+
+		assertEquals(Collections.emptyMap(), OsCommandHelper
+			.createOsCommandEmbeddedFiles(
+				commandLine,
+				null,
+				null,
+				jUnitTempFileCreator
+			)
+		);
+
+		assertEquals(Collections.emptyMap(), OsCommandHelper
+			.createOsCommandEmbeddedFiles(
+				"",
+				emptyMap,
+				null,
+				jUnitTempFileCreator
+			)
+		);
+
+		assertEquals(Collections.emptyMap(), OsCommandHelper
+			.createOsCommandEmbeddedFiles(
+				"cmd",
+				emptyMap,
+				null,
+				jUnitTempFileCreator
+			)
+		);
 
 		// case embeddedFile not found
 		final Map<Integer, EmbeddedFile> singletonMapEmbeddedNotFound = Collections.singletonMap(3, new EmbeddedFile());
-		assertThrows(IllegalArgumentException.class, () -> OsCommandHelper.createOsCommandEmbeddedFiles(commandLine, singletonMapEmbeddedNotFound, null));
+		assertThrows(IllegalArgumentException.class, () -> OsCommandHelper
+			.createOsCommandEmbeddedFiles(
+				commandLine,
+				singletonMapEmbeddedNotFound,
+				null,
+				jUnitTempFileCreator
+			)
+		);
 
 		// case embeddedFile content null
 		final Map<Integer, EmbeddedFile> singletonMapEmbeddedNoContent = Collections.singletonMap(1, new EmbeddedFile());
-		assertThrows(IllegalArgumentException.class, () -> OsCommandHelper.createOsCommandEmbeddedFiles(commandLine, singletonMapEmbeddedNoContent, null));
+		assertThrows(IllegalArgumentException.class, () -> OsCommandHelper
+			.createOsCommandEmbeddedFiles(
+				commandLine,
+				singletonMapEmbeddedNoContent,
+				null,
+				jUnitTempFileCreator
+			)
+		);
 
 		checkNoTempEmbeddedFileExist();
 
@@ -108,10 +171,35 @@ class OsCommandHelperTest {
 			embeddedFiles.put(1, new EmbeddedFile("ECHO %OS%", "bat", 1));
 			embeddedFiles.put(2, new EmbeddedFile("echo Hello World", null, 2));
 
-			mockedOsCommandHelper.when(() -> OsCommandHelper.createEmbeddedFile(any(EmbeddedFile.class), isNull())).thenThrow(IOException.class);
-			mockedOsCommandHelper.when(() -> OsCommandHelper.createOsCommandEmbeddedFiles(commandLine, embeddedFiles, null)).thenCallRealMethod();
+			mockedOsCommandHelper
+				.when(() -> OsCommandHelper
+					.createTempFileWithEmbeddedFileContent(
+						any(EmbeddedFile.class),
+						isNull(),
+						any()
+					)
+				)
+				.thenThrow(IOException.class);
 
-			assertThrows(IOException.class, () -> OsCommandHelper.createOsCommandEmbeddedFiles(commandLine, embeddedFiles, null));
+			mockedOsCommandHelper
+				.when(() -> OsCommandHelper
+					.createOsCommandEmbeddedFiles(
+						commandLine,
+						embeddedFiles,
+						null,
+						jUnitTempFileCreator
+					)
+				)
+				.thenCallRealMethod();
+
+			assertThrows(IOException.class, () -> OsCommandHelper
+				.createOsCommandEmbeddedFiles(
+					commandLine,
+					embeddedFiles,
+					null,
+					jUnitTempFileCreator
+				)
+			);
 		}
 
 		// case OK
@@ -145,13 +233,17 @@ class OsCommandHelperTest {
 			embeddedFiles.put(1, new EmbeddedFile("ECHO %OS%", "bat", 1));
 			embeddedFiles.put(2, new EmbeddedFile(embeddedContent, null, 2));
 
-			final Map<String, File> embeddedTempFiles = OsCommandHelper.createOsCommandEmbeddedFiles(
+			final Map<String, File> embeddedTempFiles = OsCommandHelper
+				.createOsCommandEmbeddedFiles(
 					commandLine,
 					embeddedFiles,
-					OsCommandConfig.builder()
+					OsCommandConfig
+						.builder()
 						.useSudo(true)
 						.useSudoCommands(Set.of("/[opt|usr]/StorMan/arcconf"))
-						.build());
+						.build(),
+					jUnitTempFileCreator
+				);
 
 			assertEquals(2, embeddedTempFiles.size());
 
@@ -474,10 +566,16 @@ class OsCommandHelperTest {
 					false,
 					false)).thenCallRealMethod();
 
-			mockedOsCommandHelper.when(() -> OsCommandHelper.createOsCommandEmbeddedFiles(
-					command, 
-					embeddedFiles, 
-					null)).thenThrow(new IOException("error in file1"));
+			mockedOsCommandHelper
+				.when(() -> OsCommandHelper
+					.createOsCommandEmbeddedFiles(
+						command, 
+						embeddedFiles, 
+						null,
+						TEMP_FILE_CREATOR
+					)
+				)
+				.thenThrow(new IOException("error in file1"));
 
 			assertThrows(IOException.class, () -> OsCommandHelper.runOsCommand(
 					command,
@@ -683,10 +781,16 @@ class OsCommandHelperTest {
 			mockedOsCommandHelper.when(() -> OsCommandHelper.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
 
-			mockedOsCommandHelper.when(() -> OsCommandHelper.createOsCommandEmbeddedFiles(
-					command, 
-					embeddedFiles, 
-					null)).thenReturn(embeddedTempFiles);
+			mockedOsCommandHelper
+				.when(() -> OsCommandHelper
+					.createOsCommandEmbeddedFiles(
+						command, 
+						embeddedFiles, 
+						null,
+						TEMP_FILE_CREATOR
+					)
+				)
+				.thenReturn(embeddedTempFiles);
 
 			final String absolutePath1 = "/tmp/SEN_Embedded_1.bat";
 			final String absolutePath2 = "/tmp/SEN_Embedded_2";
@@ -754,10 +858,16 @@ class OsCommandHelperTest {
 			mockedOsCommandHelper.when(() -> OsCommandHelper.replaceSudo(anyString(), isNull())).thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
-			mockedOsCommandHelper.when(() -> OsCommandHelper.createOsCommandEmbeddedFiles(
-					commandLine, 
-					Collections.emptyMap(),
-					null)).thenCallRealMethod();
+			mockedOsCommandHelper
+				.when(() -> OsCommandHelper
+					.createOsCommandEmbeddedFiles(
+						commandLine, 
+						Collections.emptyMap(),
+						null,
+						TEMP_FILE_CREATOR
+					)
+				)
+				.thenCallRealMethod();
 
 			final String noPasswordCommand = " naviseccli -User user -Password ******** -Address host -Scope 1 getagent";
 
@@ -823,10 +933,16 @@ class OsCommandHelperTest {
 			mockedOsCommandHelper.when(() -> OsCommandHelper.replaceSudo(anyString(), eq(osCommandConfig))).thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
-			mockedOsCommandHelper.when(() -> OsCommandHelper.createOsCommandEmbeddedFiles(
-					command,
-					Collections.emptyMap(),
-					osCommandConfig)).thenCallRealMethod();
+			mockedOsCommandHelper
+				.when(() -> OsCommandHelper
+					.createOsCommandEmbeddedFiles(
+						command,
+						Collections.emptyMap(),
+						osCommandConfig,
+						TEMP_FILE_CREATOR
+					)
+				)
+				.thenCallRealMethod();
 
 			final String noPasswordCommand = " naviseccli -User user -Password ******** -Address host -Scope 1 getagent";
 
@@ -891,10 +1007,16 @@ class OsCommandHelperTest {
 			mockedOsCommandHelper.when(() -> OsCommandHelper.replaceSudo(anyString(), eq(osCommandConfig))).thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
-			mockedOsCommandHelper.when(() -> OsCommandHelper.createOsCommandEmbeddedFiles(
-					command,
-					Collections.emptyMap(),
-					osCommandConfig)).thenCallRealMethod();
+			mockedOsCommandHelper
+				.when(() -> OsCommandHelper
+					.createOsCommandEmbeddedFiles(
+						command,
+						Collections.emptyMap(),
+						osCommandConfig,
+						TEMP_FILE_CREATOR
+					)
+				)
+				.thenCallRealMethod();
 
 			final String noPasswordCommand = " naviseccli -User user -Password ******** -Address host -Scope 1 getagent";
 
@@ -959,10 +1081,16 @@ class OsCommandHelperTest {
 			mockedOsCommandHelper.when(() -> OsCommandHelper.replaceSudo(anyString(), eq(osCommandConfig))).thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
-			mockedOsCommandHelper.when(() -> OsCommandHelper.createOsCommandEmbeddedFiles(
-					command,
-					null,
-					osCommandConfig)).thenCallRealMethod();
+			mockedOsCommandHelper
+				.when(() -> OsCommandHelper
+					.createOsCommandEmbeddedFiles(
+						command,
+						null,
+						osCommandConfig,
+						TEMP_FILE_CREATOR
+					)
+				)
+				.thenCallRealMethod();
 
 			final String noPasswordCommand = "sudo naviseccli -User user -Password ******** -Address host -Scope 1 getagent";
 
@@ -1058,10 +1186,16 @@ class OsCommandHelperTest {
 			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.replaceSudo(anyString(), eq(osCommandConfig))).thenCallRealMethod();
-			mockedOsCommandHelper.when(() -> OsCommandHelper.createOsCommandEmbeddedFiles(
-					command, 
-					embeddedFiles, 
-					osCommandConfig)).thenReturn(embeddedTempFiles);
+			mockedOsCommandHelper
+				.when(() -> OsCommandHelper
+					.createOsCommandEmbeddedFiles(
+						command, 
+						embeddedFiles, 
+						osCommandConfig,
+						TEMP_FILE_CREATOR
+					)
+				)
+				.thenReturn(embeddedTempFiles);
 
 			doReturn("C:\\Users\\user\\AppData\\Local\\Temp\\SEN_Embedded_0001").when(localFile).getAbsolutePath();
 

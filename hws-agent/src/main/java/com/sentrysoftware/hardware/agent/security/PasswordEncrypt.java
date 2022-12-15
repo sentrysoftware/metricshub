@@ -4,6 +4,7 @@ import java.io.Console;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Locale;
 
 import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.security.SecurityManager;
@@ -13,6 +14,10 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access =  AccessLevel.PRIVATE)
 public class PasswordEncrypt {
+
+	static {
+		Locale.setDefault(Locale.US);
+	}
 
 	/**
 	 * Get the KeyStore file

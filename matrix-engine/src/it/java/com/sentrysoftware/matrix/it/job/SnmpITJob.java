@@ -29,7 +29,7 @@ public class SnmpITJob extends AbstractITJob {
 
 		// Force the agent port
 		final SnmpProtocol snmpProtocol = (SnmpProtocol) engineConfiguration.getProtocolConfigurations().get(SnmpProtocol.class);
-		snmpProtocol.setPort(SnmpAgent.DEFAULT_AGENT_PORT);
+		snmpProtocol.setPort(snmpAgent.getPort());
 
 		return super.prepareEngine(engineConfiguration, hostMonitoring);
 	}

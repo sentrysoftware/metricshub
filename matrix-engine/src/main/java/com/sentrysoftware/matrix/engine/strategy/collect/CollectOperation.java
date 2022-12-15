@@ -844,7 +844,7 @@ public class CollectOperation extends AbstractStrategy {
 			return;
 		}
 
-		double ambientTemperature = 100.0;
+		double ambientTemperature = 35.0;
 		double cpuTemperatureAverage = 0;
 		double cpuTemperatureCount = 0;
 
@@ -878,7 +878,7 @@ public class CollectOperation extends AbstractStrategy {
 		}
 
 		// Sets the host ambient temperature as the minimum of all temperature sensors
-		if (ambientTemperature < 100) {
+		if (ambientTemperature < 35) {
 
 			// Update the parameter
 			CollectHelper.updateNumberParameter(
