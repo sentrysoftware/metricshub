@@ -41,6 +41,8 @@ import com.sentrysoftware.matrix.engine.protocol.SshProtocol;
 import com.sentrysoftware.matrix.engine.strategy.matsya.MatsyaClientsExecutor;
 
 import com.sentrysoftware.matrix.engine.host.HostType;
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.NonNull;
 
 public class OsCommandHelper {
@@ -183,11 +185,12 @@ public class OsCommandHelper {
 	 * @throws IOException
 	 * @throws TimeoutException
 	 */
+	@WithSpan("OS Command")
 	public static String runLocalCommand(
 			@NonNull
 			final String command,
-			final int timeout,
-			final String noPasswordCommand)
+			@SpanAttribute("OSCommand.timeout") final int timeout,
+			@SpanAttribute("OSCommand.command") final String noPasswordCommand)
 					throws InterruptedException, IOException, TimeoutException {
 		isTrue(timeout > 0, "timeout mustn't be negative nor zero.");
 
