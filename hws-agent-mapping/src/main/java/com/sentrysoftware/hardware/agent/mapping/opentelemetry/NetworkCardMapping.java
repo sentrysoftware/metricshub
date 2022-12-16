@@ -21,8 +21,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class NetworkCardMapping {
 
-	private static final String RECEIVED_AND_TRANSMITTED_NETWORK_TRAFFIC_IN_BYTES = "Number of bytes transmitted and received through the network interface. Attribute(s): direction = `transmit` and `receive`.";
-	private static final String RECEIVED_AND_TRANSMITTED_NETWORK_TRAFFIC_IN_PACKETS = "Number of packets transmitted and received through the network interface. Attribute(s): direction = `transmit` and `receive`.";
+	private static final String RECEIVED_AND_TRANSMITTED_NETWORK_TRAFFIC_IN_BYTES = "Total number of bytes transmitted and received through the network interface. Attribute: direction = `transmit` and `receive`.";
+	private static final String RECEIVED_AND_TRANSMITTED_NETWORK_TRAFFIC_IN_PACKETS = "Total number of packets transmitted and received through the network interface. Attribute: direction = `transmit` and `receive`.";
 
 	public static final String HW_TYPE_ATTRIBUTE_VALUE = "network";
 	private static final String ERROR_RATIO_METRIC_DESCRIPTION = createCustomDescriptionWithAttributes(
