@@ -19,6 +19,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class GpuMapping {
 
+	private static final String RECEIVED_AND_TRANSMITTED_BYTES_BY_THE_GPU = "Total number of bytes transmitted and received through the GPU. Attribute: direction = `transmit` and `receive`.";
+
 	private static final String UTILIZATION_METRIC_NAME = "hw.gpu.utilization";
 	public static final String HW_TYPE_ATTRIBUTE_VALUE = "gpu";
 	private static final String UTILIZATION_METRIC_DESCRIPTION = createCustomDescriptionWithAttributes(
@@ -224,26 +226,54 @@ public class GpuMapping {
 
 		map.put(
 			Gpu.RECEIVED_BYTES.getName(),
-			Collections.singletonList(
+			List.of(
 				MetricInfo
 					.builder()
 					.name("hw.gpu.io.receive")
 					.unit(BYTES_UNIT)
 					.type(MetricType.COUNTER)
 					.description("Number of bytes received through the GPU.")
+					.build(),
+				MetricInfo
+					.builder()
+					.name("hw.gpu.io")
+					.unit(BYTES_UNIT)
+					.type(MetricType.COUNTER)
+					.description(RECEIVED_AND_TRANSMITTED_BYTES_BY_THE_GPU)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(DIRECTION_ATTRIBUTE_KEY)
+							.value(RECEIVE_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);
 
 		map.put(
 			Gpu.TRANSMITTED_BYTES.getName(),
-			Collections.singletonList(
+			List.of(
 				MetricInfo
 					.builder()
 					.name("hw.gpu.io.transmit")
 					.unit(BYTES_UNIT)
 					.type(MetricType.COUNTER)
 					.description("Number of bytes transmitted through the GPU.")
+					.build(),
+				MetricInfo
+					.builder()
+					.name("hw.gpu.io")
+					.unit(BYTES_UNIT)
+					.type(MetricType.COUNTER)
+					.description(RECEIVED_AND_TRANSMITTED_BYTES_BY_THE_GPU)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(DIRECTION_ATTRIBUTE_KEY)
+							.value(TRANSMIT_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);

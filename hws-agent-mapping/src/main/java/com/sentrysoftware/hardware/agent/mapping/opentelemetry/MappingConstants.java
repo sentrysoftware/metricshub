@@ -57,6 +57,7 @@ public class MappingConstants {
 	public static final String INFO_ATTRIBUTE_KEY = "info";
 	public static final String SENSOR_LOCATION_ATTRIBUTE_KEY = "sensor_location";
 	public static final String HW_TYPE_ATTRIBUTE_KEY = "hw.type";
+	public static final String DIRECTION_ATTRIBUTE_KEY = "direction";
 
 	// Attribute values
 	public static final String OK_ATTRIBUTE_VALUE = "ok";
@@ -93,6 +94,8 @@ public class MappingConstants {
 	public static final String LOW_CRITICAL_ATTRIBUTE_VALUE = "low.critical";
 	public static final String HIGH_DEGRADED_ATTRIBUTE_VALUE = "high.degraded";
 	public static final String HIGH_CRITICAL_ATTRIBUTE_VALUE = "high.critical";
+	public static final String RECEIVE_ATTRIBUTE_VALUE = "receive";
+	public static final String TRANSMIT_ATTRIBUTE_VALUE = "transmit";
 
 	// Default attribute keys
 	public static final String NAME = "name";
