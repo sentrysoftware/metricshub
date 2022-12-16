@@ -24,12 +24,13 @@ hosts:
 
 Set `loggerlevel` to either `all`, `trace`, `debug`, `info`, `warn`, `error`, or `fatal`.
 
-The debug output file is saved by default in the **logs** directory located under the **Hardware Sentry** home directory.
+The debug output files are saved by default in the **logs** directory located under the **hws** directory:
 
-Examples:
+* On Windows, the output files are stored under the **%LOCALAPPDATA%\hws** folder of the account running the application:
+  * When the Local System account starts the Hardware Sentry Agent service, the output files will be stored under **C:\Windows\System32\config\systemprofile\AppData\Local\hws\logs**.
+  * If a specific user starts the Hardware Sentry Agent service, the output files will be stored under **C:\Users\\<username\>\AppData\Local\hws\logs**.
 
-* **C:\Program Files\hws\logs** on Windows
-* **/opt/hws/logs** on Linux
+* On Linux, the output files are stored under the installation directory: **/opt/hws/logs**.
 
 To specify a different output directory, edit the **hws-config.yaml** file and add the `outputDirectory` parameter before the `hosts` section:
 
@@ -58,18 +59,18 @@ service:
   # [...]
 ```
 
-Then, restart **${solutionName}** for these new settings to be taken into account.
+Then, restart **${solutionName}** for these new settings to be considered.
 
-Finally, check the **logs/otelcol-\\${timestamp}.log** file, where `\${timestamp}` is the time at which the log was started.
+Finally, check the **logs/otelcol-\<timestamp\>.log** file, where `<timestamp>` is the time at which the log was started.
 
-> Note: The **logs/otelcol-\\${timestamp}.log** file is reset each time the *Collector* is started. Previous logs are identified with the `\${timestamp}` value (ex: `otelcol-2022-09-19-02-05-18.log`). **${solutionName}** rotates the **otelcol-\\${timestamp}.log** file when it reaches a maximum size of **100MB** and retains old log files for **2 days**.
+> Note: The **logs/otelcol-\<timestamp\>.log** file is reset each time the *Collector* is started. Previous logs are identified with the `<timestamp>` value (ex: `otelcol-2022-09-19-02-05-18.log`). **${solutionName}** rotates the **otelcol-\<timestamp\>.log** file when it reaches a maximum size of **100MB** and retains old log files for **2 days**.
 
-### What to look for in otelcol-\\${timestamp}.log
+### What to look for in otelcol-\<timestamp\>.log
 
 First check that the **Hardware Sentry Agent** successfully launched the _OpenTelemetry Collector_:
 
 ```log
-[2022-09-19T14:05:18,459][INFO ][c.s.h.a.p.r.Executable] Started process command line: [C:\Program Files\hws\app\..\otel\otelcol-contrib, --config, "C:\Program Files\hws\app\..\otel\otel-config.yaml", --feature-gates=pkg.translator.prometheus.NormalizeName]
+[2022-09-19T14:05:18,459][INFO ][c.s.h.a.p.r.Executable] Started process command line: [C:\Program Files\hws\app\..\otel\otelcol-contrib, --config, "C:\ProgramData\hws\otel\otel-config.yaml", --feature-gates=pkg.translator.prometheus.NormalizeName]
 [2022-09-19T14:05:19,363][DEBUG][c.s.h.a.s.o.p.OtelCollectorExecutable] 2022-09-19T14:05:19.363+0200	info	service/telemetry.go:115	Setting up own telemetry...
 [2022-09-19T14:05:19,363][DEBUG][c.s.h.a.s.o.p.OtelCollectorExecutable] 2022-09-19T14:05:19.363+0200	info	service/telemetry.go:156	Serving Prometheus metrics	{"address": "localhost:8888", "level": "basic"}
 [2022-09-19T14:05:19,775][DEBUG][c.s.h.a.s.o.p.OtelCollectorExecutable] 2022-09-19T14:05:19.774+0200	info	pipelines/pipelines.go:74	Starting exporters...
@@ -127,9 +128,9 @@ service:
       exporters: [prometheusremotewrite/your-server,logging] # <-- added logging
 ```
 
-Restart the _Collector_ for the new settings to be taken into account.
+Restart the _Collector_ for the new settings to be considered.
 
-The metric name, its labels and value are listed in the **logs/otelcol-\\${timestamp}.log** file.
+The metric name, its labels and value are listed in the **logs/otelcol-\<timestamp\>.log** file.
 
 > **Important**: Disable the `logging` exporter when unused as its operation may affect the overall performance of the _Collector_ and fill your file system.
 

@@ -770,7 +770,7 @@ hosts: # ...
 
 #### Process output
 
-By default, the **Hardware Sentry Agent** listens to the _OpenTelemetry Collector_ standard output (STDOUT) and standard error (STDERR) and streams each output line to the `logs/otelcol-\${timestamp}.log` file when the logger is enabled.
+By default, the **Hardware Sentry Agent** listens to the _OpenTelemetry Collector_ standard output (STDOUT) and standard error (STDERR) and streams each output line to the `logs/otelcol-<timestamp>.log` file when the logger is enabled.
 
 To print the _OpenTelemetry Collector_ output to the console, set the `output` property to `console` under the `otelCollector` section:
 
