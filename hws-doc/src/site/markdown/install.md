@@ -32,12 +32,12 @@ When complete, the **${solutionName}**'s files are deployed in `/opt/hws` and th
 
 #### Configure
 
-You need to set up 2 configuration files under the installation directory (`/opt/hws`):
+You need to set up 2 configuration files in the installation directory (`/opt/hws`):
 
 * [**./otel/otel-config.yaml**](configuration/configure-otel.md): to specify where the _OpenTelemetry Collector_ should send the collected data
 * [**./config/hws-config.yaml**](configuration/configure-agent.md): to specify the hosts to monitor and their credentials
 
-There are two configuration examples under the installation directory (`/opt/hws`):
+There are two configuration examples in the installation directory (`/opt/hws`):
 
 * **./otel/otel-config-example.yaml**, a configuration example of the _OpenTelemetry Collector_.
 * **./config/hws-config-example.yaml**, a configuration example of the **Hardware Sentry Agent**.
@@ -113,12 +113,12 @@ Then, build the docker image using the following command:
 
 #### Configure
 
-You need to set up 2 configuration files under the docker image directory (`hws`):
+You need to set up 2 configuration files in the docker image directory (`hws`):
 
 * [**./lib/otel/otel-config.yaml**](configuration/configure-otel.md): to specify where the _OpenTelemetry Collector_ should send the collected data
 * [**./lib/config/hws-config.yaml**](configuration/configure-agent.md): to specify the hosts to monitor and their credentials
 
-There are two configuration examples under the docker image directory (`hws`):
+There are two configuration examples in the docker image directory (`hws`):
 
 * **./otel/otel-config-example.yaml**, a configuration example of the _OpenTelemetry Collector_.
 * **./config/hws-config-example.yaml**, a configuration example of the **Hardware Sentry Agent**.
@@ -196,12 +196,12 @@ When complete, the **${solutionName}**'s files are deployed in `/opt/hws` and th
 
 #### Configure
 
-You need to set up 2 configuration files under the installation directory (`/opt/hws`):
+You need to set up 2 configuration files in the installation directory (`/opt/hws`):
 
 * [**./otel/otel-config.yaml**](configuration/configure-otel.md): to specify where the _OpenTelemetry Collector_ should send the collected data
 * [**./config/hws-config.yaml**](configuration/configure-agent.md): to specify the hosts to monitor and their credentials
 
-There are two configuration examples under the installation directory (`/opt/hws`):
+There are two configuration examples in the installation directory (`/opt/hws`):
 
 * **./otel/otel-config-example.yaml**, a configuration example of the _OpenTelemetry Collector_.
 * **./config/hws-config-example.yaml**, a configuration example of the **Hardware Sentry Agent**.
@@ -267,16 +267,16 @@ When complete, the **${solutionName}**'s files are deployed to the destination f
 
 ![**${solutionName}** running as a service on Windows](images/hws-win-service.png)
 
-**${solutionName}** operates using the configuration located under the **ProgramData\hws** directory. (`C:\ProgramData\hws`).
+**${solutionName}** operates using the configuration located in the **ProgramData\hws** directory. (`C:\ProgramData\hws`).
 
 #### Configure
 
-You need to set up 2 configuration files under the **ProgramData\hws** directory (`C:\ProgramData\hws`):
+You need to set up 2 configuration files in the **ProgramData\hws** directory (`C:\ProgramData\hws`):
 
 * [**./otel/otel-config.yaml**](configuration/configure-otel.md): to specify where the _OpenTelemetry Collector_ should send the collected data.
 * [**./config/hws-config.yaml**](configuration/configure-agent.md): to specify the hosts to monitor and their credentials.
 
-There are two configuration examples under the installation directory (`C:\Program Files\hws`):
+There are two configuration examples in the installation directory (`C:\Program Files\hws`):
 
 * **./otel/otel-config-example.yaml**, a configuration example of the _OpenTelemetry Collector_.
 * **./config/hws-config-example.yaml**, a configuration example of the **Hardware Sentry Agent**.

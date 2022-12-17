@@ -26,11 +26,11 @@ Set `loggerlevel` to either `all`, `trace`, `debug`, `info`, `warn`, `error`, or
 
 The debug output files are saved by default in the **logs** directory located under the **hws** directory:
 
-* On Windows, the output files are stored under the **%LOCALAPPDATA%\hws** folder of the account running the application:
-  * When the Local System account starts the Hardware Sentry Agent service, the output files will be stored under **C:\Windows\System32\config\systemprofile\AppData\Local\hws\logs**.
-  * If a specific user starts the Hardware Sentry Agent service, the output files will be stored under **C:\Users\\<username\>\AppData\Local\hws\logs**.
+* On Windows, the output files are stored in the **%LOCALAPPDATA%\hws** folder of the account running the application:
+  * When the Local System account starts the Hardware Sentry Agent service, the output files are stored under **C:\Windows\System32\config\systemprofile\AppData\Local\hws\logs**.
+  * If a specific user starts the Hardware Sentry Agent service, the output files are stored under **C:\Users\\<username\>\AppData\Local\hws\logs**.
 
-* On Linux, the output files are stored under the installation directory: **/opt/hws/logs**.
+* On Linux, the output files are stored in the installation directory: **/opt/hws/logs**.
 
 To specify a different output directory, edit the **hws-config.yaml** file and add the `outputDirectory` parameter before the `hosts` section:
 
