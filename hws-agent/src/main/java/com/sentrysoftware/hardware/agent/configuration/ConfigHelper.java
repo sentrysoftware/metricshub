@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -56,6 +57,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ConfigHelper {
 
+	private static final String CONFIG_FILE_FORMAT = "%s/%s";
 	public static final Path DEFAULT_OUTPUT_DIRECTORY = getDefaultOutputDirectory();
 	private static final String TIMEOUT_ERROR = "Hostname %s - Timeout value is invalid for protocol %s. Timeout value returned: %s. This host will not be monitored. Please verify the configured timeout value.";
 	private static final String PORT_ERROR = "Hostname %s - Invalid port configured for protocol %s. Port value returned: %s. This host will not be monitored. Please verify the configured port value.";
@@ -671,13 +673,22 @@ public class ConfigHelper {
 	}
 
 	/**
-	 * Get the default output directory for logging
+	 * Get the default output directory for logging.<br>
+	 * On Windows, if the LOCALAPPDATA path is not valid then the output directory will be located
+	 * under the install directory.<br>
+	 * On Linux, the output directory is located under the install directory.
 	 * 
 	 * @return {@link Path} instance
 	 */
 	public static Path getDefaultOutputDirectory() {
 		if (LocalOsHandler.isWindows()) {
-			return createDirectories(Paths.get(System.getenv("LOCALAPPDATA"), "hws", "logs"));
+			final String localAppDataPath = System.getenv("LOCALAPPDATA");
+
+			// Make sure the LOCALAPPDATA path is valid
+			if (localAppDataPath != null && !localAppDataPath.isBlank()) {
+				return createDirectories(Paths.get(localAppDataPath, "hws", "logs"));
+			}
+
 		}
 
 		return getSubDirectory("logs", true);
@@ -878,7 +889,7 @@ public class ConfigHelper {
 		}
 
 		// Now we will proceed with a copy of the example file (e.g. hws-config-example.yaml to config/hws-config.yaml)
-		final Path exampleConfigPath = ConfigHelper.getSubPath(String.format("%s/%s", directory, configFilenameExample));
+		final Path exampleConfigPath = ConfigHelper.getSubPath(String.format(CONFIG_FILE_FORMAT, directory, configFilenameExample));
 
 		// Bad configuration
 		if (!Files.exists(exampleConfigPath)) {
@@ -904,12 +915,32 @@ public class ConfigHelper {
 	 */
 	public static Path getDefaultConfigFilePath(final String directory, final String configFilename) {
 		if (LocalOsHandler.isWindows()) {
-			return Paths.get(
-				createDirectories(Paths.get(System.getenv("ProgramData"), "hws", directory)).toAbsolutePath().toString(),
-				configFilename
-			);
+			return getProgramDataConfigFile(directory, configFilename);
 		}
-		return ConfigHelper.getSubPath(String.format("%s/%s", directory, configFilename));
+		return ConfigHelper.getSubPath(String.format(CONFIG_FILE_FORMAT, directory, configFilename));
+	}
+
+	/**
+	 * Get the configuration file under the ProgramData windows directory.<br>
+	 * If the ProgramData path is not valid then the configuration file will be located
+	 * under the install directory.
+	 * 
+	 * @param directory      Directory of the configuration file. (e.g. config or otel)
+	 * @param configFilename Configuration file name (e.g. hws-config.yaml or otel-config.yaml)
+	 * @return new {@link Path} instance
+	 */
+	static Path getProgramDataConfigFile(final String directory, final String configFilename) {
+		return getProgramDataPath()
+			.stream()
+			.map(path -> 
+				Paths
+					.get(
+						createDirectories(Paths.get(path, "hws", directory)).toAbsolutePath().toString(),
+						configFilename
+					)
+			)
+			.findFirst()
+			.orElseGet(() -> ConfigHelper.getSubPath(String.format(CONFIG_FILE_FORMAT, directory, configFilename)));
 	}
 
 	/**
@@ -933,7 +964,6 @@ public class ConfigHelper {
 
 	}
 
-
 	/**
 	 * Get the Log4j log level from the configured logLevel string
 	 *
@@ -946,5 +976,20 @@ public class ConfigHelper {
 
 		return level != null ? level : Level.OFF;
 
+	}
+
+	/**
+	 * Get the <em>%PROGRAMDATA%</em> path. If the ProgramData path is not valid
+	 * then <code>Optional.empty()</code> is returned.
+	 * 
+	 * @return {@link Optional} containing a string value (path)
+	 */
+	public static Optional<String> getProgramDataPath() {
+		final String programDataPath = System.getenv("ProgramData");
+		if (programDataPath != null && !programDataPath.isBlank()) {
+			return Optional.of(programDataPath);
+		}
+
+		return Optional.empty();
 	}
 }

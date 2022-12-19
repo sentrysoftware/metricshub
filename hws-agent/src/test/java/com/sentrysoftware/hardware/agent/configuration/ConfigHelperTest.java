@@ -6,15 +6,24 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mockStatic;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.io.TempDir;
+import org.mockito.MockedStatic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -23,6 +32,7 @@ import com.sentrysoftware.hardware.agent.dto.HostConfigurationDto;
 import com.sentrysoftware.hardware.agent.dto.MultiHostsConfigurationDto;
 import com.sentrysoftware.hardware.agent.dto.protocol.SnmpProtocolDto;
 import com.sentrysoftware.hardware.agent.exception.BusinessException;
+import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.snmp.SnmpGetTableSource;
 import com.sentrysoftware.matrix.connector.model.monitor.job.source.type.wmi.WmiSource;
@@ -42,6 +52,9 @@ class ConfigHelperTest {
 
 	@Autowired
 	private File configFile;
+
+	@TempDir
+	static Path tempDir;
 
 	@Test
 	void testValidateAndGetConnectors() throws BusinessException {
@@ -476,5 +489,70 @@ class ConfigHelperTest {
 		ConfigHelper.normalizeHostConfigurations(expectedMultiHostsConfigurationDto);
 
 		assertEquals(testHost, multiHostsConfigurationDto.getResolvedHosts().stream().filter(host -> "192.168.7.34".equals(host.getHost().getHostname())).findFirst().orElse(null));
+	}
+
+	@Test
+	@EnabledOnOs(OS.WINDOWS)
+	void testGetProgramDataConfigFile() {
+		// ProgramData invalid
+		{
+			try (
+					final MockedStatic<ConfigHelper> mockedConfigHelper = mockStatic(ConfigHelper.class);
+					final MockedStatic<ResourceHelper> mockedResourceHelper = mockStatic(ResourceHelper.class)	
+				) {
+
+					mockedConfigHelper.when(() -> ConfigHelper.getProgramDataPath()).thenReturn(Optional.empty());
+					mockedConfigHelper.when(() -> ConfigHelper.getProgramDataConfigFile(anyString(), anyString())).thenCallRealMethod();
+					mockedConfigHelper.when(() -> ConfigHelper.getSubPath(anyString())).thenCallRealMethod();
+					mockedConfigHelper.when(() -> ConfigHelper.getExecutableDir()).thenCallRealMethod();
+
+					mockedResourceHelper
+						.when(() -> ResourceHelper.findSource(ConfigHelper.class))
+						.thenAnswer((invocation) -> tempDir.resolve("hws/app/jar").toFile());
+
+					final Path configFileOnWindows = ConfigHelper.getProgramDataConfigFile("config", "hws-config.yaml");
+
+					final String expectedPath = "hws\\app\\..\\config\\hws-config.yaml";
+
+					assertNotNull(configFileOnWindows);
+					assertTrue(
+						() -> configFileOnWindows.endsWith("hws\\app\\..\\config\\hws-config.yaml"),
+						String
+							.format(
+								"Found path %s. Expected path ends with %s.",
+								configFileOnWindows.toString(),
+								expectedPath
+							)
+					);
+				}
+		}
+
+		// ProgramData valid
+		{
+			try (final MockedStatic<ConfigHelper> mockedConfigHelper = mockStatic(ConfigHelper.class)) {
+
+					mockedConfigHelper
+						.when(() -> ConfigHelper.getProgramDataPath())
+						.thenReturn(Optional.of(tempDir.toString()));
+
+					mockedConfigHelper.when(() -> ConfigHelper.createDirectories(any(Path.class))).thenCallRealMethod();
+					mockedConfigHelper.when(() -> ConfigHelper.getProgramDataConfigFile(anyString(), anyString())).thenCallRealMethod();
+
+					final Path configFileOnWindows = ConfigHelper.getProgramDataConfigFile("config", "hws-config.yaml");
+
+					final String expectedPath = "hws\\config\\hws-config.yaml";
+
+					assertNotNull(configFileOnWindows);
+					assertTrue(
+						() -> configFileOnWindows.endsWith(expectedPath),
+						String
+							.format(
+								"Found path %s. Expected path ends with %s.",
+								configFileOnWindows.toString(),
+								expectedPath
+							)
+					);
+			}
+		}
 	}
 }

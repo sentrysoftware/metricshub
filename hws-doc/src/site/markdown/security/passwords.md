@@ -41,4 +41,4 @@ The **hws-keystore.p12** file must not be modified, as this would prevent decryp
 
 The **hws-keystore.p12** file can be shared across several hosts so that a password encrypted on one system can be decrypted on another. Simply copy the **hws-keystore.p12** file to the **security** directory. This will make **${solutionName}** able to decrypt the passwords.
 
-> **Note**: On Windows, the **security** directory is located under the **ProgramData\hws** directory (`C:\ProgramData\hws\security`) whereas on Linux, the **security** directory is located under the installation directory (`/opt/hws/security`).
+> **Note**: On Windows, the **security** directory is located under the **ProgramData\hws** directory (`C:\ProgramData\hws\security`) and accessible to *Administrators* only. On Linux, the **security** directory is located under the installation directory (`/opt/hws/security`).

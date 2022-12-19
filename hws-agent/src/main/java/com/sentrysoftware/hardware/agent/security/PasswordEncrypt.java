@@ -39,12 +39,18 @@ public class PasswordEncrypt {
 	}
 
 	/**
-	 * Get the security folder located under <em>%PROGRAMDATA%\hws</em>
+	 * Get the security folder located under <em>%PROGRAMDATA%\hws</em>.<br>
+	 * If the ProgramData path is not valid then the security file will be located
+	 * under the install directory.
 	 * 
 	 * @return {@link Path} instance
 	 */
 	static Path getSecurityFolderOnWindows() {
-		return Paths.get(System.getenv("ProgramData"), "hws", "security");
+		return ConfigHelper.getProgramDataPath()
+			.stream()
+			.map(path -> Paths.get(path, "hws", "security"))
+			.findFirst()
+			.orElseGet(PasswordEncrypt::getSecurityFolderFromInstallDir);
 	}
 
 	/**

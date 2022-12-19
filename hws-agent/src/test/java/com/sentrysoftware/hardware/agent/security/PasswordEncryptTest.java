@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.condition.OS.LINUX;
 import static org.junit.jupiter.api.condition.OS.WINDOWS;
 import static org.mockito.ArgumentMatchers.any;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -21,6 +23,7 @@ import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.MockedStatic;
 
+import com.sentrysoftware.hardware.agent.configuration.ConfigHelper;
 import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.security.HardwareSecurityException;
 import com.sentrysoftware.matrix.security.SecurityManager;
@@ -116,5 +119,63 @@ class PasswordEncryptTest {
 			}
 		}
 
+	}
+
+	@Test
+	@EnabledOnOs(WINDOWS)
+	void testGetSecurityFolderOnWindows() throws IOException {
+		// ProgramData invalid
+		{
+			try (
+					final MockedStatic<ConfigHelper> mockedConfigHelper = mockStatic(ConfigHelper.class);
+					final MockedStatic<ResourceHelper> mockedResourceHelper = mockStatic(ResourceHelper.class)	
+				) {
+					mockedResourceHelper
+						.when(() -> ResourceHelper.findSource(PasswordEncrypt.class))
+						.thenAnswer((invocation) -> tempDir.resolve("hws/app/jar").toFile());
+
+					mockedConfigHelper.when(() -> ConfigHelper.getProgramDataPath()).thenReturn(Optional.empty());
+
+					final Path securityFolderOnWindows = PasswordEncrypt.getSecurityFolderOnWindows();
+
+					final String expectedPath = "hws\\app\\..\\security";
+
+					assertNotNull(securityFolderOnWindows);
+					assertTrue(
+						() -> securityFolderOnWindows.endsWith(expectedPath),
+						String
+							.format(
+								"Found path %s. Expected path ends with %s.",
+								securityFolderOnWindows.toString(),
+								expectedPath
+							)
+					);
+				}
+		}
+
+		// ProgramData valid
+		{
+			try (final MockedStatic<ConfigHelper> mockedConfigHelper = mockStatic(ConfigHelper.class)) {
+
+					mockedConfigHelper
+						.when(() -> ConfigHelper.getProgramDataPath())
+						.thenReturn(Optional.of(tempDir.toString()));
+
+					final Path securityFolderOnWindows = PasswordEncrypt.getSecurityFolderOnWindows();
+
+					final String expectedPath = "hws\\security";
+
+					assertNotNull(securityFolderOnWindows);
+					assertTrue(
+						() -> securityFolderOnWindows.endsWith(expectedPath),
+						String
+							.format(
+								"Found path %s. Expected path ends with %s.",
+								securityFolderOnWindows.toString(),
+								expectedPath
+							)
+					);
+			}
+		}
 	}
 }
