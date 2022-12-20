@@ -21,6 +21,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class NetworkCardMapping {
 
+	private static final String RECEIVED_AND_TRANSMITTED_NETWORK_TRAFFIC_IN_BYTES = "Total number of bytes transmitted and received through the network interface. Attribute: direction = `transmit` and `receive`.";
+	private static final String RECEIVED_AND_TRANSMITTED_NETWORK_TRAFFIC_IN_PACKETS = "Total number of packets transmitted and received through the network interface. Attribute: direction = `transmit` and `receive`.";
+
 	public static final String HW_TYPE_ATTRIBUTE_VALUE = "network";
 	private static final String ERROR_RATIO_METRIC_DESCRIPTION = createCustomDescriptionWithAttributes(
 		"Network interface error ratio that will generate a warning or an alarm when reached",
@@ -214,53 +217,109 @@ public class NetworkCardMapping {
 
 		map.put(
 			NetworkCard.RECEIVED_BYTES.getName(),
-			Collections.singletonList(
+			List.of(
 				MetricInfo
 					.builder()
 					.name("hw.network.io.receive")
 					.unit(BYTES_UNIT)
 					.type(MetricType.COUNTER)
 					.description("Total number of bytes received through the network interface.")
-					.build()
+					.build(),
+				MetricInfo
+					.builder()
+					.name("hw.network.io")
+					.unit(BYTES_UNIT)
+					.type(MetricType.COUNTER)
+					.description(RECEIVED_AND_TRANSMITTED_NETWORK_TRAFFIC_IN_BYTES)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(DIRECTION_ATTRIBUTE_KEY)
+							.value(RECEIVE_ATTRIBUTE_VALUE)
+							.build()
+					)
+					.build()				
 			)
 		);
 
 		map.put(
 			NetworkCard.RECEIVED_PACKETS.getName(),
-			Collections.singletonList(
+			List.of(
 				MetricInfo
 					.builder()
 					.name("hw.network.packets.receive")
 					.unit(PACKETS_UNIT)
 					.type(MetricType.COUNTER)
 					.description("Total number of packets received through the network interface.")
-					.build()
+					.build(),
+				MetricInfo
+					.builder()
+					.name("hw.network.packets")
+					.unit(PACKETS_UNIT)
+					.type(MetricType.COUNTER)
+					.description(RECEIVED_AND_TRANSMITTED_NETWORK_TRAFFIC_IN_PACKETS)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(DIRECTION_ATTRIBUTE_KEY)
+							.value(RECEIVE_ATTRIBUTE_VALUE)
+							.build()
+					)
+					.build()	
 			)
 		);
 
 		map.put(
 			NetworkCard.TRANSMITTED_BYTES.getName(),
-			Collections.singletonList(
+			List.of(
 				MetricInfo
 					.builder()
 					.name("hw.network.io.transmit")
 					.unit(BYTES_UNIT)
 					.type(MetricType.COUNTER)
 					.description("Total number of bytes transmitted through the network interface.")
+					.build(),
+				MetricInfo
+					.builder()
+					.name("hw.network.io")
+					.unit(BYTES_UNIT)
+					.type(MetricType.COUNTER)
+					.description(RECEIVED_AND_TRANSMITTED_NETWORK_TRAFFIC_IN_BYTES)
+					.identifyingAttribute(
+						StaticIdentifyingAttribute
+							.builder()
+							.key(DIRECTION_ATTRIBUTE_KEY)
+							.value(TRANSMIT_ATTRIBUTE_VALUE)
+							.build()
+					)
 					.build()
 			)
 		);
 
 		map.put(
 			NetworkCard.TRANSMITTED_PACKETS.getName(),
-			Collections.singletonList(
+			List.of(
 				MetricInfo
 					.builder()
 					.name("hw.network.packets.transmit")
 					.unit(PACKETS_UNIT)
 					.type(MetricType.COUNTER)
 					.description("Total number of packets transmitted through the network interface.")
-					.build()
+					.build(),
+				MetricInfo
+						.builder()
+						.name("hw.network.packets")
+						.unit(PACKETS_UNIT)
+						.type(MetricType.COUNTER)
+						.description(RECEIVED_AND_TRANSMITTED_NETWORK_TRAFFIC_IN_PACKETS)
+						.identifyingAttribute(
+							StaticIdentifyingAttribute
+								.builder()
+								.key(DIRECTION_ATTRIBUTE_KEY)
+								.value(TRANSMIT_ATTRIBUTE_VALUE)
+								.build()
+						)
+						.build()
 			)
 		);
 
