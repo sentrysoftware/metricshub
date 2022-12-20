@@ -5,9 +5,9 @@ description: ${solutionName} ships with pre-made alert rules for Prometheus Aler
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
-If your Prometheus server is configured to send alerts to an [AlertManager](https://prometheus.io/docs/alerting/latest/alertmanager/), you will have to configure *Alert Rules* to make sure alerts are triggered whenever an hardware failure is detected. 
+If your Prometheus server is configured to send alerts to an [AlertManager](https://prometheus.io/docs/alerting/latest/alertmanager/), you will have to configure *Alert Rules* to make sure alerts are triggered whenever an hardware failure is detected.
 
-**${solutionName}** comes with the `config/hardware-sentry-rules.yaml` file that contains default alert rules for all relevant metrics.
+**${solutionName}** comes with a configuration example, `config/hws-alertmanager-rules-example.yaml`, which contains default alert rules for all relevant metrics.
 
 > Note: These alert rules should not be confused with the [internal alerts](../alerts.md) managed and triggered by **${solutionName}** as OpenTelemetry logs. The alert rules described in this page are fully managed by **Prometheus AlertManager**.
 
@@ -58,11 +58,13 @@ The table below summarizes the metrics that should be compared to their correspo
 
 ## Install
 
-Copy this file in your `Prometheus` installation folder. In the `prometheus.yaml` file, add the alerting configuration, as shown below:
+Copy the `config/hws-alertmanager-rules-example.yaml` file in your `Prometheus` installation folder and rename it `hws-alertmanager-rules.yaml`.
+
+In the `prometheus.yaml` file, add the alerting configuration, as shown below:
 
 ```yaml
 rule_files:
-  - hardware-sentry-rules.yaml
+  - hws-alertmanager-rules.yaml
 ```
 
 Restart your Prometheus server to taken the new rules into account.
