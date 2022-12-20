@@ -28,6 +28,15 @@
 		<solutionName>Hardware Sentry</solutionName>
 	</properties>
 
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>hws-agent</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+
 	<build>
 
 		<plugins>
