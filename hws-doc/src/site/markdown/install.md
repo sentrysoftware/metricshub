@@ -267,7 +267,7 @@ When complete, the **${solutionName}**'s files are deployed to the destination f
 
 ![**${solutionName}** running as a service on Windows](images/hws-win-service.png)
 
-**${solutionName}** operates using the configuration located in the **ProgramData\hws** directory. (`C:\ProgramData\hws`).
+**${solutionName}** operates using the configuration located in the **ProgramData\hws** directory (`C:\ProgramData\hws`).
 
 #### Configure
 
