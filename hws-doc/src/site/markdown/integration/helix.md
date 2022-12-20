@@ -11,10 +11,10 @@ description: How to integrate the hardware metrics collected by **${solutionName
 
 ## Prerequisites
 
-1. [Download](https://www.sentrysoftware.com/downloads/products-for-opentelemetry.html#hardware-sentry-opentelemetry-collector-1-0-00) and [install](../install.html) **${solutionName}**
+1. [Download](https://www.sentrysoftware.com/downloads/products-for-opentelemetry.html#hardware-sentry-3-0-00) and [install](../install.html) **${solutionName}**
 2. [Configure](#Configuration) the monitoring of the host(s)
 3. Verify that the metrics are stored in the Prometheus Server
-4. [Download](https://www.sentrysoftware.com/downloads/products-for-opentelemetry.html#hardware-sentry-opentelemetry-collector-2-0-00) the latest version of the ${solutionName} Dashboards for BMC Helix from the Sentry Software's Web site
+4. [Download](https://www.sentrysoftware.com/downloads/products-for-opentelemetry.html#hardware-sentry-3-0-00) the latest version of the ${solutionName} Dashboards for BMC Helix from the Sentry Software's Web site
 5. [Import](https://docs.bmc.com/docs/helixdashboards/223/sharing-and-importing-dashboards-1102359494.html?src=search) ${solutionName} dashboards into BMC Helix.
 
 ## Configuration
