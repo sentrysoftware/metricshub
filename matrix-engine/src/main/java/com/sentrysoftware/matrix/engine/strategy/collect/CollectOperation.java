@@ -83,6 +83,7 @@ import com.sentrysoftware.matrix.model.parameter.IParameter;
 import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
@@ -105,6 +106,7 @@ public class CollectOperation extends AbstractStrategy {
 	}
 
 	@Override
+	@WithSpan("CollectOperation")
 	public Boolean call() throws Exception {
 		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
 		log.debug("Hostname {} - Collect - Start collect", hostname);

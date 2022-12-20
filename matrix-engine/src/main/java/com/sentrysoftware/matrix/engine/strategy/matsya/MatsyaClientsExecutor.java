@@ -23,6 +23,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -130,10 +132,11 @@ public class MatsyaClientsExecutor {
 	 * @throws ExecutionException
 	 * @throws TimeoutException
 	 */
+	@WithSpan("SNMP Get Next")
 	public String executeSNMPGetNext(
-			@NonNull final String oid,
-			@NonNull final SnmpProtocol protocol,
-			@NonNull final String hostname,
+			@NonNull @SpanAttribute("snmp.oid") final String oid,
+			@NonNull @SpanAttribute("snmp.config") final SnmpProtocol protocol,
+			@NonNull @SpanAttribute("host.hostname") final String hostname,
 			final boolean logMode
 	) throws InterruptedException, ExecutionException, TimeoutException {
 
@@ -166,10 +169,11 @@ public class MatsyaClientsExecutor {
 	 * @throws ExecutionException
 	 * @throws TimeoutException
 	 */
+	@WithSpan("SNMP Get")
 	public String executeSNMPGet(
-			@NonNull final String oid,
-			@NonNull final SnmpProtocol protocol,
-			@NonNull final String hostname,
+			@NonNull @SpanAttribute("snmp.oid") final String oid,
+			@NonNull @SpanAttribute("snmp.config") final SnmpProtocol protocol,
+			@NonNull @SpanAttribute("host.hostname") final String hostname,
 			final boolean logMode
 	) throws InterruptedException, ExecutionException, TimeoutException {
 
@@ -202,11 +206,12 @@ public class MatsyaClientsExecutor {
 	 * @throws ExecutionException
 	 * @throws TimeoutException
 	 */
+	@WithSpan("SNMP Get Table")
 	public List<List<String>> executeSNMPTable(
-			@NonNull final String oid,
-			@NonNull String[] selectColumnArray,
-			@NonNull final SnmpProtocol protocol,
-			@NonNull final String hostname,
+			@NonNull @SpanAttribute("snmp.oid") final String oid,
+			@NonNull @SpanAttribute("snmp.columns") String[] selectColumnArray,
+			@NonNull @SpanAttribute("snmp.config") final SnmpProtocol protocol,
+			@NonNull @SpanAttribute("host.hostname") final String hostname,
 			final boolean logMode
 	) throws InterruptedException, ExecutionException, TimeoutException {
 
@@ -352,7 +357,9 @@ public class MatsyaClientsExecutor {
 	 * @return
 	 * @throws AwkException
 	 */
-	public String executeAwkScript(String embeddedFileScript, String input) throws AwkException {
+	@WithSpan("AWK")
+	public String executeAwkScript(@SpanAttribute("awk.script") String embeddedFileScript,
+								   @SpanAttribute("awk.input") String input) throws AwkException {
 
 		if (embeddedFileScript == null || input == null) {
 			return null;
@@ -534,11 +541,12 @@ public class MatsyaClientsExecutor {
 	 *
 	 * @throws MatsyaException when anything goes wrong (details in cause)
 	 */
+	@WithSpan("WBEM")
 	public List<List<String>> executeWbem(
-			@NonNull final String hostname,
-			@NonNull final WbemProtocol wbemConfig,
-			@NonNull final String query,
-			@NonNull final String namespace
+			@NonNull @SpanAttribute("host.hostname") final String hostname,
+			@NonNull @SpanAttribute("wbem.config") final WbemProtocol wbemConfig,
+			@NonNull @SpanAttribute("wbem.query") final String query,
+			@NonNull @SpanAttribute("wbem.namespace") final String namespace
 	) throws MatsyaException {
 
 		// handle vCenter case
@@ -743,11 +751,12 @@ public class MatsyaClientsExecutor {
 	 *
 	 * @throws MatsyaException when anything goes wrong (details in cause)
 	 */
+	@WithSpan("WMI")
 	public List<List<String>> executeWmi(
-			final String hostname,
-			@NonNull final WmiProtocol wmiConfig,
-			@NonNull final String wbemQuery,
-			@NonNull final String namespace
+			@SpanAttribute("host.hostname") final String hostname,
+			@SpanAttribute("wmi.config") @NonNull final WmiProtocol wmiConfig,
+			@SpanAttribute("wmi.query") @NonNull final String wbemQuery,
+			@SpanAttribute("wmi.namespace") @NonNull final String namespace
 	) throws MatsyaException {
 
 		// Where to connect to?
@@ -824,13 +833,14 @@ public class MatsyaClientsExecutor {
 	 * @return
 	 * @throws MatsyaException For any problem encountered.
 	 */
+	@WithSpan("Remote Command WMI")
 	public static String executeWmiRemoteCommand(
-			final String command,
-			final String hostname,
-			final String username,
+			@SpanAttribute("wmi.command") final String command,
+			@SpanAttribute("host.hostname") final String hostname,
+			@SpanAttribute("wmi.username") final String username,
 			final char[] password,
-			final int timeout,
-			final List<String> localFiles) throws MatsyaException {
+			@SpanAttribute("wmi.timeout") final int timeout,
+			@SpanAttribute("wmi.local_files") final List<String> localFiles) throws MatsyaException {
 		try {
 
 			trace(() -> 
@@ -914,7 +924,8 @@ public class MatsyaClientsExecutor {
 	 *
 	 * @return				The result of the execution of the given HTTP request.
 	 */
-	public String executeHttp(@NonNull HttpRequest httpRequest, boolean logMode) {
+	@WithSpan("HTTP")
+	public String executeHttp(@SpanAttribute("http.config") @NonNull HttpRequest httpRequest, boolean logMode) {
 
 		final HttpProtocol httpProtocol = httpRequest.getHttpProtocol();
 		notNull(httpProtocol, PROTOCOL_CANNOT_BE_NULL);
@@ -1120,16 +1131,21 @@ public class MatsyaClientsExecutor {
 	 * @return
 	 * @throws IOException
 	 */
+	@WithSpan("SSH")
 	public static String runRemoteSshCommand( // NOSONAR on arguments
-			@NonNull
+			@NonNull @SpanAttribute("host.hostname")
 			final String hostname,
-			@NonNull
+			@NonNull @SpanAttribute("ssh.username")
 			final String username,
-			final char[] password, 
+			final char[] password,
+			@SpanAttribute("ssh.key_file_path")
 			final File keyFilePath,
 			final String command,
+			@SpanAttribute("ssh.timeout")
 			final int timeout,
+			@SpanAttribute("ssh.local_files")
 			final List<File> localFiles,
+			@SpanAttribute("ssh.command")
 			final String noPasswordCommand) throws MatsyaException {
 
 		trace(() -> 
@@ -1350,7 +1366,9 @@ public class MatsyaClientsExecutor {
 	 * @throws ExecutionException
 	 * @throws InterruptedException
 	 */
-	public String executeIpmiDetection(String hostname, @NonNull IpmiOverLanProtocol ipmiOverLanProtocol)
+	@WithSpan("IPMI Chassis Status")
+	public String executeIpmiDetection(@SpanAttribute("host.hostname") String hostname,
+									   @SpanAttribute("ipmi.config") @NonNull IpmiOverLanProtocol ipmiOverLanProtocol)
 			throws InterruptedException, ExecutionException, TimeoutException {
 
 		trace(() -> 
@@ -1419,7 +1437,9 @@ public class MatsyaClientsExecutor {
 	 * @throws ExecutionException
 	 * @throws InterruptedException
 	 */
-	public String executeIpmiGetSensors(String hostname, @NonNull IpmiOverLanProtocol ipmiOverLanProtocol)
+	@WithSpan("IPMI Sensors")
+	public String executeIpmiGetSensors(@SpanAttribute("host.hostname") String hostname,
+										@SpanAttribute("ipmi.config") @NonNull IpmiOverLanProtocol ipmiOverLanProtocol)
 			throws InterruptedException, ExecutionException, TimeoutException {
 
 		trace(() -> 
@@ -1464,11 +1484,12 @@ public class MatsyaClientsExecutor {
 	 * @return The result of the query
 	 * @throws MatsyaException when anything goes wrong (details in cause)
 	 */
+	@WithSpan("WQL WinRM")
 	public List<List<String>> executeWqlThroughWinRm(
-			@NonNull final String hostname,
-			@NonNull final WinRmProtocol winRmProtocol,
-			@NonNull final String query,
-			@NonNull final String namespace)
+			@SpanAttribute("host.hostname") @NonNull final String hostname,
+			@SpanAttribute("wql.config") @NonNull final WinRmProtocol winRmProtocol,
+			@SpanAttribute("wql.query") @NonNull final String query,
+			@SpanAttribute("wql.namespace") @NonNull final String namespace)
 					throws MatsyaException {
 		final String username = winRmProtocol.getUsername();
 		final HttpProtocolEnum httpProtocol = TransportProtocols.HTTP.equals(winRmProtocol.getProtocol()) ?
@@ -1544,10 +1565,11 @@ public class MatsyaClientsExecutor {
 	 * @return The result of the query
 	 * @throws MatsyaException when anything goes wrong (details in cause)
 	 */
+	@WithSpan("Remote Command WinRM")
 	public static String executeRemoteWinRmCommand(
-			@NonNull final String hostname,
-			@NonNull final WinRmProtocol winRmProtocol,
-			@NonNull final String command)
+			@SpanAttribute("host.hostname") @NonNull final String hostname,
+			@SpanAttribute("winrm.config") @NonNull final WinRmProtocol winRmProtocol,
+			@SpanAttribute("winrm.command") @NonNull final String command)
 					throws MatsyaException {
 		final String username = winRmProtocol.getUsername();
 		final HttpProtocolEnum httpProtocol = TransportProtocols.HTTP.equals(winRmProtocol.getProtocol()) ?

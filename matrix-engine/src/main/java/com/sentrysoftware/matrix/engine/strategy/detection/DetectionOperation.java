@@ -52,6 +52,8 @@ import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import com.sentrysoftware.matrix.model.parameter.IParameter;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 import lombok.extern.slf4j.Slf4j;
 
 
@@ -59,6 +61,7 @@ import lombok.extern.slf4j.Slf4j;
 public class DetectionOperation extends AbstractStrategy {
 
 	@Override
+	@WithSpan("DetectionOperation")
 	public Boolean call() throws Exception {
 
 		// The configuration is wrapped in the strategyConfig bean

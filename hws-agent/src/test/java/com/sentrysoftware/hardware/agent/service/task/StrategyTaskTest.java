@@ -222,7 +222,7 @@ class StrategyTaskTest {
 
 				sdkBuilder.addLogEmitterProviderCustomizer((builder, p) -> builder
 								// Capture the logs
-								.addLogProcessor(logData -> actualLogs.add(logData))
+								.addLogProcessor(logData -> actualLogs.add(logData.toLogData()))
 				);
 
 				sdkBuilder.registerShutdownHook(false);

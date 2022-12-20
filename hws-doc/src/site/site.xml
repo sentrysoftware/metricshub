@@ -33,6 +33,7 @@
 			</item>
 			<item name="Alerts" href="alerts.html"/>
 			<item name="OpenTelemetry Advanced Settings" href="configuration/configure-otel.html" />
+			<item name="Automatic Instrumentation" href="auto-instrumentation.html" />
 		</menu>
 
 		<menu name="Integrations">

@@ -39,6 +39,7 @@ import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
 import com.sentrysoftware.matrix.engine.host.HostType;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -49,6 +50,7 @@ public class DiscoveryOperation extends AbstractStrategy {
 			Pattern.CASE_INSENSITIVE);
 
 	@Override
+	@WithSpan("DiscoveryOperation")
 	public Boolean call() throws Exception {
 
 		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();

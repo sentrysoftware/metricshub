@@ -175,6 +175,11 @@
 			<groupId>com.sentrysoftware.patrol.matsya</groupId>
 			<artifactId>module-vcenter</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>io.opentelemetry.instrumentation</groupId>
+			<artifactId>opentelemetry-instrumentation-annotations</artifactId>
+			<version>${openTelemetryAlphaVersion}</version>
+		</dependency>
 	</dependencies>
 	
 
