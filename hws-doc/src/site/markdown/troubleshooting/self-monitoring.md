@@ -132,10 +132,10 @@ A span is made of 3 main parts:
     * `Parent ID`: Unique ID of the parent span (empty for root spans).
     * `ID`: Unique ID of the span.
     * `Name`: Name of the span, typically describing the step currently tracked by the span.
-    * `Kind`: Type of the span: `SPAN_KIND_INTERNAL` (for internal operations) or `SPAN_KIND_CLIENT` (for HTTP requests).
+    * `Kind`: Type of the span, either SPAN_KIND_INTERNAL for an internal operation within Hardware Sentry or SPAN_KIND_CLIENT for [clients](https://github.com/open-telemetry/opentelemetry-java-instrumentation/blob/main/docs/supported-libraries.md#libraries--frameworks) automatically supported by the [opentelemetry-javaagent](https://github.com/open-telemetry/opentelemetry-java-instrumentation) such as [HttpUrlConnection](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/net/HttpURLConnection.html).
     * `Start time`: Timestamp marking the beginning of the span's lifecycle.
     * `End time`: Timestamp marking the end of the span's lifecycle.
     * `Status code`: Status code of the span, either `STATUS_CODE_UNSET` or `STATUS_CODE_ERROR`.
     * `Status message`: Message associated to the `Status code`.
 
-3. `Attributes`, providing additional information about the current operation being tracked by the span. Attributes are specific to each span. A span tracking an HTTP request will not have the same attributes than a span tracking an SNMP request.
+3. `Attributes`, providing additional information about the current operation being tracked by the span. Attributes are specific to each span. A span tracking an HTTP request will not have the same attributes as a span tracking an SNMP request.
