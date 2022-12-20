@@ -83,7 +83,7 @@ public class OtelCollectorConfigDto {
 
 		// Configuration path
 		commandLine.add("--config");
-		final String path = ConfigHelper.getSubPath("otel/otel-config.yaml").toString();
+		String path = ConfigHelper.getDefaultConfigFilePath("otel", "otel-config.yaml").toString();
 		commandLine.add(LocalOsHandler.isWindows() ? String.format("\"%s\"", path) : path);
 
 		// Default feature gate is enabled to normalize Prometheus metrics

@@ -32,10 +32,15 @@ When complete, the **${solutionName}**'s files are deployed in `/opt/hws` and th
 
 #### Configure
 
-There are 2 configuration files:
+You need to set up 2 configuration files in the installation directory (`/opt/hws`):
 
 * [**./otel/otel-config.yaml**](configuration/configure-otel.md): to specify where the _OpenTelemetry Collector_ should send the collected data
 * [**./config/hws-config.yaml**](configuration/configure-agent.md): to specify the hosts to monitor and their credentials
+
+There are two configuration examples in the installation directory (`/opt/hws`):
+
+* **./otel/otel-config-example.yaml**, a configuration example of the _OpenTelemetry Collector_.
+* **./config/hws-config-example.yaml**, a configuration example of the **Hardware Sentry Agent**.
 
 Before starting **${solutionName}**, make sure to configure [**./otel/otel-config.yaml**](configuration/configure-otel.md), since a restart of the _Collector_ is required to take into account its changes.
 
@@ -56,14 +61,14 @@ You can start **${solutionName}** in an interactive terminal with an alternate *
 
 ```shell-session
 / $ cd /opt/hws/bin
-/opt/hws/bin $ agent --config=<PATH>
+/opt/hws/bin $ ./agent --config=<PATH>
 ```
 
 Example:
 
 ```shell-session
 / $ cd /opt/hws/bin
-/opt/hws/bin $ agent --config=config/my-hws-config.yaml
+/opt/hws/bin $ ./agent --config=config/my-hws-config.yaml
 ```
 
 #### Stop
@@ -108,10 +113,15 @@ Then, build the docker image using the following command:
 
 #### Configure
 
-There are 2 configuration files:
+You need to set up 2 configuration files in the docker image directory (`hws`):
 
 * [**./lib/otel/otel-config.yaml**](configuration/configure-otel.md): to specify where the _OpenTelemetry Collector_ should send the collected data
 * [**./lib/config/hws-config.yaml**](configuration/configure-agent.md): to specify the hosts to monitor and their credentials
+
+There are two configuration examples in the docker image directory (`hws`):
+
+* **./otel/otel-config-example.yaml**, a configuration example of the _OpenTelemetry Collector_.
+* **./config/hws-config-example.yaml**, a configuration example of the **Hardware Sentry Agent**.
 
 Before starting **${solutionName}**, make sure to configure [**./lib/otel/otel-config.yaml**](configuration/configure-otel.md), since a restart of the _Collector_ is required to take into account its changes.
 
@@ -186,10 +196,15 @@ When complete, the **${solutionName}**'s files are deployed in `/opt/hws` and th
 
 #### Configure
 
-There are 2 configuration files:
+You need to set up 2 configuration files in the installation directory (`/opt/hws`):
 
 * [**./otel/otel-config.yaml**](configuration/configure-otel.md): to specify where the _OpenTelemetry Collector_ should send the collected data
 * [**./config/hws-config.yaml**](configuration/configure-agent.md): to specify the hosts to monitor and their credentials
+
+There are two configuration examples in the installation directory (`/opt/hws`):
+
+* **./otel/otel-config-example.yaml**, a configuration example of the _OpenTelemetry Collector_.
+* **./config/hws-config-example.yaml**, a configuration example of the **Hardware Sentry Agent**.
 
 Before starting **${solutionName}**, make sure to configure [**./otel/otel-config.yaml**](configuration/configure-otel.md), since a restart of the _Collector_ is required to take into account its changes.
 
@@ -210,14 +225,14 @@ You can start **${solutionName}** in an interactive terminal with an alternate *
 
 ```shell-session
 / $ cd /opt/hws/bin
-/opt/hws/bin $ agent --config=<PATH>
+/opt/hws/bin $ ./agent --config=<PATH>
 ```
 
 Example:
 
 ```shell-session
 / $ cd /opt/hws/bin
-/opt/hws/bin $ agent --config=config/my-hws-config.yaml
+/opt/hws/bin $ ./agent --config=config/my-hws-config.yaml
 ```
 
 #### Stop
@@ -252,14 +267,16 @@ When complete, the **${solutionName}**'s files are deployed to the destination f
 
 ![**${solutionName}** running as a service on Windows](images/hws-win-service.png)
 
+**${solutionName}** operates using the configuration located in the **ProgramData\hws** directory (`C:\ProgramData\hws`).
+
 #### Configure
 
-There are 2 configuration files:
+You need to set up 2 configuration files in the **ProgramData\hws** directory (`C:\ProgramData\hws`):
 
-* [**./otel/otel-config.yaml**](configuration/configure-otel.md): to specify where the _OpenTelemetry Collector_ should send the collected data
-* [**./config/hws-config.yaml**](configuration/configure-agent.md): to specify the hosts to monitor and their credentials
+* [**./otel/otel-config.yaml**](configuration/configure-otel.md): to specify where the _OpenTelemetry Collector_ should send the collected data.
+* [**./config/hws-config.yaml**](configuration/configure-agent.md): to specify the hosts to monitor and their credentials.
 
-and two configuration examples:
+There are two configuration examples in the installation directory (`C:\Program Files\hws`):
 
 * **./otel/otel-config-example.yaml**, a configuration example of the _OpenTelemetry Collector_.
 * **./config/hws-config-example.yaml**, a configuration example of the **Hardware Sentry Agent**.
@@ -281,7 +298,7 @@ You can start **${solutionName}** in an interactive terminal (using **CMD.EXE** 
 c:
 cd "Program Files"
 cd hws
-agent --config="c:\Program Files\hws\config\my-hws-config.yaml"
+agent --config="c:\ProgramData\hws\config\my-hws-config.yaml"
 ```
 
 #### Uninstall
@@ -290,14 +307,12 @@ To uninstall **${solutionName}**, double-click the **hws-windows-${project.versi
 
 ## Upgrade
 
-> **Warning**: It is highly recommended to make a backup copy of the `hws-keystore.p12` file stored in `hws/security` if you previously encrypted your passwords as specified in [Encrypting Passwords](security/passwords.md).
-
-If you are upgrading from v2.0.00, perform the actions below before installing **Hardware Sentry** v3.0.00:
+If you are upgrading from v2.0.00, perform the actions below before installing **Hardware Sentry** v${project.version}:
 
 **On Windows**:
 
-* If you installed the version 2.0.00 as a Windows service, stop and remove the service before installing **Hardware Sentry** v3.0.00
-* If you are running the collector in an interactive terminal, stop the collector process (`hws-otel-collector.exe`) before installing **Hardware Sentry** v3.0.00.
+* If you installed the version 2.0.00 as a Windows service, stop and remove the service before installing **Hardware Sentry** v${project.version}.
+* If you are running the collector in an interactive terminal, stop the collector process (`hws-otel-collector.exe`) before installing **Hardware Sentry** v${project.version}.
 
 **On Linux**, stop the `hws-otel-collector`.
 
