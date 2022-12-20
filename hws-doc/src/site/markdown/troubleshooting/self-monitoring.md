@@ -16,13 +16,13 @@ They describe the internal "path" that the **${solutionName}** application takes
 **Self-Monitoring** generates a variety of **traces** and tracks every protocol request such as:
 
 * HTTP
+* IPMI
+* OS Command
 * SNMP
 * SSH
-* OS Command
-* IPMI
-* WMI
 * WBEM
 * WinRM
+* WMI 
 
 The **metrics** range from the number of requests sent for each protocol to the latency measured for each request.
 
@@ -36,11 +36,11 @@ All the JVM metrics have the same attributes:
 | otel.process.runtime.jvm.classes.current_loaded | Number of classes currently loaded by the JVM process         | Gauge   |      |
 | otel.process.runtime.jvm.classes.unloaded       | Number of classes unloaded by the JVM process since its start | Counter |      |
 | otel.process.runtime.jvm.classes.loaded         | Number loaded classes by the JVM process since its start      | Counter |      |
-| otel.process.runtime.jvm.threads.count          | JVM process' number of executing threads                      | Gauge   |      |
-| otel.process.runtime.jvm.memory.committed       | JVM process' memory committed                                 | Gauge   | By   |
+| otel.process.runtime.jvm.threads.count          | JVM process's number of executing threads                      | Gauge   |      |
+| otel.process.runtime.jvm.memory.committed       | JVM process's memory committed                                 | Gauge   | By   |
 | otel.process.runtime.jvm.memory.init            | JVM process's initial memory requested                        | Gauge   | By   |
-| otel.process.runtime.jvm.memory.limit           | JVM process' memory size limit                                | Gauge   | By   |
-| otel.process.runtime.jvm.memory.usage           | JVM process' memory usage                                     | Gauge   | By   |
+| otel.process.runtime.jvm.memory.limit           | JVM process's memory size limit                                | Gauge   | By   |
+| otel.process.runtime.jvm.memory.usage           | JVM process's memory usage                                     | Gauge   | By   |
 
 
 ## Self-monitoring the agent
@@ -49,7 +49,7 @@ The **Self-Monitoring** feature is **disabled by default**. Follow the steps bel
 
 ### Enable OpenTelemetry traces
 
-In order to export the traces to the observability back-end, comment out the traces pipeline inside the `otel/otel-config.yaml` file and configure the exporter which should send the traces.
+In order to export the traces to the observability back-end, comment out the traces pipeline inside the `otel/otel-config.yaml` file and configure the exporter.
 
 ```yaml
 traces:  
@@ -60,7 +60,7 @@ traces:
 
 ### Configure Java Options
 
-Now that the traces pipeline is configured, you need to add Java options to properly link the OpenTelemetry Java Agent to the **Hardware Sentry Agent** and configure the service and the exporter.
+Now that the traces pipeline is configured, you need to add Java options to properly link the **OpenTelemetry Java Agent** to the **Hardware Sentry Agent** and configure the service and the exporter.
 
 >**Warning**: you must change the `service.name` property if you are using multiple **Hardware Sentry Agents**, so each service has a unique identifier. Otherwise, the observability back-end will aggregate the services together, resulting in issues regarding latency and information loss.
 
@@ -70,7 +70,7 @@ Add the following options to the `agent.cfg` file located in `C:\Program Files\h
 
 ```java
 java-options=-javaagent:otel\opentelemetry-javaagent.jar
-java-options=-Dotel.resource.attributes=service.name=Hardware-Sentry-Agent
+java-options=-Dotel.resource.attributes=service.namespace=SentrySoftware.hws,service.name=Hardware-Sentry-Agent
 java-options=-Dotel.traces.exporter=otlp
 java-options=-Dotel.metrics.exporter=otlp
 java-options=-Dotel.exporter.otlp.endpoint=https://localhost:4317
@@ -84,7 +84,7 @@ Add the following options to the `agent.cfg` file located in `/opt/hws/lib/app`.
 
 ```java
 java-options=-javaagent:/opt/hws/otel/opentelemetry-javaagent.jar
-java-options=-Dotel.resource.attributes=service.name=Hardware-Sentry-Agent
+java-options=-Dotel.resource.attributes=service.namespace=SentrySoftware.hws,service.name=Hardware-Sentry-Agent
 java-options=-Dotel.traces.exporter=otlp
 java-options=-Dotel.metrics.exporter=otlp
 java-options=-Dotel.exporter.otlp.endpoint=https://localhost:4317
@@ -129,13 +129,13 @@ A span is made of 3 main parts:
 2. `Span #n2`, n2 being the current span number inside this scope of spans.
    There are common attributes to every span:
     * `Trace ID`: Unique ID of the trace.
-    * `Parent ID`: To keep track of the hierarchy between the spans.
+    * `Parent ID`: Unique ID of the parent span (empty for root spans).
     * `ID`: Unique ID of the span.
-    * `Name`: Name of the span, usually describes the step that is tracked by the span.
-    * `Kind`: Type of the span, either `SPAN_KIND_INTERNAL` or `SPAN_KIND_CLIENT` (for HTTP requests).
-    * `Start time`: Timestamp of the start of the lifecycle of the span.
-    * `End time`: Timestamp of the end of the lifecycle of the span.
+    * `Name`: Name of the span, typically describing the step currently tracked by the span.
+    * `Kind`: Type of the span: `SPAN_KIND_INTERNAL` (for internal operations) or `SPAN_KIND_CLIENT` (for HTTP requests).
+    * `Start time`: Timestamp marking the beginning of the span's lifecycle.
+    * `End time`: Timestamp marking the end of the span's lifecycle.
     * `Status code`: Status code of the span, either `STATUS_CODE_UNSET` or `STATUS_CODE_ERROR`.
     * `Status message`: Message associated to the `Status code`.
 
-3. `Attributes`, that represent the various parameters that are used where the span is created in the code. These attributes are specific to each span. For example, a span that tracks an HTTP request will not have the same attributes than a span that tracks an SNMP request.
+3. `Attributes`, providing additional information about the current operation being tracked by the span. Attributes are specific to each span. A span tracking an HTTP request will not have the same attributes than a span tracking an SNMP request.
