@@ -97,29 +97,30 @@ java-options=-Dotel.exporter.otlp.headers=Authorization=Basic aHdzOlNlbnRyeVNvZn
 The traces are made of spans that describe the current state of **${solutionName}**. Every time a request is sent, a span is created. This is what a span looks like:
 
 ```log
- ScopeSpans #0
+ScopeSpans #0
  ScopeSpans SchemaURL: 
- InstrumentationScope io.opentelemetry.okhttp-3.0 1.18.0-alpha
+ InstrumentationScope io.opentelemetry.okhttp-3.0 1.21.0-alpha
  Span #0
-     Trace ID       : 0990c796d9cd3944aae417e191e8a65b
-     Parent ID      : 5051d56bbe729bbe
-     ID             : 9883e54ca96403d8
+     Trace ID       : 1aff7feca80d8ad289fdac5a0e084912
+     Parent ID      : 8921469e0196781e
+     ID             : 7f4482078c119a15
      Name           : HTTP POST
-     Kind           : SPAN_KIND_CLIENT
-     Start time     : 2022-11-03 08:39:34.2384308 +0000 UTC
-     End time       : 2022-11-03 08:39:34.7447889 +0000 UTC
-     Status code    : STATUS_CODE_UNSET
+     Kind           : Client
+     Start time     : 2022-12-21 11:38:30.9002252 +0000 UTC
+     End time       : 2022-12-21 11:38:31.1696872 +0000 UTC
+     Status code    : Unset
      Status message : 
  Attributes:
-      -> thread.id: INT(33)
-      -> net.transport: STRING(ip_tcp)
-      -> net.peer.name: STRING(localhost)
-      -> http.flavor: STRING(2.0)
-      -> http.url: STRING(https://localhost:4317/opentelemetry.proto.collector.metrics.v1.MetricsService/Export)
-      -> net.peer.port: INT(4317)
-      -> http.method: STRING(POST)
-      -> http.status_code: INT(200)
-      -> thread.name: STRING(OkHttp https://localhost:4317/...)
+      -> thread.id: Int(33)
+      -> http.url: Str(https://localhost:4317/opentelemetry.proto.collector.metrics.v1.MetricsService/Export)
+      -> http.method: Str(POST)
+      -> thread.name: Str(OkHttp https://localhost:4317/...)
+      -> net.peer.name: Str(localhost)
+      -> net.transport: Str(ip_tcp)
+      -> net.peer.port: Int(4317)
+      -> http.user_agent: Str(OTel OTLP Exporter Java/1.21.0)
+      -> http.flavor: Str(2.0)
+      -> http.status_code: Int(200)
 ```
 
 A span is made of 3 main parts:
@@ -132,10 +133,10 @@ A span is made of 3 main parts:
     * `Parent ID`: Unique ID of the parent span (empty for root spans).
     * `ID`: Unique ID of the span.
     * `Name`: Name of the span, typically describing the step currently tracked by the span.
-    * `Kind`: Type of the span, either SPAN_KIND_INTERNAL for an internal operation within Hardware Sentry or SPAN_KIND_CLIENT for [clients](https://github.com/open-telemetry/opentelemetry-java-instrumentation/blob/main/docs/supported-libraries.md#libraries--frameworks) automatically supported by the [opentelemetry-javaagent](https://github.com/open-telemetry/opentelemetry-java-instrumentation) such as [HttpUrlConnection](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/net/HttpURLConnection.html).
+    * `Kind`: Type of the span, either `Internal` for an internal operation within Hardware Sentry or `Client` for [clients](https://github.com/open-telemetry/opentelemetry-java-instrumentation/blob/main/docs/supported-libraries.md#libraries--frameworks) automatically supported by the [opentelemetry-javaagent](https://github.com/open-telemetry/opentelemetry-java-instrumentation) such as [HttpUrlConnection](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/net/HttpURLConnection.html).
     * `Start time`: Timestamp marking the beginning of the span's lifecycle.
     * `End time`: Timestamp marking the end of the span's lifecycle.
-    * `Status code`: Status code of the span, either `STATUS_CODE_UNSET` or `STATUS_CODE_ERROR`.
+    * `Status code`: Status code of the span, either `Unset` or `Error`.
     * `Status message`: Message associated to the `Status code`.
 
 3. `Attributes`, providing additional information about the current operation being tracked by the span. Attributes are specific to each span. A span tracking an HTTP request will not have the same attributes as a span tracking an SNMP request.

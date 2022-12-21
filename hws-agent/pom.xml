@@ -20,7 +20,7 @@
 	<properties>
 		<log4j2.version>2.18.0</log4j2.version>
 		<!-- OpenTelemetry Javaagent location -->
-		<otelJavaAgentUrl>https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar</otelJavaAgentUrl>
+		<otelJavaAgentUrl>https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v${openTelemetryVersion}/opentelemetry-javaagent.jar</otelJavaAgentUrl>
 	</properties>
 
 	<dependencies>
