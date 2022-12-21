@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>com.sentrysoftware.hardware.matrix</groupId>
 		<artifactId>matrix</artifactId>
-		<version>3.0.00-SNAPSHOT</version>
+		<version>3.0.00</version>
 	</parent>
 	<artifactId>hws-windows</artifactId>
 	<packaging>pom</packaging>
