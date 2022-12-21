@@ -108,13 +108,13 @@ Finally look for any connection issues or authentication failures to the configu
 
 You can enable the `logging` exporter in the **otel/otel-config.yaml** file to check which metrics, labels, and values are sent by the _Collector_ to the observability platforms and verify that the configured processors did not alter the collected data.
 
-First, list the `logging` exporter under the `exporters` section and set `loglevel` to `debug`:
+First, list the `logging` exporter under the `exporters` section and set `verbosity` to `detailed`:
 
 ```yaml
 exporters:
 # [...]
   logging:
-    loglevel: debug
+    verbosity: detailed
 ```
 
 Then, declare the `logging` exporter in the pipeline:

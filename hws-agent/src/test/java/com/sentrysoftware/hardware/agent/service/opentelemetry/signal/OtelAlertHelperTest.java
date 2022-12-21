@@ -389,13 +389,13 @@ public class OtelAlertHelperTest {
 		final AlertInfo alertInfo = AlertInfo.builder().alertRule(alertRule).build();
 
 		alertRule.setSeverity(Severity.ALARM);
-		assertEquals(io.opentelemetry.sdk.logs.data.Severity.ERROR, OtelAlertHelper.convertToOtelSeverity(alertInfo));
+		assertEquals(io.opentelemetry.api.logs.Severity.ERROR, OtelAlertHelper.convertToOtelSeverity(alertInfo));
 
 		alertRule.setSeverity(Severity.WARN);
-		assertEquals(io.opentelemetry.sdk.logs.data.Severity.WARN, OtelAlertHelper.convertToOtelSeverity(alertInfo));
+		assertEquals(io.opentelemetry.api.logs.Severity.WARN, OtelAlertHelper.convertToOtelSeverity(alertInfo));
 
 		alertRule.setSeverity(Severity.INFO);
-		assertEquals(io.opentelemetry.sdk.logs.data.Severity.INFO, OtelAlertHelper.convertToOtelSeverity(alertInfo));
+		assertEquals(io.opentelemetry.api.logs.Severity.INFO, OtelAlertHelper.convertToOtelSeverity(alertInfo));
 
 		assertThrows(IllegalArgumentException.class, () -> OtelAlertHelper.convertToOtelSeverity(null));
 	}

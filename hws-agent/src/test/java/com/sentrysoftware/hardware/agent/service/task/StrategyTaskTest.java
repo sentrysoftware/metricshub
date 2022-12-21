@@ -50,7 +50,7 @@ import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 import com.sentrysoftware.matrix.engine.host.HardwareHost;
 import com.sentrysoftware.matrix.engine.host.HostType;
 import io.opentelemetry.sdk.autoconfigure.AutoConfiguredOpenTelemetrySdk;
-import io.opentelemetry.sdk.logs.data.LogData;
+import io.opentelemetry.sdk.logs.data.LogRecordData;
 import io.opentelemetry.sdk.resources.Resource;
 import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
 
@@ -185,7 +185,7 @@ class StrategyTaskTest {
 	@Test
 	void testTriggerAlertAsOtelLog() {
 
-		final List<LogData> actualLogs = triggerAlertAsOtelLog(false);
+		final List<LogRecordData> actualLogs = triggerAlertAsOtelLog(false);
 		assertEquals("Hardware problem on localhost with SAS Flash Module - CH0.BAY9.",
 				actualLogs.stream().findFirst().orElseThrow().getBody().asString());
 
@@ -201,8 +201,8 @@ class StrategyTaskTest {
 	 * @param disableAlerting whether the alerting is disabled or not
 	 * @return List of captured {@link LogData}
 	 */
-	List<LogData> triggerAlertAsOtelLog(final boolean disableAlerting) {
-		final List<LogData> actualLogs = new ArrayList<>();
+	List<LogRecordData> triggerAlertAsOtelLog(final boolean disableAlerting) {
+		final List<LogRecordData> actualLogs = new ArrayList<>();
 
 		try (MockedStatic<OtelHelper> otelHelper = mockStatic(OtelHelper.class)) {
 
@@ -220,9 +220,9 @@ class StrategyTaskTest {
 								.setResource(answer.getArgument(0))
 				);
 
-				sdkBuilder.addLogEmitterProviderCustomizer((builder, p) -> builder
+				sdkBuilder.addLoggerProviderCustomizer((builder, p) -> builder
 								// Capture the logs
-								.addLogProcessor(logData -> actualLogs.add(logData.toLogData()))
+								.addLogRecordProcessor((context, logRecord) -> actualLogs.add(logRecord.toLogRecordData()))
 				);
 
 				sdkBuilder.registerShutdownHook(false);
