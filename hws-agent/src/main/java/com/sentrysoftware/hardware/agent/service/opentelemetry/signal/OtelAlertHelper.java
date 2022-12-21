@@ -610,20 +610,20 @@ public class OtelAlertHelper {
 	 * @param alertInfo Matrix alert information
 	 * @return OpenTelemetry Severity
 	 */
-	public static io.opentelemetry.sdk.logs.data.Severity convertToOtelSeverity(@NonNull final AlertInfo alertInfo) {
+	public static io.opentelemetry.api.logs.Severity convertToOtelSeverity(@NonNull final AlertInfo alertInfo) {
 
 		Assert.notNull(alertInfo.getAlertRule(), "The alert information must include the alert rule to be triggered.");
 		Assert.notNull(alertInfo.getAlertRule().getSeverity(), "The alert information must include the alert rule and its severity.");
 
 		switch (alertInfo.getAlertRule().getSeverity()) {
 		case INFO:
-			return io.opentelemetry.sdk.logs.data.Severity.INFO;
+			return io.opentelemetry.api.logs.Severity.INFO;
 		case WARN:
-			return io.opentelemetry.sdk.logs.data.Severity.WARN;
+			return io.opentelemetry.api.logs.Severity.WARN;
 		case ALARM:
 		default:
 			// There is no ALARM code on the OpenTeleemtry log severity. Let's map our ALARM to their ERROR Severity
-			return io.opentelemetry.sdk.logs.data.Severity.ERROR;
+			return io.opentelemetry.api.logs.Severity.ERROR;
 		}
 	}
 

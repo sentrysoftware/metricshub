@@ -138,7 +138,7 @@ exporters:
   # logging
   # https://github.com/open-telemetry/opentelemetry-collector/tree/main/exporter/loggingexporter
   logging:
-    loglevel: debug
+    verbosity: detailed
 
   # Splunk SignalFx
   # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/signalfxexporter

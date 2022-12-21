@@ -22,10 +22,10 @@ import com.sentrysoftware.matrix.model.alert.AlertInfo;
 import com.sentrysoftware.matrix.model.monitor.Monitor;
 import com.sentrysoftware.matrix.model.monitoring.IHostMonitoring;
 
+import io.opentelemetry.api.logs.Logger;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.sdk.autoconfigure.AutoConfiguredOpenTelemetrySdk;
-import io.opentelemetry.sdk.logs.LogEmitter;
-import io.opentelemetry.sdk.logs.data.Severity;
+import io.opentelemetry.api.logs.Severity;
 import io.opentelemetry.sdk.resources.Resource;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -48,7 +48,7 @@ public class StrategyTask implements Runnable {
 
 	private Set<String> otelInitializedMonitors = new HashSet<>();
 
-	private LogEmitter logEmitter;
+	private Logger otelLogger;
 
 	@Override
 	public void run() {
@@ -87,7 +87,7 @@ public class StrategyTask implements Runnable {
 		autoConfiguredOpenTelemetrySdk.getOpenTelemetrySdk().getSdkMeterProvider().forceFlush();
 
 		// Request the active log processor to process all logs that have not yet been processed
-		autoConfiguredOpenTelemetrySdk.getOpenTelemetrySdk().getSdkLogEmitterProvider().forceFlush();
+		autoConfiguredOpenTelemetrySdk.getOpenTelemetrySdk().getSdkLoggerProvider().forceFlush();
 
 		// Increment the number of collects
 		numberOfCollects++;
@@ -116,7 +116,7 @@ public class StrategyTask implements Runnable {
 		final Severity severity = OtelAlertHelper.convertToOtelSeverity(alertInfo);
 
 		// Emit the log to OpenTelemetry Collector
-		logEmitter
+		otelLogger
 			.logRecordBuilder()
 			.setBody(message)
 			.setSeverity(severity)
@@ -154,7 +154,7 @@ public class StrategyTask implements Runnable {
 			autoConfiguredOpenTelemetrySdk = OtelHelper.initOpenTelemetrySdk(resource, otelSdkConfiguration);
 
 			// Instantiate the LogEmitter
-			logEmitter = autoConfiguredOpenTelemetrySdk.getOpenTelemetrySdk().getSdkLogEmitterProvider()
+			otelLogger = autoConfiguredOpenTelemetrySdk.getOpenTelemetrySdk().getSdkLoggerProvider()
 					.get(hostConfigurationDto.getHost().getId());
 		}
 
