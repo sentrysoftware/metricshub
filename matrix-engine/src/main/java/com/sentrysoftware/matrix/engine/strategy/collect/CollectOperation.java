@@ -20,10 +20,12 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_SP
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.LINK_STATUS_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MAXIMUM_SPEED;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.MODEL;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_CONSUMPTION_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_METER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SHARE_PARAMETER;
+import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SHARE_PERCENT_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SOURCE_ID;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_STATE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PRESENT_PARAMETER;
@@ -31,15 +33,13 @@ import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.SPEED_M
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TEMPERATURE_PARAMETER_UNIT;
 import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TOTAL_BANDWIDTH_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.POWER_SHARE_PERCENT_PARAMETER;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.PERCENT_PARAMETER_UNIT;
-
 import static org.springframework.util.Assert.state;
 
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -56,6 +56,7 @@ import java.util.stream.Stream;
 import com.sentrysoftware.matrix.common.helpers.ArrayHelper;
 import com.sentrysoftware.matrix.common.helpers.HardwareConstants;
 import com.sentrysoftware.matrix.common.helpers.NumberHelper;
+import com.sentrysoftware.matrix.common.helpers.StringHelper;
 import com.sentrysoftware.matrix.common.meta.monitor.Enclosure;
 import com.sentrysoftware.matrix.common.meta.monitor.Temperature;
 import com.sentrysoftware.matrix.common.meta.parameter.state.IState;
@@ -84,6 +85,9 @@ import com.sentrysoftware.matrix.model.parameter.NumberParam;
 import com.sentrysoftware.matrix.model.parameter.TextParam;
 
 import io.opentelemetry.instrumentation.annotations.WithSpan;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
@@ -752,21 +756,45 @@ public class CollectOperation extends AbstractStrategy {
 	}
 
 	/**
-	 * @param metadata		The {@link Monitor}'s metadata.
-	 * @param temperature	The {@link Temperature} parameter.
+	 * @param monitor The temperature {@link Monitor} instance.
 	 *
-	 * @return				The difference between the {@link Monitor}'s temperature threshold
-	 * 						and the given {@link Temperature}'s value.
+	 * @return An new instance of {@link HeatingMarginMonitorInfo} which wraps:<br>
+	 * <ul>
+	 *   <li>Heating margin: the difference between the {@link Monitor}'s temperature threshold and the temperature reading.</li>
+	 *   <li>Temperature: the {@link Monitor}'s temperature reading.</li>
+	 *   <li>Warning threshold: the {@link Monitor}'s temperature threshold.</li>
+	 *   <li>Monitor: the temperature {@link Monitor} instance.</li>
+	 * </ul>
 	 */
-	private Double computeTemperatureHeatingMargin(Map<String, String> metadata, NumberParam temperature) {
+	private HeatingMarginMonitorInfo computeTemperatureHeatingMargin(final Monitor monitor) {
 
-		final Double warningThresholdValue = getTemperatureWarningThreshold(metadata);
+		final NumberParam temperature = monitor.getParameter(TEMPERATURE_PARAMETER, NumberParam.class);
+		final Double warningThresholdValue = getTemperatureWarningThreshold(monitor.getMetadata());
 
 		final Double temperatureValue = temperature.getValue();
 
-		return (temperatureValue != null && warningThresholdValue != null)
-			? Math.max(warningThresholdValue - temperatureValue, 0.0)
+		return (temperatureValue != null && warningThresholdValue != null) ?
+			HeatingMarginMonitorInfo
+				.builder()
+				.monitor(monitor)
+				.temperature(temperatureValue)
+				.warningThreshold(warningThresholdValue)
+				.heatingMargin(Math.max(warningThresholdValue - temperatureValue, 0.0))
+				.build()
 			: null;
+	}
+
+	/**
+	 * Wraps the heating margin monitor information
+	 */
+	@Data
+	@Builder
+	@AllArgsConstructor
+	private static class HeatingMarginMonitorInfo {
+		private Monitor monitor;
+		private double warningThreshold;
+		private double heatingMargin;
+		private double temperature;
 	}
 
 	/**
@@ -774,46 +802,96 @@ public class CollectOperation extends AbstractStrategy {
 	 */
 	private void computeHostHeatingMargin() {
 
-		IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
+		final String hostname = strategyConfig.getEngineConfiguration().getHost().getHostname();
+
+		final IHostMonitoring hostMonitoring = strategyConfig.getHostMonitoring();
 		state(hostMonitoring != null, "hostMonitoring should not be null.");
 
 		// Getting the host monitor
-		Monitor hostMonitor = getHostMonitor(hostMonitoring);
+		final Monitor hostMonitor = getHostMonitor(hostMonitoring);
 
 		// Getting the temperature monitors
-		Map<String, Monitor> temperatureMonitors = hostMonitoring.selectFromType(MonitorType.TEMPERATURE);
+		final Map<String, Monitor> temperatureMonitors = hostMonitoring.selectFromType(MonitorType.TEMPERATURE);
 		if (temperatureMonitors == null || temperatureMonitors.isEmpty()) {
+			log.info("Hostname {} - Cannot collect the host's heating margin. No temperature sensor found.", hostname);
 			return;
 		}
 
 		// Getting the minimum heating margin among all the temperatures' heating margin values
-		Double minimumHeatingMargin = temperatureMonitors
+		final HeatingMarginMonitorInfo heatingMarginMonitorInfo = temperatureMonitors
 			.values()
 			.stream()
 			.filter(hostMonitoring::isConnectorStatusOk)
 			.filter(monitor -> monitor.isParameterUpdated(TEMPERATURE_PARAMETER))
-			.map(monitor -> computeTemperatureHeatingMargin(monitor.getMetadata(),
-				monitor.getParameter(TEMPERATURE_PARAMETER, NumberParam.class)))
+			.map(this::computeTemperatureHeatingMargin)
 			.filter(Objects::nonNull)
-			.reduce(Double::min)
+			.min(Comparator.comparing(HeatingMarginMonitorInfo::getHeatingMargin))
 			.orElse(null);
 
-		if (minimumHeatingMargin == null) {
+		if (heatingMarginMonitorInfo == null) {
+			log.info(
+				"Hostname {} - Cannot collect the host's heating margin. Temperature sensor values and/or their thresholds are not available.",
+				hostname
+			);
 			return;
 		}
 
+		
+
+		// Log monitor information
+		if (log.isInfoEnabled()) {
+
+			final Runnable runnable = () -> {
+
+				final Monitor monitor = heatingMarginMonitorInfo.getMonitor();
+
+				log.info(
+					"Hostname {} - The following temperature sensor information is used to compute the host's heating margin:"
+						+ "\n- Sensor name: {}"
+						+ "\n- Sensor id: {}"
+						+ "\n- Heating margin: {} {}"
+						+ "\n- Temperature reading: {} {}"
+						+ "\n- Warning threshold: {} {}"
+						+ "\n- Sensor metadata:\n{}",
+					hostname,
+					monitor.getName(),
+					monitor.getId(),
+					heatingMarginMonitorInfo.getHeatingMargin(),
+					HEATING_MARGIN_PARAMETER_UNIT,
+					heatingMarginMonitorInfo.getTemperature(),
+					HEATING_MARGIN_PARAMETER_UNIT,
+					heatingMarginMonitorInfo.getWarningThreshold(),
+					HEATING_MARGIN_PARAMETER_UNIT,
+					StringHelper.getValue(
+						() -> 
+							monitor
+								.getMetadata()
+								.entrySet()
+								.stream()
+								.map(entry -> String.format(" - %s: %s", entry.getKey(), entry.getValue()))
+								.sorted()
+								.collect(Collectors.joining("\n")),
+						HardwareConstants.EMPTY
+					)
+				);
+			};
+
+			runnable.run();
+
+		}
+
 		// Building the parameter
-		NumberParam hostHeatingMargin = NumberParam
+		final NumberParam hostHeatingMarginParam = NumberParam
 			.builder()
 			.name(HEATING_MARGIN_PARAMETER)
 			.unit(HEATING_MARGIN_PARAMETER_UNIT)
 			.collectTime(strategyTime)
-			.value(minimumHeatingMargin)
-			.rawValue(minimumHeatingMargin)
+			.value(heatingMarginMonitorInfo.getHeatingMargin())
+			.rawValue(heatingMarginMonitorInfo.getHeatingMargin())
 			.build();
 
 		// Adding the parameter to the host monitor
-		hostMonitor.collectParameter(hostHeatingMargin);
+		hostMonitor.collectParameter(hostHeatingMarginParam);
 	}
 
 	@Override
