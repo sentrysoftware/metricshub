@@ -12,7 +12,7 @@
 
 	<groupId>com.sentrysoftware.hardware.matrix</groupId>
 	<artifactId>matrix</artifactId>
-	<version>3.0.00-SNAPSHOT</version>
+	<version>3.1.00-SNAPSHOT</version>
 
 	<packaging>pom</packaging>
 
