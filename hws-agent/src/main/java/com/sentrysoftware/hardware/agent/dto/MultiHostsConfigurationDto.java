@@ -54,7 +54,7 @@ public class MultiHostsConfigurationDto {
 	private boolean exportTimestamps;
 
 	@Default
-	private String loggerLevel = "OFF";
+	private String loggerLevel = "error";
 
 	@Default
 	private String outputDirectory = DEFAULT_OUTPUT_DIRECTORY.toString();

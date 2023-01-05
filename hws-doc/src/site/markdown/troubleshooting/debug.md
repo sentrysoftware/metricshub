@@ -45,6 +45,8 @@ hosts:
 
 Set `loggerlevel` to `off` to disable the debug mode.
 
+> **Note**: To ensure that any configuration mistakes made during a recent deployment are easily identifiable, the **Hardware Sentry Agent** activates its internal logging system at the `error` level by default, providing quick and easy analysis of any issues that arise in production.
+
 ## OpenTelemetry Collector
 
 To get more details about the **${solutionName}** operations (initialization, pipeline, termination), first set the log `level` to `error`, `warn`, or `debug` in the **otel/otel-config.yaml** file:
