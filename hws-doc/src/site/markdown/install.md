@@ -57,7 +57,7 @@ This will start **${solutionName}** with:
 * The default **Hardware Sentry Agent** configuration file: **./config/hws-config.yaml**.
 * The default _OpenTelemetry Collector_ configuration file: **./otel/otel-config.yaml**.
 
-You can start **${solutionName}** in an interactive terminal with an alternate **Hardware Sentry Agent**'s configuration file with the command below:
+<p id="debian">You can start <strong>${solutionName}</strong> in an interactive terminal with an alternate <strong>Hardware Sentry Agent</strong>'s configuration file with the command below:</p>
 
 ```shell-session
 / $ cd /opt/hws/bin
@@ -139,7 +139,7 @@ This will start **${solutionName}** with:
 * The default **Hardware Sentry Agent** configuration file: **./lib/config/hws-config.yaml**.
 * The default _OpenTelemetry Collector_ configuration file: **./lib/otel/otel-config.yaml**.
 
-You can start **${solutionName}** with an alternate configuration file path with the command below:
+<p id="docker">You can start <strong>${solutionName}</strong> with an alternate configuration file path with the command below:</p>
 
 ```shell-session
 / $ cd /docker/hws
@@ -221,7 +221,7 @@ This will start **${solutionName}** with:
 * The default **Hardware Sentry Agent** configuration file: **./config/hws-config.yaml**.
 * The default _OpenTelemetry Collector_ configuration file: **./otel/otel-config.yaml**.
 
-You can start **${solutionName}** in an interactive terminal with an alternate **Hardware Sentry Agent**'s configuration file with the command below:
+<p id="redhat"> You can start <strong>${solutionName}</strong> in an interactive terminal with an alternate <strong>Hardware Sentry Agent</strong>'s configuration file with the command below:</p>
 
 ```shell-session
 / $ cd /opt/hws/bin
@@ -292,7 +292,8 @@ This will start **${solutionName}** with:
 * The default **Hardware Sentry Agent** configuration file: **./config/hws-config.yaml**.
 * The default _OpenTelemetry Collector_ configuration file: **./otel/otel-config.yaml**.
 
-You can start **${solutionName}** in an interactive terminal (using **CMD.EXE** or [Windows Terminal](https://www.microsoft.com/en-us/p/windows-terminal/9n0dx20hk701?activetab=pivot:overviewtab)) with an alternate **Hardware Sentry Agent**'s configuration file using the command below:
+<p id="windows">You can start <strong>${solutionName}</strong> in an interactive terminal (using <strong>CMD.EXE</strong> or 
+<a href="https://www.microsoft.com/en-us/p/windows-terminal/9n0dx20hk701?activetab=pivot:overviewtab">Windows Terminal</a> with an alternate <strong>Hardware Sentry Agent</strong>'s configuration file using the command below:</p>
 
 ```batch
 c:
@@ -305,16 +306,105 @@ agent --config="c:\ProgramData\hws\config\my-hws-config.yaml"
 
 To uninstall **${solutionName}**, double-click the **hws-windows-${project.version}.msi** file and click **Remove** when prompted.
 
-## Upgrade
+## Migrate
 
-If you are upgrading from v2.0.00, perform the actions below before installing **Hardware Sentry** v${project.version}:
+If you are migrating from v2.0.00 or older, perform the actions below before installing the latest version of **${solutionName}**:
 
-**On Windows**:
+1. Stop the service:
+   * On Windows:
+     * if you installed **${solutionName}** as a service, stop and remove the service
+     * if you are running the collector in an interactive terminal, stop the `hws-otel-collector.exe` process
+   * On Linux: stop `hws-otel-collector`
+2. Make a backup copy of:
+   * the configuration files `otel-config.yaml` and `hws-config.yaml` stored by default in **hws-otel-collector/config**
+   * the security keystore `hws-encrypt.p12` stored by default in **hws-otel-collector/security** if you previously encrypted your passwords
+3. Install the latest version of **${solutionName}**
+4. Paste your backup copy of:
+   * `otel-config.yaml` in **C:\ProgramData\hws\otel** for Windows, **/opt/hws/otel** for Linux
+   * `hws-config.yaml` in **C:\ProgramData\hws\config** for Windows, **/opt/hws/config** for Linux
+   * `hws-keystore.p12` in **C:\ProgramData\hws\security** for Windows, **/opt/hws/security** for Linux.
+5. Open and edit `otel-config.yaml`:
+   
+     * In the `extensions` section, remove the `hws_agent` extension:
 
-* If you installed the version 2.0.00 as a Windows service, stop and remove the service before installing **Hardware Sentry** v${project.version}.
-* If you are running the collector in an interactive terminal, stop the collector process (`hws-otel-collector.exe`) before installing **Hardware Sentry** v${project.version}.
+        ```yaml
+          extensions:
 
-**On Linux**, stop the `hws-otel-collector`.
+            # healthcheck
+            # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/healthcheckextension
+            health_check:
+
+            # zPages
+            # https://github.com/open-telemetry/opentelemetry-collector/tree/main/extension/zpagesextension
+            zpages:
+
+            # Remove hwsagent extension
+            # hws_agent: # Extension not supported starting from version 3.0.00
+          ```
+        
+      * In the `service` section, remove `hws_agent` in the list of `extensions`:
+
+         ```yaml
+         service:
+         telemetry:
+           logs:
+             level: info 
+           metrics:
+             address: localhost:8888
+             level: basic
+         extensions: [health_check, basicauth, zpages ] # Remove hws_agent from this list
+         # ...
+         ```
+
+     * If you specified an alternate configuration file using the `extra_arg` `--config` in version 2.0.00, you need to start **${solutionName}** in an interactive terminal using the command documented above for <a href="#debian">Debian Linux</a>, <a href="#docker">Docker</a>, <a href="#redhat">Red Hat</a>, and <a href="#windows">Windows</a>. 
+
+     * In the `receivers` section, update the security file paths `cert_file` and `key_file` in `otlp:protocols:grpc:tls` as follows:
+
+         ```yaml
+         receivers:
+           # OTLP
+           # Receives data via gRPC or HTTP using OTLP format. For additional information on the OTLP receiver:
+           # https://github.com/open-telemetry/opentelemetry-collector/tree/main/receiver/otlpreceiver
+           otlp:
+             protocols:
+               grpc:
+                 endpoint: localhost:4317
+                 tls:
+                   cert_file: ../security/otel.crt # updated security file path
+                   key_file: ../security/otel.key # updated security file path
+                 auth:
+                   authenticator: basicauth
+         ```
+
+      * In the `extensions` section, update the security file path in `basicauth:htpasswd:file` as follows:
+
+         ```yaml
+         extensions:
+
+           # healthcheck
+           # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/healthcheckextension
+           health_check:
+
+           # zPages
+           # https://github.com/open-telemetry/opentelemetry-collector/tree/main/extension/zpagesextension
+           zpages:
+
+           # basicauth
+           # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/basicauthextension
+           basicauth:
+             htpasswd:
+               file: ../security/.htpasswd # updated security file path
+          ```
+
+      * In the `exporters` section, update the configuration of the `logging` exporter as follows:
+
+         ```yaml  
+         # logging
+         # https://github.com/open-telemetry/opentelemetry-collector/tree/main/exporter/loggingexporter
+         logging:
+           verbosity: detailed
+          ```
+6. Restart **${solutionName}**.
 
 ## Post-install
 
