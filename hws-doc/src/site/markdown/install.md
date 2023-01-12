@@ -370,8 +370,8 @@ If you are migrating from v2.0.00 or older, perform the actions below before ins
                grpc:
                  endpoint: localhost:4317
                  tls:
-                   cert_file: ../security/otel.crt # updated security file path
-                   key_file: ../security/otel.key # updated security file path
+                   cert_file: ../security/otel.crt # updated security file path.The path is relative to the otelcol-contrib executable directory, i.e. C:\Program Files\hws\otel on Windows, /opt/hws/otel on Linux (C:\Program Files\hws\otel\..\security on Windows, /opt/hws/otel/../security on Linux)
+                   key_file: ../security/otel.key # updated security file path. The path is relative to the otelcol-contrib executable directory, i.e. C:\Program Files\hws\otel on Windows, /opt/hws/otel on Linux (C:\Program Files\hws\otel\..\security on Windows, /opt/hws/otel/../security on Linux)
                  auth:
                    authenticator: basicauth
          ```
