@@ -11,13 +11,13 @@ The **Hardware Sentry Agent** (core engine) is a Java process which launches the
 
 * `hws-agent-global-error-$timestamp.log`: fatal errors such as an application crash upon start-up
 * `hws-agent-global-$timestamp.log`: agent global information (agent status, user, version, scheduler, yaml parser, etc.)
-* `hws-agent-$hostId-$timestamp.log`: host errors.
+* `hws-agent-$hostId-$timestamp.log`: host logs.
 
 The **OpenTelemetry Collector** is in charge of pulling metrics, traces, and logs periodically and pushing them to the observability platform. Enable its debug mode if data is missing (the monitoring coverage is incomplete) to obtain the `otelcol-$timestamp.log` log.
 
 ## Hardware Sentry Agent
 
-The **Hardware Sentry Agent** automatically sets its internal logging system to `error` when a update is detected in the configuration file to quickly identify issues that may arise in production. For any other situations, you will have to manually edit the **config/hws-config.yaml** file, add the `loggerLevel` property, and set `loggerlevel` to either `all`, `trace`, `debug`, `info`, `warn`, `error`, or `fatal` to enable the debug mode:
+The **Hardware Sentry Agent** automatically sets its internal logging system to `error` to quickly identify issues that may arise in production during a recent deployment. For any other situations, you will have to manually edit the **config/hws-config.yaml** file, add the `loggerLevel` property, and set `loggerlevel` to either `all`, `trace`, `debug`, `info`, `warn`, `error`, or `fatal` to enable the debug mode:
 
 ```yaml
 loggerLevel: debug
