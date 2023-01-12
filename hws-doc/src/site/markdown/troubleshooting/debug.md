@@ -17,7 +17,7 @@ The **OpenTelemetry Collector** is in charge of pulling metrics, traces, and log
 
 ## Hardware Sentry Agent
 
-The **Hardware Sentry Agent** automatically sets its internal logging system to `error` when a update is detected in the configuration file to quickly identify issues that may arise in production. For any other situations, you will have to manually edit the **config/hws-config.yaml** file, add the `loggerLevel` property, and and set `loggerlevel` to either `all`, `trace`, `debug`, `info`, `warn`, `error`, or `fatal` to enable the debug mode:
+The **Hardware Sentry Agent** automatically sets its internal logging system to `error` when a update is detected in the configuration file to quickly identify issues that may arise in production. For any other situations, you will have to manually edit the **config/hws-config.yaml** file, add the `loggerLevel` property, and set `loggerlevel` to either `all`, `trace`, `debug`, `info`, `warn`, `error`, or `fatal` to enable the debug mode:
 
 ```yaml
 loggerLevel: debug
