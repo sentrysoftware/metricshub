@@ -84,10 +84,13 @@ public class ConfigHelper {
 	static <T> T deserializeYamlFile(final File file, final Class<T> type) throws IOException {
 
 		// Since 2.13 use JsonMapper.builder().enable(...)
-		return JsonMapper.builder(new YAMLFactory()).configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-				.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false)
-				.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
-				.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES).build().readValue(file, type);
+		return JsonMapper
+			.builder(new YAMLFactory())
+			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
+			.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+			.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
+			.build()
+			.readValue(file, type);
 
 	}
 
@@ -493,8 +496,8 @@ public class ConfigHelper {
 
 			return multiHostsConfig;
 		} catch (Exception e) {
-			log.info("Cannot read the configuration file {}.", configFile.getAbsoluteFile());
-			log.debug("Exception: ", e);
+			log.error("Cannot read the configuration file {}.", configFile.getAbsoluteFile());
+			log.error("Exception: ", e);
 			return MultiHostsConfigurationDto.empty();
 
 		}
@@ -948,7 +951,6 @@ public class ConfigHelper {
 	 * See src/main/resources/log4j2.xml
 	 * 
 	 * @param multiHostsConfigDto User's configuration
-	 * @param serverPort          Application port number
 	 */
 	public static void configureGlobalLogger(final MultiHostsConfigurationDto multiHostsConfigDto) {
 

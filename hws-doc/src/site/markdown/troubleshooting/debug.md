@@ -7,13 +7,17 @@ description: How to enable the debug mode of the Hardware Sentry Agent (core eng
 
 Depending on the issue you are experiencing, you will have to either enable the debug mode for the **Hardware Sentry Agent** or for the **OpenTelemetry Collector**.
 
-The **Hardware Sentry Agent** (core engine) is a Java process which launches the _OpenTelemetry Collector_ and performs the hardware monitoring by connecting to each of the configured hosts and retrieving information about their hardware components. Enable its debug mode if there's no data available in your observability platform.
+The **Hardware Sentry Agent** (core engine) is a Java process which launches the _OpenTelemetry Collector_ and performs the hardware monitoring by connecting to each of the configured hosts and retrieving information about their hardware components. Enable its debug mode if there's no data available in your observability platform to obtain these logs:
 
-The **OpenTelemetry Collector** is in charge of pulling metrics, traces, and logs periodically and pushing them to the observability platform. Enable its debug mode, if data is missing (the monitoring coverage is incomplete). 
+* `hws-agent-global-error-$timestamp.log`: fatal errors such as an application crash upon start-up
+* `hws-agent-global-$timestamp.log`: agent global information (agent status, user, version, scheduler, yaml parser, etc.)
+* `hws-agent-$hostId-$timestamp.log`: host logs.
+
+The **OpenTelemetry Collector** is in charge of pulling metrics, traces, and logs periodically and pushing them to the observability platform. Enable its debug mode if data is missing (the monitoring coverage is incomplete) to obtain the `otelcol-$timestamp.log` log.
 
 ## Hardware Sentry Agent
 
-To enable the debug mode of the core engine, edit the **config/hws-config.yaml** file and add the `loggerLevel` property:
+The **Hardware Sentry Agent** automatically sets its internal logging system to `error` to quickly identify issues that may arise in production during a recent deployment. For any other situations, you will have to manually edit the **config/hws-config.yaml** file, add the `loggerLevel` property, and set `loggerlevel` to either `all`, `trace`, `debug`, `info`, `warn`, `error`, or `fatal` to enable the debug mode:
 
 ```yaml
 loggerLevel: debug
@@ -21,8 +25,6 @@ hosts:
 - host:
     # [...]
 ```
-
-Set `loggerlevel` to either `all`, `trace`, `debug`, `info`, `warn`, `error`, or `fatal`.
 
 The debug output files are saved by default in the **logs** directory located under the **hws** directory:
 

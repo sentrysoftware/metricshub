@@ -1,4 +1,8 @@
-# Hardware Sentry OpenTelemetry Collector
+# Hardware Sentry
+
+# Default logger level
+loggerLevel: error
+
 # Internal collect interval
 collectPeriod: 1m
 

@@ -121,10 +121,9 @@ public class TaskSchedulingService {
 			// Configure logger 
 			ThreadContext.put("logId", OtelCollectorConfigDto.EXECUTABLE_OUTPUT_ID);
 
-			// Get the global application level
-			final Level globalLevel = getLoggerLevel(multiHostsConfigurationDto.getLoggerLevel());
+			// By default otelcol debug is enabled
+			String loggerLevel = Level.DEBUG.name();
 
-			String loggerLevel = globalLevel.name();
 			// User might want to disable logging for the process
 			if (multiHostsConfigurationDto.getOtelCollector().getOutput() != OtelCollectorOutput.LOG) {
 				loggerLevel = Level.OFF.name();
