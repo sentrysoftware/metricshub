@@ -322,9 +322,31 @@ If you are migrating from v2.0.00 or older, perform the actions below before ins
 4. Paste your backup copy of:
    * `otel-config.yaml` in **C:\ProgramData\hws\otel** for Windows, **/opt/hws/otel** for Linux
    * `hws-config.yaml` in **C:\ProgramData\hws\config** for Windows, **/opt/hws/config** for Linux
-   * `hws-keystore.p12` in **C:\ProgramData\hws\security** for Windows, **/opt/hws/security** for Linux.
+   * `hws-keystore.p12` in **C:\ProgramData\hws\security** for Windows, **/opt/hws/security** for Linux
+
+      and replace the files in destination.
+
 5. Open and edit `otel-config.yaml`:
-   
+
+     * In the `receivers` section, update the security file paths `cert_file` and `key_file` in `otlp:protocols:grpc:tls` as follows:
+
+         ```yaml
+         receivers:
+           # OTLP
+           # Receives data via gRPC or HTTP using OTLP format. For additional information on the OTLP receiver:
+           # https://github.com/open-telemetry/opentelemetry-collector/tree/main/receiver/otlpreceiver
+           otlp:
+             protocols:
+               grpc:
+                 endpoint: localhost:4317
+                 tls:
+                   cert_file: ../security/otel.crt # updated security file path.
+                   key_file: ../security/otel.key # updated security file path.
+                 auth:
+                   authenticator: basicauth
+         ```
+        > **Note**: The security file path is relative to the `otelcol-contrib` executable directory, i.e. `C:\Program Files\hws\otel` on Windows, `/opt/hws/otel` on Linux `(C:\Program Files\hws\otel\..\security` on Windows, `/opt/hws/otel/../security` on Linux).
+
      * In the `extensions` section, remove the `hws_agent` extension:
 
         ```yaml
@@ -341,42 +363,15 @@ If you are migrating from v2.0.00 or older, perform the actions below before ins
             # Remove hwsagent extension
             # hws_agent: # Extension not supported starting from version 3.0.00
           ```
-        
-      * In the `service` section, remove `hws_agent` in the list of `extensions`:
+      * In the `exporters` section, remove the `loglevel` line and add `verbosity` as follows:
 
-         ```yaml
-         service:
-         telemetry:
-           logs:
-             level: info 
-           metrics:
-             address: localhost:8888
-             level: basic
-         extensions: [health_check, basicauth, zpages ] # Remove hws_agent from this list
-         # ...
-         ```
-
-     * If you specified an alternate configuration file using the `extra_arg` `--config` in version 2.0.00, you need to start **${solutionName}** in an interactive terminal using the command documented above for <a href="#debian">Debian Linux</a>, <a href="#docker">Docker</a>, <a href="#redhat">Red Hat</a>, and <a href="#windows">Windows</a>. 
-
-     * In the `receivers` section, update the security file paths `cert_file` and `key_file` in `otlp:protocols:grpc:tls` as follows:
-
-         ```yaml
-         receivers:
-           # OTLP
-           # Receives data via gRPC or HTTP using OTLP format. For additional information on the OTLP receiver:
-           # https://github.com/open-telemetry/opentelemetry-collector/tree/main/receiver/otlpreceiver
-           otlp:
-             protocols:
-               grpc:
-                 endpoint: localhost:4317
-                 tls:
-                   cert_file: ../security/otel.crt # updated security file path.The path is relative to the otelcol-contrib executable directory, i.e. C:\Program Files\hws\otel on Windows, /opt/hws/otel on Linux (C:\Program Files\hws\otel\..\security on Windows, /opt/hws/otel/../security on Linux)
-                   key_file: ../security/otel.key # updated security file path. The path is relative to the otelcol-contrib executable directory, i.e. C:\Program Files\hws\otel on Windows, /opt/hws/otel on Linux (C:\Program Files\hws\otel\..\security on Windows, /opt/hws/otel/../security on Linux)
-                 auth:
-                   authenticator: basicauth
-         ```
-
-      * In the `extensions` section, update the security file path in `basicauth:htpasswd:file` as follows:
+         ```yaml  
+         # logging
+         # https://github.com/open-telemetry/opentelemetry-collector/tree/main/exporter/loggingexporter
+         logging:
+           verbosity: detailed
+        ```
+     * In the `extensions` section, update the security file path in `basicauth:htpasswd:file` as follows:
 
          ```yaml
          extensions:
@@ -395,15 +390,21 @@ If you are migrating from v2.0.00 or older, perform the actions below before ins
              htpasswd:
                file: ../security/.htpasswd # updated security file path
           ```
+      * In the `service` section, remove `hws_agent` in the list of `extensions`:
+        
+          ```yaml
+          service:
+            telemetry:
+              logs:
+                level: debug # Change to debug for more details
+              metrics:
+                address: localhost:8888
+                level: basic
+            extensions: [health_check, basicauth] # Removed hws_agent from this list
+            # ...
+            ```
+     * If you specified an alternate configuration file using the `extra_arg` `--config` in version 2.0.00, you need to start **${solutionName}** in an interactive terminal using the command documented above for <a href="#debian">Debian Linux</a>, <a href="#docker">Docker</a>, <a href="#redhat">Red Hat</a>, and <a href="#windows">Windows</a>. 
 
-      * In the `exporters` section, update the configuration of the `logging` exporter as follows:
-
-         ```yaml  
-         # logging
-         # https://github.com/open-telemetry/opentelemetry-collector/tree/main/exporter/loggingexporter
-         logging:
-           verbosity: detailed
-          ```
 6. Restart **${solutionName}**.
 
 ## Post-install
