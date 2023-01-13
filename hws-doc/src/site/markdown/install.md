@@ -345,7 +345,7 @@ If you are migrating from v2.0.00 or older, perform the actions below before ins
                  auth:
                    authenticator: basicauth
          ```
-        > **Note**: The security file path is relative to the `otelcol-contrib` executable directory, i.e. `C:\Program Files\hws\otel` on Windows, `/opt/hws/otel` on Linux `(C:\Program Files\hws\otel\..\security` on Windows, `/opt/hws/otel/../security` on Linux).
+        > **Note**: The security file path is relative to the `otelcol-contrib` executable directory, i.e. `C:\Program Files\hws\otel` on Windows, `/opt/hws/otel` on Linux (`C:\Program Files\hws\otel\..\security` on Windows, `/opt/hws/otel/../security` on Linux).
 
      * In the `extensions` section, remove the `hws_agent` extension:
 
