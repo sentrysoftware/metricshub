@@ -60,7 +60,7 @@ public class ArrayHelper {
 
 		// Null => null
 		if (hexString == null) {
-			return null;
+			return new byte[] {};
 		}
 
 		// Extract the hexadecimal data (remove 0x or # prefix)

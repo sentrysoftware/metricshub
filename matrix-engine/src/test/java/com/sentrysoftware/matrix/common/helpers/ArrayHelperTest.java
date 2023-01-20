@@ -15,7 +15,7 @@ class ArrayHelperTest {
 
 	@Test
 	void testConvert() {
-		assertNull(hexToByteArray(null));
+		assertArrayEquals(new byte[] {}, hexToByteArray(null));
 		assertThrows(IllegalArgumentException.class, () -> hexToByteArray("illegal"));
 		assertArrayEquals(new byte[] { 0x01, 0x02 }, hexToByteArray("0x0102"));
 		assertArrayEquals(new byte[] { (byte)0xab, (byte)0xcd, (byte)0xef }, hexToByteArray(" abCdEF    "));

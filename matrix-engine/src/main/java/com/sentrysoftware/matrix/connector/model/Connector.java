@@ -1,20 +1,18 @@
 package com.sentrysoftware.matrix.connector.model;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
-import com.sentrysoftware.matrix.connector.model.common.OsType;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
-import com.sentrysoftware.matrix.connector.model.detection.Detection;
-import com.sentrysoftware.matrix.connector.model.monitor.HardwareMonitor;
-import com.sentrysoftware.matrix.connector.model.monitor.MonitorType;
-import com.sentrysoftware.matrix.connector.model.monitor.job.source.Source;
+import com.sentrysoftware.matrix.connector.model.identity.ConnectorIdentity;
+import com.sentrysoftware.matrix.connector.model.metric.MonitorDefinition;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorJob;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,42 +26,37 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Connector implements Serializable {
 
+	private static final long serialVersionUID = 1L;
 
-	private static final long serialVersionUID = 7362309567524807896L;
+	@JsonProperty("connector")
+	private ConnectorIdentity connectorIdentity;
 
-	private String compiledFilename;
-	private String displayName;
-	private String typicalPlatform;
-	private String reliesOn;
-	private String version;
-	private String comments;
-	private Boolean remoteSupport;
-	private Boolean localSupport;
-	private Boolean noAutoDetection;
-	private MonitorType onLastResort;
+	@JsonProperty("extends")
+	@Default
+	private Set<String> extendsConnectors = new HashSet<>();
 
 	@Default
-	private Set<OsType> appliesToOS = new HashSet<>();
-	@Default
-	private Set<String> supersedes = new HashSet<>();
+	private Map<String, MonitorDefinition> metricsMapping = new HashMap<>();
 
 	@Default
-	private List<String> sudoCommands = new ArrayList<>();
-
-	private Detection detection;
+	private Map<String, String> constants = new HashMap<>();
 
 	@Default
-	private List<HardwareMonitor> hardwareMonitors = new ArrayList<>();
+	private Set<String> sudoCommands = new HashSet<>();
+
+	@Default 
+	private Map<String, Source> pre = new HashMap<>();
 
 	@Default
-	private Map<String, TranslationTable> translationTables = new HashMap<>();
+	private Map<String, MonitorJob> monitors = new LinkedHashMap<>();
 
 	@Default
-	private Map<Integer, EmbeddedFile> embeddedFiles = new HashMap<>();
+	private Map<String, String> embedded = new HashMap<>();
+
+	@Default
+	private Map<String, TranslationTable> translations = new HashMap<>();
 
 	@Default
 	private Set<Class <? extends Source>> sourceTypes = new HashSet<>();
 
-	@Default
-	private List<String> problemList = new ArrayList<>();
 }

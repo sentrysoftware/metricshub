@@ -1,6 +1,8 @@
 package com.sentrysoftware.matrix.common.helpers;
 
-import org.springframework.util.Assert;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.N_A;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WHITE_SPACE;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,13 +12,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.N_A;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.TABLE_SEP;
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
+import org.springframework.util.Assert;
 
 public class TextTableHelper {
 
@@ -61,7 +60,7 @@ public class TextTableHelper {
 		List<TableHeader> headers = IntStream
 			.range(1, longestRow.size() + 1)
 			.mapToObj(index -> new TableHeader(String.format("Column %d", index), TextDataType.STRING))
-			.collect(Collectors.toList());
+			.toList();
 
 		return generateTextTable(headers, rows);
 	}
@@ -104,7 +103,7 @@ public class TextTableHelper {
 		List<TableHeader> headers = Arrays
 			.stream(columns)
 			.map(columnName -> new TableHeader(columnName, TextDataType.STRING))
-			.collect(Collectors.toList());
+			.toList();
 
 		return generateTextTable(headers, rows);
 	}
@@ -129,7 +128,7 @@ public class TextTableHelper {
 		List<TableHeader> headers = columns
 			.stream()
 			.map(columnName -> new TableHeader(columnName, TextDataType.STRING))
-			.collect(Collectors.toList());
+			.toList();
 
 		return generateTextTable(headers, rows);
 	}
@@ -208,14 +207,14 @@ public class TextTableHelper {
 			.stream()
 			.filter(Objects::nonNull)
 			.map(row -> cleanRow(row, headersSize))
-			.collect(Collectors.toList());
+			.toList();
 	}
 
 	/**
 	 * Clean the given row based on the given <code>headersSize</code>
 	 * <ul>
-	 *  <li>Replace null cells by {@link HardwareConstants#N_A}</li>
-	 *  <li>Create missing cells with {@link HardwareConstants#N_A}</li>
+	 *  <li>Replace null cells by {@link MatrixConstants#N_A}</li>
+	 *  <li>Create missing cells with {@link MatrixConstants#N_A}</li>
 	 *  <li>Remove extra cells</li>
 	 * </ul>
 	 * @param row we wish to clean
@@ -236,7 +235,7 @@ public class TextTableHelper {
 
 			return Stream
 				.concat(result.stream(), Stream.generate(() -> N_A).limit((long) headersSize - result.size()))
-				.collect(Collectors.toList());
+				.toList();
 
 		} else if (result.size() > headersSize) {
 
@@ -244,7 +243,7 @@ public class TextTableHelper {
 			return result
 				.stream()
 				.limit(headersSize)
-				.collect(Collectors.toList());
+				.toList();
 		}
 
 		return result;

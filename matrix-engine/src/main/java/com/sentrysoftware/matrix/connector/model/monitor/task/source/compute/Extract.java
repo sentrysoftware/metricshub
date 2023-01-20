@@ -1,0 +1,61 @@
+package com.sentrysoftware.matrix.connector.model.monitor.task.source.compute;
+
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
+import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
+
+import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
+
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+public class Extract extends Compute {
+
+	private static final long serialVersionUID = 1L;
+
+	private Integer column;
+	private Integer subColumn;
+	private String subSeparators;
+
+	@Builder
+	public Extract(String type, Integer column, Integer subColumn, String subSeparators) {
+		super(type);
+		this.column = column;
+		this.subColumn = subColumn;
+		this.subSeparators = subSeparators;
+	}
+
+	@Override
+	public String toString() {
+		final StringJoiner stringJoiner = new StringJoiner(NEW_LINE);
+
+		stringJoiner.add(super.toString());
+
+		addNonNull(stringJoiner, "- column=", column);
+		addNonNull(stringJoiner, "- subColumn=", subColumn);
+		addNonNull(stringJoiner, "- subSeparators=", subSeparators);
+
+		return stringJoiner.toString();
+	}
+
+	@Override
+	public Extract copy() {
+		return Extract
+			.builder()
+			.type(type)
+			.column(column)
+			.subColumn(subColumn)
+			.subSeparators(subSeparators)
+			.build();
+	}
+
+	@Override
+	public void update(UnaryOperator<String> updater) {
+		subSeparators = updater.apply(subSeparators);
+	}
+}

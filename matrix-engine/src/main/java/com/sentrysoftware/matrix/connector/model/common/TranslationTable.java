@@ -18,9 +18,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TranslationTable implements Serializable {
 
-	private static final long serialVersionUID = 1722484394465097003L;
+	private static final long serialVersionUID = 1L;
 
-	private String name;
 	@Default
 	private Map<String, String> translations = new HashMap<>();
 
@@ -32,7 +31,6 @@ public class TranslationTable implements Serializable {
 	public TranslationTable copy() {
 		return TranslationTable
 			.builder()
-			.name(name)
 			.translations(translations == null ? null :
 				translations
 					.entrySet()

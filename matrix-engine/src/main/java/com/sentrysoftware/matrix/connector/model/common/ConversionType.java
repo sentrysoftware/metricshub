@@ -16,7 +16,7 @@ public enum ConversionType {
 	private String name;
 
 	/**
-	 * Get {@link ConversionType} by name, the name defined in the hardware connector code
+	 * Get {@link ConversionType} by name, the name defined in the connector code
 	 * 
 	 * @param name The name in the connector defining a {@link ConversionType}. E.g. hex2dec
 	 * @return {@link ConversionType} instance

@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.common.helpers;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -28,8 +29,8 @@ class StringHelperTest {
 
 	@Test
 	void testPrettyHttpHeaders() {
-		assertEquals(HardwareConstants.EMPTY, StringHelper.prettyHttpHeaders(Collections.emptyMap()));
-		assertEquals(HardwareConstants.EMPTY, StringHelper.prettyHttpHeaders(null));
+		assertEquals(EMPTY, StringHelper.prettyHttpHeaders(Collections.emptyMap()));
+		assertEquals(EMPTY, StringHelper.prettyHttpHeaders(null));
 		assertEquals("Connection: keep-alive\nContent-Type: application/json",
 				StringHelper.prettyHttpHeaders(Map.of("Connection", "keep-alive", "Content-Type", "application/json")));
 	}

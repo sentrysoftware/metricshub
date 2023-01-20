@@ -1,6 +1,11 @@
 package com.sentrysoftware.matrix.common.helpers;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WHITE_SPACE;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mockStatic;
 
@@ -12,12 +17,6 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.WHITE_SPACE;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class NetworkHelperTest {
 

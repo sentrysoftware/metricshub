@@ -77,8 +77,8 @@ public class ResourceHelper {
 	 */
 	static File findSource(@NonNull final URL location) throws IOException, URISyntaxException {
 		URLConnection connection = location.openConnection();
-		if (connection instanceof JarURLConnection) {
-			return getRootJarFile(((JarURLConnection) connection).getJarFile());
+		if (connection instanceof JarURLConnection jarUrlConnection) {
+			return getRootJarFile(jarUrlConnection.getJarFile());
 		}
 		return new File(location.toURI());
 	}

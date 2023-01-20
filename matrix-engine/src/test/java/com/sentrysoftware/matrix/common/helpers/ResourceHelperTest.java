@@ -1,7 +1,11 @@
 package com.sentrysoftware.matrix.common.helpers;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
 
 import org.junit.jupiter.api.Test;
 
@@ -9,8 +13,8 @@ import org.junit.jupiter.api.Test;
 class ResourceHelperTest {
 
 	private static final String EXPECTED_TEXT = "text text\n";
-	private static final String DATA_TXT = "/data/data.txt";
-	private static final String DATA_FILE_NOT_FOUND_TXT = "/data/fileNotFound.txt";
+	private static final String DATA_TXT = "/test-files/data.txt";
+	private static final String DATA_FILE_NOT_FOUND_TXT = "/test-files/fileNotFound.txt";
 
 	@Test
 	void testGetResourceAsStringNullPath() {
@@ -35,6 +39,11 @@ class ResourceHelperTest {
 	@Test
 	void testGetResourceAsString() {
 		assertEquals(EXPECTED_TEXT, ResourceHelper.getResourceAsString(DATA_TXT, ResourceHelper.class));
+	}
+
+	@Test
+	void testFindSource() throws IOException, URISyntaxException {
+		assertNotNull(ResourceHelper.findSource(ResourceHelper.class));
 	}
 
 }
