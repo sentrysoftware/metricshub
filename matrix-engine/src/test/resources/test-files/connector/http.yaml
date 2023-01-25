@@ -1,0 +1,19 @@
+---
+connector:
+  detection:
+    criteria:
+      - type: http
+        method: GET
+        url: test
+        header: $embedded.http-header
+        body: test-body
+        resultContent: ALL
+        authenticationToken: $embedded.authenticationToken
+        expectedResult: result
+
+embedded:
+  authenticationToken: test-auth-token
+  http-header: |
+    Content-Type: application/json
+    Accept: application/json
+    Cookie: %{AUTHENTICATIONTOKEN}
