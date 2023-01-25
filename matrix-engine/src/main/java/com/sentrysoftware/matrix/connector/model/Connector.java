@@ -59,4 +59,14 @@ public class Connector implements Serializable {
 	@Default
 	private Set<Class <? extends Source>> sourceTypes = new HashSet<>();
 
+	/**
+	 * Get the connector identity and create it if it is not created yet.
+	 */
+	public ConnectorIdentity getOrCreateConnectorIdentity() {
+		if (connectorIdentity == null) {
+			connectorIdentity = new ConnectorIdentity();
+		}
+
+		return connectorIdentity;
+	}
 }
