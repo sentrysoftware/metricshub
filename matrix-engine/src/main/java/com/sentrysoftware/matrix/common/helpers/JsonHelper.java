@@ -43,6 +43,22 @@ public class JsonHelper {
 	}
 
 	/**
+	 * Deserialize the given input stream
+	 * 
+	 * @param <T>
+	 * @param mapper {@link ObjectMapper} instance used to deserialize input stream
+	 * @param input  {@link InputStream} instance
+	 * @param type   Java type
+	 * @return new instance of T
+	 * @throws IOException
+	 */
+	public static <T> T deserialize(final ObjectMapper mapper, final InputStream input, final Class<T> type) throws IOException {
+
+		return mapper.readValue(input, type);
+
+	}
+
+	/**
 	 * Deserialize and return the requested type using the InputStream
 	 * 
 	 * @param is    {@link InputStream} connection to the JSON

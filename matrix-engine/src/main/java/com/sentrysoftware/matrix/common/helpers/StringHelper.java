@@ -1,6 +1,6 @@
 package com.sentrysoftware.matrix.common.helpers;
 
-import static com.sentrysoftware.matrix.common.helpers.HardwareConstants.EMPTY;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
 
 import java.util.Map;
 import java.util.Objects;
