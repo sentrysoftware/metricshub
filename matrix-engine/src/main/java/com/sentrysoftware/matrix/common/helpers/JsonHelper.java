@@ -1,6 +1,5 @@
 package com.sentrysoftware.matrix.common.helpers;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -48,14 +47,14 @@ public class JsonHelper {
 	 * 
 	 * @param <T>
 	 * @param mapper {@link ObjectMapper} instance used which
-	 * @param file   YAML file
+	 * @param input  Yaml input stream
 	 * @param type   Java type
 	 * @return new instance of T
 	 * @throws IOException
 	 */
-	public static <T> T deserialize(final ObjectMapper mapper, final File file, final Class<T> type) throws IOException {
+	public static <T> T deserialize(final ObjectMapper mapper, final InputStream input, final Class<T> type) throws IOException {
 
-		return mapper.readValue(file, type);
+		return mapper.readValue(input, type);
 
 	}
 

@@ -1,7 +1,13 @@
 package com.sentrysoftware.matrix.common.helpers;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static com.sentrysoftware.matrix.common.helpers.ArrayHelper.*;
+import static com.sentrysoftware.matrix.common.helpers.ArrayHelper.getValueAtIndex;
+import static com.sentrysoftware.matrix.common.helpers.ArrayHelper.hexToByteArray;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.junit.jupiter.api.Test;
 
 class ArrayHelperTest {
@@ -23,5 +29,28 @@ class ArrayHelperTest {
 		assertArrayEquals(new byte[] {}, hexToByteArray("   "));
 	}
 
+	@Test
+	void testAnyMatchLowerCase() {
+		assertTrue(
+			ArrayHelper.anyMatchLowerCase(
+				str -> str.contains("value"),
+				"value", "VALUE1", "val", "Value2", null,""
+			)
+		);
+
+		assertFalse(
+			ArrayHelper.anyMatchLowerCase(
+				str -> str.contains("value"),
+				(String) null, (String) null
+			)
+		);
+
+		assertFalse(
+			ArrayHelper.anyMatchLowerCase(
+				str -> str.contains("value"),
+				"notMatch"
+			)
+		);
+	}
 }
 

@@ -1,7 +1,7 @@
 package com.sentrysoftware.matrix.connector.deserializer;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -31,11 +31,11 @@ public class ConnectorDeserializer {
 	/**
 	 * Deserialize the given YAML connector file
 	 * 
-	 * @param src
+	 * @param input
 	 * @return {@link Connector} instance
 	 * @throws IOException
 	 */
-	public Connector deserialize(final File src) throws IOException {
-		return JsonHelper.deserialize(mapper, src, Connector.class);
+	public Connector deserialize(final InputStream input) throws IOException {
+		return JsonHelper.deserialize(mapper, input, Connector.class);
 	}
 }

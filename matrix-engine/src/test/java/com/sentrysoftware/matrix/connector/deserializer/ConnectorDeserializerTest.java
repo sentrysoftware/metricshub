@@ -1,8 +1,8 @@
 package com.sentrysoftware.matrix.connector.deserializer;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
@@ -15,7 +15,7 @@ class ConnectorDeserializerTest {
 	void testDeserializeDoesntThrow() throws IOException {
 		final ConnectorDeserializer deserializer = new ConnectorDeserializer();
 		final Connector connector = deserializer.deserialize(
-			new File("src/test/resources/test-files/connector/connector.yaml")
+			new FileInputStream("src/test/resources/test-files/connector/connector.yaml")
 		);
 		assertNotNull(connector);
 	}
