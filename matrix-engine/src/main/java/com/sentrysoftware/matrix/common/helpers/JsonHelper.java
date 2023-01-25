@@ -43,11 +43,11 @@ public class JsonHelper {
 	}
 
 	/**
-	 * Deserialize the given yaml file
+	 * Deserialize the given input stream
 	 * 
 	 * @param <T>
-	 * @param mapper {@link ObjectMapper} instance used which
-	 * @param input  Yaml input stream
+	 * @param mapper {@link ObjectMapper} instance used to deserialize input stream
+	 * @param input  {@link InputStream} instance
 	 * @param type   Java type
 	 * @return new instance of T
 	 * @throws IOException

@@ -29,9 +29,9 @@ public class ConnectorDeserializer {
 	}
 
 	/**
-	 * Deserialize the given YAML connector file
+	 * Deserialize the given YAML connector input stream
 	 * 
-	 * @param input
+	 * @param input YAML as {@link InputStream}
 	 * @return {@link Connector} instance
 	 * @throws IOException
 	 */
