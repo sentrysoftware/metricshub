@@ -15,24 +15,25 @@ import org.junit.jupiter.api.Test;
 
 class IpmiCriterionDeserializerTest {
 
-  @Test
-  /**
-   * Checks that the criteria type is ipmi
-   *
-   * @throws IOException
-   */
-  void testDeserializeDoesntThrow() throws IOException {
-    final ConnectorDeserializer deserializer = new ConnectorDeserializer();
-    final Connector connector =
-        deserializer.deserialize(new File("src/test/resources/test-files/connector/ipmiCriterion.yaml"));
+	@Test
+	/**
+	 * Checks that the criteria type is ipmi
+	 *
+	 * @throws IOException
+	 */
+	void testDeserializeDoesntThrow() throws IOException {
+		final ConnectorDeserializer deserializer = new ConnectorDeserializer();
+		final Connector connector = deserializer
+				.deserialize(new File("src/test/resources/test-files/connector/ipmiCriterion.yaml"));
 
-    List<Criterion> expected = new ArrayList<>();
-    expected.add(new Ipmi());
-    
-    assertNotNull(connector);
-    assertEquals("connector", connector.getConnectorIdentity().getCompiledFilename());
+		List<Criterion> expected = new ArrayList<>();
+		expected.add(new Ipmi("ipmi", true));
 
-    assertNotNull(connector.getConnectorIdentity().getDetection());
-    assertEquals(expected, connector.getConnectorIdentity().getDetection().getCriteria());
-  }
+		assertNotNull(connector);
+		assertEquals("ipmiCriterion", connector.getConnectorIdentity().getCompiledFilename());
+
+		assertNotNull(connector.getConnectorIdentity().getDetection());
+		List<Criterion> criteria = connector.getConnectorIdentity().getDetection().getCriteria();
+		assertEquals(expected, criteria);
+	}
 }
