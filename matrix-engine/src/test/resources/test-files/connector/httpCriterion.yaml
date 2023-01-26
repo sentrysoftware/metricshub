@@ -10,6 +10,7 @@ connector:
         resultContent: ALL
         authenticationToken: $embedded.authenticationToken
         expectedResult: result
+        errorMessage: error
 
 embedded:
   authenticationToken: test-auth-token
@@ -17,3 +18,4 @@ embedded:
     Content-Type: application/json
     Accept: application/json
     Cookie: %{AUTHENTICATIONTOKEN}
+    
