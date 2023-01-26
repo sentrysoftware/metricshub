@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-class IpmiDeserializerTest {
+class IpmiCriterionDeserializerTest {
 
   @Test
   /**
@@ -24,7 +24,7 @@ class IpmiDeserializerTest {
   void testDeserializeDoesntThrow() throws IOException {
     final ConnectorDeserializer deserializer = new ConnectorDeserializer();
     final Connector connector =
-        deserializer.deserialize(new File("src/test/resources/test-files/connector/ipmi.yaml"));
+        deserializer.deserialize(new File("src/test/resources/test-files/connector/ipmiCriterion.yaml"));
 
     List<Criterion> expected = new ArrayList<>();
     expected.add(new Ipmi());
