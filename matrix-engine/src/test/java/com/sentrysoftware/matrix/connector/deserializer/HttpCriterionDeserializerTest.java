@@ -16,7 +16,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
-class HttpDeserializerTest {
+class HttpCriterionDeserializerTest {
 
 	@Test
 	/**
@@ -24,7 +24,7 @@ class HttpDeserializerTest {
 	 *
 	 * @throws IOException
 	 */
-	void testDeserializeDoesntThrow() throws IOException {
+	void testDeserializeHttpCriterion() throws IOException {
 		final ConnectorDeserializer deserializer = new ConnectorDeserializer();
 		final Connector httpCriterion = deserializer
 				.deserialize(new File("src/test/resources/test-files/connector/httpCriterion.yaml"));
