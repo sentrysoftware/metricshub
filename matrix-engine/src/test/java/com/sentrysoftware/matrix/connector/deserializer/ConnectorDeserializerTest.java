@@ -18,8 +18,26 @@ class ConnectorDeserializerTest {
 		final Connector connector = deserializer.deserialize(
 			new File("src/test/resources/test-files/connector/connector.yaml")
 		);
+
 		assertNotNull(connector);
 		assertEquals("connector", connector.getConnectorIdentity().getCompiledFilename());
-	}
 
+		assertNotNull(connector.getConnectorIdentity().getDisplayName());
+		assertEquals("testConnector", connector.getConnectorIdentity().getDisplayName());
+
+		assertNotNull(connector.getConnectorIdentity().getPlatforms());
+		assertEquals("testPlatforms", connector.getConnectorIdentity().getPlatforms());
+
+		assertNotNull(connector.getConnectorIdentity().getReliesOn());
+		assertEquals("testReliesOn", connector.getConnectorIdentity().getReliesOn());
+
+		assertNotNull(connector.getConnectorIdentity().getVersion());
+		assertEquals("1.0.0", connector.getConnectorIdentity().getVersion());
+
+		assertNotNull(connector.getConnectorIdentity().getProjectVersion());
+		assertEquals("20", connector.getConnectorIdentity().getProjectVersion());
+
+		assertNotNull(connector.getConnectorIdentity().getInformation());
+		assertEquals("testInformation", connector.getConnectorIdentity().getInformation());
+	}
 }
