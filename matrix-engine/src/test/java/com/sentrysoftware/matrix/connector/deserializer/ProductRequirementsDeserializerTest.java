@@ -15,28 +15,24 @@ import org.junit.jupiter.api.Test;
 
 class ProductRequirementsDeserializerTest {
 
-  @Test
-  /**
-   * Checks input properties for product requirements detection criteria
-   *
-   * @throws IOException
-   */
-  void testDeserializeDoesntThrow() throws IOException {
-    final ConnectorDeserializer deserializer = new ConnectorDeserializer();
-    final Connector connector =
-        deserializer.deserialize(new File("src/test/resources/test-files/connector/product-requirements.yaml"));
+	@Test
+	/**
+	 * Checks input properties for product requirements detection criteria
+	 *
+	 * @throws IOException
+	 */
+	void testDeserializeProductRequirementsDeserializer() throws IOException {
+		final ConnectorDeserializer deserializer = new ConnectorDeserializer();
+		final Connector productRequirements = deserializer
+				.deserialize(new File("src/test/resources/test-files/connector/productRequirementsCriterion.yaml"));
 
-    List<Criterion> expected = new ArrayList<>();
-    ProductRequirements test = new ProductRequirements();
-    test.setEngineVersion("testengineversion");
-    test.setKmVersion("testkmversion");
+		List<Criterion> expected = new ArrayList<>();
+		expected.add(new ProductRequirements("productRequirements", false, "testengineversion", "testkmversion"));
 
-    expected.add(test);
+		assertNotNull(productRequirements);
+		assertEquals("productRequirementsCriterion", productRequirements.getConnectorIdentity().getCompiledFilename());
 
-    assertNotNull(connector);
-    assertEquals("connector", connector.getConnectorIdentity().getCompiledFilename());
-
-    assertNotNull(connector.getConnectorIdentity().getDetection());
-    assertEquals(expected, connector.getConnectorIdentity().getDetection().getCriteria());
-  }
+		assertNotNull(productRequirements.getConnectorIdentity().getDetection());
+		assertEquals(expected, productRequirements.getConnectorIdentity().getDetection().getCriteria());
+	}
 }
