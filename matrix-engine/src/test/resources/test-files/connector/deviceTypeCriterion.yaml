@@ -1,0 +1,7 @@
+---
+connector:
+  detection:
+    criteria:
+      - type: deviceType
+        keep: [ VMS, OSF1, HP, RS6000, LINUX, OOB, NT, NETWORK, STORAGE, SOLARIS, SUNOS ]
+        exclude: [ VMS, OSF1, HP, RS6000, LINUX, OOB, NT, NETWORK, STORAGE, SOLARIS, SUNOS ]
