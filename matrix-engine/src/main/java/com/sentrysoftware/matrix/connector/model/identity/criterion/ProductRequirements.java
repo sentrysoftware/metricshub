@@ -1,5 +1,7 @@
 package com.sentrysoftware.matrix.connector.model.identity.criterion;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -19,10 +21,10 @@ public class ProductRequirements extends Criterion {
 
 	@Builder
 	public ProductRequirements(
-		String type,
-		boolean forceSerialization,
-		String engineVersion,
-		String kmVersion
+		@JsonProperty("type") String type,
+		@JsonProperty("forceSerialization") boolean forceSerialization,
+		@JsonProperty("engineVersion") String engineVersion,
+		@JsonProperty("kmVersion") String kmVersion
 	) {
 		super(type, forceSerialization);
 		this.engineVersion = engineVersion;
