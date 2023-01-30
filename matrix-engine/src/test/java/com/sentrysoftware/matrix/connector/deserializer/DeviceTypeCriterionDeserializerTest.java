@@ -17,7 +17,7 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
-class DeviceTypeDeserializerTest {
+class DeviceTypeCriterionDeserializerTest {
 
 	@Test
 	/**
