@@ -4,17 +4,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.common.ResultContent;
-import com.sentrysoftware.matrix.connector.model.identity.criterion.Criterion;
-import com.sentrysoftware.matrix.connector.model.identity.criterion.Http;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.common.HttpMethod;
+import com.sentrysoftware.matrix.connector.model.common.ResultContent;
+import com.sentrysoftware.matrix.connector.model.identity.criterion.Criterion;
+import com.sentrysoftware.matrix.connector.model.identity.criterion.Http;
 
 class HttpCriterionDeserializerTest {
 
@@ -24,27 +27,48 @@ class HttpCriterionDeserializerTest {
 	 *
 	 * @throws IOException
 	 */
-	void testDeserializeHttpCriterion() throws IOException {
+	void testDeserializeHttpCriterion() throws Exception {
 		final ConnectorDeserializer deserializer = new ConnectorDeserializer();
 		final Connector httpCriterion = deserializer
 				.deserialize(new File("src/test/resources/test-files/connector/httpCriterion.yaml"));
 
-		List<Criterion> expected = new ArrayList<>();
+		final List<Criterion> expected = new ArrayList<>();
 
-		final String headerText = "Content-Type: application/json\n"
-				+ "Accept: application/json\n"
-				+ "Cookie: %{AUTHENTICATIONTOKEN}";
+		final Http http1 = Http.builder()
+			.type("http")
+			.method(HttpMethod.GET) // The connector doesn't define the method (default: Get)
+			.url("test")
+			.header("$embedded.http-header")
+			.authenticationToken("$embedded.authenticationToken")
+			.body("test-body")
+			.resultContent(ResultContent.ALL)
+			.expectedResult("result")
+			.errorMessage("error")
+			.build();
+		final Http http2 = Http.builder()
+				.type("http")
+				.method(HttpMethod.GET) // The connector doesn't define the method (default: Get)
+				.url("test/path1")
+				.header("$embedded.http-header")
+				.authenticationToken("$embedded.authenticationToken")
+				.body("test-body")
+				.resultContent(ResultContent.BODY) // The connector doesn't define the resultConent
+				.expectedResult("result")
+				.errorMessage("error")
+				.build();
+		final Http http3 = Http.builder()
+				.type("http")
+				.method(HttpMethod.POST)
+				.url("test/path2")
+				.header("$embedded.http-header")
+				.authenticationToken("$embedded.authenticationToken")
+				.body("test-body")
+				.resultContent(ResultContent.BODY) // The Connector defines a null resultContent
+				.expectedResult("result")
+				.errorMessage("error")
+				.build();
 
-		Http http = new Http();
-		http.setMethod("GET");
-		http.setUrl("test");
-		http.setHeader(headerText);
-		http.setAuthenticationToken("test-auth-token");
-		http.setBody("test-body");
-		http.setResultContent(ResultContent.ALL);
-		http.setExpectedResult("result");
-
-		expected.add(http);
+		expected.addAll(List.of(http1, http2, http3));
 
 		assertNotNull(httpCriterion);
 		assertEquals("httpCriterion", httpCriterion.getConnectorIdentity().getCompiledFilename());
@@ -59,13 +83,18 @@ class HttpCriterionDeserializerTest {
 	 * 
 	 * @throws IOException
 	 */
-	void testDeserializeNonNull() throws IOException {
+	void testDeserializeNonNull() throws Exception {
+		final ConnectorDeserializer deserializer = new ConnectorDeserializer();
+		final File connectorFile = new File("src/test/resources/test-files/connector/httpCriterionNonNull.yaml");
 		try {
-			final ConnectorDeserializer deserializer = new ConnectorDeserializer();
-			deserializer.deserialize(new File("src/test/resources/test-files/connector/httpCriterionNonNull.yaml"));
-			Assert.fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(e.getMessage().contains("cannot be null"));
+			deserializer.deserialize(connectorFile);
+			Assert.fail("Expected an MismatchedInputException to be thrown");
+		} catch (MismatchedInputException e) {
+			final String message = "Missing required creator property 'url' (index 3)";
+			assertTrue(
+				e.getMessage().contains(message),
+				() -> "Expected exception contains: " + message + ". But got: " + e.getMessage()
+			);
 		}
 	}
 
@@ -75,17 +104,20 @@ class HttpCriterionDeserializerTest {
 	 * 
 	 * @throws IOException
 	 */
-	void testDeserializeHttpMethodEnum() throws IOException {
+	void testDeserializeHttpMethodEnum() throws Exception {
 		// fail on not enum value
 		{
+			final ConnectorDeserializer deserializer = new ConnectorDeserializer();
+			final File connectorFile = new File("src/test/resources/test-files/connector/httpCriterionHttpMethodEnum.yaml");
 			try {
-				final ConnectorDeserializer deserializer = new ConnectorDeserializer();
-				deserializer.deserialize(
-						new File("src/test/resources/test-files/connector/httpCriterionHttpMethodEnum.yaml"));
-				Assert.fail();
-			} catch (IllegalArgumentException e) {
-				assertEquals(String.format("HttpMethod must be one of [ {} ]", HttpMethod.values().toString()),
-						e.getMessage());
+				deserializer.deserialize(connectorFile);
+				Assert.fail("Expected an JsonMappingException to be thrown");
+			} catch (JsonMappingException e) {
+				String message = "not one of the values accepted for Enum class: [POST, DELETE, GET]";
+				assertTrue(
+					e.getMessage().contains(message),
+					() -> "Expected exception contains: " + message + ". But got: " + e.getMessage()
+				);
 			}
 		}
 
@@ -93,19 +125,25 @@ class HttpCriterionDeserializerTest {
 		{
 			for (HttpMethod method : HttpMethod.values()) {
 				final ConnectorDeserializer deserializer = new ConnectorDeserializer();
-				final Connector connector = deserializer.deserialize(new File(
-						String.format("src/test/resources/test-files/connector/httpCriterionHttpMethodEnum{}.yaml",
-								method.getName())));
+				final File connectorFile = new File(
+					String.format(
+						"src/test/resources/test-files/connector/httpCriterionHttpMethodEnum%s.yaml",
+						method
+					)
+				);
+				final Connector connector = deserializer.deserialize(
+						connectorFile);
 
 				assertNotNull(connector);
-				assertEquals(String.format("httpCriterionHttpMethodEnum{}", method),
-						connector.getConnectorIdentity().getCompiledFilename());
+				assertEquals(
+					String.format("httpCriterionHttpMethodEnum%s", method),
+					connector.getConnectorIdentity().getCompiledFilename()
+				);
 
 				assertNotNull(connector.getConnectorIdentity().getDetection().getCriteria());
 				assertEquals(1, connector.getConnectorIdentity().getDetection().getCriteria().size());
 
-				assertEquals(method, HttpMethod.getByName(
-						((Http) connector.getConnectorIdentity().getDetection().getCriteria().get(0)).getMethod()));
+				assertEquals(method, ((Http) connector.getConnectorIdentity().getDetection().getCriteria().get(0)).getMethod());
 			}
 		}
 	}
@@ -116,17 +154,20 @@ class HttpCriterionDeserializerTest {
 	 * 
 	 * @throws IOException
 	 */
-	void testDeserializeResultContentEnum() throws IOException {
+	void testDeserializeResultContentEnum() throws Exception {
 		// fail on not enum value
 		{
+			final ConnectorDeserializer deserializer = new ConnectorDeserializer();
+			final File connectorFile = new File("src/test/resources/test-files/connector/httpCriterionResultContentEnum.yaml");
 			try {
-				final ConnectorDeserializer deserializer = new ConnectorDeserializer();
-				deserializer.deserialize(
-						new File("src/test/resources/test-files/connector/httpCriterionResultContentEnum.yaml"));
-				Assert.fail();
-			} catch (IllegalArgumentException e) {
-				assertEquals(String.format("ResultContent must be one of [ {} ]", ResultContent.values().toString()),
-						e.getMessage());
+				deserializer.deserialize(connectorFile);
+				Assert.fail("Expected an JsonMappingException to be thrown");
+			} catch (JsonMappingException e) {
+				String message = "'toto' is not a supported ResultContent";
+				assertTrue(
+					e.getMessage().contains(message),
+					() -> "Expected exception contains: " + message + ". But got: " + e.getMessage()
+				);
 			}
 		}
 
@@ -134,13 +175,19 @@ class HttpCriterionDeserializerTest {
 		{
 			for (ResultContent resultContent : ResultContent.values()) {
 				final ConnectorDeserializer deserializer = new ConnectorDeserializer();
-				final Connector connector = deserializer.deserialize(new File(
-						String.format("src/test/resources/test-files/connector/httpCriterionResultContentEnum{}.yaml",
-								resultContent.getName())));
+				final File connectorFile = new File(
+					String.format(
+						"src/test/resources/test-files/connector/httpCriterionResultContentEnum%s.yaml",
+						resultContent
+					)
+				);
+				final Connector connector = deserializer.deserialize(connectorFile);
 
 				assertNotNull(connector);
-				assertEquals(String.format("httpCriterionResultContentEnum{}", resultContent),
-						connector.getConnectorIdentity().getCompiledFilename());
+				assertEquals(
+					String.format("httpCriterionResultContentEnum%s", resultContent),
+					connector.getConnectorIdentity().getCompiledFilename()
+				);
 
 				assertNotNull(connector.getConnectorIdentity().getDetection().getCriteria());
 				assertEquals(1, connector.getConnectorIdentity().getDetection().getCriteria().size());
