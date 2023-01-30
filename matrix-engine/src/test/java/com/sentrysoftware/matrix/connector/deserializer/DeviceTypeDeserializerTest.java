@@ -11,7 +11,6 @@ import com.sentrysoftware.matrix.connector.model.identity.criterion.DeviceType;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -32,15 +31,7 @@ class DeviceTypeDeserializerTest {
 				.deserialize(new File("src/test/resources/test-files/connector/deviceTypeCriterion.yaml"));
 
 		List<Criterion> expected = new ArrayList<>();
-		Set<OsType> keep = new HashSet<>();
-		Set<OsType> exclude = new HashSet<>();
-
-		for(OsType type : OsType.values()) {
-			keep.add(type);
-			exclude.add(type);
-		}
-		
-		expected.add(new DeviceType("deviceType", false, keep, exclude));
+		expected.add(new DeviceType("deviceType", false, Set.of(OsType.values()), Set.of(OsType.values())));
 
 		assertNotNull(deviceType);
 		assertEquals("deviceTypeCriterion", deviceType.getConnectorIdentity().getCompiledFilename());
@@ -57,10 +48,12 @@ class DeviceTypeDeserializerTest {
 	 */
 	void testDeviceTypeNonEnum() throws IOException {
 
-		// Yaml contains invalid OsType so if deserializer does not throw an invalid exception, test will fail.
+		// Yaml contains invalid OsType so if deserializer does not throw an invalid
+		// exception, test will fail.
 		try {
 			final ConnectorDeserializer deserializer = new ConnectorDeserializer();
-			deserializer.deserialize(new File("src/test/resources/test-files/connector/deviceTypeCriterionNonEnum.yaml"));
+			deserializer
+					.deserialize(new File("src/test/resources/test-files/connector/deviceTypeCriterionNonEnum.yaml"));
 			Assert.fail();
 		} catch (IllegalArgumentException e) {
 			assertEquals(String.format("OsType must be one of [ {} ]", OsType.values().toString()), e.getMessage());
