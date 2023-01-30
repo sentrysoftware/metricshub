@@ -4,3 +4,4 @@ connector:
     criteria:
       - type: deviceType
         keep: [ toto ]
+        exclude: [ toto ]
