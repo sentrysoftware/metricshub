@@ -1,7 +1,5 @@
 package com.sentrysoftware.matrix.connector.model.identity.criterion;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
