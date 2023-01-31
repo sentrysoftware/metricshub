@@ -21,10 +21,10 @@ public class ProductRequirements extends Criterion {
 
 	@Builder
 	public ProductRequirements(
-		@JsonProperty("type") String type,
-		@JsonProperty("forceSerialization") boolean forceSerialization,
-		@JsonProperty("engineVersion") String engineVersion,
-		@JsonProperty("kmVersion") String kmVersion
+		String type,
+		boolean forceSerialization,
+		String engineVersion,
+		String kmVersion
 	) {
 		super(type, forceSerialization);
 		this.engineVersion = engineVersion;
