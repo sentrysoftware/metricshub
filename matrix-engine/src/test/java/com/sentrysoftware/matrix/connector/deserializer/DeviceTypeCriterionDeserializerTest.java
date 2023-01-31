@@ -62,11 +62,12 @@ class DeviceTypeCriterionDeserializerTest {
 			deserializer.deserialize(connectorFile);
 			Assert.fail("Expected an JsonMappingException to be thrown");
 		} catch (JsonMappingException e) {
-			String message = String.format("not one of the values accepted for Enum class: %s",
-					"[SUNOS, OOB, LINUX, NT, HP, STORAGE, VMS, NETWORK, OSF1, RS6000, SOLARIS]");
+			String message = String.format("'toto' is not a supported OsType. Accepted values are: %s",
+					"[ linux, windows, oob, network, storage, vms, tru64, hpux, aix, solaris ]");
 			assertTrue(
-					e.getMessage().contains(message),
-					() -> "Expected exception contains: " + message + ". But got: " + e.getMessage());
+				e.getMessage().contains(message),
+				() -> "Expected exception contains: " + message + ". But got: " + e.getMessage()
+			);
 		}
 	}
 }
