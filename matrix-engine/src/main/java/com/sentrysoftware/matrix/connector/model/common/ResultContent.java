@@ -48,7 +48,7 @@ public enum ResultContent {
 		}
 
 		// No match => Exception
-		throw new IllegalArgumentException("'" + value + "' is not a supported ResultContent");
+		throw new IllegalArgumentException("'" + value + "' is not a supported ResultContent. Accepted values are: [ httpStatus, header, body, all ].");
 	}
 
 }
