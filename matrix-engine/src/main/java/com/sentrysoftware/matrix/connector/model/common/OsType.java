@@ -63,6 +63,7 @@ public enum OsType {
 		}
 
 		// No match => Exception
-		throw new IllegalArgumentException("'" + value + "' is not a supported OsType. Accepted values are: [ linux, windows, oob, network, storage, vms, tru64, hpux, aix, solaris ].");
+		throw new IllegalArgumentException("'" + value+ "' is not a supported OsType."
+			+ " Accepted values are: [ linux, windows, oob, network, storage, vms, tru64, hpux, aix, solaris ].");
 	}
 }
