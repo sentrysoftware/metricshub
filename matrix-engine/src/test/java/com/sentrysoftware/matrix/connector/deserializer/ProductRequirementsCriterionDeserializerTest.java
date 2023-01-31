@@ -8,7 +8,6 @@ import com.sentrysoftware.matrix.connector.model.identity.criterion.Criterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.ProductRequirements;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -19,9 +18,9 @@ class ProductRequirementsCriterionDeserializerTest {
 	/**
 	 * Checks input properties for product requirements detection criteria
 	 *
-	 * @throws IOException
+	 * @throws Exception
 	 */
-	void testDeserializeProductRequirementsDeserializer() throws IOException {
+	void testDeserializeProductRequirementsDeserializer() throws Exception {
 		final ConnectorDeserializer deserializer = new ConnectorDeserializer();
 		final Connector productRequirements = deserializer
 				.deserialize(new File("src/test/resources/test-files/connector/productRequirementsCriterion.yaml"));
