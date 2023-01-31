@@ -11,8 +11,9 @@ import lombok.NoArgsConstructor;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type", visible = true)
 @JsonSubTypes(
-	{ 
+	{
 		@JsonSubTypes.Type(value = Ipmi.class, name = "ipmi"),
+		@JsonSubTypes.Type(value = Http.class, name = "http"),
 		@JsonSubTypes.Type(value = ProductRequirements.class, name = "productRequirements")
 	}
 )
