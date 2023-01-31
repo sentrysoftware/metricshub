@@ -80,9 +80,9 @@ class OsTypeSetDeserializerTest {
 	@Test
 	void testDeserializeArray() throws IOException {
 		{
+			final Set<String> osTypes = Set.of("linux", "windows", "oob", "network", "storage", "vms", "tru64", "hpux", "aix", "solaris");
 			doReturn(true).when(yamlParser).isExpectedStartArrayToken();
-			doReturn(Set.of("linux", "windows", "oob","network", "storage", "vms", "tru64", "hpux", "aix", "solaris"))
-				.when(yamlParser).readValueAs(any(TypeReference.class));
+			doReturn(osTypes).when(yamlParser).readValueAs(any(TypeReference.class));
 			assertEquals(OsType.OS_TYPES, OS_TYPE_DESERIALIZER.deserialize(yamlParser, null));
 		}
 
@@ -91,7 +91,8 @@ class OsTypeSetDeserializerTest {
 			doReturn(
 				Set.of(
 					"linux", "LINUX", "Linux",
-					"windows", "Windows", "NT", "Nt", "nt", "WIN", "win", "Microsoft Windows", "microsoft	 windows", "MicrosoftWindows",
+					"windows", "Windows", "NT", "Nt", "nt", "WIN", "win",
+					"Microsoft Windows", "microsoft	 windows", "MicrosoftWindows",
 					"oob", "management card", "out of band", "out-of-band",
 					"network", "NETWORK", "Network", "Switch", "SWITCH", "switch",
 					"storage", "Storage", "san", "SAN", "library", "array",
@@ -102,7 +103,7 @@ class OsTypeSetDeserializerTest {
 					"solaris", "Solaris", "sunos", "SunOS"
 				)
 			)
-				.when(yamlParser).readValueAs(any(TypeReference.class));
+			.when(yamlParser).readValueAs(any(TypeReference.class));
 			assertEquals(OsType.OS_TYPES, OS_TYPE_DESERIALIZER.deserialize(yamlParser, null));
 		}
 

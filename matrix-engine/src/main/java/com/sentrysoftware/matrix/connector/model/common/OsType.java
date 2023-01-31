@@ -30,16 +30,16 @@ public enum OsType {
 	 * Map each OsType with a regular expression that detects it
 	 */
 	private static final Map<OsType, Pattern> DETECTORS = Map.of(
-			LINUX, Pattern.compile("^linux$"),
-			WINDOWS, Pattern.compile("^(microsoft\\s*)?windows$|^win$|^nt$"),
-			OOB, Pattern.compile("^management\\s*card$|^out-of-band$|^out\\s*of\\s*band$|^oob$"),
-			NETWORK, Pattern.compile("^network$|^switch$"),
-			STORAGE, Pattern.compile("^storage$|^san$|^library$|^array$"),
-			VMS, Pattern.compile("^vms$|^(hp\\s*)?open\\s*vms$"),
-			TRU64, Pattern.compile("^tru64$|^osf1$|^hp\\s*tru64\\s*unix$"),
-			HPUX, Pattern.compile("^hp-ux$|^hpux$|^hp$"),
-			AIX, Pattern.compile("^ibm(\\s*|-)aix$|^aix$|^rs6000$"),
-			SOLARIS, Pattern.compile("^solaris$|^sunos$")
+		LINUX, Pattern.compile("^linux$"),
+		WINDOWS, Pattern.compile("^(microsoft\\s*)?windows$|^win$|^nt$"),
+		OOB, Pattern.compile("^management\\s*card$|^out-of-band$|^out\\s*of\\s*band$|^oob$"),
+		NETWORK, Pattern.compile("^network$|^switch$"),
+		STORAGE, Pattern.compile("^storage$|^san$|^library$|^array$"),
+		VMS, Pattern.compile("^vms$|^(hp\\s*)?open\\s*vms$"),
+		TRU64, Pattern.compile("^tru64$|^osf1$|^hp\\s*tru64\\s*unix$"),
+		HPUX, Pattern.compile("^hp-ux$|^hpux$|^hp$"),
+		AIX, Pattern.compile("^ibm(\\s*|-)aix$|^aix$|^rs6000$"),
+		SOLARIS, Pattern.compile("^solaris$|^sunos$")
 	);
 
 	/**
@@ -63,8 +63,8 @@ public enum OsType {
 		}
 
 		// No match => Exception
-		throw new IllegalArgumentException("'" + value+ "' is not a supported OsType."
-			+ " Accepted values are: [ linux, windows, oob, network, storage, vms, tru64, hpux, aix, solaris ].");
+		throw new IllegalArgumentException("'" + value + "' is not a supported OsType."
+				+ " Accepted values are: [ linux, windows, oob, network, storage, vms, tru64, hpux, aix, solaris ].");
 	}
 
 }
