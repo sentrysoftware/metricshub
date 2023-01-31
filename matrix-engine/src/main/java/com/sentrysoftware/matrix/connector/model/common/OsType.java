@@ -1,7 +1,5 @@
 package com.sentrysoftware.matrix.connector.model.common;
 
-import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -23,5 +21,4 @@ public enum OsType {
 	@Getter
 	private String displayName;
 
-	public static final List<OsType> OS_TYPES = List.of(OsType.values());
 }
