@@ -91,7 +91,7 @@ class OsTypeSetDeserializerTest {
 			doReturn(
 				Set.of(
 					"linux", "LINUX", "Linux",
-					"windows", "Windows", "NT", "Nt", "nt", "WIN", "win", "Microsoft Windows", "microsoft  windows", "MicrosoftWindows",
+					"windows", "Windows", "NT", "Nt", "nt", "WIN", "win", "Microsoft Windows", "microsoft	 windows", "MicrosoftWindows",
 					"oob", "management card", "out of band", "out-of-band",
 					"network", "NETWORK", "Network", "Switch", "SWITCH", "switch",
 					"storage", "Storage", "san", "SAN", "library", "array",
