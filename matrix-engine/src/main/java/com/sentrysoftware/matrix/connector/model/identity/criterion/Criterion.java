@@ -13,7 +13,8 @@ import lombok.NoArgsConstructor;
 @JsonSubTypes(
 	{ 
 		@JsonSubTypes.Type(value = Ipmi.class, name = "ipmi"),
-		@JsonSubTypes.Type(value = Http.class, name = "http")
+		@JsonSubTypes.Type(value = Http.class, name = "http"),
+		@JsonSubTypes.Type(value = DeviceType.class, name = "deviceType")
 	}
 )
 @Data
