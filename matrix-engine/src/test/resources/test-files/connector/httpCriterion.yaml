@@ -3,7 +3,6 @@ connector:
   detection:
     criteria:
       - type: http
-        method: GET
         url: test
         header: $embedded.http-header
         body: test-body
@@ -11,7 +10,22 @@ connector:
         authenticationToken: $embedded.authenticationToken
         expectedResult: result
         errorMessage: error
-
+      - type: http
+        url: test/path1
+        header: $embedded.http-header
+        body: test-body
+        authenticationToken: $embedded.authenticationToken
+        expectedResult: result
+        errorMessage: error
+      - type: http
+        url: test/path2
+        method: POST
+        header: $embedded.http-header
+        body: test-body
+        resultContent:
+        authenticationToken: $embedded.authenticationToken
+        expectedResult: result
+        errorMessage: error
 embedded:
   authenticationToken: test-auth-token
   http-header: |
