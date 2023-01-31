@@ -27,7 +27,7 @@ public enum OsType {
 	public static final Set<OsType> OS_TYPES = Set.of(OsType.values());
 
 	/**
-	 * Map each HostType with a regular expression that detects it
+	 * Map each OsType with a regular expression that detects it
 	 */
 	private static final Map<OsType, Pattern> DETECTORS = Map.of(
 			LINUX, Pattern.compile("^linux$"),
