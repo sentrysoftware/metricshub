@@ -24,7 +24,7 @@ class WbemCriterionDeserializerTest {
 	 *
 	 * @throws IOException
 	 */
-	void testDeserializeWbemCriterion() throws IOException {
+	void testDeserializeWbem() throws IOException {
 		final ConnectorDeserializer deserializer = new ConnectorDeserializer();
 		final Connector connector = deserializer
 				.deserialize(new File("src/test/resources/test-files/connector/wbemCriterion.yaml"));
@@ -56,7 +56,7 @@ class WbemCriterionDeserializerTest {
 	 * 
 	 * @throws IOException
 	 */
-	void testDeserializeNonNull() throws IOException {
+	void testWbemNonNull() throws IOException {
 		try {
 			final ConnectorDeserializer deserializer = new ConnectorDeserializer();
 			deserializer.deserialize(new File("src/test/resources/test-files/connector/wbemCriterionNonNull.yaml"));
