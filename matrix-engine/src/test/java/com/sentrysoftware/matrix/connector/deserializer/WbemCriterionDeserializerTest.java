@@ -20,11 +20,11 @@ class WbemCriterionDeserializerTest {
 
 	@Test
 	/**
-	 * Checks that the criteria type is wbem
+	 * Checks that the criteria type is wbem and that the attributes match the yaml input
 	 *
 	 * @throws IOException
 	 */
-	void testDeserializeWbem() throws IOException {
+	void testDeserializeWbemCriterion() throws IOException {
 		final ConnectorDeserializer deserializer = new ConnectorDeserializer();
 		final Connector connector = deserializer
 				.deserialize(new File("src/test/resources/test-files/connector/wbemCriterion.yaml"));

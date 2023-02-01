@@ -21,7 +21,7 @@ class IpmiCriterionDeserializerTest {
 	 *
 	 * @throws IOException
 	 */
-	void testDeserializeIpmi() throws IOException {
+	void testDeserializeIpmiCriterion() throws IOException {
 		final ConnectorDeserializer deserializer = new ConnectorDeserializer();
 		final Connector connector = deserializer
 				.deserialize(new File("src/test/resources/test-files/connector/ipmiCriterion.yaml"));
