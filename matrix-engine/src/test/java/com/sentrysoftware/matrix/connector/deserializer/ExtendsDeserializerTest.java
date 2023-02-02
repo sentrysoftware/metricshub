@@ -84,7 +84,7 @@ class ExtendsDeserializerTest {
 	}
 
 	@Test
-	void testDeserializeExtendsAcceptSingleValueEmpty() throws IOException {
+	void testDeserializeExtendsAcceptSingleValue() throws IOException {
 		final Connector connector = new ConnectorDeserializer()
 			.deserialize(new File("src/test/resources/test-files/extends/extendsSingleEmptyValue.yaml"));
 		var extendsConnectors = connector.getExtendsConnectors();
