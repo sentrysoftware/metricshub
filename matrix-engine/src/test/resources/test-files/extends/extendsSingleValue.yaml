@@ -1,3 +1,3 @@
 connector:
 
-extends: " "
+extends: Connector1

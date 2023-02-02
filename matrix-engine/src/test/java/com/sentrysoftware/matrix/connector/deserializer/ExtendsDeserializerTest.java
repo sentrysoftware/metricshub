@@ -33,7 +33,7 @@ class ExtendsDeserializerTest {
 	}
 
 	@Test
-	void testDeserializeExtendsNullOrEmptyConnectorRef() {
+	void testDeserializeExtendsNullOrEmptyConnectorRefNotAccepted() {
 		{
 			try {
 				new ConnectorDeserializer()
@@ -68,10 +68,10 @@ class ExtendsDeserializerTest {
 	}
 
 	@Test
-	void testDeserializeExtendsAcceptSingleValueAsList() throws IOException {
+	void testDeserializeExtendsSingleEmptyValueNotAccepted() throws IOException {
 		try {
 			new ConnectorDeserializer()
-				.deserialize(new File("src/test/resources/test-files/extends/extendsSingleValue.yaml"));
+				.deserialize(new File("src/test/resources/test-files/extends/extendsSingleEmptyValue.yaml"));
 
 			Assert.fail("Expected an IOException to be thrown.");
 		} catch (IOException e) {
@@ -84,9 +84,9 @@ class ExtendsDeserializerTest {
 	}
 
 	@Test
-	void testDeserializeExtendsAcceptSingleValue() throws IOException {
+	void testDeserializeExtendsSingleValueAcceptedAsList() throws IOException {
 		final Connector connector = new ConnectorDeserializer()
-			.deserialize(new File("src/test/resources/test-files/extends/extendsSingleEmptyValue.yaml"));
+			.deserialize(new File("src/test/resources/test-files/extends/extendsSingleValue.yaml"));
 		var extendsConnectors = connector.getExtendsConnectors();
 
 		assertTrue(extendsConnectors instanceof List, "extends are expected to be a List.");
@@ -95,7 +95,7 @@ class ExtendsDeserializerTest {
 	}
 
 	@Test
-	void testDeserializeExtendsNullValueAsEmptyList() throws IOException {
+	void testDeserializeExtendsNullValueAcceptedAsEmptyList() throws IOException {
 		final Connector connector = new ConnectorDeserializer()
 			.deserialize(new File("src/test/resources/test-files/extends/extendsNullValue.yaml"));
 		var extendsConnectors = connector.getExtendsConnectors();
