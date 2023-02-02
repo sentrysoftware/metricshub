@@ -1,0 +1,6 @@
+---
+connector:
+  detection:
+    criteria:
+    - type: wmi
+    query: " "
