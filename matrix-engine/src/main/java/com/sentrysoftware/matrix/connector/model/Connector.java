@@ -6,15 +6,12 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.sentrysoftware.matrix.connector.deserializer.custom.ExtendsDeserializer;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.identity.ConnectorIdentity;
 import com.sentrysoftware.matrix.connector.model.metric.MonitorDefinition;
@@ -40,9 +37,8 @@ public class Connector implements Serializable {
 
 	@JsonProperty("extends")
 	@JsonSetter(nulls = SKIP)
-	@JsonDeserialize(using = ExtendsDeserializer.class)
 	@Default
-	private List<String> extendsConnectors = new ArrayList<>();
+	private Set<String> extendsConnectors = new LinkedHashSet<>();
 
 	@Default
 	private Map<String, MonitorDefinition> metricsMapping = new HashMap<>();
