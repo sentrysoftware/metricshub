@@ -19,7 +19,7 @@ import com.sentrysoftware.matrix.connector.model.common.ResultContent;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.Criterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.Http;
 
-class HttpCriterionDeserializerTest {
+class CriteriaHttpDeserializerTest {
 
 	@Test
 	/**
@@ -30,7 +30,7 @@ class HttpCriterionDeserializerTest {
 	void testDeserializeHttpCriterion() throws Exception {
 		final ConnectorDeserializer deserializer = new ConnectorDeserializer();
 		final Connector httpCriterion = deserializer
-				.deserialize(new File("src/test/resources/test-files/connector/httpCriterion.yaml"));
+				.deserialize(new File("src/test/resources/test-files/connector/detection/criteria/http/httpCriterion.yaml"));
 
 		final List<Criterion> expected = new ArrayList<>();
 
@@ -85,7 +85,7 @@ class HttpCriterionDeserializerTest {
 	 */
 	void testDeserializeNonNull() throws Exception {
 		final ConnectorDeserializer deserializer = new ConnectorDeserializer();
-		final File connectorFile = new File("src/test/resources/test-files/connector/httpCriterionNonNull.yaml");
+		final File connectorFile = new File("src/test/resources/test-files/connector/detection/criteria/http/httpCriterionNonNull.yaml");
 		try {
 			deserializer.deserialize(connectorFile);
 			Assert.fail("Expected an MismatchedInputException to be thrown");
@@ -108,7 +108,7 @@ class HttpCriterionDeserializerTest {
 		// fail on not enum value
 		{
 			final ConnectorDeserializer deserializer = new ConnectorDeserializer();
-			final File connectorFile = new File("src/test/resources/test-files/connector/httpCriterionHttpMethodEnum.yaml");
+			final File connectorFile = new File("src/test/resources/test-files/connector/detection/criteria/http/httpCriterionHttpMethodEnum.yaml");
 			try {
 				deserializer.deserialize(connectorFile);
 				Assert.fail("Expected an JsonMappingException to be thrown");
@@ -127,7 +127,7 @@ class HttpCriterionDeserializerTest {
 				final ConnectorDeserializer deserializer = new ConnectorDeserializer();
 				final File connectorFile = new File(
 					String.format(
-						"src/test/resources/test-files/connector/httpCriterionHttpMethodEnum%s.yaml",
+						"src/test/resources/test-files/connector/detection/criteria/http/httpCriterionHttpMethodEnum%s.yaml",
 						method
 					)
 				);
@@ -158,7 +158,7 @@ class HttpCriterionDeserializerTest {
 		// fail on not enum value
 		{
 			final ConnectorDeserializer deserializer = new ConnectorDeserializer();
-			final File connectorFile = new File("src/test/resources/test-files/connector/httpCriterionResultContentEnum.yaml");
+			final File connectorFile = new File("src/test/resources/test-files/connector/detection/criteria/http/httpCriterionResultContentEnum.yaml");
 			try {
 				deserializer.deserialize(connectorFile);
 				Assert.fail("Expected an JsonMappingException to be thrown");
@@ -177,7 +177,7 @@ class HttpCriterionDeserializerTest {
 				final ConnectorDeserializer deserializer = new ConnectorDeserializer();
 				final File connectorFile = new File(
 					String.format(
-						"src/test/resources/test-files/connector/httpCriterionResultContentEnum%s.yaml",
+						"src/test/resources/test-files/connector/detection/criteria/http/httpCriterionResultContentEnum%s.yaml",
 						resultContent
 					)
 				);
