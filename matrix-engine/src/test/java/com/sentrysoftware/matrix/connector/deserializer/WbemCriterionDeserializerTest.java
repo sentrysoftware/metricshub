@@ -27,7 +27,7 @@ class WbemCriterionDeserializerTest {
 	void testDeserializeWbemCriterion() throws IOException {
 		final ConnectorDeserializer deserializer = new ConnectorDeserializer();
 		final Connector connector = deserializer
-				.deserialize(new File("src/test/resources/test-files/connector/wbemCriterion.yaml"));
+				.deserialize(new File("src/test/resources/test-files/connector/detection/criteria/wbem/wbemCriterion.yaml"));
 
 		final List<Criterion> expected = new ArrayList<>();
 
@@ -52,17 +52,53 @@ class WbemCriterionDeserializerTest {
 
 	@Test
 	/**
-	 * Checks that fields that cannot be null throw an error when they are null
+	 * Checks that the namespace field gets assigned the proper default value
+	 * 
+	 * @throws IOException
+	 */
+	void testWbemDefaultNamespace() throws IOException {
+		final ConnectorDeserializer deserializer = new ConnectorDeserializer();
+		final Connector connector = deserializer
+				.deserialize(new File("src/test/resources/test-files/connector/detection/criteria/wbem/wbemCriterionDefaultNamespace.yaml"));
+
+		final List<Criterion> expected = new ArrayList<>();
+
+		final Wbem wbem = Wbem.builder()
+				.type("wbem")
+				.build();
+
+		expected.add(wbem);
+		
+		assertNotNull(connector.getConnectorIdentity().getDetection());
+		List<Criterion> criteria = connector.getConnectorIdentity().getDetection().getCriteria();
+		assertEquals(expected, criteria);
+	}
+
+	@Test
+	/**
+	 * Checks that the query field cannot be null or empty throw an error when they are null
 	 * 
 	 * @throws IOException
 	 */
 	void testWbemNonNull() throws IOException {
-		try {
-			final ConnectorDeserializer deserializer = new ConnectorDeserializer();
-			deserializer.deserialize(new File("src/test/resources/test-files/connector/wbemCriterionNonNull.yaml"));
-			Assert.fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(e.getMessage().contains("cannot be null"));
+		{
+			try {
+				final ConnectorDeserializer deserializer = new ConnectorDeserializer();
+				deserializer.deserialize(new File("src/test/resources/test-files/connector/detection/criteria/wbem/wbemCriterionNullQuery.yaml"));
+				Assert.fail();
+			} catch (IllegalArgumentException e) {
+				assertTrue(e.getMessage().contains("Query cannot be null."));
+			}
+		}
+
+		{
+			try {
+				final ConnectorDeserializer deserializer = new ConnectorDeserializer();
+				deserializer.deserialize(new File("src/test/resources/test-files/connector/detection/criteria/wbem/wbemCriterionEmptyQuery.yaml"));
+				Assert.fail();
+			} catch (IllegalArgumentException e) {
+				assertTrue(e.getMessage().contains("Query cannot be empty."));
+			}
 		}
 	}
 }
