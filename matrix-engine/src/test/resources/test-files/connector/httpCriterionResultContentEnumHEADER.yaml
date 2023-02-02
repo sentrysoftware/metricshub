@@ -1,0 +1,7 @@
+---
+connector:
+  detection:
+    criteria:
+      - type: http
+        url: /
+        resultContent: HEADER

@@ -1,11 +1,21 @@
 package com.sentrysoftware.matrix.connector.model.identity.criterion;
 
+import static com.fasterxml.jackson.annotation.Nulls.FAIL;
+import static com.fasterxml.jackson.annotation.Nulls.SKIP;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.sentrysoftware.matrix.connector.deserializer.custom.ResultContentDeserializer;
+import com.sentrysoftware.matrix.connector.model.common.HttpMethod;
 import com.sentrysoftware.matrix.connector.model.common.ResultContent;
 
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.ToString;
 
 @Data
@@ -16,32 +26,38 @@ public class Http extends Criterion {
 
 	private static final long serialVersionUID = 1L;
 
-	private String method;
+	@JsonSetter(nulls = SKIP)
+	private HttpMethod method = HttpMethod.GET;
+	@NonNull
+	@JsonSetter(nulls = FAIL)
 	private String url;
 	// String or EmbeddedFile reference
 	private String header;
 	private String body;
 	private String expectedResult;
 	private String errorMessage;
+	@JsonDeserialize(using = ResultContentDeserializer.class)
+	@JsonSetter(nulls = SKIP)
 	private ResultContent resultContent = ResultContent.BODY;
 	private String authenticationToken;
 
 	@Builder
+	@JsonCreator
 	public Http( // NOSONAR
-		String type,
-		boolean forceSerialization,
-		String method,
-		String url,
-		String header,
-		String body,
-		String expectedResult,
-		String errorMessage,
-		ResultContent resultContent,
-		String authenticationToken
+		@JsonProperty("type") String type,
+		@JsonProperty("forceSerialization") boolean forceSerialization,
+		@JsonProperty("method") HttpMethod method,
+		@JsonProperty(value = "url", required =  true) @NonNull String url,
+		@JsonProperty("header") String header,
+		@JsonProperty("body") String body,
+		@JsonProperty("expectedResult") String expectedResult,
+		@JsonProperty("errorMessage") String errorMessage,
+		@JsonProperty("resultContent") ResultContent resultContent,
+		@JsonProperty("authenticationToken") String authenticationToken
 	) {
 
 		super(type, forceSerialization);
-		this.method = method;
+		this.method = method == null ? HttpMethod.GET : method;
 		this.url = url;
 		this.header = header;
 		this.body = body;

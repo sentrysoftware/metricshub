@@ -1,10 +1,10 @@
 package com.sentrysoftware.matrix.connector.model.common;
 
-import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NonNull;
 
 @Getter
 @AllArgsConstructor
@@ -15,20 +15,40 @@ public enum ResultContent {
 	BODY("body"),
 	ALL("all");
 
-	private static final List<ResultContent> RESULT_CONTENTS = List.of(ResultContent.values());
+	/**
+	 * Map each ResultContent with a regular expression that detects it
+	 */
+	private static final Map<ResultContent, Pattern> DETECTORS = Map.of(
+		HTTP_STATUS, Pattern.compile("^httpstatus$|^http_status$"),
+		HEADER, Pattern.compile("^header$"),
+		BODY, Pattern.compile("^body$"),
+		ALL, Pattern.compile("^all$")
+	);
 
 	private String name;
 
 	/**
-	 * Get {@link ResultContent} by name, the name defined in the connector
-	 * code
+	 * Detect {@link ResultContent} using the value defined in the connector code
 	 * 
-	 * @param name
+	 * @param value
 	 * @return {@link ResultContent} instance
 	 */
-	public static ResultContent getByName(@NonNull final String name) {
-		return RESULT_CONTENTS.stream().filter(n -> name.equalsIgnoreCase(n.getName())).findFirst()
-				.orElseThrow(() -> new IllegalArgumentException("Undefined ResultContent name: " + name));
+	public static ResultContent detect(final String value) {
+		// Null returns null
+		if (value == null) {
+			return null;
+		}
+
+		// Check all regex in DETECTORS to see which one matches
+		final String lCaseValue = value.trim().toLowerCase();
+		for (Map.Entry<ResultContent, Pattern> detector : DETECTORS.entrySet()) {
+			if (detector.getValue().matcher(lCaseValue).find()) {
+				return detector.getKey();
+			}
+		}
+
+		// No match => Exception
+		throw new IllegalArgumentException("'" + value + "' is not a supported ResultContent. Accepted values are: [ httpStatus, header, body, all ].");
 	}
 
 }
