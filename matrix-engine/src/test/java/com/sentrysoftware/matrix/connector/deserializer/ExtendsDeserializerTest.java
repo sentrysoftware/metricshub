@@ -26,7 +26,10 @@ class ExtendsDeserializerTest {
 
 		var extendsConnectors = connector.getExtendsConnectors();
 
-		assertTrue(extendsConnectors instanceof LinkedHashSet, "extends are expected to be a LinkedHashSet.");
+		assertTrue(
+			extendsConnectors instanceof LinkedHashSet,
+			"extends are expected to be a LinkedHashSet."
+		);
 
 		// We want to keep the order declared in the YAML file
 		// Later in the post parser code, we must keep the same order to perform merge operations
@@ -72,7 +75,9 @@ class ExtendsDeserializerTest {
 	void testDeserializeExtendsSingleEmptyValueNotAccepted() throws IOException {
 		try {
 			new ConnectorDeserializer()
-				.deserialize(new File("src/test/resources/test-files/extends/extendsSingleEmptyValue.yaml"));
+				.deserialize(
+					new File("src/test/resources/test-files/extends/extendsSingleEmptyValue.yaml")
+				);
 
 			Assert.fail("Expected an IOException to be thrown.");
 		} catch (IOException e) {
@@ -90,7 +95,10 @@ class ExtendsDeserializerTest {
 			.deserialize(new File("src/test/resources/test-files/extends/extendsSingleValue.yaml"));
 		var extendsConnectors = connector.getExtendsConnectors();
 
-		assertTrue(extendsConnectors instanceof LinkedHashSet, "extends are expected to be a LinkedHashSet.");
+		assertTrue(
+			extendsConnectors instanceof LinkedHashSet,
+			"extends are expected to be a LinkedHashSet."
+		);
 
 		assertEquals(new LinkedHashSet<>(List.of("Connector1")), extendsConnectors);
 	}
@@ -101,7 +109,24 @@ class ExtendsDeserializerTest {
 			.deserialize(new File("src/test/resources/test-files/extends/extendsNullValue.yaml"));
 		var extendsConnectors = connector.getExtendsConnectors();
 
-		assertTrue(extendsConnectors instanceof LinkedHashSet, "extends are expected to be a LinkedHashSet.");
+		assertTrue(
+			extendsConnectors instanceof LinkedHashSet,
+			"extends are expected to be a LinkedHashSet."
+		);
+
+		assertEquals(Collections.emptySet(), extendsConnectors);
+	}
+
+	@Test
+	void testDeserializeExtendsNonExistant() throws IOException {
+		final Connector connector = new ConnectorDeserializer()
+			.deserialize(new File("src/test/resources/test-files/extends/extendsNonExistant.yaml"));
+		var extendsConnectors = connector.getExtendsConnectors();
+
+		assertTrue(
+			extendsConnectors instanceof LinkedHashSet,
+			"extends are expected to be a LinkedHashSet."
+		);
 
 		assertEquals(Collections.emptySet(), extendsConnectors);
 	}
