@@ -118,7 +118,7 @@ class ExtendsDeserializerTest {
 	}
 
 	@Test
-	void testDeserializeExtendsNonExistant() throws IOException {
+	void testDeserializeExtendsNonExistantAcceptedAsEmptySet() throws IOException {
 		final Connector connector = new ConnectorDeserializer()
 			.deserialize(new File("src/test/resources/test-files/extends/extendsNonExistant.yaml"));
 		var extendsConnectors = connector.getExtendsConnectors();
