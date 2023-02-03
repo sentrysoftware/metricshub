@@ -16,7 +16,8 @@ import lombok.NoArgsConstructor;
 		@JsonSubTypes.Type(value = Http.class, name = "http"),
 		@JsonSubTypes.Type(value = DeviceType.class, name = "deviceType"),
 		@JsonSubTypes.Type(value = ProductRequirements.class, name = "productRequirements"),
-		@JsonSubTypes.Type(value = Wmi.class, name = "wmi")
+		@JsonSubTypes.Type(value = Wmi.class, name = "wmi"),
+		@JsonSubTypes.Type(value = Wbem.class, name = "wbem")
 	}
 )
 @Data
