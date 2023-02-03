@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.connector.deserializer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.InvalidNullException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.sentrysoftware.matrix.connector.model.Connector;
@@ -98,6 +99,34 @@ class CriteriaOsCommandDeserializerTest extends DeserializerTest {
             Assert.fail("Expected an InvalidDefinitionException to be thrown");
         } catch (InvalidNullException e) {
             final String message = "Invalid `null` value encountered for property \"commandLine\"";
+            checkMessage(e, message);
+        }
+    }
+
+    @Test
+    /**
+     * Checks that negative timeout throws exception
+     */
+    void testDeserializeOsCommandNegativeTimeout() throws IOException {
+        try {
+            getConnector("osCommandCriterionNegativeTimeout");
+            Assert.fail("Expected an InvalidFormatException to be thrown");
+        } catch (InvalidFormatException e) {
+            final String message = "Invalid negative or zero value encountered for property 'timeout'";
+            checkMessage(e, message);
+        }
+    }
+
+    @Test
+    /**
+     * Checks that zero timeout throws exception
+     */
+    void testDeserializeOsCommandZeroTimeout() throws IOException {
+        try {
+            getConnector("osCommandCriterionZeroTimeout");
+            Assert.fail("Expected an InvalidFormatException to be thrown");
+        } catch (InvalidFormatException e) {
+            final String message = "Invalid negative or zero value encountered for property 'timeout'";
             checkMessage(e, message);
         }
     }
