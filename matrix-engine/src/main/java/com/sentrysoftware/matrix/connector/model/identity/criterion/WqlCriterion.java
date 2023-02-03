@@ -1,8 +1,16 @@
 package com.sentrysoftware.matrix.connector.model.identity.criterion;
 
+import com.sentrysoftware.matrix.connector.deserializer.custom.NonBlankDeserializer;
+import static com.fasterxml.jackson.annotation.Nulls.FAIL;
+import static com.fasterxml.jackson.annotation.Nulls.SKIP;
+
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @Data
 @NoArgsConstructor
@@ -11,7 +19,12 @@ public abstract class WqlCriterion extends Criterion {
 
 	private static final long serialVersionUID = 1L;
 
+	@NonNull
+	@JsonSetter(nulls = FAIL)
+	@JsonDeserialize(using = NonBlankDeserializer.class)
 	private String query;
+	@JsonSetter(nulls = SKIP)
+	@JsonDeserialize(using = NonBlankDeserializer.class)
 	private String namespace = "root/cimv2";
 	private String expectedResult;
 	private String errorMessage;
@@ -19,7 +32,7 @@ public abstract class WqlCriterion extends Criterion {
 	protected WqlCriterion(
 		String type,
 		boolean forceSerialization,
-		String query,
+		@NonNull String query,
 		String namespace,
 		String expectedResult,
 		String errorMessage
@@ -27,7 +40,7 @@ public abstract class WqlCriterion extends Criterion {
 
 		super(type, forceSerialization);
 		this.query = query;
-		this.namespace = namespace;
+		this.namespace = namespace == null ? "root/cimv2": namespace;
 		this.expectedResult = expectedResult;
 		this.errorMessage = errorMessage;
 	}
