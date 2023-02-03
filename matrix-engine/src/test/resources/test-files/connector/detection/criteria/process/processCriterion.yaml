@@ -1,0 +1,7 @@
+---
+connector:
+  detection:
+    criteria:
+      - type: process
+        commandLine: naviseccli -help
+        forceSerialization: true

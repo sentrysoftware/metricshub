@@ -1,0 +1,6 @@
+---
+connector:
+  detection:
+    criteria:
+      - type: process
+        commandLine: " "
