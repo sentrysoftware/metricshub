@@ -1,22 +1,23 @@
 package com.sentrysoftware.matrix.connector.deserializer;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Assert;
-import org.junit.jupiter.api.Test;
-
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.fasterxml.jackson.databind.exc.InvalidNullException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.Criterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.Wmi;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.Assert;
+import org.junit.jupiter.api.Test;
 
-class WmiCriterionDeserializerTest {
+class WmiCriterionDeserializerTest extends DeserializerTest {
+
+	@Override
+	public String getResourcePath() {
+		return "src/test/resources/test-files/connector/detection/criteria/wmi/";
+	}
 
 	@Test
 	/**
@@ -25,80 +26,100 @@ class WmiCriterionDeserializerTest {
 	 * @throws IOException
 	 */
 	void testDeserializeWmiCriterion() throws IOException {
-		final ConnectorDeserializer deserializer = new ConnectorDeserializer();
-		final Connector connector = deserializer
-				.deserialize(new File("src/test/resources/test-files/connector/detection/criteria/wmi/wmiCriterion.yaml"));
+		final Connector connector = getConnector("wmiCriterion");
 
 		final List<Criterion> expected = new ArrayList<>();
 
-		final Wmi wmi = Wmi.builder()
-				.type("wmi")
-				.query("testQuery")
-				.namespace("testNamespace")
-				.expectedResult("testExpectedResult")
-				.errorMessage("testErrorMessage")
-				.forceSerialization(true)
-				.build();
+		final Wmi wmi = Wmi
+			.builder()
+			.type("wmi")
+			.query("testQuery")
+			.namespace("testNamespace")
+			.expectedResult("testExpectedResult")
+			.errorMessage("testErrorMessage")
+			.forceSerialization(true)
+			.build();
 
 		expected.add(wmi);
 
-		assertNotNull(connector);
-		assertEquals("wmiCriterion", connector.getConnectorIdentity().getCompiledFilename());
-
-		assertNotNull(connector.getConnectorIdentity().getDetection());
-		List<Criterion> criteria = connector.getConnectorIdentity().getDetection().getCriteria();
-		assertEquals(expected, criteria);
+		compareCriterion("wmiCriterion", connector, expected);
 	}
 
 	@Test
 	/**
 	 * Checks that the namespace field gets assigned the proper default value
-	 * 
+	 *
 	 * @throws IOException
 	 */
-	void testWbemDefaultNamespace() throws IOException {
-		final ConnectorDeserializer deserializer = new ConnectorDeserializer();
-		final Connector connector = deserializer
-				.deserialize(new File("src/test/resources/test-files/connector/detection/criteria/wmi/wmiCriterionDefaultNamespace.yaml"));
+	void testWmiDefaultNamespace() throws IOException { // NOSONAR compareCriterion performs assertion
+		final Connector connector = getConnector("wmiCriterionDefaultNamespace");
 
 		final List<Criterion> expected = new ArrayList<>();
 
-		final Wmi wmi = Wmi.builder()
-				.type("wbem")
-				.build();
+		final Wmi wmi = Wmi.builder().type("wmi").query("testQuery").build();
 
 		expected.add(wmi);
-		
-		assertNotNull(connector.getConnectorIdentity().getDetection());
-		List<Criterion> criteria = connector.getConnectorIdentity().getDetection().getCriteria();
-		assertEquals(expected, criteria);
+
+		compareCriterion("wmiCriterionDefaultNamespace", connector, expected);
 	}
 
 	@Test
 	/**
-	 * Checks that the query field throws an error when they are null or empty
-	 * 
+	 * Checks that the query field throws an error when it is null or missing
+	 *
 	 * @throws IOException
 	 */
-	void testWmiNonNull() throws IOException {
+	void testWmiMissingOrNullQueryNotAccepted() throws IOException {
 		{
 			try {
-				final ConnectorDeserializer deserializer = new ConnectorDeserializer();
-				deserializer.deserialize(new File("src/test/resources/test-files/connector/wmi/wmiCriterionNullQuery.yaml"));
-				Assert.fail();
-			} catch (IllegalArgumentException e) {
-				assertTrue(e.getMessage().contains("Query cannot be null."));
+				getConnector("wmiCriterionMissingQuery");
+				Assert.fail("Expected an MismatchedInputException to be thrown");
+			} catch (MismatchedInputException e) {
+				final String message = "Missing required creator property 'query' (index 2)";
+				checkMessage(e, message);
 			}
 		}
 
 		{
 			try {
-				final ConnectorDeserializer deserializer = new ConnectorDeserializer();
-				deserializer.deserialize(new File("src/test/resources/test-files/connector/wmi/wmiCriterionEmptyQuery.yaml"));
-				Assert.fail();
-			} catch (IllegalArgumentException e) {
-				assertTrue(e.getMessage().contains("Query cannot be empty."));
+				getConnector("wmiCriterionNullQuery");
+				Assert.fail("Expected an MismatchedInputException to be thrown");
+			} catch (InvalidNullException e) {
+				final String message = "Invalid `null` value encountered for property \"query\"";
+				checkMessage(e, message);
 			}
+		}
+	}
+
+	@Test
+	/**
+	 * Checks that the query field throws an error when it is blank
+	 *
+	 * @throws IOException
+	 */
+	void testWmiBlankQueryNotAccepted() throws IOException {
+		try {
+			getConnector("wmiCriterionBlankQuery");
+			Assert.fail("Expected an InvalidFormatException to be thrown.");
+		} catch (InvalidFormatException e) {
+			String message = "Invalid blank value encountered for property 'query'.";
+			checkMessage(e, message);
+		}
+	}
+
+	@Test
+	/**
+	 * Checks that the namespace field throws an error when it is blank
+	 *
+	 * @throws IOException
+	 */
+	void testWmiBlankNamespaceNotAccepted() throws IOException {
+		try {
+			getConnector("wmiCriterionBlankNamespace");
+			Assert.fail("Expected an InvalidFormatException to be thrown.");
+		} catch (InvalidFormatException e) {
+			String message = "Invalid blank value encountered for property 'namespace'.";
+			checkMessage(e, message);
 		}
 	}
 }
