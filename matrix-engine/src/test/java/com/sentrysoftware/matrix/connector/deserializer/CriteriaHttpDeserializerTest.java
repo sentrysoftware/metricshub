@@ -2,9 +2,7 @@ package com.sentrysoftware.matrix.connector.deserializer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +17,12 @@ import com.sentrysoftware.matrix.connector.model.common.ResultContent;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.Criterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.Http;
 
-class HttpCriterionDeserializerTest {
+class CriteriaHttpDeserializerTest extends DeserializerTest {
+
+	@Override
+	public String getResourcePath() {
+		return "src/test/resources/test-files/connector/detection/criteria/http/";
+	}
 
 	@Test
 	/**
@@ -28,23 +31,22 @@ class HttpCriterionDeserializerTest {
 	 * @throws IOException
 	 */
 	void testDeserializeHttpCriterion() throws Exception {
-		final ConnectorDeserializer deserializer = new ConnectorDeserializer();
-		final Connector httpCriterion = deserializer
-				.deserialize(new File("src/test/resources/test-files/connector/httpCriterion.yaml"));
+		final String testResource = "httpCriterion";
+		final Connector httpCriterion = getConnector(testResource);
 
 		final List<Criterion> expected = new ArrayList<>();
 
 		final Http http1 = Http.builder()
-			.type("http")
-			.method(HttpMethod.GET) // The connector doesn't define the method (default: Get)
-			.url("test")
-			.header("$embedded.http-header")
-			.authenticationToken("$embedded.authenticationToken")
-			.body("test-body")
-			.resultContent(ResultContent.ALL)
-			.expectedResult("result")
-			.errorMessage("error")
-			.build();
+				.type("http")
+				.method(HttpMethod.GET) // The connector doesn't define the method (default: Get)
+				.url("test")
+				.header("$embedded.http-header")
+				.authenticationToken("$embedded.authenticationToken")
+				.body("test-body")
+				.resultContent(ResultContent.ALL)
+				.expectedResult("result")
+				.errorMessage("error")
+				.build();
 		final Http http2 = Http.builder()
 				.type("http")
 				.method(HttpMethod.GET) // The connector doesn't define the method (default: Get)
@@ -70,11 +72,7 @@ class HttpCriterionDeserializerTest {
 
 		expected.addAll(List.of(http1, http2, http3));
 
-		assertNotNull(httpCriterion);
-		assertEquals("httpCriterion", httpCriterion.getConnectorIdentity().getCompiledFilename());
-
-		assertNotNull(httpCriterion.getConnectorIdentity().getDetection());
-		assertEquals(expected, httpCriterion.getConnectorIdentity().getDetection().getCriteria());
+		compareCriterion(testResource, httpCriterion, expected);
 	}
 
 	@Test
@@ -84,17 +82,12 @@ class HttpCriterionDeserializerTest {
 	 * @throws IOException
 	 */
 	void testDeserializeNonNull() throws Exception {
-		final ConnectorDeserializer deserializer = new ConnectorDeserializer();
-		final File connectorFile = new File("src/test/resources/test-files/connector/httpCriterionNonNull.yaml");
 		try {
-			deserializer.deserialize(connectorFile);
+			getConnector("httpCriterionNonNull");
 			Assert.fail("Expected an MismatchedInputException to be thrown");
 		} catch (MismatchedInputException e) {
 			final String message = "Missing required creator property 'url' (index 3)";
-			assertTrue(
-				e.getMessage().contains(message),
-				() -> "Expected exception contains: " + message + ". But got: " + e.getMessage()
-			);
+			checkMessage(e, message);
 		}
 	}
 
@@ -107,43 +100,31 @@ class HttpCriterionDeserializerTest {
 	void testDeserializeHttpMethodEnum() throws Exception {
 		// fail on not enum value
 		{
-			final ConnectorDeserializer deserializer = new ConnectorDeserializer();
-			final File connectorFile = new File("src/test/resources/test-files/connector/httpCriterionHttpMethodEnum.yaml");
 			try {
-				deserializer.deserialize(connectorFile);
-				Assert.fail("Expected an JsonMappingException to be thrown");
+				getConnector("httpCriterionHttpMethodEnum");
+				Assert.fail(JSON_MAPPING_EXCEPTION_MSG);
 			} catch (JsonMappingException e) {
 				String message = "not one of the values accepted for Enum class: [POST, DELETE, GET]";
-				assertTrue(
-					e.getMessage().contains(message),
-					() -> "Expected exception contains: " + message + ". But got: " + e.getMessage()
-				);
+				checkMessage(e, message);
 			}
 		}
 
 		// pass on Enum values
 		{
 			for (HttpMethod method : HttpMethod.values()) {
-				final ConnectorDeserializer deserializer = new ConnectorDeserializer();
-				final File connectorFile = new File(
-					String.format(
-						"src/test/resources/test-files/connector/httpCriterionHttpMethodEnum%s.yaml",
-						method
-					)
-				);
-				final Connector connector = deserializer.deserialize(
-						connectorFile);
+				String testResource = String.format("httpCriterionHttpMethodEnum%s", method);
+				Connector connector = getConnector(testResource);
 
 				assertNotNull(connector);
 				assertEquals(
-					String.format("httpCriterionHttpMethodEnum%s", method),
-					connector.getConnectorIdentity().getCompiledFilename()
-				);
+						testResource,
+						connector.getConnectorIdentity().getCompiledFilename());
 
 				assertNotNull(connector.getConnectorIdentity().getDetection().getCriteria());
 				assertEquals(1, connector.getConnectorIdentity().getDetection().getCriteria().size());
 
-				assertEquals(method, ((Http) connector.getConnectorIdentity().getDetection().getCriteria().get(0)).getMethod());
+				assertEquals(method,
+						((Http) connector.getConnectorIdentity().getDetection().getCriteria().get(0)).getMethod());
 			}
 		}
 	}
@@ -157,37 +138,25 @@ class HttpCriterionDeserializerTest {
 	void testDeserializeResultContentEnum() throws Exception {
 		// fail on not enum value
 		{
-			final ConnectorDeserializer deserializer = new ConnectorDeserializer();
-			final File connectorFile = new File("src/test/resources/test-files/connector/httpCriterionResultContentEnum.yaml");
 			try {
-				deserializer.deserialize(connectorFile);
-				Assert.fail("Expected an JsonMappingException to be thrown");
+				getConnector("httpCriterionResultContentEnum");
+				Assert.fail(JSON_MAPPING_EXCEPTION_MSG);
 			} catch (JsonMappingException e) {
 				String message = "'toto' is not a supported ResultContent";
-				assertTrue(
-					e.getMessage().contains(message),
-					() -> "Expected exception contains: " + message + ". But got: " + e.getMessage()
-				);
+				checkMessage(e, message);
 			}
 		}
 
 		// pass on Enum values
 		{
 			for (ResultContent resultContent : ResultContent.values()) {
-				final ConnectorDeserializer deserializer = new ConnectorDeserializer();
-				final File connectorFile = new File(
-					String.format(
-						"src/test/resources/test-files/connector/httpCriterionResultContentEnum%s.yaml",
-						resultContent
-					)
-				);
-				final Connector connector = deserializer.deserialize(connectorFile);
+				String testResource = String.format("httpCriterionResultContentEnum%s", resultContent);
+				Connector connector = getConnector(testResource);
 
 				assertNotNull(connector);
 				assertEquals(
-					String.format("httpCriterionResultContentEnum%s", resultContent),
-					connector.getConnectorIdentity().getCompiledFilename()
-				);
+						testResource,
+						connector.getConnectorIdentity().getCompiledFilename());
 
 				assertNotNull(connector.getConnectorIdentity().getDetection().getCriteria());
 				assertEquals(1, connector.getConnectorIdentity().getDetection().getCriteria().size());
