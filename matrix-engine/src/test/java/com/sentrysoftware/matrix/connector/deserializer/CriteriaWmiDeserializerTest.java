@@ -12,7 +12,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
-class WmiCriterionDeserializerTest extends DeserializerTest {
+class CriteriaWmiDeserializerTest extends DeserializerTest {
 
 	@Override
 	public String getResourcePath() {
