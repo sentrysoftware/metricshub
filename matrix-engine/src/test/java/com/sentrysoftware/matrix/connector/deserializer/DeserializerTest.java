@@ -29,10 +29,10 @@ abstract class DeserializerTest implements IDeserializerTest {
 				() -> "Exception expected to contain: " + message + ". But got: " + e.getMessage());
 	}
 
-	protected void compareCriterion(String testResource, final Connector deviceType, List<Criterion> expected) {
-		assertNotNull(deviceType);
+	protected void compareCriterion(String testResource, final Connector connector, List<Criterion> expected) {
+		assertNotNull(connector);
 
-		final ConnectorIdentity connectorIdentity = deviceType.getConnectorIdentity();
+		final ConnectorIdentity connectorIdentity = connector.getConnectorIdentity();
 		assertEquals(testResource, connectorIdentity.getCompiledFilename());
 
 		assertNotNull(connectorIdentity.getDetection());
