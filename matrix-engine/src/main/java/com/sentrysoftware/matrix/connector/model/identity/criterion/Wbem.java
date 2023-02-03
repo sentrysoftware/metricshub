@@ -1,9 +1,13 @@
 package com.sentrysoftware.matrix.connector.model.identity.criterion;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @Data
 @NoArgsConstructor
@@ -12,14 +16,15 @@ public class Wbem extends WqlCriterion {
 
 	private static final long serialVersionUID = 1L;
 
+	@JsonCreator
 	@Builder
 	public Wbem(
-		String type,
-		boolean forceSerialization,
-		String query,
-		String namespace,
-		String expectedResult,
-		String errorMessage
+		@JsonProperty("type") String type,
+		@JsonProperty("forceSerialization") boolean forceSerialization,
+		@JsonProperty(value = "query", required =  true) @NonNull String query,
+		@JsonProperty(value = "namespace") String namespace,
+		@JsonProperty(value = "expectedResult") String expectedResult,
+		@JsonProperty(value = "errorMessage") String errorMessage
 	) {
 
 		super(type, forceSerialization, query, namespace, expectedResult, errorMessage);
