@@ -55,4 +55,20 @@ class TimeoutDeserializerTest {
 			);
 		}
 	}
+
+	@Test
+	void testZeroValue() throws Exception {
+		doReturn(0L).when(yamlParser).getValueAsLong();
+		doReturn("key").when(yamlParser).getCurrentName();
+		try {
+			NON_NEGATIVE_DERSERIALIZER.deserialize(yamlParser, null);
+			fail("Expected IOException to be thrown");
+		} catch (InvalidFormatException e) {
+			String message = "Invalid negative or zero value encountered for property 'key'.";
+			assertTrue(
+				e.getMessage().contains(message),
+				() -> "Expected exception contains: " + message + ". But got: " + e.getMessage()
+			);
+		}
+	}
 }
