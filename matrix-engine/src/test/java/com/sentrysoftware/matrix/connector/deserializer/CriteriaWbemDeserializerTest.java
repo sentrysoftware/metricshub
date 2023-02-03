@@ -83,7 +83,7 @@ class CriteriaWbemDeserializerTest extends DeserializerTest {
 		{
 			try {
 				getConnector("wbemCriterionNullQuery");
-				Assert.fail("Expected an MismatchedInputException to be thrown");
+				Assert.fail("Expected an InvalidNullException to be thrown");
 			} catch (InvalidNullException e) {
 				final String message = "Invalid `null` value encountered for property \"query\"";
 				checkMessage(e, message);
