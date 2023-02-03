@@ -2,5 +2,4 @@
 connector:
   detection:
     criteria:
-    - type: wbem
-      query: 
+      - type: http

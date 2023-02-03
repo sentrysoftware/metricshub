@@ -3,4 +3,3 @@ connector:
   detection:
     criteria:
     - type: wbem
-      query: 
