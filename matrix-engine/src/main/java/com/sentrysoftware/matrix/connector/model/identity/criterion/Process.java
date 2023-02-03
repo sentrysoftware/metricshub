@@ -31,8 +31,7 @@ public class Process extends Criterion {
 	public Process(
 			@JsonProperty("type") String type,
 			@JsonProperty("forceSerialization") boolean forceSerialization,
-			@JsonProperty("commandLine") @NonNull String commandLine,
-			@JsonProperty("index") int index) {
+			@JsonProperty("commandLine") @NonNull String commandLine) {
 
 		super(type, forceSerialization);
 		this.commandLine = commandLine;

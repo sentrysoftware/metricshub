@@ -1,15 +1,11 @@
 package com.sentrysoftware.matrix.connector.deserializer;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.InvalidNullException;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.Criterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.Process;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +35,7 @@ class CriteriaProcessDeserializerTest extends DeserializerTest {
         final String commandLine = "naviseccli -help";
 
         expected.add(
-                new Process("process", true, commandLine, 0));
+                new Process("process", true, commandLine));
 
         compareCriterion(testResource, process, expected);
     }
@@ -54,7 +50,7 @@ class CriteriaProcessDeserializerTest extends DeserializerTest {
         // commandLine is null
         try {
             getConnector("processCriterionNullCommandLine");
-            Assert.fail();
+            Assert.fail(INVALID_NULL_EXCEPTION_MSG);
         } catch (InvalidNullException e) {
             final String message = "Invalid `null` value encountered for property \"commandLine\"";
             checkMessage(e, message);
@@ -71,7 +67,7 @@ class CriteriaProcessDeserializerTest extends DeserializerTest {
         // commandLine is blank
         try {
             getConnector("processCriterionBlankCommandLine");
-            Assert.fail();
+            Assert.fail(INVALID_FORMAT_EXCEPTION_MSG);
         } catch (InvalidFormatException e) {
             final String message = "Invalid blank value encountered for property 'commandLine'.";
             checkMessage(e, message);
@@ -88,7 +84,7 @@ class CriteriaProcessDeserializerTest extends DeserializerTest {
         // no commandline defined
         try {
             getConnector("processCriterionNoCommandLine");
-            Assert.fail();
+            Assert.fail(INVALID_NULL_EXCEPTION_MSG);
         } catch (InvalidNullException e) {
             final String message = "Invalid `null` value encountered for property \"commandLine\"";
             checkMessage(e, message);
