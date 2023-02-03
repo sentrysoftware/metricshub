@@ -19,7 +19,7 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
-class DeviceTypeCriterionDeserializerTest {
+class CriteriaDeviceTypeDeserializerTest {
 
 	@Test
 	/**
@@ -30,7 +30,7 @@ class DeviceTypeCriterionDeserializerTest {
 	void testDeserializeDeviceType() throws Exception {
 		final ConnectorDeserializer deserializer = new ConnectorDeserializer();
 		final Connector deviceType = deserializer
-				.deserialize(new File("src/test/resources/test-files/connector/deviceTypeCriterion.yaml"));
+				.deserialize(new File("src/test/resources/test-files/connector/detection/criteria/deviceType/deviceTypeCriterion.yaml"));
 
 		List<Criterion> expected = new ArrayList<>();
 		expected.add(new DeviceType("deviceType", false, Set.of(OsType.values()), Set.of(OsType.values())));
@@ -57,7 +57,7 @@ class DeviceTypeCriterionDeserializerTest {
 
 		final ConnectorDeserializer deserializer = new ConnectorDeserializer();
 		final File connectorFile = new File(
-				"src/test/resources/test-files/connector/deviceTypeCriterionOsTypeNonEnum.yaml");
+				"src/test/resources/test-files/connector/detection/criteria/deviceType/deviceTypeCriterionOsTypeNonEnum.yaml");
 		try {
 			deserializer.deserialize(connectorFile);
 			Assert.fail("Expected an JsonMappingException to be thrown");

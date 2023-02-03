@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-class ProductRequirementsCriterionDeserializerTest {
+class CriteriaProductRequirementsDeserializerTest {
 
 	@Test
 	/**
@@ -23,7 +23,7 @@ class ProductRequirementsCriterionDeserializerTest {
 	void testDeserializeProductRequirementsDeserializer() throws Exception {
 		final ConnectorDeserializer deserializer = new ConnectorDeserializer();
 		final Connector productRequirements = deserializer
-				.deserialize(new File("src/test/resources/test-files/connector/productRequirementsCriterion.yaml"));
+				.deserialize(new File("src/test/resources/test-files/connector/detection/criteria/productRequirements/productRequirementsCriterion.yaml"));
 
 		List<Criterion> expected = new ArrayList<>();
 		expected.add(new ProductRequirements("productRequirements", false, "testengineversion", "testkmversion"));
