@@ -6,16 +6,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.doReturn;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.fasterxml.jackson.dataformat.yaml.YAMLParser;
+import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
 import java.io.IOException;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-import com.fasterxml.jackson.dataformat.yaml.YAMLParser;
-import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
 
 @ExtendWith(MockitoExtension.class)
 class NonBlankDeserializerTest {
@@ -44,7 +42,7 @@ class NonBlankDeserializerTest {
 	}
 
 	@Test
-	void testBlankValue() throws Exception { 
+	void testBlankValue() throws Exception {
 		{
 			doReturn("  ").when(yamlParser).getValueAsString();
 			doReturn("key").when(yamlParser).getCurrentName();
