@@ -1,0 +1,6 @@
+---
+connector:
+  detection:
+    criteria:
+      - type: snmpGetNext
+        oid: " "
