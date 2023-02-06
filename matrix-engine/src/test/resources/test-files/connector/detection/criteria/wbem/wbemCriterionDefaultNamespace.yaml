@@ -1,0 +1,6 @@
+---
+connector:
+  detection:
+    criteria:
+    - type: wbem
+      query: testQuery         # Mandatory and cannot be null
