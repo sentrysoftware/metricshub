@@ -1,0 +1,6 @@
+---
+connector:
+  detection:
+    criteria:
+      - type: service
+        name: TWGIPC
