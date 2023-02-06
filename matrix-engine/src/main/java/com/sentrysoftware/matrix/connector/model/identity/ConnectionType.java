@@ -1,16 +1,14 @@
 package com.sentrysoftware.matrix.connector.model.identity;
 
-import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
-
 public enum ConnectionType {
 
 	REMOTE, LOCAL;
 
 	/**
-	 * Detect {@link DeviceKind} using the value defined in the connector code
+	 * Detect {@link ConnectionType} using the value defined in the connector code
 	 *
 	 * @param value
-	 * @return {@link DeviceKind} instance
+	 * @return {@link ConnectionType} instance
 	 */
 	public static ConnectionType detect(final String value) {
 		// Null returns null
