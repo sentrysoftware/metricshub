@@ -1,0 +1,5 @@
+---
+connector:
+  detection:
+    criteria:
+      - type: osCommand
