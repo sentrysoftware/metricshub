@@ -14,15 +14,17 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.InvalidNullException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import com.sentrysoftware.matrix.connector.model.identity.ConnectionType;
 import com.sentrysoftware.matrix.connector.model.identity.Detection;
 
 class DetectionDeserializerTest extends DeserializerTest {
+
+	private static final String SUPERSEDES_ERROR_MSG = "The connector referenced by 'supersedes' cannot be empty.";
 
 	@Override
 	public String getResourcePath() {
@@ -45,12 +47,15 @@ class DetectionDeserializerTest extends DeserializerTest {
 		assertNotNull(detection.getConnectorIdentity().getDetection());
 
 		// appliesTo
-		final Detection expectedAppliesTo = Detection.builder().appliesTo(Set.of(DeviceKind.values())).build();
-		assertEquals(expectedAppliesTo.getAppliesTo(), detection.getConnectorIdentity().getDetection().getAppliesTo());
-		
+		final Detection expected = Detection
+			.builder()
+			.appliesTo(Set.of(DeviceKind.values()))
+			.connectionTypes(Set.of(ConnectionType.values()))
+			.build();
+		assertEquals(expected.getAppliesTo(), detection.getConnectorIdentity().getDetection().getAppliesTo());
+
 		// connectionTypes
-		final Detection expectedConnectionType = Detection.builder().connectionTypes(Set.of(ConnectionType.values())).build();
-		assertEquals(expectedConnectionType.getConnectionTypes(), detection.getConnectorIdentity().getDetection().getConnectionTypes());
+		assertEquals(expected.getConnectionTypes(), detection.getConnectorIdentity().getDetection().getConnectionTypes());
 
 		// disableAutoDetection
 		assertEquals(true, detection.getConnectorIdentity().getDetection().isDisableAutoDetection());
@@ -78,9 +83,9 @@ class DetectionDeserializerTest extends DeserializerTest {
 
 		try {
 			getConnector("appliesToEmpty");
-			Assert.fail("Expected an InvalidFormatException to be thrown.");
-		} catch (InvalidFormatException e) {
-			final String message = "Invalid blank value encountered for property \"appliesTo\".";
+			Assert.fail("Expected an IOException to be thrown.");
+		} catch (IOException e) {
+			final String message = "' ' is not a supported device kind.";
 			checkMessage(e, message);
 		}
 	}
@@ -112,9 +117,9 @@ class DetectionDeserializerTest extends DeserializerTest {
 
 		try {
 			getConnector("appliesToInvalid");
-			Assert.fail(JSON_MAPPING_EXCEPTION_MSG);
-		} catch (JsonMappingException e) {
-			checkMessage(e, "\"unknownValue\" is not a supported device kind.");
+			Assert.fail("Expected an IOException to be thrown.");
+		} catch (IOException e) {
+			checkMessage(e, "'unknownValue' is not a supported device kind.");
 		}
 	}
 
@@ -127,9 +132,9 @@ class DetectionDeserializerTest extends DeserializerTest {
 	void testDeserializeAppliesToCommentedOut() throws IOException {
 		try {
 			getConnector("appliesToCommentedOut");
-			Assert.fail("Expected an InvalidNullException to be thrown.");
-		} catch (InvalidNullException e) {
-			final String message = "Invalid `null` value encountered for property \"appliesTo\"";
+			Assert.fail("Expected an MismatchedInputException to be thrown.");
+		} catch (MismatchedInputException e) {
+			final String message = "Missing required creator property 'appliesTo' (index 3)";
 			checkMessage(e, message);
 		}
 	}
@@ -137,7 +142,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 	/*
 	* connectionTypes
 	*/
-	
+
 	@Test
 	/**
 	 * connectionTypes: check that an empty value is defaulted to local
@@ -145,7 +150,24 @@ class DetectionDeserializerTest extends DeserializerTest {
 	 * @throws Exception
 	 */
 	void testDeserializeConnectionTypeEmpty() throws IOException {
-		final Connector detection = getConnector("connectionTypesEmpty");
+		try {
+			getConnector("connectionTypesEmpty");
+			Assert.fail("Expected an IOException to be thrown.");
+		} catch (IOException e) {
+			final String message = "ConnectionType must be a known connection type (local, remote)";
+			checkMessage(e, message);
+		}
+	}
+
+	/**
+	 * Check that the parsing of the given connector is defaulted to local
+	 * connection type
+	 * 
+	 * @param connectorName
+	 * @throws IOException
+	 */
+	private void testDefaultConnectionType(String connectorName) throws IOException {
+		final Connector detection = getConnector(connectorName);
 
 		assertEquals(
 			Collections.singleton(ConnectionType.LOCAL),
@@ -160,26 +182,17 @@ class DetectionDeserializerTest extends DeserializerTest {
 	 * @throws Exception
 	 */
 	void testDeserializeConnectionTypeNull() throws IOException {
-		final Connector detection = getConnector("connectionTypesNull");
-
-		assertEquals(
-			Collections.singleton(ConnectionType.LOCAL),
-			detection.getConnectorIdentity().getDetection().getConnectionTypes()
-		);
+		testDefaultConnectionType("connectionTypesNull");
 	}
 
+	@Test
 	/**
 	 * connectionTypes: check that an commented-out value is defaulted to local
 	 * @throws IOException 
 	 *
 	 */
 	void testDeserializeConnectionTypeCommentedOut() throws IOException {
-		final Connector detection = getConnector("connectionTypesCommentedOut");
-
-		assertEquals(
-			Collections.singleton(ConnectionType.LOCAL),
-			detection.getConnectorIdentity().getDetection().getConnectionTypes()
-		);
+		testDefaultConnectionType("connectionTypesCommentedOut");
 	}
 
 	@Test
@@ -194,17 +207,16 @@ class DetectionDeserializerTest extends DeserializerTest {
 			getConnector("connectionTypesInvalid");
 			Assert.fail("Expected an IOException to be thrown.");
 		} catch (IOException e) {
-			final String message = "connectionType must be a known connection type (local, remote)";
-			assertTrue(
-					e.getMessage().contains(message),
-					() -> "Expected exception should contain \"" + message + "\" but got the following error instead: " + e.getMessage());
+			final String message = "ConnectionType must be a known connection type (local, remote)";
+			checkMessage(e, message);
 		}
 	}
 
 	//
 	// disableAutoDetection
 	//
-	
+
+	@Test
 	/**
 	 * disableAutoDetection: check that an empty value is defaulted to false
 	 * 
@@ -212,11 +224,22 @@ class DetectionDeserializerTest extends DeserializerTest {
 	 *
 	 */
 	void testDeserializeDisableAutoDetectionEmpty() throws IOException {
-		final Connector detection = getConnector("disableAutoDetectionEmpty");
+		testDefaultDisableAutoDetection("disableAutoDetectionEmpty");
+	}
+
+	/**
+	 * Check that the parsing of the given connector is defaulted to disableAutoDetection (false)
+	 * 
+	 * @param connectorName
+	 * @throws IOException
+	 */
+	private void testDefaultDisableAutoDetection(String connectorName) throws IOException {
+		final Connector detection = getConnector(connectorName);
 
 		assertEquals(false, detection.getConnectorIdentity().getDetection().isDisableAutoDetection());
 	}
-	
+
+	@Test
 	/**
 	 * disableAutoDetection: check that a null value is defaulted to false
 	 * 
@@ -224,11 +247,10 @@ class DetectionDeserializerTest extends DeserializerTest {
 	 *
 	 */
 	void testDeserializeDisableAutoDetectionNull() throws IOException {
-		final Connector detection = getConnector("disableAutoDetectionNull");
-
-		assertEquals(false, detection.getConnectorIdentity().getDetection().isDisableAutoDetection());
+		testDefaultDisableAutoDetection("disableAutoDetectionNull");
 	}
 
+	@Test
 	/**
 	 * disableAutoDetection: check that an commented-out value is defaulted to false
 	 * 
@@ -236,9 +258,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 	 *
 	 */
 	void testDeserializeDisableAutoDetectionCommentedOut() throws IOException {
-		final Connector detection = getConnector("disableAutoDetectionCommentedOut");
-
-		assertEquals(false, detection.getConnectorIdentity().getDetection().isDisableAutoDetection());
+		testDefaultDisableAutoDetection("disableAutoDetectionCommentedOut");
 	}
 
 	@Test
@@ -251,9 +271,9 @@ class DetectionDeserializerTest extends DeserializerTest {
 
 		try {
 			getConnector("disableAutoDetectionInvalid");
-			Assert.fail("Expected an IOException to be thrown.");
-		} catch (IOException e) {
-			final String message = String.format("Value is invalid");
+			Assert.fail("Expected an InvalidFormatException to be thrown.");
+		} catch (InvalidFormatException e) {
+			final String message = "Cannot deserialize value of type `boolean` from String \"maybe\"";
 			assertTrue(
 					e.getMessage().contains(message),
 					() -> "Expected exception should contain \"" + message + "\" but got the following error instead: " + e.getMessage());
@@ -261,22 +281,22 @@ class DetectionDeserializerTest extends DeserializerTest {
 	}
 
 	//
-	// supercedes
+	// supersedes
 	//
-	
+
 	@Test
 	/**
-	 * supercedes: check an empty value is rejected
+	 * supersedes: check an empty value is rejected
 	 * 
 	 * @throws Exception
 	 */
-	void testDeserializeSupercedesEmpty() {
+	void testDeserializeSupersedesEmpty() {
 
 		try {
-			getConnector("supercedesEmpty");
+			getConnector("supersedesEmpty");
 			Assert.fail("Expected an IOException to be thrown.");
 		} catch (IOException e) {
-			String message = "The connector referenced by \"supercedes\" cannot be empty.";
+			String message = SUPERSEDES_ERROR_MSG;
 			assertTrue(
 				e.getMessage().contains(message),
 				() -> "Expected exception should contain: " + message + " but got the following error instead: " + e.getMessage()
@@ -286,73 +306,66 @@ class DetectionDeserializerTest extends DeserializerTest {
 
 	@Test
 	/**
-	 * supercedes: check a null value is just ignored and returns an empty value
+	 * supersedes: check a null value is just ignored and returns an empty value
 	 * 
 	 * @throws Exception
 	 */
-	void testDeserializeSupercedesNull() throws IOException {
-		final Connector detection = getConnector("supercedesNull");
+	void testDeserializeSupersedesNull() throws IOException {
+		final Connector detection = getConnector("supersedesNull");
 
-		var supercedes = detection.getConnectorIdentity().getDetection().getSupersedes();
+		var supersedes = detection.getConnectorIdentity().getDetection().getSupersedes();
 
-		assertTrue(supercedes instanceof HashSet, "supercedes are expected to be a HashSet.");
-		assertEquals(Collections.emptySet(), supercedes);
+		assertTrue(supersedes instanceof HashSet, "supersedes are expected to be a HashSet.");
+		assertEquals(Collections.emptySet(), supersedes);
 	}
 
 	@Test
 	/**
-	 * supercedes: check a commented-out line is just ignored and returns an empty value
+	 * supersedes: check a commented-out line is just ignored and returns an empty value
 	 * 
 	 * @throws Exception
 	 */
-	void testDeserializeSupercedesCommentedOut() throws IOException {
+	void testDeserializeSupersedesCommentedOut() throws IOException {
 
-		final Connector detection = getConnector("supercedesCommentedOut");
+		final Connector detection = getConnector("supersedesCommentedOut");
 
-		var supercedes = detection.getConnectorIdentity().getDetection().getSupersedes();
+		var supersedes = detection.getConnectorIdentity().getDetection().getSupersedes();
 
-		assertTrue(supercedes instanceof HashSet, "supercedes are expected to be a HashSet.");
-		assertEquals(Collections.emptySet(), supercedes);
+		assertTrue(supersedes instanceof HashSet, "supersedes are expected to be a HashSet.");
+		assertEquals(Collections.emptySet(), supersedes);
 	}
 	
 	@Test
 	/**
-	 * supercedes: check a null value in a list is rejected
+	 * supersedes: check a null value in a list is rejected
 	 *
 	 * @throws Exception
 	 */
-	void testDeserializeSupercedesNullList() {
+	void testDeserializeSupersedesNullList() {
 		try {
-			getConnector("supercedesNullList");
+			getConnector("supersedesNullList");
 			Assert.fail("Expected an IOException to be thrown.");
 		} catch (IOException e) {
-			String message = "A connector referenced under 'supercedes' cannot be null.";
-			assertTrue(
-				e.getMessage().contains(message),
-				() -> "Expected exception should contain: " + message + " but got the following error instead: " + e.getMessage()
-			);
+			checkMessage(e, SUPERSEDES_ERROR_MSG);
 		}
 	}
-	
+
 	@Test
 	/**
-	 * supercedes: check a empty value in a list is rejected
+	 * supersedes: check a empty value in a list is rejected
 	 *
 	 * @throws Exception
 	 */
-	void testDeserializeSupercedesEmptyList() {
+	void testDeserializeSupersedesEmptyList() {
 		try {
-			getConnector("supercedesEmptyList");
+			getConnector("supersedesEmptyList");
 			Assert.fail("Expected an IOException to be thrown.");
 		} catch (IOException e) {
-			String message = "A connector referenced under 'supercedes' cannot be empty.";
-			assertTrue(
-				e.getMessage().contains(message),
-				() -> "Expected exception should contain: " + message + " but got the following error instead: " + e.getMessage()
-			);
+			checkMessage(e, SUPERSEDES_ERROR_MSG);
 		}
 	}
-	
+
+	@Test
 	//
 	// onLastResort
 	//
@@ -368,6 +381,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 		assertNull(detection.getConnectorIdentity().getDetection().getOnLastResort());
 	}
 
+	@Test
 	/**
 	 * onLastResort: check an empty value triggers an error
 	 * 
@@ -380,11 +394,12 @@ class DetectionDeserializerTest extends DeserializerTest {
 
 			Assert.fail("Expected an InvalidFormatException to be thrown.");
 		} catch (InvalidFormatException e) {
-			String message = "Invalid blank value encountered for property \"onLastResort\".";
+			String message = "Invalid blank value encountered for property 'onLastResort'.";
 			checkMessage(e, message);
 		}
 	}
-	
+
+	@Test
 	/**
 	 * onLastResort: check a null value returns a null value
 	 * 

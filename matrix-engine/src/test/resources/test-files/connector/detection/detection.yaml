@@ -2,10 +2,10 @@
 connector:
   detection:
     connectionTypes: [ "local", "remote" ]
-    disableAutoDetection: [ "true", "yes", 1]
+    disableAutoDetection: true
     onLastResort: "enclosure"
     supersedes: [ "Connector1", "Connector2" ]
-    appliesTo: >
+    appliesTo:
       [ HP Open VMS, VMS, OpenVMS,
       HP Tru64 UNIX, Tru64, OSF1,
       HP-UX, HPUX, HP,
