@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.matrix.connector.deserializer.custom.NonBlankDeserializer;
+import com.sentrysoftware.matrix.connector.deserializer.custom.TimeoutDeserializer;
 
 import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
@@ -30,6 +31,7 @@ public class OsCommand extends Criterion {
 	private String errorMessage;
 	private String expectedResult;
 	private boolean executeLocally;
+	@JsonDeserialize(using = TimeoutDeserializer.class)
 	private Long timeout;
 
 	@Builder
