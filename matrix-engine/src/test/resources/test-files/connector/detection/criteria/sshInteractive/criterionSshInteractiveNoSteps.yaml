@@ -1,0 +1,7 @@
+connector:
+  detection:
+    criteria:
+      - type: sshInteractive
+        port: 22123
+        expectedResult: Cisoc
+        steps:

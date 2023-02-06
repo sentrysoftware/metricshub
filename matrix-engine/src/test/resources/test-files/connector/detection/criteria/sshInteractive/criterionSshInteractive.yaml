@@ -1,0 +1,25 @@
+connector:
+  detection:
+    criteria:
+      - type: sshInteractive
+        port: 22123
+        expectedResult: Cisoc
+        steps:
+          - type: getAvailable
+            capture: true
+          - type: getUntilPrompt
+            timeout: 1234
+            capture: false
+          - type: sendPassword
+            capture: true
+          - type: sendText
+            text: testSendText
+          - type: sendUsername
+          - type: sleep
+            duration: 1
+            ignored: true
+          - type: waitFor
+            text: 'ogin:'
+            timeout: 60
+          - type: waitForPrompt
+            timeout: 60
