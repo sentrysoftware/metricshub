@@ -1,0 +1,4 @@
+---
+connector:
+  detection:
+#    appliesTo: [ "HP Open VMS", "AIX", "Linux" ]

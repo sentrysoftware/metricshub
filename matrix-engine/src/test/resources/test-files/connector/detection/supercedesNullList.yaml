@@ -1,0 +1,6 @@
+---
+connector:
+  detection:
+    supersedes:
+    -
+    - myConnector

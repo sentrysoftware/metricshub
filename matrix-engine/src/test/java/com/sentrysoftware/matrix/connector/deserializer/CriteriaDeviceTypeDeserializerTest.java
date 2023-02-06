@@ -2,7 +2,7 @@ package com.sentrysoftware.matrix.connector.deserializer;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.common.OsType;
+import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.Criterion;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.DeviceType;
 
@@ -32,7 +32,7 @@ class CriteriaDeviceTypeDeserializerTest extends DeserializerTest {
 		final Connector deviceType = getConnector(testResource);
 
 		List<Criterion> expected = new ArrayList<>();
-		expected.add(new DeviceType("deviceType", false, Set.of(OsType.values()), Set.of(OsType.values())));
+		expected.add(new DeviceType("deviceType", false, Set.of(DeviceKind.values()), Set.of(DeviceKind.values())));
 
 		compareCriterion(testResource, deviceType, expected);
 	}
@@ -51,9 +51,7 @@ class CriteriaDeviceTypeDeserializerTest extends DeserializerTest {
 			getConnector("deviceTypeCriterionOsTypeNonEnum");
 			Assert.fail(JSON_MAPPING_EXCEPTION_MSG);
 		} catch (JsonMappingException e) {
-			String message = String.format("'toto' is not a supported OsType. Accepted values are: %s",
-					"[ linux, windows, oob, network, storage, vms, tru64, hpux, aix, solaris ]");
-			checkMessage(e, message);
+			checkMessage(e, "'toto' is not a supported device kind.");
 		}
 	}
 }
