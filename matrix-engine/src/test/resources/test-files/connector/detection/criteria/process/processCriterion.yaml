@@ -1,6 +1,7 @@
 ---
 connector:
   detection:
+    appliesTo: [ linux ]
     criteria:
       - type: process
         commandLine: naviseccli -help

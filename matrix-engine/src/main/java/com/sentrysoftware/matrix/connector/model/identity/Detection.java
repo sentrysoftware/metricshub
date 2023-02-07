@@ -1,39 +1,75 @@
 package com.sentrysoftware.matrix.connector.model.identity;
 
+import static com.fasterxml.jackson.annotation.Nulls.FAIL;
+import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.sentrysoftware.matrix.connector.deserializer.custom.DeviceKindSetDeserializer;
+import com.sentrysoftware.matrix.connector.deserializer.custom.NonBlankDeserializer;
+import com.sentrysoftware.matrix.connector.deserializer.custom.SupersedesDeserializer;
+import com.sentrysoftware.matrix.connector.deserializer.custom.ConnectionTypeSetDeserializer;
+import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.Criterion;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Builder.Default;
 import lombok.Data;
+import lombok.NonNull;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class Detection implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private ConnectionType connectionType;
+	@JsonDeserialize(using = ConnectionTypeSetDeserializer.class)
+	@JsonSetter(nulls = SKIP)
+	private Set<ConnectionType> connectionTypes = new HashSet<>();
 
-	private boolean noAutoDetection;
+	private boolean disableAutoDetection;
 
+	@JsonDeserialize(using = NonBlankDeserializer.class)
 	private String onLastResort;
 
-	@Default
-	private Set<String> appliesTo = new HashSet<>();
+	@JsonDeserialize(using = DeviceKindSetDeserializer.class)
+	@JsonSetter(nulls = FAIL)
+	@NonNull
+	private Set<DeviceKind> appliesTo;
 
-	@Default
+	@JsonDeserialize(using = SupersedesDeserializer.class)
+	@JsonSetter(nulls = SKIP)
 	private Set<String> supersedes = new HashSet<>();
 
-	@Default
 	private List<Criterion> criteria = new ArrayList<>();
+
+	@Builder
+	@JsonCreator
+	public Detection(
+		@JsonProperty("connectionTypes") Set<ConnectionType> connectionTypes,
+		@JsonProperty("disableAutoDetection") boolean disableAutoDetection,
+		@JsonProperty("onLastResort") String onLastResort,
+		@JsonProperty(value = "appliesTo", required = true) @NonNull Set<DeviceKind> appliesTo,
+		@JsonProperty("supersedes") Set<String> supersedes,
+		@JsonProperty("criteria") List<Criterion> criteria
+	) {
+		this.connectionTypes = connectionTypes == null
+			? new HashSet<>(Collections.singleton(ConnectionType.LOCAL))
+			: connectionTypes;
+		this.disableAutoDetection = disableAutoDetection;
+		this.onLastResort = onLastResort;
+		this.appliesTo = appliesTo;
+		this.supersedes = supersedes == null ? new HashSet<>() : supersedes;
+		this.criteria = criteria == null ? new ArrayList<>() : criteria;
+	}
+
 }
