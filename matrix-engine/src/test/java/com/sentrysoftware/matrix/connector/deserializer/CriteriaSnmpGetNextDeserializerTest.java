@@ -21,7 +21,7 @@ class CriteriaSnmpGetNextDeserializerTest extends DeserializerTest {
 	}
 
 	@Test
-	void testDeserializeSnmpGetNext() throws IOException {
+	void testDeserializeSnmpGetNext() throws IOException { // NOSONAR compareCriterion performs assertion
 		final String testResource = "snmpGetNextCriterion";
 		final Connector snmpGetNext = getConnector(testResource);
 

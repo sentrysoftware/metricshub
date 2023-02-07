@@ -1,6 +1,7 @@
 ---
 connector:
   detection:
+    appliesTo: [ linux ]
     criteria:
       - type: deviceType
         keep: [ linux, windows, oob, network, storage, vms, tru64, hpux, aix, solaris ]
