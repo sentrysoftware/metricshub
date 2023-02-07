@@ -7,5 +7,4 @@ connector:
         expectedResult: Cisoc
         steps:
           - type: sleep
-            duration: 10 days
             

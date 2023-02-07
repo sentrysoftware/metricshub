@@ -10,6 +10,8 @@ import java.util.function.UnaryOperator;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.sentrysoftware.matrix.connector.deserializer.custom.TimeoutDeserializer;
 
 import lombok.Builder;
 import lombok.Data;
@@ -26,6 +28,7 @@ public class Sleep extends Step {
 
 	@NonNull
 	@JsonSetter(nulls = FAIL)
+	@JsonDeserialize(using = TimeoutDeserializer.class)
 	private Long duration;
 
 	@Builder

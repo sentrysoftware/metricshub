@@ -7,6 +7,5 @@ connector:
         expectedResult: Cisoc
         steps:
           - type: sleep
-            duration: 10
-            capture: 1
+            duration:
             
