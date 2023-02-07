@@ -3,7 +3,7 @@ package com.sentrysoftware.matrix.connector.deserializer.custom;
 import java.util.Objects;
 import java.util.function.Function;
 
-public abstract class AbstractNonBlankNonNullInSetDeserializer extends AbstractHashSetDeserializer<String> {
+public abstract class AbstractNonBlankNonNullInCollectionDeserializer extends AbstractCollectionDeserializer<String> {
 
 	@Override
 	protected Function<String, String> valueExtractor() {

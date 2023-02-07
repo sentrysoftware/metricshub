@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 
-public class DeviceKindSetDeserializer extends AbstractHashSetDeserializer<DeviceKind> {
+public class DeviceKindSetDeserializer extends AbstractCollectionDeserializer<DeviceKind> {
 
 	@Override
 	protected Function<String, DeviceKind> valueExtractor() {

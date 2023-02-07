@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.connector.model.identity.ConnectionType;
 
-public class ConnectionTypeSetDeserializer extends AbstractHashSetDeserializer<ConnectionType> {
+public class ConnectionTypeSetDeserializer extends AbstractCollectionDeserializer<ConnectionType> {
 
 	@Override
 	protected Function<String, ConnectionType> valueExtractor() {
