@@ -17,9 +17,11 @@ import lombok.NoArgsConstructor;
 		@JsonSubTypes.Type(value = DeviceType.class, name = "deviceType"),
 		@JsonSubTypes.Type(value = Process.class, name = "process"),
 		@JsonSubTypes.Type(value = ProductRequirements.class, name = "productRequirements"),
+		@JsonSubTypes.Type(value = SnmpGet.class, name = "snmpGet"),
 		@JsonSubTypes.Type(value = SnmpGetNext.class, name = "snmpGetNext"),
 		@JsonSubTypes.Type(value = Wmi.class, name = "wmi"),
 		@JsonSubTypes.Type(value = Wbem.class, name = "wbem"),
+		@JsonSubTypes.Type(value = Service.class, name = "service"),
 		@JsonSubTypes.Type(value = Ucs.class, name = "ucs"),
 		@JsonSubTypes.Type(value = OsCommand.class, name = "osCommand")
 	}
