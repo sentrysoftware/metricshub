@@ -1,12 +1,10 @@
 package com.sentrysoftware.matrix.connector.model.identity.criterion;
 
+import static com.fasterxml.jackson.annotation.Nulls.FAIL;
+
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.matrix.connector.deserializer.custom.NonBlankDeserializer;
-
-import static com.fasterxml.jackson.annotation.Nulls.FAIL;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -29,10 +27,10 @@ public abstract class Snmp extends Criterion {
 	private String expectedResult;
 
 	protected Snmp(
-			@JsonProperty("type") String type, 
-			@JsonProperty("forceSerialization") boolean forceSerialization, 
-			@JsonProperty(value = "oid", required = true) @NonNull String oid, 
-			@JsonProperty("expectedResult") String expectedResult) {
+			String type, 
+			boolean forceSerialization, 
+			@NonNull String oid, 
+			String expectedResult) {
 
 		super(type, forceSerialization);
 		this.oid = oid;
