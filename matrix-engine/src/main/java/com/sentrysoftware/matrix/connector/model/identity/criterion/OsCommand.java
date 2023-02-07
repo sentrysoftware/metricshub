@@ -2,12 +2,20 @@ package com.sentrysoftware.matrix.connector.model.identity.criterion;
 
 import java.util.StringJoiner;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.sentrysoftware.matrix.connector.deserializer.custom.NonBlankDeserializer;
+import com.sentrysoftware.matrix.connector.deserializer.custom.TimeoutDeserializer;
+
+import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @Data
 @NoArgsConstructor
@@ -16,22 +24,25 @@ public class OsCommand extends Criterion {
 
 	private static final long serialVersionUID = 1L;
 
+	@NonNull
+	@JsonSetter(nulls = FAIL)
+	@JsonDeserialize(using = NonBlankDeserializer.class)
 	private String commandLine;
 	private String errorMessage;
 	private String expectedResult;
 	private boolean executeLocally;
+	@JsonDeserialize(using = TimeoutDeserializer.class)
 	private Long timeout;
 
 	@Builder
 	public OsCommand(
-		String type,
-		boolean forceSerialization,
-		String commandLine,
-		String errorMessage,
-		String expectedResult,
-		boolean executeLocally,
-		Long timeout
-	) {
+			@JsonProperty("type") String type,
+			@JsonProperty("forceSerialization") boolean forceSerialization,
+			@JsonProperty(value = "commandLine", required = true) @NonNull String commandLine,
+			@JsonProperty("errorMessage") String errorMessage,
+			@JsonProperty("expectedResult") String expectedResult,
+			@JsonProperty("executeLocally") boolean executeLocally,
+			@JsonProperty("timeout") Long timeout) {
 
 		super(type, forceSerialization);
 		this.commandLine = commandLine;
@@ -61,5 +72,4 @@ public class OsCommand extends Criterion {
 
 		return stringJoiner.toString();
 	}
-
 }

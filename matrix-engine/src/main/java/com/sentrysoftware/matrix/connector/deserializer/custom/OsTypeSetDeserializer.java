@@ -12,12 +12,12 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.sentrysoftware.matrix.connector.model.common.OsType;
+import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 
-public class OsTypeSetDeserializer extends JsonDeserializer<Set<OsType>> {
+public class OsTypeSetDeserializer extends JsonDeserializer<Set<DeviceKind>> {
 
 	@Override
-	public Set<OsType> deserialize(JsonParser parser, DeserializationContext ctxt) throws IOException {
+	public Set<DeviceKind> deserialize(JsonParser parser, DeserializationContext ctxt) throws IOException {
 		if (parser == null) {
 			return new HashSet<>();
 		}
@@ -29,7 +29,7 @@ public class OsTypeSetDeserializer extends JsonDeserializer<Set<OsType>> {
 				return Optional.ofNullable(strSet)
 					.map(set -> set
 						.stream()
-						.map(OsType::detect)
+						.map(DeviceKind::detect)
 						.filter(Objects::nonNull)
 						.collect(Collectors.toSet())
 					)
@@ -38,7 +38,7 @@ public class OsTypeSetDeserializer extends JsonDeserializer<Set<OsType>> {
 
 			return Optional
 				.ofNullable(parser.getValueAsString())
-				.map(str -> new HashSet<>(Collections.singleton(OsType.detect(str))))
+				.map(str -> new HashSet<>(Collections.singleton(DeviceKind.detect(str))))
 				.orElse(new HashSet<>());
 
 		} catch (IllegalArgumentException e) {
