@@ -149,14 +149,54 @@ class CriterionSshInteractiveDeserializerTest extends DeserializerTest {
 
 	@Test
 	/**
-	 * Checks that an invalid timeout is rejected
+	 * Checks that duration is not null
 	 */
-	void testSshInteractiveBadLong() throws Exception {
+	void testSshInteractiveNullDuration() throws Exception {
+		// fail on null port
+		{
+			try {
+				getConnector("criterionSshInteractiveNullDuration");
+				Assert.fail(JSON_MAPPING_EXCEPTION_MSG);
+			} catch (JsonMappingException e) {
+				String message = "Missing required creator property 'port' (index 2)";
+				checkMessage(e, message);
+			}
+		}
+		{
+			try {
+				getConnector("criterionSshInteractiveNoPort");
+				Assert.fail(JSON_MAPPING_EXCEPTION_MSG);
+			} catch (JsonMappingException e) {
+				String message = "Invalid `null` value encountered for property \"port\"";
+				checkMessage(e, message);
+			}
+		}
+	}
+
+	@Test
+	/**
+	 * Checks that duration string is rejected
+	 */
+	void testSshInteractiveStringDuration() throws Exception {
 		try {
-			getConnector("criterionSshInteractiveBadLong");
+			getConnector("criterionSshInteractiveStringDuration");
 			Assert.fail(JSON_MAPPING_EXCEPTION_MSG);
 		} catch (JsonMappingException e) {
-			String message = "Cannot deserialize value of type `java.lang.Long`";
+			String message = "Current token (VALUE_STRING) not numeric, can not use numeric value accessors";
+			checkMessage(e, message);
+		}
+	}
+
+	@Test
+	/**
+	 * Checks that negative duration is rejected
+	 */
+	void testSshInteractiveNegativeDuration() throws Exception {
+		try {
+			getConnector("criterionSshInteractiveNegativeDuration");
+			Assert.fail(JSON_MAPPING_EXCEPTION_MSG);
+		} catch (JsonMappingException e) {
+			String message = "Invalid negative or zero value encountered for property 'port'.";
 			checkMessage(e, message);
 		}
 	}
