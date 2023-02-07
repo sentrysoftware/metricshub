@@ -4,8 +4,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.sentrysoftware.matrix.connector.deserializer.custom.OsTypeSetDeserializer;
-import com.sentrysoftware.matrix.connector.model.common.OsType;
+import com.sentrysoftware.matrix.connector.deserializer.custom.DeviceKindSetDeserializer;
+import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 
 import lombok.Builder;
 import lombok.Data;
@@ -21,13 +21,13 @@ public class DeviceType extends Criterion {
 
 	private static final long serialVersionUID = 1L;
 
-	@JsonDeserialize(using = OsTypeSetDeserializer.class)
-	private Set<OsType> keep = new HashSet<>();
-	@JsonDeserialize(using = OsTypeSetDeserializer.class)
-	private Set<OsType> exclude = new HashSet<>();
+	@JsonDeserialize(using = DeviceKindSetDeserializer.class)
+	private Set<DeviceKind> keep = new HashSet<>();
+	@JsonDeserialize(using = DeviceKindSetDeserializer.class)
+	private Set<DeviceKind> exclude = new HashSet<>();
 
 	@Builder
-	public DeviceType(String type, boolean forceSerialization, Set<OsType> keep, Set<OsType> exclude) {
+	public DeviceType(String type, boolean forceSerialization, Set<DeviceKind> keep, Set<DeviceKind> exclude) {
 		super(type, forceSerialization);
 		this.keep = keep == null ? new HashSet<>() : keep;
 		this.exclude = exclude == null ? new HashSet<>() : exclude;
