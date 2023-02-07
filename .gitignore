@@ -33,3 +33,6 @@ build/
 
 ### NodeJs ###
 node_modules
+
+### Eclipse Metadata ###
+.metadata/

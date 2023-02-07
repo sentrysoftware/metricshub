@@ -1,7 +1,0 @@
----
-connector:
-  detection:
-    criteria:
-      - type: productRequirements
-        engineVersion: testengineversion
-        kmVersion: testkmversion

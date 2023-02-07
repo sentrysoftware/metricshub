@@ -1,7 +1,0 @@
----
-connector:
-  detection:
-    criteria:
-      - type: deviceType
-        keep: [ toto ]
-        exclude: [ toto ]

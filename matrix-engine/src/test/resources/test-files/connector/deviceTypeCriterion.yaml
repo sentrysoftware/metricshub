@@ -1,7 +1,0 @@
----
-connector:
-  detection:
-    criteria:
-      - type: deviceType
-        keep: [ linux, windows, oob, network, storage, vms, tru64, hpux, aix, solaris ]
-        exclude: [ linux, windows, oob, network, storage, vms, tru64, hpux, aix, solaris ]
