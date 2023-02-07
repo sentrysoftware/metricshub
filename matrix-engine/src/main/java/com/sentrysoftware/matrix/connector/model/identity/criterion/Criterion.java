@@ -23,7 +23,8 @@ import lombok.NoArgsConstructor;
 		@JsonSubTypes.Type(value = Wbem.class, name = "wbem"),
 		@JsonSubTypes.Type(value = Service.class, name = "service"),
 		@JsonSubTypes.Type(value = Ucs.class, name = "ucs"),
-		@JsonSubTypes.Type(value = OsCommand.class, name = "osCommand")
+		@JsonSubTypes.Type(value = OsCommand.class, name = "osCommand"),
+		@JsonSubTypes.Type(value = SshInteractive.class, name = "sshInteractive")
 	}
 )
 @Data

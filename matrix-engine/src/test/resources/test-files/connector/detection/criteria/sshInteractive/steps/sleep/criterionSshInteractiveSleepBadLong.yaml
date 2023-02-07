@@ -5,3 +5,7 @@ connector:
       - type: sshInteractive
         port: 22123
         expectedResult: Cisoc
+        steps:
+          - type: sleep
+            duration: 10 days
+            

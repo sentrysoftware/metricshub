@@ -25,8 +25,9 @@ abstract class DeserializerTest implements IDeserializerTest {
 
 	protected void checkMessage(Exception e, String message) {
 		assertTrue(
-				e.getMessage().contains(message),
-				() -> "Exception expected to contain: " + message + ". But got: " + e.getMessage());
+			e.getMessage().contains(message),
+			() -> "Exception expected to contain: " + message + ". But got: " + e.getMessage()
+		);
 	}
 
 	protected void compareCriterion(String testResource, final Connector connector, List<Criterion> expected) {

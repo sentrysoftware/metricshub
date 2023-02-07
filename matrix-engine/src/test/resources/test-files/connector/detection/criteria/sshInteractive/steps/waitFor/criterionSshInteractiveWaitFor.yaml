@@ -6,5 +6,6 @@ connector:
         port: 22123
         expectedResult: Cisoc
         steps:
-          - type: getAvailable
-            capture: true
+          - type: waitFor
+            text: success
+            ignored: false

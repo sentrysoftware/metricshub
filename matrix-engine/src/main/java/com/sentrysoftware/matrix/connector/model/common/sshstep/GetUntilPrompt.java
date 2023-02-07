@@ -6,6 +6,8 @@ import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.sentrysoftware.matrix.connector.deserializer.custom.TimeoutDeserializer;
 
 import lombok.Builder;
 import lombok.Data;
@@ -19,6 +21,7 @@ public class GetUntilPrompt extends Step {
 
 	private static final long serialVersionUID = 1L;
 
+	@JsonDeserialize(using = TimeoutDeserializer.class)
 	private Long timeout;
 
 	@Builder
