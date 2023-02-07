@@ -20,6 +20,7 @@ import lombok.NoArgsConstructor;
 		@JsonSubTypes.Type(value = SnmpGetNext.class, name = "snmpGetNext"),
 		@JsonSubTypes.Type(value = Wmi.class, name = "wmi"),
 		@JsonSubTypes.Type(value = Wbem.class, name = "wbem"),
+		@JsonSubTypes.Type(value = Ucs.class, name = "ucs"),
 		@JsonSubTypes.Type(value = OsCommand.class, name = "osCommand")
 	}
 )
