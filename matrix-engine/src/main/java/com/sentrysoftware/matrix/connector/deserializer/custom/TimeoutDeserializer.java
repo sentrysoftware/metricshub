@@ -14,6 +14,16 @@ public class TimeoutDeserializer extends JsonDeserializer<Long> {
 			return null;
 
 		final String key = parser.getCurrentName();
+
+		if (!parser.isExpectedNumberIntToken()) {
+			throw new InvalidFormatException(
+				parser,
+				String.format("Invalid value encountered for property '%s'.", key),
+				parser.getValueAsString(),
+				String.class
+			);
+		}
+
 		final Long value = parser.getValueAsLong();
 
 		if (value == null || value > 0) {

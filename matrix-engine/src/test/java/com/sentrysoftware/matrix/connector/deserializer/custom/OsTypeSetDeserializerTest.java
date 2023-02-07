@@ -16,7 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.dataformat.yaml.YAMLParser;
-import com.sentrysoftware.matrix.connector.model.common.OsType;
+import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 
 @ExtendWith(MockitoExtension.class)
 class OsTypeSetDeserializerTest {
@@ -83,7 +83,7 @@ class OsTypeSetDeserializerTest {
 			final Set<String> osTypes = Set.of("linux", "windows", "oob", "network", "storage", "vms", "tru64", "hpux", "aix", "solaris");
 			doReturn(true).when(yamlParser).isExpectedStartArrayToken();
 			doReturn(osTypes).when(yamlParser).readValueAs(any(TypeReference.class));
-			assertEquals(OsType.OS_TYPES, OS_TYPE_DESERIALIZER.deserialize(yamlParser, null));
+			assertEquals(DeviceKind.DEVICE_KINDS, OS_TYPE_DESERIALIZER.deserialize(yamlParser, null));
 		}
 
 		{
@@ -104,31 +104,31 @@ class OsTypeSetDeserializerTest {
 				)
 			)
 			.when(yamlParser).readValueAs(any(TypeReference.class));
-			assertEquals(OsType.OS_TYPES, OS_TYPE_DESERIALIZER.deserialize(yamlParser, null));
+			assertEquals(DeviceKind.DEVICE_KINDS, OS_TYPE_DESERIALIZER.deserialize(yamlParser, null));
 		}
 
 		{
 			doReturn(false).when(yamlParser).isExpectedStartArrayToken();
 			doReturn("linux").when(yamlParser).getValueAsString();
-			assertEquals(Set.of(OsType.LINUX), OS_TYPE_DESERIALIZER.deserialize(yamlParser, null));
+			assertEquals(Set.of(DeviceKind.LINUX), OS_TYPE_DESERIALIZER.deserialize(yamlParser, null));
 			doReturn("windows").when(yamlParser).getValueAsString();
-			assertEquals(Set.of(OsType.WINDOWS), OS_TYPE_DESERIALIZER.deserialize(yamlParser, null));
+			assertEquals(Set.of(DeviceKind.WINDOWS), OS_TYPE_DESERIALIZER.deserialize(yamlParser, null));
 			doReturn("oob").when(yamlParser).getValueAsString();
-			assertEquals(Set.of(OsType.OOB), OS_TYPE_DESERIALIZER.deserialize(yamlParser, null));
+			assertEquals(Set.of(DeviceKind.OOB), OS_TYPE_DESERIALIZER.deserialize(yamlParser, null));
 			doReturn("network").when(yamlParser).getValueAsString();
-			assertEquals(Set.of(OsType.NETWORK), OS_TYPE_DESERIALIZER.deserialize(yamlParser, null));
+			assertEquals(Set.of(DeviceKind.NETWORK), OS_TYPE_DESERIALIZER.deserialize(yamlParser, null));
 			doReturn("storage").when(yamlParser).getValueAsString();
-			assertEquals(Set.of(OsType.STORAGE), OS_TYPE_DESERIALIZER.deserialize(yamlParser, null));
+			assertEquals(Set.of(DeviceKind.STORAGE), OS_TYPE_DESERIALIZER.deserialize(yamlParser, null));
 			doReturn("vms").when(yamlParser).getValueAsString();
-			assertEquals(Set.of(OsType.VMS), OS_TYPE_DESERIALIZER.deserialize(yamlParser, null));
+			assertEquals(Set.of(DeviceKind.VMS), OS_TYPE_DESERIALIZER.deserialize(yamlParser, null));
 			doReturn("tru64").when(yamlParser).getValueAsString();
-			assertEquals(Set.of(OsType.TRU64), OS_TYPE_DESERIALIZER.deserialize(yamlParser, null));
+			assertEquals(Set.of(DeviceKind.TRU64), OS_TYPE_DESERIALIZER.deserialize(yamlParser, null));
 			doReturn("hpux").when(yamlParser).getValueAsString();
-			assertEquals(Set.of(OsType.HPUX), OS_TYPE_DESERIALIZER.deserialize(yamlParser, null));
+			assertEquals(Set.of(DeviceKind.HPUX), OS_TYPE_DESERIALIZER.deserialize(yamlParser, null));
 			doReturn("aix").when(yamlParser).getValueAsString();
-			assertEquals(Set.of(OsType.AIX), OS_TYPE_DESERIALIZER.deserialize(yamlParser, null));
+			assertEquals(Set.of(DeviceKind.AIX), OS_TYPE_DESERIALIZER.deserialize(yamlParser, null));
 			doReturn("solaris").when(yamlParser).getValueAsString();
-			assertEquals(Set.of(OsType.SOLARIS), OS_TYPE_DESERIALIZER.deserialize(yamlParser, null));
+			assertEquals(Set.of(DeviceKind.SOLARIS), OS_TYPE_DESERIALIZER.deserialize(yamlParser, null));
 		}
 
 	}
