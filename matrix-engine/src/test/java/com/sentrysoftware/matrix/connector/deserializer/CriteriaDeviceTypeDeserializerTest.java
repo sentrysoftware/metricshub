@@ -26,8 +26,8 @@ class CriteriaDeviceTypeDeserializerTest extends DeserializerTest {
 	 *
 	 * @throws Exception
 	 */
-	void testDeserializeDeviceType() throws Exception {
-		
+	void testDeserializeDeviceType() throws Exception { // NOSONAR compareCriterion performs assertion
+
 		String testResource = "deviceTypeCriterion";
 		final Connector deviceType = getConnector(testResource);
 

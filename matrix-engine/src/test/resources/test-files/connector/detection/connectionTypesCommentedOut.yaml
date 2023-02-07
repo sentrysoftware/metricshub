@@ -1,4 +1,5 @@
 ---
 connector:
   detection:
-#    connectionTypes: "local"
+    appliesTo: [ linux ]
+#   connectionTypes: "local"

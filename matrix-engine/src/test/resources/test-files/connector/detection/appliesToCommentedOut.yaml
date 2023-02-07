@@ -1,4 +1,7 @@
 ---
 connector:
   detection:
-#    appliesTo: [ "HP Open VMS", "AIX", "Linux" ]
+    # At least we set one property (connectionTypes) so that the dection deserializer is invoked to validate that appliesTo is present.
+    # This test doesn't validate detection. It is the responsibility of the overall connector parser
+    connectionTypes: [ "local", "remote" ]
+#   appliesTo: [ "HP Open VMS", "AIX", "Linux" ]

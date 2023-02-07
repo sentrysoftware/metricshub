@@ -39,7 +39,7 @@ public enum DeviceKind {
 		TRU64, Pattern.compile("^tru64$|^osf1$|^hp\\s*tru64\\s*unix$"),
 		HPUX, Pattern.compile("^hp-ux$|^hpux$|^hp$"),
 		AIX, Pattern.compile("^ibm(\\s*|-)aix$|^aix$|^rs6000$"),
-		SOLARIS, Pattern.compile("^solaris$|^sunos$")
+		SOLARIS, Pattern.compile("^((sun|oracle)\\s*)?solaris$|^sunos$")
 	);
 
 	/**

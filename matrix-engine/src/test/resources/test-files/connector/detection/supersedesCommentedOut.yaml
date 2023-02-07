@@ -1,4 +1,5 @@
 ---
 connector:
   detection:
+    appliesTo: [ linux ]
 #    supersedes: "myConnector"
