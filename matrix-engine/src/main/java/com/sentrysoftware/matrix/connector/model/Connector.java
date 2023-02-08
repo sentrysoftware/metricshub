@@ -12,6 +12,8 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.sentrysoftware.matrix.connector.deserializer.custom.ExtendsDeserializer;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.identity.ConnectorIdentity;
 import com.sentrysoftware.matrix.connector.model.metric.MonitorDefinition;
@@ -37,6 +39,7 @@ public class Connector implements Serializable {
 
 	@JsonProperty("extends")
 	@JsonSetter(nulls = SKIP)
+	@JsonDeserialize(using = ExtendsDeserializer.class)
 	@Default
 	private Set<String> extendsConnectors = new LinkedHashSet<>();
 

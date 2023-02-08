@@ -1,9 +1,17 @@
 package com.sentrysoftware.matrix.connector.model.identity.criterion;
 
+import static com.fasterxml.jackson.annotation.Nulls.FAIL;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.sentrysoftware.matrix.connector.deserializer.custom.NonBlankDeserializer;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @Data
 @NoArgsConstructor
@@ -12,10 +20,16 @@ public class Service extends Criterion {
 
 	private static final long serialVersionUID = 1L;
 
+	@NonNull
+	@JsonDeserialize(using = NonBlankDeserializer.class)
+	@JsonSetter(nulls = FAIL)
 	private String name;
 
 	@Builder
-	public Service(String type, boolean forceSerialization, String name) {
+	public Service(
+			@JsonProperty("type") String type,
+			@JsonProperty("forceSerialization") boolean forceSerialization,
+			@JsonProperty(value = "name", required = true) @NonNull String name) {
 
 		super(type, forceSerialization);
 		this.name = name;
