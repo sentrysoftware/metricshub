@@ -2,6 +2,7 @@ package com.sentrysoftware.matrix.connector.model.identity.criterion;
 
 import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -28,6 +29,7 @@ public class Process extends Criterion {
 	private String commandLine;
 
 	@Builder
+	@JsonCreator
 	public Process(
 			@JsonProperty("type") String type,
 			@JsonProperty("forceSerialization") boolean forceSerialization,

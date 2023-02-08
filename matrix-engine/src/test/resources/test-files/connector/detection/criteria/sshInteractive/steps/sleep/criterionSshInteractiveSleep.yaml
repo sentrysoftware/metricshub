@@ -1,0 +1,11 @@
+connector:
+  detection:
+    appliesTo: [ linux ]
+    criteria:
+      - type: sshInteractive
+        port: 22123
+        expectedResult: Cisoc
+        steps:
+          - type: sleep
+            duration: 1
+            ignored: false

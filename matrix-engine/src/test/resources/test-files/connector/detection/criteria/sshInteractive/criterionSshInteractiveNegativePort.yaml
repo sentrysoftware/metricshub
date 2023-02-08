@@ -1,0 +1,10 @@
+connector:
+  detection:
+    appliesTo: [ linux ]
+    criteria:
+      - type: sshInteractive
+        expectedResult: Cisoc
+        port: -1999
+        steps:
+          - type: sendText
+            text: toto

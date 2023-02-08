@@ -1,0 +1,10 @@
+connector:
+  detection:
+    appliesTo: [ linux ]
+    criteria:
+      - type: sshInteractive
+        expectedResult: Cisoc
+        port: 2.2
+        steps:
+          - type: sendText
+            text: toto

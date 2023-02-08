@@ -6,10 +6,10 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import java.io.IOException;
 
-public class TimeoutDeserializer extends JsonDeserializer<Long> {
+public class PortDeserializer extends JsonDeserializer<Integer> {
 
 	@Override
-	public Long deserialize(JsonParser parser, DeserializationContext ctxt) throws IOException {
+	public Integer deserialize(JsonParser parser, DeserializationContext ctxt) throws IOException {
 		if (parser == null)
 			return null;
 
@@ -20,21 +20,22 @@ public class TimeoutDeserializer extends JsonDeserializer<Long> {
 				parser,
 				String.format("Invalid value encountered for property '%s'.", key),
 				parser.getValueAsString(),
-				Long.class
+				Integer.class
 			);
 		}
 
-		final Long value = parser.getValueAsLong();
+		final Integer value = parser.getIntValue();
 
-		if (value == null || value > 0) {
-			return value;
+		if (value <= 0) {
+			throw new InvalidFormatException(
+				parser,
+				String.format("Invalid negative or zero value encountered for property '%s'.", key),
+				value,
+				Integer.class
+			);
 		}
 
-		throw new InvalidFormatException(
-			parser,
-			String.format("Invalid negative or zero value encountered for property '%s'.", key),
-			value,
-			Long.class
-		);
+		return value;
+
 	}
 }
