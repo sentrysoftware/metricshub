@@ -1,0 +1,5 @@
+connector:
+
+extends:
+- Connector1
+- Connector2

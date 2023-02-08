@@ -1,13 +1,19 @@
 package com.sentrysoftware.matrix.connector.model;
 
+import static com.fasterxml.jackson.annotation.Nulls.SKIP;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.sentrysoftware.matrix.connector.deserializer.custom.ExtendsDeserializer;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.identity.ConnectorIdentity;
 import com.sentrysoftware.matrix.connector.model.metric.MonitorDefinition;
@@ -32,8 +38,10 @@ public class Connector implements Serializable {
 	private ConnectorIdentity connectorIdentity;
 
 	@JsonProperty("extends")
+	@JsonSetter(nulls = SKIP)
+	@JsonDeserialize(using = ExtendsDeserializer.class)
 	@Default
-	private Set<String> extendsConnectors = new HashSet<>();
+	private Set<String> extendsConnectors = new LinkedHashSet<>();
 
 	@Default
 	private Map<String, MonitorDefinition> metricsMapping = new HashMap<>();
