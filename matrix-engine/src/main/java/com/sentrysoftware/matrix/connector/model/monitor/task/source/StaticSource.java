@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
 
-import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntry;
+import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Compute;
 
 import lombok.Builder;
@@ -32,10 +32,10 @@ public class StaticSource  extends Source {
 		boolean forceSerialization,
 		String value,
 		String key,
-		ExecuteForEachEntry executeForEachEntry
+		ExecuteForEachEntryOf executeForEachEntryOf
 	) {
 
-		super("static", computes, forceSerialization, key, executeForEachEntry);
+		super("static", computes, forceSerialization, key, executeForEachEntryOf);
 		this.value = value;
 	}
 
@@ -46,7 +46,7 @@ public class StaticSource  extends Source {
 				.key(key)
 				.forceSerialization(forceSerialization)
 				.computes(getComputes() != null ? new ArrayList<>(getComputes()) : null)
-				.executeForEachEntry(executeForEachEntry != null ? executeForEachEntry.copy() : null)
+				.executeForEachEntryOf(executeForEachEntryOf != null ? executeForEachEntryOf.copy() : null)
 				.value(value)
 				.build();
 	}

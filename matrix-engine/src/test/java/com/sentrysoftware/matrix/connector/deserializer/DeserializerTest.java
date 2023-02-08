@@ -12,7 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-abstract class DeserializerTest implements IDeserializerTest {
+public abstract class DeserializerTest implements IDeserializerTest {
 
 	private File getTestResourceFile(String file) {
 		return new File(getResourcePath() + file + RESOURCE_EXT);

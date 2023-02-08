@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
 
-import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntry;
+import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
 import com.sentrysoftware.matrix.connector.model.common.ResultContent;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Compute;
 
@@ -33,7 +33,7 @@ public class HttpSource extends Source {
 	private ResultContent resultContent = ResultContent.BODY;
 
 	@Builder
-	public HttpSource( // NOSONAR on contructor
+	public HttpSource( // NOSONAR on constructor
 		String type,
 		List<Compute> computes,
 		boolean forceSerialization,
@@ -44,10 +44,10 @@ public class HttpSource extends Source {
 		String authenticationToken,
 		ResultContent resultContent,
 		String key,
-		ExecuteForEachEntry executeForEachEntry
+		ExecuteForEachEntryOf executeForEachEntryOf
 	) {
 
-		super(type, computes, forceSerialization, key, executeForEachEntry);
+		super(type, computes, forceSerialization, key, executeForEachEntryOf);
 
 		this.method = method;
 		this.url = url;
@@ -63,7 +63,7 @@ public class HttpSource extends Source {
 				.key(key)
 				.forceSerialization(forceSerialization)
 				.computes(getComputes() != null ? new ArrayList<>(getComputes()) : null)
-				.executeForEachEntry(executeForEachEntry != null ? executeForEachEntry.copy() : null)
+				.executeForEachEntryOf(executeForEachEntryOf != null ? executeForEachEntryOf.copy() : null)
 				.method(method)
 				.url(url)
 				.header(header)

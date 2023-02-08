@@ -10,12 +10,32 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
 
-import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntry;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Compute;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type", visible = true)
+@JsonSubTypes(
+	{
+		@JsonSubTypes.Type(value = CopySource.class, name = "copy"),
+		@JsonSubTypes.Type(value = HttpSource.class, name = "http"),
+		@JsonSubTypes.Type(value = IpmiSource.class, name = "ipmi"),
+		@JsonSubTypes.Type(value = OsCommandSource.class, name = "osCommand"),
+		@JsonSubTypes.Type(value = SnmpGetSource.class, name = "snmpGet"),
+		@JsonSubTypes.Type(value = SnmpTableSource.class, name = "snmpTable"),
+		@JsonSubTypes.Type(value = SshInteractiveSource.class, name = "sshInteractive"),
+		@JsonSubTypes.Type(value = StaticSource.class, name = "static"),
+		@JsonSubTypes.Type(value = TableJoinSource.class, name = "tableJoin"),
+		@JsonSubTypes.Type(value = TableUnionSource.class, name = "tableUnion"),
+		@JsonSubTypes.Type(value = UcsSource.class, name = "ucs"),
+		@JsonSubTypes.Type(value = WbemSource.class, name = "wbem"),
+		@JsonSubTypes.Type(value = WmiSource.class, name = "wmi"),
+	}
+)
 @Data
 @NoArgsConstructor
 public abstract class Source implements Serializable {
@@ -26,21 +46,21 @@ public abstract class Source implements Serializable {
 	private List<Compute> computes;
 	protected boolean forceSerialization;
 	protected String key;
-	protected ExecuteForEachEntry executeForEachEntry;
+	protected ExecuteForEachEntryOf executeForEachEntryOf;
 
 	protected Source(
 		String type,
 		List<Compute> computes,
 		boolean forceSerialization,
 		String key,
-		ExecuteForEachEntry executeForEachEntry
+		ExecuteForEachEntryOf executeForEachEntryOf
 	) {
 
 		this.type = type;
 		this.computes = computes == null ? new ArrayList<>() : computes;
 		this.forceSerialization = forceSerialization;
 		this.key = key;
-		this.executeForEachEntry = executeForEachEntry;
+		this.executeForEachEntryOf = executeForEachEntryOf;
 	}
 
 	public abstract Source copy();
@@ -55,23 +75,23 @@ public abstract class Source implements Serializable {
 		stringJoiner.add(new StringBuilder("- ").append(key).append(".type=").append(this.getClass().getSimpleName()));
 
 		addNonNull(stringJoiner, "- forceSerialization=", forceSerialization);
-		// A small trick here because the executeForEachEntry.toString value is already
-		// formatted that's why we don't need a prefix for the string value of the nested executeForEachEntry
-		addNonNull(stringJoiner, EMPTY, executeForEachEntry != null ? executeForEachEntry.toString() : null);
+		// A small trick here because the executeForEachEntryOf.toString value is already
+		// formatted that's why we don't need a prefix for the string value of the nested executeForEachEntryOf
+		addNonNull(stringJoiner, EMPTY, executeForEachEntryOf != null ? executeForEachEntryOf.toString() : null);
 
 		return stringJoiner.toString();
 
 	}
 
 	/**
-	 * Whether the {@link ExecuteForEachEntry} is present in the {@link Source} or
+	 * Whether the {@link ExecuteForEachEntryOf} is present in the {@link Source} or
 	 * not
 	 * 
-	 * @return <code>true</code> if {@link ExecuteForEachEntry} is present otherwise
+	 * @return <code>true</code> if {@link ExecuteForEachEntryOf} is present otherwise
 	 *         <code>false</code>
 	 */
-	public boolean isExecuteForEachEntry() {
-		return executeForEachEntry != null && executeForEachEntry.getOf() != null
-				&& !executeForEachEntry.getOf().isBlank();
+	public boolean isExecuteForEachEntryOf() {
+		return executeForEachEntryOf != null && executeForEachEntryOf.getSource() != null
+				&& !executeForEachEntryOf.getSource().isBlank();
 	}
 }
