@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.connector.model.identity.criterion;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Builder;
@@ -18,6 +19,7 @@ public class SnmpGetNext extends Snmp {
 	private static final long serialVersionUID = 1L;
 
 	@Builder
+	@JsonCreator
 	public SnmpGetNext(
 			@JsonProperty("type") String type, 
 			@JsonProperty("forceSerialization") boolean forceSerialization, 

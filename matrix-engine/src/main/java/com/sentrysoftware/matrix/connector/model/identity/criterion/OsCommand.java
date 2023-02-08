@@ -2,6 +2,7 @@ package com.sentrysoftware.matrix.connector.model.identity.criterion;
 
 import java.util.StringJoiner;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -35,6 +36,7 @@ public class OsCommand extends Criterion {
 	private Long timeout;
 
 	@Builder
+	@JsonCreator
 	public OsCommand(
 			@JsonProperty("type") String type,
 			@JsonProperty("forceSerialization") boolean forceSerialization,
