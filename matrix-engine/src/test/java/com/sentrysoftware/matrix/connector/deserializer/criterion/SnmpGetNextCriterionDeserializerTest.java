@@ -45,7 +45,7 @@ class SnmpGetNextCriterionDeserializerTest extends DeserializerTest {
 		// oid is null
 		try {
 			getConnector("snmpGetNextCriterionNullOid");
-			Assert.fail("Expected an InvalidNullException to be thrown.");
+			Assert.fail(INVALID_NULL_EXCEPTION_MSG);
 		} catch (InvalidNullException e) {
 			final String message = "Invalid `null` value encountered for property \"oid\"";
 			checkMessage(e, message);
@@ -62,7 +62,7 @@ class SnmpGetNextCriterionDeserializerTest extends DeserializerTest {
 		// oid is null
 		try {
 			getConnector("snmpGetNextCriterionBlankOid");
-			Assert.fail("Expected an IOException to be thrown.");
+			Assert.fail(IO_EXCEPTION_MSG);
 		} catch (IOException e) {
 			final String message = "Invalid blank value encountered for property 'oid'.";
 			checkMessage(e, message);
@@ -80,7 +80,7 @@ class SnmpGetNextCriterionDeserializerTest extends DeserializerTest {
 		// oid is defined
 		try {
 			getConnector("snmpGetNextCriterionNoOid");
-			Assert.fail("Expected an MismatchedInputException to be thrown.");
+			Assert.fail(MISMATCHED_EXCEPTION_MSG);
 		} catch (MismatchedInputException e) {
 			final String message = "Missing required creator property 'oid' (index 2)";
 			checkMessage(e, message);
