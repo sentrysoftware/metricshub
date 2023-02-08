@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
 
-import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntry;
+import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Compute;
 
 import lombok.Builder;
@@ -48,10 +48,10 @@ public class OsCommandSource extends Source {
 		String separators,
 		List<String> selectColumns,
 		String key,
-		ExecuteForEachEntry executeForEachEntry
+		ExecuteForEachEntryOf executeForEachEntryOf
 	) {
 
-		super(type, computes, forceSerialization, key, executeForEachEntry);
+		super(type, computes, forceSerialization, key, executeForEachEntryOf);
 
 		this.commandLine = commandLine;
 		this.timeout = timeout;
@@ -75,7 +75,7 @@ public class OsCommandSource extends Source {
 				.key(key)
 				.forceSerialization(forceSerialization)
 				.computes(getComputes() != null ? new ArrayList<>(getComputes()) : null)
-				.executeForEachEntry(executeForEachEntry != null ? executeForEachEntry.copy() : null)
+				.executeForEachEntryOf(executeForEachEntryOf != null ? executeForEachEntryOf.copy() : null)
 				.commandLine(commandLine)
 				.executeLocally(executeLocally)
 				.exclude(exclude)

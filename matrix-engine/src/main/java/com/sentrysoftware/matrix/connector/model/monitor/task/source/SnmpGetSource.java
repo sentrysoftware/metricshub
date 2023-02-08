@@ -3,7 +3,7 @@ package com.sentrysoftware.matrix.connector.model.monitor.task.source;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntry;
+import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Compute;
 
 import lombok.Builder;
@@ -25,10 +25,10 @@ public class SnmpGetSource extends SnmpSource {
 		boolean forceSerialization,
 		String oid,
 		String key,
-		ExecuteForEachEntry executeForEachEntry
+		ExecuteForEachEntryOf executeForEachEntryOf
 	) {
 
-		super(type, computes, forceSerialization, oid, key, executeForEachEntry);
+		super(type, computes, forceSerialization, oid, key, executeForEachEntryOf);
 	}
 
 
@@ -43,7 +43,7 @@ public class SnmpGetSource extends SnmpSource {
 				.key(key)
 				.forceSerialization(forceSerialization)
 				.computes(getComputes() != null ? new ArrayList<>(getComputes()) : null)
-				.executeForEachEntry(executeForEachEntry != null ? executeForEachEntry.copy() : null)
+				.executeForEachEntryOf(executeForEachEntryOf != null ? executeForEachEntryOf.copy() : null)
 				.oid(oid)
 				.build();
 	}

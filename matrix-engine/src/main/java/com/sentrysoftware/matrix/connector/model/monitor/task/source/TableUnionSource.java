@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
 
-import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntry;
+import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Compute;
 
 import lombok.Builder;
@@ -32,9 +32,9 @@ public class TableUnionSource extends Source {
 		boolean forceSerialization,
 		List<String> tables,
 		String key,
-		ExecuteForEachEntry executeForEachEntry) {
+		ExecuteForEachEntryOf executeForEachEntryOf) {
 
-		super(type, computes, forceSerialization, key, executeForEachEntry);
+		super(type, computes, forceSerialization, key, executeForEachEntryOf);
 		this.tables = tables;
 	}
 
@@ -45,7 +45,7 @@ public class TableUnionSource extends Source {
 			.key(key)
 			.forceSerialization(forceSerialization)
 			.computes(getComputes() != null ? new ArrayList<>(getComputes()) : null)
-			.executeForEachEntry(executeForEachEntry != null ? executeForEachEntry.copy() : null)
+			.executeForEachEntryOf(executeForEachEntryOf != null ? executeForEachEntryOf.copy() : null)
 			.tables(tables != null ? new ArrayList<>(tables) : null)
 			.build();
 	}

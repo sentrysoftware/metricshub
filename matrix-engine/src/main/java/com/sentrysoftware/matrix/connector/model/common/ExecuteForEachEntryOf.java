@@ -16,17 +16,17 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ExecuteForEachEntry  implements Serializable {
+public class ExecuteForEachEntryOf  implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private String of;
+	private String source;
 	private IEntryConcatMethod concatMethod;
 
-	public ExecuteForEachEntry copy() {
-		return ExecuteForEachEntry
+	public ExecuteForEachEntryOf copy() {
+		return ExecuteForEachEntryOf
 				.builder()
-				.of(of)
+				.source(source)
 				.concatMethod(concatMethod.copy())
 				.build();
 	}
@@ -36,7 +36,7 @@ public class ExecuteForEachEntry  implements Serializable {
 
 		final StringJoiner stringJoiner = new StringJoiner(NEW_LINE);
 
-		addNonNull(stringJoiner, "- executeForEachEntryOf=", of);
+		addNonNull(stringJoiner, "- executeForEachEntryOf=", source);
 		addNonNull(stringJoiner, "- concatMethod=", concatMethod != null ? concatMethod.getDescription() : EMPTY);
 
 		return stringJoiner.toString();
