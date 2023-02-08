@@ -74,7 +74,7 @@ class WbemCriterionDeserializerTest extends DeserializerTest {
 		{
 			try {
 				getConnector("wbemCriterionMissingQuery");
-				Assert.fail("Expected an MismatchedInputException to be thrown");
+				Assert.fail(MISMATCHED_EXCEPTION_MSG);
 			} catch (MismatchedInputException e) {
 				final String message = "Missing required creator property 'query' (index 2)";
 				checkMessage(e, message);
@@ -84,7 +84,7 @@ class WbemCriterionDeserializerTest extends DeserializerTest {
 		{
 			try {
 				getConnector("wbemCriterionNullQuery");
-				Assert.fail("Expected an InvalidNullException to be thrown");
+				Assert.fail(INVALID_NULL_EXCEPTION_MSG);
 			} catch (InvalidNullException e) {
 				final String message = "Invalid `null` value encountered for property \"query\"";
 				checkMessage(e, message);
@@ -101,7 +101,7 @@ class WbemCriterionDeserializerTest extends DeserializerTest {
 	void testWbemBlankQueryNotAccepted() throws IOException {
 		try {
 			getConnector("wbemCriterionBlankQuery");
-			Assert.fail("Expected an InvalidFormatException to be thrown.");
+			Assert.fail(INVALID_FORMAT_EXCEPTION_MSG);
 		} catch (InvalidFormatException e) {
 			String message = "Invalid blank value encountered for property 'query'.";
 			checkMessage(e, message);
@@ -117,7 +117,7 @@ class WbemCriterionDeserializerTest extends DeserializerTest {
 	void testWbemBlankNamespaceNotAccepted() throws IOException {
 		try {
 			getConnector("wbemCriterionBlankNamespace");
-			Assert.fail("Expected an InvalidFormatException to be thrown.");
+			Assert.fail(INVALID_FORMAT_EXCEPTION_MSG);
 		} catch (InvalidFormatException e) {
 			String message = "Invalid blank value encountered for property 'namespace'.";
 			checkMessage(e, message);

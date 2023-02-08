@@ -83,7 +83,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 
 		try {
 			getConnector("appliesToEmpty");
-			Assert.fail("Expected an IOException to be thrown.");
+			Assert.fail(IO_EXCEPTION_MSG);
 		} catch (IOException e) {
 			final String message = "' ' is not a supported device kind.";
 			checkMessage(e, message);
@@ -100,7 +100,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 
 		try {
 			getConnector("appliesToNull");
-			Assert.fail("Expected an InvalidNullException to be thrown.");
+			Assert.fail(INVALID_NULL_EXCEPTION_MSG);
 		} catch (InvalidNullException e) {
 			final String message = "Invalid `null` value encountered for property \"appliesTo\"";
 			checkMessage(e, message);
@@ -117,7 +117,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 
 		try {
 			getConnector("appliesToInvalid");
-			Assert.fail("Expected an IOException to be thrown.");
+			Assert.fail(IO_EXCEPTION_MSG);
 		} catch (IOException e) {
 			checkMessage(e, "'unknownValue' is not a supported device kind.");
 		}
@@ -132,7 +132,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 	void testDeserializeAppliesToCommentedOut() throws IOException {
 		try {
 			getConnector("appliesToCommentedOut");
-			Assert.fail("Expected an MismatchedInputException to be thrown.");
+			Assert.fail(MISMATCHED_EXCEPTION_MSG);
 		} catch (MismatchedInputException e) {
 			final String message = "Missing required creator property 'appliesTo' (index 3)";
 			checkMessage(e, message);
@@ -152,7 +152,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 	void testDeserializeConnectionTypeEmpty() throws IOException {
 		try {
 			getConnector("connectionTypesEmpty");
-			Assert.fail("Expected an IOException to be thrown.");
+			Assert.fail(IO_EXCEPTION_MSG);
 		} catch (IOException e) {
 			final String message = "ConnectionType must be a known connection type (local, remote)";
 			checkMessage(e, message);
@@ -205,7 +205,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 
 		try {
 			getConnector("connectionTypesInvalid");
-			Assert.fail("Expected an IOException to be thrown.");
+			Assert.fail(IO_EXCEPTION_MSG);
 		} catch (IOException e) {
 			final String message = "ConnectionType must be a known connection type (local, remote)";
 			checkMessage(e, message);
@@ -271,7 +271,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 
 		try {
 			getConnector("disableAutoDetectionInvalid");
-			Assert.fail("Expected an InvalidFormatException to be thrown.");
+			Assert.fail(INVALID_FORMAT_EXCEPTION_MSG);
 		} catch (InvalidFormatException e) {
 			final String message = "Cannot deserialize value of type `boolean` from String \"maybe\"";
 			assertTrue(
@@ -294,7 +294,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 
 		try {
 			getConnector("supersedesEmpty");
-			Assert.fail("Expected an IOException to be thrown.");
+			Assert.fail(IO_EXCEPTION_MSG);
 		} catch (IOException e) {
 			String message = SUPERSEDES_ERROR_MSG;
 			assertTrue(
@@ -344,7 +344,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 	void testDeserializeSupersedesNullList() {
 		try {
 			getConnector("supersedesNullList");
-			Assert.fail("Expected an IOException to be thrown.");
+			Assert.fail(IO_EXCEPTION_MSG);
 		} catch (IOException e) {
 			checkMessage(e, SUPERSEDES_ERROR_MSG);
 		}
@@ -359,7 +359,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 	void testDeserializeSupersedesEmptyList() {
 		try {
 			getConnector("supersedesEmptyList");
-			Assert.fail("Expected an IOException to be thrown.");
+			Assert.fail(IO_EXCEPTION_MSG);
 		} catch (IOException e) {
 			checkMessage(e, SUPERSEDES_ERROR_MSG);
 		}
@@ -392,7 +392,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 		try {
 			getConnector("onLastResortEmpty");
 
-			Assert.fail("Expected an InvalidFormatException to be thrown.");
+			Assert.fail(INVALID_FORMAT_EXCEPTION_MSG);
 		} catch (InvalidFormatException e) {
 			String message = "Invalid blank value encountered for property 'onLastResort'.";
 			checkMessage(e, message);

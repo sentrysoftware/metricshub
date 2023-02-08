@@ -48,7 +48,7 @@ class StepGetUntilPromptTest extends DeserializerTest {
 
 		try {
 			getConnector("criterionSshInteractiveStepGetUntilPromptNanTimeout");
-			Assert.fail("Expected an InvalidFormatException to be thrown");
+			Assert.fail(INVALID_FORMAT_EXCEPTION_MSG);
 		} catch (InvalidFormatException e) {
 			final String message = "Invalid value encountered for property 'timeout'.";
 			checkMessage(e, message);
@@ -65,7 +65,7 @@ class StepGetUntilPromptTest extends DeserializerTest {
 
 		try {
 			getConnector("criterionSshInteractiveStepGetUntilPromptBadTimeout");
-			Assert.fail("Expected an InvalidFormatException to be thrown");
+			Assert.fail(INVALID_FORMAT_EXCEPTION_MSG);
 		} catch (InvalidFormatException e) {
 			final String message = "Invalid negative or zero value encountered for property 'timeout'.";
 			checkMessage(e, message);

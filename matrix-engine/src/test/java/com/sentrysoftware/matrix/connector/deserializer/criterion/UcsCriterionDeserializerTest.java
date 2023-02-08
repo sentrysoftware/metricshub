@@ -41,7 +41,7 @@ class UcsCriterionDeserializerTest extends DeserializerTest {
 		// query is null
 		try {
 			getConnector("ucsCriterionNullQuery");
-			Assert.fail("Expected an InvalidNullException to be thrown.");
+			Assert.fail(INVALID_NULL_EXCEPTION_MSG);
 		} catch (InvalidNullException e) {
 			final String message = "Invalid `null` value encountered for property \"query\"";
 			checkMessage(e, message);
@@ -56,7 +56,7 @@ class UcsCriterionDeserializerTest extends DeserializerTest {
 		// query is " "
 		try {
 			getConnector("ucsCriterionBlankQuery");
-			Assert.fail("Expected an IOException to be thrown.");
+			Assert.fail(IO_EXCEPTION_MSG);
 		} catch (IOException e) {
 			final String message = "Invalid blank value encountered for property 'query'.";
 			checkMessage(e, message);
@@ -73,7 +73,7 @@ class UcsCriterionDeserializerTest extends DeserializerTest {
 		// query is not declared
 		try {
 			getConnector("ucsCriterionNoQuery");
-			Assert.fail("Expected an IOException to be thrown.");
+			Assert.fail(IO_EXCEPTION_MSG);
 		} catch (IOException e) {
 			final String message = "Missing required creator property 'query' (index 2)";
 			checkMessage(e, message);

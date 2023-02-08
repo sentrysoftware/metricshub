@@ -85,7 +85,7 @@ class HttpCriterionDeserializerTest extends DeserializerTest {
 	void testDeserializeNonNull() throws Exception {
 		try {
 			getConnector("httpCriterionNonNull");
-			Assert.fail("Expected an MismatchedInputException to be thrown");
+			Assert.fail(MISMATCHED_EXCEPTION_MSG);
 		} catch (MismatchedInputException e) {
 			final String message = "Missing required creator property 'url' (index 3)";
 			checkMessage(e, message);

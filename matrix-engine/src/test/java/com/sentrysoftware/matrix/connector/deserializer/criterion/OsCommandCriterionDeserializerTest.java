@@ -63,7 +63,7 @@ class OsCommandCriterionDeserializerTest extends DeserializerTest {
 		// commandLine is null
 		try {
 			getConnector("osCommandCriterionCommandLineNo");
-			Assert.fail("Expected an InvalidDefinitionException to be thrown");
+			Assert.fail(MISMATCHED_EXCEPTION_MSG);
 		} catch (MismatchedInputException e) {
 			final String message = "Missing required creator property 'commandLine' (index 2)";
 			checkMessage(e, message);
@@ -79,7 +79,7 @@ class OsCommandCriterionDeserializerTest extends DeserializerTest {
 	void testDeserializeOsCommandBlankCommand() throws IOException {
 		try {
 			getConnector("osCommandCriterionCommandLineBlank");
-			Assert.fail("Expected an IOException to be thrown.");
+			Assert.fail(IO_EXCEPTION_MSG);
 		} catch (IOException e) {
 			String message = "Invalid blank value encountered for property 'commandLine'.";
 			checkMessage(e, message);
@@ -96,7 +96,7 @@ class OsCommandCriterionDeserializerTest extends DeserializerTest {
 		// commandLine is null
 		try {
 			getConnector("osCommandCriterionCommandLineNull");
-			Assert.fail("Expected an InvalidDefinitionException to be thrown");
+			Assert.fail(MISMATCHED_EXCEPTION_MSG);
 		} catch (InvalidNullException e) {
 			final String message = "Invalid `null` value encountered for property \"commandLine\"";
 			checkMessage(e, message);
@@ -110,7 +110,7 @@ class OsCommandCriterionDeserializerTest extends DeserializerTest {
 	void testDeserializeOsCommandNegativeTimeout() throws IOException {
 		try {
 			getConnector("osCommandCriterionNegativeTimeout");
-			Assert.fail("Expected an InvalidFormatException to be thrown");
+			Assert.fail(INVALID_FORMAT_EXCEPTION_MSG);
 		} catch (InvalidFormatException e) {
 			final String message = "Invalid negative or zero value encountered for property 'timeout'";
 			checkMessage(e, message);
@@ -124,7 +124,7 @@ class OsCommandCriterionDeserializerTest extends DeserializerTest {
 	void testDeserializeOsCommandZeroTimeout() throws IOException {
 		try {
 			getConnector("osCommandCriterionZeroTimeout");
-			Assert.fail("Expected an InvalidFormatException to be thrown");
+			Assert.fail(INVALID_FORMAT_EXCEPTION_MSG);
 		} catch (InvalidFormatException e) {
 			final String message = "Invalid negative or zero value encountered for property 'timeout'";
 			checkMessage(e, message);
@@ -138,7 +138,7 @@ class OsCommandCriterionDeserializerTest extends DeserializerTest {
 	void testDeserializeOsCommandStringTimeout() throws IOException {
 		try {
 			getConnector("osCommandCriterionStringTimeout");
-			Assert.fail("Expected an InvalidFormatException to be thrown");
+			Assert.fail(INVALID_FORMAT_EXCEPTION_MSG);
 		} catch (InvalidFormatException e) {
 			final String message = "Invalid value encountered for property 'timeout'";
 			checkMessage(e, message);
