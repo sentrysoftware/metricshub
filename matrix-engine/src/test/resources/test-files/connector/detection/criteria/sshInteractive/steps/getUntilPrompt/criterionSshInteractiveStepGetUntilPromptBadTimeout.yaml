@@ -6,5 +6,6 @@ connector:
         port: 22123
         expectedResult: Cisoc
         steps:
-          - type: getAvailable
+          - type: getUntilPrompt
+            timeout: -10
             capture: true

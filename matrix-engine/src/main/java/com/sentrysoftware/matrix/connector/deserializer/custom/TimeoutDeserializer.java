@@ -20,7 +20,7 @@ public class TimeoutDeserializer extends JsonDeserializer<Long> {
 				parser,
 				String.format("Invalid value encountered for property '%s'.", key),
 				parser.getValueAsString(),
-				String.class
+				Long.class
 			);
 		}
 
@@ -34,7 +34,7 @@ public class TimeoutDeserializer extends JsonDeserializer<Long> {
 			parser,
 			String.format("Invalid negative or zero value encountered for property '%s'.", key),
 			value,
-			String.class
+			Long.class
 		);
 	}
 }
