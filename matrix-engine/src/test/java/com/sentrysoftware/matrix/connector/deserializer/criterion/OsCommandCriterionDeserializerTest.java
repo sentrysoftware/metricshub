@@ -96,7 +96,7 @@ class OsCommandCriterionDeserializerTest extends DeserializerTest {
 		// commandLine is null
 		try {
 			getConnector("osCommandCriterionCommandLineNull");
-			Assert.fail(MISMATCHED_EXCEPTION_MSG);
+			Assert.fail(INVALID_NULL_EXCEPTION_MSG);
 		} catch (InvalidNullException e) {
 			final String message = "Invalid `null` value encountered for property \"commandLine\"";
 			checkMessage(e, message);
