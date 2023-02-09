@@ -20,9 +20,9 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.CopySource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
 
 @ExtendWith(MockitoExtension.class)
-class PreDeserializerTest {
+class SourcesDeserializerTest {
 
-	private static final PreDeserializer PRE_DESERIALIZER = new PreDeserializer();
+	private static final SourcesDeserializer SOURCES_DESERIALIZER = new SourcesDeserializer();
 
 	@Mock
 	private YAMLParser yamlParser;
@@ -31,19 +31,19 @@ class PreDeserializerTest {
 	void testNull() throws IOException {
 
 		{
-			assertEquals(new LinkedHashMap<>(), PRE_DESERIALIZER.deserialize(null, null));
+			assertEquals(new LinkedHashMap<>(), SOURCES_DESERIALIZER.deserialize(null, null));
 		}
 
 		{
-			assertEquals(new LinkedHashMap<>(), PRE_DESERIALIZER.deserialize(yamlParser, null));
+			assertEquals(new LinkedHashMap<>(), SOURCES_DESERIALIZER.deserialize(yamlParser, null));
 		}
 		{
 			doReturn(null).when(yamlParser).readValueAs(any(TypeReference.class));
-			assertEquals(new LinkedHashMap<>(), PRE_DESERIALIZER.deserialize(yamlParser, null));
+			assertEquals(new LinkedHashMap<>(), SOURCES_DESERIALIZER.deserialize(yamlParser, null));
 		}
 		{
 			doReturn(new LinkedHashMap<>()).when(yamlParser).readValueAs(any(TypeReference.class));
-			assertEquals(new LinkedHashMap<>(), PRE_DESERIALIZER.deserialize(yamlParser, null));
+			assertEquals(new LinkedHashMap<>(), SOURCES_DESERIALIZER.deserialize(yamlParser, null));
 		}
 	}
 
@@ -54,7 +54,7 @@ class PreDeserializerTest {
 			pre.put(null, new CopySource());
 
 			doReturn(pre).when(yamlParser).readValueAs(any(TypeReference.class));
-			assertThrows(IOException.class, () -> PRE_DESERIALIZER.deserialize(yamlParser, null));
+			assertThrows(IOException.class, () -> SOURCES_DESERIALIZER.deserialize(yamlParser, null));
 		}
 
 		{
@@ -62,7 +62,7 @@ class PreDeserializerTest {
 			pre.put(" ", new CopySource());
 
 			doReturn(pre).when(yamlParser).readValueAs(any(TypeReference.class));
-			assertThrows(IOException.class, () -> PRE_DESERIALIZER.deserialize(yamlParser, null));
+			assertThrows(IOException.class, () -> SOURCES_DESERIALIZER.deserialize(yamlParser, null));
 		}
 	}
 }

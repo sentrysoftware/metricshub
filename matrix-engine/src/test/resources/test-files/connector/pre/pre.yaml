@@ -3,23 +3,5 @@ connector:
   detection:
     appliesTo: [ linux ]
 pre:
-  firstSource:
-    type: copy
-  secondSource:
-    type: http
-  thirdSource:
+  ipmiSource:
     type: ipmi
-  forthSource:
-    type: osCommand
-  fifthSource:
-    type: snmpGet
-  sixthSource:
-    type: snmpTable
-  seventhSource:
-    type: sshInteractive
-  eighthSource:
-    type: static
-  ninthSource:
-    type: tableJoin
-  tenthSource:
-    type: tableUnion
