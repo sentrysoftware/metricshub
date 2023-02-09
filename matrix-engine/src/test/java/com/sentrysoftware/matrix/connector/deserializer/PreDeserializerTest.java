@@ -39,7 +39,7 @@ class PreDeserializerTest extends DeserializerTest {
 		);
 
 		Map<String, Source> expected = new LinkedHashMap<String, Source>(
-			Map.of("ipmiSource", new IpmiSource("ipmi", Collections.emptyList(), false, "pre.ipmiSource", null))
+			Map.of("ipmiSource", new IpmiSource("ipmi", Collections.emptyList(), false, "$pre.ipmiSource", null))
 		);
 					// Map.of only supports 10 elements
 
