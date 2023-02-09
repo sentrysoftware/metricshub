@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -38,7 +39,7 @@ class PreDeserializerTest extends DeserializerTest {
 		);
 
 		Map<String, Source> expected = new LinkedHashMap<String, Source>(
-			Map.of("ipmiSource", new IpmiSource())
+			Map.of("ipmiSource", new IpmiSource("ipmi", Collections.emptyList(), false, "pre.ipmiSource", null))
 		);
 					// Map.of only supports 10 elements
 
