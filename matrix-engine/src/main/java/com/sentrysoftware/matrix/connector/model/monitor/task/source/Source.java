@@ -4,12 +4,15 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
+import static com.fasterxml.jackson.annotation.Nulls.SKIP;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
@@ -43,7 +46,9 @@ public abstract class Source implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	protected String type;
-	private List<Compute> computes;
+
+	@JsonSetter(nulls = SKIP)
+	private List<Compute> computes = new ArrayList<>();
 	protected boolean forceSerialization;
 	protected String key;
 	protected ExecuteForEachEntryOf executeForEachEntryOf;

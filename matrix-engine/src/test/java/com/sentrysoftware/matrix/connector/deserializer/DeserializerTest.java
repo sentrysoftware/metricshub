@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.connector.deserializer;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.identity.ConnectorIdentity;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.Criterion;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -11,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 public abstract class DeserializerTest implements IDeserializerTest {
 
@@ -25,9 +27,8 @@ public abstract class DeserializerTest implements IDeserializerTest {
 
 	protected void checkMessage(Exception e, String message) {
 		assertTrue(
-			e.getMessage().contains(message),
-			() -> "Exception expected to contain: " + message + ". But got: " + e.getMessage()
-		);
+				e.getMessage().contains(message),
+				() -> "Exception expected to contain: " + message + ". But got: " + e.getMessage());
 	}
 
 	protected void compareCriterion(String testResource, final Connector connector, List<Criterion> expected) {
@@ -38,5 +39,10 @@ public abstract class DeserializerTest implements IDeserializerTest {
 
 		assertNotNull(connectorIdentity.getDetection());
 		assertEquals(expected, connectorIdentity.getDetection().getCriteria());
+	}
+
+	protected void comparePreSource(final Connector connector, Map<String, Source> expected) {
+		assertNotNull(connector);
+		assertEquals(expected, connector.getPre());
 	}
 }

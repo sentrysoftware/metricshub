@@ -27,7 +27,7 @@ public class TableJoinSource extends Source {
 	private String rightTable;
 	private Integer leftKeyColumn;
 	private Integer rightKeyColumn;
-	private List<String> defaultRightLine;
+	private String defaultRightLine;
 	private String keyType;
 
 	@Builder
@@ -39,7 +39,7 @@ public class TableJoinSource extends Source {
 		String rightTable,
 		Integer leftKeyColumn,
 		Integer rightKeyColumn,
-		List<String> defaultRightLine,
+		String defaultRightLine,
 		String keyType,
 		String key,
 		ExecuteForEachEntryOf executeForEachEntryOf
@@ -66,7 +66,7 @@ public class TableJoinSource extends Source {
 				.rightTable(rightTable)
 				.leftKeyColumn(leftKeyColumn)
 				.rightKeyColumn(rightKeyColumn)
-				.defaultRightLine(defaultRightLine != null ? new ArrayList<>(defaultRightLine) : null)
+				.defaultRightLine(defaultRightLine)
 				.keyType(keyType)
 				.build();
 	}

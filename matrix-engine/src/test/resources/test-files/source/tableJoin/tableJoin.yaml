@@ -1,0 +1,12 @@
+connector:
+  detection:
+    appliesTo: [ Linux ]
+
+pre:
+  testTableJoinSource:
+    type: tableJoin
+    leftTable: testLeft
+    rightTable: testRight
+    leftKeyColumn: 2
+    rightKeyColumn: 3
+    defaultRightLine: testdefault;;;
