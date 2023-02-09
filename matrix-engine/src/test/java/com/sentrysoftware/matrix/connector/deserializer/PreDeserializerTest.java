@@ -41,7 +41,6 @@ class PreDeserializerTest extends DeserializerTest {
 		Map<String, Source> expected = new LinkedHashMap<String, Source>(
 			Map.of("ipmiSource", new IpmiSource("ipmi", Collections.emptyList(), false, "$pre.ipmiSource", null))
 		);
-					// Map.of only supports 10 elements
 
 		// We want to keep the order declared in the YAML file
 		assertEquals(expected.keySet(), pre.keySet());
