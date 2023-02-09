@@ -1,11 +1,7 @@
 package com.sentrysoftware.matrix.connector.deserializer;
 
-import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.identity.ConnectorIdentity;
-import com.sentrysoftware.matrix.connector.model.identity.criterion.Criterion;
-import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -13,6 +9,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+
+import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.identity.ConnectorIdentity;
+import com.sentrysoftware.matrix.connector.model.identity.criterion.Criterion;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
 
 public abstract class DeserializerTest implements IDeserializerTest {
 
@@ -26,6 +28,8 @@ public abstract class DeserializerTest implements IDeserializerTest {
 	}
 
 	protected void checkMessage(Exception e, String message) {
+		assertNotNull(message, () -> "Message cannot be null.");
+		assertNotEquals(MatrixConstants.EMPTY, message, () -> "Message cannot be empty.");
 		assertTrue(
 				e.getMessage().contains(message),
 				() -> "Exception expected to contain: " + message + ". But got: " + e.getMessage());
