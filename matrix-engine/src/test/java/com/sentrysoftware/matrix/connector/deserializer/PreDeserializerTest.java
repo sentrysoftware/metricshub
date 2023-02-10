@@ -12,6 +12,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.IpmiSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
@@ -20,7 +21,7 @@ class PreDeserializerTest extends DeserializerTest {
 
 	@Override
 	public String getResourcePath() {
-		return "src/test/resources/test-files/connector/pre/";
+		return "src/test/resources/test-files/pre/";
 	}
 
 	@Test
@@ -38,13 +39,11 @@ class PreDeserializerTest extends DeserializerTest {
 			"pre are expected to be a LinkedHashMap."
 		);
 
-		Map<String, Source> expected = new LinkedHashMap<String, Source>(
+		final Map<String, Source> expected = new LinkedHashMap<String, Source>(
 			Map.of("ipmiSource", new IpmiSource("ipmi", Collections.emptyList(), false, "$pre.ipmiSource", null))
 		);
 
-		// We want to keep the order declared in the YAML file
-		assertEquals(expected.keySet(), pre.keySet());
-		assertEquals(expected.values().getClass(), pre.values().getClass());
+		assertEquals(expected, pre);
 	}
 
 	@Test
@@ -52,10 +51,14 @@ class PreDeserializerTest extends DeserializerTest {
 		try {
 			getConnector("preBlankSource");
 			Assert.fail(IO_EXCEPTION_MSG);
-		} catch (IOException e) {
-			final String message = "";
+		} catch (InvalidFormatException e) {
+			final String message = "The source key referenced by 'pre' cannot be empty.";
 			checkMessage(e, message);
 		}
 	}
 
+	@Test
+	void testPreNull() throws IOException {
+		assertEquals(Collections.emptyMap(), getConnector("preNull").getPre());
+	}
 }
