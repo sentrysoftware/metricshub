@@ -1,0 +1,9 @@
+connector:
+  detection:
+    appliesTo: [ Linux ]
+
+pre:
+  testWbemSource:
+    type: wbem
+    query: testQuery
+    namespace: testNamespace
