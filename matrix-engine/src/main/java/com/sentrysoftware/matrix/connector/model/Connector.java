@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.matrix.connector.deserializer.custom.ExtendsDeserializer;
+import com.sentrysoftware.matrix.connector.deserializer.custom.SourcesDeserializer;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.identity.ConnectorIdentity;
 import com.sentrysoftware.matrix.connector.model.metric.MonitorDefinition;
@@ -52,7 +53,9 @@ public class Connector implements Serializable {
 	@Default
 	private Set<String> sudoCommands = new HashSet<>();
 
-	@Default 
+	@Default
+	@JsonDeserialize(using = SourcesDeserializer.class)
+	@JsonSetter(nulls = SKIP)
 	private Map<String, Source> pre = new HashMap<>();
 
 	@Default
