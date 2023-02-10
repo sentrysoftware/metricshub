@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
@@ -43,8 +44,9 @@ public abstract class Source implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	protected String type;
-	private List<Compute> computes;
+	private List<Compute> computes = new ArrayList<>();
 	protected boolean forceSerialization;
+	@JsonIgnore
 	protected String key;
 	protected ExecuteForEachEntryOf executeForEachEntryOf;
 

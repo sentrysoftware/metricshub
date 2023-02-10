@@ -1,0 +1,7 @@
+---
+connector:
+  detection:
+    appliesTo: [ linux ]
+pre:
+  " ":
+    type: copy
