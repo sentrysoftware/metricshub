@@ -29,8 +29,8 @@ public class OsCommandSource extends Source {
 	private boolean executeLocally;
 	private String exclude;
 	private String keep;
-	private Integer removeHeader;
-	private Integer removeFooter;
+	private boolean removeHeader;
+	private boolean removeFooter;
 	private String separators = WHITE_SPACE_TAB;
 	private List<String> selectColumns = new ArrayList<>();
 
@@ -44,7 +44,8 @@ public class OsCommandSource extends Source {
 		boolean executeLocally,
 		String exclude,
 		String keep,
-		Integer removeHeader, Integer removeFooter,
+		boolean removeHeader,
+		boolean removeFooter,
 		String separators,
 		List<String> selectColumns,
 		String key,
