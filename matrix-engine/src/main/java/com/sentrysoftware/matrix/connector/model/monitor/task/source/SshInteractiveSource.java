@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
 import com.sentrysoftware.matrix.connector.model.common.sshstep.Step;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Compute;
@@ -16,6 +18,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.Singular;
 
 @Data
@@ -35,20 +38,21 @@ public class SshInteractiveSource extends Source {
 	private List<Step> steps = new ArrayList<>();
 
 	@Builder
+	@JsonCreator
 	public SshInteractiveSource( // NOSONAR on constructor
-		String type,
-		List<Compute> computes,
-		boolean forceSerialization,
-		Integer port,
-		String exclude,
-		String keep,
-		Integer beginAtLineNumber,
-		Integer endAtLineNumber,
-		String separators,
-		String selectColumns,
-		@Singular List<Step> steps,
-		String key,
-		ExecuteForEachEntryOf executeForEachEntryOf) {
+		@JsonProperty("type") String type, 
+		@JsonProperty("computes") List<Compute> computes,
+		@JsonProperty("forceSerialization") boolean forceSerialization,
+		@JsonProperty("port") Integer port,
+		@JsonProperty("exclude") String exclude,
+		@JsonProperty("keep") String keep,
+		@JsonProperty("beginAtLineNumber") Integer beginAtLineNumber,
+		@JsonProperty("endAtLineNumber") Integer endAtLineNumber,
+		@JsonProperty("separators") String separators,
+		@JsonProperty("SelectColumns") String selectColumns,
+		@JsonProperty(value = "steps", required = true) @Singular @NonNull List<Step> steps,
+		@JsonProperty("key") String key,
+		@JsonProperty("executeForEachEntryOf") ExecuteForEachEntryOf executeForEachEntryOf) {
 
 		super(type, computes, forceSerialization, key, executeForEachEntryOf);
 		this.port = port;
