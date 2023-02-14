@@ -36,9 +36,7 @@ public class WmiSource extends Source {
 	@JsonSetter(nulls = FAIL)
 	private String query;
 
-	@NonNull
 	@JsonDeserialize(using = NonBlankDeserializer.class)
-	@JsonSetter(nulls = FAIL)
 	private String namespace;
 
 	@Builder
@@ -48,7 +46,7 @@ public class WmiSource extends Source {
 		@JsonProperty("computes") List<Compute> computes,
 		@JsonProperty("forceSerialization") boolean forceSerialization,
 		@JsonProperty(value = "query", required = true) @NonNull String query,
-		@JsonProperty(value = "namespace", required = true) @NonNull String namespace,
+		@JsonProperty("namespace") String namespace,
 		@JsonProperty("key") String key,
 		@JsonProperty("executeForEachEntryOf") ExecuteForEachEntryOf executeForEachEntryOf
 	) {
