@@ -7,6 +7,6 @@ pre:
     type: tableJoin
     leftTable: testLeft
     rightTable: testRight
-    leftKeyColumn: 2
+    leftKeyColumn: "2"
     rightKeyColumn: 3
     defaultRightLine: testdefault;;;

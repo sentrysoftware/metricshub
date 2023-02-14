@@ -27,15 +27,17 @@ class TableJoinDeserializerTest extends DeserializerTest {
 			final Connector connector = getConnector(testResource);
 			Map<String, Source> expected = new LinkedHashMap<>();
 			expected.put("testTableJoinSource",
-					TableJoinSource.builder()
-							.type("tableJoin")
-							.forceSerialization(false)
-							.leftTable("testLeft")
-							.rightTable("testRight")
-							.leftKeyColumn(2)
-							.rightKeyColumn(3)
-							.defaultRightLine("testdefault;;;")
-							.build());
+				TableJoinSource.builder()
+					.type("tableJoin")
+					.forceSerialization(false)
+					.leftTable("testLeft")
+					.rightTable("testRight")
+					.leftKeyColumn(2)
+					.rightKeyColumn(3)
+					.defaultRightLine("testdefault;;;")
+					.key("$pre.testTableJoinSource")
+					.build()
+			);
 
 			comparePreSource(connector, expected);
 		} catch (Exception e) {
