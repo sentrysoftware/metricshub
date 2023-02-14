@@ -14,7 +14,7 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.OsCommandSource;
 
-public class OsCommandSourceDeserializerTest extends DeserializerTest{
+class OsCommandSourceDeserializerTest extends DeserializerTest{
 	
 	@Override
 	public String getResourcePath() {
