@@ -1,5 +1,7 @@
 package com.sentrysoftware.matrix.connector.model.monitor.task.source;
 
+import static com.fasterxml.jackson.annotation.Nulls.SKIP;
+
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
@@ -8,6 +10,9 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.sentrysoftware.matrix.connector.deserializer.custom.NonBlankDeserializer;
 import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Compute;
 
@@ -23,24 +28,29 @@ public class UcsSource extends Source {
 
 	private static final long serialVersionUID = 1L;
 
+	@JsonSetter(nulls = SKIP)
 	private List<String> queries = new ArrayList<>();
+
+	@JsonDeserialize(using = NonBlankDeserializer.class)
 	private String exclude;
+
+	@JsonDeserialize(using = NonBlankDeserializer.class)
 	private String keep;
+
+	@JsonSetter(nulls = SKIP)
 	private List<String> selectColumns = new ArrayList<>();
 
 	@Builder
 	public UcsSource( // NOSONAR on constructor
-		String type,
-		List<Compute> computes,
-		boolean forceSerialization,
-		List<String> queries,
-		String exclude,
-		String keep,
-		List<String> selectColumns,
-		String key,
-		ExecuteForEachEntryOf executeForEachEntryOf
-	) {
-
+			String type,
+			List<Compute> computes,
+			boolean forceSerialization,
+			List<String> queries,
+			String exclude,
+			String keep,
+			List<String> selectColumns,
+			String key,
+			ExecuteForEachEntryOf executeForEachEntryOf) {
 		super(type, computes, forceSerialization, key, executeForEachEntryOf);
 		this.queries = queries;
 		this.exclude = exclude;
