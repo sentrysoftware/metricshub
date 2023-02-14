@@ -21,6 +21,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @Data
 @NoArgsConstructor
@@ -29,10 +30,12 @@ public class WmiSource extends Source {
 
 	private static final long serialVersionUID = 1L;
 
+	@NonNull
 	@JsonDeserialize(using = NonBlankDeserializer.class)
 	@JsonSetter(nulls = FAIL)
 	private String query;
 
+	@NonNull
 	@JsonDeserialize(using = NonBlankDeserializer.class)
 	@JsonSetter(nulls = FAIL)
 	private String namespace;
@@ -42,8 +45,8 @@ public class WmiSource extends Source {
 		@JsonProperty("type") String type, 
 		@JsonProperty("computes") List<Compute> computes,
 		@JsonProperty("forceSerialization") boolean forceSerialization,
-		@JsonProperty(value = "query", required = true) String query,
-		@JsonProperty(value = "namespace", required = true) String namespace,
+		@JsonProperty(value = "query", required = true) @NonNull String query,
+		@JsonProperty(value = "namespace", required = true) @NonNull String namespace,
 		@JsonProperty("key") String key,
 		@JsonProperty("executeForEachEntryOf") ExecuteForEachEntryOf executeForEachEntryOf
 	) {
