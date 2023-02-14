@@ -10,6 +10,7 @@ import java.util.function.UnaryOperator;
 
 import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -41,6 +42,7 @@ public class WmiSource extends Source {
 	private String namespace;
 
 	@Builder
+	@JsonCreator
 	public WmiSource(
 		@JsonProperty("type") String type, 
 		@JsonProperty("computes") List<Compute> computes,
