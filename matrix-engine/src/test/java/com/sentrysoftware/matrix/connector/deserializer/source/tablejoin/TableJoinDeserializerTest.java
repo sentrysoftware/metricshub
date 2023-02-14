@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.connector.deserializer.source.tablejoin;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -27,15 +28,18 @@ class TableJoinDeserializerTest extends DeserializerTest {
 			final Connector connector = getConnector(testResource);
 			Map<String, Source> expected = new LinkedHashMap<>();
 			expected.put("testTableJoinSource",
-					TableJoinSource.builder()
-							.type("tableJoin")
-							.forceSerialization(false)
-							.leftTable("testLeft")
-							.rightTable("testRight")
-							.leftKeyColumn(2)
-							.rightKeyColumn(3)
-							.defaultRightLine("testdefault;;;")
-							.build());
+				TableJoinSource.builder()
+					.type("tableJoin")
+					.forceSerialization(false)
+					.leftTable("testLeft")
+					.rightTable("testRight")
+					.leftKeyColumn(2)
+					.rightKeyColumn(3)
+					.defaultRightLine("testdefault;;;")
+					.key("$pre.testTableJoinSource")
+					.computes(Collections.emptyList())
+					.build()
+			);
 
 			comparePreSource(connector, expected);
 		} catch (Exception e) {

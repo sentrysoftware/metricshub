@@ -16,11 +16,6 @@ import com.sentrysoftware.matrix.connector.model.identity.ConnectorIdentity;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.Criterion;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
 
-import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
-import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.identity.ConnectorIdentity;
-import com.sentrysoftware.matrix.connector.model.identity.criterion.Criterion;
-
 public abstract class DeserializerTest implements IDeserializerTest {
 
 	private File getTestResourceFile(String file) {
@@ -36,8 +31,9 @@ public abstract class DeserializerTest implements IDeserializerTest {
 		assertNotNull(message, () -> "Message cannot be null.");
 		assertNotEquals(MatrixConstants.EMPTY, message, () -> "Message cannot be empty.");
 		assertTrue(
-				e.getMessage().contains(message),
-				() -> "Exception expected to contain: " + message + ". But got: " + e.getMessage());
+			e.getMessage().contains(message),
+			() -> "Exception expected to contain: " + message + ". But got: " + e.getMessage()
+		);
 	}
 
 	protected void compareCriterion(String testResource, final Connector connector, List<Criterion> expected) {
