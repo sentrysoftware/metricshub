@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.connector.deserializer.source.tablejoin;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -36,6 +37,7 @@ class TableJoinDeserializerTest extends DeserializerTest {
 					.rightKeyColumn(3)
 					.defaultRightLine("testdefault;;;")
 					.key("$pre.testTableJoinSource")
+					.computes(Collections.emptyList())
 					.build()
 			);
 
