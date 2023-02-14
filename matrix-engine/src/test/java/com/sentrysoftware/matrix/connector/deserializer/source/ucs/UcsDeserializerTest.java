@@ -22,7 +22,7 @@ public class UcsDeserializerTest extends DeserializerTest{
 	}
 
 	@Test
-	void testDeserializeTableJoin() throws IOException {
+	void testDeserializeUcs() throws IOException {
 		final String testResource = "ucs";
 
 		List<String> queries = new ArrayList<>();
