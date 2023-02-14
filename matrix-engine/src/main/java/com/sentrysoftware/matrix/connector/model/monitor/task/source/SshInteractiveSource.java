@@ -16,6 +16,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.Singular;
 
 @Data
 @NoArgsConstructor
@@ -27,10 +28,10 @@ public class SshInteractiveSource extends Source {
 	private Integer port;
 	private String exclude;
 	private String keep;
-	private Integer removeHeader;
-	private Integer removeFooter;
+	private Integer beginAtLineNumber;
+	private Integer endAtLineNumber;
 	private String separators;
-	private List<String> selectColumns = new ArrayList<>();
+	private String selectColumns;
 	private List<Step> steps = new ArrayList<>();
 
 	@Builder
@@ -41,11 +42,11 @@ public class SshInteractiveSource extends Source {
 		Integer port,
 		String exclude,
 		String keep,
-		Integer removeHeader,
-		Integer removeFooter,
+		Integer beginAtLineNumber,
+		Integer endAtLineNumber,
 		String separators,
-		List<String> selectColumns,
-		List<Step> steps,
+		String selectColumns,
+		@Singular List<Step> steps,
 		String key,
 		ExecuteForEachEntryOf executeForEachEntryOf) {
 
@@ -53,8 +54,8 @@ public class SshInteractiveSource extends Source {
 		this.port = port;
 		this.exclude = exclude;
 		this.keep = keep;
-		this.removeHeader = removeHeader;
-		this.removeFooter = removeFooter;
+		this.beginAtLineNumber = beginAtLineNumber;
+		this.endAtLineNumber = endAtLineNumber;
 		this.separators = separators;
 		this.selectColumns = selectColumns;
 		this.steps = steps;
@@ -71,10 +72,10 @@ public class SshInteractiveSource extends Source {
 				.port(port)
 				.exclude(exclude)
 				.keep(keep)
-				.removeHeader(removeHeader)
-				.removeFooter(removeFooter)
+				.beginAtLineNumber(beginAtLineNumber)
+				.endAtLineNumber(endAtLineNumber)
 				.separators(separators)
-				.selectColumns(selectColumns != null ? new ArrayList<>(selectColumns) : null)
+				.selectColumns(selectColumns)
 				.steps(steps != null ? steps.stream().map(Step::copy).toList() : null)
  				.build();
 	}
@@ -84,6 +85,7 @@ public class SshInteractiveSource extends Source {
 		exclude = updater.apply(exclude);
 		keep = updater.apply(keep);
 		separators = updater.apply(separators);
+		selectColumns = updater.apply(selectColumns);
 		if (steps != null) {
 			steps.forEach(step -> step.update(updater));
 		}
@@ -98,8 +100,8 @@ public class SshInteractiveSource extends Source {
 		addNonNull(stringJoiner, "- port=", port);
 		addNonNull(stringJoiner, "- exclude=", exclude);
 		addNonNull(stringJoiner, "- keep=", keep);
-		addNonNull(stringJoiner, "- removeHeader=", removeHeader);
-		addNonNull(stringJoiner, "- removeFooter=", removeFooter);
+		addNonNull(stringJoiner, "- beginAtLineNumber=", beginAtLineNumber);
+		addNonNull(stringJoiner, "- endAtLineNumber=", endAtLineNumber);
 		addNonNull(stringJoiner, "- separators=", separators);
 		addNonNull(stringJoiner, "- selectColumns=", selectColumns);
 
