@@ -23,7 +23,7 @@ class TableUnionDeserializerTest extends DeserializerTest {
 	}
 
 	@Test
-	void testDeserializeTableJoin() throws IOException {
+	void testDeserializeTableUnion() throws IOException {
 		final String testResource = "tableUnion";
 
 		List<String> tables = new ArrayList<>();
