@@ -4,14 +4,14 @@ connector:
 
 pre:
   oscommand1:
-    type: osCommnand
+    type: osCommand
     commandLine: myCommand
     timeout: 30
     executeLocally: true
     exclude: excludeRegExp
     keep: keepRegExp
-    removeHeader: true
-    removeFooter: true
-    separators: [",", ";"]
-    selectColumns: [1, 2, 3, 4]
+    beginAtLineNumber: 2
+    endAtLineNumber: 10
+    separators: ",;"
+    selectColumns: "1-6"
     forceSerialization: true

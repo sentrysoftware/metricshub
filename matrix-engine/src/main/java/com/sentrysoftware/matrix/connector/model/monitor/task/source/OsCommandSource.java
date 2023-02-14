@@ -29,10 +29,10 @@ public class OsCommandSource extends Source {
 	private boolean executeLocally;
 	private String exclude;
 	private String keep;
-	private boolean removeHeader;
-	private boolean removeFooter;
+	private int beginAtLineNumber;
+	private int endAtLineNumber;
 	private String separators = WHITE_SPACE_TAB;
-	private List<String> selectColumns = new ArrayList<>();
+	private String selectColumns;
 
 	@Builder
 	public OsCommandSource( // NOSONAR on constructor
@@ -44,10 +44,10 @@ public class OsCommandSource extends Source {
 		boolean executeLocally,
 		String exclude,
 		String keep,
-		boolean removeHeader,
-		boolean removeFooter,
+		int beginAtLineNumber,
+		int endAtLineNumber,
 		String separators,
-		List<String> selectColumns,
+		String selectColumns,
 		String key,
 		ExecuteForEachEntryOf executeForEachEntryOf
 	) {
@@ -59,8 +59,8 @@ public class OsCommandSource extends Source {
 		this.executeLocally = executeLocally;
 		this.exclude = exclude;
 		this.keep = keep;
-		this.removeHeader = removeHeader;
-		this.removeFooter = removeFooter;
+		this.beginAtLineNumber = beginAtLineNumber;
+		this.endAtLineNumber = endAtLineNumber;
 		this.separators = separators == null ? WHITE_SPACE_TAB : separators;
 		this.selectColumns = selectColumns;
 	}
@@ -81,9 +81,9 @@ public class OsCommandSource extends Source {
 				.executeLocally(executeLocally)
 				.exclude(exclude)
 				.keep(keep)
-				.removeFooter(removeFooter)
-				.removeHeader(removeHeader)
-				.selectColumns(selectColumns != null ? new ArrayList<>(selectColumns) : null)
+				.beginAtLineNumber(beginAtLineNumber)
+				.endAtLineNumber(endAtLineNumber)
+				.selectColumns(selectColumns)
 				.separators(separators)
 				.timeout(timeout)
 				.build();
@@ -95,6 +95,7 @@ public class OsCommandSource extends Source {
 		exclude = updater.apply(exclude);
 		keep = updater.apply(keep);
 		separators = updater.apply(separators);
+		selectColumns = updater.apply(selectColumns);
 	}
 
 	@Override
@@ -109,8 +110,8 @@ public class OsCommandSource extends Source {
 		addNonNull(stringJoiner, "- executeLocally=", executeLocally);
 		addNonNull(stringJoiner, "- exclude=", exclude);
 		addNonNull(stringJoiner, "- keep=", keep);
-		addNonNull(stringJoiner, "- removeHeader=", removeHeader);
-		addNonNull(stringJoiner, "- removeFooter=", removeFooter);
+		addNonNull(stringJoiner, "- beginAtLineNumber=", beginAtLineNumber);
+		addNonNull(stringJoiner, "- endAtLineNumber=", endAtLineNumber);
 		addNonNull(stringJoiner, "- separators=", separators);
 		addNonNull(stringJoiner, "- selectColumns=", selectColumns);
 
