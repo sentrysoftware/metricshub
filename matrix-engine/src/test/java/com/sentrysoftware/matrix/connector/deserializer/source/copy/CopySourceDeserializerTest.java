@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.connector.deserializer.source.copy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -31,6 +32,7 @@ class CopySourceDeserializerTest extends DeserializerTest {
 						.key("$pre.testCopySource")
 						.type("copy")
 						.from("$pre.anotherSource")
+						.computes(Collections.emptyList())
 						.build()
 					)
 				);
