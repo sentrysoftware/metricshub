@@ -16,6 +16,11 @@ import com.sentrysoftware.matrix.connector.model.identity.ConnectorIdentity;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.Criterion;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
 
+import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.identity.ConnectorIdentity;
+import com.sentrysoftware.matrix.connector.model.identity.criterion.Criterion;
+
 public abstract class DeserializerTest implements IDeserializerTest {
 
 	private File getTestResourceFile(String file) {
