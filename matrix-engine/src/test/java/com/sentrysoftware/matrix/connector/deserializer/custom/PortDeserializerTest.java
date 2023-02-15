@@ -18,7 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class PortDeserializerTest {
 
-	private static final PortDeserializer PORT_DERSERIALIZER = new PortDeserializer();
+	private static final PortDeserializer DERSERIALIZER = new PortDeserializer();
 
 	@Mock
 	private YAMLParser yamlParser;
@@ -26,30 +26,40 @@ class PortDeserializerTest {
 	@Test
 	void testNull() throws IOException {
 		{
-			assertNull(PORT_DERSERIALIZER.deserialize(null, null));
+			assertNull(DERSERIALIZER.deserialize(null, null));
 		}
 		{
-			doReturn(true).when(yamlParser).isExpectedNumberIntToken();
-			doReturn(0).when(yamlParser).getIntValue();
-			assertThrows(InvalidFormatException.class, () -> PORT_DERSERIALIZER.deserialize(yamlParser, null));
+			doReturn("0").when(yamlParser).getValueAsString();
+			assertThrows(InvalidFormatException.class, () -> DERSERIALIZER.deserialize(yamlParser, null));
+		}
+		{
+			doReturn(null).when(yamlParser).getValueAsString();
+			assertNull(DERSERIALIZER.deserialize(yamlParser, null));
 		}
 	}
 
 	@Test
 	void testValue() throws IOException {
-		doReturn(true).when(yamlParser).isExpectedNumberIntToken();
-		doReturn(1234).when(yamlParser).getIntValue();
-		assertEquals(1234, PORT_DERSERIALIZER.deserialize(yamlParser, null));
+		doReturn("1234").when(yamlParser).getValueAsString();
+		assertEquals(1234, DERSERIALIZER.deserialize(yamlParser, null));
 	}
 
 	@Test
 	void testNegativeValue() throws Exception {
-		doReturn(true).when(yamlParser).isExpectedNumberIntToken();
-		doReturn(-1234).when(yamlParser).getIntValue();
+		doReturn("-1234").when(yamlParser).getValueAsString();
+		testUnexpectedValue();
+	}
+
+	/**
+	 * Test unexpected value (negative or zero)
+	 * 
+	 * @throws IOException
+	 */
+	private void testUnexpectedValue() throws IOException {
 		doReturn("key").when(yamlParser).getCurrentName();
 		try {
-			PORT_DERSERIALIZER.deserialize(yamlParser, null);
-			fail("Expected IOException to be thrown");
+			DERSERIALIZER.deserialize(yamlParser, null);
+			fail("Expected InvalidFormatException to be thrown");
 		} catch (InvalidFormatException e) {
 			String message = "Invalid negative or zero value encountered for property 'key'.";
 			assertTrue(
@@ -61,29 +71,17 @@ class PortDeserializerTest {
 
 	@Test
 	void testZeroValue() throws Exception {
-		doReturn(true).when(yamlParser).isExpectedNumberIntToken();
-		doReturn(0).when(yamlParser).getIntValue();
-		doReturn("key").when(yamlParser).getCurrentName();
-		try {
-			PORT_DERSERIALIZER.deserialize(yamlParser, null);
-			fail("Expected IOException to be thrown");
-		} catch (InvalidFormatException e) {
-			String message = "Invalid negative or zero value encountered for property 'key'.";
-			assertTrue(
-				e.getMessage().contains(message),
-				() -> "Expected exception contains: " + message + ". But got: " + e.getMessage()
-			);
-		}
+		doReturn("0").when(yamlParser).getValueAsString();
+		testUnexpectedValue();
 	}
 
 	@Test
 	void testStringValue() throws Exception {
-		doReturn(false).when(yamlParser).isExpectedNumberIntToken();
 		doReturn("value").when(yamlParser).getValueAsString();
 		doReturn("key").when(yamlParser).getCurrentName();
 		try {
-			PORT_DERSERIALIZER.deserialize(yamlParser, null);
-			fail("Expected IOException to be thrown");
+			DERSERIALIZER.deserialize(yamlParser, null);
+			fail("Expected InvalidFormatException to be thrown");
 		} catch (InvalidFormatException e) {
 			String message = "Invalid value encountered for property 'key'.";
 			assertTrue(
