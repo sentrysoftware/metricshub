@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -31,16 +32,20 @@ public class WbemSource extends Source {
 
 	@NonNull
 	@JsonDeserialize(using = NonBlankDeserializer.class)
-	@JsonSetter(nulls = FAIL)private String query;
+	@JsonSetter(nulls = FAIL)
+	private String query;
+
+	@JsonDeserialize(using = NonBlankDeserializer.class)
 	private String namespace;
 
 	@Builder
+	@JsonCreator
 	public WbemSource(
 			@JsonProperty("type") String type, 
 			@JsonProperty("computes") List<Compute> computes,
 			@JsonProperty("forceSerialization") boolean forceSerialization,
 			@JsonProperty(value = "query", required = true) @NonNull String query,
-			@JsonProperty(value = "namespace", required = true) @NonNull String namespace,
+			@JsonProperty("namespace") String namespace,
 			@JsonProperty("key") String key,
 			@JsonProperty("executeForEachEntryOf") ExecuteForEachEntryOf executeForEachEntryOf
 	) {

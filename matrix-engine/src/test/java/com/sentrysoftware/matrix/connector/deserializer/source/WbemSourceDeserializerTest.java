@@ -24,14 +24,17 @@ class WbemSourceDeserializerTest extends DeserializerTest {
 		final String testResource = "wbem";
 		final Connector connector = getConnector(testResource);
 
-		final Map<String, Source> expected = new LinkedHashMap<String, Source>(
-				Map.of("testWbemSource",
-						WbemSource.builder()
-								.key("$pre.testWbemSource")
-								.type("wbem")
-								.query("testQuery")
-								.namespace("testNamespace")
-								.build()));
+		final Map<String, Source> expected = new LinkedHashMap<>(
+			Map.of("testWbemSource",
+				WbemSource
+					.builder()
+					.key("$pre.testWbemSource")
+					.type("wbem")
+					.query("testQuery")
+					.namespace("testNamespace")
+					.build()
+			)
+		);
 
 		assertEquals(expected, connector.getPre());
 	}
