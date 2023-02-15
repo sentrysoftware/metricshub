@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.connector.model.monitor.task.source;
 
+import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WHITE_SPACE_TAB;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
@@ -10,6 +11,7 @@ import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.matrix.connector.deserializer.custom.NonBlankDeserializer;
 import com.sentrysoftware.matrix.connector.deserializer.custom.TimeoutDeserializer;
@@ -30,6 +32,7 @@ public class OsCommandSource extends Source {
 	private static final long serialVersionUID = 1L;
 
 	@NonNull
+	@JsonSetter(nulls = FAIL)
 	@JsonDeserialize(using = NonBlankDeserializer.class)
 	private String commandLine;
 
@@ -44,8 +47,8 @@ public class OsCommandSource extends Source {
 	@JsonDeserialize(using = NonBlankDeserializer.class)
 	private String keep;
 
-	private int beginAtLineNumber;
-	private int endAtLineNumber;
+	private Integer beginAtLineNumber;
+	private Integer endAtLineNumber;
 	private String separators = WHITE_SPACE_TAB;
 	private String selectColumns;
 
@@ -59,8 +62,8 @@ public class OsCommandSource extends Source {
 			@JsonProperty("executeLocally") boolean executeLocally,
 			@JsonProperty("exclude") String exclude,
 			@JsonProperty("keep") String keep,
-			@JsonProperty("beginAtLineNumber") int beginAtLineNumber,
-			@JsonProperty("endAtLineNumber") int endAtLineNumber,
+			@JsonProperty("beginAtLineNumber") Integer beginAtLineNumber,
+			@JsonProperty("endAtLineNumber") Integer endAtLineNumber,
 			@JsonProperty("separators") String separators,
 			@JsonProperty("selectColumns") String selectColumns,
 			@JsonProperty("key") String key,
