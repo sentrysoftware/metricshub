@@ -3,6 +3,6 @@ connector:
   detection:
     appliesTo: [ linux ]
 pre:
-  " ":
+  testCopySource:
     type: copy
     from: $pre.anotherSource
