@@ -1,0 +1,10 @@
+---
+connector:
+  detection:
+    appliesTo: [ NT ]
+
+pre:
+  testWmiSource:
+    type: wmi
+    query: testQuery
+    namespace: testNamespace
