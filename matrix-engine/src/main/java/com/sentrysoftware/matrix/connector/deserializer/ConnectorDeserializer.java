@@ -27,6 +27,7 @@ public class ConnectorDeserializer {
 			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
 			.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
 			.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
+			.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_VALUES)
 			.build();
 	}
 
