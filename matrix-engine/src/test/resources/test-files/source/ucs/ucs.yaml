@@ -8,4 +8,4 @@ pre:
     queries: [ testQuery1, testQuery2, testQuery3 ]
     exclude: testExclude
     keep: testKeep
-    selectColumns: [ 1, 2, 3 ]
+    selectColumns: 1,2,3
