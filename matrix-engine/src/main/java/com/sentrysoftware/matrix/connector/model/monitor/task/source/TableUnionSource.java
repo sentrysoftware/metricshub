@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -36,6 +37,7 @@ public class TableUnionSource extends Source {
 	private List<String> tables = new ArrayList<>();
 
 	@Builder
+	@JsonCreator
 	public TableUnionSource(
 		@JsonProperty("type") String type,
 		@JsonProperty("computes") List<Compute> computes,
