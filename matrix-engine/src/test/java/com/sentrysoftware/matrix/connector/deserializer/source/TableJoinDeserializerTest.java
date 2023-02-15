@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.connector.deserializer.source.tablejoin;
+package com.sentrysoftware.matrix.connector.deserializer.source;
 
 import java.io.IOException;
 import java.util.Collections;
