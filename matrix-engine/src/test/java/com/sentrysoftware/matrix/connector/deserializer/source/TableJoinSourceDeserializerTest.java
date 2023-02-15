@@ -13,7 +13,7 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableJoinSource;
 
-class TableJoinDeserializerTest extends DeserializerTest {
+class TableJoinSourceDeserializerTest extends DeserializerTest {
 
 	@Override
 	public String getResourcePath() {
