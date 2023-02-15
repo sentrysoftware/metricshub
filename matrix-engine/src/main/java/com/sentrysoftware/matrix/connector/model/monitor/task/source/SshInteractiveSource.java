@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.connector.model.monitor.task.source;
 
+import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
@@ -10,6 +11,10 @@ import java.util.function.UnaryOperator;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.sentrysoftware.matrix.connector.deserializer.custom.PortDeserializer;
+import com.sentrysoftware.matrix.connector.deserializer.custom.PositiveIntegerDeserializer;
 import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
 import com.sentrysoftware.matrix.connector.model.common.sshstep.Step;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Compute;
@@ -28,13 +33,18 @@ public class SshInteractiveSource extends Source {
 
 	private static final long serialVersionUID = 1L;
 
+	@JsonDeserialize(using = PortDeserializer.class)
 	private Integer port;
 	private String exclude;
 	private String keep;
+	@JsonDeserialize(using = PositiveIntegerDeserializer.class)
 	private Integer beginAtLineNumber;
+	@JsonDeserialize(using = PositiveIntegerDeserializer.class)
 	private Integer endAtLineNumber;
 	private String separators;
 	private String selectColumns;
+	@NonNull
+	@JsonSetter(nulls = FAIL)
 	private List<Step> steps = new ArrayList<>();
 
 	@Builder
