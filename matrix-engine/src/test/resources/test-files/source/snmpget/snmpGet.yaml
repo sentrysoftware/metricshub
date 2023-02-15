@@ -1,0 +1,9 @@
+---
+connector:
+  detection:
+    appliesTo: [ Linux ]
+
+pre:
+  testSnmpGetSource:
+    type: snmpGet
+    oid: testOidString

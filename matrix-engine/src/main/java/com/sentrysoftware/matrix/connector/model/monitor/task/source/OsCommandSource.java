@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.connector.model.monitor.task.source;
 
+import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WHITE_SPACE_TAB;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
@@ -9,6 +10,13 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.sentrysoftware.matrix.connector.deserializer.custom.NonBlankDeserializer;
+import com.sentrysoftware.matrix.connector.deserializer.custom.PositiveIntegerDeserializer;
+import com.sentrysoftware.matrix.connector.deserializer.custom.TimeoutDeserializer;
 import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Compute;
 
@@ -16,6 +24,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @Data
 @NoArgsConstructor
@@ -24,31 +33,41 @@ public class OsCommandSource extends Source {
 
 	private static final long serialVersionUID = 1L;
 
+	@NonNull
+	@JsonSetter(nulls = FAIL)
+	@JsonDeserialize(using = NonBlankDeserializer.class)
 	private String commandLine;
+
+	@JsonDeserialize(using = TimeoutDeserializer.class)
 	private Long timeout;
+
 	private boolean executeLocally;
 	private String exclude;
 	private String keep;
-	private Integer removeHeader;
-	private Integer removeFooter;
+	@JsonDeserialize(using = PositiveIntegerDeserializer.class)
+	private Integer beginAtLineNumber;
+	@JsonDeserialize(using = PositiveIntegerDeserializer.class)
+	private Integer endAtLineNumber;
 	private String separators = WHITE_SPACE_TAB;
-	private List<String> selectColumns = new ArrayList<>();
+	private String selectColumns;
 
 	@Builder
+	@JsonCreator
 	public OsCommandSource( // NOSONAR on constructor
-		String type, 
-		List<Compute> computes,
-		boolean forceSerialization,
-		String commandLine,
-		Long timeout,
-		boolean executeLocally,
-		String exclude,
-		String keep,
-		Integer removeHeader, Integer removeFooter,
-		String separators,
-		List<String> selectColumns,
-		String key,
-		ExecuteForEachEntryOf executeForEachEntryOf
+		@JsonProperty("type") String type,
+		@JsonProperty("computes") List<Compute> computes,
+		@JsonProperty("forceSerialization") boolean forceSerialization,
+		@JsonProperty(value = "commandLine", required = true) @NonNull String commandLine,
+		@JsonProperty("timeout") Long timeout,
+		@JsonProperty("executeLocally") boolean executeLocally,
+		@JsonProperty("exclude") String exclude,
+		@JsonProperty("keep") String keep,
+		@JsonProperty("beginAtLineNumber") Integer beginAtLineNumber,
+		@JsonProperty("endAtLineNumber") Integer endAtLineNumber,
+		@JsonProperty("separators") String separators,
+		@JsonProperty("selectColumns") String selectColumns,
+		@JsonProperty("key") String key,
+		@JsonProperty("executeForEachEntryOf") ExecuteForEachEntryOf executeForEachEntryOf
 	) {
 
 		super(type, computes, forceSerialization, key, executeForEachEntryOf);
@@ -58,8 +77,8 @@ public class OsCommandSource extends Source {
 		this.executeLocally = executeLocally;
 		this.exclude = exclude;
 		this.keep = keep;
-		this.removeHeader = removeHeader;
-		this.removeFooter = removeFooter;
+		this.beginAtLineNumber = beginAtLineNumber;
+		this.endAtLineNumber = endAtLineNumber;
 		this.separators = separators == null ? WHITE_SPACE_TAB : separators;
 		this.selectColumns = selectColumns;
 	}
@@ -80,9 +99,9 @@ public class OsCommandSource extends Source {
 				.executeLocally(executeLocally)
 				.exclude(exclude)
 				.keep(keep)
-				.removeFooter(removeFooter)
-				.removeHeader(removeHeader)
-				.selectColumns(selectColumns != null ? new ArrayList<>(selectColumns) : null)
+				.beginAtLineNumber(beginAtLineNumber)
+				.endAtLineNumber(endAtLineNumber)
+				.selectColumns(selectColumns)
 				.separators(separators)
 				.timeout(timeout)
 				.build();
@@ -94,6 +113,7 @@ public class OsCommandSource extends Source {
 		exclude = updater.apply(exclude);
 		keep = updater.apply(keep);
 		separators = updater.apply(separators);
+		selectColumns = updater.apply(selectColumns);
 	}
 
 	@Override
@@ -108,8 +128,8 @@ public class OsCommandSource extends Source {
 		addNonNull(stringJoiner, "- executeLocally=", executeLocally);
 		addNonNull(stringJoiner, "- exclude=", exclude);
 		addNonNull(stringJoiner, "- keep=", keep);
-		addNonNull(stringJoiner, "- removeHeader=", removeHeader);
-		addNonNull(stringJoiner, "- removeFooter=", removeFooter);
+		addNonNull(stringJoiner, "- beginAtLineNumber=", beginAtLineNumber);
+		addNonNull(stringJoiner, "- endAtLineNumber=", endAtLineNumber);
 		addNonNull(stringJoiner, "- separators=", separators);
 		addNonNull(stringJoiner, "- selectColumns=", selectColumns);
 
