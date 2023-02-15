@@ -13,7 +13,7 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.IpmiSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
 
-class IpmiDeserializerTest extends DeserializerTest {
+class IpmiSourceDeserializerTest extends DeserializerTest {
 
 	@Override
 	public String getResourcePath() {
