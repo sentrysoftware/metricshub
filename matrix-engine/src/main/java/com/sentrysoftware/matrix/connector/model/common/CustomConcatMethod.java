@@ -47,6 +47,4 @@ public class CustomConcatMethod implements IEntryConcatMethod {
 	public String getDescription() {
 		return String.format("custom[concatStart=%s, concatEnd=%s]", concatStart, concatEnd);
 	}
-
-
 }
