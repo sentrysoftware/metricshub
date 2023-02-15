@@ -15,27 +15,33 @@ public class PortDeserializer extends JsonDeserializer<Integer> {
 
 		final String key = parser.getCurrentName();
 
-		if (!parser.isExpectedNumberIntToken()) {
+		final String str = parser.getValueAsString();
+		if (str == null) {
+			return null;
+		}
+
+		final Integer value;
+		try {
+			value = Integer.parseInt(str);
+		} catch (Exception e) {
 			throw new InvalidFormatException(
 				parser,
-				String.format("Invalid value encountered for property '%s'.", key),
-				parser.getValueAsString(),
+				String.format("Invalid value encountered for property '%s'. Error: %s", key, e.getMessage()),
+				str,
 				Integer.class
 			);
 		}
 
-		final Integer value = parser.getIntValue();
-
-		if (value <= 0) {
-			throw new InvalidFormatException(
-				parser,
-				String.format("Invalid negative or zero value encountered for property '%s'.", key),
-				value,
-				Integer.class
-			);
+		if (value > 0) {
+			return value;
 		}
 
-		return value;
+		throw new InvalidFormatException(
+			parser,
+			String.format("Invalid negative or zero value encountered for property '%s'.", key),
+			value,
+			Integer.class
+		);
 
 	}
 }

@@ -13,7 +13,7 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.StaticSource;
 
-class StaticDeserializerTest extends DeserializerTest {
+class StaticSourceDeserializerTest extends DeserializerTest {
 
 	@Override
 	public String getResourcePath() {
@@ -25,13 +25,16 @@ class StaticDeserializerTest extends DeserializerTest {
 		final String testResource = "static";
 		final Connector connector = getConnector(testResource);
 
-		final Map<String, Source> expected = new LinkedHashMap<String, Source>(
+		final Map<String, Source> expected = new LinkedHashMap<>(
 			Map.of("testStaticSource", 
-					StaticSource.builder()
-							.key("$pre.testStaticSource")
-							.type("static")
-							.value("testValue")
-							.build()));
+				StaticSource
+					.builder()
+					.key("$pre.testStaticSource")
+					.type("static")
+					.value("testValue")
+					.build()
+			)
+		);
 
 		assertEquals(expected, connector.getPre());
 	}
