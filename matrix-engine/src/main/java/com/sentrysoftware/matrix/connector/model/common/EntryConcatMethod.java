@@ -14,6 +14,8 @@ public enum EntryConcatMethod implements IEntryConcatMethod {
 	JSON_ARRAY("JSONArray"),
 	JSON_ARRAY_EXTENDED("JSONArrayExtended");
 
+	private static final EntryConcatMethod[] VALUES = EntryConcatMethod.values();
+
 	private String name;
 
 	/**
@@ -22,8 +24,11 @@ public enum EntryConcatMethod implements IEntryConcatMethod {
 	 * @return {@link EntryConcatMethod} instance
 	 */
 	public static EntryConcatMethod getByName(@NonNull final String name) {
-		return Arrays.stream(EntryConcatMethod.values()).filter(n -> name.equalsIgnoreCase(n.getName())).findFirst()
-				.orElseThrow(() -> new IllegalArgumentException("Undefined EntryConcatMethod name: " + name));
+		return Arrays
+			.stream(VALUES)
+			.filter(n -> n.name().equalsIgnoreCase(name) || name.equalsIgnoreCase(n.getName()))
+			.findFirst()
+			.orElseThrow(() -> new IllegalArgumentException("Invalid EntryConcatMethod name: " + name));
 	}
 
 	@Override

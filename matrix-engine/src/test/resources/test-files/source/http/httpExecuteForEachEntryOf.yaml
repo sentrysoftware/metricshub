@@ -1,0 +1,16 @@
+connector:
+  detection:
+    appliesTo: [ Linux ]
+
+pre:
+  devices:
+    type: http
+    method: GET
+    url: /devices
+  detailsOfEachDevice:
+    type: http
+    method: GET
+    url: /device-detail/$entry.column(1)$
+    executeForEachEntryOf:
+      source: $pre.devices
+      concatMethod: list
