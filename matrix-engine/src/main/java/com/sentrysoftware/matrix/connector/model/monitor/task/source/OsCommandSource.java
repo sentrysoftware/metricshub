@@ -10,10 +10,12 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.matrix.connector.deserializer.custom.NonBlankDeserializer;
+import com.sentrysoftware.matrix.connector.deserializer.custom.PositiveIntegerDeserializer;
 import com.sentrysoftware.matrix.connector.deserializer.custom.TimeoutDeserializer;
 import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Compute;
@@ -40,34 +42,33 @@ public class OsCommandSource extends Source {
 	private Long timeout;
 
 	private boolean executeLocally;
-
-	@JsonDeserialize(using = NonBlankDeserializer.class)
 	private String exclude;
-
-	@JsonDeserialize(using = NonBlankDeserializer.class)
 	private String keep;
-
+	@JsonDeserialize(using = PositiveIntegerDeserializer.class)
 	private Integer beginAtLineNumber;
+	@JsonDeserialize(using = PositiveIntegerDeserializer.class)
 	private Integer endAtLineNumber;
 	private String separators = WHITE_SPACE_TAB;
 	private String selectColumns;
 
 	@Builder
+	@JsonCreator
 	public OsCommandSource( // NOSONAR on constructor
-			@JsonProperty("type") String type,
-			@JsonProperty("computes") List<Compute> computes,
-			@JsonProperty("forceSerialization") boolean forceSerialization,
-			@JsonProperty(value = "commandLine", required = true) @NonNull String commandLine,
-			@JsonProperty("timeout") Long timeout,
-			@JsonProperty("executeLocally") boolean executeLocally,
-			@JsonProperty("exclude") String exclude,
-			@JsonProperty("keep") String keep,
-			@JsonProperty("beginAtLineNumber") Integer beginAtLineNumber,
-			@JsonProperty("endAtLineNumber") Integer endAtLineNumber,
-			@JsonProperty("separators") String separators,
-			@JsonProperty("selectColumns") String selectColumns,
-			@JsonProperty("key") String key,
-			@JsonProperty("executeForEachEntryOf") ExecuteForEachEntryOf executeForEachEntryOf) {
+		@JsonProperty("type") String type,
+		@JsonProperty("computes") List<Compute> computes,
+		@JsonProperty("forceSerialization") boolean forceSerialization,
+		@JsonProperty(value = "commandLine", required = true) @NonNull String commandLine,
+		@JsonProperty("timeout") Long timeout,
+		@JsonProperty("executeLocally") boolean executeLocally,
+		@JsonProperty("exclude") String exclude,
+		@JsonProperty("keep") String keep,
+		@JsonProperty("beginAtLineNumber") Integer beginAtLineNumber,
+		@JsonProperty("endAtLineNumber") Integer endAtLineNumber,
+		@JsonProperty("separators") String separators,
+		@JsonProperty("selectColumns") String selectColumns,
+		@JsonProperty("key") String key,
+		@JsonProperty("executeForEachEntryOf") ExecuteForEachEntryOf executeForEachEntryOf
+	) {
 
 		super(type, computes, forceSerialization, key, executeForEachEntryOf);
 
