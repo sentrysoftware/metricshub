@@ -1,13 +1,20 @@
 package com.sentrysoftware.matrix.connector.model.monitor.task.source;
 
+import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.sentrysoftware.matrix.connector.deserializer.custom.NonBlankInLinkedHashSetDeserializer;
 import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Compute;
 
@@ -15,6 +22,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @Data
 @NoArgsConstructor
@@ -23,24 +31,25 @@ public class UcsSource extends Source {
 
 	private static final long serialVersionUID = 1L;
 
-	private List<String> queries = new ArrayList<>();
+	@JsonSetter(nulls = FAIL)
+	@JsonDeserialize(using = NonBlankInLinkedHashSetDeserializer.class)
+	@NonNull
+	private Set<String> queries = new LinkedHashSet<>();
 	private String exclude;
 	private String keep;
-	private List<String> selectColumns = new ArrayList<>();
+	private String selectColumns;
 
 	@Builder
 	public UcsSource( // NOSONAR on constructor
-		String type,
-		List<Compute> computes,
-		boolean forceSerialization,
-		List<String> queries,
-		String exclude,
-		String keep,
-		List<String> selectColumns,
-		String key,
-		ExecuteForEachEntryOf executeForEachEntryOf
-	) {
-
+		@JsonProperty("type") String type,
+		@JsonProperty("computes") List<Compute> computes,
+		@JsonProperty("forceSerialization") boolean forceSerialization,
+		@JsonProperty(value = "queries", required = true) @NonNull Set<String> queries,
+		@JsonProperty("exclude") String exclude,
+		@JsonProperty("keep") String keep,
+		@JsonProperty("selectColumns") String selectColumns,
+		@JsonProperty("key") String key,
+		@JsonProperty("executeForEachEntryOf") ExecuteForEachEntryOf executeForEachEntryOf) {
 		super(type, computes, forceSerialization, key, executeForEachEntryOf);
 		this.queries = queries;
 		this.exclude = exclude;
@@ -51,22 +60,23 @@ public class UcsSource extends Source {
 	@Override
 	public UcsSource copy() {
 		return UcsSource.builder()
-				.type(type)
-				.key(key)
-				.forceSerialization(forceSerialization)
-				.computes(getComputes() != null ? new ArrayList<>(getComputes()) : null)
-				.executeForEachEntryOf(executeForEachEntryOf != null ? executeForEachEntryOf.copy() : null)
-				.queries(queries != null ? new ArrayList<>(queries) : null)
-				.exclude(exclude)
-				.keep(keep)
-				.selectColumns(selectColumns != null ? new ArrayList<>(selectColumns) : null)
-				.build();
+			.type(type)
+			.key(key)
+			.forceSerialization(forceSerialization)
+			.computes(getComputes() != null ? new ArrayList<>(getComputes()) : null)
+			.executeForEachEntryOf(executeForEachEntryOf != null ? executeForEachEntryOf.copy() : null)
+			.queries(queries != null ? new LinkedHashSet<>(queries) : null)
+			.exclude(exclude)
+			.keep(keep)
+			.selectColumns(selectColumns)
+			.build();
 	}
 
 	@Override
 	public void update(UnaryOperator<String> updater) {
 		exclude = updater.apply(exclude);
 		keep = updater.apply(keep);
+		selectColumns = updater.apply(selectColumns);
 	}
 
 	@Override

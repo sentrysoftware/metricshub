@@ -1,0 +1,38 @@
+package com.sentrysoftware.matrix.connector.deserializer.source.snmpget;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.junit.jupiter.api.Test;
+
+import com.sentrysoftware.matrix.connector.deserializer.DeserializerTest;
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpGetSource;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
+
+class SnmpGetSourceDeserializerTest extends DeserializerTest {
+
+	@Override
+	public String getResourcePath() {
+		return "src/test/resources/test-files/source/snmpget/";
+	}
+
+	@Test
+	void testDeserializeTableJoin() throws IOException {
+		final String testResource = "snmpGet";
+
+		final Connector connector = getConnector(testResource);
+		Map<String, Source> expected = new LinkedHashMap<>();
+		expected.put("testSnmpGetSource",
+				SnmpGetSource.builder()
+						.key("$pre.testSnmpGetSource")
+						.type("snmpGet")
+						.oid("testOidString")
+						.build());
+
+		assertEquals(expected, connector.getPre());
+	}
+}

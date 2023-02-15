@@ -1,0 +1,8 @@
+---
+connector:
+  detection:
+    appliesTo: [ linux ]
+pre:
+  testStaticSource:
+    type: static
+    value: testValue

@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.matrix.connector.deserializer.custom.NonBlankDeserializer;
@@ -19,6 +21,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @Data
 @NoArgsConstructor
@@ -27,18 +30,20 @@ public class CopySource extends Source {
 
 	private static final long serialVersionUID = 1L;
 
+	@NonNull
 	@JsonSetter(nulls = FAIL)
 	@JsonDeserialize(using = NonBlankDeserializer.class)
 	private String from;
 
 	@Builder
+	@JsonCreator
 	public CopySource(
-		String type, 
-		List<Compute> computes,
-		boolean forceSerialization,
-		String from,
-		String key,
-		ExecuteForEachEntryOf executeForEachEntryOf
+		@JsonProperty("type") String type, 
+		@JsonProperty("computes") List<Compute> computes,
+		@JsonProperty("forceSerialization") boolean forceSerialization,
+		@JsonProperty(value = "from", required = true) @NonNull String from,
+		@JsonProperty("key") String key,
+		@JsonProperty("executeForEachEntryOf") ExecuteForEachEntryOf executeForEachEntryOf
 	) {
 
 		super(type, computes, forceSerialization, key, executeForEachEntryOf);
