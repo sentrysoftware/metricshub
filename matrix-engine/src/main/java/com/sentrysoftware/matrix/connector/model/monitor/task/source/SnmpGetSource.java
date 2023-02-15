@@ -3,6 +3,8 @@ package com.sentrysoftware.matrix.connector.model.monitor.task.source;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Compute;
 
@@ -17,20 +19,20 @@ import lombok.NoArgsConstructor;
 public class SnmpGetSource extends SnmpSource {
 
 	private static final long serialVersionUID = 1L;
-
+	
 	@Builder
+	@JsonCreator
 	public SnmpGetSource(
-		String type, 
-		List<Compute> computes,
-		boolean forceSerialization,
-		String oid,
-		String key,
-		ExecuteForEachEntryOf executeForEachEntryOf
+		@JsonProperty("type") String type, 
+		@JsonProperty("computes") List<Compute> computes,
+		@JsonProperty("forceSerialization") boolean forceSerialization,
+		@JsonProperty(value = "oid", required = true)String oid,
+		@JsonProperty("key") String key,
+		@JsonProperty("executeForEachEntryOf") ExecuteForEachEntryOf executeForEachEntryOf
 	) {
 
 		super(type, computes, forceSerialization, oid, key, executeForEachEntryOf);
 	}
-
 
 	/**
 	 * Copy the current instance
@@ -38,7 +40,8 @@ public class SnmpGetSource extends SnmpSource {
 	 * @return new {@link SnmpGetSource} instance
 	 */
 	public SnmpGetSource copy() {
-		return SnmpGetSource.builder()
+		return SnmpGetSource
+				.builder()
 				.type(type)
 				.key(key)
 				.forceSerialization(forceSerialization)
