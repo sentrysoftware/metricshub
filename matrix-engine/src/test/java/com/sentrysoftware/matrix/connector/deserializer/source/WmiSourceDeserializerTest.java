@@ -26,7 +26,7 @@ class WmiSourceDeserializerTest extends DeserializerTest {
 		final String testResource = "wmiSource";
 		final Connector connector = getConnector(testResource);
 
-		final Map<String, Source> expected = new LinkedHashMap<String, Source>(
+		final Map<String, Source> expected = new LinkedHashMap<>(
 			Map.of("testWmiSource",
 				WmiSource
 					.builder()

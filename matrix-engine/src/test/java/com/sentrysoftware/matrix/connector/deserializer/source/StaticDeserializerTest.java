@@ -25,13 +25,16 @@ class StaticDeserializerTest extends DeserializerTest {
 		final String testResource = "static";
 		final Connector connector = getConnector(testResource);
 
-		final Map<String, Source> expected = new LinkedHashMap<String, Source>(
+		final Map<String, Source> expected = new LinkedHashMap<>(
 			Map.of("testStaticSource", 
-					StaticSource.builder()
-							.key("$pre.testStaticSource")
-							.type("static")
-							.value("testValue")
-							.build()));
+				StaticSource
+					.builder()
+					.key("$pre.testStaticSource")
+					.type("static")
+					.value("testValue")
+					.build()
+			)
+		);
 
 		assertEquals(expected, connector.getPre());
 	}
