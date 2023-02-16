@@ -1,8 +1,11 @@
 package com.sentrysoftware.matrix.connector.model.metric;
 
+import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
 
 import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonSetter;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,12 +22,15 @@ public class MetricDefinition implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Default
+	@JsonSetter(nulls = SKIP)
 	private String unit = EMPTY;
 
 	@Default
-	private String desciption = EMPTY;
+	@JsonSetter(nulls = SKIP)
+	private String description = EMPTY;
 
 	@Default
+	@JsonSetter(nulls = SKIP)
 	private IMetricType type = MetricType.GAUGE;
 
 }

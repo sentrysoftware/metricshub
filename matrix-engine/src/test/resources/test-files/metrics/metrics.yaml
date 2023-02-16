@@ -3,7 +3,6 @@ connector:
   detection:
     appliesTo: [ linux ]
 
-
 metrics:
   hw.energy:
     type: gauge

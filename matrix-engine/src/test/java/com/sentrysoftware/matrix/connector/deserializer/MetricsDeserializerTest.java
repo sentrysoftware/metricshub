@@ -25,7 +25,7 @@ class MetricsDeserializerTest extends DeserializerTest {
 	}
 
 	@Test
-	void testMetrics() throws IOException {
+	void testDeserializeMetrics() throws IOException {
 
 		final Connector connector = getConnector("metrics");
 
@@ -44,13 +44,13 @@ class MetricsDeserializerTest extends DeserializerTest {
 				.builder()
 				.type(MetricType.GAUGE)
 				.unit("J")
-				.desciption("descr")
+				.description("descr")
 				.build(),
 			"hw.status",
 			MetricDefinition
 				.builder()
 				.type(StateSet.builder().set(Set.of("degraded", "failed", "ok")).build())
-				.desciption("descr")
+				.description("descr")
 				.unit(EMPTY)
 				.build()
 		);
