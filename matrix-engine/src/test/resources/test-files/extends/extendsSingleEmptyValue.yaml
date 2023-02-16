@@ -1,3 +1,6 @@
+---
 connector:
+  detection:
+    appliesTo: [ linux ]
 
 extends: " "
