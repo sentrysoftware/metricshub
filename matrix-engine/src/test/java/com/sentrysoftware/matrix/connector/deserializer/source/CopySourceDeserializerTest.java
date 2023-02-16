@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.connector.deserializer.source.copy;
+package com.sentrysoftware.matrix.connector.deserializer.source;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

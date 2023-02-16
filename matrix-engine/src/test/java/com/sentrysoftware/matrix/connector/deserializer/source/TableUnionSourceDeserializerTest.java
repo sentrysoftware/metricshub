@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.connector.deserializer.source.tableUnion;
+package com.sentrysoftware.matrix.connector.deserializer.source;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -15,7 +15,7 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableUnionSource;
 
-class TableUnionDeserializerTest extends DeserializerTest {
+class TableUnionSourceDeserializerTest extends DeserializerTest {
 
 	@Override
 	public String getResourcePath() {

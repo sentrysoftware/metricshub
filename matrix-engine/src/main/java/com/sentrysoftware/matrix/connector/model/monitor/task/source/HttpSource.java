@@ -1,5 +1,7 @@
 package com.sentrysoftware.matrix.connector.model.monitor.task.source;
 
+import static com.fasterxml.jackson.annotation.Nulls.FAIL;
+import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
@@ -8,7 +10,12 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.sentrysoftware.matrix.connector.deserializer.custom.ResultContentDeserializer;
 import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
+import com.sentrysoftware.matrix.connector.model.common.HttpMethod;
 import com.sentrysoftware.matrix.connector.model.common.ResultContent;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Compute;
 
@@ -16,6 +23,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @Data
 @NoArgsConstructor
@@ -24,27 +32,32 @@ public class HttpSource extends Source {
 
 	private static final long serialVersionUID = 1L;
 
-	private String method;
+	@JsonSetter(nulls = SKIP)
+	private HttpMethod method = HttpMethod.GET;
+	@NonNull
+	@JsonSetter(nulls = FAIL)
 	private String url;
 	// String or EmbeddedFile reference
 	private String header;
 	private String body;
 	private String authenticationToken;
+	@JsonDeserialize(using = ResultContentDeserializer.class)
+	@JsonSetter(nulls = SKIP)
 	private ResultContent resultContent = ResultContent.BODY;
 
 	@Builder
 	public HttpSource( // NOSONAR on constructor
-		String type,
-		List<Compute> computes,
-		boolean forceSerialization,
-		String method,
-		String url,
-		String header,
-		String body,
-		String authenticationToken,
-		ResultContent resultContent,
-		String key,
-		ExecuteForEachEntryOf executeForEachEntryOf
+		@JsonProperty("type") String type,
+		@JsonProperty("computes") List<Compute> computes,
+		@JsonProperty("forceSerialization") boolean forceSerialization,
+		@JsonProperty("method") HttpMethod method,
+		@JsonProperty(value = "url", required = true) @NonNull String url,
+		@JsonProperty("header") String header,
+		@JsonProperty("body") String body,
+		@JsonProperty("authenticationToken") String authenticationToken,
+		@JsonProperty("resultContent") ResultContent resultContent,
+		@JsonProperty("key") String key,
+		@JsonProperty("executeForEachEntryOf") ExecuteForEachEntryOf executeForEachEntryOf
 	) {
 
 		super(type, computes, forceSerialization, key, executeForEachEntryOf);
@@ -59,23 +72,22 @@ public class HttpSource extends Source {
 
 	public HttpSource copy() {
 		return HttpSource.builder()
-				.type(type)
-				.key(key)
-				.forceSerialization(forceSerialization)
-				.computes(getComputes() != null ? new ArrayList<>(getComputes()) : null)
-				.executeForEachEntryOf(executeForEachEntryOf != null ? executeForEachEntryOf.copy() : null)
-				.method(method)
-				.url(url)
-				.header(header)
-				.body(body)
-				.authenticationToken(authenticationToken)
-				.resultContent(resultContent)
-				.build();
+			.type(type)
+			.key(key)
+			.forceSerialization(forceSerialization)
+			.computes(getComputes() != null ? new ArrayList<>(getComputes()) : null)
+			.executeForEachEntryOf(executeForEachEntryOf != null ? executeForEachEntryOf.copy() : null)
+			.method(method)
+			.url(url)
+			.header(header)
+			.body(body)
+			.authenticationToken(authenticationToken)
+			.resultContent(resultContent)
+			.build();
 	}
 
 	@Override
 	public void update(UnaryOperator<String> updater) {
-		method = updater.apply(method);
 		url = updater.apply(url);
 		header = updater.apply(header);
 		body = updater.apply(body);

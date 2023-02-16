@@ -35,13 +35,14 @@ public class IpmiSource extends Source {
 	}
 
 	public IpmiSource copy() {
-		return IpmiSource.builder()
-				.type(type)
-				.key(key)
-				.forceSerialization(forceSerialization)
-				.computes(getComputes() != null ? new ArrayList<>(getComputes()) : null)
-				.executeForEachEntryOf(executeForEachEntryOf != null ? executeForEachEntryOf.copy() : null)
-				.build();
+		return IpmiSource
+			.builder()
+			.type(type)
+			.key(key)
+			.forceSerialization(forceSerialization)
+			.computes(getComputes() != null ? new ArrayList<>(getComputes()) : null)
+			.executeForEachEntryOf(executeForEachEntryOf != null ? executeForEachEntryOf.copy() : null)
+			.build();
 	}
 
 	@Override
