@@ -1,0 +1,12 @@
+connector:
+
+
+metrics:
+  hw.energy:
+    type: gauge
+    unit: J
+    description: descr
+  hw.status:
+    type:
+      stateSet: [degraded, failed, ok]
+    description: descr
