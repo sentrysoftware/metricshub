@@ -7,6 +7,8 @@ import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.sentrysoftware.matrix.connector.deserializer.custom.ConversionTypeDeserializer;
 import com.sentrysoftware.matrix.connector.model.common.ConversionType;
 
 
@@ -23,6 +25,8 @@ public class Convert extends Compute {
 	private static final long serialVersionUID = 1L;
 
 	private Integer column;
+
+	@JsonDeserialize(using = ConversionTypeDeserializer.class)
 	private ConversionType conversion;
 
 	@Builder

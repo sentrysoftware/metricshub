@@ -22,7 +22,7 @@ public class And extends Compute {
 	private String value; // NOSONAR
 
 	@Builder
-	public And(String type, Integer index, Integer column, String value) {
+	public And(String type, Integer column, String value) {
 		super(type);
 		this.column = column;
 		this.value = value;

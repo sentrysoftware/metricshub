@@ -3,8 +3,8 @@ package com.sentrysoftware.matrix.connector.model.monitor.task.source.compute;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
 
@@ -20,12 +20,12 @@ public class KeepColumns extends Compute {
 
 	private static final long serialVersionUID = 1L;
 
-	private List<Integer> columnNumbers = new ArrayList<>();
+	private Set<Integer> columnNumbers = new HashSet<>();
 
 	@Builder
-	public KeepColumns(String type, List<Integer> columnNumbers) {
+	public KeepColumns(String type, Set<Integer> columnNumbers) {
 		super(type);
-		this.columnNumbers = columnNumbers == null ? new ArrayList<>() : columnNumbers;
+		this.columnNumbers = columnNumbers == null ? new HashSet<>() : columnNumbers;
 	}
 
 	@Override
@@ -44,7 +44,7 @@ public class KeepColumns extends Compute {
 		return KeepColumns
 			.builder()
 			.type(type)
-			.columnNumbers(columnNumbers != null ? new ArrayList<>(columnNumbers) : null)
+			.columnNumbers(columnNumbers != null ? new HashSet<>(columnNumbers) : null)
 			.build();
 	}
 
