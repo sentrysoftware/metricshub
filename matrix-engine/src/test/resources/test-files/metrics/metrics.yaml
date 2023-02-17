@@ -3,7 +3,6 @@ connector:
   detection:
     appliesTo: [ linux ]
 
-
 metrics:
   hw.energy:
     type: gauge
@@ -12,4 +11,6 @@ metrics:
   hw.status:
     type:
       stateSet: [degraded, failed, ok]
+      output: upDownCounter
     description: descr
+    

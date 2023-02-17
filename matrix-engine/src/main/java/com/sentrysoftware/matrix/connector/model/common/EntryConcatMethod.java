@@ -2,6 +2,8 @@ package com.sentrysoftware.matrix.connector.model.common;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
@@ -10,9 +12,12 @@ import lombok.NonNull;
 @AllArgsConstructor
 public enum EntryConcatMethod implements IEntryConcatMethod {
 
+	@JsonAlias("list")
 	LIST("list"),
+	@JsonAlias(value = { "jsonArray", "json_array" })
 	JSON_ARRAY("JSONArray"),
-	JSON_ARRAY_EXTENDED("JSONArrayExtended");
+	@JsonAlias(value = { "JSONArrayExtended", "json_array_extended"})
+	JSON_ARRAY_EXTENDED("jsonArrayExtended");
 
 	private static final List<EntryConcatMethod> VALUES = List.of(values());
 

@@ -13,7 +13,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.sentrysoftware.matrix.connector.deserializer.custom.EntryConcatMethodDeserializer;
 import com.sentrysoftware.matrix.connector.deserializer.custom.NonBlankDeserializer;
 
 import lombok.Builder;
@@ -32,7 +31,6 @@ public class ExecuteForEachEntryOf  implements Serializable {
 	@JsonDeserialize(using = NonBlankDeserializer.class)
 	private String source;
 
-	@JsonDeserialize(using = EntryConcatMethodDeserializer.class)
 	@JsonSetter(nulls = SKIP)
 	private IEntryConcatMethod concatMethod = EntryConcatMethod.LIST;
 

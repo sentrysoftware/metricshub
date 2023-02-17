@@ -6,8 +6,6 @@ import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.sentrysoftware.matrix.connector.deserializer.custom.ResultContentDeserializer;
 import com.sentrysoftware.matrix.connector.model.common.HttpMethod;
 import com.sentrysoftware.matrix.connector.model.common.ResultContent;
 
@@ -36,7 +34,6 @@ public class HttpCriterion extends Criterion {
 	private String body;
 	private String expectedResult;
 	private String errorMessage;
-	@JsonDeserialize(using = ResultContentDeserializer.class)
 	@JsonSetter(nulls = SKIP)
 	private ResultContent resultContent = ResultContent.BODY;
 	private String authenticationToken;
