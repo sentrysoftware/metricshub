@@ -20,6 +20,8 @@ public class Mapping implements Serializable {
 
 	private String source;
 
+	private String deviceId;
+
 	@Default
 	private Map<String, String> attributes = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
