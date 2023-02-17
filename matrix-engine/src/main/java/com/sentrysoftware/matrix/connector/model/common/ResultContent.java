@@ -3,6 +3,8 @@ package com.sentrysoftware.matrix.connector.model.common;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -10,9 +12,13 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ResultContent {
 
+	@JsonAlias(value = {"httpStatus", "http_status" })
 	HTTP_STATUS("httpStatus"),
+	@JsonAlias("header")
 	HEADER("header"),
+	@JsonAlias("body")
 	BODY("body"),
+	@JsonAlias("all")
 	ALL("all");
 
 	/**
