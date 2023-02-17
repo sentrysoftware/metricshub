@@ -143,7 +143,7 @@ class HttpCriterionDeserializerTest extends DeserializerTest {
 				getConnector("httpCriterionResultContentEnum");
 				Assert.fail(JSON_MAPPING_EXCEPTION_MSG);
 			} catch (JsonMappingException e) {
-				String message = "'toto' is not a supported ResultContent";
+				String message = "not one of the values accepted for Enum class: [all, body, HTTP_STATUS, httpStatus, header, ALL, BODY, http_status, HEADER]";
 				checkMessage(e, message);
 			}
 		}

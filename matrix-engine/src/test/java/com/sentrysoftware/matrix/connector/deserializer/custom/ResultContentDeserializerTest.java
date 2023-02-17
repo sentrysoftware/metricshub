@@ -1,79 +1,208 @@
 package com.sentrysoftware.matrix.connector.deserializer.custom;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.doReturn;
+import static com.sentrysoftware.matrix.connector.model.common.ResultContent.ALL;
+import static com.sentrysoftware.matrix.connector.model.common.ResultContent.BODY;
+import static com.sentrysoftware.matrix.connector.model.common.ResultContent.HEADER;
+import static com.sentrysoftware.matrix.connector.model.common.ResultContent.HTTP_STATUS;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.fasterxml.jackson.dataformat.yaml.YAMLParser;
-import com.sentrysoftware.matrix.connector.model.common.ResultContent;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.sentrysoftware.matrix.common.helpers.JsonHelper;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.HttpSource;
 
-@ExtendWith(MockitoExtension.class)
 class ResultContentDeserializerTest {
 
-	private static final ResultContentDeserializer RESULT_CONTENT_DESERIALIZER = new ResultContentDeserializer();
+	private static final String SOURCE_URL = "/url";
+	private static final String HTTP_SOURCE_YAML = """
+			type: http
+			url: /url
+			resultContent: ReplaceMe
+			""";
 
-	@Mock
-	private YAMLParser yamlParser;
+	private static ObjectMapper mapper;
+
+	private static final String REPLACE_ME = "ReplaceMe";
+
+	@BeforeAll
+	static void setUp() {
+		mapper = JsonMapper
+			.builder(new YAMLFactory())
+			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
+			.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+			.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
+			.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_VALUES)
+			.build();
+	}
 
 	@Test
-	void testNull() throws IOException {
+	void testResultBodyValues() throws IOException {
 
-		{
-			assertNull(RESULT_CONTENT_DESERIALIZER.deserialize(null, null));
-		}
+		assertEquals(
+			HttpSource
+				.builder()
+				.type("http")
+				.url(SOURCE_URL)
+				.resultContent(BODY)
+				.build(),
+			deserializeHttpSource("body")
+		);
 
-		{
-			doReturn(null).when(yamlParser).getValueAsString();
-			assertNull(RESULT_CONTENT_DESERIALIZER.deserialize(yamlParser, null));
-		}
+		assertEquals(
+			HttpSource
+				.builder()
+				.type("http")
+				.url(SOURCE_URL)
+				.resultContent(BODY)
+				.build(),
+			deserializeHttpSource("BODY")
+		);
+
+		assertEquals(
+				HttpSource
+					.builder()
+					.type("http")
+					.url(SOURCE_URL)
+					.resultContent(BODY)
+					.build(),
+				deserializeHttpSource("Body")
+			);
+	}
+
+	@Test
+	void testResultAllValues() throws IOException {
+		assertEquals(
+			HttpSource
+				.builder()
+				.type("http")
+				.url(SOURCE_URL)
+				.resultContent(ALL)
+				.build(),
+			deserializeHttpSource("all")
+		);
+
+		assertEquals(
+			HttpSource
+				.builder()
+				.type("http")
+				.url(SOURCE_URL)
+				.resultContent(ALL)
+				.build(),
+			deserializeHttpSource("All")
+		);
+
+		assertEquals(
+			HttpSource
+				.builder()
+				.type("http")
+				.url(SOURCE_URL)
+				.resultContent(ALL)
+				.build(),
+			deserializeHttpSource("ALL")
+		);
 
 	}
 
 	@Test
-	void testBadValue() throws IOException {
-		{
-			doReturn("unknown").when(yamlParser).getValueAsString();
-			assertThrows(IOException.class, () -> RESULT_CONTENT_DESERIALIZER.deserialize(yamlParser, null));
-		}
+	void testResultHeaderValues() throws IOException {
 
-		{
-			doReturn("").when(yamlParser).getValueAsString();
-			assertThrows(IOException.class, () -> RESULT_CONTENT_DESERIALIZER.deserialize(yamlParser, null));
-		}
+		assertEquals(
+			HttpSource
+				.builder()
+				.type("http")
+				.url(SOURCE_URL)
+				.resultContent(HEADER)
+				.build(),
+			deserializeHttpSource("header")
+		);
 
+		assertEquals(
+			HttpSource
+				.builder()
+				.type("http")
+				.url(SOURCE_URL)
+				.resultContent(HEADER)
+				.build(),
+			deserializeHttpSource("Header")
+		);
+
+		assertEquals(
+				HttpSource
+					.builder()
+					.type("http")
+					.url(SOURCE_URL)
+					.resultContent(HEADER)
+					.build(),
+				deserializeHttpSource("HEADER")
+			);
 	}
 
 	@Test
-	void testDeserialize() throws IOException {
-		doReturn("httpStatus").when(yamlParser).getValueAsString();
-		assertEquals(ResultContent.HTTP_STATUS, RESULT_CONTENT_DESERIALIZER.deserialize(yamlParser, null));
-		doReturn("http_status").when(yamlParser).getValueAsString();
-		assertEquals(ResultContent.HTTP_STATUS, RESULT_CONTENT_DESERIALIZER.deserialize(yamlParser, null));
-		doReturn("HTTP_STATUS").when(yamlParser).getValueAsString();
-		assertEquals(ResultContent.HTTP_STATUS, RESULT_CONTENT_DESERIALIZER.deserialize(yamlParser, null));
-		doReturn("body").when(yamlParser).getValueAsString();
-		assertEquals(ResultContent.BODY, RESULT_CONTENT_DESERIALIZER.deserialize(yamlParser, null));
-		doReturn("Body").when(yamlParser).getValueAsString();
-		assertEquals(ResultContent.BODY, RESULT_CONTENT_DESERIALIZER.deserialize(yamlParser, null));
-		doReturn("BODY").when(yamlParser).getValueAsString();
-		assertEquals(ResultContent.BODY, RESULT_CONTENT_DESERIALIZER.deserialize(yamlParser, null));
-		doReturn("header").when(yamlParser).getValueAsString();
-		assertEquals(ResultContent.HEADER, RESULT_CONTENT_DESERIALIZER.deserialize(yamlParser, null));
-		doReturn("Header").when(yamlParser).getValueAsString();
-		assertEquals(ResultContent.HEADER, RESULT_CONTENT_DESERIALIZER.deserialize(yamlParser, null));
-		doReturn("HEADER").when(yamlParser).getValueAsString();
-		assertEquals(ResultContent.HEADER, RESULT_CONTENT_DESERIALIZER.deserialize(yamlParser, null));
-		doReturn("all").when(yamlParser).getValueAsString();
-		assertEquals(ResultContent.ALL, RESULT_CONTENT_DESERIALIZER.deserialize(yamlParser, null));
-		doReturn("All").when(yamlParser).getValueAsString();
-		assertEquals(ResultContent.ALL, RESULT_CONTENT_DESERIALIZER.deserialize(yamlParser, null));
-		doReturn("ALL").when(yamlParser).getValueAsString();
-		assertEquals(ResultContent.ALL, RESULT_CONTENT_DESERIALIZER.deserialize(yamlParser, null));
+	void testResultHttpStatusValues() throws IOException {
+
+		assertEquals(
+			HttpSource
+				.builder()
+				.type("http")
+				.url(SOURCE_URL)
+				.resultContent(HTTP_STATUS)
+				.build(),
+			deserializeHttpSource("http_status")
+		);
+
+		assertEquals(
+			HttpSource
+				.builder()
+				.type("http")
+				.url(SOURCE_URL)
+				.resultContent(HTTP_STATUS)
+				.build(),
+			deserializeHttpSource("httpStatus")
+		);
+
+		assertEquals(
+			HttpSource
+				.builder()
+				.type("http")
+				.url(SOURCE_URL)
+				.resultContent(HTTP_STATUS)
+				.build(),
+			deserializeHttpSource("Http_Status")
+		);
+
+		assertEquals(
+			HttpSource
+				.builder()
+				.type("http")
+				.url(SOURCE_URL)
+				.resultContent(HTTP_STATUS)
+				.build(),
+			deserializeHttpSource("HTTP_STATUS")
+		);
 	}
+
+	/**
+	 * Deserialization of HTTP_SOURCE_YAML into an {@link HttpSource} object
+	 * 
+	 * @param replacement
+	 * @return {@link HttpSource}
+	 * @throws IOException
+	 */
+	private HttpSource deserializeHttpSource(final String replacement) throws IOException {
+		return JsonHelper.deserialize(
+			mapper,
+			new ByteArrayInputStream(HTTP_SOURCE_YAML.replace(REPLACE_ME, replacement).getBytes()),
+			HttpSource.class
+		);
+	}
+
 }

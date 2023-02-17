@@ -11,4 +11,6 @@ metrics:
   hw.status:
     type:
       stateSet: [degraded, failed, ok]
+      output: upDownCounter
     description: descr
+    
