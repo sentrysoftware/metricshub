@@ -20,7 +20,7 @@ class EmbeddedDeserializerTest extends DeserializerTest {
 	}
 
 	@Test
-	void testDeserializeTranslations() throws IOException {
+	void testDeserializeEmbedded() throws IOException {
 		final Connector connector = getConnector("embeddedFile");
 		assertNotNull(connector);
 		assertEquals("embeddedFile", connector.getConnectorIdentity().getCompiledFilename());
