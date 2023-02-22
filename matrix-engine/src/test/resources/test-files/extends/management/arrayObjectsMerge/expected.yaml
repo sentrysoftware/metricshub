@@ -1,0 +1,11 @@
+---
+connector:
+  detection:
+    appliesTo: [ linux ]
+
+pre:
+  ipmiSource:
+    type: ipmi
+  ipmiSource2:
+    type: ipmi
+  

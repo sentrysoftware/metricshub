@@ -1,0 +1,3 @@
+pre:
+  ipmiSource2:
+    type: ipmi
