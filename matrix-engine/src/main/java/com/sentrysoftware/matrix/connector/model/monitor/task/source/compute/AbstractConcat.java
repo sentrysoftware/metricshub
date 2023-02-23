@@ -25,7 +25,7 @@ public abstract class AbstractConcat extends Compute {
 
 	@NonNull
 	@JsonSetter(nulls = FAIL)
-	Integer column;
+	protected Integer column;
 	
 	@NonNull
 	@JsonSetter(nulls = FAIL)

@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.connector.model.monitor.task.source.compute;
 
+import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
@@ -7,12 +8,12 @@ import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 
 @Data
 @NoArgsConstructor
@@ -21,21 +22,21 @@ public class Xml2Csv extends Compute {
 
 	private static final long serialVersionUID = 1L;
 
+	@JsonSetter(nulls = SKIP)
 	private String recordTag;
+
 	private String properties;
-	private String separator;
 
 	@Builder
 	public Xml2Csv(
-			@JsonProperty("type") String type, 
-			@JsonProperty(value = "recordTag", required = true) @NonNull String recordTag,
-			@JsonProperty("properties") String properties,
-			@JsonProperty("separator") String separator) {
+		@JsonProperty("type") String type, 
+		@JsonProperty("recordTag") String recordTag,
+		@JsonProperty("properties") String properties
+	) {
 
 		super(type);
 		this.recordTag = recordTag;
 		this.properties = properties;
-		this.separator = separator;
 	}
 
 

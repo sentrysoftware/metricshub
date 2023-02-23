@@ -1,6 +1,6 @@
 package com.sentrysoftware.matrix.connector.model.monitor.task.source.compute;
 
-import static com.fasterxml.jackson.annotation.Nulls.FAIL;
+import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
@@ -19,7 +19,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 
 @Data
 @NoArgsConstructor
@@ -28,8 +27,7 @@ public class Json2Csv extends Compute {
 
 	private static final long serialVersionUID = 1L;
 
-	@NonNull
-	@JsonSetter(nulls = FAIL)
+	@JsonSetter(nulls = SKIP)
 	private String entryKey;
 
 	private List<String> properties = new ArrayList<>();
@@ -39,7 +37,7 @@ public class Json2Csv extends Compute {
 	@JsonCreator
 	public Json2Csv(
 		@JsonProperty("type") String type, 
-		@JsonProperty(value = "entryKey", required = true) @NonNull String entryKey,
+		@JsonProperty("entryKey") String entryKey,
 		@JsonProperty("properties") List<String> properties,
 		@JsonProperty("separator") String separator
 	) {
