@@ -4,10 +4,14 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @Data
 @NoArgsConstructor
@@ -17,7 +21,13 @@ public class KeepOnlyMatchingLines extends AbstractMatchingLines {
 	private static final long serialVersionUID = 1L;
 
 	@Builder
-	public KeepOnlyMatchingLines(String type, Integer column, String regExp, Set<String> valueList) {
+	@JsonCreator
+	public KeepOnlyMatchingLines(
+			@JsonProperty("type") String type, 
+			@JsonProperty(value = "column", required = true) @NonNull Integer column,
+			@JsonProperty("regExp") String regExp,
+			@JsonProperty("valueList") Set<String> valueList
+		) {
 		super(type, column, regExp, valueList);
 	}
 

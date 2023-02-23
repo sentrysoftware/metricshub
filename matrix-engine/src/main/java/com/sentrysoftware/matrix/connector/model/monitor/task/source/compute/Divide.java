@@ -6,10 +6,15 @@ import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @Data
 @NoArgsConstructor
@@ -18,12 +23,23 @@ public class Divide extends Compute {
 
 	private static final long serialVersionUID = 1L;
 
+	@NonNull
+	@JsonSetter
 	private Integer column;
+
 	// Number value or Column(n), hence the String type 
+	@NonNull
+	@JsonSetter
 	private String value;
 
 	@Builder
-	public Divide(String type, Integer column, String value) {
+	@JsonCreator
+	public Divide(
+		@JsonProperty("type") String type, 
+		@JsonProperty(value = "column", required = true) @NonNull Integer column,
+		@JsonProperty(value = "value", required = true) @NonNull String value
+	) {
+
 		super(type);
 		this.column = column;
 		this.value = value;

@@ -1,15 +1,21 @@
 package com.sentrysoftware.matrix.connector.model.monitor.task.source.compute;
 
+import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @Data
 @NoArgsConstructor
@@ -18,13 +24,27 @@ public class PerBitTranslation extends Compute {
 
 	private static final long serialVersionUID = 1L;
 
+	@NonNull
+	@JsonSetter(nulls = FAIL)
 	private Integer column;
+
+	@NonNull
+	@JsonSetter(nulls = FAIL)
 	private String bitList;
+
+	@NonNull
+	@JsonSetter(nulls = FAIL)
 	private String translationTable;
 
 	@Builder
-	public PerBitTranslation(String type, Integer column, String bitList,
-			String translationTable) {
+	@JsonCreator
+	public PerBitTranslation(
+		@JsonProperty("type") String type, 
+		@JsonProperty(value = "column", required = true) @NonNull Integer column,
+		@JsonProperty(value = "bitList", required = true) @NonNull String bitList,
+		@JsonProperty(value = "translationTable", required = true) @NonNull String translationTable
+	) {
+
 		super(type);
 		this.column = column;
 		this.bitList = bitList;

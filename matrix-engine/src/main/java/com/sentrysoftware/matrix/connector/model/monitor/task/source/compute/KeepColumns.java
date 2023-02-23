@@ -8,6 +8,9 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -23,7 +26,12 @@ public class KeepColumns extends Compute {
 	private Set<Integer> columnNumbers = new HashSet<>();
 
 	@Builder
-	public KeepColumns(String type, Set<Integer> columnNumbers) {
+	@JsonCreator
+	public KeepColumns(
+		@JsonProperty("type") String type, 
+		@JsonProperty("columnNumbers") Set<Integer> columnNumbers
+	) {
+
 		super(type);
 		this.columnNumbers = columnNumbers == null ? new HashSet<>() : columnNumbers;
 	}

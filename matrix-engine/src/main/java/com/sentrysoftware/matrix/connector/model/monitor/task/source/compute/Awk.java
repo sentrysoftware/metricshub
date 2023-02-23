@@ -1,7 +1,7 @@
 package com.sentrysoftware.matrix.connector.model.monitor.task.source.compute;
 
+import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
-
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
 import java.util.ArrayList;
@@ -10,10 +10,15 @@ import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @Data
 @NoArgsConstructor
@@ -22,15 +27,26 @@ public class Awk extends Compute {
 
 	private static final long serialVersionUID = 1L;
 
+	@NonNull 
+	@JsonSetter(nulls = FAIL)
 	private String script;
+
 	private String exclude;
 	private String keep;
 	private String separators;
 	private List<String> selectColumns = new ArrayList<>();
 
 	@Builder
-	public Awk(String type, String script, String exclude, String keep, String separators,
-			List<String> selectColumns) {
+	@JsonCreator
+	public Awk(
+		@JsonProperty("type") String type, 
+		@JsonProperty(value = "script", required = true) @NonNull String script,
+		@JsonProperty("exclude") String exclude,
+		@JsonProperty("keep") String keep,
+		@JsonProperty("separators") String separators,
+		@JsonProperty("selectColumns") List<String> selectColumns
+	) {
+
 		super(type);
 		this.script = script;
 		this.exclude = exclude;

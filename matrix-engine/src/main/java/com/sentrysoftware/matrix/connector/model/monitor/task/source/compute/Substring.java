@@ -1,15 +1,21 @@
 package com.sentrysoftware.matrix.connector.model.monitor.task.source.compute;
 
+import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @Data
 @NoArgsConstructor
@@ -18,12 +24,27 @@ public class Substring extends Compute {
 
 	private static final long serialVersionUID = 1L;
 
+	@NonNull
+	@JsonSetter(nulls = FAIL)
 	private Integer column;
+
+	@NonNull
+	@JsonSetter(nulls = FAIL)
 	private String start;
+
+	@NonNull
+	@JsonSetter(nulls = FAIL)
 	private String length;
 
 	@Builder
-	public Substring(String type, Integer column, String start, String length) {
+	@JsonCreator
+	public Substring(
+		@JsonProperty("type") String type, 
+		@JsonProperty(value = "column", required = true) @NonNull Integer column,
+		@JsonProperty(value = "start", required = true) @NonNull String start,
+		@JsonProperty(value = "length", required = true) @NonNull String length
+	) {
+
 		super(type);
 		this.column = column;
 		this.start = start;

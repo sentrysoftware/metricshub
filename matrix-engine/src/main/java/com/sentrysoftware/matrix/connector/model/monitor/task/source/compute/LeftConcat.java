@@ -1,9 +1,13 @@
 package com.sentrysoftware.matrix.connector.model.monitor.task.source.compute;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @Data
 @NoArgsConstructor
@@ -13,7 +17,13 @@ public class LeftConcat extends AbstractConcat {
 	private static final long serialVersionUID = 1L;
 
 	@Builder
-	public LeftConcat(String type, Integer column, String value) {
+	@JsonCreator
+	public LeftConcat(
+		@JsonProperty("type") String type, 
+		@JsonProperty(value = "column", required = true) @NonNull Integer column,
+		@JsonProperty(value = "value", required = true) @NonNull String value
+	) {
+
 		super(type, column, value);
 	}
 
