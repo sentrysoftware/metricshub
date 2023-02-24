@@ -1,8 +1,9 @@
 package com.sentrysoftware.matrix.connector.deserializer.custom;
 
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.Map;
-import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonStreamContext;
@@ -20,7 +21,7 @@ public abstract class AbstractMapDeserializer<T> extends JsonDeserializer<Map<St
 		if (parser == null)
 			return emptyMap();
 
-		nodePath = getNodePath(parser.getParsingContext().getParent(), new StringJoiner(".", "$", ""));
+		nodePath = getNodePath(parser.getParsingContext().getParent(), new LinkedList<>());
 
 		final Map<String, T> map = parser.readValueAs(getTypeReference());
 
@@ -50,23 +51,23 @@ public abstract class AbstractMapDeserializer<T> extends JsonDeserializer<Map<St
 	 * Get the current node path E.g. monitors.enclosure.discovery.sources
 	 * 
 	 * @param context streaming processing contexts used during reading the content
-	 * @param stringJoiner StringJoiner is used to construct a sequence of characters separated by a delimiter
+	 * @param path    linked list used to construct a sequence of characters separated by the dot delimiter
 	 * @return String value
 	 */
-	private String getNodePath(final JsonStreamContext context, final StringJoiner stringJoiner) {
+	private String getNodePath(final JsonStreamContext context, final LinkedList<String> path) {
 		// Recursively call the parent of the context to build the full node path 
 		// Stop if the parent is null, it means that root parent is reached
 		if (context != null && context.getParent() != null) {
 			if (context.inObject()) {
-				stringJoiner.add(context.getCurrentName());
+				path.push(context.getCurrentName());
 			} else if (context.inArray()) {
-				stringJoiner.add(String.format("[%s]", context.getCurrentIndex()));
+				path.push(String.format("[%s]", context.getCurrentIndex()));
 			}
 
-			getNodePath(context.getParent(), stringJoiner);
+			getNodePath(context.getParent(), path);
 		}
 
-		return stringJoiner.toString();
+		return path.stream().collect(Collectors.joining(".", "$", ""));
 
 	}
 
