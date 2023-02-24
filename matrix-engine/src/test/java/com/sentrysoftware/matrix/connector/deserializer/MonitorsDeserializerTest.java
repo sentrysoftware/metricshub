@@ -13,8 +13,10 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.monitor.AllAtOnceMonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.StandardMonitorJob;
+import com.sentrysoftware.matrix.connector.model.monitor.task.AllAtOnce;
 import com.sentrysoftware.matrix.connector.model.monitor.task.Discovery;
 import com.sentrysoftware.matrix.connector.model.monitor.task.Mapping;
 import com.sentrysoftware.matrix.connector.model.monitor.task.MonoCollect;
@@ -175,7 +177,7 @@ class MonitorsDeserializerTest extends DeserializerTest {
 
 		final Mapping expectedMapping = Mapping
 			.builder()
-			.deviceId("$column(2)")
+			.deviceId("$column(1)")
 			.source("$monitors.enclosure.multiCollect.sources.Source(1)")
 			.metrics(Map.of("hw.status", "$column(2)"))
 			.build();
@@ -228,19 +230,19 @@ class MonitorsDeserializerTest extends DeserializerTest {
 	@Test
 	void testMonitorsAllAtOnce() throws IOException {
 
-		final Connector connector = getConnector("monitorsDiscovery");
+		final Connector connector = getConnector("monitorsAllAtOnce");
 
 		Map<String, MonitorJob> monitors = connector.getMonitors();
 
 		MonitorJob job = monitors.get("enclosure");
 
-		assertTrue(job instanceof StandardMonitorJob, () -> "MonitorJob is expected to be a StandardMonitorJob");
+		assertTrue(job instanceof AllAtOnceMonitorJob, () -> "MonitorJob is expected to be a AllAtOnceMonitorJob");
 
-		final StandardMonitorJob standard = (StandardMonitorJob) job;
+		final AllAtOnceMonitorJob allAtOnceMonitorJob = (AllAtOnceMonitorJob) job;
 
-		final Discovery discovery = standard.getDiscovery();
+		AllAtOnce allAtOnce = allAtOnceMonitorJob.getAllAtOnce();
 
-		assertNotNull(discovery);
+		assertNotNull(allAtOnce);
 
 		final Map<String, Source> expectedSources = new HashMap<>(
 			Map.of(
@@ -310,9 +312,9 @@ class MonitorsDeserializerTest extends DeserializerTest {
 			)
 		);
 
-		assertEquals(expectedSources, discovery.getSources());
+		assertEquals(expectedSources, allAtOnce.getSources());
 
-		final Mapping mapping = discovery.getMapping();
+		final Mapping mapping = allAtOnce.getMapping();
 
 		final Mapping expectedMapping = Mapping
 			.builder()
@@ -329,7 +331,7 @@ class MonitorsDeserializerTest extends DeserializerTest {
 				)
 			)
 			.conditionalCollection(Map.of("hw.status", "$column(10)"))
-			.metrics(Map.of("hw.status", "$column(2)"))
+			.metrics(Map.of("hw.status", "$column(10)"))
 			.build();
 
 		assertEquals(expectedMapping, mapping);

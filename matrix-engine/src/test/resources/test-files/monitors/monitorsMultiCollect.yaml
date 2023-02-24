@@ -76,6 +76,6 @@ monitors:
           namespace: root/emc
       mapping:
         deviceId: $column(1) 
-        source: $monitors.enclosure.monoCollect.sources.Source(1)
+        source: $monitors.enclosure.multiCollect.sources.Source(1)
         metrics:
           hw.status: $column(2)
