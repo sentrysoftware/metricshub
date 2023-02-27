@@ -4,11 +4,13 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 public class JsonHelper {
 
@@ -59,6 +61,22 @@ public class JsonHelper {
 	}
 
 	/**
+	 * Deserialize the given input stream
+	 * 
+	 * @param <T>
+	 * @param mapper {@link ObjectMapper} instance used to deserialize input stream
+	 * @param node   {@link TreeNode} instance
+	 * @param type   Java type
+	 * @return new instance of T
+	 * @throws IOException
+	 */
+	public static <T> T deserialize(final ObjectMapper mapper, final TreeNode node, final Class<T> type) throws IOException {
+
+		return mapper.treeToValue(node, type);
+
+	}
+
+	/**
 	 * Deserialize and return the requested type using the InputStream
 	 * 
 	 * @param is    {@link InputStream} connection to the JSON
@@ -72,8 +90,7 @@ public class JsonHelper {
 	}
 
 	/**
-	 * Build and return a new {@link ObjectMapper} instance enabling the indentation.<br>
-	 * When no acessors are found for a type an empty Object is returned.
+	 * Build and return a new {@link ObjectMapper} instance enabling the indentation.
 	 * 
 	 * @return new {@link ObjectMapper} instance
 	 */
@@ -86,6 +103,21 @@ public class JsonHelper {
 			.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
 			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 			.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false)
+			.build();
+	}
+
+	/**
+	 * build a new {@link ObjectMapper} using {@link YAMLFactory}
+	 * 
+	 * @return new {@link ObjectMapper} instance 
+	 */
+	public static ObjectMapper buildYamlMapper() {
+		return JsonMapper
+			.builder(new YAMLFactory())
+			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
+			.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+			.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
+			.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_VALUES)
 			.build();
 	}
 }
