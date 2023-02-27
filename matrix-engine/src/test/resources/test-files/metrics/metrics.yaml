@@ -1,0 +1,16 @@
+---
+connector:
+  detection:
+    appliesTo: [ linux ]
+
+metrics:
+  hw.energy:
+    type: gauge
+    unit: J
+    description: descr
+  hw.status:
+    type:
+      stateSet: [degraded, failed, ok]
+      output: upDownCounter
+    description: descr
+    

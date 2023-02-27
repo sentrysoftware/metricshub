@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.connector.model.monitor.task.source.compute;
 
+import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
@@ -8,10 +9,15 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @Data
 @NoArgsConstructor
@@ -20,10 +26,17 @@ public class KeepColumns extends Compute {
 
 	private static final long serialVersionUID = 1L;
 
+	@NonNull
+	@JsonSetter(nulls = FAIL)
 	private Set<Integer> columnNumbers = new HashSet<>();
 
 	@Builder
-	public KeepColumns(String type, Set<Integer> columnNumbers) {
+	@JsonCreator
+	public KeepColumns(
+		@JsonProperty("type") String type, 
+		@JsonProperty(value = "columnNumbers", required = true) @NonNull Set<Integer> columnNumbers
+	) {
+
 		super(type);
 		this.columnNumbers = columnNumbers == null ? new HashSet<>() : columnNumbers;
 	}

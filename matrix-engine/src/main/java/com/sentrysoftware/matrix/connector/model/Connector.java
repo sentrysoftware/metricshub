@@ -13,11 +13,12 @@ import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.sentrysoftware.matrix.connector.deserializer.custom.EmbeddedFilesDeserializer;
 import com.sentrysoftware.matrix.connector.deserializer.custom.ExtendsDeserializer;
 import com.sentrysoftware.matrix.connector.deserializer.custom.SourcesDeserializer;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.identity.ConnectorIdentity;
-import com.sentrysoftware.matrix.connector.model.metric.MonitorDefinition;
+import com.sentrysoftware.matrix.connector.model.metric.MetricDefinition;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
 
@@ -45,7 +46,7 @@ public class Connector implements Serializable {
 	private Set<String> extendsConnectors = new LinkedHashSet<>();
 
 	@Default
-	private Map<String, MonitorDefinition> metricsMapping = new HashMap<>();
+	private Map<String, MetricDefinition> metrics = new HashMap<>();
 
 	@Default
 	private Map<String, String> constants = new HashMap<>();
@@ -62,6 +63,7 @@ public class Connector implements Serializable {
 	private Map<String, MonitorJob> monitors = new LinkedHashMap<>();
 
 	@Default
+	@JsonDeserialize(using = EmbeddedFilesDeserializer.class)
 	private Map<String, String> embedded = new HashMap<>();
 
 	@Default

@@ -6,6 +6,10 @@ import java.util.Map;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -21,6 +25,7 @@ public class TranslationTable implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Default
+	@JsonIgnore
 	private Map<String, String> translations = new HashMap<>();
 
 	/**
@@ -31,8 +36,8 @@ public class TranslationTable implements Serializable {
 	public TranslationTable copy() {
 		return TranslationTable
 			.builder()
-			.translations(translations == null ? null :
-				translations
+			.translations(
+					translations == null ? null : translations
 					.entrySet()
 					.stream()
 					.collect(
@@ -59,5 +64,15 @@ public class TranslationTable implements Serializable {
 			translations.replaceAll((key, val) -> updater.apply(val));
 		}
 	}
-
+	
+	@JsonAnySetter
+	public void setTranslation(String key, String value) {
+		translations.put(key, value);
+	}
+	
+	@JsonAnyGetter
+    public Map<String, String> getTranslations() {
+        return this.translations;
+    }
+    
 }
