@@ -7,17 +7,16 @@ import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 import lombok.Builder;
-import lombok.Builder.Default;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class Xml2Csv extends Compute {
@@ -25,12 +24,12 @@ public class Xml2Csv extends Compute {
 	private static final long serialVersionUID = 1L;
 
 	@JsonSetter(nulls = SKIP)
-	@Default
 	private String recordTag = "/";
 
 	private String properties;
 
 	@Builder
+	@JsonCreator
 	public Xml2Csv(
 		@JsonProperty("type") String type, 
 		@JsonProperty("recordTag") String recordTag,

@@ -16,13 +16,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 import lombok.Builder;
-import lombok.Builder.Default;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class Json2Csv extends Compute {
@@ -30,7 +28,6 @@ public class Json2Csv extends Compute {
 	private static final long serialVersionUID = 1L;
 
 	@JsonSetter(nulls = SKIP)
-	@Default
 	private String entryKey = "/";
 
 	private List<String> properties = new ArrayList<>();
