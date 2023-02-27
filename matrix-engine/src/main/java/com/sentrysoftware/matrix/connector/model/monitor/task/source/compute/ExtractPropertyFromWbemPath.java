@@ -1,15 +1,21 @@
 package com.sentrysoftware.matrix.connector.model.monitor.task.source.compute;
 
+import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @Data
 @NoArgsConstructor
@@ -18,11 +24,22 @@ public class ExtractPropertyFromWbemPath extends Compute {
 
 	private static final long serialVersionUID = 1L;
 
+	@NonNull
+	@JsonSetter(nulls = FAIL)
 	private String property;
+
+	@NonNull
+	@JsonSetter(nulls = FAIL)
 	private Integer column;
 
 	@Builder
-	public ExtractPropertyFromWbemPath(String type, String property, Integer column) {
+	@JsonCreator
+	public ExtractPropertyFromWbemPath(
+		@JsonProperty("type") String type, 
+		@JsonProperty(value = "column", required = true) @NonNull Integer column,
+		@JsonProperty(value = "property", required = true) @NonNull String property
+	) {
+
 		super(type);
 		this.property = property;
 		this.column = column;

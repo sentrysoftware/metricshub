@@ -1,0 +1,12 @@
+connector:
+  detection:
+    appliesTo: [ Linux ]
+
+pre:
+  testCompute:
+    type: http
+    url: /testUrl/
+    computes:
+      - type: substract
+        column: 1
+        value: column(n)

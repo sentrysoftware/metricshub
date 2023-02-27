@@ -2,6 +2,8 @@ package com.sentrysoftware.matrix.connector.model.common;
 
 import java.util.Arrays;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
@@ -9,7 +11,9 @@ import lombok.NonNull;
 @AllArgsConstructor
 public enum ConversionType {
 
+    @JsonAlias(value = { "hex2Dec", "hex_2_dec" })
 	HEX_2_DEC("Hex2Dec"),
+    @JsonAlias(value = { "array2SimpleStatus", "array_2_simple_status" })
 	ARRAY_2_SIMPLE_STATUS("Array2SimpleStatus");
 
 	@Getter
