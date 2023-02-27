@@ -1,0 +1,7 @@
+connector:
+  detection:
+    appliesTo: [ linux ]
+
+embedded:
+  embeddedFile1: test1
+  embeddedFile2: test2

@@ -12,8 +12,6 @@ import java.util.function.UnaryOperator;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.sentrysoftware.matrix.connector.deserializer.custom.ResultContentDeserializer;
 import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
 import com.sentrysoftware.matrix.connector.model.common.HttpMethod;
 import com.sentrysoftware.matrix.connector.model.common.ResultContent;
@@ -41,7 +39,6 @@ public class HttpSource extends Source {
 	private String header;
 	private String body;
 	private String authenticationToken;
-	@JsonDeserialize(using = ResultContentDeserializer.class)
 	@JsonSetter(nulls = SKIP)
 	private ResultContent resultContent = ResultContent.BODY;
 

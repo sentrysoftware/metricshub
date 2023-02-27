@@ -1,4 +1,7 @@
+---
 connector:
+  detection:
+    appliesTo: [ linux ]
 
 extends:
 - Connector1
