@@ -1,3 +1,13 @@
-pre:
-  ipmiSource:
-    type: ipmi
+---
+connector:
+  detection:
+    appliesTo: [ linux ]
+    criteria:
+      - type: http
+        url: test
+        header: $embedded.http-header
+        body: test-body
+        resultContent: ALL
+        authenticationToken: $embedded.authenticationToken
+        expectedResult: result
+        errorMessage: error
