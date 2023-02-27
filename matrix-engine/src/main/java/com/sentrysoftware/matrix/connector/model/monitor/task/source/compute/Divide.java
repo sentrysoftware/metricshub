@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.connector.model.monitor.task.source.compute;
 
+import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
@@ -24,12 +25,12 @@ public class Divide extends Compute {
 	private static final long serialVersionUID = 1L;
 
 	@NonNull
-	@JsonSetter
+	@JsonSetter(nulls = FAIL)
 	private Integer column;
 
 	// Number value or Column(n), hence the String type 
 	@NonNull
-	@JsonSetter
+	@JsonSetter(nulls = FAIL)
 	private String value;
 
 	@Builder

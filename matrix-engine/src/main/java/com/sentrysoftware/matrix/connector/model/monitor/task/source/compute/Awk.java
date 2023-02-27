@@ -27,7 +27,7 @@ public class Awk extends Compute {
 
 	private static final long serialVersionUID = 1L;
 
-	@NonNull 
+	@NonNull
 	@JsonSetter(nulls = FAIL)
 	private String script;
 

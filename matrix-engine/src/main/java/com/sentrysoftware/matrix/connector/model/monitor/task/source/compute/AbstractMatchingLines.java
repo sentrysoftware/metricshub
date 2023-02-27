@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.connector.model.monitor.task.source.compute;
 
+import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
@@ -26,7 +27,7 @@ public abstract class AbstractMatchingLines extends Compute {
 	private static final long serialVersionUID = 1L;
 
 	@NonNull
-	@JsonSetter
+	@JsonSetter(nulls = FAIL)
 	protected Integer column;
 
 	protected String regExp;
