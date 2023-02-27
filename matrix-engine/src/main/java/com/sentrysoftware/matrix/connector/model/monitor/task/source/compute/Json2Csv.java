@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.connector.model.monitor.task.source.compute;
 
+import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
@@ -9,6 +10,10 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
 import lombok.Builder;
 import lombok.Data;
@@ -22,14 +27,23 @@ public class Json2Csv extends Compute {
 
 	private static final long serialVersionUID = 1L;
 
-	private String entryKey;
+	@JsonSetter(nulls = SKIP)
+	private String entryKey = "/";
+
 	private List<String> properties = new ArrayList<>();
-	private String separator = TABLE_SEP;
+	private String separator;
 
 	@Builder
-	public Json2Csv(String type, String entryKey, List<String> properties, String separator) {
+	@JsonCreator
+	public Json2Csv(
+		@JsonProperty("type") String type, 
+		@JsonProperty("entryKey") String entryKey,
+		@JsonProperty("properties") List<String> properties,
+		@JsonProperty("separator") String separator
+	) {
+
 		super(type);
-		this.entryKey = entryKey;
+		this.entryKey = entryKey == null ? "/" : entryKey;
 		this.properties = properties == null ? new ArrayList<>() : properties;
 		this.separator = separator == null ? TABLE_SEP : separator;
 	}

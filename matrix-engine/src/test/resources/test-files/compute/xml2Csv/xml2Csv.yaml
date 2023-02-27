@@ -1,0 +1,13 @@
+connector:
+  detection:
+    appliesTo: [ Linux ]
+
+pre:
+  testCompute:
+    type: http
+    url: /testUrl/
+
+    computes:
+      - type: xml2Csv
+        recordTag: recordTagTest
+        properties: properties,test,here
