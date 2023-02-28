@@ -1,0 +1,14 @@
+---
+connector:
+  detection:
+    appliesTo: [ linux ]
+
+pre:
+  testHttpSource:
+    type: http
+    method: POST
+    url: /testUrl/
+    body: >
+      test
+
+      body

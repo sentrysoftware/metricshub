@@ -1,0 +1,12 @@
+---
+connector:
+  detection:
+    appliesTo: [ windows ]
+
+extends:
+- Connector1
+
+pre:
+  testTableUnionSource:
+    type: tableUnion
+    tables: [ testTable4, testTable5, testTable6 ]
