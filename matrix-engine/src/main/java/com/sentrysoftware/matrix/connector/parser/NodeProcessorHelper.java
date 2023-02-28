@@ -18,7 +18,7 @@ public class NodeProcessorHelper {
 	 * @return new {@link ConstantsProcessor}
 	 */
 	private static NodeProcessor constantsProcessor(ObjectMapper mapper) {
-		return new ConstantsProcessor(mapper);
+		return new ConstantsProcessor();
 	}
 
 	/**
