@@ -1,5 +1,7 @@
 package com.sentrysoftware.matrix.connector.parser;
 
+import java.io.IOException;
+
 import com.fasterxml.jackson.databind.JsonNode;
 
 public interface NodeProcessor {
@@ -10,5 +12,5 @@ public interface NodeProcessor {
 	 * @param node
 	 * @return {@link JsonNode} instance
 	 */
-	JsonNode process(JsonNode node);
+	JsonNode process(JsonNode node) throws IOException;
 }
