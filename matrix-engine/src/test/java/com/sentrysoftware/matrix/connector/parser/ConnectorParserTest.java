@@ -21,4 +21,8 @@ class ConnectorParserTest {
 		new ConnectorParserExtendsManagement("overwriteArraysSimpleValues").test();
 	}
 
+	@Test
+	void testConstantsManagement() throws IOException {
+		new ConnectorParserConstantsManagement("management").test();
+	}
 }
