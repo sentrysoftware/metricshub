@@ -1,0 +1,8 @@
+---
+extends:
+- Connector2
+
+connector:
+  detection:
+    appliesTo: [ linux ]
+
