@@ -5,13 +5,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
+
+import lombok.Getter;
 
 /**
  * This class deserializes YAML connector files 
@@ -19,16 +18,11 @@ import com.sentrysoftware.matrix.connector.model.Connector;
  */
 public class ConnectorDeserializer {
 
+	@Getter
 	private ObjectMapper mapper;
 
-	public ConnectorDeserializer() {
-		mapper = JsonMapper
-			.builder(new YAMLFactory())
-			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
-			.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
-			.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
-			.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_VALUES)
-			.build();
+	public ConnectorDeserializer(ObjectMapper mapper) {
+		this.mapper = mapper;
 	}
 
 	/**
@@ -53,6 +47,22 @@ public class ConnectorDeserializer {
 		final Connector connector = deserialize(new FileInputStream(src));
 
 		updateCompiledFilename(connector, src.getName());
+
+		return connector;
+	}
+
+	/**
+	 * Deserialize the given YAML connector node
+	 * 
+	 * @param node     YAML as {@link TreeNode}
+	 * @param fileName connector file name
+	 * @return {@link Connector} instance
+	 * @throws IOException
+	 */
+	public Connector deserialize(final TreeNode node, final String filename) throws IOException {
+		final Connector connector =  JsonHelper.deserialize(mapper, node, Connector.class);
+
+		updateCompiledFilename(connector, filename);
 
 		return connector;
 	}
