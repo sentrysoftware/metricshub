@@ -49,16 +49,15 @@ public class ConstantsProcessor implements NodeProcessor {
 	 * @return new {@link String} value
 	 */
 	private String performReplacements(Map<String, String> replacements, String value) {
-		if (value == null) {
+		if (value == null || value.isEmpty()) {
 			return value;
 		}
 
 		// Loop over each placeholder and perform replacement
-		for (Entry<String, String> entry : replacements.entrySet()) {
-			String key = entry.getKey();
-			String newValue = entry.getValue();
+		for (final Entry<String, String> entry : replacements.entrySet()) {
+			final String key = entry.getKey();
 			if (value.contains(key)) {
-				value = value.replace(key, newValue);
+				value = value.replace(key, entry.getValue());
 			}
 		}
 
@@ -80,7 +79,7 @@ public class ConstantsProcessor implements NodeProcessor {
 			node.fieldNames().forEachRemaining(fieldNames::add);
 
 			// Get the corresponding JsonNode for each field
-			for (String fieldName : fieldNames) {
+			for (final String fieldName : fieldNames) {
 
 				final JsonNode child = node.get(fieldName);
 
