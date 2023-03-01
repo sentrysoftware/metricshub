@@ -27,22 +27,21 @@ public class ExtendsProcessor implements NodeProcessor {
 	private ObjectMapper mapper;
 
 	@Override
-	public JsonNode process(JsonNode node) throws IOException {
+	public JsonNode process(JsonNode node, boolean callNextProcessor) throws IOException {
 
-		JsonNode result = doMerge(node, connectorDirectory);
+		JsonNode result = doMerge(node);
 
 		// Call next processor
-		return destination.process(result);
+		return callNextProcessor ? destination.process(result, true) : result;
 	}
 
 	/**
-	 * 
+	 * custom merge logic
 	 * @param node
-	 * @param connectorDirectory
 	 * @return
 	 * @throws IOException
 	 */
-	private JsonNode doMerge(JsonNode node, Path connectorDirectory) throws IOException {
+	private JsonNode doMerge(JsonNode node) throws IOException {
 		JsonNode extNode = node.get("extends");
 
 		JsonNode result = node;
@@ -52,25 +51,31 @@ public class ExtendsProcessor implements NodeProcessor {
 
 			JsonNode extended = null;
 			if (iter.hasNext()) {
-				extended = mapper
-					.readTree(connectorDirectory.resolve(iter.next().asText() + ".yaml").toFile());
-
+				extended =  process(getJsonNode(iter), false);
 				while(iter.hasNext()) {
-					JsonNode extendedNext = mapper
-							.readTree(connectorDirectory.resolve(iter.next().asText() + ".yaml").toFile());
-
+					JsonNode extendedNext = process(getJsonNode(iter), false);
 					merge(extended, extendedNext);
 				}
 			}
 
+			extNodeArray.removeAll();
+
 			if (extended != null) {
 				result = merge(extended, node);
 			}
-
-			extNodeArray.removeAll();
-
 		}
 		return result;
+	}
+
+	/**
+	 * gets the next json node from the iterator
+	 * @param iter
+	 * @return
+	 * @throws IOException
+	 */
+	private JsonNode getJsonNode(Iterator<JsonNode> iter) throws IOException {
+		return mapper
+			.readTree(connectorDirectory.resolve(iter.next().asText() + ".yaml").toFile());
 	}
 
 	/**
@@ -80,27 +85,13 @@ public class ExtendsProcessor implements NodeProcessor {
 	 * @return
 	 */
 	public static JsonNode merge(JsonNode mainNode, JsonNode updateNode) {
-
 		Iterator<String> fieldNames = updateNode.fieldNames();
 		while (fieldNames.hasNext()) {
 			String fieldName = fieldNames.next();
 			JsonNode jsonNode = mainNode.get(fieldName);
 			if (jsonNode != null && jsonNode.isArray() && updateNode.get(fieldName).isArray()) {
 				// both JSON nodes are arrays
-				ArrayNode mainArray = (ArrayNode) jsonNode;
-				ArrayNode extendedArray = (ArrayNode) updateNode.get(fieldName);
-
-				if (mainArray.get(0).isObject()) {
-					// Array of objects gets merged
-					for (int i = 0; i < extendedArray.size(); i++) {
-						mainArray.add(extendedArray.get(i));
-					}
-
-				} else {
-					// Simple array gets overwritten
-					mainArray.removeAll();
-					mainArray.addAll(extendedArray);
-				}
+				mergeJsonArray(updateNode, fieldName, jsonNode);
 			} else if (jsonNode != null && jsonNode.isObject()) {
 				// both JSON nodes are objects, merge them
 				merge(jsonNode, updateNode.get(fieldName));
@@ -113,5 +104,28 @@ public class ExtendsProcessor implements NodeProcessor {
 			}
 		}
 		return mainNode;
+	}
+
+	/**
+	 * handles the specific merge logic for arrays
+	 * @param updateNode
+	 * @param fieldName
+	 * @param jsonNode
+	 */
+	private static void mergeJsonArray(JsonNode updateNode, String fieldName, JsonNode jsonNode) {
+		ArrayNode mainArray = (ArrayNode) jsonNode;
+		ArrayNode extendedArray = (ArrayNode) updateNode.get(fieldName);
+
+		if (mainArray.size() != 0 && mainArray.get(0).isObject()) {
+			// Array of objects gets merged
+			for (int i = 0; i < extendedArray.size(); i++) {
+				mainArray.add(extendedArray.get(i));
+			}
+
+		} else {
+			// Simple array gets overwritten
+			mainArray.removeAll();
+			mainArray.addAll(extendedArray);
+		}
 	}
 }
