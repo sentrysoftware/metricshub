@@ -1,0 +1,10 @@
+---
+connector:
+  detection:
+    appliesTo: [ linux ]
+
+pre:
+  wbemSource:
+    type: wbem
+    query: SELECT Name FROM EMC_StorageSystem
+    namespace: root/emc
