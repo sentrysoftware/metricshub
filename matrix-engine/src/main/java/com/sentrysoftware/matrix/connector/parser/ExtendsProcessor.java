@@ -31,8 +31,8 @@ public class ExtendsProcessor implements NodeProcessor {
 		if (extNode != null && extNode.isArray()) {
 			ArrayNode extNodeArray = (ArrayNode) extNode;
 			for (JsonNode e : extNodeArray) {
-				merge(node, ConnectorParser.withNodeProcessor(connectorDirectory).getDeserializer().getMapper()
-						.readTree(connectorDirectory.resolve(e.asText() + ".yaml").toFile()));
+				merge(ConnectorParser.withNodeProcessor(connectorDirectory).getDeserializer().getMapper()
+				.readTree(connectorDirectory.resolve(e.asText() + ".yaml").toFile()), node);
 			}
 
 			extNodeArray.removeAll();
@@ -49,18 +49,18 @@ public class ExtendsProcessor implements NodeProcessor {
 			JsonNode jsonNode = mainNode.get(fieldName);
 			if (jsonNode != null && jsonNode.isArray() && updateNode.get(fieldName).isArray()) {
 				// both JSON nodes are arrays
+				ArrayNode extendedArray = (ArrayNode) updateNode.get(fieldName);
 				ArrayNode mainArray = (ArrayNode) jsonNode;
-				ArrayNode updateArray = (ArrayNode) updateNode.get(fieldName);
 
-				if (mainArray.get(0).isObject()) {
+				if (extendedArray.get(0).isObject()) {
 					// Array of objects gets merged
-					for (int i = 0; i < updateArray.size(); i++) {
-						mainArray.add(updateArray.get(i));
+					for (int i = 0; i < mainArray.size(); i++) {
+						extendedArray.add(mainArray.get(i));
 					}
 				} else {
 					// Simple array gets overwritten
-					mainArray.removeAll();
-					mainArray.addAll(updateArray);
+					extendedArray.removeAll();
+					extendedArray.addAll(mainArray);
 				}
 			} else if (jsonNode != null && jsonNode.isObject()) {
 				// both JSON nodes are objects, merge them
