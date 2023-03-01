@@ -49,9 +49,11 @@ public class Connector implements Serializable {
 	private Map<String, MetricDefinition> metrics = new HashMap<>();
 
 	@Default
+	@JsonSetter(nulls = SKIP)
 	private Map<String, String> constants = new HashMap<>();
 
 	@Default
+	@JsonSetter(nulls = SKIP)
 	private Set<String> sudoCommands = new HashSet<>();
 
 	@Default
@@ -64,12 +66,15 @@ public class Connector implements Serializable {
 
 	@Default
 	@JsonDeserialize(using = EmbeddedFilesDeserializer.class)
+	@JsonSetter(nulls = SKIP)
 	private Map<String, String> embedded = new HashMap<>();
 
 	@Default
+	@JsonSetter(nulls = SKIP)
 	private Map<String, TranslationTable> translations = new HashMap<>();
 
 	@Default
+	@JsonSetter(nulls = SKIP)
 	private Set<Class <? extends Source>> sourceTypes = new HashSet<>();
 
 	/**

@@ -32,6 +32,6 @@ public abstract class AbstractConnectorParserManagement extends DeserializerTest
 
 		expected.getConnectorIdentity().setCompiledFilename("test");
 
-		assertEquals(test, expected);
+		assertEquals(expected, test);
 	}
 }
