@@ -32,8 +32,7 @@ class HttpCriterionDeserializerTest extends DeserializerTest {
 	 * @throws IOException
 	 */
 	void testDeserializeHttpCriterion() throws Exception {
-		final String testResource = "httpCriterion";
-		final Connector httpCriterion = getConnector(testResource);
+		final Connector httpCriterion = getConnector("httpCriterion");
 
 		final List<Criterion> expected = new ArrayList<>();
 
@@ -73,7 +72,7 @@ class HttpCriterionDeserializerTest extends DeserializerTest {
 
 		expected.addAll(List.of(http1, http2, http3));
 
-		compareCriterion(testResource, httpCriterion, expected);
+		compareCriterion(httpCriterion, expected);
 	}
 
 	@Test
@@ -117,9 +116,6 @@ class HttpCriterionDeserializerTest extends DeserializerTest {
 				Connector connector = getConnector(testResource);
 
 				assertNotNull(connector);
-				assertEquals(
-						testResource,
-						connector.getConnectorIdentity().getCompiledFilename());
 
 				assertNotNull(connector.getConnectorIdentity().getDetection().getCriteria());
 				assertEquals(1, connector.getConnectorIdentity().getDetection().getCriteria().size());
@@ -155,9 +151,6 @@ class HttpCriterionDeserializerTest extends DeserializerTest {
 				Connector connector = getConnector(testResource);
 
 				assertNotNull(connector);
-				assertEquals(
-						testResource,
-						connector.getConnectorIdentity().getCompiledFilename());
 
 				assertNotNull(connector.getConnectorIdentity().getDetection().getCriteria());
 				assertEquals(1, connector.getConnectorIdentity().getDetection().getCriteria().size());

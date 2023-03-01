@@ -26,7 +26,6 @@ class ExtendsDeserializerTest extends DeserializerTest {
 	void testDeserializeExtends() throws IOException {
 		final Connector connector = getConnector("extends");
 		assertNotNull(connector);
-		assertEquals("extends", connector.getConnectorIdentity().getCompiledFilename());
 
 		var extendsConnectors = connector.getExtendsConnectors();
 

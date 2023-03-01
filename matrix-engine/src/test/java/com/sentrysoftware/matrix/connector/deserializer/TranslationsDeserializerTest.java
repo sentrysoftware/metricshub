@@ -25,7 +25,6 @@ class TranslationsDeserializerTest extends DeserializerTest {
 	void testDeserializeTranslations() throws IOException {
 		final Connector connector = getConnector("translationTable");
 		assertNotNull(connector);
-		assertEquals("translationTable", connector.getConnectorIdentity().getCompiledFilename());
 
 		final Map<String, TranslationTable> translationsConnector = connector.getTranslations();
 

@@ -30,15 +30,15 @@ class SshInteractiveCriterionDeserializerTest extends DeserializerTest {
 	 * @throws Exception
 	 */
 	void testDeserializeSshInteractive() throws Exception { // NOSONAR compareCriterion performs assertion
-		final String testResource = "criterionSshInteractive";
-		final Connector sshInteractive = getConnector(testResource);
+
+		final Connector sshInteractive = getConnector("criterionSshInteractive");
 
 		List<Criterion> expected = new ArrayList<>();
 		List<Step> steps = new ArrayList<>();
 		steps.add(new GetAvailable("getAvailable", true, false));
 
 		expected.add(new SshInteractiveCriterion("sshInteractive", false, 22123, "Cisoc", steps));
-		compareCriterion(testResource, sshInteractive, expected);
+		compareCriterion(sshInteractive, expected);
 	}
 
 	@Test

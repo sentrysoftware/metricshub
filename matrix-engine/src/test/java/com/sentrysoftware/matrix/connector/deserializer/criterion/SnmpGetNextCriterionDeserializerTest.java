@@ -23,8 +23,8 @@ class SnmpGetNextCriterionDeserializerTest extends DeserializerTest {
 
 	@Test
 	void testDeserializeSnmpGetNext() throws IOException { // NOSONAR compareCriterion performs assertion
-		final String testResource = "snmpGetNextCriterion";
-		final Connector snmpGetNext = getConnector(testResource);
+
+		final Connector snmpGetNext = getConnector("snmpGetNextCriterion");
 
 		final String oid = "1.3.6.1.4.1.674.10892.5.5.1.20.130.4";
 		final String expectedResult = "OK";
@@ -32,7 +32,7 @@ class SnmpGetNextCriterionDeserializerTest extends DeserializerTest {
 		List<Criterion> expected = new ArrayList<>();
 		expected.add(new SnmpGetNextCriterion("snmpGetNext", false, oid, expectedResult));
 
-		compareCriterion(testResource, snmpGetNext, expected);
+		compareCriterion(snmpGetNext, expected);
 	}
 
 	@Test

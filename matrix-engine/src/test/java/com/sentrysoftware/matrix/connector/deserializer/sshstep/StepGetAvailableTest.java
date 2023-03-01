@@ -26,13 +26,13 @@ class StepGetAvailableTest extends DeserializerTest {
 	 * @throws Exception
 	 */
 	void testSshInteractiveGetAvailable() throws Exception { // NOSONAR compareCriterion performs assertion
-		final String testResource = "criterionSshInteractiveStepGetAvailable";
-		final Connector sshInteractive = getConnector(testResource);
+
+		final Connector sshInteractive = getConnector("criterionSshInteractiveStepGetAvailable");
 		List<Criterion> expected = new ArrayList<>();
 		List<Step> steps = new ArrayList<>();
 		steps.add(new GetAvailable("getAvailable", null, false));
 		expected.add(new SshInteractiveCriterion("sshInteractive", false, 22123, "Cisoc", steps));
 
-		compareCriterion(testResource, sshInteractive, expected);
+		compareCriterion(sshInteractive, expected);
 	}
 }

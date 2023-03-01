@@ -31,14 +31,14 @@ class StepSleepDeserializerTest extends DeserializerTest {
 	 * @throws Exception
 	 */
 	void testSshInteractiveSleep() throws Exception { // NOSONAR compareCriterion performs assertion
-		final String testResource = "criterionSshInteractiveSleep";
-		final Connector sshInteractive = getConnector(testResource);
+
+		final Connector sshInteractive = getConnector("criterionSshInteractiveSleep");
 		List<Criterion> expected = new ArrayList<>();
 		List<Step> steps = new ArrayList<>();
 		steps.add(new Sleep("sleep", null, false, 1L));
 		expected.add(new SshInteractiveCriterion("sshInteractive", false, 22123, "Cisoc", steps));
 
-		compareCriterion(testResource, sshInteractive, expected);
+		compareCriterion(sshInteractive, expected);
 	}
 
 	@Test
@@ -46,14 +46,14 @@ class StepSleepDeserializerTest extends DeserializerTest {
 	 * Checks that yes is accepted as capture input
 	 */
 	void testSshInteractiveSleepCaptureYes() throws Exception { // NOSONAR compareCriterion performs assertion
-		final String testResource = "criterionSshInteractiveSleepCaptureBooleanYes";
-		final Connector sshInteractive = getConnector(testResource);
+
+		final Connector sshInteractive = getConnector("criterionSshInteractiveSleepCaptureBooleanYes");
 		List<Criterion> expected = new ArrayList<>();
 		List<Step> steps = new ArrayList<>();
 		steps.add(new Sleep("sleep", Boolean.TRUE, false, 10L));
 		expected.add(new SshInteractiveCriterion("sshInteractive", false, 22123, "Cisoc", steps));
 
-		compareCriterion(testResource, sshInteractive, expected);
+		compareCriterion(sshInteractive, expected);
 	}
 
 	@Test
@@ -61,15 +61,15 @@ class StepSleepDeserializerTest extends DeserializerTest {
 	 * Checks that 1 is accepted as capture input
 	 */
 	void testSshInteractiveSleepCapture1() throws Exception { // NOSONAR compareCriterion performs assertion
-		final String testResource = "criterionSshInteractiveSleepCaptureBoolean1";
-		final Connector sshInteractive = getConnector(testResource);
+
+		final Connector sshInteractive = getConnector("criterionSshInteractiveSleepCaptureBoolean1");
 
 		List<Criterion> expected = new ArrayList<>();
 		List<Step> steps = new ArrayList<>();
 		steps.add(new Sleep("sleep", Boolean.TRUE, false, 10L));
 		expected.add(new SshInteractiveCriterion("sshInteractive", false, 22123, "Cisoc", steps));
 
-		compareCriterion(testResource, sshInteractive, expected);
+		compareCriterion(sshInteractive, expected);
 	}
 
 	@Test

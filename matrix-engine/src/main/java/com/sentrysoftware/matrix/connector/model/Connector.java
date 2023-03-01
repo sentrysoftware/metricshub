@@ -10,6 +10,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -74,8 +75,12 @@ public class Connector implements Serializable {
 	private Map<String, TranslationTable> translations = new HashMap<>();
 
 	@Default
-	@JsonSetter(nulls = SKIP)
+	@JsonIgnore
 	private Set<Class <? extends Source>> sourceTypes = new HashSet<>();
+
+	@Default
+	@JsonIgnore
+	private Set<Set<String>> preSourceTree = new LinkedHashSet<>();
 
 	/**
 	 * Get the connector identity and create it if it is not created yet.

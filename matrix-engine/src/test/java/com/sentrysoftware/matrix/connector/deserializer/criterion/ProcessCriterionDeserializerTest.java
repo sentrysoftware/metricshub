@@ -29,8 +29,8 @@ class ProcessCriterionDeserializerTest extends DeserializerTest {
 	 * @throws IOException
 	 */
 	void testDeserializeProcess() throws IOException { // NOSONAR compareCriterion performs assertion
-		final String testResource = "processCriterion";
-		final Connector process = getConnector(testResource);
+
+		final Connector process = getConnector("processCriterion");
 
 		List<Criterion> expected = new ArrayList<>();
 
@@ -38,7 +38,7 @@ class ProcessCriterionDeserializerTest extends DeserializerTest {
 
 		expected.add(new ProcessCriterion("process", true, commandLine));
 
-		compareCriterion(testResource, process, expected);
+		compareCriterion(process, expected);
 	}
 
 	@Test

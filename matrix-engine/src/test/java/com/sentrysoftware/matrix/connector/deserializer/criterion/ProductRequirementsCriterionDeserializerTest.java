@@ -23,12 +23,12 @@ class ProductRequirementsCriterionDeserializerTest extends DeserializerTest {
 	 * @throws Exception
 	 */
 	void testDeserializeProductRequirementsDeserializer() throws Exception { // NOSONAR compareCriterion performs assertion
-		final String testResource = "productRequirementsCriterion";
-		final Connector productRequirements = getConnector(testResource);
+
+		final Connector productRequirements = getConnector("productRequirementsCriterion");
 
 		List<Criterion> expected = new ArrayList<>();
 		expected.add(new ProductRequirementsCriterion("productRequirements", false, "testengineversion", "testkmversion"));
-		
-		compareCriterion(testResource, productRequirements, expected);
+
+		compareCriterion(productRequirements, expected);
 	}
 }

@@ -29,13 +29,12 @@ class DeviceTypeCriterionDeserializerTest extends DeserializerTest {
 	 */
 	void testDeserializeDeviceType() throws Exception { // NOSONAR compareCriterion performs assertion
 
-		String testResource = "deviceTypeCriterion";
-		final Connector deviceType = getConnector(testResource);
+		final Connector deviceType = getConnector("deviceTypeCriterion");
 
 		List<Criterion> expected = new ArrayList<>();
 		expected.add(new DeviceTypeCriterion("deviceType", false, Set.of(DeviceKind.values()), Set.of(DeviceKind.values())));
 
-		compareCriterion(testResource, deviceType, expected);
+		compareCriterion(deviceType, expected);
 	}
 
 	@Test
