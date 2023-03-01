@@ -1,0 +1,8 @@
+pre:
+  testHttpSource:
+    type: http
+    url: /testUrl/
+    body: >
+      test
+
+      body

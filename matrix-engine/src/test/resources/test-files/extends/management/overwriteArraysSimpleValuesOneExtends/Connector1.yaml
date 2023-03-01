@@ -1,0 +1,8 @@
+connector:
+  detection:
+    appliesTo: [ linux ]
+
+pre:
+  testTableUnionSource:
+    type: tableUnion
+    tables: [ testTable1, testTable2, testTable3 ]
