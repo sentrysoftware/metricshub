@@ -54,18 +54,13 @@ public class ExtendsProcessor implements NodeProcessor {
 			if (iter.hasNext()) {
 				extended = mapper
 					.readTree(connectorDirectory.resolve(iter.next().asText() + ".yaml").toFile());
-			}
 
-			while(iter.hasNext()) {
-				JsonNode extendedNext = null;
-				if (iter.hasNext()) {
-					extendedNext = mapper
-						.readTree(connectorDirectory.resolve(iter.next().asText() + ".yaml").toFile());
-				} else {
-					break;
+				while(iter.hasNext()) {
+					JsonNode extendedNext = mapper
+							.readTree(connectorDirectory.resolve(iter.next().asText() + ".yaml").toFile());
+
+					merge(extended, extendedNext);
 				}
-
-				merge(extended, extendedNext);
 			}
 
 			if (extended != null) {
