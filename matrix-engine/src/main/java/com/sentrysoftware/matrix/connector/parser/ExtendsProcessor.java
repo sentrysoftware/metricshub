@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import java.util.Iterator;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -22,45 +23,88 @@ public class ExtendsProcessor implements NodeProcessor {
 	private Path connectorDirectory;
 	@NonNull
 	private NodeProcessor destination;
+	@NonNull
+	private ObjectMapper mapper;
 
 	@Override
 	public JsonNode process(JsonNode node) throws IOException {
 
+		JsonNode result = doMerge(node, connectorDirectory);
+
+		// Call next processor
+		return destination.process(result);
+	}
+
+	/**
+	 * 
+	 * @param node
+	 * @param connectorDirectory
+	 * @return
+	 * @throws IOException
+	 */
+	private JsonNode doMerge(JsonNode node, Path connectorDirectory) throws IOException {
 		JsonNode extNode = node.get("extends");
 
+		JsonNode result = node;
 		if (extNode != null && extNode.isArray()) {
 			ArrayNode extNodeArray = (ArrayNode) extNode;
-			for (JsonNode e : extNodeArray) {
-				merge(ConnectorParser.withNodeProcessor(connectorDirectory).getDeserializer().getMapper()
-				.readTree(connectorDirectory.resolve(e.asText() + ".yaml").toFile()), node);
+			Iterator<JsonNode> iter = extNodeArray.iterator();
+
+			JsonNode extended = null;
+			if (iter.hasNext()) {
+				extended = mapper
+					.readTree(connectorDirectory.resolve(iter.next().asText() + ".yaml").toFile());
+			}
+
+			while(iter.hasNext()) {
+				JsonNode extendedNext = null;
+				if (iter.hasNext()) {
+					extendedNext = mapper
+						.readTree(connectorDirectory.resolve(iter.next().asText() + ".yaml").toFile());
+				} else {
+					break;
+				}
+
+				merge(extended, extendedNext);
+			}
+
+			if (extended != null) {
+				result = merge(extended, node);
 			}
 
 			extNodeArray.removeAll();
-		}
 
-		// Call next processor
-		return destination.process(node);
+		}
+		return result;
 	}
 
+	/**
+	 * 
+	 * @param mainNode
+	 * @param updateNode
+	 * @return
+	 */
 	public static JsonNode merge(JsonNode mainNode, JsonNode updateNode) {
+
 		Iterator<String> fieldNames = updateNode.fieldNames();
 		while (fieldNames.hasNext()) {
 			String fieldName = fieldNames.next();
 			JsonNode jsonNode = mainNode.get(fieldName);
 			if (jsonNode != null && jsonNode.isArray() && updateNode.get(fieldName).isArray()) {
 				// both JSON nodes are arrays
-				ArrayNode extendedArray = (ArrayNode) updateNode.get(fieldName);
 				ArrayNode mainArray = (ArrayNode) jsonNode;
+				ArrayNode extendedArray = (ArrayNode) updateNode.get(fieldName);
 
-				if (extendedArray.get(0).isObject()) {
+				if (mainArray.get(0).isObject()) {
 					// Array of objects gets merged
-					for (int i = 0; i < mainArray.size(); i++) {
-						extendedArray.add(mainArray.get(i));
+					for (int i = 0; i < extendedArray.size(); i++) {
+						mainArray.add(extendedArray.get(i));
 					}
+
 				} else {
 					// Simple array gets overwritten
-					extendedArray.removeAll();
-					extendedArray.addAll(mainArray);
+					mainArray.removeAll();
+					mainArray.addAll(extendedArray);
 				}
 			} else if (jsonNode != null && jsonNode.isObject()) {
 				// both JSON nodes are objects, merge them
