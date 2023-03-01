@@ -10,8 +10,7 @@ public interface NodeProcessor {
 	 * Process the given node then return the resulting {@link JsonNode}
 	 * 
 	 * @param node
-	 * @param callNextProcessor
 	 * @return {@link JsonNode} instance
 	 */
-	JsonNode process(JsonNode node, boolean callNextProcessor) throws IOException;
+	JsonNode process(JsonNode node) throws IOException;
 }

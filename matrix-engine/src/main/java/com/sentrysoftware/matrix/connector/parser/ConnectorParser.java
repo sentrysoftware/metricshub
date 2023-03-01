@@ -34,7 +34,7 @@ public class ConnectorParser {
 		final JsonNode node = deserializer.getMapper().readTree(file);
 
 		// PRE-Processing
-		final JsonNode preNode = processor.process(node, true);
+		final JsonNode preNode = processor.process(node);
 
 		// POST-Processing
 		return deserializer.deserialize(

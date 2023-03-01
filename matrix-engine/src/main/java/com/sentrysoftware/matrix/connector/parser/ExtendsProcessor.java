@@ -27,12 +27,12 @@ public class ExtendsProcessor implements NodeProcessor {
 	private ObjectMapper mapper;
 
 	@Override
-	public JsonNode process(JsonNode node, boolean callNextProcessor) throws IOException {
+	public JsonNode process(JsonNode node) throws IOException {
 
 		JsonNode result = doMerge(node);
 
 		// Call next processor
-		return callNextProcessor ? destination.process(result, true) : result;
+		return destination.process(result);
 	}
 
 	/**
@@ -51,9 +51,9 @@ public class ExtendsProcessor implements NodeProcessor {
 
 			JsonNode extended = null;
 			if (iter.hasNext()) {
-				extended =  process(getJsonNode(iter), false);
+				extended = doMerge(getJsonNode(iter));
 				while(iter.hasNext()) {
-					JsonNode extendedNext = process(getJsonNode(iter), false);
+					JsonNode extendedNext = doMerge(getJsonNode(iter));
 					merge(extended, extendedNext);
 				}
 			}

@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.node.TextNode;
 public class ConstantsProcessor implements NodeProcessor {
 
 	@Override
-	public JsonNode process(JsonNode node, boolean unsued) {
+	public JsonNode process(JsonNode node) {
 
 		final JsonNode constantsNode = node.get("constants");
 
