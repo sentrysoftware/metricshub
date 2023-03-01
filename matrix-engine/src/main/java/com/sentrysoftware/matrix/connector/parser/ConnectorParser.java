@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 import com.sentrysoftware.matrix.connector.deserializer.ConnectorDeserializer;
 import com.sentrysoftware.matrix.connector.model.Connector;
@@ -50,9 +51,10 @@ public class ConnectorParser {
 	 * @return new instance of {@link ConnectorParser}
 	 */
 	public static ConnectorParser withNodeProcessor(final Path connectorDirectory) {
+		final ObjectMapper mapper = JsonHelper.buildYamlMapper();
 		return ConnectorParser.builder()
-			.deserializer(new ConnectorDeserializer(JsonHelper.buildYamlMapper()))
-			.processor(NodeProcessorHelper.withExtendsAndConstantsProcessor(connectorDirectory))
+			.deserializer(new ConnectorDeserializer(mapper))
+			.processor(NodeProcessorHelper.withExtendsAndConstantsProcessor(connectorDirectory, mapper))
 			.build();
 	}
 }
