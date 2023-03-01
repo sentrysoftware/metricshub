@@ -8,7 +8,7 @@ public class ConnectorParserExtendsManagement extends AbstractConnectorParserMan
 
 	@Override
 	public String getResourcePath() {
-		return "src/test/resources/test-files/extends/management/" + relativePath + "/";
+		return String.format("src/test/resources/test-files/extends/management/%s/", relativePath);
 	}
 
 }
