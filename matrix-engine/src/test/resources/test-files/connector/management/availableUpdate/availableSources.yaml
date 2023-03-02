@@ -4,8 +4,8 @@ connector:
     appliesTo: [ linux ]
     criteria:
     - type: wbem
-      query: testQuery         # Mandatory and cannot be null
-      namespace: testNamespace # Mandatory and default value is root/cimv2
+      query: testQuery
+      namespace: testNamespace
       expectedResult: testExpectedResult
       errorMessage: testErrorMessage
       forceSerialization: true
@@ -60,18 +60,14 @@ monitors:
       mapping:
         source: $monitors.enclosure.discovery.sources.Source(7)
         attributes:
-          # Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(6)
           id: buildId($column(6))
           parent: ""
-          # Enclosure.Discovery.Instance.DisplayID=InstanceTable.Column(7)
-          name: buildName(Storage, EMC, $column(2), (, $column(7), )) # Optional # buildName("EMC", $column(2)) # Generic name builder that concatenates the arguments using white space separator, removed duplicates and blank arguments. 
-          # for the converter we reconstruct buildname based on MonitorNameBuilder function.
+          name: buildName(Storage, EMC, $column(2), (, $column(7), ))
           vendor: EMC
           model: $column(2)
           serial_number: $column(3)
           type: Storage
         conditionalCollection:
-          # Enclosure.Discovery.Instance.ParameterActivation.Status=InstanceTable.Column(10)
           hw.status: $column(10)
     multiCollect:
       sources:

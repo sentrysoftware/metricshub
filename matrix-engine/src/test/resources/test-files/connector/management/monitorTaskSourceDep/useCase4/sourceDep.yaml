@@ -23,7 +23,7 @@ monitors:
           query: SELECT __PATH,ElementName,Description,OtherIdentifyingInfo,OperationalStatus FROM Win32_StorageSystem WHERE ElementName IS $entry.column(1)
           namespace: root/emc
           executeForEachEntryOf:
-            source: $monitor.enclosure.discovery.sources.source(1)
+            source: $monitors.enclosure.discovery.sources.source(1)
             concatMethod: list
       mapping:
         source: $monitors.enclosure.discovery.sources.Source(2)
