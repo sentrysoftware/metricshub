@@ -26,13 +26,12 @@ class StepSendPasswordTest extends DeserializerTest {
 	 * @throws Exception
 	 */
 	void testSshInteractiveSendPassword() throws Exception { // NOSONAR compareCriterion performs assertion
-		final String testResource = "criterionSshInteractiveStepSendPassword";
-		final Connector sshInteractive = getConnector(testResource);
+		final Connector sshInteractive = getConnector("criterionSshInteractiveStepSendPassword");
 		List<Criterion> expected = new ArrayList<>();
 		List<Step> steps = new ArrayList<>();
 		steps.add(new SendPassword("sendPassword", null, false));
 		expected.add(new SshInteractiveCriterion("sshInteractive", false, 22123, "Cisoc", steps));
 
-		compareCriterion(testResource, sshInteractive, expected);
+		compareCriterion(sshInteractive, expected);
 	}
 }

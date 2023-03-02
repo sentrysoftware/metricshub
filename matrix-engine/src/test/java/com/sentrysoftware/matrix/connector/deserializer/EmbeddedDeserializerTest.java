@@ -23,7 +23,6 @@ class EmbeddedDeserializerTest extends DeserializerTest {
 	void testDeserializeEmbedded() throws IOException {
 		final Connector connector = getConnector("embeddedFile");
 		assertNotNull(connector);
-		assertEquals("embeddedFile", connector.getConnectorIdentity().getCompiledFilename());
 
 		final Map<String, String> expected = new HashMap<>();
 		expected.put("embeddedFile1","test1");

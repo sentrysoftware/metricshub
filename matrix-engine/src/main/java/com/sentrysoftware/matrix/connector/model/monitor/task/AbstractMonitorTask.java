@@ -28,11 +28,13 @@ public abstract class AbstractMonitorTask implements Serializable {
 	protected Map<String, Source> sources = new LinkedHashMap<>(); // NOSONAR LinkHashMap is Serializable
 	protected Mapping mapping;
 	@JsonDeserialize(using = NonBlankInLinkedHashSetDeserializer.class)
-	protected Set<String> executionOrder = new LinkedHashSet<>(); // NOSONAR HashSet is Serializable
+	protected Set<String> executionOrder = new LinkedHashSet<>(); // NOSONAR LinkedHashSet is Serializable
+	protected Set<Set<String>> sourceDep = new LinkedHashSet<>(); // NOSONAR LinkedHashSet is Serializable
 
 	protected AbstractMonitorTask(final Map<String, Source> sources, final Mapping mapping, final Set<String> executionOrder)  {
 		this.sources = sources == null ? new LinkedHashMap<>() : sources;
 		this.mapping = mapping;
 		this.executionOrder = executionOrder != null ? executionOrder : new LinkedHashSet<>();
+		this.sourceDep = new LinkedHashSet<>();
 	}
 }

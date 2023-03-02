@@ -24,12 +24,11 @@ class IpmiCriterionDeserializerTest extends DeserializerTest {
 	 * @throws IOException
 	 */
 	void testDeserializeDoesntThrow() throws IOException { // NOSONAR compareCriterion performs assertion
-		final String testResource = "ipmiCriterion";
-		final Connector connector = getConnector(testResource);
+		final Connector connector = getConnector("ipmiCriterion");
 
 		List<Criterion> expected = new ArrayList<>();
 		expected.add(new IpmiCriterion("ipmi", true));
 
-		compareCriterion(testResource, connector, expected);
+		compareCriterion(connector, expected);
 	}
 }

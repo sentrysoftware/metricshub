@@ -28,14 +28,14 @@ class StepWaitForPromptDeserializerTest extends DeserializerTest {
 	 * @throws Exception
 	 */
 	void testSshInteractiveWaitForPrompt() throws Exception { // NOSONAR compareCriterion performs assertion
-		final String testResource = "criterionSshInteractiveWaitForPrompt";
-		final Connector sshInteractive = getConnector(testResource);
+
+		final Connector sshInteractive = getConnector("criterionSshInteractiveWaitForPrompt");
 		List<Criterion> expected = new ArrayList<>();
 		List<Step> steps = new ArrayList<>();
 		steps.add(new WaitForPrompt("waitForPrompt", null, false, null));
 		expected.add(new SshInteractiveCriterion("sshInteractive", false, 22123, "Cisoc", steps));
 
-		compareCriterion(testResource, sshInteractive, expected);
+		compareCriterion(sshInteractive, expected);
 	}
 
 	@Test

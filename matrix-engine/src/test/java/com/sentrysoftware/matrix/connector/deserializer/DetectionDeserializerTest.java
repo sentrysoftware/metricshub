@@ -43,7 +43,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 
 		// Initialization tests
 		assertNotNull(detection);
-		assertEquals("detection", detection.getConnectorIdentity().getCompiledFilename());
+
 		assertNotNull(detection.getConnectorIdentity().getDetection());
 
 		// appliesTo

@@ -47,7 +47,6 @@ class OsCommandCriterionDeserializerTest extends DeserializerTest {
 				new OsCommandCriterion("osCommand", true, commandLine, errorMessage, expectedResult, executeLocally, timeout));
 
 		assertNotNull(osCommand);
-		assertEquals(testResource, osCommand.getConnectorIdentity().getCompiledFilename());
 
 		assertNotNull(osCommand.getConnectorIdentity().getDetection());
 		assertEquals(expected, osCommand.getConnectorIdentity().getDetection().getCriteria());

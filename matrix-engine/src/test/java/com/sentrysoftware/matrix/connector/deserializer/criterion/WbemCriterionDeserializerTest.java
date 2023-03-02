@@ -43,7 +43,7 @@ class WbemCriterionDeserializerTest extends DeserializerTest {
 
 		expected.add(wbem);
 
-		compareCriterion("wbemCriterion", connector, expected);
+		compareCriterion(connector, expected);
 	}
 
 	@Test
@@ -61,7 +61,7 @@ class WbemCriterionDeserializerTest extends DeserializerTest {
 
 		expected.add(wbem);
 
-		compareCriterion("wbemCriterionDefaultNamespace", connector, expected);
+		compareCriterion(connector, expected);
 	}
 
 	@Test

@@ -43,7 +43,7 @@ class WmiCriterionDeserializerTest extends DeserializerTest {
 
 		expected.add(wmi);
 
-		compareCriterion("wmiCriterion", connector, expected);
+		compareCriterion(connector, expected);
 	}
 
 	@Test
@@ -61,7 +61,7 @@ class WmiCriterionDeserializerTest extends DeserializerTest {
 
 		expected.add(wmi);
 
-		compareCriterion("wmiCriterionDefaultNamespace", connector, expected);
+		compareCriterion(connector, expected);
 	}
 
 	@Test

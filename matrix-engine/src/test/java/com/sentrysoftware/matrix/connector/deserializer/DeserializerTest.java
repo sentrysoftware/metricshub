@@ -12,7 +12,7 @@ import java.util.Map;
 
 import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.identity.ConnectorIdentity;
+import com.sentrysoftware.matrix.connector.model.identity.Detection;
 import com.sentrysoftware.matrix.connector.model.identity.criterion.Criterion;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
 
@@ -36,14 +36,13 @@ public abstract class DeserializerTest implements IDeserializerTest {
 		);
 	}
 
-	protected void compareCriterion(String testResource, final Connector connector, List<Criterion> expected) {
+	protected void compareCriterion(final Connector connector, List<Criterion> expected) {
 		assertNotNull(connector);
 
-		final ConnectorIdentity connectorIdentity = connector.getConnectorIdentity();
-		assertEquals(testResource, connectorIdentity.getCompiledFilename());
+		Detection detection = connector.getConnectorIdentity().getDetection();
 
-		assertNotNull(connectorIdentity.getDetection());
-		assertEquals(expected, connectorIdentity.getDetection().getCriteria());
+		assertNotNull(detection);
+		assertEquals(expected, detection.getCriteria());
 	}
 
 	protected void comparePreSource(final Connector connector, Map<String, Source> expected) {

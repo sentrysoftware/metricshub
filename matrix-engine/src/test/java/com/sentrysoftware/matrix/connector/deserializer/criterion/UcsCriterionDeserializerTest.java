@@ -22,15 +22,15 @@ class UcsCriterionDeserializerTest extends DeserializerTest {
 
 	@Test
 	void testDeserializeUcs() throws Exception { // NOSONAR compareCriterion performs assertion
-		final String testResource = "ucsCriterion";
-		final Connector ucs = getConnector(testResource);
+
+		final Connector ucs = getConnector("ucsCriterion");
 
 		final String query = "SELECT dn FROM networkElement";
 		final String expectedResult = "^networkElement;sys/";
 
 		List<Criterion> expected = new ArrayList<>();
 		expected.add(new UcsCriterion("ucs", true, query, null, expectedResult));
-		compareCriterion(testResource, ucs, expected);
+		compareCriterion(ucs, expected);
 	}
 
 	@Test

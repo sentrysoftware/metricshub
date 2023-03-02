@@ -28,14 +28,14 @@ class StepGetUntilPromptTest extends DeserializerTest {
 	 * @throws Exception
 	 */
 	void testSshInteractiveGetUntilPrompt() throws Exception { // NOSONAR compareCriterion performs assertion
-		final String testResource = "criterionSshInteractiveStepGetUntilPrompt";
-		final Connector sshInteractive = getConnector(testResource);
+
+		final Connector sshInteractive = getConnector("criterionSshInteractiveStepGetUntilPrompt");
 		List<Criterion> expected = new ArrayList<>();
 		List<Step> steps = new ArrayList<>();
 		steps.add(new GetUntilPrompt("getUntilPrompt", true, false, 10L));
 		expected.add(new SshInteractiveCriterion("sshInteractive", false, 22123, "Cisoc", steps));
 
-		compareCriterion(testResource, sshInteractive, expected);
+		compareCriterion(sshInteractive, expected);
 	}
 
 	@Test

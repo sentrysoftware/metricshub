@@ -29,14 +29,14 @@ class StepSendTextTest extends DeserializerTest {
 	 * @throws Exception
 	 */
 	void testSshInteractiveSendText() throws Exception { // NOSONAR compareCriterion performs assertion
-		final String testResource = "criterionSshInteractiveStepSendText";
-		final Connector sshInteractive = getConnector(testResource);
+
+		final Connector sshInteractive = getConnector("criterionSshInteractiveStepSendText");
 		List<Criterion> expected = new ArrayList<>();
 		List<Step> steps = new ArrayList<>();
 		steps.add(new SendText("sendText", null, false, "start"));
 		expected.add(new SshInteractiveCriterion("sshInteractive", false, 22123, "Cisoc", steps));
 
-		compareCriterion(testResource, sshInteractive, expected);
+		compareCriterion(sshInteractive, expected);
 	}
 
 	@Test

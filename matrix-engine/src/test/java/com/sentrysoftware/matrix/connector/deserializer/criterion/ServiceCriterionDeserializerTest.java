@@ -22,11 +22,11 @@ class ServiceCriterionDeserializerTest extends DeserializerTest {
 
 	@Test
 	void testDeserializeService() throws IOException { // NOSONAR compareCriterion performs assertion
-		final String testResource = "serviceCriterion";
-		final Connector service = getConnector(testResource);
+
+		final Connector service = getConnector("serviceCriterion");
 		List<Criterion> expected = new ArrayList<>();
 		expected.add(new ServiceCriterion("service", false, "TWGIPC"));
-		compareCriterion(testResource, service, expected);
+		compareCriterion(service, expected);
 	}
 
 	@Test

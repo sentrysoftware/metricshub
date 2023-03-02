@@ -26,11 +26,9 @@ class PreDeserializerTest extends DeserializerTest {
 
 	@Test
 	void testDeserializePre() throws IOException {
-		final String testResource = "pre";
-		final Connector connector = getConnector(testResource);
+		final Connector connector = getConnector("pre");
 
 		assertNotNull(connector);
-		assertEquals(testResource, connector.getConnectorIdentity().getCompiledFilename());
 
 		var pre = connector.getPre();
 

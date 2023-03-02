@@ -74,8 +74,10 @@ public class Connector implements Serializable {
 	private Map<String, TranslationTable> translations = new HashMap<>();
 
 	@Default
-	@JsonSetter(nulls = SKIP)
 	private Set<Class <? extends Source>> sourceTypes = new HashSet<>();
+
+	@Default
+	private Set<Set<String>> preSourceDep = new LinkedHashSet<>();
 
 	/**
 	 * Get the connector identity and create it if it is not created yet.

@@ -23,7 +23,6 @@ class ConnectorDeserializerTest extends DeserializerTest {
 		final ConnectorIdentity connectorIdentity = connector.getConnectorIdentity();
 
 		assertNotNull(connector);
-		assertEquals("connector", connectorIdentity.getCompiledFilename());
 		assertEquals("testConnector", connectorIdentity.getDisplayName());
 		assertEquals("testPlatforms", connectorIdentity.getPlatforms());
 		assertEquals("testReliesOn", connectorIdentity.getReliesOn());
