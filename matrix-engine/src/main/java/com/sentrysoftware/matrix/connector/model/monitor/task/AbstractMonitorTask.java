@@ -8,7 +8,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.matrix.connector.deserializer.custom.NonBlankInLinkedHashSetDeserializer;
@@ -30,13 +29,12 @@ public abstract class AbstractMonitorTask implements Serializable {
 	protected Mapping mapping;
 	@JsonDeserialize(using = NonBlankInLinkedHashSetDeserializer.class)
 	protected Set<String> executionOrder = new LinkedHashSet<>(); // NOSONAR LinkedHashSet is Serializable
-	@JsonIgnore
-	protected Set<Set<String>> sourceTree = new LinkedHashSet<>(); // NOSONAR LinkedHashSet is Serializable
+	protected Set<Set<String>> sourceDep = new LinkedHashSet<>(); // NOSONAR LinkedHashSet is Serializable
 
 	protected AbstractMonitorTask(final Map<String, Source> sources, final Mapping mapping, final Set<String> executionOrder)  {
 		this.sources = sources == null ? new LinkedHashMap<>() : sources;
 		this.mapping = mapping;
 		this.executionOrder = executionOrder != null ? executionOrder : new LinkedHashSet<>();
-		this.sourceTree = new LinkedHashSet<>();
+		this.sourceDep = new LinkedHashSet<>();
 	}
 }

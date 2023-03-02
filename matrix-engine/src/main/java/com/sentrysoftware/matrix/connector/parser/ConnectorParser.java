@@ -12,8 +12,8 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.update.AvailableSourceUpdate;
 import com.sentrysoftware.matrix.connector.update.CompiledFilenameUpdate;
 import com.sentrysoftware.matrix.connector.update.ConnectorUpdateChain;
-import com.sentrysoftware.matrix.connector.update.MonitorTaskSourceTreeUpdate;
-import com.sentrysoftware.matrix.connector.update.PreSourceTreeUpdate;
+import com.sentrysoftware.matrix.connector.update.MonitorTaskSourceDepUpdate;
+import com.sentrysoftware.matrix.connector.update.PreSourceDepUpdate;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,13 +37,15 @@ public class ConnectorParser {
 	 */
 	public Connector parse(final File file) throws IOException {
 
-		final JsonNode node = deserializer.getMapper().readTree(file);
+		JsonNode node = deserializer.getMapper().readTree(file);
 
 		// PRE-Processing
-		final JsonNode preNode = processor.process(node);
+		if (processor != null) {
+			node = processor.process(node);
+		}
 
 		// POST-Processing
-		final Connector connector = deserializer.deserialize(preNode);
+		final Connector connector = deserializer.deserialize(node);
 
 		// Run the update chain
 		if (connectorUpdateChain != null) {
@@ -63,7 +65,7 @@ public class ConnectorParser {
 	 * @param connectorDirectory
 	 * @return new instance of {@link ConnectorParser}
 	 */
-	private static ConnectorParser withNodeProcessor(final Path connectorDirectory) {
+	public static ConnectorParser withNodeProcessor(final Path connectorDirectory) {
 		final ObjectMapper mapper = JsonHelper.buildYamlMapper();
 		return ConnectorParser.builder()
 			.deserializer(new ConnectorDeserializer(mapper))
@@ -83,12 +85,12 @@ public class ConnectorParser {
 
 		// Create the update objects
 		final ConnectorUpdateChain availableSource = new AvailableSourceUpdate();
-		final ConnectorUpdateChain preSourceTreeUpdate = new PreSourceTreeUpdate();
-		final ConnectorUpdateChain monitorTaskSourceTree = new MonitorTaskSourceTreeUpdate();
+		final ConnectorUpdateChain preSourceDepUpdate = new PreSourceDepUpdate();
+		final ConnectorUpdateChain monitorTaskSourceDepUpdate = new MonitorTaskSourceDepUpdate();
 
 		// Create the chain
-		availableSource.setNextUpdateChain(preSourceTreeUpdate);
-		preSourceTreeUpdate.setNextUpdateChain(monitorTaskSourceTree);
+		availableSource.setNextUpdateChain(preSourceDepUpdate);
+		preSourceDepUpdate.setNextUpdateChain(monitorTaskSourceDepUpdate);
 
 		// Set the first update chain
 		connectorParser.setConnectorUpdateChain(availableSource);

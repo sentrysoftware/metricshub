@@ -17,7 +17,7 @@ public abstract class AbstractConnectorParserManagement extends DeserializerTest
 	public AbstractConnectorParserManagement(String relativePath) {
 		this.relativePath = relativePath;
 		this.connectorDirectory = Path.of(getResourcePath());
-		this.parser = ConnectorParser.withNodeProcessorAndUpdateChain(connectorDirectory);
+		this.parser = ConnectorParser.withNodeProcessor(connectorDirectory);
 	}
 
 	/**
