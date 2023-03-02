@@ -45,8 +45,11 @@ monitors:
           namespace: root/emc
         source(2):
           type: wmi
-          query: SELECT __PATH, OperationalStatus FROM Win32_StorageSystem WHERE ElementName IS $entry.column(3)
+          query: SELECT __PATH, OperationalStatus FROM Win32_StorageSystem WHERE ElementName IS $entry.column(1)
           namespace: root/emc
+          executeForEachEntryOf:
+            source: $monitors.enclosure.multiCollect.sources.source(1)
+            concatMethod: list
       mapping:
         deviceId: $column(1) 
         source: $monitors.enclosure.multiCollect.sources.source(2)
