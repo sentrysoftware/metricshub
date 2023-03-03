@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
@@ -77,7 +79,7 @@ public class Connector implements Serializable {
 	private Set<Class <? extends Source>> sourceTypes = new HashSet<>();
 
 	@Default
-	private Set<Set<String>> preSourceDep = new LinkedHashSet<>();
+	private List<List<String>> preSourceDep = new ArrayList<>();
 
 	/**
 	 * Get the connector identity and create it if it is not created yet.
