@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.monitor.AllAtOnceMonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.StandardMonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableJoinSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableUnionSource;
@@ -137,6 +138,35 @@ class ConnectorParserTest {
 		final Set<Set<String>> expected = buildUseCase4Dependency();
 
 		assertEquals(expected,  monitorJob.getDiscovery().getSourceDep());
+	}
+
+	@Test
+	@Disabled("Until MonitorTaskSourceDepUpdate is up!")
+	void testMonitorTaskSourceDepUpdateUseCase5() throws IOException {
+		final Connector connector = new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase5").parse("sourceDep");
+
+		final StandardMonitorJob monitorJob = (StandardMonitorJob) connector
+			.getMonitors()
+			.get("enclosure");
+
+		final Set<Set<String>> expected = buildUseCase5MultiCollectDependency();
+
+		assertEquals(expected,  monitorJob.getCollect().getSourceDep());
+	}
+
+	@Test
+	@Disabled("Until MonitorTaskSourceDepUpdate is up!")
+	void testMonitorTaskSourceDepUpdateUseCase6() throws IOException {
+		final Connector connector = new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase6").parse("sourceDep");
+
+		final AllAtOnceMonitorJob monitorJob = (AllAtOnceMonitorJob) connector
+			.getMonitors()
+			.get("enclosure");
+
+		final Set<Set<String>> expected = buildUseCase6Dependency();
+
+		assertEquals(expected,  monitorJob.getAllAtOnce().getSourceDep());
+
 	}
 
 	@Test
@@ -308,5 +338,27 @@ class ConnectorParserTest {
 		expected.add(level2);
 
 		return expected;
+	}
+
+	private Set<Set<String>> buildUseCase5MultiCollectDependency() {
+		final Set<Set<String>> expected = new HashSet<>();
+		final Set<String> level1 = new LinkedHashSet<>();
+		// WBEM query
+		level1.add("source(1)");
+		// Copy of discovery source(6)
+		level1.add("source(2)");
+
+		final Set<String> level2 = new LinkedHashSet<>();
+		// TableJoin of source(1) and source(2)
+		level2.add("source(3)");
+
+		expected.add(level1);
+		expected.add(level2);
+
+		return expected;
+	}
+
+	private Set<Set<String>> buildUseCase6Dependency() {
+		return buildUseCase1Dependency();
 	}
 }
