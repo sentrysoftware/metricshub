@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -90,7 +91,7 @@ class ConnectorParserTest {
 			.getMonitors()
 			.get("enclosure");
 
-		final List<List<String>> expected = buildUseCase1Dependency();
+		final List<Set<String>> expected = buildUseCase1Dependency();
 
 		assertEquals(expected,  monitorJob.getDiscovery().getSourceDep());
 
@@ -106,7 +107,7 @@ class ConnectorParserTest {
 			.getMonitors()
 			.get("enclosure");
 
-		final List<List<String>> expected = buildUseCase2Dependency();
+		final List<Set<String>> expected = buildUseCase2Dependency();
 
 		assertEquals(expected,  monitorJob.getDiscovery().getSourceDep());
 
@@ -121,7 +122,7 @@ class ConnectorParserTest {
 			.getMonitors()
 			.get("enclosure");
 
-		final List<List<String>> expected = buildUseCase3Dependency();
+		final List<Set<String>> expected = buildUseCase3Dependency();
 
 		assertEquals(expected,  monitorJob.getDiscovery().getSourceDep());
 	}
@@ -135,7 +136,7 @@ class ConnectorParserTest {
 			.getMonitors()
 			.get("enclosure");
 
-		final List<List<String>> expected = buildUseCase4Dependency();
+		final List<Set<String>> expected = buildUseCase4Dependency();
 
 		assertEquals(expected,  monitorJob.getDiscovery().getSourceDep());
 	}
@@ -149,7 +150,7 @@ class ConnectorParserTest {
 			.getMonitors()
 			.get("enclosure");
 
-		final List<List<String>> expected = buildUseCase5MultiCollectDependency();
+		final List<Set<String>> expected = buildUseCase5MultiCollectDependency();
 
 		assertEquals(expected,  monitorJob.getCollect().getSourceDep());
 	}
@@ -163,7 +164,7 @@ class ConnectorParserTest {
 			.getMonitors()
 			.get("enclosure");
 
-		final List<List<String>> expected = buildUseCase6Dependency();
+		final List<Set<String>> expected = buildUseCase6Dependency();
 
 		assertEquals(expected,  monitorJob.getAllAtOnce().getSourceDep());
 
@@ -178,7 +179,7 @@ class ConnectorParserTest {
 			.getMonitors()
 			.get("enclosure");
 
-		final List<List<String>> expected = buildUseCase7MultiCollectDependency();
+		final List<Set<String>> expected = buildUseCase7MultiCollectDependency();
 
 		assertEquals(expected,  monitorJob.getCollect().getSourceDep());
 	}
@@ -188,7 +189,7 @@ class ConnectorParserTest {
 	void testPreSourceDepUpdateUseCase1() throws IOException {
 		final Connector connector = new ConnectorParserUpdateManagement("connector/management/preSourceDep/useCase1").parse("sourceDep");
 
-		final List<List<String>> expected = buildUseCase1Dependency();
+		final List<Set<String>> expected = buildUseCase1Dependency();
 
 		assertEquals(expected, connector.getPreSourceDep());
 
@@ -199,7 +200,7 @@ class ConnectorParserTest {
 	void testPreSourceDepUpdateUseCase2() throws IOException {
 		final Connector connector = new ConnectorParserUpdateManagement("connector/management/preSourceDep/useCase2").parse("sourceDep");
 
-		final List<List<String>> expected = buildUseCase2Dependency();
+		final List<Set<String>> expected = buildUseCase2Dependency();
 
 		assertEquals(expected, connector.getPreSourceDep());
 
@@ -210,7 +211,7 @@ class ConnectorParserTest {
 	void testPreSourceDepUpdateUseCase3() throws IOException {
 		final Connector connector = new ConnectorParserUpdateManagement("connector/management/preSourceDep/useCase3").parse("sourceDep");
 
-		final List<List<String>> expected = buildUseCase3Dependency();
+		final List<Set<String>> expected = buildUseCase3Dependency();
 		assertEquals(expected, connector.getPreSourceDep());
 	}
 
@@ -219,12 +220,12 @@ class ConnectorParserTest {
 	void testPreSourceDepUpdateUseCase4() throws IOException {
 		final Connector connector = new ConnectorParserUpdateManagement("connector/management/preSourceDep/useCase4").parse("sourceDep");
 
-		final List<List<String>> expected = new ArrayList<>();
-		final List<String> level1 = new ArrayList<>();
+		final List<Set<String>> expected = new ArrayList<>();
+		final Set<String> level1 = new HashSet<>();
 		// WMI query
 		level1.add("source(1)");
 
-		final List<String> level2 = new ArrayList<>();
+		final Set<String> level2 = new HashSet<>();
 		// WMI query with executeForEachEntryOf source(1)
 		level2.add("source(2)");
 
@@ -234,24 +235,24 @@ class ConnectorParserTest {
 		assertEquals(expected, connector.getPreSourceDep());
 	}
 
-	private List<List<String>> buildUseCase1Dependency() {
-		final List<List<String>> expected = new ArrayList<>();
-		final List<String> level1 = new ArrayList<>();
+	private List<Set<String>> buildUseCase1Dependency() {
+		final List<Set<String>> expected = new ArrayList<>();
+		final Set<String> level1 = new HashSet<>();
 		// WBEM queries
 		level1.add("source(1)");
 		level1.add("source(2)");
 		level1.add("source(3)");
 		level1.add("source(5)");
 
-		final List<String> level2 = new ArrayList<>();
+		final Set<String> level2 = new HashSet<>();
 		// TableUnion of source(2) and source(3)
 		level2.add("source(4)");
 
-		final List<String> level3 = new ArrayList<>();
+		final Set<String> level3 = new HashSet<>();
 		// tableJoin of source(1) and source(4)
 		level3.add("source(6)");
 
-		final List<String> level4 = new ArrayList<>();
+		final Set<String> level4 = new HashSet<>();
 		// tableJoin of source(6) and source(7)
 		level4.add("source(7)");
 
@@ -263,28 +264,28 @@ class ConnectorParserTest {
 		return expected;
 	}
 
-	private List<List<String>> buildUseCase2Dependency() {
-		final List<List<String>> expected = new ArrayList<>();
-		final List<String> level1 = new ArrayList<>();
+	private List<Set<String>> buildUseCase2Dependency() {
+		final List<Set<String>> expected = new ArrayList<>();
+		final Set<String> level1 = new HashSet<>();
 		// WBEM queries
 		level1.add("source(1)");
 		level1.add("source(2)");
 		level1.add("source(3)");
 		level1.add("source(6)");
 
-		final List<String> level2 = new ArrayList<>();
+		final Set<String> level2 = new HashSet<>();
 		// Copy of  source(3)
 		level2.add("source(4)");
 
-		final List<String> level3 = new ArrayList<>();
+		final Set<String> level3 = new HashSet<>();
 		// tableUnion of source(2) and source(4)
 		level3.add("source(5)");
 
-		final List<String> level4 = new ArrayList<>();
+		final Set<String> level4 = new HashSet<>();
 		// tableJoin of source(1) and source(5)
 		level4.add("source(7)");
 
-		final List<String> level5 = new ArrayList<>();
+		final Set<String> level5 = new HashSet<>();
 		// tableJoin of source(6) and source(7) 
 		level5.add("source(8)");
 
@@ -297,9 +298,9 @@ class ConnectorParserTest {
 		return expected;
 	}
 
-	private List<List<String>> buildUseCase3Dependency() {
-		final List<List<String>> expected = new ArrayList<>();
-		final List<String> level1 = new ArrayList<>();
+	private List<Set<String>> buildUseCase3Dependency() {
+		final List<Set<String>> expected = new ArrayList<>();
+		final Set<String> level1 = new HashSet<>();
 		// WBEM queries
 		level1.add("source(1)");
 		level1.add("source(2)");
@@ -307,25 +308,25 @@ class ConnectorParserTest {
 		level1.add("source(6)");
 		level1.add("source(9)");
 
-		final List<String> level2 = new ArrayList<>();
+		final Set<String> level2 = new HashSet<>();
 		// Copy of source(3)
 		level2.add("source(4)");
 		// TableUnion of source(2) and source(3)
 		level2.add("source(5)");
 
-		final List<String> level3 = new ArrayList<>();
+		final Set<String> level3 = new HashSet<>();
 		// TableJoin of source(1) and source(5)
 		level3.add("source(7)");
 		// TableJoin of source(1) and source(4)
 		level3.add("source(10)");
 
-		final List<String> level4 = new ArrayList<>();
+		final Set<String> level4 = new HashSet<>();
 		// TableJoin of source(7) and source(6)
 		level4.add("source(8)");
 		// TableJoin of source(10) and source(9)
 		level4.add("source(11)");
 
-		final List<String> level5 =  new ArrayList<>();
+		final Set<String> level5 =  new HashSet<>();
 		// TableUnion of source(11) and source(8)
 		level5.add("source(12)");
 
@@ -338,13 +339,13 @@ class ConnectorParserTest {
 		return expected;
 	}
 
-	private List<List<String>> buildUseCase4Dependency() {
-		final List<List<String>> expected = new ArrayList<>();
-		final List<String> level1 = new ArrayList<>();
+	private List<Set<String>> buildUseCase4Dependency() {
+		final List<Set<String>> expected = new ArrayList<>();
+		final Set<String> level1 = new HashSet<>();
 		// WMI query
 		level1.add("source(1)");
 
-		final List<String> level2 = new ArrayList<>();
+		final Set<String> level2 = new HashSet<>();
 		// WMI query with executeForEachEntryOf source(1)
 		level2.add("source(2)");
 
@@ -354,15 +355,15 @@ class ConnectorParserTest {
 		return expected;
 	}
 
-	private List<List<String>> buildUseCase5MultiCollectDependency() {
-		final List<List<String>> expected = new ArrayList<>();
-		final List<String> level1 = new ArrayList<>();
+	private List<Set<String>> buildUseCase5MultiCollectDependency() {
+		final List<Set<String>> expected = new ArrayList<>();
+		final Set<String> level1 = new HashSet<>();
 		// WBEM query
 		level1.add("source(1)");
 		// Copy of discovery source(6)
 		level1.add("source(2)");
 
-		final List<String> level2 = new ArrayList<>();
+		final Set<String> level2 = new HashSet<>();
 		// TableJoin of source(1) and source(2)
 		level2.add("source(3)");
 
@@ -372,26 +373,12 @@ class ConnectorParserTest {
 		return expected;
 	}
 
-	private List<List<String>> buildUseCase6Dependency() {
+	private List<Set<String>> buildUseCase6Dependency() {
 		return buildUseCase1Dependency();
 	}
 
-	private List<List<String>> buildUseCase7MultiCollectDependency() {
-		final List<List<String>> expected = new ArrayList<>();
-		final List<String> level1 = new ArrayList<>();
-		// Copy of discovery source(6)
-		level1.add("source(2)");
-		// WBEM query		
-		level1.add("source(1)");
-
-		final List<String> level2 = new ArrayList<>();
-		// TableJoin of source(1) and source(2)
-		level2.add("source(3)");
-
-		expected.add(level1);
-		expected.add(level2);
-
-		return expected;
+	private List<Set<String>> buildUseCase7MultiCollectDependency() {
+		return buildUseCase5MultiCollectDependency();
 	}
 
 }
