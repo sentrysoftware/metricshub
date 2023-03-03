@@ -95,7 +95,7 @@ class ConnectorParserTest {
 
 		assertEquals(expected,  monitorJob.getDiscovery().getSourceDep());
 
-		assertEquals(List.of(List.of("source(1)")), monitorJob.getCollect().getSourceDep());
+		assertEquals(List.of(Set.of("source(1)")), monitorJob.getCollect().getSourceDep());
 	}
 
 	@Test
