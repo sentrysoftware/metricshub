@@ -31,7 +31,7 @@ public abstract class AbstractMonitorTask implements Serializable {
 	protected Mapping mapping;
 	@JsonDeserialize(using = NonBlankInLinkedHashSetDeserializer.class)
 	protected Set<String> executionOrder = new LinkedHashSet<>(); // NOSONAR LinkedHashSet is Serializable
-	protected List<Set<String>> sourceDep = new ArrayList<>(); // NOSONAR LinkedHashSet is Serializable
+	protected List<Set<String>> sourceDep = new ArrayList<>(); // NOSONAR ArrayList is Serializable
 
 	protected AbstractMonitorTask(final Map<String, Source> sources, final Mapping mapping, final Set<String> executionOrder)  {
 		this.sources = sources == null ? new LinkedHashMap<>() : sources;
