@@ -38,9 +38,9 @@ public class AvailableSourceUpdate extends AbstractConnectorUpdateChain {
 					.forEach(source -> sourceTypes.add(source.getClass()));
 			}
 
-		connector.getPre().values().forEach(source -> sourceTypes.add(source.getClass()));
+			connector.getPre().values().forEach(source -> sourceTypes.add(source.getClass()));
 
-		connector.setSourceTypes(sourceTypes);
+			connector.setSourceTypes(sourceTypes);
 		}
 	}
 }
