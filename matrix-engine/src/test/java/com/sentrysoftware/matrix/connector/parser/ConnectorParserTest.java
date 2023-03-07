@@ -114,7 +114,7 @@ class ConnectorParserTest {
 	}
 
 	@Test
-	@Disabled("Until MonitorTaskSourceDepUpdate is up!")
+//	@Disabled("Until MonitorTaskSourceDepUpdate is up!")
 	void testMonitorTaskSourceDepUpdateUseCase3() throws IOException {
 		final Connector connector = new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase3").parse("sourceDep");
 
@@ -199,7 +199,7 @@ class ConnectorParserTest {
 	}
 
 	@Test
-	@Disabled("Until MonitorTaskSourceDepUpdate is up!")
+//	@Disabled("Until MonitorTaskSourceDepUpdate is up!")
 	void testMonitorTaskSourceDepUpdateUseCase9() throws IOException {
 		final Connector connector = new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase9").parse("sourceDep");
 
