@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.connector.parser;
 
+import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
@@ -246,6 +247,7 @@ class ConnectorParserTest {
 
 		try {
 			new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase12").parse("sourceDep");
+			fail("Expected Exception");
 		} catch (Exception e) {
 			assertEquals(
 				"'$monitors.enclosure.discovery.sources.badSource' is an unknown referenced source. Cannot build dependency of sources.",
