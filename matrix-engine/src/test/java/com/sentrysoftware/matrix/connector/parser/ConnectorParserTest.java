@@ -241,6 +241,20 @@ class ConnectorParserTest {
 	}
 
 	@Test
+	@Disabled("Until MonitorTaskSourceDepUpdate is up!")
+	void testMonitorTaskSourceDepUpdateUseCase12() {
+
+		try {
+			new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase12").parse("sourceDep");
+		} catch (Exception e) {
+			assertEquals(
+				"'$monitors.enclosure.discovery.sources.badSource' is an unknown referenced source. Cannot build dependency of sources.",
+				e.getMessage()
+			);
+		}
+	}
+
+	@Test
 	@Disabled("Until PreSourceDepUpdate is up!")
 	void testPreSourceDepUpdateUseCase1() throws IOException {
 		final Connector connector = new ConnectorParserUpdateManagement("connector/management/preSourceDep/useCase1").parse("sourceDep");
