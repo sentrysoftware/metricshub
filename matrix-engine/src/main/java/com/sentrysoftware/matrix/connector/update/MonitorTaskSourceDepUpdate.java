@@ -17,24 +17,24 @@ public class MonitorTaskSourceDepUpdate extends SourceConnectorUpdateChain {
 	void doUpdate(Connector connector) {
 
 		for (Map.Entry<String, MonitorJob> entry : connector.getMonitors().entrySet()) {
-//			String key = entry.getKey();
+			String key = entry.getKey();
 			MonitorJob job = entry.getValue();
 			if (job instanceof StandardMonitorJob standardMonitor) {
 				Discovery discovery = standardMonitor.getDiscovery();
-				discovery.setSourceDep(updateSourceDependency(discovery.getSources()));
+				discovery.setSourceDep(updateSourceDependency(discovery.getSources(), String.format("$monitors.%s.discovery.sources", key)));
 
 				if (standardMonitor.getCollect() instanceof MonoCollect monoCollect) {
-					monoCollect.setSourceDep(updateSourceDependency(monoCollect.getSources()));
+					monoCollect.setSourceDep(updateSourceDependency(monoCollect.getSources(), String.format("$monitors.%s.monocollect.sources", key)));
 				}
 
 				if (standardMonitor.getCollect() instanceof MultiCollect multiCollect) {
-					multiCollect.setSourceDep(updateSourceDependency(multiCollect.getSources()));
+					multiCollect.setSourceDep(updateSourceDependency(multiCollect.getSources(), String.format("$monitors.%s.multicollect.sources", key)));
 				}
 			}
 
 			if (job instanceof AllAtOnceMonitorJob allAtOnceMonitor) {
 				AllAtOnce allAtOnce = allAtOnceMonitor.getAllAtOnce();
-				allAtOnce.setSourceDep(updateSourceDependency(allAtOnce.getSources()));
+				allAtOnce.setSourceDep(updateSourceDependency(allAtOnce.getSources(), String.format("$monitors.%s.allatonce.sources", key)));
 			}
 		}
 	}

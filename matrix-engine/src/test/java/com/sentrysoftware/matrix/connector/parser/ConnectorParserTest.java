@@ -84,7 +84,6 @@ class ConnectorParserTest {
 	}
 
 	@Test
-	@Disabled("Until MonitorTaskSourceDepUpdate is up!")
 	void testMonitorTaskSourceDepUpdateUseCase1() throws IOException {
 		final Connector connector = new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase1").parse("sourceDep");
 
@@ -100,7 +99,6 @@ class ConnectorParserTest {
 	}
 
 	@Test
-	@Disabled("Until MonitorTaskSourceDepUpdate is up!")
 	void testMonitorTaskSourceDepUpdateUseCase2() throws IOException {
 		final Connector connector = new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase2").parse("sourceDep");
 
@@ -115,7 +113,6 @@ class ConnectorParserTest {
 	}
 
 	@Test
-//	@Disabled("Until MonitorTaskSourceDepUpdate is up!")
 	void testMonitorTaskSourceDepUpdateUseCase3() throws IOException {
 		final Connector connector = new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase3").parse("sourceDep");
 
@@ -129,7 +126,6 @@ class ConnectorParserTest {
 	}
 
 	@Test
-	@Disabled("Until MonitorTaskSourceDepUpdate is up!")
 	void testMonitorTaskSourceDepUpdateUseCase4() throws IOException {
 		final Connector connector = new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase4").parse("sourceDep");
 
@@ -143,7 +139,6 @@ class ConnectorParserTest {
 	}
 
 	@Test
-	@Disabled("Until MonitorTaskSourceDepUpdate is up!")
 	void testMonitorTaskSourceDepUpdateUseCase5() throws IOException {
 		final Connector connector = new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase5").parse("sourceDep");
 
@@ -157,7 +152,6 @@ class ConnectorParserTest {
 	}
 
 	@Test
-	@Disabled("Until MonitorTaskSourceDepUpdate is up!")
 	void testMonitorTaskSourceDepUpdateUseCase6() throws IOException {
 		final Connector connector = new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase6").parse("sourceDep");
 
@@ -172,7 +166,6 @@ class ConnectorParserTest {
 	}
 
 	@Test
-	@Disabled("Until MonitorTaskSourceDepUpdate is up!")
 	void testMonitorTaskSourceDepUpdateUseCase7() throws IOException {
 		final Connector connector = new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase7").parse("sourceDep");
 
@@ -186,7 +179,6 @@ class ConnectorParserTest {
 	}
 
 	@Test
-	@Disabled("Until MonitorTaskSourceDepUpdate is up!")
 	void testMonitorTaskSourceDepUpdateUseCase8() throws IOException {
 		final Connector connector = new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase8").parse("sourceDep");
 
@@ -200,7 +192,6 @@ class ConnectorParserTest {
 	}
 
 	@Test
-//	@Disabled("Until MonitorTaskSourceDepUpdate is up!")
 	void testMonitorTaskSourceDepUpdateUseCase9() throws IOException {
 		final Connector connector = new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase9").parse("sourceDep");
 
@@ -214,7 +205,6 @@ class ConnectorParserTest {
 	}
 
 	@Test
-	@Disabled("Until MonitorTaskSourceDepUpdate is up!")
 	void testMonitorTaskSourceDepUpdateUseCase10() throws IOException {
 		final Connector connector = new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase10").parse("sourceDep");
 
@@ -228,7 +218,6 @@ class ConnectorParserTest {
 	}
 
 	@Test
-	@Disabled("Until MonitorTaskSourceDepUpdate is up!")
 	void testMonitorTaskSourceDepUpdateUseCase11() throws IOException {
 		final Connector connector = new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase11").parse("sourceDep");
 
@@ -242,7 +231,6 @@ class ConnectorParserTest {
 	}
 
 	@Test
-	@Disabled("Until MonitorTaskSourceDepUpdate is up!")
 	void testMonitorTaskSourceDepUpdateUseCase12() {
 
 		try {
@@ -257,7 +245,6 @@ class ConnectorParserTest {
 	}
 
 	@Test
-	@Disabled("Until PreSourceDepUpdate is up!")
 	void testPreSourceDepUpdateUseCase1() throws IOException {
 		final Connector connector = new ConnectorParserUpdateManagement("connector/management/preSourceDep/useCase1").parse("sourceDep");
 
@@ -268,7 +255,6 @@ class ConnectorParserTest {
 	}
 
 	@Test
-	@Disabled("Until PreSourceDepUpdate is up!")
 	void testPreSourceDepUpdateUseCase2() throws IOException {
 		final Connector connector = new ConnectorParserUpdateManagement("connector/management/preSourceDep/useCase2").parse("sourceDep");
 
@@ -279,7 +265,6 @@ class ConnectorParserTest {
 	}
 
 	@Test
-	@Disabled("Until PreSourceDepUpdate is up!")
 	void testPreSourceDepUpdateUseCase3() throws IOException {
 		final Connector connector = new ConnectorParserUpdateManagement("connector/management/preSourceDep/useCase3").parse("sourceDep");
 
@@ -288,7 +273,6 @@ class ConnectorParserTest {
 	}
 
 	@Test
-	@Disabled("Until PreSourceDepUpdate is up!")
 	void testPreSourceDepUpdateUseCase4() throws IOException {
 		final Connector connector = new ConnectorParserUpdateManagement("connector/management/preSourceDep/useCase4").parse("sourceDep");
 
@@ -523,7 +507,7 @@ class ConnectorParserTest {
 
 		final Set<String> level3 = new HashSet<>();
 		// TableUnion of myExternalSource and source(2) and source(3)
-		level3.add("myUnionSource1");
+		level3.add("myUnionSource");
 
 		expected.add(level1);
 		expected.add(level2);
@@ -550,7 +534,7 @@ class ConnectorParserTest {
 		// TableJoin on foreign discovery source and internal  source(3)
 		level3.add("tableJoin");
 		// TableUnion of myExternalSource and source(2) and source(3)
-		level3.add("myUnionSource1");
+		level3.add("myUnionSource");
 
 		expected.add(level1);
 		expected.add(level2);

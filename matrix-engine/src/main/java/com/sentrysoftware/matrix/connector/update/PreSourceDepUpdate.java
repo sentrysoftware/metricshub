@@ -2,11 +2,13 @@ package com.sentrysoftware.matrix.connector.update;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
 
-public class PreSourceDepUpdate extends AbstractConnectorUpdateChain {
+public class PreSourceDepUpdate extends SourceConnectorUpdateChain {
 
 	@Override
 	void doUpdate(Connector connector) {
-		// TODO set preSourceDep by reading the pre sources
+		connector.setPreSourceDep(updateSourceDependency(connector.getPre(), "$pre."));
+
+		
 		
 	}
 

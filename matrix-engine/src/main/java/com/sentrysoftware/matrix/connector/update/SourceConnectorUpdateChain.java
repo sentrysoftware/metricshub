@@ -13,6 +13,8 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableJoinSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableUnionSource;
 
+import lombok.NonNull;
+
 public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdateChain {
 
 	private static final Map<Integer, Set<String>> sourceLevels = new HashMap<>();
@@ -24,8 +26,9 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 	 * 
 	 * @param sources
 	 * @return
+	 * @throws Exception 
 	 */
-	protected List<Set<String>> updateSourceDependency(final Map<String, Source> sources) {
+	protected List<Set<String>> updateSourceDependency(final Map<String, Source> sources, String context) {
 		// initialize
 		sourceLevels.clear();
 		sourceDependencies.clear();
@@ -36,7 +39,7 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 		// process sources
 		for (String sourceId : sources.keySet()) {
 			Source currentSource = sources.get(sourceId);
-			Set<String> dependencies = getReferences(currentSource);
+			Set<String> dependencies = getDependencies(currentSource, context, sources.keySet());
 			sourceDependencies.put(sourceId, dependencies);
 			if (dependencies.isEmpty()) {
 				done.add(sourceId);
@@ -44,11 +47,6 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 				pending.add(sourceId);
 			}
 		}
-		// check that all pending references are actually sources
-		// TODO
-//		sources.keySet().containsAll(pending);
-//		pending.removeAll(sources.keySet()); // doesn't work
-		
 		
 		// add all sources without dependency on level 1
 		sourceLevels.put(1, done);
@@ -59,6 +57,7 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 		return getSourceDependencies(sourceLevels);
 	}
 
+	
 	/**
 	 * Recursive function that check for each element of the pending list, if all
 	 * its references have been processed stop call once all pending sources have
@@ -89,26 +88,85 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 	}
 
 	/**
-	 * get the dependency list of each source
+	 * Get the dependency list of each source, make sure that the dependency really exists in order to avoid infinite loop on processing
 	 * @param source
+	 * @param set 
+	 * @param context 
 	 * @return
+	 * @throws Exception 
 	 */
-	private Set<String> getReferences(Source source) {
+	private Set<String> getDependencies(Source source, String context, Set<String> set)  {
 		Set<String> ref = new HashSet<>();
 		if (source instanceof CopySource src) {
-			ref.add(getSourceString(src.getFrom()));
+			// check if we keep or ignore this source : same context and 
+			
+			@NonNull
+			String from = src.getFrom();
+			String sourceString = getSourceString(from);
+			if (checksSource(from, context, set, sourceString)) {
+				ref.add(sourceString);
+			}
 		}
 
 		if (source instanceof TableUnionSource src) {
-			ref.addAll(src.getTables().stream().map(this::getSourceString).collect(Collectors.toSet()));
+			for (String unionSource : src.getTables() ) {
+				@NonNull
+				String sourceString = getSourceString(unionSource);
+				if (checksSource(unionSource, context, set, sourceString)) {
+					ref.add(sourceString);
+				}
+			}
 		}
 
 		if (source instanceof TableJoinSource src) {
-			ref.add(getSourceString(src.getLeftTable()));
-			ref.add(getSourceString(src.getRightTable()));
+			String table = src.getLeftTable();
+			@NonNull
+			String sourceString = getSourceString(table);
+			if (checksSource(table, context, set, sourceString)) {
+				ref.add(sourceString);
+			}
+
+			table = src.getRightTable();
+			sourceString = getSourceString(table);
+			if (checksSource(table, context, set, sourceString)) {
+				ref.add(sourceString);
+			}
+		}
+		
+		if (source.isExecuteForEachEntryOf()) {
+			String table = source.getExecuteForEachEntryOf().getSource();
+			@NonNull
+			String sourceString = getSourceString(table);
+			if (checksSource(table, context, set, sourceString)) {
+				ref.add(sourceString);
+			}
+			
 		}
 
 		return ref;
+	}
+	
+	/**
+	 * Check that dependency 
+	 * 1- is part of the current context
+	 * 2- has been actually declared for the given monitor
+	 * @param sourcePath
+	 * @param context
+	 * @param allSources
+	 * @param sourceString
+	 * @return
+	 */
+	private boolean checksSource(String sourcePath, String context, Set<String> allSources, String sourceString) {
+		if (sourcePath.toLowerCase().contains(context.toLowerCase())) {
+			if (allSources.stream().anyMatch(path -> path.equalsIgnoreCase(sourceString))) {
+				return true;
+			}
+			if (allSources.stream().noneMatch(path -> path.equalsIgnoreCase(sourceString))) {
+				throw new IllegalStateException(String.format(
+						"'%s' is an unknown referenced source. Cannot build dependency of sources.", sourcePath));
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -135,6 +193,12 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 		return sourceDep;
 	}
 
+	/**
+	 * Get the source id from the source path
+	 * example :  $monitors.enclosure.multiCollect.sources.source(1) -> source(1)
+	 * @param str
+	 * @return
+	 */
 	private String getSourceString(String str) {
 		return str.substring(str.lastIndexOf(".") + 1);
 	}
