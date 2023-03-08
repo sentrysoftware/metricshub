@@ -64,7 +64,7 @@ public class ConnectorLibraryConverter {
 			// Remove the extension and resolve the future serialized file path (YAML)
 			Path serializePath = outputDirectory.resolve(getConnectorFilename(connectorName));
 
-			// Is the connector source more recent that the serialized one (if if exists)?
+			// Is the connector source more recent that the serialized one (if it exists)?
 			if (FileHelper.getLastModifiedTime(connectorPath) < FileHelper.getLastModifiedTime(serializePath)) {
 				// In which case, skip
 				continue;
@@ -129,7 +129,7 @@ public class ConnectorLibraryConverter {
 	 * Make sure the specified directory exists and create it if it doesn't.
 	 * <p>
 	 * @param dir Directory to be tested
-	 * @throws ConnectorSerializationException if specified directory cannot be created
+	 * @throws ConnectorConverterException if specified directory is not a directory or cannot be created
 	 * @throws IllegalArgumentException if specified directory is null
 	 */
 	public static void validateOutputDirectory(@NonNull final Path dir) {

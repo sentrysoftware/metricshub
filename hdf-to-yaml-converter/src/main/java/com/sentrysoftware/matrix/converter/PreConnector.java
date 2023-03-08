@@ -119,10 +119,10 @@ public class PreConnector {
 	 * (also does some pre-processing)
 	 *
 	 * @param hdfFile File instance to the .HDF file to be parsed
-	 * @throws IllegalArgumentException when specified File instance is null or the
-	 *                                  file does not exist
-	 * @throws IOException              when there is a problem while reading the
-	 *                                  Connector file
+	 * @throws IllegalArgumentException    when specified File instance is null
+	 * @throws ConnectorConverterException when the file does not exist
+	 * @throws IOException                 when there is a problem while reading the
+	 *                                     Connector file
 	 */
 	public void load(@NonNull File hdfFile) throws IOException {
 
