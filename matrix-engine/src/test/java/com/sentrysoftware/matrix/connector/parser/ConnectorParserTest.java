@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.connector.parser;
 
+import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
@@ -224,6 +225,35 @@ class ConnectorParserTest {
 		final List<Set<String>> expected = buildUseCase10MultiCollectDependency();
 
 		assertEquals(expected,  monitorJob.getCollect().getSourceDep());
+	}
+
+	@Test
+	@Disabled("Until MonitorTaskSourceDepUpdate is up!")
+	void testMonitorTaskSourceDepUpdateUseCase11() throws IOException {
+		final Connector connector = new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase11").parse("sourceDep");
+
+		final StandardMonitorJob monitorJob = (StandardMonitorJob) connector
+			.getMonitors()
+			.get("enclosure");
+
+		final List<Set<String>> expected = buildUseCase11MultiCollectDependency();
+
+		assertEquals(expected,  monitorJob.getCollect().getSourceDep());
+	}
+
+	@Test
+	@Disabled("Until MonitorTaskSourceDepUpdate is up!")
+	void testMonitorTaskSourceDepUpdateUseCase12() {
+
+		try {
+			new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase12").parse("sourceDep");
+			fail("Expected Exception");
+		} catch (Exception e) {
+			assertEquals(
+				"'$monitors.enclosure.discovery.sources.badSource' is an unknown referenced source. Cannot build dependency of sources.",
+				e.getMessage()
+			);
+		}
 	}
 
 	@Test
@@ -502,4 +532,30 @@ class ConnectorParserTest {
 		return expected;
 	}
 
+	private List<Set<String>> buildUseCase11MultiCollectDependency() {
+		final List<Set<String>> expected = new ArrayList<>();
+		final Set<String> level1 = new HashSet<>();
+		// Copy from a host job source(6) 
+		level1.add("myExternalSource");
+		// Copy of discovery source(6)
+		level1.add("source(2)");
+		// WBEM query
+		level1.add("source(1)");
+
+		final Set<String> level2 = new HashSet<>();
+		// TableJoin of source(1) and source(2)
+		level2.add("source(3)");
+
+		final Set<String> level3 = new HashSet<>();
+		// TableJoin on foreign discovery source and internal  source(3)
+		level3.add("tableJoin");
+		// TableUnion of myExternalSource and source(2) and source(3)
+		level3.add("myUnionSource1");
+
+		expected.add(level1);
+		expected.add(level2);
+		expected.add(level3);
+
+		return expected;
+	}
 }
