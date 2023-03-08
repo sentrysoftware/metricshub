@@ -53,22 +53,22 @@ monitors:
         source(3):
           #ID, Model, ServiceTag, ServiceCode, ChassisIndex, SystemWattage
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.Source(1)
-          rightTable: $monitors.enclosure.discovery.sources.Source(2)
+          leftTable: $monitors.enclosure.discovery.sources.source(1)
+          rightTable: $monitors.enclosure.discovery.sources.source(2)
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;
       mapping:
-        source: $monitors.enclosure.discovery.sources.Source(3)
+        source: $monitors.enclosure.discovery.sources.source(3)
         attributes:
-          id: $column(1)
+          name: concat(Computer, Dell, $column(2))
+          id: buildId($column(1))
           vendor: Dell
           model: $column(2)
-          additionalInformation1: $column(3)
-          additionalInformation2: $column(4)
+          info: concat($column(3), " - ", $column(4))
           type: Computer
         conditionalCollection:
-          hw.enclosure.energyUsage: $column(6)
+          hw.enclosure.energy: $column(6)
     multiCollect:
       sources:
         source(1):
@@ -97,8 +97,8 @@ monitors:
         source(3):
           #DeviceID, PATROLStatus, StatusInformation, ChassisIndex, IntrusionStatus
           type: tableJoint
-          leftTable: $monitors.enclosure.multiCollect.sources.Source(1)
-          rightTable: $monitors.enclosure.multiCollect.sources.Source(2)
+          leftTable: $monitors.enclosure.multiCollect.sources.source(1)
+          rightTable: $monitors.enclosure.multiCollect.sources.source(2)
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;
@@ -114,18 +114,18 @@ monitors:
         source(5):
           #DeviceID, PATROLStatus, StatusInformation, ChassisIndex, IntrusionStatus, ChassisIndex, EnergyUsage
           type: tableJoint
-          leftTable: $monitors.enclosure.multiCollect.sources.Source(3)
-          rightTable: $monitors.enclosure.multiCollect.sources.Source(4)
+          leftTable: $monitors.enclosure.multiCollect.sources.source(3)
+          rightTable: $monitors.enclosure.multiCollect.sources.source(4)
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;
       mapping:
-        source: $monitors.enclosure.multiCollect.sources.Source(5)
+        deviceId: $column(1)
+        source: $monitors.enclosure.multiCollect.sources.source(5)
         #DeviceID, PATROLStatus, StatusInformation, ChassisIndex, IntrusionStatus, ChassisIndex, EnergyUsage
-        attributes:
-          id: $column(1)
         metrics:
-          hw.status: $column(2)
+          hw.status{hw.type="enclosure"}: $column(2)
           hw.status{state="open"}: $column(4)
           hw.statusInformation: $column(3)
-          hw.energy: $column(7)
+          hw.enclosure.energy: FakeCounter($column(7))
+          hw.enclosure.power: Rate($column)7))
