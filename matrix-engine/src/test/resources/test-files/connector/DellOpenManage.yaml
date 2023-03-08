@@ -125,7 +125,7 @@ monitors:
         #DeviceID, PATROLStatus, StatusInformation, ChassisIndex, IntrusionStatus, ChassisIndex, EnergyUsage
         metrics:
           hw.status{hw.type="enclosure"}: $column(2)
-          hw.status{state="open"}: $column(4)
+          hw.status{hw.type="enclosure", state="open"}: LegacyIntrusionStatus($column(4))
           hw.statusInformation: $column(3)
           hw.enclosure.energy: FakeCounter($column(7))
           hw.enclosure.power: Rate($column)7))
