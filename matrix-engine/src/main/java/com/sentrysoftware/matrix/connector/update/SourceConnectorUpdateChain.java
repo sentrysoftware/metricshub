@@ -1,11 +1,18 @@
 package com.sentrysoftware.matrix.connector.update;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.CopySource;
@@ -13,197 +20,264 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableJoinSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableUnionSource;
 
-import lombok.NonNull;
-
 public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdateChain {
-	
+
 	/**
-	 * Get the correct order of the sources execution Check for each source if its
-	 * references have been already executed
+	 * Get the adjacency collection of the sources in a job or under pre section
 	 * 
-	 * @param sources
-	 * @return
-	 * @throws Exception 
+	 * @param sources       The sources map defined in the monitor's task or under the pre section.
+	 * @param context       Context pattern
+	 * @param sourceGroup  The index of a capturing source identifier group in the matcher's context pattern
+	 * @return A list of source levels. Structure example: [ [Source1, Source2], [Source3] ]
 	 */
-	protected List<Set<String>> updateSourceDependency(final Map<String, Source> sources, String context) {
+	protected List<Set<String>> updateSourceDependency(
+		final Map<String, Source> sources,
+		final Pattern context,
+		final int sourceGroup
+	) {
 
-		Map<Integer, Set<String>> sourceLevels = new HashMap<>(); // level, Set<sourceId>
-		Map<String, Set<String>> sourceDependencies = new HashMap<>(); // source , Set<dependencies>
-		
-		Set<String> done = new HashSet<>();
-		Set<String> pending = new HashSet<>();
-
-		// process sources
-		for (String sourceId : sources.keySet()) {
-			Source currentSource = sources.get(sourceId);
-			Set<String> dependencies = getDependencies(currentSource, context, sources.keySet());
-			sourceDependencies.put(sourceId, dependencies);
-			if (dependencies.isEmpty()) {
-				done.add(sourceId);
-			} else {
-				pending.add(sourceId);
-			}
+		if (sources.isEmpty()) {
+			return new ArrayList<>();
 		}
-		
-		// add all sources without dependency on level 1
-		sourceLevels.put(1, done);
-		// make sure that you pass the copy of done Set in order to avoid that this
-		// reference will be modified
-		processDependencies(pending, done.stream().collect(Collectors.toSet()), sourceLevels, sourceDependencies);
 
-		return getSourceDependencies(sourceLevels);
+		// Source path is a string like: $monitors.enclosure.discovery.sources.Source1$
+		// Source identifier (id) is a string like: Source1
+
+
+		// mapLevels is key-value pairs where the key is the source level integer value and 
+		// the value contains a set of source identifiers for the corresponding level
+		final Map<Integer, Set<String>> mapLevels = new LinkedHashMap<>();
+
+		// Build a key-value pairs where the key is the source id and the values are the dependency identifiers
+		// of the current current context. Thus, dependencies can be retrieved easily when looping over the sources.
+		// E.g:
+		// source1 -> []
+		// source2 -> []
+		// source3 -> [source1, source2]
+		// Open a stream and call buildDependencyEntry to fetch the dependency identifiers on the same context
+		final Map<String, Set<String>> sourceIdToDependencyIds = sources
+			.entrySet()
+			.stream()
+			.map(entry -> buildDependencyEntry(entry, context, sourceGroup))
+			.collect(
+				Collectors.toMap(
+					Entry::getKey,
+					Entry::getValue,
+					(v1, v2) -> v1
+				)
+			);
+
+		// All the source identifiers are pending
+		final Set<String> pendingSourceIds = sources
+			.entrySet()
+			.stream()
+			.map(Entry::getKey)
+			.collect(Collectors.toSet());
+
+		// Initialize the Map of found dependencies
+		// With this map we will avoid looping over all the dependencies each time if all the 
+		// levels are not computed yet.
+		final Map<String, Map<String, Integer>> foundDependencies = sourceIdToDependencyIds
+			.entrySet()
+			.stream()
+			.filter(entry -> !entry.getValue().isEmpty())
+			.map(entry -> Map.entry(entry.getKey(), new HashMap<String, Integer>()))
+			.collect(
+				Collectors.toMap(
+					Entry::getKey,
+					Entry::getValue,
+					(v1, v2) -> v1
+				)
+			);
+
+		// Loop until all the pending source identifiers are processed
+		do {
+			final Set<String> processedSourceIds = new HashSet<>();
+
+			// Loop over pending source identifiers
+			for (final String sourceId : pendingSourceIds) {
+
+				// Get dependency identifiers
+				final Set<String> dependencyIds = sourceIdToDependencyIds.get(sourceId);
+
+				// Does the current source depend on one or more sources from the current job context?
+				if (!dependencyIds.isEmpty()) {
+
+					// Dependencies already found
+					final Map<String, Integer> found = foundDependencies.get(sourceId);
+
+					// Find dependencies levels.
+					findDependencyLevels(mapLevels, dependencyIds, found);
+
+					// It means that all the dependencies are found
+					// In that case, let's add the source in the next level
+					if (found.size() == dependencyIds.size()) {
+						addSourceIdToLevel(mapLevels, sourceId, Collections.max(found.values()) + 1 , processedSourceIds);
+					}
+				} else {
+					// There is no dependency or the source depends on external dependencies.
+					// let's add the source at the first level
+					addSourceIdToLevel(mapLevels, sourceId, 1, processedSourceIds);
+				}
+			}
+
+			// Remove processed sources, so that we continue the loop on the pending source identifiers
+			// to find next levels
+			pendingSourceIds.removeAll(processedSourceIds);
+
+		} while (!pendingSourceIds.isEmpty());
+
+
+		// Build the final result
+		// A result like: [ [Source1, Source2], [Source3] ]
+		return mapLevels
+			.values()
+			.stream()
+			.map(Function.identity())
+			.toList();
 	}
 
-	
+
 	/**
-	 * Recursive function that check for each element of the pending list, if all
-	 * its references have been processed stop call once all pending sources have
-	 * been processed
+	 * Loop over remaining dependencies in dependencyIds then for each dependency id try to find its
+	 * level.
 	 * 
-	 * @param pending
-	 * @param done
-	 * @param sourceDependencies 
-	 * @param sourceLevels 
+	 * @param mapLevels Map of integer level to source identifiers
+	 * @param dependencyIds dependency source identifiers
+	 * @param found The dependencies that have already been found and removed from dependencyIds
+	 * @return new {@link List} instance
 	 */
-	private void processDependencies(Set<String> pending, Set<String> done, Map<Integer, Set<String>> sourceLevels, Map<String, Set<String>> sourceDependencies) {
-		Set<String> levelSource = new HashSet<>();
-		// check if all dependencies are done
-		for (String src : pending) {
-			Set<String> dependencySet = sourceDependencies.get(src);
-			if (done.containsAll(dependencySet)) {
-				levelSource.add(src);
-			}
+	private void findDependencyLevels(
+		final Map<Integer, Set<String>> mapLevels,
+		final Set<String> dependencyIds,
+		final Map<String, Integer> found
+	) {
+
+		final Set<String> remaining = dependencyIds
+			.stream()
+			.collect(Collectors.toSet());
+		remaining.removeAll(found.keySet());
+
+		for (String depId : remaining) {
+			mapLevels
+				.entrySet()
+				.stream()
+				.filter(entry -> entry.getValue().contains(depId))
+				.findFirst()
+				.ifPresent(entry -> found.put(depId, entry.getKey()));
 		}
 
-		// we can process a new level with the given sources
-		if (!levelSource.isEmpty()) {
-			sourceLevels.put(sourceLevels.size() + 1, levelSource);
-			done.addAll(levelSource);
-			pending.removeAll(levelSource);
-		}
-
-		// Loop until all pending sources are done
-		if (!pending.isEmpty()) {
-			processDependencies(pending, done, sourceLevels, sourceDependencies);
-		}
 	}
 
 	/**
-	 * Get the dependency list of each source, make sure that the dependency really exists in order to avoid infinite loop on processing
-	 * @param source
-	 * @param set 
-	 * @param context 
-	 * @return
-	 * @throws Exception 
+	 * Get the dependency of the given source. Use the context pattern to
+	 * extract all the dependency identifiers belonging to the current monitor task or pre section.
+	 * 
+	 * @param sourceEntry The source entry (key-value) we want to extract its dependencies
+	 * @param context The context pattern which helps extracting a dependency identifier from a path reference
+	 * that only belongs to the current monitor task.
+	 * @param sourceGroup  The index of a capturing source identifier group in the matcher's context pattern
+	 * @return Entry of String to Set where String key is the source id and
+	 * the Set contains the dependency source identifiers.
+	 * Example:
+	 * source3 -> [source1, source2]<br>
 	 */
-	private Set<String> getDependencies(Source source, String context, Set<String> set)  {
-		Set<String> ref = new HashSet<>();
+	private Entry<String, Set<String>> buildDependencyEntry(
+		final Entry<String, Source> sourceEntry,
+		final Pattern context,
+		final int sourceGroup
+	) {
 
+		final Source source = sourceEntry.getValue();
+		final String sourceId = sourceEntry.getKey();
 		if (source instanceof CopySource src) {
-			// check if we keep or ignore this source : same context and 		
-			@NonNull
-			String from = src.getFrom();
-			String sourceString = getSourceString(from);
-			if (checksSource(from, context, set, sourceString)) {
-				ref.add(sourceString);
-			}
+			return getContextDependencies(sourceId, context, sourceGroup, src.getFrom());
 		}
 
 		if (source instanceof TableUnionSource src) {
-			for (String unionSource : src.getTables() ) {
-				@NonNull
-				String sourceString = getSourceString(unionSource);
-				if (checksSource(unionSource, context, set, sourceString)) {
-					ref.add(sourceString);
-				}
-			}
+			List<String> tables = src.getTables();
+			return getContextDependencies(sourceId, context, sourceGroup, tables.toArray(new String[tables.size()]));
 		}
 
 		if (source instanceof TableJoinSource src) {
-			String table = src.getLeftTable();
-			@NonNull
-			String sourceString = getSourceString(table);
-			if (checksSource(table, context, set, sourceString)) {
-				ref.add(sourceString);
-			}
+			return getContextDependencies(sourceId, context, sourceGroup, src.getLeftTable(), src.getRightTable());
 
-			table = src.getRightTable();
-			sourceString = getSourceString(table);
-			if (checksSource(table, context, set, sourceString)) {
-				ref.add(sourceString);
-			}
 		}
-		
+
 		if (source.isExecuteForEachEntryOf()) {
-			String table = source.getExecuteForEachEntryOf().getSource();
-			@NonNull
-			String sourceString = getSourceString(table);
-			if (checksSource(table, context, set, sourceString)) {
-				ref.add(sourceString);
-			}
-			
+			return getContextDependencies(sourceId, context, sourceGroup, source.getExecuteForEachEntryOf().getSource());
 		}
 
-		return ref;
-	}
-	
-	/**
-	 * Check that dependency 
-	 * 1- is part of the current context
-	 * 2- has been actually declared for the given monitor
-	 * @param sourcePath
-	 * @param context
-	 * @param allSources
-	 * @param sourceString
-	 * @return
-	 */
-	private boolean checksSource(String sourcePath, String context, Set<String> allSources, String sourceString) {
-		if (sourcePath.toLowerCase().contains(context.toLowerCase())) {
-			// the given source is actually declared for the current context
-			if (allSources.stream().anyMatch(path -> path.equalsIgnoreCase(sourceString))) {
-				return true;
-			}
-			// the given source cannot be found in the current context
-			if (allSources.stream().noneMatch(path -> path.equalsIgnoreCase(sourceString))) {
-				throw new IllegalStateException(String.format(
-						"'%s' is an unknown referenced source. Cannot build dependency of sources.", sourcePath));
-			}
-		}
-		return false;
+		return Map.entry(sourceId, new HashSet<>());
+
 	}
 
 	/**
-	 * Convert Map<String, Set<String>> to List<Set<String>> Example : {
-	 * 1=[source(3), source(6), source(1), source(2), source(9)], 
-	 * 2=[source(4), source(5)], 
-	 * 3=[source(10), source(7)], 
-	 * 4=[source(11), source(8)],
-	 * 5=[source(12)] } 
-	 * to 
-	 * [[source(3), source(6), source(1), source(2), source(9)],
-	 * [source(4), source(5)], [source(10), source(7)], [source(11), source(8)],
-	 * [source(12)]]
+	 * Get the dependency of the given source identifier. Use the context pattern to
+	 * extract all the dependency identifiers belonging to the current monitor task or pre section.
 	 * 
-	 * @param level
-	 * @return
+	 * @param sourceId      The source identifier we want to extract its dependencies
+	 * @param context       The context pattern which helps extracting dependency identifier
+	 * that only belongs to the current monitor task.
+	 * @param sourceGroup   The index of a capturing source identifier group in the matcher's context pattern.
+	 * @param refs          Source identifier references from which we want to extract dependency identifiers.
+	 * @return new Entry instance of source id to its dependency source identifiers in the same context
 	 */
-	private List<Set<String>> getSourceDependencies(Map<Integer, Set<String>> level) {
-		List<Set<String>> sourceDep = new ArrayList<>();
-		for (Set<String> values : level.values()) {
-			sourceDep.add(values.stream().map(this::getSourceString).collect(Collectors.toSet()));
-		}
+	private Entry<String, Set<String>> getContextDependencies(
+		final String sourceId,
+		final Pattern context,
+		final int sourceGroup,
+		final String ...refs
+	) {
 
-		return sourceDep;
+		final Set<String> dependencies = new HashSet<>();
+
+		// Loop over the references and extract sources
+		for (String ref : refs) {
+			final Matcher includeMatcher = context.matcher(ref);
+
+			while (includeMatcher.find()) {
+				// Get source id, example: Source1
+				// Means this source identifier is defined current monitor task job context.
+				dependencies.add(includeMatcher.group(sourceGroup));
+			}
+		}
+		return Map.entry(sourceId, dependencies);
 	}
 
 	/**
-	 * Get the source id from the source path
-	 * example :  $monitors.enclosure.multiCollect.sources.source(1) -> source(1)
-	 * @param str
-	 * @return
+	 * Add the given source identifier to the map levels and update the processed
+	 * sources set.
+	 * 
+	 * @param mapLevels key-value pairs where the key is the source level and
+	 * the value contains a set of source identifiers for the corresponding level
+	 * @param sourceId the source id to be inserted in processedSources
+	 * @param level the level we wish to insert (integer value)
+	 * @param processedSources processed sources which we want to add the source to.
+	 * 
 	 */
-	private String getSourceString(String str) {
-		return str.substring(str.lastIndexOf(".") + 1);
+	private static void addSourceIdToLevel(
+		final Map<Integer, Set<String>> mapLevels,
+		final String sourceId,
+		final int level,
+		final Set<String> processedSources
+	) {
+		// If the level is not yet available create it then add the key
+		mapLevels
+			.computeIfAbsent(level, k -> new LinkedHashSet<>())
+			.add(sourceId);
+
+		// Add the source in the processedSources
+		processedSources.add(sourceId);
 	}
 
+	/**
+	 * Return the source identifiers REGEX such as source1|source2|source3
+	 * 
+	 * @param sources monitor task sources or pre sources
+	 * @return String value
+	 */
+	protected String getSourceIdentifiersRegex(final Map<String, Source> sources) {
+		return sources.keySet().stream().map(Pattern::quote).collect(Collectors.joining("|"));
+	}
 }

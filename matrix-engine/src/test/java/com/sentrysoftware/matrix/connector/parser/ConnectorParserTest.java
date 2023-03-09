@@ -1,6 +1,5 @@
 package com.sentrysoftware.matrix.connector.parser;
 
-import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
@@ -231,17 +230,32 @@ class ConnectorParserTest {
 	}
 
 	@Test
-	void testMonitorTaskSourceDepUpdateUseCase12() {
+	void testMonitorTaskSourceDepUpdateUseCase12() throws IOException {
 
-		try {
-			new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase12").parse("sourceDep");
-			fail("Expected Exception");
-		} catch (Exception e) {
-			assertEquals(
-				"'$monitors.enclosure.discovery.sources.badSource' is an unknown referenced source. Cannot build dependency of sources.",
-				e.getMessage()
-			);
-		}
+		final Connector connector = new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase12").parse("sourceDep");
+
+		final StandardMonitorJob monitorJob = (StandardMonitorJob) connector
+			.getMonitors()
+			.get("enclosure");
+
+		final List<Set<String>> expected = buildUseCase12Dependency();
+
+		assertEquals(expected,  monitorJob.getDiscovery().getSourceDep());
+	}
+
+
+	@Test
+	void testMonitorTaskSourceDepUpdateUseCase13() throws IOException {
+		final Connector connector = new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase13").parse("sourceDep");
+
+		final StandardMonitorJob monitorJob = (StandardMonitorJob) connector
+			.getMonitors()
+			.get("enclosure");
+
+		final List<Set<String>> expected = buildUseCase13Dependency();
+
+		assertEquals(expected,  monitorJob.getDiscovery().getSourceDep());
+
 	}
 
 	@Test
@@ -541,5 +555,41 @@ class ConnectorParserTest {
 		expected.add(level3);
 
 		return expected;
+	}
+
+	private List<Set<String>> buildUseCase12Dependency() {
+		final List<Set<String>> expected = new ArrayList<>();
+		final Set<String> level1 = new HashSet<>();
+		// WBEM queries
+		level1.add("source(1)");
+		level1.add("source(2)");
+		level1.add("source(3)");
+		level1.add("source(6)");
+		// Copy of a bad source
+		level1.add("source(4)");
+
+		final Set<String> level2 = new HashSet<>();
+		// tableUnion of source(2) and source(4)
+		level2.add("source(5)");
+
+		final Set<String> level3 = new HashSet<>();
+		// tableJoin of source(1) and source(5)
+		level3.add("source(7)");
+
+		final Set<String> level4 = new HashSet<>();
+		// tableJoin of source(6) and source(7) 
+		level4.add("source(8)");
+
+		expected.add(level1);
+		expected.add(level2);
+		expected.add(level3);
+		expected.add(level4);
+
+		return expected;
+	}
+
+	private List<Set<String>> buildUseCase13Dependency() {
+		// Sources are concatenated manually in source(4) tableUnion
+		return buildUseCase1Dependency();
 	}
 }

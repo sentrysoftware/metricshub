@@ -28,7 +28,7 @@ class WbemSourceDeserializerTest extends DeserializerTest {
 			Map.of("testWbemSource",
 				WbemSource
 					.builder()
-					.key("$pre.testWbemSource")
+					.key("$pre.testWbemSource$")
 					.type("wbem")
 					.query("testQuery")
 					.namespace("testNamespace")

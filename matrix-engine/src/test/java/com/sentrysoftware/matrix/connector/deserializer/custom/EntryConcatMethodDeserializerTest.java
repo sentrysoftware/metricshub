@@ -22,9 +22,9 @@ import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
 
 class EntryConcatMethodDeserializerTest {
 
-	private static final String SOURCE_REF = "$pre.source1";
+	private static final String SOURCE_REF = "$pre.source1$";
 	private static final String EXECUTE_FOR_EACH_ENTRY_OF_YAML = """
-			source: $pre.source1
+			source: $pre.source1$
 			concatMethod: ReplaceMe
 			""";
 

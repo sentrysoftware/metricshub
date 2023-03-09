@@ -33,7 +33,7 @@ class UcsSourceDeserializerTest extends DeserializerTest{
 		Map<String, Source> expected = new LinkedHashMap<>();
 		expected.put("testUcsSource",
 			UcsSource.builder()
-				.key("$pre.testUcsSource")
+				.key("$pre.testUcsSource$")
 				.type("ucs")
 				.queries(queries)
 				.exclude("testExclude")
