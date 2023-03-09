@@ -1,12 +1,41 @@
 package com.sentrysoftware.matrix.connector.update;
 
-import com.sentrysoftware.matrix.connector.model.Connector;
+import java.util.Map;
 
-public class MonitorTaskSourceDepUpdate extends AbstractConnectorUpdateChain {
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.monitor.AllAtOnceMonitorJob;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorJob;
+import com.sentrysoftware.matrix.connector.model.monitor.StandardMonitorJob;
+import com.sentrysoftware.matrix.connector.model.monitor.task.AllAtOnce;
+import com.sentrysoftware.matrix.connector.model.monitor.task.Discovery;
+import com.sentrysoftware.matrix.connector.model.monitor.task.MonoCollect;
+import com.sentrysoftware.matrix.connector.model.monitor.task.MultiCollect;
+
+public class MonitorTaskSourceDepUpdate extends SourceConnectorUpdateChain {
 
 	@Override
 	void doUpdate(Connector connector) {
-		// TODO set sourceDep for each AbstractMonitorTask (Discovery, MonoCollect, MultiCollect, AllAtOnce)
-	}
 
+		for (Map.Entry<String, MonitorJob> entry : connector.getMonitors().entrySet()) {
+			String key = entry.getKey();
+			MonitorJob job = entry.getValue();
+			if (job instanceof StandardMonitorJob standardMonitor) {
+				Discovery discovery = standardMonitor.getDiscovery();
+				discovery.setSourceDep(updateSourceDependency(discovery.getSources(), String.format("$monitors.%s.discovery.sources", key)));
+
+				if (standardMonitor.getCollect() instanceof MonoCollect monoCollect) {
+					monoCollect.setSourceDep(updateSourceDependency(monoCollect.getSources(), String.format("$monitors.%s.monocollect.sources", key)));
+				}
+
+				if (standardMonitor.getCollect() instanceof MultiCollect multiCollect) {
+					multiCollect.setSourceDep(updateSourceDependency(multiCollect.getSources(), String.format("$monitors.%s.multicollect.sources", key)));
+				}
+			}
+
+			if (job instanceof AllAtOnceMonitorJob allAtOnceMonitor) {
+				AllAtOnce allAtOnce = allAtOnceMonitor.getAllAtOnce();
+				allAtOnce.setSourceDep(updateSourceDependency(allAtOnce.getSources(), String.format("$monitors.%s.allatonce.sources", key)));
+			}
+		}
+	}
 }
