@@ -131,7 +131,7 @@ class MonitorsDeserializerTest extends DeserializerTest {
 
 		final Mapping expectedMapping = Mapping
 			.builder()
-			.source("$monitors.enclosure.discovery.sources.Source(7)")
+			.source("$monitors.enclosure.discovery.sources.source(7)")
 			.attributes(
 				Map.of(
 					"id", "buildId($column(6))",
