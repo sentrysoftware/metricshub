@@ -36,15 +36,15 @@ monitors:
           oid: 1.3.6.1.4.1.674.10892.1.300.10.1
           selectColumns: ID,9,11,49
           computes:
-            - type: keepOnlyMatchingLines
-              column: 1
-              valueList: 1
-            - type: leftConcat
-              column: 3
-              value: "Serial Number:"
-            - type: leftConcat
-              column: 4
-              value: "Alternative Serial Number:"
+          - type: keepOnlyMatchingLines
+            column: 1
+            valueList: 1
+          - type: leftConcat
+            column: 3
+            value: "Serial Number:"
+          - type: leftConcat
+            column: 4
+            value: "Alternative Serial Number:"
         source(2):
           #ChassisIndex, SystemWattage
           type: snmpTable
@@ -77,23 +77,23 @@ monitors:
           oid: 1.3.6.1.4.1.674.10892.1.300.10.1
           selectColumns: ID,4
           computes:
-            - type: duplicateColumn
-              column: 2
-            - type: translate
-              column: 2
-              translationTable: GenericStatusTranslationTable
-            - type: translate
-              column: 3
-              translationTable: GenericStatusInformationTranslationTable
+          - type: duplicateColumn
+            column: 2
+          - type: translate
+            column: 2
+            translationTable: GenericStatusTranslationTable
+          - type: translate
+            column: 3
+            translationTable: GenericStatusInformationTranslationTable
         source(2):
           #ChassisIndex, IntrusionStatus
           type: snmpTable
           oid: 1.3.6.1.4.1.674.10892.1.300.70.1
           selectColumns: 1,5
           computes:
-            - type: translate
-              column: 2
-              translationTable: GenericStatusTranslationTable
+          - type: translate
+            column: 2
+            translationTable: GenericStatusTranslationTable
         source(3):
           #DeviceID, PATROLStatus, StatusInformation, ChassisIndex, IntrusionStatus
           type: tableJoint
@@ -108,9 +108,9 @@ monitors:
           oid: 1.3.6.1.4.1.674.10892.1.600.60.1
           selectColumns: 1,7
           computes:
-            - type: divide
-              column: 2
-              value: 1000
+          - type: divide
+            column: 2
+            value: 1000
         source(5):
           #DeviceID, PATROLStatus, StatusInformation, ChassisIndex, IntrusionStatus, ChassisIndex, EnergyUsage
           type: tableJoint
@@ -127,5 +127,5 @@ monitors:
           hw.status{hw.type="enclosure"}: $column(2)
           hw.status{hw.type="enclosure", state="open"}: LegacyIntrusionStatus($column(4))
           hw.statusInformation: $column(3)
-          hw.enclosure.energy: FakeCounter($column(7))
+          hw.enclosure.energy: $column(7)
           hw.enclosure.power: Rate($column)7))
