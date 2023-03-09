@@ -16,9 +16,6 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableUnionS
 import lombok.NonNull;
 
 public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdateChain {
-
-	private static final Map<Integer, Set<String>> sourceLevels = new HashMap<>();
-	private static final Map<String, Set<String>> sourceDependencies = new HashMap<>();
 	
 	/**
 	 * Get the correct order of the sources execution Check for each source if its
@@ -29,9 +26,9 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 	 * @throws Exception 
 	 */
 	protected List<Set<String>> updateSourceDependency(final Map<String, Source> sources, String context) {
-		// initialize
-		sourceLevels.clear();
-		sourceDependencies.clear();
+
+		Map<Integer, Set<String>> sourceLevels = new HashMap<>(); // level, Set<sourceId>
+		Map<String, Set<String>> sourceDependencies = new HashMap<>(); // source , Set<dependencies>
 		
 		Set<String> done = new HashSet<>();
 		Set<String> pending = new HashSet<>();
@@ -52,7 +49,7 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 		sourceLevels.put(1, done);
 		// make sure that you pass the copy of done Set in order to avoid that this
 		// reference will be modified
-		processDependencies(pending, done.stream().collect(Collectors.toSet()));
+		processDependencies(pending, done.stream().collect(Collectors.toSet()), sourceLevels, sourceDependencies);
 
 		return getSourceDependencies(sourceLevels);
 	}
@@ -65,8 +62,10 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 	 * 
 	 * @param pending
 	 * @param done
+	 * @param sourceDependencies 
+	 * @param sourceLevels 
 	 */
-	private void processDependencies(Set<String> pending, Set<String> done) {
+	private void processDependencies(Set<String> pending, Set<String> done, Map<Integer, Set<String>> sourceLevels, Map<String, Set<String>> sourceDependencies) {
 		Set<String> levelSource = new HashSet<>();
 		// check if all dependencies are done
 		for (String src : pending) {
@@ -76,14 +75,16 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 			}
 		}
 
+		// we can process a new level with the given sources
 		if (!levelSource.isEmpty()) {
 			sourceLevels.put(sourceLevels.size() + 1, levelSource);
 			done.addAll(levelSource);
 			pending.removeAll(levelSource);
 		}
 
+		// Loop until all pending sources are done
 		if (!pending.isEmpty()) {
-			processDependencies(pending, done);
+			processDependencies(pending, done, sourceLevels, sourceDependencies);
 		}
 	}
 
@@ -97,9 +98,9 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 	 */
 	private Set<String> getDependencies(Source source, String context, Set<String> set)  {
 		Set<String> ref = new HashSet<>();
+
 		if (source instanceof CopySource src) {
-			// check if we keep or ignore this source : same context and 
-			
+			// check if we keep or ignore this source : same context and 		
 			@NonNull
 			String from = src.getFrom();
 			String sourceString = getSourceString(from);
@@ -158,9 +159,11 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 	 */
 	private boolean checksSource(String sourcePath, String context, Set<String> allSources, String sourceString) {
 		if (sourcePath.toLowerCase().contains(context.toLowerCase())) {
+			// the given source is actually declared for the current context
 			if (allSources.stream().anyMatch(path -> path.equalsIgnoreCase(sourceString))) {
 				return true;
 			}
+			// the given source cannot be found in the current context
 			if (allSources.stream().noneMatch(path -> path.equalsIgnoreCase(sourceString))) {
 				throw new IllegalStateException(String.format(
 						"'%s' is an unknown referenced source. Cannot build dependency of sources.", sourcePath));
