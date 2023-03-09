@@ -64,15 +64,15 @@ public class TranslationTable implements Serializable {
 			translations.replaceAll((key, val) -> updater.apply(val));
 		}
 	}
-	
+
 	@JsonAnySetter
 	public void setTranslation(String key, String value) {
 		translations.put(key, value);
 	}
-	
+
 	@JsonAnyGetter
-    public Map<String, String> getTranslations() {
-        return this.translations;
-    }
-    
+	public Map<String, String> getTranslations() {
+		return this.translations;
+	}
+
 }

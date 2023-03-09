@@ -56,13 +56,19 @@
 
 	<modules>
 		<module>matrix-engine</module>
+		<module>hdf-to-yaml-converter</module>
 	</modules>
 
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>com.sentrysoftware.hardware.matrix</groupId>
+				<groupId>com.sentrysoftware.matrix</groupId>
 				<artifactId>matrix-engine</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sentrysoftware.matrix</groupId>
+				<artifactId>hdf-to-yaml-converter</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
