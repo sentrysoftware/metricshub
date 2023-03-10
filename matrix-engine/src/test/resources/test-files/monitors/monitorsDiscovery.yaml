@@ -53,7 +53,7 @@ monitors:
           keyType: WBEM
           defaultRightLine: ;;;;
       mapping:
-        source: $monitors.enclosure.discovery.sources.Source(7)$
+        source: $monitors.enclosure.discovery.sources.source(7)$
         attributes:
           # Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(6)
           id: buildId($column(6))
