@@ -32,18 +32,6 @@ public class ConnectorConverter {
 	 */
 	public JsonNode convert() {
 
-		return convertContent(preConnector);
-	}
-
-	/**
-	 * From the given {@link PreConnector} object parse the whole Connector
-	 * content
-	 * 
-	 * @param preConnector The PRE connector containing the code map
-	 * @return {@link JsonNod} instance.
-	 */
-	private JsonNode convertContent(final PreConnector preConnector) {
-
 		final JsonNode connector = JsonNodeFactory.instance.objectNode();
 
 		// Set extended connectors
@@ -89,7 +77,11 @@ public class ConnectorConverter {
 	 * @param value the corresponding value we wish to process
 	 * @param connector {@link JsonNod} instance to update
 	 */
-	private void convertKeyValue(final String key, final String value, final JsonNode connector) {
+	private void convertKeyValue(
+		final String key,
+		final String value,
+		final JsonNode connector
+	) {
 
 		// Get the detected state
 		Optional<ConnectorState> optionalState = ConnectorState
@@ -100,7 +92,7 @@ public class ConnectorConverter {
 
 		optionalState.ifPresentOrElse(
 			// We've got the key
-			state -> state.convert(key, value, connector),
+			state -> state.convert(key, value, connector, preConnector),
 			() -> {
 				// The key doesn't match any parser, add it to the problem list, except if it's
 				// safe to ignore
@@ -117,7 +109,7 @@ public class ConnectorConverter {
 	 * 
 	 * @param jsonNode
 	 */
-	private void setConstants(JsonNode jsonNode) {
+	private void setConstants(final JsonNode jsonNode) {
 		final Map<String, String> constantsMap = preConnector.getConstants();
 		// No need to create an empty node
 		if (constantsMap.isEmpty()) {
@@ -135,7 +127,7 @@ public class ConnectorConverter {
 	 * @param jsonNode
 	 */
 	private void setExtendedConnectors(final JsonNode jsonNode) {
-		Set<String> extendedConnectorsSet = preConnector.getExtendedConnectors();
+		final Set<String> extendedConnectorsSet = preConnector.getExtendedConnectors();
 		// No need to create an empty node
 		if (extendedConnectorsSet.isEmpty()) {
 			return;
@@ -154,7 +146,7 @@ public class ConnectorConverter {
 	 * @param key Key to check
 	 * @return whether the specified key is safe to ignore
 	 */
-	static boolean isKeySafeToIgnore(String key) {
+	static boolean isKeySafeToIgnore(final String key) {
 		return IGNORED_KEY_PATTERNS.stream().anyMatch(p -> p.matcher(key).find());
 	}
 

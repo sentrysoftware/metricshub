@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.converter.state;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.sentrysoftware.matrix.converter.PreConnector;
 
 public interface IConnectorStateConverter {
 
@@ -21,6 +22,7 @@ public interface IConnectorStateConverter {
 	 * @param key The property name
 	 * @param value The value of the property
 	 * @param connector The contextual {@link JsonNode}
+	 * @param PreConnector connector pre-formatted containing information such as comments
 	 */
-	void convert(final String key, final String value, final JsonNode connector);
+	void convert(final String key, final String value, final JsonNode connector, final PreConnector preConnector);
 }
