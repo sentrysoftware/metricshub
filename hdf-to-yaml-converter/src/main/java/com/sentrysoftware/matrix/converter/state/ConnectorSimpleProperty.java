@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.sentrysoftware.matrix.converter.PreConnector;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -43,9 +44,10 @@ public class ConnectorSimpleProperty {
 		}
 
 		@Override
-		public void convert(final String key, final String value, final JsonNode connector) {
+		public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
 			// TODO Implement
 		}
+
 	}
 
 	public static class SupersedesProcessor implements IConnectorStateConverter {
@@ -56,7 +58,7 @@ public class ConnectorSimpleProperty {
 		}
 
 		@Override
-		public void convert(final String key, final String value, final JsonNode connector) {
+		public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
 			// TODO Implement
 		}
 	}
@@ -69,7 +71,7 @@ public class ConnectorSimpleProperty {
 		}
 
 		@Override
-		public void convert(final String key, final String value, final JsonNode connector) {
+		public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
 			// TODO Implement
 		}
 	}
@@ -82,7 +84,7 @@ public class ConnectorSimpleProperty {
 		}
 
 		@Override
-		public void convert(final String key, final String value, final JsonNode connector) {
+		public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
 			// TODO Implement
 		}
 	}
@@ -95,7 +97,7 @@ public class ConnectorSimpleProperty {
 		}
 
 		@Override
-		public void convert(final String key, final String value, final JsonNode connector) {
+		public void convert(final String key, final String value, final JsonNode connector, final PreConnector preConnector) {
 			// TODO Implement
 		}
 	}
@@ -108,7 +110,7 @@ public class ConnectorSimpleProperty {
 		}
 
 		@Override
-		public void convert(final String key, final String value, final JsonNode connector) {
+		public void convert(final String key, final String value, final JsonNode connector, final PreConnector preConnector) {
 			// TODO Implement
 		}
 	}
@@ -121,7 +123,7 @@ public class ConnectorSimpleProperty {
 		}
 
 		@Override
-		public void convert(final String key, final String value, final JsonNode connector) {
+		public void convert(final String key, final String value, final JsonNode connector, final PreConnector preConnector) {
 			// TODO Implement
 		}
 	}
@@ -134,7 +136,7 @@ public class ConnectorSimpleProperty {
 		}
 
 		@Override
-		public void convert(final String key, final String value, final JsonNode connector) {
+		public void convert(final String key, final String value, final JsonNode connector, final PreConnector preConnector) {
 			// TODO Implement
 		}
 	}
@@ -147,7 +149,7 @@ public class ConnectorSimpleProperty {
 		}
 
 		@Override
-		public void convert(final String key, final String value, final JsonNode connector) {
+		public void convert(final String key, final String value, final JsonNode connector, final PreConnector preConnector) {
 			// TODO Implement
 		}
 	}
@@ -160,7 +162,7 @@ public class ConnectorSimpleProperty {
 		}
 
 		@Override
-		public void convert(final String key, final String value, final JsonNode connector) {
+		public void convert(final String key, final String value, final JsonNode connector, final PreConnector preConnector) {
 			// TODO Implement
 		}
 	}
@@ -173,7 +175,7 @@ public class ConnectorSimpleProperty {
 		}
 
 		@Override
-		public void convert(final String key, final String value, final JsonNode connector) {
+		public void convert(final String key, final String value, final JsonNode connector, final PreConnector preConnector) {
 			// TODO Implement
 		}
 	}
