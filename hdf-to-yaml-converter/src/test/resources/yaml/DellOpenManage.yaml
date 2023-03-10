@@ -53,13 +53,13 @@ monitors:
         source(3):
           # ID, Model, ServiceTag, ServiceCode, ChassisIndex, SystemWattage
           type: tableJoin
-          leftTable: $monitors.enclosure.discovery.sources.source(1)
-          rightTable: $monitors.enclosure.discovery.sources.source(2)
+          leftTable: $monitors.enclosure.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;
       mapping:
-        source: $monitors.enclosure.discovery.sources.source(3)
+        source: $monitors.enclosure.discovery.sources.source(3)$
         attributes:
           name: concat(Computer, Dell, $column(2))
           id: buildId($column(1))
@@ -97,8 +97,8 @@ monitors:
         source(3):
           # DeviceID, PATROLStatus, StatusInformation, ChassisIndex, IntrusionStatus
           type: tableJoint
-          leftTable: $monitors.enclosure.multiCollect.sources.source(1)
-          rightTable: $monitors.enclosure.multiCollect.sources.source(2)
+          leftTable: $monitors.enclosure.multiCollect.sources.source(1)$
+          rightTable: $monitors.enclosure.multiCollect.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;
@@ -114,14 +114,14 @@ monitors:
         source(5):
           # DeviceID, PATROLStatus, StatusInformation, ChassisIndex, IntrusionStatus, ChassisIndex, EnergyUsage
           type: tableJoint
-          leftTable: $monitors.enclosure.multiCollect.sources.source(3)
-          rightTable: $monitors.enclosure.multiCollect.sources.source(4)
+          leftTable: $monitors.enclosure.multiCollect.sources.source(3)$
+          rightTable: $monitors.enclosure.multiCollect.sources.source(4)$
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;
       mapping:
         deviceId: $column(1)
-        source: $monitors.enclosure.multiCollect.sources.source(5)
+        source: $monitors.enclosure.multiCollect.sources.source(5)$
         # DeviceID, PATROLStatus, StatusInformation, ChassisIndex, IntrusionStatus, ChassisIndex, EnergyUsage
         metrics:
           hw.status{hw.type="enclosure"}: $column(2)
