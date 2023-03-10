@@ -1,13 +1,29 @@
 package com.sentrysoftware.matrix.connector.update;
 
-import com.sentrysoftware.matrix.connector.model.Connector;
+import java.util.Map;
+import java.util.regex.Pattern;
 
-public class PreSourceDepUpdate extends AbstractConnectorUpdateChain {
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
+
+public class PreSourceDepUpdate extends SourceConnectorUpdateChain {
 
 	@Override
 	void doUpdate(Connector connector) {
-		// TODO set preSourceDep by reading the pre sources
-		
+		final Map<String, Source> sources = connector.getPre();
+		connector.setPreSourceDep(
+			updateSourceDependency(
+				sources,
+				Pattern.compile(
+					String.format(
+						"\\s*(\\$((?i)pre)\\.(%s)\\$)\\s*",
+						getSourceIdentifiersRegex(sources)
+					),
+					Pattern.MULTILINE
+				),
+				3
+			)
+		);
 	}
 
 }
