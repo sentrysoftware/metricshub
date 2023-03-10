@@ -44,7 +44,7 @@ class ArrayTranslateComputeDeserializerTest extends DeserializerTest {
 				"testCompute",
 				HttpSource
 					.builder()
-					.key("$pre.testCompute")
+					.key("$pre.testCompute$")
 					.type("http")
 					.url("/testUrl/")
                     .computes(computes)

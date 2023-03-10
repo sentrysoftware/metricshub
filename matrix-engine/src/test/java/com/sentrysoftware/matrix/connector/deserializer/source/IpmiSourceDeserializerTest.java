@@ -28,7 +28,7 @@ class IpmiSourceDeserializerTest extends DeserializerTest {
 		final Map<String, Source> expected = new LinkedHashMap<String, Source>(
 			Map.of("testIpmiSource", 
 					IpmiSource.builder()
-							.key("$pre.testIpmiSource")
+							.key("$pre.testIpmiSource$")
 							.type("ipmi")
 							.build()));
 

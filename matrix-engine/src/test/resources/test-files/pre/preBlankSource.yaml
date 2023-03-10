@@ -5,4 +5,4 @@ connector:
 pre:
   " ":
     type: copy
-    from: $pre.anotherSource
+    from: $pre.anotherSource$

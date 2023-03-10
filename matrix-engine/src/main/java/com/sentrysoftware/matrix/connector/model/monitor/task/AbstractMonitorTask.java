@@ -3,8 +3,10 @@ package com.sentrysoftware.matrix.connector.model.monitor.task;
 import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,12 +31,12 @@ public abstract class AbstractMonitorTask implements Serializable {
 	protected Mapping mapping;
 	@JsonDeserialize(using = NonBlankInLinkedHashSetDeserializer.class)
 	protected Set<String> executionOrder = new LinkedHashSet<>(); // NOSONAR LinkedHashSet is Serializable
-	protected Set<Set<String>> sourceDep = new LinkedHashSet<>(); // NOSONAR LinkedHashSet is Serializable
+	protected List<Set<String>> sourceDep = new ArrayList<>(); // NOSONAR ArrayList is Serializable
 
 	protected AbstractMonitorTask(final Map<String, Source> sources, final Mapping mapping, final Set<String> executionOrder)  {
 		this.sources = sources == null ? new LinkedHashMap<>() : sources;
 		this.mapping = mapping;
 		this.executionOrder = executionOrder != null ? executionOrder : new LinkedHashSet<>();
-		this.sourceDep = new LinkedHashSet<>();
+		this.sourceDep = new ArrayList<>();
 	}
 }
