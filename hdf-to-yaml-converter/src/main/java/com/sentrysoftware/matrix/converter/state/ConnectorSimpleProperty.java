@@ -44,7 +44,7 @@ public class ConnectorSimpleProperty {
 		}
 
 		@Override
-		public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
+		public void convert(final String key, final String value, final JsonNode connector, final PreConnector preConnector) {
 			// TODO Implement
 		}
 
@@ -58,7 +58,7 @@ public class ConnectorSimpleProperty {
 		}
 
 		@Override
-		public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
+		public void convert(final String key, final String value, final JsonNode connector, final PreConnector preConnector) {
 			// TODO Implement
 		}
 	}
@@ -69,9 +69,8 @@ public class ConnectorSimpleProperty {
 		public boolean detect(final String key, final String value, final JsonNode connector) {
 			return ConnectorSimpleProperty.detect(key, value, "hdf.appliestoos");
 		}
-
 		@Override
-		public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
+		public void convert(final String key, final String value, final JsonNode connector, final PreConnector preConnector) {
 			// TODO Implement
 		}
 	}
@@ -84,7 +83,7 @@ public class ConnectorSimpleProperty {
 		}
 
 		@Override
-		public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
+		public void convert(final String key, final String value, final JsonNode connector, final PreConnector preConnector) {
 			// TODO Implement
 		}
 	}
