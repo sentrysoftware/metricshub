@@ -29,7 +29,7 @@ monitors:
           namespace: root/emc
         source(4):
           type: tableUnion
-          tables: 
+          tables:
             - $monitors.enclosure.discovery.source(1)$
             - $monitors.enclosure.discovery.source(2)$
         source(5):
@@ -53,13 +53,13 @@ monitors:
           keyType: WBEM
           defaultRightLine: ;;;;
       mapping:
-        source: $monitors.enclosure.discovery.sources.Source(7)$
+        source: $monitors.enclosure.discovery.sources.source(7)$
         attributes:
           # Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(6)
           id: buildId($column(6))
           parent: ""
           # Enclosure.Discovery.Instance.DisplayID=InstanceTable.Column(7)
-          name:  buildName(Storage, EMC, $column(2), (, $column(7), )) # Optional # buildName("EMC", $column(2)) # Generic name builder that concatenates the arguments using white space separator, removed duplicates and blank arguments. 
+          name:  buildName(Storage, EMC, $column(2), (, $column(7), )) # Optional # buildName("EMC", $column(2)) # Generic name builder that concatenates the arguments using white space separator, removed duplicates and blank arguments.
           # for the converter we reconstruct buildname based on MonitorNameBuilder function.
           vendor: EMC
           model: $column(2)
