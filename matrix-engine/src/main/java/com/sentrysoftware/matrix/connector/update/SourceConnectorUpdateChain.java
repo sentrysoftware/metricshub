@@ -145,7 +145,6 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 	 * @param mapLevels Map of integer level to source identifiers
 	 * @param dependencyIds dependency source identifiers
 	 * @param found The dependencies that have already been found and removed from dependencyIds
-	 * @return new {@link List} instance
 	 */
 	private void findDependencyLevels(
 		final Map<Integer, Set<String>> mapLevels,
@@ -238,7 +237,7 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 
 			while (includeMatcher.find()) {
 				// Get source id, example: Source1
-				// Means this source identifier is defined current monitor task job context.
+				// Means this source identifier is defined in the current monitor task job or pre sources context.
 				dependencies.add(includeMatcher.group(sourceGroup));
 			}
 		}
