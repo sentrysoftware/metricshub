@@ -5,13 +5,17 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.sentrysoftware.matrix.converter.PreConnector;
+import com.sentrysoftware.matrix.converter.state.detection.ConnectorDetectionProperty;
 
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public enum ConnectorState implements IConnectorStateConverter {
 
-	CONNECTOR_SIMPLE_PROPERTY(new StateConverterParent(ConnectorSimpleProperty.getConnectorProperties()));
+	CONNECTOR_SIMPLE_PROPERTY(new StateConverterParent(ConnectorSimpleProperty.getConnectorProperties())),
+	CONNECTOR_DETECTION(new StateConverterParent(ConnectorDetectionProperty.getConnectorProperties()));
+
 
 	private final IConnectorStateConverter connectorStateConverter;
 
