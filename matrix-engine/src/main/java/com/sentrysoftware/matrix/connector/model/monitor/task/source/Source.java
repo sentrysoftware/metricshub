@@ -99,4 +99,17 @@ public abstract class Source implements Serializable {
 		return executeForEachEntryOf != null && executeForEachEntryOf.getSource() != null
 				&& !executeForEachEntryOf.getSource().isBlank();
 	}
+
+	/**
+	 * Return the source references concatenated to the executeForEachEntryOf reference.
+	 * 
+	 * @return new String array
+	 */
+	public String[] getPossibleReferences() {
+
+		// TODO implement
+
+		return new String[] { };
+
+	}
 }
