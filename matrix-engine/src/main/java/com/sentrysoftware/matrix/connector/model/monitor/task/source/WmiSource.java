@@ -86,4 +86,9 @@ public class WmiSource extends Source {
 		return stringJoiner.toString();
 	}
 
+	@Override
+	protected String[] maybeSourceRefs() {
+		return new String[] { query, namespace };
+	}
+
 }

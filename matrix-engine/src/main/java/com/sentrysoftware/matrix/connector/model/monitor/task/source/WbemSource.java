@@ -87,4 +87,9 @@ public class WbemSource extends Source {
 		return stringJoiner.toString();
 	}
 
+	@Override
+	protected String[] maybeSourceRefs() {
+		return new String[] { query, namespace };
+	}
+
 }
