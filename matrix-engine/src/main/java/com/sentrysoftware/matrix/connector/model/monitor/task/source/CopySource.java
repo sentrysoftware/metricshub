@@ -77,4 +77,9 @@ public class CopySource extends Source {
 		return stringJoiner.toString();
 	}
 
+	@Override
+	protected String[] maybeSourceRefs() {
+		return new String[] { from };
+	}
+
 }
