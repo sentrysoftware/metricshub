@@ -93,4 +93,15 @@ public class UcsSource extends Source {
 		return stringJoiner.toString();
 	}
 
+	@Override
+	protected String[] maybeSourceRefs() {
+		final int queriesSize = queries.size();
+		final String[] withQueries = new String[queriesSize + 3];
+		System.arraycopy(queries.toArray(new String[queriesSize]), 0, withQueries, 0, queriesSize);
+		withQueries[queriesSize] = exclude;
+		withQueries[queriesSize + 1] = keep;
+		withQueries[queriesSize + 2] = selectColumns;
+		return withQueries;
+	}
+
 }

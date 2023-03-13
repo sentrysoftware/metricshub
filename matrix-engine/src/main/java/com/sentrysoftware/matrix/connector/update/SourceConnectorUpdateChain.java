@@ -186,13 +186,7 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 
 		final Source source = sourceEntry.getValue();
 		final String sourceId = sourceEntry.getKey();
-		final Set<String> references = source.getReferences();
-		return getContextDependencies(
-			sourceId,
-			context,
-			sourceGroup,
-			references.toArray(new String[references.size()])
-		);
+		return getContextDependencies(sourceId, context, sourceGroup, source.getPossibleReferences());
 	}
 
 	/**
@@ -217,6 +211,10 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 
 		// Loop over the references and extract sources
 		for (String ref : refs) {
+
+			if (ref == null) {
+				continue;
+			}
 
 			final Matcher includeMatcher = context.matcher(ref);
 

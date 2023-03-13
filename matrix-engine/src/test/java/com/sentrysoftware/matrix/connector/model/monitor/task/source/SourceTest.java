@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.connector.model.common.EntryConcatMethod;
@@ -17,14 +16,12 @@ class SourceTest {
 	private static final String SOURCE_REF2 = "$monitors.cpu.discovery.sources.source2$";
 
 	@Test
-	@Disabled("Until getPossibleReferences is up!")
 	void testGetPossibleReferencesCopy() {
 		final Source copy = CopySource.builder().from(SOURCE_REF1).build();
 		assertArrayEquals(new String[] { SOURCE_REF1 }, copy.getPossibleReferences());
 	}
 
 	@Test
-	@Disabled("Until getPossibleReferences is up!")
 	void testGetPossibleReferencesHttp() {
 		final Source http = HttpSource
 			.builder()
@@ -54,14 +51,12 @@ class SourceTest {
 	}
 
 	@Test
-	@Disabled("Until getPossibleReferences is up!")
 	void testGetPossibleReferencesIpmi() {
 		final Source ipmi = IpmiSource.builder().build();
 		assertArrayEquals(new String[] {}, ipmi.getPossibleReferences());
 	}
 
 	@Test
-	@Disabled("Until getPossibleReferences is up!")
 	void testGetPossibleReferencesOsCommand() {
 		final Source osCommand = OsCommandSource
 			.builder()
@@ -85,7 +80,6 @@ class SourceTest {
 	}
 
 	@Test
-	@Disabled("Until getPossibleReferences is up!")
 	void testGetPossibleReferencesSnmpGet() {
 		final Source snmpGet = SnmpGetSource
 			.builder()
@@ -95,7 +89,6 @@ class SourceTest {
 	}
 
 	@Test
-	@Disabled("Until getPossibleReferences is up!")
 	void testGetPossibleReferencesSnmpTable() {
 		final Source snmpTable = SnmpTableSource
 			.builder()
@@ -106,7 +99,6 @@ class SourceTest {
 	}
 
 	@Test
-	@Disabled("Until getPossibleReferences is up!")
 	void testGetPossibleReferencesSshInteractive() {
 
 		final Source sshInteractive = SshInteractiveSource
@@ -129,14 +121,12 @@ class SourceTest {
 	}
 
 	@Test
-	@Disabled("Until getPossibleReferences is up!")
 	void testGetPossibleReferencesStatic() {
 		final Source staticSource = StaticSource.builder().value(SOURCE_REF1).build();
 		assertArrayEquals(new String[] { SOURCE_REF1 }, staticSource.getPossibleReferences());
 	}
 
 	@Test
-	@Disabled("Until getPossibleReferences is up!")
 	void testGetPossibleReferencesTableJoin() {
 		final Source tableJoin = TableJoinSource
 			.builder()
@@ -158,7 +148,6 @@ class SourceTest {
 	}
 	
 	@Test
-	@Disabled("Until getPossibleReferences is up!")
 	void testGetPossibleReferencesTableUnion() {
 		final Source tableUnion = TableUnionSource
 			.builder()
@@ -175,7 +164,6 @@ class SourceTest {
 	}
 
 	@Test
-	@Disabled("Until getPossibleReferences is up!")
 	void testGetPossibleReferencesUcs() {
 		final Source ucs = UcsSource
 			.builder()
@@ -198,7 +186,6 @@ class SourceTest {
 	}
 
 	@Test
-	@Disabled("Until getPossibleReferences is up!")
 	void testGetPossibleReferencesWbem() {
 		final Source wbem = WbemSource
 			.builder()
@@ -216,7 +203,6 @@ class SourceTest {
 	}
 
 	@Test
-	@Disabled("Until getPossibleReferences is up!")
 	void testGetPossibleReferencesWmi() {
 		final Source wmi = WmiSource
 			.builder()
