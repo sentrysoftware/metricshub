@@ -74,4 +74,10 @@ public class StaticSource  extends Source {
 
 		return stringJoiner.toString();
 	}
+
+
+	@Override
+	protected String[] maybeSourceRefs() {
+		return new String[] { value };
+	}
 }
