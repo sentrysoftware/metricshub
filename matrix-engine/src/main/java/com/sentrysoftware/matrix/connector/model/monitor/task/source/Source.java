@@ -76,6 +76,8 @@ public abstract class Source implements Serializable {
 
 	public abstract void update(UnaryOperator<String> updater);
 
+	protected abstract String[] maybeSourceRefs();
+
 	@Override
 	public String toString() {
 

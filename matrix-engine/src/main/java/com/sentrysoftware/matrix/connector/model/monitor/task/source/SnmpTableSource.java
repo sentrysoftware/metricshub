@@ -87,4 +87,10 @@ public class SnmpTableSource extends SnmpSource {
 		super.update(updater);
 		selectColumns = updater.apply(selectColumns);
 	}
+
+
+	@Override
+	protected String[] maybeSourceRefs() {
+		return new String[] { oid, selectColumns };
+	}
 }
