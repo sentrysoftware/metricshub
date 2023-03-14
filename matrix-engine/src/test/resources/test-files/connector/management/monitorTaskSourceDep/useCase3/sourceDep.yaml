@@ -1,0 +1,104 @@
+---
+connector:
+  detection:
+    appliesTo: [ linux ]
+    criteria:
+    - type: wbem
+      query: testQuery
+      namespace: testNamespace
+      expectedResult: testExpectedResult
+      errorMessage: testErrorMessage
+      forceSerialization: true
+
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          type: wbem
+          query: SELECT __PATH,Model,EMCSerialNumber FROM EMC_ArrayChassis
+          namespace: root/emc
+        source(2):
+          type: wbem
+          query: SELECT Antecedent,Dependent FROM EMC_ComputerSystemPackage
+          nameSpace: root/emc
+        source(3):
+          type: wbem
+          query: SELECT Antecedent,Dependent FROM EMC_SystemPackaging
+          namespace: root/emc
+        source(4):
+          type: copy
+          from: $monitors.enclosure.discovery.sources.source(3)$
+        source(5):
+          type: tableUnion
+          tables:
+            - $monitors.enclosure.discovery.sources.source(2)$
+            - $monitors.enclosure.discovery.sources.source(3)$
+        source(6):
+          type: wbem
+          query: SELECT __PATH,ElementName,Description,OtherIdentifyingInfo,OperationalStatus FROM EMC_StorageSystem
+          namespace: root/emc
+        source(7):
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(5)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          keyType: WBEM
+          defaultRightLine: ;;
+        source(8):
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(7)$
+          rightTable: $monitors.enclosure.discovery.sources.source(6)$
+          leftKeyColumn: 5
+          rightKeyColumn: 1
+          keyType: WBEM
+          defaultRightLine: ;;;;
+        source(9):
+          type: wbem
+          query: SELECT __PATH,ElementName,Description,OtherIdentifyingInfo,OperationalStatus FROM EMC_StorageSystemSlave
+          namespace: root/emc
+        source(10):
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(1)$
+          rightTable: $monitors.enclosure.discovery.sources.source(4)$
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          keyType: WBEM
+          defaultRightLine: ;;
+        source(11):
+          type: tableJoin
+          leftTable: $monitors.enclosure.discovery.sources.source(10)$
+          rightTable: $monitors.enclosure.discovery.sources.source(9)$
+          leftKeyColumn: 5
+          rightKeyColumn: 1
+          keyType: WBEM
+          defaultRightLine: ;;;;
+        source(12):
+          type: tableUnion
+          tables:
+            - $monitors.enclosure.discovery.sources.source(11)$
+            - $monitors.enclosure.discovery.sources.source(8)$
+      mapping:
+        source: $monitors.enclosure.discovery.sources.source(8)$
+        attributes:
+          id: buildId($column(6))
+          parent: ""
+          name: buildName(Storage, EMC, $column(2), (, $column(7), ))
+          vendor: EMC
+          model: $column(2)
+          serial_number: $column(3)
+          type: Storage
+        conditionalCollection:
+          hw.status: $column(10)
+    multiCollect:
+      sources:
+        source(1):
+          type: wbem
+          query: SELECT __PATH,OperationalStatus FROM EMC_StorageSystem
+          namespace: root/emc
+      mapping:
+        deviceId: $column(1) 
+        source: $monitors.enclosure.multiCollect.sources.source(1)$
+        metrics:
+          hw.status: $column(2)

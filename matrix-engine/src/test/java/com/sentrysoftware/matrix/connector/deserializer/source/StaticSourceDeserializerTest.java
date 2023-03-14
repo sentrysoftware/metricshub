@@ -29,7 +29,7 @@ class StaticSourceDeserializerTest extends DeserializerTest {
 			Map.of("testStaticSource", 
 				StaticSource
 					.builder()
-					.key("$pre.testStaticSource")
+					.key("$pre.testStaticSource$")
 					.type("static")
 					.value("testValue")
 					.build()

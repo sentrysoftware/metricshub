@@ -38,7 +38,7 @@ public class KeepColumns extends Compute {
 	) {
 
 		super(type);
-		this.columnNumbers = columnNumbers == null ? new HashSet<>() : columnNumbers;
+		this.columnNumbers = columnNumbers;
 	}
 
 	@Override

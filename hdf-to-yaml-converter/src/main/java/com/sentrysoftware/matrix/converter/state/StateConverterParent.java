@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.converter.state;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.sentrysoftware.matrix.converter.PreConnector;
 
 import lombok.AllArgsConstructor;
 
@@ -12,7 +13,7 @@ public class StateConverterParent implements IConnectorStateConverter {
 	private Set<IConnectorStateConverter> stateConverters;
 
 	@Override
-	public boolean detect(String key, String value, JsonNode connector) {
+	public boolean detect(final String key, final String value, final JsonNode connector) {
 
 		// Return true if one of the stateConverters hooked
 		return stateConverters
@@ -21,13 +22,13 @@ public class StateConverterParent implements IConnectorStateConverter {
 	}
 
 	@Override
-	public void convert(String key, String value, JsonNode connector) {
+	public void convert(final String key, final String value, final JsonNode connector, final PreConnector preConnector) {
 
 		// Filter detected then call its parser
 		stateConverters
 			.stream()
 			.filter(stateParser -> stateParser.detect(key, value, connector))
-			.forEach(stateParser -> stateParser.convert(key, value, connector));
+			.forEach(stateParser -> stateParser.convert(key, value, connector, preConnector));
 	}
 
 }

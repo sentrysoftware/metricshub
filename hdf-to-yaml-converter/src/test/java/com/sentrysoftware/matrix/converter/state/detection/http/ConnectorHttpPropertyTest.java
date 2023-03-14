@@ -37,7 +37,8 @@ class ConnectorHttpPropertyTest {
 				connector:
 				  detection:
 				    criteria:
-				    - type: http
+				    - comment: "HTTP criterion comment"
+				      type: http
 				      method: GET
 				      url: test
 				      header: header
@@ -54,7 +55,7 @@ class ConnectorHttpPropertyTest {
 	@Test
 	void testMany() throws IOException {
 		String input = """
-				// HTTP criterion comment
+				// First HTTP criterion comment
 				Detection.Criteria(1).Type="HTTP"
 				Detection.Criteria(1).Method="GET"
 				Detection.Criteria(1).Url="test1"
@@ -83,7 +84,8 @@ class ConnectorHttpPropertyTest {
 				connector:
 				  detection:
 				    criteria:
-				    - type: http
+				    - _comment: "First HTTP criterion comment"
+				      type: http
 				      method: GET
 				      url: test1
 				      header: header1
@@ -91,7 +93,8 @@ class ConnectorHttpPropertyTest {
 				      body: body1
 				      expectedResult: result1
 				      errorMessage: error1
-				    - type: http
+				    - comment: "Second HTTP criterion comment"
+				      type: http
 				      method: GET
 				      url: test2
 				      header: header2

@@ -30,7 +30,7 @@ class SnmpTableSourceDeserializerTest extends DeserializerTest{
 		expected.put("snmpTable1",
 			SnmpTableSource
 				.builder()
-				.key("$pre.snmpTable1")
+				.key("$pre.snmpTable1$")
 				.type("snmpTable")
 				.oid("1.3.6.1.4.1")
 				.selectColumns("ID,1,2,3,4")

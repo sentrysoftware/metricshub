@@ -25,10 +25,15 @@ public enum ConnectorState implements IConnectorStateConverter {
 	}
 
 	@Override
-	public void convert(final String key, final String value, final JsonNode connector) {
-		connectorStateConverter.convert(key, value, connector);
+	public void convert(final String key, final String value, final JsonNode connector, final PreConnector preConnector) {
+		connectorStateConverter.convert(key, value, connector, preConnector);
 	}
 
+	/**
+	 * Get state values
+	 *
+	 * @return Set of {@link ConnectorState}
+	 */
 	public static Set<ConnectorState> getConnectorStates() {
 		return Arrays.stream(ConnectorState.values()).collect(Collectors.toSet());
 	}
