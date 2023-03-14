@@ -37,7 +37,7 @@ class SshInteractiveSourceDeserializerTest extends DeserializerTest {
 			Map.of("testSshInteractiveSource",
 				SshInteractiveSource
 					.builder()
-					.key("$pre.testSshInteractiveSource")
+					.key("$pre.testSshInteractiveSource$")
 					.type("sshInteractive")
 					.port(22)
 					.exclude("unknown")

@@ -29,9 +29,9 @@ class CopySourceDeserializerTest extends DeserializerTest {
 		final Map<String, Source> expected = new LinkedHashMap<String, Source>(
 				Map.of("testCopySource",
 					CopySource.builder()
-						.key("$pre.testCopySource")
+						.key("$pre.testCopySource$")
 						.type("copy")
-						.from("$pre.anotherSource")
+						.from("$pre.anotherSource$")
 						.computes(Collections.emptyList())
 						.build()
 					)

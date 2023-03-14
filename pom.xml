@@ -57,6 +57,7 @@
 	<modules>
 		<module>matrix-engine</module>
 		<module>hdf-to-yaml-converter</module>
+		<module>connector-serializer</module>
 	</modules>
 
 	<dependencyManagement>
@@ -64,6 +65,11 @@
 			<dependency>
 				<groupId>com.sentrysoftware.matrix</groupId>
 				<artifactId>matrix-engine</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sentrysoftware.matrix</groupId>
+				<artifactId>connector-serializer</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

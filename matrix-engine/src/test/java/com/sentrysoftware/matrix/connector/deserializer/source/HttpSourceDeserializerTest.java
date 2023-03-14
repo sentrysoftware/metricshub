@@ -33,7 +33,7 @@ class HttpSourceDeserializerTest extends DeserializerTest {
 				"testHttpSource",
 				HttpSource
 					.builder()
-					.key("$pre.testHttpSource")
+					.key("$pre.testHttpSource$")
 					.type("http")
 					.url("/testUrl/")
 					.method(POST)
@@ -54,7 +54,7 @@ class HttpSourceDeserializerTest extends DeserializerTest {
 				"devices",
 				HttpSource
 					.builder()
-					.key("$pre.devices")
+					.key("$pre.devices$")
 					.type("http")
 					.url("/devices")
 					.method(GET)
@@ -62,12 +62,12 @@ class HttpSourceDeserializerTest extends DeserializerTest {
 				"detailsOfEachDevice",
 				HttpSource
 					.builder()
-					.key("$pre.detailsOfEachDevice")
+					.key("$pre.detailsOfEachDevice$")
 					.type("http")
 					.url("/device-detail/$entry.column(1)$")
 					.method(GET)
 					.executeForEachEntryOf(
-						new ExecuteForEachEntryOf("$pre.devices", EntryConcatMethod.LIST)
+						new ExecuteForEachEntryOf("$pre.devices$", EntryConcatMethod.LIST)
 					)
 					.build()
 			)

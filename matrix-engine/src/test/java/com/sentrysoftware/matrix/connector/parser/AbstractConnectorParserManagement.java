@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.function.Function;
 
 import com.sentrysoftware.matrix.connector.deserializer.DeserializerTest;
 import com.sentrysoftware.matrix.connector.model.Connector;
@@ -14,10 +15,10 @@ public abstract class AbstractConnectorParserManagement extends DeserializerTest
 	final protected String relativePath;
 	final protected Path connectorDirectory;
 
-	public AbstractConnectorParserManagement(String relativePath) {
+	public AbstractConnectorParserManagement(String relativePath, Function<Path, ConnectorParser> parserProducer) {
 		this.relativePath = relativePath;
 		this.connectorDirectory = Path.of(getResourcePath());
-		this.parser = ConnectorParser.withNodeProcessor(connectorDirectory);
+		this.parser = parserProducer.apply(connectorDirectory);
 	}
 
 	/**
@@ -27,11 +28,15 @@ public abstract class AbstractConnectorParserManagement extends DeserializerTest
 	 */
 	protected void test() throws IOException {
 
-		final Connector test = parser.parse(connectorDirectory.resolve("test.yaml").toFile());
+		final Connector test = parse("test");
 		final Connector expected = getConnector("expected");
 
 		expected.getConnectorIdentity().setCompiledFilename("test");
 
 		assertEquals(expected, test);
+	}
+
+	protected Connector parse(String testFile) throws IOException {
+		return parser.parse(connectorDirectory.resolve(testFile + ".yaml").toFile());
 	}
 }

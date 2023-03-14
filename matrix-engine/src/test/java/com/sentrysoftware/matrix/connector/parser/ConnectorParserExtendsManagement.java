@@ -3,7 +3,7 @@ package com.sentrysoftware.matrix.connector.parser;
 public class ConnectorParserExtendsManagement extends AbstractConnectorParserManagement {
 
 	public ConnectorParserExtendsManagement(String relativePath) {
-		super(relativePath);
+		super(relativePath, (dir) -> ConnectorParser.withNodeProcessor(dir));
 	}
 
 	@Override

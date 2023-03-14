@@ -29,7 +29,7 @@ class OsCommandSourceDeserializerTest extends DeserializerTest{
 		Map<String, Source> expected = new LinkedHashMap<>();
 		expected.put("oscommand1",
 				OsCommandSource.builder()
-						.key("$pre.oscommand1")
+						.key("$pre.oscommand1$")
 						.type("osCommand")
 						.timeout((long) 30)
 						.exclude("excludeRegExp")

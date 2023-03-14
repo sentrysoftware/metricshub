@@ -58,7 +58,7 @@ class MonitorsDeserializerTest extends DeserializerTest {
 					.type("wbem")
 					.query("SELECT __PATH,Model,EMCSerialNumber FROM EMC_ArrayChassis")
 					.namespace("root/emc")
-					.key("$monitors.enclosure.discovery.sources.source(1)")
+					.key("$monitors.enclosure.discovery.sources.source(1)$")
 					.build(),
 				"source(2)",
 				WbemSource
@@ -66,7 +66,7 @@ class MonitorsDeserializerTest extends DeserializerTest {
 					.type("wbem")
 					.query("SELECT Antecedent,Dependent FROM EMC_ComputerSystemPackage")
 					.namespace("root/emc")
-					.key("$monitors.enclosure.discovery.sources.source(2)")
+					.key("$monitors.enclosure.discovery.sources.source(2)$")
 					.build(),
 				"source(3)",
 				WbemSource
@@ -74,7 +74,7 @@ class MonitorsDeserializerTest extends DeserializerTest {
 					.type("wbem")
 					.query("SELECT Antecedent,Dependent FROM EMC_SystemPackaging")
 					.namespace("root/emc")
-					.key("$monitors.enclosure.discovery.sources.source(3)")
+					.key("$monitors.enclosure.discovery.sources.source(3)$")
 					.build(),
 				"source(4)",
 				TableUnionSource
@@ -83,12 +83,12 @@ class MonitorsDeserializerTest extends DeserializerTest {
 					.tables(
 						new ArrayList<>(
 							List.of(
-								"$monitors.enclosure.discovery.source(1)",
-								"$monitors.enclosure.discovery.source(2)"
+								"$monitors.enclosure.discovery.source(1)$",
+								"$monitors.enclosure.discovery.source(2)$"
 							)
 						)
 					)
-					.key("$monitors.enclosure.discovery.sources.source(4)")
+					.key("$monitors.enclosure.discovery.sources.source(4)$")
 					.build(),
 				"source(5)",
 				WbemSource
@@ -96,31 +96,31 @@ class MonitorsDeserializerTest extends DeserializerTest {
 					.type("wbem")
 					.query("SELECT __PATH,ElementName,Description,OtherIdentifyingInfo,OperationalStatus FROM EMC_StorageSystem")
 					.namespace("root/emc")
-					.key("$monitors.enclosure.discovery.sources.source(5)")
+					.key("$monitors.enclosure.discovery.sources.source(5)$")
 					.build(),
 				"source(6)",
 				TableJoinSource
 					.builder()
 					.type("tableJoin")
-					.leftTable("$monitors.enclosure.discovery.sources.source(1)")
-					.rightTable("$monitors.enclosure.discovery.sources.source(4)")
+					.leftTable("$monitors.enclosure.discovery.sources.source(1)$")
+					.rightTable("$monitors.enclosure.discovery.sources.source(4)$")
 					.leftKeyColumn(1)
 					.rightKeyColumn(1)
 					.keyType("WBEM")
 					.defaultRightLine(";;")
-					.key("$monitors.enclosure.discovery.sources.source(6)")
+					.key("$monitors.enclosure.discovery.sources.source(6)$")
 					.build(),
 				"source(7)",
 				TableJoinSource
 					.builder()
 					.type("tableJoin")
-					.leftTable("$monitors.enclosure.discovery.sources.source(6)")
-					.rightTable("$monitors.enclosure.discovery.sources.source(5)")
+					.leftTable("$monitors.enclosure.discovery.sources.source(6)$")
+					.rightTable("$monitors.enclosure.discovery.sources.source(5)$")
 					.leftKeyColumn(5)
 					.rightKeyColumn(1)
 					.keyType("WBEM")
 					.defaultRightLine(";;;;")
-					.key("$monitors.enclosure.discovery.sources.source(7)")
+					.key("$monitors.enclosure.discovery.sources.source(7)$")
 					.build()
 			)
 		);
@@ -131,7 +131,7 @@ class MonitorsDeserializerTest extends DeserializerTest {
 
 		final Mapping expectedMapping = Mapping
 			.builder()
-			.source("$monitors.enclosure.discovery.sources.Source(7)")
+			.source("$monitors.enclosure.discovery.sources.source(7)$")
 			.attributes(
 				Map.of(
 					"id", "buildId($column(6))",
@@ -174,7 +174,7 @@ class MonitorsDeserializerTest extends DeserializerTest {
 					.type("wbem")
 					.query("SELECT __PATH,OperationalStatus FROM EMC_StorageSystem")
 					.namespace("root/emc")
-					.key("$monitors.enclosure.multiCollect.sources.source(1)")
+					.key("$monitors.enclosure.multiCollect.sources.source(1)$")
 					.build()
 			)
 		);
@@ -186,7 +186,7 @@ class MonitorsDeserializerTest extends DeserializerTest {
 		final Mapping expectedMapping = Mapping
 			.builder()
 			.deviceId("$column(1)")
-			.source("$monitors.enclosure.multiCollect.sources.Source(1)")
+			.source("$monitors.enclosure.multiCollect.sources.Source(1)$")
 			.metrics(Map.of("hw.status", "$column(2)"))
 			.build();
 
@@ -218,7 +218,7 @@ class MonitorsDeserializerTest extends DeserializerTest {
 					.type("wbem")
 					.query("SELECT $enclosure.deviceId$,OperationalStatus FROM EMC_StorageSystem")
 					.namespace("root/emc")
-					.key("$monitors.enclosure.monoCollect.sources.source(1)")
+					.key("$monitors.enclosure.monoCollect.sources.source(1)$")
 					.build()
 			)
 		);
@@ -229,7 +229,7 @@ class MonitorsDeserializerTest extends DeserializerTest {
 
 		final Mapping expectedMapping = Mapping
 			.builder()
-			.source("$monitors.enclosure.monoCollect.sources.Source(1)")
+			.source("$monitors.enclosure.monoCollect.sources.Source(1)$")
 			.metrics(Map.of("hw.status", "$column(2)"))
 			.build();
 
@@ -261,7 +261,7 @@ class MonitorsDeserializerTest extends DeserializerTest {
 					.type("wbem")
 					.query("SELECT __PATH,Model,EMCSerialNumber FROM EMC_ArrayChassis")
 					.namespace("root/emc")
-					.key("$monitors.enclosure.allAtOnce.sources.source(1)")
+					.key("$monitors.enclosure.allAtOnce.sources.source(1)$")
 					.build(),
 				"source(2)",
 				WbemSource
@@ -269,7 +269,7 @@ class MonitorsDeserializerTest extends DeserializerTest {
 					.type("wbem")
 					.query("SELECT Antecedent,Dependent FROM EMC_ComputerSystemPackage")
 					.namespace("root/emc")
-					.key("$monitors.enclosure.allAtOnce.sources.source(2)")
+					.key("$monitors.enclosure.allAtOnce.sources.source(2)$")
 					.build(),
 				"source(3)",
 				WbemSource
@@ -277,7 +277,7 @@ class MonitorsDeserializerTest extends DeserializerTest {
 					.type("wbem")
 					.query("SELECT Antecedent,Dependent FROM EMC_SystemPackaging")
 					.namespace("root/emc")
-					.key("$monitors.enclosure.allAtOnce.sources.source(3)")
+					.key("$monitors.enclosure.allAtOnce.sources.source(3)$")
 					.build(),
 				"source(4)",
 				TableUnionSource
@@ -286,12 +286,12 @@ class MonitorsDeserializerTest extends DeserializerTest {
 					.tables(
 						new ArrayList<>(
 							List.of(
-								"$monitors.enclosure.discovery.source(1)",
-								"$monitors.enclosure.discovery.source(2)"
+								"$monitors.enclosure.discovery.source(1)$",
+								"$monitors.enclosure.discovery.source(2)$"
 							)
 						)
 					)
-					.key("$monitors.enclosure.allAtOnce.sources.source(4)")
+					.key("$monitors.enclosure.allAtOnce.sources.source(4)$")
 					.build(),
 				"source(5)",
 				WbemSource
@@ -299,31 +299,31 @@ class MonitorsDeserializerTest extends DeserializerTest {
 					.type("wbem")
 					.query("SELECT __PATH,ElementName,Description,OtherIdentifyingInfo,OperationalStatus FROM EMC_StorageSystem")
 					.namespace("root/emc")
-					.key("$monitors.enclosure.allAtOnce.sources.source(5)")
+					.key("$monitors.enclosure.allAtOnce.sources.source(5)$")
 					.build(),
 				"source(6)",
 				TableJoinSource
 					.builder()
 					.type("tableJoin")
-					.leftTable("$monitors.enclosure.discovery.sources.source(1)")
-					.rightTable("$monitors.enclosure.discovery.sources.source(4)")
+					.leftTable("$monitors.enclosure.discovery.sources.source(1)$")
+					.rightTable("$monitors.enclosure.discovery.sources.source(4)$")
 					.leftKeyColumn(1)
 					.rightKeyColumn(1)
 					.keyType("WBEM")
 					.defaultRightLine(";;")
-					.key("$monitors.enclosure.allAtOnce.sources.source(6)")
+					.key("$monitors.enclosure.allAtOnce.sources.source(6)$")
 					.build(),
 				"source(7)",
 				TableJoinSource
 					.builder()
 					.type("tableJoin")
-					.leftTable("$monitors.enclosure.discovery.sources.source(6)")
-					.rightTable("$monitors.enclosure.discovery.sources.source(5)")
+					.leftTable("$monitors.enclosure.discovery.sources.source(6)$")
+					.rightTable("$monitors.enclosure.discovery.sources.source(5)$")
 					.leftKeyColumn(5)
 					.rightKeyColumn(1)
 					.keyType("WBEM")
 					.defaultRightLine(";;;;")
-					.key("$monitors.enclosure.allAtOnce.sources.source(7)")
+					.key("$monitors.enclosure.allAtOnce.sources.source(7)$")
 					.build()
 			)
 		);
@@ -334,7 +334,7 @@ class MonitorsDeserializerTest extends DeserializerTest {
 
 		final Mapping expectedMapping = Mapping
 			.builder()
-			.source("$monitors.enclosure.discovery.sources.Source(7)")
+			.source("$monitors.enclosure.discovery.sources.Source(7)$")
 			.attributes(
 				Map.of(
 					"id", "buildId($column(6))",
