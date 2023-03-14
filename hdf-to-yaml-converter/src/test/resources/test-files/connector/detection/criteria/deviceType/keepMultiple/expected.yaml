@@ -1,0 +1,10 @@
+---
+connector:
+  detection:
+    criteria:
+    - type: deviceType
+      _comments: >
+        //
+        // DETECTION
+        //
+      keep: [ Solaris, SunOs, Linux ]
