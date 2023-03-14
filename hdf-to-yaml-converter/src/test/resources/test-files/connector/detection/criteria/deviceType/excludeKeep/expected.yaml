@@ -3,7 +3,7 @@ connector:
   detection:
     criteria:
     - type: deviceType
-      _comments: >
+      _comment: >
         //
         // DETECTION
         //

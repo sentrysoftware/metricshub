@@ -3,8 +3,8 @@ connector:
   detection:
     criteria:
     - type: deviceType
-      _comments: Only for type storage
+      _comment: Only for type storage
       keep: [ OOB ]
     - type: deviceType
-      _comments: Definitely not linux
+      _comment: Definitely not linux
       exclude: [ Linux ]

@@ -3,8 +3,8 @@ connector:
   detection:
     criteria:
     - type: productRequirements
-      _comments: Only for Hardware KM 11.3.00+
+      _comment: Only for Hardware KM 11.3.00+
       kmVersion: 11.3.00
     - type: deviceType
-      _comments: Definitely not linux
+      _comment: Definitely not linux
       exclude: [ Linux ]
