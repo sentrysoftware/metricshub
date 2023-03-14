@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.converter.state.detection.http;
+package com.sentrysoftware.matrix.converter.state.detection.wbem;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -13,18 +13,14 @@ import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 import com.sentrysoftware.matrix.converter.ConnectorConverter;
 import com.sentrysoftware.matrix.converter.PreConnector;
 
-class ConnectorHttpPropertyTest {
-
+public class ConnectorWbemPropertyTest {
 	@Test
 	void test() throws IOException {
 		String input = """
-				// HTTP criterion comment
-				Detection.Criteria(1).Type="HTTP"
-				Detection.Criteria(1).Method="GET"
-				Detection.Criteria(1).Url="test"
-				Detection.Criteria(1).Header="header"
-				Detection.Criteria(1).AuthenticationToken="authenticationToken"
-				Detection.Criteria(1).Body="body"
+				// WBEM criterion comment
+				Detection.Criteria(1).Type="WBEM"
+				Detection.Criteria(1).WbemQuery="query"
+				Detection.Criteria(1).WbemNamespace="namespace"
 				Detection.Criteria(1).ExpectedResult="result"
 				Detection.Criteria(1).ErrorMessage="error"
 			""";
@@ -37,13 +33,10 @@ class ConnectorHttpPropertyTest {
 				connector:
 				  detection:
 				    criteria:
-				    - _comment: "HTTP criterion comment"
-				      type: http
-				      method: GET
-				      url: test
-				      header: header
-				      authenticationToken: authenticationToken
-				      body: body
+				    - _comment: "WBEM criterion comment"
+				      type: wbem
+				      query: query
+				      namespace: namespace
 				      expectedResult: result
 				      errorMessage: error
 				""";
@@ -55,26 +48,20 @@ class ConnectorHttpPropertyTest {
 	@Test
 	void testMany() throws IOException {
 		String input = """
-				// First HTTP criterion comment
-				Detection.Criteria(1).Type="HTTP"
-				Detection.Criteria(1).Method="GET"
-				Detection.Criteria(1).Url="test1"
-				Detection.Criteria(1).Header="header1"
-				Detection.Criteria(1).AuthenticationToken="authenticationToken1"
-				Detection.Criteria(1).Body="body1"
+				// First WBEM criterion comment
+				Detection.Criteria(1).Type="WBEM"
+				Detection.Criteria(1).WbemQuery="query1"
+				Detection.Criteria(1).WbemNamespace="namespace1"
 				Detection.Criteria(1).ExpectedResult="result1"
 				Detection.Criteria(1).ErrorMessage="error1"
-				
-				// Second HTTP criterion comment
-				Detection.Criteria(2).Type="HTTP"
-				Detection.Criteria(2).Method="GET"
-				Detection.Criteria(2).Url="test2"
-				Detection.Criteria(2).Header="header2"
-				Detection.Criteria(2).AuthenticationToken="authenticationToken2"
-				Detection.Criteria(2).Body="body2"
+
+				// Second WBEM criterion comment
+				Detection.Criteria(2).Type="WBEM"
+				Detection.Criteria(2).WbemQuery="query2"
+				Detection.Criteria(2).WbemNamespace="namespace2"
 				Detection.Criteria(2).ExpectedResult="result2"
 				Detection.Criteria(2).ErrorMessage="error2"
-			""";
+				""";
 
 		PreConnector preConnector = new PreConnector();
 		preConnector.load(new ByteArrayInputStream(input.getBytes()));
@@ -84,22 +71,16 @@ class ConnectorHttpPropertyTest {
 				connector:
 				  detection:
 				    criteria:
-				    - _comment: "First HTTP criterion comment"
-				      type: http
-				      method: GET
-				      url: test1
-				      header: header1
-				      authenticationToken: authenticationToken1
-				      body: body1
+				    - _comment: "First WBEM criterion comment"
+				      type: wbem
+				      query: query1
+				      namespace: namespace1
 				      expectedResult: result1
 				      errorMessage: error1
-				    - _comment: "Second HTTP criterion comment"
-				      type: http
-				      method: GET
-				      url: test2
-				      header: header2
-				      authenticationToken: authenticationToken2
-				      body: body2
+				    - _comment: "Second WBEM criterion comment"
+				      type: wbem
+				      query: query2
+				      namespace: namespace2
 				      expectedResult: result2
 				      errorMessage: error2
 				""";
