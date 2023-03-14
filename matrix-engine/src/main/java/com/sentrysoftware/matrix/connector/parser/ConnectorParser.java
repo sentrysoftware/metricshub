@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 import com.sentrysoftware.matrix.connector.deserializer.ConnectorDeserializer;
+import com.sentrysoftware.matrix.connector.deserializer.PostDeserializeHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.update.AvailableSourceUpdate;
 import com.sentrysoftware.matrix.connector.update.CompiledFilenameUpdate;
@@ -67,6 +68,9 @@ public class ConnectorParser {
 	 */
 	public static ConnectorParser withNodeProcessor(final Path connectorDirectory) {
 		final ObjectMapper mapper = JsonHelper.buildYamlMapper();
+
+		PostDeserializeHelper.addPostDeserializeSupport(mapper);
+
 		return ConnectorParser.builder()
 			.deserializer(new ConnectorDeserializer(mapper))
 			.processor(NodeProcessorHelper.withExtendsAndConstantsProcessor(connectorDirectory, mapper))

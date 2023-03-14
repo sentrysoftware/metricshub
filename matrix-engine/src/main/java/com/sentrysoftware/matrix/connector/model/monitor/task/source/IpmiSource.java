@@ -55,9 +55,4 @@ public class IpmiSource extends Source {
 		return super.toString();
 	}
 
-	@Override
-	protected String[] maybeSourceRefs() {
-		return new String[] {};
-	}
-
 }

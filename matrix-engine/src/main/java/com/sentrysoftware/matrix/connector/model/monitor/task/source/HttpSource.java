@@ -108,14 +108,4 @@ public class HttpSource extends Source {
 		return stringJoiner.toString();
 	}
 
-	@Override
-	protected String[] maybeSourceRefs() {
-		return new String[] {
-			url,
-			header,
-			body,
-			authenticationToken,
-		};
-	}
-
 }

@@ -7,7 +7,9 @@ import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
 
@@ -52,6 +54,7 @@ public abstract class Source implements Serializable {
 	@JsonIgnore
 	protected String key;
 	protected ExecuteForEachEntryOf executeForEachEntryOf;
+	private Set<String> references = new HashSet<>();
 
 	protected Source(
 		String type,
@@ -66,13 +69,12 @@ public abstract class Source implements Serializable {
 		this.forceSerialization = forceSerialization;
 		this.key = key;
 		this.executeForEachEntryOf = executeForEachEntryOf;
+		this.references = new HashSet<>();
 	}
 
 	public abstract Source copy();
 
 	public abstract void update(UnaryOperator<String> updater);
-
-	protected abstract String[] maybeSourceRefs();
 
 	@Override
 	public String toString() {
@@ -102,23 +104,4 @@ public abstract class Source implements Serializable {
 				&& !executeForEachEntryOf.getSource().isBlank();
 	}
 
-	/**
-	 * Return the source references concatenated to the executeForEachEntryOf reference.
-	 * 
-	 * @return new String array
-	 */
-	public String[] getPossibleReferences() {
-
-		final String [] refs = maybeSourceRefs();
-
-		if (isExecuteForEachEntryOf()) {
-
-			final String[] withEntry = new String[refs.length + 1];
-			System.arraycopy(refs, 0, withEntry, 0, refs.length);
-			withEntry[refs.length] = executeForEachEntryOf.getSource();
-			return withEntry;
-		}
-
-		return refs;
-	}
 }

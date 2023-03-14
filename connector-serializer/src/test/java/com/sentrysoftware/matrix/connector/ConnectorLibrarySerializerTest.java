@@ -13,7 +13,9 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -29,9 +31,100 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.WbemSource;
 
 class ConnectorLibrarySerializerTest {
 
+	private static final TableJoinSource SOURCE7 = TableJoinSource
+		.builder()
+		.type("tableJoin")
+		.leftTable("$monitors.enclosure.discovery.sources.source(6)$")
+		.rightTable("$monitors.enclosure.discovery.sources.source(5)$")
+		.leftKeyColumn(5)
+		.rightKeyColumn(1)
+		.keyType("WBEM")
+		.defaultRightLine(";;;;")
+		.key("$monitors.enclosure.discovery.sources.source(7)$")
+		.build();
+
+	private static final TableJoinSource SOURCE6 = TableJoinSource
+		.builder()
+		.type("tableJoin")
+		.leftTable("$monitors.enclosure.discovery.sources.source(1)$")
+		.rightTable("$monitors.enclosure.discovery.sources.source(4)$")
+		.leftKeyColumn(1)
+		.rightKeyColumn(1)
+		.keyType("WBEM")
+		.defaultRightLine(";;")
+		.key("$monitors.enclosure.discovery.sources.source(6)$")
+		.build();
+
+	private static final WbemSource SOURCE5 = WbemSource
+		.builder()
+		.type("wbem")
+		.query("SELECT __PATH,ElementName,Description,OtherIdentifyingInfo,OperationalStatus FROM EMC_StorageSystem")
+		.namespace("root/emc")
+		.key("$monitors.enclosure.discovery.sources.source(5)$")
+		.build();
+
+	private static final TableUnionSource SOURCE4 = TableUnionSource
+		.builder()
+		.type("tableUnion")
+		.tables(
+			new ArrayList<>(
+				List.of(
+					"$monitors.enclosure.discovery.sources.source(2)$",
+					"$monitors.enclosure.discovery.sources.source(3)$"
+				)
+			)
+		)
+		.key("$monitors.enclosure.discovery.sources.source(4)$")
+		.build();
+
+	private static final WbemSource SOURCE3 = WbemSource
+		.builder()
+		.type("wbem")
+		.query("SELECT Antecedent,Dependent FROM EMC_SystemPackaging")
+		.namespace("root/emc")
+		.key("$monitors.enclosure.discovery.sources.source(3)$")
+		.build();
+
+	private static final WbemSource SOURCE2 = WbemSource
+		.builder()
+		.type("wbem")
+		.query("SELECT Antecedent,Dependent FROM EMC_ComputerSystemPackage")
+		.namespace("root/emc")
+		.key("$monitors.enclosure.discovery.sources.source(2)$")
+		.build();
+
+	private static final WbemSource SOURCE1 = WbemSource
+		.builder()
+		.type("wbem")
+		.query("SELECT __PATH,Model,EMCSerialNumber FROM EMC_ArrayChassis")
+		.namespace("root/emc")
+		.key("$monitors.enclosure.discovery.sources.source(1)$")
+		.build();
+
 	@TempDir
 	Path tempDir;
 
+	@BeforeAll
+	static void setUp() {
+		SOURCE7.setReferences(
+			Set.of(
+				"$monitors.enclosure.discovery.sources.source(6)$",
+				"$monitors.enclosure.discovery.sources.source(5)$"
+			)
+		);
+		SOURCE4.setReferences(			
+			Set.of(
+				"$monitors.enclosure.discovery.sources.source(2)$",
+				"$monitors.enclosure.discovery.sources.source(3)$"
+			)
+		);
+		SOURCE6.setReferences(
+			Set.of(
+				"$monitors.enclosure.discovery.sources.source(1)$",
+				"$monitors.enclosure.discovery.sources.source(4)$"
+			)
+		);
+	}
 	@Test
 	void testSerializeConnectorSources() throws IOException, ClassNotFoundException {
 		ConnectorLibrarySerializer.main(new String[] { "src/test/resources/connector", tempDir.toAbsolutePath().toString() });
@@ -63,99 +156,43 @@ class ConnectorLibrarySerializerTest {
 			{
 				put(
 					"source(1)",
-					WbemSource
-						.builder()
-						.type("wbem")
-						.query("SELECT __PATH,Model,EMCSerialNumber FROM EMC_ArrayChassis")
-						.namespace("root/emc")
-						.key("$monitors.enclosure.discovery.sources.source(1)$")
-						.build()
+					SOURCE1
 				);
 			}
 			{
 				put(
 					"source(2)",
-					WbemSource
-						.builder()
-						.type("wbem")
-						.query("SELECT Antecedent,Dependent FROM EMC_ComputerSystemPackage")
-						.namespace("root/emc")
-						.key("$monitors.enclosure.discovery.sources.source(2)$")
-						.build()
+					SOURCE2
 				);
 			}
 			{
 				put(
 					"source(3)",
-					WbemSource
-						.builder()
-						.type("wbem")
-						.query("SELECT Antecedent,Dependent FROM EMC_SystemPackaging")
-						.namespace("root/emc")
-						.key("$monitors.enclosure.discovery.sources.source(3)$")
-						.build()
+					SOURCE3
 				);
 			}
 			{
 				put(
 					"source(4)",
-					TableUnionSource
-						.builder()
-						.type("tableUnion")
-						.tables(
-							new ArrayList<>(
-								List.of(
-									"$monitors.enclosure.discovery.sources.source(2)$",
-									"$monitors.enclosure.discovery.sources.source(3)$"
-								)
-							)
-						)
-						.key("$monitors.enclosure.discovery.sources.source(4)$")
-						.build()
+					SOURCE4
 				);
 			}
 			{
 				put(
 					"source(5)",
-					WbemSource
-						.builder()
-						.type("wbem")
-						.query("SELECT __PATH,ElementName,Description,OtherIdentifyingInfo,OperationalStatus FROM EMC_StorageSystem")
-						.namespace("root/emc")
-						.key("$monitors.enclosure.discovery.sources.source(5)$")
-						.build()
+					SOURCE5
 				);
 			}
 			{
 				put(
 					"source(6)",
-					TableJoinSource
-						.builder()
-						.type("tableJoin")
-						.leftTable("$monitors.enclosure.discovery.sources.source(1)$")
-						.rightTable("$monitors.enclosure.discovery.sources.source(4)$")
-						.leftKeyColumn(1)
-						.rightKeyColumn(1)
-						.keyType("WBEM")
-						.defaultRightLine(";;")
-						.key("$monitors.enclosure.discovery.sources.source(6)$")
-						.build()
+					SOURCE6
 				);
 			}
 			{
 				put(
 					"source(7)",
-					TableJoinSource
-						.builder()
-						.type("tableJoin")
-						.leftTable("$monitors.enclosure.discovery.sources.source(6)$")
-						.rightTable("$monitors.enclosure.discovery.sources.source(5)$")
-						.leftKeyColumn(5)
-						.rightKeyColumn(1)
-						.keyType("WBEM")
-						.defaultRightLine(";;;;")
-						.key("$monitors.enclosure.discovery.sources.source(7)$")
-						.build()
+					SOURCE7
 				);
 			}
 		};
