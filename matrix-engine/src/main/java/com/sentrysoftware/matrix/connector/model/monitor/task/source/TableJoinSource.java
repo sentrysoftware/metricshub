@@ -115,14 +115,4 @@ public class TableJoinSource extends Source {
 		return stringJoiner.toString();
 	}
 
-	@Override
-	protected String[] maybeSourceRefs() {
-		return new String[] {
-			leftTable,
-			rightTable,
-			defaultRightLine,
-			keyType
-		};
-	}
-
 }

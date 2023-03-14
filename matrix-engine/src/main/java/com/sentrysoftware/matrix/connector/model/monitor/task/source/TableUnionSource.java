@@ -78,9 +78,4 @@ public class TableUnionSource extends Source {
 		return stringJoiner.toString();
 	}
 
-	@Override
-	protected String[] maybeSourceRefs() {
-		return tables.toArray(new String[tables.size()]);
-	}
-
 }

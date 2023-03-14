@@ -55,9 +55,4 @@ public class SnmpGetSource extends SnmpSource {
 	public String toString() {
 		return super.toString();
 	}
-
-	@Override
-	protected String[] maybeSourceRefs() {
-		return new String[] { oid };
-	}
 }
