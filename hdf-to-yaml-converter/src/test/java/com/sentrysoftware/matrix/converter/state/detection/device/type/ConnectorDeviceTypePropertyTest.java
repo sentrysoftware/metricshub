@@ -1,31 +1,21 @@
 package com.sentrysoftware.matrix.converter.state.detection.device.type;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sentrysoftware.matrix.common.helpers.JsonHelper;
-import com.sentrysoftware.matrix.converter.ConnectorConverter;
-import com.sentrysoftware.matrix.converter.PreConnector;
+import com.sentrysoftware.matrix.converter.AbstractConnectorPropertyConverterTest;
 
-class ConnectorDeviceTypePropertyTest {
+class ConnectorDeviceTypePropertyTest extends AbstractConnectorPropertyConverterTest {
 
-	private String getResourcePath() {
+	@Override
+	protected String getResourcePath() {
 		return "src/test/resources/test-files/connector/detection/criteria/deviceType/";
 	}
 
 	@Test
 	void testKeep() throws IOException {
-		String input = 
-				"""
+		String input = """
 				// Only for type storage
 				Detection.Criteria(1).Type="OS"
 				Detection.Criteria(1).KeepOnly="OOB"
@@ -36,8 +26,7 @@ class ConnectorDeviceTypePropertyTest {
 
 	@Test
 	void testMultipleCriteria() throws IOException {
-		String input = 
-				"""
+		String input = """
 				// Only for type storage
 				Detection.Criteria(1).Type="OS"
 				Detection.Criteria(1).KeepOnly="OOB"
@@ -52,8 +41,7 @@ class ConnectorDeviceTypePropertyTest {
 
 	@Test
 	void testKeepMultiple() throws IOException {
-		String input = 
-				"""
+		String input = """
 				//
 				// DETECTION
 				//
@@ -67,12 +55,11 @@ class ConnectorDeviceTypePropertyTest {
 
 	@Test
 	void testExclude() throws IOException {
-		String input = 
-				"""
+		String input = """
 				//
 				// DETECTION
 				//
-				
+
 				// Exclude Windows, because on Windows, SCSI disks are monitored through
 				// the WBEM layer
 				Detection.Criteria(1).Type="OS"
@@ -84,12 +71,11 @@ class ConnectorDeviceTypePropertyTest {
 
 	@Test
 	void testExcludeKeep() throws IOException {
-		String input = 
-				"""
+		String input = """
 				//
 				// DETECTION
 				//
-				
+
 				// Exclude Windows, because on Windows, SCSI disks are monitored through
 				// the WBEM layer
 				Detection.Criteria(1).Type="OS"
@@ -98,20 +84,5 @@ class ConnectorDeviceTypePropertyTest {
 				""";
 
 		testConversion(input, "excludeKeep");
-	}
-
-	
-	private void testConversion(String input, String expectedPath)
-			throws IOException, JsonProcessingException, JsonMappingException {
-
-		ObjectMapper mapper = JsonHelper.buildYamlMapper();
-		JsonNode expected = mapper.readTree(new File(getResourcePath() + expectedPath + "/expected.yaml"));
-
-		PreConnector preConnector = new PreConnector();
-		preConnector.load(new ByteArrayInputStream(input.getBytes()));
-		ConnectorConverter connectorConverter = new ConnectorConverter(preConnector);
-		JsonNode connector = connectorConverter.convert();
-
-		assertEquals(expected, connector);
 	}
 }
