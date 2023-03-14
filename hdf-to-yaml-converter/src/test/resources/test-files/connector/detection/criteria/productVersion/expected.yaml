@@ -1,0 +1,20 @@
+---
+- name: multipleCriteria
+  value:
+    connector:
+      detection:
+        criteria:
+        - type: productRequirements
+          _comment: Only for Hardware KM 11.3.00+
+          kmVersion: 11.3.00
+        - type: deviceType
+          _comment: Definitely not linux
+          exclude: [ Linux ]
+- name: kmVersion
+  value:
+    connector:
+      detection:
+        criteria:
+        - type: productRequirements
+          _comment: Only for Hardware KM 11.3.00+
+          kmVersion: 11.3.00

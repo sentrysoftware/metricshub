@@ -1,7 +1,0 @@
----
-connector:
-  detection:
-    criteria:
-    - type: deviceType
-      _comment: Only for type storage
-      keep: [ OOB ]

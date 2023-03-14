@@ -10,23 +10,27 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 
 public abstract class AbstractConnectorPropertyConverterTest {
-    
-    protected abstract String getResourcePath();
 
-    protected void testConversion(String input, String expectedPath)
+	protected abstract String getResourcePath();
+
+	protected void testConversion(String input, String key)
 			throws IOException, JsonProcessingException, JsonMappingException {
-
-		ObjectMapper mapper = JsonHelper.buildYamlMapper();
-		JsonNode expected = mapper.readTree(new File(getResourcePath() + expectedPath + "/expected.yaml"));
 
 		PreConnector preConnector = new PreConnector();
 		preConnector.load(new ByteArrayInputStream(input.getBytes()));
 		ConnectorConverter connectorConverter = new ConnectorConverter(preConnector);
 		JsonNode connector = connectorConverter.convert();
 
-		assertEquals(expected, connector);
+		ObjectMapper mapper = JsonHelper.buildYamlMapper();
+		ArrayNode expectedArray = (ArrayNode) mapper.readTree(new File(getResourcePath() + "expected.yaml"));
+		expectedArray.elements().forEachRemaining(x -> {
+			if (x.get("name").asText().equals(key)) {
+				assertEquals(x.get("value"), connector);
+			}
+		});
 	}
 }
