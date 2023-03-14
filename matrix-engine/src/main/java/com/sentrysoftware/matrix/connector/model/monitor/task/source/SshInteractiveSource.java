@@ -123,15 +123,4 @@ public class SshInteractiveSource extends Source {
 
 	}
 
-
-	@Override
-	protected String[] maybeSourceRefs() {
-		return new String[] {
-			exclude,
-			keep,
-			separators,
-			selectColumns
-		};
-	}
-
 }
