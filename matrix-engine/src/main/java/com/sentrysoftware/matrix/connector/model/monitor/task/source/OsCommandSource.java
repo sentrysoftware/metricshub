@@ -137,15 +137,4 @@ public class OsCommandSource extends Source {
 
 	}
 
-	@Override
-	protected String[] maybeSourceRefs() {
-		return new String[] {
-			commandLine,
-			exclude,
-			keep,
-			separators,
-			selectColumns
-		};
-	}
-
 }

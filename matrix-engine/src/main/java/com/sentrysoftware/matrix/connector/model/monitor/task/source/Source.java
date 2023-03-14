@@ -76,8 +76,6 @@ public abstract class Source implements Serializable {
 
 	public abstract void update(UnaryOperator<String> updater);
 
-	protected abstract String[] maybeSourceRefs();
-
 	@Override
 	public String toString() {
 
@@ -106,23 +104,4 @@ public abstract class Source implements Serializable {
 				&& !executeForEachEntryOf.getSource().isBlank();
 	}
 
-	/**
-	 * Return the source references concatenated to the executeForEachEntryOf reference.
-	 * 
-	 * @return new String array
-	 */
-	public String[] getPossibleReferences() {
-
-		final String [] refs = maybeSourceRefs();
-
-		if (isExecuteForEachEntryOf()) {
-
-			final String[] withEntry = new String[refs.length + 1];
-			System.arraycopy(refs, 0, withEntry, 0, refs.length);
-			withEntry[refs.length] = executeForEachEntryOf.getSource();
-			return withEntry;
-		}
-
-		return refs;
-	}
 }
