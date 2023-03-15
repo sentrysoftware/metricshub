@@ -1,0 +1,61 @@
+- name: service
+  input: >
+    // OS must be Windows
+    Detection.Criteria(1).Type="OS"
+    Detection.Criteria(1).KeepOnly="NT"
+
+    // The IBM Director Agent Service must be running (service name is TWGIPC)
+    Detection.Criteria(2).Type="Service"
+    Detection.Criteria(2).ServiceName="TWGIPC"
+  expected:
+    connector:
+      detection:
+        criteria:
+        - type: deviceType
+          _comment: OS must be Windows
+          keep: [ NT ]
+        - type: service
+          _comment: The IBM Director Agent Service must be running (service name is TWGIPC)
+          serviceName: TWGIPC
+
+- name: testEscapePipe
+  input: >
+    // Detection
+
+    // OS must be Windows
+    Detection.Criteria(1).Type="OS"
+    Detection.Criteria(1).KeepOnly="NT"
+
+    // The IBM Director Agent Service must be running (service name is TWGIPC or IBMTivoliCommonAgent in 6.10.x)
+    // Detection.Criteria(2).Type="Service"
+    // Detection.Criteria(2).ServiceName="TWGIPC\|IBMTivoliCommonAgent"
+  expected:
+    connector:
+      detection:
+        criteria:
+        - type: deviceType
+          _comment: OS must be Windows
+          keep: [ NT ]
+        - type: service
+          _comment: // The IBM Director Agent Service must be running (service name is TWGIPC or IBMTivoliCommonAgent in 6.10.x)
+          serviceName: TWGIPC\|IBMTivoliCommonAgent
+
+- name: testPipe
+  input: >
+    // OS must be Windows
+    Detection.Criteria(1).Type="OS"
+    Detection.Criteria(1).KeepOnly="NT"
+
+    // The IBM Director Agent Service must be running (service name is TWGIPC or IBMTivoliCommonAgent in 6.10.x)
+    // Detection.Criteria(2).Type="Service"
+    // Detection.Criteria(2).ServiceName="TWGIPC|IBMTivoliCommonAgent"
+  expected:
+    connector:
+      detection:
+        criteria:
+        - type: deviceType
+          _comment: OS must be Windows
+          keep: [ NT ]
+        - type: service
+          _comment: // The IBM Director Agent Service must be running (service name is TWGIPC or IBMTivoliCommonAgent in 6.10.x)
+          serviceName: TWGIPC|IBMTivoliCommonAgent

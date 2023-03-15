@@ -1,0 +1,23 @@
+- name: ucs
+  input: >
+    // Only for type storage
+    Detection.Criteria(1).Type="OS"
+    Detection.Criteria(1).KeepOnly="OOB"
+
+    // Checks that Cisco UCS Manager responds
+    Detection.Criteria(2).Type="UCS"
+    Detection.Criteria(2).Query="SELECT dn FROM networkElement"
+    Detection.Criteria(2).ExpectedResult="^networkElement;sys/"
+    Detection.Criteria(2).ErrorMessage="Couldn't connect to UCS Manager on the Fabric Interconnect Switch."
+  expected:
+    connector:
+      detection:
+        criteria:
+        - type: deviceType
+          _comment: Only for type storage
+          keep: [ OOB ]
+        - type: ucs
+          _comment: Checks that Cisco UCS Manager responds
+          query: SELECT dn FROM networkElement
+          expectedResult: ^networkElement;sys/
+          errorMessage: Couldn't connect to UCS Manager on the Fabric Interconnect Switch."

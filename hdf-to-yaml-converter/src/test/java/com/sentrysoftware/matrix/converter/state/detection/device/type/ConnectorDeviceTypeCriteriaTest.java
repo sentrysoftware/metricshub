@@ -6,11 +6,11 @@ import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.converter.AbstractConnectorPropertyConverterTest;
 
-class ConnectorDeviceTypePropertyTest extends AbstractConnectorPropertyConverterTest {
+class ConnectorDeviceTypeCriteriaTest extends AbstractConnectorPropertyConverterTest {
 
 	@Override
 	protected String getResourcePath() {
-		return "src/test/resources/test-files/connector/detection/criteria/deviceType/";
+		return "src/test/resources/test-files/connector/detection/criteria/deviceType";
 	}
 
 	@Test

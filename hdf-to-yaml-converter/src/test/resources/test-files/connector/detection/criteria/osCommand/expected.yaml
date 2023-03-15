@@ -1,0 +1,38 @@
+- name: test
+  input: >
+    // OSCommand criterion comment
+    Detection.Criteria(1).Type="OSCommand"
+    Detection.Criteria(1).ExecuteLocally=1
+    Detection.Criteria(1).CommandLine="echo test"
+  expected:
+    connector:
+      detection:
+        criteria:
+        - _comment: "OSCommand criterion comment"
+          type: oscommand
+          executeLocally = 1
+          commandLine = "echo test"
+
+- name: testMany
+  input: >
+    // First OSCommand criterion comment
+    Detection.Criteria(1).Type="OSCommand"
+    Detection.Criteria(1).ExecuteLocally=1
+    Detection.Criteria(1).CommandLine="echo test1"
+    
+    // Second OSCommand criterion comment
+    Detection.Criteria(2).Type="OSCommand"
+    Detection.Criteria(2).ExecuteLocally=0
+    Detection.Criteria(2).CommandLine="echo test2"
+  expected:
+  	connector:
+      detection:
+        criteria:
+        - _comment: "First OSCommand criterion comment"
+          type: oscommand
+          executeLocally = 1
+          commandLine = "echo test1"
+        - _comment: "Second OSCommand criterion comment"
+          type: oscommand
+          executeLocally = 0
+          commandLine = "echo test2"

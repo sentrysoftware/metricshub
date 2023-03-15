@@ -1,0 +1,53 @@
+- name: snmpGetTest
+  input: >
+    // SNMPGet criterion comment
+    Detection.Criteria(1).Type="SNMP"
+    Detection.Criteria(1).SNMPGet="1.3.6.1.3.94.1.6.1.3"
+    Detection.Criteria(1).ExpectedResult="result"
+  expected:
+    connector:
+      detection:
+        criteria:
+        - _comment: "SNMPGet criterion comment"
+          type: snmpGet
+          oid: "1.3.6.1.3.94.1.6.1.3"
+          expectedResult: result
+
+- name: snmpGetNextTest
+  input: >
+    // SNMPGetNext criterion comment
+    Detection.Criteria(1).Type="SNMP"
+    Detection.Criteria(1).SNMPGetNext="1.3.6.1.3.94.1.6.1.3"
+    Detection.Criteria(1).ExpectedResult="result"
+  expected:
+    connector:
+      detection:
+        criteria:
+        - _comment: "SNMPGetNext criterion comment"
+          type: snmpGetNext
+          oid: "1.3.6.1.3.94.1.6.1.3"
+          expectedResult: result
+
+- name: testMany
+  input: >
+    // SNMPGet criterion comment
+    Detection.Criteria(1).Type="SNMP"
+    Detection.Criteria(1).SNMPGet="1.3.6.1.3.94.1.6.1.3"
+    Detection.Criteria(1).ExpectedResult="result1"
+
+    // SNMPGet Next criterion comment
+    Detection.Criteria(2).Type="SNMP"
+    Detection.Criteria(2).SNMPGetNext="1.3.6.1.3.94.1.6.1.4"
+    Detection.Criteria(2).ExpectedResult="result2"
+  expected:
+    connector:
+      detection:
+        criteria:
+        - _comment: "SNMPGet criterion comment"
+          type: snmpGet
+          oid: "1.3.6.1.3.94.1.6.1.3"
+          expectedResult: result1
+        - _comment: "SNMPGetNext criterion comment"
+          type: snmpGetNext
+          oid: "1.3.6.1.3.94.1.6.1.4"
+          expectedResult: result2
