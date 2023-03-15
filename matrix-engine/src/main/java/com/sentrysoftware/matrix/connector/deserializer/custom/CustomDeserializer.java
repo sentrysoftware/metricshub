@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.deser.std.DelegatingDeserializer;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
 
 /**
- * Class implementing the functionality of the {@link JsonPostDeserialize} annotation.
+ * Class implementing the functionality of the Post deserialization
  */
 public class CustomDeserializer extends DelegatingDeserializer {
 
