@@ -1,6 +1,15 @@
 ---
 - name: exclude
-  value:
+  input: >
+    //
+    // DETECTION
+    //
+
+    // Exclude Windows, because on Windows, SCSI disks are monitored through
+    // the WBEM layer
+    Detection.Criteria(1).Type="OS"
+    Detection.Criteria(1).Exclude="NT"
+  expected:
     connector:
       detection:
         criteria:
@@ -15,7 +24,17 @@
           exclude: [ NT ]
 
 - name: excludeKeep
-  value:
+  input: >
+    //
+    // DETECTION
+    //
+
+    // Exclude Windows, because on Windows, SCSI disks are monitored through
+    // the WBEM layer
+    Detection.Criteria(1).Type="OS"
+    Detection.Criteria(1).Exclude="NT"
+    Detection.Criteria(1).KeepOnly="Linux"
+  expected:
     connector:
       detection:
         criteria:
@@ -31,7 +50,11 @@
           keep: [ Linux ]
 
 - name: keep
-  value:
+  input: >
+    // Only for type storage
+    Detection.Criteria(1).Type="OS"
+    Detection.Criteria(1).KeepOnly="OOB"
+  expected:
     connector:
       detection:
         criteria:
@@ -40,7 +63,14 @@
           keep: [ OOB ]
 
 - name: keepMultiple
-  value:
+  input: >
+    //
+    // DETECTION
+    //
+
+    Detection.Criteria(1).Type="OS"
+    Detection.Criteria(1).KeepOnly="Solaris,SunOS,Linux"
+  expected:
     connector:
       detection:
         criteria:
@@ -52,7 +82,15 @@
           keep: [ Solaris, SunOs, Linux ]
 
 - name: multipleCriteria
-  value:
+  input: >
+    // Only for type storage
+    Detection.Criteria(1).Type="OS"
+    Detection.Criteria(1).KeepOnly="OOB"
+
+    // Definitely not linux
+    Detection.Criteria(2).Type="OS"
+    Detection.Criteria(2).Exclude="Linux"
+  expected:
     connector:
       detection:
         criteria:

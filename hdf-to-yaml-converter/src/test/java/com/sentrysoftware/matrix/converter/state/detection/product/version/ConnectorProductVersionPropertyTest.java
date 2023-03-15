@@ -13,28 +13,10 @@ class ConnectorProductVersionPropertyTest extends AbstractConnectorPropertyConve
 		return "src/test/resources/test-files/connector/detection/criteria/productVersion/";
 	}
 	@Test
-	void testKmVersion() throws IOException {
-		String input = """
-				// Only for Hardware KM 11.3.00+
-				Detection.Criteria(1).Type="KMVersion"
-				Detection.Criteria(1).Version="11.3.00"
-				""";
+	void test() throws IOException {
+		testConversion("kmVersion");
+		testConversion("multipleCriteria");
 
-		testConversion(input, "kmVersion");
-	}
-
-	@Test
-	void testMultipleCriteria() throws IOException {
-		String input = """
-				// Only for Hardware KM 11.3.00+
-				Detection.Criteria(1).Type="KMVersion"
-				Detection.Criteria(1).Version="11.3.00"
-
-				// Definitely not linux
-				Detection.Criteria(2).Type="OS"
-				Detection.Criteria(2).Exclude="Linux"
-				""";
-
-		testConversion(input, "multipleCriteria");
+		testAll();
 	}
 }
