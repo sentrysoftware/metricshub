@@ -1,7 +1,7 @@
 - name: test
   input: >
     // IGNORED COMMENT
-				
+
     // HTTP criterion comment
     Detection.Criteria(1).Type="HTTP"
     Detection.Criteria(1).Method="GET"
@@ -28,7 +28,7 @@
 - name: testMany
   input: >
     // IGNORED COMMENT
-				
+                
     // First HTTP criterion comment
     Detection.Criteria(1).Type="HTTP"
     Detection.Criteria(1).Method="GET"

@@ -1,7 +1,7 @@
 - name: test
   input: >
     // IPMI criterion comment
-		Detection.Criteria(1).Type="IPMI"
+    Detection.Criteria(1).Type="IPMI"
   expected:
     connector:
       detection:
@@ -17,10 +17,10 @@
     // Second IPMI criterion comment
     Detection.Criteria(2).Type="IPMI"
   expected:
-  	connector:
-				  detection:
-				    criteria:
-				    - _comment: "First IPMI criterion comment"
-				      type: ipmi
-				    - _comment: "Second IPMI criterion comment"
-				      type: ipmi
+    connector:
+      detection:
+        criteria:
+        - _comment: "First IPMI criterion comment"
+          type: ipmi
+        - _comment: "Second IPMI criterion comment"
+          type: ipmi

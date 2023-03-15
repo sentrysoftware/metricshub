@@ -33,7 +33,7 @@
     Detection.Criteria(2).ExpectedResult="result2"
     Detection.Criteria(2).ErrorMessage="error2"
   expected:
-  	connector:
+    connector:
       detection:
         criteria:
         - _comment: "First WMI criterion comment"

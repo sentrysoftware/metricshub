@@ -25,7 +25,7 @@
     Detection.Criteria(2).ExecuteLocally=0
     Detection.Criteria(2).CommandLine="echo test2"
   expected:
-  	connector:
+    connector:
       detection:
         criteria:
         - _comment: "First OSCommand criterion comment"
