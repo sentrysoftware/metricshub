@@ -1,6 +1,5 @@
 - name: process
   input: >
-    // The WBEM layer (cimserver) must be running
     Detection.Criteria(2).Type="Process"
     Detection.Criteria(2).ProcessCommandLine="cimserver"
   expected:
@@ -8,13 +7,10 @@
       detection:
         criteria:
         - type: process
-          _comment: The WBEM layer (cimserver) must be running
           commandLine: cimserver
 
 - name: test2
   input: >
-    // DETECTION
-
     Detection.Criteria(1).Type="OS"
     Detection.Criteria(1).KeepOnly="NT"
 
@@ -26,6 +22,5 @@
         criteria:
         - type: DeviceType
           keep: [ NT ]
-          _comment: // DETECTION
         - type: process
           commandLine: MBM[5-9]\.exe

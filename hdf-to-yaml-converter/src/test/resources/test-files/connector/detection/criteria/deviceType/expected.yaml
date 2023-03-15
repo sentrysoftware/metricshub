@@ -1,12 +1,6 @@
 ---
 - name: exclude
   input: >
-    //
-    // DETECTION
-    //
-
-    // Exclude Windows, because on Windows, SCSI disks are monitored through
-    // the WBEM layer
     Detection.Criteria(1).Type="OS"
     Detection.Criteria(1).Exclude="NT"
   expected:
@@ -14,23 +8,10 @@
       detection:
         criteria:
         - type: deviceType
-          _comment: >
-            //
-            // DETECTION
-            //
-            
-            // Exclude Windows, because on Windows, SCSI disks are monitored through
-            // the WBEM layer
           exclude: [ NT ]
 
 - name: excludeKeep
   input: >
-    //
-    // DETECTION
-    //
-
-    // Exclude Windows, because on Windows, SCSI disks are monitored through
-    // the WBEM layer
     Detection.Criteria(1).Type="OS"
     Detection.Criteria(1).Exclude="NT"
     Detection.Criteria(1).KeepOnly="Linux"
@@ -39,19 +20,11 @@
       detection:
         criteria:
         - type: deviceType
-          _comment: >
-            //
-            // DETECTION
-            //
-            
-            // Exclude Windows, because on Windows, SCSI disks are monitored through
-            // the WBEM layer
           exclude: [ NT ]
           keep: [ Linux ]
 
 - name: keep
   input: >
-    // Only for type storage
     Detection.Criteria(1).Type="OS"
     Detection.Criteria(1).KeepOnly="OOB"
   expected:
@@ -59,15 +32,10 @@
       detection:
         criteria:
         - type: deviceType
-          _comment: Only for type storage
           keep: [ OOB ]
 
 - name: keepMultiple
   input: >
-    //
-    // DETECTION
-    //
-
     Detection.Criteria(1).Type="OS"
     Detection.Criteria(1).KeepOnly="Solaris,SunOS,Linux"
   expected:
@@ -75,19 +43,13 @@
       detection:
         criteria:
         - type: deviceType
-          _comment: >
-            //
-            // DETECTION
-            //
           keep: [ Solaris, SunOs, Linux ]
 
 - name: multipleCriteria
   input: >
-    // Only for type storage
     Detection.Criteria(1).Type="OS"
     Detection.Criteria(1).KeepOnly="OOB"
 
-    // Definitely not linux
     Detection.Criteria(2).Type="OS"
     Detection.Criteria(2).Exclude="Linux"
   expected:
@@ -95,8 +57,6 @@
       detection:
         criteria:
         - type: deviceType
-          _comment: Only for type storage
           keep: [ OOB ]
         - type: deviceType
-          _comment: Definitely not linux
           exclude: [ Linux ]
