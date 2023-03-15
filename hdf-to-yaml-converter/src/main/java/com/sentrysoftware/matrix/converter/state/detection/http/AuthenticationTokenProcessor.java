@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.converter.state.detection.common;
+package com.sentrysoftware.matrix.converter.state.detection.http;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -9,25 +9,21 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
 import com.sentrysoftware.matrix.converter.state.AbstractStateConverter;
 
-import lombok.AllArgsConstructor;
+public class AuthenticationTokenProcessor extends AbstractStateConverter {
 
-@AllArgsConstructor
-public class WbemQueryProcessor extends AbstractStateConverter {
-
-	private static final Pattern WBEM_QUERY_KEY_PATTERN = Pattern.compile(
-		"^\\s*detection\\.criteria\\(([1-9]\\d*)\\)\\.wbemquery\\s*$",
+	private static final Pattern AUTHENTICATION_TOKEN_KEY_PATTERN = Pattern.compile(
+		"^\\s*detection\\.criteria\\(([1-9]\\d*)\\)\\.authenticationtoken\\s*$",
 		Pattern.CASE_INSENSITIVE
 	);
 
 	@Override
 	public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
-		((ObjectNode) getLastCriterion(key, connector))
-			.set("query", JsonNodeFactory.instance.textNode(value));
+		((ObjectNode) getLastCriterion(key, connector)).set("authenticationToken", JsonNodeFactory.instance.textNode(value));
 	}
 
 	@Override
 	protected Matcher getMatcher(String key) {
-		return WBEM_QUERY_KEY_PATTERN.matcher(key);
+		return AUTHENTICATION_TOKEN_KEY_PATTERN.matcher(key);
 	}
 
 }

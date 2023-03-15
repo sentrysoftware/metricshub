@@ -14,11 +14,11 @@ public class ConnectorSnmpProperty {
 
 	public static Set<IConnectorStateConverter> getConnectorProperties() {
 
-		return Stream
-				.of(
-					new OidProcessor(),
-					new ExpectedResultProcessor(SnmpProcessor.SNMP_TYPE_VALUE),
-					new ForceSerializationProcessor(SnmpProcessor.SNMP_TYPE_VALUE))
-				.collect(Collectors.toSet());
+		return Stream.of(
+			new OidProcessor(),
+			new ExpectedResultProcessor(),
+			new ForceSerializationProcessor()
+		)
+		.collect(Collectors.toSet());
 	}
 }
