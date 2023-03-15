@@ -13,9 +13,10 @@ import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 import com.sentrysoftware.matrix.converter.ConnectorConverter;
 import com.sentrysoftware.matrix.converter.PreConnector;
 
-public class ConnectorProcessPropertyTest {
+class ConnectorSnmpPropertyTest {
+
 	@Test
-	void snmpGetTest() throws IOException {
+	void snmpGetTest() throws IOException { // NOSONAR
 		String input = """
 				// SNMPGet criterion comment
 				Detection.Criteria(1).Type="SNMP"
@@ -76,7 +77,7 @@ public class ConnectorProcessPropertyTest {
 				Detection.Criteria(1).SNMPGet="1.3.6.1.3.94.1.6.1.3"
 				Detection.Criteria(1).ExpectedResult="result1"
 
-				// SNMPGet Next criterion comment
+				// SNMPGetNext criterion comment
 				Detection.Criteria(2).Type="SNMP"
 				Detection.Criteria(2).SNMPGetNext="1.3.6.1.3.94.1.6.1.4"
 				Detection.Criteria(2).ExpectedResult="result2"

@@ -18,6 +18,8 @@ class ConnectorHttpPropertyTest {
 	@Test
 	void test() throws IOException {
 		String input = """
+				// IGNORED COMMENT
+				
 				// HTTP criterion comment
 				Detection.Criteria(1).Type="HTTP"
 				Detection.Criteria(1).Method="GET"
@@ -27,7 +29,7 @@ class ConnectorHttpPropertyTest {
 				Detection.Criteria(1).Body="body"
 				Detection.Criteria(1).ExpectedResult="result"
 				Detection.Criteria(1).ErrorMessage="error"
-			""";
+				""";
 
 		PreConnector preConnector = new PreConnector();
 		preConnector.load(new ByteArrayInputStream(input.getBytes()));
@@ -55,6 +57,8 @@ class ConnectorHttpPropertyTest {
 	@Test
 	void testMany() throws IOException {
 		String input = """
+				// IGNORED COMMENT
+				
 				// First HTTP criterion comment
 				Detection.Criteria(1).Type="HTTP"
 				Detection.Criteria(1).Method="GET"
@@ -65,7 +69,10 @@ class ConnectorHttpPropertyTest {
 				Detection.Criteria(1).ExpectedResult="result1"
 				Detection.Criteria(1).ErrorMessage="error1"
 				
-				// Second HTTP criterion comment
+				// IGNORED COMMENT
+				
+				// Second HTTP criterion comment1
+				// Second HTTP criterion comment2
 				Detection.Criteria(2).Type="HTTP"
 				Detection.Criteria(2).Method="GET"
 				Detection.Criteria(2).Url="test2"
@@ -81,10 +88,11 @@ class ConnectorHttpPropertyTest {
 		ConnectorConverter connectorConverter = new ConnectorConverter(preConnector);
 		JsonNode connector = connectorConverter.convert();
 		String yaml = """
+				---
 				connector:
 				  detection:
 				    criteria:
-				    - _comment: "First HTTP criterion comment"
+				    - _comment: First HTTP criterion comment
 				      type: http
 				      method: GET
 				      url: test1
@@ -93,7 +101,7 @@ class ConnectorHttpPropertyTest {
 				      body: body1
 				      expectedResult: result1
 				      errorMessage: error1
-				    - _comment: "Second HTTP criterion comment"
+				    - _comment: "Second HTTP criterion comment1\\nSecond HTTP criterion comment2"
 				      type: http
 				      method: GET
 				      url: test2
@@ -106,5 +114,6 @@ class ConnectorHttpPropertyTest {
 		ObjectMapper mapper = JsonHelper.buildYamlMapper();
 		JsonNode expected = mapper.readTree(yaml);
 		assertEquals(expected, connector);
+		
 	}
 }

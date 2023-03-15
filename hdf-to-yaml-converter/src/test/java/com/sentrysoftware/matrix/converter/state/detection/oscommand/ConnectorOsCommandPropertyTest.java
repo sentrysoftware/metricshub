@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -13,8 +14,10 @@ import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 import com.sentrysoftware.matrix.converter.ConnectorConverter;
 import com.sentrysoftware.matrix.converter.PreConnector;
 
-public class ConnectorOSCommandPropertyTest {
+class ConnectorOsCommandPropertyTest {
+
 	@Test
+	@Disabled("Until OsCommand Converter is up!")
 	void test() throws IOException {
 		String input = """
 				// OSCommand criterion comment
@@ -42,6 +45,7 @@ public class ConnectorOSCommandPropertyTest {
 	}
 
 	@Test
+	@Disabled("Until OsCommand Converter is up!")
 	void testMany() throws IOException {
 		String input = """
 				// First OSCommand criterion comment

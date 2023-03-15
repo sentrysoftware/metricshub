@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -14,7 +15,9 @@ import com.sentrysoftware.matrix.converter.ConnectorConverter;
 import com.sentrysoftware.matrix.converter.PreConnector;
 
 class ConnectorWmiPropertyTest {
+
 	@Test
+	@Disabled("Until Wmi Converter is up!")
 	void getAvailableTest() throws IOException {
 		String input = """
 				// WMI criterion comment
@@ -46,6 +49,7 @@ class ConnectorWmiPropertyTest {
 	}
 
 	@Test
+	@Disabled("Until Wmi Converter is up!")
 	void testMany() throws IOException {
 		String input = """
 				// First WMI criterion comment

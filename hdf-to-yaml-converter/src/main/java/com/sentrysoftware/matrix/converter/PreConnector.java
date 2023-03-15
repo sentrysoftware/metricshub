@@ -295,7 +295,7 @@ public class PreConnector {
 				list.clear();
 			} else if (group5 != null){
 				// We've got the key-value pair
-				comments.put(group5.trim(), list);
+				comments.put(group5.trim().toLowerCase(), list);
 				list = new LinkedList<>();
 			}
 		}

@@ -12,22 +12,25 @@ import com.sentrysoftware.matrix.converter.state.detection.common.TypeProcessor;
 import com.sentrysoftware.matrix.converter.state.detection.common.WbemNameSpaceProcessor;
 import com.sentrysoftware.matrix.converter.state.detection.common.WbemQueryProcessor;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access =  AccessLevel.PRIVATE)
 public class ConnectorWbemProperty {
 
-	private static final String WBEM_TYPE_VALUE = "WBEM";
-
-	private ConnectorWbemProperty() {}
+	private static final String WBEM_HDF_TYPE_VALUE = "WBEM";
+	private static final String WBEM_YAML_TYPE_VALUE = "wbem";
 
 	public static Set<IConnectorStateConverter> getConnectorProperties() {
 
-		return Stream
-				.of(
-					new TypeProcessor(WBEM_TYPE_VALUE),
-					new ForceSerializationProcessor(WBEM_TYPE_VALUE),
-					new ExpectedResultProcessor(WBEM_TYPE_VALUE),
-					new WbemNameSpaceProcessor(WBEM_TYPE_VALUE),
-					new WbemQueryProcessor(WBEM_TYPE_VALUE),
-					new ErrorMessageProcessor(WBEM_TYPE_VALUE))
-				.collect(Collectors.toSet());
+		return Stream.of(
+			new TypeProcessor(WBEM_HDF_TYPE_VALUE, WBEM_YAML_TYPE_VALUE),
+			new ForceSerializationProcessor(),
+			new ExpectedResultProcessor(),
+			new WbemNameSpaceProcessor(),
+			new WbemQueryProcessor(),
+			new ErrorMessageProcessor()
+		)
+		.collect(Collectors.toSet());
 	}
 }

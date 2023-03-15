@@ -11,22 +11,27 @@ import com.sentrysoftware.matrix.converter.state.detection.common.ForceSerializa
 import com.sentrysoftware.matrix.converter.state.detection.common.TimeoutProcessor;
 import com.sentrysoftware.matrix.converter.state.detection.common.TypeProcessor;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ConnectorOSCommandProperty {
 
-	private ConnectorOSCommandProperty() {}
+	private static final String OSCOMMAND_HDF_TYPE_VALUE = "OSCommand";
+	private static final String OSCOMMAND_YAML_TYPE_VALUE = "osCommand";
 
 	public static Set<IConnectorStateConverter> getConnectorProperties() {
 
-		return Stream
-				.of(
-					new TypeProcessor(OSCommandProcessor.OSCOMMAND_TYPE_VALUE),
-					new ForceSerializationProcessor(OSCommandProcessor.OSCOMMAND_TYPE_VALUE),
-					new ExpectedResultProcessor(OSCommandProcessor.OSCOMMAND_TYPE_VALUE),
-					new ErrorMessageProcessor(OSCommandProcessor.OSCOMMAND_TYPE_VALUE),
-					new CommandLineProcessor(),
-					new ExecuteLocallyProcessor(),
-					new TimeoutProcessor(OSCommandProcessor.OSCOMMAND_TYPE_VALUE))
-				.collect(Collectors.toSet());
+		return Stream.of(
+			new TypeProcessor(OSCOMMAND_HDF_TYPE_VALUE, OSCOMMAND_YAML_TYPE_VALUE),
+			new ForceSerializationProcessor(),
+			new ExpectedResultProcessor(),
+			new ErrorMessageProcessor(),
+			new CommandLineProcessor(),
+			new ExecuteLocallyProcessor(),
+			new TimeoutProcessor()
+		)
+		.collect(Collectors.toSet());
 	}
 
 }
