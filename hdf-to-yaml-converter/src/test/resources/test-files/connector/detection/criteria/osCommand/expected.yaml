@@ -8,10 +8,10 @@
     connector:
       detection:
         criteria:
-        - _comment: "OSCommand criterion comment"
-          type: oscommand
-          executeLocally = 1
-          commandLine = "echo test"
+        - _comment: OSCommand criterion comment
+          type: osCommand
+          executeLocally: true
+          commandLine: echo test
 
 - name: testMany
   input: |
@@ -28,11 +28,11 @@
     connector:
       detection:
         criteria:
-        - _comment: "First OSCommand criterion comment"
-          type: oscommand
-          executeLocally = 1
-          commandLine = "echo test1"
-        - _comment: "Second OSCommand criterion comment"
-          type: oscommand
-          executeLocally = 0
-          commandLine = "echo test2"
+        - _comment: First OSCommand criterion comment
+          type: osCommand
+          executeLocally: true
+          commandLine: echo test1
+        - _comment: Second OSCommand criterion comment
+          type: osCommand
+          executeLocally: false
+          commandLine: echo test2
