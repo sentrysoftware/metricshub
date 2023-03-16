@@ -26,7 +26,7 @@ public class ConstantsProcessor implements NodeProcessor {
 			final Map<String, String> replacements = new HashMap<>();
 			for (String key : constantKeys) {
 				final JsonNode child = constantsNode.get(key);
-				replacements.put(String.format("$constants.%s", key), child.asText());
+				replacements.put(String.format("$constants.%s$", key), child.asText());
 			}
 
 			final UnaryOperator<String> transformer = value ->  performReplacements(replacements, value);

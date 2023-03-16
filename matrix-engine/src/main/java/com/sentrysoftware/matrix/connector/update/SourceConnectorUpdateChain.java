@@ -15,10 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import com.sentrysoftware.matrix.connector.model.monitor.task.source.CopySource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
-import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableJoinSource;
-import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableUnionSource;
 
 public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdateChain {
 
@@ -189,26 +186,13 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 
 		final Source source = sourceEntry.getValue();
 		final String sourceId = sourceEntry.getKey();
-		if (source instanceof CopySource src) {
-			return getContextDependencies(sourceId, context, sourceGroup, src.getFrom());
-		}
-
-		if (source instanceof TableUnionSource src) {
-			List<String> tables = src.getTables();
-			return getContextDependencies(sourceId, context, sourceGroup, tables.toArray(new String[tables.size()]));
-		}
-
-		if (source instanceof TableJoinSource src) {
-			return getContextDependencies(sourceId, context, sourceGroup, src.getLeftTable(), src.getRightTable());
-
-		}
-
-		if (source.isExecuteForEachEntryOf()) {
-			return getContextDependencies(sourceId, context, sourceGroup, source.getExecuteForEachEntryOf().getSource());
-		}
-
-		return Map.entry(sourceId, new HashSet<>());
-
+		final Set<String> references = source.getReferences();
+		return getContextDependencies(
+			sourceId,
+			context,
+			sourceGroup,
+			references.toArray(new String[references.size()])
+		);
 	}
 
 	/**
@@ -233,6 +217,7 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 
 		// Loop over the references and extract sources
 		for (String ref : refs) {
+
 			final Matcher includeMatcher = context.matcher(ref);
 
 			while (includeMatcher.find()) {

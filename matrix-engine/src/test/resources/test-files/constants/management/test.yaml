@@ -10,5 +10,5 @@ constants:
 pre:
   wbemSource:
     type: wbem
-    query: $constants.query
-    namespace: $constants.namespace
+    query: $constants.query$
+    namespace: $constants.namespace$
