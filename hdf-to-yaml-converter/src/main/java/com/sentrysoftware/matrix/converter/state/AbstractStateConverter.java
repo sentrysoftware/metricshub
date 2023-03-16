@@ -267,6 +267,12 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 		return (ArrayNode) existingCriteria;
 	}
 
+	/**
+	 * Convert a string of "1" or "0" to boolean
+	 * 
+	 * @param value "1" or "0"
+	 * @return converted boolean value
+	 */
 	private boolean convertToBoolean(String value) {
 	    boolean returnValue = false;
 	    if ("1".equalsIgnoreCase(value) || "true".equalsIgnoreCase(value))
