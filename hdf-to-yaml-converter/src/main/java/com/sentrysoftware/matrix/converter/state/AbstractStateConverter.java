@@ -275,7 +275,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	 */
 	private boolean convertToBoolean(String value) {
 	    boolean returnValue = false;
-	    if ("1".equalsIgnoreCase(value) || "true".equalsIgnoreCase(value))
+	    if ("1".equals(value) || "true".equalsIgnoreCase(value))
 	        returnValue = true;
 	    return returnValue;
 	}
