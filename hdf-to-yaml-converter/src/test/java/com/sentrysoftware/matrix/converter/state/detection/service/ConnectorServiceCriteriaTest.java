@@ -2,7 +2,7 @@ package com.sentrysoftware.matrix.converter.state.detection.service;
 
 import java.io.IOException;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Disabled;
 
 import com.sentrysoftware.matrix.converter.AbstractConnectorPropertyConverterTest;

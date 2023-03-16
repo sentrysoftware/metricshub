@@ -6,8 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 
-import org.junit.Assert;
-
+import org.junit.jupiter.api.Assertions;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -40,7 +39,7 @@ public abstract class AbstractConnectorPropertyConverterTest {
 				try {
 					preConnector.load(new ByteArrayInputStream(x.get(INPUT).asText().getBytes()));
 				} catch (IOException e) {
-					Assert.fail(String.format("input for %s not found", key));
+					Assertions.fail(String.format("input for %s not found", key));
 				}
 				ConnectorConverter connectorConverter = new ConnectorConverter(preConnector);
 				JsonNode connector = connectorConverter.convert();
@@ -64,7 +63,7 @@ public abstract class AbstractConnectorPropertyConverterTest {
 			try {
 				preConnector.load(new ByteArrayInputStream(x.get(INPUT).asText().getBytes()));
 			} catch (IOException e) {
-				Assert.fail("input for test was not found");
+				Assertions.fail("input for test was not found");
 			}
 
 			ConnectorConverter connectorConverter = new ConnectorConverter(preConnector);
