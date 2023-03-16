@@ -10,6 +10,8 @@ import java.util.regex.Matcher;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sentrysoftware.matrix.converter.state.detection.snmp.OidProcessor;
 
 import lombok.NonNull;
@@ -118,7 +120,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	}
 
 	/**
-	 * @param key		The key to parse.
+	 * @param key		The key used to check the criterion context
 	 * @param connector	The {@link JsonNode} whose criterion is being searched for.
 	 *
 	 * @return			The criterion matching the given key.
@@ -139,4 +141,129 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 		return criterion;
 	}
 
+	/**
+	 * Create a new text node in the last criterion object
+	 * 
+	 * @param key The key of the criterion context
+	 * @param value The value to create
+	 * @param connector The whole connector
+	 * @param newNodeKey The new node key to create
+	 */
+	protected void createCriterionTextNode(String key, String value, JsonNode connector, String newNodeKey) {
+		final ObjectNode objectNode = (ObjectNode) getLastCriterion(key, connector);
+		createTextNode(newNodeKey, value, objectNode);
+	}
+
+	/**
+	 * Create a new boolean node in the last criterion object
+	 * 
+	 * @param key The key of the criterion context
+	 * @param value The value to create
+	 * @param connector The whole connector
+	 * @param newNodeKey The new node key to create
+	 */
+	protected void createCriterionBooleanNode(String key, String value, JsonNode connector, String newNodeKey) {
+		final ObjectNode objectNode = (ObjectNode) getLastCriterion(key, connector);
+		createBooleanNode(newNodeKey, value, objectNode);
+	}
+
+	/**
+	 * Create a new integer node in the last criterion object
+	 * 
+	 * @param key The key of the criterion context
+	 * @param value The value to create
+	 * @param connector The whole connector
+	 * @param newNodeKey The new node key to create
+	 */
+	protected void createCriterionIntegerNode(String key, String value, JsonNode connector, String newNodeKey) {
+		final ObjectNode objectNode = (ObjectNode) getLastCriterion(key, connector);
+		createIntegerNode(newNodeKey, value, objectNode);
+	}
+
+
+	/**
+	 * Create the a new text node in the given object node
+	 * 
+	 * @param key The node key
+	 * @param value The text value
+	 * @param objectNode The {@link ObjectNode} to update
+	 */
+	protected void createTextNode(final String key, final String value, final ObjectNode objectNode) {
+		objectNode.set(key, JsonNodeFactory.instance.textNode(value));
+	}
+
+	/**
+	 * Create the a new boolean node in the given object node
+	 * 
+	 * @param key The node key
+	 * @param value The text value
+	 * @param objectNode The {@link ObjectNode} to update
+	 */
+	protected void createBooleanNode(final String key, final String value, final ObjectNode objectNode) {
+		objectNode.set(key, JsonNodeFactory.instance.booleanNode(Boolean.valueOf(value.trim())));
+	}
+
+	/**
+	 * Create the a new integer node in the given object node
+	 * 
+	 * @param key The node key
+	 * @param value The text value
+	 * @param objectNode The {@link ObjectNode} to update
+	 */
+	protected void createIntegerNode(final String key, final String value, final ObjectNode objectNode) {
+		objectNode.set(key, JsonNodeFactory.instance.numberNode(Integer.valueOf(value.trim())));
+	}
+
+	/**
+	 * Get or create the criteria array node in the given connector node
+	 * 
+	 * @param connector {@link JsonNode} instance
+	 * @return {@link JsonNode} of the criteria
+	 */
+	protected ArrayNode getOrCreateCriteria(final JsonNode connector) {
+		final JsonNode connectorSection = connector.get(CONNECTOR);
+
+		ArrayNode criteria;
+		if (connectorSection == null) {
+			criteria = JsonNodeFactory.instance.arrayNode();
+			((ObjectNode) connector)
+				.set(
+					CONNECTOR, 
+					JsonNodeFactory
+						.instance
+						.objectNode()
+						.set(
+							DETECTION,
+							JsonNodeFactory
+								.instance
+								.objectNode()
+								.set(CRITERIA, criteria)
+						)
+				);
+			return criteria;
+		}
+
+		final JsonNode detection = connectorSection.get(DETECTION);
+		if (detection == null) {
+			criteria = JsonNodeFactory.instance.arrayNode();
+			((ObjectNode) connectorSection)
+				.set(
+					DETECTION,
+					JsonNodeFactory
+						.instance
+						.objectNode()
+						.set(CRITERIA, criteria)
+				);
+			return criteria;
+		}
+
+		JsonNode existingCriteria = detection.get(CRITERIA);
+		if (existingCriteria == null) {
+			criteria = JsonNodeFactory.instance.arrayNode();
+			((ObjectNode) detection).set(CRITERIA, criteria);
+			return criteria;
+		}
+
+		return (ArrayNode) existingCriteria;
+	}
 }
