@@ -1,19 +1,15 @@
 - name: ucs
   input: |
-    Detection.Criteria(1).Type="OS"
-    Detection.Criteria(1).KeepOnly="OOB"
-
-    Detection.Criteria(2).Type="UCS"
-    Detection.Criteria(2).Query="SELECT dn FROM networkElement"
-    Detection.Criteria(2).ExpectedResult="^networkElement;sys/"
-    Detection.Criteria(2).ErrorMessage="Couldn't connect to UCS Manager on the Fabric Interconnect Switch."
+    Detection.Criteria(1).Type="UCS"
+    Detection.Criteria(1).Query="SELECT dn FROM networkElement"
+    Detection.Criteria(1).ExpectedResult="^networkElement;sys/"
+    Detection.Criteria(1).ErrorMessage="Couldn't connect to UCS Manager on the Fabric Interconnect Switch."
   expected:
     connector:
       detection:
         criteria:
-        - type: deviceType
-          keep: [ OOB ]
         - type: ucs
           query: SELECT dn FROM networkElement
           expectedResult: ^networkElement;sys/
-          errorMessage: Couldn't connect to UCS Manager on the Fabric Interconnect Switch."
+          errorMessage: Couldn't connect to UCS Manager on the Fabric Interconnect Switch.
+          _comment: ""

@@ -4,16 +4,19 @@
     Detection.Criteria(1).Type="KMVersion"
     Detection.Criteria(1).Version="11.3.00"
 
-    Detection.Criteria(2).Type="OS"
-    Detection.Criteria(2).Exclude="Linux"
+    Detection.Criteria(2).Type="KMVersion"
+    Detection.Criteria(2).Version="11.4.00"
   expected:
     connector:
       detection:
         criteria:
         - type: productRequirements
           kmVersion: 11.3.00
-        - type: deviceType
-          exclude: [ Linux ]
+          _comment: ""
+        - type: productRequirements
+          kmVersion: 11.4.00
+          _comment: ""
+
 - name: kmVersion
   input: |
     // Only for Hardware KM 11.3.00+

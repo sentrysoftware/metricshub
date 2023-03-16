@@ -1,23 +1,19 @@
 - name: service
   input: |
-    Detection.Criteria(1).Type="OS"
-    Detection.Criteria(1).KeepOnly="NT"
-
-    Detection.Criteria(2).Type="Service"
-    Detection.Criteria(2).ServiceName="TWGIPC"
+    Detection.Criteria(1).Type="Service"
+    Detection.Criteria(1).ServiceName="TWGIPC"
   expected:
     connector:
       detection:
         criteria:
-        - type: deviceType
-          keep: [ NT ]
         - type: service
           serviceName: TWGIPC
+          _comment: ""
 
 - name: testEscapePipe
   input: |
-    Detection.Criteria(1).Type="OS"
-    Detection.Criteria(1).KeepOnly="NT"
+    Detection.Criteria(1).Type="Service"
+    Detection.Criteria(1).ServiceName="TWGIPC"
 
     Detection.Criteria(2).Type="Service"
     Detection.Criteria(2).ServiceName="TWGIPC\|IBMTivoliCommonAgent"
@@ -25,23 +21,21 @@
     connector:
       detection:
         criteria:
-        - type: deviceType
-          keep: [ NT ]
+        - type: service
+          serviceName: TWGIPC
+          _comment: ""
         - type: service
           serviceName: TWGIPC\|IBMTivoliCommonAgent
+          _comment: ""
 
 - name: testPipe
   input: |
-    Detection.Criteria(1).Type="OS"
-    Detection.Criteria(1).KeepOnly="NT"
-
     Detection.Criteria(2).Type="Service"
     Detection.Criteria(2).ServiceName="TWGIPC|IBMTivoliCommonAgent"
   expected:
     connector:
       detection:
         criteria:
-        - type: deviceType
-          keep: [ NT ]
         - type: service
           serviceName: TWGIPC|IBMTivoliCommonAgent
+          _comment: ""

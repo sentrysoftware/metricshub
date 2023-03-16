@@ -8,11 +8,12 @@
         criteria:
         - type: process
           commandLine: cimserver
+          _comment: ""
 
 - name: test2
   input: |
-    Detection.Criteria(1).Type="OS"
-    Detection.Criteria(1).KeepOnly="NT"
+    Detection.Criteria(1).Type="Process"
+    Detection.Criteria(1).ProcessCommandLine="cimserver"
 
     Detection.Criteria(2).Type="Process"
     Detection.Criteria(2).ProcessCommandLine="MBM[5-9]\.exe"
@@ -20,7 +21,9 @@
     connector:
       detection:
         criteria:
-        - type: DeviceType
-          keep: [ NT ]
+        - type: process
+          commandLine: cimserver
+          _comment: ""
         - type: process
           commandLine: MBM[5-9]\.exe
+          _comment: ""
