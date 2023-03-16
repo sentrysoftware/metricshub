@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
 import com.sentrysoftware.matrix.converter.state.AbstractStateConverter;
-import com.sentrysoftware.matrix.converter.state.detection.common.TypeProcessor;
 
 public class OidProcessor extends AbstractStateConverter {
 
@@ -23,23 +22,24 @@ public class OidProcessor extends AbstractStateConverter {
 
 	@Override
 	public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
-		final JsonNode criteria = TypeProcessor.getOrCreateCriteria(connector);
+		final ArrayNode criteria = getOrCreateCriteria(connector);
 
 		final String type = key.trim().endsWith(SNMP_GET_OID_KEY) ? "snmpGet" : "snmpGetNext";
 
-		final JsonNode criterion = JsonNodeFactory.instance.objectNode();
+		final ObjectNode criterion = JsonNodeFactory.instance.objectNode();
 		final Matcher matcher = getMatcher(key);
 		matcher.find();
-		String index = matcher.group(1);
-		String typeKey = String.format("detection.criteria(%s).type", index);
+		final String index = matcher.group(1);
+		final String typeKey = String.format("detection.criteria(%s).type", index);
 		if (preConnector.getComments().containsKey(typeKey)) {
 			final String comments = preConnector.getComments().get(typeKey).stream().collect(Collectors.joining("\n"));
-			((ObjectNode) criterion).set("_comment", JsonNodeFactory.instance.textNode(comments));
+			createTextNode("_comment", comments, criterion);
 		}
 
-		((ObjectNode) criterion).set("type", JsonNodeFactory.instance.textNode(type));
-		((ObjectNode) criterion).set("oid", JsonNodeFactory.instance.textNode(value));
-		((ArrayNode) criteria).add(criterion);
+		createTextNode("type", type, criterion);
+		createTextNode("oid", value, criterion);
+
+		criteria.add(criterion);
 	}
 
 	@Override

@@ -1,9 +1,5 @@
 package com.sentrysoftware.matrix.converter.state.detection.common;
 
-import static com.sentrysoftware.matrix.converter.ConverterConstants.CONNECTOR;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.CRITERIA;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.DETECTION;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -33,42 +29,17 @@ public class TypeProcessor extends AbstractStateConverter {
 	@Override
 	public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
 
-		final JsonNode criteria = getOrCreateCriteria(connector);
+		final ArrayNode criteria = getOrCreateCriteria(connector);
 
-		final JsonNode criterion = JsonNodeFactory.instance.objectNode();
+		final ObjectNode criterion = JsonNodeFactory.instance.objectNode();
 		if (preConnector.getComments().containsKey(key)) {
 			final String comments = preConnector.getComments().get(key).stream().collect(Collectors.joining("\n"));
-			((ObjectNode) criterion).set("_comment", JsonNodeFactory.instance.textNode(comments));
+			createTextNode("_comment", comments, criterion);
 		}
 
-		((ObjectNode) criterion).set("type", JsonNodeFactory.instance.textNode(yamlType));
-		((ArrayNode) criteria).add(criterion);
-	}
+		createTextNode("type", yamlType, criterion);
 
-	/**
-	 * 
-	 * @param connector
-	 * @return
-	 */
-	public static JsonNode getOrCreateCriteria(final JsonNode connector) {
-		JsonNode connectorSection = connector.get(CONNECTOR);
-		if (connectorSection == null) {
-			connectorSection = JsonNodeFactory.instance.objectNode();
-			((ObjectNode) connector).set(CONNECTOR, connectorSection);
-		}
-
-		JsonNode detection = connectorSection.get(DETECTION);
-		if (detection == null) {
-			detection = JsonNodeFactory.instance.objectNode();
-			((ObjectNode) connectorSection).set(DETECTION, detection);
-		}
-
-		JsonNode criteria = detection.get(CRITERIA);
-		if (criteria == null) {
-			criteria = JsonNodeFactory.instance.arrayNode();
-			((ObjectNode) detection).set(CRITERIA, criteria);
-		}
-		return criteria;
+		criteria.add(criterion);
 	}
 
 	@Override

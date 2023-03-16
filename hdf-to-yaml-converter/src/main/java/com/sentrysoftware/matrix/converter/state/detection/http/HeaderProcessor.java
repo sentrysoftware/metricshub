@@ -4,8 +4,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
 import com.sentrysoftware.matrix.converter.state.AbstractStateConverter;
 
@@ -18,8 +16,7 @@ public class HeaderProcessor extends AbstractStateConverter {
 
 	@Override
 	public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
-		((ObjectNode) getLastCriterion(key, connector))
-			.set("header", JsonNodeFactory.instance.textNode(value));
+		createCriterionTextNode(key, value, connector, "header");
 	}
 
 	@Override
