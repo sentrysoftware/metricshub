@@ -29,6 +29,7 @@ class ConnectorHttpPropertyTest {
 				Detection.Criteria(1).Body="body"
 				Detection.Criteria(1).ExpectedResult="result"
 				Detection.Criteria(1).ErrorMessage="error"
+				Detection.Criteria(1).ForceSerialization=1
 				""";
 
 		PreConnector preConnector = new PreConnector();
@@ -48,6 +49,7 @@ class ConnectorHttpPropertyTest {
 				      body: body
 				      expectedResult: result
 				      errorMessage: error
+				      forceSerialization: true
 				""";
 		ObjectMapper mapper = JsonHelper.buildYamlMapper();
 		JsonNode expected = mapper.readTree(yaml);

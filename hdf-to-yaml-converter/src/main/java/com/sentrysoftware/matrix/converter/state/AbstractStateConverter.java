@@ -200,7 +200,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	 * @param objectNode The {@link ObjectNode} to update
 	 */
 	protected void createBooleanNode(final String key, final String value, final ObjectNode objectNode) {
-		objectNode.set(key, JsonNodeFactory.instance.booleanNode(Boolean.valueOf(value.trim())));
+		objectNode.set(key, JsonNodeFactory.instance.booleanNode(convertToBoolean(value.trim())));
 	}
 
 	/**
@@ -265,5 +265,18 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 		}
 
 		return (ArrayNode) existingCriteria;
+	}
+
+	/**
+	 * Convert a string of "1" or "0" to boolean
+	 * 
+	 * @param value "1" or "0"
+	 * @return converted boolean value
+	 */
+	private boolean convertToBoolean(String value) {
+	    boolean returnValue = false;
+	    if ("1".equals(value) || "true".equalsIgnoreCase(value))
+	        returnValue = true;
+	    return returnValue;
 	}
 }
