@@ -17,7 +17,6 @@ import com.sentrysoftware.matrix.converter.PreConnector;
 class ConnectorOsCommandPropertyTest {
 
 	@Test
-	@Disabled("Until OsCommand Converter is up!")
 	void test() throws IOException {
 		String input = """
 				// OSCommand criterion comment
@@ -35,9 +34,9 @@ class ConnectorOsCommandPropertyTest {
 				  detection:
 				    criteria:
 				    - _comment: "OSCommand criterion comment"
-				      type: oscommand
-				      executeLocally = 1
-				      commandLine = "echo test"
+				      type: osCommand
+				      executeLocally: true
+				      commandLine: "echo test"
 				""";
 		ObjectMapper mapper = JsonHelper.buildYamlMapper();
 		JsonNode expected = mapper.readTree(yaml);
@@ -45,7 +44,6 @@ class ConnectorOsCommandPropertyTest {
 	}
 
 	@Test
-	@Disabled("Until OsCommand Converter is up!")
 	void testMany() throws IOException {
 		String input = """
 				// First OSCommand criterion comment
@@ -68,13 +66,13 @@ class ConnectorOsCommandPropertyTest {
 				  detection:
 				    criteria:
 				    - _comment: "First OSCommand criterion comment"
-				      type: oscommand
-				      executeLocally = 1
-				      commandLine = "echo test1"
+				      type: osCommand
+				      executeLocally: true
+				      commandLine: "echo test1"
 				    - _comment: "Second OSCommand criterion comment"
-				      type: oscommand
-				      executeLocally = 0
-				      commandLine = "echo test2"
+				      type: osCommand
+				      executeLocally: false
+				      commandLine: "echo test2"
 				""";
 		ObjectMapper mapper = JsonHelper.buildYamlMapper();
 		JsonNode expected = mapper.readTree(yaml);

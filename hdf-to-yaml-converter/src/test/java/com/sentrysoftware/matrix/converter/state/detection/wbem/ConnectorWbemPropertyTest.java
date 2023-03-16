@@ -17,7 +17,6 @@ import com.sentrysoftware.matrix.converter.PreConnector;
 class ConnectorWbemPropertyTest {
 
 	@Test
-	@Disabled("Until Wbem Converter is up!")
 	void test() throws IOException {
 		String input = """
 				// WBEM criterion comment
@@ -49,7 +48,6 @@ class ConnectorWbemPropertyTest {
 	}
 
 	@Test
-	@Disabled("Until Wbem Converter is up!")
 	void testMany() throws IOException {
 		String input = """
 				// First WBEM criterion comment

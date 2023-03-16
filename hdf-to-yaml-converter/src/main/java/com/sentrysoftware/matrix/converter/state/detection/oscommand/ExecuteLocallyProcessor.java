@@ -16,7 +16,7 @@ public class ExecuteLocallyProcessor extends AbstractStateConverter {
 
 	@Override
 	public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
-		// TODO implement
+		createCriterionBooleanNode(key, value, connector, "executeLocally");
 	}
 
 	@Override

@@ -16,7 +16,7 @@ public class CommandLineProcessor extends AbstractStateConverter {
 
 	@Override
 	public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
-		// TODO Implement
+		createCriterionTextNode(key, value, connector, "commandLine");
 	}
 
 	@Override

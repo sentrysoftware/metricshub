@@ -6,7 +6,11 @@ import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.converter.state.IConnectorStateConverter;
 import com.sentrysoftware.matrix.converter.state.detection.http.ConnectorHttpProperty;
+import com.sentrysoftware.matrix.converter.state.detection.ipmi.ConnectorIpmiProperty;
+import com.sentrysoftware.matrix.converter.state.detection.oscommand.ConnectorOSCommandProperty;
 import com.sentrysoftware.matrix.converter.state.detection.snmp.ConnectorSnmpProperty;
+import com.sentrysoftware.matrix.converter.state.detection.wbem.ConnectorWbemProperty;
+import com.sentrysoftware.matrix.converter.state.detection.wmi.ConnectorWmiProperty;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -18,7 +22,11 @@ public class ConnectorDetectionProperty {
 
 		return Stream.of(
 			ConnectorHttpProperty.getConnectorProperties(),
-			ConnectorSnmpProperty.getConnectorProperties()
+			ConnectorSnmpProperty.getConnectorProperties(),
+			ConnectorIpmiProperty.getConnectorProperties(),
+			ConnectorWbemProperty.getConnectorProperties(),
+			ConnectorWmiProperty.getConnectorProperties(),
+			ConnectorOSCommandProperty.getConnectorProperties()
 		)
 		.flatMap(Set::stream)
 		.collect(Collectors.toSet());

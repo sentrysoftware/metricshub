@@ -17,7 +17,6 @@ import com.sentrysoftware.matrix.converter.PreConnector;
 class ConnectorWmiPropertyTest {
 
 	@Test
-	@Disabled("Until Wmi Converter is up!")
 	void getAvailableTest() throws IOException {
 		String input = """
 				// WMI criterion comment
@@ -49,7 +48,6 @@ class ConnectorWmiPropertyTest {
 	}
 
 	@Test
-	@Disabled("Until Wmi Converter is up!")
 	void testMany() throws IOException {
 		String input = """
 				// First WMI criterion comment
