@@ -19,7 +19,7 @@ public abstract class AbstractConnectorPropertyConverterTest {
 	private static final String EXPECTED = "expected";
 	private static final String INPUT = "input";
 	private static final String NAME = "name";
-	private static final String EXPECTED_YAML = "/expected.yaml";
+	private static final String EXPECTED_YAML = ".yaml";
 
 	protected abstract String getResourcePath();
 

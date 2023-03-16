@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.converter.state.detection.product.version;
+package com.sentrysoftware.matrix.converter.state.detection.criteria;
 
 import java.io.IOException;
 

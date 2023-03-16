@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.converter.state.detection.process;
+package com.sentrysoftware.matrix.converter.state.detection.criteria;
 
 import java.io.IOException;
 
