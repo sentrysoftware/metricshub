@@ -8,7 +8,7 @@
     connector:
       detection:
         criteria:
-        - _comment: "SNMPGet criterion comment"
+        - _comment: SNMPGet criterion comment
           type: snmpGet
           oid: "1.3.6.1.3.94.1.6.1.3"
           expectedResult: result
@@ -23,7 +23,7 @@
     connector:
       detection:
         criteria:
-        - _comment: "SNMPGetNext criterion comment"
+        - _comment: SNMPGetNext criterion comment
           type: snmpGetNext
           oid: "1.3.6.1.3.94.1.6.1.3"
           expectedResult: result
@@ -43,11 +43,11 @@
     connector:
       detection:
         criteria:
-        - _comment: "SNMPGet criterion comment"
+        - _comment: SNMPGet criterion comment
           type: snmpGet
           oid: "1.3.6.1.3.94.1.6.1.3"
           expectedResult: result1
-        - _comment: "SNMPGetNext criterion comment"
+        - _comment: SNMPGetNext criterion comment
           type: snmpGetNext
           oid: "1.3.6.1.3.94.1.6.1.4"
           expectedResult: result2
