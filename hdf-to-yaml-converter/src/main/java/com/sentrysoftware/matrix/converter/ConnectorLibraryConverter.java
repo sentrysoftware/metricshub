@@ -8,10 +8,12 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.sentrysoftware.matrix.common.helpers.FileHelper;
 import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 import com.sentrysoftware.matrix.converter.exception.ConnectorConverterException;
@@ -83,6 +85,11 @@ public class ConnectorLibraryConverter {
 			final JsonNode connector = converter.convert();
 
 			final ObjectMapper mapper = JsonHelper.buildYamlMapper();
+			final YAMLFactory factory = (YAMLFactory) mapper.getFactory();
+
+			// For string containing newlines, the literal block styles is used
+			factory.configure(Feature.LITERAL_BLOCK_STYLE, true);
+
 			final ObjectWriter writer = mapper.writer(new DefaultPrettyPrinter());
 
 			writer.writeValue(serializePath.toFile(), connector);
