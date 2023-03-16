@@ -1,5 +1,5 @@
 - name: ucs
-  input: >
+  input: |
     Detection.Criteria(1).Type="OS"
     Detection.Criteria(1).KeepOnly="OOB"
 

@@ -1,5 +1,5 @@
 - name: test
-  input: >
+  input: |
     // OSCommand criterion comment
     Detection.Criteria(1).Type="OSCommand"
     Detection.Criteria(1).ExecuteLocally=1
@@ -14,7 +14,7 @@
           commandLine = "echo test"
 
 - name: testMany
-  input: >
+  input: |
     // First OSCommand criterion comment
     Detection.Criteria(1).Type="OSCommand"
     Detection.Criteria(1).ExecuteLocally=1

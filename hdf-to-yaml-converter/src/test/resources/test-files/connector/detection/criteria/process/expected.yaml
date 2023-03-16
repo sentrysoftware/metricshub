@@ -1,5 +1,5 @@
 - name: process
-  input: >
+  input: |
     Detection.Criteria(2).Type="Process"
     Detection.Criteria(2).ProcessCommandLine="cimserver"
   expected:
@@ -10,7 +10,7 @@
           commandLine: cimserver
 
 - name: test2
-  input: >
+  input: |
     Detection.Criteria(1).Type="OS"
     Detection.Criteria(1).KeepOnly="NT"
 

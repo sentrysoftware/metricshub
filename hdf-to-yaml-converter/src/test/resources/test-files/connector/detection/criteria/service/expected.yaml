@@ -1,5 +1,5 @@
 - name: service
-  input: >
+  input: |
     Detection.Criteria(1).Type="OS"
     Detection.Criteria(1).KeepOnly="NT"
 
@@ -15,7 +15,7 @@
           serviceName: TWGIPC
 
 - name: testEscapePipe
-  input: >
+  input: |
     Detection.Criteria(1).Type="OS"
     Detection.Criteria(1).KeepOnly="NT"
 
@@ -31,7 +31,7 @@
           serviceName: TWGIPC\|IBMTivoliCommonAgent
 
 - name: testPipe
-  input: >
+  input: |
     Detection.Criteria(1).Type="OS"
     Detection.Criteria(1).KeepOnly="NT"
 

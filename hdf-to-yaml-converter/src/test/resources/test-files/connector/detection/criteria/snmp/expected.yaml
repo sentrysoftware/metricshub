@@ -1,5 +1,5 @@
 - name: snmpGetTest
-  input: >
+  input: |
     // SNMPGet criterion comment
     Detection.Criteria(1).Type="SNMP"
     Detection.Criteria(1).SNMPGet="1.3.6.1.3.94.1.6.1.3"
@@ -14,7 +14,7 @@
           expectedResult: result
 
 - name: snmpGetNextTest
-  input: >
+  input: |
     // SNMPGetNext criterion comment
     Detection.Criteria(1).Type="SNMP"
     Detection.Criteria(1).SNMPGetNext="1.3.6.1.3.94.1.6.1.3"
@@ -29,7 +29,7 @@
           expectedResult: result
 
 - name: testMany
-  input: >
+  input: |
     // SNMPGet criterion comment
     Detection.Criteria(1).Type="SNMP"
     Detection.Criteria(1).SNMPGet="1.3.6.1.3.94.1.6.1.3"

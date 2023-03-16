@@ -1,6 +1,6 @@
 ---
 - name: multipleCriteria
-  input: >
+  input: |
     Detection.Criteria(1).Type="KMVersion"
     Detection.Criteria(1).Version="11.3.00"
 
@@ -15,7 +15,7 @@
         - type: deviceType
           exclude: [ Linux ]
 - name: kmVersion
-  input: >
+  input: |
     // Only for Hardware KM 11.3.00+
     Detection.Criteria(1).Type="KMVersion"
     Detection.Criteria(1).Version="11.3.00"

@@ -1,6 +1,6 @@
 ---
 - name: exclude
-  input: >
+  input: |
     Detection.Criteria(1).Type="OS"
     Detection.Criteria(1).Exclude="NT"
   expected:
@@ -11,7 +11,7 @@
           exclude: [ NT ]
 
 - name: excludeKeep
-  input: >
+  input: |
     Detection.Criteria(1).Type="OS"
     Detection.Criteria(1).Exclude="NT"
     Detection.Criteria(1).KeepOnly="Linux"
@@ -24,7 +24,7 @@
           keep: [ Linux ]
 
 - name: keep
-  input: >
+  input: |
     Detection.Criteria(1).Type="OS"
     Detection.Criteria(1).KeepOnly="OOB"
   expected:
@@ -35,7 +35,7 @@
           keep: [ OOB ]
 
 - name: keepMultiple
-  input: >
+  input: |
     Detection.Criteria(1).Type="OS"
     Detection.Criteria(1).KeepOnly="Solaris,SunOS,Linux"
   expected:
@@ -46,7 +46,7 @@
           keep: [ Solaris, SunOs, Linux ]
 
 - name: multipleCriteria
-  input: >
+  input: |
     Detection.Criteria(1).Type="OS"
     Detection.Criteria(1).KeepOnly="OOB"
 

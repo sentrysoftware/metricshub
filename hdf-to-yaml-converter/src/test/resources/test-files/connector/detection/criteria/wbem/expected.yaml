@@ -1,5 +1,5 @@
 - name: test
-  input: >
+  input: |
     // WBEM criterion comment
     Detection.Criteria(1).Type="WBEM"
     Detection.Criteria(1).WbemQuery="query"
@@ -18,7 +18,7 @@
           errorMessage: error
 
 - name: testMany
-  input: >
+  input: |
     // First WBEM criterion comment
     Detection.Criteria(1).Type="WBEM"
     Detection.Criteria(1).WbemQuery="query1"

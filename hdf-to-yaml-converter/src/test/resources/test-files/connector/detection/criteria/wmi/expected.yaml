@@ -1,5 +1,5 @@
 - name: getAvailableTest
-  input: >
+  input: |
     // WMI criterion comment
     Detection.Criteria(1).Type="WMI"
     Detection.Criteria(1).WbemQuery="query"
@@ -18,7 +18,7 @@
           errorMessage: error
 
 - name: testMany
-  input: >
+  input: |
     // First WMI criterion comment
     Detection.Criteria(1).Type="WMI"
     Detection.Criteria(1).WbemQuery="query1"

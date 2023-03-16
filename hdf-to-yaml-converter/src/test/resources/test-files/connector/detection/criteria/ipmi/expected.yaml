@@ -1,5 +1,5 @@
 - name: test
-  input: >
+  input: |
     // IPMI criterion comment
     Detection.Criteria(1).Type="IPMI"
   expected:
@@ -10,7 +10,7 @@
           type: ipmi
         
 - name: testMany
-  input: >
+  input: |
     // First IPMI criterion comment
     Detection.Criteria(1).Type="IPMI"
     
