@@ -293,9 +293,12 @@ public class PreConnector {
 			} else if (group4 != null) {
 				// We've got an empty line? empty the stack
 				list.clear();
-			} else if (group5 != null){
-				// We've got the key-value pair
-				comments.put(group5.trim().toLowerCase(), list);
+			} else if (group5 != null) {
+				if (!list.isEmpty()) {
+					// We've got the key-value pair
+					comments.put(group5.trim().toLowerCase(), list);
+				}
+
 				list = new LinkedList<>();
 			}
 		}
