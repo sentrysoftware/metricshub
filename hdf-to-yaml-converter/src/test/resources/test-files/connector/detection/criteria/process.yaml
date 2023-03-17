@@ -8,7 +8,6 @@
         criteria:
         - type: process
           commandLine: cimserver
-          _comment: ""
 
 - name: test2
   input: |
@@ -23,7 +22,5 @@
         criteria:
         - type: process
           commandLine: cimserver
-          _comment: ""
         - type: process
           commandLine: MBM[5-9]\.exe
-          _comment: ""

@@ -6,15 +6,15 @@ import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.converter.AbstractConnectorPropertyConverterTest;
 
-public class ConnectorUcsCriteriaTest extends AbstractConnectorPropertyConverterTest {
+class ConnectorUcsCriteriaTest extends AbstractConnectorPropertyConverterTest {
 
-    @Override
-    protected String getResourcePath() {
-        return "src/test/resources/test-files/connector/detection/criteria/ucs";
-    }
+	@Override
+	protected String getResourcePath() {
+		return "src/test/resources/test-files/connector/detection/criteria/ucs";
+	}
 
-    @Test
-    void test() throws IOException {
-        testAll();
-    }
+	@Test
+	void test() throws IOException {
+		testAll();
+	}
 }

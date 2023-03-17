@@ -15,7 +15,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ConnectorOSCommandProperty {
+public class ConnectorOsCommandProperty {
 
 	private static final String OSCOMMAND_HDF_TYPE_VALUE = "OSCommand";
 	private static final String OSCOMMAND_YAML_TYPE_VALUE = "osCommand";

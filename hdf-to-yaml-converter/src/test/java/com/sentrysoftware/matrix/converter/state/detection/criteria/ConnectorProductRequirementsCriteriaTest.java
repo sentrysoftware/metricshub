@@ -6,17 +6,17 @@ import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.converter.AbstractConnectorPropertyConverterTest;
 
-class ConnectorWbemCriteriaTest extends AbstractConnectorPropertyConverterTest {
+class ConnectorProductRequirementsCriteriaTest extends AbstractConnectorPropertyConverterTest {
 
 	@Override
 	protected String getResourcePath() {
-		return "src/test/resources/test-files/connector/detection/criteria/wbem";
+		return "src/test/resources/test-files/connector/detection/criteria/productRequirements";
 	}
 
 	@Test
 	void test() throws IOException {
-		testConversion("test");
-		testConversion("testMany");
+		testConversion("kmVersion");
+		testConversion("multipleCriteria");
 
 		testAll();
 	}

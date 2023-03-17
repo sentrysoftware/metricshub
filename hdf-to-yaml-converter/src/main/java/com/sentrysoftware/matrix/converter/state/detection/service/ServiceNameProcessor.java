@@ -16,7 +16,7 @@ public class ServiceNameProcessor extends AbstractStateConverter {
 
 	@Override
 	public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
-		createCriterionTextNode(key, value, connector, "serviceName");
+		createCriterionTextNode(key, value, connector, "name");
 	}
 
 	@Override

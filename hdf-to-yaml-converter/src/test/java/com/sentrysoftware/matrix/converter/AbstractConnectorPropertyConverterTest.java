@@ -30,19 +30,19 @@ public abstract class AbstractConnectorPropertyConverterTest {
 	protected void testConversion(String key)
 			throws IOException, JsonProcessingException, JsonMappingException {
 
-		ObjectMapper mapper = JsonHelper.buildYamlMapper();
-		ArrayNode expectedArray = (ArrayNode) mapper.readTree(new File(getResourcePath() + EXPECTED_YAML));
+		final ObjectMapper mapper = JsonHelper.buildYamlMapper();
+		final ArrayNode expectedArray = (ArrayNode) mapper.readTree(new File(getResourcePath() + EXPECTED_YAML));
 		expectedArray.elements().forEachRemaining(x -> {
 			if (x.get(NAME).asText().equals(key)) {
 
-				PreConnector preConnector = new PreConnector();
+				final PreConnector preConnector = new PreConnector();
 				try {
 					preConnector.load(new ByteArrayInputStream(x.get(INPUT).asText().getBytes()));
 				} catch (IOException e) {
 					Assertions.fail(String.format("input for %s not found", key));
 				}
-				ConnectorConverter connectorConverter = new ConnectorConverter(preConnector);
-				JsonNode connector = connectorConverter.convert();
+				final ConnectorConverter connectorConverter = new ConnectorConverter(preConnector);
+				final JsonNode connector = connectorConverter.convert();
 
 				assertEquals(x.get(EXPECTED), connector);
 			}
@@ -55,19 +55,19 @@ public abstract class AbstractConnectorPropertyConverterTest {
 	 * @throws IOException
 	 */
 	protected void testAll() throws IOException {
-		ObjectMapper mapper = JsonHelper.buildYamlMapper();
-		ArrayNode expectedArray = (ArrayNode) mapper.readTree(new File(getResourcePath() + EXPECTED_YAML));
+		final ObjectMapper mapper = JsonHelper.buildYamlMapper();
+		final ArrayNode expectedArray = (ArrayNode) mapper.readTree(new File(getResourcePath() + EXPECTED_YAML));
 		expectedArray.elements().forEachRemaining(x -> {
 
-			PreConnector preConnector = new PreConnector();
+			final PreConnector preConnector = new PreConnector();
 			try {
 				preConnector.load(new ByteArrayInputStream(x.get(INPUT).asText().getBytes()));
 			} catch (IOException e) {
 				Assertions.fail("input for test was not found");
 			}
 
-			ConnectorConverter connectorConverter = new ConnectorConverter(preConnector);
-			JsonNode connector = connectorConverter.convert();
+			final ConnectorConverter connectorConverter = new ConnectorConverter(preConnector);
+			final JsonNode connector = connectorConverter.convert();
 
 			assertEquals(x.get(EXPECTED), connector);
 

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.converter.AbstractConnectorPropertyConverterTest;
 
-public class ConnectorIpmiCriteriaTest extends AbstractConnectorPropertyConverterTest {
+class ConnectorIpmiCriteriaTest extends AbstractConnectorPropertyConverterTest {
 
 	@Override
 	protected String getResourcePath() {

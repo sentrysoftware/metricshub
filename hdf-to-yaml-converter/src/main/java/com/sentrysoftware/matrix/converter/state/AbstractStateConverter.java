@@ -7,6 +7,7 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.DETECTION_D
 import static com.sentrysoftware.matrix.converter.ConverterConstants.DOT;
 
 import java.util.regex.Matcher;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -180,6 +181,31 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 		createIntegerNode(newNodeKey, value, objectNode);
 	}
 
+	/**
+	 * Create a new array node in the last criterion object
+	 * 
+	 * @param key The key of the criterion context
+	 * @param arrayValues The array values to create
+	 * @param connector The whole connector
+	 * @param newNodeKey The new node key to create
+	 */
+	protected void createCriterionStringArrayNode(String key, String[] arrayValues, JsonNode connector, String newNodeKey) {
+		final ObjectNode objectNode = (ObjectNode) getLastCriterion(key, connector);
+		createStringArrayNode(newNodeKey, arrayValues, objectNode);
+	}
+
+	/**
+	 * Create the a new array node with the array values in the given object node
+	 * 
+	 * @param key The node key
+	 * @param arrayValues The array values to add in the new array node
+	 * @param objectNode The {@link ObjectNode} to update
+	 */
+	protected void createStringArrayNode(String key, String[] arrayValues, ObjectNode objectNode) {
+		final ArrayNode arrayNode = JsonNodeFactory.instance.arrayNode();
+		Stream.of(arrayValues).forEach(arrayNode::add);
+		objectNode.set(key, arrayNode);
+	}
 
 	/**
 	 * Create the a new text node in the given object node
@@ -274,9 +300,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	 * @return converted boolean value
 	 */
 	private boolean convertToBoolean(String value) {
-	    boolean returnValue = false;
-	    if ("1".equals(value) || "true".equalsIgnoreCase(value))
-	        returnValue = true;
-	    return returnValue;
+		return "1".equals(value) || "true".equalsIgnoreCase(value);
 	}
+
 }

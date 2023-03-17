@@ -6,17 +6,18 @@ import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.converter.AbstractConnectorPropertyConverterTest;
 
-class ConnectorProductVersionCriteriaTest extends AbstractConnectorPropertyConverterTest {
+class ConnectorSnmpCriteriaTest extends AbstractConnectorPropertyConverterTest {
 
 	@Override
 	protected String getResourcePath() {
-		return "src/test/resources/test-files/connector/detection/criteria/productVersion";
+		return "src/test/resources/test-files/connector/detection/criteria/snmp";
 	}
 
 	@Test
 	void test() throws IOException {
-		testConversion("kmVersion");
-		testConversion("multipleCriteria");
+		testConversion("snmpGetTest");
+		testConversion("snmpGetNextTest");
+		testConversion("testMany");
 
 		testAll();
 	}

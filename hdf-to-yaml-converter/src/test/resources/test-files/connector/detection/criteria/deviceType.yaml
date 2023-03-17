@@ -8,8 +8,7 @@
       detection:
         criteria:
         - type: deviceType
-          exclude: NT
-          _comment: ""
+          exclude: [ NT ]
 
 - name: excludeKeep
   input: |
@@ -21,9 +20,8 @@
       detection:
         criteria:
         - type: deviceType
-          exclude: NT
-          keep: Linux
-          _comment: ""
+          exclude: [ NT ]
+          keep: [ Linux ]
 
 - name: keep
   input: |
@@ -34,8 +32,7 @@
       detection:
         criteria:
         - type: deviceType
-          _comment: ""
-          keep: OOB 
+          keep: [ OOB ] 
 
 - name: keepMultiple
   input: |
@@ -46,8 +43,7 @@
       detection:
         criteria:
         - type: deviceType
-          keep: Solaris,SunOS,Linux
-          _comment: ""
+          keep: [ Solaris, SunOS, Linux ]
 
 - name: multipleCriteria
   input: |
@@ -61,8 +57,6 @@
       detection:
         criteria:
         - type: deviceType
-          keep: OOB
-          _comment: ""
+          keep: [ OOB ]
         - type: deviceType
-          exclude: Linux
-          _comment: ""
+          exclude: [ Linux ]

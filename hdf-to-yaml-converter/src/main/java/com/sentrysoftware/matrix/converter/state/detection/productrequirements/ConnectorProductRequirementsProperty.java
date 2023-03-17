@@ -14,15 +14,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ConnectorProductRequirementsProperty {
 
-	private static final String PROCESS_HDF_TYPE_VALUE = "Process";
-	private static final String PROCESS_YAML_TYPE_VALUE = "process";
+	private static final String KM_VERSION_HDF_TYPE_VALUE = "KMVersion";
+	private static final String PRODUCT_REQUIREMENTS_YAML_TYPE_VALUE = "productRequirements";
 
 	public static Set<IConnectorStateConverter> getConnectorProperties() {
 
 		return Stream.of(
-				new TypeProcessor(PROCESS_HDF_TYPE_VALUE, PROCESS_YAML_TYPE_VALUE),
+				new TypeProcessor(KM_VERSION_HDF_TYPE_VALUE, PRODUCT_REQUIREMENTS_YAML_TYPE_VALUE),
 				new ForceSerializationProcessor(),
-				new KmVersionProcessor())
-				.collect(Collectors.toSet());
+				new KmVersionProcessor()
+			)
+			.collect(Collectors.toSet());
 	}
 }

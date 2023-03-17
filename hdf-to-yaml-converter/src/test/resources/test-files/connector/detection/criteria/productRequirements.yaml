@@ -12,10 +12,8 @@
         criteria:
         - type: productRequirements
           kmVersion: 11.3.00
-          _comment: ""
         - type: productRequirements
           kmVersion: 11.4.00
-          _comment: ""
 
 - name: kmVersion
   input: |
@@ -26,6 +24,6 @@
     connector:
       detection:
         criteria:
-        - type: productRequirements
-          _comment: Only for Hardware KM 11.3.00+
+        - _comment: Only for Hardware KM 11.3.00+
+          type: productRequirements
           kmVersion: 11.3.00

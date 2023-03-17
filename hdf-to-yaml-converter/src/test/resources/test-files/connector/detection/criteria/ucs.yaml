@@ -12,4 +12,3 @@
           query: SELECT dn FROM networkElement
           expectedResult: ^networkElement;sys/
           errorMessage: Couldn't connect to UCS Manager on the Fabric Interconnect Switch.
-          _comment: ""

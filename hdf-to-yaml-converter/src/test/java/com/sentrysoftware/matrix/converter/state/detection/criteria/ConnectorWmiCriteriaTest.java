@@ -8,10 +8,10 @@ import com.sentrysoftware.matrix.converter.AbstractConnectorPropertyConverterTes
 
 class ConnectorWmiCriteriaTest extends AbstractConnectorPropertyConverterTest {
 
-    @Override
-    protected String getResourcePath() {
-        return "src/test/resources/test-files/connector/detection/criteria/wmi";
-    }
+	@Override
+	protected String getResourcePath() {
+		return "src/test/resources/test-files/connector/detection/criteria/wmi";
+	}
 
 	@Test
 	void test() throws IOException {

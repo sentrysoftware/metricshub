@@ -10,8 +10,9 @@ import com.sentrysoftware.matrix.converter.state.AbstractStateConverter;
 public class KmVersionProcessor extends AbstractStateConverter {
 
 	private static final Pattern KMVERSION_KEY_PATTERN = Pattern.compile(
-			"^\\s*detection\\.criteria\\(([1-9]\\d*)\\)\\.version\\s*$",
-			Pattern.CASE_INSENSITIVE);
+		"^\\s*detection\\.criteria\\(([1-9]\\d*)\\)\\.version\\s*$",
+		Pattern.CASE_INSENSITIVE
+	);
 
 	@Override
 	public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
