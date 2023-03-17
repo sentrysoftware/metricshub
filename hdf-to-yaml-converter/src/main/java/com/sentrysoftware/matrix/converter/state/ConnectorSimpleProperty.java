@@ -148,7 +148,7 @@ public class ConnectorSimpleProperty {
 		@Override
 		public void convert(final String key, final String value, final JsonNode connector, final PreConnector preConnector) {
 			if (Boolean.parseBoolean(value) || "1".equals(value)) {
-				((ArrayNode) getOrCreateConnectionType(connector)).add("local");
+				getOrCreateConnectionType(connector).add("local");
 			}
 		}
 	}
@@ -163,7 +163,7 @@ public class ConnectorSimpleProperty {
 		@Override
 		public void convert(final String key, final String value, final JsonNode connector, final PreConnector preConnector) {
 			if (Boolean.parseBoolean(value) || "1".equals(value)) {
-				((ArrayNode) getOrCreateConnectionType(connector)).add("remote");
+				getOrCreateConnectionType(connector).add("remote");
 			}
 		}
 	}
