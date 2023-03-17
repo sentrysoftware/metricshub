@@ -8,7 +8,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -17,7 +16,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.OptionalInt;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -90,7 +88,7 @@ public class PreConnector {
 	/**
 	 * Pattern to detect translation table names
 	 */
-	private static final Pattern TRANSLATION_TABLE_NAME_PATTERN = Pattern.compile(".*\\.(translationtable|bittranslationtable)=\\s*(.*?)\\s*$", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+	private static final Pattern TRANSLATION_TABLE_NAME_PATTERN = Pattern.compile("^\\s*(\\w+)\\((.*?)\\)\\s*=\\s*(.*?)\\s*$", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 
 	/**
 	 * Pattern to remove comments (see https://regex101.com/r/vI2iW5/1)
@@ -149,6 +147,9 @@ public class PreConnector {
 			throws IOException {
 
 		String rawCode = buildRawCode(hdfStream);
+		
+		// Process code comments
+		rawCode = processComments(rawCode);
 
 		// Now process #include directives
 		rawCode = processIncludeDirectives(rawCode);
@@ -165,9 +166,6 @@ public class PreConnector {
 		// Do we still have EmbeddedFile references? (which would mean we have
 		// mismatching EmbeddedFile(x))
 		detectRemainingEmbeddedFiles(rawCode);
-
-		// Process code comments
-		rawCode = processComments(rawCode);
 
 		// Now, build the code map
 		processCode(rawCode);
@@ -238,13 +236,7 @@ public class PreConnector {
 		while (codeMatcher.find()) {
 			String value = codeMatcher.group(2).trim();
 
-			if (value.startsWith("\"")) {
-				value = value.substring(1);
-			}
-
-			if (value.endsWith("\"")) {
-				value = value.substring(0, value.length() - 1);
-			}
+			value = replaceQuotes(value);
 			value = value
 				.replace("\\t", "\t")
 				.replace("\\n", "\n")
@@ -252,6 +244,17 @@ public class PreConnector {
 
 			put(codeMatcher.group(1), value);
 		}
+	}
+
+	private String replaceQuotes(String value) {
+		if (value.startsWith("\"")) {
+			value = value.substring(1);
+		}
+
+		if (value.endsWith("\"")) {
+			value = value.substring(0, value.length() - 1);
+		}
+		return value;
 	}
 
 	/**
@@ -333,58 +336,27 @@ public class PreConnector {
 		return embeddedFileMatcher.appendTail(tempRawCode).toString();
 	}
 
+	/**
+	 * Parse each translationTable line and build corresponding global translationTable map.
+	 * 
+	 * @param rawCode
+	 * @return String
+	 */
 	private String processTranslationTables(String rawCode) {
 
-		Set<String> translationTableNames = new HashSet<>();
+		Matcher matcher = TRANSLATION_TABLE_NAME_PATTERN.matcher(rawCode);
 
-		Matcher translationTableNameMatcher = TRANSLATION_TABLE_NAME_PATTERN.matcher(rawCode);
+		StringBuffer tempRawCode = new StringBuffer();
 
-		while (translationTableNameMatcher.find()) {
-			translationTableNames.add(translationTableNameMatcher.group(2).replace("\"", "").trim());
-		}
-
-		Map<String, Pattern> translationTablePatterns = translationTableNames
-			.stream()
-			.collect(Collectors.toMap(
-				Function.identity(),
-				translationTableName -> Pattern.compile(
-						"^\\s*" + translationTableName + "\\((.*?)\\)\\s*=\\s*(.*?)\\s*$",
-						Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
-				)
-			));
-
-		for (Entry<String, Pattern> entry : translationTablePatterns.entrySet()) {
-			final String translationTableName = entry.getKey();
-			final Pattern translationTablePattern = entry.getValue();
-			final Matcher translationTableMatcher = translationTablePattern.matcher(rawCode);
-			final StringBuffer tempRawCode = new StringBuffer();
-			final Map<String, String> translationTable = new LinkedHashMap<>();
-			while (translationTableMatcher.find()) {
-
-				String key = translationTableMatcher
-					.group(1)
-					.replaceAll(ConverterConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1")
-					.trim()
-					.toLowerCase();
-
-				translationTable.put(
-					key,
-					translationTableMatcher
-						.group(2)
-						.replaceAll(ConverterConstants.DOUBLE_QUOTES_REGEX_REPLACEMENT, "$1")
-						.trim()
-				);
-
-				translationTableMatcher.appendReplacement(tempRawCode, "");
-			}
-
-			translationTables.put(translationTableName, translationTable);
-
-			rawCode = translationTableMatcher.appendTail(tempRawCode).toString();
+		while (matcher.find()) {
+			String tableName = matcher.group(1);
+			translationTables.computeIfAbsent(tableName, k -> new HashMap<>());
+			translationTables.get(tableName).put(replaceQuotes(matcher.group(2)), replaceQuotes(matcher.group(3)));
+			matcher.appendReplacement(tempRawCode, "");
 
 		}
 
-		return rawCode;
+		return matcher.appendTail(tempRawCode).toString();
 	}
 
 	/**

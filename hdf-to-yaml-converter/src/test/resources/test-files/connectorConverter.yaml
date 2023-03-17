@@ -1,0 +1,62 @@
+- name: getEmbeddedFilesTest
+  input: |
+    
+    EmbeddedFile(1):
+    Embedded
+    File
+    Test
+    EmbeddedFile(1).End
+  expected:
+    embedded:
+      EmbeddedFile(1): "Embedded\nFile\nTest"
+- name: testManyEmbeddedFiles
+  input: |
+    
+    EmbeddedFile(1):
+    First
+    Embedded
+    File
+    Test
+    EmbeddedFile(1).End
+    
+    EmbeddedFile(2):
+    Second
+    Embedded
+    File
+    Test
+    EmbeddedFile(2).End
+  expected:
+    embedded:
+      EmbeddedFile(1): "First\nEmbedded\nFile\nTest"
+      EmbeddedFile(2): "Second\nEmbedded\nFile\nTest"
+- name: getTranslationTables
+  input: |
+    TranslationTable(0)="ok"
+    TranslationTable(1)="degraded"
+    TranslationTable(2)="failed"
+  expected:
+    translations:
+      TranslationTable:
+        0: ok
+        1: degraded
+        2: failed
+
+- name: testManyTranslationTables
+  input: |
+    OtherDevice.Discovery.Source(2).Compute(1).TranslationTable="FirstTranslationTable"
+    FirstTranslationTable("Result="OK"")="ok"
+    FirstTranslationTable(1)="degraded"
+    FirstTranslationTable(2)="failed"
+    SecondTranslationTable(0)="ok"
+    SecondTranslationTable(1)="degraded"
+    SecondTranslationTable(2)="failed"
+  expected:
+    translations:
+      FirstTranslationTable:
+        "Result=\"OK\"": ok
+        1: degraded
+        2: failed
+      SecondTranslationTable:
+        0: ok
+        1: degraded
+        2: failed

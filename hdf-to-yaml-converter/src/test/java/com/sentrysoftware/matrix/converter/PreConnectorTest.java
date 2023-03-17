@@ -76,7 +76,7 @@ class PreConnectorTest {
 				"4", "WARN",
 				"5", "ALARM",
 				"6", "ALARM",
-				"default", "UNKNOWN"
+				"Default", "UNKNOWN"
 			),
 			genericStatusTranslationTable
 		);
