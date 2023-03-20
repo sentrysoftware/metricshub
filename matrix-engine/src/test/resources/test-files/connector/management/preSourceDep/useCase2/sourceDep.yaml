@@ -67,7 +67,8 @@ monitors:
           type: Storage
         conditionalCollection:
           hw.status: $column(10)
-    multiCollect:
+    collect:
+      type: multiInstance
       sources:
         source(1):
           type: wbem
@@ -75,6 +76,6 @@ monitors:
           namespace: root/emc
       mapping:
         deviceId: $column(1) 
-        source: $monitors.enclosure.multiCollect.sources.source(1)$
+        source: $monitors.enclosure.collect.sources.source(1)$
         metrics:
           hw.status: $column(2)

@@ -68,13 +68,14 @@ monitors:
         conditionalCollection:
           # Enclosure.Discovery.Instance.ParameterActivation.Status=InstanceTable.Column(10)
           hw.status: $column(10)
-    monoCollect:
+    collect:
+      type: monoInstance
       sources:
         source(1):
           type: wbem
           query: SELECT $enclosure.deviceId$,OperationalStatus FROM EMC_StorageSystem
           namespace: root/emc
       mapping:
-        source: $monitors.enclosure.monoCollect.sources.Source(1)$
+        source: $monitors.enclosure.collect.sources.Source(1)$
         metrics:
           hw.status: $column(2)

@@ -69,7 +69,8 @@ monitors:
           type: Computer
         conditionalCollection:
           hw.enclosure.energy: $column(6)
-    multiCollect:
+    collect:
+      type: multiInstance
       sources:
         source(1):
           # DeviceID, PATROLStatus, StatusInformation
@@ -97,8 +98,8 @@ monitors:
         source(3):
           # DeviceID, PATROLStatus, StatusInformation, ChassisIndex, IntrusionStatus
           type: tableJoint
-          leftTable: $monitors.enclosure.multiCollect.sources.source(1)$
-          rightTable: $monitors.enclosure.multiCollect.sources.source(2)$
+          leftTable: $monitors.enclosure.collect.sources.source(1)$
+          rightTable: $monitors.enclosure.collect.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;
@@ -114,14 +115,14 @@ monitors:
         source(5):
           # DeviceID, PATROLStatus, StatusInformation, ChassisIndex, IntrusionStatus, ChassisIndex, EnergyUsage
           type: tableJoint
-          leftTable: $monitors.enclosure.multiCollect.sources.source(3)$
-          rightTable: $monitors.enclosure.multiCollect.sources.source(4)$
+          leftTable: $monitors.enclosure.collect.sources.source(3)$
+          rightTable: $monitors.enclosure.collect.sources.source(4)$
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ;;
       mapping:
         deviceId: $column(1)
-        source: $monitors.enclosure.multiCollect.sources.source(5)$
+        source: $monitors.enclosure.collect.sources.source(5)$
         # DeviceID, PATROLStatus, StatusInformation, ChassisIndex, IntrusionStatus, ChassisIndex, EnergyUsage
         metrics:
           hw.status{hw.type="enclosure"}: $column(2)

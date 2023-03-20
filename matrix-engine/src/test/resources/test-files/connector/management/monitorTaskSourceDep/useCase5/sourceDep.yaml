@@ -63,7 +63,8 @@ monitors:
           type: Storage
         conditionalCollection:
           hw.status: $column(10)
-    multiCollect:
+    collect:
+      type: multiInstance
       sources:
         source(1):
           type: wbem
@@ -74,14 +75,14 @@ monitors:
           from: $monitors.enclosure.discovery.sources.source(6)$
         source(3):
           type: tableJoin
-          leftTable: $monitors.enclosure.multiCollect.sources.source(2)$
-          rightTable: $monitors.enclosure.multiCollect.sources.source(1)$
+          leftTable: $monitors.enclosure.collect.sources.source(2)$
+          rightTable: $monitors.enclosure.collect.sources.source(1)$
           leftKeyColumn: 5
           rightKeyColumn: 1
           keyType: WBEM
           defaultRightLine: ;;;;
       mapping:
         deviceId: $column(1) 
-        source: $monitors.enclosure.multiCollect.sources.source(2)$
+        source: $monitors.enclosure.collect.sources.source(2)$
         metrics:
           hw.status: $column(2)

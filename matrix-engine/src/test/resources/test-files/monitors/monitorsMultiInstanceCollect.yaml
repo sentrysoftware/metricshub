@@ -68,7 +68,8 @@ monitors:
         conditionalCollection:
           # Enclosure.Discovery.Instance.ParameterActivation.Status=InstanceTable.Column(10)
           hw.status: $column(10)
-    multiCollect:
+    collect:
+      type: multiInstance
       sources:
         source(1):
           type: wbem
@@ -76,6 +77,6 @@ monitors:
           namespace: root/emc
       mapping:
         deviceId: $column(1) 
-        source: $monitors.enclosure.multiCollect.sources.Source(1)$
+        source: $monitors.enclosure.collect.sources.Source(1)$
         metrics:
           hw.status: $column(2)
