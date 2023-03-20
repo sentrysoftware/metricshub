@@ -375,7 +375,7 @@ public class PreConnector {
 		return switch (translatedValue) {
 		case "OK" -> "ok";
 		case "WARN" -> "degraded";
-		case "ALARM" -> "critical";
+		case "ALARM" -> "failed";
 		default -> translatedValue;
 		};
 	}

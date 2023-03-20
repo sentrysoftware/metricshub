@@ -74,8 +74,8 @@ class PreConnectorTest {
 			Map.of(
 				"3", "ok",
 				"4", "degraded",
-				"5", "critical",
-				"6", "critical",
+				"5", "failed",
+				"6", "failed",
 				"default", "UNKNOWN"
 			),
 			genericStatusTranslationTable
