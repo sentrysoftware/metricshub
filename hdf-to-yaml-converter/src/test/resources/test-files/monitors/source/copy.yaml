@@ -8,17 +8,17 @@
     OtherDevice.Discovery.Source(5)=%OtherDevice.Discovery.Source(4)%
   expected:
     monitors:
-      enclosure:
+      otherdevice:
         discovery:
           sources:
             source(4):
               _comment: Source(4) = Copy of (1)
               type: copy
-              from: $monitors.enclosure.discovery.sources.source(1)$
+              from: $monitors.otherdevice.discovery.sources.source(1)$
             source(5):
               _comment: Source(5) = Copy of (4)
               type: copy
-              from: $monitors.enclosure.discovery.sources.source(4)$
+              from: $monitors.otherdevice.discovery.sources.source(4)$
 - name: collect
   input: |
     // Source(4) = Copy of (1)
@@ -28,17 +28,17 @@
     OtherDevice.Collect.Source(5)=%OtherDevice.Collect.Source(4)%
   expected:
     monitors:
-      enclosure:
+      otherdevice:
         collect:
           sources:
             source(4):
               _comment: Source(4) = Copy of (1)
               type: copy
-              from: $monitors.enclosure.collect.sources.source(1)$
+              from: $monitors.otherdevice.collect.sources.source(1)$
             source(5):
               _comment: Source(5) = Copy of (4)
               type: copy
-              from: $monitors.enclosure.collect.sources.source(4)$
+              from: $monitors.otherdevice.collect.sources.source(4)$
 - name: discoveryFromCollect
   input: |
     // Source(4) = Copy of (1)
@@ -48,14 +48,14 @@
     OtherDevice.Collect.Source(5)=%OtherDevice.Collect.Source(4)%
   expected:
     monitors:
-      enclosure:
+      otherdevice:
         collect:
           sources:
             source(4):
               _comment: Source(4) = Copy of (1)
               type: copy
-              from: $monitors.enclosure.discovery.sources.source(1)$
+              from: $monitors.otherdevice.discovery.sources.source(1)$
             source(5):
               _comment: Source(5) = Copy of (4)
               type: copy
-              from: $monitors.enclosure.collect.sources.source(4)$
+              from: $monitors.otherdevice.collect.sources.source(4)$
