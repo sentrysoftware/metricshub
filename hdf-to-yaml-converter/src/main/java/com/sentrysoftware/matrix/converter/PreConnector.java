@@ -528,7 +528,6 @@ public class PreConnector {
 	private static final int IS_EQUAL = 0;
 	private static final int IS_AFTER = 1;
 
-
 	/**
 	 * <p>Compare Two connector entries. Order them by:
 	 * <li>Hdf in original position in map</li>
