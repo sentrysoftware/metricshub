@@ -8,7 +8,12 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-class ConnectorConverterTest {
+class ConnectorConverterTest extends AbstractConnectorPropertyConverterTest {
+
+	@Override
+	protected String getResourcePath() {
+		return "src/test/resources/test-files/connectorConverter";
+	}
 
 	@Test
 	void testConvert() throws IOException {
@@ -18,4 +23,13 @@ class ConnectorConverterTest {
 		assertNotNull(node);
 	}
 
+	@Test
+	void test() throws IOException {
+		testConversion("getEmbeddedFilesTest");
+		testConversion("testManyEmbeddedFiles");
+		testConversion("getTranslationsTablesTest");
+		testConversion("testManyTranslationTables");
+
+		testAll();
+	}
 }
