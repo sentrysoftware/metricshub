@@ -22,20 +22,30 @@ public class ConnectorSimpleProperty {
 
 	public static Set<IConnectorStateConverter> getConnectorProperties() {
 
-		return Stream.of(new DisplayNameProcessor(), new TypicalPlatformProcessor(), new ReliesOnProcessor(),
-				new VersionProcessor(), new RemoteSupportProcessor(), new LocalSupportProcessor(),
-				new AppliesToOsProcessor(), new SupersedesProcessor(), new CommentsProcessor(),
-				new NoAutoDetectionProcessor(), new OnLastResortProcessor()).collect(Collectors.toSet());
+		return Stream.of(
+				new DisplayNameProcessor(),
+				new TypicalPlatformProcessor(),
+				new ReliesOnProcessor(),
+				new VersionProcessor(),
+				new RemoteSupportProcessor(),
+				new LocalSupportProcessor(),
+				new AppliesToOsProcessor(),
+				new SupersedesProcessor(),
+				new CommentsProcessor(),
+				new NoAutoDetectionProcessor(),
+				new OnLastResortProcessor()
+			)
+			.collect(Collectors.toSet());
 
 	}
 
 	/**
 	 * Create Connector node if not exists
 	 * 
-	 * @param connector
+	 * @param connector global connector {@link JsonNode} 
 	 * @return ObjectNode instance
 	 */
-	private static ObjectNode getOrCreateConnector(JsonNode connector) {
+	private static ObjectNode getOrCreateConnector(final JsonNode connector) {
 		JsonNode connectorSection = connector.get(CONNECTOR);
 		if (connectorSection == null) {
 			connectorSection = JsonNodeFactory.instance.objectNode();
@@ -47,10 +57,10 @@ public class ConnectorSimpleProperty {
 	/**
 	 * Create Detection node if not exists (Parent connector)
 	 * 
-	 * @param connector
+	 * @param connector global connector {@link JsonNode} 
 	 * @return ObjectNode instance
 	 */
-	private static ObjectNode getOrCreateDetection(JsonNode connector) {
+	private static ObjectNode getOrCreateDetection(final JsonNode connector) {
 		final ObjectNode connectorSection = getOrCreateConnector(connector);
 		JsonNode detectionSection = connectorSection.get(DETECTION);
 		if (detectionSection == null) {
@@ -61,12 +71,12 @@ public class ConnectorSimpleProperty {
 	}
 
 	/**
-	 * Create ConntectionType node if not exists (Parent : connector.detection)
+	 * Create ConntectionType node if not exists (Parent: connector.detection)
 	 * 
-	 * @param connector
+	 * @param connector global connector {@link JsonNode} 
 	 * @return ArrayNode instance
 	 */
-	private static ArrayNode getOrCreateConnectionType(JsonNode connector) {
+	private static ArrayNode getOrCreateConnectionType(final JsonNode connector) {
 		final ObjectNode detectionSection = getOrCreateDetection(connector);
 		JsonNode connectionTypeNode = detectionSection.get(CONNECTION_TYPES);
 		if (connectionTypeNode == null) {
@@ -76,8 +86,16 @@ public class ConnectorSimpleProperty {
 		return (ArrayNode) connectionTypeNode;
 	}
 
-	private static boolean detect(final String key, final String value, final String property) {
-		return value != null && key != null && key.toLowerCase().startsWith(property.toLowerCase());
+	/**
+	 * Return true if the given key starts with expected property
+	 * 
+	 * @param key The simple property key
+	 * @param value The simple property value
+	 * @param expectedProperty The expected property
+	 * @return boolean value
+	 */
+	private static boolean detect(final String key, final String value, final String expectedProperty) {
+		return value != null && key != null && key.toLowerCase().startsWith(expectedProperty.toLowerCase());
 	}
 
 	public static class DisplayNameProcessor implements IConnectorStateConverter {
@@ -106,8 +124,10 @@ public class ConnectorSimpleProperty {
 		public void convert(final String key, final String value, final JsonNode connector,
 				final PreConnector preConnector) {
 			final ArrayNode superseedes = JsonNodeFactory.instance.arrayNode();
-			Stream.of(value.split(",")).map(ConnectorLibraryConverter::getConnectorFilenameNoExtension)
-					.forEach(superseedes::add);
+			Stream
+				.of(value.split(COMMA))
+				.map(ConnectorLibraryConverter::getConnectorFilenameNoExtension)
+				.forEach(superseedes::add);
 
 			getOrCreateDetection(connector).set("supersedes", superseedes);
 		}
@@ -124,7 +144,7 @@ public class ConnectorSimpleProperty {
 		public void convert(final String key, final String value, final JsonNode connector,
 				final PreConnector preConnector) {
 			final ArrayNode appliesToOs = JsonNodeFactory.instance.arrayNode();
-			Stream.of(value.split(",")).forEach(appliesToOs::add);
+			Stream.of(value.split(COMMA)).forEach(appliesToOs::add);
 
 			getOrCreateDetection(connector).set("appliesTo", appliesToOs);
 		}
@@ -140,7 +160,7 @@ public class ConnectorSimpleProperty {
 		@Override
 		public void convert(final String key, final String value, final JsonNode connector,
 				final PreConnector preConnector) {
-			if (Boolean.parseBoolean(value) || "1".equals(value)) {
+			if (Boolean.parseBoolean(value) || ONE.equals(value)) {
 				getOrCreateConnectionType(connector).add("local");
 			}
 		}
@@ -156,7 +176,7 @@ public class ConnectorSimpleProperty {
 		@Override
 		public void convert(final String key, final String value, final JsonNode connector,
 				final PreConnector preConnector) {
-			if (Boolean.parseBoolean(value) || "1".equals(value)) {
+			if (Boolean.parseBoolean(value) || ONE.equals(value)) {
 				getOrCreateConnectionType(connector).add("remote");
 			}
 		}
@@ -229,10 +249,10 @@ public class ConnectorSimpleProperty {
 		public void convert(final String key, final String value, final JsonNode connector,
 				final PreConnector preConnector) {
 			getOrCreateDetection(connector)
-		    .set(
-		        "disableAutoDetection",
-		        JsonNodeFactory.instance.booleanNode("1".equals(value) || "true".equalsIgnoreCase(value))
-		    );
+				.set(
+					"disableAutoDetection",
+					JsonNodeFactory.instance.booleanNode(ONE.equals(value) || TRUE.equalsIgnoreCase(value))
+				);
 		}
 	}
 
@@ -240,7 +260,7 @@ public class ConnectorSimpleProperty {
 
 		@Override
 		public boolean detect(final String key, final String value, final JsonNode connector) {
-			return ConnectorSimpleProperty.detect(key, value, "hdf.onLastResort");
+			return ConnectorSimpleProperty.detect(key, value, "hdf.onlastresort");
 		}
 
 		@Override
