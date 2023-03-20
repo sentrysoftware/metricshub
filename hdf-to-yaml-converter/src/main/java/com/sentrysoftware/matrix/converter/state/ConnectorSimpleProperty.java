@@ -23,19 +23,19 @@ public class ConnectorSimpleProperty {
 	public static Set<IConnectorStateConverter> getConnectorProperties() {
 
 		return Stream.of(
-				new DisplayNameProcessor(),
-				new TypicalPlatformProcessor(),
-				new ReliesOnProcessor(),
-				new VersionProcessor(),
-				new RemoteSupportProcessor(),
-				new LocalSupportProcessor(),
-				new AppliesToOsProcessor(),
-				new SupersedesProcessor(),
-				new CommentsProcessor(),
-				new NoAutoDetectionProcessor(),
-				new OnLastResortProcessor()
-			)
-			.collect(Collectors.toSet());
+			new DisplayNameProcessor(),
+			new TypicalPlatformProcessor(),
+			new ReliesOnProcessor(),
+			new VersionProcessor(),
+			new RemoteSupportProcessor(),
+			new LocalSupportProcessor(),
+			new AppliesToOsProcessor(),
+			new SupersedesProcessor(),
+			new CommentsProcessor(),
+			new NoAutoDetectionProcessor(),
+			new OnLastResortProcessor()
+		)
+		.collect(Collectors.toSet());
 
 	}
 
