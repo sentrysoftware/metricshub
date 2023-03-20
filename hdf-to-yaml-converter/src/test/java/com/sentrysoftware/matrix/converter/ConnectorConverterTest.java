@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-class ConnectorConverterTest extends AbstractConnectorPropertyConverterTest{
+class ConnectorConverterTest extends AbstractConnectorPropertyConverterTest {
 
 	@Override
 	protected String getResourcePath() {

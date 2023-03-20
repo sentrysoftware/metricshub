@@ -53,7 +53,7 @@
   expected:
     translations:
       FirstTranslationTable:
-        "Result=\"OK\"": ok
+        "result=\"ok\"": ok
         1: degraded
         2: failed
       SecondTranslationTable:

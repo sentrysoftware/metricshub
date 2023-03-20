@@ -72,11 +72,11 @@ class PreConnectorTest {
 		assertEquals(5, genericStatusTranslationTable.size());
 		assertEquals(
 			Map.of(
-				"3", "OK",
-				"4", "WARN",
-				"5", "ALARM",
-				"6", "ALARM",
-				"Default", "UNKNOWN"
+				"3", "ok",
+				"4", "degraded",
+				"5", "critical",
+				"6", "critical",
+				"default", "UNKNOWN"
 			),
 			genericStatusTranslationTable
 		);

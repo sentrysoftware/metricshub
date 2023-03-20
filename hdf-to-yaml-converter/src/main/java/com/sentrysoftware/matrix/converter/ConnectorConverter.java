@@ -54,6 +54,7 @@ public class ConnectorConverter {
 	}
 
 	/**
+	 * Set the connector's translation tables.
 	 * 
 	 * @param connector
 	 */
@@ -80,7 +81,7 @@ public class ConnectorConverter {
 	}
 
 	/**
-	 * 
+	 * Set the connector's embedded files.
 	 * 
 	 * @param connector
 	 */

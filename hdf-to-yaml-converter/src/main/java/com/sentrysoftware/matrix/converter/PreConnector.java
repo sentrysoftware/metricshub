@@ -246,6 +246,12 @@ public class PreConnector {
 		}
 	}
 
+	/**
+	 * Removes leading and following quotes.
+	 * 
+	 * @param value
+	 * @return String without leading and following quotes.
+	 */
 	private String replaceQuotes(String value) {
 		if (value.startsWith("\"")) {
 			value = value.substring(1);
@@ -351,12 +357,27 @@ public class PreConnector {
 		while (matcher.find()) {
 			String tableName = matcher.group(1);
 			translationTables.computeIfAbsent(tableName, k -> new HashMap<>());
-			translationTables.get(tableName).put(replaceQuotes(matcher.group(2)), replaceQuotes(matcher.group(3)));
+			translationTables.get(tableName).put(replaceQuotes(matcher.group(2).toLowerCase()), convertOtelValues(replaceQuotes(matcher.group(3))));
 			matcher.appendReplacement(tempRawCode, "");
 
 		}
 
 		return matcher.appendTail(tempRawCode).toString();
+	}
+
+	/**
+	 * Converts status values from HW_KM semantics to Open Telemetry semantics.
+	 * 
+	 * @param translatedValue
+	 * @return Open Telemetry status values if applicable, otherwise retain original translation value.
+	 */
+	private String convertOtelValues(String translatedValue) {
+		return switch (translatedValue) {
+		case "OK" -> "ok";
+		case "WARN" -> "degraded";
+		case "ALARM" -> "critical";
+		default -> translatedValue;
+		};
 	}
 
 	/**
