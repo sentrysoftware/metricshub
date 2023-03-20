@@ -98,6 +98,15 @@ public class PreConnector {
 	private static final Pattern CODE_COMMENT_PATTERN = Pattern.compile("(((['\"])(?:(?!\\2|\\\\).|\\\\.)*\\2)|\\/\\/[^\\n]*|\\/\\*(?:[^*]|\\*(?!\\/))*\\*\\/)|(^\\s*$)|^\\s*(.*?)\\s*=\\s*(.*?)\\s*$", Pattern.MULTILINE);
 
 	/**
+	 * Map each HDF status value with the corresponding OpenTelemetry state
+	 */
+	private static final Map<String, String> HDF_STATUS_TO_OTEL_STATE = Map.of(
+		"ok", "ok",
+		"warn", "degraded",
+		"alarm", "failed"
+	);
+
+	/**
 	 * Loads the specified Connector, parses it and populates the map with all values
 	 * (also does some pre-processing)
 	 *
@@ -519,14 +528,6 @@ public class PreConnector {
 	private static final int IS_EQUAL = 0;
 	private static final int IS_AFTER = 1;
 
-	/**
-	 * Map each HDF status value with the corresponding OpenTelemetry state
-	 */
-	private static final Map<String, String> HDF_STATUS_TO_OTEL_STATE = Map.of(
-		"ok", "ok",
-		"warn", "degraded",
-		"alarm", "failed"
-	);
 
 	/**
 	 * <p>Compare Two connector entries. Order them by:
