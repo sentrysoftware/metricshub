@@ -357,7 +357,7 @@ public class PreConnector {
 		while (matcher.find()) {
 			String tableName = matcher.group(1);
 			translationTables.computeIfAbsent(tableName, k -> new HashMap<>());
-			translationTables.get(tableName).put(replaceQuotes(matcher.group(2).toLowerCase()), convertOtelValues(replaceQuotes(matcher.group(3))));
+			translationTables.get(tableName).put(replaceQuotes(matcher.group(2).toLowerCase()), convertHdfStatusToOtelState(replaceQuotes(matcher.group(3))));
 			matcher.appendReplacement(tempRawCode, "");
 
 		}
@@ -366,18 +366,16 @@ public class PreConnector {
 	}
 
 	/**
-	 * Converts status values from HW_KM semantics to Open Telemetry semantics.
+	 * Converts status values from HDF semantics to OpenTelemetry semantics.
 	 * 
 	 * @param translatedValue
-	 * @return Open Telemetry status values if applicable, otherwise retain original translation value.
+	 * @return OpenTelemetry status values if applicable, otherwise retain original translation value.
 	 */
-	private String convertOtelValues(String translatedValue) {
-		return switch (translatedValue) {
-		case "OK" -> "ok";
-		case "WARN" -> "degraded";
-		case "ALARM" -> "failed";
-		default -> translatedValue;
-		};
+	private String convertHdfStatusToOtelState(String translatedValue) {
+		return HDF_STATUS_TO_OTEL_STATE.getOrDefault(
+			translatedValue.toLowerCase(),
+			translatedValue
+		);
 	}
 
 	/**
@@ -520,6 +518,15 @@ public class PreConnector {
 	private static final int IS_BEFORE = -1;
 	private static final int IS_EQUAL = 0;
 	private static final int IS_AFTER = 1;
+
+	/**
+	 * Map each HDF status value with the corresponding OpenTelemetry state
+	 */
+	private static final Map<String, String> HDF_STATUS_TO_OTEL_STATE = Map.of(
+		"ok", "ok",
+		"warn", "degraded",
+		"alarm", "failed"
+	);
 
 	/**
 	 * <p>Compare Two connector entries. Order them by:
