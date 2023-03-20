@@ -1,0 +1,103 @@
+---
+- name: discoveryTable
+  input: |
+    // Get the model name
+    // ServerID;ModelName;
+    Enclosure.Discovery.Source(1).Type="SnmpTable"
+    Enclosure.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.232.2.2.4"
+    Enclosure.Discovery.Source(1).SnmpTableSelectColumns="ID,2"
+
+    // Now, get some additional information
+    // ServerID;ServiceNumber;ProductID;SerialNumber;
+    Enclosure.Discovery.Source(2).Type="SnmpTable"
+    Enclosure.Discovery.Source(2).SnmpTableOid="1.3.6.1.4.1.232.2.2.2"
+    Enclosure.Discovery.Source(2).SnmpTableSelectColumns="ID,5,6,1"
+  expected:
+    monitors:
+      enclosure:
+        discovery:
+          sources:
+            source(1):
+              _comment: Source(1) = IPMI source
+              type: snmpTable
+              oid: 1.3.6.1.4.1.232.2.2.4
+              selectColumns: ID,2
+            source(2):
+              _comment: Source(2) = IPMI
+              type: snmpTable
+              oid: 1.3.6.1.4.1.232.2.2.2
+              selectColumns: ID,5,6,1
+- name: collectTable
+  input: |
+    // Get the model name
+    // ServerID;ModelName;
+    Enclosure.Collect.Source(1).Type="SnmpTable"
+    Enclosure.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.232.2.2.4"
+    Enclosure.Collect.Source(1).SnmpTableSelectColumns="ID,2"
+
+    // Now, get some additional information
+    // ServerID;ServiceNumber;ProductID;SerialNumber;
+    Enclosure.Collect.Source(2).Type="SnmpTable"
+    Enclosure.Collect.Source(2).SnmpTableOid="1.3.6.1.4.1.232.2.2.2"
+    Enclosure.Collect.Source(2).SnmpTableSelectColumns="ID,5,6,1"
+  expected:
+    monitors:
+      enclosure:
+        collect:
+          sources:
+            source(1):
+              _comment: Source(1) = IPMI source
+              type: snmpTable
+              oid: 1.3.6.1.4.1.232.2.2.4
+              selectColumns: ID,2
+            source(2):
+              _comment: Source(2) = IPMI
+              type: snmpTable
+              oid: 1.3.6.1.4.1.232.2.2.2
+              selectColumns: ID,5,6,1
+
+- name: discoveryGet
+  input: |
+    // Source (1) = Node LED OID
+    LED.Discovery.Source(1).Type="SnmpGet"
+    LED.Discovery.Source(1).SnmpOid="1.3.6.1.4.1.116.5.39.6.1.9.0"
+
+    // Source (2) = Node LED OID
+    LED.Discovery.Source(2).Type="SnmpGet"
+    LED.Discovery.Source(2).SnmpOid="1.3.6.1.4.1.116.5.39.6.1.9.0"
+  expected:
+    monitors:
+      enclosure:
+        discovery:
+          sources:
+            source(1):
+              _comment: Source (1) = Node LED OID
+              type: snmpGet
+              oid: 1.3.6.1.4.1.116.5.39.6.1.9.0
+            source(2):
+              _comment: Source (2) = Node LED OID
+              type: snmpGet
+              oid: 1.3.6.1.4.1.116.5.39.6.1.9.0
+
+- name: collectGet
+  input: |
+    // Source (1) = Node LED OID
+    LED.Collect.Source(1).Type="SnmpGet"
+    LED.Collect.Source(1).SnmpOid="1.3.6.1.4.1.116.5.39.6.1.9.0"
+
+    // Source (2) = Node LED OID
+    LED.Collect.Source(2).Type="SnmpGet"
+    LED.Collect.Source(2).SnmpOid="1.3.6.1.4.1.116.5.39.6.1.9.0"
+  expected:
+    monitors:
+      enclosure:
+        collect:
+          sources:
+            source(1):
+              _comment: Source (1) = Node LED OID
+              type: snmpGet
+              oid: 1.3.6.1.4.1.116.5.39.6.1.9.0
+            source(2):
+              _comment: Source (2) = Node LED OID
+              type: snmpGet
+              oid: 1.3.6.1.4.1.116.5.39.6.1.9.0
