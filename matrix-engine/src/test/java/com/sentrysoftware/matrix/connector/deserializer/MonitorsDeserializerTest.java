@@ -19,8 +19,8 @@ import com.sentrysoftware.matrix.connector.model.monitor.StandardMonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.task.AllAtOnce;
 import com.sentrysoftware.matrix.connector.model.monitor.task.Discovery;
 import com.sentrysoftware.matrix.connector.model.monitor.task.Mapping;
-import com.sentrysoftware.matrix.connector.model.monitor.task.MonoCollect;
-import com.sentrysoftware.matrix.connector.model.monitor.task.MultiCollect;
+import com.sentrysoftware.matrix.connector.model.monitor.task.MonoInstanceCollect;
+import com.sentrysoftware.matrix.connector.model.monitor.task.MultiInstanceCollect;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableJoinSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableUnionSource;
@@ -150,9 +150,9 @@ class MonitorsDeserializerTest extends DeserializerTest {
 	}
 
 	@Test
-	void testMonitorsMultiCollect() throws IOException {
+	void testMonitorsMultiInstanceCollect() throws IOException {
 
-		final Connector connector = getConnector("monitorsMultiCollect");
+		final Connector connector = getConnector("monitorsMultiInstanceCollect");
 
 		Map<String, MonitorJob> monitors = connector.getMonitors();
 
@@ -162,9 +162,9 @@ class MonitorsDeserializerTest extends DeserializerTest {
 
 		final StandardMonitorJob standard = (StandardMonitorJob) job;
 
-		final MultiCollect multiCollect = (MultiCollect) standard.getCollect();
+		final MultiInstanceCollect multiInstanceCollect = (MultiInstanceCollect) standard.getCollect();
 
-		assertNotNull(multiCollect);
+		assertNotNull(multiInstanceCollect);
 
 		final Map<String, Source> expectedSources = new HashMap<>(
 			Map.of(
@@ -174,19 +174,19 @@ class MonitorsDeserializerTest extends DeserializerTest {
 					.type("wbem")
 					.query("SELECT __PATH,OperationalStatus FROM EMC_StorageSystem")
 					.namespace("root/emc")
-					.key("$monitors.enclosure.multiCollect.sources.source(1)$")
+					.key("$monitors.enclosure.collect.sources.source(1)$")
 					.build()
 			)
 		);
 
-		assertEquals(expectedSources, multiCollect.getSources());
+		assertEquals(expectedSources, multiInstanceCollect.getSources());
 
-		final Mapping mapping = multiCollect.getMapping();
+		final Mapping mapping = multiInstanceCollect.getMapping();
 
 		final Mapping expectedMapping = Mapping
 			.builder()
 			.deviceId("$column(1)")
-			.source("$monitors.enclosure.multiCollect.sources.Source(1)$")
+			.source("$monitors.enclosure.collect.sources.Source(1)$")
 			.metrics(Map.of("hw.status", "$column(2)"))
 			.build();
 
@@ -194,9 +194,9 @@ class MonitorsDeserializerTest extends DeserializerTest {
 	}
 
 	@Test
-	void testMonitorsMonoCollect() throws IOException {
+	void testMonitorsMonoInstanceCollect() throws IOException {
 
-		final Connector connector = getConnector("monitorsMonoCollect");
+		final Connector connector = getConnector("monitorsMonoInstanceCollect");
 
 		Map<String, MonitorJob> monitors = connector.getMonitors();
 
@@ -206,9 +206,9 @@ class MonitorsDeserializerTest extends DeserializerTest {
 
 		final StandardMonitorJob standard = (StandardMonitorJob) job;
 
-		final MonoCollect monoCollect = (MonoCollect) standard.getCollect();
+		final MonoInstanceCollect monoInstanceCollect = (MonoInstanceCollect) standard.getCollect();
 
-		assertNotNull(monoCollect);
+		assertNotNull(monoInstanceCollect);
 
 		final Map<String, Source> expectedSources = new HashMap<>(
 			Map.of(
@@ -218,18 +218,18 @@ class MonitorsDeserializerTest extends DeserializerTest {
 					.type("wbem")
 					.query("SELECT $enclosure.deviceId$,OperationalStatus FROM EMC_StorageSystem")
 					.namespace("root/emc")
-					.key("$monitors.enclosure.monoCollect.sources.source(1)$")
+					.key("$monitors.enclosure.collect.sources.source(1)$")
 					.build()
 			)
 		);
 
-		assertEquals(expectedSources, monoCollect.getSources());
+		assertEquals(expectedSources, monoInstanceCollect.getSources());
 
-		final Mapping mapping = monoCollect.getMapping();
+		final Mapping mapping = monoInstanceCollect.getMapping();
 
 		final Mapping expectedMapping = Mapping
 			.builder()
-			.source("$monitors.enclosure.monoCollect.sources.Source(1)$")
+			.source("$monitors.enclosure.collect.sources.Source(1)$")
 			.metrics(Map.of("hw.status", "$column(2)"))
 			.build();
 

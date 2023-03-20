@@ -63,7 +63,8 @@ monitors:
           type: Storage
         conditionalCollection:
           hw.status: $column(10)
-    multiCollect:
+    collect:
+      type: multiInstance
       sources:
         source(2):
           type: copy
@@ -74,15 +75,15 @@ monitors:
           namespace: root/emc
         source(3):
           type: tableJoin
-          leftTable: $monitors.host.multiCollect.sources.source(2)$
-          rightTable: $monitors.host.multiCollect.sources.source(1)$
+          leftTable: $monitors.host.collect.sources.source(2)$
+          rightTable: $monitors.host.collect.sources.source(1)$
           leftKeyColumn: 5
           rightKeyColumn: 1
           keyType: WBEM
           defaultRightLine: ;;;;
       mapping:
         deviceId: $column(1) 
-        source: $monitors.host.multiCollect.sources.source(2)$
+        source: $monitors.host.collect.sources.source(2)$
         metrics:
           hw.status: $column(2)
   enclosure:
@@ -137,7 +138,8 @@ monitors:
           type: Storage
         conditionalCollection:
           hw.status: $column(10)
-    multiCollect:
+    collect:
+      type: multiInstance
       sources:
         tableJoin:
           type: tableJoin
@@ -150,9 +152,9 @@ monitors:
         myUnionSource:
           type: tableUnion
           tables:
-          - $monitors.enclosure.multiCollect.sources.myExternalSource$
-          - $monitors.enclosure.multiCollect.sources.source(2)$
-          - $monitors.enclosure.multiCollect.sources.source(3)$
+          - $monitors.enclosure.collect.sources.myExternalSource$
+          - $monitors.enclosure.collect.sources.source(2)$
+          - $monitors.enclosure.collect.sources.source(3)$
         myExternalSource:
           type: copy
           from: $monitors.host.discovery.sources.source(6)$
@@ -165,14 +167,14 @@ monitors:
           namespace: root/emc
         source(3):
           type: tableJoin
-          leftTable: $monitors.enclosure.multiCollect.sources.source(2)$
-          rightTable: $monitors.enclosure.multiCollect.sources.source(1)$
+          leftTable: $monitors.enclosure.collect.sources.source(2)$
+          rightTable: $monitors.enclosure.collect.sources.source(1)$
           leftKeyColumn: 5
           rightKeyColumn: 1
           keyType: WBEM
           defaultRightLine: ;;;;
       mapping:
         deviceId: $column(1) 
-        source: $monitors.enclosure.multiCollect.sources.source(2)$
+        source: $monitors.enclosure.collect.sources.source(2)$
         metrics:
           hw.status: $column(2)

@@ -15,12 +15,12 @@ import lombok.ToString;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class MultiCollect extends AbstractCollect {
+public class MultiInstanceCollect extends AbstractCollect {
 
 	private static final long serialVersionUID = 1L;
 
 	@Builder
-	public MultiCollect(final Map<String, Source> sources, final Mapping mapping, final Set<String> executionOrder)  {
+	public MultiInstanceCollect(final Map<String, Source> sources, final Mapping mapping, final Set<String> executionOrder)  {
 		super(sources, mapping, executionOrder);
 	}
 

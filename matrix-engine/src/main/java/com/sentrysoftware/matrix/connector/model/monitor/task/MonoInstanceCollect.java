@@ -15,12 +15,12 @@ import lombok.ToString;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class MonoCollect extends AbstractCollect {
+public class MonoInstanceCollect extends AbstractCollect {
 
 	private static final long serialVersionUID = 1L;
 
 	@Builder
-	public MonoCollect(final Map<String, Source> sources, final Mapping mapping, final Set<String> executionOrder)  {
+	public MonoInstanceCollect(final Map<String, Source> sources, final Mapping mapping, final Set<String> executionOrder)  {
 		super(sources, mapping, executionOrder);
 	}
 
