@@ -31,9 +31,9 @@
       EmbeddedFile(2): "Second\nEmbedded\nFile\nTest"
 - name: getTranslationTables
   input: |
-    TranslationTable(0)="ok"
-    TranslationTable(1)="degraded"
-    TranslationTable(2)="failed"
+    TranslationTable(0)="OK"
+    TranslationTable(1)="WARN"
+    TranslationTable(2)="ALARM"
   expected:
     translations:
       TranslationTable:
