@@ -16,6 +16,7 @@ public class ConverterConstants {
 	public static final String OPENING_PARENTHESIS = "(";
 	public static final String CLOSING_PARENTHESIS = ")";
 
+	public static final String TRUE = "true";
 	public static final String ONE = "1";
 	public static final String PERCENT = "%";
 

@@ -5,13 +5,20 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.sentrysoftware.matrix.converter.ConnectorLibraryConverter;
 import com.sentrysoftware.matrix.converter.PreConnector;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.*;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ConnectorSimpleProperty {
+
+	private static final String CONNECTION_TYPES = "connectionTypes";
 
 	public static Set<IConnectorStateConverter> getConnectorProperties() {
 
@@ -32,8 +39,63 @@ public class ConnectorSimpleProperty {
 
 	}
 
-	private static boolean detect(final String key, final String value, final String property) {
-		return value != null && key != null && key.toLowerCase().startsWith(property.toLowerCase());
+	/**
+	 * Create Connector node if not exists
+	 * 
+	 * @param connector global connector {@link JsonNode} 
+	 * @return ObjectNode instance
+	 */
+	private static ObjectNode getOrCreateConnector(final JsonNode connector) {
+		JsonNode connectorSection = connector.get(CONNECTOR);
+		if (connectorSection == null) {
+			connectorSection = JsonNodeFactory.instance.objectNode();
+			((ObjectNode) connector).set(CONNECTOR, connectorSection);
+		}
+		return (ObjectNode) connectorSection;
+	}
+
+	/**
+	 * Create Detection node if not exists (Parent connector)
+	 * 
+	 * @param connector global connector {@link JsonNode} 
+	 * @return ObjectNode instance
+	 */
+	private static ObjectNode getOrCreateDetection(final JsonNode connector) {
+		final ObjectNode connectorSection = getOrCreateConnector(connector);
+		JsonNode detectionSection = connectorSection.get(DETECTION);
+		if (detectionSection == null) {
+			detectionSection = JsonNodeFactory.instance.objectNode();
+			connectorSection.set(DETECTION, detectionSection);
+		}
+		return (ObjectNode) detectionSection;
+	}
+
+	/**
+	 * Create ConntectionType node if not exists (Parent: connector.detection)
+	 * 
+	 * @param connector global connector {@link JsonNode} 
+	 * @return ArrayNode instance
+	 */
+	private static ArrayNode getOrCreateConnectionType(final JsonNode connector) {
+		final ObjectNode detectionSection = getOrCreateDetection(connector);
+		JsonNode connectionTypeNode = detectionSection.get(CONNECTION_TYPES);
+		if (connectionTypeNode == null) {
+			connectionTypeNode = JsonNodeFactory.instance.arrayNode();
+			detectionSection.set(CONNECTION_TYPES, connectionTypeNode);
+		}
+		return (ArrayNode) connectionTypeNode;
+	}
+
+	/**
+	 * Return true if the given key starts with expected property
+	 * 
+	 * @param key The simple property key
+	 * @param value The simple property value
+	 * @param expectedProperty The expected property
+	 * @return boolean value
+	 */
+	private static boolean detect(final String key, final String value, final String expectedProperty) {
+		return value != null && key != null && key.toLowerCase().startsWith(expectedProperty.toLowerCase());
 	}
 
 	public static class DisplayNameProcessor implements IConnectorStateConverter {
@@ -44,8 +106,9 @@ public class ConnectorSimpleProperty {
 		}
 
 		@Override
-		public void convert(final String key, final String value, final JsonNode connector, final PreConnector preConnector) {
-			// TODO Implement
+		public void convert(final String key, final String value, final JsonNode connector,
+				final PreConnector preConnector) {
+			getOrCreateConnector(connector).set("displayName", JsonNodeFactory.instance.textNode(value));
 		}
 
 	}
@@ -58,8 +121,15 @@ public class ConnectorSimpleProperty {
 		}
 
 		@Override
-		public void convert(final String key, final String value, final JsonNode connector, final PreConnector preConnector) {
-			// TODO Implement
+		public void convert(final String key, final String value, final JsonNode connector,
+				final PreConnector preConnector) {
+			final ArrayNode superseedes = JsonNodeFactory.instance.arrayNode();
+			Stream
+				.of(value.split(COMMA))
+				.map(ConnectorLibraryConverter::getConnectorFilenameNoExtension)
+				.forEach(superseedes::add);
+
+			getOrCreateDetection(connector).set("supersedes", superseedes);
 		}
 	}
 
@@ -69,9 +139,14 @@ public class ConnectorSimpleProperty {
 		public boolean detect(final String key, final String value, final JsonNode connector) {
 			return ConnectorSimpleProperty.detect(key, value, "hdf.appliestoos");
 		}
+
 		@Override
-		public void convert(final String key, final String value, final JsonNode connector, final PreConnector preConnector) {
-			// TODO Implement
+		public void convert(final String key, final String value, final JsonNode connector,
+				final PreConnector preConnector) {
+			final ArrayNode appliesToOs = JsonNodeFactory.instance.arrayNode();
+			Stream.of(value.split(COMMA)).forEach(appliesToOs::add);
+
+			getOrCreateDetection(connector).set("appliesTo", appliesToOs);
 		}
 	}
 
@@ -83,8 +158,11 @@ public class ConnectorSimpleProperty {
 		}
 
 		@Override
-		public void convert(final String key, final String value, final JsonNode connector, final PreConnector preConnector) {
-			// TODO Implement
+		public void convert(final String key, final String value, final JsonNode connector,
+				final PreConnector preConnector) {
+			if (Boolean.parseBoolean(value) || ONE.equals(value)) {
+				getOrCreateConnectionType(connector).add("local");
+			}
 		}
 	}
 
@@ -96,8 +174,11 @@ public class ConnectorSimpleProperty {
 		}
 
 		@Override
-		public void convert(final String key, final String value, final JsonNode connector, final PreConnector preConnector) {
-			// TODO Implement
+		public void convert(final String key, final String value, final JsonNode connector,
+				final PreConnector preConnector) {
+			if (Boolean.parseBoolean(value) || ONE.equals(value)) {
+				getOrCreateConnectionType(connector).add("remote");
+			}
 		}
 	}
 
@@ -109,8 +190,9 @@ public class ConnectorSimpleProperty {
 		}
 
 		@Override
-		public void convert(final String key, final String value, final JsonNode connector, final PreConnector preConnector) {
-			// TODO Implement
+		public void convert(final String key, final String value, final JsonNode connector,
+				final PreConnector preConnector) {
+			getOrCreateConnector(connector).set("platforms", JsonNodeFactory.instance.textNode(value));
 		}
 	}
 
@@ -122,8 +204,9 @@ public class ConnectorSimpleProperty {
 		}
 
 		@Override
-		public void convert(final String key, final String value, final JsonNode connector, final PreConnector preConnector) {
-			// TODO Implement
+		public void convert(final String key, final String value, final JsonNode connector,
+				final PreConnector preConnector) {
+			getOrCreateConnector(connector).set("reliesOn", JsonNodeFactory.instance.textNode(value));
 		}
 	}
 
@@ -135,8 +218,9 @@ public class ConnectorSimpleProperty {
 		}
 
 		@Override
-		public void convert(final String key, final String value, final JsonNode connector, final PreConnector preConnector) {
-			// TODO Implement
+		public void convert(final String key, final String value, final JsonNode connector,
+				final PreConnector preConnector) {
+			getOrCreateConnector(connector).set("version", JsonNodeFactory.instance.textNode(value));
 		}
 	}
 
@@ -148,8 +232,9 @@ public class ConnectorSimpleProperty {
 		}
 
 		@Override
-		public void convert(final String key, final String value, final JsonNode connector, final PreConnector preConnector) {
-			// TODO Implement
+		public void convert(final String key, final String value, final JsonNode connector,
+				final PreConnector preConnector) {
+			getOrCreateConnector(connector).set("information", JsonNodeFactory.instance.textNode(value));
 		}
 	}
 
@@ -161,21 +246,27 @@ public class ConnectorSimpleProperty {
 		}
 
 		@Override
-		public void convert(final String key, final String value, final JsonNode connector, final PreConnector preConnector) {
-			// TODO Implement
+		public void convert(final String key, final String value, final JsonNode connector,
+				final PreConnector preConnector) {
+			getOrCreateDetection(connector)
+				.set(
+					"disableAutoDetection",
+					JsonNodeFactory.instance.booleanNode(ONE.equals(value) || TRUE.equalsIgnoreCase(value))
+				);
 		}
 	}
-	
+
 	public static class OnLastResortProcessor implements IConnectorStateConverter {
 
 		@Override
 		public boolean detect(final String key, final String value, final JsonNode connector) {
-			return ConnectorSimpleProperty.detect(key, value, "hdf.onLastResort");
+			return ConnectorSimpleProperty.detect(key, value, "hdf.onlastresort");
 		}
 
 		@Override
-		public void convert(final String key, final String value, final JsonNode connector, final PreConnector preConnector) {
-			// TODO Implement
+		public void convert(final String key, final String value, final JsonNode connector,
+				final PreConnector preConnector) {
+			getOrCreateDetection(connector).set("onLastResort", JsonNodeFactory.instance.textNode(value));
 		}
 	}
 }
