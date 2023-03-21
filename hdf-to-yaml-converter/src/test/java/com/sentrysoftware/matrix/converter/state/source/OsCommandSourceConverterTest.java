@@ -15,7 +15,7 @@ public abstract class OsCommandSourceConverterTest extends AbstractConnectorProp
 	}
 
 	@Test
-	@Disabled("Until OsCommand Source coverter is up.")
+	@Disabled("Until OsCommand Source converter is up")
 	void test() throws IOException {
 		testConversion("discovery");
 		testConversion("collect");

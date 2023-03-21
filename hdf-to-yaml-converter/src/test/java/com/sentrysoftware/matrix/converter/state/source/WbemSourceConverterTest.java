@@ -9,17 +9,17 @@ import com.sentrysoftware.matrix.converter.AbstractConnectorPropertyConverterTes
 
 class WbemSourceConverterTest extends AbstractConnectorPropertyConverterTest {
 
-    @Override
-    protected String getResourcePath() {
-        return "src/test/resources/test-files/monitors/source/wbem";
-    }
+	@Override
+	protected String getResourcePath() {
+		return "src/test/resources/test-files/monitors/source/wbem";
+	}
 
-    @Test
-    @Disabled("until WBEM Source coverter is up")
-    void test() throws IOException {
-        testConversion("discovery");
-        testConversion("collect");
+	@Test
+	@Disabled("until WBEM Source converter is up")
+	void test() throws IOException {
+		testConversion("discovery");
+		testConversion("collect");
 
-        testAll();
-    }
+		testAll();
+	}
 }

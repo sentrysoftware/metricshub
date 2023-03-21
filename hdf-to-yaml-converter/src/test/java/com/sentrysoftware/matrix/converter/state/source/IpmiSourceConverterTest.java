@@ -9,17 +9,17 @@ import com.sentrysoftware.matrix.converter.AbstractConnectorPropertyConverterTes
 
 class IpmiSourceConverterTest extends AbstractConnectorPropertyConverterTest {
 
-    @Override
-    protected String getResourcePath() {
-        return "src/test/resources/test-files/monitors/source/ipmi";
-    }
+	@Override
+	protected String getResourcePath() {
+		return "src/test/resources/test-files/monitors/source/ipmi";
+	}
 
-    @Test
-    @Disabled("until IPMI Source coverter is up")
-    void test() throws IOException {
-        testConversion("discovery");
-        testConversion("collect");
+	@Test
+	@Disabled("until IPMI Source converter is up")
+	void test() throws IOException {
+		testConversion("discovery");
+		testConversion("collect");
 
-        testAll();
-    }
+		testAll();
+	}
 }

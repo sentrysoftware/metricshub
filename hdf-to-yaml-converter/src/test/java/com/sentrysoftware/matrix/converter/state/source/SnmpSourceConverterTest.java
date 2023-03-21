@@ -9,20 +9,20 @@ import com.sentrysoftware.matrix.converter.AbstractConnectorPropertyConverterTes
 
 class SnmpSourceConverterTest extends AbstractConnectorPropertyConverterTest {
 
-    @Override
-    protected String getResourcePath() {
-        return "src/test/resources/test-files/monitors/source/snmp";
-    }
+	@Override
+	protected String getResourcePath() {
+		return "src/test/resources/test-files/monitors/source/snmp";
+	}
 
-    @Test
-    @Disabled("until SNMP Source coverter is up")
-    void test() throws IOException {
-        testConversion("discoveryTable");
-        testConversion("collectTable");
+	@Test
+	@Disabled("until SNMP Source converter is up")
+	void test() throws IOException {
+		testConversion("discoveryTable");
+		testConversion("collectTable");
 
-        testConversion("discoveryGet");
-        testConversion("collectGet");
+		testConversion("discoveryGet");
+		testConversion("collectGet");
 
-        testAll();
-    }
+		testAll();
+	}
 }
