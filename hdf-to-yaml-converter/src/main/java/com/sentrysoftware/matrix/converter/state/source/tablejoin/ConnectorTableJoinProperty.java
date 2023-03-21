@@ -16,24 +16,23 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ConnectorTableJoinProperty {
 
-	private static final String  HDF_TYPE_VALUE = "TableJoint";
+	private static final String HDF_TYPE_VALUE = "TableJoint";
 	private static final String YAML_TYPE_VALUE = "tableJoin";
 
 	public static Set<IConnectorStateConverter> getConnectorProperties() {
 
 		return Set.of(
-			new TypeProcessor(HDF_TYPE_VALUE, YAML_TYPE_VALUE),
-			new ForceSerializationProcessor(),
-			new ExecuteForEachEntryOfProcessor(),
-			new EntryConcatMethodProcessor(),
-			new EntryConcatStartProcessor(),
-			new EntryConcatEndProcessor(),
-			new LeftTableProcessor(),
-			new RightTableProcessor(),
-			new LeftKeyColumnProcessor(),
-			new RightKeyColumnProcessor(),
-			new KeyTypeProcessor(),
-			new DefaultRightLineProcessor()
-		);
+				new TypeProcessor(HDF_TYPE_VALUE, YAML_TYPE_VALUE),
+				new ForceSerializationProcessor(),
+				new ExecuteForEachEntryOfProcessor(),
+				new EntryConcatMethodProcessor(),
+				new EntryConcatStartProcessor(),
+				new EntryConcatEndProcessor(),
+				new LeftTableProcessor(),
+				new RightTableProcessor(),
+				new LeftKeyColumnProcessor(),
+				new RightKeyColumnProcessor(),
+				new KeyTypeProcessor(),
+				new DefaultRightLineProcessor());
 	}
 }
