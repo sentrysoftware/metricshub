@@ -1,0 +1,140 @@
+- name: discovery
+  input: |
+    // Add the errorcounts together 7 = 7+8+9+10+11+12+13+14+15
+    // SwitchFCPortStats__Path,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,AddressErrors,Class3FramesDiscarded,CRCErrors,DelimiterErrors,EncodingDisparityErrors,FramesTooLong,PrimitiveSeqProtocolErrCount,RxBadEOFs,TooManyRdys
+    //     1 ;      2      ;    3           ;   4           ;     5            ;    6       ;         7   ;     8               ;      9  ;   10          ;    11                 ;  12         ;  13                        ;   14    ;   15
+    NetworkCard.Discovery.Source(3).Compute(1).Type="Add"
+    NetworkCard.Discovery.Source(3).Compute(1).Column=7
+    NetworkCard.Discovery.Source(3).Compute(1).Add=Column(7)
+    NetworkCard.Discovery.Source(3).Compute(2).Type="Add"
+    NetworkCard.Discovery.Source(3).Compute(2).Column=7
+    NetworkCard.Discovery.Source(3).Compute(2).Add=Column(8)
+    NetworkCard.Discovery.Source(3).Compute(3).Type="Add"
+    NetworkCard.Discovery.Source(3).Compute(3).Column=7
+    NetworkCard.Discovery.Source(3).Compute(3).Add=Column(9)
+    NetworkCard.Discovery.Source(3).Compute(4).Type="Add"
+    NetworkCard.Discovery.Source(3).Compute(4).Column=7
+    NetworkCard.Discovery.Source(3).Compute(4).Add=Column(10)
+    NetworkCard.Discovery.Source(3).Compute(5).Type="Add"
+    NetworkCard.Discovery.Source(3).Compute(5).Column=7
+    NetworkCard.Discovery.Source(3).Compute(5).Add=Column(11)
+    NetworkCard.Discovery.Source(3).Compute(6).Type="Add"
+    NetworkCard.Discovery.Source(3).Compute(6).Column=7
+    NetworkCard.Discovery.Source(3).Compute(6).Add=Column(12)
+    NetworkCard.Discovery.Source(3).Compute(7).Type="Add"
+    NetworkCard.Discovery.Source(3).Compute(7).Column=7
+    NetworkCard.Discovery.Source(3).Compute(7).Add=Column(13)
+    NetworkCard.Discovery.Source(3).Compute(8).Type="Add"
+    NetworkCard.Discovery.Source(3).Compute(8).Column=7
+    NetworkCard.Discovery.Source(3).Compute(8).Add=Column(14)
+    NetworkCard.Discovery.Source(3).Compute(9).Type="Add"
+    NetworkCard.Discovery.Source(3).Compute(9).Column=7
+    NetworkCard.Discovery.Source(3).Compute(9).Add=Column(15)
+  expected:
+    monitors:
+      networkCard:
+        discovery:
+          sources:
+            source(3):
+              computes:
+                - _comment: |-
+                    Add the errorcounts together 7 = 7+8+9+10+11+12+13+14+15
+                    SwitchFCPortStats__Path,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,AddressErrors,Class3FramesDiscarded,CRCErrors,DelimiterErrors,EncodingDisparityErrors,FramesTooLong,PrimitiveSeqProtocolErrCount,RxBadEOFs,TooManyRdys
+                        1 ;      2      ;    3           ;   4           ;     5            ;    6       ;         7   ;     8               ;      9  ;   10          ;    11                 ;  12         ;  13                        ;   14    ;   15
+                  type: add
+                  column: 7
+                  value: Column(7)
+                - type: add
+                  column: 7
+                  value: Column(8)
+                - type: add
+                  column: 7
+                  value: Column(9)
+                - type: add
+                  column: 7
+                  value: Column(10)
+                - type: add
+                  column: 7
+                  value: Column(11)
+                - type: add
+                  column: 7
+                  value: Column(12)
+                - type: add
+                  column: 7
+                  value: Column(13)
+                - type: add
+                  column: 7
+                  value: Column(14)
+                - type: add
+                  column: 7
+                  value: Column(15)
+- name: collect
+  input: |
+    // Add the errorcounts together 7 = 7+8+9+10+11+12+13+14+15
+    // SwitchFCPortStats__Path,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,AddressErrors,Class3FramesDiscarded,CRCErrors,DelimiterErrors,EncodingDisparityErrors,FramesTooLong,PrimitiveSeqProtocolErrCount,RxBadEOFs,TooManyRdys
+    //     1 ;      2      ;    3           ;   4           ;     5            ;    6       ;         7   ;     8               ;      9  ;   10          ;    11                 ;  12         ;  13                        ;   14    ;   15
+    NetworkCard.Collect.Source(3).Compute(1).Type="Add"
+    NetworkCard.Collect.Source(3).Compute(1).Column=7
+    NetworkCard.Collect.Source(3).Compute(1).Add=Column(7)
+    NetworkCard.Collect.Source(3).Compute(2).Type="Add"
+    NetworkCard.Collect.Source(3).Compute(2).Column=7
+    NetworkCard.Collect.Source(3).Compute(2).Add=Column(8)
+    NetworkCard.Collect.Source(3).Compute(3).Type="Add"
+    NetworkCard.Collect.Source(3).Compute(3).Column=7
+    NetworkCard.Collect.Source(3).Compute(3).Add=Column(9)
+    NetworkCard.Collect.Source(3).Compute(4).Type="Add"
+    NetworkCard.Collect.Source(3).Compute(4).Column=7
+    NetworkCard.Collect.Source(3).Compute(4).Add=Column(10)
+    NetworkCard.Collect.Source(3).Compute(5).Type="Add"
+    NetworkCard.Collect.Source(3).Compute(5).Column=7
+    NetworkCard.Collect.Source(3).Compute(5).Add=Column(11)
+    NetworkCard.Collect.Source(3).Compute(6).Type="Add"
+    NetworkCard.Collect.Source(3).Compute(6).Column=7
+    NetworkCard.Collect.Source(3).Compute(6).Add=Column(12)
+    NetworkCard.Collect.Source(3).Compute(7).Type="Add"
+    NetworkCard.Collect.Source(3).Compute(7).Column=7
+    NetworkCard.Collect.Source(3).Compute(7).Add=Column(13)
+    NetworkCard.Collect.Source(3).Compute(8).Type="Add"
+    NetworkCard.Collect.Source(3).Compute(8).Column=7
+    NetworkCard.Collect.Source(3).Compute(8).Add=Column(14)
+    NetworkCard.Collect.Source(3).Compute(9).Type="Add"
+    NetworkCard.Collect.Source(3).Compute(9).Column=7
+    NetworkCard.Collect.Source(3).Compute(9).Add=Column(15)
+  expected:
+    monitors:
+      networkCard:
+        collect:
+          sources:
+            source(3):
+              computes:
+                - _comment: |-
+                    Add the errorcounts together 7 = 7+8+9+10+11+12+13+14+15
+                    SwitchFCPortStats__Path,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,AddressErrors,Class3FramesDiscarded,CRCErrors,DelimiterErrors,EncodingDisparityErrors,FramesTooLong,PrimitiveSeqProtocolErrCount,RxBadEOFs,TooManyRdys
+                        1 ;      2      ;    3           ;   4           ;     5            ;    6       ;         7   ;     8               ;      9  ;   10          ;    11                 ;  12         ;  13                        ;   14    ;   15
+                  type: add
+                  column: 7
+                  value: Column(7)
+                - type: add
+                  column: 7
+                  value: Column(8)
+                - type: add
+                  column: 7
+                  value: Column(9)
+                - type: add
+                  column: 7
+                  value: Column(10)
+                - type: add
+                  column: 7
+                  value: Column(11)
+                - type: add
+                  column: 7
+                  value: Column(12)
+                - type: add
+                  column: 7
+                  value: Column(13)
+                - type: add
+                  column: 7
+                  value: Column(14)
+                - type: add
+                  column: 7
+                  value: Column(15)
