@@ -18,7 +18,11 @@
                 Source (7) = Union of 3 & 4 & 5 & 6
                 ID;Location;TempUpper;
               type: tableUnion
-              tables: [$monitors.temperature.discovery.sources.source(3)$,$monitors.temperature.discovery.sources.source(4)$,$monitors.temperature.discovery.sources.source(5)$,$monitors.temperature.discovery.sources.source(6)$]
+              tables:
+              - $monitors.temperature.discovery.sources.source(3)$
+              - $monitors.temperature.discovery.sources.source(4)$
+              - $monitors.temperature.discovery.sources.source(5)$
+              - $monitors.temperature.discovery.sources.source(6)$
 
 - name: collect
   input: |
@@ -38,5 +42,7 @@
                 Union the two collects
                 ID;Percent;Speed;Units;State;
               type: tableUnion
-              tables: [$monitors.fan.collect.sources.source(2)$,$monitors.fan.collect.sources.source(3)$]
+              tables:
+              - $monitors.fan.collect.sources.source(2)$
+              - $monitors.fan.collect.sources.source(3)$
               forceSerialization: true

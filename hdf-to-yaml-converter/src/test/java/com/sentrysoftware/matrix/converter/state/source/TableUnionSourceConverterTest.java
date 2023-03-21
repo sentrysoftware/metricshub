@@ -7,20 +7,20 @@ import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.converter.AbstractConnectorPropertyConverterTest;
 
-class TableUnionSourceConverterTest  extends AbstractConnectorPropertyConverterTest {
+class TableUnionSourceConverterTest extends AbstractConnectorPropertyConverterTest {
 
-	  @Override
-	    protected String getResourcePath() {
-	        return "src/test/resources/test-files/monitors/source/tableunion";
-	    }
+	@Override
+	protected String getResourcePath() {
+		return "src/test/resources/test-files/monitors/source/tableunion";
+	}
 
-	    @Test
-	    @Disabled("until TableUnion Source coverter is up")
-	    void test() throws IOException {
-	        testConversion("discovery");
-	        testConversion("collect");
+	@Test
+	@Disabled("until TableUnion Source converter is up")
+	void test() throws IOException {
+		testConversion("discovery");
+		testConversion("collect");
 
-	        testAll();
-	    }
+		testAll();
+	}
 
 }
