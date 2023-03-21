@@ -2,7 +2,6 @@ package com.sentrysoftware.matrix.converter.state.detection.snmp;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -31,10 +30,8 @@ public class OidProcessor extends AbstractStateConverter {
 		matcher.find();
 		final String index = matcher.group(1);
 		final String typeKey = String.format("detection.criteria(%s).type", index);
-		if (preConnector.getComments().containsKey(typeKey)) {
-			final String comments = preConnector.getComments().get(typeKey).stream().collect(Collectors.joining("\n"));
-			createTextNode("_comment", comments, criterion);
-		}
+
+		appendComment(typeKey, preConnector, criterion);
 
 		createTextNode("type", type, criterion);
 		createTextNode("oid", value, criterion);

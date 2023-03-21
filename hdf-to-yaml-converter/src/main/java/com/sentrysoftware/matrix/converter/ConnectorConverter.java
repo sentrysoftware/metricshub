@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sentrysoftware.matrix.converter.state.ConnectorState;
+import com.sentrysoftware.matrix.converter.state.ConversionHelper;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -58,23 +59,26 @@ public class ConnectorConverter {
 	 * 
 	 * @param connector
 	 */
-	private void setTranslationTables(JsonNode connector) {
+	private void setTranslationTables(final JsonNode connector) {
 		final Map<String, Map<String, String>> translationTablesMap = preConnector.getTranslationTables();
 		// No need to create an empty node
 		if (translationTablesMap.isEmpty()) {
 			return;
 		}
 
-		ObjectNode translations = JsonNodeFactory.instance.objectNode();
+		final ObjectNode translations = JsonNodeFactory.instance.objectNode();
 		((ObjectNode)connector).set("translations", translations);
-		for (Entry<String, Map<String, String>> translationsEntry : translationTablesMap.entrySet()) {
-			String tableKey = translationsEntry.getKey();
-			
-			ObjectNode translationTable = JsonNodeFactory.instance.objectNode();
+		for (final Entry<String, Map<String, String>> translationsEntry : translationTablesMap.entrySet()) {
+			final String tableKey = translationsEntry.getKey();
+
+			final ObjectNode translationTable = JsonNodeFactory.instance.objectNode();
 			translations.set(tableKey, translationTable);
 			translationsEntry
 				.getValue()
-				.forEach((key, value) -> translationTable.set(key, JsonNodeFactory.instance.textNode(value)));
+				.forEach(
+					(key, value) -> translationTable
+						.set(key, JsonNodeFactory.instance.textNode(value))
+				);
 			
 		}
 
@@ -85,7 +89,7 @@ public class ConnectorConverter {
 	 * 
 	 * @param connector
 	 */
-	private void setEmbeddedFiles(JsonNode connector) {
+	private void setEmbeddedFiles(final JsonNode connector) {
 		final Map<String, String> embeddedFilesMap = preConnector.getEmbeddedFiles();
 		// No need to create an empty node
 		if (embeddedFilesMap.isEmpty()) {
@@ -93,7 +97,14 @@ public class ConnectorConverter {
 		}
 
 		final ObjectNode embeddedFiles = JsonNodeFactory.instance.objectNode();
-		embeddedFilesMap.entrySet().forEach(entry -> embeddedFiles.set(entry.getKey(), new TextNode(entry.getValue())));
+		embeddedFilesMap
+			.entrySet()
+			.forEach(entry -> embeddedFiles
+				.set(
+					entry.getKey(),
+					new TextNode(ConversionHelper.performValueConversions(entry.getValue()))
+				)
+			);
 		((ObjectNode) connector).set("embedded", embeddedFiles);
 	}
 
@@ -111,10 +122,10 @@ public class ConnectorConverter {
 	) {
 
 		// Get the detected state
-		Optional<ConnectorState> optionalState = ConnectorState
+		final Optional<ConnectorState> optionalState = ConnectorState
 				.getConnectorStates()
 				.stream()
-				.filter(state -> state.detect(key, value, connector))
+				.filter(state ->  state.detect(key, value, connector))
 				.findFirst();
 
 		optionalState.ifPresentOrElse(
