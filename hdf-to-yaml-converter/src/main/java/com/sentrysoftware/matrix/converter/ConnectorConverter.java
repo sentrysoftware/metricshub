@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.converter;
 
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -53,21 +54,47 @@ public class ConnectorConverter {
 	}
 
 	/**
+	 * Set the connector's translation tables.
 	 * 
 	 * @param connector
 	 */
 	private void setTranslationTables(JsonNode connector) {
-		// TODO Implement
-		
+		final Map<String, Map<String, String>> translationTablesMap = preConnector.getTranslationTables();
+		// No need to create an empty node
+		if (translationTablesMap.isEmpty()) {
+			return;
+		}
+
+		ObjectNode translations = JsonNodeFactory.instance.objectNode();
+		((ObjectNode)connector).set("translations", translations);
+		for (Entry<String, Map<String, String>> translationsEntry : translationTablesMap.entrySet()) {
+			String tableKey = translationsEntry.getKey();
+			
+			ObjectNode translationTable = JsonNodeFactory.instance.objectNode();
+			translations.set(tableKey, translationTable);
+			translationsEntry
+				.getValue()
+				.forEach((key, value) -> translationTable.set(key, JsonNodeFactory.instance.textNode(value)));
+			
+		}
+
 	}
 
 	/**
+	 * Set the connector's embedded files.
 	 * 
 	 * @param connector
 	 */
 	private void setEmbeddedFiles(JsonNode connector) {
-		// TODO Implement
-		
+		final Map<String, String> embeddedFilesMap = preConnector.getEmbeddedFiles();
+		// No need to create an empty node
+		if (embeddedFilesMap.isEmpty()) {
+			return;
+		}
+
+		final ObjectNode embeddedFiles = JsonNodeFactory.instance.objectNode();
+		embeddedFilesMap.entrySet().forEach(entry -> embeddedFiles.set(entry.getKey(), new TextNode(entry.getValue())));
+		((ObjectNode) connector).set("embedded", embeddedFiles);
 	}
 
 	/**
