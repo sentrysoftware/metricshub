@@ -16,9 +16,8 @@ public class ResultContentProcessor extends AbstractStateConverter {
 	private static final String YAML_HTTP_STATUS = "httpStatus";
 
 	private static final Pattern PATTERN = Pattern.compile(
-		SOURCE_REGEX_START + "resultcontent" + REGEX_END,
-		Pattern.CASE_INSENSITIVE
-	);
+			"^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\))\\.resultcontent\\s*$",
+			Pattern.CASE_INSENSITIVE);
 
 	@Override
 	public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
