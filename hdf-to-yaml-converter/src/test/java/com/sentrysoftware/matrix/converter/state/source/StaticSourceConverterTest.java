@@ -11,15 +11,15 @@ class StaticSourceConverterTest extends AbstractConnectorPropertyConverterTest{
 
 	@Override
 	protected String getResourcePath() {
-		 return "src/test/resources/test-files/monitors/source/static";
+		return "src/test/resources/test-files/monitors/source/static";
 	}
 
-    @Test
-    @Disabled("until Static Source coverter is up")
-    void test() throws IOException {
-        testConversion("discovery");
-        testConversion("collect");
+	@Test
+	@Disabled("until Static Source converter is up")
+	void test() throws IOException {
+		testConversion("discovery");
+		testConversion("collect");
 
-        testAll();
-    }
+		testAll();
+	}
 }
