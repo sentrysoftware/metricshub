@@ -26,7 +26,7 @@
             source(1):
               _comment: First UCS discovery comment
               type: ucs
-              query: [ UCS Discovery Query 1a, UCS Discovery Query 1b ]
+              queries: [ UCS Discovery Query 1a, UCS Discovery Query 1b ]
               exclude: excludeString1
               keep: keepString1
               selectColumns: 1
@@ -34,7 +34,7 @@
             source(2):
               _comment: Second UCS discovery comment
               type: ucs
-              query: [ UCS Discovery Query 2a, UCS Discovery Query 2b ]
+              queries: [ UCS Discovery Query 2a, UCS Discovery Query 2b ]
               exclude: excludeString2
               keep: keepString2
               selectColumns: 2
