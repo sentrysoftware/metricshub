@@ -1,0 +1,28 @@
+---
+- name: discovery
+  input: |
+    // Source(1) = static table of one row
+    Fan.Discovery.Source(1)="SystemCooling;System Cooling;"
+  expected:
+    monitors:
+      fan:
+        discovery:
+          sources:
+            source(1):
+              _comment: Source(1) = static table of one row
+              type: static
+              value: SystemCooling;System Cooling;
+
+- name: collect
+  input: |
+    // Source(2) = Static table to represent the global memory stuff
+    Memory.Collect.Source(2)="Memory Controller;;;1;;;"
+  expected:
+    monitors:
+      memory:
+        collect:
+          sources:
+            source(2):
+              _comment: Source(2) = Static table to represent the global memory stuff
+              type: static
+              value: Memory Controller;;;1;;;
