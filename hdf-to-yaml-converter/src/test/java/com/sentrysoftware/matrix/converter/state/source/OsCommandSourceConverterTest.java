@@ -9,17 +9,17 @@ import com.sentrysoftware.matrix.converter.AbstractConnectorPropertyConverterTes
 
 public abstract class OsCommandSourceConverterTest extends AbstractConnectorPropertyConverterTest {
 
-    @Override
-    protected String getResourcePath() {
-        return "src/test/resources/test-files/monitors/source/osCommand";
-    }
+	@Override
+	protected String getResourcePath() {
+		return "src/test/resources/test-files/monitors/source/osCommand";
+	}
 
-    @Test
-    @Disabled("Until OsCommand Source coverter is up.")
-    void test() throws IOException {
-        testConversion("discovery");
-        testConversion("collect");
+	@Test
+	@Disabled("Until OsCommand Source coverter is up.")
+	void test() throws IOException {
+		testConversion("discovery");
+		testConversion("collect");
 
-        testAll();
-    }
+		testAll();
+	}
 }
