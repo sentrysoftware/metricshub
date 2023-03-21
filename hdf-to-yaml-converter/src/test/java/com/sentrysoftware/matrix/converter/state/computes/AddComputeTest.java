@@ -17,7 +17,8 @@ class AddComputeTest extends AbstractConnectorPropertyConverterTest {
     @Test
     @Disabled("until Add compute processor is up")
     void test() throws IOException {
-        
+        testConversion("discovery");
+        testConversion("collect");
         
         testAll();
     }
