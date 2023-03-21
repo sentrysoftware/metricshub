@@ -1,0 +1,48 @@
+---
+- name: discovery
+  input: |
+    // Source (7) = Union of 3 & 4 & 5 & 6
+    // ID;Location;TempUpper;
+    Temperature.Discovery.Source(7).Type="TableUnion"
+    Temperature.Discovery.Source(7).Table1=%Temperature.Discovery.Source(3)%
+    Temperature.Discovery.Source(7).Table2=%Temperature.Discovery.Source(4)%
+    Temperature.Discovery.Source(7).Table3=%Temperature.Discovery.Source(5)%
+    Temperature.Discovery.Source(7).Table4=%Temperature.Discovery.Source(6)%
+  expected:
+    monitors:
+      temperature:
+        discovery:
+          sources:
+            source(7):
+              _comment: |-
+                Source (7) = Union of 3 & 4 & 5 & 6
+                ID;Location;TempUpper;
+              type: tableUnion
+              tables:
+              - $monitors.temperature.discovery.sources.source(3)$
+              - $monitors.temperature.discovery.sources.source(4)$
+              - $monitors.temperature.discovery.sources.source(5)$
+              - $monitors.temperature.discovery.sources.source(6)$
+
+- name: collect
+  input: |
+    // Union the two collects
+    // ID;Percent;Speed;Units;State;
+    Fan.Collect.Source(4).Type="TableUnion"
+    Fan.Collect.Source(4).Table1=%Fan.Collect.Source(2)%
+    Fan.Collect.Source(4).Table2=%Fan.Collect.Source(3)%
+    Fan.Collect.Source(4).ForceSerialization=1
+  expected:
+    monitors:
+      fan:
+        collect:
+          sources:
+            source(4):
+              _comment: |-
+                Union the two collects
+                ID;Percent;Speed;Units;State;
+              type: tableUnion
+              tables:
+              - $monitors.fan.collect.sources.source(2)$
+              - $monitors.fan.collect.sources.source(3)$
+              forceSerialization: true
