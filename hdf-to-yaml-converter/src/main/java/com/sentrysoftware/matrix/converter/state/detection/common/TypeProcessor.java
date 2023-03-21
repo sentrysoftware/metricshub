@@ -2,7 +2,6 @@ package com.sentrysoftware.matrix.converter.state.detection.common;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -32,10 +31,8 @@ public class TypeProcessor extends AbstractStateConverter {
 		final ArrayNode criteria = getOrCreateCriteria(connector);
 
 		final ObjectNode criterion = JsonNodeFactory.instance.objectNode();
-		if (preConnector.getComments().containsKey(key)) {
-			final String comments = preConnector.getComments().get(key).stream().collect(Collectors.joining("\n"));
-			createTextNode("_comment", comments, criterion);
-		}
+
+		appendComment(key, preConnector, criterion);
 
 		createTextNode("type", yamlType, criterion);
 

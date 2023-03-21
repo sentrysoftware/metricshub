@@ -68,7 +68,9 @@
           body: body1
           expectedResult: result1
           errorMessage: error1
-        - _comment: "Second HTTP criterion comment1\nSecond HTTP criterion comment2"
+        - _comment: |-
+            Second HTTP criterion comment1
+            Second HTTP criterion comment2
           type: http
           method: GET
           url: test2

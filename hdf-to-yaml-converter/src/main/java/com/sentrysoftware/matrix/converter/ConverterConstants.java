@@ -54,4 +54,8 @@ public class ConverterConstants {
 	public static final String DEFAULT = "default";
 
 	public static final String IPMI_TOOL = "ipmitool";
+
+	public static final String SOURCES = "sources";
+	public static final String MONITORS = "monitors";
+
 }
