@@ -9,16 +9,16 @@ import com.sentrysoftware.matrix.converter.AbstractConnectorPropertyConverterTes
 
 class ConvertComputeTest extends AbstractConnectorPropertyConverterTest {
 
-    @Override
-    protected String getResourcePath() {
-        return "src/test/resources/test-files/connector/computes/convert";
-    }
-    
-    @Test
-    @Disabled("until Convert compute processor is up")
-    void test() throws IOException {
-        
-        
-        testAll();
-    }
+	@Override
+	protected String getResourcePath() {
+		return "src/test/resources/test-files/connector/computes/convert";
+	}
+	
+	@Test
+	@Disabled("until Convert compute processor is up")
+	void test() throws IOException {
+		
+		
+		testAll();
+	}
 }

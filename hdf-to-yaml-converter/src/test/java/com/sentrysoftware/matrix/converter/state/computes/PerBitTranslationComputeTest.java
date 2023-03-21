@@ -9,16 +9,16 @@ import com.sentrysoftware.matrix.converter.AbstractConnectorPropertyConverterTes
 
 class PerBitTranslationComputeTest extends AbstractConnectorPropertyConverterTest {
 
-    @Override
-    protected String getResourcePath() {
-        return "src/test/resources/test-files/connector/computes/perBitTranslation";
-    }
-    
-    @Test
-    @Disabled("until PerBitTranslation compute processor is up")
-    void test() throws IOException {
-        
-        
-        testAll();
-    }
+	@Override
+	protected String getResourcePath() {
+		return "src/test/resources/test-files/connector/computes/perBitTranslation";
+	}
+	
+	@Test
+	@Disabled("until PerBitTranslation compute processor is up")
+	void test() throws IOException {
+		
+		
+		testAll();
+	}
 }

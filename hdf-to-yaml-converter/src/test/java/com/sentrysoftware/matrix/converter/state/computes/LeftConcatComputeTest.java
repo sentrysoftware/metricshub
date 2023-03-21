@@ -9,16 +9,16 @@ import com.sentrysoftware.matrix.converter.AbstractConnectorPropertyConverterTes
 
 class LeftConcatComputeTest extends AbstractConnectorPropertyConverterTest {
 
-    @Override
-    protected String getResourcePath() {
-        return "src/test/resources/test-files/connector/computes/leftConcat";
-    }
-    
-    @Test
-    @Disabled("until LeftConcat compute processor is up")
-    void test() throws IOException {
-        
-        
-        testAll();
-    }
+	@Override
+	protected String getResourcePath() {
+		return "src/test/resources/test-files/connector/computes/leftConcat";
+	}
+	
+	@Test
+	@Disabled("until LeftConcat compute processor is up")
+	void test() throws IOException {
+		
+		
+		testAll();
+	}
 }

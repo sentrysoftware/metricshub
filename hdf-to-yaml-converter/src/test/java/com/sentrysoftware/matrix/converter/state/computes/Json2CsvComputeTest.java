@@ -9,16 +9,16 @@ import com.sentrysoftware.matrix.converter.AbstractConnectorPropertyConverterTes
 
 class Json2CsvComputeTest extends AbstractConnectorPropertyConverterTest {
 
-    @Override
-    protected String getResourcePath() {
-        return "src/test/resources/test-files/connector/computes/json2Csv";
-    }
-    
-    @Test
-    @Disabled("until Json2Csv compute processor is up")
-    void test() throws IOException {
-        
-        
-        testAll();
-    }
+	@Override
+	protected String getResourcePath() {
+		return "src/test/resources/test-files/connector/computes/json2Csv";
+	}
+	
+	@Test
+	@Disabled("until Json2Csv compute processor is up")
+	void test() throws IOException {
+		
+		
+		testAll();
+	}
 }
