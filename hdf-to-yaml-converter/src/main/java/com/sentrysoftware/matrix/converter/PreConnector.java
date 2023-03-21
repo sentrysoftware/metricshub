@@ -91,11 +91,11 @@ public class PreConnector {
 	private static final Pattern TRANSLATION_TABLE_NAME_PATTERN = Pattern.compile("^\\s*(\\w+)\\((.*?)\\)\\s*=\\s*(.*?)\\s*$", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 
 	/**
-	 * Pattern to remove comments (see https://regex101.com/r/vI2iW5/1)
+	 * Pattern to remove comments (see https://regex101.com/r/QtclAQ/1)
 	 * 
 	 * Pattern to detect comments located before empty line and before a key-value pair (connector code) 
 	 */
-	private static final Pattern CODE_COMMENT_PATTERN = Pattern.compile("(((['\"])(?:(?!\\2|\\\\).|\\\\.)*\\2)|\\/\\/[^\\n]*|\\/\\*(?:[^*]|\\*(?!\\/))*\\*\\/)|(^\\s*$)|^\\s*(.*?)\\s*=\\s*(.*?)\\s*$", Pattern.MULTILINE);
+	private static final Pattern CODE_COMMENT_PATTERN = Pattern.compile("(((['\"])(?:(?!\\2|\\\\).|\\\\.)*+\\2)|\\/\\/[^\\n]*|\\/\\*(?:[^*]|\\*(?!\\/))*+\\*\\/)|(^\\s*$)|^\\s*(.*?)\\s*=\\s*(.*?)\\s*$", Pattern.MULTILINE);
 
 	/**
 	 * Map each HDF status value with the corresponding OpenTelemetry state
