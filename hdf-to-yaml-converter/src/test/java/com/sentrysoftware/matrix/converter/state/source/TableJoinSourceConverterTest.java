@@ -11,15 +11,15 @@ class TableJoinSourceConverterTest extends AbstractConnectorPropertyConverterTes
 
 	@Override
 	protected String getResourcePath() {
-		 return "src/test/resources/test-files/monitors/source/tablejoin";
+		return "src/test/resources/test-files/monitors/source/tablejoin";
 	}
 
-    @Test
-    @Disabled("until TableJoin Source coverter is up")
-    void test() throws IOException {
-        testConversion("discovery");
-        testConversion("collect");
+	@Test
+	@Disabled("until TableJoin Source converter is up")
+	void test() throws IOException {
+		testConversion("discovery");
+		testConversion("collect");
 
-        testAll();
-    }
+		testAll();
+	}
 }
