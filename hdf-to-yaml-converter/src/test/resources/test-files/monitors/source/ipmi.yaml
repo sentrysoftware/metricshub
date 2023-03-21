@@ -20,7 +20,7 @@
               forceSerialization: true
             source(2):
               _comment: Source(2) = IPMI source
-              type: wbem
+              type: ipmi
               forceSerialization: true
 
 - name: collect
@@ -44,5 +44,5 @@
               forceSerialization: true
             source(2):
               _comment: Source(2) = IPMI source
-              type: wbem
+              type: ipmi
               forceSerialization: true
