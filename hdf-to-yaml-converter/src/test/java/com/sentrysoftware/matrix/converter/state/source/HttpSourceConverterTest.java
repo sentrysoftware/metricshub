@@ -15,7 +15,7 @@ class HttpSourceConverterTest extends AbstractConnectorPropertyConverterTest {
     }
 
     @Test
-    @Disabled("until WMI Source coverter is up")
+    @Disabled("Until HTTP Source coverter is up.")
     void test() throws IOException {
         testConversion("discovery");
         testConversion("collect");

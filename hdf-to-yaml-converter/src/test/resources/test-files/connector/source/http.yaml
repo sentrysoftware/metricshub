@@ -7,7 +7,7 @@
     Enclosure.Discovery.Battery.Source(1).Url="url1"
     Enclosure.Discovery.Battery.Source(1).Header="header1"
     Enclosure.Discovery.Battery.Source(1).AuthenticationToken="token1"
-    Enclosure.Discovery.Battery.Source(1).ResultContent="result1"
+    Enclosure.Discovery.Battery.Source(1).ResultContent="all"
     Enclosure.Discovery.Battery.Source(1).ForceSerialization=1
     Enclosure.Discovery.Battery.Source(1).ExecuteForEachEntryOf=%Enclosure.Discovery.Source(1)%
     Enclosure.Discovery.Battery.Source(1).EntryConcatMethod="Custom"
@@ -20,7 +20,7 @@
     Enclosure.Discovery.Battery.Source(2).Url="url2"
     Enclosure.Discovery.Battery.Source(2).Header="header2"
     Enclosure.Discovery.Battery.Source(2).AuthenticationToken="token2"
-    Enclosure.Discovery.Battery.Source(2).ResultContent="result2"
+    Enclosure.Discovery.Battery.Source(2).ResultContent="all"
     Enclosure.Discovery.Battery.Source(2).ForceSerialization=1
     Enclosure.Discovery.Battery.Source(2).ExecuteForEachEntryOf=%Enclosure.Discovery.Source(2)%
     Enclosure.Discovery.Battery.Source(2).EntryConcatMethod="List"
@@ -37,7 +37,7 @@
               header: header1
               body: body1
               authenticationToken: token1
-              resultContent: result1
+              resultContent: all
               forceSerialization: true
               executeForEachEntryOf:
                 source: $monitors.enclosure.discovery.sources.source(1)$
@@ -53,7 +53,7 @@
               header: header2
               body: body2
               authenticationToken: token2
-              resultContent: result2
+              resultContent: all
               forceSerialization: true
               executeForEachEntryOf:
                 source: $monitors.enclosure.discovery.sources.source(2)$
@@ -67,7 +67,7 @@
     Enclosure.Collect.Battery.Source(1).Url="url1"
     Enclosure.Collect.Battery.Source(1).Header="header1"
     Enclosure.Collect.Battery.Source(1).AuthenticationToken="token1"
-    Enclosure.Collect.Battery.Source(1).ResultContent="result1"
+    Enclosure.Collect.Battery.Source(1).ResultContent="all"
     Enclosure.Collect.Battery.Source(1).ForceSerialization=1
     Enclosure.Collect.Battery.Source(1).ExecuteForEachEntryOf=%Enclosure.Collect.Source(1)%
     Enclosure.Collect.Battery.Source(1).EntryConcatMethod="Custom"
@@ -80,7 +80,7 @@
     Enclosure.Collect.Battery.Source(2).Url="url2"
     Enclosure.Collect.Battery.Source(2).Header="header2"
     Enclosure.Collect.Battery.Source(2).AuthenticationToken="token2"
-    Enclosure.Collect.Battery.Source(2).ResultContent="result2"
+    Enclosure.Collect.Battery.Source(2).ResultContent="all"
     Enclosure.Collect.Battery.Source(2).ForceSerialization=1
     Enclosure.Collect.Battery.Source(2).ExecuteForEachEntryOf=%Enclosure.Collect.Source(2)%
     Enclosure.Collect.Battery.Source(2).EntryConcatMethod="List"
@@ -97,7 +97,7 @@
               header: header1
               body: body1
               authenticationToken: token1
-              resultContent: result1
+              resultContent: all
               forceSerialization: true
               executeForEachEntryOf:
                 source: $monitors.enclosure.collect.sources.source(1)$
@@ -113,7 +113,7 @@
               header: header2
               body: body2
               authenticationToken: token2
-              resultContent: result2
+              resultContent: all
               forceSerialization: true
               executeForEachEntryOf:
                 source: $monitors.enclosure.collect.sources.source(2)$
