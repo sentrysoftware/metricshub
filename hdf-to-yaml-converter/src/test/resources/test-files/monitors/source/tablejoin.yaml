@@ -16,12 +16,12 @@
         discovery:
           sources:
             source(14):
-              _comment: |
+              _comment: |-
                 Source(14) = Table joint between Source(5) and Source(8)
                 SoftwareID;ComputerSystemID;SoftwareID;Classifications;FirmwareVersion;
               type: tableJoin
-              leftTable: Source(5)
-              rightTable: Source(8)
+              leftTable: $monitors.diskController.discovery.sources.source(5)$
+              rightTable: $monitors.diskController.discovery.sources.source(8)$
               leftKeyColumn: 1
               rightKeyColumn: 1
               defaultRightLine: ";;;"
@@ -45,12 +45,12 @@
         collect:
           sources:
             source(5):
-              _comment: |
+              _comment: |-
                 TableJoin of Source(3) and Source(4) into Source(5)
                 MSHW;ID;MSHW;Status;StatusInformation;MSHW;PowerConsumption;
               type: tableJoin
-              leftTable: Source(3)
-              rightTable: Source(4)
+              leftTable: $monitors.enclosure.collect.sources.source(3)$
+              rightTable: $monitors.enclosure.collect.sources.source(4)$
               leftKeyColumn: 1
               rightKeyColumn: 1
               defaultRightLine: ";"
