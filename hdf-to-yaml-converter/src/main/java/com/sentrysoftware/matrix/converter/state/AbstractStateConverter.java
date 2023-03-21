@@ -28,6 +28,12 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 
 	private static final String INVALID_KEY = "Invalid key: ";
 
+	protected static final String DETECTION_REGEX_START = "^\\s*detection\\.criteria\\(([1-9]\\d*)\\)\\.";
+
+	protected static final String SOURCE_REGEX_START = "^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\))\\.";
+	
+	protected static final String REGEX_END = "\\s*$";
+
 	protected abstract Matcher getMatcher(String key);
 
 	@Override
