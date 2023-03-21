@@ -1,0 +1,77 @@
+---
+
+# using `|-` stops extra \n to be appended to last line.
+
+- name: discovery
+  input: |
+    // Get a List of Chassis
+    // Source(1) = Brocade_Chassis
+    // ChassisID;ChassisName;Model;SerialNumber;Chassis__PATH;
+    Enclosure.Discovery.Source(1).Type="WBEM"
+    Enclosure.Discovery.Source(1).WbemQuery="SELECT Tag,ElementName,Model,SerialNumber,__PATH FROM Brocade_Chassis"
+    Enclosure.Discovery.Source(1).WbemNameSpace="root/brocade1"
+
+    // Smaller Brocade Switches have no chassis, so we're going to get a list of all switches and find those with no chassis and then create a dummy chassis
+    // Source(2) = Brocade_Switch
+    // Switch__PATH;SwitchID;Hostname;
+    Enclosure.Discovery.Source(2).Type="WBEM"
+    Enclosure.Discovery.Source(2).WbemQuery="SELECT __PATH,Name,ElementName FROM Brocade_Switch"
+    Enclosure.Discovery.Source(2).WbemNameSpace="root/brocade1"
+  expected:
+    monitors:
+      enclosure:
+        discovery:
+          sources:
+            source(1):
+              _comment: |-
+                Get a List of Chassis
+                Source(1) = Brocade_Chassis
+                ChassisID;ChassisName;Model;SerialNumber;Chassis__PATH;
+              type: wbem
+              query: SELECT Tag,ElementName,Model,SerialNumber,__PATH FROM Brocade_Chassis
+              namespace: root/brocade1
+            source(2):
+              _comment: |-
+                Smaller Brocade Switches have no chassis, so we're going to get a list of all switches and find those with no chassis and then create a dummy chassis
+                Source(2) = Brocade_Switch
+                Switch__PATH;SwitchID;Hostname;
+              type: wbem
+              query: SELECT __PATH,Name,ElementName FROM Brocade_Switch
+              namespace: root/brocade1
+
+- name: collect
+  input: |
+    // Get a List of Chassis
+    // Source(1) = Brocade_Chassis
+    // ChassisID;ChassisName;Model;SerialNumber;Chassis__PATH;
+    Enclosure.Collect.Source(1).Type="WBEM"
+    Enclosure.Collect.Source(1).WbemQuery="SELECT Tag,ElementName,Model,SerialNumber,__PATH FROM Brocade_Chassis"
+    Enclosure.Collect.Source(1).WbemNameSpace="root/brocade1"
+
+    // Smaller Brocade Switches have no chassis, so we're going to get a list of all switches and find those with no chassis and then create a dummy chassis
+    // Source(2) = Brocade_Switch
+    // Switch__PATH;SwitchID;Hostname;
+    Enclosure.Collect.Source(2).Type="WBEM"
+    Enclosure.Collect.Source(2).WbemQuery="SELECT __PATH,Name,ElementName FROM Brocade_Switch"
+    Enclosure.Collect.Source(2).WbemNameSpace="root/brocade1"
+  expected:
+    monitors:
+      enclosure:
+        collect:
+          sources:
+            source(1):
+              _comment: |-
+                Get a List of Chassis
+                Source(1) = Brocade_Chassis
+                ChassisID;ChassisName;Model;SerialNumber;Chassis__PATH;
+              type: wbem
+              query: SELECT Tag,ElementName,Model,SerialNumber,__PATH FROM Brocade_Chassis
+              namespace: root/brocade1
+            source(2):
+              _comment: |-
+                Smaller Brocade Switches have no chassis, so we're going to get a list of all switches and find those with no chassis and then create a dummy chassis
+                Source(2) = Brocade_Switch
+                Switch__PATH;SwitchID;Hostname;
+              type: wbem
+              query: SELECT __PATH,Name,ElementName FROM Brocade_Switch
+              namespace: root/brocade1

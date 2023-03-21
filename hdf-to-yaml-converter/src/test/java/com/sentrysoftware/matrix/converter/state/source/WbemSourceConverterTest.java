@@ -7,15 +7,15 @@ import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.converter.AbstractConnectorPropertyConverterTest;
 
-public abstract class OsCommandSourceConverterTest extends AbstractConnectorPropertyConverterTest {
+class WbemSourceConverterTest extends AbstractConnectorPropertyConverterTest {
 
 	@Override
 	protected String getResourcePath() {
-		return "src/test/resources/test-files/monitors/source/osCommand";
+		return "src/test/resources/test-files/monitors/source/wbem";
 	}
 
 	@Test
-	@Disabled("Until OsCommand Source converter is up")
+	@Disabled("until WBEM Source converter is up")
 	void test() throws IOException {
 		testConversion("discovery");
 		testConversion("collect");
