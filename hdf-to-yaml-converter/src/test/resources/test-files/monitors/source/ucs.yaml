@@ -29,7 +29,7 @@
               queries: [ UCS Discovery Query 1a, UCS Discovery Query 1b ]
               exclude: excludeString1
               keep: keepString1
-              selectColumns: 1
+              selectColumns: "1"
               forceSerialization: true
             source(2):
               _comment: Second UCS discovery comment
@@ -37,7 +37,7 @@
               queries: [ UCS Discovery Query 2a, UCS Discovery Query 2b ]
               exclude: excludeString2
               keep: keepString2
-              selectColumns: 2
+              selectColumns: "2"
               forceSerialization: true
 
 - name: collect
@@ -70,7 +70,7 @@
               queries: [ UCS Collect Query 1a, UCS Collect Query 1b ]
               exclude: excludeString1
               keep: keepString1
-              selectColumns: 1
+              selectColumns: "1"
               forceSerialization: true
             source(2):
               _comment: Second UCS collect comment
@@ -78,5 +78,5 @@
               queries: [ UCS Collect Query 2a, UCS Collect Query 2b ]
               exclude: excludeString2
               keep: keepString2
-              selectColumns: 2
+              selectColumns: "2"
               forceSerialization: true
