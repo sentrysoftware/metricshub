@@ -42,9 +42,8 @@
               executeForEachEntryOf:
                 source: $monitors.enclosure.discovery.sources.source(1)$
                 concatMethod:
-                  custom:
-                    concatStart: concatStart
-                    concatEnd: concatEnd
+                  concatStart: concatStart
+                  concatEnd: concatEnd
             source(2):
               _comment: Second HTTP Discovery Comment
               type: http
@@ -102,9 +101,8 @@
               executeForEachEntryOf:
                 source: $monitors.enclosure.collect.sources.source(1)$
                 concatMethod:
-                  custom:
-                    concatStart: concatStart
-                    concatEnd: concatEnd
+                  concatStart: concatStart
+                  concatEnd: concatEnd
             source(2):
               _comment: Second HTTP Collect Comment
               type: http

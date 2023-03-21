@@ -9,17 +9,17 @@ import com.sentrysoftware.matrix.converter.AbstractConnectorPropertyConverterTes
 
 class HttpSourceConverterTest extends AbstractConnectorPropertyConverterTest {
 
-    @Override
-    protected String getResourcePath() {
-        return "src/test/resources/test-files/monitors/source/http";
-    }
+	@Override
+	protected String getResourcePath() {
+		return "src/test/resources/test-files/monitors/source/http";
+	}
 
-    @Test
-    @Disabled("Until HTTP Source coverter is up.")
-    void test() throws IOException {
-        testConversion("discovery");
-        testConversion("collect");
+	@Test
+	@Disabled("Until HTTP Source coverter is up.")
+	void test() throws IOException {
+		testConversion("discovery");
+		testConversion("collect");
 
-        testAll();
-    }
+		testAll();
+	}
 }
