@@ -2,28 +2,28 @@
 - name: discovery
   input: |
     // First HTTP Discovery Comment
-    Enclosure.Discovery.Battery.Source(1).Type="HTTP"
-    Enclosure.Discovery.Battery.Source(1).Method="GET"
-    Enclosure.Discovery.Battery.Source(1).Url="url1"
-    Enclosure.Discovery.Battery.Source(1).Header="header1"
-    Enclosure.Discovery.Battery.Source(1).AuthenticationToken="token1"
-    Enclosure.Discovery.Battery.Source(1).ResultContent="all"
-    Enclosure.Discovery.Battery.Source(1).ForceSerialization=1
-    Enclosure.Discovery.Battery.Source(1).ExecuteForEachEntryOf=%Enclosure.Discovery.Source(1)%
-    Enclosure.Discovery.Battery.Source(1).EntryConcatMethod="Custom"
-    Enclosure.Discovery.Battery.Source(1).ConcatStart="concatStart"
-    Enclosure.Discovery.Battery.Source(1).ConcatEnd="concatEnd"
+    Battery.Discovery.Source(1).Type="HTTP"
+    Battery.Discovery.Source(1).Method="GET"
+    Battery.Discovery.Source(1).Url="url1"
+    Battery.Discovery.Source(1).Header="header1"
+    Battery.Discovery.Source(1).AuthenticationToken="token1"
+    Battery.Discovery.Source(1).ResultContent="all"
+    Battery.Discovery.Source(1).ForceSerialization=1
+    Battery.Discovery.Source(1).ExecuteForEachEntryOf=%Enclosure.Discovery.Source(1)%
+    Battery.Discovery.Source(1).EntryConcatMethod="Custom"
+    Battery.Discovery.Source(1).ConcatStart="concatStart"
+    Battery.Discovery.Source(1).ConcatEnd="concatEnd"
 
     // Second HTTP Discovery Comment
-    Enclosure.Discovery.Battery.Source(2).Type="HTTP"
-    Enclosure.Discovery.Battery.Source(2).Method="GET"
-    Enclosure.Discovery.Battery.Source(2).Url="url2"
-    Enclosure.Discovery.Battery.Source(2).Header="header2"
-    Enclosure.Discovery.Battery.Source(2).AuthenticationToken="token2"
-    Enclosure.Discovery.Battery.Source(2).ResultContent="all"
-    Enclosure.Discovery.Battery.Source(2).ForceSerialization=1
-    Enclosure.Discovery.Battery.Source(2).ExecuteForEachEntryOf=%Enclosure.Discovery.Source(2)%
-    Enclosure.Discovery.Battery.Source(2).EntryConcatMethod="List"
+    Battery.Discovery.Source(2).Type="HTTP"
+    Battery.Discovery.Source(2).Method="GET"
+    Battery.Discovery.Source(2).Url="url2"
+    Battery.Discovery.Source(2).Header="header2"
+    Battery.Discovery.Source(2).AuthenticationToken="token2"
+    Battery.Discovery.Source(2).ResultContent="all"
+    Battery.Discovery.Source(2).ForceSerialization=1
+    Battery.Discovery.Source(2).ExecuteForEachEntryOf=%Enclosure.Discovery.Source(2)%
+    Battery.Discovery.Source(2).EntryConcatMethod="List"
   expected:
     monitors:
       battery:
@@ -62,28 +62,28 @@
 - name: collect
   input: |
     // First HTTP Collect Comment
-    Enclosure.Collect.Battery.Source(1).Type="HTTP"
-    Enclosure.Collect.Battery.Source(1).Method="GET"
-    Enclosure.Collect.Battery.Source(1).Url="url1"
-    Enclosure.Collect.Battery.Source(1).Header="header1"
-    Enclosure.Collect.Battery.Source(1).AuthenticationToken="token1"
-    Enclosure.Collect.Battery.Source(1).ResultContent="all"
-    Enclosure.Collect.Battery.Source(1).ForceSerialization=1
-    Enclosure.Collect.Battery.Source(1).ExecuteForEachEntryOf=%Enclosure.Collect.Source(1)%
-    Enclosure.Collect.Battery.Source(1).EntryConcatMethod="Custom"
-    Enclosure.Collect.Battery.Source(1).ConcatStart="concatStart"
-    Enclosure.Collect.Battery.Source(1).ConcatEnd="concatEnd"
+    Battery.Collect.Source(1).Type="HTTP"
+    Battery.Collect.Source(1).Method="GET"
+    Battery.Collect.Source(1).Url="url1"
+    Battery.Collect.Source(1).Header="header1"
+    Battery.Collect.Source(1).AuthenticationToken="token1"
+    Battery.Collect.Source(1).ResultContent="all"
+    Battery.Collect.Source(1).ForceSerialization=1
+    Battery.Collect.Source(1).ExecuteForEachEntryOf=%Enclosure.Collect.Source(1)%
+    Battery.Collect.Source(1).EntryConcatMethod="Custom"
+    Battery.Collect.Source(1).ConcatStart="concatStart"
+    Battery.Collect.Source(1).ConcatEnd="concatEnd"
 
     // Second HTTP Collect Comment
-    Enclosure.Collect.Battery.Source(2).Type="HTTP"
-    Enclosure.Collect.Battery.Source(2).Method="GET"
-    Enclosure.Collect.Battery.Source(2).Url="url2"
-    Enclosure.Collect.Battery.Source(2).Header="header2"
-    Enclosure.Collect.Battery.Source(2).AuthenticationToken="token2"
-    Enclosure.Collect.Battery.Source(2).ResultContent="all"
-    Enclosure.Collect.Battery.Source(2).ForceSerialization=1
-    Enclosure.Collect.Battery.Source(2).ExecuteForEachEntryOf=%Enclosure.Collect.Source(2)%
-    Enclosure.Collect.Battery.Source(2).EntryConcatMethod="List"
+    Battery.Collect.Source(2).Type="HTTP"
+    Battery.Collect.Source(2).Method="GET"
+    Battery.Collect.Source(2).Url="url2"
+    Battery.Collect.Source(2).Header="header2"
+    Battery.Collect.Source(2).AuthenticationToken="token2"
+    Battery.Collect.Source(2).ResultContent="all"
+    Battery.Collect.Source(2).ForceSerialization=1
+    Battery.Collect.Source(2).ExecuteForEachEntryOf=%Enclosure.Collect.Source(2)%
+    Battery.Collect.Source(2).EntryConcatMethod="List"
   expected:
     monitors:
       battery:
