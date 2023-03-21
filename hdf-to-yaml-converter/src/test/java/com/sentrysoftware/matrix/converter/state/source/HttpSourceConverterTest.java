@@ -15,7 +15,7 @@ class HttpSourceConverterTest extends AbstractConnectorPropertyConverterTest {
 	}
 
 	@Test
-	@Disabled("Until HTTP Source coverter is up.")
+	@Disabled("Until HTTP Source converter is up.")
 	void test() throws IOException {
 		testConversion("discovery");
 		testConversion("collect");
