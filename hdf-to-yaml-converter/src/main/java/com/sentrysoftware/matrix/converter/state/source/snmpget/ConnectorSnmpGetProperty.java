@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.converter.state.source.snmp;
+package com.sentrysoftware.matrix.converter.state.source.snmpget;
 
 import java.util.Set;
 
