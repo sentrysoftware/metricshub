@@ -25,7 +25,7 @@ public class QueryProcessor extends AbstractStateConverter {
 	@Override
 	public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
 		final ArrayNode queries = getOrCreateQueries(key, connector);
-		queries.add(value);
+		queries.add(ConversionHelper.performValueConversions(value));
 	}
 
 	/**
