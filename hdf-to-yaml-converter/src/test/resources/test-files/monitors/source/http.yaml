@@ -8,17 +8,19 @@
     Battery.Discovery.Source(1).Header="header1"
     Battery.Discovery.Source(1).AuthenticationToken="token1"
     Battery.Discovery.Source(1).ResultContent="all"
+    Battery.Discovery.Source(1).Body="body1"
     Battery.Discovery.Source(1).ForceSerialization=1
     Battery.Discovery.Source(1).ExecuteForEachEntryOf=%Enclosure.Discovery.Source(1)%
     Battery.Discovery.Source(1).EntryConcatMethod="Custom"
-    Battery.Discovery.Source(1).ConcatStart="concatStart"
-    Battery.Discovery.Source(1).ConcatEnd="concatEnd"
+    Battery.Discovery.Source(1).EntryConcatStart="concatStart"
+    Battery.Discovery.Source(1).EntryConcatEnd="concatEnd"
 
     // Second HTTP Discovery Comment
     Battery.Discovery.Source(2).Type="HTTP"
     Battery.Discovery.Source(2).Method="GET"
     Battery.Discovery.Source(2).Url="url2"
     Battery.Discovery.Source(2).Header="header2"
+    Battery.Discovery.Source(2).Body="body2"
     Battery.Discovery.Source(2).AuthenticationToken="token2"
     Battery.Discovery.Source(2).ResultContent="all"
     Battery.Discovery.Source(2).ForceSerialization=1
@@ -32,7 +34,7 @@
             source(1):
               _comment: First HTTP Discovery Comment
               type: http
-              method: Get
+              method: GET
               url: url1
               header: header1
               body: body1
@@ -47,7 +49,7 @@
             source(2):
               _comment: Second HTTP Discovery Comment
               type: http
-              method: Get
+              method: GET
               url: url2
               header: header2
               body: body2
@@ -70,8 +72,8 @@
     Battery.Collect.Source(1).ForceSerialization=1
     Battery.Collect.Source(1).ExecuteForEachEntryOf=%Enclosure.Collect.Source(1)%
     Battery.Collect.Source(1).EntryConcatMethod="Custom"
-    Battery.Collect.Source(1).ConcatStart="concatStart"
-    Battery.Collect.Source(1).ConcatEnd="concatEnd"
+    Battery.Collect.Source(1).EntryConcatStart="concatStart"
+    Battery.Collect.Source(1).EntryConcatEnd="concatEnd"
 
     // Second HTTP Collect Comment
     Battery.Collect.Source(2).Type="HTTP"
@@ -91,10 +93,9 @@
             source(1):
               _comment: First HTTP Collect Comment
               type: http
-              method: Get
+              method: GET
               url: url1
               header: header1
-              body: body1
               authenticationToken: token1
               resultContent: all
               forceSerialization: true
@@ -106,10 +107,9 @@
             source(2):
               _comment: Second HTTP Collect Comment
               type: http
-              method: Get
+              method: GET
               url: url2
               header: header2
-              body: body2
               authenticationToken: token2
               resultContent: all
               forceSerialization: true

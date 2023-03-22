@@ -6,17 +6,18 @@ import java.util.regex.Pattern;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
 import com.sentrysoftware.matrix.converter.state.AbstractStateConverter;
+import com.sentrysoftware.matrix.converter.state.ConversionHelper;
 
 public class ForceSerializationProcessor extends AbstractStateConverter {
 
-	private static final Pattern FORCE_SERIALIZATION_KEY_PATTERN = Pattern.compile(
-		"^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\))\\.forceserialization\\s*$",
+	private static final Pattern PATTERN = Pattern.compile(
+		ConversionHelper.buildSourceKeyRegex("forceserialization"),
 		Pattern.CASE_INSENSITIVE
 	);
 
 	@Override
 	public Matcher getMatcher(String key) {
-		return FORCE_SERIALIZATION_KEY_PATTERN.matcher(key);
+		return PATTERN.matcher(key);
 	}
 
 	@Override

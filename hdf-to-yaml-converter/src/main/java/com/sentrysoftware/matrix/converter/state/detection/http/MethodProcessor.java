@@ -5,22 +5,23 @@ import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
-import com.sentrysoftware.matrix.converter.state.AbstractStateConverter;
+import com.sentrysoftware.matrix.converter.state.ConversionHelper;
+import com.sentrysoftware.matrix.converter.state.common.AbstractHttpConverter;
 
-public class MethodProcessor extends AbstractStateConverter {
+public class MethodProcessor extends AbstractHttpConverter {
 
-	private static final Pattern METHOD_KEY_PATTERN = Pattern.compile(
-		"^\\s*detection\\.criteria\\(([1-9]\\d*)\\)\\.method\\s*$",
+	private static final Pattern PATTERN = Pattern.compile(
+		ConversionHelper.buildCriteriaKeyRegex("method"),
 		Pattern.CASE_INSENSITIVE
 	);
 
 	@Override
 	public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
-		createCriterionTextNode(key, value, connector, "method");
+		createCriterionTextNode(key, extractHttpMethod(key, value), connector, "method");
 	}
 
 	@Override
 	protected Matcher getMatcher(String key) {
-		return METHOD_KEY_PATTERN.matcher(key);
+		return PATTERN.matcher(key);
 	}
 }

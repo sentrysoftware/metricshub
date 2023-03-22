@@ -9,13 +9,14 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
 import com.sentrysoftware.matrix.converter.state.AbstractStateConverter;
+import com.sentrysoftware.matrix.converter.state.ConversionHelper;
 
 public class OidProcessor extends AbstractStateConverter {
 
 	private static final String SNMP_GET_OID_KEY = ".snmpget";
 
-	private static final Pattern OID_KEY_PATTERN = Pattern.compile(
-		"^\\s*detection\\.criteria\\(([1-9]\\d*)\\)\\.snmpget(next)?\\s*$",
+	private static final Pattern PATTERN = Pattern.compile(
+		ConversionHelper.buildCriteriaKeyRegex("snmpget(next)?"),
 		Pattern.CASE_INSENSITIVE
 	);
 
@@ -41,7 +42,7 @@ public class OidProcessor extends AbstractStateConverter {
 
 	@Override
 	protected Matcher getMatcher(String key) {
-		return OID_KEY_PATTERN.matcher(key);
+		return PATTERN.matcher(key);
 	}
 
 }

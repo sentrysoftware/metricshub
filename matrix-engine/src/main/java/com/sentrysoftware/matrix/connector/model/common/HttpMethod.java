@@ -9,7 +9,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum HttpMethod {
 
-	GET, POST, DELETE;
+	GET, POST, DELETE, PUT;
 
 	public static final List<HttpMethod> HTTP_METHODS = List.of(HttpMethod.values());
 

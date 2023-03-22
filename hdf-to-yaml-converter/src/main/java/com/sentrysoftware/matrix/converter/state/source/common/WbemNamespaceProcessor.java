@@ -6,17 +6,18 @@ import java.util.regex.Pattern;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
 import com.sentrysoftware.matrix.converter.state.AbstractStateConverter;
+import com.sentrysoftware.matrix.converter.state.ConversionHelper;
 
 public class WbemNamespaceProcessor extends AbstractStateConverter {
 
-	private static final Pattern WBEM_NAMESPACE_KEY_PATTERN = Pattern.compile(
-		"^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\))\\.wbemnamespace\\s*$",
+	private static final Pattern PATTERN = Pattern.compile(
+		ConversionHelper.buildSourceKeyRegex("wbemnamespace"),
 		Pattern.CASE_INSENSITIVE
 	);
 
 	@Override
 	protected Matcher getMatcher(String key) {
-		return WBEM_NAMESPACE_KEY_PATTERN.matcher(key);
+		return PATTERN.matcher(key);
 	}
 
 	@Override

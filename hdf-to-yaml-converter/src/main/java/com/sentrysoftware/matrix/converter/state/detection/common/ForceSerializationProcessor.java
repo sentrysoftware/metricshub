@@ -6,14 +6,15 @@ import java.util.regex.Pattern;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
 import com.sentrysoftware.matrix.converter.state.AbstractStateConverter;
+import com.sentrysoftware.matrix.converter.state.ConversionHelper;
 
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public class ForceSerializationProcessor extends AbstractStateConverter {
 
-	private static final Pattern FORCE_SERIALIZATION_KEY_PATTERN = Pattern.compile(
-		"^\\s*detection\\.criteria\\(([1-9]\\d*)\\)\\.forceserialization\\s*$",
+	private static final Pattern PATTERN = Pattern.compile(
+		ConversionHelper.buildCriteriaKeyRegex("forceserialization"),
 		Pattern.CASE_INSENSITIVE
 	);
 
@@ -24,6 +25,6 @@ public class ForceSerializationProcessor extends AbstractStateConverter {
 
 	@Override
 	protected Matcher getMatcher(String key) {
-		return FORCE_SERIALIZATION_KEY_PATTERN.matcher(key);
+		return PATTERN.matcher(key);
 	}
 }
