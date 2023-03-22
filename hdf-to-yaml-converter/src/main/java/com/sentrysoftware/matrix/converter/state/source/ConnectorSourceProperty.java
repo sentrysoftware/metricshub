@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.converter.state.IConnectorStateConverter;
+import com.sentrysoftware.matrix.converter.state.source.http.ConnectorHttpProperty;
 import com.sentrysoftware.matrix.converter.state.source.wmi.ConnectorWmiProperty;
 
 import lombok.AccessLevel;
@@ -16,7 +17,8 @@ public class ConnectorSourceProperty {
 	public static Set<IConnectorStateConverter> getConnectorProperties() {
 
 		return Stream.of(
-				ConnectorWmiProperty.getConnectorProperties()
+				ConnectorWmiProperty.getConnectorProperties(),
+				ConnectorHttpProperty.getConnectorProperties()
 			)
 			.flatMap(Set::stream)
 			.collect(Collectors.toSet());

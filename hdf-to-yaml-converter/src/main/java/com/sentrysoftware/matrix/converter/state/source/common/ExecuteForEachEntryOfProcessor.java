@@ -6,17 +6,18 @@ import java.util.regex.Pattern;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
+import com.sentrysoftware.matrix.converter.state.ConversionHelper;
 
 public class ExecuteForEachEntryOfProcessor extends AbstractExecuteForEach {
 
-	private static final Pattern EXECUTE_FOR_EACH_ENTRY_OF_KEY_PATTERN = Pattern.compile(
-		"^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\))\\.executeforeachentryof\\s*$",
+	private static final Pattern PATTERN = Pattern.compile(
+		ConversionHelper.buildSourceKeyRegex("executeforeachentryof"),
 		Pattern.CASE_INSENSITIVE
 	);
 
 	@Override
 	public Matcher getMatcher(String key) {
-		return EXECUTE_FOR_EACH_ENTRY_OF_KEY_PATTERN.matcher(key);
+		return PATTERN.matcher(key);
 	}
 
 	@Override

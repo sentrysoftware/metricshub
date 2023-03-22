@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.converter.state.detection.http;
+package com.sentrysoftware.matrix.converter.state.source.http;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -8,16 +8,16 @@ import com.sentrysoftware.matrix.converter.PreConnector;
 import com.sentrysoftware.matrix.converter.state.AbstractStateConverter;
 import com.sentrysoftware.matrix.converter.state.ConversionHelper;
 
-public class HeaderProcessor extends AbstractStateConverter {
+public class BodyProcessor extends AbstractStateConverter {
 
 	private static final Pattern PATTERN = Pattern.compile(
-		ConversionHelper.buildCriteriaKeyRegex("header"),
+		ConversionHelper.buildSourceKeyRegex("body"),
 		Pattern.CASE_INSENSITIVE
 	);
 
 	@Override
 	public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
-		createCriterionTextNode(key, value, connector, "header");
+		createSourceTextNode(key, value, connector, "body");
 	}
 
 	@Override

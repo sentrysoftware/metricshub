@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
 import com.sentrysoftware.matrix.converter.state.AbstractStateConverter;
+import com.sentrysoftware.matrix.converter.state.ConversionHelper;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,8 +21,8 @@ public class TypeProcessor extends AbstractStateConverter {
 	private final String hdfType;
 	private final String yamlType;
 
-	private static final Pattern TYPE_KEY_PATTERN = Pattern.compile(
-		"^\\s*detection\\.criteria\\(([1-9]\\d*)\\)\\.type\\s*$",
+	private static final Pattern PATTERN = Pattern.compile(
+		ConversionHelper.buildCriteriaKeyRegex("type"),
 		Pattern.CASE_INSENSITIVE
 	);
 
@@ -41,7 +42,7 @@ public class TypeProcessor extends AbstractStateConverter {
 
 	@Override
 	public Matcher getMatcher(String key) {
-		return TYPE_KEY_PATTERN.matcher(key);
+		return PATTERN.matcher(key);
 	}
 
 }

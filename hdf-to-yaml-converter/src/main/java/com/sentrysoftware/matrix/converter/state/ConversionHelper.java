@@ -103,6 +103,26 @@ public class ConversionHelper {
 		);
 	}
 
+	/**
+	 * Build a source key regex
+	 * 
+	 * @param regex Keyword or regular expression used to build the final regex
+	 * @return String value
+	 */
+	public static String buildSourceKeyRegex(final String regex) {
+		return String.format("^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\))\\.%s\\s*$", regex);
+	}
+
+	/**
+	 * Build a criteria key regex
+	 * 
+	 * @param regex Keyword or regular expression used to build the final regex
+	 * @return String value
+	 */
+	public static String buildCriteriaKeyRegex(final String regex) {
+		return String.format("^\\s*detection\\.criteria\\(([1-9]\\d*)\\)\\.%s\\s*$", regex);
+	}
+
 	@AllArgsConstructor
 	static class PatternFunctionConverter {
 		@Getter
