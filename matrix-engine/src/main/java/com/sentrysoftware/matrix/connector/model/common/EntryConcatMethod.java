@@ -15,11 +15,11 @@ public enum EntryConcatMethod implements IEntryConcatMethod {
 	@JsonAlias("list")
 	LIST("list"),
 	@JsonAlias(value = { "jsonArray", "json_array" })
-	JSON_ARRAY("JSONArray"),
+	JSON_ARRAY("jsonArray"),
 	@JsonAlias(value = { "JSONArrayExtended", "json_array_extended"})
 	JSON_ARRAY_EXTENDED("jsonArrayExtended");
 
-	private static final List<EntryConcatMethod> VALUES = List.of(values());
+	public static final List<EntryConcatMethod> ENUM_VALUES = List.of(values());
 
 	private String name;
 
@@ -29,7 +29,7 @@ public enum EntryConcatMethod implements IEntryConcatMethod {
 	 * @return {@link EntryConcatMethod} instance
 	 */
 	public static EntryConcatMethod getByName(@NonNull final String name) {
-		return VALUES
+		return ENUM_VALUES
 			.stream()
 			.filter(n -> n.name().equalsIgnoreCase(name) || n.getName().equalsIgnoreCase(name))
 			.findFirst()

@@ -6,11 +6,12 @@ import java.util.regex.Pattern;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
 import com.sentrysoftware.matrix.converter.state.AbstractStateConverter;
+import com.sentrysoftware.matrix.converter.state.ConversionHelper;
 
 public class CommandLineProcessor extends AbstractStateConverter {
 
-	private static final Pattern COMMANDLINE_KEY_PATTERN = Pattern.compile(
-		"^\\s*detection\\.criteria\\(([1-9]\\d*)\\)\\.commandline\\s*$",
+	private static final Pattern PATTERN = Pattern.compile(
+		ConversionHelper.buildCriteriaKeyRegex("commandline"),
 		Pattern.CASE_INSENSITIVE
 	);
 
@@ -21,7 +22,7 @@ public class CommandLineProcessor extends AbstractStateConverter {
 
 	@Override
 	protected Matcher getMatcher(String key) {
-		return COMMANDLINE_KEY_PATTERN.matcher(key);
+		return PATTERN.matcher(key);
 	}
 
 }

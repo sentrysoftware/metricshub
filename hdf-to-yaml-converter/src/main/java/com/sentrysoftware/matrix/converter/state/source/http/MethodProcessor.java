@@ -5,17 +5,19 @@ import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
-import com.sentrysoftware.matrix.converter.state.AbstractStateConverter;
+import com.sentrysoftware.matrix.converter.state.ConversionHelper;
+import com.sentrysoftware.matrix.converter.state.common.AbstractHttpConverter;
 
-public class MethodProcessor extends AbstractStateConverter {
+public class MethodProcessor extends AbstractHttpConverter {
 
 	private static final Pattern PATTERN = Pattern.compile(
-			"^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\))\\.method\\s*$",
-			Pattern.CASE_INSENSITIVE);
+		ConversionHelper.buildSourceKeyRegex("method"),
+		Pattern.CASE_INSENSITIVE
+	);
 
 	@Override
 	public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
-		createSourceTextNode(key, value, connector, "method");
+		createSourceTextNode(key, extractHttpMethod(key, value), connector, "method");
 	}
 
 	@Override
