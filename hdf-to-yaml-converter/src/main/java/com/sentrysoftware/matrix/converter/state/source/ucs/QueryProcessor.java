@@ -9,11 +9,12 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
 import com.sentrysoftware.matrix.converter.state.AbstractStateConverter;
+import com.sentrysoftware.matrix.converter.state.ConversionHelper;
 
 public class QueryProcessor extends AbstractStateConverter {
 
 	private static final Pattern PATTERN = Pattern.compile(
-			"^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\))\\.query[1-9]\\d*\\s*$",
+			ConversionHelper.buildSourceKeyRegex("query[1-9]\\d*"),
 			Pattern.CASE_INSENSITIVE);
 
 	@Override

@@ -6,11 +6,12 @@ import java.util.regex.Pattern;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
 import com.sentrysoftware.matrix.converter.state.AbstractStateConverter;
+import com.sentrysoftware.matrix.converter.state.ConversionHelper;
 
 public class KeepOnlyRegExpProcessor extends AbstractStateConverter {
 
 	private static final Pattern KEY_PATTERN = Pattern.compile(
-			"^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\))\\.keeponlyregexp\\s*$",
+			ConversionHelper.buildSourceKeyRegex("keeponlyregexp"),
 			Pattern.CASE_INSENSITIVE);
 
 	@Override
