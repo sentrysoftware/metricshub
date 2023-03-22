@@ -13,7 +13,7 @@
     // Second UCS discovery comment
     Enclosure.Discovery.Source(2).Type="UCS"
     Enclosure.Discovery.Source(2).Query1="UCS Discovery Query 2a"
-    Enclosure.Discovery.Source(2).Query2="UCS Discovery Query 2b"
+    Enclosure.Discovery.Source(2).Query2="%Enclosure.Discovery.Source(1)%"
     Enclosure.Discovery.Source(2).ExcludeRegExp="excludeString2"
     Enclosure.Discovery.Source(2).KeepOnlyRegExp="keepString2"
     Enclosure.Discovery.Source(2).SelectColumns="2"
@@ -34,7 +34,7 @@
             source(2):
               _comment: Second UCS discovery comment
               type: ucs
-              queries: [ UCS Discovery Query 2a, UCS Discovery Query 2b ]
+              queries: [ UCS Discovery Query 2a, $monitors.enclosure.discovery.sources.source(1)$ ]
               exclude: excludeString2
               keep: keepString2
               selectColumns: "2"
