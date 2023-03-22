@@ -15,14 +15,22 @@ class SnmpSourceConverterTest extends AbstractConnectorPropertyConverterTest {
 	}
 
 	@Test
-	@Disabled("until SNMP Source converter is up")
-	void test() throws IOException {
-		testConversion("discoveryTable");
-		testConversion("collectTable");
-
+	void testSnmpGet() throws IOException {
 		testConversion("discoveryGet");
 		testConversion("collectGet");
 
+	}
+
+	@Test
+	@Disabled("until Snmp Table Source converter is up")
+	void testSnmpTable() throws IOException {
+		testConversion("discoveryTable");
+		testConversion("collectTable");
+	}
+
+	@Test
+	@Disabled("until SNMP (Get and Table) Source converter is up")
+	void test() throws IOException {
 		testAll();
 	}
 }
