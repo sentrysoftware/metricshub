@@ -17,7 +17,7 @@ public class ConversionHelper {
 	 * A compiled representation of the HDF source reference regular expression.
 	 * We attempt to match input like %Enclosure.Discovery.Source(2)%
 	 */
-	private static final Pattern SOURCE_REF_PATTERN = Pattern.compile(
+	public static final Pattern SOURCE_REF_PATTERN = Pattern.compile(
 		"%\\s*(\\w+)\\.(discovery|collect)\\.(source\\(\\d+\\))\\s*%",
 		Pattern.CASE_INSENSITIVE | Pattern.MULTILINE 
 	);
