@@ -6,13 +6,14 @@ import java.util.regex.Pattern;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
 import com.sentrysoftware.matrix.converter.state.AbstractStateConverter;
+import com.sentrysoftware.matrix.converter.state.ConversionHelper;
 
 public class SnmpOidProcessor extends AbstractStateConverter  {
 
 	private static final Pattern SNMP_OID_KEY_PATTERN = Pattern.compile(
-			"^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\))\\.snmpoid\\s*$",
-			Pattern.CASE_INSENSITIVE
-		);
+		ConversionHelper.buildSourceKeyRegex("snmpoid"),
+		Pattern.CASE_INSENSITIVE
+	);
 
 	@Override
 	public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
