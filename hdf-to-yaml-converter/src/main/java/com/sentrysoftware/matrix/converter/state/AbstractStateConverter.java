@@ -461,6 +461,17 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	}
 
 	/**
+	 * Create the a new array node in the given object node
+	 * 
+	 * @param key The node key
+	 * @param value The text value
+	 * @param objectNode The {@link ObjectNode} to update
+	 */
+	protected void createArrayNode(final String key, final String value, final ObjectNode objectNode) {
+		objectNode.set(key, JsonNodeFactory.instance.arrayNode().add(performValueConversions(value)));
+	}
+
+	/**
 	 * Create the a new boolean node in the given object node
 	 * 
 	 * @param key The node key
@@ -593,6 +604,32 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	) {
 		final ObjectNode source = getCurrentSource(key, connector);
 		createTextNode(newNodeKey, value, source);
+	}
+
+
+	/**
+	 * Create a new array node in the current source object
+	 * if it does not exist
+	 * or simply adds a value
+	 * 
+	 * @param key The key of the source context
+	 * @param value The value to create
+	 * @param connector The whole connector
+	 * @param newNodeKey The new node key to create
+	 */
+	protected void createOrAppendToSourceArrayNode(
+		final String key,
+		final String value,
+		final JsonNode connector,
+		final String newNodeKey
+	) {
+		final ObjectNode source = getCurrentSource(key, connector);
+		final ArrayNode existing = (ArrayNode) source.get(newNodeKey);
+		if(existing == null) {
+			createArrayNode(newNodeKey, value, source);
+		} else {
+			existing.add(performValueConversions(value));
+		}
 	}
 
 	/**
