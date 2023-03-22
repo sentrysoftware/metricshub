@@ -145,7 +145,7 @@ public class ComputeTypeProcessor extends AbstractStateConverter {
 		}
 
 		// Check the source
-		final JsonNode source = job.get(sourceName);
+		final JsonNode source = job.get(SOURCES).get(sourceName);
 		if(source == null) {
 			((ObjectNode) job)
 				.set(
@@ -162,14 +162,14 @@ public class ComputeTypeProcessor extends AbstractStateConverter {
 		}
 
 		// Check the computes node
-		final JsonNode computes = source.get(COMPUTES);
+		final ArrayNode computes = (ArrayNode) source.get(COMPUTES);
 
 		// At this level the compute node is never null
 		if (computes == null) {
 			throw new IllegalStateException("Computes cannot be null!");
 		}
 
-		((ArrayNode) computes).add(compute);
+		computes.add(compute);
 
 		return compute;
 	}

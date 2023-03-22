@@ -103,6 +103,63 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 
 		return getSource(matcher, connector) != null;
 	}
+/**
+	 * @param matcher			A <u>NON-NULL</u> {@link Matcher},
+	 * 							whose match operation has been called successfully,
+	 * 							and from which
+	 * 							a monitor name, a job name
+	 * 							and a source index can be extracted.
+	 * @param connector			The connector whose source is being searched for.
+	 *
+	 * @return					The {@link ObjectNode} representing the source in the given {@link JsonNode}
+	 * 							connector matching the given {@link Matcher}, if available.
+	 */
+	protected ObjectNode getCompute(final Matcher matcher, final JsonNode connector) {
+
+		final String monitorName = getMonitorName(matcher);
+		final String monitorJobName = getMonitorJobName(matcher);
+		final String sourceName = getSourceName(matcher);
+		final String computeIndex = getComputeIndex(matcher);
+
+		final ObjectNode monitors = (ObjectNode) connector.get(MONITORS);
+		if (monitors == null) {
+			return null;
+		}
+
+		final ObjectNode monitor = (ObjectNode) monitors.get(monitorName);
+		if (monitor == null) {
+			return null;
+		}
+
+		final ObjectNode job = (ObjectNode) monitor.get(monitorJobName);
+		if (job == null) {
+			return null;
+		}
+
+		final ObjectNode sources = (ObjectNode) job.get(SOURCES);
+		if (sources == null) {
+			return null;
+		}
+
+		final ObjectNode source = (ObjectNode) sources.get(sourceName);
+		if( source == null) {
+			return null;
+		}
+
+		final ArrayNode computes = (ArrayNode) source.get(COMPUTES);
+		if( computes == null) {
+			return null;
+		}
+
+		ObjectNode compute = (ObjectNode) computes.get(Integer.parseInt(computeIndex) - 1);
+		if(compute == null) {
+			compute = JsonNodeFactory.instance.objectNode();
+			computes.add(compute);
+			return compute;
+		}
+
+		return compute;
+	}
 
 	/**
 	 * @param matcher			A <u>NON-NULL</u> {@link Matcher},
@@ -248,6 +305,10 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	protected String getSourceName(@NonNull Matcher matcher) {
 
 		return String.format("source(%s)", matcher.group(4));
+	}
+
+	protected String getComputeIndex(@NonNull Matcher matcher) {
+		return String.format("%s", matcher.group(5));
 	}
 
 	/**
@@ -644,7 +705,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 		final JsonNode connector,
 		final String newNodeKey
 	) {
-		final ObjectNode objectNode = getLastCompute(key, connector);
+		final ObjectNode objectNode = getCurrentCompute(key, connector);
 		createIntegerNode(newNodeKey, value, objectNode);
 	}
 
@@ -662,7 +723,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 		final JsonNode connector,
 		final String newNodeKey
 	) {
-		final ObjectNode objectNode = getLastCompute(key, connector);
+		final ObjectNode objectNode = getCurrentCompute(key, connector);
 		createNumberNode(newNodeKey, value, objectNode);
 	}
 
@@ -680,27 +741,9 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 		final JsonNode connector,
 		final String newNodeKey
 	) {
-		final ObjectNode objectNode = getLastCompute(key, connector);
+		final ObjectNode objectNode = getCurrentCompute(key, connector);
 		createTextNode(newNodeKey, value, objectNode);
 	}
-
-	/**
-	 * Get the last compute from the current source node.
-	 * @param key		The source context key
-	 * @param connector The global connector (@link JsonNode)
-	 * @return compute {@link ObjectNode} 
-	 */
-	protected ObjectNode getLastCompute(final String key, final JsonNode connector) {
-		ObjectNode source = getCurrentSource(key, connector);
-		
-		ArrayNode computes = (ArrayNode) source.get(COMPUTES);
-		if(computes == null) {
-			throw new IllegalStateException(String.format("Cannot find computes node in source identified with %s.", key));
-		}
-
-		return (ObjectNode) computes.get(computes.size() -1);
-	}
-
 
 	/**
 	 * Get the current source node.
@@ -721,6 +764,28 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 		}
 
 		return source;
+	}
+
+
+	/**
+	 * Get the current compute node.
+	 * @param key       The source context key
+	 * @param connector The global connector {@link JsonNode}
+	 * @return source {@link ObjectNode}. Never <code>null</code>
+	 */
+	protected ObjectNode getCurrentCompute(final String key, final JsonNode connector) {
+		final Matcher matcher = getMatcher(key);
+		if (!matcher.matches()) {
+			throw new IllegalStateException(String.format("Invalid key: %s", key));
+		}
+
+		final ObjectNode compute = getCompute(matcher, connector);
+
+		if (compute == null) {
+			throw new IllegalStateException(String.format("Cannot find source node identified with %s.", key));
+		}
+
+		return compute;
 	}
 
 	/**
