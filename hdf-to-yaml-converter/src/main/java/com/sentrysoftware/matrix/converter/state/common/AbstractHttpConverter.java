@@ -22,7 +22,7 @@ public abstract class AbstractHttpConverter extends AbstractStateConverter {
 	 * @param value HDF value
 	 * @return String value
 	 */
-	protected String extractResultContent(String key, String value) {
+	protected String extractResultContent(final String key, final String value) {
 		try {
 			return ResultContent.detect(value).getName();
 		} catch (Exception e) {
