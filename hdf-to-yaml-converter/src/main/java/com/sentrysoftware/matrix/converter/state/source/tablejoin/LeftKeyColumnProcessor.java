@@ -19,7 +19,7 @@ public class LeftKeyColumnProcessor extends AbstractStateConverter {
 	}
 
 	@Override
-	public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
-		createSourceTextNode(key, value, connector, "leftKeyColumn");
+ 	public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
+		createSourceIntegerNode(key, value, connector, "leftKeyColumn");
 	}
 }

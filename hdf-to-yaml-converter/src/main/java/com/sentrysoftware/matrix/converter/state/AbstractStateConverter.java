@@ -596,6 +596,24 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	}
 
 	/**
+	 * Create a new integer node in the current source object
+	 * 
+	 * @param key The key of the source context
+	 * @param value The value to create
+	 * @param connector The whole connector
+	 * @param newNodeKey The new node key to create
+	 */
+	protected void createSourceIntegerNode(
+		final String key,
+		final String value,
+		final JsonNode connector,
+		final String newNodeKey
+	) {
+		final ObjectNode source = getCurrentSource(key, connector);
+		createIntegerNode(newNodeKey, value, source);
+	}
+
+	/**
 	 * Get the current source node.
 	 * @param key       The source context key
 	 * @param connector The global connector {@link JsonNode}

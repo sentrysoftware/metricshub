@@ -20,6 +20,6 @@ public class RightKeyColumnProcessor extends AbstractStateConverter {
 
 	@Override
 	public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
-		createSourceTextNode(key, value, connector, "rightKeyColumn");
+		createSourceIntegerNode(key, value, connector, "rightKeyColumn");
 	}
 }

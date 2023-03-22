@@ -22,8 +22,8 @@
               type: tableJoin
               leftTable: $monitors.diskcontroller.discovery.sources.source(5)$
               rightTable: $monitors.diskcontroller.discovery.sources.source(8)$
-              leftKeyColumn: "1"
-              rightKeyColumn: "1"
+              leftKeyColumn: 1
+              rightKeyColumn: 1
               defaultRightLine: ";;;"
               keyType: Wbem
 
@@ -50,7 +50,7 @@
               type: tableJoin
               leftTable: $monitors.enclosure.collect.sources.source(3)$
               rightTable: $monitors.enclosure.collect.sources.source(4)$
-              leftKeyColumn: "1"
-              rightKeyColumn: "1"
+              leftKeyColumn: 1
+              rightKeyColumn: 1
               defaultRightLine: ";"
               forceSerialization: true
