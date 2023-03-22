@@ -2,7 +2,6 @@ package com.sentrysoftware.matrix.converter.state.source;
 
 import java.io.IOException;
 
-
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.converter.AbstractConnectorPropertyConverterTest;
