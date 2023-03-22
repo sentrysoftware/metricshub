@@ -9,6 +9,7 @@ import com.sentrysoftware.matrix.converter.state.source.snmp.ConnectorSnmpGetPro
 import com.sentrysoftware.matrix.converter.state.source.ucs.ConnectorUcsProperty;
 import com.sentrysoftware.matrix.converter.state.source.tablejoin.ConnectorTableJoinProperty;
 import com.sentrysoftware.matrix.converter.state.source.http.ConnectorHttpProperty;
+import com.sentrysoftware.matrix.converter.state.source.ipmi.ConnectorIpmiProperty;
 import com.sentrysoftware.matrix.converter.state.source.reference.ConnectorReferenceProperty;
 import com.sentrysoftware.matrix.converter.state.source.wmi.ConnectorWmiProperty;
 
@@ -26,7 +27,8 @@ public class ConnectorSourceProperty {
 				ConnectorUcsProperty.getConnectorProperties(),
 				ConnectorTableJoinProperty.getConnectorProperties(),
 				ConnectorHttpProperty.getConnectorProperties(),
-				ConnectorReferenceProperty.getConnectorProperties()
+				ConnectorReferenceProperty.getConnectorProperties(),
+				ConnectorIpmiProperty.getConnectorProperties()
 			)
 			.flatMap(Set::stream)
 			.collect(Collectors.toSet());
