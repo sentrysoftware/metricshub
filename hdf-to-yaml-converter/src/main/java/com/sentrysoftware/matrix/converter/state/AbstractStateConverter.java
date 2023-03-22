@@ -8,6 +8,7 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.DOT;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.DOT_COMPUTE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.MONITORS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.SOURCES;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.COMPUTES;
 import static com.sentrysoftware.matrix.converter.state.ConversionHelper.performValueConversions;
 
 import java.util.regex.Matcher;
@@ -271,8 +272,13 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	 *					</ul>
 	 */
 	private boolean isComputeContext(final String value, final Matcher matcher, final JsonNode connector) {
-		// TODO Implement compute context
-		return false;
+		if (this instanceof com.sentrysoftware.matrix.converter.state.computes.common.ComputeTypeProcessor typeProcessor) {
+
+			return typeProcessor.getHdfType().equalsIgnoreCase(value);
+		}
+
+		JsonNode source = getSource(matcher, connector);
+		return source.get(COMPUTES) != null;
 	}
 
 	/**
@@ -483,6 +489,17 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	}
 
 	/**
+	 * Create the a new number node in the given object node
+	 * 
+	 * @param key The node key
+	 * @param value The text value
+	 * @param objectNode The {@link ObjectNode} to update
+	 */
+	protected void createNumberNode(final String key, final String value, final ObjectNode objectNode) {
+		objectNode.set(key, JsonNodeFactory.instance.numberNode(Double.valueOf(value.trim())));
+	}
+
+	/**
 	 * Get or create the criteria array node in the given connector node
 	 * 
 	 * @param connector {@link JsonNode} instance
@@ -612,6 +629,78 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 		final ObjectNode source = getCurrentSource(key, connector);
 		createIntegerNode(newNodeKey, value, source);
 	}
+
+	/**
+	 * Create a new integer node in the last compute object
+	 * 
+	 * @param key The key of the compute context
+	 * @param value The value to create
+	 * @param connector The whole connector
+	 * @param newNodeKey The new node key to create
+	 */
+	protected void createComputeIntegerNode(
+		final String key,
+		final String value,
+		final JsonNode connector,
+		final String newNodeKey
+	) {
+		final ObjectNode objectNode = getLastCompute(key, connector);
+		createIntegerNode(newNodeKey, value, objectNode);
+	}
+
+	/**
+	 * Create a new integer node in the last compute object
+	 * 
+	 * @param key The key of the compute context
+	 * @param value The value to create
+	 * @param connector The whole connector
+	 * @param newNodeKey The new node key to create
+	 */
+	protected void createComputeNumberNode(
+		final String key,
+		final String value,
+		final JsonNode connector,
+		final String newNodeKey
+	) {
+		final ObjectNode objectNode = getLastCompute(key, connector);
+		createNumberNode(newNodeKey, value, objectNode);
+	}
+
+	/**
+	 * Create a new integer node in the last compute object
+	 * 
+	 * @param key The key of the compute context
+	 * @param value The value to create
+	 * @param connector The whole connector
+	 * @param newNodeKey The new node key to create
+	 */
+	protected void createComputeTextNode(
+		final String key,
+		final String value,
+		final JsonNode connector,
+		final String newNodeKey
+	) {
+		final ObjectNode objectNode = getLastCompute(key, connector);
+		createTextNode(newNodeKey, value, objectNode);
+	}
+
+	/**
+	 * Get the last compute from the current source node.
+	 * @param key		The source context key
+	 * @param connector The global connector (@link JsonNode)
+	 * @return compute {@link ObjectNode} 
+	 */
+	protected ObjectNode getLastCompute(final String key, final JsonNode connector) {
+		ObjectNode source = getCurrentSource(key, connector);
+		
+		ArrayNode computes = (ArrayNode) source.get(COMPUTES);
+		if(computes == null) {
+			throw new IllegalStateException(String.format("Cannot find computes node in source identified with %s.", key));
+		}
+
+		return (ObjectNode) computes.get(computes.size() -1);
+	}
+
 
 	/**
 	 * Get the current source node.

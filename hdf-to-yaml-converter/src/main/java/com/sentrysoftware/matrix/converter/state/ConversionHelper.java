@@ -123,6 +123,16 @@ public class ConversionHelper {
 		return String.format("^\\s*detection\\.criteria\\(([1-9]\\d*)\\)\\.%s\\s*$", regex);
 	}
 
+	/**
+	 * Build a compute key regex
+	 * 
+	 * @param regex Keyword or regular expression used to build the final regex
+	 * @return String value
+	 */
+	public static String buildComputeKeyRegex(final String regex) {
+		return String.format("^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\))\\.compute\\(([1-9]\\d*)\\)\\.%s\\s*$", regex);
+	}
+
 	@AllArgsConstructor
 	static class PatternFunctionConverter {
 		@Getter
