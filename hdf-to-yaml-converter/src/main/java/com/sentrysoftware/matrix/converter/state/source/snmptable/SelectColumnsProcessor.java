@@ -10,7 +10,7 @@ import com.sentrysoftware.matrix.converter.state.ConversionHelper;
 
 public class SelectColumnsProcessor extends AbstractStateConverter  {
 
-	private static final Pattern SELECT_COLUMNS_KEY_PATTERN = Pattern.compile(
+	private static final Pattern PATTERN = Pattern.compile(
 		ConversionHelper.buildSourceKeyRegex("snmptableselectcolumns"),
 		Pattern.CASE_INSENSITIVE
 	);
@@ -22,7 +22,7 @@ public class SelectColumnsProcessor extends AbstractStateConverter  {
 
 	@Override
 	protected Matcher getMatcher(String key) {
-		return SELECT_COLUMNS_KEY_PATTERN.matcher(key);
+		return PATTERN.matcher(key);
 	}
 
 }

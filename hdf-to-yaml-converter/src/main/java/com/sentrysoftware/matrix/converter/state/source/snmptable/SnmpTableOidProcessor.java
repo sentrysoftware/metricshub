@@ -13,14 +13,14 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class SnmpTableOidProcessor extends AbstractStateConverter {
 
-	private static final Pattern OID_KEY_PATTERN = Pattern.compile(
+	private static final Pattern PATTERN = Pattern.compile(
 		ConversionHelper.buildSourceKeyRegex("snmptableoid"),
 		Pattern.CASE_INSENSITIVE
 	);
 
 	@Override
 	protected Matcher getMatcher(String key) {
-		return OID_KEY_PATTERN.matcher(key);
+		return PATTERN.matcher(key);
 	}
 
 	@Override
