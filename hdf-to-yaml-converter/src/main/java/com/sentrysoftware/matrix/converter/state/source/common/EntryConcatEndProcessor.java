@@ -6,17 +6,18 @@ import java.util.regex.Pattern;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
+import com.sentrysoftware.matrix.converter.state.ConversionHelper;
 
 public class EntryConcatEndProcessor extends AbstractExecuteForEach {
 
-	private static final Pattern ENTRY_CONCAT_END_KEY_PATTERN = Pattern.compile(
-		"^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\))\\.entryconcatend\\s*$",
+	private static final Pattern PATTERN = Pattern.compile(
+		ConversionHelper.buildSourceKeyRegex("entryconcatend"),
 		Pattern.CASE_INSENSITIVE
 	);
 
 	@Override
 	public Matcher getMatcher(String key) {
-		return ENTRY_CONCAT_END_KEY_PATTERN.matcher(key);
+		return PATTERN.matcher(key);
 	}
 
 	@Override

@@ -7,12 +7,14 @@ import java.util.regex.Pattern;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
 import com.sentrysoftware.matrix.converter.state.AbstractStateConverter;
+import com.sentrysoftware.matrix.converter.state.ConversionHelper;
 
 public class KeepOnlyProcessor extends AbstractStateConverter {
 
-	private static final Pattern KEEPONLY_KEY_PATTERN = Pattern.compile(
-			"^\\s*detection\\.criteria\\(([1-9]\\d*)\\)\\.keeponly\\s*$",
-			Pattern.CASE_INSENSITIVE);
+	private static final Pattern PATTERN = Pattern.compile(
+		ConversionHelper.buildCriteriaKeyRegex("keeponly"),
+		Pattern.CASE_INSENSITIVE
+	);
 
 	@Override
 	public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
@@ -29,6 +31,6 @@ public class KeepOnlyProcessor extends AbstractStateConverter {
 
 	@Override
 	protected Matcher getMatcher(String key) {
-		return KEEPONLY_KEY_PATTERN.matcher(key);
+		return PATTERN.matcher(key);
 	}
 }
