@@ -6,12 +6,14 @@ import java.util.regex.Pattern;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
 import com.sentrysoftware.matrix.converter.state.AbstractStateConverter;
+import com.sentrysoftware.matrix.converter.state.ConversionHelper;
 
 public class RightKeyColumnProcessor extends AbstractStateConverter {
 
 	private static final Pattern PATTERN = Pattern.compile(
-			"^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\))\\.rightkeycolumn\\s*$",
-			Pattern.CASE_INSENSITIVE);
+		ConversionHelper.buildSourceKeyRegex("rightkeycolumn"),
+		Pattern.CASE_INSENSITIVE
+	);
 
 	@Override
 	protected Matcher getMatcher(String key) {
