@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.converter.state.source.snmp;
+package com.sentrysoftware.matrix.converter.state.source.snmptable;
 
 import java.util.Set;
 
@@ -14,17 +14,18 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ConnectorSnmpGetProperty {
+public class ConnectorSnmpTableProperty {
 
-	private static final String SNMP_HDF_TYPE_VALUE = "SnmpGet";
-	private static final String SNMP_YAML_TYPE_VALUE = "snmpGet";
+	private static final String SNMP_HDF_TYPE_VALUE = "SnmpTable";
+	private static final String SNMP_YAML_TYPE_VALUE = "snmpTable";
 
 	public static Set<IConnectorStateConverter> getConnectorProperties() {
 
 		return Set.of(
 			new TypeProcessor(SNMP_HDF_TYPE_VALUE, SNMP_YAML_TYPE_VALUE),
 			new ForceSerializationProcessor(),
-			new SnmpOidProcessor(),
+			new SnmpTableOidProcessor(),
+			new SelectColumnsProcessor(),
 			new ExecuteForEachEntryOfProcessor(),
 			new EntryConcatMethodProcessor(),
 			new EntryConcatStartProcessor(),
