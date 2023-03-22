@@ -2,7 +2,6 @@ package com.sentrysoftware.matrix.converter.state.detection.common;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -10,6 +9,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
 import com.sentrysoftware.matrix.converter.state.AbstractStateConverter;
+import com.sentrysoftware.matrix.converter.state.ConversionHelper;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,8 +21,8 @@ public class TypeProcessor extends AbstractStateConverter {
 	private final String hdfType;
 	private final String yamlType;
 
-	private static final Pattern TYPE_KEY_PATTERN = Pattern.compile(
-		"^\\s*detection\\.criteria\\(([1-9]\\d*)\\)\\.type\\s*$",
+	private static final Pattern PATTERN = Pattern.compile(
+		ConversionHelper.buildCriteriaKeyRegex("type"),
 		Pattern.CASE_INSENSITIVE
 	);
 
@@ -32,10 +32,8 @@ public class TypeProcessor extends AbstractStateConverter {
 		final ArrayNode criteria = getOrCreateCriteria(connector);
 
 		final ObjectNode criterion = JsonNodeFactory.instance.objectNode();
-		if (preConnector.getComments().containsKey(key)) {
-			final String comments = preConnector.getComments().get(key).stream().collect(Collectors.joining("\n"));
-			createTextNode("_comment", comments, criterion);
-		}
+
+		appendComment(key, preConnector, criterion);
 
 		createTextNode("type", yamlType, criterion);
 
@@ -44,7 +42,7 @@ public class TypeProcessor extends AbstractStateConverter {
 
 	@Override
 	public Matcher getMatcher(String key) {
-		return TYPE_KEY_PATTERN.matcher(key);
+		return PATTERN.matcher(key);
 	}
 
 }

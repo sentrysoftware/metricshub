@@ -6,11 +6,12 @@ import java.util.regex.Pattern;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
 import com.sentrysoftware.matrix.converter.state.AbstractStateConverter;
+import com.sentrysoftware.matrix.converter.state.ConversionHelper;
 
 public class KmVersionProcessor extends AbstractStateConverter {
 
-	private static final Pattern KMVERSION_KEY_PATTERN = Pattern.compile(
-		"^\\s*detection\\.criteria\\(([1-9]\\d*)\\)\\.version\\s*$",
+	private static final Pattern PATTERN = Pattern.compile(
+		ConversionHelper.buildCriteriaKeyRegex("version"),
 		Pattern.CASE_INSENSITIVE
 	);
 
@@ -21,6 +22,6 @@ public class KmVersionProcessor extends AbstractStateConverter {
 
 	@Override
 	protected Matcher getMatcher(String key) {
-		return KMVERSION_KEY_PATTERN.matcher(key);
+		return PATTERN.matcher(key);
 	}
 }

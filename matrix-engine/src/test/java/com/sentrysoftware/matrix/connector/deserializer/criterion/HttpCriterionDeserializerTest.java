@@ -104,7 +104,7 @@ class HttpCriterionDeserializerTest extends DeserializerTest {
 				getConnector("httpCriterionHttpMethodEnum");
 				Assert.fail(JSON_MAPPING_EXCEPTION_MSG);
 			} catch (JsonMappingException e) {
-				String message = "not one of the values accepted for Enum class: [POST, DELETE, GET]";
+				String message = "not one of the values accepted for Enum class: [POST, DELETE, GET, PUT]";
 				checkMessage(e, message);
 			}
 		}

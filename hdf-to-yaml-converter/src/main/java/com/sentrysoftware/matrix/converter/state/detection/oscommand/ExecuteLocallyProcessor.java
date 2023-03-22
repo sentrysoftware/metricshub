@@ -6,11 +6,12 @@ import java.util.regex.Pattern;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
 import com.sentrysoftware.matrix.converter.state.AbstractStateConverter;
+import com.sentrysoftware.matrix.converter.state.ConversionHelper;
 
 public class ExecuteLocallyProcessor extends AbstractStateConverter {
 
-	private static final Pattern EXECUTELOCALLY_KEY_PATTERN = Pattern.compile(
-		"^\\s*detection\\.criteria\\(([1-9]\\d*)\\)\\.executelocally\\s*$",
+	private static final Pattern PATTERN = Pattern.compile(
+		ConversionHelper.buildCriteriaKeyRegex("executelocally"),
 		Pattern.CASE_INSENSITIVE
 	);
 
@@ -21,6 +22,6 @@ public class ExecuteLocallyProcessor extends AbstractStateConverter {
 
 	@Override
 	protected Matcher getMatcher(String key) {
-		return EXECUTELOCALLY_KEY_PATTERN.matcher(key);
+		return PATTERN.matcher(key);
 	}
 }

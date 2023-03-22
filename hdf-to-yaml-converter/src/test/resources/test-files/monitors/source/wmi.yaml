@@ -1,0 +1,70 @@
+---
+- name: discovery
+  input: |
+    // Source(1) = the IBMPSG_ComputerSystemDetails WBEM class
+    Enclosure.Discovery.Source(1).Type="WMI"
+    Enclosure.Discovery.Source(1).WbemQuery="SELECT ProductName FROM IBMPSG_ComputerSystemDetails"
+
+    // Source(2) = the IBMPSG_ComputerSystemDetails WBEM class
+    Enclosure.Discovery.Source(2).Type="WMI"
+    Enclosure.Discovery.Source(2).WbemQuery="SELECT ProductName FROM IBMPSG_ComputerSystemDetails"
+  expected:
+    monitors:
+      enclosure:
+        discovery:
+          sources:
+            source(1):
+              _comment: Source(1) = the IBMPSG_ComputerSystemDetails WBEM class
+              type: wmi
+              query: SELECT ProductName FROM IBMPSG_ComputerSystemDetails
+            source(2):
+              _comment: Source(2) = the IBMPSG_ComputerSystemDetails WBEM class
+              type: wmi
+              query: SELECT ProductName FROM IBMPSG_ComputerSystemDetails
+
+- name: collect
+  input: |
+    // Source(1) = the IBMPSG_ComputerSystemDetails WBEM class
+    Enclosure.Collect.Source(1).Type="WMI"
+    Enclosure.Collect.Source(1).WbemQuery="SELECT ProductName FROM IBMPSG_ComputerSystemDetails"
+
+    // Source(2) = the IBMPSG_ComputerSystemDetails WBEM class
+    Enclosure.Collect.Source(2).Type="WMI"
+    Enclosure.Collect.Source(2).WbemQuery="SELECT ProductName FROM IBMPSG_ComputerSystemDetails"
+  expected:
+    monitors:
+      enclosure:
+        collect:
+          sources:
+            source(1):
+              _comment: Source(1) = the IBMPSG_ComputerSystemDetails WBEM class
+              type: wmi
+              query: SELECT ProductName FROM IBMPSG_ComputerSystemDetails
+            source(2):
+              _comment: Source(2) = the IBMPSG_ComputerSystemDetails WBEM class
+              type: wmi
+              query: SELECT ProductName FROM IBMPSG_ComputerSystemDetails
+- name: executeForEachEntryOf
+  input: |
+    // Source(10) = ASSOCIATORS of each MSFT_PhysicalDisk, from the MSFT_StorageReliabilityCounter table
+    // DeviceId;ReadErrors;Wear;WriteErrors;Temperature;TemperatureMax;
+    DiskController.Discovery.Source(10).Type="WMI"
+    DiskController.Discovery.Source(10).ExecuteForEachEntryOf=%DiskController.Discovery.Source(7)%
+    DiskController.Discovery.Source(10).WbemNameSpace="root\Microsoft\Windows\Storage"
+    DiskController.Discovery.Source(10).WbemQuery="SELECT DeviceId,ReadErrorsTotal,Wear,WriteErrorsTotal,Temperature,TemperatureMax FROM ASSOCIATORS OF {%Entry.Column(1)%} WHERE ResultClass = MSFT_StorageReliabilityCounter"
+    DiskController.Discovery.Source(10).EntryConcatMethod="List"
+  expected:
+    monitors:
+      diskcontroller:
+        discovery:
+          sources:
+            source(10):
+              _comment: |-
+                Source(10) = ASSOCIATORS of each MSFT_PhysicalDisk, from the MSFT_StorageReliabilityCounter table
+                DeviceId;ReadErrors;Wear;WriteErrors;Temperature;TemperatureMax;
+              type: wmi
+              executeForEachEntryOf:
+                source: $monitors.diskcontroller.discovery.sources.source(7)$
+                concatMethod: list
+              namespace: root\Microsoft\Windows\Storage
+              query: SELECT DeviceId,ReadErrorsTotal,Wear,WriteErrorsTotal,Temperature,TemperatureMax FROM ASSOCIATORS OF {$entry.column(1)$} WHERE ResultClass = MSFT_StorageReliabilityCounter

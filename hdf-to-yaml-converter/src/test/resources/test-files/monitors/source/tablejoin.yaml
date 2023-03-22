@@ -1,0 +1,56 @@
+---
+- name: discovery
+  input: |
+    // Source(14) = Table joint between Source(5) and Source(8)
+    // SoftwareID;ComputerSystemID;SoftwareID;Classifications;FirmwareVersion;
+    DiskController.Discovery.Source(14).Type="TableJoint"
+    DiskController.Discovery.Source(14).LeftTable=%DiskController.Discovery.Source(5)%
+    DiskController.Discovery.Source(14).RightTable=%DiskController.Discovery.Source(8)%
+    DiskController.Discovery.Source(14).LeftKeyColumn=1
+    DiskController.Discovery.Source(14).RightKeyColumn=1
+    DiskController.Discovery.Source(14).KeyType="Wbem"
+    DiskController.Discovery.Source(14).DefaultRightLine=";;;"
+  expected:
+    monitors:
+      diskcontroller:
+        discovery:
+          sources:
+            source(14):
+              _comment: |-
+                Source(14) = Table joint between Source(5) and Source(8)
+                SoftwareID;ComputerSystemID;SoftwareID;Classifications;FirmwareVersion;
+              type: tableJoin
+              leftTable: $monitors.diskcontroller.discovery.sources.source(5)$
+              rightTable: $monitors.diskcontroller.discovery.sources.source(8)$
+              leftKeyColumn: 1
+              rightKeyColumn: 1
+              defaultRightLine: ";;;"
+              keyType: Wbem
+
+- name: collect
+  input: |
+    // TableJoin of Source(3) and Source(4) into Source(5)
+    // MSHW;ID;MSHW;Status;StatusInformation;MSHW;PowerConsumption;
+    Enclosure.Collect.Source(5).Type="TableJoint"
+    Enclosure.Collect.Source(5).LeftTable=%Enclosure.Collect.Source(3)%
+    Enclosure.Collect.Source(5).RightTable=%Enclosure.Collect.Source(4)%
+    Enclosure.Collect.Source(5).LeftKeyColumn=1
+    Enclosure.Collect.Source(5).RightKeyColumn=1
+    Enclosure.Collect.Source(5).DefaultRightLine=";"
+    Enclosure.Collect.Source(5).ForceSerialization=1
+  expected:
+    monitors:
+      enclosure:
+        collect:
+          sources:
+            source(5):
+              _comment: |-
+                TableJoin of Source(3) and Source(4) into Source(5)
+                MSHW;ID;MSHW;Status;StatusInformation;MSHW;PowerConsumption;
+              type: tableJoin
+              leftTable: $monitors.enclosure.collect.sources.source(3)$
+              rightTable: $monitors.enclosure.collect.sources.source(4)$
+              leftKeyColumn: 1
+              rightKeyColumn: 1
+              defaultRightLine: ";"
+              forceSerialization: true

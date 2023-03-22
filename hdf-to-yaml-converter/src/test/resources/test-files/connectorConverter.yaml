@@ -8,7 +8,10 @@
     EmbeddedFile(1).End
   expected:
     embedded:
-      EmbeddedFile(1): "Embedded\nFile\nTest"
+      EmbeddedFile(1): |-
+        Embedded
+        File
+        Test
 - name: testManyEmbeddedFiles
   input: |
     
@@ -27,8 +30,16 @@
     EmbeddedFile(2).End
   expected:
     embedded:
-      EmbeddedFile(1): "First\nEmbedded\nFile\nTest"
-      EmbeddedFile(2): "Second\nEmbedded\nFile\nTest"
+      EmbeddedFile(1): |-
+        First
+        Embedded
+        File
+        Test
+      EmbeddedFile(2): |-
+        Second
+        Embedded
+        File
+        Test
 - name: getTranslationTables
   input: |
     TranslationTable(0)="OK"

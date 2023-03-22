@@ -5,36 +5,24 @@ import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
-import com.sentrysoftware.matrix.converter.state.AbstractStateConverter;
+import com.sentrysoftware.matrix.converter.state.ConversionHelper;
+import com.sentrysoftware.matrix.converter.state.common.AbstractHttpConverter;
 
-public class ResultContentProcessor extends AbstractStateConverter {
+public class ResultContentProcessor extends AbstractHttpConverter {
 
-	private static final String HDF_HTTP_STATUS = "http_status";
-
-	private static final String HDF_HTTPSTATUS = "httpstatus";
-
-	private static final String YAML_HTTP_STATUS = "httpStatus";
-
-	private static final Pattern RESULT_CONTENT_KEY_PATTERN = Pattern.compile(
-		"^\\s*detection\\.criteria\\(([1-9]\\d*)\\)\\.resultcontent\\s*$",
+	private static final Pattern PATTERN = Pattern.compile(
+		ConversionHelper.buildCriteriaKeyRegex("resultcontent"),
 		Pattern.CASE_INSENSITIVE
 	);
 
 	@Override
 	public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
 
-		final String resultContent;
-		if (HDF_HTTP_STATUS.equalsIgnoreCase(value) || HDF_HTTPSTATUS.equalsIgnoreCase(value)) {
-			resultContent = YAML_HTTP_STATUS;
-		} else {
-			resultContent = value.toLowerCase(); // body, all, header
-		}
-
-		createCriterionTextNode(key, resultContent, connector, "resultContent");
+		createCriterionTextNode(key, extractResultContent(key, value), connector, "resultContent");
 	}
 
 	@Override
 	protected Matcher getMatcher(String key) {
-		return RESULT_CONTENT_KEY_PATTERN.matcher(key);
+		return PATTERN.matcher(key);
 	}
 }

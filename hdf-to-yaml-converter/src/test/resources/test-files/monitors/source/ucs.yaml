@@ -1,0 +1,82 @@
+---
+- name: discovery
+  input: |
+    // First UCS discovery comment
+    Enclosure.Discovery.Source(1).Type="UCS"
+    Enclosure.Discovery.Source(1).Query1="UCS Discovery Query 1a"
+    Enclosure.Discovery.Source(1).Query2="UCS Discovery Query 1b"
+    Enclosure.Discovery.Source(1).ExcludeRegExp="excludeString1"
+    Enclosure.Discovery.Source(1).KeepOnlyRegExp="keepString1"
+    Enclosure.Discovery.Source(1).SelectColumns="1"
+    Enclosure.Discovery.Source(1).ForceSerialization=1
+
+    // Second UCS discovery comment
+    Enclosure.Discovery.Source(2).Type="UCS"
+    Enclosure.Discovery.Source(2).Query1="UCS Discovery Query 2a"
+    Enclosure.Discovery.Source(2).Query2="%Enclosure.Discovery.Source(1)%"
+    Enclosure.Discovery.Source(2).ExcludeRegExp="excludeString2"
+    Enclosure.Discovery.Source(2).KeepOnlyRegExp="keepString2"
+    Enclosure.Discovery.Source(2).SelectColumns="2"
+    Enclosure.Discovery.Source(2).ForceSerialization=1
+  expected:
+    monitors:
+      enclosure:
+        discovery:
+          sources:
+            source(1):
+              _comment: First UCS discovery comment
+              type: ucs
+              queries: [ UCS Discovery Query 1a, UCS Discovery Query 1b ]
+              exclude: excludeString1
+              keep: keepString1
+              selectColumns: "1"
+              forceSerialization: true
+            source(2):
+              _comment: Second UCS discovery comment
+              type: ucs
+              queries: [ UCS Discovery Query 2a, $monitors.enclosure.discovery.sources.source(1)$ ]
+              exclude: excludeString2
+              keep: keepString2
+              selectColumns: "2"
+              forceSerialization: true
+
+- name: collect
+  input: |
+    // First UCS collect comment
+    Enclosure.Collect.Source(1).Type="UCS"
+    Enclosure.Collect.Source(1).Query1="UCS Collect Query 1a"
+    Enclosure.Collect.Source(1).Query2="UCS Collect Query 1b"
+    Enclosure.Collect.Source(1).ExcludeRegExp="excludeString1"
+    Enclosure.Collect.Source(1).KeepOnlyRegExp="keepString1"
+    Enclosure.Collect.Source(1).SelectColumns="1"
+    Enclosure.Collect.Source(1).ForceSerialization=1
+
+    // Second UCS collect comment
+    Enclosure.Collect.Source(2).Type="UCS"
+    Enclosure.Collect.Source(2).Query1="UCS Collect Query 2a"
+    Enclosure.Collect.Source(2).Query2="UCS Collect Query 2b"
+    Enclosure.Collect.Source(2).ExcludeRegExp="excludeString2"
+    Enclosure.Collect.Source(2).KeepOnlyRegExp="keepString2"
+    Enclosure.Collect.Source(2).SelectColumns="2"
+    Enclosure.Collect.Source(2).ForceSerialization=1
+  expected:
+    monitors:
+      enclosure:
+        collect:
+          sources:
+            source(1):
+              _comment: First UCS collect comment
+              type: ucs
+              queries: [ UCS Collect Query 1a, UCS Collect Query 1b ]
+              exclude: excludeString1
+              keep: keepString1
+              selectColumns: "1"
+              forceSerialization: true
+            source(2):
+              _comment: Second UCS collect comment
+              type: ucs
+              queries: [ UCS Collect Query 2a, UCS Collect Query 2b ]
+              exclude: excludeString2
+              keep: keepString2
+              selectColumns: "2"
+              forceSerialization: true
