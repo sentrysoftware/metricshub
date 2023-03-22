@@ -8,6 +8,7 @@ import com.sentrysoftware.matrix.converter.state.IConnectorStateConverter;
 import com.sentrysoftware.matrix.converter.state.source.tablejoin.ConnectorTableJoinProperty;
 import com.sentrysoftware.matrix.converter.state.source.http.ConnectorHttpProperty;
 import com.sentrysoftware.matrix.converter.state.source.wmi.ConnectorWmiProperty;
+import com.sentrysoftware.matrix.converter.state.source.snmp.ConnectorSnmpProperty;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,7 @@ public class ConnectorSourceProperty {
 
 		return Stream.of(
 				ConnectorWmiProperty.getConnectorProperties(),
+				ConnectorSnmpProperty.getConnectorProperties(),
 				ConnectorTableJoinProperty.getConnectorProperties(),
 				ConnectorHttpProperty.getConnectorProperties()
 			)
