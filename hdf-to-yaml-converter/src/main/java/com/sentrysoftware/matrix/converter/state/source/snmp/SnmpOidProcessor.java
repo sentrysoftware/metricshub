@@ -17,7 +17,6 @@ public class SnmpOidProcessor extends AbstractStateConverter  {
 	@Override
 	public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
 		createSourceTextNode(key, value, connector, "oid");
-		
 	}
 
 	@Override
