@@ -14,7 +14,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ConnectorSnmpProperty {
+public class ConnectorSnmpTableProperty {
 
 	private static final String SNMP_HDF_TYPE_VALUE = "SnmpTable";
 	private static final String SNMP_YAML_TYPE_VALUE = "snmpTable";
