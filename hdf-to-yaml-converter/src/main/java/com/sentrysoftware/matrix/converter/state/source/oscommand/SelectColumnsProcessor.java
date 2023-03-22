@@ -17,7 +17,7 @@ public class SelectColumnsProcessor extends AbstractStateConverter {
 
 	@Override
 	public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
-		createSourceIntegerNode(key, value, connector, "selectColumns");
+		createSourceTextNode(key, value, connector, "selectColumns");
 	}
 
 	@Override
