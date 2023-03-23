@@ -13,12 +13,11 @@ class PerBitTranslationComputeTest extends AbstractConnectorPropertyConverterTes
 	protected String getResourcePath() {
 		return "src/test/resources/test-files/connector/computes/perBitTranslation";
 	}
-	
+
 	@Test
 	@Disabled("until PerBitTranslation compute processor is up")
 	void test() throws IOException {
-		
-		
+
 		testAll();
 	}
 }

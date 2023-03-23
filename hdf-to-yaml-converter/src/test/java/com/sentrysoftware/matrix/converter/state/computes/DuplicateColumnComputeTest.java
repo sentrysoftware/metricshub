@@ -13,12 +13,11 @@ class DuplicateColumnComputeTest extends AbstractConnectorPropertyConverterTest 
 	protected String getResourcePath() {
 		return "src/test/resources/test-files/connector/computes/duplicateColumn";
 	}
-	
+
 	@Test
 	@Disabled("until DuplicateColumn compute processor is up")
 	void test() throws IOException {
-		
-		
+
 		testAll();
 	}
 }

@@ -13,12 +13,11 @@ class SubstringComputeTest extends AbstractConnectorPropertyConverterTest {
 	protected String getResourcePath() {
 		return "src/test/resources/test-files/connector/computes/substring";
 	}
-	
+
 	@Test
 	@Disabled("until Substring compute processor is up")
 	void test() throws IOException {
-		
-		
+
 		testAll();
 	}
 }

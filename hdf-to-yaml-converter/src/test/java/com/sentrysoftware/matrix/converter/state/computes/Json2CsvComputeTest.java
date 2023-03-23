@@ -13,12 +13,11 @@ class Json2CsvComputeTest extends AbstractConnectorPropertyConverterTest {
 	protected String getResourcePath() {
 		return "src/test/resources/test-files/connector/computes/json2Csv";
 	}
-	
+
 	@Test
 	@Disabled("until Json2Csv compute processor is up")
 	void test() throws IOException {
-		
-		
+
 		testAll();
 	}
 }

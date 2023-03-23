@@ -13,12 +13,11 @@ class ConvertComputeTest extends AbstractConnectorPropertyConverterTest {
 	protected String getResourcePath() {
 		return "src/test/resources/test-files/connector/computes/convert";
 	}
-	
+
 	@Test
 	@Disabled("until Convert compute processor is up")
 	void test() throws IOException {
-		
-		
+
 		testAll();
 	}
 }

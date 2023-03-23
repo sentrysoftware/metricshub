@@ -12,12 +12,12 @@ class AddComputeTest extends AbstractConnectorPropertyConverterTest {
 	protected String getResourcePath() {
 		return "src/test/resources/test-files/connector/computes/add";
 	}
-	
+
 	@Test
 	void test() throws IOException {
 		testConversion("discovery");
 		testConversion("collect");
-		
+
 		testAll();
 	}
 }

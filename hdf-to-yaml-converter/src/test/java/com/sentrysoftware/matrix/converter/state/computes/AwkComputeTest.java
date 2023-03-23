@@ -13,12 +13,11 @@ class AwkComputeTest extends AbstractConnectorPropertyConverterTest {
 	protected String getResourcePath() {
 		return "src/test/resources/test-files/connector/computes/awk";
 	}
-	
+
 	@Test
 	@Disabled("until Awk compute processor is up")
 	void test() throws IOException {
-		
-		
+
 		testAll();
 	}
 }

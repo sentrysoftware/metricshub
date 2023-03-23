@@ -13,12 +13,11 @@ class ReplaceComputeTest extends AbstractConnectorPropertyConverterTest {
 	protected String getResourcePath() {
 		return "src/test/resources/test-files/connector/computes/replace";
 	}
-	
+
 	@Test
 	@Disabled("until Replace compute processor is up")
 	void test() throws IOException {
-		
-		
+
 		testAll();
 	}
 }

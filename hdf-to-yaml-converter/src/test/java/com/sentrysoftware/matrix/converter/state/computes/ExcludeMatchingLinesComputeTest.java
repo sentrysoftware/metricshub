@@ -13,12 +13,11 @@ class ExcludeMatchingLinesComputeTest extends AbstractConnectorPropertyConverter
 	protected String getResourcePath() {
 		return "src/test/resources/test-files/connector/computes/excludeMatchingLines";
 	}
-	
+
 	@Test
 	@Disabled("until ExcludeMatchingLines compute processor is up")
 	void test() throws IOException {
-		
-		
+
 		testAll();
 	}
 }
