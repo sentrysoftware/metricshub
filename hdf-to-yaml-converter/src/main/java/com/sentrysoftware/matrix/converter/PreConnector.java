@@ -297,12 +297,10 @@ public class PreConnector {
 				final List<String> lines = Stream
 					.of(group0.split("\n"))
 					.map(line -> line
-						.trim()
-						.replaceAll("^\\/\\/", "")
-						.replaceAll("^\\/\\*+", "")
-						.replaceAll("\\*+\\/$", "")
-						.replaceAll("^\\s*\\*+", "")
-						.trim()
+						.replaceAll("^\\s*\\/\\/\\s?", "")
+						.replaceAll("^\\s*\\/\\*+\\s?", "")
+						.replaceAll("\\s?\\*+\\/\\s*$", "")
+						.replaceAll("^\\s*\\*+\\s?", "")
 					)
 					.toList();
 
