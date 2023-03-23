@@ -12,6 +12,7 @@ import com.sentrysoftware.matrix.converter.state.source.reference.ConnectorRefer
 import com.sentrysoftware.matrix.converter.state.source.snmpget.ConnectorSnmpGetProperty;
 import com.sentrysoftware.matrix.converter.state.source.snmptable.ConnectorSnmpTableProperty;
 import com.sentrysoftware.matrix.converter.state.source.tablejoin.ConnectorTableJoinProperty;
+import com.sentrysoftware.matrix.converter.state.source.tableunion.ConnectorTableUnionProperty;
 import com.sentrysoftware.matrix.converter.state.source.ucs.ConnectorUcsProperty;
 import com.sentrysoftware.matrix.converter.state.source.wbem.ConnectorWbemProperty;
 import com.sentrysoftware.matrix.converter.state.source.wmi.ConnectorWmiProperty;
@@ -31,10 +32,11 @@ public class ConnectorSourceProperty {
 			ConnectorSnmpGetProperty.getConnectorProperties(),
 			ConnectorUcsProperty.getConnectorProperties(),
 			ConnectorTableJoinProperty.getConnectorProperties(),
+			ConnectorTableUnionProperty.getConnectorProperties(),
 			ConnectorHttpProperty.getConnectorProperties(),
 			ConnectorOsCommandProperty.getConnectorProperties(),
 			ConnectorReferenceProperty.getConnectorProperties(),
-			ConnectorReferenceProperty.getConnectorProperties(),
+			ConnectorOsCommandProperty.getConnectorProperties(),
 			ConnectorIpmiProperty.getConnectorProperties()
 		)
 		.flatMap(Set::stream)
