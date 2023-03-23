@@ -1,6 +1,9 @@
 package com.sentrysoftware.matrix.converter.state;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,6 +15,38 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ConversionHelper {
+
+	/**
+	 * HDF Device name to YAML connector Monitor name
+	 */
+	private static final Map<String, String> HDF_TO_YAML_MONITOR_NAME;
+	static {
+		Map<String, String> hdfToYamlMonitor = new HashMap<>();
+		hdfToYamlMonitor.put("battery", "battery");
+		hdfToYamlMonitor.put("blade", "blade");
+		hdfToYamlMonitor.put("cpu", "cpu");
+		hdfToYamlMonitor.put("cpucore", "cpuCore");
+		hdfToYamlMonitor.put("diskcontroller", "diskController");
+		hdfToYamlMonitor.put("enclosure", "enclosure");
+		hdfToYamlMonitor.put("fan", "fan");
+		hdfToYamlMonitor.put("gpu", "gpu");
+		hdfToYamlMonitor.put("led", "led");
+		hdfToYamlMonitor.put("logicaldisk", "logicalDisk");
+		hdfToYamlMonitor.put("lun", "lun");
+		hdfToYamlMonitor.put("memory", "memory");
+		hdfToYamlMonitor.put("networkcard", "networkCard");
+		hdfToYamlMonitor.put("otherdevice", "otherDevice");
+		hdfToYamlMonitor.put("physicaldisk", "physicalDisk");
+		hdfToYamlMonitor.put("powersupply", "powerSupply");
+		hdfToYamlMonitor.put("robotic", "robotics");
+		hdfToYamlMonitor.put("tapedrive", "tapeDrive");
+		hdfToYamlMonitor.put("temperature", "temperature");
+		hdfToYamlMonitor.put("vm", "vm");
+		hdfToYamlMonitor.put("voltage", "voltage");
+
+		HDF_TO_YAML_MONITOR_NAME = Collections.unmodifiableMap(hdfToYamlMonitor);
+
+	}
 
 	/**
 	 * A compiled representation of the HDF source reference regular expression.
@@ -75,7 +110,7 @@ public class ConversionHelper {
 	 * @return updated string value
 	 */
 	private static String convertSourceReference(final Matcher matcher, final String input) {
-		final String monitor = matcher.group(1).toLowerCase();
+		final String monitor = getYamlMonitorName(matcher.group(1));
 		final String job = matcher.group(2).toLowerCase();
 		final String source = matcher.group(3).toLowerCase();
 
@@ -121,6 +156,20 @@ public class ConversionHelper {
 	 */
 	public static String buildCriteriaKeyRegex(final String regex) {
 		return String.format("^\\s*detection\\.criteria\\(([1-9]\\d*)\\)\\.%s\\s*$", regex);
+	}
+
+	/**
+	 * Get the corresponding YAML monitor name for the given HDF monitor name
+	 * 
+	 * @param monitorName
+	 * @return String value
+	 */
+	public static String getYamlMonitorName(final String hdfMonitorName) {
+		final String result = HDF_TO_YAML_MONITOR_NAME.get(hdfMonitorName.toLowerCase().trim());
+		if (result == null) {
+			throw new IllegalStateException(String.format("Could not find corresponding Monitor name for the HDF device name '%s'", hdfMonitorName));
+		}
+		return result;
 	}
 
 	@AllArgsConstructor

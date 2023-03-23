@@ -209,8 +209,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	 * 										in the given {@link Matcher}'s inner {@link Pattern}.
 	 */
 	protected String getMonitorName(@NonNull Matcher matcher) {
-
-		return matcher.group(2).toLowerCase();
+		return ConversionHelper.getYamlMonitorName(matcher.group(2));
 	}
 
 	/**
