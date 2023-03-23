@@ -164,9 +164,9 @@ public class ComputeTypeProcessor extends AbstractStateConverter {
 		// Check the computes node
 		final ArrayNode computes = (ArrayNode) source.get(COMPUTES);
 
-		// At this level the compute node is never null
 		if (computes == null) {
-			throw new IllegalStateException("Computes cannot be null!");
+			((ObjectNode) source).set(COMPUTES, JsonNodeFactory.instance.arrayNode().add(compute));
+			return compute;
 		}
 
 		computes.add(compute);
