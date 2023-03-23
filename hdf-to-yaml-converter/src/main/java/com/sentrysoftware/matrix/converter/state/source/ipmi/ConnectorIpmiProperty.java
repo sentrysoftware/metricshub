@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.converter.state.source.snmp;
+package com.sentrysoftware.matrix.converter.state.source.ipmi;
 
 import java.util.Set;
 
@@ -14,17 +14,16 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ConnectorSnmpGetProperty {
+public class ConnectorIpmiProperty {
 
-	private static final String SNMP_HDF_TYPE_VALUE = "SnmpGet";
-	private static final String SNMP_YAML_TYPE_VALUE = "snmpGet";
+	private static final String IPMI_HDF_TYPE_VALUE = "IPMI";
+	private static final String IPMI_YAML_TYPE_VALUE = "ipmi";
 
 	public static Set<IConnectorStateConverter> getConnectorProperties() {
 
 		return Set.of(
-			new TypeProcessor(SNMP_HDF_TYPE_VALUE, SNMP_YAML_TYPE_VALUE),
+			new TypeProcessor(IPMI_HDF_TYPE_VALUE, IPMI_YAML_TYPE_VALUE),
 			new ForceSerializationProcessor(),
-			new SnmpOidProcessor(),
 			new ExecuteForEachEntryOfProcessor(),
 			new EntryConcatMethodProcessor(),
 			new EntryConcatStartProcessor(),
