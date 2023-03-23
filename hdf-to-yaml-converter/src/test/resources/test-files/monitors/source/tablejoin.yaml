@@ -12,7 +12,7 @@
     DiskController.Discovery.Source(14).DefaultRightLine=";;;"
   expected:
     monitors:
-      diskcontroller:
+      diskController:
         discovery:
           sources:
             source(14):
@@ -20,8 +20,8 @@
                 Source(14) = Table joint between Source(5) and Source(8)
                 SoftwareID;ComputerSystemID;SoftwareID;Classifications;FirmwareVersion;
               type: tableJoin
-              leftTable: $monitors.diskcontroller.discovery.sources.source(5)$
-              rightTable: $monitors.diskcontroller.discovery.sources.source(8)$
+              leftTable: $monitors.diskController.discovery.sources.source(5)$
+              rightTable: $monitors.diskController.discovery.sources.source(8)$
               leftKeyColumn: 1
               rightKeyColumn: 1
               defaultRightLine: ";;;"
