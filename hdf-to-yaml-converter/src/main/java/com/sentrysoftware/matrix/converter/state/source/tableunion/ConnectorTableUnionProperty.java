@@ -22,13 +22,12 @@ public class ConnectorTableUnionProperty {
 	public static Set<IConnectorStateConverter> getConnectorProperties() {
 
 		return Set.of(
-			new TypeProcessor(HDF_TYPE_VALUE, YAML_TYPE_VALUE),
-			new ForceSerializationProcessor(),
-			new ExecuteForEachEntryOfProcessor(),
-			new EntryConcatMethodProcessor(),
-			new EntryConcatStartProcessor(),
-			new EntryConcatEndProcessor(),
-			new TablesProcessor()
-		);
+				new TypeProcessor(HDF_TYPE_VALUE, YAML_TYPE_VALUE),
+				new ForceSerializationProcessor(),
+				new ExecuteForEachEntryOfProcessor(),
+				new EntryConcatMethodProcessor(),
+				new EntryConcatStartProcessor(),
+				new EntryConcatEndProcessor(),
+				new TablesProcessor());
 	}
 }

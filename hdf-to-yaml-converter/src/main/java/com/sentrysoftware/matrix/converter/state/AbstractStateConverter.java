@@ -429,6 +429,25 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	}
 
 	/**
+	 * Create a new array node in the last criterion object
+	 * 
+	 * @param key The key of the criterion context
+	 * @param arrayValues The array values to create
+	 * @param connector The whole connector
+	 * @param newNodeKey The new node key to create
+	 */
+	protected void createSourceStringArrayNode(
+		final String key,
+		final String[] arrayValues,
+		final JsonNode connector,
+		final String newNodeKey
+	) {
+		final ObjectNode objectNode = getCurrentSource(key, connector);
+		createStringArrayNode(newNodeKey, arrayValues, objectNode);
+	}
+
+
+	/**
 	 * Create the a new array node with the array values in the given object node
 	 * 
 	 * @param key The node key
@@ -457,17 +476,6 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 		final String converted = performValueConversions(value);
 
 		objectNode.set(key, JsonNodeFactory.instance.textNode(converted));
-	}
-
-	/**
-	 * Create the a new array node in the given object node
-	 * 
-	 * @param key The node key
-	 * @param value The text value
-	 * @param objectNode The {@link ObjectNode} to update
-	 */
-	protected void createArrayNode(final String key, final String value, final ObjectNode objectNode) {
-		objectNode.set(key, JsonNodeFactory.instance.arrayNode().add(performValueConversions(value)));
 	}
 
 	/**
@@ -605,27 +613,25 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 		createTextNode(newNodeKey, value, source);
 	}
 
-
 	/**
 	 * Create a new array node in the current source object
 	 * if it does not exist
 	 * or simply adds a value
 	 * 
-	 * @param key The key of the source context
-	 * @param value The value to create
-	 * @param connector The whole connector
+	 * @param key        The key of the source context
+	 * @param value      The value to create
+	 * @param connector  The whole connector
 	 * @param newNodeKey The new node key to create
 	 */
 	protected void createOrAppendToSourceArrayNode(
-		final String key,
-		final String value,
-		final JsonNode connector,
-		final String newNodeKey
-	) {
+			final String key,
+			final String value,
+			final JsonNode connector,
+			final String newNodeKey) {
 		final ObjectNode source = getCurrentSource(key, connector);
 		final ArrayNode existing = (ArrayNode) source.get(newNodeKey);
-		if(existing == null) {
-			createArrayNode(newNodeKey, value, source);
+		if (existing == null) {
+			createStringArrayNode(newNodeKey, new String[] { value }, source);
 		} else {
 			existing.add(performValueConversions(value));
 		}

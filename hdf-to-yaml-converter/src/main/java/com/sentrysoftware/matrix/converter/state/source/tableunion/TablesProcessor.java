@@ -21,6 +21,6 @@ public class TablesProcessor extends AbstractStateConverter {
 
 	@Override
 	public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
-        createOrAppendToSourceArrayNode(key, value, connector, "tables");
+		createOrAppendToSourceArrayNode(key, value, connector, "tables");
 	}
 }
