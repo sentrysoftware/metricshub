@@ -8,6 +8,7 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.DOT;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.DOT_COMPUTE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.MONITORS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.SOURCES;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.COMPUTES;
 import static com.sentrysoftware.matrix.converter.state.ConversionHelper.performValueConversions;
 
 import java.util.regex.Matcher;
@@ -26,7 +27,7 @@ import lombok.NonNull;
 
 public abstract class AbstractStateConverter implements IConnectorStateConverter {
 
-	private static final String INVALID_KEY = "Invalid key: ";
+	private static final String INVALID_KEY_MESSAGE_FORMAT = "Invalid key: %s";
 
 	protected abstract Matcher getMatcher(String key);
 
@@ -101,6 +102,32 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 		}
 
 		return getSource(matcher, connector) != null;
+	}
+/**
+	 * @param matcher			A <u>NON-NULL</u> {@link Matcher},
+	 * 							whose match operation has been called successfully,
+	 * 							and from which
+	 * 							a monitor name, a job name
+	 * 							and a source index can be extracted.
+	 * @param connector			The connector whose compute is being searched for.
+	 *
+	 * @return					The {@link ObjectNode} representing the compute in the given {@link JsonNode}
+	 * 							connector matching the given {@link Matcher}, if available.
+	 */
+	protected ObjectNode getLastCompute(final Matcher matcher, final JsonNode connector) {
+
+		final ObjectNode source = getSource(matcher, connector);
+		if (source == null) {
+			return null;
+		}
+
+		final ArrayNode computes = (ArrayNode) source.get(COMPUTES);
+		if (computes == null || computes.isEmpty()) {
+			return null;
+		}
+
+		return (ObjectNode) computes.get(computes.size() - 1);
+
 	}
 
 	/**
@@ -270,8 +297,12 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	 *					</ul>
 	 */
 	private boolean isComputeContext(final String value, final Matcher matcher, final JsonNode connector) {
-		// TODO Implement compute context
-		return false;
+		if (this instanceof com.sentrysoftware.matrix.converter.state.computes.common.ComputeTypeProcessor typeProcessor) {
+
+			return typeProcessor.getHdfType().equalsIgnoreCase(value);
+		}
+
+		return getLastCompute(matcher, connector) != null;
 	}
 
 	/**
@@ -344,7 +375,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 
 		final Matcher matcher = getMatcher(key);
 		if (!matcher.matches()) {
-			throw new IllegalStateException(INVALID_KEY + key + DOT);
+			throw new IllegalStateException(String.format(INVALID_KEY_MESSAGE_FORMAT, key));
 		}
 
 		final JsonNode criterion = getLastCriterion(connector);
@@ -498,6 +529,17 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	 */
 	protected void createIntegerNode(final String key, final String value, final ObjectNode objectNode) {
 		objectNode.set(key, JsonNodeFactory.instance.numberNode(Integer.valueOf(value.trim())));
+	}
+
+	/**
+	 * Create the a new number node in the given object node
+	 * 
+	 * @param key The node key
+	 * @param value The text value
+	 * @param objectNode The {@link ObjectNode} to update
+	 */
+	protected void createNumberNode(final String key, final String value, final ObjectNode objectNode) {
+		objectNode.set(key, JsonNodeFactory.instance.numberNode(Double.valueOf(value.trim())));
 	}
 
 	/**
@@ -656,6 +698,60 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	}
 
 	/**
+	 * Create a new integer node in the last compute object
+	 * 
+	 * @param key The key of the compute context
+	 * @param value The value to create
+	 * @param connector The whole connector
+	 * @param newNodeKey The new node key to create
+	 */
+	protected void createComputeIntegerNode(
+		final String key,
+		final String value,
+		final JsonNode connector,
+		final String newNodeKey
+	) {
+		final ObjectNode objectNode = getCurrentCompute(key, connector);
+		createIntegerNode(newNodeKey, value, objectNode);
+	}
+
+	/**
+	 * Create a new integer node in the last compute object
+	 * 
+	 * @param key The key of the compute context
+	 * @param value The value to create
+	 * @param connector The whole connector
+	 * @param newNodeKey The new node key to create
+	 */
+	protected void createComputeNumberNode(
+		final String key,
+		final String value,
+		final JsonNode connector,
+		final String newNodeKey
+	) {
+		final ObjectNode objectNode = getCurrentCompute(key, connector);
+		createNumberNode(newNodeKey, value, objectNode);
+	}
+
+	/**
+	 * Create a new integer node in the last compute object
+	 * 
+	 * @param key The key of the compute context
+	 * @param value The value to create
+	 * @param connector The whole connector
+	 * @param newNodeKey The new node key to create
+	 */
+	protected void createComputeTextNode(
+		final String key,
+		final String value,
+		final JsonNode connector,
+		final String newNodeKey
+	) {
+		final ObjectNode objectNode = getCurrentCompute(key, connector);
+		createTextNode(newNodeKey, value, objectNode);
+	}
+
+	/**
 	 * Get the current source node.
 	 * @param key       The source context key
 	 * @param connector The global connector {@link JsonNode}
@@ -664,7 +760,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	protected ObjectNode getCurrentSource(final String key, final JsonNode connector) {
 		final Matcher matcher = getMatcher(key);
 		if (!matcher.matches()) {
-			throw new IllegalStateException(String.format("Invalid key: %s", key));
+			throw new IllegalStateException(String.format(INVALID_KEY_MESSAGE_FORMAT, key));
 		}
 
 		final ObjectNode source = getSource(matcher, connector);
@@ -674,6 +770,28 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 		}
 
 		return source;
+	}
+
+
+	/**
+	 * Get the current compute node.
+	 * @param key       The source context key
+	 * @param connector The global connector {@link JsonNode}
+	 * @return source {@link ObjectNode}. Never <code>null</code>
+	 */
+	protected ObjectNode getCurrentCompute(final String key, final JsonNode connector) {
+		final Matcher matcher = getMatcher(key);
+		if (!matcher.matches()) {
+			throw new IllegalStateException(String.format(INVALID_KEY_MESSAGE_FORMAT, key));
+		}
+
+		final ObjectNode compute = getLastCompute(matcher, connector);
+
+		if (compute == null) {
+			throw new IllegalStateException(String.format("Cannot find source node identified with %s.", key));
+		}
+
+		return compute;
 	}
 
 	/**
@@ -688,7 +806,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 
 		final Matcher matcher = getMatcher(key);
 		if (!matcher.matches()) {
-			throw new IllegalStateException(String.format("Invalid key: %s", key));
+			throw new IllegalStateException(String.format(INVALID_KEY_MESSAGE_FORMAT, key));
 		}
 
 		final JsonNode monitors = connector.get(MONITORS);

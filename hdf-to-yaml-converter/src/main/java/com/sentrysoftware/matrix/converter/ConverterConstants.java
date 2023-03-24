@@ -57,5 +57,6 @@ public class ConverterConstants {
 
 	public static final String SOURCES = "sources";
 	public static final String MONITORS = "monitors";
+	public static final String COMPUTES = "computes";
 
 }

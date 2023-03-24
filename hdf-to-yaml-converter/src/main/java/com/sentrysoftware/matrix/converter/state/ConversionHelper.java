@@ -159,7 +159,17 @@ public class ConversionHelper {
 	}
 
 	/**
-	 * Get the corresponding YAML monitor name for the given HDF monitor name
+	 * Build a compute key regex
+	 * 
+	 * @param regex Keyword or regular expression used to build the final regex
+	 * @return String value
+	 */
+	public static String buildComputeKeyRegex(final String regex) {
+		return String.format("^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\))\\.compute\\(([1-9]\\d*)\\)\\.%s\\s*$", regex);
+	}
+
+	/**
+	* Get the corresponding YAML monitor name for the given HDF monitor name
 	 * 
 	 * @param monitorName
 	 * @return String value
