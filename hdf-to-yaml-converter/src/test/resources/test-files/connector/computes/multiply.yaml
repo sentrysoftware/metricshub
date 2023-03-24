@@ -1,0 +1,66 @@
+- name: discovery
+  input: |
+    // Convert volts to millivolts
+    Voltage.Discovery.Source(1).Compute(2).Type="Multiply"
+    Voltage.Discovery.Source(1).Compute(2).Column="5"
+    Voltage.Discovery.Source(1).Compute(2).MultiplyBy="1000"
+    // ID;devAdapterIndex;devType;devVendor;devProduct;devSizeInBytes;devBytesPerBlock
+    PhysicalDisk.Discovery.Source(1).Compute(2).Type="Multiply"
+    PhysicalDisk.Discovery.Source(1).Compute(2).Column="6"
+    PhysicalDisk.Discovery.Source(1).Compute(2).MultiplyBy=Column(7)
+  expected:
+    monitors:
+      voltage:
+        discovery:
+          sources:
+            source(1):
+              computes:
+                - _comment: |-
+                    Convert volts to millivolts
+                  type: multiply
+                  column: 5
+                  multiplyBy: "1000"
+      physicalDisk:
+        discovery:
+          sources:
+            source(1):
+              computes:
+                - _comment: |-
+                    ID;devAdapterIndex;devType;devVendor;devProduct;devSizeInBytes;devBytesPerBlock
+                  type: multiply
+                  column: 6
+                  multiplyBy: Column(7)
+- name: collect
+  input: |
+    // Watts for if we find total watt capacity
+    Enclosure.Collect.Source(4).Compute(4).Type="Multiply"
+    Enclosure.Collect.Source(4).Compute(4).Column=8
+    Enclosure.Collect.Source(4).Compute(4).MultiplyBy=Column(7)
+    // Convert the Volt values into milliVolts (mV)
+    // ID;mVValue
+    Voltage.Collect.Source(1).Compute(1).Type="Multiply"
+    Voltage.Collect.Source(1).Compute(1).Column="2"
+    Voltage.Collect.Source(1).Compute(1).MultiplyBy="1000"
+  expected:
+    monitors:
+      enclosure:
+        collect:
+          sources:
+            source(4):
+              computes:
+                - _comment: |-
+                    Watts for if we find total watt capacity
+                  type: multiply
+                  column: 8
+                  multiplyBy: Column(7)
+      voltage:
+        collect:
+          sources:
+            source(1):
+              computes:
+                - _comment: |-
+                    Convert the Volt values into milliVolts (mV)
+                    ID;mVValue
+                  type: multiply
+                  column: 2
+                  multiplyBy: "1000"

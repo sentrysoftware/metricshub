@@ -15,7 +15,7 @@ class MultiplyComputeTest extends AbstractConnectorPropertyConverterTest {
 	}
 
 	@Test
-	@Disabled("until Multiply compute processor is up")
+//	@Disabled("until Multiply compute processor is up")
 	void test() throws IOException {
 
 		testAll();
