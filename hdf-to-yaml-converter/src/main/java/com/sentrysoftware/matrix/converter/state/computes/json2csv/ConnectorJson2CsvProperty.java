@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.converter.state.computes.json2csv;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -17,10 +18,6 @@ public class ConnectorJson2CsvProperty {
 	private static final String YAML_TYPE_VALUE = "";
 
 	public static Set<IConnectorStateConverter> getConnectorProperties() {
-
-		return Stream.of(
-				new ComputeTypeProcessor(HDF_TYPE_VALUE, YAML_TYPE_VALUE)
-			)
-			.collect(Collectors.toSet());
+		return Collections.emptySet();
 	}
 }

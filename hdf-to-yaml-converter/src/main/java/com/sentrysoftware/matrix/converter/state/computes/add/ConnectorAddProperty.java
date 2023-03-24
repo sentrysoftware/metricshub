@@ -20,10 +20,10 @@ public class ConnectorAddProperty {
 	public static Set<IConnectorStateConverter> getConnectorProperties() {
 
 		return Stream.of(
-				new ComputeTypeProcessor(HDF_TYPE_VALUE, YAML_TYPE_VALUE),
-				new ColumnProcessor(),
-				new AddProcessor()
-			)
-			.collect(Collectors.toSet());
+			new ComputeTypeProcessor(HDF_TYPE_VALUE, YAML_TYPE_VALUE),
+			new ColumnProcessor(),
+			new AddProcessor()
+		)
+		.collect(Collectors.toSet());
 	}
 }

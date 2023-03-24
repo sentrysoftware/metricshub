@@ -41,7 +41,6 @@ public class ConnectorComputeProperty {
 			ConnectorAndProperty.getConnectorProperties(),
 			ConnectorArrayTranslateProperty.getConnectorProperties(),
 			ConnectorAwkProperty.getConnectorProperties(),
-			ConnectorComputeProperty.getConnectorProperties(),
 			ConnectorConvertProperty.getConnectorProperties(),
 			ConnectorDivideProperty.getConnectorProperties(),
 			ConnectorDuplicateColumnProperty.getConnectorProperties(),

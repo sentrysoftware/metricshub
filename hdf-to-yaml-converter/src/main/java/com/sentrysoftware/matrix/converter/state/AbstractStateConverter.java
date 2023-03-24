@@ -27,7 +27,7 @@ import lombok.NonNull;
 
 public abstract class AbstractStateConverter implements IConnectorStateConverter {
 
-	private static final String INVALID_KEY = "Invalid key: ";
+	private static final String INVALID_KEY_MESSAGE_FORMAT = "Invalid key: %s";
 
 	protected abstract Matcher getMatcher(String key);
 
@@ -109,56 +109,25 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	 * 							and from which
 	 * 							a monitor name, a job name
 	 * 							and a source index can be extracted.
-	 * @param connector			The connector whose source is being searched for.
+	 * @param connector			The connector whose compute is being searched for.
 	 *
-	 * @return					The {@link ObjectNode} representing the source in the given {@link JsonNode}
+	 * @return					The {@link ObjectNode} representing the compute in the given {@link JsonNode}
 	 * 							connector matching the given {@link Matcher}, if available.
 	 */
-	protected ObjectNode getCompute(final Matcher matcher, final JsonNode connector) {
+	protected ObjectNode getLastCompute(final Matcher matcher, final JsonNode connector) {
 
-		final String monitorName = getMonitorName(matcher);
-		final String monitorJobName = getMonitorJobName(matcher);
-		final String sourceName = getSourceName(matcher);
-		final String computeIndex = getComputeIndex(matcher);
-
-		final ObjectNode monitors = (ObjectNode) connector.get(MONITORS);
-		if (monitors == null) {
-			return null;
-		}
-
-		final ObjectNode monitor = (ObjectNode) monitors.get(monitorName);
-		if (monitor == null) {
-			return null;
-		}
-
-		final ObjectNode job = (ObjectNode) monitor.get(monitorJobName);
-		if (job == null) {
-			return null;
-		}
-
-		final ObjectNode sources = (ObjectNode) job.get(SOURCES);
-		if (sources == null) {
-			return null;
-		}
-
-		final ObjectNode source = (ObjectNode) sources.get(sourceName);
-		if( source == null) {
+		final ObjectNode source = getSource(matcher, connector);
+		if (source == null) {
 			return null;
 		}
 
 		final ArrayNode computes = (ArrayNode) source.get(COMPUTES);
-		if( computes == null) {
+		if (computes == null || computes.isEmpty()) {
 			return null;
 		}
 
-		ObjectNode compute = (ObjectNode) computes.get(Integer.parseInt(computeIndex) - 1);
-		if(compute == null) {
-			compute = JsonNodeFactory.instance.objectNode();
-			computes.add(compute);
-			return compute;
-		}
+		return (ObjectNode) computes.get(computes.size() - 1);
 
-		return compute;
 	}
 
 	/**
@@ -306,10 +275,6 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 		return String.format("source(%s)", matcher.group(4));
 	}
 
-	protected String getComputeIndex(@NonNull Matcher matcher) {
-		return String.format("%s", matcher.group(5));
-	}
-
 	/**
 	 * @param value		The value of the compute type,
 	 *                  in case <i>this</i> is a <i>TypeProcessor</i>
@@ -337,8 +302,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 			return typeProcessor.getHdfType().equalsIgnoreCase(value);
 		}
 
-		JsonNode source = getSource(matcher, connector);
-		return source.get(COMPUTES) != null;
+		return getLastCompute(matcher, connector) != null;
 	}
 
 	/**
@@ -411,7 +375,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 
 		final Matcher matcher = getMatcher(key);
 		if (!matcher.matches()) {
-			throw new IllegalStateException(INVALID_KEY + key + DOT);
+			throw new IllegalStateException(String.format(INVALID_KEY_MESSAGE_FORMAT, key));
 		}
 
 		final JsonNode criterion = getLastCriterion(connector);
@@ -796,7 +760,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	protected ObjectNode getCurrentSource(final String key, final JsonNode connector) {
 		final Matcher matcher = getMatcher(key);
 		if (!matcher.matches()) {
-			throw new IllegalStateException(String.format("Invalid key: %s", key));
+			throw new IllegalStateException(String.format(INVALID_KEY_MESSAGE_FORMAT, key));
 		}
 
 		final ObjectNode source = getSource(matcher, connector);
@@ -818,10 +782,10 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	protected ObjectNode getCurrentCompute(final String key, final JsonNode connector) {
 		final Matcher matcher = getMatcher(key);
 		if (!matcher.matches()) {
-			throw new IllegalStateException(String.format("Invalid key: %s", key));
+			throw new IllegalStateException(String.format(INVALID_KEY_MESSAGE_FORMAT, key));
 		}
 
-		final ObjectNode compute = getCompute(matcher, connector);
+		final ObjectNode compute = getLastCompute(matcher, connector);
 
 		if (compute == null) {
 			throw new IllegalStateException(String.format("Cannot find source node identified with %s.", key));
@@ -842,7 +806,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 
 		final Matcher matcher = getMatcher(key);
 		if (!matcher.matches()) {
-			throw new IllegalStateException(String.format("Invalid key: %s", key));
+			throw new IllegalStateException(String.format(INVALID_KEY_MESSAGE_FORMAT, key));
 		}
 
 		final JsonNode monitors = connector.get(MONITORS);
