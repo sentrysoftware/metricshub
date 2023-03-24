@@ -10,7 +10,7 @@ class Json2CsvComputeTest extends AbstractConnectorPropertyConverterTest {
 
 	@Override
 	protected String getResourcePath() {
-		return "src/test/resources/test-files/connector/computes/json2Csv";
+		return "src/test/resources/test-files/connector/computes/json2csv";
 	}
 
 	@Test
