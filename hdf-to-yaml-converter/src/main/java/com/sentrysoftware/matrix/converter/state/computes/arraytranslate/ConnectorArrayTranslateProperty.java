@@ -17,11 +17,11 @@ public class ConnectorArrayTranslateProperty {
 
 	public static Set<IConnectorStateConverter> getConnectorProperties() {
 		return Set.of(
-				new ComputeTypeProcessor(HDF_TYPE_VALUE, YAML_TYPE_VALUE),
-				new ColumnProcessor(),
-				new TranslationTableProcessor(),
-				new ResultSeparatorProcessor(),
-				new ArraySeparatorProcessor()
-			);
+			new ComputeTypeProcessor(HDF_TYPE_VALUE, YAML_TYPE_VALUE),
+			new ColumnProcessor(),
+			new TranslationTableProcessor(),
+			new ResultSeparatorProcessor(),
+			new ArraySeparatorProcessor()
+		);
 	}
 }
