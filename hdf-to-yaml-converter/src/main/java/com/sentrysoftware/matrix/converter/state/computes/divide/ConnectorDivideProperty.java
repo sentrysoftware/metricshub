@@ -17,8 +17,9 @@ public class ConnectorDivideProperty {
 
 	public static Set<IConnectorStateConverter> getConnectorProperties() {
 		return Set.of(
-				new ComputeTypeProcessor(HDF_TYPE_VALUE, YAML_TYPE_VALUE),
-				new ColumnProcessor(),
-				new DivideProcessor());
+			new ComputeTypeProcessor(HDF_TYPE_VALUE, YAML_TYPE_VALUE),
+			new ColumnProcessor(),
+			new DivideProcessor()
+		);
 	}
 }
