@@ -753,7 +753,8 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 
 	/**
 	 * Get the current source node.
-	 * @param key       The source context key
+	 * 
+	 * @param key The source context key
 	 * @param connector The global connector {@link JsonNode}
 	 * @return source {@link ObjectNode}. Never <code>null</code>
 	 */
@@ -775,7 +776,8 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 
 	/**
 	 * Get the current compute node.
-	 * @param key       The source context key
+	 * 
+	 * @param key The compute context key
 	 * @param connector The global connector {@link JsonNode}
 	 * @return source {@link ObjectNode}. Never <code>null</code>
 	 */
@@ -788,7 +790,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 		final ObjectNode compute = getLastCompute(matcher, connector);
 
 		if (compute == null) {
-			throw new IllegalStateException(String.format("Cannot find source node identified with %s.", key));
+			throw new IllegalStateException(String.format("Cannot find compute node identified with %s.", key));
 		}
 
 		return compute;
