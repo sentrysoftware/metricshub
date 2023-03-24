@@ -1,0 +1,66 @@
+- name: discovery
+  input: |
+    // Replace GenuineIntel by Intel and AuthenticAMD by AMD
+    cpu.Discovery.Source(1).Compute(2).Type="Replace"
+    cpu.Discovery.Source(1).Compute(2).Column="4"
+    cpu.Discovery.Source(1).Compute(2).Replace="GenuineIntel"
+    cpu.Discovery.Source(1).Compute(2).ReplaceBy="Intel"
+    cpu.Discovery.Source(1).Compute(3).Type="Replace"
+    cpu.Discovery.Source(1).Compute(3).Column="4"
+    cpu.Discovery.Source(1).Compute(3).Replace="AuthenticAMD"
+    cpu.Discovery.Source(1).Compute(3).ReplaceBy="AMD"
+    // Replace _MSHW__MSHW_ the field was originally blank with "Upper" values
+    Temperature.Discovery.Source(1).Compute(5).Type="Replace"
+    Temperature.Discovery.Source(1).Compute(5).Column=3
+    Temperature.Discovery.Source(1).Compute(5).Replace="_MSHW__MSHW_"
+    Temperature.Discovery.Source(1).Compute(5).ReplaceBy=Column(5)
+  expected:
+    monitors:
+      cpu:
+        discovery:
+          sources:
+            source(1):
+              computes:
+                - _comment: |-
+                    Replace GenuineIntel by Intel and AuthenticAMD by AMD
+                  type: replace
+                  column: 4
+                  oldValue: "GenuineIntel"
+                  newValue: "Intel"
+                - type: replace
+                  column: 4
+                  oldValue: "AuthenticAMD"
+                  newValue: "AMD"
+      temperature:
+        discovery:
+          sources:
+            source(1):
+              computes:
+                - _comment: |-
+                    Replace _MSHW__MSHW_ the field was originally blank with "Upper" values
+                  type: replace
+                  column: 3
+                  oldValue: "_MSHW__MSHW_"
+                  newValue: Column(5)
+- name: collect
+  input: |
+    // Remove Status Information of "ok"
+    // ID;StatusInformation;PatrolStatus;
+    Memory.Collect.Source(3).Compute(2).Type="Replace"
+    Memory.Collect.Source(3).Compute(2).Column=2
+    Memory.Collect.Source(3).Compute(2).Replace="ok"
+    Memory.Collect.Source(3).Compute(2).ReplaceBy=""
+  expected:
+    monitors:
+      memory:
+        collect:
+          sources:
+            source(3):
+              computes:
+                - _comment: |-
+                    Remove Status Information of "ok"
+                    ID;StatusInformation;PatrolStatus;
+                  type: replace
+                  column: 2
+                  oldValue: "ok"
+                  newValue: ""
