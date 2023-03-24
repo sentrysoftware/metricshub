@@ -37,9 +37,10 @@
           sources:
             source(3):
               computes:
-                  # Add the errorcounts together 7 = 7+8+9+10+11+12+13+14+15
-                  # SwitchFCPortStats__Path,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,AddressErrors,Class3FramesDiscarded,CRCErrors,DelimiterErrors,EncodingDisparityErrors,FramesTooLong,PrimitiveSeqProtocolErrCount,RxBadEOFs,TooManyRdys
-                  #       1 ;      2      ;    3           ;   4           ;     5            ;    6       ;         7   ;     8               ;      9  ;   10          ;    11                 ;  12         ;  13                        ;   14    ;   15
+                - _comment: |-
+                    Add the errorcounts together 7 = 7+8+9+10+11+12+13+14+15
+                    SwitchFCPortStats__Path,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,AddressErrors,Class3FramesDiscarded,CRCErrors,DelimiterErrors,EncodingDisparityErrors,FramesTooLong,PrimitiveSeqProtocolErrCount,RxBadEOFs,TooManyRdys
+                        1 ;      2      ;    3           ;   4           ;     5            ;    6       ;         7   ;     8               ;      9  ;   10          ;    11                 ;  12         ;  13                        ;   14    ;   15
                   type: add
                   column: 7
                   value: Column(7)
