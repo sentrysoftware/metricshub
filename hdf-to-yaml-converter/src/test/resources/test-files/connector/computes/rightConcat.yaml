@@ -1,0 +1,53 @@
+- name: discovery
+  input: |
+    // Add "Date of Manufacture: " to DateOfManufacture
+
+    Enclosure.Discovery.Source(1).Compute(1).Type="RightConcat"
+    Enclosure.Discovery.Source(1).Compute(1).Column=4
+    Enclosure.Discovery.Source(1).Compute(1).String="Date of Manufacture: "
+
+    // Add "Firmware Version: " to FirmwareVersion
+
+    Enclosure.Discovery.Source(1).Compute(2).Type="RightConcat"
+    Enclosure.Discovery.Source(1).Compute(2).Column=3
+    Enclosure.Discovery.Source(1).Compute(2).String="Firmware Version: "
+  expected:
+    monitors:
+      enclosure:
+        discovery:
+          sources:
+            source(1):
+              computes:
+                - type: rightConcat
+                  column: 4
+                  value: "Date of Manufacture: "
+                - type: rightConcat
+                  column: 3
+                  value: "Firmware Version: "
+
+- name: discovery
+  input: |
+    // Add "Date of Manufacture: " to DateOfManufacture
+
+    Enclosure.Discovery.Source(1).Compute(1).Type="RightConcat"
+    Enclosure.Discovery.Source(1).Compute(1).Column=4
+    Enclosure.Discovery.Source(1).Compute(1).String="Date of Manufacture: "
+
+    // Add "Firmware Version: " to FirmwareVersion
+
+    Enclosure.Discovery.Source(1).Compute(2).Type="RightConcat"
+    Enclosure.Discovery.Source(1).Compute(2).Column=3
+    Enclosure.Discovery.Source(1).Compute(2).String="Firmware Version: "
+  expected:
+    monitors:
+      enclosure:
+        discovery:
+          sources:
+            source(1):
+              computes:
+                - type: rightConcat
+                  column: 4
+                  value: "Date of Manufacture: "
+                - type: rightConcat
+                  column: 3
+                  value: "Firmware Version: "
