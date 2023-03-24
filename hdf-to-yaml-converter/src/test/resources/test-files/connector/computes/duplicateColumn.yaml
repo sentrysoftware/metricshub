@@ -1,0 +1,44 @@
+- name: discovery
+  input: |
+    // Duplicate the ID column x 3
+    // ID;ID;ID;ID;Status
+    Battery.Discovery.Source(1).Compute(2).Type="DuplicateColumn"
+    Battery.Discovery.Source(1).Compute(2).Column=1
+    Battery.Discovery.Source(1).Compute(3).Type="DuplicateColumn"
+    Battery.Discovery.Source(1).Compute(3).Column=1
+    Battery.Discovery.Source(1).Compute(4).Type="DuplicateColumn"
+    Battery.Discovery.Source(1).Compute(4).Column=1
+  expected:
+    monitors:
+      battery:
+        discovery:
+          sources:
+            source(1):
+              computes:
+                - _comment: |-
+                    Duplicate the ID column x 3
+                    ID;ID;ID;ID;Status
+                  type: duplicateColumn
+                  column: 1
+                - type: duplicateColumn
+                  column: 1
+                - type: duplicateColumn
+                  column: 1
+- name: collect
+  input: |
+    // Duplicate the State
+    // Status;StatusInfo;
+    Enclosure.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+    Enclosure.Collect.Source(1).Compute(1).Column=1
+  expected:
+    monitors:
+      enclosure:
+        collect:
+          sources:
+            source(1):
+              computes:
+                - _comment: |-
+                    Duplicate the State
+                    Status;StatusInfo;
+                  type: duplicateColumn
+                  column: 1
