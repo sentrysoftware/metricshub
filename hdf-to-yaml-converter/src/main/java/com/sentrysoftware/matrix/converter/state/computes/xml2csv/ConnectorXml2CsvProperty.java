@@ -1,12 +1,9 @@
 package com.sentrysoftware.matrix.converter.state.computes.xml2csv;
 
-import java.util.Collections;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import com.sentrysoftware.matrix.converter.state.IConnectorStateConverter;
 import com.sentrysoftware.matrix.converter.state.computes.common.ComputeTypeProcessor;
+import com.sentrysoftware.matrix.converter.state.computes.common.PropertiesProcessor;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -14,10 +11,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ConnectorXml2CsvProperty {
 
-	private static final String HDF_TYPE_VALUE = "";
-	private static final String YAML_TYPE_VALUE = "";
+	private static final String HDF_TYPE_VALUE = "Xml2Csv";
+	private static final String YAML_TYPE_VALUE = "xml2csv";
 
 	public static Set<IConnectorStateConverter> getConnectorProperties() {
-		return Collections.emptySet();
+		return Set.of(
+				new ComputeTypeProcessor(HDF_TYPE_VALUE, YAML_TYPE_VALUE),
+				new RecordTagProcessor(),
+				new PropertiesProcessor());
 	}
 }
