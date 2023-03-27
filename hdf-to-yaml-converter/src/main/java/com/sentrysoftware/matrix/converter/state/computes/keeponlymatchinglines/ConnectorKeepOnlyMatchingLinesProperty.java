@@ -14,8 +14,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ConnectorKeepOnlyMatchingLinesProperty {
 
-	private static final String HDF_TYPE_VALUE = "KeepMatchingLines";
-	private static final String YAML_TYPE_VALUE = "keepMatchingLines";
+	private static final String HDF_TYPE_VALUE = "KeepOnlyMatchingLines";
+	private static final String YAML_TYPE_VALUE = "keepOnlyMatchingLines";
 
 	public static Set<IConnectorStateConverter> getConnectorProperties() {
 		return Set.of(
