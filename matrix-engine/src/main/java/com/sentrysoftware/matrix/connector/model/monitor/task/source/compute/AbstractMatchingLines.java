@@ -4,11 +4,8 @@ import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
-import java.util.Set;
 import java.util.StringJoiner;
-import java.util.TreeSet;
 import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 
@@ -31,15 +28,15 @@ public abstract class AbstractMatchingLines extends Compute {
 	protected Integer column;
 
 	protected String regExp;
-	protected Set<String> valueList = new TreeSet<>(String.CASE_INSENSITIVE_ORDER); // NOSONAR TreeSet is Serializable
+	protected String valueList;
 
-	protected AbstractMatchingLines(String type, Integer column, String regExp, Set<String> valueList) {
+	protected AbstractMatchingLines(String type, Integer column, String regExp, String valueList) {
 
 		super(type);
 
 		this.column = column;
 		this.regExp = regExp;
-		this.valueList = valueList == null ? new TreeSet<>(String.CASE_INSENSITIVE_ORDER) : valueList;
+		this.valueList = valueList;
 	}
 
 	@Override
@@ -59,13 +56,6 @@ public abstract class AbstractMatchingLines extends Compute {
 	@Override
 	public void update(UnaryOperator<String> updater) {
 		regExp = updater.apply(regExp);
-		if (valueList != null && !valueList.isEmpty()) {
-			valueList = valueList
-				.stream()
-				.map(updater::apply)
-				.collect(Collectors
-					.toCollection(() -> new TreeSet<>(String.CASE_INSENSITIVE_ORDER))
-				);
-		}
+		valueList = updater.apply(valueList);
 	}
 }
