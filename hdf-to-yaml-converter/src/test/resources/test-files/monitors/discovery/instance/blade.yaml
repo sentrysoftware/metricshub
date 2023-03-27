@@ -1,0 +1,31 @@
+- name: test1
+  input: |
+    // Instance Table
+    // SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;ChassisID;
+    Blade.Discovery.InstanceTable=%Blade.Discovery.Source(1)%
+    Blade.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+    Blade.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+    Blade.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(4)
+    Blade.Discovery.Instance.BladeModel=InstanceTable.Column(3)
+    Blade.Discovery.Instance.BladeName="testbladename"
+    Blade.Discovery.Instance.SerialNumber=InstanceTable.Column(5)
+    Blade.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(7)
+    Blade.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(8)
+  expected:
+    monitors:
+      blade:
+        discovery:
+          mapping:
+            _comment: |-
+              Instance Table
+              SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;ChassisID;
+            source: $monitors.blade.discovery.sources.source(1)$
+            attributes:
+              deviceid: InstanceTable.Column(1)
+              displayid: InstanceTable.Column(2)
+              attachedtodeviceid: InstanceTable.Column(7)
+              blademodel: InstanceTable.Column(3)
+              bladename: testbladename
+              additionalinformation1: InstanceTable.Column(4)
+              additionalinformation2: InstanceTable.Column(8)
+              serialnumber: InstanceTable.Column(5)
