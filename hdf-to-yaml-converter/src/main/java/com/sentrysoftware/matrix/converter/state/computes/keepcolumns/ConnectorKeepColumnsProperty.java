@@ -16,8 +16,8 @@ public class ConnectorKeepColumnsProperty {
 
 	public static Set<IConnectorStateConverter> getConnectorProperties() {
 		return Set.of(
-				new ComputeTypeProcessor(HDF_TYPE_VALUE, YAML_TYPE_VALUE),
-				new ColumnNumbersProcessor()
-				);
+			new ComputeTypeProcessor(HDF_TYPE_VALUE, YAML_TYPE_VALUE),
+			new ColumnNumbersProcessor()
+		);
 	}
 }
