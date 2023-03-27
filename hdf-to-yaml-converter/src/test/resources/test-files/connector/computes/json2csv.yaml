@@ -1,0 +1,44 @@
+- name: discovery
+  input: |
+    //convert from json to Json2Csv
+    //tableID;ID;DisplayName;serialNumber;model
+    Enclosure.Discovery.Source(2).Compute(1).Type="Json2Csv"
+    Enclosure.Discovery.Source(2).Compute(1).EntryKey="/"
+    Enclosure.Discovery.Source(2).Compute(1).Properties="instanceId;instanceName;serialNumber;hostOrIpAddress;modelSeries"
+    Enclosure.Discovery.Source(2).Compute(1).Separator=";"
+  expected:
+    monitors:
+      enclosure:
+        discovery:
+          sources:
+            source(2):
+              computes:
+                - _comment: |-
+                    convert from json to Json2Csv
+                    tableID;ID;DisplayName;serialNumber;model
+                  type: json2csv
+                  entryKey: "/"
+                  properties: "instanceId;instanceName;serialNumber;hostOrIpAddress;modelSeries"
+                  separator: ";"
+- name: collect
+  input: |
+    //convert from json to Json2Csv
+    //tableID;ID;DisplayName;serialNumber;model
+    Enclosure.Collect.Source(2).Compute(1).Type="Json2Csv"
+    Enclosure.Collect.Source(2).Compute(1).EntryKey="/"
+    Enclosure.Collect.Source(2).Compute(1).Properties="instanceId;instanceName;serialNumber;hostOrIpAddress;modelSeries"
+    Enclosure.Collect.Source(2).Compute(1).Separator=";"
+  expected:
+    monitors:
+      enclosure:
+        collect:
+          sources:
+            source(2):
+              computes:
+                - _comment: |-
+                    convert from json to Json2Csv
+                    tableID;ID;DisplayName;serialNumber;model
+                  type: json2csv
+                  entryKey: "/"
+                  properties: "instanceId;instanceName;serialNumber;hostOrIpAddress;modelSeries"
+                  separator: ";"
