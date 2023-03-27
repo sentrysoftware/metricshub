@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -29,24 +28,25 @@ class ExcludeMatchingLinesComputeDeserializerTest extends DeserializerTest {
 	void testDeserializeCompute() throws IOException {
 		final Connector connector = getConnector("excludeMatchingLines");
 
-        final List<Compute> computes = new ArrayList<>();
-        computes.add(
-            ExcludeMatchingLines.builder()
-					.type("excludeMatchingLines")
-					.column(1)
-					.valueList(Set.of("test", "exclude", "values"))
-					.build()
-        );
+		final List<Compute> computes = new ArrayList<>();
+		computes.add(
+			ExcludeMatchingLines
+				.builder()
+				.type("excludeMatchingLines")
+				.column(1)
+				.valueList("test,exclude,values")
+				.build()
+		);
 
 		final Map<String, Source> expected = new LinkedHashMap<>(
 			Map.of(
-				"testCompute",
+				"testCompute", 
 				HttpSource
 					.builder()
 					.key("$pre.testCompute$")
 					.type("http")
 					.url("/testUrl/")
-                    .computes(computes)
+					.computes(computes)
 					.build()
 			)
 		);
