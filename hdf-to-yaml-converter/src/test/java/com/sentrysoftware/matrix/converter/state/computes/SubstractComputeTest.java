@@ -6,11 +6,11 @@ import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.converter.AbstractConnectorPropertyConverterTest;
 
-class SubstractComputeTest extends AbstractConnectorPropertyConverterTest {
+class SubtractComputeTest extends AbstractConnectorPropertyConverterTest {
 
 	@Override
 	protected String getResourcePath() {
-		return "src/test/resources/test-files/connector/computes/substract";
+		return "src/test/resources/test-files/connector/computes/subtract";
 	}
 
 	@Test

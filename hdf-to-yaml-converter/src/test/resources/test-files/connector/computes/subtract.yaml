@@ -1,11 +1,11 @@
 - name: discovery
   input: |
-    // First Substract comment
+    // First Subtract comment
     Enclosure.Discovery.Source(1).Compute(1).Type="Substract"
     Enclosure.Discovery.Source(1).Compute(1).Column=1
     Enclosure.Discovery.Source(1).Compute(1).Substract=1
     
-    // Second Substract comment
+    // Second Subtract comment
     Enclosure.Discovery.Source(1).Compute(2).Type="Substract"
     Enclosure.Discovery.Source(1).Compute(2).Column=2
     Enclosure.Discovery.Source(1).Compute(2).Substract=2
@@ -16,22 +16,22 @@
           sources:
             source(1):
               computes:
-                - _comment: First Substract comment
-                  type: substract
+                - _comment: First Subtract comment
+                  type: subtract
                   column: 1
                   value: "1"
-                - _comment: Second Substract comment
-                  type: substract
+                - _comment: Second Subtract comment
+                  type: subtract
                   column: 2
                   value: "2"
 - name: collect
   input: |
-    // First Substract comment
+    // First Subtract comment
     Enclosure.Collect.Source(1).Compute(1).Type="Substract"
     Enclosure.Collect.Source(1).Compute(1).Column=1
     Enclosure.Collect.Source(1).Compute(1).Substract=1
     
-    // Second Substract comment
+    // Second Subtract comment
     Enclosure.Collect.Source(1).Compute(2).Type="Substract"
     Enclosure.Collect.Source(1).Compute(2).Column=2
     Enclosure.Collect.Source(1).Compute(2).Substract=2
@@ -42,11 +42,11 @@
           sources:
             source(1):
               computes:
-                - _comment: First Substract comment
-                  type: substract
+                - _comment: First Subtract comment
+                  type: subtract
                   column: 1
                   value: "1"
-                - _comment: Second Substract comment
-                  type: substract
+                - _comment: Second Subtract comment
+                  type: subtract
                   column: 2
                   value: "2"

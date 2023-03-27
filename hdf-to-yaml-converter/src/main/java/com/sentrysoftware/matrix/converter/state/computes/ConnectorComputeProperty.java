@@ -23,8 +23,8 @@ import com.sentrysoftware.matrix.converter.state.computes.multiply.ConnectorMult
 import com.sentrysoftware.matrix.converter.state.computes.perbittranslation.ConnectorPerBitTranslationProperty;
 import com.sentrysoftware.matrix.converter.state.computes.replace.ConnectorReplaceProperty;
 import com.sentrysoftware.matrix.converter.state.computes.rightconcat.ConnectorRightConcatProperty;
-import com.sentrysoftware.matrix.converter.state.computes.substract.ConnectorSubstractProperty;
 import com.sentrysoftware.matrix.converter.state.computes.substring.ConnectorSubstringProperty;
+import com.sentrysoftware.matrix.converter.state.computes.subtract.ConnectorSubtractProperty;
 import com.sentrysoftware.matrix.converter.state.computes.translate.ConnectorTranslateProperty;
 import com.sentrysoftware.matrix.converter.state.computes.xml2csv.ConnectorXml2CsvProperty;
 
@@ -55,7 +55,7 @@ public class ConnectorComputeProperty {
 			ConnectorPerBitTranslationProperty.getConnectorProperties(),
 			ConnectorReplaceProperty.getConnectorProperties(),
 			ConnectorRightConcatProperty.getConnectorProperties(),
-			ConnectorSubstractProperty.getConnectorProperties(),
+			ConnectorSubtractProperty.getConnectorProperties(),
 			ConnectorSubstringProperty.getConnectorProperties(),
 			ConnectorTranslateProperty.getConnectorProperties(),
 			ConnectorXml2CsvProperty.getConnectorProperties()
