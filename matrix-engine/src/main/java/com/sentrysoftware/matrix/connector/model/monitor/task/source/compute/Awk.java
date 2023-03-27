@@ -4,11 +4,8 @@ import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -34,7 +31,7 @@ public class Awk extends Compute {
 	private String exclude;
 	private String keep;
 	private String separators;
-	private List<String> selectColumns = new ArrayList<>();
+	private String selectColumns;
 
 	@Builder
 	@JsonCreator
@@ -44,7 +41,7 @@ public class Awk extends Compute {
 		@JsonProperty("exclude") String exclude,
 		@JsonProperty("keep") String keep,
 		@JsonProperty("separators") String separators,
-		@JsonProperty("selectColumns") List<String> selectColumns
+		@JsonProperty("selectColumns") String selectColumns
 	) {
 
 		super(type);
@@ -52,7 +49,7 @@ public class Awk extends Compute {
 		this.exclude = exclude;
 		this.keep = keep;
 		this.separators = separators;
-		this.selectColumns = selectColumns == null ? new ArrayList<>() : selectColumns;
+		this.selectColumns = selectColumns;
 	}
 
 	@Override
@@ -79,7 +76,7 @@ public class Awk extends Compute {
 			.exclude(exclude)
 			.keep(keep)
 			.separators(separators)
-			.selectColumns(selectColumns != null ? new ArrayList<>(selectColumns) : null)
+			.selectColumns(selectColumns)
 			.build();
 	}
 
@@ -89,11 +86,6 @@ public class Awk extends Compute {
 		exclude = updater.apply(exclude);
 		keep = updater.apply(keep);
 		separators = updater.apply(separators);
-		if (selectColumns != null && !selectColumns.isEmpty()) {
-			selectColumns = selectColumns
-				.stream()
-				.map(updater::apply)
-				.collect(Collectors.toCollection(ArrayList::new));
-		}
+		selectColumns = updater.apply(selectColumns);
 	}
 }
