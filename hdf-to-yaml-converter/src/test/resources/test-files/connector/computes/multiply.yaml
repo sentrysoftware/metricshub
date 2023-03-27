@@ -19,7 +19,7 @@
                     Convert volts to millivolts
                   type: multiply
                   column: 5
-                  multiplyBy: "1000"
+                  value: "1000"
       physicalDisk:
         discovery:
           sources:
@@ -29,7 +29,7 @@
                     ID;devAdapterIndex;devType;devVendor;devProduct;devSizeInBytes;devBytesPerBlock
                   type: multiply
                   column: 6
-                  multiplyBy: Column(7)
+                  value: Column(7)
 - name: collect
   input: |
     // Watts for if we find total watt capacity
@@ -52,7 +52,7 @@
                     Watts for if we find total watt capacity
                   type: multiply
                   column: 8
-                  multiplyBy: Column(7)
+                  value: Column(7)
       voltage:
         collect:
           sources:
@@ -63,4 +63,4 @@
                     ID;mVValue
                   type: multiply
                   column: 2
-                  multiplyBy: "1000"
+                  value: "1000"
