@@ -2,7 +2,6 @@ package com.sentrysoftware.matrix.converter.state.computes;
 
 import java.io.IOException;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.converter.AbstractConnectorPropertyConverterTest;
@@ -15,7 +14,6 @@ class ExtractComputeTest extends AbstractConnectorPropertyConverterTest {
 	}
 
 	@Test
-	@Disabled("until Extract compute processor is up")
 	void test() throws IOException {
 
 		testAll();

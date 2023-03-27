@@ -1,0 +1,48 @@
+- name: discovery
+  input: |
+    PhysicalDisk.Discovery.Source(1).Compute(2).Type="Extract"
+    PhysicalDisk.Discovery.Source(1).Compute(2).Column=7
+    PhysicalDisk.Discovery.Source(1).Compute(2).SubColumn=1
+    PhysicalDisk.Discovery.Source(1).Compute(2).SubSeparators=" "
+  expected:
+    monitors:
+      physicalDisk:
+        discovery:
+          sources:
+            source(1):
+              computes:
+              - type: extract
+                column: 7
+                subColumn: 1
+                subSeparators: " "
+
+- name: collect
+  input: |
+    // Extract Temperature
+    Temperature.Collect.Source(1).Compute(1).Type="Extract"
+    Temperature.Collect.Source(1).Compute(1).Column=1
+    Temperature.Collect.Source(1).Compute(1).SubColumn=1
+    Temperature.Collect.Source(1).Compute(1).SubSeparators=" "
+
+    // Extract Status
+    Temperature.Collect.Source(1).Compute(2).Type="Extract"
+    Temperature.Collect.Source(1).Compute(2).Column=2
+    Temperature.Collect.Source(1).Compute(2).SubColumn=4
+    Temperature.Collect.Source(1).Compute(2).SubSeparators=" "
+  expected:
+    monitors:
+      temperature:
+        collect:
+          sources:
+            source(1):
+              computes:
+              - _comment: Extract Temperature
+                type: extract
+                column: 1
+                subColumn: 1
+                subSeparators: " "
+              - _comment: Extract Status
+                type: extract
+                column: 2
+                subColumn: 4
+                subSeparators: " "
