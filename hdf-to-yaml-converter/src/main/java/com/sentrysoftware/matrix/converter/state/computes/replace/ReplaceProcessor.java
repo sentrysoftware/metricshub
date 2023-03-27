@@ -11,14 +11,13 @@ import com.sentrysoftware.matrix.converter.state.ConversionHelper;
 public class ReplaceProcessor extends AbstractStateConverter {
 
 	private static final Pattern PATTERN = Pattern.compile(
-			ConversionHelper.buildComputeKeyRegex("Replace"),
-			Pattern.CASE_INSENSITIVE
-		);
+		ConversionHelper.buildComputeKeyRegex("Replace"),
+		Pattern.CASE_INSENSITIVE
+	);
 
 		@Override
 	public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
-			createComputeTextNode(key, value, connector, "oldValue");
-		
+		createComputeTextNode(key, value, connector, "existingValue");
 	}
 
 	@Override
