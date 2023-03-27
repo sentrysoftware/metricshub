@@ -11,4 +11,4 @@ pre:
       - type: keepOnlyMatchingLines
         column: 1
         regExp: regExpTest
-        valueList: [ 1, 2 ]
+        valueList: 1,2

@@ -10,4 +10,4 @@ pre:
     computes:
       - type: excludeMatchingLines
         column: 1
-        valueList: [ "test", "exclude", "values" ]
+        valueList: test,exclude,values
