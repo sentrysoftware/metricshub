@@ -1,9 +1,5 @@
 package com.sentrysoftware.matrix.connector.model.monitor.task.source.compute;
 
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -26,7 +22,7 @@ public class ExcludeMatchingLines extends AbstractMatchingLines {
 		@JsonProperty("type") String type, 
 		@JsonProperty(value = "column", required = true) @NonNull Integer column,
 		@JsonProperty("regExp") String regExp,
-		@JsonProperty("valueList") Set<String> valueList
+		@JsonProperty("valueList") String valueList
 	) {
 
 		super(type, column, regExp, valueList);
@@ -44,13 +40,7 @@ public class ExcludeMatchingLines extends AbstractMatchingLines {
 			.type(type)
 			.column(column)
 			.regExp(regExp)
-			.valueList(valueList == null ? null :
-				valueList
-					.stream()
-					.collect(Collectors
-						.toCollection(() -> new TreeSet<>(String.CASE_INSENSITIVE_ORDER))
-					)
-			)
+			.valueList(valueList)
 			.build();
 
 	}

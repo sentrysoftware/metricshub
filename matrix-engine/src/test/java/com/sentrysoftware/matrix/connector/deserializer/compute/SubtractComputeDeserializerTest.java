@@ -15,27 +15,27 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.HttpSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Compute;
-import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Substract;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Subtract;
 
-class SubstractComputeDeserializerTest extends DeserializerTest {
+class SubtractComputeDeserializerTest extends DeserializerTest {
 
 	@Override
 	public String getResourcePath() {
-		return "src/test/resources/test-files/compute/substract/";
+		return "src/test/resources/test-files/compute/subtract/";
 	}
 
 	@Test
 	void testDeserializeCompute() throws IOException {
-		final Connector connector = getConnector("substract");
+		final Connector connector = getConnector("subtract");
 
-        final List<Compute> computes = new ArrayList<>();
-        computes.add(
-            Substract.builder()
-					.type("substract")
+		final List<Compute> computes = new ArrayList<>();
+		computes.add(
+			Subtract.builder()
+					.type("subtract")
 					.column(1)
 					.value("column(n)")
 					.build()
-        );
+		);
 
 		final Map<String, Source> expected = new LinkedHashMap<>(
 			Map.of(
@@ -45,7 +45,7 @@ class SubstractComputeDeserializerTest extends DeserializerTest {
 					.key("$pre.testCompute$")
 					.type("http")
 					.url("/testUrl/")
-                    .computes(computes)
+					.computes(computes)
 					.build()
 			)
 		);
