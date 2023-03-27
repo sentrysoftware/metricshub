@@ -11,10 +11,10 @@ import lombok.NonNull;
 @AllArgsConstructor
 public enum ConversionType {
 
-    @JsonAlias(value = { "hex2Dec", "hex_2_dec" })
-	HEX_2_DEC("Hex2Dec"),
-    @JsonAlias(value = { "array2SimpleStatus", "array_2_simple_status" })
-	ARRAY_2_SIMPLE_STATUS("Array2SimpleStatus");
+	@JsonAlias(value = { "hex2Dec", "hex_2_dec" })
+	HEX_2_DEC("hex2Dec"),
+	@JsonAlias(value = { "array2SimpleStatus", "array_2_simple_status" })
+	ARRAY_2_SIMPLE_STATUS("array2SimpleStatus");
 
 	@Getter
 	private String name;
@@ -26,7 +26,9 @@ public enum ConversionType {
 	 * @return {@link ConversionType} instance
 	 */
 	public static ConversionType getByName(@NonNull final String name) {
-		return Arrays.stream(ConversionType.values()).filter(n -> name.equalsIgnoreCase(n.getName())).findFirst()
-				.orElseThrow(() -> new IllegalArgumentException("Undefined conversion type: " + name));
+		return Arrays
+			.stream(ConversionType.values())
+			.filter(n -> name.equalsIgnoreCase(n.getName())).findFirst()
+			.orElseThrow(() -> new IllegalArgumentException("Undefined conversion type: " + name));
 	}
 }
