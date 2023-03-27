@@ -22,4 +22,5 @@
               attachedtodeviceid: InstanceTable.Column(2)
               attachedtodevicetype: CPU
               additionalinformation1: InstanceTable.Column(3)
+            metrics:
               currentspeed: ValueTable.Column(5)
