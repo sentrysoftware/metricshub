@@ -18,7 +18,6 @@ public class PropertyProcessor extends AbstractStateConverter {
 	@Override
 	public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
 		createComputeTextNode(key, value, connector, "property");
-		
 	}
 
 	@Override

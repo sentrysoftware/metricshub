@@ -1,7 +1,7 @@
 - name: discovery
   input: |
-    // From : EMC_VNXe_ReplicationGroup_StorageVolume_OrderedMemberOfCollectionAssocLeaf.Collection="root/emc/smis:EMC_VNXe_ReplicationGroupLeaf.InstanceID="CKM00171901109+res_7",Member="root/emc/smis:EMC_VNXe_StorageVolumeLeaf.CreationClassName="EMC_VNXe_StorageVolumeLeaf",DeviceID="sv_14",SystemCreationClassName="EMC_VNXe_StorageSystemLeaf",SystemName="CKM00171901109"
-    // To : sv_14
+    // From EMC_VNXe_ReplicationGroup_StorageVolume_OrderedMemberOfCollectionAssocLeaf.Collection="root/emc/smis:EMC_VNXe_ReplicationGroupLeaf.InstanceID="CKM00171901109+res_7",Member="root/emc/smis:EMC_VNXe_StorageVolumeLeaf.CreationClassName="EMC_VNXe_StorageVolumeLeaf",DeviceID="sv_14",SystemCreationClassName="EMC_VNXe_StorageSystemLeaf",SystemName="CKM00171901109"
+    // To sv_14
     Voltage.Discovery.Source(1).Compute(1).Type="ExtractPropertyFromWbemPath"
     Voltage.Discovery.Source(1).Compute(1).Property="DeviceID"
     Voltage.Discovery.Source(1).Compute(1).Column=1
@@ -13,8 +13,8 @@
             source(1):
               computes:
                 - _comment: |-
-                    From : EMC_VNXe_ReplicationGroup_StorageVolume_OrderedMemberOfCollectionAssocLeaf.Collection="root/emc/smis:EMC_VNXe_ReplicationGroupLeaf.InstanceID="CKM00171901109+res_7",Member="root/emc/smis:EMC_VNXe_StorageVolumeLeaf.CreationClassName="EMC_VNXe_StorageVolumeLeaf",DeviceID="sv_14",SystemCreationClassName="EMC_VNXe_StorageSystemLeaf",SystemName="CKM00171901109"
-                    To : sv_14
+                    From EMC_VNXe_ReplicationGroup_StorageVolume_OrderedMemberOfCollectionAssocLeaf.Collection="root/emc/smis:EMC_VNXe_ReplicationGroupLeaf.InstanceID="CKM00171901109+res_7",Member="root/emc/smis:EMC_VNXe_StorageVolumeLeaf.CreationClassName="EMC_VNXe_StorageVolumeLeaf",DeviceID="sv_14",SystemCreationClassName="EMC_VNXe_StorageSystemLeaf",SystemName="CKM00171901109"
+                    To sv_14
                   type: extractPropertyFromWbemPath
                   column: 1
                   property: DeviceID
