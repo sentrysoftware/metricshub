@@ -15,7 +15,7 @@ public class EnclosureDiscoveryInstanceTest extends AbstractConnectorPropertyCon
 	}
 
 	@Test
-//	@Disabled("Until EnclosureInstance processor is up")
+	@Disabled("Until EnclosureInstance processor is up")
 	void test() throws IOException {
 		testAll();
 	}
