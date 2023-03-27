@@ -1,10 +1,6 @@
 package com.sentrysoftware.matrix.converter.state.computes.and;
 
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.sentrysoftware.matrix.converter.state.IConnectorStateConverter;
 import com.sentrysoftware.matrix.converter.state.computes.common.ColumnProcessor;
@@ -16,10 +12,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ConnectorAndProperty {
 
-	private static final String HDF_TYPE_VALUE = "";
-	private static final String YAML_TYPE_VALUE = "";
+	private static final String HDF_TYPE_VALUE = "And";
+	private static final String YAML_TYPE_VALUE = "and";
 
 	public static Set<IConnectorStateConverter> getConnectorProperties() {
-		return Collections.emptySet();
+		return Set.of(
+			new ComputeTypeProcessor(HDF_TYPE_VALUE, YAML_TYPE_VALUE),
+			new ColumnProcessor(),
+			new AndProcessor()
+		);
 	}
 }

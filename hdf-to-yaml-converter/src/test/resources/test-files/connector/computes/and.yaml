@@ -1,0 +1,38 @@
+- name: discovery
+  input: |
+    // Small trick make a bitwise _and_ on the portID to remove the
+    // weird bits that the Windows SNMP agent puts in the network interface ID
+    // PortID;Description;PortType;MacAddress;AdminStatus;
+    NetworkCard.Discovery.Source(1).Compute(1).Type="And"
+    NetworkCard.Discovery.Source(1).Compute(1).Column=1
+    NetworkCard.Discovery.Source(1).Compute(1).And=1023
+  expected:
+    monitors:
+      networkCard:
+        discovery:
+          sources:
+            source(1):
+              computes:
+                - _comment: |-
+                    Small trick make a bitwise _and_ on the portID to remove the
+                    weird bits that the Windows SNMP agent puts in the network interface ID
+                    PortID;Description;PortType;MacAddress;AdminStatus;
+                  type: and
+                  column: 1
+                  value: "1023"
+
+- name: collect
+  input: |
+    NetworkCard.Collect.Source(1).Compute(1).Type="And"
+    NetworkCard.Collect.Source(1).Compute(1).Column=1
+    NetworkCard.Collect.Source(1).Compute(1).And=1023
+  expected:
+    monitors:
+      networkCard:
+        collect:
+          sources:
+            source(1):
+              computes:
+              - type: and
+                column: 1
+                value: "1023"
