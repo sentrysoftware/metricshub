@@ -1,0 +1,33 @@
+- name: test1
+  input: |
+    // InstanceTable = Source(1)
+    // DN;RN;Model;Speed;Vendor;OperState;attachedDeviceID;DN
+    CPU.Discovery.InstanceTable=%CPU.Discovery.Source(4)%
+    CPU.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+    CPU.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+    CPU.Discovery.Instance.Vendor=InstanceTable.Column(5)
+    CPU.Discovery.Instance.Model=InstanceTable.Column(3)
+    CPU.Discovery.Instance.MaximumSpeed=InstanceTable.Column(4)
+    CPU.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(7)
+    CPU.Discovery.Instance.PowerConsumption="test"
+    CPU.Discovery.Instance.CorrectedErrorWarningThreshold="test2"
+    CPU.Discovery.Instance.CorrectedErrorAlarmThreshold="test3"
+  expected:
+    monitors:
+      cpu:
+        discovery:
+          mapping:
+            _comment: |-
+              InstanceTable = Source(1)
+              DN;RN;Model;Speed;Vendor;OperState;attachedDeviceID;DN
+            source: $monitors.cpu.discovery.sources.source(4)$
+            attributes:
+              deviceid: InstanceTable.Column(1)
+              displayid: InstanceTable.Column(2)
+              attachedtodeviceid: InstanceTable.Column(7)
+              vendor: InstanceTable.Column(5)
+              model: InstanceTable.Column(3)
+              maximumspeed: InstanceTable.Column(4)
+              powerconsumption: test
+              correctederrorwarningthreshold: test2
+              correctederroralarmthreshold: test3
