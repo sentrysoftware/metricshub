@@ -1,0 +1,72 @@
+- name: discovery
+  input: |
+    // Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+    // SystemName,DeviceID,PATROLStatusArray,OperationalStatus
+    Blade.Discovery.Source(1).Compute(2).Type="ArrayTranslate"
+    Blade.Discovery.Source(1).Compute(2).Column=2
+    Blade.Discovery.Source(1).Compute(2).TranslationTable="DMTFOperationStatusTranslationTable"
+    Blade.Discovery.Source(1).Compute(2).ArraySeparator=","
+
+    // And finally, we translate DMTF's OperationalStatus code into a more readable status string
+    // SystemName,DeviceID,PATROLStatusArray,StatusInformation
+    Blade.Discovery.Source(1).Compute(3).Type="ArrayTranslate"
+    Blade.Discovery.Source(1).Compute(3).Column=3
+    Blade.Discovery.Source(1).Compute(3).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+    Blade.Discovery.Source(1).Compute(3).ResultSeparator=" - "
+  expected:
+    monitors:
+      blade:
+        discovery:
+          sources:
+            source(1):
+              computes:
+                - _comment: |-
+                    Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+                    SystemName,DeviceID,PATROLStatusArray,OperationalStatus
+                  type: arrayTranslate
+                  column: 2
+                  translationTable: DMTFOperationStatusTranslationTable
+                  arraySeparator: ","
+                - _comment: |-
+                    And finally, we translate DMTF's OperationalStatus code into a more readable status string
+                    SystemName,DeviceID,PATROLStatusArray,StatusInformation
+                  type: arrayTranslate
+                  column: 3
+                  translationTable: DMTFOperationStatusInformationTranslationTable
+                  resultSeparator: " - "
+- name: collect
+  input: |
+    // Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+    // SystemName,DeviceID,PATROLStatusArray,OperationalStatus
+    Blade.Collect.Source(1).Compute(2).Type="ArrayTranslate"
+    Blade.Collect.Source(1).Compute(2).Column=2
+    Blade.Collect.Source(1).Compute(2).TranslationTable="DMTFOperationStatusTranslationTable"
+    Blade.Collect.Source(1).Compute(2).ArraySeparator=","
+
+    // And finally, we translate DMTF's OperationalStatus code into a more readable status string
+    // SystemName,DeviceID,PATROLStatusArray,StatusInformation
+    Blade.Collect.Source(1).Compute(3).Type="ArrayTranslate"
+    Blade.Collect.Source(1).Compute(3).Column=3
+    Blade.Collect.Source(1).Compute(3).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+    Blade.Collect.Source(1).Compute(3).ResultSeparator=" - "
+  expected:
+    monitors:
+      blade:
+        collect:
+          sources:
+            source(1):
+              computes:
+                - _comment: |-
+                    Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+                    SystemName,DeviceID,PATROLStatusArray,OperationalStatus
+                  type: arrayTranslate
+                  column: 2
+                  translationTable: DMTFOperationStatusTranslationTable
+                  arraySeparator: ","
+                - _comment: |-
+                    And finally, we translate DMTF's OperationalStatus code into a more readable status string
+                    SystemName,DeviceID,PATROLStatusArray,StatusInformation
+                  type: arrayTranslate
+                  column: 3
+                  translationTable: DMTFOperationStatusInformationTranslationTable
+                  resultSeparator: " - "
