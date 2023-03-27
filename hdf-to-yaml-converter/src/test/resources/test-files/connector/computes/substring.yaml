@@ -1,0 +1,35 @@
+- name: discovery
+  input: |
+    Enclosure.Discovery.Source(1).Compute(1).Type="Substring"
+    Enclosure.Discovery.Source(1).Compute(1).Column="2"
+    Enclosure.Discovery.Source(1).Compute(1).Start="1"
+    Enclosure.Discovery.Source(1).Compute(1).Length="4"
+  expected:
+    monitors:
+      enclosure:
+        discovery:
+          sources:
+            source(1):
+              computes:
+              - type: substring
+                column: 2
+                start: "1"
+                length: "4"
+
+- name: collect
+  input: |
+    Enclosure.Collect.Source(1).Compute(1).Type="Substring"
+    Enclosure.Collect.Source(1).Compute(1).Column="2"
+    Enclosure.Collect.Source(1).Compute(1).Start="1"
+    Enclosure.Collect.Source(1).Compute(1).Length="4"
+  expected:
+    monitors:
+      enclosure:
+        collect:
+          sources:
+            source(1):
+              computes:
+              - type: substring
+                column: 2
+                start: "1"
+                length: "4"

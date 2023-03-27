@@ -1,10 +1,12 @@
 package com.sentrysoftware.matrix.converter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.jupiter.api.Assertions;
 
@@ -33,6 +35,7 @@ public abstract class AbstractConnectorPropertyConverterTest {
 
 		final ObjectMapper mapper = JsonHelper.buildYamlMapper();
 		final ArrayNode expectedArray = (ArrayNode) mapper.readTree(new File(getResourcePath() + EXPECTED_YAML));
+		final AtomicBoolean found = new AtomicBoolean(false);
 		expectedArray.elements().forEachRemaining(x -> {
 			if (x.get(NAME).asText().equals(key)) {
 
@@ -46,8 +49,10 @@ public abstract class AbstractConnectorPropertyConverterTest {
 				final JsonNode connector = connectorConverter.convert();
 
 				assertEquals(x.get(EXPECTED), connector);
+				found.set(true);
 			}
 		});
+		assertTrue(found.get(), "Cannot find test for: " + key);
 	}
 
 	/**

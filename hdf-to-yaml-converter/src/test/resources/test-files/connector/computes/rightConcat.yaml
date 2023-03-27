@@ -25,23 +25,23 @@
                   column: 3
                   value: "Firmware Version: "
 
-- name: discovery
+- name: collect
   input: |
     // Add "Date of Manufacture: " to DateOfManufacture
 
-    Enclosure.Discovery.Source(1).Compute(1).Type="RightConcat"
-    Enclosure.Discovery.Source(1).Compute(1).Column=4
-    Enclosure.Discovery.Source(1).Compute(1).String="Date of Manufacture: "
+    Enclosure.Collect.Source(1).Compute(1).Type="RightConcat"
+    Enclosure.Collect.Source(1).Compute(1).Column=4
+    Enclosure.Collect.Source(1).Compute(1).String="Date of Manufacture: "
 
     // Add "Firmware Version: " to FirmwareVersion
 
-    Enclosure.Discovery.Source(1).Compute(2).Type="RightConcat"
-    Enclosure.Discovery.Source(1).Compute(2).Column=3
-    Enclosure.Discovery.Source(1).Compute(2).String="Firmware Version: "
+    Enclosure.Collect.Source(1).Compute(2).Type="RightConcat"
+    Enclosure.Collect.Source(1).Compute(2).Column=3
+    Enclosure.Collect.Source(1).Compute(2).String="Firmware Version: "
   expected:
     monitors:
       enclosure:
-        discovery:
+        collect:
           sources:
             source(1):
               computes:
