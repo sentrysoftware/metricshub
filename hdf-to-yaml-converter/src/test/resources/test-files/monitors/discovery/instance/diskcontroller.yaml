@@ -11,7 +11,6 @@
     DiskController.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(5)
     DiskController.Discovery.Instance.FirmwareVersion=InstanceTable.Column(6)
     DiskController.Discovery.Instance.DriverVersion=InstanceTable.Column(7)
-    DiskController.Discovery.Instance.ParameterActivation.BatteryStatus=InstanceTable.Column(8)
     DiskController.Discovery.Instance.BiosVersion="testbios"
     DiskController.Discovery.Instance.Vendor="testvendor"
   expected:
@@ -34,5 +33,3 @@
               driverversion: InstanceTable.Column(7)
               biosversion: testbios
               vendor: testvendor
-            metrics:
-              batterystatus: InstanceTable.Column(8)
