@@ -11,9 +11,9 @@ import com.sentrysoftware.matrix.converter.state.ConversionHelper;
 public class SubstringStartProcessor extends AbstractStateConverter {
 
 	private static final Pattern PATTERN = Pattern.compile(
-			ConversionHelper.buildComputeKeyRegex("start"),
-			Pattern.CASE_INSENSITIVE
-		);
+		ConversionHelper.buildComputeKeyRegex("start"),
+		Pattern.CASE_INSENSITIVE
+	);
 
 	@Override
 	public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
