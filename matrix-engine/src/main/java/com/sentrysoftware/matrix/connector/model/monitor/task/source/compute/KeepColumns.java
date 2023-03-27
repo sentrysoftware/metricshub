@@ -4,8 +4,6 @@ import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
 
@@ -28,13 +26,13 @@ public class KeepColumns extends Compute {
 
 	@NonNull
 	@JsonSetter(nulls = FAIL)
-	private Set<Integer> columnNumbers = new HashSet<>();
+	private String columnNumbers;
 
 	@Builder
 	@JsonCreator
 	public KeepColumns(
 		@JsonProperty("type") String type, 
-		@JsonProperty(value = "columnNumbers", required = true) @NonNull Set<Integer> columnNumbers
+		@JsonProperty(value = "columnNumbers", required = true) @NonNull String columnNumbers
 	) {
 
 		super(type);
@@ -57,12 +55,12 @@ public class KeepColumns extends Compute {
 		return KeepColumns
 			.builder()
 			.type(type)
-			.columnNumbers(columnNumbers != null ? new HashSet<>(columnNumbers) : null)
+			.columnNumbers(columnNumbers)
 			.build();
 	}
 
 	@Override
 	public void update(UnaryOperator<String> updater) {
-		// Not implemented because this class doesn't define string members
+		columnNumbers = updater.apply(columnNumbers);
 	}
 }

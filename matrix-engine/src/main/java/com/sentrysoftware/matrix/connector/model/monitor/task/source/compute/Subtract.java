@@ -21,7 +21,7 @@ import lombok.NonNull;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class Substract extends Compute {
+public class Subtract extends Compute {
 
 	private static final long serialVersionUID = 1L;
 
@@ -36,7 +36,7 @@ public class Substract extends Compute {
 
 	@Builder
 	@JsonCreator
-	public Substract(
+	public Subtract(
 			@JsonProperty("type") String type, 
 			@JsonProperty(value = "column", required = true) @NonNull Integer column,
 			@JsonProperty(value = "value", required = true) @NonNull String value
@@ -60,8 +60,8 @@ public class Substract extends Compute {
 	}
 
 	@Override
-	public Substract copy() {
-		return Substract
+	public Subtract copy() {
+		return Subtract
 			.builder()
 			.type(type)
 			.column(column)

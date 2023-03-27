@@ -1,0 +1,30 @@
+- name: discovery
+  input: |
+    Fan.Discovery.Source(2).Compute(1).Type="Xml2Csv"
+    Fan.Discovery.Source(2).Compute(1).RecordTag="/configResolveClass/outConfigs"
+    Fan.Discovery.Source(2).Compute(1).Properties="equipmentFanStats>dn"
+  expected:
+    monitors:
+        fan:
+          discovery:
+            sources:
+              source(2):
+                computes:
+                  - type: xml2csv
+                    recordTag: "/configResolveClass/outConfigs"
+                    properties: "equipmentFanStats>dn"
+- name: collect
+  input: |
+    Fan.Collect.Source(2).Compute(1).Type="Xml2Csv"
+    Fan.Collect.Source(2).Compute(1).RecordTag="/configResolveClass/outConfigs"
+    Fan.Collect.Source(2).Compute(1).Properties="equipmentFanStats>dn"
+  expected:
+    monitors:
+        fan:
+          collect:
+            sources:
+              source(2):
+                computes:
+                  - type: xml2csv
+                    recordTag: "/configResolveClass/outConfigs"
+                    properties: "equipmentFanStats>dn"
