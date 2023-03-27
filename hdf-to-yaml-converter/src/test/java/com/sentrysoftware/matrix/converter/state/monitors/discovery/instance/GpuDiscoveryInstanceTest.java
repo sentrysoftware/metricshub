@@ -11,7 +11,7 @@ public class GpuDiscoveryInstanceTest extends AbstractConnectorPropertyConverter
 
 	@Override
 	protected String getResourcePath() {
-		return "src/test/resources/test-files/monitors/discovery/instance/fan";
+		return "src/test/resources/test-files/monitors/discovery/instance/gpu";
 	}
 
 	@Test
