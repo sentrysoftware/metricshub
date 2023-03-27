@@ -1,0 +1,60 @@
+- name: discovery
+  input: |
+    // First comment
+    Enclosure.Discovery.Source(1).Compute(1).Type="ExcludeMatchingLines"
+    Enclosure.Discovery.Source(1).Compute(1).Column=1
+    Enclosure.Discovery.Source(1).Compute(1).RegExp="regExp1"
+    Enclosure.Discovery.Source(1).Compute(1).ValueList="valueList1"
+    
+    // Second comment
+    Enclosure.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+    Enclosure.Discovery.Source(1).Compute(2).Column=2
+    Enclosure.Discovery.Source(1).Compute(2).RegExp="regExp2"
+    Enclosure.Discovery.Source(1).Compute(2).ValueList="valueList2"
+  expected:
+    monitors:
+      enclosure:
+        discovery:
+          sources:
+            source(1):
+              computes:
+                - _comment: First comment
+                  type: excludeMatchingLines
+                  column: 1
+                  regExp: regExp1
+                  valueList: valueList1
+                - _comment: Second comment
+                  type: excludeMatchingLines
+                  column: 2
+                  regExp: regExp2
+                  valueList: valueList2
+- name: collect
+  input: |
+    // First comment
+    Enclosure.Collect.Source(1).Compute(1).Type="ExcludeMatchingLines"
+    Enclosure.Collect.Source(1).Compute(1).Column=1
+    Enclosure.Collect.Source(1).Compute(1).RegExp="regExp1"
+    Enclosure.Collect.Source(1).Compute(1).ValueList="valueList1"
+    
+    // Second comment
+    Enclosure.Collect.Source(1).Compute(2).Type="ExcludeMatchingLines"
+    Enclosure.Collect.Source(1).Compute(2).Column=2
+    Enclosure.Collect.Source(1).Compute(2).RegExp="regExp2"
+    Enclosure.Collect.Source(1).Compute(2).ValueList="valueList2"
+  expected:
+    monitors:
+      enclosure:
+        collect:
+          sources:
+            source(1):
+              computes:
+                - _comment: First comment
+                  type: excludeMatchingLines
+                  column: 1
+                  regExp: regExp1
+                  valueList: valueList1
+                - _comment: Second comment
+                  type: excludeMatchingLines
+                  column: 2
+                  regExp: regExp2
+                  valueList: valueList2
