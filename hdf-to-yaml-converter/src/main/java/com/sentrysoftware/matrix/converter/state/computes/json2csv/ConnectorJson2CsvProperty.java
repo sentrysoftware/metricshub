@@ -17,9 +17,10 @@ public class ConnectorJson2CsvProperty {
 
 	public static Set<IConnectorStateConverter> getConnectorProperties() {
 		return Set.of(
-				new ComputeTypeProcessor(HDF_TYPE_VALUE, YAML_TYPE_VALUE),
-				new EntryKeyProcessor(),
-				new PropertiesProcessor(),
-				new SeparatorProcessor());
+			new ComputeTypeProcessor(HDF_TYPE_VALUE, YAML_TYPE_VALUE),
+			new EntryKeyProcessor(),
+			new PropertiesProcessor(),
+			new SeparatorProcessor()
+		);
 	}
 }

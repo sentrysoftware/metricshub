@@ -11,8 +11,9 @@ import com.sentrysoftware.matrix.converter.state.ConversionHelper;
 public class SeparatorProcessor extends AbstractStateConverter {
 
 	private static final Pattern PATTERN = Pattern.compile(
-			ConversionHelper.buildComputeKeyRegex("separator"),
-			Pattern.CASE_INSENSITIVE);
+		ConversionHelper.buildComputeKeyRegex("separator"),
+		Pattern.CASE_INSENSITIVE
+	);
 
 	@Override
 	public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {

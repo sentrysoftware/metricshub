@@ -11,8 +11,9 @@ import com.sentrysoftware.matrix.converter.state.ConversionHelper;
 public class PropertiesProcessor extends AbstractStateConverter {
 
 	private static final Pattern PATTERN = Pattern.compile(
-			ConversionHelper.buildComputeKeyRegex("properties"),
-			Pattern.CASE_INSENSITIVE);
+		ConversionHelper.buildComputeKeyRegex("properties"),
+		Pattern.CASE_INSENSITIVE
+	);
 
 	@Override
 	public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {

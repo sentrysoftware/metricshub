@@ -16,8 +16,9 @@ public class ConnectorXml2CsvProperty {
 
 	public static Set<IConnectorStateConverter> getConnectorProperties() {
 		return Set.of(
-				new ComputeTypeProcessor(HDF_TYPE_VALUE, YAML_TYPE_VALUE),
-				new RecordTagProcessor(),
-				new PropertiesProcessor());
+			new ComputeTypeProcessor(HDF_TYPE_VALUE, YAML_TYPE_VALUE),
+			new RecordTagProcessor(),
+			new PropertiesProcessor()
+		);
 	}
 }
