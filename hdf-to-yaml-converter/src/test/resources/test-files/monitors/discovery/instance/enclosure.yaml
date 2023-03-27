@@ -26,5 +26,5 @@
               additionalinformation2: InstanceTable.Column(3)
               additionalinformation3: InstanceTable.Column(4)
               type: PDU
-              devicehosename: testdevicehostname
+              devicehostname: testdevicehostname
               biosversion: testbiosversion
