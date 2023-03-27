@@ -9,4 +9,4 @@ pre:
 
     computes:
       - type: keepColumns
-        columnNumbers: [ 1, 2 ]
+        columnNumbers: "1,2"

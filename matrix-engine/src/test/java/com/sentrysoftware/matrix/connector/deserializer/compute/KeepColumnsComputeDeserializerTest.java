@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -29,13 +28,13 @@ class KeepColumnsComputeDeserializerTest extends DeserializerTest {
 	void testDeserializeCompute() throws IOException {
 		final Connector connector = getConnector("keepColumns");
 
-        final List<Compute> computes = new ArrayList<>();
-        computes.add(
-            KeepColumns.builder()
-					.type("keepColumns")
-					.columnNumbers(Set.of(1, 2))
-					.build()
-        );
+		final List<Compute> computes = new ArrayList<>();
+		computes.add(
+			KeepColumns.builder()
+				.type("keepColumns")
+				.columnNumbers("1,2")
+				.build()
+		);
 
 		final Map<String, Source> expected = new LinkedHashMap<>(
 			Map.of(
@@ -45,7 +44,7 @@ class KeepColumnsComputeDeserializerTest extends DeserializerTest {
 					.key("$pre.testCompute$")
 					.type("http")
 					.url("/testUrl/")
-                    .computes(computes)
+					.computes(computes)
 					.build()
 			)
 		);
