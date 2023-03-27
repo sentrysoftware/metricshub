@@ -31,7 +31,7 @@ import lombok.NoArgsConstructor;
 		@JsonSubTypes.Type(value = PerBitTranslation.class, name = "perBitTranslation"),
 		@JsonSubTypes.Type(value = Replace.class, name = "replace"),
 		@JsonSubTypes.Type(value = RightConcat.class, name = "rightConcat"),
-		@JsonSubTypes.Type(value = Substract.class, name = "substract"),
+		@JsonSubTypes.Type(value = Subtract.class, name = "subtract"),
 		@JsonSubTypes.Type(value = Substring.class, name = "substring"),
 		@JsonSubTypes.Type(value = Translate.class, name = "translate"),
 		@JsonSubTypes.Type(value = Xml2Csv.class, name = "xml2Csv"),

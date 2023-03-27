@@ -7,6 +7,6 @@ pre:
     type: http
     url: /testUrl/
     computes:
-      - type: substract
+      - type: subtract
         column: 1
         value: column(n)
