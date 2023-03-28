@@ -1,0 +1,31 @@
+- name: test1
+  input: |
+    // InstanceTable = Source(1)
+    PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(1)%
+    PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+    PowerSupply.Discovery.Instance.PowerSupplyType=InstanceTable.Column(2)
+    PowerSupply.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+    PowerSupply.Discovery.Instance.AttachedToDeviceType="Computer"
+    PowerSupply.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(4)
+    PowerSupply.Discovery.Instance.PowerSupplyPower=InstanceTable.Column(5)
+    PowerSupply.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(6)
+    PowerSupply.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(7)
+    PowerSupply.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(8)
+  expected:
+    monitors:
+      powerSupply:
+        discovery:
+          mapping:
+            _comment: |-
+              InstanceTable = Source(1)
+            source: $monitors.powersupply.discovery.sources.source(1)$
+            attributes:
+              deviceid: $column(1)
+              powersupplytype: $column(2)
+              displayid: $column(3)
+              attachedtodevicetype: Computer
+              attachedtodeviceid: $column(4)
+              powersupplypower: $column(5)
+              additionalinformation3: $column(6)
+              additionalinformation1: $column(7)
+              additionalinformation2: $column(8)
