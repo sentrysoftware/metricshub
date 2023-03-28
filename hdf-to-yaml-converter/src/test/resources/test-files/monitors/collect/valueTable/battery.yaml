@@ -11,7 +11,7 @@
     monitors:
       battery:
         collect:
-          #DeviceID;Capacity;RuntimeRemaining_minutes;Status;StatusInformation;
+          _comment: DeviceID;Capacity;RuntimeRemaining_minutes;Status;StatusInformation;
           mapping:
             deviceId: $column(1)
             source: $monitors.battery.collect.sources.source(1)$
