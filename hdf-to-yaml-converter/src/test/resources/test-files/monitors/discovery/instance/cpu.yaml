@@ -9,7 +9,7 @@
     CPU.Discovery.Instance.Model=InstanceTable.Column(3)
     CPU.Discovery.Instance.MaximumSpeed=InstanceTable.Column(4)
     CPU.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(7)
-    CPU.Discovery.Instance.PowerConsumption="test"
+    CPU.Discovery.Instance.PowerConsumption=InstanceTable.Column(8)
     CPU.Discovery.Instance.CorrectedErrorWarningThreshold="test2"
     CPU.Discovery.Instance.CorrectedErrorAlarmThreshold="test3"
   expected:
@@ -28,6 +28,6 @@
               vendor: $column(5)
               model: $column(3)
               maximumspeed: $column(4)
-              powerconsumption: test
+              powerconsumption: $column(8)
               correctederrorwarningthreshold: test2
               correctederroralarmthreshold: test3
