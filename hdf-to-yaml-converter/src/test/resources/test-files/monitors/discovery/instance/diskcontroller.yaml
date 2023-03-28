@@ -23,13 +23,13 @@
               controllerID;model;serial;slot;memory;firmware;driver;batteryStatus;
             source: $monitors.diskcontroller.discovery.sources.source(1)$
             attributes:
-              deviceid: InstanceTable.Column(1)
-              controllernumber: InstanceTable.Column(1)
-              model: InstanceTable.Column(2)
-              serialnumber: InstanceTable.Column(3)
-              additionalinformation1: InstanceTable.Column(4)
-              additionalinformation2: InstanceTable.Column(5)
-              firmwareversion: InstanceTable.Column(6)
-              driverversion: InstanceTable.Column(7)
+              deviceid: $column(1)
+              controllernumber: $column(1)
+              model: $column(2)
+              serialnumber: $column(3)
+              additionalinformation1: $column(4)
+              additionalinformation2: $column(5)
+              firmwareversion: $column(6)
+              driverversion: $column(7)
               biosversion: testbios
               vendor: testvendor
