@@ -1,0 +1,19 @@
+- name: collect
+  input: |
+    // Collect type is: multi-instance
+    PhysicalDisk.Collect.Type="MultiInstance"
+  expected:
+    monitors:
+      physicalDisk:
+        collect: 
+          type: MultiInstance
+
+- name: collect
+  input: |
+    // Collect type: MonoInstance
+    PowerSupply.Collect.Type=MonoInstance
+  expected:
+    monitors:
+      powersupply:
+        collect:
+          type: MonoInstance
