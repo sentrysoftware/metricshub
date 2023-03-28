@@ -1,0 +1,26 @@
+- name: test1
+  input: |
+    LED.Discovery.InstanceTable=%LED.Discovery.Source(1)%
+    LED.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+    LED.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+    LED.Discovery.Instance.Name="System Attention"
+    LED.Discovery.Instance.Color=InstanceTable.Column(2)
+    LED.Discovery.Instance.OnStatus=InstanceTable.Column(3)
+    LED.Discovery.Instance.BlinkingStatus=InstanceTable.Column(4)
+    LED.Discovery.Instance.OffStatus=InstanceTable.Column(5)
+    LED.Discovery.Instance.AttachedToDeviceType="Enclosure"
+  expected:
+    monitors:
+      enclosure:
+        discovery:
+          mapping:
+            source: $monitors.led.discovery.sources.source(1)$
+            attributes:
+              deviceid: InstanceTable.Column(1)
+              displayid: InstanceTable.Column(1)
+              name: System Attention
+              color: InstanceTable.Column(2)
+              onstatus: InstanceTable.Column(3)
+              blinkingstatus: InstanceTable.Column(4)
+              offstatus: InstanceTable.Column(5)
+              attachedtodevicetype: "Enclosure"
