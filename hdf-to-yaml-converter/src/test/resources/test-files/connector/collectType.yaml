@@ -7,7 +7,7 @@
       physicalDisk:
         collect: 
            - _comment: |-
-                Collect type is: multi-instance
+              Collect type is: multi-instance
              type: multiInstance
 
 - name: otherCollect
@@ -19,5 +19,5 @@
       powersupply:
         collect:
            - _comment: |-
-                Collect type: MonoInstance
+              Collect type: MonoInstance
              type: monoInstance
