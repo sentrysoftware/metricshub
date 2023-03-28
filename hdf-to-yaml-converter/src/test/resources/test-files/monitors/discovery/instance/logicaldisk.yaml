@@ -1,0 +1,34 @@
+- name: test1
+  input: |
+    // Instance Table
+    // DeviceID,DisplayID,SizeBytes,RemainingManagedSpace,IncludeInCapacityReport,Type,SystemID,RaidLevel
+    LogicalDisk.Discovery.InstanceTable=%LogicalDisk.Discovery.Source(8)%
+    LogicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+    LogicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+    LogicalDisk.Discovery.Instance.Size=InstanceTable.Column(3)
+    LogicalDisk.Discovery.Instance.RaidLevel=InstanceTable.Column(8)
+    LogicalDisk.Discovery.Instance.UseForCapacityReport=InstanceTable.Column(5)
+    LogicalDisk.Discovery.Instance.ParameterActivation.UnallocatedSpace=InstanceTable.Column(4)
+    LogicalDisk.Discovery.Instance.LogicalDiskType=InstanceTable.Column(6)
+    LogicalDisk.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(7)
+    LogicalDisk.Discovery.Instance.AttachedToDeviceType="Enclosure"
+    // LogicalDisk.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(13)
+  expected:
+    monitors:
+      logicalDisk:
+        discovery:
+          mapping:
+            _comment: |-
+              Instance Table
+              DeviceID,DisplayID,SizeBytes,RemainingManagedSpace,IncludeInCapacityReport,Type,SystemID,RaidLevel
+            source: $monitors.logicalDisk.discovery.sources.source(8)$
+            attributes:
+              deviceid: $column(1)
+              displayid: $column(2)
+              size: $column(3)
+              raidlevel: $column(8)
+              useforcapacityreport: $column(5)
+              logicaldisktype: $column(6)
+              attachedtodeviceid: $column(7)
+              attachedtodevicetype: Enclosure
+              
