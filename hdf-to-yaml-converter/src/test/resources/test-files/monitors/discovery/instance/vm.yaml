@@ -1,0 +1,19 @@
+- name: test1
+  input: |
+    VM.Discovery.InstanceTable=%VM.Discovery.Source(1)%
+    VM.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+    VM.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+    VM.Discovery.Instance.Hostname=InstanceTable.Column(1)
+    VM.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
+    VM.Discovery.Instance.ParameterActivation.PowerConsumption=0
+  expected:
+    monitors:
+      vm:
+        discovery:
+          mapping:
+            source: $monitors.battery.discovery.sources.source(1)$
+            attributes:
+              deviceid: $column(1)
+              displayid: $column(1)
+              hostname: $column(1)
+              additionalinformation1: $column(2)
