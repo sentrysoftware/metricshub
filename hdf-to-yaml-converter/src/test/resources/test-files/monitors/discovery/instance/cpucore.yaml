@@ -7,7 +7,6 @@
     CpuCore.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
     CpuCore.Discovery.Instance.AttachedToDeviceType="Cpu"
     CpuCore.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(3)
-    CpuCore.Discovery.Instance.ParameterActivation.CurrentSpeed=ValueTable.Column(5)
   expected:
     monitors:
       cpuCore:
