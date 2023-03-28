@@ -18,13 +18,13 @@
           mapping:
             source: $monitors.enclosure.discovery.sources.source(1)$
             attributes:
-              deviceid: InstanceTable.Column(1)
+              deviceid: $column(1)
               vendor: APC
-              model: InstanceTable.Column(5)
-              serialnumber: InstanceTable.Column(6)
-              additionalinformation1: InstanceTable.Column(2)
-              additionalinformation2: InstanceTable.Column(3)
-              additionalinformation3: InstanceTable.Column(4)
+              model: $column(5)
+              serialnumber: $column(6)
+              additionalinformation1: $column(2)
+              additionalinformation2: $column(3)
+              additionalinformation3: $column(4)
               type: PDU
               devicehostname: testdevicehostname
               biosversion: testbiosversion
