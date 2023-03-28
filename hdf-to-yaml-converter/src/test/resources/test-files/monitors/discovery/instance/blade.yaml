@@ -21,11 +21,11 @@
               SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;ChassisID;
             source: $monitors.blade.discovery.sources.source(1)$
             attributes:
-              deviceid: InstanceTable.Column(1)
-              displayid: InstanceTable.Column(2)
-              attachedtodeviceid: InstanceTable.Column(7)
-              blademodel: InstanceTable.Column(3)
+              deviceid: $column(1)
+              displayid: $column(2)
+              attachedtodeviceid: $column(7)
+              blademodel: $column(3)
               bladename: testbladename
-              additionalinformation1: InstanceTable.Column(4)
-              additionalinformation2: InstanceTable.Column(8)
-              serialnumber: InstanceTable.Column(5)
+              additionalinformation1: $column(4)
+              additionalinformation2: $column(8)
+              serialnumber: $column(5)
