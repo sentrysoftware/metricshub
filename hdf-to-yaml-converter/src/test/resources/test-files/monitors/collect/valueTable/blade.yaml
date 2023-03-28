@@ -1,0 +1,20 @@
+- name: bladeValueTable
+  input: |
+    // DeviceID;Status;StatusInformation;PowerState
+    Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(1)%
+    Enclosure.Collect.DeviceID=ValueTable.Column(1)
+    Enclosure.Collect.Status=ValueTable.Column(2)
+    Enclosure.Collect.StatusInformation=ValueTable.Column(3)
+    Enclosure.Collect.PowerState=ValueTable.Column(4)
+  expected:
+    monitors:
+      enclosure:
+        collect:
+          _comment: DeviceID;Status;StatusInformation;PowerState
+          mapping:
+            deviceId: $column(1)
+            source: $monitors.blade.collect.sources.source(1)$
+            metrics:
+              hw.status{hw.type="blade"}: $column(2)
+              hw.statusInformation: $column(3)
+              hw.blade.power_state: $column(4)
