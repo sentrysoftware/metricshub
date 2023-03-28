@@ -5,7 +5,6 @@
     VM.Discovery.Instance.DisplayID=InstanceTable.Column(1)
     VM.Discovery.Instance.Hostname=InstanceTable.Column(1)
     VM.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
-    VM.Discovery.Instance.ParameterActivation.PowerConsumption=0
   expected:
     monitors:
       vm:

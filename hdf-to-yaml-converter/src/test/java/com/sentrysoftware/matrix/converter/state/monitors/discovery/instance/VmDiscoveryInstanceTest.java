@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.converter.AbstractConnectorPropertyConverterTest;
 
-public class VmDiscoveryInstanceTest extends AbstractConnectorPropertyConverterTest {
+class VmDiscoveryInstanceTest extends AbstractConnectorPropertyConverterTest {
 
 	@Override
 	protected String getResourcePath() {
