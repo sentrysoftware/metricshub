@@ -8,7 +8,6 @@
     LogicalDisk.Discovery.Instance.Size=InstanceTable.Column(3)
     LogicalDisk.Discovery.Instance.RaidLevel=InstanceTable.Column(8)
     LogicalDisk.Discovery.Instance.UseForCapacityReport=InstanceTable.Column(5)
-    LogicalDisk.Discovery.Instance.ParameterActivation.UnallocatedSpace=InstanceTable.Column(4)
     LogicalDisk.Discovery.Instance.LogicalDiskType=InstanceTable.Column(6)
     LogicalDisk.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(7)
     LogicalDisk.Discovery.Instance.AttachedToDeviceType="Enclosure"
@@ -31,4 +30,3 @@
               logicaldisktype: $column(6)
               attachedtodeviceid: $column(7)
               attachedtodevicetype: Enclosure
-              
