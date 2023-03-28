@@ -11,7 +11,7 @@
       vm:
         discovery:
           mapping:
-            source: $monitors.battery.discovery.sources.source(1)$
+            source: $monitors.vm.discovery.sources.source(1)$
             attributes:
               deviceid: $column(1)
               displayid: $column(1)
