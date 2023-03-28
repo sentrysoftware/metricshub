@@ -1,0 +1,32 @@
+- name: test1
+  input: |
+    // InstanceTable = Source(3)
+    // LunName;AvailablePathWarning;AvailablePaths;LunName;HardwareLocationCode;DiskArray;WWN;
+    LUN.Discovery.InstanceTable=%LUN.Discovery.Source(3)%
+    LUN.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+    LUN.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(5)
+    LUN.Discovery.Instance.ArrayName=InstanceTable.Column(6)
+    LUN.Discovery.Instance.WWN=InstanceTable.Column(7)
+    LUN.Discovery.Instance.ExpectedPathCount=InstanceTable.Column(2)  // For 1.9.00 and prior versions
+    LUN.Discovery.Instance.AvailablePathWarning=InstanceTable.Column(2) // for newer versions
+    LUN.Discovery.Instance.LocalDeviceName=InstanceTable.Column(1)
+    LUN.Discovery.Instance.RemoteDeviceName="test"
+  expected:
+    monitors:
+      lun:
+        discovery:
+          mapping:
+            _comment: |-
+              InstanceTable = Source(3)
+              LunName;AvailablePathWarning;AvailablePaths;LunName;HardwareLocationCode;DiskArray;WWN;
+            source: $monitors.lun.discovery.sources.source(3)$
+            attributes:
+              deviceid: $column(1)
+              additionalinformation1: $column(5)
+              arrayname: $column(6)
+              wwn: $column(7)
+              expectedpathcount: $column(2)
+              # availablepathwarning: $column(2) not in class definition
+              localdevicename: $column(1)
+              remotedevicename: test
+              
