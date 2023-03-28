@@ -15,15 +15,16 @@
     Gpu.Discovery.Instance.UsedTimePercentAlarmThreshold="2"
     Gpu.Discovery.Instance.MemoryUtilizationWarningThreshold="3"
     Gpu.Discovery.Instance.MemoryUtilizationAlarmThreshold="4"
+    Gpu.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(21)
   expected:
     gpu:
       discovery:
       mapping:
         source: $monitors.gpu.discovery.sources.source(1)$
         attributes:
+          vendor: NVIDIA
           deviceid: $column(2)
           displayid: $column(2)
-          vendor: NVIDIA
           model: $column(14)
           serialnumber: $column(15)
           additionalinformation1: $column(16)
@@ -31,11 +32,8 @@
           driverversion: $column(17)
           firmwareVersion: $column(19)
           size: $column(20)
-          warningthreshold: $column(6)
-          alarmthreshold: $column(7)
-          attachedtodeviceid: $column(9)
-          attachedtodevicetype: $column(10)
           usedtimepercentwarningthreshold: "1"
           usedtimepercentalarmthreshold: "2"
           memoryutilizationwarningthreshold: "3"
           memoryutilizationalarmthreshold: "4"
+          attachedtodeviceid: $column(21)
