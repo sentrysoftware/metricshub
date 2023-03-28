@@ -21,9 +21,9 @@
               tableID;ID;DisplayName;objectType;currentRpm;lowerNormalThreshold;lowerWarningThreshold;statusactivation;controllerID;devicetype
             source: $monitors.fan.discovery.sources.source(4)$
             attributes:
-              deviceid: InstanceTable.Column(2)
-              displayid: InstanceTable.Column(3)
-              warningthreshold: InstanceTable.Column(6)
-              alarmthreshold: InstanceTable.Column(7)
-              attachedtodeviceid: InstanceTable.Column(9)
-              attachedtodevicetype: InstanceTable.Column(10)
+              deviceid: $column(2)
+              displayid: $column(3)
+              warningthreshold: $column(6)
+              alarmthreshold: $column(7)
+              attachedtodeviceid: $column(9)
+              attachedtodevicetype: $column(10)
