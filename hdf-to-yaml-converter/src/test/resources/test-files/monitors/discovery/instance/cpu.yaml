@@ -22,12 +22,12 @@
               DN;RN;Model;Speed;Vendor;OperState;attachedDeviceID;DN
             source: $monitors.cpu.discovery.sources.source(4)$
             attributes:
-              deviceid: InstanceTable.Column(1)
-              displayid: InstanceTable.Column(2)
-              attachedtodeviceid: InstanceTable.Column(7)
-              vendor: InstanceTable.Column(5)
-              model: InstanceTable.Column(3)
-              maximumspeed: InstanceTable.Column(4)
+              deviceid: $column(1)
+              displayid: $column(2)
+              attachedtodeviceid: $column(7)
+              vendor: $column(5)
+              model: $column(3)
+              maximumspeed: $column(4)
               powerconsumption: test
               correctederrorwarningthreshold: test2
               correctederroralarmthreshold: test3
