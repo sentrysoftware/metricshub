@@ -10,7 +10,7 @@
     CpuCore.Discovery.Instance.ParameterActivation.CurrentSpeed=ValueTable.Column(5)
   expected:
     monitors:
-      cpucore:
+      cpuCore:
         discovery:
           mapping:
             _comment: |-
