@@ -3,6 +3,7 @@
     // InstanceTable = Source(1)
     TapeDrive.Discovery.InstanceTable=%TapeDrive.Discovery.Source(1)%
     TapeDrive.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+    TapeDrive.Discovery.Instance.DisplayID=InstanceTable.Column(1)
     TapeDrive.Discovery.Instance.Model=InstanceTable.Column(3)
     TapeDrive.Discovery.Instance.Vendor=InstanceTable.Column(4)
     TapeDrive.Discovery.Instance.SerialNumber=InstanceTable.Column(5)
@@ -23,6 +24,7 @@
             source: $monitors.tapeDrive.discovery.sources.source(1)$
             attributes:
               deviceid: $column(1)
+              displayid: $column(1)
               model: $column(3)
               vendor: $column(4)
               serialnumber: $column(5)
