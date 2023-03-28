@@ -1,0 +1,36 @@
+- name: test1
+  input: |    
+    // InstanceTable = Source(1)
+    TapeDrive.Discovery.InstanceTable=%TapeDrive.Discovery.Source(1)%
+    TapeDrive.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+    TapeDrive.Discovery.Instance.Model=InstanceTable.Column(3)
+    TapeDrive.Discovery.Instance.Vendor=InstanceTable.Column(4)
+    TapeDrive.Discovery.Instance.SerialNumber=InstanceTable.Column(5)
+    TapeDrive.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
+    TapeDrive.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(7)
+    TapeDrive.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(6)
+    TapeDrive.Discovery.Instance.AttachedToDeviceID="STKStreamLine"
+    TapeDrive.Discovery.Instance.AttachedToDeviceType="Computer"
+    TapeDrive.Discovery.Instance.ControllerNumber=1
+    TapeDrive.Discovery.Instance.ErrorCountWarningThreshold="test1"
+    TapeDrive.Discovery.Instance.ErrorCountAlarmThreshold="test2"
+  expected:
+    monitors:
+      tapeDrive:
+        discovery:
+          mapping:
+            _comment: InstanceTable = Source(1)
+            source: $monitors.tapeDrive.discovery.sources.source(1)$
+            attributes:
+              deviceid: $column(1)
+              model: $column(3)
+              vendor: $column(4)
+              serialnumber: $column(5)
+              additionalinformation1: $column(2)
+              additionalinformation2: $column(7)
+              additionalinformation3: $column(6)
+              attachtedtodeviceid: STKStreamLine
+              attachedtodevicetype: Computer
+              controllernumber: "1"
+              errorcountwarningthreshold: test1
+              errorcountalarmthreshold: test2
