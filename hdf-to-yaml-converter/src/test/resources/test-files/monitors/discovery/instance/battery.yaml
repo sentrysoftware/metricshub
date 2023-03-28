@@ -1,0 +1,36 @@
+- name: test1
+  input: |
+    // InstanceTable = Source(1)
+    Battery.Discovery.InstanceTable=%Battery.Discovery.Source(1)%
+    Battery.Discovery.Instance.DeviceID="bat"
+    Battery.Discovery.Instance.Model=InstanceTable.Column(1)
+    Battery.Discovery.Instance.Vendor="APC"
+    Battery.Discovery.Instance.Type="UPS"
+    Battery.Discovery.Instance.DisplayID="testname"
+    Battery.Discovery.Instance.Chemistry="LiFePO4"
+    Battery.Discovery.Instance.ControllerNumber=InstanceTable.Column(2)
+    Battery.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(5)
+    Battery.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(6)
+    Battery.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(7)
+    Battery.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(3)
+    Battery.Discovery.Instance.AttachedToDeviceType=InstanceTable.Column(4)
+  expected:
+    monitors:
+      battery:
+        discovery:
+          mapping:
+            _comment: InstanceTable = Source(1)
+            source: $monitors.battery.discovery.sources.source(1)$
+            attributes:
+              vendor: APC
+              type: UPS
+              deviceid: bat
+              model: InstanceTable.Column(1)
+              chemistry: LiFePO4
+              attachedtodeviceid: InstanceTable.Column(3)
+              attachedtodevicetype: InstanceTable.Column(4)
+              controllernumber: InstanceTable.Column(2)
+              displayid: testname
+              additionalinformation1: InstanceTable.Column(5)
+              additionalinformation2: InstanceTable.Column(6)
+              additionalinformation3: InstanceTable.Column(7)
