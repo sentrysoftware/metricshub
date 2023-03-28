@@ -13,7 +13,7 @@
     Robotic.Discovery.Instance.ErrorCountAlarmThreshold="test2"
   expected:
     monitors:
-      robotic:
+      robotics:
         discovery:
           mapping:
             _comment: |-
