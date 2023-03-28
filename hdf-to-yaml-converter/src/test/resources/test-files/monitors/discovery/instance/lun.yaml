@@ -26,7 +26,7 @@
               arrayname: $column(6)
               wwn: $column(7)
               expectedpathcount: $column(2)
-              # availablepathwarning: $column(2) not in class definition
+              availablepathwarning: $column(2)
               localdevicename: $column(1)
               remotedevicename: test
               
