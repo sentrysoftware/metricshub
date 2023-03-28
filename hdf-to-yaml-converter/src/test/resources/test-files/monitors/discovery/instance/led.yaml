@@ -16,11 +16,11 @@
           mapping:
             source: $monitors.led.discovery.sources.source(1)$
             attributes:
-              deviceid: InstanceTable.Column(1)
-              displayid: InstanceTable.Column(1)
+              deviceid: $column(1)
+              displayid: $column(1)
               name: System Attention
-              color: InstanceTable.Column(2)
-              onstatus: InstanceTable.Column(3)
-              blinkingstatus: InstanceTable.Column(4)
-              offstatus: InstanceTable.Column(5)
+              color: $column(2)
+              onstatus: $column(3)
+              blinkingstatus: $column(4)
+              offstatus: $column(5)
               attachedtodevicetype: "Enclosure"
