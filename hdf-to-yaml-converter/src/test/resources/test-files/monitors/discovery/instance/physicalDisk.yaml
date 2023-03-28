@@ -1,0 +1,38 @@
+- name: test1
+  input: |
+    // PhysicalDisk Instance Table
+    PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(3)%
+    PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+    PhysicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+    PhysicalDisk.Discovery.Instance.FirmwareVersion=InstanceTable.Column(5)
+    PhysicalDisk.Discovery.Instance.Model=InstanceTable.Column(6)
+    PhysicalDisk.Discovery.Instance.Vendor="NVIDIA"
+    PhysicalDisk.Discovery.Instance.SerialNumber=InstanceTable.Column(8)
+    PhysicalDisk.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(9)
+    PhysicalDisk.Discovery.Instance.AdditionalInformation2="Blabla"
+    PhysicalDisk.Discovery.Instance.AdditionalInformation3="OtherBlabla"
+    PhysicalDisk.Discovery.Instance.Size=InstanceTable.column(11)
+    PhysicalDisk.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(3)
+    PhysicalDisk.Discovery.Instance.AttachedToDeviceType=InstanceTable.Column(10)
+    PhysicalDisk.Discovery.Instance.ControllerNumber=InstanceTable.Column(12)
+  expected:
+    monitors:
+      physicalDisk:
+        discovery:
+          mapping:
+            _comment: PhysicalDisk Instance Table
+            source: $monitors.PhysicalDisk.discovery.sources.source(3)$
+            attributes:
+              deviceid: $column(2)
+              displayid: $column(4)
+              firmwareversion: $column(5)
+              model: $column(6)
+              vendor: NVIDIA
+              serialnumber: $column(8)
+              additionalinformation1: $column(9)
+              additionalinformation2: Blabla
+              additionalinformation3: OtherBlabla
+              size: $column(11)
+              attachedtodeviceid: $column(3)
+              attachedtodevicetype: $column(10)
+              controllernumber: $column(12)
