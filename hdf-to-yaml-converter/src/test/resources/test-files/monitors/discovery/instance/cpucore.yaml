@@ -18,7 +18,7 @@
               CoreID;PhysicalProcessorID;AdditionalInformation;CoreID;CurrentSpeed;
             source: $monitors.cpucore.discovery.sources.source(4)$
             attributes:
-              deviceid: InstanceTable.Column(1)
-              attachedtodeviceid: InstanceTable.Column(2)
+              deviceid: $column(1)
+              attachedtodeviceid: $column(2)
               attachedtodevicetype: CPU
-              additionalinformation1: InstanceTable.Column(3)
+              additionalinformation1: $column(3)
