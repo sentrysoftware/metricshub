@@ -1,14 +1,14 @@
 - name: bladeValueTable
   input: |
     // DeviceID;Status;StatusInformation;PowerState
-    Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(1)%
-    Enclosure.Collect.DeviceID=ValueTable.Column(1)
-    Enclosure.Collect.Status=ValueTable.Column(2)
-    Enclosure.Collect.StatusInformation=ValueTable.Column(3)
-    Enclosure.Collect.PowerState=ValueTable.Column(4)
+    Blade.Collect.ValueTable=%Blade.Collect.Source(1)%
+    Blade.Collect.DeviceID=ValueTable.Column(1)
+    Blade.Collect.Status=ValueTable.Column(2)
+    Blade.Collect.StatusInformation=ValueTable.Column(3)
+    Blade.Collect.PowerState=ValueTable.Column(4)
   expected:
     monitors:
-      enclosure:
+      blade:
         collect:
           _comment: DeviceID;Status;StatusInformation;PowerState
           mapping:
