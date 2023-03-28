@@ -21,7 +21,7 @@
         discovery:
           mapping:
             _comment: PhysicalDisk Instance Table
-            source: $monitors.PhysicalDisk.discovery.sources.source(3)$
+            source: $monitors.physicaldisk.discovery.sources.source(3)$
             attributes:
               deviceid: $column(2)
               displayid: $column(4)
