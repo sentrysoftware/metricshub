@@ -1,0 +1,38 @@
+- name: test1
+  input: |
+    // InstanceTable = Source(14)
+    // Type;Slot           ;ProductName         ;PartNumber  ;Serial;Model;
+    // Type;PartitionNumber;PrimaryOtherDeviceID;BladeDevices;      ;     ;
+    OtherDevice.Discovery.InstanceTable=%OtherDevice.Discovery.Source(14)%
+    OtherDevice.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+    OtherDevice.Discovery.Instance.DeviceType=InstanceTable.Column(1)
+    OtherDevice.Discovery.Instance.AdditionalLabel=InstanceTable.Column(3)
+    OtherDevice.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(4)
+    OtherDevice.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(5)
+    OtherDevice.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(6)
+    OtherDevice.Discovery.Instance.ValueWarningThreshold="test"
+    OtherDevice.Discovery.Instance.ValueAlarmThreshold="test2"
+    OtherDevice.Discovery.Instance.UsageCountWarningThreshold="test3"
+    OtherDevice.Discovery.Instance.UsageCountAlarmThreshold="test4"
+
+  expected:
+    monitors:
+      otherDevice:
+        discovery:
+          mapping:
+            _comment: |-
+              InstanceTable = Source(14)
+              Type;Slot           ;ProductName         ;PartNumber  ;Serial;Model;
+              Type;PartitionNumber;PrimaryOtherDeviceID;BladeDevices;      ;     ;
+            source: $monitors.otherDevice.discovery.sources.source(14)$
+            attributes:
+              deviceid: $column(2)
+              devicetype: $column(1)
+              additionallabel: $column(3)
+              additionalinformation1: $column(4)
+              additionalinformation2: $column(5)
+              additionalinformation3: $column(6)
+              valuewarningthreshold: test
+              valuealarmthreshold: test2
+              usagecountwarningthreshold: test3
+              usagecountalarmthreshold: test4
