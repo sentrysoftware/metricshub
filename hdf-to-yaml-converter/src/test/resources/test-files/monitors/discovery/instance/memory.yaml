@@ -28,7 +28,7 @@
             source: $monitors.memory.discovery.sources.source(1)$
             attributes:
               deviceid: $column(1)
-              displayid: "deviceID"
+              displayid: deviceID
               type: $column(7)
               additionalinformation1: $column(2)
               vendor: $column(8)
@@ -37,7 +37,7 @@
               serialnumber: $column(10)
               additionalinformation2: $column(11)
               additionalinformation3: $column(13)
-              attachedtodeviceid: "DIR5"
-              attachedtodevicetype: "Enclosure"
+              attachedtodeviceid: DIR5
+              attachedtodevicetype: Enclosure
               errorcountwarningthreshold: $column(14)
               errorcountalarmthreshold: $column(15)
