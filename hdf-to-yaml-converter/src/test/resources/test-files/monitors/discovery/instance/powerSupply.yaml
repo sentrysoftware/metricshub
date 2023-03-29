@@ -18,7 +18,7 @@
           mapping:
             _comment: |-
               InstanceTable = Source(1)
-            source: $monitors.powersupply.discovery.sources.source(1)$
+            source: $monitors.powerSupply.discovery.sources.source(1)$
             attributes:
               deviceid: $column(1)
               powersupplytype: $column(2)
