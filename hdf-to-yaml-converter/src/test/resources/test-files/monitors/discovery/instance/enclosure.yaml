@@ -1,0 +1,30 @@
+- name: test1
+  input: |
+    Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(1)%
+    Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+    Enclosure.Discovery.Instance.Vendor="APC"
+    Enclosure.Discovery.Instance.Model=InstanceTable.Column(5)
+    Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(6)
+    Enclosure.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
+    Enclosure.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(3)
+    Enclosure.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(4)
+    Enclosure.Discovery.Instance.Type="PDU"
+    Enclosure.Discovery.Instance.DeviceHostName="testdevicehostname"
+    Enclosure.Discovery.Instance.BiosVersion="testbiosversion"
+  expected:
+    monitors:
+      enclosure:
+        discovery:
+          mapping:
+            source: $monitors.enclosure.discovery.sources.source(1)$
+            attributes:
+              deviceid: $column(1)
+              vendor: APC
+              model: $column(5)
+              serialnumber: $column(6)
+              additionalinformation1: $column(2)
+              additionalinformation2: $column(3)
+              additionalinformation3: $column(4)
+              type: PDU
+              devicehostname: testdevicehostname
+              biosversion: testbiosversion

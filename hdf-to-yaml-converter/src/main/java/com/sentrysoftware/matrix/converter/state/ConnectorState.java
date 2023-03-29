@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.converter.state;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -18,7 +19,8 @@ public enum ConnectorState implements IConnectorStateConverter {
 	CONNECTOR_SIMPLE_PROPERTY(new StateConverterParent(ConnectorSimpleProperty.getConnectorProperties())),
 	CONNECTOR_DETECTION(new StateConverterParent(ConnectorDetectionProperty.getConnectorProperties())),
 	CONNECTOR_SOURCE(new StateConverterParent(ConnectorSourceProperty.getConnectorProperties())),
-	CONNECTOR_COMPUTE(new StateConverterParent(ConnectorComputeProperty.getConnectorProperties()));
+	CONNECTOR_COMPUTE(new StateConverterParent(ConnectorComputeProperty.getConnectorProperties())),
+	COLLECT_TYPE(new StateConverterParent(Collections.singleton(new CollectTypeProcessor())));
 
 
 	private final IConnectorStateConverter connectorStateConverter;
