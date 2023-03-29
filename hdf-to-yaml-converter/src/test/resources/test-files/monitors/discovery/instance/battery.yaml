@@ -25,12 +25,12 @@
               vendor: APC
               type: UPS
               deviceid: bat
-              model: InstanceTable.Column(1)
+              model: $column(1)
               chemistry: LiFePO4
-              attachedtodeviceid: InstanceTable.Column(3)
-              attachedtodevicetype: InstanceTable.Column(4)
-              controllernumber: InstanceTable.Column(2)
+              attachedtodeviceid: $column(3)
+              attachedtodevicetype: $column(4)
+              controllernumber: $column(2)
               displayid: testname
-              additionalinformation1: InstanceTable.Column(5)
-              additionalinformation2: InstanceTable.Column(6)
-              additionalinformation3: InstanceTable.Column(7)
+              additionalinformation1: $column(5)
+              additionalinformation2: $column(6)
+              additionalinformation3: $column(7)
