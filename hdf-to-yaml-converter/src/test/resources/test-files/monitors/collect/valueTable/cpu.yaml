@@ -19,8 +19,9 @@
             source: $monitors.cpu.collect.sources.source(1)$
             metrics:
               hw.status{hw.type="cpu"}: $column(2)
-              hw.statusInformation: $column(3)
+              hw.status_information: $column(3)
               hw.status{hw.type="cpu", state="predicted_failure"}: $column(4)
-              hw.cpu.speed: $column(5)
-              hw.cpu.errors{hw.type="cpu"}: $column(6)
-              hw.cpu.energy: $column(7)
+              hw.cpu.speed: megaHertz2Hertz($column(5))
+              hw.errors{hw.type="cpu"}: collectErrorCount($column(6))
+              hw.power{hw.type="cpu"}: $column(7)
+              hw.energy{hw.type="cpu"}: fakeCounter($column(7))
