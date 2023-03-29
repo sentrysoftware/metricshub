@@ -1,0 +1,36 @@
+- name: test1
+  input: |
+    LED.Discovery.InstanceTable=%LED.Discovery.Source(1)%
+    LED.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+    LED.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+    LED.Discovery.Instance.Name="System Attention"
+    LED.Discovery.Instance.Color=InstanceTable.Column(2)
+    LED.Discovery.Instance.OnStatus=InstanceTable.Column(3)
+    LED.Discovery.Instance.BlinkingStatus=InstanceTable.Column(4)
+    LED.Discovery.Instance.OffStatus=InstanceTable.Column(5)
+    LED.Discovery.Instance.AlarmOnColor=InstanceTable.Column(6)
+    LED.Discovery.Instance.WarningOnColor=InstanceTable.Column(7)
+    LED.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(8)
+    LED.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(9)
+    LED.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(10)
+    LED.Discovery.Instance.AttachedToDeviceType="Enclosure"
+  expected:
+    monitors:
+      led:
+        discovery:
+          mapping:
+            source: $monitors.led.discovery.sources.source(1)$
+            attributes:
+              deviceid: $column(1)
+              displayid: $column(1)
+              name: "System Attention"
+              color: $column(2)
+              onstatus: $column(3)
+              blinkingstatus: $column(4)
+              offstatus: $column(5)
+              alarmoncolor: $column(6)
+              warningoncolor: $column(7)
+              additionalinformation1: $column(8)
+              additionalinformation2: $column(9)
+              additionalinformation3: $column(10)
+              attachedtodevicetype: "Enclosure"
