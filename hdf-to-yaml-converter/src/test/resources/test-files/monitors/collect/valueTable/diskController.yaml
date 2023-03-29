@@ -1,4 +1,4 @@
-- name: DiskControllerCoreValueTable
+- name: diskControllerCoreValueTable
   input: |
     // DeviceID;Status;StatusInformation;BatteryStatus
     DiskController.Collect.ValueTable=%DiskController.Collect.Source(1)%
