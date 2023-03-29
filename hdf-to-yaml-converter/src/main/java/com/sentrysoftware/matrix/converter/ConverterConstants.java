@@ -37,6 +37,9 @@ public class ConverterConstants {
 	public static final String MONO_INSTANCE = "monoinstance";
 	public static final String MULTI_INSTANCE = "multiinstance";
 
+	public static final String MONO_INSTANCE_CAMEL_CASE = "monoInstance";
+	public static final String MULTI_INSTANCE_CAMEL_CASE = "multiInstance";
+
 	public static final String TYPE = "type";
 	public static final String VALUE_TABLE = "valuetable";
 
