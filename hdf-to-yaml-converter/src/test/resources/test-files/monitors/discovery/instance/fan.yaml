@@ -1,0 +1,27 @@
+- name: test1
+  input: |
+    // Fan
+    //tableID;ID;DisplayName;objectType;currentRpm;lowerNormalThreshold;lowerWarningThreshold;statusactivation;controllerID;devicetype
+    Fan.Discovery.InstanceTable=%Fan.Discovery.Source(4)%
+    Fan.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+    Fan.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+    Fan.Discovery.Instance.WarningThreshold=InstanceTable.Column(6)
+    Fan.Discovery.Instance.AlarmThreshold=InstanceTable.Column(7)
+    Fan.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(9)
+    Fan.Discovery.Instance.AttachedToDeviceType=InstanceTable.Column(10)
+  expected:
+    monitors:
+      fan:
+        discovery:
+          mapping:
+            _comment: |-
+              Fan
+              tableID;ID;DisplayName;objectType;currentRpm;lowerNormalThreshold;lowerWarningThreshold;statusactivation;controllerID;devicetype
+            source: $monitors.fan.discovery.sources.source(4)$
+            attributes:
+              deviceid: $column(2)
+              displayid: $column(3)
+              warningthreshold: $column(6)
+              alarmthreshold: $column(7)
+              attachedtodeviceid: $column(9)
+              attachedtodevicetype: $column(10)

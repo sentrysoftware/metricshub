@@ -1,0 +1,39 @@
+- name: test1
+  input: |
+    GPU.Discovery.InstanceTable=%GPU.Discovery.Source(1)%
+    GPU.Discovery.Instance.Vendor="NVIDIA"
+    GPU.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+    GPU.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+    GPU.Discovery.Instance.Model=InstanceTable.Column(14)
+    GPU.Discovery.Instance.SerialNumber=InstanceTable.Column(15)
+    GPU.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(16)
+    GPU.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(18)
+    GPU.Discovery.Instance.DriverVersion=InstanceTable.Column(17)
+    GPU.Discovery.Instance.FirmwareVersion=InstanceTable.Column(19)
+    GPU.Discovery.Instance.Size=InstanceTable.Column(20)
+    Gpu.Discovery.Instance.UsedTimePercentWarningThreshold="1"
+    Gpu.Discovery.Instance.UsedTimePercentAlarmThreshold="2"
+    Gpu.Discovery.Instance.MemoryUtilizationWarningThreshold="3"
+    Gpu.Discovery.Instance.MemoryUtilizationAlarmThreshold="4"
+    Gpu.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(21)
+  expected:
+    gpu:
+      discovery:
+      mapping:
+        source: $monitors.gpu.discovery.sources.source(1)$
+        attributes:
+          vendor: NVIDIA
+          deviceid: $column(2)
+          displayid: $column(2)
+          model: $column(14)
+          serialnumber: $column(15)
+          additionalinformation1: $column(16)
+          additionalinformation2: $column(18)
+          driverversion: $column(17)
+          firmwareVersion: $column(19)
+          size: $column(20)
+          usedtimepercentwarningthreshold: "1"
+          usedtimepercentalarmthreshold: "2"
+          memoryutilizationwarningthreshold: "3"
+          memoryutilizationalarmthreshold: "4"
+          attachedtodeviceid: $column(21)

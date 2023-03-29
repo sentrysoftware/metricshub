@@ -1,0 +1,31 @@
+- name: test1
+  input: |    
+    // Instance Table
+    // ID;Vendor;Model;FirwareVersion;SerialNumber
+    Robotic.Discovery.InstanceTable=%Robotic.Discovery.Source(1)%
+    Robotic.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+    Robotic.Discovery.Instance.Vendor=InstanceTable.Column(2)
+    Robotic.Discovery.Instance.Model=InstanceTable.Column(3)
+    Robotic.Discovery.Instance.SerialNumber=InstanceTable.Column(5)
+    Robotic.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(4)
+    Robotic.Discovery.Instance.RoboticType="Media Transfer"
+    Robotic.Discovery.Instance.ErrorCountWarningThreshold="test1"
+    Robotic.Discovery.Instance.ErrorCountAlarmThreshold="test2"
+  expected:
+    monitors:
+      robotics:
+        discovery:
+          mapping:
+            _comment: |-
+              Instance Table
+              ID;Vendor;Model;FirwareVersion;SerialNumber
+            source: $monitors.robotic.discovery.sources.source(1)$
+            attributes:
+              deviceid: $column(1)
+              vendor: $column(2)
+              model: $column(3)
+              serialnumber: $column(5)
+              additionalinformation1: $column(4)
+              robotictype: Media Transfer
+              errorcountwarningthreshold: test1
+              errorcountalarmthreshold: test2

@@ -1,0 +1,36 @@
+- name: test1
+  input: |
+    // InstanceTable = Source(3)
+    NetworkCard.Discovery.InstanceTable=%NetworkCard.Discovery.Source(3)%
+    NetworkCard.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(1)
+    NetworkCard.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(2)
+    NetworkCard.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(3)
+    NetworkCard.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(4)
+    NetworkCard.Discovery.Instance.AttachedToDeviceType=InstanceTable.Column(5)
+    NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(6)
+    NetworkCard.Discovery.Instance.DeviceType=InstanceTable.Column(7)
+    NetworkCard.Discovery.Instance.LogicalAddressType=InstanceTable.Column(8)
+    NetworkCard.Discovery.Instance.Model=InstanceTable.Column(9)
+    NetworkCard.Discovery.Instance.PhysicalAddress=InstanceTable.Column(10)
+    NetworkCard.Discovery.Instance.PhysicalAddressType="MAC"
+    NetworkCard.Discovery.Instance.SerialNumber=InstanceTable.Column(11)
+  expected:
+    monitors:
+      networkCard:
+        discovery:
+          mapping:
+            _comment: InstanceTable = Source(3)
+            source: $monitors.networkCard.discovery.sources.source(3)$
+            attributes:
+              additionalinformation1: $column(1)
+              additionalinformation2: $column(2)
+              additionalinformation3: $column(3)
+              attachedtodeviceid: $column(4)
+              attachedtodevicetype: $column(5)
+              deviceid: $column(6)
+              devicetype: $column(7)
+              logicaladdresstype: $column(8)
+              model: $column(9)
+              physicaladdress: $column(10)
+              physicaladdresstype: MAC
+              serialnumber: $column(11)
