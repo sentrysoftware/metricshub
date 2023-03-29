@@ -1,0 +1,23 @@
+- name: logicalDiskCoreValueTable
+  input: |
+    // DeviceID;Status;StatusInformation;ErrorCount;UnallocatedSpace
+    LogicalDisk.Collect.ValueTable=%LogicalDisk.Collect.Source(1)%
+    LogicalDisk.Collect.DeviceID=ValueTable.Column(1)
+    LogicalDisk.Collect.Status=ValueTable.Column(2)
+    LogicalDisk.Collect.StatusInformation=ValueTable.Column(3)
+    LogicalDisk.Collect.ErrorCount=ValueTable.Column(4)
+    LogicalDisk.Collect.UnallocatedSpace=ValueTable.Column(5)
+  expected:
+    monitors:
+      logicalDisk:
+        collect:
+          _comment: DeviceID;Status;StatusInformation;ErrorCount;UnallocatedSpace
+          mapping:
+            deviceId: $column(1)
+            source: $monitors.logicalDisk.collect.sources.source(1)$
+            metrics:
+              hw.status{hw.type="logical_disk"}: $column(2)
+              hw.statusInformation: $column(3)
+              hw.errors{hw.type="logical_disk"}: $column(4)
+              hw.logical_disk.usage{state=free}: $column(5)
+              
