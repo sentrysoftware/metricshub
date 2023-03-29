@@ -10,7 +10,6 @@
     Temperature.Discovery.Instance.AttachedToDeviceType=InstanceTable.Column(7)
     Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(8)
     Temperature.Discovery.Instance.DisplayID=InstanceTable.Column(9)
-    Temperature.Discovery.Instance.ParameterActivation=InstanceTable.Column(10)
     Temperature.Discovery.Instance.TemperatureType=InstanceTable.Column(11)
     Temperature.Discovery.Instance.WarningThreshold=InstanceTable.Column(12)
   expected:
@@ -29,6 +28,5 @@
               attachedtodevicetype: $column(7)
               deviceid: $column(8)
               displayid: $column(9)
-              parameteractivation: $column(10)
               temperaturetype: $column(11)
               warningthreshold: $column(12)
