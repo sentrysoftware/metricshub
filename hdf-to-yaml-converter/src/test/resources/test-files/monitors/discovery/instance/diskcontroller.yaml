@@ -1,0 +1,35 @@
+- name: test1
+  input: |
+    // The InstanceTable
+    // controllerID;model;serial;slot;memory;firmware;driver;batteryStatus;
+    DiskController.Discovery.InstanceTable=%DiskController.Discovery.Source(1)%
+    DiskController.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+    DiskController.Discovery.Instance.ControllerNumber=InstanceTable.Column(1)
+    DiskController.Discovery.Instance.Model=InstanceTable.Column(2)
+    DiskController.Discovery.Instance.SerialNumber=InstanceTable.Column(3)
+    DiskController.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(4)
+    DiskController.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(5)
+    DiskController.Discovery.Instance.FirmwareVersion=InstanceTable.Column(6)
+    DiskController.Discovery.Instance.DriverVersion=InstanceTable.Column(7)
+    DiskController.Discovery.Instance.BiosVersion="testbios"
+    DiskController.Discovery.Instance.Vendor="testvendor"
+  expected:
+    monitors:
+      diskController:
+        discovery:
+          mapping:
+            _comment: |-
+              The InstanceTable
+              controllerID;model;serial;slot;memory;firmware;driver;batteryStatus;
+            source: $monitors.diskcontroller.discovery.sources.source(1)$
+            attributes:
+              deviceid: $column(1)
+              controllernumber: $column(1)
+              model: $column(2)
+              serialnumber: $column(3)
+              additionalinformation1: $column(4)
+              additionalinformation2: $column(5)
+              firmwareversion: $column(6)
+              driverversion: $column(7)
+              biosversion: testbios
+              vendor: testvendor
