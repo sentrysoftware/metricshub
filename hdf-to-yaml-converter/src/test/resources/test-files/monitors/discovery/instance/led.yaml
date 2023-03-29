@@ -16,7 +16,7 @@
     LED.Discovery.Instance.AttachedToDeviceType="Enclosure"
   expected:
     monitors:
-      enclosure:
+      led:
         discovery:
           mapping:
             source: $monitors.led.discovery.sources.source(1)$
