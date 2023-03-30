@@ -31,7 +31,7 @@
               additionalinformation1: $column(2)
               additionalinformation2: $column(7)
               additionalinformation3: $column(6)
-              attachtedtodeviceid: STKStreamLine
+              attachedtodeviceid: STKStreamLine
               attachedtodevicetype: Computer
               controllernumber: "1"
               errorcountwarningthreshold: test1

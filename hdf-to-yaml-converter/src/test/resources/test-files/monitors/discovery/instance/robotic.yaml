@@ -19,7 +19,7 @@
             _comment: |-
               Instance Table
               ID;Vendor;Model;FirwareVersion;SerialNumber
-            source: $monitors.robotic.discovery.sources.source(1)$
+            source: $monitors.robotics.discovery.sources.source(1)$
             attributes:
               deviceid: $column(1)
               vendor: $column(2)

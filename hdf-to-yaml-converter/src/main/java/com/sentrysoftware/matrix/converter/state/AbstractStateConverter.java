@@ -9,8 +9,11 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.DOT_COMPUTE
 import static com.sentrysoftware.matrix.converter.ConverterConstants.MONITORS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.SOURCES;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.COMPUTES;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.MAPPING;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.ATTRIBUTES;
 import static com.sentrysoftware.matrix.converter.state.ConversionHelper.performValueConversions;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -795,6 +798,116 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 
 		return compute;
 	}
+
+	/**
+	 * Get or create the attributes node
+	 * 
+	 * @param key The context key
+	 * @param connector the global connector {@Link JsonNode}
+ 	 * @return attributesNode {@link ObjectNode}. Never <code>null</code>
+	 */
+	protected ObjectNode getOrCreateAttributes(final String key, final JsonNode connector) {
+		ObjectNode mapping = getOrCreateMapping(key, connector);
+
+		final JsonNode attributesNode = mapping.get(ATTRIBUTES);
+		final JsonNode attributes = JsonNodeFactory.instance.objectNode();
+
+
+		if(attributesNode == null) {
+			mapping.set(ATTRIBUTES, attributes);
+			return (ObjectNode) attributes;
+		}
+
+		return (ObjectNode) attributesNode;
+	}
+
+	/**
+	 * get or create mapping node
+	 * 
+	 * @param key the context key
+	 * @param connector the global connector {@Link JsonNode}
+ 	 * @return mapping {@link ObjectNode}. Never <code>null</code>
+	 */
+	protected ObjectNode getOrCreateMapping(final String key, final JsonNode connector) {
+
+		final Matcher matcher = getMatcher(key);
+		if (!matcher.matches()) {
+			throw new IllegalStateException(String.format(INVALID_KEY_MESSAGE_FORMAT, key));
+		}
+
+		final JsonNode monitors = connector.get(MONITORS);
+		final String jobName = "discovery";
+		final String monitorName = ConversionHelper.getYamlMonitorName(matcher.group().split("\\.")[0]);
+		
+		final ObjectNode mapping = JsonNodeFactory.instance.objectNode();
+
+		if (monitors == null) {
+			// Create the whole hierarchy
+			((ObjectNode) connector)
+					.set(
+						MONITORS,
+						JsonNodeFactory.instance.objectNode()
+							.set(
+								monitorName,
+								JsonNodeFactory.instance.objectNode()
+									.set(
+										jobName,
+										JsonNodeFactory.instance.objectNode()
+											.set(
+												MAPPING,
+												mapping))));
+			return mapping;
+		}
+
+		// Check the monitor
+		final JsonNode monitor = monitors.get(monitorName);
+		if (monitor == null) {
+			((ObjectNode) monitors)
+				.set(
+					monitorName,
+					JsonNodeFactory.instance.objectNode()
+						.set(
+							jobName,
+							JsonNodeFactory.instance.objectNode()
+								.set(
+									MAPPING,
+									mapping)));
+								
+			return mapping;
+		}
+
+		// Check the job
+		final JsonNode job = monitor.get(jobName);
+		if (job == null) {
+			((ObjectNode) monitor)
+				.set(
+					jobName,
+					JsonNodeFactory.instance.objectNode()
+						.set(
+							MAPPING, mapping));
+						
+			return mapping;
+		}
+
+		final JsonNode mappingNode = job.get(MAPPING);
+
+		if(mappingNode == null){
+			((ObjectNode)job).set(MAPPING, mapping);
+			return mapping;
+		}
+
+		return (ObjectNode) mappingNode;
+	}
+
+	/**
+	 * returns mapping attribute key from path
+	 * @param key path to extract value
+	 * @return attribute key
+	 */
+    protected String getMappingAttribute(String key) {
+        List<String> parts = List.of(key.split("\\."));
+        return parts.get(parts.size() -1);
+    }
 
 	/**
 	 * Create a source node in the given connector

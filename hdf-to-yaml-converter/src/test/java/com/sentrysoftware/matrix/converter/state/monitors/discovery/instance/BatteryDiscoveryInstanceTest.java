@@ -15,7 +15,6 @@ public class BatteryDiscoveryInstanceTest extends AbstractConnectorPropertyConve
 	}
 
 	@Test
-	@Disabled("Until BatteryInstance processor is up")
 	void test() throws IOException {
 		testAll();
 	}

@@ -67,11 +67,22 @@ public class ConversionHelper {
 	);
 
 	/**
+	 * A compile representation of the HDF instance table reference regular expression.
+	 * We attempt to match input like "InstanceTable.Column(2)"
+	 */
+	private static final Pattern INSTANCE_REF_PATTERN = Pattern.compile(
+		"(instancetable)\\.(column\\(\\d+\\))",
+		Pattern.CASE_INSENSITIVE
+	);
+
+
+	/**
 	 * List of pattern function converters
 	 */
 	private static final List<PatternFunctionConverter> PATTERN_FUNCTION_CONVERTERS = List.of(
 		new PatternFunctionConverter(SOURCE_REF_PATTERN, ConversionHelper::convertSourceReference),
-		new PatternFunctionConverter(SOURCE_ENTRY_PATTERN, ConversionHelper::convertEntryReference)
+		new PatternFunctionConverter(SOURCE_ENTRY_PATTERN, ConversionHelper::convertEntryReference),
+		new PatternFunctionConverter(INSTANCE_REF_PATTERN, ConversionHelper::convertInstanceReference)
 	);
 
 	/**
@@ -136,6 +147,11 @@ public class ConversionHelper {
 			matcher.group(),
 			String.format("$%s.%s$", entry, column)
 		);
+	}
+
+	private static String convertInstanceReference(final Matcher matcher, final String input) {
+		final String column = matcher.group(2).toLowerCase();
+		return String.format("$%s", column);
 	}
 
 	/**

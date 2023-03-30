@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
 import com.sentrysoftware.matrix.converter.state.computes.ConnectorComputeProperty;
 import com.sentrysoftware.matrix.converter.state.detection.ConnectorDetectionProperty;
+import com.sentrysoftware.matrix.converter.state.instance.ConnectorInstanceProperty;
 import com.sentrysoftware.matrix.converter.state.source.ConnectorSourceProperty;
 
 import lombok.AllArgsConstructor;
@@ -20,7 +21,8 @@ public enum ConnectorState implements IConnectorStateConverter {
 	CONNECTOR_DETECTION(new StateConverterParent(ConnectorDetectionProperty.getConnectorProperties())),
 	CONNECTOR_SOURCE(new StateConverterParent(ConnectorSourceProperty.getConnectorProperties())),
 	CONNECTOR_COMPUTE(new StateConverterParent(ConnectorComputeProperty.getConnectorProperties())),
-	COLLECT_TYPE(new StateConverterParent(Collections.singleton(new CollectTypeProcessor())));
+	COLLECT_TYPE(new StateConverterParent(Collections.singleton(new CollectTypeProcessor()))),
+	CONNECTOR_INSTANCE(new StateConverterParent(ConnectorInstanceProperty.getConnectorProperties()));
 
 
 	private final IConnectorStateConverter connectorStateConverter;

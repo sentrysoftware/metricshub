@@ -58,5 +58,8 @@ public class ConverterConstants {
 	public static final String SOURCES = "sources";
 	public static final String MONITORS = "monitors";
 	public static final String COMPUTES = "computes";
+	public static final String MAPPING = "mapping";
+	public static final String ATTRIBUTES = "attributes";
+	public static final String SOURCE = "source";
 
 }
