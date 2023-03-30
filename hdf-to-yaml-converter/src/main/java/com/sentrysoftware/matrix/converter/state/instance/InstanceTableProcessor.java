@@ -14,29 +14,29 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.SOURCE;
 
 public class InstanceTableProcessor extends AbstractStateConverter {
 
-    /**
+	/**
 	 * Pattern to detect discovery InstanceTable
 	 */
 	private static final Pattern INSTANCE_TABLE_PATTERN = Pattern.compile("^\\s*([a-z]+)\\.discovery\\.instancetable\\s*$", Pattern.CASE_INSENSITIVE);
 
-    @Override
-    public boolean detect(String key, String value, JsonNode connector) {
-        return value != null
-                && key != null
-                && INSTANCE_TABLE_PATTERN.matcher(key).matches();
-    }
+	@Override
+	public boolean detect(String key, String value, JsonNode connector) {
+		return value != null
+				&& key != null
+				&& INSTANCE_TABLE_PATTERN.matcher(key).matches();
+	}
 
-    @Override
-    public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
-        ObjectNode mapping = getOrCreateMapping(key, connector);
+	@Override
+	public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
+		ObjectNode mapping = getOrCreateMapping(key, connector);
 
-        appendComment(key, preConnector, mapping);
+		appendComment(key, preConnector, mapping);
 
-        mapping.set(SOURCE, JsonNodeFactory.instance.textNode(ConversionHelper.performValueConversions(value)));
-    }
+		mapping.set(SOURCE, JsonNodeFactory.instance.textNode(ConversionHelper.performValueConversions(value)));
+	}
 
-    @Override
-    protected Matcher getMatcher(String key) {
-        return INSTANCE_TABLE_PATTERN.matcher(key);
-    }
+	@Override
+	protected Matcher getMatcher(String key) {
+		return INSTANCE_TABLE_PATTERN.matcher(key);
+	}
 }

@@ -12,26 +12,26 @@ import com.sentrysoftware.matrix.converter.state.ConversionHelper;
 
 public class InstanceProcessor extends AbstractStateConverter {
 
-    private static final Pattern PATTERN = Pattern.compile(
-            "^\\s*([a-z]+)\\.discovery\\.instance\\.(parameteractivation\\.[a-z0-9]+|[a-z0-9]+)\\s*$",
-            Pattern.CASE_INSENSITIVE);
+	private static final Pattern PATTERN = Pattern.compile(
+			"^\\s*([a-z]+)\\.discovery\\.instance\\.(parameteractivation\\.[a-z0-9]+|[a-z0-9]+)\\s*$",
+			Pattern.CASE_INSENSITIVE);
 
-    @Override
-    public boolean detect(String key, String value, JsonNode connector) {
-        return value != null
-                && key != null
-                && PATTERN.matcher(key).matches();
-    }
+	@Override
+	public boolean detect(String key, String value, JsonNode connector) {
+		return value != null
+				&& key != null
+				&& PATTERN.matcher(key).matches();
+	}
 
-    @Override
-    public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
-        ObjectNode attributes = getOrCreateAttributes(key, connector);
+	@Override
+	public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
+		ObjectNode attributes = getOrCreateAttributes(key, connector);
 
-        String attribute = getMappingAttribute(key);
-        attributes.set(attribute, JsonNodeFactory.instance.textNode(ConversionHelper.performValueConversions(value)));
-    }
+		String attribute = getMappingAttribute(key);
+		attributes.set(attribute, JsonNodeFactory.instance.textNode(ConversionHelper.performValueConversions(value)));
+	}
 
-    /**
+	/**
 	 * Extract the parameter name from the given key.<br><br>
 	 *
 	 * e.g. extract <b>DeviceID</b> from <b>Enclosure.Discovery.Instance.DeviceID</b>.<br>
@@ -51,8 +51,8 @@ public class InstanceProcessor extends AbstractStateConverter {
 		return matcher.group(2);
 	}
 
-    @Override
-    protected Matcher getMatcher(String key) {
-        return PATTERN.matcher(key);
-    }
+	@Override
+	protected Matcher getMatcher(String key) {
+		return PATTERN.matcher(key);
+	}
 }

@@ -11,12 +11,12 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ConnectorInstanceProperty {
-    
-    public static Set<IConnectorStateConverter> getConnectorProperties() {
+	
+	public static Set<IConnectorStateConverter> getConnectorProperties() {
 
 		return Stream.of(
 			new InstanceProcessor(),
-            new InstanceTableProcessor()
+			new InstanceTableProcessor()
 		)
 		.collect(Collectors.toSet());
 	}
