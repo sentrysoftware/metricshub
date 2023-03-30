@@ -38,7 +38,7 @@ public class CollectTypeProcessor extends AbstractStateConverter {
 	}
 
 	/**
-	 * Create collect job for the given monitor (and create the monitor if not
+	 * Create collect job for the given monitor (and create the correct hierarchy if not
 	 * exists)
 	 * 
 	 * @param matcher
@@ -65,9 +65,15 @@ public class CollectTypeProcessor extends AbstractStateConverter {
 			return collectJob;
 		}
 
-		// or get the job
-		return (ObjectNode) monitor.get(jobName);
+		// check if the job has been created
+		JsonNode jobObjectNode = monitor.get(jobName);
+		if (jobObjectNode == null) {
+			((ObjectNode) monitors).set(jobName, collectJob);
+			return collectJob;
+		}
 
+		// else a collect already exists for this monitor, so return the object
+		return (ObjectNode) monitor.get(jobName);
 	}
 
 	@Override
