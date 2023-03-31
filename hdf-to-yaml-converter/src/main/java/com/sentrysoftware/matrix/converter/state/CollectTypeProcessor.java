@@ -1,24 +1,44 @@
 package com.sentrysoftware.matrix.converter.state;
 
+import static com.sentrysoftware.matrix.converter.ConverterConstants.COLLECT;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.MONITORS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.MONO_INSTANCE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.MONO_INSTANCE_CAMEL_CASE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.MULTI_INSTANCE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.MULTI_INSTANCE_CAMEL_CASE;
 
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.sentrysoftware.matrix.converter.ConverterConstants;
 import com.sentrysoftware.matrix.converter.PreConnector;
 
 public class CollectTypeProcessor extends AbstractStateConverter {
 
-	private static final Pattern PATTERN = Pattern.compile("^\\s*(([a-z]+)\\.(collect)\\.(type))\\s*$",
-			Pattern.CASE_INSENSITIVE);
+	private static final Map<String, String> COLLECT_TYPE_MAP = Map.of(
+		MONO_INSTANCE, MONO_INSTANCE_CAMEL_CASE,
+		MULTI_INSTANCE, MULTI_INSTANCE_CAMEL_CASE
+	);
+
+	private static final Pattern PATTERN = Pattern.compile(
+		"^\\s*(([a-z]+)\\.(collect)\\.(type))\\s*$",
+		Pattern.CASE_INSENSITIVE
+	);
+
+
+	@Override
+	protected Matcher getMatcher(String key) {
+		return PATTERN.matcher(key);
+	}
 
 	@Override
 	public boolean detect(String key, String value, JsonNode connector) {
-		return value != null && key != null && PATTERN.matcher(key).matches();
+		return value != null
+			&& key != null
+			&& getMatcher(key).matches();
 	}
 
 	@Override
@@ -31,10 +51,13 @@ public class CollectTypeProcessor extends AbstractStateConverter {
 
 		appendComment(key, preConnector, collectJob);
 
-		value = ConverterConstants.MONO_INSTANCE.equalsIgnoreCase(value) ? ConverterConstants.MONO_INSTANCE_CAMEL_CASE
-				: ConverterConstants.MULTI_INSTANCE_CAMEL_CASE;
+		final String collectype = COLLECT_TYPE_MAP.get(value.toLowerCase());
 
-		createTextNode("type", value, collectJob);
+		if (collectype == null) {
+			throw new IllegalStateException(String.format("Unknown collect type: %s", value));
+		}
+
+		createTextNode("type", collectype, collectJob);
 	}
 
 	/**
@@ -43,42 +66,50 @@ public class CollectTypeProcessor extends AbstractStateConverter {
 	 * 
 	 * @param matcher
 	 * @param connector
-	 * @return
+	 * @return {@link ObjectNode} instance
 	 */
-	private ObjectNode getOrCreateMonitorCollectJob(Matcher matcher, JsonNode connector) {
+	private ObjectNode getOrCreateMonitorCollectJob(final Matcher matcher, final JsonNode connector) {
 		final JsonNode monitors = connector.get(MONITORS);
 		final String monitorName = getMonitorName(matcher);
-		final String jobName = "collect";
+
 		final ObjectNode collectJob = JsonNodeFactory.instance.objectNode();
 
 		if (monitors == null) {
 			// Create the whole hierarchy
-			((ObjectNode) connector).set(MONITORS, JsonNodeFactory.instance.objectNode().set(monitorName,
-					JsonNodeFactory.instance.objectNode().set(jobName, collectJob)));
+			((ObjectNode) connector)
+				.set(
+					MONITORS,
+					JsonNodeFactory.instance.objectNode()
+						.set(
+							monitorName,
+							JsonNodeFactory.instance.objectNode()
+								.set(COLLECT, collectJob)
+						)
+				);
 			return collectJob;
 		}
 
 		// Check the monitor
 		final JsonNode monitor = monitors.get(monitorName);
 		if (monitor == null) {
-			((ObjectNode) monitors).set(monitorName, JsonNodeFactory.instance.objectNode().set(jobName, collectJob));
+			((ObjectNode) monitors)
+				.set(
+					monitorName,
+					JsonNodeFactory.instance.objectNode()
+						.set(COLLECT, collectJob)
+				);
 			return collectJob;
 		}
 
-		// check if the job has been created
-		JsonNode jobObjectNode = monitor.get(jobName);
+		// Check if the job has been created
+		JsonNode jobObjectNode = monitor.get(COLLECT);
 		if (jobObjectNode == null) {
-			((ObjectNode) monitors).set(jobName, collectJob);
+			((ObjectNode) monitors).set(COLLECT, collectJob);
 			return collectJob;
 		}
 
-		// else a collect already exists for this monitor, so return the object
-		return (ObjectNode) monitor.get(jobName);
-	}
-
-	@Override
-	protected Matcher getMatcher(String key) {
-		return PATTERN.matcher(key);
+		// Otherwise a collect already exists for this monitor, so return the object
+		return (ObjectNode) monitor.get(COLLECT);
 	}
 
 }
