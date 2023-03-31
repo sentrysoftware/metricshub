@@ -1,19 +1,19 @@
 package com.sentrysoftware.matrix.converter.state;
 
+import static com.sentrysoftware.matrix.converter.ConverterConstants.ATTRIBUTES;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.COMPUTES;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.CONNECTOR;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.CRITERIA;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.DETECTION;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.DETECTION_DOT_CRITERIA;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.DISCOVERY;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.DOT;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.DOT_COMPUTE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.MAPPING;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.MONITORS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.SOURCES;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.COMPUTES;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.MAPPING;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.ATTRIBUTES;
 import static com.sentrysoftware.matrix.converter.state.ConversionHelper.performValueConversions;
 
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -810,12 +810,11 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 		ObjectNode mapping = getOrCreateMapping(key, connector);
 
 		final JsonNode attributesNode = mapping.get(ATTRIBUTES);
-		final JsonNode attributes = JsonNodeFactory.instance.objectNode();
-
 
 		if(attributesNode == null) {
+			final ObjectNode attributes = JsonNodeFactory.instance.objectNode();
 			mapping.set(ATTRIBUTES, attributes);
-			return (ObjectNode) attributes;
+			return attributes;
 		}
 
 		return (ObjectNode) attributesNode;
@@ -836,12 +835,11 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 		}
 
 		final JsonNode monitors = connector.get(MONITORS);
-		final String jobName = "discovery";
-		final String monitorName = ConversionHelper.getYamlMonitorName(matcher.group().split("\\.")[0]);
-		
-		final ObjectNode mapping = JsonNodeFactory.instance.objectNode();
+
+		final String monitorName = getMonitorName(matcher);
 
 		if (monitors == null) {
+			final ObjectNode mapping = JsonNodeFactory.instance.objectNode();
 			// Create the whole hierarchy
 			((ObjectNode) connector)
 					.set(
@@ -851,48 +849,51 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 								monitorName,
 								JsonNodeFactory.instance.objectNode()
 									.set(
-										jobName,
+										DISCOVERY,
 										JsonNodeFactory.instance.objectNode()
-											.set(
-												MAPPING,
-												mapping))));
+											.set(MAPPING, mapping)
+									)
+							)
+					);
 			return mapping;
 		}
 
 		// Check the monitor
 		final JsonNode monitor = monitors.get(monitorName);
 		if (monitor == null) {
+			final ObjectNode mapping = JsonNodeFactory.instance.objectNode();
 			((ObjectNode) monitors)
 				.set(
 					monitorName,
 					JsonNodeFactory.instance.objectNode()
 						.set(
-							jobName,
+							DISCOVERY,
 							JsonNodeFactory.instance.objectNode()
-								.set(
-									MAPPING,
-									mapping)));
-								
+								.set(MAPPING, mapping)
+						)
+				);
+
 			return mapping;
 		}
 
 		// Check the job
-		final JsonNode job = monitor.get(jobName);
+		final JsonNode job = monitor.get(DISCOVERY);
 		if (job == null) {
+			final ObjectNode mapping = JsonNodeFactory.instance.objectNode();
 			((ObjectNode) monitor)
 				.set(
-					jobName,
+					DISCOVERY,
 					JsonNodeFactory.instance.objectNode()
-						.set(
-							MAPPING, mapping));
-						
+						.set(MAPPING, mapping)
+				);
 			return mapping;
 		}
 
 		final JsonNode mappingNode = job.get(MAPPING);
 
-		if(mappingNode == null){
-			((ObjectNode)job).set(MAPPING, mapping);
+		if (mappingNode == null) {
+			final ObjectNode mapping = JsonNodeFactory.instance.objectNode();
+			((ObjectNode) job).set(MAPPING, mapping);
 			return mapping;
 		}
 
@@ -900,14 +901,24 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	}
 
 	/**
-	 * returns mapping attribute key from path
-	 * @param key path to extract value
-	 * @return attribute key
+	 * Extract the mapping attribute name from the given key.<br><br>
+	 *
+	 * e.g. extract <b>DeviceID</b> from <b>Enclosure.Discovery.Instance.DeviceID</b>.<br>
+	 * e.g. extract <b>ParameterActivation.Temperature</b> from <b>Enclosure.Discovery.Instance.ParameterActivation.Temperature</b>.
+	 *
+	 * @param key	The key from which the parameter name should be extracted.
+	 *
+	 * @return		The parameter name contained in the given key.
 	 */
-    protected String getMappingAttribute(String key) {
-        List<String> parts = List.of(key.split("\\."));
-        return parts.get(parts.size() -1);
-    }
+	protected String getMappingAttribute(final String key) {
+		final Matcher matcher = getMatcher(key);
+
+		if (!matcher.find()) {
+			throw new IllegalStateException(String.format(INVALID_KEY_MESSAGE_FORMAT, key));
+		}
+
+		return matcher.group(3);
+	}
 
 	/**
 	 * Create a source node in the given connector

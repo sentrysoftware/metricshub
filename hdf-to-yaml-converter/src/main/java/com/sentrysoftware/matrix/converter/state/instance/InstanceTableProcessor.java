@@ -17,13 +17,16 @@ public class InstanceTableProcessor extends AbstractStateConverter {
 	/**
 	 * Pattern to detect discovery InstanceTable
 	 */
-	private static final Pattern INSTANCE_TABLE_PATTERN = Pattern.compile("^\\s*([a-z]+)\\.discovery\\.instancetable\\s*$", Pattern.CASE_INSENSITIVE);
+	private static final Pattern INSTANCE_TABLE_PATTERN = Pattern.compile(
+		"^\\s*(([a-z]+)\\.discovery\\.instancetable)\\s*$",
+		Pattern.CASE_INSENSITIVE
+	);
 
 	@Override
 	public boolean detect(String key, String value, JsonNode connector) {
 		return value != null
-				&& key != null
-				&& INSTANCE_TABLE_PATTERN.matcher(key).matches();
+			&& key != null
+			&& getMatcher(key).matches();
 	}
 
 	@Override
