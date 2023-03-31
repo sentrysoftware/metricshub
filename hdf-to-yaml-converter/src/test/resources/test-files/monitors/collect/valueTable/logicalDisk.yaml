@@ -17,7 +17,7 @@
             source: $monitors.logicalDisk.collect.sources.source(1)$
             metrics:
               hw.status{hw.type="logical_disk"}: $column(2)
-              hw.statusInformation: $column(3)
+              hw.status_information: $column(3)
               hw.errors{hw.type="logical_disk"}: $column(4)
               hw.logical_disk.usage{state=free}: $column(5)
               
