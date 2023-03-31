@@ -1,14 +1,17 @@
 package com.sentrysoftware.matrix.converter.state;
 
+import static com.sentrysoftware.matrix.converter.ConverterConstants.ATTRIBUTES;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.COMPUTES;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.CONNECTOR;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.CRITERIA;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.DETECTION;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.DETECTION_DOT_CRITERIA;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.DISCOVERY;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.DOT;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.DOT_COMPUTE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.MAPPING;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.MONITORS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.SOURCES;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.COMPUTES;
 import static com.sentrysoftware.matrix.converter.state.ConversionHelper.performValueConversions;
 
 import java.util.regex.Matcher;
@@ -794,6 +797,127 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 		}
 
 		return compute;
+	}
+
+	/**
+	 * Get or create the attributes node
+	 * 
+	 * @param key The context key
+	 * @param connector the global connector {@Link JsonNode}
+ 	 * @return attributesNode {@link ObjectNode}. Never <code>null</code>
+	 */
+	protected ObjectNode getOrCreateAttributes(final String key, final JsonNode connector) {
+		ObjectNode mapping = getOrCreateMapping(key, connector);
+
+		final JsonNode attributesNode = mapping.get(ATTRIBUTES);
+
+		if(attributesNode == null) {
+			final ObjectNode attributes = JsonNodeFactory.instance.objectNode();
+			mapping.set(ATTRIBUTES, attributes);
+			return attributes;
+		}
+
+		return (ObjectNode) attributesNode;
+	}
+
+	/**
+	 * get or create mapping node
+	 * 
+	 * @param key the context key
+	 * @param connector the global connector {@Link JsonNode}
+ 	 * @return mapping {@link ObjectNode}. Never <code>null</code>
+	 */
+	protected ObjectNode getOrCreateMapping(final String key, final JsonNode connector) {
+
+		final Matcher matcher = getMatcher(key);
+		if (!matcher.matches()) {
+			throw new IllegalStateException(String.format(INVALID_KEY_MESSAGE_FORMAT, key));
+		}
+
+		final JsonNode monitors = connector.get(MONITORS);
+
+		final String monitorName = getMonitorName(matcher);
+
+		if (monitors == null) {
+			final ObjectNode mapping = JsonNodeFactory.instance.objectNode();
+			// Create the whole hierarchy
+			((ObjectNode) connector)
+					.set(
+						MONITORS,
+						JsonNodeFactory.instance.objectNode()
+							.set(
+								monitorName,
+								JsonNodeFactory.instance.objectNode()
+									.set(
+										DISCOVERY,
+										JsonNodeFactory.instance.objectNode()
+											.set(MAPPING, mapping)
+									)
+							)
+					);
+			return mapping;
+		}
+
+		// Check the monitor
+		final JsonNode monitor = monitors.get(monitorName);
+		if (monitor == null) {
+			final ObjectNode mapping = JsonNodeFactory.instance.objectNode();
+			((ObjectNode) monitors)
+				.set(
+					monitorName,
+					JsonNodeFactory.instance.objectNode()
+						.set(
+							DISCOVERY,
+							JsonNodeFactory.instance.objectNode()
+								.set(MAPPING, mapping)
+						)
+				);
+
+			return mapping;
+		}
+
+		// Check the job
+		final JsonNode job = monitor.get(DISCOVERY);
+		if (job == null) {
+			final ObjectNode mapping = JsonNodeFactory.instance.objectNode();
+			((ObjectNode) monitor)
+				.set(
+					DISCOVERY,
+					JsonNodeFactory.instance.objectNode()
+						.set(MAPPING, mapping)
+				);
+			return mapping;
+		}
+
+		final JsonNode mappingNode = job.get(MAPPING);
+
+		if (mappingNode == null) {
+			final ObjectNode mapping = JsonNodeFactory.instance.objectNode();
+			((ObjectNode) job).set(MAPPING, mapping);
+			return mapping;
+		}
+
+		return (ObjectNode) mappingNode;
+	}
+
+	/**
+	 * Extract the mapping attribute name from the given key.<br><br>
+	 *
+	 * e.g. extract <b>DeviceID</b> from <b>Enclosure.Discovery.Instance.DeviceID</b>.<br>
+	 * e.g. extract <b>ParameterActivation.Temperature</b> from <b>Enclosure.Discovery.Instance.ParameterActivation.Temperature</b>.
+	 *
+	 * @param key	The key from which the parameter name should be extracted.
+	 *
+	 * @return		The parameter name contained in the given key.
+	 */
+	protected String getMappingAttribute(final String key) {
+		final Matcher matcher = getMatcher(key);
+
+		if (!matcher.find()) {
+			throw new IllegalStateException(String.format(INVALID_KEY_MESSAGE_FORMAT, key));
+		}
+
+		return matcher.group(3);
 	}
 
 	/**

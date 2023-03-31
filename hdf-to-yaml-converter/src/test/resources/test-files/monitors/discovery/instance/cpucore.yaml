@@ -15,9 +15,9 @@
             _comment: |-
               Instance table = source(3)
               CoreID;PhysicalProcessorID;AdditionalInformation;CoreID;CurrentSpeed;
-            source: $monitors.cpucore.discovery.sources.source(4)$
+            source: $monitors.cpuCore.discovery.sources.source(3)$
             attributes:
               deviceid: $column(1)
               attachedtodeviceid: $column(2)
-              attachedtodevicetype: CPU
+              attachedtodevicetype: Cpu
               additionalinformation1: $column(3)

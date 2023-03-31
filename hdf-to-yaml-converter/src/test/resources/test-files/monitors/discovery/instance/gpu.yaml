@@ -17,23 +17,24 @@
     Gpu.Discovery.Instance.MemoryUtilizationAlarmThreshold="4"
     Gpu.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(21)
   expected:
-    gpu:
-      discovery:
-      mapping:
-        source: $monitors.gpu.discovery.sources.source(1)$
-        attributes:
-          vendor: NVIDIA
-          deviceid: $column(2)
-          displayid: $column(2)
-          model: $column(14)
-          serialnumber: $column(15)
-          additionalinformation1: $column(16)
-          additionalinformation2: $column(18)
-          driverversion: $column(17)
-          firmwareVersion: $column(19)
-          size: $column(20)
-          usedtimepercentwarningthreshold: "1"
-          usedtimepercentalarmthreshold: "2"
-          memoryutilizationwarningthreshold: "3"
-          memoryutilizationalarmthreshold: "4"
-          attachedtodeviceid: $column(21)
+    monitors:
+      gpu:
+        discovery:
+          mapping:
+            source: $monitors.gpu.discovery.sources.source(1)$
+            attributes:
+              vendor: NVIDIA
+              deviceid: $column(2)
+              displayid: $column(2)
+              model: $column(14)
+              serialnumber: $column(15)
+              additionalinformation1: $column(16)
+              additionalinformation2: $column(18)
+              driverversion: $column(17)
+              firmwareversion: $column(19)
+              size: $column(20)
+              usedtimepercentwarningthreshold: "1"
+              usedtimepercentalarmthreshold: "2"
+              memoryutilizationwarningthreshold: "3"
+              memoryutilizationalarmthreshold: "4"
+              attachedtodeviceid: $column(21)

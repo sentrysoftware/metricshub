@@ -21,7 +21,7 @@
             _comment: |-
               The InstanceTable
               controllerID;model;serial;slot;memory;firmware;driver;batteryStatus;
-            source: $monitors.diskcontroller.discovery.sources.source(1)$
+            source: $monitors.diskController.discovery.sources.source(1)$
             attributes:
               deviceid: $column(1)
               controllernumber: $column(1)
