@@ -1,6 +1,6 @@
 - name: ledCoreValueTable
   input: |
-    // DeviceID;Status;StatusInformation
+    // DeviceID;Status;StatusInformation;LedIndicator
     LED.Collect.ValueTable=%LED.Collect.Source(1)%
     LED.Collect.DeviceID=ValueTable.Column(1)
     LED.Collect.Status=ValueTable.Column(2)
@@ -9,11 +9,11 @@
     monitors:
       led:
         collect:
-          _comment: DeviceID;Status;StatusInformation
+          _comment: DeviceID;Status;StatusInformation;LedIndicator
           mapping:
             deviceId: $column(1)
             source: $monitors.led.collect.sources.source(1)$
             metrics:
-              hw.status{hw.type="led"}: $column(2)
-              hw.statusInformation: $column(3)
-              
+              hw.status{hw.type="led"}: legacyLedStatus($column(2))
+              hw.status_information: $column(3)
+              hw.status{hw.type="led", alt_state="led_indicator"}: $column(2)
