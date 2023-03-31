@@ -19,8 +19,9 @@
             metrics:
               hw.status{hw.type="enclosure"}: $column(2)
               hw.status_information: $column(3)
-              hw.status{hw.type="enclosure", state="open"}: LegacyIntrusionStatus($column(4))
+              hw.status{hw.type="enclosure", state="open"}: legacyIntrusionStatus($column(4))
               hw.enclosure.energy: $column(5)
+              hw.enclosure.power: $column(6)
 - name: enclosureEnergyValueTable
   input: |
     // DeviceID;Status;StatusInformation;IntrusionStatus;EnergyUsage
@@ -41,8 +42,9 @@
             metrics:
               hw.status{hw.type="enclosure"}: $column(2)
               hw.status_information: $column(3)
-              hw.status{hw.type="enclosure", state="open"}: LegacyIntrusionStatus($column(4))
+              hw.status{hw.type="enclosure", state="open"}: legacyIntrusionStatus($column(4))
               hw.enclosure.energy: $column(5)
+              hw.enclosure.power: rate($column(5))
 - name: enclosurePowerConsumptionValueTable
   input: |
     // DeviceID;Status;StatusInformation;IntrusionStatus;PowerConsumption
@@ -63,5 +65,6 @@
             metrics:
               hw.status{hw.type="enclosure"}: $column(2)
               hw.status_information: $column(3)
-              hw.status{hw.type="enclosure", state="open"}: LegacyIntrusionStatus($column(4))
+              hw.status{hw.type="enclosure", state="open"}: legacyIntrusionStatus($column(4))
+              hw.enclosure.energy: fakeCounter($column(5))
               hw.enclosure.power: $column(5)
