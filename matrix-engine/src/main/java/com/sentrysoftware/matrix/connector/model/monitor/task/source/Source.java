@@ -32,7 +32,6 @@ import lombok.NoArgsConstructor;
 		@JsonSubTypes.Type(value = OsCommandSource.class, name = "osCommand"),
 		@JsonSubTypes.Type(value = SnmpGetSource.class, name = "snmpGet"),
 		@JsonSubTypes.Type(value = SnmpTableSource.class, name = "snmpTable"),
-		@JsonSubTypes.Type(value = SshInteractiveSource.class, name = "sshInteractive"),
 		@JsonSubTypes.Type(value = StaticSource.class, name = "static"),
 		@JsonSubTypes.Type(value = TableJoinSource.class, name = "tableJoin"),
 		@JsonSubTypes.Type(value = TableUnionSource.class, name = "tableUnion"),
