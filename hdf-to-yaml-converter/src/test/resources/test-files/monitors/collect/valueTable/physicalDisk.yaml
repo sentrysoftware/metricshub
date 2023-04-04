@@ -1,0 +1,24 @@
+- name: physicalDiskValueTable
+  input: |
+    // DeviceID;Status;StatusInformation;PredictedFailure;Errors;Endurance
+    PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(1)%
+    PhysicalDisk.Collect.DeviceID=ValueTable.Column(1)
+    PhysicalDisk.Collect.Status=ValueTable.Column(2)
+    PhysicalDisk.Collect.StatusInformation=ValueTable.Column(3)
+    PhysicalDisk.Collect.PredictedFailure=ValueTable.Column(4)
+    PhysicalDisk.Collect.ErrorCount=ValueTable.Column(5)
+    PhysicalDisk.Collect.EnduranceRemaining=ValueTable.Column(6)
+  expected:
+    monitors:
+      physicalDisk:
+        collect:
+          _comment: DeviceID;Status;StatusInformation;PredictedFailure;Errors;Endurance
+          mapping:
+            deviceId: $column(1)
+            source: $monitors.physicalDisk.collect.sources.source(1)$
+            metrics:
+              hw.status{hw.type="physical_disk"}: $column(2)
+              hw.status_information: $column(3)
+              hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($column(4))
+              hw.errors{hw.type="physical_disk"}: persistCounter($column(5))
+              hw.physical_disk.endurance_utilization{state="remaining"}: percent2Ration($column(6))
