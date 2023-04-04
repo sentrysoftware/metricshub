@@ -1,0 +1,21 @@
+- name: powerSupplyValueTable
+  input: |
+    // DeviceID;Status;StatusInformation;Utilization;UsedWatts
+    PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(1)%
+    PowerSupply.Collect.DeviceID=ValueTable.Column(1)
+    PowerSupply.Collect.Status=ValueTable.Column(2)
+    PowerSupply.Collect.StatusInformation=ValueTable.Column(3)
+    PowerSupply.Collect.UsedPercent=ValueTable.Column(4)
+    PowerSupply.Collect.UsedWatts=ValueTable.Column(5)
+  expected:
+    monitors:
+      powerSupply:
+        collect:
+          _comment: DeviceID;Status;StatusInformation;Utilization;UsedWatts
+          mapping:
+            deviceId: $column(1)
+            source: $monitors.powerSupply.collect.sources.source(1)$
+            metrics:
+              hw.status{hw.type="power_supply"}: $column(2)
+              hw.status_information: $column(3)
+              hw.power_supply.utilization: percent2Ratio($column(4))
