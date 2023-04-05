@@ -1,0 +1,20 @@
+- name: voltageValueTable
+  input: |
+    // DeviceID;Status;StatusInformation;Voltage
+    Voltage.Collect.ValueTable=%Voltage.Collect.Source(1)%
+    Voltage.Collect.DeviceID=ValueTable.Column(1)
+    Voltage.Collect.Status=ValueTable.Column(2)
+    Voltage.Collect.StatusInformation=ValueTable.Column(3)
+    Voltage.Collect.Voltage=ValueTable.Column(4)
+  expected:
+    monitors:
+      voltage:
+        collect:
+          _comment: DeviceID;Status;StatusInformation;Voltage
+          mapping:
+            deviceId: $column(1)
+            source: $monitors.voltage.collect.sources.source(1)$
+            metrics:
+              hw.status{hw.type="voltage"}: $column(2)
+              hw.status_information: $column(3)
+              hw.voltage: $column(4)
