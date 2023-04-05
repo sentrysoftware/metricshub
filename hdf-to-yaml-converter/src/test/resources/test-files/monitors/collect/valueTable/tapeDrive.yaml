@@ -1,0 +1,26 @@
+- name: tapeDriveValueTable
+  input: |
+    // DeviceID;Status;StatusInformation;Mount;Unmount;Errors;NeedsCleaning
+    TapeDrive.Collect.ValueTable=%TapeDrive.Collect.Source(1)%
+    TapeDrive.Collect.DeviceID=ValueTable.Column(1)
+    TapeDrive.Collect.Status=ValueTable.Column(2)
+    TapeDrive.Collect.StatusInformation=ValueTable.Column(3)
+    TapeDrive.Collect.MountCount=ValueTable.Column(4)
+    TapeDrive.Collect.UnmountCount=ValueTable.Column(5)
+    TapeDrive.Collect.ErrorCount=ValueTable.Column(6)
+    TapeDrive.Collect.NeedsCleaning=ValueTable.Column(7)
+  expected:
+    monitors:
+      tapeDrive:
+        collect:
+          _comment: DeviceID;Status;StatusInformation;Mount;Unmount;Errors;NeedsCleaning
+          mapping:
+            deviceId: $column(1)
+            source: $monitors.tapeDrive.collect.sources.source(1)$
+            metrics:
+              hw.status{hw.type="tape_drive"}: $column(2)
+              hw.status_information: $column(3)
+              hw.tape_drive.operations{type="mount"}: delta($column(4))
+              hw.tape_drive.operations{type="unmount"}: delta($column(5))
+              hw.errors{hw.type="tape_drive"}: persistCounter($column(6))
+              hw.status{hw.type="tape_drive", state="needs_cleaning"}: LegacyNeedsCleaning($column(7))
