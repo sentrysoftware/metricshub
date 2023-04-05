@@ -1,0 +1,22 @@
+- name: roboticsValueTable
+  input: |
+    // DeviceID;Status;StatusInformation;Moves;Errors
+    Robotic.Collect.ValueTable=%Robotics.Collect.Source(1)%
+    Robotic.Collect.DeviceID=ValueTable.Column(1)
+    Robotic.Collect.Status=ValueTable.Column(2)
+    Robotic.Collect.StatusInformation=ValueTable.Column(3)
+    Robotic.Collect.MoveCount=ValueTable.Column(4)
+    Robotic.Collect.ErrorCount=ValueTable.Column(5)
+  expected:
+    monitors:
+      robotics:
+        collect:
+          _comment: DeviceID;Status;StatusInformation;Moves;Errors
+          mapping:
+            deviceId: $column(1)
+            source: $monitors.robotics.collect.sources.source(1)$
+            metrics:
+              hw.status{hw.type="robotics"}: $column(2)
+              hw.status_information: $column(3)
+              hw.robotics.moves: delta($column(4))
+              hw.errors{hw.type="robotics"}: persistCounter($column(5))
