@@ -5,7 +5,7 @@
     Temperature.Collect.DeviceID=ValueTable.Column(1)
     Temperature.Collect.Status=ValueTable.Column(2)
     Temperature.Collect.StatusInformation=ValueTable.Column(3)
-    Temperature.Collect.Temperature=ValueTable.Column(3)
+    Temperature.Collect.Temperature=ValueTable.Column(4)
   expected:
     monitors:
       temperature:
