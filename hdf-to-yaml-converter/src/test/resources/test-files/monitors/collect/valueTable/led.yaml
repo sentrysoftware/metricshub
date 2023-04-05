@@ -16,4 +16,4 @@
             metrics:
               hw.status{hw.type="led"}: legacyLedStatus($column(2))
               hw.status_information: $column(3)
-              hw.status{hw.type="led", alt_state="led_indicator"}: $column(2)
+              hw.status{hw.type="led", alt_state="led_indicator"}: legacyLedIndicator($column(2))
