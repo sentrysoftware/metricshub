@@ -1,6 +1,6 @@
 - name: temperatureValueTable
   input: |
-    // DeviceID;Status;StatusInformation;Mount;Unmount;Errors;NeedsCleaning
+    // DeviceID;Status;StatusInformation;Temperature
     Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
     Temperature.Collect.DeviceID=ValueTable.Column(1)
     Temperature.Collect.Status=ValueTable.Column(2)
@@ -10,7 +10,7 @@
     monitors:
       temperature:
         collect:
-          _comment: DeviceID;Status;StatusInformation;Mount;Unmount;Errors;NeedsCleaning
+          _comment: DeviceID;Status;StatusInformation;Temperature
           mapping:
             deviceId: $column(1)
             source: $monitors.temperature.collect.sources.source(1)$
