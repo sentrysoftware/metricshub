@@ -307,6 +307,8 @@ monitors:
           type: "Computer"
           parameteractivation.energyusage: "$column(6)"
     collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
       sources:
         source(1):
           # Source(1) = systemStateTable SNMP Table
@@ -315,18 +317,18 @@ monitors:
           oid: "1.3.6.1.4.1.674.10892.1.300.10.1"
           selectColumns: "ID,4"
           computes:
-          - # Duplicate systemStateChassisStatus
+            # Duplicate systemStateChassisStatus
             # DeviceID;systemStateChassisStatus;systemStateChassisStatus
-            type: "duplicateColumn"
+          - type: "duplicateColumn"
             column: 2
-          - # Translate the first systemStateChassisStatus into a PATROL status
+            # Translate the first systemStateChassisStatus into a PATROL status
             # DeviceID;PATROLStatus;systemStateChassisStatus
-            type: "translate"
+          - type: "translate"
             column: 2
             translationTable: "GenericStatusTranslationTable"
-          - # Translate the second systemStateChassisStatus into a more readable string
+            # Translate the second systemStateChassisStatus into a more readable string
             # DeviceID;PATROLStatus;statusInformation
-            type: "translate"
+          - type: "translate"
             column: 3
             translationTable: "GenericStatusInformationTranslationTable"
         source(2):
@@ -336,9 +338,9 @@ monitors:
           oid: "1.3.6.1.4.1.674.10892.1.300.70.1"
           selectColumns: "1,5"
           computes:
-          - # Translate Dell's intrusion status into a PATROLStatus
+            # Translate Dell's intrusion status into a PATROLStatus
             # chassisIndex;intrusionStatus
-            type: "translate"
+          - type: "translate"
             column: 2
             translationTable: "GenericStatusTranslationTable"
         source(3):
@@ -357,9 +359,9 @@ monitors:
           oid: "1.3.6.1.4.1.674.10892.1.600.60.1"
           selectColumns: "1,7"
           computes:
-          - # Convert Watt-hour into kilowatt-hour
+            # Convert Watt-hour into kilowatt-hour
             # chassisIndex;energyUsage;
-            type: "divide"
+          - type: "divide"
             column: 2
             value: "1000"
         source(5):
@@ -371,9 +373,6 @@ monitors:
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ";;"
-  collect:
-    # Collect type is multi-instance
-    type: "multiInstance"
   temperature:
     discovery:
       sources:
@@ -415,6 +414,8 @@ monitors:
           warningthreshold: "$column(5)"
           alarmthreshold: "$column(4)"
     collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
       sources:
         source(1):
           # Source(1) = temperatureProbeTable SNMP Table
@@ -432,14 +433,14 @@ monitors:
           - type: "divide"
             column: 4
             value: "10"
-          - # Translate first temperatureProbeStatus into a PATROL status
+            # Translate first temperatureProbeStatus into a PATROL status
             # DeviceID;PATROLStatus;temperatureProbeStatus;TemperatureCelsius
-            type: "translate"
+          - type: "translate"
             column: 2
             translationTable: "EnvironmentStatusTranslationTable"
-          - # Translate second temperatureProbeStatus into a more readable string
+            # Translate second temperatureProbeStatus into a more readable string
             # DeviceID;PATROLStatus;statusInformation;TemperatureCelsius
-            type: "translate"
+          - type: "translate"
             column: 3
             translationTable: "EnvironmentStatusInformationTranslationTable"
   fan:
@@ -452,27 +453,27 @@ monitors:
           oid: "1.3.6.1.4.1.674.10892.1.700.12.1"
           selectColumns: "ID,6,8,12,13,16"
           computes:
-          - # Remove the word " FAN" from the coolingDeviceLocationName
+            # Remove the word " FAN" from the coolingDeviceLocationName
             # ID;currentReading;coolingDeviceLocationName;warningThreshold;alarmThreshold;
-            type: "replace"
+          - type: "replace"
             column: 3
             existingValue: " FAN"
             newValue: ""
-          - # Remove the word " RPM" from the coolingDeviceLocationName
+            # Remove the word " RPM" from the coolingDeviceLocationName
             # ID;currentReading;coolingDeviceLocationName;warningThreshold;alarmThreshold;
-            type: "replace"
+          - type: "replace"
             column: 3
             existingValue: " RPM"
             newValue: ""
-          - # Remove the word "BMC " from the coolingDeviceLocationName
+            # Remove the word "BMC " from the coolingDeviceLocationName
             # ID;currentReading;coolingDeviceLocationName;warningThreshold;alarmThreshold;
-            type: "replace"
+          - type: "replace"
             column: 3
             existingValue: "BMC "
             newValue: ""
-          - # Remove the word " Fan" from the coolingDeviceLocationName
+            # Remove the word " Fan" from the coolingDeviceLocationName
             # ID;currentReading;coolingDeviceLocationName;warningThreshold;alarmThreshold;
-            type: "replace"
+          - type: "replace"
             column: 3
             existingValue: " Fan"
             newValue: ""
@@ -486,6 +487,8 @@ monitors:
           warningthreshold: "$column(4)"
           alarmthreshold: "$column(5)"
     collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
       sources:
         source(1):
           # Source(1) = coolingDeviceTable SNMP Tabl
@@ -494,18 +497,18 @@ monitors:
           oid: "1.3.6.1.4.1.674.10892.1.700.12.1"
           selectColumns: "ID,5,6"
           computes:
-          - # Duplicate the coolingDeviceStatus column
+            # Duplicate the coolingDeviceStatus column
             # DeviceID;coolingDeviceStatus;coolingDeviceStatus;coolingDeviceReading
-            type: "duplicateColumn"
+          - type: "duplicateColumn"
             column: 2
-          - # Translate the first coolingDeviceStatus into a PATROL Status
+            # Translate the first coolingDeviceStatus into a PATROL Status
             # DeviceID;PATROLStatus;coolingDeviceStatus;coolingDeviceReading
-            type: "translate"
+          - type: "translate"
             column: 2
             translationTable: "EnvironmentStatusTranslationTable"
-          - # Translate the second coolingDeviceStatus into a more readable string
+            # Translate the second coolingDeviceStatus into a more readable string
             # DeviceID;PATROLStatus;statusInformation;coolingDeviceReading
-            type: "translate"
+          - type: "translate"
             column: 3
             translationTable: "EnvironmentStatusInformationTranslationTable"
   voltage:
@@ -527,6 +530,8 @@ monitors:
           upperthreshold: "$column(4)"
           lowerthreshold: "$column(5)"
     collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
       sources:
         source(1):
           # Source(1) = the voltageProbeTable
@@ -535,18 +540,18 @@ monitors:
           oid: "1.3.6.1.4.1.674.10892.1.600.20.1"
           selectColumns: "ID,5,6"
           computes:
-          - # Duplicate the status column
+            # Duplicate the status column
             # ID;Status;Status;VoltageReading
-            type: "duplicateColumn"
+          - type: "duplicateColumn"
             column: 2
-          - # Translate the first status column into a PATROL Status
+            # Translate the first status column into a PATROL Status
             # ID;PATROLStatus;Status;VoltageReading
-            type: "translate"
+          - type: "translate"
             column: 2
             translationTable: "EnvironmentStatusTranslationTable"
-          - # Translate the second status column into a more readable string
+            # Translate the second status column into a more readable string
             # ID;PATROLStatus;statusInformation;VoltageReading
-            type: "translate"
+          - type: "translate"
             column: 3
             translationTable: "EnvironmentStatusInformationTranslationTable"
   powerSupply:
@@ -559,14 +564,14 @@ monitors:
           oid: "1.3.6.1.4.1.674.10892.1.600.12.1"
           selectColumns: "ID,6,7"
           computes:
-          - # Translate the power supply type
+            # Translate the power supply type
             # ID;PowerSupplyPower;powerSupplyType;
-            type: "translate"
+          - type: "translate"
             column: 3
             translationTable: "PowerSupplyTypeTranslationTable"
-          - # Convert the power from tenth of watts to watts
+            # Convert the power from tenth of watts to watts
             # ID;PowerSupplyPower;powerSupplyType;
-            type: "divide"
+          - type: "divide"
             column: 2
             value: "10"
       mapping:
@@ -577,6 +582,8 @@ monitors:
           powersupplypower: "$column(2)"
           powersupplytype: "$column(3)"
     collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
       sources:
         source(1):
           # Source(1) = powerSupplyTable SNMP table
@@ -585,22 +592,22 @@ monitors:
           oid: "1.3.6.1.4.1.674.10892.1.600.12.1"
           selectColumns: "ID,4,5,11"
           computes:
-          - # Translate the powerSupplyStatus into a PATROL status
+            # Translate the powerSupplyStatus into a PATROL status
             # DeviceID;stateSettings;PATROLStatus;SensorState;
-            type: "translate"
+          - type: "translate"
             column: 3
             translationTable: "GenericStatusTranslationTable"
-          - # Add up stateSettings and SensorState for a per-bit translation
+            # Add up stateSettings and SensorState for a per-bit translation
             # DeviceID;stateSettings+SensorState*256;PATROLStatus;SensorState;
-            type: "multiply"
+          - type: "multiply"
             column: 4
             value: "256"
           - type: "add"
             column: 2
             value: "Column(4)"
-          - # Translate the stateSettings+SensorState*256 into a more readable string
+            # Translate the stateSettings+SensorState*256 into a more readable string
             # DeviceID;StatusInformation;PATROLStatus;SensorState;
-            type: "perBitTranslation"
+          - type: "perBitTranslation"
             column: 2
             bitList: "0,2,3,6,7,8,9,10,11,12,13,14"
             translationTable: "PowerSupplyStatusInformationTranslationTable"
@@ -614,26 +621,26 @@ monitors:
           oid: "1.3.6.1.4.1.674.10892.1.1100.50.1"
           selectColumns: "ID,7,8,14,21,22,23,24"
           computes:
-          - # Keep memory modules for which the size is known
+            # Keep memory modules for which the size is known
             # ID;typeCode;location;size;manufacturer;PartNumber;SerialNumber;AssetTagName;
-            type: "excludeMatchingLines"
+          - type: "excludeMatchingLines"
             column: 4
             valueList: "0,2147483647"
-          - # Translate memory from KM in MB
+            # Translate memory from KM in MB
             # ID;typeCode;location;sizeMB;manufacturer;PartNumber;SerialNumber;AssetTagName;
-            type: "divide"
+          - type: "divide"
             column: 4
             value: "1024"
-          - # Translate memory type
+            # Translate memory type
             # ID;type;location;sizeMB;manufacturer;PartNumber;SerialNumber;AssetTagName;
-            type: "translate"
+          - type: "translate"
             column: 2
             translationTable: "MemoryTypeTranslationTable"
-          - # Add "Location: " to the location column
+            # Add "Location: " to the location column
             # Add "Part Number: " to the part number column
             # Add "Alternative Serial Number: " to the AssetTagName column
             # ID;type;location;sizeMB;manufacturer;PartNumber;SerialNumber;AssetTagName;
-            type: "leftConcat"
+          - type: "leftConcat"
             column: 3
             value: "Location: Slot "
           - type: "leftConcat"
@@ -655,6 +662,8 @@ monitors:
           serialnumber: "$column(7)"
           additionalinformation3: "$column(8)"
     collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
       sources:
         source(1):
           # Source(1) = memoryDeviceTable SNMP table
@@ -663,23 +672,23 @@ monitors:
           oid: "1.3.6.1.4.1.674.10892.1.1100.50.1"
           selectColumns: "ID,5,18,19"
           computes:
-          - # Duplicate this status, because we will translate it two times
+            # Duplicate this status, because we will translate it two times
             # ID;Status;Status;SingleBitErrorCount;MultiBitErrorCount;
-            type: "duplicateColumn"
+          - type: "duplicateColumn"
             column: 2
-          - # Translate the first Status into a PATROL status
+            # Translate the first Status into a PATROL status
             # ID;PATROLStatus;Status;SingleBitErrorCount;MultiBitErrorCount;
-            type: "translate"
+          - type: "translate"
             column: 2
             translationTable: "GenericStatusTranslationTable"
-          - # Translate the second status into a more readable string
+            # Translate the second status into a more readable string
             # ID;PATROLStatus;StatusInformation;SingleBitErrorCount;MultiBitErrorCount;
-            type: "translate"
+          - type: "translate"
             column: 3
             translationTable: "GenericStatusInformationTranslationTable"
-          - # Sum up SingleBitErrorCount and MultiBitErrorCount
+            # Sum up SingleBitErrorCount and MultiBitErrorCount
             # ID;PATROLStatus;StatusInformation;ErrorCount;MultiBitErrorCount;
-            type: "add"
+          - type: "add"
             column: 4
             value: "Column(5)"
   cpu:
@@ -692,44 +701,44 @@ monitors:
           oid: "1.3.6.1.4.1.674.10892.1.1100.30.1"
           selectColumns: "ID,8,10,11,23"
           computes:
-          - # Translate the modelCode into a more readable string
+            # Translate the modelCode into a more readable string
             # ID;vendor;model;nominalSpeed;processorDeviceBrandName;
-            type: "translate"
+          - type: "translate"
             column: 3
             translationTable: "cpuFamilyTranslationTable"
-          - # Remove "(R)" from processorDeviceBrandName
+            # Remove "(R)" from processorDeviceBrandName
             # ID;vendor;modelCode;nominalSpeed;processorDeviceBrandName;
-            type: "replace"
+          - type: "replace"
             column: 5
             existingValue: "(R)"
             newValue: ""
-          - # Remove "AMD" from processorDeviceBrandName
+            # Remove "AMD" from processorDeviceBrandName
             # ID;vendor;modelCode;nominalSpeed;processorDeviceBrandName;
-            type: "replace"
+          - type: "replace"
             column: 5
             existingValue: "AMD"
             newValue: ""
-          - # Remove "Intel" from processorDeviceBrandName
+            # Remove "Intel" from processorDeviceBrandName
             # ID;vendor;modelCode;nominalSpeed;processorDeviceBrandName;
-            type: "replace"
+          - type: "replace"
             column: 5
             existingValue: "Intel"
             newValue: ""
-          - # ID;vendor;modelCode;nominalSpeed;processorDeviceBrandName;
-            type: "leftConcat"
+            # ID;vendor;modelCode;nominalSpeed;processorDeviceBrandName;
+          - type: "leftConcat"
             column: 5
             value: "MSHW"
           - type: "rightConcat"
             column: 5
             value: "MSHW"
-          - # Replace "MSHWMSHW", i.e. a blank column with the modelCode.
-            type: "replace"
+            # Replace "MSHWMSHW", i.e. a blank column with the modelCode.
+          - type: "replace"
             column: 5
             existingValue: "MSHWMSHW"
             newValue: "Column(3)"
-          - # Now get rid of any remaining MSHWs
+            # Now get rid of any remaining MSHWs
             # Caption,DeviceID
-            type: "replace"
+          - type: "replace"
             column: 5
             existingValue: "MSHW"
             newValue: ""
@@ -740,9 +749,9 @@ monitors:
           oid: "1.3.6.1.4.1.674.10892.1.1100.32.1"
           selectColumns: "ID,7"
           computes:
-          - # Add "Location: " to the Location column
+            # Add "Location: " to the Location column
             # ID;Location;
-            type: "leftConcat"
+          - type: "leftConcat"
             column: 2
             value: "Location: Slot "
         source(3):
@@ -764,6 +773,8 @@ monitors:
           model: "$column(5)"
           additionalinformation1: "$column(7)"
     collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
       sources:
         source(1):
           # Source(1) = processorDeviceTable SNMP table
@@ -772,9 +783,9 @@ monitors:
           oid: "1.3.6.1.4.1.674.10892.1.1100.30.1"
           selectColumns: "ID,5,12"
           computes:
-          - # Translate the status into a PATROL Status
+            # Translate the status into a PATROL Status
             # DeviceID;PATROLStatus;Speed;
-            type: "translate"
+          - type: "translate"
             column: 2
             translationTable: "GenericStatusTranslationTable"
         source(2):
@@ -784,9 +795,9 @@ monitors:
           oid: "1.3.6.1.4.1.674.10892.1.1100.32.1"
           selectColumns: "ID,6"
           computes:
-          - # Translate the second status into a more readable string
+            # Translate the second status into a more readable string
             # DeviceID;StatusInformation;
-            type: "perBitTranslation"
+          - type: "perBitTranslation"
             column: 2
             bitList: "0,1,5,7,8,9,10"
             translationTable: "ProcessorStatusInformationTranslationTable"
@@ -809,9 +820,9 @@ monitors:
           oid: "1.3.6.1.4.1.674.10892.1.200.10.1"
           selectColumns: "ID"
           computes:
-          - # Add "ESM" and "EventLog" as �nd and 3rd columns
+            # Add "ESM" and "EventLog" as �nd and 3rd columns
             # DeviceID;DeviceType;AdditionalLabel
-            type: "rightConcat"
+          - type: "rightConcat"
             column: 1
             value: ";ESM;EventLog"
         source(2):
@@ -821,9 +832,9 @@ monitors:
           oid: "1.3.6.1.4.1.674.10892.1.1700.10.1"
           selectColumns: "ID,3,7"
           computes:
-          - # Translate DeviceTypeCode into a readable DeviceType
+            # Translate DeviceTypeCode into a readable DeviceType
             # DeviceID;DeviceType;AdditionalLabel
-            type: "translate"
+          - type: "translate"
             column: 2
             translationTable: "RACTypeTranslationTable"
         source(3):
@@ -833,14 +844,14 @@ monitors:
           oid: "1.3.6.1.4.1.674.10892.1.1100.110.1"
           selectColumns: "ID,7"
           computes:
-          - # Make the ID Unique
+            # Make the ID Unique
             # DeviceID;DeviceType;
-            type: "leftConcat"
+          - type: "leftConcat"
             column: 1
             value: "SDCardUnit-"
-          - # Add a BlankColumn
+            # Add a BlankColumn
             # DeviceID;DeviceType;AdditionalLabel;
-            type: "rightConcat"
+          - type: "rightConcat"
             column: 2
             value: ";"
         source(4):
@@ -850,19 +861,19 @@ monitors:
           oid: "1.3.6.1.4.1.674.10892.1.1100.112.1"
           selectColumns: "ID,7,10"
           computes:
-          - # Make the ID Unique
+            # Make the ID Unique
             # DeviceID;DeviceType;Size;
-            type: "leftConcat"
+          - type: "leftConcat"
             column: 1
             value: "SDCardDevice-"
-          - # Add "Size : " to the Size Column
+            # Add "Size : " to the Size Column
             # DeviceID;DeviceType;Size;
-            type: "leftConcat"
+          - type: "leftConcat"
             column: 3
             value: "Size : "
-          - # Add "MB" to Size Column, and add a BlankColumn
+            # Add "MB" to Size Column, and add a BlankColumn
             # DeviceID;DeviceType;Size;AdditionalLabel;
-            type: "rightConcat"
+          - type: "rightConcat"
             column: 3
             value: " MB ;"
         source(5):
@@ -884,6 +895,8 @@ monitors:
           additionalinformation1: "$column(3)"
           additionallabel: "$column(4)"
     collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
       sources:
         source(1):
           # Source(1) = systemStateTable SNMP table
@@ -904,9 +917,9 @@ monitors:
           oid: "1.3.6.1.4.1.674.10892.1.1100.110.1"
           selectColumns: "ID,8"
           computes:
-          - # Make the ID Unique
+            # Make the ID Unique
             # DeviceID;Status;
-            type: "leftConcat"
+          - type: "leftConcat"
             column: 1
             value: "SDCardUnit-"
         source(4):
@@ -916,9 +929,9 @@ monitors:
           oid: "1.3.6.1.4.1.674.10892.1.1100.112.1"
           selectColumns: "ID,3"
           computes:
-          - # Make the ID Unique
+            # Make the ID Unique
             # DeviceID;Status;
-            type: "leftConcat"
+          - type: "leftConcat"
             column: 1
             value: "SDCardDevice-"
         source(5):
@@ -931,18 +944,18 @@ monitors:
           - "$monitors.otherDevice.collect.sources.source(3)$"
           - "$monitors.otherDevice.collect.sources.source(4)$"
           computes:
-          - # Duplicate the Status column
+            # Duplicate the Status column
             # DeviceID;Status;Status;
-            type: "duplicateColumn"
+          - type: "duplicateColumn"
             column: 2
-          - # Translate the first Status into a PATROL Status
+            # Translate the first Status into a PATROL Status
             # DeviceID;PATROLStatus;Status;
-            type: "translate"
+          - type: "translate"
             column: 2
             translationTable: "GenericStatusTranslationTable"
-          - # Translate the second Status into a more readable string
+            # Translate the second Status into a more readable string
             # DeviceID;PATROLStatus;StatusInformation;
-            type: "translate"
+          - type: "translate"
             column: 3
             translationTable: "GenericStatusInformationTranslationTable"
   battery:
@@ -962,6 +975,8 @@ monitors:
           deviceid: "$column(1)"
           type: "$column(2)"
     collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
       sources:
         source(1):
           # Source(1) = batteryTable SNMP table
@@ -970,13 +985,13 @@ monitors:
           oid: "1.3.6.1.4.1.674.10892.1.600.50.1"
           selectColumns: "ID,5,6"
           computes:
-          - # Translate the first Status code into a PATROLStatus
+            # Translate the first Status code into a PATROLStatus
             # DeviceID;PATROLStatus;Reading;"
-            type: "translate"
+          - type: "translate"
             column: 2
             translationTable: "GenericStatusTranslationTable"
-          - # Translate the reading value into a readable string (I mean: human-readable)
+            # Translate the reading value into a readable string (I mean: human-readable)
             # DeviceID;PATROLStatus;StatusInformation;
-            type: "translate"
+          - type: "translate"
             column: 3
             translationTable: "BatteryStatusInformationTranslationTable"

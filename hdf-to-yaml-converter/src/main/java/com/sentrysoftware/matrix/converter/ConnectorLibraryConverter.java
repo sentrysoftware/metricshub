@@ -177,7 +177,7 @@ public class ConnectorLibraryConverter {
 				.filter(path -> !Files.isDirectory(path))
 				.map(path -> path.getFileName().toString())
 				.filter(ConnectorLibraryConverter::isSource)
-				.sorted((c1, c2) -> c1.compareToIgnoreCase(c2))
+				.sorted(String::compareToIgnoreCase)
 				.toList();
 		}
 	}
