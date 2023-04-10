@@ -6,9 +6,9 @@
     monitors:
       physicalDisk:
         collect: 
-             _comment: |-
-               Collect type is: multi-instance
-             type: multiInstance
+          _comment: |-
+            Collect type is: multi-instance
+          type: multiInstance
 
 - name: otherCollect
   input: |
@@ -18,6 +18,6 @@
     monitors:
       powerSupply:
         collect:
-             _comment: |-
-               Collect type: MonoInstance
-             type: monoInstance
+          _comment: |-
+            Collect type: MonoInstance
+          type: monoInstance

@@ -30,7 +30,7 @@ import lombok.NonNull;
 
 public abstract class AbstractStateConverter implements IConnectorStateConverter {
 
-	private static final String INVALID_KEY_MESSAGE_FORMAT = "Invalid key: %s";
+	protected static final String INVALID_KEY_MESSAGE_FORMAT = "Invalid key: %s";
 
 	protected abstract Matcher getMatcher(String key);
 
@@ -1003,9 +1003,13 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 		// Check the sources node
 		final JsonNode sources = job.get(SOURCES);
 
-		// At this level the sources node is never null
 		if (sources == null) {
-			throw new IllegalStateException("Sources cannot be null!");
+			((ObjectNode) job).set(
+					SOURCES,
+					JsonNodeFactory.instance.objectNode()
+							.set(sourceName, source));
+
+			return source;
 		}
 
 		((ObjectNode) sources).set(sourceName, source);

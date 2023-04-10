@@ -43,11 +43,7 @@ public class CollectTypeProcessor extends AbstractStateConverter {
 
 	@Override
 	public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
-		final Matcher matcher = getMatcher(key);
-		if (!matcher.matches()) {
-			throw new IllegalStateException(String.format("Invalid key: %s", key));
-		}
-		final ObjectNode collectJob = getOrCreateMonitorCollectJob(matcher, connector);
+		final ObjectNode collectJob = getOrCreateMonitorCollectJob(key, connector);
 
 		appendComment(key, preConnector, collectJob);
 
@@ -68,7 +64,13 @@ public class CollectTypeProcessor extends AbstractStateConverter {
 	 * @param connector
 	 * @return {@link ObjectNode} instance
 	 */
-	private ObjectNode getOrCreateMonitorCollectJob(final Matcher matcher, final JsonNode connector) {
+	private ObjectNode getOrCreateMonitorCollectJob(final String key, final JsonNode connector) {
+
+		final Matcher matcher = getMatcher(key);
+		if (!matcher.matches()) {
+			throw new IllegalStateException(String.format(INVALID_KEY_MESSAGE_FORMAT, key));
+		}
+
 		final JsonNode monitors = connector.get(MONITORS);
 		final String monitorName = getMonitorName(matcher);
 
@@ -104,7 +106,7 @@ public class CollectTypeProcessor extends AbstractStateConverter {
 		// Check if the job has been created
 		JsonNode jobObjectNode = monitor.get(COLLECT);
 		if (jobObjectNode == null) {
-			((ObjectNode) monitors).set(COLLECT, collectJob);
+			((ObjectNode) monitor).set(COLLECT, collectJob);
 			return collectJob;
 		}
 
