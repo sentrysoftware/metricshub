@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sentrysoftware.matrix.converter.state.ConnectorState;
 import com.sentrysoftware.matrix.converter.state.ConversionHelper;
+import com.sentrysoftware.matrix.converter.state.mapping.MappingConvertersWrapper;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -51,6 +52,9 @@ public class ConnectorConverter {
 		// Go through each key-value entry in the connector
 		preConnector.getCodeMap().forEach((key, value) -> convertKeyValue(key, value, connector));
 
+		// Post conversion for the discovery mapping properties
+		new MappingConvertersWrapper().postConvertDiscovery(connector);
+
 		return connector;
 	}
 
@@ -79,7 +83,7 @@ public class ConnectorConverter {
 					(key, value) -> translationTable
 						.set(key, JsonNodeFactory.instance.textNode(value))
 				);
-			
+
 		}
 
 	}
