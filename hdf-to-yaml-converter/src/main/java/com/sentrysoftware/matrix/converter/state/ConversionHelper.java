@@ -43,7 +43,7 @@ public class ConversionHelper {
 	private static final String YAML_CPU = HDF_CPU;
 	private static final String YAML_CPU_CORE = "cpu_core";
 	private static final String YAML_DISK_CONTROLLER = "disk_controller";
-	private static final String YAML_ENCLOSURE = "enclosure";
+	private static final String YAML_ENCLOSURE = HDF_ENCLOSURE;
 	private static final String YAML_FAN = HDF_FAN;
 	private static final String YAML_GPU = HDF_GPU;
 	private static final String YAML_LED = HDF_LED;
