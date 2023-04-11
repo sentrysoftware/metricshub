@@ -13,12 +13,12 @@
     PowerSupply.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(8)
   expected:
     monitors:
-      powerSupply:
+      power_supply:
         discovery:
           mapping:
             _comment: |-
               InstanceTable = Source(1)
-            source: $monitors.powerSupply.discovery.sources.source(1)$
+            source: $monitors.power_supply.discovery.sources.source(1)$
             attributes:
               deviceid: $column(1)
               powersupplytype: $column(2)
