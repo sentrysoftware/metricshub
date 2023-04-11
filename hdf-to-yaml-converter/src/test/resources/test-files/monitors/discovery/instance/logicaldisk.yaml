@@ -14,13 +14,13 @@
     // LogicalDisk.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(13)
   expected:
     monitors:
-      logicalDisk:
+      logical_disk:
         discovery:
           mapping:
             _comment: |-
               Instance Table
               DeviceID,DisplayID,SizeBytes,RemainingManagedSpace,IncludeInCapacityReport,Type,SystemID,RaidLevel
-            source: $monitors.logicalDisk.discovery.sources.source(8)$
+            source: $monitors.logical_disk.discovery.sources.source(8)$
             attributes:
               deviceid: $column(1)
               displayid: $column(2)

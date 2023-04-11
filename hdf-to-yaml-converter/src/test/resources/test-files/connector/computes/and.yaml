@@ -8,7 +8,7 @@
     NetworkCard.Discovery.Source(1).Compute(1).And=1023
   expected:
     monitors:
-      networkCard:
+      network:
         discovery:
           sources:
             source(1):
@@ -28,7 +28,7 @@
     NetworkCard.Collect.Source(1).Compute(1).And=1023
   expected:
     monitors:
-      networkCard:
+      network:
         collect:
           sources:
             source(1):

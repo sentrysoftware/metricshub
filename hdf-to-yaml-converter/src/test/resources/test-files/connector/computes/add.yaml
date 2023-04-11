@@ -32,7 +32,7 @@
     NetworkCard.Discovery.Source(3).Compute(9).Add=Column(15)
   expected:
     monitors:
-      networkCard:
+      network:
         discovery:
           sources:
             source(3):
@@ -102,7 +102,7 @@
     NetworkCard.Collect.Source(3).Compute(9).Add=Column(15)
   expected:
     monitors:
-      networkCard:
+      network:
         collect:
           sources:
             source(3):

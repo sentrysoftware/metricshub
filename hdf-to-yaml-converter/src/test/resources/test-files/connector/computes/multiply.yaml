@@ -20,7 +20,7 @@
                   type: multiply
                   column: 5
                   value: "1000"
-      physicalDisk:
+      physical_disk:
         discovery:
           sources:
             source(1):

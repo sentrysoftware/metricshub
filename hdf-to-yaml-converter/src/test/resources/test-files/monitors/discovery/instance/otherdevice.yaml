@@ -17,14 +17,14 @@
 
   expected:
     monitors:
-      otherDevice:
+      other_device:
         discovery:
           mapping:
             _comment: |-
               InstanceTable = Source(14)
               Type;Slot           ;ProductName         ;PartNumber  ;Serial;Model;
               Type;PartitionNumber;PrimaryOtherDeviceID;BladeDevices;      ;     ;
-            source: $monitors.otherDevice.discovery.sources.source(14)$
+            source: $monitors.other_device.discovery.sources.source(14)$
             attributes:
               deviceid: $column(2)
               devicetype: $column(1)

@@ -21,7 +21,7 @@
    PhysicalDisk.Collect.Source(1).Compute(1).ConversionType="Array2SimpleStatus"
   expected:
     monitors:
-      physicalDisk:
+      physical_disk:
         collect:
           sources:
             source(1):

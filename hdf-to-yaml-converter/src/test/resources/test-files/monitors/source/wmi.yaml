@@ -55,7 +55,7 @@
     DiskController.Discovery.Source(10).EntryConcatMethod="List"
   expected:
     monitors:
-      diskController:
+      disk_controller:
         discovery:
           sources:
             source(10):
@@ -64,7 +64,7 @@
                 DeviceId;ReadErrors;Wear;WriteErrors;Temperature;TemperatureMax;
               type: wmi
               executeForEachEntryOf:
-                source: $monitors.diskController.discovery.sources.source(7)$
+                source: $monitors.disk_controller.discovery.sources.source(7)$
                 concatMethod: list
               namespace: root\Microsoft\Windows\Storage
               query: SELECT DeviceId,ReadErrorsTotal,Wear,WriteErrorsTotal,Temperature,TemperatureMax FROM ASSOCIATORS OF {$entry.column(1)$} WHERE ResultClass = MSFT_StorageReliabilityCounter

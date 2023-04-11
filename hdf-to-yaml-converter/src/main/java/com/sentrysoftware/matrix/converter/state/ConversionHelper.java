@@ -16,33 +16,77 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ConversionHelper {
 
+	private static final String HDF_BATTERY = "battery";
+	private static final String HDF_BLADE = "blade";
+	private static final String HDF_CPU = "cpu";
+	private static final String HDF_CPU_CORE = "cpucore";
+	private static final String HDF_DISK_CONTROLLER = "diskcontroller";
+	private static final String HDF_ENCLOSURE = "enclosure";
+	private static final String HDF_FAN = "fan";
+	private static final String HDF_GPU = "gpu";
+	private static final String HDF_LED = "led";
+	private static final String HDF_LOGICAL_DISK = "logicaldisk";
+	private static final String HDF_LUN = "lun";
+	private static final String HDF_MEMORY = "memory";
+	private static final String HDF_NETWORK_CARD = "networkcard";
+	private static final String HDF_OTHER_DEVICE = "otherdevice";
+	private static final String HDF_PHYSICAL_DISK = "physicaldisk";
+	private static final String HDF_POWER_SUPPLY = "powersupply";
+	private static final String HDF_ROBOTIC = "robotic";
+	private static final String HDF_TAPEDRIVE = "tapedrive";
+	private static final String HDF_TEMPERATURE = "temperature";
+	private static final String HDF_VM = "vm";
+	private static final String HDF_VOLTAGE = "voltage";
+
+	private static final String YAML_BATTERY = HDF_BATTERY;
+	private static final String YAML_BLADE = HDF_BLADE;
+	private static final String YAML_CPU = HDF_CPU;
+	private static final String YAML_CPU_CORE = "cpu_core";
+	private static final String YAML_DISK_CONTROLLER = "disk_controller";
+	private static final String YAML_ENCLOSURE = "enclosure";
+	private static final String YAML_FAN = HDF_FAN;
+	private static final String YAML_GPU = HDF_GPU;
+	private static final String YAML_LED = HDF_LED;
+	private static final String YAML_LOGICAL_DISK = "logical_disk";
+	private static final String YAML_LUN = HDF_LUN;
+	private static final String YAML_MEMORY = HDF_MEMORY;
+	private static final String YAML_NETWORK = "network";
+	private static final String YAML_OTHER_DEVICE = "other_device";
+	private static final String YAML_PHYSICAL_DISK = "physical_disk";
+	private static final String YAML_POWER_SUPPLY = "power_supply";
+	private static final String YAML_ROBOTICS = "robotics";
+	private static final String YAML_TAPEDRIVE = "tape_drive";
+	private static final String YAML_TEMPERATURE = HDF_TEMPERATURE;
+	private static final String YAML_VM = HDF_VM;
+	private static final String YAML_VOLTAGE = HDF_VOLTAGE;
+
 	/**
 	 * HDF Device name to YAML connector Monitor name
 	 */
 	private static final Map<String, String> HDF_TO_YAML_MONITOR_NAME;
 	static {
 		Map<String, String> hdfToYamlMonitor = new HashMap<>();
-		hdfToYamlMonitor.put("battery", "battery");
-		hdfToYamlMonitor.put("blade", "blade");
-		hdfToYamlMonitor.put("cpu", "cpu");
-		hdfToYamlMonitor.put("cpucore", "cpuCore");
-		hdfToYamlMonitor.put("diskcontroller", "diskController");
-		hdfToYamlMonitor.put("enclosure", "enclosure");
-		hdfToYamlMonitor.put("fan", "fan");
-		hdfToYamlMonitor.put("gpu", "gpu");
-		hdfToYamlMonitor.put("led", "led");
-		hdfToYamlMonitor.put("logicaldisk", "logicalDisk");
-		hdfToYamlMonitor.put("lun", "lun");
-		hdfToYamlMonitor.put("memory", "memory");
-		hdfToYamlMonitor.put("networkcard", "networkCard");
-		hdfToYamlMonitor.put("otherdevice", "otherDevice");
-		hdfToYamlMonitor.put("physicaldisk", "physicalDisk");
-		hdfToYamlMonitor.put("powersupply", "powerSupply");
-		hdfToYamlMonitor.put("robotic", "robotics");
-		hdfToYamlMonitor.put("tapedrive", "tapeDrive");
-		hdfToYamlMonitor.put("temperature", "temperature");
-		hdfToYamlMonitor.put("vm", "vm");
-		hdfToYamlMonitor.put("voltage", "voltage");
+		hdfToYamlMonitor.put(HDF_BATTERY, YAML_BATTERY);
+		hdfToYamlMonitor.put(HDF_BLADE, YAML_BLADE);
+		hdfToYamlMonitor.put(HDF_CPU, YAML_CPU);
+		hdfToYamlMonitor.put(HDF_CPU_CORE, YAML_CPU_CORE);
+		hdfToYamlMonitor.put(HDF_DISK_CONTROLLER, YAML_DISK_CONTROLLER);
+		hdfToYamlMonitor.put(HDF_ENCLOSURE, YAML_ENCLOSURE);
+		hdfToYamlMonitor.put(HDF_FAN, YAML_FAN);
+		hdfToYamlMonitor.put(HDF_GPU, YAML_GPU);
+		hdfToYamlMonitor.put(HDF_LED, YAML_LED);
+		hdfToYamlMonitor.put(HDF_LOGICAL_DISK, YAML_LOGICAL_DISK);
+		hdfToYamlMonitor.put(HDF_LUN, YAML_LUN);
+		hdfToYamlMonitor.put(HDF_MEMORY, YAML_MEMORY);
+		hdfToYamlMonitor.put(HDF_NETWORK_CARD, YAML_NETWORK);
+		hdfToYamlMonitor.put(HDF_OTHER_DEVICE, YAML_OTHER_DEVICE);
+		hdfToYamlMonitor.put(HDF_PHYSICAL_DISK, YAML_PHYSICAL_DISK);
+		hdfToYamlMonitor.put(HDF_POWER_SUPPLY, YAML_POWER_SUPPLY);
+		hdfToYamlMonitor.put(HDF_ROBOTIC, YAML_ROBOTICS);
+		hdfToYamlMonitor.put(HDF_TAPEDRIVE, YAML_TAPEDRIVE);
+		hdfToYamlMonitor.put(HDF_TEMPERATURE, YAML_TEMPERATURE);
+		hdfToYamlMonitor.put(HDF_VM, YAML_VM);
+		hdfToYamlMonitor.put(HDF_VOLTAGE, YAML_VOLTAGE);
 
 		HDF_TO_YAML_MONITOR_NAME = Collections.unmodifiableMap(hdfToYamlMonitor);
 

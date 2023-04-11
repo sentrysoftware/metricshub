@@ -6,7 +6,7 @@
     PhysicalDisk.Discovery.Source(1).Compute(2).SubSeparators=" "
   expected:
     monitors:
-      physicalDisk:
+      physical_disk:
         discovery:
           sources:
             source(1):
