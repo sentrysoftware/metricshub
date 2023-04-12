@@ -10,15 +10,16 @@
     OtherDevice.Collect.PowerConsumtion=ValueTable.Column(6)
   expected:
     monitors:
-      otherDevice:
+      other_device:
         collect:
           _comment: DeviceID;Status;StatusInformation;Value;UsageCount;PowerConsumption
           mapping:
+            legacyTextParameters:
+              StatusInformation: $column(3)
             deviceId: $column(1)
-            source: $monitors.otherDevice.collect.sources.source(1)$
+            source: $monitors.other_device.collect.sources.source(1)$
             metrics:
               hw.status{hw.type="other_device"}: $column(2)
-              hw.status_information: $column(3)
               hw.other_device.uses: $column(4)
               hw.other_device.value: $column(5)
               hw.power{hw.type="other_device"}: $column(6)
