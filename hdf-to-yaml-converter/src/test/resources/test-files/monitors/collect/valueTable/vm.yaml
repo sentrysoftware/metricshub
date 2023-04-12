@@ -12,8 +12,6 @@
         collect:
           _comment: DeviceID;Status;PowerShare;PowerConsumption
           mapping:
-            legacyTextParameters:
-              StatusInformation: $column(3)
             deviceId: $column(1)
             source: $monitors.vm.collect.sources.source(1)$
             metrics:
