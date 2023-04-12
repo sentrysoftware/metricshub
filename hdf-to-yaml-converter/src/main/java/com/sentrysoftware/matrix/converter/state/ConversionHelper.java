@@ -38,32 +38,32 @@ public class ConversionHelper {
 	private static final String HDF_VM = "vm";
 	private static final String HDF_VOLTAGE = "voltage";
 
-	private static final String YAML_BATTERY = HDF_BATTERY;
-	private static final String YAML_BLADE = HDF_BLADE;
-	private static final String YAML_CPU = HDF_CPU;
-	private static final String YAML_CPU_CORE = "cpu_core";
-	private static final String YAML_DISK_CONTROLLER = "disk_controller";
-	private static final String YAML_ENCLOSURE = HDF_ENCLOSURE;
-	private static final String YAML_FAN = HDF_FAN;
-	private static final String YAML_GPU = HDF_GPU;
-	private static final String YAML_LED = HDF_LED;
-	private static final String YAML_LOGICAL_DISK = "logical_disk";
-	private static final String YAML_LUN = HDF_LUN;
-	private static final String YAML_MEMORY = HDF_MEMORY;
-	private static final String YAML_NETWORK = "network";
-	private static final String YAML_OTHER_DEVICE = "other_device";
-	private static final String YAML_PHYSICAL_DISK = "physical_disk";
-	private static final String YAML_POWER_SUPPLY = "power_supply";
-	private static final String YAML_ROBOTICS = "robotics";
-	private static final String YAML_TAPEDRIVE = "tape_drive";
-	private static final String YAML_TEMPERATURE = HDF_TEMPERATURE;
-	private static final String YAML_VM = HDF_VM;
-	private static final String YAML_VOLTAGE = HDF_VOLTAGE;
+	public static final String YAML_BATTERY = HDF_BATTERY;
+	public static final String YAML_BLADE = HDF_BLADE;
+	public static final String YAML_CPU = HDF_CPU;
+	public static final String YAML_CPU_CORE = "cpu_core";
+	public static final String YAML_DISK_CONTROLLER = "disk_controller";
+	public static final String YAML_ENCLOSURE = HDF_ENCLOSURE;
+	public static final String YAML_FAN = HDF_FAN;
+	public static final String YAML_GPU = HDF_GPU;
+	public static final String YAML_LED = HDF_LED;
+	public static final String YAML_LOGICAL_DISK = "logical_disk";
+	public static final String YAML_LUN = HDF_LUN;
+	public static final String YAML_MEMORY = HDF_MEMORY;
+	public static final String YAML_NETWORK = "network";
+	public static final String YAML_OTHER_DEVICE = "other_device";
+	public static final String YAML_PHYSICAL_DISK = "physical_disk";
+	public static final String YAML_POWER_SUPPLY = "power_supply";
+	public static final String YAML_ROBOTICS = "robotics";
+	public static final String YAML_TAPEDRIVE = "tape_drive";
+	public static final String YAML_TEMPERATURE = HDF_TEMPERATURE;
+	public static final String YAML_VM = HDF_VM;
+	public static final String YAML_VOLTAGE = HDF_VOLTAGE;
 
 	/**
 	 * HDF Device name to YAML connector Monitor name
 	 */
-	private static final Map<String, String> HDF_TO_YAML_MONITOR_NAME;
+	public static final Map<String, String> HDF_TO_YAML_MONITOR_NAME;
 	static {
 		Map<String, String> hdfToYamlMonitor = new HashMap<>();
 		hdfToYamlMonitor.put(HDF_BATTERY, YAML_BATTERY);
