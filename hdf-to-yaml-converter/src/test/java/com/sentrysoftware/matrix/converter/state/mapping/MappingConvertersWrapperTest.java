@@ -1,12 +1,12 @@
 package com.sentrysoftware.matrix.converter.state.mapping;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -34,7 +34,6 @@ class MappingConvertersWrapperTest {
 	private static final MappingConvertersWrapper MAPPING_CONVERTERS_WRAPPER  = new MappingConvertersWrapper(CONVERTERS);
 
 	@Test
-	@Disabled("Until MappingConvertersWrapper is up")
 	void testConvertParameterActivation() {
 		final JsonNode conditionalCollection = JsonNodeFactory.instance.objectNode();
 		MAPPING_CONVERTERS_WRAPPER.convertParameterActivation("parameteractivation.status", COLUMN_1, ConversionHelper.YAML_ENCLOSURE, conditionalCollection);
@@ -44,13 +43,11 @@ class MappingConvertersWrapperTest {
 	}
 
 	@Test
-	@Disabled("Until MappingConvertersWrapper is up")
 	void testGetConverterForMonitorType() {
 		assertNotNull(MAPPING_CONVERTERS_WRAPPER.getConverterForMonitorType(ConversionHelper.YAML_ENCLOSURE));
 	}
 
 	@Test
-	@Disabled("Until MappingConvertersWrapper is up")
 	void testConvertCollectProperty() {
 		final JsonNode metrics = JsonNodeFactory.instance.objectNode();
 		MAPPING_CONVERTERS_WRAPPER.convertParameterActivation(HDF_STATUS, COLUMN_1, ConversionHelper.YAML_ENCLOSURE, metrics);
@@ -60,12 +57,11 @@ class MappingConvertersWrapperTest {
 	}
 
 	@Test
-	@Disabled("Until MappingConvertersWrapper is up")
 	void testPostConvertDiscovery() {
 		final ObjectNode connector = JsonNodeFactory.instance.objectNode();
 		final ObjectNode monitors = JsonNodeFactory.instance.objectNode();
-		final ObjectNode discovery = JsonNodeFactory.instance.objectNode();
 		final ObjectNode enclosure = JsonNodeFactory.instance.objectNode();
+		final ObjectNode discovery = JsonNodeFactory.instance.objectNode();
 		final ObjectNode mapping = JsonNodeFactory.instance.objectNode();
 		final ObjectNode attributes = JsonNodeFactory.instance.objectNode();
 		connector.set(ConverterConstants.MONITORS, monitors);
