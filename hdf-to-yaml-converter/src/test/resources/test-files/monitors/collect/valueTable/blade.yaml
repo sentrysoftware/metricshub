@@ -12,6 +12,8 @@
         collect:
           _comment: DeviceID;Status;StatusInformation;PowerState
           mapping:
+            legacyTextParameters:
+              StatusInformation: $column(3)
             deviceId: $column(1)
             source: $monitors.blade.collect.sources.source(1)$
             metrics:
