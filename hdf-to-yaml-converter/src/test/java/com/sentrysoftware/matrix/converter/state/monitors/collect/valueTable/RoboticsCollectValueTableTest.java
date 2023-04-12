@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.converter.AbstractConnectorPropertyConverterTest;
 
-public class RoboticsCollectValueTableTest extends AbstractConnectorPropertyConverterTest{
+class RoboticsCollectValueTableTest extends AbstractConnectorPropertyConverterTest{
 	
 	@Override
 	protected String getResourcePath() {

@@ -13,10 +13,11 @@
         collect:
           _comment: DeviceID;Status;StatusInformation;Moves;Errors
           mapping:
+            legacyTextParameters:
+              StatusInformation: $column(3)
             deviceId: $column(1)
             source: $monitors.robotics.collect.sources.source(1)$
             metrics:
               hw.status{hw.type="robotics"}: $column(2)
-              hw.status_information: $column(3)
-              hw.robotics.moves: delta($column(4))
-              hw.errors{hw.type="robotics"}: persistCounter($column(5))
+              hw.robotics.moves: $column(4)
+              hw.errors{hw.type="robotics"}: $column(5)
