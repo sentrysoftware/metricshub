@@ -172,7 +172,7 @@ class MonitorsDeserializerTest extends DeserializerTest {
 				WbemSource
 					.builder()
 					.type("wbem")
-					.query("SELECT __PATH,OperationalStatus FROM EMC_StorageSystem")
+					.query("SELECT __PATH,OperationalStatus,StatusDescription FROM EMC_StorageSystem")
 					.namespace("root/emc")
 					.key("$monitors.enclosure.collect.sources.source(1)$")
 					.build()
@@ -188,6 +188,7 @@ class MonitorsDeserializerTest extends DeserializerTest {
 			.deviceId("$column(1)")
 			.source("$monitors.enclosure.collect.sources.Source(1)$")
 			.metrics(Map.of("hw.status", "$column(2)"))
+			.legacyTextParameters(Map.of("StatusInformation", "$column(3)"))
 			.build();
 
 		assertEquals(expectedMapping, mapping);
