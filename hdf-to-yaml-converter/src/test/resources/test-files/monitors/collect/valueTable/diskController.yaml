@@ -1,40 +1,38 @@
 - name: diskControllerCoreValueTable
   input: |
-    // DeviceID;Status;StatusInformation;BatteryStatus
+    // DeviceID;Status;StatusInformation
     DiskController.Collect.ValueTable=%DiskController.Collect.Source(1)%
     DiskController.Collect.DeviceID=ValueTable.Column(1)
     DiskController.Collect.Status=ValueTable.Column(2)
     DiskController.Collect.StatusInformation=ValueTable.Column(3)
-    DiskController.Collect.BatteryStatus=ValueTable.Column(4)
   expected:
     monitors:
-      diskController:
+      disk_controller:
         collect:
-          _comment: DeviceID;Status;StatusInformation;BatteryStatus
+          _comment: DeviceID;Status;StatusInformation
           mapping:
+            legacyTextParameters:
+              StatusInformation: $column(3)
             deviceId: $column(1)
-            source: $monitors.diskController.collect.sources.source(1)$
+            source: $monitors.disk_controller.collect.sources.source(1)$
             metrics:
               hw.status{hw.type="disk_controller"}: $column(2)
-              hw.status_information: $column(3)
-              hw.status{hw.type="disk_controller", state="battery_state"}: $column(4)
 - name: diskControllerStatusCoreValueTable
   input: |
-    // DeviceID;Status;StatusInformation;BatteryStatus
+    // DeviceID;Status;StatusInformation
     DiskController.Collect.ValueTable=%DiskController.Collect.Source(1)%
     DiskController.Collect.DeviceID=ValueTable.Column(1)
     DiskController.Collect.ControllerStatus=ValueTable.Column(2)
     DiskController.Collect.StatusInformation=ValueTable.Column(3)
-    DiskController.Collect.BatteryStatus=ValueTable.Column(4)
   expected:
     monitors:
-      diskController:
+      disk_controller:
         collect:
-          _comment: DeviceID;Status;StatusInformation;BatteryStatus
+          _comment: DeviceID;Status;StatusInformation
           mapping:
+            legacyTextParameters:
+              StatusInformation: $column(3)
             deviceId: $column(1)
-            source: $monitors.diskController.collect.sources.source(1)$
+            source: $monitors.disk_controller.collect.sources.source(1)$
             metrics:
               hw.status{hw.type="disk_controller"}: $column(2)
-              hw.status_information: $column(3)
-              hw.status{hw.type="disk_controller", state="battery_state"}: $column(4)
