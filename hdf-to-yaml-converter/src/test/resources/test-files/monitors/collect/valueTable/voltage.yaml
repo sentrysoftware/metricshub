@@ -12,9 +12,10 @@
         collect:
           _comment: DeviceID;Status;StatusInformation;Voltage
           mapping:
+            legacyTextParameters:
+              StatusInformation: $column(3)
             deviceId: $column(1)
             source: $monitors.voltage.collect.sources.source(1)$
             metrics:
               hw.status{hw.type="voltage"}: $column(2)
-              hw.status_information: $column(3)
               hw.voltage: $column(4)
