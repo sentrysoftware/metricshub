@@ -16,19 +16,20 @@
     NetworkCard.Collect.LinkSpeed=ValueTable.Column(12)
   expected:
     monitors:
-      networkCard:
+      network:
         collect:
           _comment: DeviceID;Status;StatusInformation;NetworkUp;NetworkDuplex;ZeroBufferCredit;ErrorCount;ReceivedBytes;TransmittedBytes;ReceivedPackets;TransmittedPackets;LinkSpeed
           mapping:
+            legacyTextParameters:
+              StatusInformation: $column(3)
             deviceId: $column(1)
-            source: $monitors.networkCard.collect.sources.source(1)$
+            source: $monitors.network.collect.sources.source(1)$
             metrics:
               hw.status{hw.type="network"}: $column(2)
-              hw.status_information: $column(3)
               hw.network.up: legacyLinkStatus($column(4))
               hw.network.full_duplex: legacyFullDuplex($column(5))
-              hw.errors{hw.type="network", type="zero_buffer_credit"}: persistCounter($column(6))
-              hw.errors{hw.type="network", type="all"}: persistCounter($column(7))
+              hw.errors{hw.type="network", type="zero_buffer_credit"}: $column(6)
+              hw.errors{hw.type="network", type="all"}: $column(7)
               hw.network.io{direction="receive"}: $column(8)
               hw.network.io{direction="transmit"}: $column(9)
               hw.network.packets{direction="receive"}: $column(10)
