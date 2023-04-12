@@ -12,10 +12,10 @@
         collect:
           _comment: DeviceID;Status;PowerShare;PowerConsumption
           mapping:
+            legacyTextParameters:
+              StatusInformation: $column(3)
             deviceId: $column(1)
             source: $monitors.vm.collect.sources.source(1)$
             metrics:
-              hw.status{hw.type="vm"}: $column(2)
+              hw.vm.power_state: $column(2))
               hw.vm.power_ratio: percent2Ration($column(3))
-              hw.power{hw.type="vm"}: $column(4)
-              hw.energy{hw.type="vm"}: fakeCounter($column(4))
