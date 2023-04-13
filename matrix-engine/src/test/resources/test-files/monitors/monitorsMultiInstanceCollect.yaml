@@ -73,10 +73,12 @@ monitors:
       sources:
         source(1):
           type: wbem
-          query: SELECT __PATH,OperationalStatus FROM EMC_StorageSystem
+          query: SELECT __PATH,OperationalStatus,StatusDescription FROM EMC_StorageSystem
           namespace: root/emc
       mapping:
         deviceId: $column(1) 
         source: $monitors.enclosure.collect.sources.Source(1)$
         metrics:
           hw.status: $column(2)
+        legacyTextParameters:
+          StatusInformation: $column(3)
