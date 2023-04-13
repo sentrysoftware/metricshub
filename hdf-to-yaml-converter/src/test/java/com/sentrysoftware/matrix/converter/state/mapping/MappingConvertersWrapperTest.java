@@ -1,5 +1,8 @@
 package com.sentrysoftware.matrix.converter.state.mapping;
 
+
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ENCLOSURE;
+import static com.sentrysoftware.matrix.converter.state.ConversionHelper.performValueConversions;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -14,7 +17,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sentrysoftware.matrix.converter.ConverterConstants;
-import com.sentrysoftware.matrix.converter.state.ConversionHelper;
 
 class MappingConvertersWrapperTest {
 
@@ -28,7 +30,7 @@ class MappingConvertersWrapperTest {
 	private static final String YAML_STATUS = "hw.status{hw.type=\"enclosure\"}";
 
 	private static final Map<String, IMappingConverter> CONVERTERS = Map.of(
-		ConversionHelper.YAML_ENCLOSURE, new TestMappingConverter()
+		YAML_ENCLOSURE, new TestMappingConverter()
 	);
 
 	private static final MappingConvertersWrapper MAPPING_CONVERTERS_WRAPPER  = new MappingConvertersWrapper(CONVERTERS);
@@ -36,7 +38,7 @@ class MappingConvertersWrapperTest {
 	@Test
 	void testConvertParameterActivation() {
 		final JsonNode conditionalCollection = JsonNodeFactory.instance.objectNode();
-		MAPPING_CONVERTERS_WRAPPER.convertParameterActivation("parameteractivation.status", COLUMN_1, ConversionHelper.YAML_ENCLOSURE, conditionalCollection);
+		MAPPING_CONVERTERS_WRAPPER.convertParameterActivation("parameteractivation.status", COLUMN_1, YAML_ENCLOSURE, conditionalCollection);
 		final ObjectNode expected = JsonNodeFactory.instance.objectNode();
 		expected.set(YAML_STATUS, new TextNode(COLUMN_1));
 		assertEquals(expected, conditionalCollection);
@@ -44,13 +46,13 @@ class MappingConvertersWrapperTest {
 
 	@Test
 	void testGetConverterForMonitorType() {
-		assertNotNull(MAPPING_CONVERTERS_WRAPPER.getConverterForMonitorType(ConversionHelper.YAML_ENCLOSURE));
+		assertNotNull(MAPPING_CONVERTERS_WRAPPER.getConverterForMonitorType(YAML_ENCLOSURE));
 	}
 
 	@Test
 	void testConvertCollectProperty() {
 		final JsonNode metrics = JsonNodeFactory.instance.objectNode();
-		MAPPING_CONVERTERS_WRAPPER.convertParameterActivation(HDF_STATUS, COLUMN_1, ConversionHelper.YAML_ENCLOSURE, metrics);
+		MAPPING_CONVERTERS_WRAPPER.convertParameterActivation(HDF_STATUS, COLUMN_1, YAML_ENCLOSURE, metrics);
 		final ObjectNode expected = JsonNodeFactory.instance.objectNode();
 		expected.set(YAML_STATUS, new TextNode(COLUMN_1));
 		assertEquals(expected, metrics);
@@ -65,7 +67,7 @@ class MappingConvertersWrapperTest {
 		final ObjectNode mapping = JsonNodeFactory.instance.objectNode();
 		final ObjectNode attributes = JsonNodeFactory.instance.objectNode();
 		connector.set(ConverterConstants.MONITORS, monitors);
-		monitors.set(ConversionHelper.YAML_ENCLOSURE, enclosure);
+		monitors.set(YAML_ENCLOSURE, enclosure);
 		enclosure.set(ConverterConstants.DISCOVERY, discovery);
 		discovery.set(ConverterConstants.MAPPING, mapping);
 		mapping.set(ConverterConstants.ATTRIBUTES, attributes);
@@ -105,7 +107,7 @@ class MappingConvertersWrapperTest {
 			((ObjectNode) node)
 				.set(
 					newKey,
-					JsonNodeFactory.instance.textNode(ConversionHelper.performValueConversions(value))
+					JsonNodeFactory.instance.textNode(performValueConversions(value))
 				);
 		}
 	}
