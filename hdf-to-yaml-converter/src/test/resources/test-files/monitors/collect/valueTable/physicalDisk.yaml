@@ -7,18 +7,33 @@
     PhysicalDisk.Collect.StatusInformation=ValueTable.Column(3)
     PhysicalDisk.Collect.PredictedFailure=ValueTable.Column(4)
     PhysicalDisk.Collect.ErrorCount=ValueTable.Column(5)
-    PhysicalDisk.Collect.EnduranceRemaining=ValueTable.Column(6)
+    PhysicalDisk.Collect.TransportErrorCount=ValueTable.Column(6)
+    PhysicalDisk.Collect.IllegalRequestErrorCount=ValueTable.Column(7)
+    PhysicalDisk.Collect.NoDeviceErrorCount=ValueTable.Column(8)
+    PhysicalDisk.Collect.DeviceNotReadyErrorCount=ValueTable.Column(9)
+    PhysicalDisk.Collect.RecoverableErrorCount=ValueTable.Column(10)
+    PhysicalDisk.Collect.HardErrorCount=ValueTable.Column(11)
+    PhysicalDisk.Collect.MediaErrorCount=ValueTable.Column(12)
+    PhysicalDisk.Collect.EnduranceRemaining=ValueTable.Column(13)
   expected:
     monitors:
-      physicalDisk:
+      physical_disk:
         collect:
           _comment: DeviceID;Status;StatusInformation;PredictedFailure;Errors;Endurance
           mapping:
+            legacyTextParameters:
+              StatusInformation: $column(3)
             deviceId: $column(1)
-            source: $monitors.physicalDisk.collect.sources.source(1)$
+            source: $monitors.physical_disk.collect.sources.source(1)$
             metrics:
               hw.status{hw.type="physical_disk"}: $column(2)
-              hw.status_information: $column(3)
               hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($column(4))
-              hw.errors{hw.type="physical_disk"}: persistCounter($column(5))
-              hw.physical_disk.endurance_utilization{state="remaining"}: percent2Ration($column(6))
+              hw.errors{hw.type="physical_disk"}: $column(5)
+              hw.errors{hw.type="physical_disk", hw.error.type="transport"}: $column(6)
+              hw.errors{hw.type="physical_disk", hw.error.type="illegal_request"}: $column(7)
+              hw.errors{hw.type="physical_disk", hw.error.type="no_device"}: $column(8)
+              hw.errors{hw.type="physical_disk", hw.error.type="device_not_ready"}: $column(9)
+              hw.errors{hw.type="physical_disk", hw.error.type="recoverable"}: $column(10)
+              hw.errors{hw.type="physical_disk", hw.error.type="hard"}: $column(11)
+              hw.errors{hw.type="physical_disk", hw.error.type="media"}: $column(12)
+              hw.physical_disk.endurance_utilization{state="remaining"}: percent2Ration($column(13))
