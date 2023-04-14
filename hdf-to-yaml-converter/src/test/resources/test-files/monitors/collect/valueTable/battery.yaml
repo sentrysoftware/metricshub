@@ -14,7 +14,7 @@
           _comment: DeviceID;Capacity;RuntimeRemaining_minutes;Status;StatusInformation;
           mapping:
             legacyTextParameters:
-              StatusInformation: $column(3)
+              StatusInformation: $column(5)
             deviceId: $column(1)
             source: $monitors.battery.collect.sources.source(1)$
             metrics:
