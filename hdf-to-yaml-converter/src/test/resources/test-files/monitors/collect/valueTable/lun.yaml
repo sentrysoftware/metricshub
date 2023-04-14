@@ -21,4 +21,3 @@
             metrics:
               hw.status{hw.type="lun"}: $column(2)
               hw.lun.paths: $column(4)
-              hw.lun.available_info: $column(5)
