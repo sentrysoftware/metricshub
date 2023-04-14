@@ -1,0 +1,73 @@
+- name: enclosureValueTable
+  input: |
+    // DeviceID;Status;StatusInformation;IntrusionStatus;EnergyUsage;PowerConsumption
+    Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(1)%
+    Enclosure.Collect.DeviceID=ValueTable.Column(1)
+    Enclosure.Collect.Status=ValueTable.Column(2)
+    Enclosure.Collect.StatusInformation=ValueTable.Column(3)
+    Enclosure.Collect.IntrusionStatus=ValueTable.Column(4)
+    Enclosure.Collect.EnergyUsage=ValueTable.Column(5)
+    Enclosure.Collect.PowerConsumption=ValueTable.Column(6)
+  expected:
+    monitors:
+      enclosure:
+        collect:
+          _comment: DeviceID;Status;StatusInformation;IntrusionStatus;EnergyUsage;PowerConsumption
+          mapping:
+            legacyTextParameters:
+              StatusInformation: $column(3)
+            deviceId: $column(1)
+            source: $monitors.enclosure.collect.sources.source(1)$
+            metrics:
+              hw.status{hw.type="enclosure"}: $column(2)
+              hw.status{hw.type="enclosure", state="open"}: legacyIntrusionStatus($column(4))
+              hw.enclosure.energy: $column(5)
+              hw.enclosure.power: $column(6)
+- name: enclosureEnergyValueTable
+  input: |
+    // DeviceID;Status;StatusInformation;IntrusionStatus;EnergyUsage
+    Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(1)%
+    Enclosure.Collect.DeviceID=ValueTable.Column(1)
+    Enclosure.Collect.Status=ValueTable.Column(2)
+    Enclosure.Collect.StatusInformation=ValueTable.Column(3)
+    Enclosure.Collect.IntrusionStatus=ValueTable.Column(4)
+    Enclosure.Collect.EnergyUsage=ValueTable.Column(5)
+  expected:
+    monitors:
+      enclosure:
+        collect:
+          _comment: DeviceID;Status;StatusInformation;IntrusionStatus;EnergyUsage
+          mapping:
+            legacyTextParameters:
+              StatusInformation: $column(3)
+            deviceId: $column(1)
+            source: $monitors.enclosure.collect.sources.source(1)$
+            metrics:
+              hw.status{hw.type="enclosure"}: $column(2)
+              hw.status{hw.type="enclosure", state="open"}: legacyIntrusionStatus($column(4))
+              hw.enclosure.energy: $column(5)
+              hw.enclosure.power: rate($column(5))
+- name: enclosurePowerConsumptionValueTable
+  input: |
+    // DeviceID;Status;StatusInformation;IntrusionStatus;PowerConsumption
+    Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(1)%
+    Enclosure.Collect.DeviceID=ValueTable.Column(1)
+    Enclosure.Collect.Status=ValueTable.Column(2)
+    Enclosure.Collect.StatusInformation=ValueTable.Column(3)
+    Enclosure.Collect.IntrusionStatus=ValueTable.Column(4)
+    Enclosure.Collect.PowerConsumption=ValueTable.Column(5)
+  expected:
+    monitors:
+      enclosure:
+        collect:
+          _comment: DeviceID;Status;StatusInformation;IntrusionStatus;PowerConsumption
+          mapping:
+            legacyTextParameters:
+              StatusInformation: $column(3)
+            deviceId: $column(1)
+            source: $monitors.enclosure.collect.sources.source(1)$
+            metrics:
+              hw.status{hw.type="enclosure"}: $column(2)
+              hw.status{hw.type="enclosure", state="open"}: legacyIntrusionStatus($column(4))
+              hw.enclosure.energy: fakeCounter($column(5))
+              hw.enclosure.power: $column(5)
