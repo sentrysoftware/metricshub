@@ -6,7 +6,7 @@
     Memory.Collect.Status=ValueTable.Column(2)
     Memory.Collect.StatusInformation=ValueTable.Column(3)
     Memory.Collect.PredictedFailure=ValueTable.Column(4)
-    Memory.Collect.Memory.Collect.ErrorCount=ValueTable.Column(5)
+    Memory.Collect.ErrorCount=ValueTable.Column(5)
   expected:
     monitors:
       memory:
@@ -19,6 +19,5 @@
             source: $monitors.memory.collect.sources.source(1)$
             metrics:
               hw.status{hw.type="memory"}: $column(2)
-              hw.status_information: $column(3)
               hw.status{hw.type="memory", state="predicted_failure"}: boolean($column(4))
               hw.errors{hw.type="memory"}: $column(5)
