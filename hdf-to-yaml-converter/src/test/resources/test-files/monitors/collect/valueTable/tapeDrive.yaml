@@ -18,10 +18,10 @@
             legacyTextParameters:
               StatusInformation: $column(3)
             deviceId: $column(1)
-            source: $monitors.tapeDrive.collect.sources.source(1)$
+            source: $monitors.tape_drive.collect.sources.source(1)$
             metrics:
               hw.status{hw.type="tape_drive"}: $column(2)
-              hw.tape_drive.operations{type="mount"}: delta($column(4))
-              hw.tape_drive.operations{type="unmount"}: delta($column(5))
-              hw.errors{hw.type="tape_drive"}: persistCounter($column(6))
-              hw.status{hw.type="tape_drive", state="needs_cleaning"}: LegacyNeedsCleaning($column(7))
+              hw.tape_drive.operations{type="mount"}: $column(4)
+              hw.tape_drive.operations{type="unmount"}: $column(5)
+              hw.errors{hw.type="tape_drive"}: $column(6)
+              hw.status{hw.type="tape_drive", state="needs_cleaning"}: legacyNeedsCleaning($column(7))
