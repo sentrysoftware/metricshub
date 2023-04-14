@@ -20,8 +20,8 @@
             source: $monitors.other_device.collect.sources.source(1)$
             metrics:
               hw.status{hw.type="other_device"}: $column(2)
-              hw.other_device.uses: $column(4)
-              hw.other_device.value: $column(5)
+              hw.other_device.value: $column(4)
+              hw.other_device.uses: $column(5)
               hw.power{hw.type="other_device"}: $column(6)
               hw.energy{hw.type="other_device"}: fakeCounter($column(6))
               
