@@ -1,5 +1,48 @@
 package com.sentrysoftware.matrix.converter.state;
 
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_BATTERY;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_BLADE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_CPU;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_CPU_CORE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_DISK_CONTROLLER;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_ENCLOSURE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_FAN;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_GPU;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_LED;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_LOGICAL_DISK;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_LUN;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_MEMORY;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_NETWORK_CARD;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_OTHER_DEVICE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_PHYSICAL_DISK;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_POWER_SUPPLY;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_ROBOTIC;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_TAPEDRIVE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_TEMPERATURE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_VM;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_VOLTAGE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_BATTERY;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_BLADE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_CPU;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_CPU_CORE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_DISK_CONTROLLER;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ENCLOSURE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_FAN;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_GPU;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_LED;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_LOGICAL_DISK;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_LUN;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_MEMORY;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_NETWORK;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_OTHER_DEVICE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_PHYSICAL_DISK;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_POWER_SUPPLY;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ROBOTICS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TAPEDRIVE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TEMPERATURE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VM;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VOLTAGE;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -15,50 +58,6 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ConversionHelper {
-
-	private static final String HDF_BATTERY = "battery";
-	private static final String HDF_BLADE = "blade";
-	private static final String HDF_CPU = "cpu";
-	private static final String HDF_CPU_CORE = "cpucore";
-	private static final String HDF_DISK_CONTROLLER = "diskcontroller";
-	private static final String HDF_ENCLOSURE = "enclosure";
-	private static final String HDF_FAN = "fan";
-	private static final String HDF_GPU = "gpu";
-	private static final String HDF_LED = "led";
-	private static final String HDF_LOGICAL_DISK = "logicaldisk";
-	private static final String HDF_LUN = "lun";
-	private static final String HDF_MEMORY = "memory";
-	private static final String HDF_NETWORK_CARD = "networkcard";
-	private static final String HDF_OTHER_DEVICE = "otherdevice";
-	private static final String HDF_PHYSICAL_DISK = "physicaldisk";
-	private static final String HDF_POWER_SUPPLY = "powersupply";
-	private static final String HDF_ROBOTIC = "robotic";
-	private static final String HDF_TAPEDRIVE = "tapedrive";
-	private static final String HDF_TEMPERATURE = "temperature";
-	private static final String HDF_VM = "vm";
-	private static final String HDF_VOLTAGE = "voltage";
-
-	public static final String YAML_BATTERY = HDF_BATTERY;
-	public static final String YAML_BLADE = HDF_BLADE;
-	public static final String YAML_CPU = HDF_CPU;
-	public static final String YAML_CPU_CORE = "cpu_core";
-	public static final String YAML_DISK_CONTROLLER = "disk_controller";
-	public static final String YAML_ENCLOSURE = HDF_ENCLOSURE;
-	public static final String YAML_FAN = HDF_FAN;
-	public static final String YAML_GPU = HDF_GPU;
-	public static final String YAML_LED = HDF_LED;
-	public static final String YAML_LOGICAL_DISK = "logical_disk";
-	public static final String YAML_LUN = HDF_LUN;
-	public static final String YAML_MEMORY = HDF_MEMORY;
-	public static final String YAML_NETWORK = "network";
-	public static final String YAML_OTHER_DEVICE = "other_device";
-	public static final String YAML_PHYSICAL_DISK = "physical_disk";
-	public static final String YAML_POWER_SUPPLY = "power_supply";
-	public static final String YAML_ROBOTICS = "robotics";
-	public static final String YAML_TAPEDRIVE = "tape_drive";
-	public static final String YAML_TEMPERATURE = HDF_TEMPERATURE;
-	public static final String YAML_VM = HDF_VM;
-	public static final String YAML_VOLTAGE = HDF_VOLTAGE;
 
 	/**
 	 * HDF Device name to YAML connector Monitor name

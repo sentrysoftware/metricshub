@@ -1,4 +1,4 @@
-- name: test1
+- name: test1ControllerNumber
   input: |
     // InstanceTable = Source(1)
     Battery.Discovery.InstanceTable=%Battery.Discovery.Source(1)%
@@ -12,6 +12,36 @@
     Battery.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(5)
     Battery.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(6)
     Battery.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(7)
+  expected:
+    monitors:
+      battery:
+        discovery:
+          mapping:
+            _comment: InstanceTable = Source(1)
+            source: $monitors.battery.discovery.sources.source(1)$
+            attributes:
+              vendor: APC
+              type: UPS
+              id: bat
+              model: $column(1)
+              chemistry: LiFePO4
+              hw.parent.type: disk_controller
+              hw.parent.id: lookup("disk_controller", "id", "controller_number", $column(2))
+              __display_id: testname
+              info: join($column(5), $column(6), $column(7), " ")
+              name: sprintf("%s (%s %s - %s)", "testname", "APC", $column(1), "UPS")
+- name: test2AttachedToDeviceIdAndType
+  input: |
+    // InstanceTable = Source(1)
+    Battery.Discovery.InstanceTable=%Battery.Discovery.Source(1)%
+    Battery.Discovery.Instance.DeviceID="bat"
+    Battery.Discovery.Instance.Model=InstanceTable.Column(1)
+    Battery.Discovery.Instance.Vendor="APC"
+    Battery.Discovery.Instance.Type="UPS"
+    Battery.Discovery.Instance.DisplayID="testname"
+    Battery.Discovery.Instance.Chemistry="LiFePO4"
+    Battery.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(5)
+    Battery.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(6)
     Battery.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(3)
     Battery.Discovery.Instance.AttachedToDeviceType=InstanceTable.Column(4)
   expected:
@@ -24,13 +54,175 @@
             attributes:
               vendor: APC
               type: UPS
-              deviceid: bat
+              id: bat
               model: $column(1)
               chemistry: LiFePO4
-              attachedtodeviceid: $column(3)
-              attachedtodevicetype: $column(4)
-              controllernumber: $column(2)
-              displayid: testname
-              additionalinformation1: $column(5)
-              additionalinformation2: $column(6)
-              additionalinformation3: $column(7)
+              hw.parent.type: $column(4)
+              hw.parent.id: $column(3)
+              __display_id: testname
+              info: join($column(5), $column(6), " ")
+              name: sprintf("%s (%s %s - %s)", "testname", "APC", $column(1), "UPS")
+- name: test3AttachedToDeviceIdOnly
+  input: |
+    // InstanceTable = Source(1)
+    Battery.Discovery.InstanceTable=%Battery.Discovery.Source(1)%
+    Battery.Discovery.Instance.DeviceID="bat"
+    Battery.Discovery.Instance.Model=InstanceTable.Column(1)
+    Battery.Discovery.Instance.Vendor="APC"
+    Battery.Discovery.Instance.Type="UPS"
+    Battery.Discovery.Instance.DisplayID="testname"
+    Battery.Discovery.Instance.Chemistry="LiFePO4"
+    Battery.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(5)
+    Battery.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(3)
+  expected:
+    monitors:
+      battery:
+        discovery:
+          mapping:
+            _comment: InstanceTable = Source(1)
+            source: $monitors.battery.discovery.sources.source(1)$
+            attributes:
+              vendor: APC
+              type: UPS
+              id: bat
+              model: $column(1)
+              chemistry: LiFePO4
+              hw.parent.type: enclosure
+              hw.parent.id: $column(3)
+              __display_id: testname
+              info: $column(5)
+              name: sprintf("%s (%s %s - %s)", "testname", "APC", $column(1), "UPS") # The name contains __display_id, vendor, model and type
+- name: test4NameNoDisplayId
+  input: |
+    // InstanceTable = Source(1)
+    Battery.Discovery.InstanceTable=%Battery.Discovery.Source(1)%
+    Battery.Discovery.Instance.DeviceID="bat"
+    Battery.Discovery.Instance.Model=InstanceTable.Column(1)
+    Battery.Discovery.Instance.Vendor="APC"
+    Battery.Discovery.Instance.Type="UPS"
+    Battery.Discovery.Instance.Chemistry="LiFePO4"
+    Battery.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(5)
+    Battery.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(3)
+  expected:
+    monitors:
+      battery:
+        discovery:
+          mapping:
+            _comment: InstanceTable = Source(1)
+            source: $monitors.battery.discovery.sources.source(1)$
+            attributes:
+              vendor: APC
+              type: UPS
+              id: bat
+              model: $column(1)
+              chemistry: LiFePO4
+              hw.parent.type: enclosure
+              hw.parent.id: $column(3)
+              info: $column(5)
+              name: sprintf("%s (%s %s - %s)", "bat", "APC", $column(1), "UPS") # The name contains id, vendor, model and type
+- name: test4NameNoModel
+  input: |
+    // InstanceTable = Source(1)
+    Battery.Discovery.InstanceTable=%Battery.Discovery.Source(1)%
+    Battery.Discovery.Instance.DeviceID="bat"
+    Battery.Discovery.Instance.Vendor="APC"
+    Battery.Discovery.Instance.Type="UPS"
+    Battery.Discovery.Instance.DisplayID="testname"
+    Battery.Discovery.Instance.Chemistry="LiFePO4"
+    Battery.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(5)
+    Battery.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(3)
+  expected:
+    monitors:
+      battery:
+        discovery:
+          mapping:
+            _comment: InstanceTable = Source(1)
+            source: $monitors.battery.discovery.sources.source(1)$
+            attributes:
+              vendor: APC
+              type: UPS
+              id: bat
+              chemistry: LiFePO4
+              hw.parent.type: enclosure
+              hw.parent.id: $column(3)
+              __display_id: testname
+              info: $column(5)
+              name: sprintf("%s (%s - %s)", "testname", "APC", "UPS") # The name contains __display_id, vendor and type
+- name: test5NameNoVendor
+  input: |
+    // InstanceTable = Source(1)
+    Battery.Discovery.InstanceTable=%Battery.Discovery.Source(1)%
+    Battery.Discovery.Instance.DeviceID="bat"
+    Battery.Discovery.Instance.Model=InstanceTable.Column(1)
+    Battery.Discovery.Instance.Type="UPS"
+    Battery.Discovery.Instance.DisplayID="testname"
+    Battery.Discovery.Instance.Chemistry="LiFePO4"
+    Battery.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(5)
+    Battery.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(3)
+  expected:
+    monitors:
+      battery:
+        discovery:
+          mapping:
+            _comment: InstanceTable = Source(1)
+            source: $monitors.battery.discovery.sources.source(1)$
+            attributes:
+              type: UPS
+              id: bat
+              model: $column(1)
+              chemistry: LiFePO4
+              hw.parent.type: enclosure
+              hw.parent.id: $column(3)
+              __display_id: testname
+              info: $column(5)
+              name: sprintf("%s (%s - %s)", "testname", $column(1), "UPS") # The name contains __display_id, model and type
+- name: test5NameNoModelNoVendor
+  input: |
+    // InstanceTable = Source(1)
+    Battery.Discovery.InstanceTable=%Battery.Discovery.Source(1)%
+    Battery.Discovery.Instance.DeviceID="bat"
+    Battery.Discovery.Instance.Type="UPS"
+    Battery.Discovery.Instance.DisplayID="testname"
+    Battery.Discovery.Instance.Chemistry="LiFePO4"
+    Battery.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(5)
+    Battery.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(3)
+  expected:
+    monitors:
+      battery:
+        discovery:
+          mapping:
+            _comment: InstanceTable = Source(1)
+            source: $monitors.battery.discovery.sources.source(1)$
+            attributes:
+              type: UPS
+              id: bat
+              chemistry: LiFePO4
+              hw.parent.type: enclosure
+              hw.parent.id: $column(3)
+              __display_id: testname
+              info: $column(5)
+              name: sprintf("%s (%s)", "testname", "UPS") # The name contains __display_id and type
+- name: test5NameNoModelNoVendorNoType
+  input: |
+    // InstanceTable = Source(1)
+    Battery.Discovery.InstanceTable=%Battery.Discovery.Source(1)%
+    Battery.Discovery.Instance.DeviceID="bat"
+    Battery.Discovery.Instance.DisplayID="testname"
+    Battery.Discovery.Instance.Chemistry="LiFePO4"
+    Battery.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(5)
+    Battery.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(3)
+  expected:
+    monitors:
+      battery:
+        discovery:
+          mapping:
+            _comment: InstanceTable = Source(1)
+            source: $monitors.battery.discovery.sources.source(1)$
+            attributes:
+              id: bat
+              chemistry: LiFePO4
+              hw.parent.type: enclosure
+              hw.parent.id: $column(3)
+              __display_id: testname
+              info: $column(5)
+              name: testname # The name is the __display_id

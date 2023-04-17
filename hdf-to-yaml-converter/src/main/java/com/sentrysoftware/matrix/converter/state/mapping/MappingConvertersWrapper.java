@@ -4,27 +4,27 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.ATTRIBUTES;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.DISCOVERY;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.MAPPING;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.MONITORS;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.YAML_BATTERY;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.YAML_BLADE;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.YAML_CPU;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.YAML_CPU_CORE;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.YAML_DISK_CONTROLLER;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.YAML_ENCLOSURE;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.YAML_FAN;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.YAML_GPU;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.YAML_LED;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.YAML_LOGICAL_DISK;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.YAML_LUN;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.YAML_MEMORY;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.YAML_NETWORK;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.YAML_OTHER_DEVICE;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.YAML_PHYSICAL_DISK;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.YAML_POWER_SUPPLY;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.YAML_ROBOTICS;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.YAML_TAPEDRIVE;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.YAML_TEMPERATURE;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.YAML_VM;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.YAML_VOLTAGE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_BATTERY;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_BLADE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_CPU;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_CPU_CORE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_DISK_CONTROLLER;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ENCLOSURE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_FAN;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_GPU;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_LED;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_LOGICAL_DISK;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_LUN;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_MEMORY;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_NETWORK;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_OTHER_DEVICE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_PHYSICAL_DISK;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_POWER_SUPPLY;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ROBOTICS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TAPEDRIVE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TEMPERATURE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VM;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VOLTAGE;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -47,7 +47,7 @@ public class MappingConvertersWrapper {
 	 * Map of mapping converters
 	 */
 	public static final Map<String, IMappingConverter> DEFAULT_CONVERTERS = Map.ofEntries(
-		Map.entry(YAML_BATTERY, NOOP),
+		Map.entry(YAML_BATTERY, new BatteryConverter()),
 		Map.entry(YAML_BLADE, NOOP),
 		Map.entry(YAML_CPU, NOOP),
 		Map.entry(YAML_CPU_CORE, NOOP),
