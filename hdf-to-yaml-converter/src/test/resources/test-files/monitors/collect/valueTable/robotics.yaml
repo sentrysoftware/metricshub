@@ -11,8 +11,8 @@
     monitors:
       robotics:
         collect:
-          _comment: DeviceID;Status;StatusInformation;Moves;Errors
           mapping:
+            _comment: DeviceID;Status;StatusInformation;Moves;Errors
             legacyTextParameters:
               StatusInformation: $column(3)
             deviceId: $column(1)

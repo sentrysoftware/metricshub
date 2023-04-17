@@ -1,6 +1,8 @@
 package com.sentrysoftware.matrix.converter.state.mapping;
 
 import static com.sentrysoftware.matrix.converter.ConverterConstants.ATTRIBUTES;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.METRICS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.PERCENT_2_RATIO_FORMAT;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_DISK_CONTROLLER;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ENCLOSURE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_HW_PARENT_ID;
@@ -26,11 +28,11 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 	protected static final Pattern COLUMN_PATTERN = Pattern.compile("^\\$column\\(\\d+\\)$");
 
 	/**
-	 * Get the one to one mapping attributes
+	 * Get one to one attributes mapping
 	 * 
 	 * @return key-pair values as {@link Map}
 	 */
-	protected abstract Map<String, String> getOneToOneAttributesMapping();
+	protected abstract Map<String, Entry<String, IMappingKey>> getOneToOneAttributesMapping();
 
 	/**
 	 * Apply specific conversions of the given mapping attributes
@@ -54,22 +56,37 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 	protected abstract void setName(ObjectNode existingAttributes, ObjectNode newAttributes);
 
 	/**
+	 * Get one to one metrics mapping
+	 * 
+	 * @return key-pair values as {@link Map}
+	 */
+	protected abstract Map<String, Entry<String, IMappingKey>> getOneToOneMetricsMapping();
+
+	/**
 	 * Convert the attributes section based on the one to one attribute mapping
 	 * implemented in the concrete converter
 	 * 
+	 * @param mapping Mapping node used to create metrics
 	 * @param existingAttributes Hardware Connector job's mapping existing temporary attributes
 	 * @param newttributes Hardware Connector job's mapping existing temporary attributes
 	 */
-	private void convertOneToOneAttributes(final ObjectNode existingAttributes, final ObjectNode newAttributes) {
+	private void convertOneToOneAttributes(final ObjectNode mapping, final ObjectNode existingAttributes, final ObjectNode newAttributes) {
 
 		final Iterator<Entry<String, JsonNode>> iter = existingAttributes.fields();
 
 		while (iter.hasNext()) {
 			final Entry<String, JsonNode> attributeEntry = iter.next();
 
-			final String newKey = getOneToOneAttributesMapping().get(attributeEntry.getKey());
-			if (newKey != null) {
-				newAttributes.set(newKey, attributeEntry.getValue());
+			final Entry<String, IMappingKey> mappingEntry = getOneToOneAttributesMapping().get(attributeEntry.getKey());
+			if (mappingEntry != null) {
+				final String where = mappingEntry.getKey();
+				final IMappingKey mappingKey = mappingEntry.getValue();
+				if (where.equals(ATTRIBUTES)) {
+					convertKeyValueInNode(mappingKey, attributeEntry.getValue().asText(), newAttributes);
+				} else if (where.equals(METRICS)) {
+					final ObjectNode metrics = getOrCreateSubNode(METRICS, mapping);
+					convertKeyValueInNode(mappingKey, attributeEntry.getValue().asText(), metrics);
+				}
 			}
 		}
 	}
@@ -79,7 +96,7 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 		final ObjectNode  existingAttributes = (ObjectNode) mapping.get(ATTRIBUTES);
 		final ObjectNode newAttributes = JsonNodeFactory.instance.objectNode();
 
-		convertOneToOneAttributes(existingAttributes, newAttributes);
+		convertOneToOneAttributes((ObjectNode) mapping, existingAttributes, newAttributes);
 
 		convertAdditionalInformationToInfo(existingAttributes, newAttributes);
 
@@ -129,7 +146,7 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 			newAttributes.set(YAML_HW_PARENT_TYPE, new TextNode(YAML_ENCLOSURE));
 		} else {
 			String parentType = attachedToDeviceType.textValue();
-			parentType = ConversionHelper.HDF_TO_YAML_MONITOR_NAME.getOrDefault(parentType, parentType);
+			parentType = ConversionHelper.performValueConversions(parentType);
 			if (parentType.equalsIgnoreCase("computer")) {
 				parentType = YAML_ENCLOSURE;
 			}
@@ -201,4 +218,76 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 		return COLUMN_PATTERN.matcher(value).matches() ? value : String.format("\"%s\"", value);
 	}
 
+
+	/**
+	 * Get or create the sub node under the given mapping node
+	 * 
+	 * @param subNodeKey The  key of the sub node
+	 * @param mapping    The mapping node
+ 	 * @return sub node as {@link ObjectNode}. Never <code>null</code>
+	 */
+	protected ObjectNode getOrCreateSubNode(final String subNodeKey, final ObjectNode mapping) {
+
+		final JsonNode existingSubNode = mapping.get(subNodeKey);
+
+		if (existingSubNode == null) {
+			final ObjectNode node = JsonNodeFactory.instance.objectNode();
+			mapping.set(subNodeKey, node);
+			return node;
+		}
+
+		return (ObjectNode) existingSubNode;
+	}
+
+	/**
+	 * Convert the given key-value pair using the one to one metrics mapping
+	 * implemented in the concrete converter
+	 *
+	 * @param key     The HDF parameter key
+	 * @param value   The value to set and converted to the YAML naming convention
+	 * @param mapping The mapping {@link ObjectNode}
+	 */
+	protected void convertOneToOneMetrics(final String key, final String value, final ObjectNode mapping) {
+		final Entry<String, IMappingKey> mappingEntry = getOneToOneMetricsMapping().get(key);
+		if (mappingEntry != null) {
+			final String where = mappingEntry.getKey();
+			final IMappingKey mappingKey = mappingEntry.getValue();
+			final ObjectNode node = getOrCreateSubNode(where, mapping);
+			convertKeyValueInNode(mappingKey, ConversionHelper.performValueConversions(value), node);
+		}
+	}
+
+	/**
+	 * Convert the given mapping key-value in the given node
+	 * 
+	 * @param mappingKey
+	 * @param value
+	 * @param node
+	 */
+	private void convertKeyValueInNode(
+		final IMappingKey mappingKey,
+		String value,
+		final ObjectNode node
+		) {
+
+		if (mappingKey instanceof MappingKeyWithValueConverter mkwvc) {
+			value = getFunctionArgument(value);
+			node.set(mkwvc.getKey(), new TextNode(mkwvc.getValueConverter().apply(value)));
+		} else if (mappingKey instanceof MappingKey mk) {
+			node.set(mk.getKey(), new TextNode(value));
+		} else {
+			throw new IllegalArgumentException("Unrecognized IMappingKey");
+		}
+
+	}
+
+	/**
+	 * Build percent2Ratio(...) function
+	 * 
+	 * @param value
+	 * @return String value
+	 */
+	public static String buildPercent2RatioFunction(final String value) {
+		return String.format(PERCENT_2_RATIO_FORMAT, value);
+	}
 }

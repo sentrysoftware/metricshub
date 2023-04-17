@@ -11,8 +11,8 @@
     monitors:
       fan:
         collect:
-          _comment: DeviceID;Status;StatusInformation;Speed;SpeedPercent
           mapping:
+            _comment: DeviceID;Status;StatusInformation;Speed;SpeedPercent
             legacyTextParameters:
               StatusInformation: $column(3)
             deviceId: $column(1)

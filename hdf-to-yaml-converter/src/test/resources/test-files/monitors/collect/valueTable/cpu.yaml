@@ -13,8 +13,8 @@
     monitors:
       cpu:
         collect:
-          _comment: DeviceID;Status;StatusInformation;PredictedFailure;Speed;Errors;Energy
           mapping:
+            _comment: DeviceID;Status;StatusInformation;PredictedFailure;Speed;Errors;Energy
             legacyTextParameters:
               StatusInformation: $column(3)
             deviceId: $column(1)

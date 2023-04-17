@@ -33,4 +33,4 @@
               additionalinformation1: $column(8)
               additionalinformation2: $column(9)
               additionalinformation3: $column(10)
-              attachedtodevicetype: "Enclosure"
+              attachedtodevicetype: enclosure

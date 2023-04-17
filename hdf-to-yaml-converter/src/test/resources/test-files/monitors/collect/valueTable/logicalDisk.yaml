@@ -11,8 +11,8 @@
     monitors:
       logical_disk:
         collect:
-          _comment: DeviceID;Status;StatusInformation;ErrorCount;UnallocatedSpace
           mapping:
+            _comment: DeviceID;Status;StatusInformation;ErrorCount;UnallocatedSpace
             legacyTextParameters:
               StatusInformation: $column(3)
             deviceId: $column(1)

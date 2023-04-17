@@ -10,8 +10,8 @@
     monitors:
       voltage:
         collect:
-          _comment: DeviceID;Status;StatusInformation;Voltage
           mapping:
+            _comment: DeviceID;Status;StatusInformation;Voltage
             legacyTextParameters:
               StatusInformation: $column(3)
             deviceId: $column(1)

@@ -9,8 +9,8 @@
     monitors:
       disk_controller:
         collect:
-          _comment: DeviceID;Status;StatusInformation
           mapping:
+            _comment: DeviceID;Status;StatusInformation
             legacyTextParameters:
               StatusInformation: $column(3)
             deviceId: $column(1)
@@ -28,8 +28,8 @@
     monitors:
       disk_controller:
         collect:
-          _comment: DeviceID;Status;StatusInformation
           mapping:
+            _comment: DeviceID;Status;StatusInformation
             legacyTextParameters:
               StatusInformation: $column(3)
             deviceId: $column(1)

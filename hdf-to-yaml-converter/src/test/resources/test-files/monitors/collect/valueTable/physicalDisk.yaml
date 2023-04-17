@@ -19,8 +19,8 @@
     monitors:
       physical_disk:
         collect:
-          _comment: DeviceID;Status;StatusInformation;PredictedFailure;Errors;Endurance
           mapping:
+            _comment: DeviceID;Status;StatusInformation;PredictedFailure;Errors;Endurance
             legacyTextParameters:
               StatusInformation: $column(3)
             deviceId: $column(1)

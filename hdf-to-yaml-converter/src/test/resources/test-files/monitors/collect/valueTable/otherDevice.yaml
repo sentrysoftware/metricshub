@@ -12,8 +12,8 @@
     monitors:
       other_device:
         collect:
-          _comment: DeviceID;Status;StatusInformation;Value;UsageCount;PowerConsumption
           mapping:
+            _comment: DeviceID;Status;StatusInformation;Value;UsageCount;PowerConsumption
             legacyTextParameters:
               StatusInformation: $column(3)
             deviceId: $column(1)

@@ -47,6 +47,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -111,10 +112,10 @@ public class ConversionHelper {
 
 	/**
 	 * A compile representation of the HDF instance table reference regular expression.
-	 * We attempt to match input like "InstanceTable.Column(2)"
+	 * We attempt to match input like "InstanceTable.Column(2)" or "ValueTable.Column(2)"
 	 */
 	private static final Pattern INSTANCE_REF_PATTERN = Pattern.compile(
-		"(instancetable)\\.(column\\(\\d+\\))",
+		"(instancetable|valuetable)\\.(column\\(\\d+\\))",
 		Pattern.CASE_INSENSITIVE
 	);
 
@@ -134,8 +135,20 @@ public class ConversionHelper {
 	 * @param input
 	 * @return updated string value
 	 */
-	public static String performValueConversions(String input) {
+	public static String performValueConversions(final String input) {
 
+		return getYamlMonitorNameOptional(input)
+			.orElseGet(() -> performPatternConversions(input));
+
+	}
+
+	/**
+	 * Perform value conversions using pattern function converters
+	 * 
+	 * @param input
+	 * @return updated string value
+	 */
+	private static String performPatternConversions(String input) {
 		// Loop over the pattern functions
 		for (final PatternFunctionConverter patternFunction : PATTERN_FUNCTION_CONVERTERS) {
 			// Get the defined pattern and creates a matcher that will match the given input against this pattern.
@@ -234,11 +247,26 @@ public class ConversionHelper {
 	 * @return String value
 	 */
 	public static String getYamlMonitorName(final String hdfMonitorName) {
-		final String result = HDF_TO_YAML_MONITOR_NAME.get(hdfMonitorName.toLowerCase().trim());
-		if (result == null) {
-			throw new IllegalStateException(String.format("Could not find corresponding Monitor name for the HDF device name '%s'", hdfMonitorName));
-		}
-		return result;
+		return getYamlMonitorNameOptional(hdfMonitorName)
+			.orElseThrow(
+				() -> 
+					new IllegalStateException(
+						String.format(
+							"Could not find corresponding Monitor name for the HDF device name '%s'",
+							hdfMonitorName
+					)
+			)
+		);
+	}
+
+	/**
+	 * Try to get the YAML monitor name for the given HDF value
+	 * 
+	 * @param value
+	 * @return {@link Optional} of {@link String} value
+	 */
+	private static Optional<String> getYamlMonitorNameOptional(final String value) {
+		return Optional.ofNullable(HDF_TO_YAML_MONITOR_NAME.get(value.toLowerCase().trim()));
 	}
 
 	@AllArgsConstructor

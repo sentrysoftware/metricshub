@@ -19,5 +19,5 @@
             attributes:
               deviceid: $column(1)
               attachedtodeviceid: $column(2)
-              attachedtodevicetype: Cpu
+              attachedtodevicetype: cpu
               additionalinformation1: $column(3)

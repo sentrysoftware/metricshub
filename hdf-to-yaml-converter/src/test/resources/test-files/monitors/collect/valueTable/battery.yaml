@@ -11,8 +11,8 @@
     monitors:
       battery:
         collect:
-          _comment: DeviceID;Capacity;RuntimeRemaining_minutes;Status;StatusInformation;
           mapping:
+            _comment: DeviceID;Capacity;RuntimeRemaining_minutes;Status;StatusInformation;
             legacyTextParameters:
               StatusInformation: $column(5)
             deviceId: $column(1)
