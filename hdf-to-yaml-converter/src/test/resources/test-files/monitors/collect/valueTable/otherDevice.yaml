@@ -1,0 +1,27 @@
+- name: otherDeviceValueTable
+  input: |
+    // DeviceID;Status;StatusInformation;Value;UsageCount;PowerConsumption
+    OtherDevice.Collect.ValueTable=%OtherDevice.Collect.Source(1)%
+    OtherDevice.Collect.DeviceID=ValueTable.Column(1)
+    OtherDevice.Collect.Status=ValueTable.Column(2)
+    OtherDevice.Collect.StatusInformation=ValueTable.Column(3)
+    OtherDevice.Collect.Value=ValueTable.Column(4)
+    OtherDevice.Collect.UsageCount=ValueTable.Column(5)
+    OtherDevice.Collect.PowerConsumtion=ValueTable.Column(6)
+  expected:
+    monitors:
+      other_device:
+        collect:
+          _comment: DeviceID;Status;StatusInformation;Value;UsageCount;PowerConsumption
+          mapping:
+            legacyTextParameters:
+              StatusInformation: $column(3)
+            deviceId: $column(1)
+            source: $monitors.other_device.collect.sources.source(1)$
+            metrics:
+              hw.status{hw.type="other_device"}: $column(2)
+              hw.other_device.value: $column(4)
+              hw.other_device.uses: $column(5)
+              hw.power{hw.type="other_device"}: $column(6)
+              hw.energy{hw.type="other_device"}: fakeCounter($column(6))
+              
