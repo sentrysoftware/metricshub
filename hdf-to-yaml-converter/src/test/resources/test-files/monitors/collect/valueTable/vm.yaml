@@ -1,0 +1,18 @@
+- name: vmValueTable
+  input: |
+    // DeviceID;Status;PowerShare
+    VM.Collect.ValueTable=%VM.Collect.Source(1)%
+    VM.Collect.DeviceID=ValueTable.Column(1)
+    VM.Collect.PowerState=ValueTable.Column(2)
+    VM.Collect.PowerShare=ValueTable.Column(3)
+  expected:
+    monitors:
+      vm:
+        collect:
+          _comment: DeviceID;Status;PowerShare
+          mapping:
+            deviceId: $column(1)
+            source: $monitors.vm.collect.sources.source(1)$
+            metrics:
+              hw.vm.power_state: $column(2))
+              hw.vm.power_ratio: computePowerShareRatio($column(3))
