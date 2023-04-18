@@ -1,29 +1,25 @@
 package com.sentrysoftware.matrix.converter.state.mapping;
 
 import static com.sentrysoftware.matrix.converter.ConverterConstants.ATTRIBUTES;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_CHARGE;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_CHEMISTRY;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_BLADE_MODEL;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_BLADE_NAME;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_DEVICE_ID;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_DISPLAY_ID;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_MODEL;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_POWER_STATE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_SERIAL_NUMBER;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_STATUS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_STATUS_INFORMATION;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_TIME_LEFT;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_TYPE;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_VENDOR;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.LEGACY_TEXT_PARAMETERS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.METRICS;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_BATTERY_CHARGE;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_BATTERY_STATUS;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_BATTERY_TIME_LEFT;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_CHEMISTRY;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_BLADE_NAME;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_BLADE_STATUS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_DISPLAY_ID;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ID;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_MODEL;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_NAME;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_BLADE_POWER_STATE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_SERIAL_NUMBER;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_STATUS_INFORMATION;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TYPE;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VENDOR;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,29 +35,33 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
-public class BatteryConverter extends AbstractMappingConverter {
+public class BladeConverter extends AbstractMappingConverter {
 
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_ATTRIBUTES_MAPPING;
 	static {
 		final Map<String, Entry<String, IMappingKey>> attributesMap = new HashMap<>();
 		attributesMap.put(HDF_DEVICE_ID, IMappingKey.of(ATTRIBUTES, YAML_ID));
 		attributesMap.put(HDF_DISPLAY_ID, IMappingKey.of(ATTRIBUTES, YAML_DISPLAY_ID));
-		attributesMap.put(HDF_VENDOR, IMappingKey.of(ATTRIBUTES, YAML_VENDOR));
-		attributesMap.put(HDF_MODEL, IMappingKey.of(ATTRIBUTES, YAML_MODEL));
-		attributesMap.put(HDF_CHEMISTRY, IMappingKey.of(ATTRIBUTES, YAML_CHEMISTRY));
-		attributesMap.put(HDF_TYPE, IMappingKey.of(ATTRIBUTES, YAML_TYPE));
+		attributesMap.put(HDF_BLADE_MODEL, IMappingKey.of(ATTRIBUTES, YAML_MODEL));
+		attributesMap.put(HDF_BLADE_NAME, IMappingKey.of(ATTRIBUTES, YAML_BLADE_NAME));
+		attributesMap.put(HDF_SERIAL_NUMBER, IMappingKey.of(ATTRIBUTES, YAML_SERIAL_NUMBER));
+
 		ONE_TO_ONE_ATTRIBUTES_MAPPING = Collections.unmodifiableMap(attributesMap);
 	}
 
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_METRICS_MAPPING;
 	static {
-
+		
 		final Map<String, Entry<String, IMappingKey>> metricsMap = new HashMap<>();
-		metricsMap.put(HDF_STATUS, IMappingKey.of(METRICS, YAML_BATTERY_STATUS));
-		metricsMap.put(HDF_TIME_LEFT, IMappingKey.of(METRICS, YAML_BATTERY_TIME_LEFT));
+		metricsMap.put(HDF_STATUS, IMappingKey.of(METRICS, YAML_BLADE_STATUS));
 		metricsMap.put(HDF_STATUS_INFORMATION, IMappingKey.of(LEGACY_TEXT_PARAMETERS, YAML_STATUS_INFORMATION));
-		metricsMap.put(HDF_CHARGE, IMappingKey.of(METRICS, YAML_BATTERY_CHARGE, AbstractMappingConverter::buildPercent2RatioFunction));
+		metricsMap.put(HDF_POWER_STATE, IMappingKey.of(METRICS, YAML_BLADE_POWER_STATE));
 		ONE_TO_ONE_METRICS_MAPPING = Collections.unmodifiableMap(metricsMap);
+	}
+
+	@Override
+	public void convertCollectProperty(String key, String value, JsonNode node) {
+		convertOneToOneMetrics(key, value, (ObjectNode) node);
 	}
 
 	@Override
@@ -70,8 +70,9 @@ public class BatteryConverter extends AbstractMappingConverter {
 	}
 
 	@Override
-	protected void convertAttributesSpecific(JsonNode mapping, ObjectNode existingAttributes, ObjectNode newAttributes) {
-		// No specific attributes to convert
+	protected void convertAttributesSpecific(JsonNode mapping, ObjectNode existingAttributes,
+			ObjectNode newAttributes) {
+		// Not implemented
 	}
 
 	@Override
@@ -87,31 +88,29 @@ public class BatteryConverter extends AbstractMappingConverter {
 			firstDisplayArgument = displayId;
 		}
 
-		final JsonNode vendor = existingAttributes.get(HDF_VENDOR);
-		final JsonNode model = existingAttributes.get(HDF_MODEL);
-		final JsonNode type = existingAttributes.get(HDF_TYPE);
+		final JsonNode bladeName = existingAttributes.get(HDF_BLADE_NAME);
+		final JsonNode bladeModel = existingAttributes.get(HDF_BLADE_MODEL);
 
 		newAttributes.set(
 			YAML_NAME,
 			new TextNode(
-				buildNameValue(firstDisplayArgument, new JsonNode[] {vendor, model}, type)
+				buildNameValue(firstDisplayArgument, bladeName, bladeModel)
 			)
 		);
 	}
 
 	/**
-	 * Joins the given non-empty text nodes to build the battery name value
+	 * Joins the given non-empty text nodes to build the blade name value
 	 *
 	 * @param firstDisplayArgument {@link JsonNode} representing the display name
-	 * @param vendorAndModel       {@link JsonNode[]} array of vendor and model to be joined 
-	 * @param typeNode             {@link JsonNode} representing the type of the battery
-	 *
+	 * @param bladeName            The text node to be joined with bladeModel. The value is then concatenated with open and close parenthesis.
+	 * @param bladeModel           The text node to be joined with bladeName. The value is then concatenated with open and close parenthesis.
 	 * @return {@link String} Joined text nodes
 	 */
-	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode[] vendorAndModel, final JsonNode typeNode) {
+	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode bladeName, final JsonNode bladeModel) {
 
 		final String firstArg = firstDisplayArgument.asText();
-		if (typeNode == null && Stream.of(vendorAndModel).allMatch(Objects::isNull)) {
+		if (bladeName == null && bladeModel == null) {
 			return firstArg;
 		}
 
@@ -122,46 +121,28 @@ public class BatteryConverter extends AbstractMappingConverter {
 		final List<String> sprintfArgs = new ArrayList<>();
 		sprintfArgs.addAll(
 			Stream
-				.of(vendorAndModel)
+				.of(bladeName, bladeModel)
 				.filter(Objects::nonNull)
 				.map(JsonNode::asText)
 				.toList()
 		);
 
-		// Means we have model or vendor but we don't know if have the type
-		if (sprintfArgs.size() == 1) {
-			format.append(" (%s");
-		} else if (sprintfArgs.size() == 2) {
-			// We have both model and vendor but we don't know if we have the type
-			format.append(" (%s %s");
-		}
-
-		// Do we have the type?
-		if (typeNode != null) {
-
-			// Without vendor and model?
-			if (sprintfArgs.isEmpty()) {
-				// We append the type format only
-				format.append(" (%s)");
-			} else {
-				// Append the type format
-				format.append(" - %s)");
-			}
-
-			// Add the type to our list of arguments
-			sprintfArgs.add(typeNode.asText());
-
-		} else if (!sprintfArgs.isEmpty()) {
-			// We have at least one of { vendor, model, type } let's close the parenthesis
-			format.append(")");
+		// Means we have bladeName or bladeModel
+		if (!sprintfArgs.isEmpty()) {
+			format.append(
+				sprintfArgs
+					.stream()
+					.map(v -> "%s")
+					.collect(Collectors.joining(" - ", " (", ")"))
+			);
 		}
 
 		// Add the first argument at the beginning of the list 
 		sprintfArgs.add(0, firstArg);
 
-		// Join the arguments: $column(1), $column(2), $column(3), $column(4)) 
+		// Join the arguments: $column(1), $column(2), $column(3)) 
 		// append the result to our format variable in order to get something like
-		// sprint("%s (%s %s - %s)", $column(1), $column(2), $column(3), $column(4))
+		// sprint("%s (%s - %s)", $column(1), $column(2), $column(3))
 		return format
 			.append("\", ") // Here we will have a string like sprintf("%s (%s %s - %s)", 
 			.append(
@@ -177,11 +158,6 @@ public class BatteryConverter extends AbstractMappingConverter {
 	@Override
 	protected Map<String, Entry<String, IMappingKey>> getOneToOneMetricsMapping() {
 		return ONE_TO_ONE_METRICS_MAPPING;
-	}
-
-	@Override
-	public void convertCollectProperty(final String key, final String value, final JsonNode node) {
-		convertOneToOneMetrics(key, value, (ObjectNode) node);
 	}
 
 }

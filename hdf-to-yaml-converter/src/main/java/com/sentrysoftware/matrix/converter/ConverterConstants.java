@@ -119,6 +119,9 @@ public class ConverterConstants {
 	public static final String HDF_VENDOR = "vendor";
 	public static final String HDF_DISPLAY_ID = "displayid";
 	public static final String HDF_DEVICE_ID = "deviceid";
+	public static final String HDF_BLADE_MODEL = "blademodel";
+	public static final String HDF_BLADE_NAME = "bladename";
+	public static final String HDF_SERIAL_NUMBER = "serialnumber";
 	public static final String HDF_MAX_POWER_CONSUMPTION = "maxpowerconsumption";
 	public static final String HDF_MAXIMUM_SPEED = "maximumspeed";
 	public static final String HDF_CORRECTED_ERROR_WARNING_THRESHOLD = "correctederrorwarningthreshold";
@@ -134,12 +137,15 @@ public class ConverterConstants {
 	public static final String YAML_HW_PARENT_ID = "hw.parent.id";
 	public static final String YAML_HW_PARENT_TYPE = "hw.parent.type";
 	public static final String YAML_CHEMISTRY = HDF_CHEMISTRY;
+	public static final String YAML_BLADE_NAME = "blade_name";
+	public static final String YAML_SERIAL_NUMBER = "serial_number";
 
 	// HDF Collect parameters
 	public static final String HDF_STATUS = "status";
 	public static final String HDF_TIME_LEFT = "timeleft";
 	public static final String HDF_STATUS_INFORMATION = "statusinformation";
 	public static final String HDF_CHARGE = "charge";
+	public static final String HDF_POWER_STATE = "powerstate";
 	public static final String HDF_PREDICTED_FAILURE = "predictedfailure";
 	public static final String HDF_CURRENT_SPEED = "currentspeed";
 	public static final String HDF_CORRECTED_ERROR_COUNT = "correctederrorcount";
@@ -150,6 +156,8 @@ public class ConverterConstants {
 	public static final String YAML_BATTERY_CHARGE = "hw.battery.charge";
 	public static final String YAML_BATTERY_TIME_LEFT = "hw.battery.time_left";
 	public static final String YAML_BATTERY_STATUS = "hw.status{hw.type=\"battery\"}";
+	public static final String YAML_BLADE_STATUS = "hw.status{hw.type=\"blade\"}";
+	public static final String YAML_BLADE_POWER_STATE = "hw.blade.power_state";
 	public static final String YAML_CPU_POWER_LIMIT = "hw.power.limit{hw.type=\"cpu\"}";
 	public static final String YAML_CPU_SPEED_LIMIT = "hw.cpu.speed.limit{limit_type=\"max\"}";
 	public static final String YAML_CPU_ERRORS_LIMIT_DEGRADED = "hw.errors.limit{hw.type=\"cpu\", limit_type=\"degraded\"}";
