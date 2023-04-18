@@ -9,9 +9,10 @@
     CPU.Discovery.Instance.Model=InstanceTable.Column(3)
     CPU.Discovery.Instance.MaximumSpeed=InstanceTable.Column(4)
     CPU.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(7)
-    CPU.Discovery.Instance.PowerConsumption=InstanceTable.Column(8)
-    CPU.Discovery.Instance.CorrectedErrorWarningThreshold="test2"
-    CPU.Discovery.Instance.CorrectedErrorAlarmThreshold="test3"
+    CPU.Discovery.Instance.MaxPowerConsumption=InstanceTable.Column(8)
+    CPU.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(9)
+    CPU.Discovery.Instance.CorrectedErrorWarningThreshold=InstanceTable.Column(10)
+    CPU.Discovery.Instance.CorrectedErrorAlarmThreshold=InstanceTable.Column(11)
   expected:
     monitors:
       cpu:
@@ -22,12 +23,154 @@
               DN;RN;Model;Speed;Vendor;OperState;attachedDeviceID;DN
             source: $monitors.cpu.discovery.sources.source(4)$
             attributes:
-              deviceid: $column(1)
-              displayid: $column(2)
-              attachedtodeviceid: $column(7)
+              id: $column(1)
+              __display_id: $column(2)
+              hw.parent.id: $column(7)
+              hw.parent.type: enclosure
               vendor: $column(5)
               model: $column(3)
-              maximumspeed: $column(4)
-              powerconsumption: $column(8)
-              correctederrorwarningthreshold: test2
-              correctederroralarmthreshold: test3
+              info: $column(9)
+              name: sprintf("%s (%s - %s - %mhhf.s)", $column(2), $column(5), $column(3), $column(4))
+            metrics:
+              hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(4))
+              hw.power.limit{hw.type="cpu"}: $column(8)
+              hw.errors.limit{hw.type="cpu", limit_type="degraded"}: $column(10)
+              hw.errors.limit{hw.type="cpu", limit_type="critical"}: $column(11)
+- name: testNameNoDisplayId
+  input: |
+    // InstanceTable = Source(1)
+    // DN;RN;Model;Speed;Vendor;OperState;attachedDeviceID;DN
+    CPU.Discovery.InstanceTable=%CPU.Discovery.Source(4)%
+    CPU.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+    CPU.Discovery.Instance.Vendor=InstanceTable.Column(5)
+    CPU.Discovery.Instance.Model=InstanceTable.Column(3)
+    CPU.Discovery.Instance.MaximumSpeed=InstanceTable.Column(4)
+    CPU.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(7)
+    CPU.Discovery.Instance.MaxPowerConsumption=InstanceTable.Column(8)
+    CPU.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(9)
+    CPU.Discovery.Instance.CorrectedErrorWarningThreshold=InstanceTable.Column(10)
+    CPU.Discovery.Instance.CorrectedErrorAlarmThreshold=InstanceTable.Column(11)
+  expected:
+    monitors:
+      cpu:
+        discovery:
+          mapping:
+            _comment: |-
+              InstanceTable = Source(1)
+              DN;RN;Model;Speed;Vendor;OperState;attachedDeviceID;DN
+            source: $monitors.cpu.discovery.sources.source(4)$
+            attributes:
+              id: $column(1)
+              hw.parent.id: $column(7)
+              hw.parent.type: enclosure
+              vendor: $column(5)
+              model: $column(3)
+              info: $column(9)
+              name: sprintf("%s (%s - %s - %mhhf.s)", $column(1), $column(5), $column(3), $column(4))
+            metrics:
+              hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(4))
+              hw.power.limit{hw.type="cpu"}: $column(8)
+              hw.errors.limit{hw.type="cpu", limit_type="degraded"}: $column(10)
+              hw.errors.limit{hw.type="cpu", limit_type="critical"}: $column(11)
+- name: testNameNoVendor
+  input: |
+    // InstanceTable = Source(1)
+    // DN;RN;Model;Speed;Vendor;OperState;attachedDeviceID;DN
+    CPU.Discovery.InstanceTable=%CPU.Discovery.Source(4)%
+    CPU.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+    CPU.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+    CPU.Discovery.Instance.Model=InstanceTable.Column(3)
+    CPU.Discovery.Instance.MaximumSpeed=InstanceTable.Column(4)
+    CPU.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(7)
+    CPU.Discovery.Instance.MaxPowerConsumption=InstanceTable.Column(8)
+    CPU.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(9)
+    CPU.Discovery.Instance.CorrectedErrorWarningThreshold=InstanceTable.Column(10)
+    CPU.Discovery.Instance.CorrectedErrorAlarmThreshold=InstanceTable.Column(11)
+  expected:
+    monitors:
+      cpu:
+        discovery:
+          mapping:
+            _comment: |-
+              InstanceTable = Source(1)
+              DN;RN;Model;Speed;Vendor;OperState;attachedDeviceID;DN
+            source: $monitors.cpu.discovery.sources.source(4)$
+            attributes:
+              id: $column(1)
+              __display_id: $column(2)
+              hw.parent.id: $column(7)
+              hw.parent.type: enclosure
+              model: $column(3)
+              info: $column(9)
+              name: sprintf("%s (%s - %mhhf.s)", $column(2), $column(3), $column(4))
+            metrics:
+              hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(4))
+              hw.power.limit{hw.type="cpu"}: $column(8)
+              hw.errors.limit{hw.type="cpu", limit_type="degraded"}: $column(10)
+              hw.errors.limit{hw.type="cpu", limit_type="critical"}: $column(11)
+- name: testNameNoVendorNoModel
+  input: |
+    // InstanceTable = Source(1)
+    // DN;RN;Model;Speed;Vendor;OperState;attachedDeviceID;DN
+    CPU.Discovery.InstanceTable=%CPU.Discovery.Source(4)%
+    CPU.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+    CPU.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+    CPU.Discovery.Instance.MaximumSpeed=InstanceTable.Column(4)
+    CPU.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(7)
+    CPU.Discovery.Instance.MaxPowerConsumption=InstanceTable.Column(8)
+    CPU.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(9)
+    CPU.Discovery.Instance.CorrectedErrorWarningThreshold=InstanceTable.Column(10)
+    CPU.Discovery.Instance.CorrectedErrorAlarmThreshold=InstanceTable.Column(11)
+  expected:
+    monitors:
+      cpu:
+        discovery:
+          mapping:
+            _comment: |-
+              InstanceTable = Source(1)
+              DN;RN;Model;Speed;Vendor;OperState;attachedDeviceID;DN
+            source: $monitors.cpu.discovery.sources.source(4)$
+            attributes:
+              id: $column(1)
+              __display_id: $column(2)
+              hw.parent.id: $column(7)
+              hw.parent.type: enclosure
+              info: $column(9)
+              name: sprintf("%s (%mhhf.s)", $column(2), $column(4))
+            metrics:
+              hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(4))
+              hw.power.limit{hw.type="cpu"}: $column(8)
+              hw.errors.limit{hw.type="cpu", limit_type="degraded"}: $column(10)
+              hw.errors.limit{hw.type="cpu", limit_type="critical"}: $column(11)
+- name: testNameNoVendorNoModelNoMaxSpeed
+  input: |
+    // InstanceTable = Source(1)
+    // DN;RN;Model;Speed;Vendor;OperState;attachedDeviceID;DN
+    CPU.Discovery.InstanceTable=%CPU.Discovery.Source(4)%
+    CPU.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+    CPU.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+    CPU.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(7)
+    CPU.Discovery.Instance.MaxPowerConsumption=InstanceTable.Column(8)
+    CPU.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(9)
+    CPU.Discovery.Instance.CorrectedErrorWarningThreshold=InstanceTable.Column(10)
+    CPU.Discovery.Instance.CorrectedErrorAlarmThreshold=InstanceTable.Column(11)
+  expected:
+    monitors:
+      cpu:
+        discovery:
+          mapping:
+            _comment: |-
+              InstanceTable = Source(1)
+              DN;RN;Model;Speed;Vendor;OperState;attachedDeviceID;DN
+            source: $monitors.cpu.discovery.sources.source(4)$
+            attributes:
+              id: $column(1)
+              __display_id: $column(2)
+              hw.parent.id: $column(7)
+              hw.parent.type: enclosure
+              info: $column(9)
+              name: $column(2)
+            metrics:
+              hw.power.limit{hw.type="cpu"}: $column(8)
+              hw.errors.limit{hw.type="cpu", limit_type="degraded"}: $column(10)
+              hw.errors.limit{hw.type="cpu", limit_type="critical"}: $column(11)
