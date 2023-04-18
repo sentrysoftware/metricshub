@@ -1,0 +1,37 @@
+- name: networkCardValueTable
+  input: |
+    // DeviceID;Status;StatusInformation;NetworkUp;NetworkDuplex;ZeroBufferCredit;ErrorCount;ReceivedBytes;TransmittedBytes;ReceivedPackets;TransmittedPackets;LinkSpeed
+    NetworkCard.Collect.ValueTable=%Gpu.Collect.Source(1)%
+    NetworkCard.Collect.DeviceID=ValueTable.Column(1)
+    NetworkCard.Collect.Status=ValueTable.Column(2)
+    NetworkCard.Collect.StatusInformation=ValueTable.Column(3)
+    NetworkCard.Collect.LinkStatus=ValueTable.Column(4)
+    NetworkCard.Collect.DuplexMode=ValueTable.Column(5)
+    NetworkCard.Collect.ZeroBufferCreditCount=ValueTable.Column(6)
+    NetworkCard.Collect.ErrorCount=ValueTable.Column(7)
+    NetworkCard.Collect.ReceivedBytes=ValueTable.Column(8)
+    NetworkCard.Collect.TransmittedBytes=ValueTable.Column(9)
+    NetworkCard.Collect.ReceivedPackets=ValueTable.Column(10)
+    NetworkCard.Collect.TransmittedPackets=ValueTable.Column(11)
+    NetworkCard.Collect.LinkSpeed=ValueTable.Column(12)
+  expected:
+    monitors:
+      network:
+        collect:
+          mapping:
+            _comment: DeviceID;Status;StatusInformation;NetworkUp;NetworkDuplex;ZeroBufferCredit;ErrorCount;ReceivedBytes;TransmittedBytes;ReceivedPackets;TransmittedPackets;LinkSpeed
+            legacyTextParameters:
+              StatusInformation: $column(3)
+            deviceId: $column(1)
+            source: $monitors.network.collect.sources.source(1)$
+            metrics:
+              hw.status{hw.type="network"}: $column(2)
+              hw.network.up: legacyLinkStatus($column(4))
+              hw.network.full_duplex: legacyFullDuplex($column(5))
+              hw.errors{hw.type="network", hw.error.type="zero_buffer_credit"}: $column(6)
+              hw.errors{hw.type="network"}: $column(7)
+              hw.network.io{direction="receive"}: $column(8)
+              hw.network.io{direction="transmit"}: $column(9)
+              hw.network.packets{direction="receive"}: $column(10)
+              hw.network.packets{direction="transmit"}: $column(11)
+              hw.network.bandwidth.limit: megaBit2Bit($column(12))

@@ -4,7 +4,7 @@
     PhysicalDisk.Collect.Type="MultiInstance"
   expected:
     monitors:
-      physicalDisk:
+      physical_disk:
         collect: 
           _comment: |-
             Collect type is: multi-instance
@@ -16,7 +16,7 @@
     PowerSupply.Collect.Type=MonoInstance
   expected:
     monitors:
-      powerSupply:
+      power_supply:
         collect:
           _comment: |-
             Collect type: MonoInstance

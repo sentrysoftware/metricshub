@@ -1,0 +1,28 @@
+- name: cpuValueTable
+  input: |
+    // DeviceID;Status;StatusInformation;PredictedFailure;Speed;Errors;Energy
+    CPU.Collect.ValueTable=%CPU.Collect.Source(1)%
+    CPU.Collect.DeviceID=ValueTable.Column(1)
+    CPU.Collect.Status=ValueTable.Column(2)
+    CPU.Collect.StatusInformation=ValueTable.Column(3)
+    CPU.Collect.PredictedFailure=ValueTable.Column(4)
+    CPU.Collect.CurrentSpeed=ValueTable.Column(5)
+    CPU.Collect.CorrectedErrorCount=ValueTable.Column(6)
+    CPU.Collect.PowerConsumption=ValueTable.Column(7)
+  expected:
+    monitors:
+      cpu:
+        collect:
+          mapping:
+            _comment: DeviceID;Status;StatusInformation;PredictedFailure;Speed;Errors;Energy
+            legacyTextParameters:
+              StatusInformation: $column(3)
+            deviceId: $column(1)
+            source: $monitors.cpu.collect.sources.source(1)$
+            metrics:
+              hw.status{hw.type="cpu"}: $column(2)
+              hw.status{hw.type="cpu", state="predicted_failure"}: boolean($column(4))
+              hw.cpu.speed: megaHertz2Hertz($column(5))
+              hw.errors{hw.type="cpu"}: $column(6)
+              hw.power{hw.type="cpu"}: $column(7)
+              hw.energy{hw.type="cpu"}: fakeCounter($column(7))

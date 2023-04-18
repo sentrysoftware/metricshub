@@ -1,0 +1,38 @@
+- name: diskControllerCoreValueTable
+  input: |
+    // DeviceID;Status;StatusInformation
+    DiskController.Collect.ValueTable=%DiskController.Collect.Source(1)%
+    DiskController.Collect.DeviceID=ValueTable.Column(1)
+    DiskController.Collect.Status=ValueTable.Column(2)
+    DiskController.Collect.StatusInformation=ValueTable.Column(3)
+  expected:
+    monitors:
+      disk_controller:
+        collect:
+          mapping:
+            _comment: DeviceID;Status;StatusInformation
+            legacyTextParameters:
+              StatusInformation: $column(3)
+            deviceId: $column(1)
+            source: $monitors.disk_controller.collect.sources.source(1)$
+            metrics:
+              hw.status{hw.type="disk_controller"}: $column(2)
+- name: diskControllerStatusCoreValueTable
+  input: |
+    // DeviceID;Status;StatusInformation
+    DiskController.Collect.ValueTable=%DiskController.Collect.Source(1)%
+    DiskController.Collect.DeviceID=ValueTable.Column(1)
+    DiskController.Collect.ControllerStatus=ValueTable.Column(2)
+    DiskController.Collect.StatusInformation=ValueTable.Column(3)
+  expected:
+    monitors:
+      disk_controller:
+        collect:
+          mapping:
+            _comment: DeviceID;Status;StatusInformation
+            legacyTextParameters:
+              StatusInformation: $column(3)
+            deviceId: $column(1)
+            source: $monitors.disk_controller.collect.sources.source(1)$
+            metrics:
+              hw.status{hw.type="disk_controller"}: $column(2)

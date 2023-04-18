@@ -43,4 +43,9 @@ public class Mapping implements Serializable {
 	@JsonSetter(nulls = SKIP)
 	private Map<String, String> conditionalCollection = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
+	@Default
+	@JsonDeserialize(using = CaseInsensitiveTreeMapDeserializer.class)
+	@JsonSetter(nulls = SKIP)
+	private Map<String, String> legacyTextParameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
 }

@@ -38,6 +38,6 @@
               additionalinformation2: $column(11)
               additionalinformation3: $column(13)
               attachedtodeviceid: DIR5
-              attachedtodevicetype: Enclosure
+              attachedtodevicetype: enclosure
               errorcountwarningthreshold: $column(14)
               errorcountalarmthreshold: $column(15)

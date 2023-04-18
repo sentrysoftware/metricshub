@@ -1,0 +1,23 @@
+- name: memoryValueTable
+  input: |
+    // DeviceID;Status;StatusInformation;PredictedFailure;ErrorCount
+    Memory.Collect.ValueTable=%Gpu.Collect.Source(1)%
+    Memory.Collect.DeviceID=ValueTable.Column(1)
+    Memory.Collect.Status=ValueTable.Column(2)
+    Memory.Collect.StatusInformation=ValueTable.Column(3)
+    Memory.Collect.PredictedFailure=ValueTable.Column(4)
+    Memory.Collect.ErrorCount=ValueTable.Column(5)
+  expected:
+    monitors:
+      memory:
+        collect:
+          mapping:
+            _comment: DeviceID;Status;StatusInformation;PredictedFailure;ErrorCount
+            legacyTextParameters:
+              StatusInformation: $column(3)
+            deviceId: $column(1)
+            source: $monitors.memory.collect.sources.source(1)$
+            metrics:
+              hw.status{hw.type="memory"}: $column(2)
+              hw.status{hw.type="memory", state="predicted_failure"}: boolean($column(4))
+              hw.errors{hw.type="memory"}: $column(5)

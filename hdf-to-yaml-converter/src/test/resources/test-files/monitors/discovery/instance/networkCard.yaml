@@ -16,11 +16,11 @@
     NetworkCard.Discovery.Instance.SerialNumber=InstanceTable.Column(11)
   expected:
     monitors:
-      networkCard:
+      network:
         discovery:
           mapping:
             _comment: InstanceTable = Source(3)
-            source: $monitors.networkCard.discovery.sources.source(3)$
+            source: $monitors.network.discovery.sources.source(3)$
             attributes:
               additionalinformation1: $column(1)
               additionalinformation2: $column(2)

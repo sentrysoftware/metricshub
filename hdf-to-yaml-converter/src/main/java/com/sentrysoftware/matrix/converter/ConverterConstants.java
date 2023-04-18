@@ -64,5 +64,85 @@ public class ConverterConstants {
 	public static final String MAPPING = "mapping";
 	public static final String ATTRIBUTES = "attributes";
 	public static final String SOURCE = "source";
+	public static final String METRICS = "metrics";
+	public static final String LEGACY_TEXT_PARAMETERS = "legacyTextParameters";
 
+	// Monitor types
+	public static final String HDF_BATTERY = "battery";
+	public static final String HDF_BLADE = "blade";
+	public static final String HDF_CPU = "cpu";
+	public static final String HDF_CPU_CORE = "cpucore";
+	public static final String HDF_DISK_CONTROLLER = "diskcontroller";
+	public static final String HDF_ENCLOSURE = "enclosure";
+	public static final String HDF_FAN = "fan";
+	public static final String HDF_GPU = "gpu";
+	public static final String HDF_LED = "led";
+	public static final String HDF_LOGICAL_DISK = "logicaldisk";
+	public static final String HDF_LUN = "lun";
+	public static final String HDF_MEMORY = "memory";
+	public static final String HDF_NETWORK_CARD = "networkcard";
+	public static final String HDF_OTHER_DEVICE = "otherdevice";
+	public static final String HDF_PHYSICAL_DISK = "physicaldisk";
+	public static final String HDF_POWER_SUPPLY = "powersupply";
+	public static final String HDF_ROBOTIC = "robotic";
+	public static final String HDF_TAPEDRIVE = "tapedrive";
+	public static final String HDF_TEMPERATURE = "temperature";
+	public static final String HDF_VM = "vm";
+	public static final String HDF_VOLTAGE = "voltage";
+
+	public static final String YAML_BATTERY = HDF_BATTERY;
+	public static final String YAML_BLADE = HDF_BLADE;
+	public static final String YAML_CPU = HDF_CPU;
+	public static final String YAML_CPU_CORE = "cpu_core";
+	public static final String YAML_DISK_CONTROLLER = "disk_controller";
+	public static final String YAML_ENCLOSURE = HDF_ENCLOSURE;
+	public static final String YAML_FAN = HDF_FAN;
+	public static final String YAML_GPU = HDF_GPU;
+	public static final String YAML_LED = HDF_LED;
+	public static final String YAML_LOGICAL_DISK = "logical_disk";
+	public static final String YAML_LUN = HDF_LUN;
+	public static final String YAML_MEMORY = HDF_MEMORY;
+	public static final String YAML_NETWORK = "network";
+	public static final String YAML_OTHER_DEVICE = "other_device";
+	public static final String YAML_PHYSICAL_DISK = "physical_disk";
+	public static final String YAML_POWER_SUPPLY = "power_supply";
+	public static final String YAML_ROBOTICS = "robotics";
+	public static final String YAML_TAPEDRIVE = "tape_drive";
+	public static final String YAML_TEMPERATURE = HDF_TEMPERATURE;
+	public static final String YAML_VM = HDF_VM;
+	public static final String YAML_VOLTAGE = HDF_VOLTAGE;
+
+	// HDF properties
+	public static final String HDF_CHEMISTRY = "chemistry";
+	public static final String HDF_TYPE = "type";
+	public static final String HDF_MODEL = "model";
+	public static final String HDF_VENDOR = "vendor";
+	public static final String HDF_DISPLAY_ID = "displayid";
+	public static final String HDF_DEVICE_ID = "deviceid";
+
+	// YAML attributes
+	public static final String YAML_TYPE = HDF_TYPE;
+	public static final String YAML_MODEL = HDF_MODEL;
+	public static final String YAML_VENDOR = HDF_VENDOR;
+	public static final String YAML_DISPLAY_ID = "__display_id";
+	public static final String YAML_ID = "id";
+	public static final String YAML_NAME = "name";
+	public static final String YAML_HW_PARENT_ID = "hw.parent.id";
+	public static final String YAML_HW_PARENT_TYPE = "hw.parent.type";
+	public static final String YAML_CHEMISTRY = HDF_CHEMISTRY;
+
+	// HDF Collect parameters
+	public static final String HDF_STATUS = "status";
+	public static final String HDF_TIME_LEFT = "timeleft";
+	public static final String HDF_STATUS_INFORMATION = "statusinformation";
+	public static final String HDF_CHARGE = "charge";
+
+	// YAML metrics
+	public static final String YAML_STATUS_INFORMATION = "StatusInformation";
+	public static final String YAML_BATTERY_CHARGE = "hw.battery.charge";
+	public static final String YAML_BATTERY_TIME_LEFT = "hw.battery.time_left";
+	public static final String YAML_BATTERY_STATUS = "hw.status{hw.type=\"battery\"}";
+
+	// Mapping formats
+	public static final String PERCENT_2_RATIO_FORMAT = "percent2Ratio(%s)";
 }

@@ -17,11 +17,11 @@
     TapeDrive.Discovery.Instance.ErrorCountAlarmThreshold="test2"
   expected:
     monitors:
-      tapeDrive:
+      tape_drive:
         discovery:
           mapping:
             _comment: InstanceTable = Source(1)
-            source: $monitors.tapeDrive.discovery.sources.source(1)$
+            source: $monitors.tape_drive.discovery.sources.source(1)$
             attributes:
               deviceid: $column(1)
               displayid: $column(1)

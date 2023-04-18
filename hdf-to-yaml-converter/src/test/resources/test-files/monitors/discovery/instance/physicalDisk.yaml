@@ -17,11 +17,11 @@
     PhysicalDisk.Discovery.Instance.ControllerNumber=InstanceTable.Column(12)
   expected:
     monitors:
-      physicalDisk:
+      physical_disk:
         discovery:
           mapping:
             _comment: PhysicalDisk Instance Table
-            source: $monitors.physicalDisk.discovery.sources.source(3)$
+            source: $monitors.physical_disk.discovery.sources.source(3)$
             attributes:
               deviceid: $column(2)
               displayid: $column(4)

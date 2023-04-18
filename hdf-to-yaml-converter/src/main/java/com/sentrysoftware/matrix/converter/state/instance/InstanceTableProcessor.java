@@ -1,5 +1,8 @@
 package com.sentrysoftware.matrix.converter.state.instance;
 
+import static com.sentrysoftware.matrix.converter.ConverterConstants.DISCOVERY;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.SOURCE;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -9,8 +12,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
 import com.sentrysoftware.matrix.converter.state.AbstractStateConverter;
 import com.sentrysoftware.matrix.converter.state.ConversionHelper;
-
-import static com.sentrysoftware.matrix.converter.ConverterConstants.SOURCE;
 
 public class InstanceTableProcessor extends AbstractStateConverter {
 
@@ -31,7 +32,7 @@ public class InstanceTableProcessor extends AbstractStateConverter {
 
 	@Override
 	public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
-		ObjectNode mapping = getOrCreateMapping(key, connector);
+		ObjectNode mapping = getOrCreateMapping(key, connector, DISCOVERY);
 
 		appendComment(key, preConnector, mapping);
 

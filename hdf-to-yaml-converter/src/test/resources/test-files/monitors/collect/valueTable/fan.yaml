@@ -1,0 +1,23 @@
+- name: fanValueTable
+  input: |
+    // DeviceID;Status;StatusInformation;Speed;SpeedPercent
+    Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+    Fan.Collect.DeviceID=ValueTable.Column(1)
+    Fan.Collect.Status=ValueTable.Column(2)
+    Fan.Collect.StatusInformation=ValueTable.Column(3)
+    Fan.Collect.Speed=ValueTable.Column(4)
+    Fan.Collect.SpeedPercent=ValueTable.Column(5)
+  expected:
+    monitors:
+      fan:
+        collect:
+          mapping:
+            _comment: DeviceID;Status;StatusInformation;Speed;SpeedPercent
+            legacyTextParameters:
+              StatusInformation: $column(3)
+            deviceId: $column(1)
+            source: $monitors.fan.collect.sources.source(1)$
+            metrics:
+              hw.status{hw.type="fan"}: $column(2)
+              hw.fan.speed: $column(4)
+              hw.fan.speed_ratio: percent2Ratio($column(5))

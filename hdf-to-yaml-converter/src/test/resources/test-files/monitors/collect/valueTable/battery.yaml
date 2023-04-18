@@ -1,0 +1,23 @@
+- name: batteryValueTable
+  input: |
+    // DeviceID;Capacity;RuntimeRemaining_minutes;Status;StatusInformation;
+    Battery.Collect.ValueTable=%Battery.Collect.Source(1)%
+    Battery.Collect.DeviceID=ValueTable.Column(1)
+    Battery.Collect.TimeLeft=ValueTable.Column(3)
+    Battery.Collect.Charge=ValueTable.Column(2)
+    Battery.Collect.Status=ValueTable.Column(4)
+    Battery.Collect.StatusInformation=ValueTable.Column(5)
+  expected:
+    monitors:
+      battery:
+        collect:
+          mapping:
+            _comment: DeviceID;Capacity;RuntimeRemaining_minutes;Status;StatusInformation;
+            legacyTextParameters:
+              StatusInformation: $column(5)
+            deviceId: $column(1)
+            source: $monitors.battery.collect.sources.source(1)$
+            metrics:
+              hw.status{hw.type="battery"}: $column(4)
+              hw.battery.time_left: $column(3)
+              hw.battery.charge: percent2Ratio($column(2))

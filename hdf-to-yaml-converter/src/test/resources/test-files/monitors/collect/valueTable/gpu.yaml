@@ -1,0 +1,92 @@
+- name: gpuValueTable
+  input: |
+    // DeviceID;Status;StatusInformation;PredictedFailure;CorrectedErrorCount;ErrorCount;UsedTime;UsedTimePercent;DecoderUsedTime;DecoderUsedTimePercent;EncoderUsedTime;
+    // EncoderUsedTimePercent;MemoryUtilization;ReceivedBytes;ReceivedBytesRate;TransmittedBytes;TransmittedBytesRate;PowerConsumption
+    Gpu.Collect.ValueTable=%Gpu.Collect.Source(1)%
+    Gpu.Collect.DeviceID=ValueTable.Column(1)
+    Gpu.Collect.Status=ValueTable.Column(2)
+    Gpu.Collect.StatusInformation=ValueTable.Column(3)
+    Gpu.Collect.PredictedFailure=ValueTable.Column(4)
+    Gpu.Collect.CorrectedErrorCount=ValueTable.Column(5)
+    Gpu.Collect.ErrorCount=ValueTable.Column(6)
+    Gpu.Collect.UsedTime=ValueTable.Column(7)
+    Gpu.Collect.UsedTimePercent=ValueTable.Column(8)
+    Gpu.Collect.DecoderUsedTime=ValueTable.Column(9)
+    Gpu.Collect.DecoderUsedTimePercent=ValueTable.Column(10)
+    Gpu.Collect.EncoderUsedTime=ValueTable.Column(11)
+    Gpu.Collect.EncoderUsedTimePercent=ValueTable.Column(12)
+    Gpu.Collect.MemoryUtilization=ValueTable.Column(13)
+    Gpu.Collect.ReceivedBytes=ValueTable.Column(14) 
+    Gpu.Collect.TransmittedBytes=ValueTable.Column(16)
+    Gpu.Collect.PowerConsumption=ValueTable.Column(18)
+  expected:
+    monitors:
+      gpu:
+        collect:
+          mapping:
+            _comment: |-
+              DeviceID;Status;StatusInformation;PredictedFailure;CorrectedErrorCount;ErrorCount;UsedTime;UsedTimePercent;DecoderUsedTime;DecoderUsedTimePercent;EncoderUsedTime;
+              EncoderUsedTimePercent;MemoryUtilization;ReceivedBytes;ReceivedBytesRate;TransmittedBytes;TransmittedBytesRate;PowerConsumption
+            legacyTextParameters:
+              StatusInformation: $column(3)
+            deviceId: $column(1)
+            source: $monitors.gpu.collect.sources.source(1)$
+            metrics:
+              hw.status{hw.type="gpu"}: $column(2)
+              hw.status{hw.type="gpu", state="predicted_failure"}: legacyPredictedFailure($column(4))
+              hw.errors{hw.type="gpu", hw.error.type="corrected"}: $column(5)
+              hw.errors{hw.type="gpu"}: $column(6)
+              hw.gpu.utilization{task="general"}: percent2Ratio($column(8))
+              hw.gpu.utilization{task="decoder"}: percent2Ratio($column(10))
+              hw.gpu.utilization{task="encoder"}: percent2Ratio($column(12))
+              hw.gpu.memory.utilization: percent2Ratio($column(13))
+              hw.gpu.io{direction="receive"}: $column(14)
+              hw.gpu.io{direction="transmit"}: $column(16)
+              hw.power{hw.type="gpu"}: $column(18)
+              hw.energy{hw.type="gpu"}: fakeCounter($column(18))
+- name: gpuAlternateIOValueTable
+  input: |
+    // DeviceID;Status;StatusInformation;PredictedFailure;CorrectedErrorCount;ErrorCount;UsedTime;UsedTimePercent;DecoderUsedTime;DecoderUsedTimePercent;EncoderUsedTime;
+    // EncoderUsedTimePercent;MemoryUtilization;ReceivedBytes;ReceivedBytesRate;TransmittedBytes;TransmittedBytesRate;PowerConsumption
+    Gpu.Collect.ValueTable=%Gpu.Collect.Source(1)%
+    Gpu.Collect.DeviceID=ValueTable.Column(1)
+    Gpu.Collect.Status=ValueTable.Column(2)
+    Gpu.Collect.StatusInformation=ValueTable.Column(3)
+    Gpu.Collect.PredictedFailure=ValueTable.Column(4)
+    Gpu.Collect.CorrectedErrorCount=ValueTable.Column(5)
+    Gpu.Collect.ErrorCount=ValueTable.Column(6)
+    Gpu.Collect.UsedTime=ValueTable.Column(7)
+    Gpu.Collect.UsedTimePercent=ValueTable.Column(8)
+    Gpu.Collect.DecoderUsedTime=ValueTable.Column(9)
+    Gpu.Collect.DecoderUsedTimePercent=ValueTable.Column(10)
+    Gpu.Collect.EncoderUsedTime=ValueTable.Column(11)
+    Gpu.Collect.EncoderUsedTimePercent=ValueTable.Column(12)
+    Gpu.Collect.MemoryUtilization=ValueTable.Column(13)
+    Gpu.Collect.ReceivedBytesRate=ValueTable.Column(15)
+    Gpu.Collect.TransmittedBytesRates=ValueTable.Column(17)
+    Gpu.Collect.PowerConsumption=ValueTable.Column(18)
+  expected:
+    monitors:
+      gpu:
+        collect:
+          mapping:
+            _comment: |-
+              DeviceID;Status;StatusInformation;PredictedFailure;CorrectedErrorCount;ErrorCount;UsedTime;UsedTimePercent;DecoderUsedTime;DecoderUsedTimePercent;EncoderUsedTime;
+              EncoderUsedTimePercent;MemoryUtilization;ReceivedBytes;ReceivedBytesRate;TransmittedBytes;TransmittedBytesRate;PowerConsumption
+            legacyTextParameters:
+              StatusInformation: $column(3)
+            deviceId: $column(1)
+            source: $monitors.gpu.collect.sources.source(1)$
+            metrics:
+              hw.status{hw.type="gpu"}: $column(2)
+              hw.status{hw.type="gpu", state="predicted_failure"}: legacyPredictedFailure($column(4))
+              hw.errors{hw.type="gpu", hw.error.type="corrected"}: $column(5)
+              hw.errors{hw.type="gpu"}: $column(6)
+              hw.gpu.utilization{task="general"}: percent2Ratio($column(8))
+              hw.gpu.utilization{task="decoder"}: percent2Ratio($column(10))
+              hw.gpu.utilization{task="encoder"}: percent2Ratio($column(12))
+              hw.gpu.memory.utilization: percent2Ratio($column(13))
+              hw.gpu.io{direction="receive"}: fakeCounter($column(15))
+              hw.gpu.io{direction="transmit"}: fakeCounter($column(17))
+              hw.power{hw.type="gpu"}: $column(18)
+              hw.energy{hw.type="gpu"}: fakeCounter($column(18))

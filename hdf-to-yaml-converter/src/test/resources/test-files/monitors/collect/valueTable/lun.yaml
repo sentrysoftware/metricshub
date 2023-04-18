@@ -1,0 +1,23 @@
+- name: lunValueTable
+  input: |
+    // DeviceID;Status;StatusInformation;AvailablePathCount;AvailablePathInformation
+    Lun.Collect.ValueTable=%Gpu.Collect.Source(1)%
+    Lun.Collect.DeviceID=ValueTable.Column(1)
+    Lun.Collect.Status=ValueTable.Column(2)
+    Lun.Collect.StatusInformation=ValueTable.Column(3)
+    Lun.Collect.AvailablePathCount=ValueTable.Column(4)
+    Lun.Collect.AvailablePathInformation=ValueTable.Column(5)
+  expected:
+    monitors:
+      lun:
+        collect:
+          mapping:
+            _comment: DeviceID;Status;StatusInformation;AvailablePathCount;AvailablePathInformation
+            legacyTextParameters:
+              StatusInformation: $column(3)
+              AvailablePathInformation: $column(5)
+            deviceId: $column(1)
+            source: $monitors.lun.collect.sources.source(1)$
+            metrics:
+              hw.status{hw.type="lun"}: $column(2)
+              hw.lun.paths: $column(4)

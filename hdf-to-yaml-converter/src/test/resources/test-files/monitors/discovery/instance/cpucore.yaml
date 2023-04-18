@@ -9,15 +9,15 @@
     CpuCore.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(3)
   expected:
     monitors:
-      cpuCore:
+      cpu_core:
         discovery:
           mapping:
             _comment: |-
               Instance table = source(3)
               CoreID;PhysicalProcessorID;AdditionalInformation;CoreID;CurrentSpeed;
-            source: $monitors.cpuCore.discovery.sources.source(3)$
+            source: $monitors.cpu_core.discovery.sources.source(3)$
             attributes:
               deviceid: $column(1)
               attachedtodeviceid: $column(2)
-              attachedtodevicetype: Cpu
+              attachedtodevicetype: cpu
               additionalinformation1: $column(3)
