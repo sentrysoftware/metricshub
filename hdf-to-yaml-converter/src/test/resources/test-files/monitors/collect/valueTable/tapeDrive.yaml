@@ -13,8 +13,8 @@
     monitors:
       tape_drive:
         collect:
-          _comment: DeviceID;Status;StatusInformation;Mount;Unmount;Errors;NeedsCleaning
           mapping:
+            _comment: DeviceID;Status;StatusInformation;Mount;Unmount;Errors;NeedsCleaning
             legacyTextParameters:
               StatusInformation: $column(3)
             deviceId: $column(1)

@@ -64,6 +64,8 @@ public class ConverterConstants {
 	public static final String MAPPING = "mapping";
 	public static final String ATTRIBUTES = "attributes";
 	public static final String SOURCE = "source";
+	public static final String METRICS = "metrics";
+	public static final String LEGACY_TEXT_PARAMETERS = "legacyTextParameters";
 
 	// Monitor types
 	public static final String HDF_BATTERY = "battery";
@@ -128,4 +130,19 @@ public class ConverterConstants {
 	public static final String YAML_HW_PARENT_ID = "hw.parent.id";
 	public static final String YAML_HW_PARENT_TYPE = "hw.parent.type";
 	public static final String YAML_CHEMISTRY = HDF_CHEMISTRY;
+
+	// HDF Collect parameters
+	public static final String HDF_STATUS = "status";
+	public static final String HDF_TIME_LEFT = "timeleft";
+	public static final String HDF_STATUS_INFORMATION = "statusinformation";
+	public static final String HDF_CHARGE = "charge";
+
+	// YAML metrics
+	public static final String YAML_STATUS_INFORMATION = "StatusInformation";
+	public static final String YAML_BATTERY_CHARGE = "hw.battery.charge";
+	public static final String YAML_BATTERY_TIME_LEFT = "hw.battery.time_left";
+	public static final String YAML_BATTERY_STATUS = "hw.status{hw.type=\"battery\"}";
+
+	// Mapping formats
+	public static final String PERCENT_2_RATIO_FORMAT = "percent2Ratio(%s)";
 }

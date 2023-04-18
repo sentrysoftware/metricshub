@@ -11,6 +11,7 @@ import com.sentrysoftware.matrix.converter.state.computes.ConnectorComputeProper
 import com.sentrysoftware.matrix.converter.state.detection.ConnectorDetectionProperty;
 import com.sentrysoftware.matrix.converter.state.instance.ConnectorInstanceProperty;
 import com.sentrysoftware.matrix.converter.state.source.ConnectorSourceProperty;
+import com.sentrysoftware.matrix.converter.state.valuetable.ConnectorValueTableProperty;
 
 import lombok.AllArgsConstructor;
 
@@ -22,6 +23,7 @@ public enum ConnectorState implements IConnectorStateConverter {
 	CONNECTOR_SOURCE(new StateConverterParent(ConnectorSourceProperty.getConnectorProperties())),
 	CONNECTOR_COMPUTE(new StateConverterParent(ConnectorComputeProperty.getConnectorProperties())),
 	COLLECT_TYPE(new StateConverterParent(Collections.singleton(new CollectTypeProcessor()))),
+	CONNECTOR_VALUE_TABLE(new StateConverterParent(ConnectorValueTableProperty.getConnectorProperties())),
 	CONNECTOR_INSTANCE(new StateConverterParent(ConnectorInstanceProperty.getConnectorProperties()));
 
 

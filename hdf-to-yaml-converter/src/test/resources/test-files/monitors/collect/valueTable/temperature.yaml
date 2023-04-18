@@ -10,8 +10,8 @@
     monitors:
       temperature:
         collect:
-          _comment: DeviceID;Status;StatusInformation;Temperature
           mapping:
+            _comment: DeviceID;Status;StatusInformation;Temperature
             legacyTextParameters:
               StatusInformation: $column(3)
             deviceId: $column(1)

@@ -23,10 +23,10 @@
     monitors:
       gpu:
         collect:
-          _comment: |-
-            DeviceID;Status;StatusInformation;PredictedFailure;CorrectedErrorCount;ErrorCount;UsedTime;UsedTimePercent;DecoderUsedTime;DecoderUsedTimePercent;EncoderUsedTime;
-            EncoderUsedTimePercent;MemoryUtilization;ReceivedBytes;ReceivedBytesRate;TransmittedBytes;TransmittedBytesRate;PowerConsumption
           mapping:
+            _comment: |-
+              DeviceID;Status;StatusInformation;PredictedFailure;CorrectedErrorCount;ErrorCount;UsedTime;UsedTimePercent;DecoderUsedTime;DecoderUsedTimePercent;EncoderUsedTime;
+              EncoderUsedTimePercent;MemoryUtilization;ReceivedBytes;ReceivedBytesRate;TransmittedBytes;TransmittedBytesRate;PowerConsumption
             legacyTextParameters:
               StatusInformation: $column(3)
             deviceId: $column(1)
@@ -69,10 +69,10 @@
     monitors:
       gpu:
         collect:
-          _comment: |-
-            DeviceID;Status;StatusInformation;PredictedFailure;CorrectedErrorCount;ErrorCount;UsedTime;UsedTimePercent;DecoderUsedTime;DecoderUsedTimePercent;EncoderUsedTime;
-            EncoderUsedTimePercent;MemoryUtilization;ReceivedBytes;ReceivedBytesRate;TransmittedBytes;TransmittedBytesRate;PowerConsumption
           mapping:
+            _comment: |-
+              DeviceID;Status;StatusInformation;PredictedFailure;CorrectedErrorCount;ErrorCount;UsedTime;UsedTimePercent;DecoderUsedTime;DecoderUsedTimePercent;EncoderUsedTime;
+              EncoderUsedTimePercent;MemoryUtilization;ReceivedBytes;ReceivedBytesRate;TransmittedBytes;TransmittedBytesRate;PowerConsumption
             legacyTextParameters:
               StatusInformation: $column(3)
             deviceId: $column(1)

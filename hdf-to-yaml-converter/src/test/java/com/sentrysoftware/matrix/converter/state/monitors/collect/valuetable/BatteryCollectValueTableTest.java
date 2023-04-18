@@ -1,13 +1,12 @@
-package com.sentrysoftware.matrix.converter.state.monitors.collect.valueTable;
+package com.sentrysoftware.matrix.converter.state.monitors.collect.valuetable;
 
 import java.io.IOException;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.converter.AbstractConnectorPropertyConverterTest;
 
-class BatteryCollectValueTableTest extends AbstractConnectorPropertyConverterTest{
+class BatteryCollectValueTableTest extends AbstractConnectorPropertyConverterTest {
 	
 	@Override
 	protected String getResourcePath() {
@@ -15,7 +14,6 @@ class BatteryCollectValueTableTest extends AbstractConnectorPropertyConverterTes
 	}
 
 	@Test
-	@Disabled("Until BatteryValueTable processor is up")
 	void test() throws IOException {
 		testAll();
 	}

@@ -46,7 +46,7 @@ public class MappingConvertersWrapper {
 	/**
 	 * Map of mapping converters
 	 */
-	public static final Map<String, IMappingConverter> DEFAULT_CONVERTERS = Map.ofEntries(
+	private static final Map<String, IMappingConverter> DEFAULT_CONVERTERS = Map.ofEntries(
 		Map.entry(YAML_BATTERY, new BatteryConverter()),
 		Map.entry(YAML_BLADE, NOOP),
 		Map.entry(YAML_CPU, NOOP),
@@ -156,5 +156,15 @@ public class MappingConvertersWrapper {
 		if (mapping != null && mapping.get(ATTRIBUTES) != null) {
 			getConverterForMonitorType(monitorType).postConvertDiscoveryProperties(mapping);
 		}
+	}
+
+	/**
+	 * Get the mapping converter for the given monitor name
+	 * 
+	 * @param monitorName The YAML monitor name
+	 * @return {@link IMappingConverter} instance
+	 */
+	public IMappingConverter getConverter(final String monitorName) {
+		return converters.get(monitorName);
 	}
 }

@@ -9,8 +9,8 @@
     monitors:
       vm:
         collect:
-          _comment: DeviceID;Status;PowerShare
           mapping:
+            _comment: DeviceID;Status;PowerShare
             deviceId: $column(1)
             source: $monitors.vm.collect.sources.source(1)$
             metrics:

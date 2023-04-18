@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.converter.state.monitors.collect.valueTable;
+package com.sentrysoftware.matrix.converter.state.monitors.collect.valuetable;
 
 import java.io.IOException;
 
@@ -7,15 +7,15 @@ import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.converter.AbstractConnectorPropertyConverterTest;
 
-class CpuCollectValueTableTest extends AbstractConnectorPropertyConverterTest{
+class EnclosureCollectValueTableTest extends AbstractConnectorPropertyConverterTest{
 	
 	@Override
 	protected String getResourcePath() {
-		return "src/test/resources/test-files/monitors/collect/valueTable/cpu";
+		return "src/test/resources/test-files/monitors/collect/valueTable/enclosure";
 	}
 
 	@Test
-	@Disabled("Until CpuValueTable processor is up")
+	@Disabled("Until EnclosureValueTable processor is up")
 	void test() throws IOException {
 		testAll();
 	}

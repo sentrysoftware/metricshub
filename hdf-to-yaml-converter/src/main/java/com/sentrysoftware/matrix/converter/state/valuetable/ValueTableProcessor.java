@@ -1,6 +1,6 @@
-package com.sentrysoftware.matrix.converter.state.instance;
+package com.sentrysoftware.matrix.converter.state.valuetable;
 
-import static com.sentrysoftware.matrix.converter.ConverterConstants.DISCOVERY;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.COLLECT;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.SOURCE;
 
 import java.util.regex.Matcher;
@@ -13,13 +13,10 @@ import com.sentrysoftware.matrix.converter.PreConnector;
 import com.sentrysoftware.matrix.converter.state.AbstractStateConverter;
 import com.sentrysoftware.matrix.converter.state.ConversionHelper;
 
-public class InstanceTableProcessor extends AbstractStateConverter {
+public class ValueTableProcessor extends AbstractStateConverter {
 
-	/**
-	 * Pattern to detect discovery InstanceTable
-	 */
-	private static final Pattern INSTANCE_TABLE_PATTERN = Pattern.compile(
-		"^\\s*(([a-z]+)\\.discovery\\.instancetable)\\s*$",
+	private static final Pattern VALUE_TABLE_KEY_PATTERN = Pattern.compile(
+		"^\\s*(([a-z]+)\\.collect\\.valuetable)\\s*$",
 		Pattern.CASE_INSENSITIVE
 	);
 
@@ -32,7 +29,7 @@ public class InstanceTableProcessor extends AbstractStateConverter {
 
 	@Override
 	public void convert(String key, String value, JsonNode connector, PreConnector preConnector) {
-		ObjectNode mapping = getOrCreateMapping(key, connector, DISCOVERY);
+		final ObjectNode mapping = getOrCreateMapping(key, connector, COLLECT);
 
 		appendComment(key, preConnector, mapping);
 
@@ -41,6 +38,7 @@ public class InstanceTableProcessor extends AbstractStateConverter {
 
 	@Override
 	protected Matcher getMatcher(String key) {
-		return INSTANCE_TABLE_PATTERN.matcher(key);
+		return VALUE_TABLE_KEY_PATTERN.matcher(key);
 	}
+
 }

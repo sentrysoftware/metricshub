@@ -807,7 +807,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
  	 * @return attributesNode {@link ObjectNode}. Never <code>null</code>
 	 */
 	protected ObjectNode getOrCreateAttributes(final String key, final JsonNode connector) {
-		ObjectNode mapping = getOrCreateMapping(key, connector);
+		ObjectNode mapping = getOrCreateMapping(key, connector, DISCOVERY);
 
 		final JsonNode attributesNode = mapping.get(ATTRIBUTES);
 
@@ -825,9 +825,10 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	 * 
 	 * @param key the context key
 	 * @param connector the global connector {@Link JsonNode}
+	 * @param jobType the type of the job: <em>discovery</em> or <em>collect</em>
  	 * @return mapping {@link ObjectNode}. Never <code>null</code>
 	 */
-	protected ObjectNode getOrCreateMapping(final String key, final JsonNode connector) {
+	protected ObjectNode getOrCreateMapping(final String key, final JsonNode connector, final String jobType) {
 
 		final Matcher matcher = getMatcher(key);
 		if (!matcher.matches()) {
@@ -849,7 +850,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 								monitorName,
 								JsonNodeFactory.instance.objectNode()
 									.set(
-										DISCOVERY,
+										jobType,
 										JsonNodeFactory.instance.objectNode()
 											.set(MAPPING, mapping)
 									)
@@ -867,7 +868,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 					monitorName,
 					JsonNodeFactory.instance.objectNode()
 						.set(
-							DISCOVERY,
+							jobType,
 							JsonNodeFactory.instance.objectNode()
 								.set(MAPPING, mapping)
 						)
@@ -877,12 +878,12 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 		}
 
 		// Check the job
-		final JsonNode job = monitor.get(DISCOVERY);
+		final JsonNode job = monitor.get(jobType);
 		if (job == null) {
 			final ObjectNode mapping = JsonNodeFactory.instance.objectNode();
 			((ObjectNode) monitor)
 				.set(
-					DISCOVERY,
+					jobType,
 					JsonNodeFactory.instance.objectNode()
 						.set(MAPPING, mapping)
 				);

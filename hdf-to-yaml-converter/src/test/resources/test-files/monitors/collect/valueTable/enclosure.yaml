@@ -12,8 +12,8 @@
     monitors:
       enclosure:
         collect:
-          _comment: DeviceID;Status;StatusInformation;IntrusionStatus;EnergyUsage;PowerConsumption
           mapping:
+            _comment: DeviceID;Status;StatusInformation;IntrusionStatus;EnergyUsage;PowerConsumption
             legacyTextParameters:
               StatusInformation: $column(3)
             deviceId: $column(1)
@@ -36,8 +36,8 @@
     monitors:
       enclosure:
         collect:
-          _comment: DeviceID;Status;StatusInformation;IntrusionStatus;EnergyUsage
           mapping:
+            _comment: DeviceID;Status;StatusInformation;IntrusionStatus;EnergyUsage
             legacyTextParameters:
               StatusInformation: $column(3)
             deviceId: $column(1)
@@ -60,8 +60,8 @@
     monitors:
       enclosure:
         collect:
-          _comment: DeviceID;Status;StatusInformation;IntrusionStatus;PowerConsumption
           mapping:
+            _comment: DeviceID;Status;StatusInformation;IntrusionStatus;PowerConsumption
             legacyTextParameters:
               StatusInformation: $column(3)
             deviceId: $column(1)

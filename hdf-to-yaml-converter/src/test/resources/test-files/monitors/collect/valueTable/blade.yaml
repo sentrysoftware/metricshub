@@ -10,8 +10,8 @@
     monitors:
       blade:
         collect:
-          _comment: DeviceID;Status;StatusInformation;PowerState
           mapping:
+            _comment: DeviceID;Status;StatusInformation;PowerState
             legacyTextParameters:
               StatusInformation: $column(3)
             deviceId: $column(1)

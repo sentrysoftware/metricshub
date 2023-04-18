@@ -11,8 +11,8 @@
     monitors:
       lun:
         collect:
-          _comment: DeviceID;Status;StatusInformation;AvailablePathCount;AvailablePathInformation
           mapping:
+            _comment: DeviceID;Status;StatusInformation;AvailablePathCount;AvailablePathInformation
             legacyTextParameters:
               StatusInformation: $column(3)
               AvailablePathInformation: $column(5)

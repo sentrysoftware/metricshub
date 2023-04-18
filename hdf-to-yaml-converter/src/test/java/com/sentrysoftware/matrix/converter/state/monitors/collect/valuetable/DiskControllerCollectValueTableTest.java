@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.converter.monitors.collect.valueTable;
+package com.sentrysoftware.matrix.converter.state.monitors.collect.valuetable;
 
 import java.io.IOException;
 

@@ -1,22 +1,36 @@
 package com.sentrysoftware.matrix.converter.state.mapping;
 
+import static com.sentrysoftware.matrix.converter.ConverterConstants.ATTRIBUTES;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_CHARGE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_CHEMISTRY;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_DEVICE_ID;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_DISPLAY_ID;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_MODEL;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_STATUS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_STATUS_INFORMATION;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_TIME_LEFT;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_TYPE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_VENDOR;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.LEGACY_TEXT_PARAMETERS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.METRICS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_BATTERY_CHARGE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_BATTERY_STATUS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_BATTERY_TIME_LEFT;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_CHEMISTRY;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_DISPLAY_ID;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ID;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_MODEL;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_NAME;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_STATUS_INFORMATION;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TYPE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VENDOR;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -27,22 +41,31 @@ import com.fasterxml.jackson.databind.node.TextNode;
 
 public class BatteryConverter extends AbstractMappingConverter {
 
-	private static final Map<String, String> ONE_TO_ONE_ATTRIBUTES_MAPPING = Map.of(
-		HDF_DEVICE_ID, YAML_ID,
-		HDF_DISPLAY_ID, YAML_DISPLAY_ID,
-		HDF_VENDOR, YAML_VENDOR,
-		HDF_MODEL, YAML_MODEL,
-		HDF_CHEMISTRY, YAML_CHEMISTRY,
-		HDF_TYPE, YAML_TYPE
-	);
+	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_ATTRIBUTES_MAPPING;
+	static {
+		final Map<String, Entry<String, IMappingKey>> attributesMap = new HashMap<>();
+		attributesMap.put(HDF_DEVICE_ID, IMappingKey.of(ATTRIBUTES, YAML_ID));
+		attributesMap.put(HDF_DISPLAY_ID, IMappingKey.of(ATTRIBUTES, YAML_DISPLAY_ID));
+		attributesMap.put(HDF_VENDOR, IMappingKey.of(ATTRIBUTES, YAML_VENDOR));
+		attributesMap.put(HDF_MODEL, IMappingKey.of(ATTRIBUTES, YAML_MODEL));
+		attributesMap.put(HDF_CHEMISTRY, IMappingKey.of(ATTRIBUTES, YAML_CHEMISTRY));
+		attributesMap.put(HDF_TYPE, IMappingKey.of(ATTRIBUTES, YAML_TYPE));
+		ONE_TO_ONE_ATTRIBUTES_MAPPING = Collections.unmodifiableMap(attributesMap);
+	}
 
-	@Override
-	public void convertCollectProperty(final String key, final String value, final JsonNode node) {
-		// Implement
+	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_METRICS_MAPPING;
+	static {
+		
+		final Map<String, Entry<String, IMappingKey>> metricsMap = new HashMap<>();
+		metricsMap.put(HDF_STATUS, IMappingKey.of(METRICS, YAML_BATTERY_STATUS));
+		metricsMap.put(HDF_TIME_LEFT, IMappingKey.of(METRICS, YAML_BATTERY_TIME_LEFT));
+		metricsMap.put(HDF_STATUS_INFORMATION, IMappingKey.of(LEGACY_TEXT_PARAMETERS, YAML_STATUS_INFORMATION));
+		metricsMap.put(HDF_CHARGE, IMappingKey.of(METRICS, YAML_BATTERY_CHARGE, AbstractMappingConverter::buildPercent2RatioFunction));
+		ONE_TO_ONE_METRICS_MAPPING = Collections.unmodifiableMap(metricsMap);
 	}
 
 	@Override
-	protected Map<String, String> getOneToOneAttributesMapping() {
+	protected Map<String, Entry<String, IMappingKey>> getOneToOneAttributesMapping() {
 		return ONE_TO_ONE_ATTRIBUTES_MAPPING;
 	}
 
@@ -152,6 +175,16 @@ public class BatteryConverter extends AbstractMappingConverter {
 			)
 			.toString();
 
+	}
+
+	@Override
+	protected Map<String, Entry<String, IMappingKey>> getOneToOneMetricsMapping() {
+		return ONE_TO_ONE_METRICS_MAPPING;
+	}
+
+	@Override
+	public void convertCollectProperty(final String key, final String value, final JsonNode node) {
+		convertOneToOneMetrics(key, value, (ObjectNode) node);
 	}
 
 }

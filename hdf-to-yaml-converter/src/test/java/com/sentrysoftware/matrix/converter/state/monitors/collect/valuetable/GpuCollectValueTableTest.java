@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.converter.state.collect.valueTable;
+package com.sentrysoftware.matrix.converter.state.monitors.collect.valuetable;
 
 import java.io.IOException;
 
@@ -7,15 +7,15 @@ import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.converter.AbstractConnectorPropertyConverterTest;
 
-class LedCollectValueTableTest extends AbstractConnectorPropertyConverterTest{
+class GpuCollectValueTableTest extends AbstractConnectorPropertyConverterTest{
 	
 	@Override
 	protected String getResourcePath() {
-		return "src/test/resources/test-files/monitors/collect/valueTable/led";
+		return "src/test/resources/test-files/monitors/collect/valueTable/gpu";
 	}
 
 	@Test
-	@Disabled("Until LedCoreValueTable processor is up")
+	@Disabled("Until GpuValueTable processor is up")
 	void test() throws IOException {
 		testAll();
 	}

@@ -10,8 +10,8 @@
     monitors:
       led:
         collect:
-          _comment: DeviceID;Status;StatusInformation
           mapping:
+            _comment: DeviceID;Status;StatusInformation
             legacyTextParameters:
               StatusInformation: $column(3)
             deviceId: $column(1)
