@@ -119,6 +119,10 @@ public class ConverterConstants {
 	public static final String HDF_VENDOR = "vendor";
 	public static final String HDF_DISPLAY_ID = "displayid";
 	public static final String HDF_DEVICE_ID = "deviceid";
+	public static final String HDF_MAX_POWER_CONSUMPTION = "maxpowerconsumption";
+	public static final String HDF_MAXIMUM_SPEED = "maximumspeed";
+	public static final String HDF_CORRECTED_ERROR_WARNING_THRESHOLD = "correctederrorwarningthreshold";
+	public static final String HDF_CORRECTED_ERROR_ALARM_THRESHOLD = "correctederroralarmthreshold";
 
 	// YAML attributes
 	public static final String YAML_TYPE = HDF_TYPE;
@@ -136,13 +140,33 @@ public class ConverterConstants {
 	public static final String HDF_TIME_LEFT = "timeleft";
 	public static final String HDF_STATUS_INFORMATION = "statusinformation";
 	public static final String HDF_CHARGE = "charge";
+	public static final String HDF_PREDICTED_FAILURE = "predictedfailure";
+	public static final String HDF_CURRENT_SPEED = "currentspeed";
+	public static final String HDF_CORRECTED_ERROR_COUNT = "correctederrorcount";
+	public static final String HDF_POWER_CONSUMPTION = "powerconsumption";
 
 	// YAML metrics
 	public static final String YAML_STATUS_INFORMATION = "StatusInformation";
 	public static final String YAML_BATTERY_CHARGE = "hw.battery.charge";
 	public static final String YAML_BATTERY_TIME_LEFT = "hw.battery.time_left";
 	public static final String YAML_BATTERY_STATUS = "hw.status{hw.type=\"battery\"}";
+	public static final String YAML_CPU_POWER_LIMIT = "hw.power.limit{hw.type=\"cpu\"}";
+	public static final String YAML_CPU_SPEED_LIMIT = "hw.cpu.speed.limit{limit_type=\"max\"}";
+	public static final String YAML_CPU_ERRORS_LIMIT_DEGRADED = "hw.errors.limit{hw.type=\"cpu\", limit_type=\"degraded\"}";
+	public static final String YAML_CPU_ERRORS_LIMIT_CRITICAL = "hw.errors.limit{hw.type=\"cpu\", limit_type=\"critical\"}";
+	public static final String YAML_CPU_STATUS = "hw.status{hw.type=\"cpu\"}";
+	public static final String YAML_CPU_PREDICTED_FAILURE = "hw.status{hw.type=\"cpu\", state=\"predicted_failure\"}";
+	public static final String YAML_CPU_SPEED = "hw.cpu.speed";
+	public static final String YAML_CPU_ERRORS = "hw.errors{hw.type=\"cpu\"}";
+	public static final String YAML_CPU_POWER = "hw.power{hw.type=\"cpu\"}";
+	public static final String YAML_CPU_ENERGY = "hw.energy{hw.type=\"cpu\"}";
 
 	// Mapping formats
 	public static final String PERCENT_2_RATIO_FORMAT = "percent2Ratio(%s)";
+	public static final String MEGA_HERTZ_2_HERTZ_FORMAT = "megaHertz2Hertz(%s)";
+	public static final String BOOLEAN_FORMAT = "boolean(%s)";
+	public static final String FAKE_COUNTER_FORMAT = "fakeCounter(%s)";
+	public static final String MEGA_HERTZ_TO_HUMAN_FORMAT = "%mhhf.s";
+	public static final String BYTES_TO_HUMAN_FORMAT = "%byhf.s";
+	public static final String BITS_TO_HUMAN_FORMAT = "%bihf.s";
 }

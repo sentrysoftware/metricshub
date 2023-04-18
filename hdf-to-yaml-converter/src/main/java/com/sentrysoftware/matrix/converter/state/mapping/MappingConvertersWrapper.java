@@ -49,7 +49,7 @@ public class MappingConvertersWrapper {
 	private static final Map<String, IMappingConverter> DEFAULT_CONVERTERS = Map.ofEntries(
 		Map.entry(YAML_BATTERY, new BatteryConverter()),
 		Map.entry(YAML_BLADE, NOOP),
-		Map.entry(YAML_CPU, NOOP),
+		Map.entry(YAML_CPU, new CpuConverter()),
 		Map.entry(YAML_CPU_CORE, NOOP),
 		Map.entry(YAML_DISK_CONTROLLER, NOOP),
 		Map.entry(YAML_ENCLOSURE, NOOP),

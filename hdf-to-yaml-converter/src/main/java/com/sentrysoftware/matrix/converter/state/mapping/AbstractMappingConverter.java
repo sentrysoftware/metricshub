@@ -1,6 +1,9 @@
 package com.sentrysoftware.matrix.converter.state.mapping;
 
 import static com.sentrysoftware.matrix.converter.ConverterConstants.ATTRIBUTES;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.BOOLEAN_FORMAT;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.FAKE_COUNTER_FORMAT;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.MEGA_HERTZ_2_HERTZ_FORMAT;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.METRICS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.PERCENT_2_RATIO_FORMAT;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_DISK_CONTROLLER;
@@ -11,9 +14,9 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_HW_PAR
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.regex.Pattern;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -289,5 +292,35 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 	 */
 	public static String buildPercent2RatioFunction(final String value) {
 		return String.format(PERCENT_2_RATIO_FORMAT, value);
+	}
+
+	/**
+	 * Build megaHertz2Hertz(...) function
+	 * 
+	 * @param value
+	 * @return String value
+	 */
+	public static String buildMegaHertz2HertzFunction(final String value) {
+		return String.format(MEGA_HERTZ_2_HERTZ_FORMAT, value);
+	}
+
+	/**
+	 * Build boolean(...) function
+	 * 
+	 * @param value
+	 * @return String value
+	 */
+	public static String buildBooleanFunction(final String value) {
+		return String.format(BOOLEAN_FORMAT, value);
+	}
+
+	/**
+	 * Build fakeCounter(...) function
+	 * 
+	 * @param value
+	 * @return String value
+	 */
+	public static String buildFakeCounterFunction(final String value) {
+		return String.format(FAKE_COUNTER_FORMAT, value);
 	}
 }
