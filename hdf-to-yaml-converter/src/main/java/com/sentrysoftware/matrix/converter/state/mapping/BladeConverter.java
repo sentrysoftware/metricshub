@@ -17,7 +17,7 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_DISPLA
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ID;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_MODEL;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_NAME;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_POWER_STATE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_BLADE_POWER_STATE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_SERIAL_NUMBER;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_STATUS_INFORMATION;
 
@@ -55,7 +55,7 @@ public class BladeConverter extends AbstractMappingConverter {
 		final Map<String, Entry<String, IMappingKey>> metricsMap = new HashMap<>();
 		metricsMap.put(HDF_STATUS, IMappingKey.of(METRICS, YAML_BLADE_STATUS));
 		metricsMap.put(HDF_STATUS_INFORMATION, IMappingKey.of(LEGACY_TEXT_PARAMETERS, YAML_STATUS_INFORMATION));
-		metricsMap.put(HDF_POWER_STATE, IMappingKey.of(METRICS, YAML_POWER_STATE));
+		metricsMap.put(HDF_POWER_STATE, IMappingKey.of(METRICS, YAML_BLADE_POWER_STATE));
 		ONE_TO_ONE_METRICS_MAPPING = Collections.unmodifiableMap(metricsMap);
 	}
 

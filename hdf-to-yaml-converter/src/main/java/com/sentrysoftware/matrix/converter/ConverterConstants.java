@@ -149,7 +149,7 @@ public class ConverterConstants {
 	public static final String YAML_BATTERY_TIME_LEFT = "hw.battery.time_left";
 	public static final String YAML_BATTERY_STATUS = "hw.status{hw.type=\"battery\"}";
 	public static final String YAML_BLADE_STATUS = "hw.status{hw.type=\"blade\"}";
-	public static final String YAML_POWER_STATE = "hw.blade.power_state";
+	public static final String YAML_BLADE_POWER_STATE = "hw.blade.power_state";
 
 	// Mapping formats
 	public static final String PERCENT_2_RATIO_FORMAT = "percent2Ratio(%s)";
