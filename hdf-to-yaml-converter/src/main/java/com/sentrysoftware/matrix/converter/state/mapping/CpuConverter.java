@@ -1,28 +1,38 @@
 package com.sentrysoftware.matrix.converter.state.mapping;
 
 import static com.sentrysoftware.matrix.converter.ConverterConstants.ATTRIBUTES;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_CHARGE;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_CHEMISTRY;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_CORRECTED_ERROR_ALARM_THRESHOLD;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_CORRECTED_ERROR_COUNT;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_CORRECTED_ERROR_WARNING_THRESHOLD;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_CURRENT_SPEED;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_DEVICE_ID;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_DISPLAY_ID;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_MAXIMUM_SPEED;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_MAX_POWER_CONSUMPTION;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_MODEL;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_POWER_CONSUMPTION;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_PREDICTED_FAILURE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_STATUS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_STATUS_INFORMATION;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_TIME_LEFT;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_TYPE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_VENDOR;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.LEGACY_TEXT_PARAMETERS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.MEGA_HERTZ_TO_HUMAN_FORMAT;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.METRICS;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_BATTERY_CHARGE;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_BATTERY_STATUS;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_BATTERY_TIME_LEFT;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_CHEMISTRY;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_CPU_ENERGY;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_CPU_ERRORS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_CPU_ERRORS_LIMIT_CRITICAL;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_CPU_ERRORS_LIMIT_DEGRADED;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_CPU_POWER;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_CPU_POWER_LIMIT;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_CPU_PREDICTED_FAILURE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_CPU_SPEED;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_CPU_SPEED_LIMIT;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_CPU_STATUS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_DISPLAY_ID;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ID;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_MODEL;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_NAME;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_STATUS_INFORMATION;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TYPE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VENDOR;
 
 import java.util.ArrayList;
@@ -39,7 +49,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
-public class BatteryConverter extends AbstractMappingConverter {
+public class CpuConverter extends AbstractMappingConverter {
 
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_ATTRIBUTES_MAPPING;
 	static {
@@ -48,19 +58,22 @@ public class BatteryConverter extends AbstractMappingConverter {
 		attributesMap.put(HDF_DISPLAY_ID, IMappingKey.of(ATTRIBUTES, YAML_DISPLAY_ID));
 		attributesMap.put(HDF_VENDOR, IMappingKey.of(ATTRIBUTES, YAML_VENDOR));
 		attributesMap.put(HDF_MODEL, IMappingKey.of(ATTRIBUTES, YAML_MODEL));
-		attributesMap.put(HDF_CHEMISTRY, IMappingKey.of(ATTRIBUTES, YAML_CHEMISTRY));
-		attributesMap.put(HDF_TYPE, IMappingKey.of(ATTRIBUTES, YAML_TYPE));
+		attributesMap.put(HDF_MAX_POWER_CONSUMPTION, IMappingKey.of(METRICS, YAML_CPU_POWER_LIMIT));
+		attributesMap.put(HDF_MAXIMUM_SPEED, IMappingKey.of(METRICS, YAML_CPU_SPEED_LIMIT, AbstractMappingConverter::buildMegaHertz2HertzFunction));
+		attributesMap.put(HDF_CORRECTED_ERROR_WARNING_THRESHOLD, IMappingKey.of(METRICS, YAML_CPU_ERRORS_LIMIT_DEGRADED));
+		attributesMap.put(HDF_CORRECTED_ERROR_ALARM_THRESHOLD, IMappingKey.of(METRICS, YAML_CPU_ERRORS_LIMIT_CRITICAL));
 		ONE_TO_ONE_ATTRIBUTES_MAPPING = Collections.unmodifiableMap(attributesMap);
 	}
 
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_METRICS_MAPPING;
 	static {
-
 		final Map<String, Entry<String, IMappingKey>> metricsMap = new HashMap<>();
-		metricsMap.put(HDF_STATUS, IMappingKey.of(METRICS, YAML_BATTERY_STATUS));
-		metricsMap.put(HDF_TIME_LEFT, IMappingKey.of(METRICS, YAML_BATTERY_TIME_LEFT));
+		metricsMap.put(HDF_STATUS, IMappingKey.of(METRICS, YAML_CPU_STATUS));
 		metricsMap.put(HDF_STATUS_INFORMATION, IMappingKey.of(LEGACY_TEXT_PARAMETERS, YAML_STATUS_INFORMATION));
-		metricsMap.put(HDF_CHARGE, IMappingKey.of(METRICS, YAML_BATTERY_CHARGE, AbstractMappingConverter::buildPercent2RatioFunction));
+		metricsMap.put(HDF_PREDICTED_FAILURE, IMappingKey.of(METRICS, YAML_CPU_PREDICTED_FAILURE, AbstractMappingConverter::buildBooleanFunction));
+		metricsMap.put(HDF_CURRENT_SPEED, IMappingKey.of(METRICS, YAML_CPU_SPEED, AbstractMappingConverter::buildMegaHertz2HertzFunction));
+		metricsMap.put(HDF_CORRECTED_ERROR_COUNT, IMappingKey.of(METRICS, YAML_CPU_ERRORS));
+		metricsMap.put(HDF_POWER_CONSUMPTION, IMappingKey.of(METRICS, YAML_CPU_POWER));
 		ONE_TO_ONE_METRICS_MAPPING = Collections.unmodifiableMap(metricsMap);
 	}
 
@@ -89,29 +102,29 @@ public class BatteryConverter extends AbstractMappingConverter {
 
 		final JsonNode vendor = existingAttributes.get(HDF_VENDOR);
 		final JsonNode model = existingAttributes.get(HDF_MODEL);
-		final JsonNode type = existingAttributes.get(HDF_TYPE);
+		final JsonNode maximumSpeed = existingAttributes.get(HDF_MAXIMUM_SPEED);
 
 		newAttributes.set(
 			YAML_NAME,
 			new TextNode(
-				buildNameValue(firstDisplayArgument, new JsonNode[] {vendor, model}, type)
+				buildNameValue(firstDisplayArgument, new JsonNode[] {vendor, model}, maximumSpeed)
 			)
 		);
 	}
 
 	/**
-	 * Joins the given non-empty text nodes to build the battery name value
+	 * Joins the given non-empty text nodes to build the CPU name value
 	 *
 	 * @param firstDisplayArgument {@link JsonNode} representing the display name
 	 * @param vendorAndModel       {@link JsonNode[]} array of vendor and model to be joined 
-	 * @param typeNode             {@link JsonNode} representing the type of the battery
+	 * @param maximumSpeed         {@link JsonNode} representing the max speed in MHz of the CPU
 	 *
 	 * @return {@link String} Joined text nodes
 	 */
-	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode[] vendorAndModel, final JsonNode typeNode) {
+	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode[] vendorAndModel, JsonNode maximumSpeed) {
 
 		final String firstArg = firstDisplayArgument.asText();
-		if (typeNode == null && Stream.of(vendorAndModel).allMatch(Objects::isNull)) {
+		if (Stream.of(vendorAndModel).allMatch(Objects::isNull) && maximumSpeed == null) {
 			return firstArg;
 		}
 
@@ -128,32 +141,22 @@ public class BatteryConverter extends AbstractMappingConverter {
 				.toList()
 		);
 
-		// Means we have model or vendor but we don't know if have the type
-		if (sprintfArgs.size() == 1) {
-			format.append(" (%s");
-		} else if (sprintfArgs.size() == 2) {
-			// We have both model and vendor but we don't know if we have the type
-			format.append(" (%s %s");
-		}
-
-		// Do we have the type?
-		if (typeNode != null) {
-
-			// Without vendor and model?
-			if (sprintfArgs.isEmpty()) {
-				// We append the type format only
-				format.append(" (%s)");
-			} else {
-				// Append the type format
-				format.append(" - %s)");
-			}
-
-			// Add the type to our list of arguments
-			sprintfArgs.add(typeNode.asText());
-
-		} else if (!sprintfArgs.isEmpty()) {
-			// We have at least one of { vendor, model, type } let's close the parenthesis
-			format.append(")");
+		// Means vendor, model or maximumSpeed is not empty
+		if (!sprintfArgs.isEmpty() || maximumSpeed != null) {
+			format.append(
+					Stream.concat(
+						sprintfArgs
+							.stream()
+							.map(v -> "%s"),
+						Stream.of(maximumSpeed)
+							.filter(Objects::nonNull)
+							.map(v -> {
+								sprintfArgs.add(v.asText());
+								return MEGA_HERTZ_TO_HUMAN_FORMAT; // Hertz to Human Format
+							})
+					)
+					.collect(Collectors.joining(" - "," (",")"))
+			);
 		}
 
 		// Add the first argument at the beginning of the list 
@@ -161,9 +164,9 @@ public class BatteryConverter extends AbstractMappingConverter {
 
 		// Join the arguments: $column(1), $column(2), $column(3), $column(4)) 
 		// append the result to our format variable in order to get something like
-		// sprint("%s (%s %s - %s)", $column(1), $column(2), $column(3), $column(4))
+		// sprint("%s (%s - %s - %mhhf.s)", $column(1), $column(2), $column(3), $column(4))
 		return format
-			.append("\", ") // Here we will have a string like sprintf("%s (%s %s - %s)", 
+			.append("\", ") // Here we will have a string like sprintf("%s (%s - %s - %mhhf.s)", 
 			.append(
 				sprintfArgs
 					.stream()
@@ -181,7 +184,27 @@ public class BatteryConverter extends AbstractMappingConverter {
 
 	@Override
 	public void convertCollectProperty(final String key, final String value, final JsonNode node) {
-		convertOneToOneMetrics(key, value, (ObjectNode) node);
+		final ObjectNode mapping = (ObjectNode) node;
+
+		convertOneToOneMetrics(key, value, mapping);
+
+		final JsonNode metrics = mapping.get(METRICS);
+
+		if (metrics != null) {
+			final JsonNode powerConsumption = metrics.get(YAML_CPU_POWER);
+			if (powerConsumption != null) {
+				((ObjectNode) metrics).set(
+					YAML_CPU_ENERGY,
+					new TextNode(
+						buildFakeCounterFunction(
+							getFunctionArgument(
+								powerConsumption.asText()
+							)
+						)
+					)
+				);
+			}
+		}
 	}
 
 }

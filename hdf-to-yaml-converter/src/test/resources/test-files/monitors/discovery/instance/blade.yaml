@@ -11,6 +11,7 @@
     Blade.Discovery.Instance.SerialNumber=InstanceTable.Column(5)
     Blade.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(7)
     Blade.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(8)
+    Blade.Discovery.Instance.AttachedToDeviceType="computer"
   expected:
     monitors:
       blade:
