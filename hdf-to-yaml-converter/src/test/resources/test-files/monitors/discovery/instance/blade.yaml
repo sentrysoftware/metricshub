@@ -21,11 +21,126 @@
               SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;ChassisID;
             source: $monitors.blade.discovery.sources.source(1)$
             attributes:
-              deviceid: $column(1)
-              displayid: $column(2)
-              attachedtodeviceid: $column(7)
-              blademodel: $column(3)
-              bladename: testbladename
-              additionalinformation1: $column(4)
-              additionalinformation2: $column(8)
-              serialnumber: $column(5)
+              id: $column(1)
+              __display_id: $column(2)
+              hw.parent.id: $column(7)
+              hw.parent.type: enclosure
+              model: $column(3)
+              blade_name: testbladename
+              info: join($column(4), $column(8), " ")
+              serial_number: $column(5)
+              name: sprintf("%s (%s - %s)", $column(2), "testbladename", $column(3))
+- name: test2NoModel
+  input: |
+    // Instance Table
+    // SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;ChassisID;
+    Blade.Discovery.InstanceTable=%Blade.Discovery.Source(1)%
+    Blade.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+    Blade.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+    Blade.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(4)
+    Blade.Discovery.Instance.BladeName="testbladename"
+    Blade.Discovery.Instance.SerialNumber=InstanceTable.Column(5)
+    Blade.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(7)
+    Blade.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(8)
+  expected:
+    monitors:
+      blade:
+        discovery:
+          mapping:
+            _comment: |-
+              Instance Table
+              SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;ChassisID;
+            source: $monitors.blade.discovery.sources.source(1)$
+            attributes:
+              id: $column(1)
+              __display_id: $column(2)
+              hw.parent.id: $column(7)
+              hw.parent.type: enclosure
+              blade_name: testbladename
+              info: join($column(4), $column(8), " ")
+              serial_number: $column(5)
+              name: sprintf("%s (%s)", $column(2), "testbladename")
+- name: testNoBladeName
+  input: |
+    // Instance Table
+    // SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;ChassisID;
+    Blade.Discovery.InstanceTable=%Blade.Discovery.Source(1)%
+    Blade.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+    Blade.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+    Blade.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(4)
+    Blade.Discovery.Instance.BladeModel=InstanceTable.Column(3)
+    Blade.Discovery.Instance.SerialNumber=InstanceTable.Column(5)
+    Blade.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(7)
+    Blade.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(8)
+  expected:
+    monitors:
+      blade:
+        discovery:
+          mapping:
+            _comment: |-
+              Instance Table
+              SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;ChassisID;
+            source: $monitors.blade.discovery.sources.source(1)$
+            attributes:
+              id: $column(1)
+              __display_id: $column(2)
+              hw.parent.id: $column(7)
+              hw.parent.type: enclosure
+              model: $column(3)
+              info: join($column(4), $column(8), " ")
+              serial_number: $column(5)
+              name: sprintf("%s (%s)", $column(2), $column(3))
+- name: testNoBladeNameNoBladeModel
+  input: |
+    // Instance Table
+    // SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;ChassisID;
+    Blade.Discovery.InstanceTable=%Blade.Discovery.Source(1)%
+    Blade.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+    Blade.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+    Blade.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(4)
+    Blade.Discovery.Instance.SerialNumber=InstanceTable.Column(5)
+    Blade.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(7)
+    Blade.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(8)
+  expected:
+    monitors:
+      blade:
+        discovery:
+          mapping:
+            _comment: |-
+              Instance Table
+              SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;ChassisID;
+            source: $monitors.blade.discovery.sources.source(1)$
+            attributes:
+              id: $column(1)
+              __display_id: $column(2)
+              hw.parent.id: $column(7)
+              hw.parent.type: enclosure
+              info: join($column(4), $column(8), " ")
+              serial_number: $column(5)
+              name: $column(2)
+- name: testNoBladeNameNoBladeModelNoDisplayId
+  input: |
+    // Instance Table
+    // SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;ChassisID;
+    Blade.Discovery.InstanceTable=%Blade.Discovery.Source(1)%
+    Blade.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+    Blade.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(4)
+    Blade.Discovery.Instance.SerialNumber=InstanceTable.Column(5)
+    Blade.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(7)
+    Blade.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(8)
+  expected:
+    monitors:
+      blade:
+        discovery:
+          mapping:
+            _comment: |-
+              Instance Table
+              SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;ChassisID;
+            source: $monitors.blade.discovery.sources.source(1)$
+            attributes:
+              id: $column(1)
+              hw.parent.id: $column(7)
+              hw.parent.type: enclosure
+              info: join($column(4), $column(8), " ")
+              serial_number: $column(5)
+              name: $column(1)

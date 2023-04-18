@@ -119,6 +119,9 @@ public class ConverterConstants {
 	public static final String HDF_VENDOR = "vendor";
 	public static final String HDF_DISPLAY_ID = "displayid";
 	public static final String HDF_DEVICE_ID = "deviceid";
+	public static final String HDF_BLADE_MODEL = "blademodel";
+	public static final String HDF_BLADE_NAME = "bladename";
+	public static final String HDF_SERIAL_NUMBER = "serialnumber";
 
 	// YAML attributes
 	public static final String YAML_TYPE = HDF_TYPE;
@@ -130,18 +133,23 @@ public class ConverterConstants {
 	public static final String YAML_HW_PARENT_ID = "hw.parent.id";
 	public static final String YAML_HW_PARENT_TYPE = "hw.parent.type";
 	public static final String YAML_CHEMISTRY = HDF_CHEMISTRY;
+	public static final String YAML_BLADE_NAME = "blade_name";
+	public static final String YAML_SERIAL_NUMBER = "serial_number";
 
 	// HDF Collect parameters
 	public static final String HDF_STATUS = "status";
 	public static final String HDF_TIME_LEFT = "timeleft";
 	public static final String HDF_STATUS_INFORMATION = "statusinformation";
 	public static final String HDF_CHARGE = "charge";
+	public static final String HDF_POWER_STATE = "powerstate";
 
 	// YAML metrics
 	public static final String YAML_STATUS_INFORMATION = "StatusInformation";
 	public static final String YAML_BATTERY_CHARGE = "hw.battery.charge";
 	public static final String YAML_BATTERY_TIME_LEFT = "hw.battery.time_left";
 	public static final String YAML_BATTERY_STATUS = "hw.status{hw.type=\"battery\"}";
+	public static final String YAML_BLADE_STATUS = "hw.status{hw.type=\"blade\"}";
+	public static final String YAML_POWER_STATE = "hw.blade.power_state";
 
 	// Mapping formats
 	public static final String PERCENT_2_RATIO_FORMAT = "percent2Ratio(%s)";
