@@ -11,7 +11,6 @@ import java.util.List;
 
 import javax.json.JsonException;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -62,7 +61,6 @@ class ConnectorLibraryConverterTest {
 	}
 
 	@Test
-	@Disabled("Until comments processor is up.")
 	void testProcessComments() throws Exception {
 		final ConnectorLibraryConverter processor = new ConnectorLibraryConverter(Path.of(HDF_DIRECTORY), tempDir);
 		processor.process();

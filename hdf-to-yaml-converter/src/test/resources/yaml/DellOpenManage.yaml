@@ -237,13 +237,14 @@ connector:
   platforms: "Dell PowerEdge"
   reliesOn: "Dell OpenManage Server Administrator"
   version: "1.0"
-  information: This connector provides hardware monitoring through the Dell OpenManage Server Administrator SNMP agent which supports almost all Dell PowerEdge servers.
+  information: "This connector provides hardware monitoring through the Dell OpenManage\
+    \ Server Administrator SNMP agent which supports almost all Dell PowerEdge servers."
   detection:
     connectionTypes:
-      - "remote"
+    - "remote"
     appliesTo:
-      - "NT"
-      - "Linux"
+    - "NT"
+    - "Linux"
     supersedes:
     - "IpmiTool"
     - "VMwareESX4i"
@@ -307,7 +308,7 @@ monitors:
           type: "Computer"
           parameteractivation.energyusage: "$column(6)"
     collect:
-      # Collect type is multi-instance
+      # Collect
       type: "multiInstance"
       sources:
         source(1):
@@ -373,6 +374,10 @@ monitors:
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ";;"
+      mapping:
+        # The ValueTable = Source(5)
+        source: "$monitors.enclosure.collect.sources.source(5)$"
+        deviceId: "$column(1)"
   temperature:
     discovery:
       sources:
@@ -405,7 +410,7 @@ monitors:
             existingValue: "BMC "
             newValue: ""
       mapping:
-        # Instance table = Source(1)"
+        # Instance table = Source(1)
         source: "$monitors.temperature.discovery.sources.source(1)$"
         attributes:
           deviceid: "$column(1)"
@@ -414,7 +419,7 @@ monitors:
           warningthreshold: "$column(5)"
           alarmthreshold: "$column(4)"
     collect:
-      # Collect type is multi-instance
+      # Collect type is MultiInstance
       type: "multiInstance"
       sources:
         source(1):
@@ -443,6 +448,10 @@ monitors:
           - type: "translate"
             column: 3
             translationTable: "EnvironmentStatusInformationTranslationTable"
+      mapping:
+        # The ValueTable = Source(1)
+        source: "$monitors.temperature.collect.sources.source(1)$"
+        deviceId: "$column(1)"
   fan:
     discovery:
       sources:
@@ -457,7 +466,7 @@ monitors:
             # ID;currentReading;coolingDeviceLocationName;warningThreshold;alarmThreshold;
           - type: "replace"
             column: 3
-            existingValue: " FAN"
+            existingValue: "fan"
             newValue: ""
             # Remove the word " RPM" from the coolingDeviceLocationName
             # ID;currentReading;coolingDeviceLocationName;warningThreshold;alarmThreshold;
@@ -475,7 +484,7 @@ monitors:
             # ID;currentReading;coolingDeviceLocationName;warningThreshold;alarmThreshold;
           - type: "replace"
             column: 3
-            existingValue: " Fan"
+            existingValue: "fan"
             newValue: ""
       mapping:
         # Instance Table = Source(1)
@@ -487,7 +496,7 @@ monitors:
           warningthreshold: "$column(4)"
           alarmthreshold: "$column(5)"
     collect:
-      # Collect type is multi-instance
+      # Collect type = mono-instance
       type: "multiInstance"
       sources:
         source(1):
@@ -511,6 +520,10 @@ monitors:
           - type: "translate"
             column: 3
             translationTable: "EnvironmentStatusInformationTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.fan.collect.sources.source(1)$"
+        deviceId: "$column(1)"
   voltage:
     discovery:
       sources:
@@ -521,7 +534,7 @@ monitors:
           oid: "1.3.6.1.4.1.674.10892.1.600.20.1"
           selectColumns: "ID,6,8,11,12"
       mapping:
-        # InstanceTable = Source(1)"
+        # InstanceTable = Source(1)
         source: "$monitors.voltage.discovery.sources.source(1)$"
         attributes:
           deviceid: "$column(1)"
@@ -530,7 +543,7 @@ monitors:
           upperthreshold: "$column(4)"
           lowerthreshold: "$column(5)"
     collect:
-      # Collect type is multi-instance
+      # Collect type = mono-instance
       type: "multiInstance"
       sources:
         source(1):
@@ -554,7 +567,11 @@ monitors:
           - type: "translate"
             column: 3
             translationTable: "EnvironmentStatusInformationTranslationTable"
-  powerSupply:
+      mapping:
+        # ValueTable = source(1)
+        source: "$monitors.voltage.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+  power_supply:
     discovery:
       sources:
         source(1):
@@ -576,13 +593,13 @@ monitors:
             value: "10"
       mapping:
         # InstanceTable = Source(1)
-        source: "$monitors.powerSupply.discovery.sources.source(1)$"
+        source: "$monitors.power_supply.discovery.sources.source(1)$"
         attributes:
           deviceid: "$column(1)"
           powersupplypower: "$column(2)"
           powersupplytype: "$column(3)"
     collect:
-      # Collect type is multi-instance
+      # Collect type = multi-instance
       type: "multiInstance"
       sources:
         source(1):
@@ -611,6 +628,10 @@ monitors:
             column: 2
             bitList: "0,2,3,6,7,8,9,10,11,12,13,14"
             translationTable: "PowerSupplyStatusInformationTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.power_supply.collect.sources.source(1)$"
+        deviceId: "$column(1)"
   memory:
     discovery:
       sources:
@@ -691,6 +712,10 @@ monitors:
           - type: "add"
             column: 4
             value: "Column(5)"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.memory.collect.sources.source(1)$"
+        deviceId: "$column(1)"
   cpu:
     discovery:
       sources:
@@ -731,7 +756,7 @@ monitors:
           - type: "rightConcat"
             column: 5
             value: "MSHW"
-            # Replace "MSHWMSHW", i.e. a blank column with the modelCode.
+            # Replace \"MSHWMSHW\", i.e. a blank column with the modelCode.
           - type: "replace"
             column: 5
             existingValue: "MSHWMSHW"
@@ -810,7 +835,11 @@ monitors:
           leftKeyColumn: 1
           rightKeyColumn: 1
           defaultRightLine: ";;"
-  otherDevice:
+      mapping:
+        # ValueTable = Source(3)
+        source: "$monitors.cpu.collect.sources.source(3)$"
+        deviceId: "$column(1)"
+  other_device:
     discovery:
       sources:
         source(1):
@@ -881,13 +910,13 @@ monitors:
           # DeviceID;DeviceType;AdditionalLabel
           type: "tableUnion"
           tables:
-          - "$monitors.otherDevice.discovery.sources.source(1)$"
-          - "$monitors.otherDevice.discovery.sources.source(2)$"
-          - "$monitors.otherDevice.discovery.sources.source(3)$"
-          - "$monitors.otherDevice.discovery.sources.source(4)$"
+          - "$monitors.other_device.discovery.sources.source(1)$"
+          - "$monitors.other_device.discovery.sources.source(2)$"
+          - "$monitors.other_device.discovery.sources.source(3)$"
+          - "$monitors.other_device.discovery.sources.source(4)$"
       mapping:
         # InstanceTable = Source(1)
-        source: "$monitors.otherDevice.discovery.sources.source(5)$"
+        source: "$monitors.other_device.discovery.sources.source(5)$"
         attributes:
           deviceid: "$column(1)"
           displayid: "$column(1)"
@@ -895,7 +924,7 @@ monitors:
           additionalinformation1: "$column(3)"
           additionallabel: "$column(4)"
     collect:
-      # Collect type is multi-instance
+      # Collect type is mono-instance
       type: "multiInstance"
       sources:
         source(1):
@@ -939,10 +968,10 @@ monitors:
           # DeviceID;Status;
           type: "tableUnion"
           tables:
-          - "$monitors.otherDevice.collect.sources.source(1)$"
-          - "$monitors.otherDevice.collect.sources.source(2)$"
-          - "$monitors.otherDevice.collect.sources.source(3)$"
-          - "$monitors.otherDevice.collect.sources.source(4)$"
+          - "$monitors.other_device.collect.sources.source(1)$"
+          - "$monitors.other_device.collect.sources.source(2)$"
+          - "$monitors.other_device.collect.sources.source(3)$"
+          - "$monitors.other_device.collect.sources.source(4)$"
           computes:
             # Duplicate the Status column
             # DeviceID;Status;Status;
@@ -958,6 +987,10 @@ monitors:
           - type: "translate"
             column: 3
             translationTable: "GenericStatusInformationTranslationTable"
+      mapping:
+        # ValueTable = Source(5)
+        source: "$monitors.other_device.collect.sources.source(5)$"
+        deviceId: "$column(1)"
   battery:
     discovery:
       sources:
@@ -972,8 +1005,10 @@ monitors:
         # InstanceTable = Source(1)
         source: "$monitors.battery.discovery.sources.source(1)$"
         attributes:
-          deviceid: "$column(1)"
+          id: "$column(1)"
           type: "$column(2)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
     collect:
       # Collect type is multi-instance
       type: "multiInstance"
@@ -986,7 +1021,7 @@ monitors:
           selectColumns: "ID,5,6"
           computes:
             # Translate the first Status code into a PATROLStatus
-            # DeviceID;PATROLStatus;Reading;"
+            # DeviceID;PATROLStatus;Reading;
           - type: "translate"
             column: 2
             translationTable: "GenericStatusTranslationTable"
@@ -995,3 +1030,11 @@ monitors:
           - type: "translate"
             column: 3
             translationTable: "BatteryStatusInformationTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.battery.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="battery"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
