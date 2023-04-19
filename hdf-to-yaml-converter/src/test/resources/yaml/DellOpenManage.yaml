@@ -792,11 +792,15 @@ monitors:
         # InstanceTable = Source(3)
         source: "$monitors.cpu.discovery.sources.source(3)$"
         attributes:
-          deviceid: "$column(1)"
+          id: "$column(1)"
           vendor: "$column(2)"
-          maximumspeed: "$column(4)"
           model: "$column(5)"
-          additionalinformation1: "$column(7)"
+          info: "$column(7)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s - %s - %mhhf.s)\", $column(1), $column(2), $column(5),\
+            \ $column(4))"
+        metrics:
+          hw.cpu.speed.limit{limit_type="max"}: "megaHertz2Hertz($column(4))"
     collect:
       # Collect type is multi-instance
       type: "multiInstance"
@@ -839,6 +843,11 @@ monitors:
         # ValueTable = Source(3)
         source: "$monitors.cpu.collect.sources.source(3)$"
         deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="cpu"}: "$column(2)"
+          hw.cpu.speed: "megaHertz2Hertz($column(3))"
+        legacyTextParameters:
+          StatusInformation: "$column(5)"
   other_device:
     discovery:
       sources:
