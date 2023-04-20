@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.converter.AbstractConnectorPropertyConverterTest;
 
-public class MemoryDiscoveryInstanceTest extends AbstractConnectorPropertyConverterTest {
+class MemoryDiscoveryInstanceTest extends AbstractConnectorPropertyConverterTest {
 
 	@Override
 	protected String getResourcePath() {
