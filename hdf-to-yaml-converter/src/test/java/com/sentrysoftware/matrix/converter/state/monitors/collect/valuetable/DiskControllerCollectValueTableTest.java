@@ -15,7 +15,6 @@ class DiskControllerCollectValueTableTest extends AbstractConnectorPropertyConve
 	}
 
 	@Test
-	@Disabled("Until DiskController processor is up")
 	void test() throws IOException {
 		testAll();
 	}

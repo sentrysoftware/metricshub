@@ -80,6 +80,8 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 		while (iter.hasNext()) {
 			final Entry<String, JsonNode> attributeEntry = iter.next();
 
+			Map<String, Entry<String, IMappingKey>> mapp = getOneToOneAttributesMapping();
+			
 			final Entry<String, IMappingKey> mappingEntry = getOneToOneAttributesMapping().get(attributeEntry.getKey());
 			if (mappingEntry != null) {
 				final String where = mappingEntry.getKey();
@@ -131,7 +133,7 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 		final JsonNode controllerNumber = existingAttributes.get("controllernumber");
 		final JsonNode attachedToDeviceId = existingAttributes.get("attachedtodeviceid");
 		final JsonNode attachedToDeviceType = existingAttributes.get("attachedtodevicetype");
-		if (controllerNumber != null) {
+		if (controllerNumber != null && !(this instanceof DiskControllerConverter)) {
 			newAttributes.set(YAML_HW_PARENT_TYPE, new TextNode(YAML_DISK_CONTROLLER));
 			newAttributes.set(
 				YAML_HW_PARENT_ID,

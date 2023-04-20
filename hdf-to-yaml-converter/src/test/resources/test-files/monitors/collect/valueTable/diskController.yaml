@@ -11,9 +11,9 @@
         collect:
           mapping:
             _comment: DeviceID;Status;StatusInformation
+            deviceId: $column(1)
             legacyTextParameters:
               StatusInformation: $column(3)
-            deviceId: $column(1)
             source: $monitors.disk_controller.collect.sources.source(1)$
             metrics:
               hw.status{hw.type="disk_controller"}: $column(2)
@@ -30,9 +30,9 @@
         collect:
           mapping:
             _comment: DeviceID;Status;StatusInformation
+            deviceId: $column(1)
             legacyTextParameters:
               StatusInformation: $column(3)
-            deviceId: $column(1)
             source: $monitors.disk_controller.collect.sources.source(1)$
             metrics:
               hw.status{hw.type="disk_controller"}: $column(2)

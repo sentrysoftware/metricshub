@@ -126,6 +126,10 @@ public class ConverterConstants {
 	public static final String HDF_MAXIMUM_SPEED = "maximumspeed";
 	public static final String HDF_CORRECTED_ERROR_WARNING_THRESHOLD = "correctederrorwarningthreshold";
 	public static final String HDF_CORRECTED_ERROR_ALARM_THRESHOLD = "correctederroralarmthreshold";
+	public static final String HDF_CONTROLLER_NUMBER = "controllernumber";
+	public static final String HDF_FIRMWARE_VERSION = "firmwareversion";
+	public static final String HDF_DRIVER_VERSION = "driverversion";
+	public static final String HDF_BIOS_VERSION = "biosversion";
 
 	// YAML attributes
 	public static final String YAML_TYPE = HDF_TYPE;
@@ -139,6 +143,10 @@ public class ConverterConstants {
 	public static final String YAML_CHEMISTRY = HDF_CHEMISTRY;
 	public static final String YAML_BLADE_NAME = "blade_name";
 	public static final String YAML_SERIAL_NUMBER = "serial_number";
+	public static final String YAML_CONTROLLER_NUMBER = "controller_number";
+	public static final String YAML_BIOS_VERSION = "bios_version";
+	public static final String YAML_FIRMWARE_VERSION = "firmware_version";
+	public static final String YAML_DRIVER_VERSION = "driver_version";
 
 	// HDF Collect parameters
 	public static final String HDF_STATUS = "status";
@@ -150,6 +158,7 @@ public class ConverterConstants {
 	public static final String HDF_CURRENT_SPEED = "currentspeed";
 	public static final String HDF_CORRECTED_ERROR_COUNT = "correctederrorcount";
 	public static final String HDF_POWER_CONSUMPTION = "powerconsumption";
+	public static final String HDF_CONTROLLER_STATUS = "controllerstatus";
 
 	// YAML metrics
 	public static final String YAML_STATUS_INFORMATION = "StatusInformation";
@@ -168,6 +177,7 @@ public class ConverterConstants {
 	public static final String YAML_CPU_ERRORS = "hw.errors{hw.type=\"cpu\"}";
 	public static final String YAML_CPU_POWER = "hw.power{hw.type=\"cpu\"}";
 	public static final String YAML_CPU_ENERGY = "hw.energy{hw.type=\"cpu\"}";
+	public static final String YAML_DISK_CONTROLLER_STATUS = "hw.status{hw.type=\"disk_controller\"}";
 
 	// Mapping formats
 	public static final String PERCENT_2_RATIO_FORMAT = "percent2Ratio(%s)";

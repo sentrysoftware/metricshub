@@ -11,8 +11,8 @@
     DiskController.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(5)
     DiskController.Discovery.Instance.FirmwareVersion=InstanceTable.Column(6)
     DiskController.Discovery.Instance.DriverVersion=InstanceTable.Column(7)
+    DiskController.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(8)
     DiskController.Discovery.Instance.BiosVersion="testbios"
-    DiskController.Discovery.Instance.Vendor="testvendor"
   expected:
     monitors:
       disk_controller:
@@ -23,13 +23,14 @@
               controllerID;model;serial;slot;memory;firmware;driver;batteryStatus;
             source: $monitors.disk_controller.discovery.sources.source(1)$
             attributes:
-              deviceid: $column(1)
-              controllernumber: $column(1)
+              id: $column(1)
               model: $column(2)
-              serialnumber: $column(3)
-              additionalinformation1: $column(4)
-              additionalinformation2: $column(5)
-              firmwareversion: $column(6)
-              driverversion: $column(7)
-              biosversion: testbios
-              vendor: testvendor
+              serial_number: $column(3)
+              firmware_version: $column(6)
+              driver_version: $column(7)
+              bios_version: testbios
+              info: join($column(4), $column(5), " ")
+              hw.parent.type: enclosure
+              hw.parent.id: $column(8)
+              controller_number: $column(1)
+              name: sprintf("%s (%s - %s)", "Disk Controller", $column(1), $column(1))
