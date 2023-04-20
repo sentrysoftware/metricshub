@@ -8,6 +8,7 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_ERROR_C
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_ERROR_COUNT_WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_MODEL;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_PREDICTED_FAILURE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_SERIAL_NUMBER;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_SIZE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_STATUS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_STATUS_INFORMATION;
@@ -24,6 +25,7 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_MEMORY
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_MEMORY_STATUS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_MODEL;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_NAME;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_SERIAL_NUMBER;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_SIZE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_STATUS_INFORMATION;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TYPE;
@@ -54,9 +56,9 @@ public class MemoryConverter extends AbstractMappingConverter {
 		attributesMap.put(HDF_MODEL, IMappingKey.of(ATTRIBUTES, YAML_MODEL));
 		attributesMap.put(HDF_TYPE, IMappingKey.of(ATTRIBUTES, YAML_TYPE));
 		attributesMap.put(HDF_SIZE, IMappingKey.of(ATTRIBUTES, YAML_SIZE));
+		attributesMap.put(HDF_SERIAL_NUMBER, IMappingKey.of(ATTRIBUTES, YAML_SERIAL_NUMBER));
 		attributesMap.put(HDF_ERROR_COUNT_ALARM_THRESHOLD, IMappingKey.of(ATTRIBUTES, YAML_ERROR_COUNT_ALARM_THRESHOLD));
 		attributesMap.put(HDF_ERROR_COUNT_WARNING_THRESHOLD, IMappingKey.of(ATTRIBUTES, YAML_ERROR_COUNT_WARNING_THRESHOLD));
-		attributesMap.put(HDF_SIZE, IMappingKey.of(ATTRIBUTES, YAML_ERROR_COUNT_WARNING_THRESHOLD));
 		ONE_TO_ONE_ATTRIBUTES_MAPPING = Collections.unmodifiableMap(attributesMap);
 	}
 
@@ -97,11 +99,12 @@ public class MemoryConverter extends AbstractMappingConverter {
 		final JsonNode vendor = existingAttributes.get(HDF_VENDOR);
 		final JsonNode model = existingAttributes.get(HDF_MODEL);
 		final JsonNode type = existingAttributes.get(HDF_TYPE);
+		final JsonNode size = existingAttributes.get(HDF_SIZE);
 
 		newAttributes.set(
 			YAML_NAME,
 			new TextNode(
-				buildNameValue(firstDisplayArgument, new JsonNode[] {vendor, model}, type)
+				buildNameValue(firstDisplayArgument, new JsonNode[] {vendor, model}, type, size)
 			)
 		);
 	}
@@ -112,10 +115,11 @@ public class MemoryConverter extends AbstractMappingConverter {
 	 * @param firstDisplayArgument {@link JsonNode} representing the display name
 	 * @param vendorAndModel       {@link JsonNode[]} array of vendor and model to be joined 
 	 * @param typeNode             {@link JsonNode} representing the type of the memory
+	 * @param size 
 	 *
 	 * @return {@link String} Joined text nodes
 	 */
-	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode[] vendorAndModel, final JsonNode typeNode) {
+	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode[] vendorAndModel, final JsonNode typeNode, JsonNode sizeNode) {
 
 		final String firstArg = firstDisplayArgument.asText();
 		if (typeNode == null && Stream.of(vendorAndModel).allMatch(Objects::isNull)) {
@@ -140,7 +144,7 @@ public class MemoryConverter extends AbstractMappingConverter {
 			format.append(" (%s");
 		} else if (sprintfArgs.size() == 2) {
 			// We have both model and vendor but we don't know if we have the type
-			format.append(" (%s %s");
+			format.append(" (%s (%s)");
 		}
 
 		// Do we have the type?
@@ -149,6 +153,22 @@ public class MemoryConverter extends AbstractMappingConverter {
 			// Without vendor and model?
 			if (sprintfArgs.isEmpty()) {
 				// We append the type format only
+				format.append(" (%s");
+			} else {
+				// Append the type format
+				format.append(" - %s");
+			}
+
+			// Add the type to our list of arguments
+			sprintfArgs.add(typeNode.asText());
+
+		} 
+		
+		if (sizeNode != null) {
+
+			// Without vendor, model or type?
+			if (sprintfArgs.isEmpty()) {
+				// We append the size format only
 				format.append(" (%s)");
 			} else {
 				// Append the type format
@@ -156,10 +176,10 @@ public class MemoryConverter extends AbstractMappingConverter {
 			}
 
 			// Add the type to our list of arguments
-			sprintfArgs.add(typeNode.asText());
+			sprintfArgs.add(sizeNode.asText());
 
 		} else if (!sprintfArgs.isEmpty()) {
-			// We have at least one of { vendor, model, type } let's close the parenthesis
+			// We have at least one of { vendor, model, type, size } let's close the parenthesis
 			format.append(")");
 		}
 
