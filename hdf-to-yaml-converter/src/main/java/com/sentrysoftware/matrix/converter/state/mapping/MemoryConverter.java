@@ -122,7 +122,7 @@ public class MemoryConverter extends AbstractMappingConverter {
 	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode[] vendorAndModel, final JsonNode typeNode, JsonNode sizeNode) {
 
 		final String firstArg = firstDisplayArgument.asText();
-		if (typeNode == null && Stream.of(vendorAndModel).allMatch(Objects::isNull)) {
+		if (typeNode == null && sizeNode == null && Stream.of(vendorAndModel).allMatch(Objects::isNull)) {
 			return firstArg;
 		}
 
@@ -162,8 +162,9 @@ public class MemoryConverter extends AbstractMappingConverter {
 			// Add the type to our list of arguments
 			sprintfArgs.add(typeNode.asText());
 
-		} 
-		
+		}
+
+		// Do we have the size?
 		if (sizeNode != null) {
 
 			// Without vendor, model or type?
