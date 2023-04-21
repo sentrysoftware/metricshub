@@ -21,16 +21,12 @@
           mapping:
             source: $monitors.led.discovery.sources.source(1)$
             attributes:
-              deviceid: $column(1)
-              displayid: $column(1)
-              name: "System Attention"
+              id: $column(1)
+              __display_id: $column(1)
               color: $column(2)
-              onstatus: $column(3)
-              blinkingstatus: $column(4)
-              offstatus: $column(5)
-              alarmoncolor: $column(6)
-              warningoncolor: $column(7)
-              additionalinformation1: $column(8)
-              additionalinformation2: $column(9)
-              additionalinformation3: $column(10)
-              attachedtodevicetype: enclosure
+              __on_status: $column(3)
+              __blinking_status: $column(4)
+              __off_status: $column(5)
+              info: join($column(8), $column(9), $column(10), " ")
+              hw.parent.type: enclosure
+              name: sprintf("%s (%s - %s)", $column(1), $column(2), "System Attention")

@@ -10,6 +10,7 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_DISK_C
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ENCLOSURE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_HW_PARENT_ID;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_HW_PARENT_TYPE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.LED_STATUS_FORMAT;
 
 import java.util.Iterator;
 import java.util.List;
@@ -322,5 +323,15 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 	 */
 	public static String buildFakeCounterFunction(final String value) {
 		return String.format(FAKE_COUNTER_FORMAT, value);
+	}
+
+	/**
+	 * Build legacyLedStatus(...) function
+	 * 
+	 * @param value
+	 * @return String value
+	 */
+	public static String buildLegacyLedFunction(final String value) {
+		return String.format(LED_STATUS_FORMAT, value);
 	}
 }

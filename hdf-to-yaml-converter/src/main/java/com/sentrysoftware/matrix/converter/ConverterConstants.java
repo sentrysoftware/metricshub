@@ -126,6 +126,11 @@ public class ConverterConstants {
 	public static final String HDF_MAXIMUM_SPEED = "maximumspeed";
 	public static final String HDF_CORRECTED_ERROR_WARNING_THRESHOLD = "correctederrorwarningthreshold";
 	public static final String HDF_CORRECTED_ERROR_ALARM_THRESHOLD = "correctederroralarmthreshold";
+	public static final String HDF_COLOR = "color";
+	public static final String HDF_BLINKING_STATUS = "blinkingstatus";
+	public static final String HDF_OFF_STATUS = "offstatus";
+	public static final String HDF_ON_STATUS = "onstatus";
+	public static final String HDF_LED_NAME = "name";
 
 	// YAML attributes
 	public static final String YAML_TYPE = HDF_TYPE;
@@ -139,6 +144,10 @@ public class ConverterConstants {
 	public static final String YAML_CHEMISTRY = HDF_CHEMISTRY;
 	public static final String YAML_BLADE_NAME = "blade_name";
 	public static final String YAML_SERIAL_NUMBER = "serial_number";
+	public static final String YAML_BLINKING_STATUS = "__blinking_status";
+	public static final String YAML_ON_STATUS = "__on_status";
+	public static final String YAML_OFF_STATUS = "__off_status";
+	public static final String YAML_LED_COLOR = HDF_COLOR;
 
 	// HDF Collect parameters
 	public static final String HDF_STATUS = "status";
@@ -150,6 +159,7 @@ public class ConverterConstants {
 	public static final String HDF_CURRENT_SPEED = "currentspeed";
 	public static final String HDF_CORRECTED_ERROR_COUNT = "correctederrorcount";
 	public static final String HDF_POWER_CONSUMPTION = "powerconsumption";
+	public static final String HDF_LED_INDICATOR = "ledindicator";
 
 	// YAML metrics
 	public static final String YAML_STATUS_INFORMATION = "StatusInformation";
@@ -168,6 +178,8 @@ public class ConverterConstants {
 	public static final String YAML_CPU_ERRORS = "hw.errors{hw.type=\"cpu\"}";
 	public static final String YAML_CPU_POWER = "hw.power{hw.type=\"cpu\"}";
 	public static final String YAML_CPU_ENERGY = "hw.energy{hw.type=\"cpu\"}";
+	public static final String YAML_LED_INDICATOR = "hw.led.indicator";
+	public static final String YAML_LED_STATUS = "hw.status{hw.type=\"led\"}";
 
 	// Mapping formats
 	public static final String PERCENT_2_RATIO_FORMAT = "percent2Ratio(%s)";
@@ -177,4 +189,5 @@ public class ConverterConstants {
 	public static final String MEGA_HERTZ_TO_HUMAN_FORMAT = "%mhhf.s";
 	public static final String BYTES_TO_HUMAN_FORMAT = "%byhf.s";
 	public static final String BITS_TO_HUMAN_FORMAT = "%bihf.s";
+	public static final String LED_STATUS_FORMAT = "legacyLedStatus(%s)";
 }
