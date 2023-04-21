@@ -106,7 +106,7 @@ public class DiskControllerConverter extends AbstractMappingConverter {
 	 *
 	 * @param firstDisplayArgument {@link JsonNode} representing the display name
 	 * @param displayId            {@link JsonNode} representing the displayId
-	 * @param diskControllerNumber {@link JsonNode} representing the diskControllerNumber
+	 * @param model                {@link JsonNode} representing the model
 	 *
 	 * @return {@link String} Joined text nodes
 	 */
