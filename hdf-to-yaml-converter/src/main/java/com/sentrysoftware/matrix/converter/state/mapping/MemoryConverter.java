@@ -26,7 +26,7 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_MEMORY
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_MODEL;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_NAME;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_SERIAL_NUMBER;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_SIZE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_MEMORY_LIMIT;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_STATUS_INFORMATION;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TYPE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VENDOR;
@@ -55,7 +55,7 @@ public class MemoryConverter extends AbstractMappingConverter {
 		attributesMap.put(HDF_VENDOR, IMappingKey.of(ATTRIBUTES, YAML_VENDOR));
 		attributesMap.put(HDF_MODEL, IMappingKey.of(ATTRIBUTES, YAML_MODEL));
 		attributesMap.put(HDF_TYPE, IMappingKey.of(ATTRIBUTES, YAML_TYPE));
-		attributesMap.put(HDF_SIZE, IMappingKey.of(ATTRIBUTES, YAML_SIZE));
+		attributesMap.put(HDF_SIZE, IMappingKey.of(ATTRIBUTES, YAML_MEMORY_LIMIT, AbstractMappingConverter::buildMebiByte2ByteFunction));
 		attributesMap.put(HDF_SERIAL_NUMBER, IMappingKey.of(ATTRIBUTES, YAML_SERIAL_NUMBER));
 		attributesMap.put(HDF_ERROR_COUNT_ALARM_THRESHOLD, IMappingKey.of(ATTRIBUTES, YAML_ERROR_COUNT_ALARM_THRESHOLD));
 		attributesMap.put(HDF_ERROR_COUNT_WARNING_THRESHOLD, IMappingKey.of(ATTRIBUTES, YAML_ERROR_COUNT_WARNING_THRESHOLD));
@@ -151,13 +151,7 @@ public class MemoryConverter extends AbstractMappingConverter {
 		if (typeNode != null) {
 
 			// Without vendor and model?
-			if (sprintfArgs.isEmpty()) {
-				// We append the type format only
-				format.append(" (%s");
-			} else {
-				// Append the type format
-				format.append(" - %s");
-			}
+			format.append(sprintfArgs.isEmpty() ? " (%s" : " - %s");
 
 			// Add the type to our list of arguments
 			sprintfArgs.add(typeNode.asText());
@@ -168,13 +162,7 @@ public class MemoryConverter extends AbstractMappingConverter {
 		if (sizeNode != null) {
 
 			// Without vendor, model or type?
-			if (sprintfArgs.isEmpty()) {
-				// We append the size format only
-				format.append(" (%s)");
-			} else {
-				// Append the type format
-				format.append(" - %s)");
-			}
+			format.append(sprintfArgs.isEmpty() ? " (%s)" : " - %s)");
 
 			// Add the type to our list of arguments
 			sprintfArgs.add(sizeNode.asText());

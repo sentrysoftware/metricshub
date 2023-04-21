@@ -150,6 +150,7 @@ public class ConverterConstants {
 	public static final String YAML_ERROR_COUNT_WARNING_THRESHOLD = "errorcountwarningthreshold";
 	public static final String YAML_ERROR_COUNT_ALARM_THRESHOLD = "errorcountalarmthreshold";
 	public static final String YAML_SIZE = "size";
+	public static final String YAML_MEMORY_LIMIT = "hw.memory.limit";
 
 	// HDF Collect parameters
 	public static final String HDF_STATUS = "status";
@@ -193,6 +194,7 @@ public class ConverterConstants {
 	// Mapping formats
 	public static final String PERCENT_2_RATIO_FORMAT = "percent2Ratio(%s)";
 	public static final String MEGA_HERTZ_2_HERTZ_FORMAT = "megaHertz2Hertz(%s)";
+	public static final String MEBI_BYTE_2_BYTE_FORMAT = "mebiByte2Byte(%s)";
 	public static final String BOOLEAN_FORMAT = "boolean(%s)";
 	public static final String FAKE_COUNTER_FORMAT = "fakeCounter(%s)";
 	public static final String MEGA_HERTZ_TO_HUMAN_FORMAT = "%mhhf.s";

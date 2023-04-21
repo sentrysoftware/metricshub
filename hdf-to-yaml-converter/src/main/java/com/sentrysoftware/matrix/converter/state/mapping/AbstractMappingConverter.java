@@ -324,4 +324,14 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 	public static String buildRateFunction(final String value) {
 		return String.format(RATE_FORMAT, value);
 	}
+	
+	/**
+	 * Build mebiByte2Byte(...) function
+	 * 
+	 * @param value
+	 * @return String value
+	 */
+	public static String buildMebiByte2ByteFunction(final String value) {
+		return String.format(MEBI_BYTE_2_BYTE_FORMAT, value);
+	}
 }
