@@ -126,6 +126,10 @@ public class ConverterConstants {
 	public static final String HDF_MAXIMUM_SPEED = "maximumspeed";
 	public static final String HDF_CORRECTED_ERROR_WARNING_THRESHOLD = "correctederrorwarningthreshold";
 	public static final String HDF_CORRECTED_ERROR_ALARM_THRESHOLD = "correctederroralarmthreshold";
+	public static final String HDF_LOGICALDISK_TYPE = "logicaldisktype";
+	public static final String HDF_RAID_LEVEL = "raidlevel";
+	public static final String HDF_SIZE = "size";
+	public static final String HDF_ERROR_COUNT = "errorcount";
 
 	// YAML attributes
 	public static final String YAML_TYPE = HDF_TYPE;
@@ -139,6 +143,8 @@ public class ConverterConstants {
 	public static final String YAML_CHEMISTRY = HDF_CHEMISTRY;
 	public static final String YAML_BLADE_NAME = "blade_name";
 	public static final String YAML_SERIAL_NUMBER = "serial_number";
+	public static final String YAML_RAID_LEVEL = "raid_level";
+
 
 	// HDF Collect parameters
 	public static final String HDF_STATUS = "status";
@@ -150,6 +156,7 @@ public class ConverterConstants {
 	public static final String HDF_CURRENT_SPEED = "currentspeed";
 	public static final String HDF_CORRECTED_ERROR_COUNT = "correctederrorcount";
 	public static final String HDF_POWER_CONSUMPTION = "powerconsumption";
+	public static final String HDF_UNALLOCATED_SPACE = "unallocatedspace";
 
 	// YAML metrics
 	public static final String YAML_STATUS_INFORMATION = "StatusInformation";
@@ -168,7 +175,12 @@ public class ConverterConstants {
 	public static final String YAML_CPU_ERRORS = "hw.errors{hw.type=\"cpu\"}";
 	public static final String YAML_CPU_POWER = "hw.power{hw.type=\"cpu\"}";
 	public static final String YAML_CPU_ENERGY = "hw.energy{hw.type=\"cpu\"}";
-
+	public static final String YAML_LOGICALDISK_LIMIT = "hw.logical_disk.limit";
+	public static final String YAML_LOGICALDISK_STATUS = "hw.status{hw.type=\"logical_disk\"}";
+	public static final String YAML_LOGICALDISK_ERRORS = "hw.errors{hw.type=\"logical_disk\"}";
+	public static final String YAML_LOGICALDISK_USAGE_FREE = "hw.logical_disk.usage{state=\"free\"}";
+	public static final String YAML_LOGICALDISK_USAGE_USED = "hw.logical_disk.usage{state=\"used\"}";
+	
 	// Mapping formats
 	public static final String PERCENT_2_RATIO_FORMAT = "percent2Ratio(%s)";
 	public static final String MEGA_HERTZ_2_HERTZ_FORMAT = "megaHertz2Hertz(%s)";
