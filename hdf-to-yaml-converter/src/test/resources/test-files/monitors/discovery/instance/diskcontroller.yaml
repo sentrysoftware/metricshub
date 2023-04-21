@@ -24,6 +24,7 @@
             source: $monitors.disk_controller.discovery.sources.source(1)$
             attributes:
               id: $column(1)
+              controller_number: $column(1)
               model: $column(2)
               serial_number: $column(3)
               firmware_version: $column(6)
@@ -32,5 +33,4 @@
               info: join($column(4), $column(5), " ")
               hw.parent.type: enclosure
               hw.parent.id: $column(8)
-              controller_number: $column(1)
-              name: sprintf("%s (%s - %s)", "Disk Controller", $column(1), $column(1))
+              name: sprintf("%s %s (%s)"), "Disk Controller", $column(1), $column(2))

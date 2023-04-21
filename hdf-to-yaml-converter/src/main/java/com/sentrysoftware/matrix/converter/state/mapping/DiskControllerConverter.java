@@ -1,6 +1,6 @@
 package com.sentrysoftware.matrix.converter.state.mapping;
 
-import static com.sentrysoftware.matrix.converter.ConverterConstants.ATTRIBUTES;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.*;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_BIOS_VERSION;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_CONTROLLER_NUMBER;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_CONTROLLER_STATUS;
@@ -91,12 +91,12 @@ public class DiskControllerConverter extends AbstractMappingConverter {
 			deviceId = displayId;
 		}
 
-		final JsonNode diskControllerNumber = existingAttributes.get(HDF_CONTROLLER_NUMBER);
+		final JsonNode model = existingAttributes.get(HDF_MODEL);
 
 		newAttributes.set(
 				YAML_NAME,
 				new TextNode(
-						buildNameValue(firstDisplayArgument, deviceId, diskControllerNumber)
+						buildNameValue(firstDisplayArgument, deviceId, model)
 						)
 				);
 	}
@@ -110,10 +110,10 @@ public class DiskControllerConverter extends AbstractMappingConverter {
 	 *
 	 * @return {@link String} Joined text nodes
 	 */
-	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode displayId, final JsonNode diskControllerNumber) {
+	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode displayId, final JsonNode model) {
 
 		final String firstArg = firstDisplayArgument.asText();
-		if (displayId == null && diskControllerNumber == null) {
+		if (displayId == null && model == null) {
 			return firstArg;
 		}
 
@@ -124,30 +124,29 @@ public class DiskControllerConverter extends AbstractMappingConverter {
 		final List<String> sprintfArgs = new ArrayList<>();
 		sprintfArgs.addAll(
 				Stream
-				.of(displayId, diskControllerNumber)
+				.of(displayId, model)
 				.filter(Objects::nonNull)
 				.map(JsonNode::asText)
 				.toList()
 				);
 
-		// Means we have displayId or diskControllerNumber
-		if (!sprintfArgs.isEmpty()) {
-			format.append(
-					sprintfArgs
-					.stream()
-					.map(v -> "%s")
-					.collect(Collectors.joining(" - ", " (", ")"))
-					);
+		if (displayId != null) {
+			format.append(SPACE).append("%s");
 		}
+
+		if (model != null) {
+			format.append(SPACE).append(OPENING_PARENTHESIS).append("%s").append(CLOSING_PARENTHESIS);
+		}
+		format.append("\")");
 
 		// Add the first argument at the beginning of the list 
 		sprintfArgs.add(0, firstArg);
 
-		// Join the arguments: $column(1), $column(2), $column(3)) 
+		// Join the arguments: $column(1), $column(2), $column(3)
 		// append the result to our format variable in order to get something like
-		// sprint("%s (%s - %s)", $column(1), $column(2), $column(3))
+		// sprint("%s: %s (%s)", $column(1), $column(2), $column(3))
 		return format
-				.append("\", ") // Here we will have a string like sprintf("%s (%s %s - %s)", 
+				.append(", ") // Here we will have a string like sprintf("%s %s (%s)"),
 				.append(
 						sprintfArgs
 						.stream()

@@ -80,8 +80,6 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 		while (iter.hasNext()) {
 			final Entry<String, JsonNode> attributeEntry = iter.next();
 
-			Map<String, Entry<String, IMappingKey>> mapp = getOneToOneAttributesMapping();
-			
 			final Entry<String, IMappingKey> mappingEntry = getOneToOneAttributesMapping().get(attributeEntry.getKey());
 			if (mappingEntry != null) {
 				final String where = mappingEntry.getKey();
