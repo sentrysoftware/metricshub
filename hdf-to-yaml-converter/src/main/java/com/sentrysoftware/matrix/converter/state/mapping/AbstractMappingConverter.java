@@ -122,7 +122,7 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 		final JsonNode controllerNumber = existingAttributes.get("controllernumber");
 		final JsonNode attachedToDeviceId = existingAttributes.get("attachedtodeviceid");
 		final JsonNode attachedToDeviceType = existingAttributes.get("attachedtodevicetype");
-		if (controllerNumber != null) {
+		if (controllerNumber != null && !(this instanceof DiskControllerConverter)) {
 			newAttributes.set(YAML_HW_PARENT_TYPE, new TextNode(YAML_DISK_CONTROLLER));
 			newAttributes.set(
 				YAML_HW_PARENT_ID,
