@@ -22,11 +22,11 @@
               DeviceID,DisplayID,SizeBytes,RemainingManagedSpace,IncludeInCapacityReport,Type,SystemID,RaidLevel
             source: $monitors.logical_disk.discovery.sources.source(8)$
             attributes:
-              deviceid: $column(1)
-              displayid: $column(2)
-              size: $column(3)
-              raidlevel: $column(8)
-              useforcapacityreport: $column(5)
-              logicaldisktype: $column(6)
-              attachedtodeviceid: $column(7)
-              attachedtodevicetype: enclosure
+              id: $column(1)
+              __display_id: $column(2)
+              hw.logical_disk.limit: $column(3)
+              type: $column(6)
+              hw.parent.id: $column(7)
+              hw.parent.type: "enclosure"
+              raid_level: $column(8)
+              name: sprintf("%s (%s - %s)", $column(2), $column(8), $column(3))
