@@ -4,6 +4,7 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.ATTRIBUTES;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.BOOLEAN_FORMAT;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.FAKE_COUNTER_FORMAT;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.MEGA_HERTZ_2_HERTZ_FORMAT;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.MEBI_BYTE_2_BYTE_FORMAT;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.METRICS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.PERCENT_2_RATIO_FORMAT;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_DISK_CONTROLLER;
@@ -322,5 +323,15 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 	 */
 	public static String buildFakeCounterFunction(final String value) {
 		return String.format(FAKE_COUNTER_FORMAT, value);
+	}
+
+	/**
+	 * Build mebiByte2Byte(...) function
+	 * 
+	 * @param value
+	 * @return String value
+	 */
+	public static String buildMebiByte2ByteFunction(final String value) {
+		return String.format(MEBI_BYTE_2_BYTE_FORMAT, value);
 	}
 }
