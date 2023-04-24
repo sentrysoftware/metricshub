@@ -36,4 +36,4 @@
               hw.errors{hw.type="physical_disk", hw.error.type="recoverable"}: $column(10)
               hw.errors{hw.type="physical_disk", hw.error.type="hard"}: $column(11)
               hw.errors{hw.type="physical_disk", hw.error.type="media"}: $column(12)
-              hw.physical_disk.endurance_utilization{state="remaining"}: percent2Ration($column(13))
+              hw.physical_disk.endurance_utilization{state="remaining"}: percent2Ratio($column(13))

@@ -6,7 +6,7 @@
     PhysicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(4)
     PhysicalDisk.Discovery.Instance.FirmwareVersion=InstanceTable.Column(5)
     PhysicalDisk.Discovery.Instance.Model=InstanceTable.Column(6)
-    PhysicalDisk.Discovery.Instance.Vendor="NVIDIA"
+    PhysicalDisk.Discovery.Instance.Vendor="Toshiba"
     PhysicalDisk.Discovery.Instance.SerialNumber=InstanceTable.Column(8)
     PhysicalDisk.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(9)
     PhysicalDisk.Discovery.Instance.AdditionalInformation2="Blabla"
@@ -23,16 +23,15 @@
             _comment: PhysicalDisk Instance Table
             source: $monitors.physical_disk.discovery.sources.source(3)$
             attributes:
-              deviceid: $column(2)
-              displayid: $column(4)
-              firmwareversion: $column(5)
+              id: $column(2)
+              __display_id: $column(4)
+              firmware_version: $column(5)
               model: $column(6)
-              vendor: NVIDIA
-              serialnumber: $column(8)
-              additionalinformation1: $column(9)
-              additionalinformation2: Blabla
-              additionalinformation3: OtherBlabla
-              size: $column(11)
-              attachedtodeviceid: $column(3)
-              attachedtodevicetype: $column(10)
-              controllernumber: $column(12)
+              vendor: Toshiba
+              serial_number: $column(8)
+              info: join($column(9), "Blabla", "OtherBlabla", " ")
+              hw.parent.id: lookup("disk_controller", "id", "controller_number", $column(12))
+              hw.parent.type: disk_controller
+              name: sprintf("%s (%s - %s)", $column(4), $column(6), $column(11))
+            metrics:
+              hw.physical_disk.size: $column(11)
