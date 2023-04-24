@@ -1,15 +1,15 @@
-- name: test1
+- name: testFull
   input: |
     // The Instance Table
     // ID,LOCATION,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
     Memory.Discovery.InstanceTable=%Memory.Discovery.Source(1)%
-    Memory.Discovery.Instance.DeviceID=InstanceTable.Column(1)
-    Memory.Discovery.Instance.DisplayID="deviceID"
-    Memory.Discovery.Instance.Type=InstanceTable.Column(7)
+    Memory.Discovery.Instance.DeviceID=InstanceTable.column(1)
+    Memory.Discovery.Instance.DisplayID="1.1"
+    Memory.Discovery.Instance.Type="DDR4"
     Memory.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
-    Memory.Discovery.Instance.Vendor=InstanceTable.Column(8)
-    Memory.Discovery.Instance.Size=InstanceTable.Column(6)
-    Memory.Discovery.Instance.Model=InstanceTable.Column(9)
+    Memory.Discovery.Instance.Vendor="Vendor"
+    Memory.Discovery.Instance.Size="16384"
+    Memory.Discovery.Instance.Model="Model"
     Memory.Discovery.Instance.SerialNumber=InstanceTable.Column(10)
     Memory.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(11)
     Memory.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(13)
@@ -27,17 +27,242 @@
               ID,LOCATION,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
             source: $monitors.memory.discovery.sources.source(1)$
             attributes:
-              deviceid: $column(1)
-              displayid: deviceID
-              type: $column(7)
-              additionalinformation1: $column(2)
-              vendor: $column(8)
-              size: $column(6)
-              model: $column(9)
-              serialnumber: $column(10)
-              additionalinformation2: $column(11)
-              additionalinformation3: $column(13)
-              attachedtodeviceid: DIR5
-              attachedtodevicetype: enclosure
+              id: $column(1)
+              __display_id: "1.1"
+              type: "DDR4"
+              vendor: "Vendor"
+              hw.memory.limit: mebiByte2Byte("16384")
+              model: "Model"
+              serial_number: $column(10)
+              info: join($column(2), $column(11), $column(13), " ")
+              hw.parent.id: DIR5
+              hw.parent.type: enclosure
               errorcountwarningthreshold: $column(14)
               errorcountalarmthreshold: $column(15)
+              name: sprintf("%s (%s (%s) - %s - %s)", "1.1", "Vendor", "Model", "DDR4", "16384")
+- name: testNoDisplayId
+  input: |
+    // The Instance Table
+    // ID,LOCATION,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
+    Memory.Discovery.InstanceTable=%Memory.Discovery.Source(1)%
+    Memory.Discovery.Instance.DeviceID="1.1"
+    Memory.Discovery.Instance.Type="DDR4"
+    Memory.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
+    Memory.Discovery.Instance.Vendor="Vendor"
+    Memory.Discovery.Instance.Size="16384"
+    Memory.Discovery.Instance.Model="Model"
+    Memory.Discovery.Instance.SerialNumber=InstanceTable.Column(10)
+    Memory.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(11)
+    Memory.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(13)
+    Memory.Discovery.Instance.AttachedToDeviceID="DIR5"
+    Memory.Discovery.Instance.AttachedToDeviceType="Enclosure"
+    Memory.Discovery.Instance.ErrorCountWarningThreshold=InstanceTable.Column(14)
+    Memory.Discovery.Instance.ErrorCountAlarmThreshold=InstanceTable.Column(15)
+  expected:
+    monitors:
+      memory:
+        discovery:
+          mapping:
+            _comment: |-
+              The Instance Table
+              ID,LOCATION,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
+            source: $monitors.memory.discovery.sources.source(1)$
+            attributes:
+              id: "1.1"
+              type: "DDR4"
+              vendor: "Vendor"
+              hw.memory.limit: mebiByte2Byte("16384")
+              model: "Model"
+              serial_number: $column(10)
+              info: join($column(2), $column(11), $column(13), " ")
+              hw.parent.id: DIR5
+              hw.parent.type: enclosure
+              errorcountwarningthreshold: $column(14)
+              errorcountalarmthreshold: $column(15)
+              name: sprintf("%s (%s (%s) - %s - %s)", "1.1", "Vendor", "Model", "DDR4", "16384")
+- name: testNoVendor
+  input: |
+    // The Instance Table
+    // ID,LOCATION,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
+    Memory.Discovery.InstanceTable=%Memory.Discovery.Source(1)%
+    Memory.Discovery.Instance.DeviceID=InstanceTable.column(1)
+    Memory.Discovery.Instance.DisplayID="1.1"
+    Memory.Discovery.Instance.Type="DDR4"
+    Memory.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
+    Memory.Discovery.Instance.Size="16384"
+    Memory.Discovery.Instance.Model="Model"
+    Memory.Discovery.Instance.SerialNumber=InstanceTable.Column(10)
+    Memory.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(11)
+    Memory.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(13)
+    Memory.Discovery.Instance.AttachedToDeviceID="DIR5"
+    Memory.Discovery.Instance.AttachedToDeviceType="Enclosure"
+    Memory.Discovery.Instance.ErrorCountWarningThreshold=InstanceTable.Column(14)
+    Memory.Discovery.Instance.ErrorCountAlarmThreshold=InstanceTable.Column(15)
+  expected:
+    monitors:
+      memory:
+        discovery:
+          mapping:
+            _comment: |-
+              The Instance Table
+              ID,LOCATION,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
+            source: $monitors.memory.discovery.sources.source(1)$
+            attributes:
+              id: $column(1)
+              __display_id: "1.1"
+              type: "DDR4"
+              hw.memory.limit: mebiByte2Byte("16384")
+              model: "Model"
+              serial_number: $column(10)
+              info: join($column(2), $column(11), $column(13), " ")
+              hw.parent.id: DIR5
+              hw.parent.type: enclosure
+              errorcountwarningthreshold: $column(14)
+              errorcountalarmthreshold: $column(15)
+              name: sprintf("%s (%s - %s - %s)", "1.1", "Model", "DDR4", "16384")
+- name: testNoModel
+  input: |
+    // The Instance Table
+    // ID,LOCATION,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
+    Memory.Discovery.InstanceTable=%Memory.Discovery.Source(1)%
+    Memory.Discovery.Instance.DeviceID=InstanceTable.column(1)
+    Memory.Discovery.Instance.DisplayID="1.1"
+    Memory.Discovery.Instance.Type="DDR4"
+    Memory.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
+    Memory.Discovery.Instance.Vendor="Vendor"
+    Memory.Discovery.Instance.Size="16384"
+    Memory.Discovery.Instance.SerialNumber=InstanceTable.Column(10)
+    Memory.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(11)
+    Memory.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(13)
+    Memory.Discovery.Instance.AttachedToDeviceID="DIR5"
+    Memory.Discovery.Instance.AttachedToDeviceType="Enclosure"
+    Memory.Discovery.Instance.ErrorCountWarningThreshold=InstanceTable.Column(14)
+    Memory.Discovery.Instance.ErrorCountAlarmThreshold=InstanceTable.Column(15)
+  expected:
+    monitors:
+      memory:
+        discovery:
+          mapping:
+            _comment: |-
+              The Instance Table
+              ID,LOCATION,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
+            source: $monitors.memory.discovery.sources.source(1)$
+            attributes:
+              id: $column(1)
+              __display_id: "1.1"
+              type: "DDR4"
+              vendor: "Vendor"
+              hw.memory.limit: mebiByte2Byte("16384")
+              serial_number: $column(10)
+              info: join($column(2), $column(11), $column(13), " ")
+              hw.parent.id: DIR5
+              hw.parent.type: enclosure
+              errorcountwarningthreshold: $column(14)
+              errorcountalarmthreshold: $column(15)
+              name: sprintf("%s (%s - %s - %s)", "1.1", "Vendor", "DDR4", "16384")
+- name: testTypeOnly
+  input: |
+    // The Instance Table
+    // ID,LOCATION,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
+    Memory.Discovery.InstanceTable=%Memory.Discovery.Source(1)%
+    Memory.Discovery.Instance.DeviceID=InstanceTable.column(1)
+    Memory.Discovery.Instance.DisplayID="1.1"
+    Memory.Discovery.Instance.Type="DDR4"
+    Memory.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
+    Memory.Discovery.Instance.SerialNumber=InstanceTable.Column(10)
+    Memory.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(11)
+    Memory.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(13)
+    Memory.Discovery.Instance.AttachedToDeviceID="DIR5"
+    Memory.Discovery.Instance.AttachedToDeviceType="Enclosure"
+    Memory.Discovery.Instance.ErrorCountWarningThreshold=InstanceTable.Column(14)
+    Memory.Discovery.Instance.ErrorCountAlarmThreshold=InstanceTable.Column(15)
+  expected:
+    monitors:
+      memory:
+        discovery:
+          mapping:
+            _comment: |-
+              The Instance Table
+              ID,LOCATION,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
+            source: $monitors.memory.discovery.sources.source(1)$
+            attributes:
+              id: $column(1)
+              __display_id: "1.1"
+              type: "DDR4"
+              serial_number: $column(10)
+              info: join($column(2), $column(11), $column(13), " ")
+              hw.parent.id: DIR5
+              hw.parent.type: enclosure
+              errorcountwarningthreshold: $column(14)
+              errorcountalarmthreshold: $column(15)
+              name: sprintf("%s (%s)", "1.1", "DDR4")
+- name: testSizeOnly
+  input: |
+    // The Instance Table
+    // ID,LOCATION,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
+    Memory.Discovery.InstanceTable=%Memory.Discovery.Source(1)%
+    Memory.Discovery.Instance.DeviceID=InstanceTable.column(1)
+    Memory.Discovery.Instance.DisplayID="1.1"
+    Memory.Discovery.Instance.Size="16384"
+    Memory.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
+    Memory.Discovery.Instance.SerialNumber=InstanceTable.Column(10)
+    Memory.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(11)
+    Memory.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(13)
+    Memory.Discovery.Instance.AttachedToDeviceID="DIR5"
+    Memory.Discovery.Instance.AttachedToDeviceType="Enclosure"
+    Memory.Discovery.Instance.ErrorCountWarningThreshold=InstanceTable.Column(14)
+    Memory.Discovery.Instance.ErrorCountAlarmThreshold=InstanceTable.Column(15)
+  expected:
+    monitors:
+      memory:
+        discovery:
+          mapping:
+            _comment: |-
+              The Instance Table
+              ID,LOCATION,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
+            source: $monitors.memory.discovery.sources.source(1)$
+            attributes:
+              id: $column(1)
+              __display_id: "1.1"
+              serial_number: $column(10)
+              hw.memory.limit: mebiByte2Byte("16384")
+              info: join($column(2), $column(11), $column(13), " ")
+              hw.parent.id: DIR5
+              hw.parent.type: enclosure
+              errorcountwarningthreshold: $column(14)
+              errorcountalarmthreshold: $column(15)
+              name: sprintf("%s (%s)", "1.1", "16384")
+- name: testIdOnly
+  input: |
+    // The Instance Table
+    // ID,LOCATION,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
+    Memory.Discovery.InstanceTable=%Memory.Discovery.Source(1)%
+    Memory.Discovery.Instance.DeviceID=InstanceTable.column(1)
+    Memory.Discovery.Instance.DisplayID="1.1"
+    Memory.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
+    Memory.Discovery.Instance.SerialNumber=InstanceTable.Column(10)
+    Memory.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(11)
+    Memory.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(13)
+    Memory.Discovery.Instance.AttachedToDeviceID="DIR5"
+    Memory.Discovery.Instance.AttachedToDeviceType="Enclosure"
+    Memory.Discovery.Instance.ErrorCountWarningThreshold=InstanceTable.Column(14)
+    Memory.Discovery.Instance.ErrorCountAlarmThreshold=InstanceTable.Column(15)
+  expected:
+    monitors:
+      memory:
+        discovery:
+          mapping:
+            _comment: |-
+              The Instance Table
+              ID,LOCATION,CPUNumber,RiserNumber,ModuleNumber,Size,Type,Vendor,Model,Serial,Frequency,Status
+            source: $monitors.memory.discovery.sources.source(1)$
+            attributes:
+              id: $column(1)
+              __display_id: "1.1"
+              serial_number: $column(10)
+              info: join($column(2), $column(11), $column(13), " ")
+              hw.parent.id: DIR5
+              hw.parent.type: enclosure
+              errorcountwarningthreshold: $column(14)
+              errorcountalarmthreshold: $column(15)
+              name: "1.1"

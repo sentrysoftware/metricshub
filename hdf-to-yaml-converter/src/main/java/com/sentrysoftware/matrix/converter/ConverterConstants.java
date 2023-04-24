@@ -126,6 +126,9 @@ public class ConverterConstants {
 	public static final String HDF_MAXIMUM_SPEED = "maximumspeed";
 	public static final String HDF_CORRECTED_ERROR_WARNING_THRESHOLD = "correctederrorwarningthreshold";
 	public static final String HDF_CORRECTED_ERROR_ALARM_THRESHOLD = "correctederroralarmthreshold";
+	public static final String HDF_ERROR_COUNT_WARNING_THRESHOLD = "errorcountwarningthreshold";
+	public static final String HDF_ERROR_COUNT_ALARM_THRESHOLD = "errorcountalarmthreshold";
+	public static final String HDF_SIZE = "size";
 
 	// YAML attributes
 	public static final String YAML_TYPE = HDF_TYPE;
@@ -139,6 +142,10 @@ public class ConverterConstants {
 	public static final String YAML_CHEMISTRY = HDF_CHEMISTRY;
 	public static final String YAML_BLADE_NAME = "blade_name";
 	public static final String YAML_SERIAL_NUMBER = "serial_number";
+	public static final String YAML_ERROR_COUNT_WARNING_THRESHOLD = "errorcountwarningthreshold";
+	public static final String YAML_ERROR_COUNT_ALARM_THRESHOLD = "errorcountalarmthreshold";
+	public static final String YAML_SIZE = "size";
+	public static final String YAML_MEMORY_LIMIT = "hw.memory.limit";
 
 	// HDF Collect parameters
 	public static final String HDF_STATUS = "status";
@@ -148,6 +155,7 @@ public class ConverterConstants {
 	public static final String HDF_POWER_STATE = "powerstate";
 	public static final String HDF_PREDICTED_FAILURE = "predictedfailure";
 	public static final String HDF_CURRENT_SPEED = "currentspeed";
+	public static final String HDF_ERROR_COUNT = "errorcount";
 	public static final String HDF_CORRECTED_ERROR_COUNT = "correctederrorcount";
 	public static final String HDF_POWER_CONSUMPTION = "powerconsumption";
 
@@ -168,10 +176,14 @@ public class ConverterConstants {
 	public static final String YAML_CPU_ERRORS = "hw.errors{hw.type=\"cpu\"}";
 	public static final String YAML_CPU_POWER = "hw.power{hw.type=\"cpu\"}";
 	public static final String YAML_CPU_ENERGY = "hw.energy{hw.type=\"cpu\"}";
+	public static final String YAML_MEMORY_ERRORS = "hw.errors{hw.type=\"memory\"}";
+	public static final String YAML_MEMORY_PREDICTED_FAILURE= "hw.status{hw.type=\"memory\", state=\"predicted_failure\"}";
+	public static final String YAML_MEMORY_STATUS = "hw.status{hw.type=\"memory\"}";
 
 	// Mapping formats
 	public static final String PERCENT_2_RATIO_FORMAT = "percent2Ratio(%s)";
 	public static final String MEGA_HERTZ_2_HERTZ_FORMAT = "megaHertz2Hertz(%s)";
+	public static final String MEBI_BYTE_2_BYTE_FORMAT = "mebiByte2Byte(%s)";
 	public static final String BOOLEAN_FORMAT = "boolean(%s)";
 	public static final String FAKE_COUNTER_FORMAT = "fakeCounter(%s)";
 	public static final String MEGA_HERTZ_TO_HUMAN_FORMAT = "%mhhf.s";
