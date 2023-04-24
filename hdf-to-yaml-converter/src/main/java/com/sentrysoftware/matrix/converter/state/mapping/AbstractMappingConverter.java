@@ -1,16 +1,6 @@
 package com.sentrysoftware.matrix.converter.state.mapping;
 
-import static com.sentrysoftware.matrix.converter.ConverterConstants.ATTRIBUTES;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.BOOLEAN_FORMAT;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.FAKE_COUNTER_FORMAT;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.MEGA_HERTZ_2_HERTZ_FORMAT;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.MEBI_BYTE_2_BYTE_FORMAT;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.METRICS;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.PERCENT_2_RATIO_FORMAT;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_DISK_CONTROLLER;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ENCLOSURE;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_HW_PARENT_ID;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_HW_PARENT_TYPE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.*;
 
 import java.util.Iterator;
 import java.util.List;
@@ -132,7 +122,7 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 		final JsonNode controllerNumber = existingAttributes.get("controllernumber");
 		final JsonNode attachedToDeviceId = existingAttributes.get("attachedtodeviceid");
 		final JsonNode attachedToDeviceType = existingAttributes.get("attachedtodevicetype");
-		if (controllerNumber != null) {
+		if (controllerNumber != null && !(this instanceof DiskControllerConverter)) {
 			newAttributes.set(YAML_HW_PARENT_TYPE, new TextNode(YAML_DISK_CONTROLLER));
 			newAttributes.set(
 				YAML_HW_PARENT_ID,
@@ -146,19 +136,21 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 			return;
 		}
 
-		if (attachedToDeviceType == null) {
-			newAttributes.set(YAML_HW_PARENT_TYPE, new TextNode(YAML_ENCLOSURE));
-		} else {
-			String parentType = attachedToDeviceType.textValue();
-			parentType = ConversionHelper.performValueConversions(parentType);
-			if (parentType.equalsIgnoreCase("computer")) {
-				parentType = YAML_ENCLOSURE;
+		if(!(this instanceof EnclosureConverter)) {
+			if (attachedToDeviceType == null) {
+				newAttributes.set(YAML_HW_PARENT_TYPE, new TextNode(YAML_ENCLOSURE));
+			} else {
+				String parentType = attachedToDeviceType.textValue();
+				parentType = ConversionHelper.performValueConversions(parentType);
+				if (parentType.equalsIgnoreCase("computer")) {
+					parentType = YAML_ENCLOSURE;
+				}
+				newAttributes.set(YAML_HW_PARENT_TYPE, new TextNode(parentType));
 			}
-			newAttributes.set(YAML_HW_PARENT_TYPE, new TextNode(parentType));
-		}
-
-		if (attachedToDeviceId != null) {
-			newAttributes.set(YAML_HW_PARENT_ID, new TextNode(attachedToDeviceId.asText()));
+	
+			if (attachedToDeviceId != null) {
+				newAttributes.set(YAML_HW_PARENT_ID, new TextNode(attachedToDeviceId.asText()));
+			}
 		}
 	}
 
@@ -325,6 +317,32 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 		return String.format(FAKE_COUNTER_FORMAT, value);
 	}
 
+	/**
+	 * Build legacyIntrusionStatus(...) function
+	 * 
+	 */
+	public static String buildLegacyIntrusionStatusFunction(final String value) {
+		return String.format(LEGACY_INTRUSION_STATUS_FORMAT, value);
+	}
+
+	/**
+	 * Build rate(...) function
+	 * @param value
+	 * @return
+	 */
+	public static String buildRateFunction(final String value) {
+		return String.format(RATE_FORMAT, value);
+	}
+	
+	/**
+	 * Build legacyLedStatus(...) function
+	 * @param value
+	 * @return
+	 */
+	public static String buildLegacyLedFunction(final String value) {
+		return String.format(LED_STATUS_FORMAT, value);
+	}
+	
 	/**
 	 * Build mebiByte2Byte(...) function
 	 * 

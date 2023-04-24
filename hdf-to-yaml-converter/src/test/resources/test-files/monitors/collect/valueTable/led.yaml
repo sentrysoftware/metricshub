@@ -5,7 +5,7 @@
     LED.Collect.DeviceID=ValueTable.Column(1)
     LED.Collect.Status=ValueTable.Column(2)
     LED.Collect.StatusInformation=ValueTable.Column(3)
-    LED.Collect.LedIndicatior=ValueTable.Column(4)
+    LED.Collect.LedIndicator=ValueTable.Column(4)
   expected:
     monitors:
       led:
