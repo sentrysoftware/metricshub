@@ -126,15 +126,31 @@ public class ConverterConstants {
 	public static final String HDF_MAXIMUM_SPEED = "maximumspeed";
 	public static final String HDF_CORRECTED_ERROR_WARNING_THRESHOLD = "correctederrorwarningthreshold";
 	public static final String HDF_CORRECTED_ERROR_ALARM_THRESHOLD = "correctederroralarmthreshold";
+	public static final String HDF_CONTROLLER_NUMBER = "controllernumber";
+	public static final String HDF_FIRMWARE_VERSION = "firmwareversion";
+	public static final String HDF_DRIVER_VERSION = "driverversion";
+	public static final String HDF_COLOR = "color";
+	public static final String HDF_BLINKING_STATUS = "blinkingstatus";
+	public static final String HDF_OFF_STATUS = "offstatus";
+	public static final String HDF_ON_STATUS = "onstatus";
+	public static final String HDF_LED_NAME = "name";
+	public static final String HDF_LOGICALDISK_TYPE = "logicaldisktype";
+	public static final String HDF_RAID_LEVEL = "raidlevel";
+	public static final String HDF_SIZE = "size";
+	public static final String HDF_DEVICE_HOSTNAME = "devicehostname";
+	public static final String HDF_BIOS_VERSION = "biosversion";
 	public static final String HDF_ERROR_COUNT_WARNING_THRESHOLD = "errorcountwarningthreshold";
 	public static final String HDF_ERROR_COUNT_ALARM_THRESHOLD = "errorcountalarmthreshold";
-	public static final String HDF_SIZE = "size";
 	public static final String HDF_ADDITIONAL_LABEL = "additionallabel";
 	public static final String HDF_VALUE_WARNING_THRESHOLD = "valuewarningthreshold";
 	public static final String HDF_VALUE_ALARM_THRESHOLD = "valuealarmthreshold";
 	public static final String HDF_USAGE_COUNT_WARNING_THRESHOLD = "usagecountwarningthreshold";
 	public static final String HDF_USAGE_COUNT_ALARM_THRESHOLD = "usagecountalarmthreshold";
 	public static final String HDF_DEVICE_TYPE = "devicetype";
+	public static final String HDF_WARNING_THRESHOLD = "warningthreshold";
+	public static final String HDF_ALARM_THRESHOLD = "alarmthreshold";
+	public static final String HDF_PERCENT_WARNING_THRESHOLD = "percentwarningthreshold";
+	public static final String HDF_PERCENT_ALARM_THRESHOLD = "percentalarmthreshold";
 
 	// YAML attributes
 	public static final String YAML_TYPE = HDF_TYPE;
@@ -148,6 +164,16 @@ public class ConverterConstants {
 	public static final String YAML_CHEMISTRY = HDF_CHEMISTRY;
 	public static final String YAML_BLADE_NAME = "blade_name";
 	public static final String YAML_SERIAL_NUMBER = "serial_number";
+	public static final String YAML_CONTROLLER_NUMBER = "controller_number";
+	public static final String YAML_BIOS_VERSION = "bios_version";
+	public static final String YAML_FIRMWARE_VERSION = "firmware_version";
+	public static final String YAML_DRIVER_VERSION = "driver_version";
+	public static final String YAML_BLINKING_STATUS = "__blinking_status";
+	public static final String YAML_ON_STATUS = "__on_status";
+	public static final String YAML_OFF_STATUS = "__off_status";
+	public static final String YAML_LED_COLOR = HDF_COLOR;
+	public static final String YAML_RAID_LEVEL = "raid_level";
+	public static final String YAML_DEVICE_HOSTNAME = "device_hostname";
 	public static final String YAML_ERROR_COUNT_WARNING_THRESHOLD = "errorcountwarningthreshold";
 	public static final String YAML_ERROR_COUNT_ALARM_THRESHOLD = "errorcountalarmthreshold";
 	public static final String YAML_SIZE = "size";
@@ -172,6 +198,13 @@ public class ConverterConstants {
 	public static final String HDF_POWER_CONSUMPTION = "powerconsumption";
 	public static final String HDF_USAGE_COUNT = "usagecount";
 	public static final String HDF_VALUE = "value";
+	public static final String HDF_CONTROLLER_STATUS = "controllerstatus";
+	public static final String HDF_SPEED = "speed";
+	public static final String HDF_SPEED_PERCENT = "speedpercent";
+	public static final String HDF_LED_INDICATOR = "ledindicator";
+	public static final String HDF_UNALLOCATED_SPACE = "unallocatedspace";
+	public static final String HDF_INTRUSION_STATUS = "intrusionstatus";
+	public static final String HDF_ENERGY_USAGE = "energyusage";
 
 	// YAML metrics
 	public static final String YAML_STATUS_INFORMATION = "StatusInformation";
@@ -190,6 +223,18 @@ public class ConverterConstants {
 	public static final String YAML_CPU_ERRORS = "hw.errors{hw.type=\"cpu\"}";
 	public static final String YAML_CPU_POWER = "hw.power{hw.type=\"cpu\"}";
 	public static final String YAML_CPU_ENERGY = "hw.energy{hw.type=\"cpu\"}";
+	public static final String YAML_DISK_CONTROLLER_STATUS = "hw.status{hw.type=\"disk_controller\"}";
+	public static final String YAML_LED_INDICATOR = "hw.led.indicator";
+	public static final String YAML_LED_STATUS = "hw.status{hw.type=\"led\"}";
+	public static final String YAML_LOGICALDISK_LIMIT = "hw.logical_disk.limit";
+	public static final String YAML_LOGICALDISK_STATUS = "hw.status{hw.type=\"logical_disk\"}";
+	public static final String YAML_LOGICALDISK_ERRORS = "hw.errors{hw.type=\"logical_disk\"}";
+	public static final String YAML_LOGICALDISK_USAGE_FREE = "hw.logical_disk.usage{state=\"free\"}";
+	public static final String YAML_LOGICALDISK_USAGE_USED = "hw.logical_disk.usage{state=\"used\"}";
+	public static final String YAML_ENCLOSURE_STATUS = "hw.status{hw.type=\"enclosure\"}";
+	public static final String YAML_ENCLOSURE_INTRUSION_STATUS = "hw.status{hw.type=\"enclosure\", state=\"open\"}";
+	public static final String YAML_ENCLOSURE_ENERGY = "hw.enclosure.energy";
+	public static final String YAML_ENCLOSURE_POWER = "hw.enclosure.power";
 	public static final String YAML_MEMORY_ERRORS = "hw.errors{hw.type=\"memory\"}";
 	public static final String YAML_MEMORY_PREDICTED_FAILURE= "hw.status{hw.type=\"memory\", state=\"predicted_failure\"}";
 	public static final String YAML_MEMORY_STATUS = "hw.status{hw.type=\"memory\"}";
@@ -198,6 +243,13 @@ public class ConverterConstants {
 	public static final String YAML_OTHER_DEVICE_ENERGY = "hw.energy{hw.type=\"other_device\"}";
 	public static final String YAML_OTHER_DEVICE_USAGE_COUNT = "hw.other_device.uses";
 	public static final String YAML_OTHER_DEVICE_VALUE = "hw.other_device.value";
+	public static final String YAML_FAN_SPEED_LIMIT_DEGRADED = "hw.fan.speed.limit{limit_type=\"low.degraded\"}";
+	public static final String YAML_FAN_SPEED_LIMIT_CRITICAL = "hw.fan.speed.limit{limit_type=\"low.critical\"}";
+	public static final String YAML_FAN_SPEED_RATIO_LIMIT_DEGRADED = "hw.fan.speed_ratio.limit{limit_type=\"low.degraded\"}";
+	public static final String YAML_FAN_SPEED_RATIO_LIMIT_CRITICAL = "hw.fan.speed_ratio.limit{limit_type=\"low.critical\"}";
+	public static final String YAML_FAN_STATUS = "hw.status{hw.type=\"fan\"}";
+	public static final String YAML_FAN_SPEED = "hw.fan.speed";
+	public static final String YAML_FAN_SPEED_RATIO = "hw.fan.speed_ratio";
 
 	// Mapping formats
 	public static final String PERCENT_2_RATIO_FORMAT = "percent2Ratio(%s)";
@@ -208,4 +260,7 @@ public class ConverterConstants {
 	public static final String MEGA_HERTZ_TO_HUMAN_FORMAT = "%mhhf.s";
 	public static final String BYTES_TO_HUMAN_FORMAT = "%byhf.s";
 	public static final String BITS_TO_HUMAN_FORMAT = "%bihf.s";
+	public static final String LED_STATUS_FORMAT = "legacyLedStatus(%s)";
+	public static final String LEGACY_INTRUSION_STATUS_FORMAT = "legacyIntrusionStatus(%s)";
+	public static final String RATE_FORMAT = "rate(%s)";
 }
