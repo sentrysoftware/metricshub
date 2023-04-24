@@ -15,7 +15,6 @@ class FanCollectValueTableTest extends AbstractConnectorPropertyConverterTest{
 	}
 
 	@Test
-	@Disabled("Until fanValueTable processor is up")
 	void test() throws IOException {
 		testAll();
 	}

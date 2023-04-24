@@ -19,9 +19,11 @@
               tableID;ID;DisplayName;objectType;currentRpm;lowerNormalThreshold;lowerWarningThreshold;statusactivation;controllerID;devicetype
             source: $monitors.fan.discovery.sources.source(4)$
             attributes:
-              deviceid: $column(2)
-              displayid: $column(3)
-              warningthreshold: $column(6)
-              alarmthreshold: $column(7)
-              attachedtodeviceid: $column(9)
-              attachedtodevicetype: $column(10)
+              id: $column(2)
+              __display_id: $column(3)
+              hw.parent.type: $column(10)
+              hw.parent.id: $column(9)
+              name: $column(3)
+            metrics:
+              hw.fan.speed.limit{limit_type="low.degraded"}: $column(6)
+              hw.fan.speed.limit{limit_type="low.critical"}: $column(7)

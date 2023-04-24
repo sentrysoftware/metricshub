@@ -53,7 +53,7 @@ public class MappingConvertersWrapper {
 		Map.entry(YAML_CPU_CORE, NOOP),
 		Map.entry(YAML_DISK_CONTROLLER, new DiskControllerConverter()),
 		Map.entry(YAML_ENCLOSURE, new EnclosureConverter()),
-		Map.entry(YAML_FAN, NOOP),
+		Map.entry(YAML_FAN, new FanConverter()),
 		Map.entry(YAML_GPU, NOOP),
 		Map.entry(YAML_LED, new LedConverter()),
 		Map.entry(YAML_LOGICAL_DISK, new LogicalDiskConverter()),
