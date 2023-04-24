@@ -1,4 +1,4 @@
-- name: test1
+- name: testFull
   input: |
     // InstanceTable = Source(14)
     // Type;Slot           ;ProductName         ;PartNumber  ;Serial;Model;
@@ -39,7 +39,7 @@
               hw.other_device.value.limit{limit_type="critical"}: test2
               hw.other_device.uses.limit{limit_type="degraded"}: test3
               hw.other_device.uses.limit{limit_type="critical"}: test4
-- name: test1
+- name: testDefaultName
   input: |
     // InstanceTable = Source(14)
     // Type;Slot           ;ProductName         ;PartNumber  ;Serial;Model;
