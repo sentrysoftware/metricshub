@@ -121,13 +121,7 @@ public class EnclosureConverter extends AbstractMappingConverter {
 		if (typeNode != null) {
 
 			// Without vendor and model?
-			if (sprintfArgs.isEmpty()) {
-				// We append the type format only
-				format.append(" (%s)");
-			} else {
-				// Append the type format
-				format.append(" - %s)");
-			}
+			format.append(sprintfArgs.isEmpty() ? " (%s)" : " - %s)");
 
 			// Add the type to our list of arguments
 			sprintfArgs.add(typeNode.asText());
