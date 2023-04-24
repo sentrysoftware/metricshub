@@ -191,6 +191,18 @@ public class ConverterConstants {
 	public static final String HDF_UNALLOCATED_SPACE = "unallocatedspace";
 	public static final String HDF_INTRUSION_STATUS = "intrusionstatus";
 	public static final String HDF_ENERGY_USAGE = "energyusage";
+	public static final String HDF_USED_TIME_PERCENT = "usedtimepercent";
+	public static final String HDF_DECODER_USED_TIME_PERCENT = "decoderusedtimepercent";
+	public static final String HDF_ENCODER_USED_TIME_PERCENT = "encoderusedtimepercent";
+	public static final String HDF_MEMORY_UTILIZATION = "memoryutilization";
+	public static final String HDF_RECEIVED_BYTES = "receivedbytes";
+	public static final String HDF_TRANSMITTED_BYTES = "transmittedbytes";
+	public static final String HDF_RECEIVED_BYTES_RATE = "receivedbytesrate";
+	public static final String HDF_TRANSMITTED_BYTES_RATES = "transmittedbytesrates";
+	public static final String HDF_USED_TIME_PERCENT_WARNING_THRESHOLD = "usedtimepercentwarningthreshold";
+	public static final String HDF_USED_TIME_PERCENT_ALARM_THRESHOLD = "usedtimepercentalarmthreshold";
+	public static final String HDF_MEMORY_UTILIZATION_WARNING_THRESHOLD = "memoryutilizationwarningthreshold";
+	public static final String HDF_MEMORY_UTILIZATION_ALARM_THRESHOLD = "memoryutilizationalarmthreshold";
 
 	// YAML metrics
 	public static final String YAML_STATUS_INFORMATION = "StatusInformation";
@@ -222,7 +234,7 @@ public class ConverterConstants {
 	public static final String YAML_ENCLOSURE_ENERGY = "hw.enclosure.energy";
 	public static final String YAML_ENCLOSURE_POWER = "hw.enclosure.power";
 	public static final String YAML_MEMORY_ERRORS = "hw.errors{hw.type=\"memory\"}";
-	public static final String YAML_MEMORY_PREDICTED_FAILURE= "hw.status{hw.type=\"memory\", state=\"predicted_failure\"}";
+	public static final String YAML_MEMORY_PREDICTED_FAILURE = "hw.status{hw.type=\"memory\", state=\"predicted_failure\"}";
 	public static final String YAML_MEMORY_STATUS = "hw.status{hw.type=\"memory\"}";
 	public static final String YAML_FAN_SPEED_LIMIT_DEGRADED = "hw.fan.speed.limit{limit_type=\"low.degraded\"}";
 	public static final String YAML_FAN_SPEED_LIMIT_CRITICAL = "hw.fan.speed.limit{limit_type=\"low.critical\"}";
@@ -231,6 +243,23 @@ public class ConverterConstants {
 	public static final String YAML_FAN_STATUS = "hw.status{hw.type=\"fan\"}";
 	public static final String YAML_FAN_SPEED = "hw.fan.speed";
 	public static final String YAML_FAN_SPEED_RATIO = "hw.fan.speed_ratio";
+	public static final String YAML_GPU_STATUS = "hw.status{hw.type=\"gpu\"}";
+	public static final String YAML_GPU_PREDICTED_FAILURE = "hw.status{hw.type=\"gpu\", state=\"predicted_failure\"}";
+	public static final String YAML_GPU_ERRORS_CORRECTED = "hw.errors{hw.type=\"gpu\", hw.error.type=\"corrected\"}";
+	public static final String YAML_GPU_ERRORS = "hw.errors{hw.type=\"gpu\"}";
+	public static final String YAML_GPU_UTILIZATION_GENERAL = "hw.gpu.utilization{task=\"general\"}";
+	public static final String YAML_GPU_UTILIZATION_DECODER = "hw.gpu.utilization{task=\"decoder\"}";
+	public static final String YAML_GPU_UTILIZATION_ENCODER = "hw.gpu.utilization{task=\"encoder\"}";
+	public static final String YAML_GPU_MEMORY_UTILIZATION = "hw.gpu.memory.utilization";
+	public static final String YAML_GPU_IO_RECEIVE = "hw.gpu.io{direction=\"receive\"}";
+	public static final String YAML_GPU_IO_TRANSMIT = "hw.gpu.io{direction=\"transmit\"}";
+	public static final String YAML_GPU_POWER = "hw.power{hw.type=\"gpu\"}";
+	public static final String YAML_GPU_ENERGY = "hw.energy{hw.type=\"gpu\"}";
+	public static final String YAML_GPU_MEMORY_LIMIT = "hw.gpu.memory.limit";
+	public static final String YAML_GPU_UTILIZATION_LIMIT_DEGRADED = "hw.gpu.utilization.limit{limit_type=\"degraded\"}";
+	public static final String YAML_GPU_UTILIZATION_LIMIT_CRITICAL = "hw.gpu.utilization.limit{limit_type=\"critical\"}";
+	public static final String YAML_GPU_MEMORY_UTILIZATION_LIMIT_DEGRADED = "hw.gpu.memory.utilization.limit{limit_type=\"degraded\"}";
+	public static final String YAML_GPU_MEMORY_UTILIZATION_LIMIT_CRITICAL = "hw.gpu.memory.utilization.limit{limit_type=\"critical\"}";
 
 	// Mapping formats
 	public static final String PERCENT_2_RATIO_FORMAT = "percent2Ratio(%s)";
@@ -243,5 +272,6 @@ public class ConverterConstants {
 	public static final String BITS_TO_HUMAN_FORMAT = "%bihf.s";
 	public static final String LED_STATUS_FORMAT = "legacyLedStatus(%s)";
 	public static final String LEGACY_INTRUSION_STATUS_FORMAT = "legacyIntrusionStatus(%s)";
+	public static final String LEGACY_PREDICTED_FAILURE_FORMAT = "legacyPredictedFailure(%s)";
 	public static final String RATE_FORMAT = "rate(%s)";
 }
