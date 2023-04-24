@@ -60,7 +60,7 @@ public class MappingConvertersWrapper {
 		Map.entry(YAML_LUN, NOOP),
 		Map.entry(YAML_MEMORY, new MemoryConverter()),
 		Map.entry(YAML_NETWORK, NOOP),
-		Map.entry(YAML_OTHER_DEVICE, NOOP),
+		Map.entry(YAML_OTHER_DEVICE, new OtherDeviceConverter()),
 		Map.entry(YAML_PHYSICAL_DISK, NOOP),
 		Map.entry(YAML_POWER_SUPPLY, NOOP),
 		Map.entry(YAML_ROBOTICS, NOOP),

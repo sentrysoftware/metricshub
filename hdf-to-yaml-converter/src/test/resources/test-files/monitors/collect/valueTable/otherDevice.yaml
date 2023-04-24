@@ -7,7 +7,7 @@
     OtherDevice.Collect.StatusInformation=ValueTable.Column(3)
     OtherDevice.Collect.Value=ValueTable.Column(4)
     OtherDevice.Collect.UsageCount=ValueTable.Column(5)
-    OtherDevice.Collect.PowerConsumtion=ValueTable.Column(6)
+    OtherDevice.Collect.PowerConsumption=ValueTable.Column(6)
   expected:
     monitors:
       other_device:
