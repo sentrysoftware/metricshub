@@ -23,7 +23,6 @@ public class LogicalDiskConverter extends AbstractMappingConverter {
 		final Map<String, Entry<String, IMappingKey>> attributesMap = new HashMap<>();
 		attributesMap.put(HDF_DEVICE_ID, IMappingKey.of(ATTRIBUTES, YAML_ID));
 		attributesMap.put(HDF_DISPLAY_ID, IMappingKey.of(ATTRIBUTES, YAML_DISPLAY_ID));
-		attributesMap.put(HDF_VENDOR, IMappingKey.of(ATTRIBUTES, YAML_VENDOR));
 		attributesMap.put(HDF_RAID_LEVEL, IMappingKey.of(ATTRIBUTES, YAML_RAID_LEVEL));
 		attributesMap.put(HDF_LOGICALDISK_TYPE, IMappingKey.of(ATTRIBUTES, HDF_TYPE));
 		attributesMap.put(HDF_SIZE, IMappingKey.of(ATTRIBUTES, YAML_LOGICALDISK_LIMIT));
