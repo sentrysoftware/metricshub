@@ -55,10 +55,10 @@ public class MemoryConverter extends AbstractMappingConverter {
 		attributesMap.put(HDF_VENDOR, IMappingKey.of(ATTRIBUTES, YAML_VENDOR));
 		attributesMap.put(HDF_MODEL, IMappingKey.of(ATTRIBUTES, YAML_MODEL));
 		attributesMap.put(HDF_TYPE, IMappingKey.of(ATTRIBUTES, YAML_TYPE));
-		attributesMap.put(HDF_SIZE, IMappingKey.of(ATTRIBUTES, YAML_MEMORY_LIMIT, AbstractMappingConverter::buildMebiByte2ByteFunction));
+		attributesMap.put(HDF_SIZE, IMappingKey.of(METRICS, YAML_MEMORY_LIMIT, AbstractMappingConverter::buildMebiByte2ByteFunction));
 		attributesMap.put(HDF_SERIAL_NUMBER, IMappingKey.of(ATTRIBUTES, YAML_SERIAL_NUMBER));
-		attributesMap.put(HDF_ERROR_COUNT_ALARM_THRESHOLD, IMappingKey.of(ATTRIBUTES, YAML_ERROR_COUNT_ALARM_THRESHOLD));
-		attributesMap.put(HDF_ERROR_COUNT_WARNING_THRESHOLD, IMappingKey.of(ATTRIBUTES, YAML_ERROR_COUNT_WARNING_THRESHOLD));
+		attributesMap.put(HDF_ERROR_COUNT_ALARM_THRESHOLD, IMappingKey.of(METRICS, YAML_ERROR_COUNT_ALARM_THRESHOLD));
+		attributesMap.put(HDF_ERROR_COUNT_WARNING_THRESHOLD, IMappingKey.of(METRICS, YAML_ERROR_COUNT_WARNING_THRESHOLD));
 		ONE_TO_ONE_ATTRIBUTES_MAPPING = Collections.unmodifiableMap(attributesMap);
 	}
 
