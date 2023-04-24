@@ -129,6 +129,14 @@ public class ConverterConstants {
 	public static final String HDF_ERROR_COUNT_WARNING_THRESHOLD = "errorcountwarningthreshold";
 	public static final String HDF_ERROR_COUNT_ALARM_THRESHOLD = "errorcountalarmthreshold";
 	public static final String HDF_SIZE = "size";
+	public static final String HDF_CONTROLLER_NUMBER = "controllernumber";
+	public static final String HDF_FIRMWARE_VERSION = "firmwareversion";
+	public static final String HDF_DRIVER_VERSION = "driverversion";
+	public static final String HDF_BIOS_VERSION = "biosversion";
+	public static final String HDF_WARNING_THRESHOLD = "warningthreshold";
+	public static final String HDF_ALARM_THRESHOLD = "alarmthreshold";
+	public static final String HDF_PERCENT_WARNING_THRESHOLD = "percentwarningthreshold";
+	public static final String HDF_PERCENT_ALARM_THRESHOLD = "percentalarmthreshold";
 
 	// YAML attributes
 	public static final String YAML_TYPE = HDF_TYPE;
@@ -158,6 +166,9 @@ public class ConverterConstants {
 	public static final String HDF_ERROR_COUNT = "errorcount";
 	public static final String HDF_CORRECTED_ERROR_COUNT = "correctederrorcount";
 	public static final String HDF_POWER_CONSUMPTION = "powerconsumption";
+	public static final String HDF_CONTROLLER_STATUS = "controllerstatus";
+	public static final String HDF_SPEED = "speed";
+	public static final String HDF_SPEED_PERCENT = "speedpercent";
 
 	// YAML metrics
 	public static final String YAML_STATUS_INFORMATION = "StatusInformation";
@@ -179,6 +190,14 @@ public class ConverterConstants {
 	public static final String YAML_MEMORY_ERRORS = "hw.errors{hw.type=\"memory\"}";
 	public static final String YAML_MEMORY_PREDICTED_FAILURE= "hw.status{hw.type=\"memory\", state=\"predicted_failure\"}";
 	public static final String YAML_MEMORY_STATUS = "hw.status{hw.type=\"memory\"}";
+	public static final String YAML_DISK_CONTROLLER_STATUS = "hw.status{hw.type=\"disk_controller\"}";
+	public static final String YAML_FAN_SPEED_LIMIT_DEGRADED = "hw.fan.speed.limit{limit_type=\"low.degraded\"}";
+	public static final String YAML_FAN_SPEED_LIMIT_CRITICAL = "hw.fan.speed.limit{limit_type=\"low.critical\"}";
+	public static final String YAML_FAN_SPEED_RATIO_LIMIT_DEGRADED = "hw.fan.speed_ratio.limit{limit_type=\"low.degraded\"}";
+	public static final String YAML_FAN_SPEED_RATIO_LIMIT_CRITICAL = "hw.fan.speed_ratio.limit{limit_type=\"low.critical\"}";
+	public static final String YAML_FAN_STATUS = "hw.status{hw.type=\"fan\"}";
+	public static final String YAML_FAN_SPEED = "hw.fan.speed";
+	public static final String YAML_FAN_SPEED_RATIO = "hw.fan.speed_ratio";
 
 	// Mapping formats
 	public static final String PERCENT_2_RATIO_FORMAT = "percent2Ratio(%s)";
