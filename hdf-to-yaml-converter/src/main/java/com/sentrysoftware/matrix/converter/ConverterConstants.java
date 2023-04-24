@@ -129,7 +129,11 @@ public class ConverterConstants {
 	public static final String HDF_LOGICALDISK_TYPE = "logicaldisktype";
 	public static final String HDF_RAID_LEVEL = "raidlevel";
 	public static final String HDF_SIZE = "size";
-	public static final String HDF_ERROR_COUNT = "errorcount";
+	public static final String HDF_DEVICE_HOSTNAME = "devicehostname";
+	public static final String HDF_FIRMWARE_VERSION = "firmwaversion";
+	public static final String HDF_BIOS_VERSION = "biosversion";
+	public static final String HDF_ERROR_COUNT_WARNING_THRESHOLD = "errorcountwarningthreshold";
+	public static final String HDF_ERROR_COUNT_ALARM_THRESHOLD = "errorcountalarmthreshold";
 
 	// YAML attributes
 	public static final String YAML_TYPE = HDF_TYPE;
@@ -145,6 +149,12 @@ public class ConverterConstants {
 	public static final String YAML_SERIAL_NUMBER = "serial_number";
 	public static final String YAML_RAID_LEVEL = "raid_level";
 
+	public static final String YAML_DEVICE_HOSTNAME = "device_hostname";
+	public static final String YAML_BIOS_VERSION = "bios_version";
+	public static final String YAML_ERROR_COUNT_WARNING_THRESHOLD = "errorcountwarningthreshold";
+	public static final String YAML_ERROR_COUNT_ALARM_THRESHOLD = "errorcountalarmthreshold";
+	public static final String YAML_SIZE = "size";
+	public static final String YAML_MEMORY_LIMIT = "hw.memory.limit";
 
 	// HDF Collect parameters
 	public static final String HDF_STATUS = "status";
@@ -154,9 +164,12 @@ public class ConverterConstants {
 	public static final String HDF_POWER_STATE = "powerstate";
 	public static final String HDF_PREDICTED_FAILURE = "predictedfailure";
 	public static final String HDF_CURRENT_SPEED = "currentspeed";
+	public static final String HDF_ERROR_COUNT = "errorcount";
 	public static final String HDF_CORRECTED_ERROR_COUNT = "correctederrorcount";
 	public static final String HDF_POWER_CONSUMPTION = "powerconsumption";
 	public static final String HDF_UNALLOCATED_SPACE = "unallocatedspace";
+	public static final String HDF_INTRUSION_STATUS = "intrusionstatus";
+	public static final String HDF_ENERGY_USAGE = "energyusage";
 
 	// YAML metrics
 	public static final String YAML_STATUS_INFORMATION = "StatusInformation";
@@ -181,12 +194,23 @@ public class ConverterConstants {
 	public static final String YAML_LOGICALDISK_USAGE_FREE = "hw.logical_disk.usage{state=\"free\"}";
 	public static final String YAML_LOGICALDISK_USAGE_USED = "hw.logical_disk.usage{state=\"used\"}";
 	
+	public static final String YAML_ENCLOSURE_STATUS = "hw.status{hw.type=\"enclosure\"}";
+	public static final String YAML_ENCLOSURE_INTRUSION_STATUS = "hw.status{hw.type=\"enclosure\", state=\"open\"}";
+	public static final String YAML_ENCLOSURE_ENERGY = "hw.enclosure.energy";
+	public static final String YAML_ENCLOSURE_POWER = "hw.enclosure.power";
+	public static final String YAML_MEMORY_ERRORS = "hw.errors{hw.type=\"memory\"}";
+	public static final String YAML_MEMORY_PREDICTED_FAILURE= "hw.status{hw.type=\"memory\", state=\"predicted_failure\"}";
+	public static final String YAML_MEMORY_STATUS = "hw.status{hw.type=\"memory\"}";
+
 	// Mapping formats
 	public static final String PERCENT_2_RATIO_FORMAT = "percent2Ratio(%s)";
 	public static final String MEGA_HERTZ_2_HERTZ_FORMAT = "megaHertz2Hertz(%s)";
+	public static final String MEBI_BYTE_2_BYTE_FORMAT = "mebiByte2Byte(%s)";
 	public static final String BOOLEAN_FORMAT = "boolean(%s)";
 	public static final String FAKE_COUNTER_FORMAT = "fakeCounter(%s)";
 	public static final String MEGA_HERTZ_TO_HUMAN_FORMAT = "%mhhf.s";
 	public static final String BYTES_TO_HUMAN_FORMAT = "%byhf.s";
 	public static final String BITS_TO_HUMAN_FORMAT = "%bihf.s";
+	public static final String LEGACY_INTRUSION_STATUS_FORMAT = "legacyIntrusionStatus(%s)";
+	public static final String RATE_FORMAT = "rate(%s)";
 }
