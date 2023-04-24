@@ -317,12 +317,30 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 		return String.format(FAKE_COUNTER_FORMAT, value);
 	}
 
+	/**
+	 * Build legacyIntrusionStatus(...) function
+	 * 
+	 */
 	public static String buildLegacyIntrusionStatusFunction(final String value) {
 		return String.format(LEGACY_INTRUSION_STATUS_FORMAT, value);
 	}
 
+	/**
+	 * Build rate(...) function
+	 * @param value
+	 * @return
+	 */
 	public static String buildRateFunction(final String value) {
 		return String.format(RATE_FORMAT, value);
+	}
+	
+	/**
+	 * Build legacyLedStatus(...) function
+	 * @param value
+	 * @return
+	 */
+	public static String buildLegacyLedFunction(final String value) {
+		return String.format(LED_STATUS_FORMAT, value);
 	}
 	
 	/**

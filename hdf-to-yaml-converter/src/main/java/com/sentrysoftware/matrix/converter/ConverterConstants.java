@@ -126,6 +126,11 @@ public class ConverterConstants {
 	public static final String HDF_MAXIMUM_SPEED = "maximumspeed";
 	public static final String HDF_CORRECTED_ERROR_WARNING_THRESHOLD = "correctederrorwarningthreshold";
 	public static final String HDF_CORRECTED_ERROR_ALARM_THRESHOLD = "correctederroralarmthreshold";
+	public static final String HDF_COLOR = "color";
+	public static final String HDF_BLINKING_STATUS = "blinkingstatus";
+	public static final String HDF_OFF_STATUS = "offstatus";
+	public static final String HDF_ON_STATUS = "onstatus";
+	public static final String HDF_LED_NAME = "name";
 	public static final String HDF_LOGICALDISK_TYPE = "logicaldisktype";
 	public static final String HDF_RAID_LEVEL = "raidlevel";
 	public static final String HDF_SIZE = "size";
@@ -147,6 +152,10 @@ public class ConverterConstants {
 	public static final String YAML_CHEMISTRY = HDF_CHEMISTRY;
 	public static final String YAML_BLADE_NAME = "blade_name";
 	public static final String YAML_SERIAL_NUMBER = "serial_number";
+	public static final String YAML_BLINKING_STATUS = "__blinking_status";
+	public static final String YAML_ON_STATUS = "__on_status";
+	public static final String YAML_OFF_STATUS = "__off_status";
+	public static final String YAML_LED_COLOR = HDF_COLOR;
 	public static final String YAML_RAID_LEVEL = "raid_level";
 
 	public static final String YAML_DEVICE_HOSTNAME = "device_hostname";
@@ -167,6 +176,7 @@ public class ConverterConstants {
 	public static final String HDF_ERROR_COUNT = "errorcount";
 	public static final String HDF_CORRECTED_ERROR_COUNT = "correctederrorcount";
 	public static final String HDF_POWER_CONSUMPTION = "powerconsumption";
+	public static final String HDF_LED_INDICATOR = "ledindicator";
 	public static final String HDF_UNALLOCATED_SPACE = "unallocatedspace";
 	public static final String HDF_INTRUSION_STATUS = "intrusionstatus";
 	public static final String HDF_ENERGY_USAGE = "energyusage";
@@ -188,6 +198,8 @@ public class ConverterConstants {
 	public static final String YAML_CPU_ERRORS = "hw.errors{hw.type=\"cpu\"}";
 	public static final String YAML_CPU_POWER = "hw.power{hw.type=\"cpu\"}";
 	public static final String YAML_CPU_ENERGY = "hw.energy{hw.type=\"cpu\"}";
+	public static final String YAML_LED_INDICATOR = "hw.led.indicator";
+	public static final String YAML_LED_STATUS = "hw.status{hw.type=\"led\"}";
 	public static final String YAML_LOGICALDISK_LIMIT = "hw.logical_disk.limit";
 	public static final String YAML_LOGICALDISK_STATUS = "hw.status{hw.type=\"logical_disk\"}";
 	public static final String YAML_LOGICALDISK_ERRORS = "hw.errors{hw.type=\"logical_disk\"}";
@@ -211,6 +223,7 @@ public class ConverterConstants {
 	public static final String MEGA_HERTZ_TO_HUMAN_FORMAT = "%mhhf.s";
 	public static final String BYTES_TO_HUMAN_FORMAT = "%byhf.s";
 	public static final String BITS_TO_HUMAN_FORMAT = "%bihf.s";
+	public static final String LED_STATUS_FORMAT = "legacyLedStatus(%s)";
 	public static final String LEGACY_INTRUSION_STATUS_FORMAT = "legacyIntrusionStatus(%s)";
 	public static final String RATE_FORMAT = "rate(%s)";
 }

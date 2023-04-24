@@ -55,7 +55,7 @@ public class MappingConvertersWrapper {
 		Map.entry(YAML_ENCLOSURE, new EnclosureConverter()),
 		Map.entry(YAML_FAN, NOOP),
 		Map.entry(YAML_GPU, NOOP),
-		Map.entry(YAML_LED, NOOP),
+		Map.entry(YAML_LED, new LedConverter()),
 		Map.entry(YAML_LOGICAL_DISK, new LogicalDiskConverter()),
 		Map.entry(YAML_LUN, NOOP),
 		Map.entry(YAML_MEMORY, new MemoryConverter()),
