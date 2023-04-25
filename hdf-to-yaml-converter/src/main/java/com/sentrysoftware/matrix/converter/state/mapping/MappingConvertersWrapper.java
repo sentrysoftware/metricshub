@@ -50,7 +50,7 @@ public class MappingConvertersWrapper {
 		Map.entry(YAML_BATTERY, new BatteryConverter()),
 		Map.entry(YAML_BLADE, new BladeConverter()),
 		Map.entry(YAML_CPU, new CpuConverter()),
-		Map.entry(YAML_CPU_CORE, NOOP),
+		// Map.entry(YAML_CPU_CORE, NOOP),
 		Map.entry(YAML_DISK_CONTROLLER, new DiskControllerConverter()),
 		Map.entry(YAML_ENCLOSURE, new EnclosureConverter()),
 		Map.entry(YAML_FAN, new FanConverter()),
@@ -64,7 +64,7 @@ public class MappingConvertersWrapper {
 		Map.entry(YAML_PHYSICAL_DISK, new PhysicalDiskConverter()),
 		Map.entry(YAML_POWER_SUPPLY, new PowerSupplyConverter()),
 		Map.entry(YAML_ROBOTICS, new RoboticsConverter()),
-		Map.entry(YAML_TAPEDRIVE, NOOP),
+		Map.entry(YAML_TAPEDRIVE, new TapeDriveConverter()),
 		Map.entry(YAML_TEMPERATURE, NOOP),
 		Map.entry(YAML_VM, NOOP),
 		Map.entry(YAML_VOLTAGE, NOOP)
