@@ -362,4 +362,14 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 	public static String buildLegacyPredictedFailureFunction(final String value) {
 		return String.format(LEGACY_PREDICTED_FAILURE_FORMAT, value);
 	}
+
+	/**
+	 * Build computePowerShareRatio(...) function
+	 * 
+	 * @param value
+	 * @return String value
+	 */
+	public static String buildComputePowerShareRatio(final String value) {
+		return String.format(COMPUTE_POWER_SHARE_RATIO_FORMAT, value);
+	}
 }
