@@ -61,12 +61,7 @@ public class TapeDriveConverter extends AbstractMappingConverter {
 			throw new IllegalStateException(String.format("%s cannot be null.", HDF_DEVICE_ID));
 		}
 
-		final JsonNode displayId = existingAttributes.get(HDF_DISPLAY_ID);
 		JsonNode firstDisplayArgument = deviceId;
-		if (displayId != null) {
-			firstDisplayArgument = displayId;
-		}
-
 		final JsonNode model = existingAttributes.get(HDF_MODEL);
 
 		newAttributes.set(
