@@ -1,4 +1,4 @@
-- name: test1
+- name: testFull
   input: |
     // InstanceTable = Source(18)
     Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(18)%
@@ -20,13 +20,71 @@
             _comment: InstanceTable = Source(18)
             source: $monitors.temperature.discovery.sources.source(18)$
             attributes:
-              additionalinformation1: $column(1)
-              additionalinformation2: $column(2)
-              additionalinformation3: $column(3)
-              alarmthreshold: $column(4)
-              attachedtodeviceid: $column(5)
-              attachedtodevicetype: $column(7)
-              deviceid: $column(8)
-              displayid: $column(9)
-              temperaturetype: $column(11)
-              warningthreshold: $column(12)
+              info: join($column(1), $column(2), $column(3), " ")
+              hw.parent.id: $column(5)
+              hw.parent.type: $column(7)
+              id: $column(8)
+              __display_id: $column(9)
+              temperature_type: $column(11)
+              name: "$column(9) ($column(11))"
+            metrics:
+              hw.temperature.limit{limit_type="high.degraded"}: $column(12)
+              hw.temperature.limit{limit_type="high.critical"}: $column(4)
+- name: testNoTemperatureType
+  input: |
+    // InstanceTable = Source(18)
+    Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(18)%
+    Temperature.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(1)
+    Temperature.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(2)
+    Temperature.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(3)
+    Temperature.Discovery.Instance.AlarmThreshold=InstanceTable.Column(4)
+    Temperature.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(5)
+    Temperature.Discovery.Instance.AttachedToDeviceType=InstanceTable.Column(7)
+    Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(8)
+    Temperature.Discovery.Instance.DisplayID=InstanceTable.Column(9)
+    Temperature.Discovery.Instance.WarningThreshold=InstanceTable.Column(12)
+  expected:
+    monitors:
+      temperature:
+        discovery:
+          mapping:
+            _comment: InstanceTable = Source(18)
+            source: $monitors.temperature.discovery.sources.source(18)$
+            attributes:
+              info: join($column(1), $column(2), $column(3), " ")
+              hw.parent.id: $column(5)
+              hw.parent.type: $column(7)
+              id: $column(8)
+              __display_id: $column(9)
+              name: "$column(9)"
+            metrics:
+              hw.temperature.limit{limit_type="high.degraded"}: $column(12)
+              hw.temperature.limit{limit_type="high.critical"}: $column(4)
+- name: testDefaultId
+  input: |
+    // InstanceTable = Source(18)
+    Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(18)%
+    Temperature.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(1)
+    Temperature.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(2)
+    Temperature.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(3)
+    Temperature.Discovery.Instance.AlarmThreshold=InstanceTable.Column(4)
+    Temperature.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(5)
+    Temperature.Discovery.Instance.AttachedToDeviceType=InstanceTable.Column(7)
+    Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(8)
+    Temperature.Discovery.Instance.WarningThreshold=InstanceTable.Column(12)
+  expected:
+    monitors:
+      temperature:
+        discovery:
+          mapping:
+            _comment: InstanceTable = Source(18)
+            source: $monitors.temperature.discovery.sources.source(18)$
+            attributes:
+              info: join($column(1), $column(2), $column(3), " ")
+              hw.parent.id: $column(5)
+              hw.parent.type: $column(7)
+              id: $column(8)
+              name: "$column(8)"
+            metrics:
+              hw.temperature.limit{limit_type="high.degraded"}: $column(12)
+              hw.temperature.limit{limit_type="high.critical"}: $column(4)
