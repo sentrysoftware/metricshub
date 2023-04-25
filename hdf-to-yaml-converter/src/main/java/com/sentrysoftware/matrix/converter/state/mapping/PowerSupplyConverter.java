@@ -65,29 +65,27 @@ public class PowerSupplyConverter extends AbstractMappingConverter {
 			firstDisplayArgument = displayId;
 		}
 
-		final JsonNode model = existingAttributes.get(HDF_POWER_SUPPLY_TYPE);
-		final JsonNode size = existingAttributes.get(HDF_POWER_SUPPLY_POWER);
+		final JsonNode type = existingAttributes.get(HDF_POWER_SUPPLY_TYPE);
+		final JsonNode power = existingAttributes.get(HDF_POWER_SUPPLY_POWER);
 
 		newAttributes.set(
 				YAML_NAME,
 				new TextNode(
-						buildNameValue(firstDisplayArgument, deviceId, new JsonNode[] { model, size })));
+						buildNameValue(firstDisplayArgument, new JsonNode[] { type, power })));
 	}
 
 	/**
 	 * Joins the given non-empty text nodes to build the disk controller name value
 	 *
 	 * @param firstDisplayArgument {@link JsonNode} representing the display name
-	 * @param displayId            {@link JsonNode} representing the displayId
-	 * @param modelAndSize         {@link JsonNode} representing the model
+	 * @param typeAndPower         {@link JsonNode} representing the type and power
 	 *
 	 * @return {@link String} Joined text nodes
 	 */
-	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode displayId,
-			final JsonNode[] modelAndSize) {
+	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode[] typeAndPower) {
 
 		final String firstArg = firstDisplayArgument.asText();
-		if (displayId == null && modelAndSize == null) {
+		if (typeAndPower == null) {
 			return firstArg;
 		}
 
@@ -98,7 +96,7 @@ public class PowerSupplyConverter extends AbstractMappingConverter {
 		final List<String> sprintfArgs = new ArrayList<>();
 		sprintfArgs.addAll(
 				Stream
-						.of(modelAndSize)
+						.of(typeAndPower)
 						.filter(Objects::nonNull)
 						.map(JsonNode::asText)
 						.toList());
