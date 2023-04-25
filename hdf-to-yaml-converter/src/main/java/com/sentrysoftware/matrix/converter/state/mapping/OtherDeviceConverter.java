@@ -27,10 +27,10 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_OTHER_
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_STATUS_INFORMATION;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_OTHER_DEVICE_USAGE_COUNT;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_OTHER_DEVICE_VALUE;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_USAGE_COUNT_ALARM_THRESHOLD;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_USAGE_COUNT_WARNING_THRESHOLD;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VALUE_ALARM_THRESHOLD;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VALUE_WARNING_THRESHOLD;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_OTHER_DEVICE_USAGE_COUNT_ALARM_THRESHOLD;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_OTHER_DEVICE_USAGE_COUNT_WARNING_THRESHOLD;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_OTHER_DEVICE_VALUE_ALARM_THRESHOLD;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_OTHER_DEVICE_VALUE_WARNING_THRESHOLD;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,11 +52,11 @@ public class OtherDeviceConverter extends AbstractMappingConverter {
 		attributesMap.put(HDF_DEVICE_ID, IMappingKey.of(ATTRIBUTES, YAML_ID));
 		attributesMap.put(HDF_DISPLAY_ID, IMappingKey.of(ATTRIBUTES, YAML_DISPLAY_ID));
 		attributesMap.put(HDF_DEVICE_TYPE, IMappingKey.of(ATTRIBUTES, YAML_DEVICE_TYPE));
-		attributesMap.put(HDF_ADDITIONAL_LABEL, IMappingKey.of(METRICS, YAML_ADDITIONAL_LABEL));
-		attributesMap.put(HDF_VALUE_WARNING_THRESHOLD, IMappingKey.of(METRICS, YAML_VALUE_WARNING_THRESHOLD));
-		attributesMap.put(HDF_VALUE_ALARM_THRESHOLD, IMappingKey.of(METRICS, YAML_VALUE_ALARM_THRESHOLD));
-		attributesMap.put(HDF_USAGE_COUNT_WARNING_THRESHOLD, IMappingKey.of(METRICS, YAML_USAGE_COUNT_WARNING_THRESHOLD));
-		attributesMap.put(HDF_USAGE_COUNT_ALARM_THRESHOLD, IMappingKey.of(METRICS, YAML_USAGE_COUNT_ALARM_THRESHOLD));
+		attributesMap.put(HDF_ADDITIONAL_LABEL, IMappingKey.of(ATTRIBUTES, YAML_ADDITIONAL_LABEL));
+		attributesMap.put(HDF_VALUE_WARNING_THRESHOLD, IMappingKey.of(METRICS, YAML_OTHER_DEVICE_VALUE_WARNING_THRESHOLD));
+		attributesMap.put(HDF_VALUE_ALARM_THRESHOLD, IMappingKey.of(METRICS, YAML_OTHER_DEVICE_VALUE_ALARM_THRESHOLD));
+		attributesMap.put(HDF_USAGE_COUNT_WARNING_THRESHOLD, IMappingKey.of(METRICS, YAML_OTHER_DEVICE_USAGE_COUNT_WARNING_THRESHOLD));
+		attributesMap.put(HDF_USAGE_COUNT_ALARM_THRESHOLD, IMappingKey.of(METRICS, YAML_OTHER_DEVICE_USAGE_COUNT_ALARM_THRESHOLD));
 		ONE_TO_ONE_ATTRIBUTES_MAPPING = Collections.unmodifiableMap(attributesMap);
 	}
 
@@ -132,9 +132,9 @@ public class OtherDeviceConverter extends AbstractMappingConverter {
 			format.append("%s: ");
 			sprintfArgs.add(deviceTypeNode.asText());
 		
-		// Add the ID 
-		format.append("%s");
-		sprintfArgs.add(firstArg);
+			// Add the ID 
+			format.append("%s");
+			sprintfArgs.add(firstArg);
 		}
 
 		// Add the additionalLabel if applicable

@@ -33,8 +33,8 @@
               hw.parent.id: DIR5
               hw.parent.type: enclosure
               name: 'sprintf("%s: %s (%s)", $column(1), $column(2), $column(3))'
-            metrics:
               additional_label: $column(3)
+            metrics:
               hw.other_device.value.limit{limit_type="degraded"}: test
               hw.other_device.value.limit{limit_type="critical"}: test2
               hw.other_device.uses.limit{limit_type="degraded"}: test3
