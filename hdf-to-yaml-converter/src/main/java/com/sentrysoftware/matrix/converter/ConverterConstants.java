@@ -141,6 +141,12 @@ public class ConverterConstants {
 	public static final String HDF_BIOS_VERSION = "biosversion";
 	public static final String HDF_ERROR_COUNT_WARNING_THRESHOLD = "errorcountwarningthreshold";
 	public static final String HDF_ERROR_COUNT_ALARM_THRESHOLD = "errorcountalarmthreshold";
+	public static final String HDF_ADDITIONAL_LABEL = "additionallabel";
+	public static final String HDF_VALUE_WARNING_THRESHOLD = "valuewarningthreshold";
+	public static final String HDF_VALUE_ALARM_THRESHOLD = "valuealarmthreshold";
+	public static final String HDF_USAGE_COUNT_WARNING_THRESHOLD = "usagecountwarningthreshold";
+	public static final String HDF_USAGE_COUNT_ALARM_THRESHOLD = "usagecountalarmthreshold";
+	public static final String HDF_DEVICE_TYPE = "devicetype";
 	public static final String HDF_WARNING_THRESHOLD = "warningthreshold";
 	public static final String HDF_ALARM_THRESHOLD = "alarmthreshold";
 	public static final String HDF_PERCENT_WARNING_THRESHOLD = "percentwarningthreshold";
@@ -182,6 +188,12 @@ public class ConverterConstants {
 	public static final String YAML_ERROR_COUNT_ALARM_THRESHOLD = "errorcountalarmthreshold";
 	public static final String YAML_SIZE = "size";
 	public static final String YAML_MEMORY_LIMIT = "hw.memory.limit";
+	public static final String YAML_ADDITIONAL_LABEL = "additional_label";
+	public static final String YAML_OTHER_DEVICE_VALUE_WARNING_THRESHOLD = "hw.other_device.value.limit{limit_type=\"degraded\"}";
+	public static final String YAML_OTHER_DEVICE_VALUE_ALARM_THRESHOLD = "hw.other_device.value.limit{limit_type=\"critical\"}";
+	public static final String YAML_OTHER_DEVICE_USAGE_COUNT_WARNING_THRESHOLD = "hw.other_device.uses.limit{limit_type=\"degraded\"}";
+	public static final String YAML_OTHER_DEVICE_USAGE_COUNT_ALARM_THRESHOLD = "hw.other_device.uses.limit{limit_type=\"critical\"}";
+	public static final String YAML_DEVICE_TYPE = "device_type";
 	public static final String YAML_REMOTE_DEVICE_NAME = "remote_device_name";
 	public static final String YAML_ARRAY_NAME = "array_name";
 	public static final String YAML_POWER_SUPPLY_TYPE = "power_supply_type";
@@ -198,6 +210,8 @@ public class ConverterConstants {
 	public static final String HDF_ERROR_COUNT = "errorcount";
 	public static final String HDF_CORRECTED_ERROR_COUNT = "correctederrorcount";
 	public static final String HDF_POWER_CONSUMPTION = "powerconsumption";
+	public static final String HDF_USAGE_COUNT = "usagecount";
+	public static final String HDF_VALUE = "value";
 	public static final String HDF_CONTROLLER_STATUS = "controllerstatus";
 	public static final String HDF_SPEED = "speed";
 	public static final String HDF_SPEED_PERCENT = "speedpercent";
@@ -264,6 +278,11 @@ public class ConverterConstants {
 	public static final String YAML_MEMORY_ERRORS = "hw.errors{hw.type=\"memory\"}";
 	public static final String YAML_MEMORY_PREDICTED_FAILURE = "hw.status{hw.type=\"memory\", state=\"predicted_failure\"}";
 	public static final String YAML_MEMORY_STATUS = "hw.status{hw.type=\"memory\"}";
+	public static final String YAML_OTHER_DEVICE_STATUS = "hw.status{hw.type=\"other_device\"}";
+	public static final String YAML_OTHER_DEVICE_POWER = "hw.power{hw.type=\"other_device\"}";
+	public static final String YAML_OTHER_DEVICE_ENERGY = "hw.energy{hw.type=\"other_device\"}";
+	public static final String YAML_OTHER_DEVICE_USAGE_COUNT = "hw.other_device.uses";
+	public static final String YAML_OTHER_DEVICE_VALUE = "hw.other_device.value";
 	public static final String YAML_FAN_SPEED_LIMIT_DEGRADED = "hw.fan.speed.limit{limit_type=\"low.degraded\"}";
 	public static final String YAML_FAN_SPEED_LIMIT_CRITICAL = "hw.fan.speed.limit{limit_type=\"low.critical\"}";
 	public static final String YAML_FAN_SPEED_RATIO_LIMIT_DEGRADED = "hw.fan.speed_ratio.limit{limit_type=\"low.degraded\"}";
