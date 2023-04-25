@@ -89,7 +89,7 @@ public class TemperatureConverter extends AbstractMappingConverter {
 	}
 
 	/**
-	 * Joins the given non-empty text nodes to build the CPU name value
+	 * Joins the given non-empty text nodes to build the temperature name value
 	 *
 	 * @param firstDisplayArgument {@link JsonNode} representing the display name
 	 * @param temperatureTypeNode       {@link JsonNode} temperature type
