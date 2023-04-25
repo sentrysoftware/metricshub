@@ -152,6 +152,8 @@ public class ConverterConstants {
 	public static final String HDF_AVAILABLE_PATH_WARNING = "availablepathwarning";
 	public static final String HDF_AVAILABLE_PATH_INFORMATION = "availablepathinformation";
 	public static final String HDF_AVAILABLE_PATH_COUNT = "availablepathcount";
+	public static final String HDF_POWER_SUPPLY_TYPE = "powersupplytype";
+	public static final String HDF_POWER_SUPPLY_POWER = "powersupplypower";
 
 	// YAML attributes
 	public static final String YAML_TYPE = HDF_TYPE;
@@ -181,6 +183,7 @@ public class ConverterConstants {
 	public static final String YAML_MEMORY_LIMIT = "hw.memory.limit";
 	public static final String YAML_REMOTE_DEVICE_NAME = "remote_device_name";
 	public static final String YAML_ARRAY_NAME = "array_name";
+	public static final String YAML_POWER_SUPPLY_TYPE = "power_supply_type";
 
 	// HDF Collect parameters
 	public static final String HDF_STATUS = "status";
@@ -220,6 +223,8 @@ public class ConverterConstants {
 	public static final String HDF_HARD_ERROR_COUNT = "harderrorcount";
 	public static final String HDF_MEDIA_ERROR_COUNT = "mediaerrorcount";
 	public static final String HDF_ENDURANCE_REMAINING = "enduranceremaining";
+	public static final String HDF_USED_PERCENT = "usedpercent";
+	public static final String HDF_USED_WATTS = "usedwatts";
 
 	// YAML metrics
 	public static final String YAML_STATUS_INFORMATION = "StatusInformation";
@@ -293,6 +298,10 @@ public class ConverterConstants {
 	public static final String YAML_PHYSICAL_DISK_ERRORS_HARD = "hw.errors{hw.type=\"physical_disk\", hw.error.type=\"hard\"}";
 	public static final String YAML_PHYSICAL_DISK_ERRORS_MEDIA = "hw.errors{hw.type=\"physical_disk\", hw.error.type=\"media\"}";
 	public static final String YAML_PHYSICAL_DISK_ENDURANCE_UTILIZATION_REMAINING = "hw.physical_disk.endurance_utilization{state=\"remaining\"}";
+	public static final String YAML_POWER_SUPPLY_STATUS = "hw.status{hw.type=\"power_supply\"}";
+	public static final String YAML_POWER_SUPPLY_UTILIZATION = "hw.power_supply.utilization";
+	public static final String YAML_POWER_SUPPLY_POWER = "hw.power_supply.power";
+	public static final String YAML_POWER_SUPPLY_LIMIT = "hw.power_supply.limit";
 
 	// Mapping formats
 	public static final String PERCENT_2_RATIO_FORMAT = "percent2Ratio(%s)";
@@ -306,5 +315,6 @@ public class ConverterConstants {
 	public static final String LED_STATUS_FORMAT = "legacyLedStatus(%s)";
 	public static final String LEGACY_INTRUSION_STATUS_FORMAT = "legacyIntrusionStatus(%s)";
 	public static final String LEGACY_PREDICTED_FAILURE_FORMAT = "legacyPredictedFailure(%s)";
+	public static final String LEGACY_POWER_SUPPLY_UTILIZATION_FORMAT = "legacyPowerSupplyUtilization(%s)";
 	public static final String RATE_FORMAT = "rate(%s)";
 }

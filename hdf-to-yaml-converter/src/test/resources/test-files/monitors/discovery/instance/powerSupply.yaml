@@ -20,12 +20,12 @@
               InstanceTable = Source(1)
             source: $monitors.power_supply.discovery.sources.source(1)$
             attributes:
-              deviceid: $column(1)
-              powersupplytype: $column(2)
-              displayid: $column(3)
-              attachedtodevicetype: Computer
-              attachedtodeviceid: $column(4)
-              powersupplypower: $column(5)
-              additionalinformation3: $column(6)
-              additionalinformation1: $column(7)
-              additionalinformation2: $column(8)
+              id: $column(1)
+              power_supply_type: $column(2)
+              __display_id: $column(3)
+              hw.parent.type: enclosure
+              hw.parent.id: $column(4)
+              info: join($column(7), $column(8), $column(6), " ")
+              name: sprintf("%s (%s - %s)", $column(3), $column(2), $column(5))
+            metrics:
+              hw.power_supply.limit: $column(5)
