@@ -160,6 +160,7 @@ public class ConverterConstants {
 	public static final String HDF_AVAILABLE_PATH_COUNT = "availablepathcount";
 	public static final String HDF_POWER_SUPPLY_TYPE = "powersupplytype";
 	public static final String HDF_POWER_SUPPLY_POWER = "powersupplypower";
+	public static final String HDF_ROBOTIC_TYPE = "robotictype";
 
 	// YAML attributes
 	public static final String YAML_TYPE = HDF_TYPE;
@@ -196,6 +197,7 @@ public class ConverterConstants {
 	public static final String YAML_REMOTE_DEVICE_NAME = "remote_device_name";
 	public static final String YAML_ARRAY_NAME = "array_name";
 	public static final String YAML_POWER_SUPPLY_TYPE = "power_supply_type";
+	public static final String YAML_ROBOTIC_TYPE = "robotic_type";
 
 	// HDF Collect parameters
 	public static final String HDF_STATUS = "status";
@@ -239,6 +241,7 @@ public class ConverterConstants {
 	public static final String HDF_ENDURANCE_REMAINING = "enduranceremaining";
 	public static final String HDF_USED_PERCENT = "usedpercent";
 	public static final String HDF_USED_WATTS = "usedwatts";
+	public static final String HDF_MOVE_COUNT = "movecount";
 
 	// YAML metrics
 	public static final String YAML_STATUS_INFORMATION = "StatusInformation";
@@ -321,6 +324,11 @@ public class ConverterConstants {
 	public static final String YAML_POWER_SUPPLY_UTILIZATION = "hw.power_supply.utilization";
 	public static final String YAML_POWER_SUPPLY_POWER = "hw.power_supply.power";
 	public static final String YAML_POWER_SUPPLY_LIMIT = "hw.power_supply.limit";
+	public static final String YAML_ROBOTICS_STATUS = "hw.status{hw.type=\"robotics\"}";
+	public static final String YAML_ROBOTICS_MOVES = "hw.robotics.moves";
+	public static final String YAML_ROBOTICS_ERRORS_LIMIT_DEGRADED = "hw.errors.limit{hw.type=\"robotics\", limit_type=\"degraded\"}";
+	public static final String YAML_ROBOTICS_ERRORS_LIMIT_CRITICAL = "hw.errors.limit{hw.type=\"robotics\", limit_type=\"critical\"}";
+	public static final String YAML_ROBOTICS_ERRORS = "hw.errors{hw.type=\"robotics\"}";
 
 	// Mapping formats
 	public static final String PERCENT_2_RATIO_FORMAT = "percent2Ratio(%s)";
