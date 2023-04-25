@@ -27,7 +27,6 @@ public class PhysicalDiskConverter extends AbstractMappingConverter {
 		attributesMap.put(HDF_VENDOR, IMappingKey.of(ATTRIBUTES, YAML_VENDOR));
 		attributesMap.put(HDF_SIZE, IMappingKey.of(METRICS, YAML_PHYSICAL_DISK_SIZE));
 		attributesMap.put(HDF_FIRMWARE_VERSION, IMappingKey.of(ATTRIBUTES, YAML_FIRMWARE_VERSION));
-		attributesMap.put(HDF_DRIVER_VERSION, IMappingKey.of(ATTRIBUTES, YAML_DRIVER_VERSION));
 		attributesMap.put(HDF_SERIAL_NUMBER, IMappingKey.of(ATTRIBUTES, YAML_SERIAL_NUMBER));
 		ONE_TO_ONE_ATTRIBUTES_MAPPING = Collections.unmodifiableMap(attributesMap);
 	}
