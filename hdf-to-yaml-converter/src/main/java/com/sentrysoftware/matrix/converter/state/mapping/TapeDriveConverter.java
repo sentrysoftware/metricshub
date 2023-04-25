@@ -72,23 +72,21 @@ public class TapeDriveConverter extends AbstractMappingConverter {
 		newAttributes.set(
 				YAML_NAME,
 				new TextNode(
-						buildNameValue(firstDisplayArgument, deviceId, model)));
+						buildNameValue(firstDisplayArgument, model)));
 	}
 
 	/**
 	 * Joins the given non-empty text nodes to build the disk controller name value
 	 *
 	 * @param firstDisplayArgument {@link JsonNode} representing the display name
-	 * @param displayId            {@link JsonNode} representing the displayId
-	 * @param modelAndType         {@link JsonNode} representing the model
+	 * @param model         {@link JsonNode} representing the model
 	 *
 	 * @return {@link String} Joined text nodes
 	 */
-	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode displayId,
-			final JsonNode model) {
+	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode model) {
 
 		final String firstArg = firstDisplayArgument.asText();
-		if (displayId == null && model == null) {
+		if (model == null) {
 			return firstArg;
 		}
 
