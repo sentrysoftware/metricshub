@@ -151,6 +151,13 @@ public class ConverterConstants {
 	public static final String HDF_ALARM_THRESHOLD = "alarmthreshold";
 	public static final String HDF_PERCENT_WARNING_THRESHOLD = "percentwarningthreshold";
 	public static final String HDF_PERCENT_ALARM_THRESHOLD = "percentalarmthreshold";
+	public static final String HDF_WWN = "wwn";
+	public static final String HDF_LOCAL_DEVICE_NAME = "localdevicename";
+	public static final String HDF_REMOTE_DEVICE_NAME = "remotedevicename";
+	public static final String HDF_ARRAY_NAME = "arrayname";
+	public static final String HDF_AVAILABLE_PATH_WARNING = "availablepathwarning";
+	public static final String HDF_AVAILABLE_PATH_INFORMATION = "availablepathinformation";
+	public static final String HDF_AVAILABLE_PATH_COUNT = "availablepathcount";
 
 	// YAML attributes
 	public static final String YAML_TYPE = HDF_TYPE;
@@ -184,6 +191,8 @@ public class ConverterConstants {
 	public static final String YAML_OTHER_DEVICE_USAGE_COUNT_WARNING_THRESHOLD = "hw.other_device.uses.limit{limit_type=\"degraded\"}";
 	public static final String YAML_OTHER_DEVICE_USAGE_COUNT_ALARM_THRESHOLD = "hw.other_device.uses.limit{limit_type=\"critical\"}";
 	public static final String YAML_DEVICE_TYPE = "device_type";
+	public static final String YAML_REMOTE_DEVICE_NAME = "remote_device_name";
+	public static final String YAML_ARRAY_NAME = "array_name";
 
 	// HDF Collect parameters
 	public static final String HDF_STATUS = "status";
@@ -205,6 +214,26 @@ public class ConverterConstants {
 	public static final String HDF_UNALLOCATED_SPACE = "unallocatedspace";
 	public static final String HDF_INTRUSION_STATUS = "intrusionstatus";
 	public static final String HDF_ENERGY_USAGE = "energyusage";
+	public static final String HDF_USED_TIME_PERCENT = "usedtimepercent";
+	public static final String HDF_DECODER_USED_TIME_PERCENT = "decoderusedtimepercent";
+	public static final String HDF_ENCODER_USED_TIME_PERCENT = "encoderusedtimepercent";
+	public static final String HDF_MEMORY_UTILIZATION = "memoryutilization";
+	public static final String HDF_RECEIVED_BYTES = "receivedbytes";
+	public static final String HDF_TRANSMITTED_BYTES = "transmittedbytes";
+	public static final String HDF_RECEIVED_BYTES_RATE = "receivedbytesrate";
+	public static final String HDF_TRANSMITTED_BYTES_RATES = "transmittedbytesrates";
+	public static final String HDF_USED_TIME_PERCENT_WARNING_THRESHOLD = "usedtimepercentwarningthreshold";
+	public static final String HDF_USED_TIME_PERCENT_ALARM_THRESHOLD = "usedtimepercentalarmthreshold";
+	public static final String HDF_MEMORY_UTILIZATION_WARNING_THRESHOLD = "memoryutilizationwarningthreshold";
+	public static final String HDF_MEMORY_UTILIZATION_ALARM_THRESHOLD = "memoryutilizationalarmthreshold";
+	public static final String HDF_TRANSPORT_ERROR_COUNT = "transporterrorcount";
+	public static final String HDF_ILLEGAL_REQUEST_ERROR_COUNT = "illegalrequesterrorcount";
+	public static final String HDF_NO_DEVICE_ERROR_COUNT = "nodeviceerrorcount";
+	public static final String HDF_DEVICE_NOT_READY_ERROR_COUNT = "devicenotreadyerrorcount";
+	public static final String HDF_RECOVERABLE_ERROR_COUNT = "recoverableerrorcount";
+	public static final String HDF_HARD_ERROR_COUNT = "harderrorcount";
+	public static final String HDF_MEDIA_ERROR_COUNT = "mediaerrorcount";
+	public static final String HDF_ENDURANCE_REMAINING = "enduranceremaining";
 
 	// YAML metrics
 	public static final String YAML_STATUS_INFORMATION = "StatusInformation";
@@ -236,7 +265,7 @@ public class ConverterConstants {
 	public static final String YAML_ENCLOSURE_ENERGY = "hw.enclosure.energy";
 	public static final String YAML_ENCLOSURE_POWER = "hw.enclosure.power";
 	public static final String YAML_MEMORY_ERRORS = "hw.errors{hw.type=\"memory\"}";
-	public static final String YAML_MEMORY_PREDICTED_FAILURE= "hw.status{hw.type=\"memory\", state=\"predicted_failure\"}";
+	public static final String YAML_MEMORY_PREDICTED_FAILURE = "hw.status{hw.type=\"memory\", state=\"predicted_failure\"}";
 	public static final String YAML_MEMORY_STATUS = "hw.status{hw.type=\"memory\"}";
 	public static final String YAML_OTHER_DEVICE_STATUS = "hw.status{hw.type=\"other_device\"}";
 	public static final String YAML_OTHER_DEVICE_POWER = "hw.power{hw.type=\"other_device\"}";
@@ -250,6 +279,39 @@ public class ConverterConstants {
 	public static final String YAML_FAN_STATUS = "hw.status{hw.type=\"fan\"}";
 	public static final String YAML_FAN_SPEED = "hw.fan.speed";
 	public static final String YAML_FAN_SPEED_RATIO = "hw.fan.speed_ratio";
+	public static final String YAML_GPU_STATUS = "hw.status{hw.type=\"gpu\"}";
+	public static final String YAML_GPU_PREDICTED_FAILURE = "hw.status{hw.type=\"gpu\", state=\"predicted_failure\"}";
+	public static final String YAML_GPU_ERRORS_CORRECTED = "hw.errors{hw.type=\"gpu\", hw.error.type=\"corrected\"}";
+	public static final String YAML_GPU_ERRORS = "hw.errors{hw.type=\"gpu\"}";
+	public static final String YAML_GPU_UTILIZATION_GENERAL = "hw.gpu.utilization{task=\"general\"}";
+	public static final String YAML_GPU_UTILIZATION_DECODER = "hw.gpu.utilization{task=\"decoder\"}";
+	public static final String YAML_GPU_UTILIZATION_ENCODER = "hw.gpu.utilization{task=\"encoder\"}";
+	public static final String YAML_GPU_MEMORY_UTILIZATION = "hw.gpu.memory.utilization";
+	public static final String YAML_GPU_IO_RECEIVE = "hw.gpu.io{direction=\"receive\"}";
+	public static final String YAML_GPU_IO_TRANSMIT = "hw.gpu.io{direction=\"transmit\"}";
+	public static final String YAML_GPU_POWER = "hw.power{hw.type=\"gpu\"}";
+	public static final String YAML_GPU_ENERGY = "hw.energy{hw.type=\"gpu\"}";
+	public static final String YAML_GPU_MEMORY_LIMIT = "hw.gpu.memory.limit";
+	public static final String YAML_GPU_UTILIZATION_LIMIT_DEGRADED = "hw.gpu.utilization.limit{limit_type=\"degraded\"}";
+	public static final String YAML_GPU_UTILIZATION_LIMIT_CRITICAL = "hw.gpu.utilization.limit{limit_type=\"critical\"}";
+	public static final String YAML_GPU_MEMORY_UTILIZATION_LIMIT_DEGRADED = "hw.gpu.memory.utilization.limit{limit_type=\"degraded\"}";
+	public static final String YAML_GPU_MEMORY_UTILIZATION_LIMIT_CRITICAL = "hw.gpu.memory.utilization.limit{limit_type=\"critical\"}";
+	public static final String YAML_LUN_STATUS = "hw.status{hw.type=\"lun\"}";
+	public static final String YAML_LUN_PATHS = "hw.lun.paths";
+	public static final String YAML_LUN_PATHS_LIMIT_LOW_DEGRADED = "hw.lun.paths.limit{limit_type=\"low.degraded\"}";
+	public static final String YAML_AVAILABLE_PATH_INFORMATION = "AvailablePathInformation";
+	public static final String YAML_PHYSICAL_DISK_SIZE = "hw.physical_disk.size";
+	public static final String YAML_PHYSICAL_DISK_STATUS = "hw.status{hw.type=\"physical_disk\"}";
+	public static final String YAML_PHYSICAL_DISK_STATUS_PREDICTED_FAILURE = "hw.status{hw.type=\"physical_disk\", state=\"predicted_failure\"}";
+	public static final String YAML_PHYSICAL_DISK_ERRORS = "hw.errors{hw.type=\"physical_disk\"}";
+	public static final String YAML_PHYSICAL_DISK_ERRORS_TRANSPORT = "hw.errors{hw.type=\"physical_disk\", hw.error.type=\"transport\"}";
+	public static final String YAML_PHYSICAL_DISK_ERRORS_ILLEGAL_REQUEST = "hw.errors{hw.type=\"physical_disk\", hw.error.type=\"illegal_request\"}";
+	public static final String YAML_PHYSICAL_DISK_ERRORS_NO_DEVICE = "hw.errors{hw.type=\"physical_disk\", hw.error.type=\"no_device\"}";
+	public static final String YAML_PHYSICAL_DISK_ERRORS_DEVICE_NOT_READY = "hw.errors{hw.type=\"physical_disk\", hw.error.type=\"device_not_ready\"}";
+	public static final String YAML_PHYSICAL_DISK_ERRORS_RECOVERABLE = "hw.errors{hw.type=\"physical_disk\", hw.error.type=\"recoverable\"}";
+	public static final String YAML_PHYSICAL_DISK_ERRORS_HARD = "hw.errors{hw.type=\"physical_disk\", hw.error.type=\"hard\"}";
+	public static final String YAML_PHYSICAL_DISK_ERRORS_MEDIA = "hw.errors{hw.type=\"physical_disk\", hw.error.type=\"media\"}";
+	public static final String YAML_PHYSICAL_DISK_ENDURANCE_UTILIZATION_REMAINING = "hw.physical_disk.endurance_utilization{state=\"remaining\"}";
 
 	// Mapping formats
 	public static final String PERCENT_2_RATIO_FORMAT = "percent2Ratio(%s)";
@@ -262,5 +324,6 @@ public class ConverterConstants {
 	public static final String BITS_TO_HUMAN_FORMAT = "%bihf.s";
 	public static final String LED_STATUS_FORMAT = "legacyLedStatus(%s)";
 	public static final String LEGACY_INTRUSION_STATUS_FORMAT = "legacyIntrusionStatus(%s)";
+	public static final String LEGACY_PREDICTED_FAILURE_FORMAT = "legacyPredictedFailure(%s)";
 	public static final String RATE_FORMAT = "rate(%s)";
 }
