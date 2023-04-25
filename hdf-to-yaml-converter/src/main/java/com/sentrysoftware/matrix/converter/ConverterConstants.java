@@ -179,10 +179,10 @@ public class ConverterConstants {
 	public static final String YAML_SIZE = "size";
 	public static final String YAML_MEMORY_LIMIT = "hw.memory.limit";
 	public static final String YAML_ADDITIONAL_LABEL = "additional_label";
-	public static final String YAML_VALUE_WARNING_THRESHOLD = "hw.other_device.value.limit{limit_type=\"degraded\"}";
-	public static final String YAML_VALUE_ALARM_THRESHOLD = "hw.other_device.value.limit{limit_type=\"critical\"}";
-	public static final String YAML_USAGE_COUNT_WARNING_THRESHOLD = "hw.other_device.uses.limit{limit_type=\"degraded\"}";
-	public static final String YAML_USAGE_COUNT_ALARM_THRESHOLD = "hw.other_device.uses.limit{limit_type=\"critical\"}";
+	public static final String YAML_OTHER_DEVICE_VALUE_WARNING_THRESHOLD = "hw.other_device.value.limit{limit_type=\"degraded\"}";
+	public static final String YAML_OTHER_DEVICE_VALUE_ALARM_THRESHOLD = "hw.other_device.value.limit{limit_type=\"critical\"}";
+	public static final String YAML_OTHER_DEVICE_USAGE_COUNT_WARNING_THRESHOLD = "hw.other_device.uses.limit{limit_type=\"degraded\"}";
+	public static final String YAML_OTHER_DEVICE_USAGE_COUNT_ALARM_THRESHOLD = "hw.other_device.uses.limit{limit_type=\"critical\"}";
 	public static final String YAML_DEVICE_TYPE = "device_type";
 
 	// HDF Collect parameters
