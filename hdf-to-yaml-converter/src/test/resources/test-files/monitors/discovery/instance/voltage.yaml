@@ -1,4 +1,4 @@
-- name: test1
+- name: testFull
   input: |
     // InstanceTable = Source(1)
     Voltage.Discovery.InstanceTable=%Voltage.Discovery.Source(1)%
@@ -23,6 +23,36 @@
               id: $column(3)
               __display_id: $column(3)
               voltage_type: ""
+              hw.parent.id: MBM
+              hw.parent.type: enclosure
+              info: join($column(7), $column(8), $column(9), " ")
+              name: sprintf("%s (%s)", $column(3), "")
+            metrics:
+              hw.voltage.limit{limit_type="low.critical"}: $column(5)
+              hw.voltage.limit{limit_type="high.degraded"}: $column(6)
+- name: testDefault
+  input: |
+    // InstanceTable = Source(1)
+    Voltage.Discovery.InstanceTable=%Voltage.Discovery.Source(1)%
+    Voltage.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+    Voltage.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+    Voltage.Discovery.Instance.LowerThreshold=InstanceTable.Column(5)
+    Voltage.Discovery.Instance.UpperThreshold=InstanceTable.Column(6)
+    Voltage.Discovery.Instance.AttachedToDeviceID="MBM"
+    Voltage.Discovery.Instance.AttachedToDeviceType="Computer"
+    Voltage.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(7)
+    Voltage.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(8)
+    Voltage.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(9)
+  expected:
+    monitors:
+      voltage:
+        discovery:
+          mapping:
+            _comment: InstanceTable = Source(1)
+            source: $monitors.voltage.discovery.sources.source(1)$
+            attributes:
+              id: $column(3)
+              __display_id: $column(3)
               hw.parent.id: MBM
               hw.parent.type: enclosure
               info: join($column(7), $column(8), $column(9), " ")
