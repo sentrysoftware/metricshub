@@ -68,12 +68,11 @@ public class TapeDriveConverter extends AbstractMappingConverter {
 		}
 
 		final JsonNode model = existingAttributes.get(HDF_MODEL);
-		final JsonNode roboticType = existingAttributes.get(HDF_ROBOTIC_TYPE);
 
 		newAttributes.set(
 				YAML_NAME,
 				new TextNode(
-						buildNameValue(firstDisplayArgument, deviceId, new JsonNode[] { model, roboticType })));
+						buildNameValue(firstDisplayArgument, deviceId, model)));
 	}
 
 	/**
@@ -86,10 +85,10 @@ public class TapeDriveConverter extends AbstractMappingConverter {
 	 * @return {@link String} Joined text nodes
 	 */
 	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode displayId,
-			final JsonNode[] modelAndType) {
+			final JsonNode model) {
 
 		final String firstArg = firstDisplayArgument.asText();
-		if (displayId == null && modelAndType == null) {
+		if (displayId == null && model == null) {
 			return firstArg;
 		}
 
@@ -100,7 +99,7 @@ public class TapeDriveConverter extends AbstractMappingConverter {
 		final List<String> sprintfArgs = new ArrayList<>();
 		sprintfArgs.addAll(
 				Stream
-						.of(modelAndType)
+						.of(model)
 						.filter(Objects::nonNull)
 						.map(JsonNode::asText)
 						.toList());
