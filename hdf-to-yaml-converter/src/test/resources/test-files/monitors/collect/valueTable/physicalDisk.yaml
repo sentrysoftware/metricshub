@@ -6,7 +6,7 @@
     PhysicalDisk.Collect.Status=ValueTable.Column(2)
     PhysicalDisk.Collect.StatusInformation=ValueTable.Column(3)
     PhysicalDisk.Collect.PredictedFailure=ValueTable.Column(4)
-    PhysicalDisk.Collect.ErrorCount=ValueTable.Column(5)
+    PhysicalDisk.Collect.CorrectedErrorCount=ValueTable.Column(5)
     PhysicalDisk.Collect.TransportErrorCount=ValueTable.Column(6)
     PhysicalDisk.Collect.IllegalRequestErrorCount=ValueTable.Column(7)
     PhysicalDisk.Collect.NoDeviceErrorCount=ValueTable.Column(8)
