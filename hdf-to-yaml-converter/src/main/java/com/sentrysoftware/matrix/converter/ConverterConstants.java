@@ -145,6 +145,13 @@ public class ConverterConstants {
 	public static final String HDF_ALARM_THRESHOLD = "alarmthreshold";
 	public static final String HDF_PERCENT_WARNING_THRESHOLD = "percentwarningthreshold";
 	public static final String HDF_PERCENT_ALARM_THRESHOLD = "percentalarmthreshold";
+	public static final String HDF_WWN = "wwn";
+	public static final String HDF_LOCAL_DEVICE_NAME = "localdevicename";
+	public static final String HDF_REMOTE_DEVICE_NAME = "remotedevicename";
+	public static final String HDF_ARRAY_NAME = "arrayname";
+	public static final String HDF_AVAILABLE_PATH_WARNING = "availablepathwarning";
+	public static final String HDF_AVAILABLE_PATH_INFORMATION = "availablepathinformation";
+	public static final String HDF_AVAILABLE_PATH_COUNT = "availablepathcount";
 
 	// YAML attributes
 	public static final String YAML_TYPE = HDF_TYPE;
@@ -172,6 +179,8 @@ public class ConverterConstants {
 	public static final String YAML_ERROR_COUNT_ALARM_THRESHOLD = "errorcountalarmthreshold";
 	public static final String YAML_SIZE = "size";
 	public static final String YAML_MEMORY_LIMIT = "hw.memory.limit";
+	public static final String YAML_REMOTE_DEVICE_NAME = "remote_device_name";
+	public static final String YAML_ARRAY_NAME = "array_name";
 
 	// HDF Collect parameters
 	public static final String HDF_STATUS = "status";
@@ -260,6 +269,10 @@ public class ConverterConstants {
 	public static final String YAML_GPU_UTILIZATION_LIMIT_CRITICAL = "hw.gpu.utilization.limit{limit_type=\"critical\"}";
 	public static final String YAML_GPU_MEMORY_UTILIZATION_LIMIT_DEGRADED = "hw.gpu.memory.utilization.limit{limit_type=\"degraded\"}";
 	public static final String YAML_GPU_MEMORY_UTILIZATION_LIMIT_CRITICAL = "hw.gpu.memory.utilization.limit{limit_type=\"critical\"}";
+	public static final String YAML_LUN_STATUS = "hw.status{hw.type=\"lun\"}";
+	public static final String YAML_LUN_PATHS = "hw.lun.paths";
+	public static final String YAML_LUN_PATHS_LIMIT_LOW_DEGRADED = "hw.lun.paths.limit{limit_type=\"low.degraded\"}";
+	public static final String YAML_AVAILABLE_PATH_INFORMATION = "AvailablePathInformation";
 
 	// Mapping formats
 	public static final String PERCENT_2_RATIO_FORMAT = "percent2Ratio(%s)";
