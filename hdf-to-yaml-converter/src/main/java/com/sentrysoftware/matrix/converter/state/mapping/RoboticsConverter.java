@@ -60,11 +60,7 @@ public class RoboticsConverter extends AbstractMappingConverter {
 			throw new IllegalStateException(String.format("%s cannot be null.", HDF_DEVICE_ID));
 		}
 
-		final JsonNode displayId = existingAttributes.get(HDF_DISPLAY_ID);
 		JsonNode firstDisplayArgument = deviceId;
-		if (displayId != null) {
-			firstDisplayArgument = displayId;
-		}
 
 		final JsonNode model = existingAttributes.get(HDF_MODEL);
 		final JsonNode roboticType = existingAttributes.get(HDF_ROBOTIC_TYPE);
@@ -72,23 +68,21 @@ public class RoboticsConverter extends AbstractMappingConverter {
 		newAttributes.set(
 				YAML_NAME,
 				new TextNode(
-						buildNameValue(firstDisplayArgument, deviceId, new JsonNode[] { model, roboticType })));
+						buildNameValue(firstDisplayArgument, new JsonNode[] { model, roboticType })));
 	}
 
 	/**
 	 * Joins the given non-empty text nodes to build the disk controller name value
 	 *
 	 * @param firstDisplayArgument {@link JsonNode} representing the display name
-	 * @param displayId            {@link JsonNode} representing the displayId
 	 * @param modelAndType         {@link JsonNode} representing the model
 	 *
 	 * @return {@link String} Joined text nodes
 	 */
-	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode displayId,
-			final JsonNode[] modelAndType) {
+	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode[] modelAndType) {
 
 		final String firstArg = firstDisplayArgument.asText();
-		if (displayId == null && modelAndType == null) {
+		if (modelAndType == null) {
 			return firstArg;
 		}
 
