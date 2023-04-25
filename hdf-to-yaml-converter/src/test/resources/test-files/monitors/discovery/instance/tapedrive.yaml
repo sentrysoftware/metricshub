@@ -23,16 +23,14 @@
             _comment: InstanceTable = Source(1)
             source: $monitors.tape_drive.discovery.sources.source(1)$
             attributes:
-              deviceid: $column(1)
-              displayid: $column(1)
+              id: $column(1)
+              __display_id: $column(1)
               model: $column(3)
-              vendor: $column(4)
-              serialnumber: $column(5)
-              additionalinformation1: $column(2)
-              additionalinformation2: $column(7)
-              additionalinformation3: $column(6)
-              attachedtodeviceid: STKStreamLine
-              attachedtodevicetype: Computer
-              controllernumber: "1"
-              errorcountwarningthreshold: test1
-              errorcountalarmthreshold: test2
+              serial_number: $column(5)
+              info: join($column(2), $column(7), $column(6), " ")
+              hw.parent.id: lookup("disk_controller", "id", "controller_number", "1")
+              hw.parent.type: disk_controller
+              name: sprintf("%s (%s)", $column(1), $column(3))
+            metrics:
+              hw.errors.limit{hw.type="tape_drive", limit_type="degraded"}: test1
+              hw.errors.limit{hw.type="tape_drive", limit_type="critical"}: test2

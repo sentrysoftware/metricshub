@@ -242,6 +242,9 @@ public class ConverterConstants {
 	public static final String HDF_USED_PERCENT = "usedpercent";
 	public static final String HDF_USED_WATTS = "usedwatts";
 	public static final String HDF_MOVE_COUNT = "movecount";
+	public static final String HDF_MOUNT_COUNT = "mountcount";
+	public static final String HDF_UNMOUNT_COUNT = "unmountcount";
+	public static final String HDF_NEEDS_CLEANING = "needscleaning";
 
 	// YAML metrics
 	public static final String YAML_STATUS_INFORMATION = "StatusInformation";
@@ -329,6 +332,13 @@ public class ConverterConstants {
 	public static final String YAML_ROBOTICS_ERRORS_LIMIT_DEGRADED = "hw.errors.limit{hw.type=\"robotics\", limit_type=\"degraded\"}";
 	public static final String YAML_ROBOTICS_ERRORS_LIMIT_CRITICAL = "hw.errors.limit{hw.type=\"robotics\", limit_type=\"critical\"}";
 	public static final String YAML_ROBOTICS_ERRORS = "hw.errors{hw.type=\"robotics\"}";
+	public static final String YAML_TAPE_DRIVE_ERRORS_LIMIT_DEGRADED = "hw.errors.limit{hw.type=\"tape_drive\", limit_type=\"degraded\"}";
+	public static final String YAML_TAPE_DRIVE_ERRORS_LIMIT_CRITICAL = "hw.errors.limit{hw.type=\"tape_drive\", limit_type=\"critical\"}";
+	public static final String YAML_TAPE_DRIVE_STATUS = "hw.status{hw.type=\"tape_drive\"}";
+	public static final String YAML_TAPE_DRIVE_ERRORS = "hw.errors{hw.type=\"tape_drive\"}";
+	public static final String YAML_TAPE_DRIVE_OPERATIONS_MOUNT = "hw.tape_drive.operations{type=\"mount\"}";
+	public static final String YAML_TAPE_DRIVE_OPERATIONS_UNMOUNT = "hw.tape_drive.operations{type=\"unmount\"}";
+	public static final String YAML_TAPE_DRIVE_STATUS_NEEDS_CLEANING = "hw.status{hw.type=\"tape_drive\", state=\"needs_cleaning\"}";
 
 	// Mapping formats
 	public static final String PERCENT_2_RATIO_FORMAT = "percent2Ratio(%s)";
@@ -343,5 +353,6 @@ public class ConverterConstants {
 	public static final String LEGACY_INTRUSION_STATUS_FORMAT = "legacyIntrusionStatus(%s)";
 	public static final String LEGACY_PREDICTED_FAILURE_FORMAT = "legacyPredictedFailure(%s)";
 	public static final String LEGACY_POWER_SUPPLY_UTILIZATION_FORMAT = "legacyPowerSupplyUtilization(%s)";
+	public static final String LEGACY_NEEDS_CLEANING_FORMAT = "legacyNeedsCleaning(%s)";
 	public static final String RATE_FORMAT = "rate(%s)";
 }
