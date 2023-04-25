@@ -80,24 +80,20 @@ public class TapeDriveConverter extends AbstractMappingConverter {
 	 */
 	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode model) {
 
+		// Build the list of arguments non-null
+		final List<String> sprintfArgs = new ArrayList<>();
+
 		final String firstArg = firstDisplayArgument.asText();
 		if (model == null) {
 			return firstArg;
+		} else {
+			sprintfArgs.add(model.asText());
 		}
 
 		// Create the function with the first format for the first argument
 		final StringBuilder format = new StringBuilder("sprintf(\"%s");
 
-		// Build the list of arguments non-null
-		final List<String> sprintfArgs = new ArrayList<>();
-		sprintfArgs.addAll(
-				Stream
-						.of(model)
-						.filter(Objects::nonNull)
-						.map(JsonNode::asText)
-						.toList());
-
-		// Means model or size is not empty
+		// Means model is not empty
 		if (!sprintfArgs.isEmpty()) {
 			format.append(
 					sprintfArgs
