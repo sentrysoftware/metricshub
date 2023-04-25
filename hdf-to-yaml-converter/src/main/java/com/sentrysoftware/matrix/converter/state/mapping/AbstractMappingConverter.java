@@ -364,6 +364,28 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 	}
 
 	/**
+	 * Build legacyPowerSupplyUtilization(...) function
+	 * 
+	 * @param value
+	 * @return String value
+	 */
+
+	public static String buildLegacyPowerSupplyUtilizationFunction(final String value) {
+		return String.format(LEGACY_POWER_SUPPLY_UTILIZATION_FORMAT, value);
+	}
+
+	/**
+	 * Build legacyNeedsCleaning(...) function
+	 * 
+	 * @param value
+	 * @return String value
+	 */
+	public static String buildLegacyNeedsCleaningFunction(final String value) {
+		return String.format(LEGACY_NEEDS_CLEANING_FORMAT, value);
+
+	}
+
+	/**
 	 * Build computePowerShareRatio(...) function
 	 * 
 	 * @param value

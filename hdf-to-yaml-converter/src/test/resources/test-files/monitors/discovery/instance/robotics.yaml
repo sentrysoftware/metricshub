@@ -9,8 +9,8 @@
     Robotic.Discovery.Instance.SerialNumber=InstanceTable.Column(5)
     Robotic.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(4)
     Robotic.Discovery.Instance.RoboticType="Media Transfer"
-    Robotic.Discovery.Instance.ErrorCountWarningThreshold="test1"
-    Robotic.Discovery.Instance.ErrorCountAlarmThreshold="test2"
+    Robotic.Discovery.Instance.CorrectedErrorWarningThreshold="test1"
+    Robotic.Discovery.Instance.CorrectedErrorAlarmThreshold="test2"
   expected:
     monitors:
       robotics:
@@ -21,11 +21,13 @@
               ID;Vendor;Model;FirwareVersion;SerialNumber
             source: $monitors.robotics.discovery.sources.source(1)$
             attributes:
-              deviceid: $column(1)
-              vendor: $column(2)
+              id: $column(1)
               model: $column(3)
-              serialnumber: $column(5)
-              additionalinformation1: $column(4)
-              robotictype: Media Transfer
-              errorcountwarningthreshold: test1
-              errorcountalarmthreshold: test2
+              serial_number: $column(5)
+              info: $column(4)
+              robotic_type: "Media Transfer"
+              name: sprintf("%s (%s - %s)", $column(1), $column(3), "Media Transfer")
+              hw.parent.type: enclosure
+            metrics:
+              hw.errors.limit{hw.type="robotics", limit_type="degraded"}: test1
+              hw.errors.limit{hw.type="robotics", limit_type="critical"}: test2
