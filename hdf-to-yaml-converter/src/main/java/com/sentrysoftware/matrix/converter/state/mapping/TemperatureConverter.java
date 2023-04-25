@@ -21,10 +21,13 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TEMPER
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TEMPERATURE_TYPE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TEMPERATURE_VALUE;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -89,19 +92,39 @@ public class TemperatureConverter extends AbstractMappingConverter {
 	 * Joins the given non-empty text nodes to build the CPU name value
 	 *
 	 * @param firstDisplayArgument {@link JsonNode} representing the display name
-	 * @param vendorAndModel       {@link JsonNode[]} array of vendor and model to be joined 
-	 * @param maximumSpeed         {@link JsonNode} representing the max speed in MHz of the CPU
+	 * @param temperatureTypeNode       {@link JsonNode} temperature type
 	 *
 	 * @return {@link String} Joined text nodes
 	 */
-	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode temperatureType) {
+	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode temperatureTypeNode) {
 
 		final String firstArg = firstDisplayArgument.asText();
-		if (temperatureType == null) {
+		if (temperatureTypeNode == null) {
 			return firstArg;
 		}
 
-		return String.format("%s (%s)", firstArg, temperatureType.asText());
+		// Create the function with the arguments
+		final StringBuilder format = new StringBuilder("sprintf(\"%s (%s)");
+
+		// Build the list of arguments non null
+		final List<String> sprintfArgs = new ArrayList<>();
+		sprintfArgs.add(firstArg);
+		sprintfArgs.add(temperatureTypeNode.asText());
+
+		// Join the arguments: $column(1), $column(2)) 
+		// append the result to our format variable in order to get something like
+		// sprint("%s (%s)", $column(1), $column(2))
+		return format
+			.append("\", ") // Here we will have a string like sprintf("%s (%s)", 
+			.append(
+				sprintfArgs
+					.stream()
+					.map(this::getFunctionArgument)
+					.collect(Collectors.joining(", ", "", ")"))
+			)
+			.toString();
+		
+		
 	}
 
 	@Override
