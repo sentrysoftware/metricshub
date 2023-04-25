@@ -161,6 +161,9 @@ public class ConverterConstants {
 	public static final String HDF_POWER_SUPPLY_TYPE = "powersupplytype";
 	public static final String HDF_POWER_SUPPLY_POWER = "powersupplypower";
 	public static final String HDF_ROBOTIC_TYPE = "robotictype";
+	public static final String HDF_LOWER_THRESHOLD = "lowerthreshold";
+	public static final String HDF_UPPER_THRESHOLD = "upperthreshold";
+	public static final String HDF_VOLTAGE_TYPE = "voltagetype";
 
 	// YAML attributes
 	public static final String YAML_TYPE = HDF_TYPE;
@@ -198,6 +201,9 @@ public class ConverterConstants {
 	public static final String YAML_ARRAY_NAME = "array_name";
 	public static final String YAML_POWER_SUPPLY_TYPE = "power_supply_type";
 	public static final String YAML_ROBOTIC_TYPE = "robotic_type";
+	public static final String YAML_VOLTAGE_LOW_CRITICAL = "hw.voltage.limit{limit_type=\"low.critical\"}";
+	public static final String YAML_VOLTAGE_HIGH_DEGRADED = "hw.voltage.limit{limit_type=\"high.degraded\"}";
+	public static final String YAML_VOLTAGE_TYPE = "voltage_type";
 
 	// HDF Collect parameters
 	public static final String HDF_STATUS = "status";
@@ -245,6 +251,7 @@ public class ConverterConstants {
 	public static final String HDF_MOUNT_COUNT = "mountcount";
 	public static final String HDF_UNMOUNT_COUNT = "unmountcount";
 	public static final String HDF_NEEDS_CLEANING = "needscleaning";
+	public static final String HDF_VOLTAGE_VALUE = "voltage";
 
 	// YAML metrics
 	public static final String YAML_STATUS_INFORMATION = "StatusInformation";
@@ -339,6 +346,8 @@ public class ConverterConstants {
 	public static final String YAML_TAPE_DRIVE_OPERATIONS_MOUNT = "hw.tape_drive.operations{type=\"mount\"}";
 	public static final String YAML_TAPE_DRIVE_OPERATIONS_UNMOUNT = "hw.tape_drive.operations{type=\"unmount\"}";
 	public static final String YAML_TAPE_DRIVE_STATUS_NEEDS_CLEANING = "hw.status{hw.type=\"tape_drive\", state=\"needs_cleaning\"}";
+	public static final String YAML_VOLTAGE_STATUS = "hw.status{hw.type=\"voltage\"}";
+	public static final String YAML_VOLTAGE_VALUE = "hw.voltage";
 
 	// Mapping formats
 	public static final String PERCENT_2_RATIO_FORMAT = "percent2Ratio(%s)";

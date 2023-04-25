@@ -3,6 +3,7 @@
     // InstanceTable = Source(1)
     Voltage.Discovery.InstanceTable=%Voltage.Discovery.Source(1)%
     Voltage.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+    Voltage.Discovery.Instance.DisplayID=InstanceTable.Column(3)
     Voltage.Discovery.Instance.VoltageType=""
     Voltage.Discovery.Instance.LowerThreshold=InstanceTable.Column(5)
     Voltage.Discovery.Instance.UpperThreshold=InstanceTable.Column(6)
@@ -19,12 +20,13 @@
             _comment: InstanceTable = Source(1)
             source: $monitors.voltage.discovery.sources.source(1)$
             attributes:
-              deviceid: $column(3)
-              voltagetype: ""
-              lowerthreshold: $column(5)
-              upperthreshold: $column(6)
-              attachedtodeviceid: MBM
-              attachedtodevicetype: Computer
-              additionalinformation1: $column(7)
-              additionalinformation2: $column(8)
-              additionalinformation3: $column(9)
+              id: $column(3)
+              __display_id: $column(3)
+              voltage_type: ""
+              hw.parent.id: MBM
+              hw.parent.type: enclosure
+              info: join($column(7), $column(8), $column(9), " ")
+              name: $column(3)
+            metrics:
+              hw.voltage.limit{limit_type="low.critical"}: $column(5)
+              hw.voltage.limit{limit_type="high.degraded"}: $column(6)
