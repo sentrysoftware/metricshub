@@ -239,6 +239,8 @@ public class ConverterConstants {
 	public static final String HDF_HARD_ERROR_COUNT = "harderrorcount";
 	public static final String HDF_MEDIA_ERROR_COUNT = "mediaerrorcount";
 	public static final String HDF_ENDURANCE_REMAINING = "enduranceremaining";
+	public static final String HDF_VM_POWER_STATE = "powerstate";
+	public static final String HDF_VM_POWER_RATIO = "powershare";
 	public static final String HDF_USED_PERCENT = "usedpercent";
 	public static final String HDF_USED_WATTS = "usedwatts";
 	public static final String HDF_MOVE_COUNT = "movecount";
@@ -323,6 +325,10 @@ public class ConverterConstants {
 	public static final String YAML_PHYSICAL_DISK_ERRORS_HARD = "hw.errors{hw.type=\"physical_disk\", hw.error.type=\"hard\"}";
 	public static final String YAML_PHYSICAL_DISK_ERRORS_MEDIA = "hw.errors{hw.type=\"physical_disk\", hw.error.type=\"media\"}";
 	public static final String YAML_PHYSICAL_DISK_ENDURANCE_UTILIZATION_REMAINING = "hw.physical_disk.endurance_utilization{state=\"remaining\"}";
+	public static final String YAML_VM_POWER_STATE = "hw.vm.power_state";
+	public static final String YAML_VM_POWER_RATIO = "hw.vm.power_ratio";
+	public static final String YAML_VM_POWER = "hw.power{hw.type=\"vm\"}";
+	public static final String YAML_VM_ENERGY = "hw.energy{hw.type=\"vm\"}";
 	public static final String YAML_POWER_SUPPLY_STATUS = "hw.status{hw.type=\"power_supply\"}";
 	public static final String YAML_POWER_SUPPLY_UTILIZATION = "hw.power_supply.utilization";
 	public static final String YAML_POWER_SUPPLY_POWER = "hw.power_supply.power";
@@ -355,4 +361,5 @@ public class ConverterConstants {
 	public static final String LEGACY_POWER_SUPPLY_UTILIZATION_FORMAT = "legacyPowerSupplyUtilization(%s)";
 	public static final String LEGACY_NEEDS_CLEANING_FORMAT = "legacyNeedsCleaning(%s)";
 	public static final String RATE_FORMAT = "rate(%s)";
+	public static final String COMPUTE_POWER_SHARE_RATIO_FORMAT = "computePowerShareRatio(%s)";
 }

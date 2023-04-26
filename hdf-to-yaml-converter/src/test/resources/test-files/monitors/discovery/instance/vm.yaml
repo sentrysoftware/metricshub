@@ -1,4 +1,4 @@
-- name: test1
+- name: testFull
   input: |
     VM.Discovery.InstanceTable=%VM.Discovery.Source(1)%
     VM.Discovery.Instance.DeviceID=InstanceTable.Column(1)
@@ -12,7 +12,25 @@
           mapping:
             source: $monitors.vm.discovery.sources.source(1)$
             attributes:
-              deviceid: $column(1)
-              displayid: $column(1)
-              hostname: $column(1)
-              additionalinformation1: $column(2)
+              id: $column(1)
+              __display_id: $column(1)
+              name: $column(1)
+              info: $column(2)
+              hw.parent.type: enclosure
+- name: testDefaultName
+  input: |
+    VM.Discovery.InstanceTable=%VM.Discovery.Source(1)%
+    VM.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+    VM.Discovery.Instance.Hostname=InstanceTable.Column(1)
+    VM.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
+  expected:
+    monitors:
+      vm:
+        discovery:
+          mapping:
+            source: $monitors.vm.discovery.sources.source(1)$
+            attributes:
+              id: $column(1)
+              name: $column(1)
+              info: $column(2)
+              hw.parent.type: enclosure
