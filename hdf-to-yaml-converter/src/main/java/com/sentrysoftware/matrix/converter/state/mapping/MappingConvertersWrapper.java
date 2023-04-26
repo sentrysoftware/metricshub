@@ -67,7 +67,7 @@ public class MappingConvertersWrapper {
 		Map.entry(YAML_TAPEDRIVE, new TapeDriveConverter()),
 		Map.entry(YAML_TEMPERATURE, new TemperatureConverter()),
 		Map.entry(YAML_VM, new VMConverter()),
-		Map.entry(YAML_VOLTAGE, NOOP)
+		Map.entry(YAML_VOLTAGE, new VoltageConverter())
 	);
 
 	private Map<String, IMappingConverter> converters;

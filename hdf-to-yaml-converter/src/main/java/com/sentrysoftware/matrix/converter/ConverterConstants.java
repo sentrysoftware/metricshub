@@ -161,6 +161,9 @@ public class ConverterConstants {
 	public static final String HDF_POWER_SUPPLY_TYPE = "powersupplytype";
 	public static final String HDF_POWER_SUPPLY_POWER = "powersupplypower";
 	public static final String HDF_ROBOTIC_TYPE = "robotictype";
+	public static final String HDF_LOWER_THRESHOLD = "lowerthreshold";
+	public static final String HDF_UPPER_THRESHOLD = "upperthreshold";
+	public static final String HDF_VOLTAGE_TYPE = "voltagetype";
 	public static final String HDF_TEMPERATURE_TYPE = "temperaturetype";
 
 	// YAML attributes
@@ -199,6 +202,9 @@ public class ConverterConstants {
 	public static final String YAML_ARRAY_NAME = "array_name";
 	public static final String YAML_POWER_SUPPLY_TYPE = "power_supply_type";
 	public static final String YAML_ROBOTIC_TYPE = "robotic_type";
+	public static final String YAML_VOLTAGE_LOW_CRITICAL = "hw.voltage.limit{limit_type=\"low.critical\"}";
+	public static final String YAML_VOLTAGE_HIGH_DEGRADED = "hw.voltage.limit{limit_type=\"high.degraded\"}";
+	public static final String YAML_VOLTAGE_TYPE = "voltage_type";
 	public static final String YAML_TEMPERATURE_TYPE = "temperature_type";
 	public static final String YAML_TEMPERATURE_LIMIT_DEGRADED = "hw.temperature.limit{limit_type=\"high.degraded\"}";
 	public static final String YAML_TEMPERATURE_LIMIT_CRITICAL = "hw.temperature.limit{limit_type=\"high.critical\"}";
@@ -255,6 +261,7 @@ public class ConverterConstants {
 	public static final String HDF_MOUNT_COUNT = "mountcount";
 	public static final String HDF_UNMOUNT_COUNT = "unmountcount";
 	public static final String HDF_NEEDS_CLEANING = "needscleaning";
+	public static final String HDF_VOLTAGE_VALUE = "voltage";
 	public static final String HDF_TEMPERATURE_VALUE = "temperature";
 	public static final String HDF_PHYSICAL_ADDRESS = "physicaladdress";
 	public static final String HDF_PHYSICAL_ADDRESS_TYPE = "physicaladdresstype";
@@ -364,6 +371,8 @@ public class ConverterConstants {
 	public static final String YAML_TAPE_DRIVE_OPERATIONS_MOUNT = "hw.tape_drive.operations{type=\"mount\"}";
 	public static final String YAML_TAPE_DRIVE_OPERATIONS_UNMOUNT = "hw.tape_drive.operations{type=\"unmount\"}";
 	public static final String YAML_TAPE_DRIVE_STATUS_NEEDS_CLEANING = "hw.status{hw.type=\"tape_drive\", state=\"needs_cleaning\"}";
+	public static final String YAML_VOLTAGE_STATUS = "hw.status{hw.type=\"voltage\"}";
+	public static final String YAML_VOLTAGE_VALUE = "hw.voltage";
 	public static final String YAML_TEMPERATURE_VALUE = "hw.temperature";
 	public static final String YAML_TEMPERATURE_STATUS = "hw.status{hw.type=\"temperature\"}";
 	public static final String YAML_NETWORK_STATUS = "hw.status{hw.type=\"network\"}";
