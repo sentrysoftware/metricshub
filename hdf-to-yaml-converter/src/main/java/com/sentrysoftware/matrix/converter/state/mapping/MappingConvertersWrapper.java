@@ -66,7 +66,6 @@ public class MappingConvertersWrapper {
 		Map.entry(YAML_ROBOTICS, new RoboticsConverter()),
 		Map.entry(YAML_TAPEDRIVE, new TapeDriveConverter()),
 		Map.entry(YAML_TEMPERATURE, new TemperatureConverter()),
-		Map.entry(YAML_TEMPERATURE, NOOP),
 		Map.entry(YAML_VM, new VMConverter()),
 		Map.entry(YAML_VOLTAGE, NOOP)
 	);
