@@ -198,6 +198,10 @@ public class ConverterConstants {
 	public static final String YAML_ARRAY_NAME = "array_name";
 	public static final String YAML_POWER_SUPPLY_TYPE = "power_supply_type";
 	public static final String YAML_ROBOTIC_TYPE = "robotic_type";
+	public static final String YAML_PHYSICAL_ADDRESS = "physical_address";
+	public static final String YAML_PHYSICAL_ADDRESS_TYPE = "physical_address_type";
+	public static final String YAML_LOGICAL_ADDRESS = "logical_address";
+	public static final String YAML_LOGICAL_ADDRESS_TYPE = "logical_address_type";
 
 	// HDF Collect parameters
 	public static final String HDF_STATUS = "status";
@@ -247,6 +251,16 @@ public class ConverterConstants {
 	public static final String HDF_MOUNT_COUNT = "mountcount";
 	public static final String HDF_UNMOUNT_COUNT = "unmountcount";
 	public static final String HDF_NEEDS_CLEANING = "needscleaning";
+	public static final String HDF_PHYSICAL_ADDRESS = "physicaladdress";
+	public static final String HDF_PHYSICAL_ADDRESS_TYPE = "physicaladdresstype";
+	public static final String HDF_LOGICAL_ADDRESS = "logicaladdress";
+	public static final String HDF_LOGICAL_ADDRESS_TYPE = "logicaladdresstype";
+	public static final String HDF_LINK_STATUS = "linkstatus";
+	public static final String HDF_DUPLEX_MODE = "duplexmode";
+	public static final String HDF_ZERO_BUFFER_CREDIT_COUNT = "zerobuffercreditcount";
+	public static final String HDF_RECEIVED_PACKETS = "receivedpackets";
+	public static final String HDF_TRANSMITTED_PACKETS = "transmittedpackets";
+	public static final String HDF_LINK_SPEED = "linkspeed";
 
 	// YAML metrics
 	public static final String YAML_STATUS_INFORMATION = "StatusInformation";
@@ -345,6 +359,16 @@ public class ConverterConstants {
 	public static final String YAML_TAPE_DRIVE_OPERATIONS_MOUNT = "hw.tape_drive.operations{type=\"mount\"}";
 	public static final String YAML_TAPE_DRIVE_OPERATIONS_UNMOUNT = "hw.tape_drive.operations{type=\"unmount\"}";
 	public static final String YAML_TAPE_DRIVE_STATUS_NEEDS_CLEANING = "hw.status{hw.type=\"tape_drive\", state=\"needs_cleaning\"}";
+	public static final String YAML_NETWORK_STATUS = "hw.status{hw.type=\"network\"}";
+	public static final String YAML_NETWORK_UP = "hw.network.up";
+	public static final String YAML_NETWORK_FULL_DUPLEX = "hw.network.full_duplex";
+	public static final String YAML_NETWORK_ERROR_ZERO_BUFFER_CREDIT = "hw.errors{hw.type=\"network\", hw.error.type=\"zero_buffer_credit\"}";
+	public static final String YAML_NETWORK_ERRORS = "hw.errors{hw.type=\"network\"}";
+	public static final String YAML_NETWORK_RECEIVED_BYTES = "hw.network.io{direction=\"receive\"}";
+	public static final String YAML_NETWORK_TRANSMITTED_BYTES = "hw.network.io{direction=\"transmit\"}";
+	public static final String YAML_NETWORK_RECEIVED_PACKETS = "hw.network.packets{direction=\"receive\"}";
+	public static final String YAML_NETWORK_TRANSMITTED_PACKETS = "hw.network.packets{direction=\"transmit\"}";
+	public static final String YAML_NETWORK_BANDWIDTH_LIMIT = "hw.network.bandwidth.limit";
 
 	// Mapping formats
 	public static final String PERCENT_2_RATIO_FORMAT = "percent2Ratio(%s)";
@@ -362,4 +386,7 @@ public class ConverterConstants {
 	public static final String LEGACY_NEEDS_CLEANING_FORMAT = "legacyNeedsCleaning(%s)";
 	public static final String RATE_FORMAT = "rate(%s)";
 	public static final String COMPUTE_POWER_SHARE_RATIO_FORMAT = "computePowerShareRatio(%s)";
+	public static final String LINK_STATUS_FORMAT = "legacyLinkStatus(%s)";
+	public static final String FULL_DUPLEX_FORMAT = "legacyFullDuplex(%s)";
+	public static final String MEGA_BIT_2_BIT_FORMAT = "megaBit2Bit(%s)";
 }

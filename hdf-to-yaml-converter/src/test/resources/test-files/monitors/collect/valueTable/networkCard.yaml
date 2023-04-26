@@ -1,7 +1,7 @@
 - name: networkCardValueTable
   input: |
     // DeviceID;Status;StatusInformation;NetworkUp;NetworkDuplex;ZeroBufferCredit;ErrorCount;ReceivedBytes;TransmittedBytes;ReceivedPackets;TransmittedPackets;LinkSpeed
-    NetworkCard.Collect.ValueTable=%Gpu.Collect.Source(1)%
+    NetworkCard.Collect.ValueTable=%NetworkCard.Collect.Source(1)%
     NetworkCard.Collect.DeviceID=ValueTable.Column(1)
     NetworkCard.Collect.Status=ValueTable.Column(2)
     NetworkCard.Collect.StatusInformation=ValueTable.Column(3)
@@ -20,10 +20,8 @@
         collect:
           mapping:
             _comment: DeviceID;Status;StatusInformation;NetworkUp;NetworkDuplex;ZeroBufferCredit;ErrorCount;ReceivedBytes;TransmittedBytes;ReceivedPackets;TransmittedPackets;LinkSpeed
-            legacyTextParameters:
-              StatusInformation: $column(3)
-            deviceId: $column(1)
             source: $monitors.network.collect.sources.source(1)$
+            deviceId: $column(1)
             metrics:
               hw.status{hw.type="network"}: $column(2)
               hw.network.up: legacyLinkStatus($column(4))
@@ -35,3 +33,5 @@
               hw.network.packets{direction="receive"}: $column(10)
               hw.network.packets{direction="transmit"}: $column(11)
               hw.network.bandwidth.limit: megaBit2Bit($column(12))
+            legacyTextParameters:
+              StatusInformation: $column(3)
