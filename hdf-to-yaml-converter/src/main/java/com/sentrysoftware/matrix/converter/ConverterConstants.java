@@ -161,6 +161,7 @@ public class ConverterConstants {
 	public static final String HDF_POWER_SUPPLY_TYPE = "powersupplytype";
 	public static final String HDF_POWER_SUPPLY_POWER = "powersupplypower";
 	public static final String HDF_ROBOTIC_TYPE = "robotictype";
+	public static final String HDF_TEMPERATURE_TYPE = "temperaturetype";
 
 	// YAML attributes
 	public static final String YAML_TYPE = HDF_TYPE;
@@ -198,6 +199,9 @@ public class ConverterConstants {
 	public static final String YAML_ARRAY_NAME = "array_name";
 	public static final String YAML_POWER_SUPPLY_TYPE = "power_supply_type";
 	public static final String YAML_ROBOTIC_TYPE = "robotic_type";
+	public static final String YAML_TEMPERATURE_TYPE = "temperature_type";
+	public static final String YAML_TEMPERATURE_LIMIT_DEGRADED = "hw.temperature.limit{limit_type=\"high.degraded\"}";
+	public static final String YAML_TEMPERATURE_LIMIT_CRITICAL = "hw.temperature.limit{limit_type=\"high.critical\"}";
 	public static final String YAML_PHYSICAL_ADDRESS = "physical_address";
 	public static final String YAML_PHYSICAL_ADDRESS_TYPE = "physical_address_type";
 	public static final String YAML_LOGICAL_ADDRESS = "logical_address";
@@ -251,6 +255,7 @@ public class ConverterConstants {
 	public static final String HDF_MOUNT_COUNT = "mountcount";
 	public static final String HDF_UNMOUNT_COUNT = "unmountcount";
 	public static final String HDF_NEEDS_CLEANING = "needscleaning";
+	public static final String HDF_TEMPERATURE_VALUE = "temperature";
 	public static final String HDF_PHYSICAL_ADDRESS = "physicaladdress";
 	public static final String HDF_PHYSICAL_ADDRESS_TYPE = "physicaladdresstype";
 	public static final String HDF_LOGICAL_ADDRESS = "logicaladdress";
@@ -359,6 +364,8 @@ public class ConverterConstants {
 	public static final String YAML_TAPE_DRIVE_OPERATIONS_MOUNT = "hw.tape_drive.operations{type=\"mount\"}";
 	public static final String YAML_TAPE_DRIVE_OPERATIONS_UNMOUNT = "hw.tape_drive.operations{type=\"unmount\"}";
 	public static final String YAML_TAPE_DRIVE_STATUS_NEEDS_CLEANING = "hw.status{hw.type=\"tape_drive\", state=\"needs_cleaning\"}";
+	public static final String YAML_TEMPERATURE_VALUE = "hw.temperature";
+	public static final String YAML_TEMPERATURE_STATUS = "hw.status{hw.type=\"temperature\"}";
 	public static final String YAML_NETWORK_STATUS = "hw.status{hw.type=\"network\"}";
 	public static final String YAML_NETWORK_UP = "hw.network.up";
 	public static final String YAML_NETWORK_FULL_DUPLEX = "hw.network.full_duplex";
