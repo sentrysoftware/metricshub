@@ -71,7 +71,6 @@ public class ConverterConstants {
 	public static final String HDF_BATTERY = "battery";
 	public static final String HDF_BLADE = "blade";
 	public static final String HDF_CPU = "cpu";
-	public static final String HDF_CPU_CORE = "cpucore";
 	public static final String HDF_DISK_CONTROLLER = "diskcontroller";
 	public static final String HDF_ENCLOSURE = "enclosure";
 	public static final String HDF_FAN = "fan";
@@ -93,7 +92,6 @@ public class ConverterConstants {
 	public static final String YAML_BATTERY = HDF_BATTERY;
 	public static final String YAML_BLADE = HDF_BLADE;
 	public static final String YAML_CPU = HDF_CPU;
-	public static final String YAML_CPU_CORE = "cpu_core";
 	public static final String YAML_DISK_CONTROLLER = "disk_controller";
 	public static final String YAML_ENCLOSURE = HDF_ENCLOSURE;
 	public static final String YAML_FAN = HDF_FAN;
