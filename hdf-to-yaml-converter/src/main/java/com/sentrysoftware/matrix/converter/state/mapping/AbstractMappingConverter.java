@@ -369,6 +369,7 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 	 * @param value
 	 * @return String value
 	 */
+
 	public static String buildLegacyPowerSupplyUtilizationFunction(final String value) {
 		return String.format(LEGACY_POWER_SUPPLY_UTILIZATION_FORMAT, value);
 	}
@@ -380,6 +381,17 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 	 */
 	public static String buildLegacyNeedsCleaningFunction(final String value) {
 		return String.format(LEGACY_NEEDS_CLEANING_FORMAT, value);
+
+	}
+
+	/**
+	 * Build computePowerShareRatio(...) function
+	 * 
+	 * @param value
+	 * @return String value
+	 */
+	public static String buildComputePowerShareRatio(final String value) {
+		return String.format(COMPUTE_POWER_SHARE_RATIO_FORMAT, value);
 	}
 
 	/**
