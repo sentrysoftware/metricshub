@@ -1,19 +1,13 @@
 package com.sentrysoftware.matrix.converter.state.mapping;
 
-import static com.sentrysoftware.matrix.converter.ConverterConstants.ATTRIBUTES;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.METRICS;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.PERCENT_2_RATIO_FORMAT;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_DISK_CONTROLLER;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ENCLOSURE;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_HW_PARENT_ID;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_HW_PARENT_TYPE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.*;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.regex.Pattern;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -128,7 +122,7 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 		final JsonNode controllerNumber = existingAttributes.get("controllernumber");
 		final JsonNode attachedToDeviceId = existingAttributes.get("attachedtodeviceid");
 		final JsonNode attachedToDeviceType = existingAttributes.get("attachedtodevicetype");
-		if (controllerNumber != null) {
+		if (controllerNumber != null && !(this instanceof DiskControllerConverter)) {
 			newAttributes.set(YAML_HW_PARENT_TYPE, new TextNode(YAML_DISK_CONTROLLER));
 			newAttributes.set(
 				YAML_HW_PARENT_ID,
@@ -142,19 +136,21 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 			return;
 		}
 
-		if (attachedToDeviceType == null) {
-			newAttributes.set(YAML_HW_PARENT_TYPE, new TextNode(YAML_ENCLOSURE));
-		} else {
-			String parentType = attachedToDeviceType.textValue();
-			parentType = ConversionHelper.performValueConversions(parentType);
-			if (parentType.equalsIgnoreCase("computer")) {
-				parentType = YAML_ENCLOSURE;
+		if(!(this instanceof EnclosureConverter)) {
+			if (attachedToDeviceType == null) {
+				newAttributes.set(YAML_HW_PARENT_TYPE, new TextNode(YAML_ENCLOSURE));
+			} else {
+				String parentType = attachedToDeviceType.textValue();
+				parentType = ConversionHelper.performValueConversions(parentType);
+				if (parentType.equalsIgnoreCase("computer")) {
+					parentType = YAML_ENCLOSURE;
+				}
+				newAttributes.set(YAML_HW_PARENT_TYPE, new TextNode(parentType));
 			}
-			newAttributes.set(YAML_HW_PARENT_TYPE, new TextNode(parentType));
-		}
-
-		if (attachedToDeviceId != null) {
-			newAttributes.set(YAML_HW_PARENT_ID, new TextNode(attachedToDeviceId.asText()));
+	
+			if (attachedToDeviceId != null) {
+				newAttributes.set(YAML_HW_PARENT_ID, new TextNode(attachedToDeviceId.asText()));
+			}
 		}
 	}
 
@@ -289,5 +285,140 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 	 */
 	public static String buildPercent2RatioFunction(final String value) {
 		return String.format(PERCENT_2_RATIO_FORMAT, value);
+	}
+
+	/**
+	 * Build megaHertz2Hertz(...) function
+	 * 
+	 * @param value
+	 * @return String value
+	 */
+	public static String buildMegaHertz2HertzFunction(final String value) {
+		return String.format(MEGA_HERTZ_2_HERTZ_FORMAT, value);
+	}
+
+	/**
+	 * Build boolean(...) function
+	 * 
+	 * @param value
+	 * @return String value
+	 */
+	public static String buildBooleanFunction(final String value) {
+		return String.format(BOOLEAN_FORMAT, value);
+	}
+
+	/**
+	 * Build fakeCounter(...) function
+	 * 
+	 * @param value
+	 * @return String value
+	 */
+	public static String buildFakeCounterFunction(final String value) {
+		return String.format(FAKE_COUNTER_FORMAT, value);
+	}
+
+	/**
+	 * Build legacyIntrusionStatus(...) function
+	 * 
+	 */
+	public static String buildLegacyIntrusionStatusFunction(final String value) {
+		return String.format(LEGACY_INTRUSION_STATUS_FORMAT, value);
+	}
+
+	/**
+	 * Build rate(...) function
+	 * @param value
+	 * @return
+	 */
+	public static String buildRateFunction(final String value) {
+		return String.format(RATE_FORMAT, value);
+	}
+	
+	/**
+	 * Build legacyLedStatus(...) function
+	 * @param value
+	 * @return
+	 */
+	public static String buildLegacyLedFunction(final String value) {
+		return String.format(LED_STATUS_FORMAT, value);
+	}
+	
+	/**
+	 * Build mebiByte2Byte(...) function
+	 * 
+	 * @param value
+	 * @return String value
+	 */
+	public static String buildMebiByte2ByteFunction(final String value) {
+		return String.format(MEBI_BYTE_2_BYTE_FORMAT, value);
+	}
+
+	/**
+	 * Build legacyPredictedFailure(...) function
+	 * 
+	 * @param value
+	 * @return String value
+	 */
+	public static String buildLegacyPredictedFailureFunction(final String value) {
+		return String.format(LEGACY_PREDICTED_FAILURE_FORMAT, value);
+	}
+
+	/**
+	 * Build legacyPowerSupplyUtilization(...) function
+	 * 
+	 * @param value
+	 * @return String value
+	 */
+
+	public static String buildLegacyPowerSupplyUtilizationFunction(final String value) {
+		return String.format(LEGACY_POWER_SUPPLY_UTILIZATION_FORMAT, value);
+	}
+
+	/**
+	 * Build legacyNeedsCleaning(...) function
+	 * @param value
+	 * @return String value
+	 */
+	public static String buildLegacyNeedsCleaningFunction(final String value) {
+		return String.format(LEGACY_NEEDS_CLEANING_FORMAT, value);
+
+	}
+
+	/**
+	 * Build computePowerShareRatio(...) function
+	 * 
+	 * @param value
+	 * @return String value
+	 */
+	public static String buildComputePowerShareRatio(final String value) {
+		return String.format(COMPUTE_POWER_SHARE_RATIO_FORMAT, value);
+	}
+
+	/**
+	 * Build legacyLinkStatus(...) function
+	 * @param value
+	 * @return String value
+	 */
+	public static String buildLegacyLinkFunction(final String value) {
+		return String.format(LINK_STATUS_FORMAT, value);
+	}
+
+	/**
+	 * Build legacyFullDuplex(...) function
+	 * @param value
+	 * @return String value
+	 */
+	public static String buildLegacyFullDuplexFunction(final String value) {
+		return String.format(FULL_DUPLEX_FORMAT, value);
+	}
+
+	/**
+	 * Build megaBit2Bit(...) function
+	 *
+	 * @param value
+	 * @return String value
+	 */
+	public static String buildMegaBit2BitFunction(final String value) {
+		return String.format(MEGA_BIT_2_BIT_FORMAT, value);
 	}
 }

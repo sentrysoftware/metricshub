@@ -21,12 +21,12 @@
               LunName;AvailablePathWarning;AvailablePaths;LunName;HardwareLocationCode;DiskArray;WWN;
             source: $monitors.lun.discovery.sources.source(3)$
             attributes:
-              deviceid: $column(1)
-              additionalinformation1: $column(5)
-              arrayname: $column(6)
+              id: $column(1)
+              info: $column(5)
+              array_name: $column(6)
               wwn: $column(7)
-              expectedpathcount: $column(2)
-              availablepathwarning: $column(2)
-              localdevicename: $column(1)
-              remotedevicename: test
-              
+              hw.parent.type: enclosure
+              remote_device_name: test
+              name: sprintf("%s (%s - %s)", $column(6), $column(1), "test")
+            metrics:
+              hw.lun.paths.limit{limit_type="low.degraded"}: $column(2)

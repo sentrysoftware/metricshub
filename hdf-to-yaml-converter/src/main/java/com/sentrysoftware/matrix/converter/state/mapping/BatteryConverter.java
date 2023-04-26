@@ -55,7 +55,7 @@ public class BatteryConverter extends AbstractMappingConverter {
 
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_METRICS_MAPPING;
 	static {
-		
+
 		final Map<String, Entry<String, IMappingKey>> metricsMap = new HashMap<>();
 		metricsMap.put(HDF_STATUS, IMappingKey.of(METRICS, YAML_BATTERY_STATUS));
 		metricsMap.put(HDF_TIME_LEFT, IMappingKey.of(METRICS, YAML_BATTERY_TIME_LEFT));
@@ -111,7 +111,7 @@ public class BatteryConverter extends AbstractMappingConverter {
 	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode[] vendorAndModel, final JsonNode typeNode) {
 
 		final String firstArg = firstDisplayArgument.asText();
-		if (typeNode  == null && Stream.of(vendorAndModel).allMatch(Objects::isNull)) {
+		if (typeNode == null && Stream.of(vendorAndModel).allMatch(Objects::isNull)) {
 			return firstArg;
 		}
 
@@ -156,17 +156,14 @@ public class BatteryConverter extends AbstractMappingConverter {
 			format.append(")");
 		}
 
-		// Here we will have a string like
-		// sprint("%s (%s %s - %s)", 
-		format.append("\", ");
-
 		// Add the first argument at the beginning of the list 
 		sprintfArgs.add(0, firstArg);
 
-		// Join the arguments: $column(1), $column(2), $column(3)) 
+		// Join the arguments: $column(1), $column(2), $column(3), $column(4)) 
 		// append the result to our format variable in order to get something like
-		// sprint("%s (%s %s - %s)", $column(1), $column(2), $column(3))
+		// sprint("%s (%s %s - %s)", $column(1), $column(2), $column(3), $column(4))
 		return format
+			.append("\", ") // Here we will have a string like sprintf("%s (%s %s - %s)", 
 			.append(
 				sprintfArgs
 					.stream()

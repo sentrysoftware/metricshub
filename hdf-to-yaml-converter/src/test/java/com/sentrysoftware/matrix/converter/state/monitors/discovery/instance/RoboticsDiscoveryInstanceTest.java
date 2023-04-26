@@ -6,11 +6,11 @@ import org.junit.jupiter.api.Test;
 
 import com.sentrysoftware.matrix.converter.AbstractConnectorPropertyConverterTest;
 
-class RoboticDiscoveryInstanceTest extends AbstractConnectorPropertyConverterTest {
+class RoboticsDiscoveryInstanceTest extends AbstractConnectorPropertyConverterTest {
 
 	@Override
 	protected String getResourcePath() {
-		return "src/test/resources/test-files/monitors/discovery/instance/robotic";
+		return "src/test/resources/test-files/monitors/discovery/instance/robotics";
 	}
 
 	@Test
