@@ -3,6 +3,8 @@ package com.sentrysoftware.matrix.converter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -40,7 +42,7 @@ public class ConnectorLibraryConverter {
 	/**
 	 * Get all .hdfs and .hhdf files from the connectorDirectory and process them using
 	 * ConnectorConverter to build .yaml file
-	 * @throws IOException 
+	 * @throws IOException
 	 *
 	 * @throws ConnectorConverterException when anything wrong happens (so this interrupts the build)
 	 */
@@ -93,8 +95,123 @@ public class ConnectorLibraryConverter {
 			final ObjectWriter writer = mapper.writer(new DefaultPrettyPrinter());
 
 			writer.writeValue(serializePath.toFile(), connector);
+
+			writeComments(serializePath);
+		}
+	}
+
+	/**
+	 * Reads the yaml files and replaces any comment nodes with real comments
+	 * 
+	 * @param serializePath
+	 * @throws IOException
+	 */
+	private void writeComments(Path serializePath) throws IOException {
+
+		// READ the yaml as text
+		List<String> yamlAsText = Files.readAllLines(serializePath);
+
+		// Use a string builder to reconstruct file line by line
+		List<String> yamlWithComments = new ArrayList<>();
+
+		final Iterator<String> iterator = yamlAsText.iterator();
+
+		while (iterator.hasNext()) {
+			String maybeComment = iterator.next();
+
+			if (maybeComment.contains("_comment: \"")) {
+				treatSingleLineComment(yamlWithComments, iterator, maybeComment);
+			} else if (maybeComment.contains("_comment: |-")) {
+				treatMultiLineComment(yamlWithComments, iterator, maybeComment);
+			} else {
+				yamlWithComments.add(maybeComment);
+			}
 		}
 
+		Files.write(serializePath, yamlWithComments);
+	}
+
+	/**
+	 * processes a single line comment either
+	 * _comment:
+	 * or 
+	 * - _comment:
+	 * 
+	 * @param yamlWithComments
+	 * @param iterator
+	 * @param maybeComment
+	 */
+	private void treatSingleLineComment(List<String> yamlWithComments, final Iterator<String> iterator, String maybeComment) {
+		// remove yaml formatting and key and replace with #
+		String comment = maybeComment.replace("_comment: \"", "# ");
+		comment = comment.replace("- #", "  #");
+		comment = comment.substring(0, comment.length() -1);
+
+		yamlWithComments.add(comment);
+		
+		String node = iterator.next();
+
+		moveDashToPosition(yamlWithComments, maybeComment, node, "- _comment: \"");
+	}
+
+	/**
+	 * processes multi-line comment either
+	 * _comment: |-
+	 * or
+	 * - _comment: |-
+	 * 
+	 * @param yamlWithComments
+	 * @param iterator
+	 * @param commentHeader
+	 */
+	private void treatMultiLineComment(List<String> yamlWithComments, final Iterator<String> iterator, String commentHeader) {
+		// create store
+		List<String> lines = new ArrayList<>();
+
+		boolean dash = commentHeader.contains("- _comment");
+
+		int nodeDepth = commentHeader.indexOf("_");
+		int commentDepth = nodeDepth + 2;
+
+		// we know there's no information on this
+		String maybeComment = iterator.next();
+
+		while (checkHeader(maybeComment.substring(0, commentDepth), commentDepth)) {
+			// comment confirmed
+
+			String replacementHeader = " ".repeat(nodeDepth) + "# ";
+			// remove yaml formatting and key and replace with #
+			lines.add(maybeComment.replace(maybeComment.substring(0, commentDepth), replacementHeader));
+
+			maybeComment = iterator.next();
+		}
+
+		String node = maybeComment;
+
+		for (String line : lines) {
+			yamlWithComments.add(line);
+		}
+
+		if(dash) {
+			int dashIndex = commentHeader.indexOf("-");
+			yamlWithComments.add(node.substring(0, dashIndex) + '-' + node.substring(dashIndex + 1));
+		} else {
+			yamlWithComments.add(node);
+		}
+	}
+
+	private void moveDashToPosition(List<String> yamlWithComments, String maybeComment, String node, String s) {
+		if (maybeComment.contains(s)) {
+			int index = maybeComment.indexOf("-");
+			yamlWithComments.add(node.substring(0, index) + '-' + node.substring(index + 1));
+		} else {
+			yamlWithComments.add(node);
+		}
+	}
+
+	private boolean checkHeader(String commentHeader, int expected) {
+		String expectedSpace = " ".repeat(expected);
+		return commentHeader.equals(expectedSpace);
 	}
 
 	/**
@@ -177,7 +294,7 @@ public class ConnectorLibraryConverter {
 				.filter(path -> !Files.isDirectory(path))
 				.map(path -> path.getFileName().toString())
 				.filter(ConnectorLibraryConverter::isSource)
-				.sorted((c1, c2) -> c1.compareToIgnoreCase(c2))
+				.sorted(String::compareToIgnoreCase)
 				.toList();
 		}
 	}
