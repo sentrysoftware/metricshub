@@ -300,13 +300,13 @@ monitors:
         # Now we have what is necessary to define the computer model
         source: "$monitors.enclosure.discovery.sources.source(3)$"
         attributes:
-          deviceid: "$column(1)"
+          id: "$column(1)"
           vendor: "Dell"
           model: "$column(2)"
-          additionalinformation1: "$column(3)"
-          additionalinformation2: "$column(4)"
           type: "Computer"
-          parameteractivation.energyusage: "$column(6)"
+          info: "join($column(3), $column(4), \" \")"
+          name: "sprintf(\"%s (%s %s - %s)\", $column(1), \"Dell\", $column(2), \"\
+            Computer\")"
     collect:
       # Collect
       type: "multiInstance"
@@ -378,6 +378,13 @@ monitors:
         # The ValueTable = Source(5)
         source: "$monitors.enclosure.collect.sources.source(5)$"
         deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="enclosure"}: "$column(2)"
+          hw.status{hw.type="enclosure", state="open"}: "legacyIntrusionStatus($column(5))"
+          hw.enclosure.energy: "$column(7)"
+          hw.enclosure.power: "rate($column(7))"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
   temperature:
     discovery:
       sources:
@@ -413,11 +420,13 @@ monitors:
         # Instance table = Source(1)
         source: "$monitors.temperature.discovery.sources.source(1)$"
         attributes:
-          deviceid: "$column(1)"
-          parameteractivation.temperature: "$column(3)"
-          temperaturetype: "$column(3)"
-          warningthreshold: "$column(5)"
-          alarmthreshold: "$column(4)"
+          id: "$column(1)"
+          temperature_type: "$column(3)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+        metrics:
+          hw.temperature.limit{limit_type="high.degraded"}: "$column(5)"
+          hw.temperature.limit{limit_type="high.critical"}: "$column(4)"
     collect:
       # Collect type is MultiInstance
       type: "multiInstance"
@@ -452,6 +461,11 @@ monitors:
         # The ValueTable = Source(1)
         source: "$monitors.temperature.collect.sources.source(1)$"
         deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="temperature"}: "$column(2)"
+          hw.temperature: "$column(4)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
   fan:
     discovery:
       sources:
@@ -490,11 +504,12 @@ monitors:
         # Instance Table = Source(1)
         source: "$monitors.fan.discovery.sources.source(1)$"
         attributes:
-          deviceid: "$column(1)"
-          fantype: "$column(3)"
-          parameteractivation.speed: "$column(3)"
-          warningthreshold: "$column(4)"
-          alarmthreshold: "$column(5)"
+          id: "$column(1)"
+          hw.parent.type: "enclosure"
+          name: "$column(1)"
+        metrics:
+          hw.fan.speed.limit{limit_type="low.degraded"}: "$column(4)"
+          hw.fan.speed.limit{limit_type="low.critical"}: "$column(5)"
     collect:
       # Collect type = mono-instance
       type: "multiInstance"
@@ -524,6 +539,11 @@ monitors:
         # ValueTable = Source(1)
         source: "$monitors.fan.collect.sources.source(1)$"
         deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="fan"}: "$column(2)"
+          hw.fan.speed: "$column(4)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
   voltage:
     discovery:
       sources:
@@ -537,11 +557,13 @@ monitors:
         # InstanceTable = Source(1)
         source: "$monitors.voltage.discovery.sources.source(1)$"
         attributes:
-          deviceid: "$column(1)"
-          parameteractivation.voltage: "$column(2)"
-          voltagetype: "$column(3)"
-          upperthreshold: "$column(4)"
-          lowerthreshold: "$column(5)"
+          id: "$column(1)"
+          voltage_type: "$column(3)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+        metrics:
+          hw.voltage.limit{limit_type="high.degraded"}: "$column(4)"
+          hw.voltage.limit{limit_type="low.critical"}: "$column(5)"
     collect:
       # Collect type = mono-instance
       type: "multiInstance"
@@ -571,6 +593,11 @@ monitors:
         # ValueTable = source(1)
         source: "$monitors.voltage.collect.sources.source(1)$"
         deviceId: "$column(1)"
+        metrics:
+          hw.voltage: "$column(4)"
+          hw.status{hw.type="voltage"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
   power_supply:
     discovery:
       sources:
@@ -595,9 +622,12 @@ monitors:
         # InstanceTable = Source(1)
         source: "$monitors.power_supply.discovery.sources.source(1)$"
         attributes:
-          deviceid: "$column(1)"
-          powersupplypower: "$column(2)"
-          powersupplytype: "$column(3)"
+          id: "$column(1)"
+          power_supply_type: "$column(3)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), $column(2))"
+        metrics:
+          hw.power_supply.limit: "$column(2)"
     collect:
       # Collect type = multi-instance
       type: "multiInstance"
@@ -632,6 +662,10 @@ monitors:
         # ValueTable = Source(1)
         source: "$monitors.power_supply.collect.sources.source(1)$"
         deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="power_supply"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(2)"
   memory:
     discovery:
       sources:
@@ -674,14 +708,16 @@ monitors:
         # InstanceTable = Source(1)
         source: "$monitors.memory.discovery.sources.source(1)$"
         attributes:
-          deviceid: "$column(1)"
+          id: "$column(1)"
           type: "$column(2)"
-          additionalinformation1: "$column(3)"
-          size: "$column(4)"
           vendor: "$column(5)"
-          additionalinformation2: "$column(6)"
-          serialnumber: "$column(7)"
-          additionalinformation3: "$column(8)"
+          serial_number: "$column(7)"
+          info: "join($column(3), $column(6), $column(8), \" \")"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s - %s - %s)\", $column(1), $column(5), $column(2),\
+            \ $column(4))"
+        metrics:
+          hw.memory.limit: "mebiByte2Byte($column(4))"
     collect:
       # Collect type is multi-instance
       type: "multiInstance"
@@ -716,6 +752,11 @@ monitors:
         # ValueTable = Source(1)
         source: "$monitors.memory.collect.sources.source(1)$"
         deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="memory"}: "$column(2)"
+          hw.errors{hw.type="memory"}: "$column(4)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
   cpu:
     discovery:
       sources:
@@ -927,11 +968,13 @@ monitors:
         # InstanceTable = Source(1)
         source: "$monitors.other_device.discovery.sources.source(5)$"
         attributes:
-          deviceid: "$column(1)"
-          displayid: "$column(1)"
-          devicetype: "$column(2)"
-          additionalinformation1: "$column(3)"
-          additionallabel: "$column(4)"
+          id: "$column(1)"
+          __display_id: "$column(1)"
+          device_type: "$column(2)"
+          additional_label: "$column(4)"
+          info: "$column(3)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s: %s (%s)\", $column(2), $column(1), $column(4))"
     collect:
       # Collect type is mono-instance
       type: "multiInstance"
@@ -1000,6 +1043,10 @@ monitors:
         # ValueTable = Source(5)
         source: "$monitors.other_device.collect.sources.source(5)$"
         deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="other_device"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
   battery:
     discovery:
       sources:
