@@ -32,8 +32,10 @@ class ConnectorLibraryConverterTest {
 	void testProcess() throws IOException {
 		final ConnectorLibraryConverter processor = new ConnectorLibraryConverter(Path.of(HDF_DIRECTORY), tempDir);
 		processor.process();
-		final File file = tempDir.resolve("DellOpenManage.yaml").toFile();
-		assertTrue(file.exists());
+		final File dell = tempDir.resolve("DellOpenManage.yaml").toFile();
+		final File emc = tempDir.resolve("DellEMCPowerStoreREST.yaml").toFile();
+		assertTrue(dell.exists());
+		assertTrue(emc.exists());
 	}
 
 	@Test
