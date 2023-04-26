@@ -3,7 +3,6 @@ package com.sentrysoftware.matrix.converter.state;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_BATTERY;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_BLADE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_CPU;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_CPU_CORE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_DISK_CONTROLLER;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_ENCLOSURE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_FAN;
@@ -24,7 +23,6 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_VOLTAGE
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_BATTERY;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_BLADE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_CPU;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_CPU_CORE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_DISK_CONTROLLER;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ENCLOSURE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_FAN;
@@ -69,7 +67,6 @@ public class ConversionHelper {
 		hdfToYamlMonitor.put(HDF_BATTERY, YAML_BATTERY);
 		hdfToYamlMonitor.put(HDF_BLADE, YAML_BLADE);
 		hdfToYamlMonitor.put(HDF_CPU, YAML_CPU);
-		hdfToYamlMonitor.put(HDF_CPU_CORE, YAML_CPU_CORE);
 		hdfToYamlMonitor.put(HDF_DISK_CONTROLLER, YAML_DISK_CONTROLLER);
 		hdfToYamlMonitor.put(HDF_ENCLOSURE, YAML_ENCLOSURE);
 		hdfToYamlMonitor.put(HDF_FAN, YAML_FAN);

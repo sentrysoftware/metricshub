@@ -7,7 +7,6 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.MONITORS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_BATTERY;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_BLADE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_CPU;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_CPU_CORE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_DISK_CONTROLLER;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ENCLOSURE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_FAN;
@@ -39,18 +38,12 @@ import lombok.AllArgsConstructor;
 public class MappingConvertersWrapper {
 
 	/**
-	 * Remove me
-	 */
-	private static final IMappingConverter NOOP = new NoopConverter();
-
-	/**
 	 * Map of mapping converters
 	 */
 	private static final Map<String, IMappingConverter> DEFAULT_CONVERTERS = Map.ofEntries(
 		Map.entry(YAML_BATTERY, new BatteryConverter()),
 		Map.entry(YAML_BLADE, new BladeConverter()),
 		Map.entry(YAML_CPU, new CpuConverter()),
-		Map.entry(YAML_CPU_CORE, NOOP),
 		Map.entry(YAML_DISK_CONTROLLER, new DiskControllerConverter()),
 		Map.entry(YAML_ENCLOSURE, new EnclosureConverter()),
 		Map.entry(YAML_FAN, new FanConverter()),
