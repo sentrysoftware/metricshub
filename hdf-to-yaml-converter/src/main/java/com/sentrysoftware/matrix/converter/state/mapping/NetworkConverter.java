@@ -133,7 +133,7 @@ public class NetworkConverter extends AbstractMappingConverter {
 	 * Joins the given non-empty text nodes to build the battery name value
 	 *
 	 * @param firstDisplayArgument {@link JsonNode} representing the display name
-	 * @param deviceTypeAndModel   {@link JsonNode[]} array of vendor and model to be joined 
+	 * @param deviceTypeAndModel   {@link JsonNode[]} array of device type and model to be joined 
 	 *
 	 * @return {@link String} Joined text nodes
 	 */
@@ -193,34 +193,6 @@ public class NetworkConverter extends AbstractMappingConverter {
 		final ObjectNode mapping = (ObjectNode) node;
 
 		convertOneToOneMetrics(key, value, mapping);
-
-		final JsonNode metrics = mapping.get(METRICS);
-
-		if (metrics != null) {
-			final JsonNode linkStatus = metrics.get(YAML_NETWORK_UP);
-			if (linkStatus != null && !linkStatus.asText().contains("legacyLinkStatus")) {
-				((ObjectNode) metrics).set(
-						YAML_NETWORK_UP,
-						new TextNode(
-						buildLegacyLinkFunction(
-							getFunctionArgument(linkStatus.asText())
-						)
-					)
-				);
-			}
-
-			final JsonNode duplexMode = metrics.get(YAML_NETWORK_FULL_DUPLEX);
-			if (duplexMode != null && !duplexMode.asText().contains("legacyFullDuplex")) {
-				((ObjectNode) metrics).set(
-						YAML_NETWORK_FULL_DUPLEX,
-						new TextNode(
-						buildLegacyFullDuplexFunction(
-							getFunctionArgument(duplexMode.asText())
-						)
-					)
-				);
-			}
-		}
 	}
 
 }
