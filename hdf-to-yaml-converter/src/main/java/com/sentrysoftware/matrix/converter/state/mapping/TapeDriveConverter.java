@@ -1,6 +1,33 @@
 package com.sentrysoftware.matrix.converter.state.mapping;
 
-import static com.sentrysoftware.matrix.converter.ConverterConstants.*;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.ATTRIBUTES;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_DEVICE_ID;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_DISPLAY_ID;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_ERROR_COUNT;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_ERROR_COUNT_ALARM_THRESHOLD;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_ERROR_COUNT_WARNING_THRESHOLD;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_MODEL;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_MOUNT_COUNT;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_NEEDS_CLEANING;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_SERIAL_NUMBER;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_STATUS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_STATUS_INFORMATION;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_UNMOUNT_COUNT;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.LEGACY_TEXT_PARAMETERS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.METRICS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_DISPLAY_ID;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ID;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_MODEL;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_NAME;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_SERIAL_NUMBER;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_STATUS_INFORMATION;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TAPE_DRIVE_ERRORS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TAPE_DRIVE_ERRORS_LIMIT_CRITICAL;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TAPE_DRIVE_ERRORS_LIMIT_DEGRADED;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TAPE_DRIVE_OPERATIONS_MOUNT;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TAPE_DRIVE_OPERATIONS_UNMOUNT;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TAPE_DRIVE_STATUS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TAPE_DRIVE_STATUS_NEEDS_CLEANING;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,9 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;

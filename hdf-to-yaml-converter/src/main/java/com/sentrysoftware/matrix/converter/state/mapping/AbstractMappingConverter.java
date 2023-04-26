@@ -369,17 +369,56 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 	 * @param value
 	 * @return String value
 	 */
+
 	public static String buildLegacyPowerSupplyUtilizationFunction(final String value) {
 		return String.format(LEGACY_POWER_SUPPLY_UTILIZATION_FORMAT, value);
 	}
 
 	/**
 	 * Build legacyNeedsCleaning(...) function
-	 * 
 	 * @param value
 	 * @return String value
 	 */
 	public static String buildLegacyNeedsCleaningFunction(final String value) {
 		return String.format(LEGACY_NEEDS_CLEANING_FORMAT, value);
+
+	}
+
+	/**
+	 * Build computePowerShareRatio(...) function
+	 * 
+	 * @param value
+	 * @return String value
+	 */
+	public static String buildComputePowerShareRatio(final String value) {
+		return String.format(COMPUTE_POWER_SHARE_RATIO_FORMAT, value);
+	}
+
+	/**
+	 * Build legacyLinkStatus(...) function
+	 * @param value
+	 * @return String value
+	 */
+	public static String buildLegacyLinkFunction(final String value) {
+		return String.format(LINK_STATUS_FORMAT, value);
+	}
+
+	/**
+	 * Build legacyFullDuplex(...) function
+	 * @param value
+	 * @return String value
+	 */
+	public static String buildLegacyFullDuplexFunction(final String value) {
+		return String.format(FULL_DUPLEX_FORMAT, value);
+	}
+
+	/**
+	 * Build megaBit2Bit(...) function
+	 *
+	 * @param value
+	 * @return String value
+	 */
+	public static String buildMegaBit2BitFunction(final String value) {
+		return String.format(MEGA_BIT_2_BIT_FORMAT, value);
 	}
 }

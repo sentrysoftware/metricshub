@@ -1,18 +1,21 @@
 - name: vmValueTable
   input: |
-    // DeviceID;Status;PowerShare
+    // DeviceID;Status;PowerShare;Power
     VM.Collect.ValueTable=%VM.Collect.Source(1)%
     VM.Collect.DeviceID=ValueTable.Column(1)
     VM.Collect.PowerState=ValueTable.Column(2)
     VM.Collect.PowerShare=ValueTable.Column(3)
+    VM.Collect.PowerConsumption=ValueTable.Column(4)
   expected:
     monitors:
       vm:
         collect:
           mapping:
-            _comment: DeviceID;Status;PowerShare
+            _comment: DeviceID;Status;PowerShare;Power
             deviceId: $column(1)
             source: $monitors.vm.collect.sources.source(1)$
             metrics:
-              hw.vm.power_state: $column(2))
+              hw.vm.power_state: $column(2)
               hw.vm.power_ratio: computePowerShareRatio($column(3))
+              hw.power{hw.type="vm"}: $column(4)
+              hw.energy{hw.type="vm"}: fakeCounter($column(4))

@@ -59,14 +59,14 @@ public class MappingConvertersWrapper {
 		Map.entry(YAML_LOGICAL_DISK, new LogicalDiskConverter()),
 		Map.entry(YAML_LUN, new LunConverter()),
 		Map.entry(YAML_MEMORY, new MemoryConverter()),
-		Map.entry(YAML_NETWORK, NOOP),
+		Map.entry(YAML_NETWORK, new NetworkConverter()),
 		Map.entry(YAML_OTHER_DEVICE, new OtherDeviceConverter()),
 		Map.entry(YAML_PHYSICAL_DISK, new PhysicalDiskConverter()),
 		Map.entry(YAML_POWER_SUPPLY, new PowerSupplyConverter()),
 		Map.entry(YAML_ROBOTICS, new RoboticsConverter()),
 		Map.entry(YAML_TAPEDRIVE, new TapeDriveConverter()),
-		Map.entry(YAML_TEMPERATURE, NOOP),
-		Map.entry(YAML_VM, NOOP),
+		Map.entry(YAML_TEMPERATURE, new TemperatureConverter()),
+		Map.entry(YAML_VM, new VMConverter()),
 		Map.entry(YAML_VOLTAGE, new VoltageConverter())
 	);
 
