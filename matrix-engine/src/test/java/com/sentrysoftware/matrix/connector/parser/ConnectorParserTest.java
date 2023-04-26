@@ -68,7 +68,6 @@ class ConnectorParserTest {
 	}
 
 	@Test
-	@Disabled("Until AvailableSourceUpdate is up!")
 	void testAvailableSourceUpdate() throws IOException {
 		final Connector connector = new ConnectorParserUpdateManagement("connector/management/availableUpdate").parse("availableSources");
 		assertEquals(
