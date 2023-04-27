@@ -1,0 +1,94 @@
+//
+//
+//                 C O N N E C T O R
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//                   MS_HW_IBMAIXusysfault.hdf
+//
+//      Supports: IBM AIX machines
+//		Monitors: System Attention LED
+//      Connects to: usysfault
+//
+//
+
+//
+// HEADER
+//
+
+hdf.DisplayName="IBM AIX - usysfault"
+hdf.TypicalPlatform="IBM POWER"
+hdf.ReliesOn="IBM AIX usysfault command"
+hdf.Comments="Provides the status of the System Attention LED of an IBM AIX server."
+hdf.Version="1.0"
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="RS6000"
+
+// Sudo-able commands
+Sudo(1).Command="/usr/lpp/diagnostics/bin/usysfault"
+
+//
+// DETECTION
+//
+
+// OS should be AIX (whatever version)
+Detection.Criteria(1).Type="OS"
+Detection.Criteria(1).KeepOnly="RS6000"
+
+// usysfault has to return either normal or fault
+Detection.Criteria(2).Type="OSCommand"
+Detection.Criteria(2).CommandLine="%{SUDO:/usr/lpp/diagnostics/bin/usysfault}/usr/lpp/diagnostics/bin/usysfault"
+Detection.Criteria(2).ExpectedResult="^\(normal\)\|\(fault\)$"
+
+//
+// LED
+//
+
+//
+// Discovery
+
+// Source(1) = Static table: one line to create the instance corresponding to one LED: the System Attention LED
+// LEDID;Label;Color;OnStatus;BlinkingStatus;OffStatus;
+LED.Discovery.Source(1)="SystemAttention;System Attention;Amber;ALARM;ALARM;OK;"
+
+// The discovery table
+LED.Discovery.InstanceTable=%LED.Discovery.Source(1)%
+LED.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+LED.Discovery.Instance.Name=InstanceTable.Column(2)
+LED.Discovery.Instance.Color=InstanceTable.Column(3)
+LED.Discovery.Instance.OnStatus=InstanceTable.Column(4)
+LED.Discovery.Instance.BlinkingStatus=InstanceTable.Column(5)
+LED.Discovery.Instance.OffStatus=InstanceTable.Column(6)
+
+
+
+//
+// Collect
+
+// Collect type = mono-instance
+LED.Collect.Type="MonoInstance"
+
+// Source(1) = /usr/lpp/diagnostics/bin/usysfault
+// ledStatus
+LED.Collect.Source(1).Type="OsCommand"
+LED.Collect.Source(1).CommandLine="/usr/lpp/diagnostics/bin/usysfault"
+LED.Collect.Source(1).SelectColumns="1"
+
+// Translate the first status column into a PATROL status
+// ledStatus
+LED.Collect.Source(1).Compute(1).Type="Translate"
+LED.Collect.Source(1).Compute(1).Column=1
+LED.Collect.Source(1).Compute(1).TranslationTable="LEDStatusTranslationTable"
+
+// The LEDStatusTranslationTable
+LEDStatusTranslationTable("normal")="Off"
+LEDStatusTranslationTable("fault")="On"
+LEDStatusTranslationTable(Default)="Off"
+
+// CollectTable = Source(1)
+LED.Collect.ValueTable=%LED.Collect.Source(1)%
+LED.Collect.Status=ValueTable.Column(1)

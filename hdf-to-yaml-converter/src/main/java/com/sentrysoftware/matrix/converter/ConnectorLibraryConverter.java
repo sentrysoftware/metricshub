@@ -40,11 +40,14 @@ public class ConnectorLibraryConverter {
 	private Path outputDirectory;
 
 	/**
-	 * Get all .hdfs and .hhdf files from the connectorDirectory and process them using
+	 * Get all .hdfs and .hhdf files from the connectorDirectory and process them
+	 * using
 	 * ConnectorConverter to build .yaml file
+	 * 
 	 * @throws IOException
 	 *
-	 * @throws ConnectorConverterException when anything wrong happens (so this interrupts the build)
+	 * @throws ConnectorConverterException when anything wrong happens (so this
+	 *                                     interrupts the build)
 	 */
 	void process() throws IOException {
 		if (!Files.isDirectory(sourceDirectory)) {
@@ -134,7 +137,7 @@ public class ConnectorLibraryConverter {
 	/**
 	 * processes a single line comment either
 	 * _comment:
-	 * or 
+	 * or
 	 * - _comment:
 	 * 
 	 * @param yamlWithComments
@@ -145,10 +148,10 @@ public class ConnectorLibraryConverter {
 		// remove yaml formatting and key and replace with #
 		String comment = maybeComment.replace("_comment: \"", "# ");
 		comment = comment.replace("- #", "  #");
-		comment = comment.substring(0, comment.length() -1);
+		comment = comment.substring(0, comment.length() - 1);
 
 		yamlWithComments.add(comment);
-		
+
 		String node = iterator.next();
 
 		moveDashToPosition(yamlWithComments, maybeComment, node, "- _comment: \"");
@@ -164,40 +167,55 @@ public class ConnectorLibraryConverter {
 	 * @param iterator
 	 * @param commentHeader
 	 */
-	private void treatMultiLineComment(List<String> yamlWithComments, final Iterator<String> iterator, String commentHeader) {
+	private void treatMultiLineComment(List<String> yamlWithComments, final Iterator<String> iterator,
+			String commentHeader) {
+		String maybeComment = null;
+
 		// create store
 		List<String> lines = new ArrayList<>();
 
-		boolean dash = commentHeader.contains("- _comment");
+		final boolean dash = commentHeader.contains("- _comment");
 
 		int nodeDepth = commentHeader.indexOf("_");
 		int commentDepth = nodeDepth + 2;
 
 		// we know there's no information on this
-		String maybeComment = iterator.next();
+		if (iterator.hasNext()) {
+			maybeComment = iterator.next();
+		} else {
+			return;
+		}
 
-		while (checkHeader(maybeComment.substring(0, commentDepth), commentDepth)) {
+		while (!maybeComment.isEmpty() && checkHeader(maybeComment.substring(0, commentDepth), commentDepth)) {
 			// comment confirmed
 
 			String replacementHeader = " ".repeat(nodeDepth) + "# ";
 			// remove yaml formatting and key and replace with #
 			lines.add(maybeComment.replace(maybeComment.substring(0, commentDepth), replacementHeader));
 
-			maybeComment = iterator.next();
+			if (iterator.hasNext()) {
+				maybeComment = iterator.next();
+			}
 		}
 
 		String node = maybeComment;
+
+		// more blank lines
+		while(node.isEmpty() && iterator.hasNext()){
+			node = iterator.next();
+		}
 
 		for (String line : lines) {
 			yamlWithComments.add(line);
 		}
 
-		if(dash) {
+		if (dash) {
 			int dashIndex = commentHeader.indexOf("-");
 			yamlWithComments.add(node.substring(0, dashIndex) + '-' + node.substring(dashIndex + 1));
 		} else {
 			yamlWithComments.add(node);
 		}
+
 	}
 
 	private void moveDashToPosition(List<String> yamlWithComments, String maybeComment, String node, String s) {
@@ -252,9 +270,11 @@ public class ConnectorLibraryConverter {
 	/**
 	 * Make sure the specified directory exists and create it if it doesn't.
 	 * <p>
+	 * 
 	 * @param dir Directory to be tested
-	 * @throws ConnectorConverterException if specified directory is not a directory or cannot be created
-	 * @throws IllegalArgumentException if specified directory is null
+	 * @throws ConnectorConverterException if specified directory is not a directory
+	 *                                     or cannot be created
+	 * @throws IllegalArgumentException    if specified directory is null
 	 */
 	public static void validateOutputDirectory(@NonNull final Path dir) {
 
@@ -263,7 +283,8 @@ public class ConnectorLibraryConverter {
 			// But it's not a directory
 			if (!Files.isDirectory(dir)) {
 				// Throw an exception
-				throw new ConnectorConverterException("outputDirectory " + dir.toString() + " must be a directory, not a file");
+				throw new ConnectorConverterException(
+						"outputDirectory " + dir.toString() + " must be a directory, not a file");
 			}
 			// Or else do nothing
 			return;
@@ -280,9 +301,10 @@ public class ConnectorLibraryConverter {
 	/**
 	 * Get the list of connector source files in the specified directory
 	 * <p>
+	 * 
 	 * @param sourceDirectory The directory to search for files
 	 * @return List of matching {@link File} objects
-	 * @throws IOException on directory listing issues
+	 * @throws IOException              on directory listing issues
 	 * @throws IllegalArgumentException if specified directory is null
 	 *
 	 */
@@ -290,12 +312,12 @@ public class ConnectorLibraryConverter {
 
 		try (Stream<Path> fileStream = Files.list(sourceDirectory)) {
 			return fileStream
-				.filter(Objects::nonNull)
-				.filter(path -> !Files.isDirectory(path))
-				.map(path -> path.getFileName().toString())
-				.filter(ConnectorLibraryConverter::isSource)
-				.sorted(String::compareToIgnoreCase)
-				.toList();
+					.filter(Objects::nonNull)
+					.filter(path -> !Files.isDirectory(path))
+					.map(path -> path.getFileName().toString())
+					.filter(ConnectorLibraryConverter::isSource)
+					.sorted(String::compareToIgnoreCase)
+					.toList();
 		}
 	}
 

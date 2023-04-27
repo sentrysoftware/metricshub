@@ -1,0 +1,554 @@
+////////////////////////////////////////////////////////////////
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//
+//      Supports: EMC Isilon Systems
+//                Connects to the SSH interface of the cluster.
+//
+
+//
+// Header
+//
+
+hdf.DisplayName="EMC Isilon - Node (SNMP)"
+hdf.TypicalPlatform="EMC Isilon"
+hdf.ReliesOn="EMC Isilon SNMP Agent"
+hdf.Version="1.0"
+hdf.Comments="This connector discovers the status of an EMC Isilon Storage Node.  It relies on the SNMP service of the EMC Isilon Node."
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="Storage"
+
+
+//  Supersede the SSH connector
+hdf.Supersedes="MS_HW_EMCIsilon.hdf,MS_HW_EMCIsilon8.hdf"
+
+//
+// Detection
+//
+
+// Verify that the EMC Isilon NOde SNMP agent responds to our requests
+Detection.Criteria(1).Type="SNMP"
+Detection.Criteria(1).SnmpGetNext="1.3.6.1.4.1.12124.2"
+
+//
+// Enclosures
+//
+
+// Discovery
+
+// Get Chassis list
+// ChassisNumber;SerialNumber;Model;
+Enclosure.Discovery.Source(1).Type="SnmpTable"
+Enclosure.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.12124.2.51.1"
+Enclosure.Discovery.Source(1).SnmpTableSelectColumns="ID,3,4"
+
+// LeftConcat an identifier to link to Chassis
+// MSHW;ChassisNumber;SerialNumber;Model;
+Enclosure.Discovery.Source(1).Compute(1).Type="LeftConcat"
+Enclosure.Discovery.Source(1).Compute(1).Column=1
+Enclosure.Discovery.Source(1).Compute(1).String="MSHW;"
+
+// Get the NodeName
+// NodeName;
+Enclosure.Discovery.Source(2).Type="SnmpGet"
+Enclosure.Discovery.Source(2).SnmpOid="1.3.6.1.4.1.12124.2.1.1.0"
+
+// LeftConcat an identifier to link to Chassis
+// MSHW;NodeName;
+Enclosure.Discovery.Source(2).Compute(1).Type="LeftConcat"
+Enclosure.Discovery.Source(2).Compute(1).Column=1
+Enclosure.Discovery.Source(2).Compute(1).String="MSHW;"
+
+// Join the Chassis to Node information
+// MSHW;ChassisNumber;SerialNumber;Model;MSHW;NodeName;
+Enclosure.Discovery.Source(3).Type="TableJoint"
+Enclosure.Discovery.Source(3).LeftTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Source(3).RightTable=%Enclosure.Discovery.Source(2)%
+Enclosure.Discovery.Source(3).LeftKeyColumn=1
+Enclosure.Discovery.Source(3).RightKeyColumn=1
+Enclosure.Discovery.Source(3).DefaultRightLine=";;"
+
+// Instance Table
+// Note, it's still not clear if multichassis per node is possible, we're going to assume not for now
+// MSHW;ChassisNumber;SerialNumber;Model;MSHW;NodeName;
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(3)%
+Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Enclosure.Discovery.Instance.DisplayID=InstanceTable.Column(6)
+Enclosure.Discovery.Instance.Vendor="EMC"
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(4)
+Enclosure.Discovery.Instance.Type="Storage"
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(3)
+
+
+// Collect
+
+// Collect type is mono-instance
+Enclosure.Collect.Type="MultiInstance"
+
+// Get the NodeHealth
+// NodeHealth;
+Enclosure.Collect.Source(1).Type="SnmpGet"
+Enclosure.Collect.Source(1).SnmpOid="1.3.6.1.4.1.12124.2.1.2.0"
+
+// LeftConcat an identifier to link to Chassis
+// MSHW;NodeHealth;
+Enclosure.Collect.Source(1).Compute(1).Type="LeftConcat"
+Enclosure.Collect.Source(1).Compute(1).Column=1
+Enclosure.Collect.Source(1).Compute(1).String="MSHW;"
+
+// Translate the NodeHealth
+// Translate Status into PATROLStatus
+// MSHW;PatrolStatus;
+Enclosure.Collect.Source(1).Compute(2).Type="Translate"
+Enclosure.Collect.Source(1).Compute(2).Column=2
+Enclosure.Collect.Source(1).Compute(2).TranslationTable="enclosureStatusTranslationTable"
+
+// The enclosureStatusTranslationTable
+enclosureStatusTranslationTable(0)="OK"
+enclosureStatusTranslationTable(1)="WARN"
+enclosureStatusTranslationTable(2)="ALARM"
+enclosureStatusTranslationTable(3)="UNKNOWN"
+enclosureStatusTranslationTable(Default)="UNKNOWN"
+
+// Attach the NodeHealth to all node chassis instances
+// We don't deal with multichassis for the moment (if this even exists)
+// MSHW;ChassisNumber;SerialNumber;Model;MSHW;PatrolStatus;
+Enclosure.Collect.Source(2).Type="TableJoint"
+Enclosure.Collect.Source(2).LeftTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Collect.Source(2).RightTable=%Enclosure.Collect.Source(1)%
+Enclosure.Collect.Source(2).LeftKeyColumn=1
+Enclosure.Collect.Source(2).RightKeyColumn=1
+
+// ValueTable = Source(1)
+// MSHW;ChassisNumber;SerialNumber;Model;MSHW;PatrolStatus;
+Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(2)%
+Enclosure.Collect.DeviceID=ValueTable.Column(2)
+Enclosure.Collect.Status=ValueTable.Column(6)
+
+// PhysicalDisk
+
+//
+// Discovery
+//
+
+// Source(1) = the diskEntry snmp table
+// ID;ChassisNumber;Model;SerialNumber;FirmwareVersion;Size;
+PhysicalDisk.Discovery.Source(1).Type="SnmpTable"
+PhysicalDisk.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.12124.2.52.1"
+PhysicalDisk.Discovery.Source(1).SnmpTableSelectColumns="ID,3,6,7,8,9"
+
+// Duplicate the ID
+// ID;ID;ChassisNumber;Model;SerialNumber;FirmwareVersion;Size;
+PhysicalDisk.Discovery.Source(1).Compute(1).Type="DuplicateColumn"
+PhysicalDisk.Discovery.Source(1).Compute(1).Column=1
+
+// LeftConcat Bay to the Display ID
+// ID;DisplayID;ChassisNumber;Model;SerialNumber;FirmwareVersion;Size;
+PhysicalDisk.Discovery.Source(1).Compute(2).Type="LeftConcat"
+PhysicalDisk.Discovery.Source(1).Compute(2).Column=2
+PhysicalDisk.Discovery.Source(1).Compute(2).String="Bay "
+
+
+// The instance table = Source(1)
+// Chassis number seems to be incorrect, so we're going to have to wait until we see a multichassis node debug (if such a system exists)
+// ID;DisplayID;ChassisNumber;Model;SerialNumber;FirmwareVersion;Size;
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PhysicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+PhysicalDisk.Discovery.Instance.Model=InstanceTable.Column(4)
+PhysicalDisk.Discovery.Instance.Size=InstanceTable.Column(7)
+PhysicalDisk.Discovery.Instance.SerialNumber=InstanceTable.Column(5)
+PhysicalDisk.Discovery.Instance.FirmwareVersion=InstanceTable.Column(6)
+
+//
+// Collect
+
+// Collect type is: multi-instance
+PhysicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = the diskEntry snmp table
+// ID;status;
+PhysicalDisk.Collect.Source(1).Type="SnmpTable"
+PhysicalDisk.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.12124.2.52.1"
+PhysicalDisk.Collect.Source(1).SnmpTableSelectColumns="ID,5"
+
+// Duplicate the status column
+// ID;status;status;
+PhysicalDisk.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+PhysicalDisk.Collect.Source(1).Compute(1).Column=2
+
+// Translate the first status column into a PATROL status
+// ID;PATROLstatus;status;
+PhysicalDisk.Collect.Source(1).Compute(2).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(2).Column=2
+PhysicalDisk.Collect.Source(1).Compute(2).TranslationTable="PhysicalDiskStatusTranslationTable"
+
+// The PhysicalDiskStatusTranslationTable
+PhysicalDiskStatusTranslationTable("HEALTHY")="OK"
+PhysicalDiskStatusTranslationTable("L3")="OK"
+PhysicalDiskStatusTranslationTable("JOURNAL")="OK"
+PhysicalDiskStatusTranslationTable("STALLED")="OK"
+PhysicalDiskStatusTranslationTable("BOOT_DRIVE")="OK"
+PhysicalDiskStatusTranslationTable("SMARTFAIL")="WARN"
+PhysicalDiskStatusTranslationTable("RESTRIPE")="WARN"
+PhysicalDiskStatusTranslationTable("SUSPENDED")="WARN"
+PhysicalDiskStatusTranslationTable("NEW")="WARN"
+PhysicalDiskStatusTranslationTable("PREPARING")="WARN"
+PhysicalDiskStatusTranslationTable("USED")="WARN"
+PhysicalDiskStatusTranslationTable("WRONG_TYPE")="WARN"
+PhysicalDiskStatusTranslationTable("REPLACE")="ALARM"
+PhysicalDiskStatusTranslationTable("ERASE")="WARN"
+PhysicalDiskStatusTranslationTable("NOT")="ALARM"
+PhysicalDiskStatusTranslationTable("INSECURE")="ALARM"
+PhysicalDiskStatusTranslationTable("UNENCRYPTED")="ALARM"
+PhysicalDiskStatusTranslationTable("SED_ERROR")="ALARM"
+PhysicalDiskStatusTranslationTable(Default)="ALARM"
+
+// The ValueTable = source(1)
+// ID;PATROLstatus;status;
+PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(1)%
+PhysicalDisk.Collect.DeviceID=ValueTable.Column(1)
+PhysicalDisk.Collect.Status=ValueTable.Column(2)
+PhysicalDisk.Collect.StatusInformation=ValueTable.Column(3)
+
+
+// Fans
+
+//
+// Discovery
+//
+
+// Source(1) = the fanEntry snmp table
+// ID;Name;Description;Speed;
+Fan.Discovery.Source(1).Type="SnmpTable"
+Fan.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.12124.2.53.1"
+Fan.Discovery.Source(1).SnmpTableSelectColumns="ID,2,3,4"
+
+// Duplicate the Description column
+// ID;Name;Description;Description;Speed;
+Fan.Discovery.Source(1).Compute(1).Type="DuplicateColumn"
+Fan.Discovery.Source(1).Compute(1).Column=3
+
+// Extract everything from before a : in the description
+// ID;Name;Description;Description[1];Speed;
+Fan.Discovery.Source(1).Compute(2).Type="Extract"
+Fan.Discovery.Source(1).Compute(2).Column=4
+Fan.Discovery.Source(1).Compute(2).SubColumn=1
+Fan.Discovery.Source(1).Compute(2).SubSeparators=":"
+
+// Add : to the Description[1]
+Fan.Discovery.Source(1).Compute(3).Type="RightConcat"
+Fan.Discovery.Source(1).Compute(3).Column=4
+Fan.Discovery.Source(1).Compute(3).String=":"
+
+// Remote the first part of the description from the actual Description if there's a :
+// ID;Name;Description;Description[1];Speed;
+Fan.Discovery.Source(1).Compute(4).Type="Replace"
+Fan.Discovery.Source(1).Compute(4).Column=3
+Fan.Discovery.Source(1).Compute(4).Replace=Column(4)
+Fan.Discovery.Source(1).Compute(4).ReplaceBy=""
+
+// Translate second name column to Warning and Alarm Thresholds
+// ID;WarnThreshold;Alarmthreshold;Description;Description[1];Speed;
+Fan.Discovery.Source(1).Compute(5).Type="Translate"
+Fan.Discovery.Source(1).Compute(5).Column=2
+Fan.Discovery.Source(1).Compute(5).TranslationTable="FanThresholdTranslationTable"
+
+FanThresholdTranslationTable("FAN TAC SENSOR 1")="6300;"
+FanThresholdTranslationTable("FAN TAC SENSOR 2")="6300;"
+FanThresholdTranslationTable("FAN TAC SENSOR 3")="6300;"
+FanThresholdTranslationTable("FAN TAC SENSOR 4")="6300;"
+FanThresholdTranslationTable("PS FAN SPEED 1")=";0"
+FanThresholdTranslationTable("PS FAN SPEED 2")=";0"
+FanThresholdTranslationTable("PS FAN SPEED 3")=";0"
+FanThresholdTranslationTable("PS FAN SPEED 4")=";0"
+FanThresholdTranslationTable("fisi1")="6300;"
+FanThresholdTranslationTable("fisi2")="6300;"
+FanThresholdTranslationTable("fisi3")="6300;"
+FanThresholdTranslationTable("fisi4")="6300;"
+FanThresholdTranslationTable("fps11")=";0"
+FanThresholdTranslationTable("fps12")=";0"
+FanThresholdTranslationTable("fps21")=";0"
+FanThresholdTranslationTable("fps22")=";0"
+FanThresholdTranslationTable(Default)=";0"
+
+// InstanceTable = Source(1)
+// ID;WarnThreshold;Alarmthreshold;Description;Description[1];Speed;
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Fan.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+Fan.Discovery.Instance.WarningThreshold=InstanceTable.Column(2)
+Fan.Discovery.Instance.AlarmThreshold=InstanceTable.Column(3)
+
+//
+// Collect
+
+// Collect type is: multi-instance
+Fan.Collect.Type="MultiInstance"
+
+// Source(1) = the fanEntry snmp table
+// ID;Speed;
+Fan.Collect.Source(1).Type="SnmpTable"
+Fan.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.12124.2.53.1"
+Fan.Collect.Source(1).SnmpTableSelectColumns="ID,4"
+
+// ValueTable = Source(1)
+Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+Fan.Collect.DeviceID=ValueTable.Column(1)
+Fan.Collect.Speed=ValueTable.Column(2)
+
+// Temperatures
+
+//
+// Discovery
+//
+
+// Source(1) = the TemperatureEntry snmp table
+// ID;Name;Description;Temperature;
+Temperature.Discovery.Source(1).Type="SnmpTable"
+Temperature.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.12124.2.54.1"
+Temperature.Discovery.Source(1).SnmpTableSelectColumns="ID,2,3,4"
+
+// Duplicate the Description column
+// ID;Name;Description;Description;Temperature;
+Temperature.Discovery.Source(1).Compute(1).Type="DuplicateColumn"
+Temperature.Discovery.Source(1).Compute(1).Column=3
+
+// Extract everything from before a : in the description
+// ID;Name;Description;Description[1];Temperature;
+Temperature.Discovery.Source(1).Compute(2).Type="Extract"
+Temperature.Discovery.Source(1).Compute(2).Column=4
+Temperature.Discovery.Source(1).Compute(2).SubColumn=1
+Temperature.Discovery.Source(1).Compute(2).SubSeparators=":"
+
+// Add : to the Description[1]
+Temperature.Discovery.Source(1).Compute(3).Type="RightConcat"
+Temperature.Discovery.Source(1).Compute(3).Column=4
+Temperature.Discovery.Source(1).Compute(3).String=":"
+
+// Remote the first part of the description from the actual Description if there's a :
+// ID;Name;Description;Description[1];Temperature;
+Temperature.Discovery.Source(1).Compute(4).Type="Replace"
+Temperature.Discovery.Source(1).Compute(4).Column=3
+Temperature.Discovery.Source(1).Compute(4).Replace=Column(4)
+Temperature.Discovery.Source(1).Compute(4).ReplaceBy=""
+
+// Translate second name column to Warning and Alarm Thresholds
+// ID;WarnThreshold;Alarmthreshold;Description;Description[1];Temperature;
+Temperature.Discovery.Source(1).Compute(5).Type="Translate"
+Temperature.Discovery.Source(1).Compute(5).Column=2
+Temperature.Discovery.Source(1).Compute(5).TranslationTable="TemperatureThresholdTranslationTable"
+
+TemperatureThresholdTranslationTable("tutCPU0")=";73"
+TemperatureThresholdTranslationTable("tutCPU1")=";73"
+TemperatureThresholdTranslationTable("tSFC1")=";50"
+TemperatureThresholdTranslationTable("tSFC2")=";50"
+TemperatureThresholdTranslationTable("tps1")=";98"
+TemperatureThresholdTranslationTable("tps1")=";98"
+TemperatureThresholdTranslationTable("tSystem")=";62"
+TemperatureThresholdTranslationTable("tFP")=";38"
+TemperatureThresholdTranslationTable("BB EDGE Temp")=";65"
+TemperatureThresholdTranslationTable("BB BMC Temp")=";100"
+TemperatureThresholdTranslationTable("BB P1 VR Temp")=";115"
+TemperatureThresholdTranslationTable("BB P2 VR Temp")=";115"
+TemperatureThresholdTranslationTable("BB MEM VR Temp")=";115"
+TemperatureThresholdTranslationTable("P1 Therm Margin")="0;10"
+TemperatureThresholdTranslationTable("P2 Therm Margin")="0;10"
+TemperatureThresholdTranslationTable("P1 DTS Therm Mgn")="0;10"
+TemperatureThresholdTranslationTable("P2 DTS Therm Mgn")="0;10"
+TemperatureThresholdTranslationTable("DIMM Thrm Mrgn 1")="0;5"
+TemperatureThresholdTranslationTable("DIMM Thrm Mrgn 2")="0;5"
+TemperatureThresholdTranslationTable("DIMM Thrm Mrgn 3")="0;5"
+TemperatureThresholdTranslationTable("DIMM Thrm Mrgn 4")="0;5"
+TemperatureThresholdTranslationTable("TEMP SENSOR 1")=";50"
+TemperatureThresholdTranslationTable("TEMP SENSOR 2")=";50"
+TemperatureThresholdTranslationTable("PS TEMP 1")=";95"
+TemperatureThresholdTranslationTable("PS TEMP 2")=";95"
+TemperatureThresholdTranslationTable("LSI CORE TEMP")=";73"
+TemperatureThresholdTranslationTable("SSB Temp")=";95"
+TemperatureThresholdTranslationTable(Default)=";"
+
+// Remote Temp from DisplayID
+// ID;WarnThreshold;Alarmthreshold;Description;Description[1];Temperature;
+Temperature.Discovery.Source(1).Compute(6).Type="Replace"
+Temperature.Discovery.Source(1).Compute(6).Column=4
+Temperature.Discovery.Source(1).Compute(6).Replace="Temp"
+Temperature.Discovery.Source(1).Compute(6).ReplaceBy=""
+
+// InstanceTable = Source(1)
+// ID;WarnThreshold;Alarmthreshold;Description;Description[1];Temperature;
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Temperature.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+Temperature.Discovery.Instance.WarningThreshold=InstanceTable.Column(2)
+Temperature.Discovery.Instance.AlarmThreshold=InstanceTable.Column(3)
+
+//
+// Collect
+
+// Collect type is: multi-instance
+Temperature.Collect.Type="MultiInstance"
+
+// Source(1) = the TemperatureEntry snmp table
+// ID;Speed;
+Temperature.Collect.Source(1).Type="SnmpTable"
+Temperature.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.12124.2.54.1"
+Temperature.Collect.Source(1).SnmpTableSelectColumns="ID,4"
+
+// ValueTable = Source(1)
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.DeviceID=ValueTable.Column(1)
+Temperature.Collect.Temperature=ValueTable.Column(2)
+
+// Voltages
+
+//
+// Discovery
+//
+
+// Source(1) = the VoltageEntry snmp table
+// ID;Name;Description;Voltage;
+Voltage.Discovery.Source(1).Type="SnmpTable"
+Voltage.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.12124.2.55.1"
+Voltage.Discovery.Source(1).SnmpTableSelectColumns="ID,2,3,4"
+
+// Duplicate the Description column
+// ID;Name;Description;Description;Voltage;
+Voltage.Discovery.Source(1).Compute(1).Type="DuplicateColumn"
+Voltage.Discovery.Source(1).Compute(1).Column=3
+
+// Extract everything from before a : in the description
+// ID;Name;Description;Description[1];Voltage;
+Voltage.Discovery.Source(1).Compute(2).Type="Extract"
+Voltage.Discovery.Source(1).Compute(2).Column=4
+Voltage.Discovery.Source(1).Compute(2).SubColumn=1
+Voltage.Discovery.Source(1).Compute(2).SubSeparators=":"
+
+// Add : to the Description[1]
+Voltage.Discovery.Source(1).Compute(3).Type="RightConcat"
+Voltage.Discovery.Source(1).Compute(3).Column=4
+Voltage.Discovery.Source(1).Compute(3).String=":"
+
+// Remote the first part of the description from the actual Description if there's a :
+// ID;Name;Description;Description[1];Voltage;
+Voltage.Discovery.Source(1).Compute(4).Type="Replace"
+Voltage.Discovery.Source(1).Compute(4).Column=3
+Voltage.Discovery.Source(1).Compute(4).Replace=Column(4)
+Voltage.Discovery.Source(1).Compute(4).ReplaceBy=""
+
+// Translate second name column to Warning and Alarm Thresholds
+// ID;LowerThreshold;UpperThreshold;Description;Description[1];Voltage;
+Voltage.Discovery.Source(1).Compute(5).Type="Translate"
+Voltage.Discovery.Source(1).Compute(5).Column=2
+Voltage.Discovery.Source(1).Compute(5).TranslationTable="VoltageThresholdTranslationTable"
+
+// VoltageThresholdTranslationTable
+// Note:  Not all voltages have thresholds.
+// Sensors are either not listed in isi_hw_check Output
+// or are listed as "na"
+VoltageThresholdTranslationTable("BB +1.1V STBY")="1060;1150"
+VoltageThresholdTranslationTable("BB +1.2V VCCP1")="570;1440"
+VoltageThresholdTranslationTable("BB +1.2V P1vcc")="570;1440"
+VoltageThresholdTranslationTable("BB +1.2V P2vcc")="570;1440"
+VoltageThresholdTranslationTable("BB +1.35 P1LV AB")="570;1440"
+VoltageThresholdTranslationTable("BB +1.35 P1LV AB")="570;1440"
+VoltageThresholdTranslationTable("BB +1.35 P2LV CD")="570;1440"
+VoltageThresholdTranslationTable("BB +1.35 P2LV CD")="570;1440"
+VoltageThresholdTranslationTable("BB +1.8V AUX")="1730;1870"
+VoltageThresholdTranslationTable("BB +12.0V")="2490;"
+VoltageThresholdTranslationTable("BB +3.0V Vbat")="2490;"
+VoltageThresholdTranslationTable("BB +3.0V VBAT")="2490;"
+VoltageThresholdTranslationTable("BB +3.3V")="3070;3510"
+VoltageThresholdTranslationTable("BB +3.3V AUX")="3070;3510"
+VoltageThresholdTranslationTable("BB +5.0V")="4630;5350"
+VoltageThresholdTranslationTable("BB +5.0V STBY")="4630;5350"
+VoltageThresholdTranslationTable("BB -12.0V")="-13230;-10640"
+VoltageThresholdTranslationTable("BB 1.5V P1DDR AB")="1410;1590"
+VoltageThresholdTranslationTable("BB 1.5V P2DDR AB")="1410;1590"
+VoltageThresholdTranslationTable("BB 1.5V P1DDR CD")="1410;1590"
+VoltageThresholdTranslationTable("BB 1.5V P2DDR CD")="1410;1590"
+VoltageThresholdTranslationTable("PS IN VOLT 1")= ";"
+VoltageThresholdTranslationTable("PS IN VOLT 2")= ";"
+VoltageThresholdTranslationTable("PS OUT VOLT 1")="11400;12800"
+VoltageThresholdTranslationTable("PS OUT VOLT 2")="11400;12800"
+VoltageThresholdTranslationTable("V1.0")="920;1080"
+VoltageThresholdTranslationTable("VCC_1V0")="920;1080"
+VoltageThresholdTranslationTable("VCC_1V8")="1660;1940"
+VoltageThresholdTranslationTable("V1.8")="1660;1940"
+VoltageThresholdTranslationTable("V12.0")="11020;12960"
+VoltageThresholdTranslationTable("VCC_12V0")="11020;12960"
+VoltageThresholdTranslationTable("V12.0_BB_A")="11020;12960"
+VoltageThresholdTranslationTable("V12.0_FAN1")="11020;12960"
+VoltageThresholdTranslationTable("V12.0_FAN2")="11020;12960"
+VoltageThresholdTranslationTable("V12.0_FAN3")="11020;12960"
+VoltageThresholdTranslationTable("V12.0_MB0")="11020;12960"
+VoltageThresholdTranslationTable("V12.0_MB1")="11020;12960"
+VoltageThresholdTranslationTable("V3.3")="3030;3560"
+VoltageThresholdTranslationTable("VCC_3V3")="3030;3560"
+VoltageThresholdTranslationTable("V3.3_CMD")="3030;3560"
+VoltageThresholdTranslationTable("V3.3_STBY")="3030;3560"
+VoltageThresholdTranslationTable("V5.0")="4600;5400"
+VoltageThresholdTranslationTable("VCC_5V0")="4600;5400"
+VoltageThresholdTranslationTable("VCC_5V0_SB")="4600;5400"
+VoltageThresholdTranslationTable("VCC_5V0_CBL")="4600;5400"
+VoltageThresholdTranslationTable("V5.0_FP_X")="4600;5400"
+VoltageThresholdTranslationTable("V5.0_NVRAM")="4600;5400"
+VoltageThresholdTranslationTable("V5.0_STBY")="4600;5400"
+VoltageThresholdTranslationTable("3.3v")="3070;3510"
+VoltageThresholdTranslationTable("5v")="4600;5400"
+VoltageThresholdTranslationTable("12v")="11020;12960"
+VoltageThresholdTranslationTable("5vSFC")="4600;5400"
+VoltageThresholdTranslationTable("12vSFC")="11020;12960"
+VoltageThresholdTranslationTable("vCore0")="510;1590"
+VoltageThresholdTranslationTable("5vFPF")="4600;5400"
+VoltageThresholdTranslationTable("3.3vSFC")="3030;3560"
+VoltageThresholdTranslationTable("nv1Vcur")="2490;"
+VoltageThresholdTranslationTable("nv2Vcur")="2490;"
+VoltageThresholdTranslationTable("1.8vSFC")="1710;1890"
+VoltageThresholdTranslationTable("1.0vSFC")="950;1050"
+VoltageThresholdTranslationTable("vacps1")=";"
+VoltageThresholdTranslationTable("vacps2")=";"
+VoltageThresholdTranslationTable("vdcps1")="11400;12800"
+VoltageThresholdTranslationTable("vdcps2")="11400;12800"
+VoltageThresholdTranslationTable("1.5v")="1440;1560"
+VoltageThresholdTranslationTable("3.3vSB")="3170;3440"
+VoltageThresholdTranslationTable("5vSB")="4670;5330"
+VoltageThresholdTranslationTable("vDimmCPU0")="1170;1620"
+VoltageThresholdTranslationTable(Default)=";"
+
+// InstanceTable = Source(1)
+// ID;LowerThreshold;UpperThreshold;Description;Description[1];Voltage;
+Voltage.Discovery.InstanceTable=%Voltage.Discovery.Source(1)%
+Voltage.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Voltage.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+Voltage.Discovery.Instance.LowerThreshold=InstanceTable.Column(2)
+Voltage.Discovery.Instance.UpperThreshold=InstanceTable.Column(3)
+
+//
+// Collect
+
+// Collect type is: multi-instance
+Voltage.Collect.Type="MultiInstance"
+
+// Source(1) = the VoltageEntry snmp table
+// ID;Voltage;
+Voltage.Collect.Source(1).Type="SnmpTable"
+Voltage.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.12124.2.55.1"
+Voltage.Collect.Source(1).SnmpTableSelectColumns="ID,4"
+
+// Convert to mV
+Voltage.Collect.Source(1).Compute(1).Type="Multiply"
+Voltage.Collect.Source(1).Compute(1).Column=2
+Voltage.Collect.Source(1).Compute(1).MultiplyBy="1000"
+
+// ValueTable = Source(1)
+Voltage.Collect.ValueTable=%Voltage.Collect.Source(1)%
+Voltage.Collect.DeviceID=ValueTable.Column(1)
+Voltage.Collect.Voltage=ValueTable.Column(2)

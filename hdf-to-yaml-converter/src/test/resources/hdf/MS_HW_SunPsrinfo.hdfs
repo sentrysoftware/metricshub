@@ -1,0 +1,184 @@
+//
+//
+//                 C O N N E C T O R
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//                MS_HW_SunPrtdiagLom.hdf
+//
+//      Supports: Sun machines
+//		Monitors: environment (temperatures, fans, power supplies and voltages)
+//      Connects to: prtdiag or lom under Solaris
+//
+//
+
+//
+// HEADER
+//
+
+hdf.DisplayName="Oracle/Sun Solaris - Processors (psrinfo)"
+hdf.TypicalPlatform="Oracle/Sun"
+hdf.ReliesOn="Sun Solaris system commands (psrinfo, etc.)"
+hdf.Comments="This connector discovers and monitors the processor in any Sun SPARC-based Solaris machine through the psrinfo system command."
+hdf.Version="1.1"
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="Solaris"
+
+
+//
+// DETECTION
+//
+
+// OS should be SunOS or Solaris
+Detection.Criteria(1).Type="OS"
+Detection.Criteria(1).KeepOnly="SunOS,Solaris"
+
+// psrinfo should return something
+Detection.Criteria(2).Type="OsCommand"
+Detection.Criteria(2).CommandLine="/usr/sbin/psrinfo"
+Detection.Criteria(2).ExpectedResult="on-line"
+
+//
+// Processors
+//
+
+//
+// Discovery
+
+// Source(1) = psrinfo -v
+cpu.Discovery.Source(1).Type="OsCommand"
+cpu.Discovery.Source(1).CommandLine="/usr/sbin/psrinfo -v"
+
+// Send psrinfo'soutput through awk %EmbeddedFile(1)%
+// cpuID;cpuModel;cpuSpeed
+cpu.Discovery.Source(1).Compute(1).Type="Awk"
+cpu.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+cpu.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+cpu.Discovery.Source(1).Compute(1).Separators=";"
+cpu.Discovery.Source(1).Compute(1).SelectColumns="2,3,4"
+
+// Instance table = source(1)
+cpu.Discovery.InstanceTable=%cpu.Discovery.Source(1)%
+cpu.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+cpu.Discovery.Instance.Model=InstanceTable.Column(2)
+cpu.Discovery.Instance.MaximumSpeed=InstanceTable.Column(3)
+//cpu.Discovery.Instance.AttachedToDeviceID="SUN"
+//cpu.Discovery.Instance.AttachedToDeviceType="Computer"
+
+//
+// Collect
+
+// Collect type = multi-instance
+cpu.Collect.Type="MultiInstance"
+
+// Source(1) = psrinfo -v
+cpu.Collect.Source(1).Type="OsCommand"
+cpu.Collect.Source(1).CommandLine="/usr/sbin/psrinfo -v"
+
+// Send psrinfo's output through awk %EmbeddedFile(2)%
+// cpuID;cpuStatus
+cpu.Collect.Source(1).Compute(1).Type="Awk"
+cpu.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+cpu.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+cpu.Collect.Source(1).Compute(1).Separators=";"
+cpu.Collect.Source(1).Compute(1).SelectColumns="2,5"
+
+// Duplicate the status column
+// cpuID;cpuStatus;cpuStatus
+cpu.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+cpu.Collect.Source(1).Compute(2).Column="2"
+
+// Translate the first status column into a PATROL status
+// cpuID;PATROLStatus;cpuStatus
+cpu.Collect.Source(1).Compute(3).Type="Translate"
+cpu.Collect.Source(1).Compute(3).Column="2"
+cpu.Collect.Source(1).Compute(3).TranslationTable="cpuStatusTranslationTable"
+
+// Translate the second status column into a more readable string
+// cpuID;PATROLStatus;statusInformation
+cpu.Collect.Source(1).Compute(4).Type="Translate"
+cpu.Collect.Source(1).Compute(4).Column="3"
+cpu.Collect.Source(1).Compute(4).TranslationTable="cpuStatusInformationTranslationTable"
+
+// ValueTable = source(1)
+cpu.Collect.ValueTable=%cpu.Collect.Source(1)%
+cpu.Collect.DeviceID=ValueTable.Column(1)
+cpu.Collect.Status=ValueTable.Column(2)
+cpu.Collect.StatusInformation=ValueTable.Column(3)
+
+// The cpuStatusTranslationTable
+cpuStatusTranslationTable("on-line")="OK"
+cpuStatusTranslationTable("no-intr")="OK"
+cpuStatusTranslationTable("off-line")="ALARM"
+cpuStatusTranslationTable("powered off")="ALARM"
+cpuStatusTranslationTable("faulted")="ALARM"
+cpuStatusTranslationTable(Default)="UNKNOWN"
+
+// The cpuStatusInformationTranslationTable
+cpuStatusInformationTranslationTable("on-line")="On-line"
+cpuStatusInformationTranslationTable("no-intr")="Non-interruptible"
+cpuStatusInformationTranslationTable("off-line")="Off-line"
+cpuStatusInformationTranslationTable("powered off")="Powered off"
+cpuStatusInformationTranslationTable("faulted")="Faulted"
+cpuStatusInformationTranslationTable(Default)="Unknown Status"
+
+
+
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = awk script that parse the psrinfo -v output
+///
+/////////////////////////////////////////////////////////
+
+EmbeddedFile(1):
+{
+	if ($1 == "Status" && $3 == "processor")
+	{
+	        processorId = $4
+	        processorStatus = ""
+	        processorType = ""
+	        processorSpeed = ""
+	}
+
+	if ($1 == "Status" && $3 == "virtual" && $4 == "processor")
+	{
+			processorId = $5
+			processorStatus = ""
+			processorType = ""
+			processorSpeed = ""
+	}
+
+	if ($1 == "Processor" && $2 == "has" && $3 == "been")
+	{
+	        processorStatus = $4
+	}
+
+	if ($2 == "since")
+	{
+			processorStatus = $1
+	}
+	if ($3 == "since")
+	{
+			processorStatus = $1 " " $2
+	}
+
+	if ($1 == "The" && $3 == "processor" && $4 == "operates" && length(processorId) > 0)
+	{
+	        processorType = $2
+	        processorSpeed = $6
+
+	        print "MSHW;" processorId ";" processorType ";" processorSpeed ";" processorStatus
+
+	        processorId = ""
+	}
+}
+
+EmbeddedFile(1).End
+/////////////////////////////////////////////////////////////////////

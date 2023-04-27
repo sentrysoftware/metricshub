@@ -1,0 +1,200 @@
+//
+//
+//
+//                 C O N N E C T O R
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//               by Sentry Software (c)
+//
+//                 MS_HW_HPSSSU-Linux.hdf
+//
+//		Monitors: HP EVA Disk Array
+//      Connects to: HP EVA Command View
+//
+//
+
+//
+// HEADER
+//
+
+hdf.DisplayName="HP StorageWorks EVA (SSSU) - Patrol Agent on Linux"
+hdf.TypicalPlatform="HP StorageWorks EVA"
+hdf.ReliesOn="HP StorageWorks Command View EVA SSSU "
+hdf.Comments="This connector provides hardware monitoring through the HP StorageWorks Command View EVA SSSU command line utility"
+hdf.Version="1.1"
+hdf.LocalSupport="true"
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="Storage"
+hdf.NoAutoDetection="true"
+hdf.Supersedes="MS_HW_SMISDiskArray.hdf"
+
+#include MS_HW_HPSSSU.hhdf
+
+//
+// DETECTION
+//
+
+// The Patrol Agent should be on a server running Linux
+Detection.Criteria(1).Type="OSCommand"
+Detection.Criteria(1).CommandLine="uname"
+Detection.Criteria(1).ErrorMessage="Connector only works when the Patrol Agent is installed on a server running Linux"
+Detection.Criteria(1).ExpectedResult="Linux"
+Detection.Criteria(1).ExecuteLocally=1
+
+
+
+Enclosure.Discovery.Source(1).Type="OsCommand"
+Enclosure.Discovery.Source(1).CommandLine="/bin/sh %EmbeddedFile(1)% %{USERNAME} %{PASSWORD} %{HOSTNAME}"
+Enclosure.Discovery.Source(1).ExecuteLocally=1
+Enclosure.Discovery.Source(1).TimeOut="600"
+
+// Source(1) = the output of "%EmbeddedFile(1)%
+Enclosure.Collect.Source(1).Type="OsCommand"
+// Comment out next line for emulation, second line for real
+Enclosure.Collect.Source(1).CommandLine="/bin/sh %EmbeddedFile(1)% %{USERNAME} %{PASSWORD} %{HOSTNAME}"
+// Enclosure.Collect.Source(1).CommandLine="type %%Patrol_Home%%MS_HW_SSSU.out"
+Enclosure.Collect.Source(1).ExecuteLocally=1
+Enclosure.Collect.Source(1).TimeOut="600"
+
+
+
+LogicalDisk.Discovery.Source(1).Type="OsCommand"
+LogicalDisk.Discovery.Source(1).CommandLine="/bin/sh %EmbeddedFile(3)% %{USERNAME} %{PASSWORD} %{HOSTNAME}"
+LogicalDisk.Discovery.Source(1).ExecuteLocally=1
+LogicalDisk.Discovery.Source(1).TimeOut="3600"
+
+
+LogicalDisk.Collect.Source(1).Type="OsCommand"
+LogicalDisk.Collect.Source(1).CommandLine="/bin/sh %EmbeddedFile(3)% %{USERNAME} %{PASSWORD} %{HOSTNAME}"
+LogicalDisk.Collect.Source(1).ExecuteLocally=1
+LogicalDisk.Collect.Source(1).TimeOut="3600"
+
+
+
+
+
+/////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = The SSSU Batch file
+///
+///
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(1):
+#!/bin/bash
+username=$1
+password=$2
+hostname=$3
+
+# Echo the time
+echo -n "Start - ";date
+
+# A For loop.  It will take the output of LS SYSTEM
+# wait for the trigger "Systems available" (trigger name MS_HW_SSSU)
+# then will run the SSSU commands for all systems after that
+# with MS_HW_SECTION as a divider for each command for easier awk...
+# and an MS_HW_ENCLOSURE <Enclosure Name> as a divider for each enclosure
+systemsfound=0
+(sssu "SELECT manager $hostname username=$username password=$password " "LS SYSTEM"; echo) | (while read system; do
+  if [ $systemsfound -eq 1 ]; then
+     if [[ "$system" =~ "No Systems found" ]]; then
+        echo No Systems found
+        exit 1
+     fi
+     echo Found System $system
+     echo MS_HW_ENCLOSURE $system
+     echo
+     echo MS_HW_SECTION LS CONTROLLER FULL XML BEGIN
+     sssu "SELECT Manager $hostname username=$username password=$password" "SELECT SYSTEM \"$system\"" "SET OPTIONS ON_ERROR=Exit_on_error NORETRIES" "LS CONTROLLER FULL XML"
+     echo MS_HW_SECTION LS CONTROLLER FULL XML END
+     echo
+     echo MS_HW_SECTION LS CONTROLLER_ENCLOSURE FULL XML BEGIN
+     sssu "SELECT Manager $hostname username=$username password=$password" "SELECT SYSTEM \"$system\"" "SET OPTIONS ON_ERROR=Exit_on_error NORETRIES" "LS CONTROLLER_ENCLOSURE FULL XML"
+     echo MS_HW_SECTION LS CONTROLLER_ENCLOSURE FULL XML END
+     echo
+     echo MS_HW_SECTION LS DISK FULL XML  BEGIN
+     sssu "SELECT Manager $hostname username=$username password=$password" "SELECT SYSTEM \"$system\"" "SET OPTIONS ON_ERROR=Exit_on_error NORETRIES" "LS DISK FULL XML"
+     echo MS_HW_SECTION LS DISK FULL XML  END
+     echo
+     echo MS_HW_SECTION LS DISKSHELF FULL BEGIN
+     sssu "SELECT Manager $hostname username=$username password=$password" "SELECT SYSTEM \"$system\"" "SET OPTIONS ON_ERROR=Exit_on_error NORETRIES" "LS DISKSHELF FULL XML"
+     echo MS_HW_SECTION LS DISKSHELF FULL END
+     echo
+     echo MS_HW_SECTION LS SNAPSHOT FULL XML BEGIN
+     sssu "SELECT Manager $hostname username=$username password=$password" "SELECT SYSTEM \"$system\"" "SET OPTIONS ON_ERROR=Exit_on_error NORETRIES" "LS SNAPSHOT FULL XML"
+     echo MS_HW_SECTION LS SNAPSHOT FULL XML END
+     echo
+  else
+     if [[ "$system" =~ "Systems available" ]]; then
+        systemsfound=1
+     fi
+  fi
+done
+if [ $systemsfound -eq 0 ]; then
+  echo Text \"Systems Available\" not found in output
+fi
+)
+echo -n "End - ";date
+EmbeddedFile(1).End
+/////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(3) = The SSSU Batch file
+///
+///
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(3):
+#!/bin/bash
+username=$1
+password=$2
+hostname=$3
+
+# Echo the time
+echo -n "Start - ";date
+
+# A For loop.  It will take the output of LS SYSTEM
+# wait for the trigger "Systems available" (trigger name MS_HW_SSSU)
+# then will run the SSSU commands for all systems after that
+# with MS_HW_SECTION as a divider for each command for easier awk...
+# and an MS_HW_ENCLOSURE <Enclosure Name> as a divider for each enclosure
+systemsfound=0
+(sssu "SELECT manager $hostname username=$username password=$password " "LS SYSTEM"; echo) | (while read system; do
+  if [ $systemsfound -eq 1 ]; then
+     if [[ "$system" =~ "No Systems found" ]]; then
+        echo No Systems found
+        exit 1
+     fi
+     echo Found System $system
+     echo MS_HW_ENCLOSURE $system
+     echo
+     echo MS_HW_SECTION LS VDISK FULL XML BEGIN
+     sssu "SELECT Manager $hostname username=$username password=$password" "SELECT SYSTEM \"$system\"" "SET OPTIONS ON_ERROR=Exit_on_error NORETRIES" "LS VDISK FULL XML"
+     echo MS_HW_SECTION LS VDISK FULL XML END
+     echo
+     echo MS_HW_SECTION LS DISK_GROUP FULL XML BEGIN
+     sssu "SELECT Manager $hostname username=$username password=$password" "SELECT SYSTEM \"$system\"" "SET OPTIONS ON_ERROR=Exit_on_error NORETRIES" "LS DISK_GROUP FULL XML"
+     echo MS_HW_SECTION LS DISK_GROUP FULL XML END
+     echo
+
+  else
+     if [[ "$system" =~ "Systems available" ]]; then
+        systemsfound=1
+     fi
+  fi
+done
+if [ $systemsfound -eq 0 ]; then
+  echo Text \"Systems Available\" not found in output
+fi
+)
+echo -n "End - ";date
+EmbeddedFile(3).End
+/////////////////////////////////////////////////////////////////////

@@ -1,0 +1,457 @@
+//
+//
+//                 C O N N E C T O R
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//                  MS_HW_LSIMegaCliWindows.hdf
+//
+//      Supports: LSI Controllers and OEM LSI contollers
+//			Monitors: Raid contollers, arrays and disks managed by MegaCli / CmdTool2
+//      Connects to: MegaCli under Windows
+//
+//
+
+//
+// HEADER
+//
+
+hdf.DisplayName="LSI MegaCli"
+hdf.TypicalPlatform="Any system with LSI MegaCli"
+hdf.ReliesOn="Windows system commands (MegaCli / CmdTool2)"
+hdf.Comments="Gives physical disk and array status."
+hdf.Version="1.0"
+hdf.RemoteSupport="false"
+hdf.AppliesToOS="NT"
+
+//
+// DETECTION
+//
+
+Detection.Criteria(1).Type="OS"
+Detection.Criteria(1).KeepOnly="NT"
+
+Detection.Criteria(2).Type="OSCommand"
+Detection.Criteria(2).CommandLine="MegaCli -v -NoLog"
+Detection.Criteria(2).ExpectedResult="Exit Code: 0x00"
+Detection.Criteria(2).ErrorMessage="MegaCli not installed on this server."
+
+Detection.Criteria(3).Type="OSCommand"
+Detection.Criteria(3).CommandLine="MegaCli -PDList -aALL -NoLog"
+Detection.Criteria(3).ExpectedResult="[Pp][Dd] [Tt]ype"
+Detection.Criteria(3).ErrorMessage="No Physical Disks Found"
+
+//
+// NO COMPUTER
+//
+
+//
+// DISK CONTROLLERS
+//
+
+//
+// Discovery
+
+
+// Source(1) = Output of MegaCli
+
+DiskController.Discovery.Source(1).Type="OsCommand"
+DiskController.Discovery.Source(1).CommandLine="MegaCli -AdpAllInfo -aALL -NoLog"
+
+// Reformat MegaCli's output through awk see EmbeddedFile(1)
+// MSHW;controllerID;model;serialnumber;firmwareversion;biosversion;
+DiskController.Discovery.Source(1).Compute(1).Type="Awk"
+DiskController.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+DiskController.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+DiskController.Discovery.Source(1).Compute(1).Separators=";"
+DiskController.Discovery.Source(1).Compute(1).SelectColumns="2,3,4,5,6"
+
+// Source(2) = lsiutil output
+DiskController.Discovery.Source(2).Type="OsCommand"
+DiskController.Discovery.Source(2).CommandLine="MegaCli -PDList -aALL -NoLog"
+
+// Reformat lsiutil's output through awk see EmbeddedFile(2)
+// MSHW;controllernumber;
+DiskController.Discovery.Source(2).Compute(1).Type="Awk"
+DiskController.Discovery.Source(2).Compute(1).AwkScript=EmbeddedFile(2)
+DiskController.Discovery.Source(2).Compute(1).KeepOnlyRegExp="^MSHW;"
+DiskController.Discovery.Source(2).Compute(1).Separators=";"
+DiskController.Discovery.Source(2).Compute(1).SelectColumns="2"
+
+// Source (3) Table Join of Source (1) and Source (2) to keep only controllers that have physical disks associated with them
+// controllerID;model;serialnumber;firmwareversion;biosversion;controllerID
+DiskController.Discovery.Source(3).Type="TableJoint"
+DiskController.Discovery.Source(3).LeftTable=%DiskController.Discovery.Source(1)%
+DiskController.Discovery.Source(3).RightTable=%DiskController.Discovery.Source(2)%
+DiskController.Discovery.Source(3).LeftKeyColumn="1"
+DiskController.Discovery.Source(3).RightKeyColumn="1"
+
+// Source(4) = lsiutil output (Batteries)
+
+DiskController.Discovery.Source(4).Type="OsCommand"
+DiskController.Discovery.Source(4).CommandLine="MegaCli -AdpBbuCmd -aALL -NoLog"
+
+// Reformat lsiutil's output through awk see EmbeddedFile(2)
+//    MSHW;ControllerNumber;BatteryPatrolStatus;
+DiskController.Discovery.Source(4).Compute(1).Type="Awk"
+DiskController.Discovery.Source(4).Compute(1).AwkScript=EmbeddedFile(4)
+DiskController.Discovery.Source(4).Compute(1).KeepOnlyRegExp="^MSHW;"
+DiskController.Discovery.Source(4).Compute(1).Separators=";"
+DiskController.Discovery.Source(4).Compute(1).SelectColumns="2,3"
+
+// Source (5) Table Join of Source (1) and Source (2) to activate / deactivate the battery parameter
+// controllerID;model;serialnumber;firmwareversion;biosversion;controllerID;ControllerNumber;BatteryPatrolStatus;
+DiskController.Discovery.Source(5).Type="TableJoint"
+DiskController.Discovery.Source(5).LeftTable=%DiskController.Discovery.Source(3)%
+DiskController.Discovery.Source(5).RightTable=%DiskController.Discovery.Source(4)%
+DiskController.Discovery.Source(5).LeftKeyColumn="1"
+DiskController.Discovery.Source(5).RightKeyColumn="1"
+DiskController.Discovery.Source(5).DefaultRightLine=";;"
+
+// InstanceTable = Source(5)
+// controllerID;model;serialnumber;firmwareversion;biosversion;controllerID;ControllerNumber;BatteryPatrolStatus;
+DiskController.Discovery.InstanceTable=%DiskController.Discovery.Source(5)%
+DiskController.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+DiskController.Discovery.Instance.ControllerNumber=InstanceTable.Column(1)
+DiskController.Discovery.Instance.Model=InstanceTable.Column(2)
+DiskController.Discovery.Instance.SerialNumber=InstanceTable.Column(3)
+DiskController.Discovery.Instance.FirmwareVersion=InstanceTable.Column(4)
+DiskController.Discovery.Instance.BiosVersion=InstanceTable.Column(5)
+DiskController.Discovery.Instance.ParameterActivation.BatteryStatus=InstanceTable.Column(8)
+
+
+//
+// Collect
+
+// Collect type is "all instances in one shot"
+DiskController.Collect.Type="MultiInstance"
+
+
+// Source(1) = lsiutil output
+
+DiskController.Collect.Source(1).Type="OsCommand"
+DiskController.Collect.Source(1).CommandLine="MegaCli -AdpBbuCmd -aALL -NoLog"
+
+// Reformat lsiutil's output through awk see EmbeddedFile(2)
+//    MSHW;ControllerNumber;BatteryPatrolStatus;
+DiskController.Collect.Source(1).Compute(1).Type="Awk"
+DiskController.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(4)
+DiskController.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+DiskController.Collect.Source(1).Compute(1).Separators=";"
+DiskController.Collect.Source(1).Compute(1).SelectColumns="2,3"
+
+// ValueTable = Source(1)
+// ControllerNumber;BatteryPatrolStatus;
+DiskController.Collect.ValueTable=%DiskController.Collect.Source(1)%
+DiskController.Collect.DeviceID=ValueTable.Column(1)
+DiskController.Collect.BatteryStatus=ValueTable.Column(2)
+
+
+//
+// PHYSICAL DISKS
+//
+
+//
+// Discovery
+
+// Source(1) = lsiutil output
+PhysicalDisk.Discovery.Source(1).Type="OsCommand"
+PhysicalDisk.Discovery.Source(1).CommandLine="MegaCli -PDList -aALL -NoLog"
+
+// Reformat lsiutil's output through awk see EmbeddedFile(2)
+// MSHW;controllernumber;location;type;size;model;status;statusinformation;deviceID;
+PhysicalDisk.Discovery.Source(1).Compute(1).Type="Awk"
+PhysicalDisk.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(2)
+PhysicalDisk.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+PhysicalDisk.Discovery.Source(1).Compute(1).Separators=";"
+PhysicalDisk.Discovery.Source(1).Compute(1).SelectColumns="2,3,4,5,6,9"
+
+// Translate size into bytes
+// controllernumber;location;type;size;model;deviceID;
+PhysicalDisk.Discovery.Source(1).Compute(2).Type="Multiply"
+PhysicalDisk.Discovery.Source(1).Compute(2).Column=4
+PhysicalDisk.Discovery.Source(1).Compute(2).MultiplyBy="1073741824"
+
+PhysicalDisk.Discovery.Source(1).Compute(3).Type="LeftConcat"
+PhysicalDisk.Discovery.Source(1).Compute(3).Column=2
+PhysicalDisk.Discovery.Source(1).Compute(3).String="Location: "
+
+PhysicalDisk.Discovery.Source(1).Compute(3).Type="LeftConcat"
+PhysicalDisk.Discovery.Source(1).Compute(3).Column=3
+PhysicalDisk.Discovery.Source(1).Compute(3).String="Type: "
+
+// InstanceTable = Source(1)
+// controllernumber;location;type;size;model;deviceID;
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Instance.ControllerNumber=InstanceTable.Column(1)
+PhysicalDisk.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
+PhysicalDisk.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(3)
+PhysicalDisk.Discovery.Instance.Size=InstanceTable.Column(4)
+PhysicalDisk.Discovery.Instance.Model=InstanceTable.Column(5)
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(6)
+
+
+//
+// Collect
+
+// Collect type is "all instances in one shot"
+PhysicalDisk.Collect.Type="MultiInstance"
+
+
+// Source(1) = lsiutil output
+PhysicalDisk.Collect.Source(1).Type="OsCommand"
+PhysicalDisk.Collect.Source(1).CommandLine="MegaCli -PDList -aALL -NoLog"
+
+// Reformat lsiutil's output through awk see EmbeddedFile(2)
+// status;statusinformation;deviceID;
+PhysicalDisk.Collect.Source(1).Compute(1).Type="Awk"
+PhysicalDisk.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(2)
+PhysicalDisk.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+PhysicalDisk.Collect.Source(1).Compute(1).Separators=";"
+PhysicalDisk.Collect.Source(1).Compute(1).SelectColumns="7,8,9"
+
+// Translate the first status column into a PATROL status
+// Patrolstatus;statusinformation;deviceID;
+PhysicalDisk.Collect.Source(1).Compute(2).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(2).Column=1
+PhysicalDisk.Collect.Source(1).Compute(2).TranslationTable="PhysicalDiskStatusTranslationTable"
+
+// The PhysicalDiskStatusTranslationTable
+PhysicalDiskStatusTranslationTable("Unconfigured(good)")="OK"
+PhysicalDiskStatusTranslationTable("Unconfigured(bad)")="WARN"
+PhysicalDiskStatusTranslationTable("Hotspare")="ALARM"
+PhysicalDiskStatusTranslationTable("Offline")="OK"
+PhysicalDiskStatusTranslationTable("Online")="OK"
+PhysicalDiskStatusTranslationTable("Rebuild")="WARN"
+PhysicalDiskStatusTranslationTable("Failed")="ALARM"
+PhysicalDiskStatusTranslationTable("Copyback")="WARN"
+PhysicalDiskStatusTranslationTable(Default)="UNKNOWN"
+
+// ValueTable = Source(1)
+PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(1)%
+PhysicalDisk.Collect.DeviceID=ValueTable.Column(3)
+PhysicalDisk.Collect.Status=ValueTable.Column(1)
+PhysicalDisk.Collect.StatusInformation=ValueTable.Column(2)
+
+
+
+
+//
+// LOGICAL DISKS
+//
+
+//
+// Discovery
+
+// Source(1) = lsiutil output
+LogicalDisk.Discovery.Source(1).Type="OsCommand"
+LogicalDisk.Discovery.Source(1).CommandLine="MegaCli -LDInfo -Lall -aALL -NoLog"
+
+// Reformat lsiutil's output through awk see EmbeddedFile(3)
+// MSHW;controllernumber;deviceID;name;raidLevel;size;status;statusInformation;
+LogicalDisk.Discovery.Source(1).Compute(1).Type="Awk"
+LogicalDisk.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(3)
+LogicalDisk.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+LogicalDisk.Discovery.Source(1).Compute(1).Separators=";"
+LogicalDisk.Discovery.Source(1).Compute(1).SelectColumns="2,3,4,5,6"
+
+// Translate size into bytes
+// controllernumber;deviceID;name;raidLevel;size;
+LogicalDisk.Discovery.Source(1).Compute(2).Type="Multiply"
+LogicalDisk.Discovery.Source(1).Compute(2).Column=5
+LogicalDisk.Discovery.Source(1).Compute(2).MultiplyBy="1073741824"
+
+// InstanceTable = Source(1)
+// controllernumber;deviceID;name;raidLevel;size;
+LogicalDisk.Discovery.InstanceTable=%LogicalDisk.Discovery.Source(1)%
+LogicalDisk.Discovery.Instance.ControllerNumber=InstanceTable.Column(1)
+LogicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+LogicalDisk.Discovery.Instance.Raidlevel=InstanceTable.Column(4)
+LogicalDisk.Discovery.Instance.Size=InstanceTable.Column(5)
+LogicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+
+//
+// Collect
+
+// Collect type is "all instances in one shot"
+LogicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = lsiutil output
+LogicalDisk.Collect.Source(1).Type="OsCommand"
+LogicalDisk.Collect.Source(1).CommandLine="MegaCli -LDInfo -Lall -aALL -NoLog"
+
+// Reformat lsiutil's output through awk see EmbeddedFile(3)
+// MSHW;controllernumber;deviceID;name;raidLevel;size;status;statusInformation;
+LogicalDisk.Collect.Source(1).Compute(1).Type="Awk"
+LogicalDisk.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(3)
+LogicalDisk.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+LogicalDisk.Collect.Source(1).Compute(1).Separators=";"
+LogicalDisk.Collect.Source(1).Compute(1).SelectColumns="3,7,8"
+
+// Translate the first status column into a PATROL status
+// deviceID;Patrolstatus;statusinformation;
+LogicalDisk.Collect.Source(1).Compute(2).Type="Translate"
+LogicalDisk.Collect.Source(1).Compute(2).Column=2
+LogicalDisk.Collect.Source(1).Compute(2).TranslationTable="LogicalDiskStatusTranslationTable"
+
+// The LogicalDiskStatusTranslationTable
+LogicalDiskStatusTranslationTable("Offline")="ALARM"
+LogicalDiskStatusTranslationTable("Partially")="WARN"
+LogicalDiskStatusTranslationTable("Degraded")="WARN"
+LogicalDiskStatusTranslationTable("Optimal")="OK"
+LogicalDiskStatusTranslationTable(Default)="UNKNOWN"
+
+// ValueTable = Source(1)
+// deviceID;Patrolstatus;statusinformation;
+LogicalDisk.Collect.ValueTable=%LogicalDisk.Collect.Source(1)%
+LogicalDisk.Collect.DeviceID=ValueTable.Column(1)
+LogicalDisk.Collect.Status=ValueTable.Column(2)
+LogicalDisk.Collect.StatusInformation=ValueTable.Column(3)
+
+
+
+
+
+
+
+
+/////////////////////////////////////////////////////////////
+///
+///    Embedded File 1
+///
+///    AWK script that takes MegaCli as stdin
+///    and returns a table with all the disk controllers
+///    MSHW;controllerID;model;serialnumber;firmwareversion;biosversion;
+///
+/////////////////////////////////////////////////////////////
+EmbeddedFile(1):
+BEGIN {
+	controllerID="" ; model="" ; serialnumber="";firmwareversion="";
+}
+
+$1 ~ /^[Aa]dapter$/ && $2 ~ /#[0-9]+/ {controllerID = $2}
+$1 ~ /^[Pp]roduct$/ && $2 ~ /^[Nn]ame$/ {colonIndex = index($0, ":") ;
+                                         model = substr($0, colonIndex + 2) ;
+                                        }
+$1 ~ /^[Ss]erial$/ && $2 ~ /^[Nn]/      {colonIndex = index($0, ":") ;
+                                         serialnumber = substr($0, colonIndex + 2) ;
+                                        }
+$1 ~ /^[Ff][Ww]$/ && $2 ~ /^[Pp]ackage/ && controllerID != ""{colonIndex = index($0, ":") ;
+                                         firmwareversion = substr($0, colonIndex + 2) ;
+                                        print ("MSHW;"controllerID";"model";"serialnumber";"firmwareversion";"biosversion";");
+                                        controllerID="" ; model="" ; serialnumber="";firmwareversion="";
+                                        }
+EmbeddedFile(1).End
+///////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////
+///
+///    Embedded File 2
+///
+///    AWK script that takes MegaCli as stdin
+///    and returns a table with all the disks
+///    MSHW;controllernumber;location;type;size;model;status;statusinformation;deviceID;
+///
+/////////////////////////////////////////////////////////////
+EmbeddedFile(2):
+BEGIN {
+	controllerID="" ; enclosureID=""; location=""; type="";size="";status="";statusinformation="";deviceID="";
+}
+
+$1 ~ /^[Aa]dapter$/ && $2 ~ /#[0-9]+/ {controllerID = $2}
+
+$1 ~ /^[Ee]nclosure$/ && $2 ~ /^[Dd]evice/ && $3 ~ /[Ii][Dd]/ {enclosureID = $NF}
+$1 ~ /^[Ss]lot$/ && $2 ~ /^[Nn]umber/ {deviceID = (controllerID"["enclosureID":"$NF"]");
+	                                     location = ("Adapter " controllerID " - Enclosure " enclosureID " - Slot "$NF)
+	                                    }
+
+$1 ~ /^[Pp][Dd]$/ && $2 ~ /^[Tt]ype/  {type = $NF}
+
+$1 ~ /^[Rr]aw$/ && $2 ~ /^[Ss]ize/ && $4 ~ /[TtGgMm][Bb]/ {size = $3 ;
+	                                                         if ($4 ~ /[Mm][Bb]/) {size = size / 1024};
+                                                           if ($4 ~ /[Tt][Bb]/) {size = size * 1024};
+                                                          }
+
+$1 ~ /^[Ff]irmware$/ && $2 ~ /^[Ss]tate/ {colonIndex = index($0, ":") ;
+	                                       status = $3 ; gsub (/,/,"",status);
+                                         statusinformation = substr($0, colonIndex + 2) ;
+                                         }
+
+$1 ~ /^[Ii]nquiry$/ && $2 ~ /^[Dd]ata/ && controllerID != "" && deviceID != "" {colonIndex = index($0, ":") ;
+	                                       model = substr($0, colonIndex + 2) ;
+	                                       gsub(/  +/," ",model) ;
+                                         print ("MSHW;"controllerID";"location";"type";"size";"model";"status";"statusinformation";"deviceID";");
+                                         enclosureID=""; location=""; type="";size="";status="";statusinformation="";deviceID="";
+                                        }
+EmbeddedFile(2).End
+///////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////
+///
+///    Embedded File 3
+///
+///    AWK script that takes MegaCli as stdin
+///    and returns a table with all the disks
+///    MSHW;controllernumber;deviceID;name;raidLevel;size;status;statusInformation;
+///
+/////////////////////////////////////////////////////////////
+EmbeddedFile(3):
+BEGIN {
+	controllerID="" ; deviceID="" ; name="" ; raidLevel=""; size="";status="";statusInformation="";
+}
+
+$1 ~ /^[Aa]dapter$/ && $2 ~ /[0-9]+/ {controllerID = ("#"$2)}
+
+$1 ~ /^[Vv]irtual/ && $2 ~ /^[Dd]isk/ {deviceID = (controllerID "-VD" $3)}
+
+$1 ~ /^[Nn]ame:/ {colonIndex = index($1, ":") ;
+	                name = substr($1, colonIndex + 1) ;
+	               }
+
+tolower($1) ~ /raid/ && $2 ~ /^[Ll]evel/ && $3 ~ /^Primary-/ {raidLevel=$3 ; gsub (/Primary-/,"",raidLevel);gsub (/,/,"",raidLevel);
+	                                                           if (raidLevel=="1" && $4 ~ /Secondary-3/) {raidLevel=10}
+	                                                           }
+
+$1 ~ /^[Ss]ize:/ && $2 ~ /[TtGgMm][Bb]/{colonIndex = index($1, ":") ;
+	                                      size = substr($1, colonIndex + 1) ;
+	                                      if ($2 ~ /[Mm][Bb]/) {size = size / 1024};
+                                        if ($2 ~ /[Tt][Bb]/) {size = size * 1024};
+	                                     }
+
+$1 ~ /^[Ss]tate:/ && controllerID != "" && deviceID != "" {status = $2;
+	                 colonIndex = index($0, ":") ;
+	                 statusInformation = substr($0, colonIndex + 1) ;
+	                 print ("MSHW;"controllerID";" deviceID ";" name ";" raidLevel ";" size";"status";"statusInformation";");
+	                 controllerID="" ; deviceID="" ; name="" ; raidLevel=""; size="";status="";statusInformation="";
+	                }
+EmbeddedFile(3).End
+///////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////
+///
+///    Embedded File 4
+///
+///    AWK script that takes MegaCli as stdin
+///    and returns a table with all the disks
+///    MSHW;ControllerNumber;Battery;PatrolStatus;
+///
+/////////////////////////////////////////////////////////////
+EmbeddedFile(4):
+BEGIN {
+	controllerID="" ; status="OK";statusInformation="";
+      }
+
+tolower($1) ~ /^bbu$/ && $2 ~ /^[Ss]tatus$/ && $4 ~ /^[Aa]dapter/ {controllerID=("#" $NF)}
+
+tolower ($1) ~ /^issohgood/ {if (tolower($NF) ~ /no/) {status = "ALARM"}
+	                           print ("MSHW;"controllerID";" status";");
+	                           controllerID="" ; status="";
+	                          }
+EmbeddedFile(4).End
+///////////////////////////////////////////////////////////////

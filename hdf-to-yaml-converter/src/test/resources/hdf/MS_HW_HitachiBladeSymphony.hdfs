@@ -1,0 +1,1336 @@
+//
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//              MS_HW_HitachiBladeSymphony.hdf
+//
+//          Supports:  Hitachi Blade Symphony Chassis
+//
+//
+
+// HEADER
+
+hdf.DisplayName="Hitachi BladeSymphony Chassis"
+hdf.TypicalPlatform="Hitachi BladeSymphony"
+hdf.ReliesOn="Hitachi BladeSymphony Chassis Management Module"
+hdf.Version="1.0"
+hdf.Comments="This connector provides hardware monitoring for the Hitachi BladeSymphony Chassis racks through the Hitachi BladeSymphony Chassis Management Module"
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="OOB"
+
+//
+// DETECTION
+//
+
+// Criteria 1: Must have a chassisConfigSystem entry
+Detection.Criteria(1).Type="SNMP"
+Detection.Criteria(1).SnmpGetNext="1.3.6.1.4.1.116.5.39.1.10"
+
+//
+// ENCLOSURES
+//
+
+//
+// Discovery
+
+// Enclosure (Chassis) chassisConfigSystem Table
+// Model;SerialNumber;
+Enclosure.Discovery.Source(1).Type="SnmpTable"
+Enclosure.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.116.5.39.1.10"
+Enclosure.Discovery.Source(1).SnmpTableSelectColumns="1,4"
+
+// The InstanceTable
+// Model;SerialNumber;
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Instance.DeviceID="Hitachi Blade Chassis"
+Enclosure.Discovery.Instance.Vendor="Hitachi"
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(1)
+Enclosure.Discovery.Instance.Type="Blade Chassis"
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(3)
+
+//
+// Collect
+
+Enclosure.Collect.Type="MultiInstance"
+
+// Get the various enclosures (Chassis)
+// PowerConsumptionKW
+Enclosure.Collect.Source(1).Type="SnmpGet"
+Enclosure.Collect.Source(1).SnmpOid="1.3.6.1.4.1.116.5.39.6.1.6.0"
+
+// Convert 0.1KW to W
+// PowerConsumptionW
+Enclosure.Collect.Source(1).Compute(1).Type="Multiply"
+Enclosure.Collect.Source(1).Compute(1).Column=1
+Enclosure.Collect.Source(1).Compute(1).MultiplyBy=100
+
+// ValueTable = Source(1)
+Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(1)%
+Enclosure.Collect.DeviceID="Hitachi Blade Chassis"
+Enclosure.Collect.PowerConsumption=ValueTable.Column(1)
+
+//
+// BLADES
+//
+// Slot Number will be used as an Index as it exists in all applicable tables
+
+// Source(1) = Blade Existance Table bladeInstallEntry
+// SlotNumber;Exists
+Blade.Discovery.Source(1).Type="SnmpTable"
+Blade.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.116.5.39.1.2.1.1"
+Blade.Discovery.Source(1).SnmpTableSelectColumns="2,3"
+
+// Keep only blades that "Exist"
+// SlotNumber;Exists
+Blade.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Blade.Discovery.Source(1).Compute(1).Column=2
+Blade.Discovery.Source(1).Compute(1).ValueList="2"
+
+// Source(2) = Blade FRU info table
+// SlotNumber;Model;ModelNumber;Manufacturer;SerialNumber;Partition
+Blade.Discovery.Source(2).Type="SnmpTable"
+Blade.Discovery.Source(2).SnmpTableOid="1.3.6.1.4.1.116.5.39.2.2.1.1"
+Blade.Discovery.Source(2).SnmpTableSelectColumns="2,3,4,6,8,11"
+
+// Add the text "Partition"
+// SlotNumber;Model;ModelNumber;Manufacturer;SerialNumber;Partition
+Blade.Discovery.Source(2).Compute(1).Type="LeftConcat"
+Blade.Discovery.Source(2).Compute(1).Column=6
+Blade.Discovery.Source(2).Compute(1).String="Partition: "
+
+// Add the text "Model Number"
+// SlotNumber;Model;ModelNumber;Manufacturer;SerialNumber;Partition
+Blade.Discovery.Source(2).Compute(2).Type="LeftConcat"
+Blade.Discovery.Source(2).Compute(2).Column=3
+Blade.Discovery.Source(2).Compute(2).String="Part Number: "
+
+// Source(3) = TableJoint of 1 & 2
+// SlotNumber;Exists;SlotNumber;Model;ModelNumber;Manufacturer;SerialNumber;Partition
+Blade.Discovery.Source(3).Type="TableJoint"
+Blade.Discovery.Source(3).LeftTable=%Blade.Discovery.Source(1)%
+Blade.Discovery.Source(3).RightTable=%Blade.Discovery.Source(2)%
+Blade.Discovery.Source(3).LeftKeyColumn=1
+Blade.Discovery.Source(3).RightKeyColumn=1
+Blade.Discovery.Source(3).DefaultRightLine=";;;;;;"
+
+// InstanceTable = Source(1)
+// SlotNumber;Exists;SlotNumber;Model;ModelNumber;Manufacturer;SerialNumber;Partition
+Blade.Discovery.InstanceTable=%Blade.Discovery.Source(3)%
+Blade.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Blade.Discovery.Instance.BladeModel=InstanceTable.Column(4)
+Blade.Discovery.Instance.SerialNumber=InstanceTable.Column(7)
+Blade.Discovery.Instance.AttachedToDeviceID="Hitachi Blade Chassis"
+Blade.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(5)
+Blade.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(8)
+
+// To get the blade's power status, we need to know what partition it is part of.
+// We're going to figure this out in the discovery as we don't want to repeatedly do it.
+// ParitionNum;Slot1;Slot2;Slot3;Slot4;
+Blade.Discovery.Source(4).Type="SnmpTable"
+Blade.Discovery.Source(4).SnmpTableOid="1.3.6.1.4.1.116.5.39.4.3.1"
+Blade.Discovery.Source(4).SnmpTableSelectColumns="2,3,4,5,6"
+
+// Now make a table for slot1, then slot2, etc..
+Blade.Discovery.Source(5)=%Blade.Discovery.Source(4)%
+
+// ParitionNum;Slot1;
+Blade.Discovery.Source(5).Compute(1).Type="KeepColumns"
+Blade.Discovery.Source(5).Compute(1).ColumnNumbers="1,2"
+
+// Now make a table for slot1, then slot2, etc..
+Blade.Discovery.Source(6)=%Blade.Discovery.Source(4)%
+
+// ParitionNum;Slot2;
+Blade.Discovery.Source(6).Compute(1).Type="KeepColumns"
+Blade.Discovery.Source(6).Compute(1).ColumnNumbers="1,3"
+
+// Now make a table for slot1, then slot2, etc..
+Blade.Discovery.Source(7)=%Blade.Discovery.Source(4)%
+
+// ParitionNum;Slot3;
+Blade.Discovery.Source(7).Compute(1).Type="KeepColumns"
+Blade.Discovery.Source(7).Compute(1).ColumnNumbers="1,4"
+
+// Now make a table for slot1, then slot2, etc..
+Blade.Discovery.Source(8)=%Blade.Discovery.Source(4)%
+
+// ParitionNum;Slot4;
+Blade.Discovery.Source(8).Compute(1).Type="KeepColumns"
+Blade.Discovery.Source(8).Compute(1).ColumnNumbers="1,5"
+
+// Now union all the tables together
+// PartitionNum;Slot;
+Blade.Discovery.Source(9).Type="TableUnion"
+Blade.Discovery.Source(9).Table1=%Blade.Discovery.Source(5)%
+Blade.Discovery.Source(9).Table2=%Blade.Discovery.Source(6)%
+Blade.Discovery.Source(9).Table3=%Blade.Discovery.Source(7)%
+Blade.Discovery.Source(9).Table4=%Blade.Discovery.Source(8)%
+
+// Exclude Slots = -1
+// PartitionNum;Slot;
+Blade.Discovery.Source(9).Compute(1).Type="ExcludeMatchingLines"
+Blade.Discovery.Source(9).Compute(1).Column=2
+Blade.Discovery.Source(9).Compute(1).ValueList="-1"
+
+//
+// Collect
+//
+
+// Collect type is "multi-instance"
+Blade.Collect.Type="MultiInstance"
+
+// Source(1) = Blade Status Table
+// SlotNumber;HealthStatus
+Blade.Collect.Source(1).Type="SnmpTable"
+Blade.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.116.5.39.3.2.1.1"
+Blade.Collect.Source(1).SnmpTableSelectColumns="2,3"
+
+// Source(1) = Blade Status Table
+// SlotNumber;PatrolStatus
+Blade.Collect.Source(1).Compute(1).Type="Translate"
+Blade.Collect.Source(1).Compute(1).Column=2
+Blade.Collect.Source(1).Compute(1).TranslationTable="bladeStatusTT"
+
+// The raidPDiskStatusTranslationTable
+bladeStatusTT(1)="OK"
+bladeStatusTT(2)="ALARM"
+bladeStatusTT(3)="UNKNOWN"
+bladeStatusTT(Default)="UNKNOWN"
+
+// Source(2) = Partition Status Table
+// PartitionNum;PowerStatus;
+Blade.Collect.Source(2).Type="SnmpTable"
+Blade.Collect.Source(2).SnmpTableOid="1.3.6.1.4.1.116.5.39.5.1.1"
+Blade.Collect.Source(2).SnmpTableSelectColumns="2,3"
+
+// Translate the Power State
+// PartitionNum;PowerState;
+Blade.Collect.Source(2).Compute(1).Type="Translate"
+Blade.Collect.Source(2).Compute(1).Column=2
+Blade.Collect.Source(2).Compute(1).TranslationTable="PowerStateTranslationTable"
+
+// The PowerStateTranslationTable
+PowerStateTranslationTable(1)="off"
+PowerStateTranslationTable(2)="on"
+PowerStateTranslationTable(3)="off"
+PowerStateTranslationTable(4)=""
+PowerStateTranslationTable(5)="off"
+PowerStateTranslationTable(6)="off"
+PowerStateTranslationTable(Default)=""
+
+// Join Source(2) and Discovery (9) to map blade to partition
+// PartitionNum;Slot;PartitionNum;PowerState;
+Blade.Collect.Source(3).Type="TableJoint"
+Blade.Collect.Source(3).LeftTable=%Blade.Discovery.Source(9)%
+Blade.Collect.Source(3).RightTable=%Blade.Collect.Source(2)%
+Blade.Collect.Source(3).LeftKeyColumn=1
+Blade.Collect.Source(3).RightKeyColumn=1
+
+// Keep only Slot and Power Status
+// Slot;PowerState;
+Blade.Collect.Source(3).Compute(1).Type="KeepColumns"
+Blade.Collect.Source(3).Compute(1).ColumnNumbers="2,4"
+
+// Join Source(1) and Source (3)
+// SlotNumber;PatrolStatus;Slot;PowerState;
+Blade.Collect.Source(4).Type="TableJoint"
+Blade.Collect.Source(4).LeftTable=%Blade.Collect.Source(1)%
+Blade.Collect.Source(4).RightTable=%Blade.Collect.Source(3)%
+Blade.Collect.Source(4).LeftKeyColumn=1
+Blade.Collect.Source(4).RightKeyColumn=1
+
+// ValueTable = Source(1)
+Blade.Collect.ValueTable=%Blade.Collect.Source(4)%
+Blade.Collect.DeviceID=ValueTable.Column(1)
+Blade.Collect.Status=ValueTable.Column(2)
+Blade.Collect.PowerState=ValueTable.Column(4)
+
+
+//
+// FANS
+
+// Fan discovery
+
+// Source(1) = fanInstallExist
+// FanModID;FanSlot;FanExists
+Fan.Discovery.Source(1).Type="SnmpTable"
+Fan.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.116.5.39.1.6.1.1"
+Fan.Discovery.Source(1).SnmpTableSelectColumns="1,2,3"
+
+// Add a "Attached to Chassis field" and a descriptive to the Fan Slot Number
+// FanModID;AttachedTo;FanSlot Text;FanExists
+Fan.Discovery.Source(1).Compute(1).Type="LeftConcat"
+Fan.Discovery.Source(1).Compute(1).Column=2
+Fan.Discovery.Source(1).Compute(1).String="Hitachi Blade Chassis;Fan Module - Slot "
+
+// Source(2) = fanInfoEntry
+// FanModID;FanSlot;FanType;
+Fan.Discovery.Source(2).Type="SnmpTable"
+Fan.Discovery.Source(2).SnmpTableOid="1.3.6.1.4.1.116.5.39.2.6.1.1"
+Fan.Discovery.Source(2).SnmpTableSelectColumns="1,2,3"
+
+// Source(3) = fanRpmEntry
+// FanModID;Fan1Value;Fan1Valid;Fan2Value;Fan2Valid;Fan3Value;Fan3Valid;
+Fan.Discovery.Source(3).Type="SnmpTable"
+Fan.Discovery.Source(3).SnmpTableOid="1.3.6.1.4.1.116.5.39.3.6.2.1"
+Fan.Discovery.Source(3).SnmpTableSelectColumns="1,2,3,4,5,6,7"
+
+// Source(4) = fanRpmEntry
+// FanModID;Fan1Value;Fan1Valid;Fan2Value;Fan2Valid;Fan3Value;Fan3Valid;FanModID;FanModSlot;FanModuleType;
+Fan.Discovery.Source(4).Type="TableJoint"
+Fan.Discovery.Source(4).LeftTable=%Fan.Discovery.Source(3)%
+Fan.Discovery.Source(4).RightTable=%Fan.Discovery.Source(2)%
+Fan.Discovery.Source(4).LeftKeyColumn=1
+Fan.Discovery.Source(4).RightKeyColumn=1
+
+// Takes the horizontal list of fans modules and their fans and returns each fan individually
+// !!! Watch columns in this awk, as it takes columns from both Source 2 & 3 and is not tolerant of column number modifications
+// AttachedTo;FanSlot Text;FanModExists;FanSlot;FanType;Fan Speed;(FanStatus);
+Fan.Discovery.Source(4).Compute(1).Type="Awk"
+Fan.Discovery.Source(4).Compute(1).AwkScript=EmbeddedFile(1)
+Fan.Discovery.Source(4).Compute(1).KeepOnlyRegExp="^MSHW;"
+Fan.Discovery.Source(4).Compute(1).Separators=";"
+Fan.Discovery.Source(4).Compute(1).SelectColumns="2,3,4,5,6,7,8"
+
+// Source(5) = Table Joint of (1) and (2)
+// FanModID;AttachedTo;FanSlot Text;FanModExists;FanModID;FanSlot;FanType;
+Fan.Discovery.Source(5).Type="TableJoint"
+Fan.Discovery.Source(5).LeftTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Source(5).RightTable=%Fan.Discovery.Source(2)%
+Fan.Discovery.Source(5).LeftKeyColumn=1
+Fan.Discovery.Source(5).RightKeyColumn=1
+
+// Keep Only Columns
+// AttachedTo;FanSlot Text;FanModExists;FanSlot;FanType;
+Fan.Discovery.Source(5).Compute(1).Type="KeepColumns"
+Fan.Discovery.Source(5).Compute(1).ColumnNumbers="2,3,4,6,7"
+
+// Add a blank speed column
+// AttachedTo;FanSlot Text;FanModExists;FanSlot;FanType;(Fan Speed);FanStatus;
+Fan.Discovery.Source(5).Compute(2).Type="RightConcat"
+Fan.Discovery.Source(5).Compute(2).Column=5
+Fan.Discovery.Source(5).Compute(2).String=";;FanStatusActivate"
+
+// Add FM to the Slot
+// AttachedTo;FanSlot Text;FanModExists;FanSlot;FanType;(Fan Speed);FanStatus;
+Fan.Discovery.Source(5).Compute(3).Type="LeftConcat"
+Fan.Discovery.Source(5).Compute(3).Column=4
+Fan.Discovery.Source(5).Compute(3).String="FM"
+
+// Source(6) = Table Union of (4) and (5)
+// AttachedTo;FanSlot Text;FanModExists;FanSlot;FanType;Fan Speed;FanStatus;
+Fan.Discovery.Source(6).Type="TableUnion"
+Fan.Discovery.Source(6).Table1=%Fan.Discovery.Source(4)%
+Fan.Discovery.Source(6).Table2=%Fan.Discovery.Source(5)%
+
+// KeepOnly Fan Modules that Exists
+// AttachedTo;FanSlot Text;FanModExists;FanSlot;FanType;Fan Speed;FanStatus;
+Fan.Discovery.Source(6).Compute(1).Type="KeepOnlyMatchingLines"
+Fan.Discovery.Source(6).Compute(1).Column=3
+Fan.Discovery.Source(6).Compute(1).ValueList="2"
+
+// InstanceTable = Source(6)
+// Manually Setting Alarm Threshold to 100 as stopped Fans report a speed of 82
+// AttachedTo;FanSlot Text;FanModExists;FanSlot;FanType;Fan Speed;FanStatus;
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(6)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(4)
+Fan.Discovery.Instance.FanType=InstanceTable.Column(5)
+Fan.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+Fan.Discovery.Instance.ParameterActivation.Speed=InstanceTable.Column(6)
+Fan.Discovery.Instance.ParameterActivation.Status=InstanceTable.Column(7)
+Fan.Discovery.Instance.AlarmThreshold="100"
+
+
+//
+// Collect
+//
+
+// Collect type is "multi-instance"
+Fan.Collect.Type="MultiInstance"
+
+
+// Source(1) = fanStatusEntry
+// FanSlot;FanStatus
+Fan.Collect.Source(1).Type="SnmpTable"
+Fan.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.116.5.39.3.6.1.1"
+Fan.Collect.Source(1).SnmpTableSelectColumns="2,3"
+
+// Add FM to the Slot
+// FanSlot;FanStatus
+Fan.Collect.Source(1).Compute(1).Type="LeftConcat"
+Fan.Collect.Source(1).Compute(1).Column=1
+Fan.Collect.Source(1).Compute(1).String="FM"
+
+// Add a Blank Speed Column
+// FanSlot;(Fan Speed);FanStatus;
+Fan.Collect.Source(1).Compute(2).Type="LeftConcat"
+Fan.Collect.Source(1).Compute(2).Column=2
+Fan.Collect.Source(1).Compute(2).String=";"
+
+// Translate the Status
+// FanSlot;(Fan Speed);PatrolStatus;
+Fan.Collect.Source(1).Compute(3).Type="Translate"
+Fan.Collect.Source(1).Compute(3).Column=3
+Fan.Collect.Source(1).Compute(3).TranslationTable="FanTT"
+
+// The FanTT
+FanTT(1)="OK"
+FanTT(2)="ALARM"
+FanTT(3)="UNKNOWN"
+FanTT(Default)="UNKNOWN"
+
+// Source(2) = fanRpmEntry
+// FanModID;Fan1Value;Fan1Valid;Fan2Value;Fan2Valid;Fan3Value;Fan3Valid;
+Fan.Collect.Source(2).Type="SnmpTable"
+Fan.Collect.Source(2).SnmpTableOid="1.3.6.1.4.1.116.5.39.3.6.2.1"
+Fan.Collect.Source(2).SnmpTableSelectColumns="1,2,3,4,5,6,7"
+
+// Source(3) = Table Join of Collect 2 and Discovery 2, so that we can use the same awk script as in the Discovery
+// FanModID;Fan1Value;Fan1Valid;Fan2Value;Fan2Valid;Fan3Value;Fan3Valid;FanModID;FanModSlot;FanModuleType;
+Fan.Collect.Source(3).Type="TableJoint"
+Fan.Collect.Source(3).LeftTable=%Fan.Collect.Source(2)%
+Fan.Collect.Source(3).RightTable=%Fan.Discovery.Source(2)%
+Fan.Collect.Source(3).LeftKeyColumn=1
+Fan.Collect.Source(3).RightKeyColumn=1
+
+// Takes the horizontal list of fans modules and their fans and returns each fan individually
+// AttachedTo;FanSlot Text;FanModExists;FanSlot;FanType;Fan Speed;(FanStatus);
+Fan.Collect.Source(3).Compute(1).Type="Awk"
+Fan.Collect.Source(3).Compute(1).AwkScript=EmbeddedFile(1)
+Fan.Collect.Source(3).Compute(1).KeepOnlyRegExp="^MSHW;"
+Fan.Collect.Source(3).Compute(1).Separators=";"
+Fan.Collect.Source(3).Compute(1).SelectColumns="2,3,4,5,6,7,8"
+
+// Takes the horizontal list of fans modules and their fans and returns each fan individually
+// FanSlot;Fan Speed;(FanStatus);
+Fan.Collect.Source(3).Compute(2).Type="KeepColumns"
+Fan.Collect.Source(3).Compute(2).ColumnNumbers="4,6,7"
+
+// Source 4 = Table Union of 1 & 3
+// FanSlot;Fan Speed;PatrolStatus;
+Fan.Collect.Source(4).Type="TableUnion"
+Fan.Collect.Source(4).Table1=%Fan.Collect.Source(1)%
+Fan.Collect.Source(4).Table2=%Fan.Collect.Source(3)%
+
+// ValueTable = Source(4)
+// FanSlot;Fan Speed;PatrolStatus;
+Fan.Collect.ValueTable=%Fan.Collect.Source(4)%
+Fan.Collect.DeviceID=ValueTable.Column(1)
+Fan.Collect.Speed=ValueTable.Column(2)
+Fan.Collect.Status=ValueTable.Column(3)
+
+
+
+//
+// POWER SUPPLIES
+
+// PowerSupply discovery
+
+// Source(1) = psInstallEntry
+// Slot;Exists
+PowerSupply.Discovery.Source(1).Type="SnmpTable"
+PowerSupply.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.116.5.39.1.7.1.1"
+PowerSupply.Discovery.Source(1).SnmpTableSelectColumns="2,3"
+
+// Keep only PSUs that exist
+// Slot;Exists
+PowerSupply.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+PowerSupply.Discovery.Source(1).Compute(1).Column=2
+PowerSupply.Discovery.Source(1).Compute(1).ValueList="2"
+
+// Source(2) = psInfoEntry
+// Slot;SerialNumber;Type;PartNumber;
+PowerSupply.Discovery.Source(2).Type="SnmpTable"
+PowerSupply.Discovery.Source(2).SnmpTableOid="1.3.6.1.4.1.116.5.39.2.7.1.1"
+PowerSupply.Discovery.Source(2).SnmpTableSelectColumns="2,3,4,5"
+
+// Add Identifier to Part Number
+// Slot;SerialNumber;Type;PartNumber;
+PowerSupply.Discovery.Source(2).Compute(1).Type="LeftConcat"
+PowerSupply.Discovery.Source(2).Compute(1).Column=4
+PowerSupply.Discovery.Source(2).Compute(1).String="Part Number: "
+
+// Add Identifier to Serial Number
+// Slot;SerialNumber;Type;PartNumber;
+PowerSupply.Discovery.Source(2).Compute(2).Type="LeftConcat"
+PowerSupply.Discovery.Source(2).Compute(2).Column=2
+PowerSupply.Discovery.Source(2).Compute(2).String="Serial Number: "
+
+
+// Source(3) = Table Joint of (1) & (2)
+// Slot;Exists;Slot;SerialNumber;Type;PartNumber;
+PowerSupply.Discovery.Source(3).Type="TableJoint"
+PowerSupply.Discovery.Source(3).LeftTable=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Source(3).RightTable=%PowerSupply.Discovery.Source(2)%
+PowerSupply.Discovery.Source(3).LeftKeyColumn=1
+PowerSupply.Discovery.Source(3).RightKeyColumn=1
+
+
+// InstanceTable = Source(3)
+// Slot;Exists;Slot;SerialNumber;Type;PartNumber;
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(3)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PowerSupply.Discovery.Instance.PowerSupplyType=InstanceTable.Column(5)
+PowerSupply.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(4)
+PowerSupply.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(6)
+
+//
+// Collect
+//
+
+// Collect type is "multi-instance"
+PowerSupply.Collect.Type="MultiInstance"
+
+
+// Source(1) = psStatusEntry
+// Slot;Status;
+PowerSupply.Collect.Source(1).Type="SnmpTable"
+PowerSupply.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.116.5.39.3.7.1.1"
+PowerSupply.Collect.Source(1).SnmpTableSelectColumns="2,3"
+
+// Translate the Status
+// Slot;PatrolStatus;
+PowerSupply.Collect.Source(1).Compute(1).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(1).Column=2
+PowerSupply.Collect.Source(1).Compute(1).TranslationTable="PSUTT"
+
+// The PSUTT
+PSUTT(1)="OK"
+PSUTT(2)="ALARM"
+PSUTT(3)="UNKNOWN"
+PSUTT(Default)="UNKNOWN"
+
+// ValueTable = Source(4)
+// Slot;PatrolStatus;
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(1)
+PowerSupply.Collect.Status=ValueTable.Column(2)
+
+
+//
+// TEMPERATURES
+
+// Temperature discovery
+
+// Source (1) =Get the Chassis Upper and Lower
+// TempUpper;
+Temperature.Discovery.Source(1).Type="SnmpGet"
+Temperature.Discovery.Source(1).SnmpOid="1.3.6.1.4.1.116.5.39.1.10.7.0"
+
+
+// Add an identifier and a blank status
+// ID;Location;(Status);TempUpper;
+Temperature.Discovery.Source(1).Compute(1).Type="LeftConcat"
+Temperature.Discovery.Source(1).Compute(1).Column=1
+Temperature.Discovery.Source(1).Compute(1).String="Ambient;Chassis Ambient;;"
+
+
+// Source (2) =Get the Intake Temperature Status
+// Status
+Temperature.Discovery.Source(2).Type="SnmpGet"
+Temperature.Discovery.Source(2).SnmpOid="1.3.6.1.4.1.116.5.39.6.1.8.0"
+
+// Add an identifier
+// ID;Location;Status;(TempUpper);
+Temperature.Discovery.Source(2).Compute(1).Type="LeftConcat"
+Temperature.Discovery.Source(2).Compute(1).Column=1
+Temperature.Discovery.Source(2).Compute(1).String="Intake;Chassis Intake;"
+Temperature.Discovery.Source(2).Compute(2).Type="RightConcat"
+Temperature.Discovery.Source(2).Compute(2).Column=3
+Temperature.Discovery.Source(2).Compute(2).String=";"
+
+
+// Source (3) = Get the Power Supply Ambient Temperature Table
+// ID;TempUpper
+Temperature.Discovery.Source(3).Type="SnmpTable"
+Temperature.Discovery.Source(3).SnmpTableOid="1.3.6.1.4.1.116.5.39.2.7.1.1"
+Temperature.Discovery.Source(3).SnmpTableSelectColumns="1,8"
+
+// Duplicate the ID
+// ID;ID;TempUpper
+Temperature.Discovery.Source(3).Compute(1).Type="DuplicateColumn"
+Temperature.Discovery.Source(3).Compute(1).Column=1
+
+// Add Identifiers
+// ID;Location;TempUpper
+Temperature.Discovery.Source(3).Compute(2).Type="LeftConcat"
+Temperature.Discovery.Source(3).Compute(2).Column=1
+Temperature.Discovery.Source(3).Compute(2).String="AmbPS-"
+Temperature.Discovery.Source(3).Compute(3).Type="LeftConcat"
+Temperature.Discovery.Source(3).Compute(3).Column=2
+Temperature.Discovery.Source(3).Compute(3).String="Ambient PSU-"
+
+// Source (4) = Get the Power Supply Ambient Temperature Table
+// ID;TempUpper
+Temperature.Discovery.Source(4).Type="SnmpTable"
+Temperature.Discovery.Source(4).SnmpTableOid="1.3.6.1.4.1.116.5.39.2.7.1.1"
+Temperature.Discovery.Source(4).SnmpTableSelectColumns="1,10"
+
+// Duplicate the ID
+// ID;ID;TempUpper
+Temperature.Discovery.Source(4).Compute(1).Type="DuplicateColumn"
+Temperature.Discovery.Source(4).Compute(1).Column=1
+
+// Add Identifiers
+// ID;Location;TempUpper
+Temperature.Discovery.Source(4).Compute(2).Type="LeftConcat"
+Temperature.Discovery.Source(4).Compute(2).Column=1
+Temperature.Discovery.Source(4).Compute(2).String="HSPS-"
+Temperature.Discovery.Source(4).Compute(3).Type="LeftConcat"
+Temperature.Discovery.Source(4).Compute(3).Column=2
+Temperature.Discovery.Source(4).Compute(3).String="HotSpot PSU-"
+
+// Source (5) = Get the Power Supply Exhaust Temperature Table
+// ID;TempUpper
+Temperature.Discovery.Source(5).Type="SnmpTable"
+Temperature.Discovery.Source(5).SnmpTableOid="1.3.6.1.4.1.116.5.39.2.7.1.1"
+Temperature.Discovery.Source(5).SnmpTableSelectColumns="1,12"
+
+// Duplicate the ID
+// ID;ID;TempUpper
+Temperature.Discovery.Source(5).Compute(1).Type="DuplicateColumn"
+Temperature.Discovery.Source(5).Compute(1).Column=1
+
+// Add Identifiers
+// ID;Location;TempUpper
+Temperature.Discovery.Source(5).Compute(2).Type="LeftConcat"
+Temperature.Discovery.Source(5).Compute(2).Column=1
+Temperature.Discovery.Source(5).Compute(2).String="ExhPS-"
+Temperature.Discovery.Source(5).Compute(3).Type="LeftConcat"
+Temperature.Discovery.Source(5).Compute(3).Column=2
+Temperature.Discovery.Source(5).Compute(3).String="Exhaust PSU-"
+
+// Source (6) = Get the Management Module Temperature Table
+// ID;TempUpper
+Temperature.Discovery.Source(6).Type="SnmpTable"
+Temperature.Discovery.Source(6).SnmpTableOid="1.3.6.1.4.1.116.5.39.2.3.1.1"
+Temperature.Discovery.Source(6).SnmpTableSelectColumns="1,14"
+
+// Duplicate the ID
+// ID;ID;TempUpper
+Temperature.Discovery.Source(6).Compute(1).Type="DuplicateColumn"
+Temperature.Discovery.Source(6).Compute(1).Column=1
+
+// Add Identifiers
+// ID;Location;TempUpper
+Temperature.Discovery.Source(6).Compute(2).Type="LeftConcat"
+Temperature.Discovery.Source(6).Compute(2).Column=1
+Temperature.Discovery.Source(6).Compute(2).String="MM-"
+Temperature.Discovery.Source(6).Compute(3).Type="LeftConcat"
+Temperature.Discovery.Source(6).Compute(3).Column=2
+Temperature.Discovery.Source(6).Compute(3).String="Management Module-"
+
+// Source (6) = Union of 3 & 4 & 5 & 6
+// ID;Location;TempUpper;
+Temperature.Discovery.Source(7).Type="TableUnion"
+Temperature.Discovery.Source(7).Table1=%Temperature.Discovery.Source(3)%
+Temperature.Discovery.Source(7).Table2=%Temperature.Discovery.Source(4)%
+Temperature.Discovery.Source(7).Table3=%Temperature.Discovery.Source(5)%
+Temperature.Discovery.Source(7).Table4=%Temperature.Discovery.Source(6)%
+
+// Add an Identifier
+// ID;Location;(Status);TempUpper
+Temperature.Discovery.Source(7).Compute(1).Type="LeftConcat"
+Temperature.Discovery.Source(7).Compute(1).Column=3
+Temperature.Discovery.Source(7).Compute(1).String=";"
+
+// Source (8) = Union of 1 & 2 & 6
+// ID;Location;Status;TempUpper;
+Temperature.Discovery.Source(8).Type="TableUnion"
+Temperature.Discovery.Source(8).Table1=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Source(8).Table2=%Temperature.Discovery.Source(2)%
+Temperature.Discovery.Source(8).Table3=%Temperature.Discovery.Source(7)%
+
+// Adjust the Upper Threshold units from 0.1�C to �C
+// ID;Location;Status;TempUpper;
+Temperature.Discovery.Source(8).Compute(1).Type="Divide"
+Temperature.Discovery.Source(8).Compute(1).Column=4
+Temperature.Discovery.Source(8).Compute(1).DivideBy="10"
+
+Temperature.Discovery.Source(8).Compute(2).Type="LeftConcat"
+Temperature.Discovery.Source(8).Compute(2).Column=2
+Temperature.Discovery.Source(8).Compute(2).String="Location: "
+
+// InstanceTable = Source(3)
+// ID;Location;Status;TempUpper;
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(8)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Temperature.Discovery.Instance.AlarmThreshold=InstanceTable.Column(4)
+Temperature.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
+Temperature.Discovery.Instance.ParameterActivation.Temperature=InstanceTable.Column(4)
+Temperature.Discovery.Instance.ParameterActivation.Status=InstanceTable.Column(3)
+
+
+
+//
+// Collect
+//
+
+// Collect type is "multi-instance"
+Temperature.Collect.Type="MultiInstance"
+
+// Source (1) =Get the Chassis Ambient
+// Temp;
+Temperature.Collect.Source(1).Type="SnmpGet"
+Temperature.Collect.Source(1).SnmpOid="1.3.6.1.4.1.116.5.39.6.1.4.0"
+
+// Add an identifier and a blank status
+// ID;(Status);(StatusInformation);Temp;
+Temperature.Collect.Source(1).Compute(1).Type="LeftConcat"
+Temperature.Collect.Source(1).Compute(1).Column=1
+Temperature.Collect.Source(1).Compute(1).String="Ambient;;;"
+
+// Source (2) = Get the Intake Temperature Status
+// Status
+Temperature.Collect.Source(2).Type="SnmpGet"
+Temperature.Collect.Source(2).SnmpOid="1.3.6.1.4.1.116.5.39.6.1.8.0"
+
+// Add an identifier and a blank Temperature Field
+// ID;Status;(Temp);
+Temperature.Collect.Source(2).Compute(1).Type="LeftConcat"
+Temperature.Collect.Source(2).Compute(1).Column=1
+Temperature.Collect.Source(2).Compute(1).String="Intake;"
+Temperature.Collect.Source(2).Compute(2).Type="RightConcat"
+Temperature.Collect.Source(2).Compute(2).Column=2
+Temperature.Collect.Source(2).Compute(2).String=";"
+
+// Duplicate Status Column
+// ID;Status;Status;(Temp);
+Temperature.Collect.Source(2).Compute(3).Type="DuplicateColumn"
+Temperature.Collect.Source(2).Compute(3).Column=2
+
+// Translate the Patrol Status
+// ID;PatrolStatus;Status;(Temp);
+Temperature.Collect.Source(2).Compute(4).Type="Translate"
+Temperature.Collect.Source(2).Compute(4).Column=2
+Temperature.Collect.Source(2).Compute(4).TranslationTable="IntakeTempTT"
+
+// The IntakeTempTT
+IntakeTempTT(1)="OK"
+IntakeTempTT(2)="WARN"
+IntakeTempTT(3)="ALARM"
+IntakeTempTT(4)="WARN"
+IntakeTempTT(Default)="UNKNOWN"
+
+// Translate the Patrol Status
+// ID;PatrolStatus;StatusInformation;(Temp);
+Temperature.Collect.Source(2).Compute(5).Type="Translate"
+Temperature.Collect.Source(2).Compute(5).Column=3
+Temperature.Collect.Source(2).Compute(5).TranslationTable="IntakeTempInfoTT"
+
+// The IntakeTempInfoTT
+IntakeTempInfoTT(1)=""
+IntakeTempInfoTT(2)="Intake Temperature High"
+IntakeTempInfoTT(3)="Intake Temperature Exceeds Threshold"
+IntakeTempInfoTT(4)="Intake Temperature Low"
+IntakeTempInfoTT(Default)="UNKNOWN"
+
+// Source (3) = Get the Power Supply Ambient Temperature Table
+// ID;Temp
+Temperature.Collect.Source(3).Type="SnmpTable"
+Temperature.Collect.Source(3).SnmpTableOid="1.3.6.1.4.1.116.5.39.3.7.2.1"
+Temperature.Collect.Source(3).SnmpTableSelectColumns="1,2"
+
+// Add an Identifier
+// ID;Temp
+Temperature.Collect.Source(3).Compute(1).Type="LeftConcat"
+Temperature.Collect.Source(3).Compute(1).Column=1
+Temperature.Collect.Source(3).Compute(1).String="AmbPS-"
+
+// Source (4) = Get the Power Supply Ambient Temperature Table
+// ID;Temp
+Temperature.Collect.Source(4).Type="SnmpTable"
+Temperature.Collect.Source(4).SnmpTableOid="1.3.6.1.4.1.116.5.39.3.7.2.1"
+Temperature.Collect.Source(4).SnmpTableSelectColumns="1,4"
+
+// Add an Identifier
+// ID;Temp
+Temperature.Collect.Source(4).Compute(1).Type="LeftConcat"
+Temperature.Collect.Source(4).Compute(1).Column=1
+Temperature.Collect.Source(4).Compute(1).String="HSPS-"
+
+// Source (5) = Get the Power Supply Exhaust Temperature Table
+// ID;Temp
+Temperature.Collect.Source(5).Type="SnmpTable"
+Temperature.Collect.Source(5).SnmpTableOid="1.3.6.1.4.1.116.5.39.3.7.2.1"
+Temperature.Collect.Source(5).SnmpTableSelectColumns="1,6"
+
+// Add an Identifier
+// ID;Temp
+Temperature.Collect.Source(5).Compute(1).Type="LeftConcat"
+Temperature.Collect.Source(5).Compute(1).Column=1
+Temperature.Collect.Source(5).Compute(1).String="ExhPS-"
+
+// Source (6) = Get the Management Module Temperature Table
+// ID;Temp
+Temperature.Collect.Source(6).Type="SnmpTable"
+Temperature.Collect.Source(6).SnmpTableOid="1.3.6.1.4.1.116.5.39.3.3.3.1"
+Temperature.Collect.Source(6).SnmpTableSelectColumns="1,3"
+
+// Add an Identifier
+// ID;Temp;
+Temperature.Collect.Source(6).Compute(1).Type="LeftConcat"
+Temperature.Collect.Source(6).Compute(1).Column=1
+Temperature.Collect.Source(6).Compute(1).String="MM-"
+
+// Source (7) = Union of 3 & 4 & 5
+// ID;Temp;
+Temperature.Collect.Source(7).Type="TableUnion"
+Temperature.Collect.Source(7).Table1=%Temperature.Collect.Source(3)%
+Temperature.Collect.Source(7).Table2=%Temperature.Collect.Source(4)%
+Temperature.Collect.Source(7).Table3=%Temperature.Collect.Source(5)%
+Temperature.Collect.Source(7).Table4=%Temperature.Collect.Source(6)%
+
+// Add an Identifier
+// ID;(Status);(StatusInformation);Temp
+Temperature.Collect.Source(7).Compute(1).Type="LeftConcat"
+Temperature.Collect.Source(7).Compute(1).Column=2
+Temperature.Collect.Source(7).Compute(1).String=";;"
+
+// Source (7) = Union of 1 & 2 & 6
+// ID;PatrolStatus;StatusInformation;Temp;
+Temperature.Collect.Source(8).Type="TableUnion"
+Temperature.Collect.Source(8).Table1=%Temperature.Collect.Source(1)%
+Temperature.Collect.Source(8).Table2=%Temperature.Collect.Source(2)%
+Temperature.Collect.Source(8).Table3=%Temperature.Collect.Source(7)%
+
+// Adjust the Upper Threshold units from 0.1�C to �C
+// ID;PatrolStatus;StatusInformation;Temp;
+Temperature.Collect.Source(8).Compute(1).Type="Divide"
+Temperature.Collect.Source(8).Compute(1).Column=4
+Temperature.Collect.Source(8).Compute(1).DivideBy="10"
+
+// Value Table
+// ID;PatrolStatus;StatusInformation;Temp;
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(8)%
+Temperature.Collect.DeviceID=ValueTable.Column(1)
+Temperature.Collect.Status=ValueTable.Column(2)
+Temperature.Collect.StatusInformation=ValueTable.Column(3)
+Temperature.Collect.Temperature=ValueTable.Column(4)
+
+
+//
+// OTHER DEVICES
+
+// Other Devices discovery
+
+// Source(1) = MM Existance Table
+// SlotNumber;Exists
+OtherDevice.Discovery.Source(1).Type="SnmpTable"
+OtherDevice.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.116.5.39.1.3.1.1"
+OtherDevice.Discovery.Source(1).SnmpTableSelectColumns="2,3"
+
+// Source (2) = mmInfoEntry (Management Modules)
+// Slot;ProductName;PartNumber;Serial;Model;
+OtherDevice.Discovery.Source(2).Type="SnmpTable"
+OtherDevice.Discovery.Source(2).SnmpTableOid="1.3.6.1.4.1.116.5.39.2.3.1.1"
+OtherDevice.Discovery.Source(2).SnmpTableSelectColumns="2,3,4,6,8"
+
+// Source(3) = Table Joint of 1 & 2
+// Slot;ProductName;PartNumber;Serial;Model;SlotNumber;Exists;
+OtherDevice.Discovery.Source(3).Type="TableJoint"
+OtherDevice.Discovery.Source(3).LeftTable=%OtherDevice.Discovery.Source(2)%
+OtherDevice.Discovery.Source(3).RightTable=%OtherDevice.Discovery.Source(1)%
+OtherDevice.Discovery.Source(3).LeftKeyColumn=1
+OtherDevice.Discovery.Source(3).RightKeyColumn=1
+
+// Add an Identifier
+// Type;Slot;ProductName;PartNumber;Serial;Model;SlotNumber;Exists;
+OtherDevice.Discovery.Source(3).Compute(1).Type="LeftConcat"
+OtherDevice.Discovery.Source(3).Compute(1).Column=1
+OtherDevice.Discovery.Source(3).Compute(1).String="Management Module;MM-"
+
+// Source(4) = IOA Existance Table
+// SlotNumber;Exists
+OtherDevice.Discovery.Source(4).Type="SnmpTable"
+OtherDevice.Discovery.Source(4).SnmpTableOid="1.3.6.1.4.1.116.5.39.1.5.1.1"
+OtherDevice.Discovery.Source(4).SnmpTableSelectColumns="2,3"
+
+// Source (5) = ioInfoEntry (IOA Modules)
+// Slot;ProductName;PartNumber;Serial;Model;
+OtherDevice.Discovery.Source(5).Type="SnmpTable"
+OtherDevice.Discovery.Source(5).SnmpTableOid="1.3.6.1.4.1.116.5.39.2.5.1.1"
+OtherDevice.Discovery.Source(5).SnmpTableSelectColumns="2,3,4,7,8"
+
+// Source(6) = Table Joint of 4 & 5
+// Slot;ProductName;PartNumber;Serial;Model;SlotNumber;Exists;
+OtherDevice.Discovery.Source(6).Type="TableJoint"
+OtherDevice.Discovery.Source(6).LeftTable=%OtherDevice.Discovery.Source(5)%
+OtherDevice.Discovery.Source(6).RightTable=%OtherDevice.Discovery.Source(4)%
+OtherDevice.Discovery.Source(6).LeftKeyColumn=1
+OtherDevice.Discovery.Source(6).RightKeyColumn=1
+
+// Add an Identifier
+// Type;Slot;ProductName;PartNumber;Serial;Model;SlotNumber;Exists;
+OtherDevice.Discovery.Source(6).Compute(1).Type="LeftConcat"
+OtherDevice.Discovery.Source(6).Compute(1).Column=1
+OtherDevice.Discovery.Source(6).Compute(1).String="IOA module;IOA-"
+
+// Source(7) = IOA Existance Table
+// SlotNumber;Exists
+OtherDevice.Discovery.Source(7).Type="SnmpTable"
+OtherDevice.Discovery.Source(7).SnmpTableOid="1.3.6.1.4.1.116.5.39.1.4.1.1"
+OtherDevice.Discovery.Source(7).SnmpTableSelectColumns="2,3"
+
+// Source (8) = swInfoEntry (Switches"
+// Slot;ProductName;PartNumber;Serial;
+OtherDevice.Discovery.Source(8).Type="SnmpTable"
+OtherDevice.Discovery.Source(8).SnmpTableOid="1.3.6.1.4.1.116.5.39.2.4.1.1"
+OtherDevice.Discovery.Source(8).SnmpTableSelectColumns="2,3,4,5"
+
+// Add a Blank Model Column
+// Slot;ProductName;PartNumber;Serial;(Model);
+OtherDevice.Discovery.Source(8).Compute(1).Type="RightConcat"
+OtherDevice.Discovery.Source(8).Compute(1).Column=4
+OtherDevice.Discovery.Source(8).Compute(1).String=";"
+
+// Source(9) = Table Joint of 7 & 8
+// Slot;ProductName;PartNumber;Serial;Model;SlotNumber;Exists;
+OtherDevice.Discovery.Source(9).Type="TableJoint"
+OtherDevice.Discovery.Source(9).LeftTable=%OtherDevice.Discovery.Source(8)%
+OtherDevice.Discovery.Source(9).RightTable=%OtherDevice.Discovery.Source(7)%
+OtherDevice.Discovery.Source(9).LeftKeyColumn=1
+OtherDevice.Discovery.Source(9).RightKeyColumn=1
+
+// Add an Identifier
+// Type;Slot;ProductName;PartNumber;Serial;Model;SlotNumber;Exists;
+OtherDevice.Discovery.Source(9).Compute(1).Type="LeftConcat"
+OtherDevice.Discovery.Source(9).Compute(1).Column=1
+OtherDevice.Discovery.Source(9).Compute(1).String="Switch;SW-"
+
+// Source (10) = Union of 3 & 6 & 9
+// Type;Slot;ProductName;PartNumber;Serial;Model;SlotNumber;Exists;
+OtherDevice.Discovery.Source(10).Type="TableUnion"
+OtherDevice.Discovery.Source(10).Table1=%OtherDevice.Discovery.Source(3)%
+OtherDevice.Discovery.Source(10).Table2=%OtherDevice.Discovery.Source(6)%
+OtherDevice.Discovery.Source(10).Table3=%OtherDevice.Discovery.Source(9)%
+
+// Add Labels to Part, Serial and Model Number
+// Type;Slot;ProductName;PartNumber;Serial;Model;SlotNumber;Exists;
+OtherDevice.Discovery.Source(10).Compute(1).Type="LeftConcat"
+OtherDevice.Discovery.Source(10).Compute(1).Column=4
+OtherDevice.Discovery.Source(10).Compute(1).String="Part Number: "
+
+// Keep only OtherDevices that "Exist"
+// Type;Slot;ProductName;PartNumber;Serial;Model;SlotNumber;Exists;
+OtherDevice.Discovery.Source(10).Compute(2).Type="KeepOnlyMatchingLines"
+OtherDevice.Discovery.Source(10).Compute(2).Column=8
+OtherDevice.Discovery.Source(10).Compute(2).ValueList="2"
+
+// Source (11) = Partitions partitionConfigEntry
+// ID;PrimaryOtherDeviceID;Valid;
+OtherDevice.Discovery.Source(11).Type="SnmpTable"
+OtherDevice.Discovery.Source(11).SnmpTableOid="1.3.6.1.4.1.116.5.39.4.2.1"
+OtherDevice.Discovery.Source(11).SnmpTableSelectColumns="1,2,4"
+
+// Keep only OtherDevices that are "Valid"
+// ID;PrimaryOtherDeviceID;Valid;
+OtherDevice.Discovery.Source(11).Compute(1).Type="KeepOnlyMatchingLines"
+OtherDevice.Discovery.Source(11).Compute(1).Column=3
+OtherDevice.Discovery.Source(11).Compute(1).ValueList="1"
+
+// Source (12) = Partitions partitionOtherDeviceEntry
+// ID;PartitionNumber;BladeDevice1;BladeDevice2;BladeDevice3;BladeDevice4;
+OtherDevice.Discovery.Source(12).Type="SnmpTable"
+OtherDevice.Discovery.Source(12).SnmpTableOid="1.3.6.1.4.1.116.5.39.4.3.1"
+OtherDevice.Discovery.Source(12).SnmpTableSelectColumns="1,2,3,4,5,6"
+
+// Add an Identifier to OtherDevice1, and spaces to 2 & 3 & 4
+// ID;PartitionNumber;BladeDevice1;BladeDevice2;BladeDevice3;BladeDevice4;
+OtherDevice.Discovery.Source(12).Compute(1).Type="LeftConcat"
+OtherDevice.Discovery.Source(12).Compute(1).Column=3
+OtherDevice.Discovery.Source(12).Compute(1).String=" "
+OtherDevice.Discovery.Source(12).Compute(2).Type="LeftConcat"
+OtherDevice.Discovery.Source(12).Compute(2).Column=4
+OtherDevice.Discovery.Source(12).Compute(2).String=" "
+OtherDevice.Discovery.Source(12).Compute(3).Type="LeftConcat"
+OtherDevice.Discovery.Source(12).Compute(3).Column=5
+OtherDevice.Discovery.Source(12).Compute(3).String=" "
+OtherDevice.Discovery.Source(12).Compute(4).Type="LeftConcat"
+OtherDevice.Discovery.Source(12).Compute(4).Column=6
+OtherDevice.Discovery.Source(12).Compute(4).String=" "
+
+// Remove Blades with ID "-1"
+// ID;PartitionNumber;BladeDevice1;BladeDevice2;BladeDevice3;BladeDevice4;
+OtherDevice.Discovery.Source(12).Compute(5).Type="Replace"
+OtherDevice.Discovery.Source(12).Compute(5).Column=3
+OtherDevice.Discovery.Source(12).Compute(5).Replace=" -1"
+OtherDevice.Discovery.Source(12).Compute(5).ReplaceBy=""
+OtherDevice.Discovery.Source(12).Compute(6).Type="Replace"
+OtherDevice.Discovery.Source(12).Compute(6).Column=4
+OtherDevice.Discovery.Source(12).Compute(6).Replace=" -1"
+OtherDevice.Discovery.Source(12).Compute(6).ReplaceBy=""
+OtherDevice.Discovery.Source(12).Compute(7).Type="Replace"
+OtherDevice.Discovery.Source(12).Compute(7).Column=5
+OtherDevice.Discovery.Source(12).Compute(7).Replace=" -1"
+OtherDevice.Discovery.Source(12).Compute(7).ReplaceBy=""
+OtherDevice.Discovery.Source(12).Compute(8).Type="Replace"
+OtherDevice.Discovery.Source(12).Compute(8).Column=6
+OtherDevice.Discovery.Source(12).Compute(8).Replace=" -1"
+OtherDevice.Discovery.Source(12).Compute(8).ReplaceBy=""
+
+// Combine all the Blades into one Column
+// ID;PartitionNumber;BladeDevices;BladeDevice2;BladeDevice3;BladeDevice4;
+OtherDevice.Discovery.Source(12).Compute(9).Type="RightConcat"
+OtherDevice.Discovery.Source(12).Compute(9).Column=3
+OtherDevice.Discovery.Source(12).Compute(9).String=Column(4)
+OtherDevice.Discovery.Source(12).Compute(10).Type="RightConcat"
+OtherDevice.Discovery.Source(12).Compute(10).Column=3
+OtherDevice.Discovery.Source(12).Compute(10).String=Column(5)
+OtherDevice.Discovery.Source(12).Compute(11).Type="RightConcat"
+OtherDevice.Discovery.Source(12).Compute(11).Column=3
+OtherDevice.Discovery.Source(12).Compute(11).String=Column(6)
+
+// Combine all the Blades into one Column
+// ID;PrimaryOtherDeviceID;Valid;ID;PartitionNumber;BladeDevices;BladeDevice2;BladeDevice3;BladeDevice4;
+OtherDevice.Discovery.Source(13).Type="TableJoint"
+OtherDevice.Discovery.Source(13).LeftTable=%OtherDevice.Discovery.Source(11)%
+OtherDevice.Discovery.Source(13).RightTable=%OtherDevice.Discovery.Source(12)%
+OtherDevice.Discovery.Source(13).LeftKeyColumn=1
+OtherDevice.Discovery.Source(13).RightKeyColumn=1
+
+// Keep Only Useful Columns
+// PartitionNumber;PrimaryOtherDeviceID;BladeDevices
+OtherDevice.Discovery.Source(13).Compute(1).Type="KeepColumns"
+OtherDevice.Discovery.Source(13).Compute(1).ColumnNumbers="5,2,6"
+
+// Add a Type and an Identifier PartitionNumber
+// Type;PartitionNumber;PrimaryOtherDeviceID;BladeDevices
+OtherDevice.Discovery.Source(13).Compute(2).Type="LeftConcat"
+OtherDevice.Discovery.Source(13).Compute(2).Column=1
+OtherDevice.Discovery.Source(13).Compute(2).String="Partition;PART-"
+
+// Add Identifier to PrimaryOtherDeviceID
+// Type;PartitionNumber;PrimaryOtherDeviceID;BladeDevices
+OtherDevice.Discovery.Source(13).Compute(3).Type="LeftConcat"
+OtherDevice.Discovery.Source(13).Compute(3).Column=3
+OtherDevice.Discovery.Source(13).Compute(3).String="Primary Blade - "
+
+// Add Identifier to BladeDevices
+// Type;PartitionNumber;PrimaryOtherDeviceID;BladeDevices
+OtherDevice.Discovery.Source(13).Compute(4).Type="LeftConcat"
+OtherDevice.Discovery.Source(13).Compute(4).Column=4
+OtherDevice.Discovery.Source(13).Compute(4).String="Component Blades: "
+
+// Add Blank Columns to match up with Other Devices
+// Type;PartitionNumber;PrimaryOtherDeviceID;BladeDevices;;;
+OtherDevice.Discovery.Source(13).Compute(5).Type="RightConcat"
+OtherDevice.Discovery.Source(13).Compute(5).Column=4
+OtherDevice.Discovery.Source(13).Compute(5).String=";;"
+
+// Table Union of 10 & 13
+// Type;Slot           ;ProductName         ;PartNumber  ;Serial;Model;
+// Type;PartitionNumber;PrimaryOtherDeviceID;BladeDevices;      ;     ;
+OtherDevice.Discovery.Source(14).Type="TableUnion"
+OtherDevice.Discovery.Source(14).Table1=%OtherDevice.Discovery.Source(10)%
+OtherDevice.Discovery.Source(14).Table2=%OtherDevice.Discovery.Source(13)%
+
+OtherDevice.Discovery.Source(14).Compute(1).Type="LeftConcat"
+OtherDevice.Discovery.Source(14).Compute(1).Column=6
+OtherDevice.Discovery.Source(14).Compute(1).String="Model: "
+
+OtherDevice.Discovery.Source(14).Compute(2).Type="LeftConcat"
+OtherDevice.Discovery.Source(14).Compute(2).Column=5
+OtherDevice.Discovery.Source(14).Compute(2).String="SerialNumber: "
+// InstanceTable = Source(14)
+// Type;Slot           ;ProductName         ;PartNumber  ;Serial;Model;
+// Type;PartitionNumber;PrimaryOtherDeviceID;BladeDevices;      ;     ;
+OtherDevice.Discovery.InstanceTable=%OtherDevice.Discovery.Source(14)%
+OtherDevice.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+OtherDevice.Discovery.Instance.DeviceType=InstanceTable.Column(1)
+OtherDevice.Discovery.Instance.AdditionalLabel=InstanceTable.Column(3)
+OtherDevice.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(4)
+OtherDevice.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(5)
+OtherDevice.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(6)
+
+//
+// Collect
+//
+
+// Collect type is "multi-instance"
+OtherDevice.Collect.Type="MultiInstance"
+
+// Source(1) = mmStatusEntry
+// Slot;Status;
+OtherDevice.Collect.Source(1).Type="SnmpTable"
+OtherDevice.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.116.5.39.3.3.1.1"
+OtherDevice.Collect.Source(1).SnmpTableSelectColumns="2,3"
+
+// Add an Identifier
+// Slot;Status;
+OtherDevice.Collect.Source(1).Compute(1).Type="LeftConcat"
+OtherDevice.Collect.Source(1).Compute(1).Column=1
+OtherDevice.Collect.Source(1).Compute(1).String="MM-"
+
+// Source(2) = ioStatusEntry
+// Slot;Status;
+OtherDevice.Collect.Source(2).Type="SnmpTable"
+OtherDevice.Collect.Source(2).SnmpTableOid="1.3.6.1.4.1.116.5.39.3.5.1.1"
+OtherDevice.Collect.Source(2).SnmpTableSelectColumns="2,3"
+
+// Add an Identifier
+// Slot;Status;
+OtherDevice.Collect.Source(2).Compute(1).Type="LeftConcat"
+OtherDevice.Collect.Source(2).Compute(1).Column=1
+OtherDevice.Collect.Source(2).Compute(1).String="IOA-"
+
+// Source(3) = swStatusEntry
+// Slot;Status;
+OtherDevice.Collect.Source(3).Type="SnmpTable"
+OtherDevice.Collect.Source(3).SnmpTableOid="1.3.6.1.4.1.116.5.39.3.4.1.1"
+OtherDevice.Collect.Source(3).SnmpTableSelectColumns="2,3"
+
+// Add an Identifier
+// Slot;Status;
+OtherDevice.Collect.Source(3).Compute(1).Type="LeftConcat"
+OtherDevice.Collect.Source(3).Compute(1).Column=1
+OtherDevice.Collect.Source(3).Compute(1).String="SW-"
+
+// Source(4) = swStatusEntry
+// Slot;Status;
+OtherDevice.Collect.Source(4).Type="SnmpTable"
+OtherDevice.Collect.Source(4).SnmpTableOid="1.3.6.1.4.1.116.5.39.5.1.1"
+OtherDevice.Collect.Source(4).SnmpTableSelectColumns="2,4"
+
+// Add an Identifier
+// Slot;Status;
+OtherDevice.Collect.Source(4).Compute(1).Type="LeftConcat"
+OtherDevice.Collect.Source(4).Compute(1).Column=1
+OtherDevice.Collect.Source(4).Compute(1).String="PART-"
+
+// Source (5) = Union of 1 & 2 & 3 & 4
+// Slot;Status;
+OtherDevice.Collect.Source(5).Type="TableUnion"
+OtherDevice.Collect.Source(5).Table1=%OtherDevice.Collect.Source(1)%
+OtherDevice.Collect.Source(5).Table2=%OtherDevice.Collect.Source(2)%
+OtherDevice.Collect.Source(5).Table3=%OtherDevice.Collect.Source(3)%
+OtherDevice.Collect.Source(5).Table4=%OtherDevice.Collect.Source(4)%
+
+// Translate the Status
+// Slot;PatrolStatus;
+OtherDevice.Collect.Source(5).Compute(1).Type="Translate"
+OtherDevice.Collect.Source(5).Compute(1).Column=2
+OtherDevice.Collect.Source(5).Compute(1).TranslationTable="OtherDeviceTT"
+
+// The OtherDeviceTT
+OtherDeviceTT(1)="OK"
+OtherDeviceTT(2)="ALARM"
+OtherDeviceTT(3)="UNKNOWN"
+OtherDeviceTT(Default)="UNKNOWN"
+
+// The ValueTable
+OtherDevice.Collect.ValueTable=%OtherDevice.Collect.Source(5)%
+OtherDevice.Collect.DeviceID=ValueTable.Column(1)
+OtherDevice.Collect.Status=ValueTable.Column(2)
+
+//
+// LED DEVICES
+
+// Source (1) = Node LED OID
+LED.Discovery.Source(1).Type="SnmpGet"
+LED.Discovery.Source(1).SnmpOid="1.3.6.1.4.1.116.5.39.6.1.9.0"
+
+// Add an Identifier
+// ID;Name;Value
+LED.Discovery.Source(1).Compute(1).Type="LeftConcat"
+LED.Discovery.Source(1).Compute(1).Column=1
+LED.Discovery.Source(1).Compute(1).String="Node;Node Failure;"
+
+// Source (2) = Switch LED OID
+LED.Discovery.Source(2).Type="SnmpGet"
+LED.Discovery.Source(2).SnmpOid="1.3.6.1.4.1.116.5.39.6.1.10.0"
+
+// Add an Identifier
+// ID;Name;Value
+LED.Discovery.Source(2).Compute(1).Type="LeftConcat"
+LED.Discovery.Source(2).Compute(1).Column=1
+LED.Discovery.Source(2).Compute(1).String="SW;Switch Failure;"
+
+// Source (3) = Power Supply LED OID
+LED.Discovery.Source(3).Type="SnmpGet"
+LED.Discovery.Source(3).SnmpOid="1.3.6.1.4.1.116.5.39.6.1.11.0"
+
+// Add an Identifier
+// ID;Name;Value
+LED.Discovery.Source(3).Compute(1).Type="LeftConcat"
+LED.Discovery.Source(3).Compute(1).Column=1
+LED.Discovery.Source(3).Compute(1).String="PS;Power Supply Module Failure;"
+
+// Source (4) = Fan LED OID
+LED.Discovery.Source(4).Type="SnmpGet"
+LED.Discovery.Source(4).SnmpOid="1.3.6.1.4.1.116.5.39.6.1.12.0"
+
+// Add an Identifier
+// ID;Name;Value
+LED.Discovery.Source(4).Compute(1).Type="LeftConcat"
+LED.Discovery.Source(4).Compute(1).Column=1
+LED.Discovery.Source(4).Compute(1).String="FM;Fan Module Failure;"
+
+// Source (5) = Temp LED OID
+LED.Discovery.Source(5).Type="SnmpGet"
+LED.Discovery.Source(5).SnmpOid="1.3.6.1.4.1.116.5.39.6.1.13.0"
+
+// Add an Identifier
+// ID;Name;Value
+LED.Discovery.Source(5).Compute(1).Type="LeftConcat"
+LED.Discovery.Source(5).Compute(1).Column=1
+LED.Discovery.Source(5).Compute(1).String="Temp;Thermal Issue;"
+
+// Source (6) = Device LED OID
+LED.Discovery.Source(6).Type="SnmpGet"
+LED.Discovery.Source(6).SnmpOid="1.3.6.1.4.1.116.5.39.6.1.14.0"
+
+// ID;Name;Value
+LED.Discovery.Source(6).Compute(1).Type="LeftConcat"
+LED.Discovery.Source(6).Compute(1).Column=1
+LED.Discovery.Source(6).Compute(1).String="Device;Device in Server Blade Error;"
+
+// Source (7) = Union of 1 & 2 & 3 & 4 & 5
+// ID;Name;Value
+LED.Discovery.Source(7).Type="TableUnion"
+LED.Discovery.Source(7).Table1=%LED.Discovery.Source(1)%
+LED.Discovery.Source(7).Table2=%LED.Discovery.Source(2)%
+LED.Discovery.Source(7).Table3=%LED.Discovery.Source(3)%
+LED.Discovery.Source(7).Table4=%LED.Discovery.Source(4)%
+LED.Discovery.Source(7).Table5=%LED.Discovery.Source(5)%
+
+// Source (8) = Union of 7 & 6
+// ID;Name;Value
+LED.Discovery.Source(8).Type="TableUnion"
+LED.Discovery.Source(8).Table1=%LED.Discovery.Source(7)%
+LED.Discovery.Source(8).Table2=%LED.Discovery.Source(6)%
+
+// Keep only LEDs with valid value
+// ID;Name;Value
+LED.Discovery.Source(8).Compute(1).Type="KeepOnlyMatchingLines"
+LED.Discovery.Source(8).Compute(1).Column=3
+LED.Discovery.Source(8).Compute(1).ValueList="1,2"
+
+// Instance Table
+// ID;Name;Value
+LED.Discovery.InstanceTable=%LED.Discovery.Source(8)%
+LED.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+LED.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+LED.Discovery.Instance.OnStatus="ALARM"
+LED.Discovery.Instance.OffStatus="OK"
+
+//
+// Collect
+
+// Collect type is multi-instance
+LED.Collect.Type="MultiInstance"
+
+// Source (1) = Node LED OID
+LED.Collect.Source(1).Type="SnmpGet"
+LED.Collect.Source(1).SnmpOid="1.3.6.1.4.1.116.5.39.6.1.9.0"
+
+// Add an Identifier
+// ID;Value
+LED.Collect.Source(1).Compute(1).Type="LeftConcat"
+LED.Collect.Source(1).Compute(1).Column=1
+LED.Collect.Source(1).Compute(1).String="Node;"
+
+// Source (2) = Switch LED OID
+LED.Collect.Source(2).Type="SnmpGet"
+LED.Collect.Source(2).SnmpOid="1.3.6.1.4.1.116.5.39.6.1.10.0"
+
+// Add an Identifier
+// ID;Value
+LED.Collect.Source(2).Compute(1).Type="LeftConcat"
+LED.Collect.Source(2).Compute(1).Column=1
+LED.Collect.Source(2).Compute(1).String="SW;"
+
+// Source (3) = Power Supply LED OID
+LED.Collect.Source(3).Type="SnmpGet"
+LED.Collect.Source(3).SnmpOid="1.3.6.1.4.1.116.5.39.6.1.11.0"
+
+// Add an Identifier
+// ID;Value
+LED.Collect.Source(3).Compute(1).Type="LeftConcat"
+LED.Collect.Source(3).Compute(1).Column=1
+LED.Collect.Source(3).Compute(1).String="PS;"
+
+// Source (4) = Fan LED OID
+LED.Collect.Source(4).Type="SnmpGet"
+LED.Collect.Source(4).SnmpOid="1.3.6.1.4.1.116.5.39.6.1.12.0"
+
+// Add an Identifier
+// ID;Value
+LED.Collect.Source(4).Compute(1).Type="LeftConcat"
+LED.Collect.Source(4).Compute(1).Column=1
+LED.Collect.Source(4).Compute(1).String="FM;"
+
+// Source (5) = Temp LED OID
+LED.Collect.Source(5).Type="SnmpGet"
+LED.Collect.Source(5).SnmpOid="1.3.6.1.4.1.116.5.39.6.1.13.0"
+
+// Add an Identifier
+// ID;Value
+LED.Collect.Source(5).Compute(1).Type="LeftConcat"
+LED.Collect.Source(5).Compute(1).Column=1
+LED.Collect.Source(5).Compute(1).String="Temp;"
+
+// Source (6) = Device LED OID
+LED.Collect.Source(6).Type="SnmpGet"
+LED.Collect.Source(6).SnmpOid="1.3.6.1.4.1.116.5.39.6.1.14.0"
+
+// ID;Value
+LED.Collect.Source(6).Compute(1).Type="LeftConcat"
+LED.Collect.Source(6).Compute(1).Column=1
+LED.Collect.Source(6).Compute(1).String="Device;"
+
+// Source (7) = Union of 1 & 2 & 3 & 4 & 5
+// ID;Value
+LED.Collect.Source(7).Type="TableUnion"
+LED.Collect.Source(7).Table1=%LED.Collect.Source(1)%
+LED.Collect.Source(7).Table2=%LED.Collect.Source(2)%
+LED.Collect.Source(7).Table3=%LED.Collect.Source(3)%
+LED.Collect.Source(7).Table4=%LED.Collect.Source(4)%
+LED.Collect.Source(7).Table5=%LED.Collect.Source(5)%
+
+// Source (8) = Union of 7 & 6
+// ID;Value
+LED.Collect.Source(8).Type="TableUnion"
+LED.Collect.Source(8).Table1=%LED.Collect.Source(7)%
+LED.Collect.Source(8).Table2=%LED.Collect.Source(6)%
+
+// Translate the LED value
+// ID;PatrolValue
+LED.Collect.Source(8).Compute(1).Type="Translate"
+LED.Collect.Source(8).Compute(1).Column=2
+LED.Collect.Source(8).Compute(1).TranslationTable="LEDStateTranslationTable"
+
+// The LEDStateTranslationTable
+LEDStateTranslationTable(1)="Off"
+LEDStateTranslationTable(2)="On"
+
+// ValueTable = Source(8)
+LED.Collect.ValueTable=%LED.Collect.Source(8)%
+LED.Collect.DeviceID=ValueTable.Column(1)
+LED.Collect.Status=ValueTable.Column(2)
+
+/////////////////////////////////////////////////////////////
+///
+///    Embedded File 1
+///
+///    AWK script that takes the horizontal list of fans modules and their fans
+///    and returns each fan individually
+///    Input: FanModID;Fan1Value;Fan1Valid;Fan2Value;Fan2Valid;Fan3Value;Fan3Valid;FanModID;FanModSlot;FanModuleType;
+///    Output: AttachedTo;FanSlot Text;FanModExists;FanSlot;FanType;Fan Speed;(FanStatus);
+///
+///
+/////////////////////////////////////////////////////////////
+EmbeddedFile(1):
+BEGIN { FS = ";" }
+$1 ~ /^[0-9]+$/ {print ("MSHW;"$9";Fan Module "$9"-Fan 1;"$3";FM"$9"-1;Fan;"$2";;")
+                 print ("MSHW;"$9";Fan Module "$9"-Fan 2;"$5";FM"$9"-2;Fan;"$4";;")
+                 print ("MSHW;"$9";Fan Module "$9"-Fan 3;"$7";FM"$9"-3;Fan;"$6";;")
+                }
+EmbeddedFile(1).End
+///////////////////////////////////////////////////////////////

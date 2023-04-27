@@ -1,0 +1,28 @@
+//
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//              MS_HW_HitachiGSeriesREST.hdf
+//
+//          Supports:  Hitachi VSP F-Series and VSP G-Series Storage Systems
+//
+//
+
+// HEADER
+hdf.DisplayName="Hitachi G-Series (REST)"
+hdf.TypicalPlatform="Hitachi VSP F-Series and VSP G-Series Storage Systems"
+hdf.ReliesOn="Hitachi SVP REST"
+hdf.Comments="This connector provides hardware monitoring for VSP F-Series and G-Series Hitachi Storage Systems through the SVP REST API."
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="Storage"
+
+
+#include MS_HW_HitachiREST.hhdf
+
+//in this case the enclosure hostname = the configured in TSCO

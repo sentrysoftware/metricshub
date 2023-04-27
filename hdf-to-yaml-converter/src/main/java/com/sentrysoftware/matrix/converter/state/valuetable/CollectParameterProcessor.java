@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
 import com.sentrysoftware.matrix.converter.state.AbstractStateConverter;
 import com.sentrysoftware.matrix.converter.state.ConversionHelper;
+import com.sentrysoftware.matrix.converter.state.mapping.IMappingConverter;
 import com.sentrysoftware.matrix.converter.state.mapping.MappingConvertersWrapper;
 
 public class CollectParameterProcessor extends AbstractStateConverter {
@@ -43,11 +44,11 @@ public class CollectParameterProcessor extends AbstractStateConverter {
 		if (property.equalsIgnoreCase(HDF_DEVICE_ID)) {
 			mapping.set("deviceId", new TextNode(ConversionHelper.performValueConversions(value)));
 		} else {
-			new MappingConvertersWrapper()
-			.getConverter(monitorName)
-			.convertCollectProperty(property, value, mapping);
+			IMappingConverter m = new MappingConvertersWrapper().getConverter(monitorName);
+			if(m != null) {
+				m.convertCollectProperty(property, value, mapping);
+			}
 		}
-
 	}
 
 	@Override

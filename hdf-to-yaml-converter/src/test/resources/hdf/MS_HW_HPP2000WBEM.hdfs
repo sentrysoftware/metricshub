@@ -1,0 +1,986 @@
+//
+//
+//                 C O N N E C T O R
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//              by Sentry Software (c)
+//
+//               MS_HW_HPP2000WBEM.hdf
+//
+//      Supports:  HP (DotHill) P2000 / MSA
+//
+//      Connects to:  The P2000 / MSA management card
+//
+//
+
+//
+// HEADER
+
+hdf.DisplayName="HP P2000 G3 or Later (WBEM)"
+hdf.TypicalPlatform="HP StorageWorks P2000 G3"
+hdf.ReliesOn="HP P2000 Management Card"
+hdf.Version="1.0"
+hdf.Comments="This connector discovers the Environmental, Physical Disk, Logical Disk, Management Network Cards and Fibre Ports on P2000 G3 later Series Filers through the Embedded SMI-S Provider"
+hdf.RemoteSupport="true"
+hdf.LocalSupport="false"
+hdf.AppliesToOS="Storage"
+hdf.Supersedes="MS_HW_MIB2.hdf,MS_HW_HPDotHill.hdf"
+
+//
+// Detection
+//
+
+// Verify that there is an IBMTSDS_StorageSystem instance
+
+Detection.Criteria(1).Type="WBEM"
+Detection.Criteria(1).WbemNameSpace="root/hpq"
+Detection.Criteria(1).WbemQuery="SELECT Name FROM HP_TopComputerSystem"
+
+// There also must be a chassis
+Detection.Criteria(2).Type="WBEM"
+Detection.Criteria(2).WbemQuery="SELECT Tag FROM HP_TopComputerSystemChassis"
+Detection.Criteria(2).WbemNameSpace="root/hpq"
+
+
+//
+// Enclosure
+//
+
+//
+// Discovery
+
+// Source(1) = HP_TopComputerSystem  (This is the main class we'll be linking everything from)
+// HP_TopComputerSystem,Name,Caption,OtherIdentifyingInfo
+Enclosure.Discovery.Source(1).Type="WBEM"
+Enclosure.Discovery.Source(1).WbemQuery="SELECT __Path,Name,Caption,OtherIdentifyingInfo FROM HP_TopComputerSystem"
+Enclosure.Discovery.Source(1).WbemNameSpace="root/hpq"
+
+// Source(2) = HP_TopComputerSystemChassis
+// HP_TopComputerSystemChassis,Model,SerialNumber
+Enclosure.Discovery.Source(2).Type="WBEM"
+Enclosure.Discovery.Source(2).WbemQuery="SELECT __Path,Model,SerialNumber FROM HP_TopComputerSystemChassis"
+Enclosure.Discovery.Source(2).WbemNameSpace="root/hpq"
+
+// Source (20 = Association table for HP_TopComputerSystem to HP_TopComputerSystemChassis
+// HP_TopComputerSystemChassis,HP_TopComputerSystem
+Enclosure.Discovery.Source(3).Type="WBEM"
+Enclosure.Discovery.Source(3).WbemQuery="SELECT Antecedent,Dependent FROM HP_TCS2TCSC"
+Enclosure.Discovery.Source(3).WbemNameSpace="root/hpq"
+
+// Link the System to the Association Table
+// HP_TopComputerSystem,Name,Caption,OtherIdentifyingInfo,HP_TopComputerSystemChassis,HP_TopComputerSystem
+Enclosure.Discovery.Source(4).Type="TableJoint"
+Enclosure.Discovery.Source(4).LeftTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Source(4).RightTable=%Enclosure.Discovery.Source(3)%
+Enclosure.Discovery.Source(4).LeftKeyColumn=1
+Enclosure.Discovery.Source(4).RightKeyColumn=2
+Enclosure.Discovery.Source(4).KeyType="Wbem"
+
+// Link the System and Association Table to the the Chassis
+// HP_TopComputerSystem,Name,Caption,OtherIdentifyingInfo,HP_TopComputerSystemChassis,HP_TopComputerSystem,HP_TopComputerSystemChassis,Model,SerialNumber
+Enclosure.Discovery.Source(5).Type="TableJoint"
+Enclosure.Discovery.Source(5).LeftTable=%Enclosure.Discovery.Source(4)%
+Enclosure.Discovery.Source(5).RightTable=%Enclosure.Discovery.Source(2)%
+Enclosure.Discovery.Source(5).LeftKeyColumn=5
+Enclosure.Discovery.Source(5).RightKeyColumn=1
+Enclosure.Discovery.Source(5).KeyType="Wbem"
+
+// Get rid of the Paths so that we can read the table
+// HP_TopComputerSystem,Name,Caption,OtherIdentifyingInfo,HP_TopComputerSystemChassis,HP_TopComputerSystem,HP_TopComputerSystemChassis,Model,SerialNumber
+// Name,Caption,OtherIdentifyingInfo,Model,SerialNumber
+Enclosure.Discovery.Source(5).Compute(1).Type="KeepColumns"
+Enclosure.Discovery.Source(5).Compute(1).ColumnNumbers="2,3,4,8,9"
+
+Enclosure.Discovery.Source(5).Compute(2).Type="Replace"
+Enclosure.Discovery.Source(5).Compute(2).Column="3"
+Enclosure.Discovery.Source(5).Compute(2).Replace="|"
+Enclosure.Discovery.Source(5).Compute(2).ReplaceBy=""
+
+Enclosure.Discovery.Source(5).Compute(3).Type="LeftConcat"
+Enclosure.Discovery.Source(5).Compute(3).Column="3"
+Enclosure.Discovery.Source(5).Compute(3).String="IP Address: "
+
+
+// Instance Table
+// Name,Caption,OtherIdentifyingInfo,Model,SerialNumber
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(5)%
+Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Enclosure.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+Enclosure.Discovery.Instance.Vendor="HP"
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(4)
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(5)
+Enclosure.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(3)
+Enclosure.Discovery.Instance.Type="Storage"
+
+// Get the Controller Id
+// HP_Controller,ControllerID
+Enclosure.Discovery.Source(6).Type="WBEM"
+Enclosure.Discovery.Source(6).WbemQuery="SELECT __PATH,Name FROM HP_Controller"
+Enclosure.Discovery.Source(6).WbemNameSpace="root/hpq"
+
+// Need to build controller to system for attaching ports to systems
+// HP_TopComputerSystem,HP_Controller
+Enclosure.Discovery.Source(7).Type="WBEM"
+Enclosure.Discovery.Source(7).WbemQuery="SELECT GroupComponent,PartComponent FROM HP_TCS2C"
+Enclosure.Discovery.Source(7).WbemNameSpace="root/hpq"
+
+// Link TopComputerSystem to the Association Table
+// HP_Controller,ControllerID,HP_TopComputerSystem,HP_Controller
+Enclosure.Discovery.Source(8).Type="TableJoint"
+Enclosure.Discovery.Source(8).LeftTable=%Enclosure.Discovery.Source(6)%
+Enclosure.Discovery.Source(8).RightTable=%Enclosure.Discovery.Source(7)%
+Enclosure.Discovery.Source(8).LeftKeyColumn=1
+Enclosure.Discovery.Source(8).RightKeyColumn=2
+Enclosure.Discovery.Source(8).KeyType="Wbem"
+
+// Attach the Controller table to the System/Association Table.
+// HP_Controller,ControllerID,HP_TopComputerSystem,HP_Controller,HP_TopComputerSystem,SystemID,Caption,OtherIdentifyingInfo
+Enclosure.Discovery.Source(9).Type="TableJoint"
+Enclosure.Discovery.Source(9).LeftTable=%Enclosure.Discovery.Source(8)%
+Enclosure.Discovery.Source(9).RightTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Source(9).LeftKeyColumn=3
+Enclosure.Discovery.Source(9).RightKeyColumn=1
+Enclosure.Discovery.Source(9).KeyType="Wbem"
+
+// Keep only the SystemID and ControllerID
+// ControllerID;SystemID;
+Enclosure.Discovery.Source(9).Compute(1).Type="KeepColumns"
+Enclosure.Discovery.Source(9).Compute(1).ColumnNumbers="2,6"
+
+
+//
+// Collect
+
+// Collect type is multiinstance
+Enclosure.Collect.Type="MultiInstance"
+
+// Source(1) = CIM_ComputerSystem
+// Name;OperationalStatus;
+Enclosure.Collect.Source(1).Type="Wbem"
+Enclosure.Collect.Source(1).WbemQuery="SELECT Name,OperationalStatus FROM HP_TopComputerSystem"
+Enclosure.Collect.Source(1).WbemNameSpace="root/hpq"
+
+// Duplicate the "OperationalStatusArray" column
+// Name;OperationalStatus;OperationalStatus;
+Enclosure.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Enclosure.Collect.Source(1).Compute(1).Column=2
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// Name;PATROLStatusArray;OperationalStatus;
+Enclosure.Collect.Source(1).Compute(2).Type="ArrayTranslate"
+Enclosure.Collect.Source(1).Compute(2).Column=2
+Enclosure.Collect.Source(1).Compute(2).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// Name;PATROLStatusArray;StatusDescriptions;
+Enclosure.Collect.Source(1).Compute(3).Type="ArrayTranslate"
+Enclosure.Collect.Source(1).Compute(3).Column=3
+Enclosure.Collect.Source(1).Compute(3).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+Enclosure.Collect.Source(1).Compute(3).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// Name;PATROLStatus;StatusDescriptions;
+Enclosure.Collect.Source(1).Compute(4).Type="Convert"
+Enclosure.Collect.Source(1).Compute(4).Column=2
+Enclosure.Collect.Source(1).Compute(4).ConversionType="Array2SimpleStatus"
+
+// ValueTable = Source(1)
+// Name;PATROLStatus;StatusDescriptions;
+Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(1)%
+Enclosure.Collect.DeviceID=ValueTable.Column(1)
+Enclosure.Collect.Status=ValueTable.Column(2)
+Enclosure.Collect.StatusInformation=ValueTable.Column(3)
+
+
+// PhysicalDisk
+
+// Source(1) = HP_DiskDrive  (This is the main class we'll be linking everything from)
+// HP_DiskDrive,DeviceID,SystemName,DiskType,MaxMediaSize
+PhysicalDisk.Discovery.Source(1).Type="WBEM"
+PhysicalDisk.Discovery.Source(1).WbemQuery="SELECT __Path,DeviceID,SystemName,DiskType,MaxMediaSize FROM HP_DiskDrive"
+PhysicalDisk.Discovery.Source(1).WbemNameSpace="root/hpq"
+
+// Multiply the Size by 1000
+// HP_DiskDrive,DeviceID,SystemName,DiskType,Size
+PhysicalDisk.Discovery.Source(1).Compute(1).Type="Multiply"
+PhysicalDisk.Discovery.Source(1).Compute(1).Column=5
+PhysicalDisk.Discovery.Source(1).Compute(1).MultiplyBy=1000
+
+// Translate the Disk Type
+// HP_DiskDrive,DeviceID,SystemName,DiskType,Size
+PhysicalDisk.Discovery.Source(1).Compute(2).Type="Translate"
+PhysicalDisk.Discovery.Source(1).Compute(2).Column=4
+PhysicalDisk.Discovery.Source(1).Compute(2).TranslationTable="PhysicalDiskTypeTranslationTable"
+
+PhysicalDiskTypeTranslationTable(2)="HDD"
+PhysicalDiskTypeTranslationTable(3)="SSD"
+PhysicalDiskTypeTranslationTable(4)="Hybrid"
+PhysicalDiskTypeTranslationTable(Default)=""
+
+// Source(2) = HP_DiskDriveTray
+// HP_DiskDriveTray,Model,SerialNumber,Version
+PhysicalDisk.Discovery.Source(2).Type="WBEM"
+PhysicalDisk.Discovery.Source(2).WbemQuery="SELECT __Path,Model,SerialNumber,Version FROM HP_DiskDriveTray"
+PhysicalDisk.Discovery.Source(2).WbemNameSpace="root/hpq"
+
+// Source (20 = Association table for HP_DiskDriveTray to HP_DiskDrive
+// HP_DiskDriveTray,HP_DiskDrive
+PhysicalDisk.Discovery.Source(3).Type="WBEM"
+PhysicalDisk.Discovery.Source(3).WbemQuery="SELECT Antecedent,Dependent FROM HP_DD2DDT"
+PhysicalDisk.Discovery.Source(3).WbemNameSpace="root/hpq"
+
+// Link the System to the Association Table
+// HP_DiskDrive,DeviceID,SystemName,DiskType,MaxMediaSize,HP_DiskDriveTray,HP_DiskDrive
+PhysicalDisk.Discovery.Source(4).Type="TableJoint"
+PhysicalDisk.Discovery.Source(4).LeftTable=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Source(4).RightTable=%PhysicalDisk.Discovery.Source(3)%
+PhysicalDisk.Discovery.Source(4).LeftKeyColumn=1
+PhysicalDisk.Discovery.Source(4).RightKeyColumn=2
+PhysicalDisk.Discovery.Source(4).KeyType="Wbem"
+
+// Link the System and Association Table to the the Chassis
+// HP_DiskDrive,DeviceID,SystemName,DiskType,MaxMediaSize,HP_DiskDriveTray,HP_DiskDrive,HP_DiskDriveTray,Model,SerialNumber,Version
+PhysicalDisk.Discovery.Source(5).Type="TableJoint"
+PhysicalDisk.Discovery.Source(5).LeftTable=%PhysicalDisk.Discovery.Source(4)%
+PhysicalDisk.Discovery.Source(5).RightTable=%PhysicalDisk.Discovery.Source(2)%
+PhysicalDisk.Discovery.Source(5).LeftKeyColumn=6
+PhysicalDisk.Discovery.Source(5).RightKeyColumn=1
+PhysicalDisk.Discovery.Source(5).KeyType="Wbem"
+
+// Get rid of the Paths so that we can read the table
+// HP_DiskDrive,DeviceID,SystemName,DiskType,Size,HP_DiskDriveTray,HP_DiskDrive,HP_DiskDriveTray,Model,SerialNumber,Version
+// DeviceID,SystemName,DiskType,Size,Model,SerialNumber,Version
+PhysicalDisk.Discovery.Source(5).Compute(1).Type="KeepColumns"
+PhysicalDisk.Discovery.Source(5).Compute(1).ColumnNumbers="2,3,4,5,9,10,11"
+
+PhysicalDisk.Discovery.Source(5).Compute(2).Type="LeftConcat"
+PhysicalDisk.Discovery.Source(5).Compute(2).Column=3
+PhysicalDisk.Discovery.Source(5).Compute(2).String="Type: "
+
+
+// Instance Table
+// DeviceID,SystemName,DiskType,MaxMediaSize,Model,SerialNumber,Version
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(5)%
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PhysicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+PhysicalDisk.Discovery.Instance.Model=InstanceTable.Column(5)
+PhysicalDisk.Discovery.Instance.Size=InstanceTable.Column(4)
+PhysicalDisk.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+PhysicalDisk.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(7)
+PhysicalDisk.Discovery.Instance.SerialNumber=InstanceTable.Column(6)
+PhysicalDisk.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(3)
+
+
+//
+// Collect
+
+// Collect type is multiinstance
+PhysicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = HP_PSU
+// DeviceID;OperationalStatus;
+PhysicalDisk.Collect.Source(1).Type="Wbem"
+PhysicalDisk.Collect.Source(1).WbemQuery="SELECT DeviceID,OperationalStatus FROM HP_DiskDrive"
+PhysicalDisk.Collect.Source(1).WbemNameSpace="root/hpq"
+
+// Duplicate the "OperationalStatusArray" column
+// DeviceID;OperationalStatus;OperationalStatus;
+PhysicalDisk.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+PhysicalDisk.Collect.Source(1).Compute(1).Column=2
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// DeviceID;PATROLStatusArray;OperationalStatus;
+PhysicalDisk.Collect.Source(1).Compute(2).Type="ArrayTranslate"
+PhysicalDisk.Collect.Source(1).Compute(2).Column=2
+PhysicalDisk.Collect.Source(1).Compute(2).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// DeviceID;PATROLStatusArray;StatusDescriptions;
+PhysicalDisk.Collect.Source(1).Compute(3).Type="ArrayTranslate"
+PhysicalDisk.Collect.Source(1).Compute(3).Column=3
+PhysicalDisk.Collect.Source(1).Compute(3).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+PhysicalDisk.Collect.Source(1).Compute(3).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// DeviceID;PATROLStatus;StatusDescriptions;
+PhysicalDisk.Collect.Source(1).Compute(4).Type="Convert"
+PhysicalDisk.Collect.Source(1).Compute(4).Column=2
+PhysicalDisk.Collect.Source(1).Compute(4).ConversionType="Array2SimpleStatus"
+
+// ValueTable = Source(1)
+// DeviceID;PATROLStatus;StatusDescriptions;
+PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(1)%
+PhysicalDisk.Collect.DeviceID=ValueTable.Column(1)
+PhysicalDisk.Collect.Status=ValueTable.Column(2)
+PhysicalDisk.Collect.StatusInformation=ValueTable.Column(3)
+
+
+
+// Power Supply
+
+// Source(1) = HP_PSU
+// DeviceID,SystemName,Name
+PowerSupply.Discovery.Source(1).Type="WBEM"
+PowerSupply.Discovery.Source(1).WbemQuery="SELECT DeviceID,SystemName,Name FROM HP_PSU"
+PowerSupply.Discovery.Source(1).WbemNameSpace="root/hpq"
+
+
+// Instance Table
+// DeviceID,SystemName,Name
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PowerSupply.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+PowerSupply.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+
+
+//
+// Collect
+
+// Collect type is multiinstance
+PowerSupply.Collect.Type="MultiInstance"
+
+// Source(1) = HP_PSU
+// DeviceID;OperationalStatus;
+PowerSupply.Collect.Source(1).Type="Wbem"
+PowerSupply.Collect.Source(1).WbemQuery="SELECT DeviceID,OperationalStatus FROM HP_PSU"
+PowerSupply.Collect.Source(1).WbemNameSpace="root/hpq"
+
+// Duplicate the "OperationalStatusArray" column
+// DeviceID;OperationalStatus;OperationalStatus;
+PowerSupply.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+PowerSupply.Collect.Source(1).Compute(1).Column=2
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// DeviceID;PATROLStatusArray;OperationalStatus;
+PowerSupply.Collect.Source(1).Compute(2).Type="ArrayTranslate"
+PowerSupply.Collect.Source(1).Compute(2).Column=2
+PowerSupply.Collect.Source(1).Compute(2).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// DeviceID;PATROLStatusArray;StatusDescriptions;
+PowerSupply.Collect.Source(1).Compute(3).Type="ArrayTranslate"
+PowerSupply.Collect.Source(1).Compute(3).Column=3
+PowerSupply.Collect.Source(1).Compute(3).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+PowerSupply.Collect.Source(1).Compute(3).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// DeviceID;PATROLStatus;StatusDescriptions;
+PowerSupply.Collect.Source(1).Compute(4).Type="Convert"
+PowerSupply.Collect.Source(1).Compute(4).Column=2
+PowerSupply.Collect.Source(1).Compute(4).ConversionType="Array2SimpleStatus"
+
+// ValueTable = Source(1)
+// DeviceID;PATROLStatus;StatusDescriptions;
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(1)
+PowerSupply.Collect.Status=ValueTable.Column(2)
+PowerSupply.Collect.StatusInformation=ValueTable.Column(3)
+
+
+
+
+// Temperature.
+
+// Source(1) = HP_OverallTempSensor
+// DeviceID,SystemName,Name
+Temperature.Discovery.Source(1).Type="WBEM"
+Temperature.Discovery.Source(1).WbemQuery="SELECT DeviceID,SystemName,Caption FROM HP_OverallTempSensor"
+Temperature.Discovery.Source(1).WbemNameSpace="root/hpq"
+
+
+// Instance Table
+// DeviceID,SystemName,Name
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Temperature.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+Temperature.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+
+
+//
+// Collect
+
+// Collect type is multiinstance
+Temperature.Collect.Type="MultiInstance"
+
+// Source(1) = HP_OverallTempSensor
+// DeviceID;OperationalStatus;
+Temperature.Collect.Source(1).Type="Wbem"
+Temperature.Collect.Source(1).WbemQuery="SELECT DeviceID,OperationalStatus FROM HP_OverallTempSensor"
+Temperature.Collect.Source(1).WbemNameSpace="root/hpq"
+
+// Duplicate the "OperationalStatusArray" column
+// DeviceID;OperationalStatus;OperationalStatus;
+Temperature.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Temperature.Collect.Source(1).Compute(1).Column=2
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// DeviceID;PATROLStatusArray;OperationalStatus;
+Temperature.Collect.Source(1).Compute(2).Type="ArrayTranslate"
+Temperature.Collect.Source(1).Compute(2).Column=2
+Temperature.Collect.Source(1).Compute(2).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// DeviceID;PATROLStatusArray;StatusDescriptions;
+Temperature.Collect.Source(1).Compute(3).Type="ArrayTranslate"
+Temperature.Collect.Source(1).Compute(3).Column=3
+Temperature.Collect.Source(1).Compute(3).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+Temperature.Collect.Source(1).Compute(3).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// DeviceID;PATROLStatus;StatusDescriptions;
+Temperature.Collect.Source(1).Compute(4).Type="Convert"
+Temperature.Collect.Source(1).Compute(4).Column=2
+Temperature.Collect.Source(1).Compute(4).ConversionType="Array2SimpleStatus"
+
+// ValueTable = Source(1)
+// DeviceID;PATROLStatus;StatusDescriptions;
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.DeviceID=ValueTable.Column(1)
+Temperature.Collect.Status=ValueTable.Column(2)
+Temperature.Collect.StatusInformation=ValueTable.Column(3)
+
+// Voltage.
+
+// Source(1) = HP_SuperCap
+// DeviceID,SystemName,Name,HealthState
+Voltage.Discovery.Source(1).Type="WBEM"
+Voltage.Discovery.Source(1).WbemQuery="SELECT DeviceID,SystemName,Caption,HealthState FROM HP_SuperCap"
+Voltage.Discovery.Source(1).WbemNameSpace="root/hpq"
+
+// Exclude Ports with a HealthState of "0" (ports don't exist)
+// DeviceID,SystemName,Name,HealthState
+Voltage.Discovery.Source(1).Compute(1).Type="ExcludeMatchingLines"
+Voltage.Discovery.Source(1).Compute(1).Column=4
+Voltage.Discovery.Source(1).Compute(1).ValueList="0"
+
+// Instance Table
+// DeviceID,SystemName,Name
+Voltage.Discovery.InstanceTable=%Voltage.Discovery.Source(1)%
+Voltage.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Voltage.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+Voltage.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+
+
+//
+// Collect
+
+// Collect type is multiinstance
+Voltage.Collect.Type="MultiInstance"
+
+// Source(1) = CIM_ComputerSystem
+// DeviceID;OperationalStatus;
+Voltage.Collect.Source(1).Type="Wbem"
+Voltage.Collect.Source(1).WbemQuery="SELECT DeviceID,OperationalStatus FROM HP_SuperCap"
+Voltage.Collect.Source(1).WbemNameSpace="root/hpq"
+
+// Duplicate the "OperationalStatusArray" column
+// DeviceID;OperationalStatus;OperationalStatus;
+Voltage.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Voltage.Collect.Source(1).Compute(1).Column=2
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// DeviceID;PATROLStatusArray;OperationalStatus;
+Voltage.Collect.Source(1).Compute(2).Type="ArrayTranslate"
+Voltage.Collect.Source(1).Compute(2).Column=2
+Voltage.Collect.Source(1).Compute(2).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// DeviceID;PATROLStatusArray;StatusDescriptions;
+Voltage.Collect.Source(1).Compute(3).Type="ArrayTranslate"
+Voltage.Collect.Source(1).Compute(3).Column=3
+Voltage.Collect.Source(1).Compute(3).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+Voltage.Collect.Source(1).Compute(3).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// DeviceID;PATROLStatus;StatusDescriptions;
+Voltage.Collect.Source(1).Compute(4).Type="Convert"
+Voltage.Collect.Source(1).Compute(4).Column=2
+Voltage.Collect.Source(1).Compute(4).ConversionType="Array2SimpleStatus"
+
+// ValueTable = Source(1)
+// DeviceID;PATROLStatus;StatusDescriptions;
+Voltage.Collect.ValueTable=%Voltage.Collect.Source(1)%
+Voltage.Collect.DeviceID=ValueTable.Column(1)
+Voltage.Collect.Status=ValueTable.Column(2)
+Voltage.Collect.StatusInformation=ValueTable.Column(3)
+
+
+// Fan.
+
+// Source(1) = HP_PSUFan
+// DeviceID,SystemName,Name
+Fan.Discovery.Source(1).Type="WBEM"
+Fan.Discovery.Source(1).WbemQuery="SELECT DeviceID,SystemName,Name FROM HP_HP_PSUFanPSU"
+Fan.Discovery.Source(1).WbemNameSpace="root/hpq"
+
+
+// Instance Table
+// DeviceID,SystemName,Name
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Fan.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+Fan.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+
+
+//
+// Collect
+
+// Collect type is multiinstance
+Fan.Collect.Type="MultiInstance"
+
+// Source(1) = HP_PSUFan
+// DeviceID;OperationalStatus;
+Fan.Collect.Source(1).Type="Wbem"
+Fan.Collect.Source(1).WbemQuery="SELECT DeviceID,OperationalStatus FROM HP_PSUFan"
+Fan.Collect.Source(1).WbemNameSpace="root/hpq"
+
+// Duplicate the "OperationalStatusArray" column
+// DeviceID;OperationalStatus;OperationalStatus;
+Fan.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Fan.Collect.Source(1).Compute(1).Column=2
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// DeviceID;PATROLStatusArray;OperationalStatus;
+Fan.Collect.Source(1).Compute(2).Type="ArrayTranslate"
+Fan.Collect.Source(1).Compute(2).Column=2
+Fan.Collect.Source(1).Compute(2).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// DeviceID;PATROLStatusArray;StatusDescriptions;
+Fan.Collect.Source(1).Compute(3).Type="ArrayTranslate"
+Fan.Collect.Source(1).Compute(3).Column=3
+Fan.Collect.Source(1).Compute(3).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+Fan.Collect.Source(1).Compute(3).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// DeviceID;PATROLStatus;StatusDescriptions;
+Fan.Collect.Source(1).Compute(4).Type="Convert"
+Fan.Collect.Source(1).Compute(4).Column=2
+Fan.Collect.Source(1).Compute(4).ConversionType="Array2SimpleStatus"
+
+// ValueTable = Source(1)
+// DeviceID;PATROLStatus;StatusDescriptions;
+Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+Fan.Collect.DeviceID=ValueTable.Column(1)
+Fan.Collect.Status=ValueTable.Column(2)
+Fan.Collect.StatusInformation=ValueTable.Column(3)
+
+
+// OtherDevice.
+
+// Source(1) = HP_ControllerDevice
+// DeviceID,SystemName,Name
+OtherDevice.Discovery.Source(1).Type="WBEM"
+OtherDevice.Discovery.Source(1).WbemQuery="SELECT DeviceID,SystemName,ElementName FROM HP_ControllerDevice"
+OtherDevice.Discovery.Source(1).WbemNameSpace="root/hpq"
+
+// Add the Type
+// DeviceID,SystemName,Name,Type
+OtherDevice.Discovery.Source(1).Compute(1).Type="RightConcat"
+OtherDevice.Discovery.Source(1).Compute(1).Column=3
+OtherDevice.Discovery.Source(1).Compute(1).String=";Controller"
+
+// Source (2) = HP_TopComputerSystemControllerCard
+// DeviceID,Name
+OtherDevice.Discovery.Source(2).Type="WBEM"
+OtherDevice.Discovery.Source(2).WbemQuery="SELECT InstanceID,ElementName FROM HP_TopComputerSystemControllerCard"
+OtherDevice.Discovery.Source(2).WbemNameSpace="root/hpq"
+
+// Match the HP_ControllerDevice with the HP_TopComputerSystemControllerCard
+// DeviceID,SystemName,Name,Type,DeviceID,Name
+OtherDevice.Discovery.Source(3).Type="TableJoint"
+OtherDevice.Discovery.Source(3).LeftTable=%OtherDevice.Discovery.Source(1)%
+OtherDevice.Discovery.Source(3).RightTable=%OtherDevice.Discovery.Source(2)%
+OtherDevice.Discovery.Source(3).LeftKeyColumn=1
+OtherDevice.Discovery.Source(3).RightKeyColumn=1
+
+// Replace the HP_ControllerDevice's Name with the HP_TopComputerSystemControllerCard
+// DeviceID,SystemName,Name,Type,DeviceID,Name
+OtherDevice.Discovery.Source(3).Compute(1).Type="Replace"
+OtherDevice.Discovery.Source(3).Compute(1).Column=3
+OtherDevice.Discovery.Source(3).Compute(1).Replace=Column(3)
+OtherDevice.Discovery.Source(3).Compute(1).ReplaceBy=Column(6)
+
+// Remove extra columns
+// DeviceID,SystemName,Name,Type
+OtherDevice.Discovery.Source(3).Compute(2).Type="KeepColumns"
+OtherDevice.Discovery.Source(3).Compute(2).ColumnNumbers="1,2,3,4"
+
+// Remove "Controller " from the display ID
+// DeviceID,SystemName,Name,Type
+OtherDevice.Discovery.Source(3).Compute(3).Type="Replace"
+OtherDevice.Discovery.Source(3).Compute(3).Column=3
+OtherDevice.Discovery.Source(3).Compute(3).Replace="Controller "
+OtherDevice.Discovery.Source(3).Compute(3).ReplaceBy=""
+
+
+// Source(2) = HP_DiskSASPort
+// DeviceID,SystemName,Name
+OtherDevice.Discovery.Source(4).Type="WBEM"
+OtherDevice.Discovery.Source(4).WbemQuery="SELECT DeviceID,SystemName,Name FROM HP_DiskSASPort"
+OtherDevice.Discovery.Source(4).WbemNameSpace="root/hpq"
+
+// Add the Type
+// DeviceID,SystemName,Name,Type
+OtherDevice.Discovery.Source(4).Compute(1).Type="RightConcat"
+OtherDevice.Discovery.Source(4).Compute(1).Column=3
+OtherDevice.Discovery.Source(4).Compute(1).String=";DiskSASPort"
+
+// Source(2) = HP_SASPort
+// DeviceID,ControllerID,Name,HealthState
+OtherDevice.Discovery.Source(5).Type="WBEM"
+OtherDevice.Discovery.Source(5).WbemQuery="SELECT DeviceID,SystemName,ElementName,HealthState FROM HP_SASPort"
+OtherDevice.Discovery.Source(5).WbemNameSpace="root/hpq"
+
+// Exclude Ports with a HealthState of "0" (ports don't exist)
+// DeviceID,ControllerID,Name,HealthState
+OtherDevice.Discovery.Source(5).Compute(1).Type="ExcludeMatchingLines"
+OtherDevice.Discovery.Source(5).Compute(1).Column=4
+OtherDevice.Discovery.Source(5).Compute(1).ValueList="0"
+
+// Remove Health State
+// DeviceID,ControllerID,Name
+OtherDevice.Discovery.Source(5).Compute(2).Type="KeepColumns"
+OtherDevice.Discovery.Source(5).Compute(2).ColumnNumbers="1,2,3"
+
+// Add the Type
+// DeviceID,ControllerID,Name,Type
+OtherDevice.Discovery.Source(5).Compute(3).Type="RightConcat"
+OtherDevice.Discovery.Source(5).Compute(3).Column=3
+OtherDevice.Discovery.Source(5).Compute(3).String=";SASPort"
+
+// Change Underscores to Spaces
+// DeviceID,ControllerID,Name,Type
+OtherDevice.Discovery.Source(5).Compute(4).Type="Replace"
+OtherDevice.Discovery.Source(5).Compute(4).Column=3
+OtherDevice.Discovery.Source(5).Compute(4).Replace="_"
+OtherDevice.Discovery.Source(5).Compute(4).ReplaceBy=" "
+
+// Try and match the SASPort's Controller with the System
+// DeviceID,ControllerID,Name,Type,ControllerID,SystemID
+OtherDevice.Discovery.Source(6).Type="TableJoint"
+OtherDevice.Discovery.Source(6).LeftTable=%OtherDevice.Discovery.Source(5)%
+OtherDevice.Discovery.Source(6).RightTable=%Enclosure.Discovery.Source(9)%
+OtherDevice.Discovery.Source(6).LeftKeyColumn=2
+OtherDevice.Discovery.Source(6).RightKeyColumn=1
+
+// Move the SystemID to Column 2
+// DeviceID,SystemID,Name,Type,ControllerID,SystemID
+OtherDevice.Discovery.Source(6).Compute(1).Type="Replace"
+OtherDevice.Discovery.Source(6).Compute(1).Column=2
+OtherDevice.Discovery.Source(6).Compute(1).Replace=Column(2)
+OtherDevice.Discovery.Source(6).Compute(1).ReplaceBy=Column(6)
+
+// Trim the table down
+// DeviceID,SystemID,Name,Type
+OtherDevice.Discovery.Source(6).Compute(2).Type="KeepColumns"
+OtherDevice.Discovery.Source(6).Compute(2).ColumnNumbers="1,2,3,4"
+
+
+// Union of 1, 2 & 3
+// DeviceID,SystemName,Name,Type
+OtherDevice.Discovery.Source(7).Type="TableUnion"
+OtherDevice.Discovery.Source(7).Table1=%OtherDevice.Discovery.Source(3)%
+OtherDevice.Discovery.Source(7).Table2=%OtherDevice.Discovery.Source(4)%
+OtherDevice.Discovery.Source(7).Table3=%OtherDevice.Discovery.Source(6)%
+
+// Instance Table
+// DeviceID,SystemName,Name,Type
+OtherDevice.Discovery.InstanceTable=%OtherDevice.Discovery.Source(7)%
+OtherDevice.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+OtherDevice.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+OtherDevice.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+OtherDevice.Discovery.Instance.DeviceType=InstanceTable.Column(4)
+
+//
+// Collect
+
+// Collect type is multiinstance
+OtherDevice.Collect.Type="MultiInstance"
+
+// Source(1) = HP_ControllerDevice
+// DeviceID;OperationalStatus;
+OtherDevice.Collect.Source(1).Type="Wbem"
+OtherDevice.Collect.Source(1).WbemQuery="SELECT DeviceID,OperationalStatus FROM HP_ControllerDevice"
+OtherDevice.Collect.Source(1).WbemNameSpace="root/hpq"
+
+// Source(2) = HP_SASPort
+// DeviceID;OperationalStatus;
+OtherDevice.Collect.Source(2).Type="Wbem"
+OtherDevice.Collect.Source(2).WbemQuery="SELECT DeviceID,OperationalStatus FROM HP_SASPort"
+OtherDevice.Collect.Source(2).WbemNameSpace="root/hpq"
+
+// Source(3) = HP_DiskSASPort
+// DeviceID;OperationalStatus;
+OtherDevice.Collect.Source(3).Type="Wbem"
+OtherDevice.Collect.Source(3).WbemQuery="SELECT DeviceID,OperationalStatus FROM HP_DiskSASPort"
+OtherDevice.Collect.Source(3).WbemNameSpace="root/hpq"
+
+// Union of 1, 2 & 3
+// DeviceID;OperationalStatus;
+OtherDevice.Collect.Source(4).Type="TableUnion"
+OtherDevice.Collect.Source(4).Table1=%OtherDevice.Collect.Source(1)%
+OtherDevice.Collect.Source(4).Table2=%OtherDevice.Collect.Source(2)%
+OtherDevice.Collect.Source(4).Table3=%OtherDevice.Collect.Source(3)%
+
+// Duplicate the "OperationalStatusArray" column
+// DeviceID;OperationalStatus;OperationalStatus;
+OtherDevice.Collect.Source(4).Compute(1).Type="DuplicateColumn"
+OtherDevice.Collect.Source(4).Compute(1).Column=2
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// DeviceID;PATROLStatusArray;OperationalStatus;
+OtherDevice.Collect.Source(4).Compute(2).Type="ArrayTranslate"
+OtherDevice.Collect.Source(4).Compute(2).Column=2
+OtherDevice.Collect.Source(4).Compute(2).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// DeviceID;PATROLStatusArray;StatusDescriptions;
+OtherDevice.Collect.Source(4).Compute(3).Type="ArrayTranslate"
+OtherDevice.Collect.Source(4).Compute(3).Column=3
+OtherDevice.Collect.Source(4).Compute(3).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+OtherDevice.Collect.Source(4).Compute(3).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// DeviceID;PATROLStatus;StatusDescriptions;
+OtherDevice.Collect.Source(4).Compute(4).Type="Convert"
+OtherDevice.Collect.Source(4).Compute(4).Column=2
+OtherDevice.Collect.Source(4).Compute(4).ConversionType="Array2SimpleStatus"
+
+// ValueTable = Source(1)
+// DeviceID;PATROLStatus;StatusDescriptions;
+OtherDevice.Collect.ValueTable=%OtherDevice.Collect.Source(4)%
+OtherDevice.Collect.DeviceID=ValueTable.Column(1)
+OtherDevice.Collect.Status=ValueTable.Column(2)
+OtherDevice.Collect.StatusInformation=ValueTable.Column(3)
+
+// LogicalDisk.
+
+// Source(1) = CIM_StoragePool
+// InstanceID,SystemName,ElementName,TotalManagedSpace
+LogicalDisk.Discovery.Source(1).Type="WBEM"
+LogicalDisk.Discovery.Source(1).WbemQuery="SELECT InstanceID,SystemName,ElementName,TotalManagedSpace FROM CIM_StoragePool"
+LogicalDisk.Discovery.Source(1).WbemNameSpace="root/hpq"
+
+
+// Instance Table
+// DeviceID,SystemName,Name,TotalManagedSpace
+LogicalDisk.Discovery.InstanceTable=%LogicalDisk.Discovery.Source(1)%
+LogicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+LogicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+LogicalDisk.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+LogicalDisk.Discovery.Instance.Size=InstanceTable.Column(4)
+
+
+//
+// Collect
+
+// Collect type is multiinstance
+LogicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = CIM_StoragePool
+// InstanceID;OperationalStatus;
+LogicalDisk.Collect.Source(1).Type="Wbem"
+LogicalDisk.Collect.Source(1).WbemQuery="SELECT InstanceID,OperationalStatus FROM CIM_StoragePool"
+LogicalDisk.Collect.Source(1).WbemNameSpace="root/hpq"
+
+// Duplicate the "OperationalStatusArray" column
+// InstanceID;OperationalStatus;OperationalStatus;
+LogicalDisk.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+LogicalDisk.Collect.Source(1).Compute(1).Column=2
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// InstanceID;PATROLStatusArray;OperationalStatus;
+LogicalDisk.Collect.Source(1).Compute(2).Type="ArrayTranslate"
+LogicalDisk.Collect.Source(1).Compute(2).Column=2
+LogicalDisk.Collect.Source(1).Compute(2).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// InstanceID;PATROLStatusArray;StatusDescriptions;
+LogicalDisk.Collect.Source(1).Compute(3).Type="ArrayTranslate"
+LogicalDisk.Collect.Source(1).Compute(3).Column=3
+LogicalDisk.Collect.Source(1).Compute(3).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+LogicalDisk.Collect.Source(1).Compute(3).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// InstanceID;PATROLStatus;StatusDescriptions;
+LogicalDisk.Collect.Source(1).Compute(4).Type="Convert"
+LogicalDisk.Collect.Source(1).Compute(4).Column=2
+LogicalDisk.Collect.Source(1).Compute(4).ConversionType="Array2SimpleStatus"
+
+// ValueTable = Source(1)
+// InstanceID;PATROLStatus;StatusDescriptions;
+LogicalDisk.Collect.ValueTable=%LogicalDisk.Collect.Source(1)%
+LogicalDisk.Collect.DeviceID=ValueTable.Column(1)
+LogicalDisk.Collect.Status=ValueTable.Column(2)
+LogicalDisk.Collect.StatusInformation=ValueTable.Column(3)
+
+
+// NetworkCard.
+
+// Source(1) = HP_FCPort
+// DeviceID,ControllerID,Name,HealthState,PermanentAddress
+NetworkCard.Discovery.Source(1).Type="WBEM"
+NetworkCard.Discovery.Source(1).WbemQuery="SELECT DeviceID,SystemName,Name,HealthState,PermanentAddress FROM HP_FCPort"
+NetworkCard.Discovery.Source(1).WbemNameSpace="root/hpq"
+
+// Add the AddressType and Type
+// DeviceID,ControllerID,AddressType,Name,HealthState,PermanentAddress
+NetworkCard.Discovery.Source(1).Compute(1).Type="LeftConcat"
+NetworkCard.Discovery.Source(1).Compute(1).Column=3
+NetworkCard.Discovery.Source(1).Compute(1).String="WWN;FC-"
+
+// Source(2) = HP_EthernetPort
+// DeviceID,ControllerID,Name,HealthState,PermanentAddress
+NetworkCard.Discovery.Source(2).Type="WBEM"
+NetworkCard.Discovery.Source(2).WbemQuery="SELECT DeviceID,SystemName,Name,HealthState,PermanentAddress FROM HP_EthernetPort"
+NetworkCard.Discovery.Source(2).WbemNameSpace="root/hpq"
+
+// Add the AddressType
+// DeviceID,ControllerID,AddressType,Name,HealthState,PermanentAddress
+NetworkCard.Discovery.Source(2).Compute(1).Type="LeftConcat"
+NetworkCard.Discovery.Source(2).Compute(1).Column=3
+NetworkCard.Discovery.Source(2).Compute(1).String=";"
+
+// Union of 1 & 2
+// DeviceID,ControllerID,AddressType,Name,HealthState,PermanentAddress
+NetworkCard.Discovery.Source(3).Type="TableUnion"
+NetworkCard.Discovery.Source(3).Table1=%NetworkCard.Discovery.Source(1)%
+NetworkCard.Discovery.Source(3).Table2=%NetworkCard.Discovery.Source(2)%
+
+// Exclude Ports with a HealthState of "0" (ports don't exist)
+// DeviceID,ControllerID,AddressType,Name,HealthState,PermanentAddress
+NetworkCard.Discovery.Source(3).Compute(1).Type="ExcludeMatchingLines"
+NetworkCard.Discovery.Source(3).Compute(1).Column=5
+NetworkCard.Discovery.Source(3).Compute(1).ValueList="0"
+
+// Try and match the SASPort's Controller with the System
+// DeviceID,ControllerID,AddressType,Name,HealthState,PermanentAddress,ControllerID,SystemID
+NetworkCard.Discovery.Source(4).Type="TableJoint"
+NetworkCard.Discovery.Source(4).LeftTable=%NetworkCard.Discovery.Source(3)%
+NetworkCard.Discovery.Source(4).RightTable=%Enclosure.Discovery.Source(9)%
+NetworkCard.Discovery.Source(4).LeftKeyColumn=2
+NetworkCard.Discovery.Source(4).RightKeyColumn=1
+
+// Instance Table
+// DeviceID,ControllerID,AddressType,Name,HealthState,PermanentAddress,ControllerID,SystemID
+NetworkCard.Discovery.InstanceTable=%NetworkCard.Discovery.Source(4)%
+NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+NetworkCard.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+NetworkCard.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(8)
+NetworkCard.Discovery.Instance.PhysicalAddress=InstanceTable.Column(6)
+NetworkCard.Discovery.Instance.PhysicalAddressType=InstanceTable.Column(3)
+
+//
+// Collect
+
+// Collect type is multiinstance
+NetworkCard.Collect.Type="MultiInstance"
+
+// Source(1) = HP_ControllerDevice
+// DeviceID;OperationalStatus;Speed;
+NetworkCard.Collect.Source(1).Type="Wbem"
+NetworkCard.Collect.Source(1).WbemQuery="SELECT DeviceID,OperationalStatus,Speed FROM HP_FCPort"
+NetworkCard.Collect.Source(1).WbemNameSpace="root/hpq"
+
+// Source(2) = HP_SASPort
+// DeviceID;OperationalStatus;Speed;
+NetworkCard.Collect.Source(2).Type="Wbem"
+NetworkCard.Collect.Source(2).WbemQuery="SELECT DeviceID,OperationalStatus,Speed FROM HP_EthernetPort"
+NetworkCard.Collect.Source(2).WbemNameSpace="root/hpq"
+
+// Union of 1, 2 & 3
+// DeviceID;OperationalStatus;Speed;
+NetworkCard.Collect.Source(3).Type="TableUnion"
+NetworkCard.Collect.Source(3).Table1=%NetworkCard.Collect.Source(1)%
+NetworkCard.Collect.Source(3).Table2=%NetworkCard.Collect.Source(2)%
+
+// Duplicate the "OperationalStatusArray" column
+// DeviceID;OperationalStatus;OperationalStatus;Speed;
+NetworkCard.Collect.Source(3).Compute(1).Type="DuplicateColumn"
+NetworkCard.Collect.Source(3).Compute(1).Column=2
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// DeviceID;PATROLStatusArray;OperationalStatus;Speed;
+NetworkCard.Collect.Source(3).Compute(2).Type="ArrayTranslate"
+NetworkCard.Collect.Source(3).Compute(2).Column=2
+NetworkCard.Collect.Source(3).Compute(2).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// DeviceID;PATROLStatusArray;StatusDescriptions;Speed;
+NetworkCard.Collect.Source(3).Compute(3).Type="ArrayTranslate"
+NetworkCard.Collect.Source(3).Compute(3).Column=3
+NetworkCard.Collect.Source(3).Compute(3).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+NetworkCard.Collect.Source(3).Compute(3).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// DeviceID;PATROLStatus;StatusDescriptions;Speed;
+NetworkCard.Collect.Source(3).Compute(4).Type="Convert"
+NetworkCard.Collect.Source(3).Compute(4).Column=2
+NetworkCard.Collect.Source(3).Compute(4).ConversionType="Array2SimpleStatus"
+
+// Duplicate the Speed
+// DeviceID;PATROLStatus;StatusDescriptions;Speed;Speed;
+NetworkCard.Collect.Source(3).Compute(5).Type="DuplicateColumn"
+NetworkCard.Collect.Source(3).Compute(5).Column=4
+
+// Translate a Speed into the Link Status
+// DeviceID;PATROLStatus;StatusDescriptions;LinkStatus;Speed;
+NetworkCard.Collect.Source(3).Compute(6).Type="Translate"
+NetworkCard.Collect.Source(3).Compute(6).Column=4
+NetworkCard.Collect.Source(3).Compute(6).TranslationTable="LinkstatusTranslationTable"
+
+LinkstatusTranslationTable(0)="WARN"
+LinkstatusTranslationTable(Default)="OK"
+
+// ValueTable = Source(1)
+// DeviceID;PATROLStatus;StatusDescriptions;LinkStatus;Speed;
+NetworkCard.Collect.ValueTable=%NetworkCard.Collect.Source(3)%
+NetworkCard.Collect.DeviceID=ValueTable.Column(1)
+NetworkCard.Collect.Status=ValueTable.Column(2)
+NetworkCard.Collect.StatusInformation=ValueTable.Column(3)
+NetworkCard.Collect.LinkStatus=ValueTable.Column(4)
+NetworkCard.Collect.LinkSpeed=ValueTable.Column(5)
+
+// The DMTFOperationStatusTranslationTable
+DMTFOperationStatusTranslationTable(2)="OK"
+DMTFOperationStatusTranslationTable(3)="WARN"
+DMTFOperationStatusTranslationTable(4)="WARN"
+DMTFOperationStatusTranslationTable(5)="WARN"
+DMTFOperationStatusTranslationTable(6)="ALARM"
+DMTFOperationStatusTranslationTable(7)="ALARM"
+DMTFOperationStatusTranslationTable(8)="WARN"
+DMTFOperationStatusTranslationTable(9)="WARN"
+DMTFOperationStatusTranslationTable(10)="ALARM"
+DMTFOperationStatusTranslationTable(11)="WARN"
+DMTFOperationStatusTranslationTable(12)="ALARM"
+DMTFOperationStatusTranslationTable(13)="ALARM"
+DMTFOperationStatusTranslationTable(14)="ALARM"
+DMTFOperationStatusTranslationTable(15)="OK"
+DMTFOperationStatusTranslationTable(16)="WARN"
+DMTFOperationStatusTranslationTable(17)="OK"
+DMTFOperationStatusTranslationTable(18)="OK"
+DMTFOperationStatusTranslationTable(Default)="UNKNOWN"
+
+// The DMTFOperationStatusInformationTranslationTable
+DMTFOperationStatusInformationTranslationTable(2)=""
+DMTFOperationStatusInformationTranslationTable(3)="Degraded"
+DMTFOperationStatusInformationTranslationTable(4)="Stressed"
+DMTFOperationStatusInformationTranslationTable(5)="Predicted Failure"
+DMTFOperationStatusInformationTranslationTable(6)="Error"
+DMTFOperationStatusInformationTranslationTable(7)="Non-Recoverable Error"
+DMTFOperationStatusInformationTranslationTable(8)="Starting"
+DMTFOperationStatusInformationTranslationTable(9)="Stopping"
+DMTFOperationStatusInformationTranslationTable(10)="Stopped"
+DMTFOperationStatusInformationTranslationTable(11)="In Service"
+DMTFOperationStatusInformationTranslationTable(12)="No Contact"
+DMTFOperationStatusInformationTranslationTable(13)="Lost Communication"
+DMTFOperationStatusInformationTranslationTable(14)="Aborted"
+DMTFOperationStatusInformationTranslationTable(15)="Dormant"
+DMTFOperationStatusInformationTranslationTable(16)="Supporting Entity in Error"
+DMTFOperationStatusInformationTranslationTable(17)="Completed"
+DMTFOperationStatusInformationTranslationTable(18)="Power Mode"
+DMTFOperationStatusInformationTranslationTable(Default)=""

@@ -1,0 +1,124 @@
+//
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//                   MS_HW_LinuxIfConfigNetwork
+//
+//		Features: monitor the physical active network interfaces on a Linux box using ifconfig command
+//      Supports: most Linux distros
+//
+//
+//	Version 1.0 (July 2018): first version
+
+// HEADER
+
+hdf.DisplayName="Linux - Network (ifconfig)"
+hdf.TypicalPlatform="Any system"
+hdf.ReliesOn="Linux system commands (ifconfig)"
+hdf.Version="1.0"
+hdf.Comments="This connector provides the monitoring of active network cards on all Linux systems using ifconfig command."
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="Linux"
+//
+// Includes
+//
+#include MS_HW_LinuxNetwork.hhdf
+
+//This command will be used of the two sections Detection and Discovery
+#define GLOBAL_COMMAND_LINE "/sbin/ifconfig -a"
+
+//This command will be used of the Collect section
+#define COLLECT_COMMAND_LINE "/sbin/ifconfig -a  %NetworkCard.Collect.DeviceID%"
+
+
+///////////////////////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E
+///
+///    EmbeddedFile(1) = AWK script that returns the list of ethernet cards
+///                      from the output of the ifconfig -a command
+///
+///////////////////////////////////////////////////////////////////////////
+EmbeddedFile(1):
+BEGIN {
+	deviceID = ""
+}
+/^lo[0-9]* / {deviceID = "" }
+#ifconfig
+$1 ~ /^eth[0-9][0-9]*:?|^vmnic[0-9][0-9]*:?|^em[0-9]*:?|^[Pp][0-9][0-9]*[Pp][0-9][0-9]*:?|^en[os][0-9]*:?|^enp[0-9]*s[0-9]*:?/ {
+	deviceID = $1 ; gsub(":","",deviceID)
+	ports[deviceID]=deviceID
+        if ($(NF-1) == "HWaddr")
+	{
+		macAddress[deviceID] = $NF
+	}
+        if ($2 ~ /UP/ || $3 ~ /UP/ ) {portActive[deviceID] = 1}
+}
+/ +inet addr:[0-9]+/ {
+	ipAddress[deviceID] = $2
+	gsub("addr:", "", ipAddress[deviceID])
+}
+(/ UP / ) {portActive[deviceID] = 1}
+$1 ~ /^ether$/ && $2 ~ /[0-9A-Fa-f][0-9A-Fa-f]:[0-9A-Fa-f][0-9A-Fa-f]:/ {macAddress[deviceID] = $2}
+
+END {
+for (deviceID in ports) {
+    if (ports[deviceID] != "" && portActive[deviceID] == 1) {
+        print "MSHW;" deviceID ";" macAddress[deviceID] ";" ipAddress[deviceID] ";"
+	}
+    }
+}
+EmbeddedFile(1).End
+///////////////////////////////////////////////////////////////////////////
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(2) = AWK script that extract statistics information from ifconfig
+///
+/////////////////////////////////////////////////////////////////////////////////////
+EmbeddedFile(2):
+BEGIN {
+	transmitPackets = ""
+	transmitErrors = ""
+	receivePackets = ""
+	receiveErrors = ""
+	transmitBytes = ""
+	receiveBytes = ""
+}
+# ifconfig
+$1 ~ /^eth[0-9][0-9]*:?|^vmnic[0-9][0-9]*:?|^em[0-9]*:?|^[Pp][0-9][0-9]*[Pp][0-9][0-9]*:?|^en[os][0-9]*:?|^enp[0-9]*s[0-9]*:?/ {
+	deviceID = $1 ; gsub(":","",deviceID)
+}
+/^ +RX packets:/ {
+	receivePackets = substr($2, 9, length($2) - 8)
+	receiveErrors = substr($3, 8, length($3) - 7)
+}
+/^ +TX packets:/ {
+	transmitPackets = substr($2, 9, length($2) - 8)
+	transmitErrors = substr($3, 8, length($3) - 7)
+}
+/^ +RX bytes:.*TX bytes:/ {
+	receiveBytes = substr($2, 7, length($2) - 6)
+	transmitBytes = substr($6, 7, length($6) - 6)
+}
+
+$1 == "RX" && $2 == "packets" && $4 == "bytes" { receivePackets = $3 ; receiveBytes = $5 }
+$1 == "TX" && $2 == "packets" && $4 == "bytes" { transmitPackets = $3 ; transmitBytes = $5}
+$1 == "RX" && $2 == "errors" { receiveErrors = $3 }
+$1 == "TX" && $2 == "errors" { transmitErrors = $3 }
+
+END {
+		print "MSHW;" deviceID ";" receivePackets ";" transmitPackets ";" receiveErrors + transmitErrors ";" receiveBytes ";" transmitBytes
+}
+EmbeddedFile(2).End
+/////////////////////////////////////////////////////////////////////////////////////

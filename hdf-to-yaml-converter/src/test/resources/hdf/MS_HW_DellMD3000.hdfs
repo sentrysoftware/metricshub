@@ -1,0 +1,38 @@
+//
+//
+//                 C O N N E C T O R
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//              by Sentry Software (c)
+//
+//                  SMCLI connector
+//
+//      Supports: Dell MD3000
+//
+//      Connects to: Dell MD3000 Management Cards
+//
+//
+
+//
+// HEADER
+
+hdf.DisplayName="DELL MD3000 (LSI) Disk Arrays (smcli)"
+hdf.TypicalPlatform="DELL MD3000"
+hdf.ReliesOn="The SMcli utility, which is part of Dell PowerVault Modular Disk Storage Manager.  The version must be compatible with the system being monitored.  Multiple versions of SMcli on the same system is not supported."
+hdf.Version="1.0"
+hdf.Comments="This connector provides hardware monitoring for Dell MD3000 Storage Systems through the the SMCli utility."
+hdf.AppliesToOS="Storage"
+hdf.RemoteSupport="true"
+hdf.LocalSupport="false"
+
+// Includes
+#include MS_HW_LSIStorageSystem.hhdf
+
+// Define
+#define _COMMAND StorageArray
+
+// Supersedes
+hdf.Supersedes="MS_HW_smcli.hdf"

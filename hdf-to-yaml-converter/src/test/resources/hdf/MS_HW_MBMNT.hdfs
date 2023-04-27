@@ -1,0 +1,210 @@
+//
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//                   MS_HW_MBMNT.hdf
+//
+//      Supports: all PC where Motherboard Monitor is installed
+//                More information about this nice tool: http://mbm.livewiredev.com
+//                Supports all TW and other chinese PC (you know, any pretty home-made PC)
+
+// HEADER
+
+hdf.DisplayName="Motherboard Monitor"
+hdf.TypicalPlatform="Any system with Motherboard Monitor"
+hdf.ReliesOn="Motherboard Monitor"
+hdf.Version="1.1"
+hdf.Comments="This connector provides hardware monitoring through Motherboard Monitor version 5.x which supports almost all non-branded PCs under Windows."
+hdf.RemoteSupport="false"
+hdf.AppliesToOS="NT"
+
+// DETECTION
+
+Detection.Criteria(1).Type="OS"
+Detection.Criteria(1).KeepOnly="NT"
+
+Detection.Criteria(2).Type="Process"
+Detection.Criteria(2).ProcessCommandLine="MBM[5-9]\.exe"
+
+Detection.Criteria(3).Type="OSCommand"
+Detection.Criteria(3).CommandLine="MS_HW_MBMClient.exe"
+Detection.Criteria(3).ExpectedResult="Connected to MBM"
+Detection.Criteria(3).ErrorMessage="Unable to connect to MBM although Motherboard Monitor seems to be running.\nPlease check that MBM is properly running or that MS_HW_MBMClient.Exe is properly installed."
+
+// ENCLOSURE
+
+// Trick: Computer.Discovery.Source(1) will contain the output
+// of MS_HW_MBMClient and will be used by all the other discoveries:
+// Fans, Temperatures and Voltages
+// We do that in order to save up MBMClient calls
+// DeviceID;Type;Label;Value;Threshold1;Threshold2
+Enclosure.Discovery.Source(1).Type="OSCommand"
+Enclosure.Discovery.Source(1).CommandLine="MS_HW_MBMClient.exe"
+Enclosure.Discovery.Source(1).KeepOnlyRegExp="^[0-9][0-9]*;"
+Enclosure.Discovery.Source(1).Separators=";"
+Enclosure.Discovery.Source(1).SelectColumns="1,2,3,4,5,6"
+
+// No instance table. All values are hardcoded
+Enclosure.Discovery.InstanceTable="any"
+Enclosure.Discovery.Instance.DeviceID="MBM"
+Enclosure.Discovery.Instance.Vendor=""
+Enclosure.Discovery.Instance.Model="X86-based PC"
+Enclosure.Discovery.Instance.Type="Computer"
+
+//
+// TEMPERATURES
+//
+
+// Temperature discovery
+
+// Source(1) is a copy of Computer.Discovery.Source(1)
+// It's not necessary to re-execute MS_HW_MBMClient.exe
+// Just have to filter the temperature lines
+Temperature.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+Temperature.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Temperature.Discovery.Source(1).Compute(1).Column="2"
+Temperature.Discovery.Source(1).Compute(1).RegExp="Temperature"
+
+// The instance table
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+Temperature.Discovery.Instance.TemperatureType=""
+Temperature.Discovery.Instance.WarningThreshold=InstanceTable.Column(6)
+Temperature.Discovery.Instance.AttachedToDeviceID="MBM"
+Temperature.Discovery.Instance.AttachedToDeviceType="Computer"
+
+
+// Temperature collect
+
+// Collect type: MultiInstance (of course, one MBMClient call is enough to get
+// all the hardware information
+Temperature.Collect.Type="MultiInstance"
+
+// Source(1) = the Temperatures lines of MS_HW_MBMClient.exe
+// DeviceID;TemperatureValue
+Temperature.Collect.Source(1).Type="OSCommand"
+Temperature.Collect.Source(1).CommandLine="MS_HW_MBMClient.exe"
+Temperature.Collect.Source(1).KeepOnlyRegExp="^[0-9][0-9]*;Temperature;"
+Temperature.Collect.Source(1).Separators=";"
+Temperature.Collect.Source(1).SelectColumns="3,4"
+
+// The value table
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.DeviceID=ValueTable.Column(1)
+Temperature.Collect.Temperature=ValueTable.Column(2)
+
+
+//
+// VOLTAGES
+//
+
+// Voltage discovery
+
+// Source(1) is a copy of Computer.Discovery.Source(1)
+// It's not necessary to re-execute MS_HW_MBMClient.exe
+// Just have to filter the voltage lines
+Voltage.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+Voltage.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Voltage.Discovery.Source(1).Compute(1).Column="2"
+Voltage.Discovery.Source(1).Compute(1).RegExp="Voltage"
+
+// Convert volts to millivolts
+Voltage.Discovery.Source(1).Compute(2).Type="Multiply"
+Voltage.Discovery.Source(1).Compute(2).Column="5"
+Voltage.Discovery.Source(1).Compute(2).MultiplyBy="1000"
+
+// Convert volts to millivolts
+Voltage.Discovery.Source(1).Compute(3).Type="Multiply"
+Voltage.Discovery.Source(1).Compute(3).Column="6"
+Voltage.Discovery.Source(1).Compute(3).MultiplyBy="1000"
+
+
+// The instance table
+Voltage.Discovery.InstanceTable=%Voltage.Discovery.Source(1)%
+Voltage.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+Voltage.Discovery.Instance.VoltageType=""
+Voltage.Discovery.Instance.LowerThreshold=InstanceTable.Column(5)
+Voltage.Discovery.Instance.UpperThreshold=InstanceTable.Column(6)
+Voltage.Discovery.Instance.AttachedToDeviceID="MBM"
+Voltage.Discovery.Instance.AttachedToDeviceType="Computer"
+
+
+// Voltage collect
+
+// Collect type: MultiInstance (of course, one MBMClient call is enough to get
+// all the hardware information
+Voltage.Collect.Type="MultiInstance"
+
+// Source(1) = the Voltage lines of MS_HW_MBMClient.exe
+//DeviceID;Voltage
+Voltage.Collect.Source(1).Type="OSCommand"
+Voltage.Collect.Source(1).CommandLine="MS_HW_MBMClient.exe"
+Voltage.Collect.Source(1).KeepOnlyRegExp="^[0-9][0-9]*;Voltage;"
+Voltage.Collect.Source(1).Separators=";"
+Voltage.Collect.Source(1).SelectColumns="3,4"
+
+// Convert volts to millivolts
+Voltage.Collect.Source(1).Compute(1).Type="Multiply"
+Voltage.Collect.Source(1).Compute(1).Column="2"
+Voltage.Collect.Source(1).Compute(1).MultiplyBy="1000"
+
+// The value table
+Voltage.Collect.ValueTable=%Voltage.Collect.Source(1)%
+Voltage.Collect.DeviceID=ValueTable.Column(1)
+Voltage.Collect.Voltage=ValueTable.Column(2)
+
+
+//
+// FANS
+//
+
+// Fan discovery
+
+// Source(1) is a copy of Computer.Discovery.Source(1)
+// It's not necessary to re-execute MS_HW_MBMClient.exe
+// Just have to filter the Fan lines
+Fan.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+Fan.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Fan.Discovery.Source(1).Compute(1).Column="2"
+Fan.Discovery.Source(1).Compute(1).RegExp="Fan"
+
+// The instance table
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+Fan.Discovery.Instance.FanType=""
+Fan.Discovery.Instance.WarningThreshold=InstanceTable.Column(5)
+Fan.Discovery.Instance.AttachedToDeviceID="MBM"
+Fan.Discovery.Instance.AttachedToDeviceType="Computer"
+
+// Fan collect
+
+// Collect type: MultiInstance (of course, one MBMClient call is enough to get
+// all the hardware information
+Fan.Collect.Type="MultiInstance"
+
+// Source(1) = the Fan lines of MS_HW_MBMClient.exe
+// DeviceID;FanSpeed
+Fan.Collect.Source(1).Type="OSCommand"
+Fan.Collect.Source(1).CommandLine="MS_HW_MBMClient.exe"
+Fan.Collect.Source(1).KeepOnlyRegExp="^[0-9][0-9]*;Fan;"
+Fan.Collect.Source(1).Separators=";"
+Fan.Collect.Source(1).SelectColumns="3,4"
+
+// The value table
+Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+Fan.Collect.DeviceID=ValueTable.Column(1)
+Fan.Collect.Speed=ValueTable.Column(2)
+
+
+
+
+// POWER SUPPLIES
+
+// No power supply in MBM
+PowerSupply.Discovery.InstanceTable=""

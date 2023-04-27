@@ -1,0 +1,336 @@
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//
+//      Supports: DELL Ethernet Switch
+//                Connects to a SNMP agent
+//
+//
+
+
+//
+// Header
+//
+
+hdf.DisplayName="DELL PowerSwitch S-Series"
+hdf.TypicalPlatform="DELL PowerSwitch S4000 Series"
+hdf.ReliesOn="Switch's SNMP agent"
+hdf.Version="1.0"
+hdf.Comments="This connector provides hardware monitoring through the switch's SNMP Agent"
+hdf.RemoteSupport="true"
+hdf.LocalSupport="false"
+hdf.AppliesToOS="Network"
+
+//
+// DETECTION
+// Does a get_next to see if this is a Dell switch/router
+Detection.Criteria(1).Type="SNMP"
+Detection.Criteria(1).SnmpGetNext="1.3.6.1.4.1.674.10895.3000.1.2.100.2"
+Detection.Criteria(1).ExpectedResult="^Dell Networking Ethernet"
+
+//
+// Enclosure
+//
+
+// Source(1) = FRU information
+// Model;Vendor;Firmware;
+Enclosure.Discovery.Source(1).Type="SnmpTable"
+Enclosure.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.674.10895.3000.1.2.100"
+Enclosure.Discovery.Source(1).SnmpTableSelectColumns="1,3,4"
+
+// Add an identifier to enable table Joints
+// MSHW;Role;Model;Vendor;Firmware;SerialNumber;
+Enclosure.Discovery.Source(1).Compute(1).Type="LeftConcat"
+Enclosure.Discovery.Source(1).Compute(1).Column=1
+Enclosure.Discovery.Source(1).Compute(1).String="MSHW;"
+
+Enclosure.Discovery.Source(1).Compute(2).Type="Replace"
+Enclosure.Discovery.Source(1).Compute(2).Column="2"
+Enclosure.Discovery.Source(1).Compute(2).Replace="Dell Networking "
+Enclosure.Discovery.Source(1).Compute(2).ReplaceBy=""
+
+Enclosure.Discovery.Source(1).Compute(3).Type="Replace"
+Enclosure.Discovery.Source(1).Compute(3).Column="2"
+Enclosure.Discovery.Source(1).Compute(3).Replace=" switch/router"
+Enclosure.Discovery.Source(1).Compute(3).ReplaceBy=""
+
+// EnclosureID;SerialNumber;ServiceTag;
+Enclosure.Discovery.Source(2).Type="SnmpTable"
+Enclosure.Discovery.Source(2).SnmpTableOid="1.3.6.1.4.1.674.10895.3000.1.2.100.8.1"
+Enclosure.Discovery.Source(2).SnmpTableSelectColumns="ID,2,4"
+
+// Add an identifier to enable table Joints
+// MSHW;EnclosureID;SerialNumber;ServiceTag;ChassisServiceTag;
+Enclosure.Discovery.Source(2).Compute(1).Type="LeftConcat"
+Enclosure.Discovery.Source(2).Compute(1).Column=1
+Enclosure.Discovery.Source(2).Compute(1).String="MSHW;"
+
+// Join the EnclosureIDs with the FRUs
+// MSHW;EnclosureID;SerialNumber;ServiceTag;MSHW;Model;Vendor;Firmware;
+Enclosure.Discovery.Source(3).Type="TableJoint"
+Enclosure.Discovery.Source(3).LeftTable=%Enclosure.Discovery.Source(2)%
+Enclosure.Discovery.Source(3).RightTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Source(3).LeftKeyColumn=1
+Enclosure.Discovery.Source(3).RightKeyColumn=1
+Enclosure.Discovery.Source(3).DefaultRightLine=";;"
+
+//Retrieve the power consumption info from Power Supplies
+// ID;CurrentPower;
+Enclosure.Discovery.Source(4).Type="SnmpTable"
+Enclosure.Discovery.Source(4).SnmpTableOid="1.3.6.1.4.1.674.10895.3000.1.2.110.7.2.1"
+Enclosure.Discovery.Source(4).SnmpTableSelectColumns="ID,5"
+
+//MSHW;ID;CurrentPower;
+Enclosure.Discovery.Source(4).Compute(1).Type="LeftConcat"
+Enclosure.Discovery.Source(4).Compute(1).Column=1
+Enclosure.Discovery.Source(4).Compute(1).String="MSHW;"
+
+//Sum up the power consumption values from all PSes
+Enclosure.Discovery.Source(4).Compute(2).Type="Awk"
+Enclosure.Discovery.Source(4).Compute(2).AwkScript=EmbeddedFile(1)
+
+// MSHW;EnclosureID;SerialNumber;ServiceTag;MSHW;Model;Vendor;Firmware;MSHW;PowerConsumption;
+Enclosure.Discovery.Source(5).Type="TableJoint"
+Enclosure.Discovery.Source(5).LeftTable=%Enclosure.Discovery.Source(3)%
+Enclosure.Discovery.Source(5).RightTable=%Enclosure.Discovery.Source(4)%
+Enclosure.Discovery.Source(5).LeftKeyColumn=1
+Enclosure.Discovery.Source(5).RightKeyColumn=1
+Enclosure.Discovery.Source(5).DefaultRightLine=";;"
+
+
+// InstanceTable = Source(1)
+// MSHW;EnclosureID;SerialNumber;ServiceTag;MSHW;Model;Vendor;Firmware;MSHW;PowerConsumption;
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(5)%
+Enclosure.Discovery.Instance.DisplayID=InstanceTable.Column(6)
+Enclosure.Discovery.Instance.DeviceID="DellSwitch"
+Enclosure.Discovery.Instance.Vendor=InstanceTable.Column(7)
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(6)
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(3)
+Enclosure.Discovery.Instance.BiosVersion=InstanceTable.Column(8)
+Enclosure.Discovery.Instance.ParameterActivation.PowerConsumption=InstanceTable.Column(10)
+Enclosure.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(4)
+Enclosure.Discovery.Instance.Type="Switch"
+
+//
+// Collect
+
+
+Enclosure.Collect.Type="MultiInstance"
+
+// Source(1) = 	libraryGlobalStatus SNMP OID
+// EnclosureID;Status;
+
+Enclosure.Collect.Source(1).Type="SnmpTable"
+Enclosure.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.674.10895.3000.1.2.110"
+Enclosure.Collect.Source(1).SnmpTableSelectColumns="ID,1"
+
+// Duplicate status, because we will translate it two times
+// EnclosureID;Status;Status;
+Enclosure.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Enclosure.Collect.Source(1).Compute(1).Column=2
+
+// Translate Status into PATROLStatus
+// EnclosureID;PATROLStatus;Status;
+Enclosure.Collect.Source(1).Compute(2).Type="Translate"
+Enclosure.Collect.Source(1).Compute(2).Column=2
+Enclosure.Collect.Source(1).Compute(2).TranslationTable="EnclosureStatusTranslationTable"
+
+// Translate second Status into more readable string
+// EnclosureID;PATROLStatus;StatusInformation;
+Enclosure.Collect.Source(1).Compute(3).Type="Translate"
+Enclosure.Collect.Source(1).Compute(3).Column=3
+Enclosure.Collect.Source(1).Compute(3).TranslationTable="EnclosureStatusInformationTranslationTable"
+
+// MSHW;EnclosureID;PATROLStatus;StatusInformation;
+Enclosure.Collect.Source(1).Compute(4).Type="LeftConcat"
+Enclosure.Collect.Source(1).Compute(4).Column=1
+Enclosure.Collect.Source(1).Compute(4).String="MSHW;"
+
+//Retrieve the power consumption from power supplies
+// ID;CurrentPower;
+Enclosure.Collect.Source(2).Type="SnmpTable"
+Enclosure.Collect.Source(2).SnmpTableOid="1.3.6.1.4.1.674.10895.3000.1.2.110.7.2.1"
+Enclosure.Collect.Source(2).SnmpTableSelectColumns="ID,5"
+
+Enclosure.Collect.Source(2).Compute(1).Type="LeftConcat"
+Enclosure.Collect.Source(2).Compute(1).Column=1
+Enclosure.Collect.Source(2).Compute(1).String="MSHW;"
+
+Enclosure.Collect.Source(2).Compute(2).Type="Awk"
+Enclosure.Collect.Source(2).Compute(2).AwkScript=EmbeddedFile(1)
+
+// MSHW;EnclosureID;PATROLStatus;StatusInformation;MSHW;PowerConsumption;
+Enclosure.Collect.Source(3).Type="TableJoint"
+Enclosure.Collect.Source(3).LeftTable=%Enclosure.Collect.Source(1)%
+Enclosure.Collect.Source(3).RightTable=%Enclosure.Collect.Source(2)%
+Enclosure.Collect.Source(3).LeftKeyColumn=1
+Enclosure.Collect.Source(3).RightKeyColumn=1
+Enclosure.Collect.Source(3).DefaultRightLine=";;"
+
+// Value Table
+// MSHW;EnclosureID;PATROLStatus;StatusInformation;MSHW;PowerConsumption;
+Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(3)%
+Enclosure.Collect.DeviceID="DellSwitch"
+Enclosure.Collect.Status=ValueTable.Column(3)
+Enclosure.Collect.StatusInformation=ValueTable.Column(4)
+Enclosure.Collect.PowerConsumption=ValueTable.Column(6)
+
+// The StatusTranslationTable
+EnclosureStatusTranslationTable(3)="OK"
+EnclosureStatusTranslationTable(4)="WARN"
+EnclosureStatusTranslationTable(5)="ALARM"
+EnclosureStatusTranslationTable(Default)="UNKNOWN"
+
+// The StatusInformationTranslationTable
+EnclosureStatusInformationTranslationTable(3)="OK"
+EnclosureStatusInformationTranslationTable(4)="Non-Critical"
+EnclosureStatusInformationTranslationTable(5)="Critical"
+EnclosureStatusInformationTranslationTable(Default)="Unknown Status"
+
+
+// Fan
+//
+
+// Source(1) = FRU information
+// ID;Location;Speed;Status;
+Fan.Discovery.Source(1).Type="SnmpTable"
+Fan.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.674.10895.3000.1.2.110.7.1.1"
+Fan.Discovery.Source(1).SnmpTableSelectColumns="ID,2,4,3"
+
+//Exclude fans whose status = notPresent(5)
+Fan.Discovery.Source(1).Compute(1).Type="ExcludeMatchingLines"
+Fan.Discovery.Source(1).Compute(1).Column="4"
+Fan.Discovery.Source(1).Compute(1).ValueList="5"
+
+// InstanceTable = Source(1)
+// ID;Location;Speed;Status;
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+
+Fan.Collect.Type="MultiInstance"
+
+// Source(1) = 	libraryGlobalStatus SNMP OID
+// EnclosureID;Status;
+
+Fan.Collect.Source(1).Type="SnmpTable"
+Fan.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.674.10895.3000.1.2.110.7.1.1"
+Fan.Collect.Source(1).SnmpTableSelectColumns="ID,4,3"
+
+// Duplicate status, because we will translate it two times
+// ID;Speed;Status;Status;
+Fan.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Fan.Collect.Source(1).Compute(1).Column=3
+
+// Translate Status into PATROLStatus
+// ID;Speed;PATROLStatus;Status;
+Fan.Collect.Source(1).Compute(2).Type="Translate"
+Fan.Collect.Source(1).Compute(2).Column=3
+Fan.Collect.Source(1).Compute(2).TranslationTable="StatusTranslationTable"
+
+// Translate second Status into more readable string
+// ID;PATROLStatus;StatusInformation;
+Fan.Collect.Source(1).Compute(3).Type="Translate"
+Fan.Collect.Source(1).Compute(3).Column=4
+Fan.Collect.Source(1).Compute(3).TranslationTable="StatusInformationTranslationTable"
+
+// Value Table
+// EnclosureID;PATROLStatus;StatusInformation;
+Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+Fan.Collect.DeviceID=ValueTable.Column(1)
+Fan.Collect.Status=ValueTable.Column(3)
+Fan.Collect.Speed=ValueTable.Column(2)
+Fan.Collect.StatusInformation=ValueTable.Column(3)
+
+// The StatusTranslationTable
+StatusTranslationTable(1)="OK"
+StatusTranslationTable(2)="WARN"
+StatusTranslationTable(3)="ALARM"
+StatusTranslationTable(4)="WARN"
+StatusTranslationTable(5)="ALARM"
+StatusTranslationTable(6)="ALARM"
+StatusTranslationTable(Default)="UNKNOWN"
+
+// The StatusInformationTranslationTable
+StatusInformationTranslationTable(1)="normal"
+StatusInformationTranslationTable(2)="Non-Critical"
+StatusInformationTranslationTable(3)="Critical"
+StatusInformationTranslationTable(4)="Shutdown"
+StatusInformationTranslationTable(5)="Not Present"
+StatusInformationTranslationTable(6)="Not Functioning"
+StatusInformationTranslationTable(Default)="Unknown Status"
+
+
+
+// Power Supply
+//
+
+// Source(1) = FRU information
+// ID;Location;Status;CurrentPower;
+PowerSupply.Discovery.Source(1).Type="SnmpTable"
+PowerSupply.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.674.10895.3000.1.2.110.7.2.1"
+PowerSupply.Discovery.Source(1).SnmpTableSelectColumns="ID,2,3,5"
+
+//Exclude fans whose status = notPresent(5)
+PowerSupply.Discovery.Source(1).Compute(1).Type="ExcludeMatchingLines"
+PowerSupply.Discovery.Source(1).Compute(1).Column="3"
+PowerSupply.Discovery.Source(1).Compute(1).ValueList="5"
+
+// InstanceTable = Source(1)
+// ID;Location;Speed;Status;
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+
+
+
+PowerSupply.Collect.Type="MultiInstance"
+
+// Source(1) = 	libraryGlobalStatus SNMP OID
+// ID;Status;CurrentPower;
+
+PowerSupply.Collect.Source(1).Type="SnmpTable"
+PowerSupply.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.674.10895.3000.1.2.110.7.2.1"
+PowerSupply.Collect.Source(1).SnmpTableSelectColumns="ID,3,5"
+
+// Duplicate status, because we will translate it two times
+// ID;Speed;Status;Status;
+PowerSupply.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+PowerSupply.Collect.Source(1).Compute(1).Column=2
+
+// Translate Status into PATROLStatus
+// ID;Speed;PATROLStatus;Status;
+PowerSupply.Collect.Source(1).Compute(2).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(2).Column=2
+PowerSupply.Collect.Source(1).Compute(2).TranslationTable="StatusTranslationTable"
+
+// Translate second Status into more readable string
+// ID;PATROLStatus;StatusInformation;
+PowerSupply.Collect.Source(1).Compute(3).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(3).Column=3
+PowerSupply.Collect.Source(1).Compute(3).TranslationTable="StatusInformationTranslationTable"
+
+// Value Table
+// EnclosureID;PATROLStatus;StatusInformation;
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(1)
+PowerSupply.Collect.Status=ValueTable.Column(2)
+PowerSupply.Collect.StatusInformation=ValueTable.Column(3)
+
+
+/////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = Headers
+/////////////////////////////////////////////////////////
+EmbeddedFile(1):
+BEGIN { FS = ";"; PowerConsumption = ""; }
+$1 ~ /MSHW/ {sum += $3; PowerConsumption=sum}
+END {print "MSHW;"PowerConsumption";"}
+EmbeddedFile(1).End
+/////////////////////////////////////////////////////////

@@ -1,0 +1,93 @@
+////////////////////////////////////////////////////////////////
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//
+//      Supports: Linux systems with snmpd running
+//                Connects to a SNMP agent
+//
+//
+
+// Include the various headers
+#include MS_HW_MIB2.hhdf
+#include MS_HW_SunEthernetDriver.hhdf
+
+//
+// Header
+//
+
+hdf.DisplayName="MIB-2 Standard SNMP Agent - Network Interfaces - Solaris"
+hdf.TypicalPlatform="Any system with SNMP"
+hdf.AppliesToOS="Solaris"
+hdf.Supersedes="MS_HW_SunNetwork.hdf"
+
+// Process that through an AWK script to use Description as the device ID
+// and isolate the driver name, so we can translate that into a card model
+// Also keep only cards where the first word is a purely alphanumeric driverInstance name
+// DeviceID;DriverName;PortType;MacAddress;AdminStatus;
+NetworkCard.Discovery.Source(1).Compute(4).Type="Awk"
+NetworkCard.Discovery.Source(1).Compute(4).AwkScript=EmbeddedFile(1)
+NetworkCard.Discovery.Source(1).Compute(4).KeepOnlyRegExp="^MSHW;"
+NetworkCard.Discovery.Source(1).Compute(4).Separators=";"
+NetworkCard.Discovery.Source(1).Compute(4).SelectColumns="2,3,4,5,6"
+
+// InstanceTable = Source(1)
+// PortID;Description;PortType;MacAddress;AdminStatus;
+NetworkCard.Discovery.InstanceTable=%NetworkCard.Discovery.Source(1)%
+NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+//NetworkCard.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+NetworkCard.Discovery.Instance.Vendor=InstanceTable.Column(2)
+NetworkCard.Discovery.Instance.PhysicalAddress=InstanceTable.Column(4)
+NetworkCard.Discovery.Instance.PhysicalAddressType="MAC"
+NetworkCard.Discovery.Instance.DeviceType=InstanceTable.Column(3)
+
+
+
+// Translate the Driver column into a model name
+// DeviceID;Model;PortType;MacAddress;AdminStatus;
+NetworkCard.Discovery.Source(1).Compute(5).Type="Translate"
+NetworkCard.Discovery.Source(1).Compute(5).Column=2
+NetworkCard.Discovery.Source(1).Compute(5).TranslationTable="DriverTranslationTable"
+
+// Same as in the discovery, use Description as the DeviceID
+// PortID;Description;SpeedMBps;PATROLStatus;StatusInformation;LinkStatus;ReceivedBytes;ReceivedPackets;ReceivedNonUnicastPackets;TotalErrors;TransmittedBytes;TransmittedPackets;TransmittedNonUnicastPackets;TransmittedErrors;
+NetworkCard.Collect.Source(6).Compute(1).Type="Replace"
+NetworkCard.Collect.Source(6).Compute(1).Column=1
+NetworkCard.Collect.Source(6).Compute(1).Replace=Column(1)
+NetworkCard.Collect.Source(6).Compute(1).ReplaceBy=Column(2)
+
+
+
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = shell script mixing ifconfig and kstat
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(1):
+BEGIN {
+	FS = ";"
+}
+($2 ~ /^[a-zA-Z0-9]+$/) {
+	DeviceID = $2
+	driver = DeviceID
+	while (substr(driver, length(driver), 1) ~ /[0-9]/)
+	{
+		driver = substr(driver, 1, length(driver) - 1)
+	}
+
+	if (driver != "lo" && driver != "lpfc" && driver != "jnet" && driver != "dman" && driver != "aggr" && driver != "clprivnet" && driver != "sppp")
+	{
+		print "MSHW;" DeviceID ";" driver ";" $3 ";" $4 ";" $5
+	}
+}
+EmbeddedFile(1).End
+/////////////////////////////////////////////////////////////////////

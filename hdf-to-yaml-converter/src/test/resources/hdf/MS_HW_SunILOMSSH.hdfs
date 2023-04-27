@@ -1,0 +1,673 @@
+//
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//             MS_HW_SunILOMSSH.hdf
+//
+//         Supports: Sun blade server via the ILOM card.
+//
+//
+
+// HEADER
+
+hdf.DisplayName="Oracle/Sun ILOM (SSH)"
+hdf.TypicalPlatform="Oracle/Sun"
+hdf.ReliesOn="Sun/Oracle ILOM"
+hdf.Version="1.0"
+hdf.Comments="This connector provides hardware monitoring for the Sun Blades with ILOM cards via SSH."
+hdf.RemoteSupport="true"
+hdf.LocalSupport="false"
+hdf.AppliesToOS="OOB"
+
+// host should respond to Telnet/SSH the way described below
+Detection.Criteria(1).Type="OSCommand"
+Detection.Criteria(1).CommandLine="show /SYS -d properties"
+//Detection.Criteria(1).ExpectedResult="\(SUN\)\|\(Oracle\)|\(product_name\)"
+Detection.Criteria(1).ExpectedResult="product_name"
+
+//
+// ENCLOSURES
+//
+//
+// Discovery
+
+// SSH Section
+
+Enclosure.Discovery.Source(1).Type="OSCommand"
+Enclosure.Discovery.Source(1).CommandLine="show /SYS -d properties -l all"
+
+//  Run the SSH output through an AWK script
+//  MSHW;ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;
+Enclosure.Discovery.Source(1).Compute(1).Type="Awk"
+Enclosure.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+Enclosure.Discovery.Source(1).Compute(1).KeepOnlyRegExp="MSHW;"
+Enclosure.Discovery.Source(1).Compute(1).Separators=";"
+Enclosure.Discovery.Source(1).Compute(1).SelectColumns="2,3,4,5,6,7,8,9,10,11"
+
+// Take a copy for the enclosure instance table
+Enclosure.Discovery.Source(2)=%Enclosure.Discovery.Source(1)%
+
+// Keep Only the /SYS line
+// ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
+Enclosure.Discovery.Source(2).Compute(1).Type="KeepOnlyMatchingLines"
+Enclosure.Discovery.Source(2).Compute(1).Column=1
+Enclosure.Discovery.Source(2).Compute(1).RegExp="SYS$"
+
+// Replace SUN MICROSYSTEMS and SUN in vendor and model
+Enclosure.Discovery.Source(2).Compute(2).Type="Replace"
+Enclosure.Discovery.Source(2).Compute(2).Column=3
+Enclosure.Discovery.Source(2).Compute(2).Replace="SUN MICROSYSTEMS"
+Enclosure.Discovery.Source(2).Compute(2).ReplaceBy="SUN"
+
+Enclosure.Discovery.Source(2).Compute(3).Type="Replace"
+Enclosure.Discovery.Source(2).Compute(3).Column=2
+Enclosure.Discovery.Source(2).Compute(3).Replace="SUN "
+Enclosure.Discovery.Source(2).Compute(3).ReplaceBy=""
+
+// Replace Oracle Corporation and Oracle in vendor and model
+Enclosure.Discovery.Source(2).Compute(4).Type="Replace"
+Enclosure.Discovery.Source(2).Compute(4).Column=3
+Enclosure.Discovery.Source(2).Compute(4).Replace="Oracle Corporation"
+Enclosure.Discovery.Source(2).Compute(4).ReplaceBy="Oracle"
+
+Enclosure.Discovery.Source(2).Compute(5).Type="Replace"
+Enclosure.Discovery.Source(2).Compute(5).Column=3
+Enclosure.Discovery.Source(2).Compute(5).Replace="ORACLE CORPORATION"
+Enclosure.Discovery.Source(2).Compute(5).ReplaceBy="Oracle"
+
+Enclosure.Discovery.Source(2).Compute(6).Type="Replace"
+Enclosure.Discovery.Source(2).Compute(6).Column=2
+Enclosure.Discovery.Source(2).Compute(6).Replace="Oracle "
+Enclosure.Discovery.Source(2).Compute(6).ReplaceBy=""
+
+Enclosure.Discovery.Source(2).Compute(7).Type="Replace"
+Enclosure.Discovery.Source(2).Compute(7).Column=2
+Enclosure.Discovery.Source(2).Compute(7).Replace="ORACLE "
+Enclosure.Discovery.Source(2).Compute(7).ReplaceBy=""
+
+
+// The InstanceTable
+// ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(2)%
+Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Enclosure.Discovery.Instance.Vendor=InstanceTable.Column(3)
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(2)
+// Enclosure.Discovery.Instance.Type=InstanceTable.Column(4)
+
+
+/
+// COLLECT
+//
+// Collect type is "multi-instance"
+Enclosure.Collect.Type="MultiInstance"
+
+// Main Collect via SSH
+Enclosure.Collect.Source(1).Type="OSCommand"
+Enclosure.Collect.Source(1).CommandLine="show /SYS -d properties -l all"
+
+//  Run the SSH output through an AWK script
+//  MSHW;ID;type;sensorValue;numericalSensorValue;
+Enclosure.Collect.Source(1).Compute(1).Type="Awk"
+Enclosure.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+Enclosure.Collect.Source(1).Compute(1).KeepOnlyRegExp="MSHW;"
+Enclosure.Collect.Source(1).Compute(1).Separators=";"
+Enclosure.Collect.Source(1).Compute(1).SelectColumns="2,5,6,11"
+
+// Take a copy for the enclosure value table
+Enclosure.Collect.Source(2)=%Enclosure.Collect.Source(1)%
+
+// Keep Only the SERVICE line
+// ID;type;sensorValue;numericalSensorValue;
+Enclosure.Collect.Source(2).Compute(1).Type="KeepOnlyMatchingLines"
+Enclosure.Collect.Source(2).Compute(1).Column=1
+Enclosure.Collect.Source(2).Compute(1).RegExp="^SERVICE$"
+
+// Translate Condition into a PATROL Status
+// ID;type;PATROLStatus;numericalSensorValue;
+Enclosure.Collect.Source(2).Compute(2).Type="Translate"
+Enclosure.Collect.Source(2).Compute(2).Column=3
+Enclosure.Collect.Source(2).Compute(2).TranslationTable="IndicatorTranslationTable"
+
+// Remove the /SERVICE so that is matches the discovery name
+// ID;type;PATROLStatus;numericalSensorValue;
+Enclosure.Collect.Source(2).Compute(3).Type="Replace"
+Enclosure.Collect.Source(2).Compute(3).Column=1
+Enclosure.Collect.Source(2).Compute(3).Replace="SERVICE"
+Enclosure.Collect.Source(2).Compute(3).ReplaceBy="/SYS"
+
+// The ValueTable
+// ID;type;PATROLStatus;numericalSensorValue;
+Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(2)%
+Enclosure.Collect.DeviceID=ValueTable.Column(1)
+Enclosure.Collect.Status=ValueTable.Column(3)
+
+
+//
+// TEMPERATURES
+
+// Temperature discovery (Discrete Sensors)
+// Using the main enclosure Discovery Table
+Temperature.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep Only the lines of type Temperature
+// ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
+Temperature.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Temperature.Discovery.Source(1).Compute(1).Column=4
+Temperature.Discovery.Source(1).Compute(1).ValueList="Temperature"
+
+// Keep Only the lines that have values
+// ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
+Temperature.Discovery.Source(1).Compute(2).Type="KeepOnlyMatchingLines"
+Temperature.Discovery.Source(1).Compute(2).Column=5
+Temperature.Discovery.Source(1).Compute(2).RegExp="."
+
+// Temperature discovery (Numerical Sensors)
+Temperature.Discovery.Source(2)=%Enclosure.Discovery.Source(1)%
+
+// Keep Only the lines of type Temperature
+// ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
+Temperature.Discovery.Source(2).Compute(1).Type="KeepOnlyMatchingLines"
+Temperature.Discovery.Source(2).Compute(1).Column=4
+Temperature.Discovery.Source(2).Compute(1).ValueList="Temperature"
+
+// Keep Only the lines that have values
+// ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
+Temperature.Discovery.Source(2).Compute(2).Type="KeepOnlyMatchingLines"
+Temperature.Discovery.Source(2).Compute(2).Column=10
+Temperature.Discovery.Source(2).Compute(2).RegExp="."
+
+// Union the Discrete and Numerical
+// ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
+Temperature.Discovery.Source(3).Type="TableUnion"
+Temperature.Discovery.Source(3).Table1=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Source(3).Table2=%Temperature.Discovery.Source(2)%
+
+
+// InstanceTable = Source(4)
+// ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(3)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Temperature.Discovery.Instance.WarningThreshold=InstanceTable.Column(7)
+Temperature.Discovery.Instance.AlarmThreshold=InstanceTable.Column(6)
+Temperature.Discovery.Instance.TemperatureType=InstanceTable.Column(1)
+Temperature.Discovery.Instance.ParameterActivation.Status=InstanceTable.Column(5)
+Temperature.Discovery.Instance.ParameterActivation.Temperature=InstanceTable.Column(10)
+//
+// COLLECT
+//
+// Collect type is "multi-instance"
+Temperature.Collect.Type="MultiInstance"
+
+// Take a copy for the enclosure value table
+Temperature.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Keep Only the SERVICE line
+// ID;type;sensorValue;numericalSensorValue;
+Temperature.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Temperature.Collect.Source(1).Compute(1).Column=2
+Temperature.Collect.Source(1).Compute(1).ValueList="Temperature"
+
+// Remove the Units
+// ID;type;sensorValue;numericalSensorValue;
+Temperature.Collect.Source(1).Compute(2).Type="Replace"
+Temperature.Collect.Source(1).Compute(2).Column=4
+Temperature.Collect.Source(1).Compute(2).Replace=" degree C"
+Temperature.Collect.Source(1).Compute(2).ReplaceBy=""
+
+// Translate the Voltage Status
+// ID;type;sensorValue;numericalSensorValue;
+Temperature.Collect.Source(1).Compute(3).Type="Translate"
+Temperature.Collect.Source(1).Compute(3).Column=3
+Temperature.Collect.Source(1).Compute(3).TranslationTable="TemperatureTranslationTable"
+
+// Note this table is the opposite of Power Supplies
+TemperatureTranslationTable("State Deasserted")="OK"
+TemperatureTranslationTable("State Asserted")="ALARM"
+TemperatureTranslationTable(Default)="UNKNOWN"
+
+// The ValueTable
+// ID;type;PATROLStatus;numericalSensorValue;
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.DeviceID=ValueTable.Column(1)
+Temperature.Collect.Temperature=ValueTable.Column(4)
+Temperature.Collect.Status=ValueTable.Column(3)
+
+
+
+//
+// Voltages
+
+// Voltage discovery
+// Using the main enclosure Discovery Table
+Voltage.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep Only the lines of type Voltage
+// ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
+Voltage.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Voltage.Discovery.Source(1).Compute(1).Column=4
+Voltage.Discovery.Source(1).Compute(1).ValueList="Voltage"
+
+// Keep Only the lines that have values
+// ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
+Voltage.Discovery.Source(1).Compute(2).Type="KeepOnlyMatchingLines"
+Voltage.Discovery.Source(1).Compute(2).Column=10
+Voltage.Discovery.Source(1).Compute(2).RegExp="."
+
+// Thresholds  Volts  to  Millivolts
+Voltage.Discovery.Source(1).Compute(3).Type="Multiply"
+Voltage.Discovery.Source(1).Compute(3).Column=6
+Voltage.Discovery.Source(1).Compute(3).MultiplyBy=1000
+Voltage.Discovery.Source(1).Compute(4).Type="Multiply"
+Voltage.Discovery.Source(1).Compute(4).Column=7
+Voltage.Discovery.Source(1).Compute(4).MultiplyBy=1000
+Voltage.Discovery.Source(1).Compute(5).Type="Multiply"
+Voltage.Discovery.Source(1).Compute(5).Column=8
+Voltage.Discovery.Source(1).Compute(5).MultiplyBy=1000
+Voltage.Discovery.Source(1).Compute(6).Type="Multiply"
+Voltage.Discovery.Source(1).Compute(6).Column=9
+Voltage.Discovery.Source(1).Compute(6).MultiplyBy=1000
+
+// Temperature discovery (Numerical Sensors)
+Voltage.Discovery.Source(2)=%Enclosure.Discovery.Source(1)%
+
+// Keep Only the lines of type Voltage
+// ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
+Voltage.Discovery.Source(2).Compute(1).Type="KeepOnlyMatchingLines"
+Voltage.Discovery.Source(2).Compute(1).Column=4
+Voltage.Discovery.Source(2).Compute(1).ValueList="Voltage"
+
+// Keep Only the lines that have values
+// ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
+Voltage.Discovery.Source(2).Compute(2).Type="KeepOnlyMatchingLines"
+Voltage.Discovery.Source(2).Compute(2).Column=5
+Voltage.Discovery.Source(2).Compute(2).RegExp="."
+
+// Union the Discrete and Numerical
+// ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
+Voltage.Discovery.Source(3).Type="TableUnion"
+Voltage.Discovery.Source(3).Table1=%Voltage.Discovery.Source(1)%
+Voltage.Discovery.Source(3).Table2=%Voltage.Discovery.Source(2)%
+
+// InstanceTable = Source(4)
+// ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
+Voltage.Discovery.InstanceTable=%Voltage.Discovery.Source(3)%
+Voltage.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Voltage.Discovery.Instance.LowerThreshold=InstanceTable.Column(9)
+Voltage.Discovery.Instance.UpperThreshold=InstanceTable.Column(7)
+Voltage.Discovery.Instance.VoltageType=InstanceTable.Column(1)
+Voltage.Discovery.Instance.ParameterActivation.Voltage=InstanceTable.Column(10)
+Voltage.Discovery.Instance.ParameterActivation.Status=InstanceTable.Column(5)
+
+
+//
+// COLLECT
+//
+// Collect type is "multi-instance"
+Voltage.Collect.Type="MultiInstance"
+
+// Take a copy for the enclosure value table
+Voltage.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Keep Only the SERVICE line
+// ID;type;sensorValue;numericalSensorValue;
+Voltage.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Voltage.Collect.Source(1).Compute(1).Column=2
+Voltage.Collect.Source(1).Compute(1).ValueList="Voltage"
+
+// Remove the Units
+// ID;type;sensorValue;numericalSensorValue;
+Voltage.Collect.Source(1).Compute(2).Type="Replace"
+Voltage.Collect.Source(1).Compute(2).Column=4
+Voltage.Collect.Source(1).Compute(2).Replace=" Volts"
+Voltage.Collect.Source(1).Compute(2).ReplaceBy=""
+
+// Volts to Millivolts;
+// ID;type;sensorValue;numericalSensorValue;
+Voltage.Collect.Source(1).Compute(3).Type="Multiply"
+Voltage.Collect.Source(1).Compute(3).Column=4
+Voltage.Collect.Source(1).Compute(3).MultiplyBy=1000
+
+// Translate the Voltage Status
+// ID;type;sensorValue;numericalSensorValue;
+Voltage.Collect.Source(1).Compute(4).Type="Translate"
+Voltage.Collect.Source(1).Compute(4).Column=3
+Voltage.Collect.Source(1).Compute(4).TranslationTable="VoltageTranslationTable"
+
+// Note this table is intentionally weird as Predicted Failure Assert = "Fault" and State Asserted = "OK"
+VoltageTranslationTable("Predictive Failure Deasserted")="OK"
+VoltageTranslationTable("Predictive Failure Asserted")="ALARM"
+VoltageTranslationTable("State Deasserted")="ALARM"
+VoltageTranslationTable("State Asserted")="OK"
+VoltageTranslationTable(Default)="UNKNOWN"
+
+// The ValueTable
+// ID;type;PATROLStatus;
+Voltage.Collect.ValueTable=%Voltage.Collect.Source(1)%
+Voltage.Collect.DeviceID=ValueTable.Column(1)
+Voltage.Collect.Voltage=ValueTable.Column(4)
+Voltage.Collect.Status=ValueTable.Column(3)
+
+
+
+//
+// CPUs
+
+// CPU discovery
+
+// Source(1) = sunPlatSensorTable
+// ID;Name;EnclosureTableStatus;
+CPU.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep Only the main CPU Line
+// ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
+CPU.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+CPU.Discovery.Source(1).Compute(1).Column=1
+CPU.Discovery.Source(1).Compute(1).RegExp="^MB/P[0-9]*$"
+
+// Exclude the lines that have no vendor = CPU not present
+// ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
+CPU.Discovery.Source(1).Compute(2).Type="KeepOnlyMatchingLines"
+CPU.Discovery.Source(1).Compute(2).Column=3
+CPU.Discovery.Source(1).Compute(2).RegExp="."
+
+// Replace A and SUN in vendor and model
+CPU.Discovery.Source(1).Compute(3).Type="Replace"
+CPU.Discovery.Source(1).Compute(3).Column=3
+CPU.Discovery.Source(1).Compute(3).Replace="ADVANCED MICRO DEVICES"
+CPU.Discovery.Source(1).Compute(3).ReplaceBy="AMD"
+
+CPU.Discovery.Source(1).Compute(4).Type="Replace"
+CPU.Discovery.Source(1).Compute(4).Column=2
+CPU.Discovery.Source(1).Compute(4).Replace="AMD "
+CPU.Discovery.Source(1).Compute(4).ReplaceBy=""
+
+// InstanceTable = Source(3)
+// ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
+CPU.Discovery.InstanceTable=%CPU.Discovery.Source(1)%
+CPU.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+CPU.Discovery.Instance.Vendor=InstanceTable.Column(3)
+CPU.Discovery.Instance.Model=InstanceTable.Column(2)
+
+//
+// COLLECT
+//
+// Collect type is "multi-instance"
+CPU.Collect.Type="MultiInstance"
+
+// Take a copy for the Enclosure value table
+CPU.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Keep Only the SERVICE line
+// ID;type;sensorValue;numericalSensorValue;
+CPU.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+CPU.Collect.Source(1).Compute(1).Column=1
+CPU.Collect.Source(1).Compute(1).RegExp="^MB/P[0-9]*/SERVICE$"
+
+// Translate Condition into a PATROL Status
+// ID;type;PATROLStatus;numericalSensorValue;
+CPU.Collect.Source(1).Compute(2).Type="Translate"
+CPU.Collect.Source(1).Compute(2).Column=3
+CPU.Collect.Source(1).Compute(2).TranslationTable="IndicatorTranslationTable"
+
+// Remove the /SERVICE so that is matches the discovery name
+// ID;type;PATROLStatus;numericalSensorValue;
+CPU.Collect.Source(1).Compute(3).Type="Replace"
+CPU.Collect.Source(1).Compute(3).Column=1
+CPU.Collect.Source(1).Compute(3).Replace="/SERVICE"
+CPU.Collect.Source(1).Compute(3).ReplaceBy=""
+
+// The ValueTable
+// ID;type;PATROLStatus;numericalSensorValue;
+CPU.Collect.ValueTable=%CPU.Collect.Source(1)%
+CPU.Collect.DeviceID=ValueTable.Column(1)
+CPU.Collect.Status=ValueTable.Column(3)
+
+//
+// Memorys
+
+// Memory discovery
+
+// Source(1) = sunPlatSensorTable
+// ID;Name;EnclosureTableStatus;
+Memory.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep Only the main Memory Line
+// ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
+Memory.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Memory.Discovery.Source(1).Compute(1).Column=1
+Memory.Discovery.Source(1).Compute(1).RegExp="\(^MB/P[0-9]*/D[0-9]*$\)\|\(^MB/MCH/D[A-Z][0-9]*$\)"
+
+
+// Exclude the lines that have no vendor = Memory not present
+// ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
+Memory.Discovery.Source(1).Compute(2).Type="KeepOnlyMatchingLines"
+Memory.Discovery.Source(1).Compute(2).Column=3
+Memory.Discovery.Source(1).Compute(2).RegExp="."
+
+// InstanceTable = Source(3)
+// ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;numericalSensorValue;
+Memory.Discovery.InstanceTable=%Memory.Discovery.Source(1)%
+Memory.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Memory.Discovery.Instance.Vendor=InstanceTable.Column(3)
+Memory.Discovery.Instance.Model=InstanceTable.Column(2)
+
+//
+// COLLECT
+//
+// Collect type is "multi-instance"
+Memory.Collect.Type="MultiInstance"
+
+// Take a copy for the Enclosure value table
+Memory.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Keep Only the SERVICE line
+// ID;type;sensorValue;numericalSensorValue;
+Memory.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Memory.Collect.Source(1).Compute(1).Column=1
+Memory.Collect.Source(1).Compute(1).RegExp="\(^MB/P[0-9]*/D[0-9]*/SERVICE$\)\|\(^MB/MCH/D[A-Z][0-9]*/SERVICE$\)"
+
+// Translate Condition into a PATROL Status
+// ID;type;PATROLStatus;numericalSensorValue;
+Memory.Collect.Source(1).Compute(2).Type="Translate"
+Memory.Collect.Source(1).Compute(2).Column=3
+Memory.Collect.Source(1).Compute(2).TranslationTable="IndicatorTranslationTable"
+
+// Remove the /SERVICE so that is matches the discovery name
+// ID;type;PATROLStatus;numericalSensorValue;
+Memory.Collect.Source(1).Compute(3).Type="Replace"
+Memory.Collect.Source(1).Compute(3).Column=1
+Memory.Collect.Source(1).Compute(3).Replace="/SERVICE"
+Memory.Collect.Source(1).Compute(3).ReplaceBy=""
+
+// The ValueTable
+// ID;type;PATROLStatus;numericalSensorValue;
+Memory.Collect.ValueTable=%Memory.Collect.Source(1)%
+Memory.Collect.DeviceID=ValueTable.Column(1)
+Memory.Collect.Status=ValueTable.Column(3)
+
+
+//
+// PhysicalDisks
+
+// PhysicalDisk discovery
+
+// Source(1) = sunPlatSensorTable
+// ID;Name;EnclosureTableStatus;
+PhysicalDisk.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep Only the main PhysicalDisk Line
+// ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;sensorNumericalValue;
+PhysicalDisk.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+PhysicalDisk.Discovery.Source(1).Compute(1).Column=1
+PhysicalDisk.Discovery.Source(1).Compute(1).RegExp="^HDD[0-9]*/SERVICE$"
+
+// Remove the /STATE
+// ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;sensorNumericalValue;
+PhysicalDisk.Discovery.Source(1).Compute(2).Type="Replace"
+PhysicalDisk.Discovery.Source(1).Compute(2).Column=1
+PhysicalDisk.Discovery.Source(1).Compute(2).Replace="/SERVICE"
+PhysicalDisk.Discovery.Source(1).Compute(2).ReplaceBy=""
+
+// Take a copy for the Enclosure value table
+PhysicalDisk.Discovery.Source(2)=%Enclosure.Discovery.Source(1)%
+
+// Keep Only the FAIL line (Predicted Failure)
+// ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;sensorNumericalValue;
+PhysicalDisk.Discovery.Source(2).Compute(1).Type="KeepOnlyMatchingLines"
+PhysicalDisk.Discovery.Source(2).Compute(1).Column=1
+PhysicalDisk.Discovery.Source(2).Compute(1).RegExp="^HDD[0-9]*/FAIL$"
+
+// Keep only the ID column
+// ID;PFsensorValue;
+PhysicalDisk.Discovery.Source(2).Compute(2).Type="KeepColumns"
+PhysicalDisk.Discovery.Source(2).Compute(2).ColumnNumbers="1,5"
+
+// Remove the /FAIL
+// ID;PFsensorValue;
+PhysicalDisk.Discovery.Source(2).Compute(3).Type="Replace"
+PhysicalDisk.Discovery.Source(2).Compute(3).Column=1
+PhysicalDisk.Discovery.Source(2).Compute(3).Replace="/FAIL"
+PhysicalDisk.Discovery.Source(2).Compute(3).ReplaceBy=""
+
+// Source(3) = Table joint of Source(1) and Source(2)
+// ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;sensorNumericalValue;ID;PFsensorValue;
+PhysicalDisk.Discovery.Source(3).Type="TableJoint"
+PhysicalDisk.Discovery.Source(3).LeftTable=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Source(3).RightTable=%PhysicalDisk.Discovery.Source(2)%
+PhysicalDisk.Discovery.Source(3).LeftKeyColumn=1
+PhysicalDisk.Discovery.Source(3).RightKeyColumn=1
+PhysicalDisk.Discovery.Source(3).DefaultRightLine=";;"
+
+// InstanceTable = Source(3)
+// ID;fruName;fruVendor;type;sensorValue;upperAlarm;upperWarn;lowerAlarm;lowerWarn;ID;PFsensorValue;
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(3)%
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PhysicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+PhysicalDisk.Discovery.Instance.ParameterActivation.PredictedFailure=InstanceTable.Column(12)
+
+//
+// COLLECT
+//
+// Collect type is "multi-instance"
+PhysicalDisk.Collect.Type="MultiInstance"
+
+// Take a copy for the Enclosure value table
+PhysicalDisk.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Keep Only the FAIL line (Predicted Failure)
+// ID;type;PFsensorValue;NumericalValue;
+PhysicalDisk.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+PhysicalDisk.Collect.Source(1).Compute(1).Column=1
+PhysicalDisk.Collect.Source(1).Compute(1).RegExp="^HDD[0-9]*/FAIL$"
+
+// Translate Condition into a PATROL Status
+// ID;type;PFPATROLStatus;NumericalValue;
+PhysicalDisk.Collect.Source(1).Compute(2).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(2).Column=3
+PhysicalDisk.Collect.Source(1).Compute(2).TranslationTable="DiskDiscreteTranslationTable"
+
+// Remove the /FAIL so that is matches the discovery name
+// ID;type;PFPATROLStatus;NumericalValue;
+PhysicalDisk.Collect.Source(1).Compute(3).Type="Replace"
+PhysicalDisk.Collect.Source(1).Compute(3).Column=1
+PhysicalDisk.Collect.Source(1).Compute(3).Replace="/FAIL"
+PhysicalDisk.Collect.Source(1).Compute(3).ReplaceBy=""
+
+// Take another copy of the Enclosure value table
+PhysicalDisk.Collect.Source(2)=%Enclosure.Collect.Source(1)%
+
+// Keep Only the SERVICE line
+// ID;type;sensorValue;NumericalValue;
+PhysicalDisk.Collect.Source(2).Compute(1).Type="KeepOnlyMatchingLines"
+PhysicalDisk.Collect.Source(2).Compute(1).Column=1
+PhysicalDisk.Collect.Source(2).Compute(1).RegExp="^HDD[0-9]*/SERVICE$"
+
+// Translate Condition into a PATROL Status
+// ID;type;PATROLStatus;NumericalValue;
+PhysicalDisk.Collect.Source(2).Compute(2).Type="Translate"
+PhysicalDisk.Collect.Source(2).Compute(2).Column=3
+PhysicalDisk.Collect.Source(2).Compute(2).TranslationTable="IndicatorTranslationTable"
+
+// Remove the /SERVICE so that is matches the discovery name
+// ID;type;PATROLStatus;NumericalValue;
+PhysicalDisk.Collect.Source(2).Compute(3).Type="Replace"
+PhysicalDisk.Collect.Source(2).Compute(3).Column=1
+PhysicalDisk.Collect.Source(2).Compute(3).Replace="/SERVICE"
+PhysicalDisk.Collect.Source(2).Compute(3).ReplaceBy=""
+
+// Source(3) = Table joint of Source(1) and Source(2)
+// ID;type;PATROLStatus;NumericalValue;ID;type;PFPATROLStatus;NumericalValue;
+PhysicalDisk.Collect.Source(3).Type="TableJoint"
+PhysicalDisk.Collect.Source(3).LeftTable=%PhysicalDisk.Collect.Source(2)%
+PhysicalDisk.Collect.Source(3).RightTable=%PhysicalDisk.Collect.Source(1)%
+PhysicalDisk.Collect.Source(3).LeftKeyColumn=1
+PhysicalDisk.Collect.Source(3).RightKeyColumn=1
+PhysicalDisk.Collect.Source(3).DefaultRightLine=";;;;"
+
+// The ValueTable
+// ID;type;PATROLStatus;ID;type;PFPATROLStatus;
+PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(3)%
+PhysicalDisk.Collect.DeviceID=ValueTable.Column(1)
+PhysicalDisk.Collect.Status=ValueTable.Column(3)
+PhysicalDisk.Collect.PredictedFailure=ValueTable.Column(7)
+
+
+
+// The IndicatorTranslationTable
+IndicatorTranslationTable("Off")="OK"
+IndicatorTranslationTable("Fast Blink")="ALARM"
+IndicatorTranslationTable("On")="ALARM"
+IndicatorTranslationTable(Default)="UNKNOWN"
+
+// The DiskDiscreteTranslationTable
+DiskDiscreteTranslationTable("Predictive Failure Deasserted")="false"
+DiskDiscreteTranslationTable("Predictive Failure Asserted")="true"
+DiskDiscreteTranslationTable(Default)="UNKNOWN"
+
+
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = awk script that parse the output show /SYS and returns Names
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(1):
+BEGIN  {ID="";fruName="";fruVendor="";type="";sensorValue="";upperAlarm="";upperWarn="";lowerAlarm="";lowerWarn=""}
+
+
+$1 ~ "/SYS"        {print("MSHW;"ID";"fruName";"fruVendor";"type";"sensorValue";"upperAlarm";"upperWarn";"lowerAlarm";"lowerWarn";"numericalSensorValue";")
+                       ID="";fruName="";fruVendor="";type="";sensorValue="";upperAlarm="";upperWarn="";lowerAlarm="";lowerWarn="";numericalSensorValue="";
+                       ID=$1 ; gsub("/SYS/","",ID);}
+
+$1 ~ /type/ && ID != ""                                             {eqIndex=index($0,"="); type = substr($0,eqIndex+2);}
+
+$1 ~ /product_name/ && ID != ""                                     {eqIndex=index($0,"="); fruName = substr($0,eqIndex+2);}
+$1 ~ /fru_name/ && ID != "" && fruName == ""                        {eqIndex=index($0,"="); fruName = substr($0,eqIndex+2);}
+
+$1 ~ /product_manufacturer/ && ID != ""                             {eqIndex=index($0,"="); fruVendor = substr($0,eqIndex+2);}
+$1 ~ /fru_manufacturer/ && ID != "" && fruVendor==""                {eqIndex=index($0,"="); fruVendor = substr($0,eqIndex+2);}
+
+$1 ~ /value/ && ID != ""                                            {eqIndex=index($0,"="); sensorValue = substr($0,eqIndex+2);
+                                                                     if (sensorValue=="Not Readable") {sensorValue = ""} ;
+                                                                     if (sensorValue ~ /^ *[0-9]/) {numericalSensorValue = sensorValue ; sensorValue = ""}
+                                                                    }
+
+$1 ~ /upper_nonrecov_threshold/ && $NF !~ /N.A/                     {upperAlarm=$3}
+$1 ~ /upper_critical_threshold/ && $NF !~ /N.A/                     {upperWarn=$3}
+$1 ~ /upper_noncritical_threshold/ && $NF !~ /N.A/                  {upperAlarm=upperWarn ; upperWarn=$3}
+$1 ~ /lower_noncritical_threshold/ && $NF !~ /N.A/                  {lowerWarn=$3}
+$1 ~ /lower_critical_threshold/ && $NF !~ /N.A/ && lowerWarn == ""  {lowerWarn=$3}
+$1 ~ /lower_critical_threshold/ && $NF !~ /N.A/ && lowerWarn != ""  {lowerAlarm=$3}
+$1 ~ /lower_nonrecov_threshold/ && $NF !~ /N.A/ && lowerAlarm == "" {lowerAlarm=$3}
+
+END {print("MSHW;"ID";"fruName";"fruVendor";"type";"sensorValue";"upperAlarm";"upperWarn";"lowerAlarm";"lowerWarn";"numericalSensorValue";");}
+EmbeddedFile(1).End
+/////////////////////////////////////////////////////////////////////

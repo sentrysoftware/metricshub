@@ -1,0 +1,1301 @@
+// Supersedes the existing SMIS Disk Array Connector
+hdf.Supersedes="MS_HW_SMISDiskArray.hdf"
+
+//
+// Detection
+//
+
+// Verify that there is an HITACHI_StorageSystem instance
+
+Detection.Criteria(1).Type="WBEM"
+Detection.Criteria(1).WbemNameSpace=HITACHI_NAMESPACE
+Detection.Criteria(1).WbemQuery="SELECT Name,Dedicated FROM HITACHI_StorageSystem"
+// Detection.Criteria(1).ExpectedResult="[;|]3|[0-9|]*;$"
+
+// There also must be disk drives declared in this namespace
+Detection.Criteria(2).Type="WBEM"
+Detection.Criteria(2).WbemQuery="SELECT DeviceID FROM HITACHI_DiskDrive"
+Detection.Criteria(2).WbemNameSpace=HITACHI_NAMESPACE
+
+//
+// Enclosure
+//
+
+//
+// Discovery
+
+// Source(1) = HITACHI_StorageSystem
+// Name,Caption,HITACHI_StorageSystem
+Enclosure.Discovery.Source(1).Type="WBEM"
+Enclosure.Discovery.Source(1).WbemQuery="SELECT Name,Caption,__Path FROM HITACHI_StorageSystem"
+Enclosure.Discovery.Source(1).WbemNameSpace=HITACHI_NAMESPACE
+
+// caption is model@ipaddr-hostname so we keep only fqdn ;)
+// Name,Caption,HITACHI_StorageSystem
+Enclosure.Discovery.Source(1).Compute(1).Type="Extract"
+Enclosure.Discovery.Source(1).Compute(1).Column=2
+Enclosure.Discovery.Source(1).Compute(1).SubColumn=2
+Enclosure.Discovery.Source(1).Compute(1).SubSeparators="@"
+
+// Source(2) = HITACHI_StorageSystem
+// Manufacturer,Model,SerialNumber,HITACHI_DKCChassis
+Enclosure.Discovery.Source(2).Type="WBEM"
+Enclosure.Discovery.Source(2).WbemQuery="SELECT Manufacturer,Model,SerialNumber,__Path FROM HITACHI_DKCChassis"
+Enclosure.Discovery.Source(2).WbemNameSpace=HITACHI_NAMESPACE
+
+// Source (3) = Association Table HITACHI_StorageSystemPackageDKC
+// HITACHI_DKCChassis,HITACHI_StorageSystem
+Enclosure.Discovery.Source(3).Type="WBEM"
+Enclosure.Discovery.Source(3).WbemQuery="SELECT Antecedent,Dependent FROM HITACHI_StorageSystemPackageDKC"
+Enclosure.Discovery.Source(3).WbemNameSpace=HITACHI_NAMESPACE
+
+// Source (4) = Union of Storage System with Association Table
+// Name,Caption,HITACHI_StorageSystem,HITACHI_DKCChassis,HITACHI_StorageSystem
+Enclosure.Discovery.Source(4).Type="TableJoint"
+Enclosure.Discovery.Source(4).LeftTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Source(4).RightTable=%Enclosure.Discovery.Source(3)%
+Enclosure.Discovery.Source(4).LeftKeyColumn=3
+Enclosure.Discovery.Source(4).RightKeyColumn=2
+Enclosure.Discovery.Source(4).KeyType="Wbem"
+Enclosure.Discovery.Source(4).DefaultRightLine=";;"
+
+// Source (5) = Union of "Storage System and Association Table" and Chassis
+// Name,Caption,HITACHI_StorageSystem,HITACHI_DKCChassis,HITACHI_StorageSystem,Manufacturer,Model,SerialNumber,HITACHI_DKCChassis
+Enclosure.Discovery.Source(5).Type="TableJoint"
+Enclosure.Discovery.Source(5).LeftTable=%Enclosure.Discovery.Source(4)%
+Enclosure.Discovery.Source(5).RightTable=%Enclosure.Discovery.Source(2)%
+Enclosure.Discovery.Source(5).LeftKeyColumn=4
+Enclosure.Discovery.Source(5).RightKeyColumn=4
+Enclosure.Discovery.Source(5).KeyType="Wbem"
+Enclosure.Discovery.Source(5).DefaultRightLine=";;;;"
+
+// Remove Path Columns as they are no longer needed.
+//   1      2             3                    4                    5               6         7       8            9
+// Name,Caption,HITACHI_StorageSystem,HITACHI_DKCChassis,HITACHI_StorageSystem,Manufacturer,Model,SerialNumber,HITACHI_DKCChassis
+// Name,Caption,                                                               Manufacturer,Model,SerialNumber
+Enclosure.Discovery.Source(5).Compute(1).Type="KeepColumns"
+Enclosure.Discovery.Source(5).Compute(1).ColumnNumbers="1,2,6,7,8"
+
+// Instance Table
+// Name,Caption,Manufacturer,Model,SerialNumber
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(5)%
+Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Enclosure.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+Enclosure.Discovery.Instance.Vendor=InstanceTable.Column(3)
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(4)
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(5)
+Enclosure.Discovery.Instance.Type="Storage"
+
+// The next section is used to associate storage processors to storage systems.  Used by Other Devices and Network Card Discoveries
+
+// Source(6) = HITACHI_StorageSystem
+// Name,HITACHI_StorageProcessorSystem
+Enclosure.Discovery.Source(6).Type="WBEM"
+Enclosure.Discovery.Source(6).WbemQuery="SELECT Name,__Path FROM HITACHI_StorageProcessorSystem"
+Enclosure.Discovery.Source(6).WbemNameSpace=HITACHI_NAMESPACE
+
+// Source (7) = Association Table HITACHI_StorageSystemPackageDKC
+// HITACHI_StorageSystem,HITACHI_StorageProcessorSystem
+Enclosure.Discovery.Source(7).Type="WBEM"
+Enclosure.Discovery.Source(7).WbemQuery="SELECT GroupComponent,PartComponent FROM HITACHI_ComponentCS"
+Enclosure.Discovery.Source(7).WbemNameSpace=HITACHI_NAMESPACE
+
+// Source (8) = Union of Storage System and Association Table
+// HITACHI_StorageSystem,HITACHI_StorageProcessorSystem,Name,Caption,HITACHI_StorageSystem
+Enclosure.Discovery.Source(8).Type="TableJoint"
+Enclosure.Discovery.Source(8).LeftTable=%Enclosure.Discovery.Source(7)%
+Enclosure.Discovery.Source(8).RightTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Source(8).LeftKeyColumn=1
+Enclosure.Discovery.Source(8).RightKeyColumn=3
+Enclosure.Discovery.Source(8).KeyType="Wbem"
+
+// Source (9) = Union of "Storage System with Association Table" and Storage Processor System
+// Name,HITACHI_StorageProcessorSystem,HITACHI_StorageSystem,HITACHI_StorageProcessorSystem,Name,Caption,HITACHI_StorageSystem
+Enclosure.Discovery.Source(9).Type="TableJoint"
+Enclosure.Discovery.Source(9).LeftTable=%Enclosure.Discovery.Source(6)%
+Enclosure.Discovery.Source(9).RightTable=%Enclosure.Discovery.Source(8)%
+Enclosure.Discovery.Source(9).LeftKeyColumn=2
+Enclosure.Discovery.Source(9).RightKeyColumn=2
+Enclosure.Discovery.Source(9).KeyType="Wbem"
+
+// Remove Path Columns as they are no longer needed.
+//   1                     2                            3               4                    5      6         7
+// Name,HITACHI_StorageProcessorSystem,HITACHI_StorageSystem,HITACHI_StorageProcessorSystem,Name,Caption,HITACHI_StorageSystem
+// StorageProcessorSystemName,        StorageSystemName,
+Enclosure.Discovery.Source(9).Compute(1).Type="KeepColumns"
+Enclosure.Discovery.Source(9).Compute(1).ColumnNumbers="1,5"
+
+//
+// Collect
+
+// Collect type is multiinstance
+Enclosure.Collect.Type="MultiInstance"
+
+// Source(1) = CIM_ComputerSystem
+// Name;OperationalStatus;
+Enclosure.Collect.Source(1).Type="Wbem"
+Enclosure.Collect.Source(1).WbemQuery="SELECT Name,OperationalStatus,HealthState FROM HITACHI_StorageSystem"
+Enclosure.Collect.Source(1).WbemNameSpace=HITACHI_NAMESPACE
+
+//add health to health state in order to make it unique
+//systemname, operationalstatus, healthstate
+Enclosure.Collect.Source(1).Compute(1).Type="LeftConcat"
+Enclosure.Collect.Source(1).Compute(1).Column=3
+Enclosure.Collect.Source(1).Compute(1).String="Health"
+
+
+// add HealthState to operationalStatus
+//systemname, operationalstatus, healthstate
+Enclosure.Collect.Source(1).Compute(2).Type="RightConcat"
+Enclosure.Collect.Source(1).Compute(2).Column=2
+Enclosure.Collect.Source(1).Compute(2).String=Column(3)
+
+
+// Duplicate the "OperationalStatus" column
+// SystemName,PatrolStatus,HealthState
+Enclosure.Collect.Source(1).Compute(3).Type="DuplicateColumn"
+Enclosure.Collect.Source(1).Compute(3).Column=2
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// SystemName,PATROLStatusArray,OperationalStatus,HealthState
+Enclosure.Collect.Source(1).Compute(4).Type="ArrayTranslate"
+Enclosure.Collect.Source(1).Compute(4).Column=2
+Enclosure.Collect.Source(1).Compute(4).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// SystemName,PATROLStatusArray,StatusInformation,HealthState
+Enclosure.Collect.Source(1).Compute(5).Type="ArrayTranslate"
+Enclosure.Collect.Source(1).Compute(5).Column=3
+Enclosure.Collect.Source(1).Compute(5).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+Enclosure.Collect.Source(1).Compute(5).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// SystemName,PATROLStatus,StatusInformation,HealthState
+Enclosure.Collect.Source(1).Compute(6).Type="Convert"
+Enclosure.Collect.Source(1).Compute(6).Column=2
+Enclosure.Collect.Source(1).Compute(6).ConversionType="Array2SimpleStatus"
+
+// ValueTable = Source(1)
+// Name;PATROLStatus;StatusDescriptions;HealthState
+Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(1)%
+Enclosure.Collect.DeviceID=ValueTable.Column(1)
+Enclosure.Collect.Status=ValueTable.Column(2)
+Enclosure.Collect.StatusInformation=ValueTable.Column(3)
+
+//
+//  Physical disks
+//
+
+//
+// Discovery
+
+// Source(1) = HITACHI_DiskDrive
+// SystemName,Caption,MaxMediaSizeKB,HITACHI_DiskDrive
+PhysicalDisk.Discovery.Source(1).Type="WBEM"
+PhysicalDisk.Discovery.Source(1).WbemQuery="SELECT SystemName,Caption,MaxMediaSize,__Path FROM HITACHI_DiskDrive"
+PhysicalDisk.Discovery.Source(1).WbemNameSpace=HITACHI_NAMESPACE
+
+// Convert SizeK from 1000 of bytes to bytes
+// SystemName,Caption,MaxMediaSizeB,HITACHI_DiskDrive
+PhysicalDisk.Discovery.Source(1).Compute(1).Type="Multiply"
+PhysicalDisk.Discovery.Source(1).Compute(1).Column=3
+PhysicalDisk.Discovery.Source(1).Compute(1).MultiplyBy=1000
+
+// Duplicate the "Caption" column
+// SystemName,Caption,DisplayID,MaxMediaSizeB,HITACHI_DiskDrive
+PhysicalDisk.Discovery.Source(1).Compute(2).Type="DuplicateColumn"
+PhysicalDisk.Discovery.Source(1).Compute(2).Column=2
+
+// Add ":" And SystemaName to Caption to make ID unique
+// SystemName,DeviceID,DisplayID,MaxMediaSizeB,HITACHI_DiskDrive
+PhysicalDisk.Discovery.Source(1).Compute(3).Type="LeftConcat"
+PhysicalDisk.Discovery.Source(1).Compute(3).Column=2
+PhysicalDisk.Discovery.Source(1).Compute(3).String=":"
+
+PhysicalDisk.Discovery.Source(1).Compute(4).Type="LeftConcat"
+PhysicalDisk.Discovery.Source(1).Compute(4).Column=2
+PhysicalDisk.Discovery.Source(1).Compute(4).String=Column(1)
+
+// Source (2) = HITACHI_PhysicalDisk (FRU info)
+// Manufacturer,Model,HITACHI_PhysicalDisk
+PhysicalDisk.Discovery.Source(2).Type="WBEM"
+PhysicalDisk.Discovery.Source(2).WbemQuery="SELECT SerialNumber,Manufacturer,Model,__Path FROM HITACHI_PhysicalDisk"
+PhysicalDisk.Discovery.Source(2).WbemNameSpace=HITACHI_NAMESPACE
+
+// Source (3) = Association Table HITACHI_StorageSystemPackageDKC
+// HITACHI_PhysicalDisk,HITACHI_DiskDrive
+PhysicalDisk.Discovery.Source(3).Type="WBEM"
+PhysicalDisk.Discovery.Source(3).WbemQuery="SELECT Antecedent,Dependent FROM HITACHI_PhysicalDiskRealizesDiskDrive"
+PhysicalDisk.Discovery.Source(3).WbemNameSpace=HITACHI_NAMESPACE
+
+// Source (4) = Union of HITACHI_DiskDrive and Association Table
+// SystemName,DeviceID,DisplayID,MaxMediaSizeB,HITACHI_DiskDrive,HITACHI_PhysicalDisk,HITACHI_DiskDrive
+PhysicalDisk.Discovery.Source(4).Type="TableJoint"
+PhysicalDisk.Discovery.Source(4).LeftTable=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Source(4).RightTable=%PhysicalDisk.Discovery.Source(3)%
+PhysicalDisk.Discovery.Source(4).LeftKeyColumn=5
+PhysicalDisk.Discovery.Source(4).RightKeyColumn=2
+PhysicalDisk.Discovery.Source(4).KeyType="Wbem"
+PhysicalDisk.Discovery.Source(4).DefaultRightLine=";;"
+
+// Source (5) = Union of "Storage System and Association Table" and Chassis
+// SystemName,DeviceID,DisplayID,MaxMediaSizeB,HITACHI_DiskDrive,HITACHI_PhysicalDisk,HITACHI_DiskDrive,SerialNumber,Manufacturer,Model,HITACHI_PhysicalDisk
+PhysicalDisk.Discovery.Source(5).Type="TableJoint"
+PhysicalDisk.Discovery.Source(5).LeftTable=%PhysicalDisk.Discovery.Source(4)%
+PhysicalDisk.Discovery.Source(5).RightTable=%PhysicalDisk.Discovery.Source(2)%
+PhysicalDisk.Discovery.Source(5).LeftKeyColumn=6
+PhysicalDisk.Discovery.Source(5).RightKeyColumn=4
+PhysicalDisk.Discovery.Source(5).KeyType="Wbem"
+PhysicalDisk.Discovery.Source(5).DefaultRightLine=";;"
+
+// Remove Path Columns as they are no longer needed.
+//        1      2          3             4                5               6                 7            8            9     10
+// SystemName,DeviceID,DisplayID,MaxMediaSizeB,HITACHI_DiskDrive,HITACHI_PhysicalDisk,HITACHI_DiskDrive,SerialNumber,Manufacturer,Model,HITACHI_PhysicalDisk
+// SystemName,DeviceID,DisplayID,MaxMediaSizeB,                                                         Manufacturer,Model
+PhysicalDisk.Discovery.Source(5).Compute(1).Type="KeepColumns"
+PhysicalDisk.Discovery.Source(5).Compute(1).ColumnNumbers="1,2,3,4,8,9,10"
+
+// Instance Table
+// SystemName,DeviceID,DisplayID,MaxMediaSizeB,Serialnumber,Manufacturer,Model
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(5)%
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+PhysicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+PhysicalDisk.Discovery.Instance.Vendor=InstanceTable.Column(6)
+PhysicalDisk.Discovery.Instance.Model=InstanceTable.Column(7)
+PhysicalDisk.Discovery.Instance.Size=InstanceTable.Column(4)
+PhysicalDisk.Discovery.Instance.SerialNumber=InstanceTable.Column(5)
+PhysicalDisk.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(1)
+
+//
+// Collect
+
+// Collect type is multiinstance
+PhysicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = HITACHI_DiskDrive
+// SystemName;Caption;OperationalStatus;
+PhysicalDisk.Collect.Source(1).Type="Wbem"
+PhysicalDisk.Collect.Source(1).WbemQuery="SELECT SystemName,Caption,OperationalStatus,HealthState FROM HITACHI_DiskDrive"
+PhysicalDisk.Collect.Source(1).WbemNameSpace=HITACHI_NAMESPACE
+
+// Add ":" And SystemaName to Caption to make ID unique
+// SystemName,Caption,OperationalStatus
+PhysicalDisk.Collect.Source(1).Compute(1).Type="LeftConcat"
+PhysicalDisk.Collect.Source(1).Compute(1).Column=2
+PhysicalDisk.Collect.Source(1).Compute(1).String=":"
+
+PhysicalDisk.Collect.Source(1).Compute(2).Type="LeftConcat"
+PhysicalDisk.Collect.Source(1).Compute(2).Column=2
+PhysicalDisk.Collect.Source(1).Compute(2).String=Column(1)
+
+PhysicalDisk.Collect.Source(1).Compute(3).Type="LeftConcat"
+PhysicalDisk.Collect.Source(1).Compute(3).Column=4
+PhysicalDisk.Collect.Source(1).Compute(3).String="Health"
+
+
+// add HealthState to operationalStatus
+// SystemName,DeviceID,OperationalStatus,HealthState
+
+PhysicalDisk.Collect.Source(1).Compute(4).Type="RightConcat"
+PhysicalDisk.Collect.Source(1).Compute(4).Column=3
+PhysicalDisk.Collect.Source(1).Compute(4).String=Column(4)
+
+
+// Duplicate the "OperationalStatus" column
+// SystemName,DeviceID,PatrolStatus,HealthState
+PhysicalDisk.Collect.Source(1).Compute(5).Type="DuplicateColumn"
+PhysicalDisk.Collect.Source(1).Compute(5).Column=3
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// SystemName,DeviceID,PATROLStatusArray,OperationalStatus,HealthState
+PhysicalDisk.Collect.Source(1).Compute(6).Type="ArrayTranslate"
+PhysicalDisk.Collect.Source(1).Compute(6).Column=3
+PhysicalDisk.Collect.Source(1).Compute(6).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// SystemName,DeviceID,PATROLStatusArray,StatusInformation
+PhysicalDisk.Collect.Source(1).Compute(7).Type="ArrayTranslate"
+PhysicalDisk.Collect.Source(1).Compute(7).Column=4
+PhysicalDisk.Collect.Source(1).Compute(7).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+PhysicalDisk.Collect.Source(1).Compute(7).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// SystemName,DeviceID,PATROLStatus,StatusInformation
+PhysicalDisk.Collect.Source(1).Compute(8).Type="Convert"
+PhysicalDisk.Collect.Source(1).Compute(8).Column=3
+PhysicalDisk.Collect.Source(1).Compute(8).ConversionType="Array2SimpleStatus"
+
+// ValueTable = Source(1)
+// SystemName,Caption,PATROLStatus,StatusDescriptions
+PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(1)%
+PhysicalDisk.Collect.DeviceID=ValueTable.Column(2)
+PhysicalDisk.Collect.Status=ValueTable.Column(3)
+PhysicalDisk.Collect.StatusInformation=ValueTable.Column(4)
+
+//
+// Network Cards
+
+// Source(1) = HITACHI_FCPort
+// DeviceWWNID,Caption,Speedbps,PermanentAddress,StorageProcessorSystemTag,PortNumber,UsageRestriction,PortType;wwn/mac,linkstatusactivation
+NetworkCard.Discovery.Source(1).Type="WBEM"
+NetworkCard.Discovery.Source(1).WbemQuery="SELECT DeviceID,Caption,Speed,PermanentAddress,SystemName,PortNumber,UsageRestriction,PortType FROM HITACHI_FCPort"
+NetworkCard.Discovery.Source(1).WbemNameSpace=HITACHI_NAMESPACE
+
+NetworkCard.Discovery.Source(1).Compute(1).type="RightConcat"
+NetworkCard.Discovery.Source(1).Compute(1).Column=8
+NetworkCard.Discovery.Source(1).Compute(1).String=";WWN;true"
+
+// Source(2) = HITACHI_EthernetPort
+// DeviceWWNID,Caption,Speedbps,PermanentAddress,StorageProcessorSystemTag,PortNumber,UsageRestriction,PortType,wwn/mac,linkstatusactivation
+NetworkCard.Discovery.Source(2).Type="WBEM"
+NetworkCard.Discovery.Source(2).WbemQuery="SELECT DeviceID,Caption,Speed,PermanentAddress,SystemName,PortNumber,UsageRestriction,PortType FROM HITACHI_EthernetPort"
+NetworkCard.Discovery.Source(2).WbemNameSpace=HITACHI_NAMESPACE
+
+NetworkCard.Discovery.Source(2).Compute(1).type="RightConcat"
+NetworkCard.Discovery.Source(2).Compute(1).Column=8
+NetworkCard.Discovery.Source(2).Compute(1).String=";MAC;"
+
+
+// Source 3 = Union of 1 & 2
+NetworkCard.Discovery.Source(3).Type="TableUnion"
+NetworkCard.Discovery.Source(3).Table1=%NetworkCard.Discovery.Source(1)%
+NetworkCard.Discovery.Source(3).Table2=%NetworkCard.Discovery.Source(2)%
+
+// convert from bit per second to mega bytes per second
+// DeviceWWNID,Caption,SpeedMBps,PermanentAddress,StorageProcessorSystemTag,PortNumber,UsageRestriction,PortType,MAC/WWN,linkstatusactivation
+NetworkCard.Discovery.Source(3).Compute(1).Type="Divide"
+NetworkCard.Discovery.Source(3).Compute(1).Column=3
+NetworkCard.Discovery.Source(3).Compute(1).DivideBy=1062500
+
+// Translate the Port Type (FC Only)
+// DeviceWWNID,Caption,SpeedMBps,PermanentAddress,StorageProcessorSystemTag,PortNumber,UsageRestriction,PortType,MAC/WWN,linkstatusactivation
+NetworkCard.Discovery.Source(3).Compute(2).Type="Translate"
+NetworkCard.Discovery.Source(3).Compute(2).Column=8
+NetworkCard.Discovery.Source(3).Compute(2).TranslationTable="PortTypeTranslationTable"
+
+// The PortTypeTranslationTable
+PortTypeTranslationTable(0)="Ethernet Port"
+PortTypeTranslationTable(10)="FC Port N"
+PortTypeTranslationTable(11)="FC Port NL"
+PortTypeTranslationTable(12)="FC Port F/NL"
+PortTypeTranslationTable(13)="FC Port Nx"
+PortTypeTranslationTable(14)="FC Port E"
+PortTypeTranslationTable(15)="FC Port F"
+PortTypeTranslationTable(16)="FC Port FL"
+PortTypeTranslationTable(17)="FC Port B"
+PortTypeTranslationTable(18)="FC Port G"
+PortTypeTranslationTable(19)="FC Port GL"
+PortTypeTranslationTable(Default)="FC Port"
+
+// Translate the Port Direction
+// DeviceWWNID,Caption,SpeedMBps,PermanentAddress,StorageProcessorSystemTag,PortNumber,UsageRestriction,PortType,linkstatusactivation
+NetworkCard.Discovery.Source(3).Compute(3).Type="Translate"
+NetworkCard.Discovery.Source(3).Compute(3).Column=7
+NetworkCard.Discovery.Source(3).Compute(3).TranslationTable="UsageRestrictionTranslationTable"
+
+// The UsageRestrictionTranslationTable
+UsageRestrictionTranslationTable(2)="Front-end Port"
+UsageRestrictionTranslationTable(3)="Back-end Port"
+UsageRestrictionTranslationTable(Default)=""
+
+// Use the Enclosure table to get from StorageProcessorSystemTag to StorageSystemName:
+// DeviceWWNID,Caption,SpeedMBps,PermanentAddress,StorageProcessorSystemTag,PortNumber,UsageRestriction,PortType,wwn/mac,linkstatusactivation,StorageProcessorSystemTag,StorageSystemName
+NetworkCard.Discovery.Source(4).Type="TableJoint"
+NetworkCard.Discovery.Source(4).LeftTable=%NetworkCard.Discovery.Source(3)%
+NetworkCard.Discovery.Source(4).RightTable=%Enclosure.Discovery.Source(9)%
+NetworkCard.Discovery.Source(4).LeftKeyColumn=5
+NetworkCard.Discovery.Source(4).RightKeyColumn=1
+NetworkCard.Discovery.Source(4).DefaultRightLine=";;"
+
+// Duplicate Caption to make Display ID
+// DeviceWWNID,DisplayID,Caption,SpeedMBps,PermanentAddress,StorageProcessorSystemTag,PortNumber,UsageRestriction,PortType,wwn/mac,linkstatusactivation,StorageProcessorSystemTag,StorageSystemName
+NetworkCard.Discovery.Source(4).Compute(1).Type="DuplicateColumn"
+NetworkCard.Discovery.Source(4).Compute(1).Column=2
+
+// Add ":" And SystemaName to Caption to make DeviceID unique
+// DeviceWWNID,DisplayID,DeviceID,SpeedMBps,PermanentAddress,StorageProcessorSystemTag,PortNumber,UsageRestriction,PortType,wwn/mac,linkstatusactivation,StorageProcessorSystemTag,StorageSystemName
+NetworkCard.Discovery.Source(4).Compute(2).Type="LeftConcat"
+NetworkCard.Discovery.Source(4).Compute(2).Column=3
+NetworkCard.Discovery.Source(4).Compute(2).String=":"
+
+NetworkCard.Discovery.Source(4).Compute(3).Type="LeftConcat"
+NetworkCard.Discovery.Source(4).Compute(3).Column=3
+NetworkCard.Discovery.Source(4).Compute(3).String=Column(13)
+
+NetworkCard.Discovery.Source(4).Compute(4).Type="LeftConcat"
+NetworkCard.Discovery.Source(4).Compute(4).Column=7
+NetworkCard.Discovery.Source(4).Compute(4).String="Port Number: "
+
+NetworkCard.Discovery.Source(4).Compute(5).Type="LeftConcat"
+NetworkCard.Discovery.Source(4).Compute(5).Column=8
+NetworkCard.Discovery.Source(4).Compute(5).String="Usage Restriction: "
+
+// Instance Table
+// DeviceWWNID,DisplayID,DeviceID,SpeedMBps,PermanentAddress,StorageProcessorSystemTag,PortNumber,UsageRestriction,PortType,wwn/mac,linkstatusactivation,StorageProcessorSystemTag,StorageSystemName
+NetworkCard.Discovery.InstanceTable=%NetworkCard.Discovery.Source(4)%
+NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+NetworkCard.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+NetworkCard.Discovery.Instance.BandWidth=InstanceTable.Column(4)
+NetworkCard.Discovery.Instance.PhysicalAddress=InstanceTable.Column(5)
+NetworkCard.Discovery.Instance.PhysicalAddressType=InstanceTable.Column(10)
+NetworkCard.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(13)
+NetworkCard.Discovery.Instance.DeviceType=InstanceTable.Column(9)
+NetworkCard.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(7)
+NetworkCard.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(8)
+NetworkCard.Discovery.Instance.ParameterActivation.LinkStatus=InstanceTable.Column(11)
+
+//
+// Collect
+
+// Collect type is multiinstance
+NetworkCard.Collect.Type="MultiInstance"
+
+// Source(1) = HITACHI_FCPort
+// DeviceWWNID,Speed,OperationalStatus,StatusDescriptions
+NetworkCard.Collect.Source(1).Type="Wbem"
+NetworkCard.Collect.Source(1).WbemQuery="SELECT DeviceID,Speed,OperationalStatus,HealthState FROM HITACHI_FCPort"
+NetworkCard.Collect.Source(1).WbemNameSpace=HITACHI_NAMESPACE
+
+
+// Source(2) = HITACHI_EthernetPort
+// DeviceWWNID,Speed,OperationalStatus,StatusDescriptions
+NetworkCard.Collect.Source(2).Type="Wbem"
+NetworkCard.Collect.Source(2).WbemQuery="SELECT DeviceID,Speed,OperationalStatus,HealthState FROM HITACHI_EthernetPort"
+NetworkCard.Collect.Source(2).WbemNameSpace=HITACHI_NAMESPACE
+
+
+// Source 3 = Union of 1 & 2
+NetworkCard.Collect.Source(3).Type="TableUnion"
+NetworkCard.Collect.Source(3).Table1=%NetworkCard.Collect.Source(1)%
+NetworkCard.Collect.Source(3).Table2=%NetworkCard.Collect.Source(2)%
+
+// Duplicate the "OperationalStatus" column
+// DeviceWWNID,Speed,OperationalStatus,HealthState
+NetworkCard.Collect.Source(3).Compute(1).Type="LeftConcat"
+NetworkCard.Collect.Source(3).Compute(1).Column=4
+NetworkCard.Collect.Source(3).Compute(1).String="Health"
+
+// add HealthState to operationalStatus
+//// DeviceWWNID,Speed,OperationalStatus,HealthState
+
+NetworkCard.Collect.Source(3).Compute(2).Type="RightConcat"
+NetworkCard.Collect.Source(3).Compute(2).Column=3
+NetworkCard.Collect.Source(3).Compute(2).String=Column(4)
+
+//duplicate column
+// DeviceWWNID,Speed,PATROLStatusArray,OperationalStatus,healthState
+NetworkCard.Collect.Source(3).Compute(3).Type="DuplicateColumn"
+NetworkCard.Collect.Source(3).Compute(3).Column=3
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// DeviceWWNID,Speed,PATROLStatusArray,OperationalStatus,healthState
+NetworkCard.Collect.Source(3).Compute(4).Type="ArrayTranslate"
+NetworkCard.Collect.Source(3).Compute(4).Column=3
+NetworkCard.Collect.Source(3).Compute(4).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// DeviceWWNID,Speed,PATROLStatusArray,StatusInformation,healthstate
+NetworkCard.Collect.Source(3).Compute(5).Type="ArrayTranslate"
+NetworkCard.Collect.Source(3).Compute(5).Column=4
+NetworkCard.Collect.Source(3).Compute(5).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+NetworkCard.Collect.Source(3).Compute(5).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// DeviceWWNID,Speed,PATROLStatus,StatusInformation,healthstate
+NetworkCard.Collect.Source(3).Compute(6).Type="Convert"
+NetworkCard.Collect.Source(3).Compute(6).Column=3
+NetworkCard.Collect.Source(3).Compute(6).ConversionType="Array2SimpleStatus"
+
+// now convert speed to link status
+//first let's duplicate speed column
+// DeviceWWNID,Speed,linkstatus,PATROLStatus,StatusInformation,healthstate
+NetworkCard.Collect.Source(3).Compute(7).Type="DuplicateColumn"
+NetworkCard.Collect.Source(3).Compute(7).Column=2
+
+//now translate the speed
+// DeviceWWNID,Speed,linkstatus,PATROLStatus,StatusInformation,healthstate
+NetworkCard.Collect.Source(3).Compute(8).Type="Translate"
+NetworkCard.Collect.Source(3).Compute(8).Column=3
+NetworkCard.Collect.Source(3).Compute(8).TranslationTable="PortStateToLinkStatusTranslationTable"
+
+// The PortStateToStatusTranslationTable
+PortStateToLinkStatusTranslationTable(0)="WARN"
+PortStateToLinkStatusTranslationTable("")="WARN"
+PortStateToLinkStatusTranslationTable(Default)="OK"
+
+
+// Table Joint Collect to Discovery 2 to get DeviceID from DeviceWWNID
+// DeviceWWNID,Speed,PATROLStatus,StatusInformation,DeviceWWNID,DisplayID,DeviceID,SpeedMBps,PermanentAddress,StorageProcessorSystemTag,PortNumber,UsageRestriction,PortType,StorageProcessorSystemTag,StorageSystemName
+// DeviceWWNID,Speed,linkstatus,PATROLStatus,StatusInformation,healthstate,DeviceWWNID,DisplayID,DeviceID,SpeedMBps,PermanentAddress,StorageProcessorSystemTag,PortNumber,UsageRestriction,PortType,mac/wwn,StorageProcessorSystemTag,StorageSystemName
+NetworkCard.Collect.Source(4).Type="TableJoint"
+NetworkCard.Collect.Source(4).LeftTable=%NetworkCard.Collect.Source(3)%
+NetworkCard.Collect.Source(4).RightTable=%NetworkCard.Discovery.Source(4)%
+NetworkCard.Collect.Source(4).LeftKeyColumn=1
+NetworkCard.Collect.Source(4).RightKeyColumn=1
+NetworkCard.Collect.Source(4).DefaultRightLine=";;"
+
+
+NetworkCard.Collect.Source(4).Compute(1).Type="Divide"
+NetworkCard.Collect.Source(4).Compute(1).Column=2
+NetworkCard.Collect.Source(4).Compute(1).DivideBy=1062500
+
+
+// ValueTable = Source(1)
+// DeviceWWNID,Speed,PATROLStatus,StatusInformation,DeviceWWNID,DisplayID,DeviceID,SpeedMBps,PermanentAddress,StorageProcessorSystemTag,PortNumber,UsageRestriction,PortType,StorageProcessorSystemTag,StorageSystemName
+// DeviceWWNID,Speed,linkstatus,PATROLStatus,StatusInformation,healthstate,DeviceWWNID,DisplayID,DeviceID,SpeedMBps,PermanentAddress,StorageProcessorSystemTag,PortNumber,UsageRestriction,PortType,mac/wwn,StorageProcessorSystemTag,StorageSystemName
+NetworkCard.Collect.ValueTable=%Networkcard.Collect.Source(4)%
+NetworkCard.Collect.DeviceID=ValueTable.Column(9)
+NetworkCard.Collect.LinkSpeed=ValueTable.Column(2)
+NetworkCard.Collect.StatusInformation=ValueTable.Column(4)
+NetworkCard.Collect.LinkStatus=ValueTable.Column(3)
+NetworkCard.Collect.Status=ValueTable.Column(4)
+NetworkCard.Collect.StatusInformation=ValueTable.Column(5)
+//
+//  Fans
+//
+
+//
+// Discovery
+
+// Source(1) = HITACHI_DiskDrive
+// SystemName,DeviceID
+Fan.Discovery.Source(1).Type="WBEM"
+Fan.Discovery.Source(1).WbemQuery="SELECT SystemName,DeviceID FROM HITACHI_Fan"
+Fan.Discovery.Source(1).WbemNameSpace=HITACHI_NAMESPACE
+
+// Duplicate the DeviceID to make DeviceID and DisplayID
+// SystemName,DeviceID,DisplayID
+Fan.Discovery.Source(1).Compute(1).Type="DuplicateColumn"
+Fan.Discovery.Source(1).Compute(1).Column=2
+
+// Add ":" And SystemaName to DeviceID to make ID unique
+// SystemName,DeviceID,DisplayID
+Fan.Discovery.Source(1).Compute(2).Type="LeftConcat"
+Fan.Discovery.Source(1).Compute(2).Column=2
+Fan.Discovery.Source(1).Compute(2).String=":"
+
+Fan.Discovery.Source(1).Compute(3).Type="LeftConcat"
+Fan.Discovery.Source(1).Compute(3).Column=2
+Fan.Discovery.Source(1).Compute(3).String=Column(1)
+
+// Instance Table
+// SystemName,DeviceID,DisplayID
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Fan.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+Fan.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(1)
+
+//
+// Collect
+
+// Collect type is multiinstance
+Fan.Collect.Type="MultiInstance"
+
+// Source(1) = HITACHI_Fan
+// SystemName;DeviceID;OperationalStatus;
+Fan.Collect.Source(1).Type="Wbem"
+Fan.Collect.Source(1).WbemQuery="SELECT SystemName,DeviceID,OperationalStatus,HealthState FROM HITACHI_Fan"
+Fan.Collect.Source(1).WbemNameSpace=HITACHI_NAMESPACE
+
+// Add ":" And SystemaName to Caption to make ID unique
+// SystemName,DeviceID,OperationalStatus
+Fan.Collect.Source(1).Compute(1).Type="LeftConcat"
+Fan.Collect.Source(1).Compute(1).Column=2
+Fan.Collect.Source(1).Compute(1).String=":"
+
+Fan.Collect.Source(1).Compute(2).Type="LeftConcat"
+Fan.Collect.Source(1).Compute(2).Column=2
+Fan.Collect.Source(1).Compute(2).String=Column(1)
+
+Fan.Collect.Source(1).Compute(3).Type="LeftConcat"
+Fan.Collect.Source(1).Compute(3).Column=4
+Fan.Collect.Source(1).Compute(3).String="Health"
+
+// add HealthState to operationalStatus
+// SystemName,DeviceID,OperationalStatus,HealthState
+
+Fan.Collect.Source(1).Compute(4).Type="RightConcat"
+Fan.Collect.Source(1).Compute(4).Column=3
+Fan.Collect.Source(1).Compute(4).String=Column(4)
+
+
+// Duplicate the "OperationalStatus" column
+// SystemName,DeviceID,PatrolStatus,HealthState
+Fan.Collect.Source(1).Compute(5).Type="DuplicateColumn"
+Fan.Collect.Source(1).Compute(5).Column=3
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// SystemName,DeviceID,PATROLStatusArray,OperationalStatus,HealthState
+Fan.Collect.Source(1).Compute(6).Type="ArrayTranslate"
+Fan.Collect.Source(1).Compute(6).Column=3
+Fan.Collect.Source(1).Compute(6).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// SystemName,DeviceID,PATROLStatusArray,StatusInformation
+Fan.Collect.Source(1).Compute(7).Type="ArrayTranslate"
+Fan.Collect.Source(1).Compute(7).Column=4
+Fan.Collect.Source(1).Compute(7).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+Fan.Collect.Source(1).Compute(7).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// SystemName,DeviceID,PATROLStatus,StatusInformation
+Fan.Collect.Source(1).Compute(8).Type="Convert"
+Fan.Collect.Source(1).Compute(8).Column=3
+Fan.Collect.Source(1).Compute(8).ConversionType="Array2SimpleStatus"
+
+// ValueTable = Source(1)
+// SystemName,Caption,PATROLStatus,StatusDescriptions
+Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+Fan.Collect.DeviceID=ValueTable.Column(2)
+Fan.Collect.Status=ValueTable.Column(3)
+Fan.Collect.StatusInformation=ValueTable.Column(4)
+
+//
+//  Power Supplies
+//
+
+//
+// Discovery
+
+// Source(1) = HITACHI_PowerSupply
+// SystemName,DeviceID
+Powersupply.Discovery.Source(1).Type="WBEM"
+Powersupply.Discovery.Source(1).WbemQuery="SELECT SystemName,DeviceID FROM HITACHI_PowerSupply"
+Powersupply.Discovery.Source(1).WbemNameSpace=HITACHI_NAMESPACE
+
+// Duplicate the DeviceID to make DeviceID and DisplayID
+// SystemName,DeviceID,DisplayID
+Powersupply.Discovery.Source(1).Compute(1).Type="DuplicateColumn"
+Powersupply.Discovery.Source(1).Compute(1).Column=2
+
+// Add ":" And SystemaName to DeviceID to make ID unique
+// SystemName,DeviceID,DisplayID
+Powersupply.Discovery.Source(1).Compute(2).Type="LeftConcat"
+Powersupply.Discovery.Source(1).Compute(2).Column=2
+Powersupply.Discovery.Source(1).Compute(2).String=":"
+
+Powersupply.Discovery.Source(1).Compute(3).Type="LeftConcat"
+Powersupply.Discovery.Source(1).Compute(3).Column=2
+Powersupply.Discovery.Source(1).Compute(3).String=Column(1)
+
+// Instance Table
+// SystemName,DeviceID,DisplayID
+Powersupply.Discovery.InstanceTable=%Powersupply.Discovery.Source(1)%
+Powersupply.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Powersupply.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+Powersupply.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(1)
+
+//
+// Collect
+
+// Collect type is multiinstance
+Powersupply.Collect.Type="MultiInstance"
+
+// Source(1) = HITACHI_PowerSupply
+// SystemName;DeviceID;OperationalStatus;
+Powersupply.Collect.Source(1).Type="Wbem"
+Powersupply.Collect.Source(1).WbemQuery="SELECT SystemName,DeviceID,OperationalStatus,HealthState FROM HITACHI_PowerSupply"
+Powersupply.Collect.Source(1).WbemNameSpace=HITACHI_NAMESPACE
+
+// Add ":" And SystemaName to Caption to make ID unique
+// SystemName,DeviceID,OperationalStatus
+Powersupply.Collect.Source(1).Compute(1).Type="LeftConcat"
+Powersupply.Collect.Source(1).Compute(1).Column=2
+Powersupply.Collect.Source(1).Compute(1).String=":"
+
+Powersupply.Collect.Source(1).Compute(2).Type="LeftConcat"
+Powersupply.Collect.Source(1).Compute(2).Column=2
+Powersupply.Collect.Source(1).Compute(2).String=Column(1)
+
+Powersupply.Collect.Source(1).Compute(3).Type="LeftConcat"
+Powersupply.Collect.Source(1).Compute(3).Column=4
+Powersupply.Collect.Source(1).Compute(3).String="Health"
+
+
+// add HealthState to operationalStatus
+// SystemName,DeviceID,OperationalStatus,HealthState
+
+Powersupply.Collect.Source(1).Compute(4).Type="RightConcat"
+Powersupply.Collect.Source(1).Compute(4).Column=3
+Powersupply.Collect.Source(1).Compute(4).String=Column(4)
+
+
+// Duplicate the "OperationalStatus" column
+// SystemName,DeviceID,PatrolStatus,HealthState
+Powersupply.Collect.Source(1).Compute(5).Type="DuplicateColumn"
+Powersupply.Collect.Source(1).Compute(5).Column=3
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// SystemName,DeviceID,PATROLStatusArray,OperationalStatus,HealthState
+Powersupply.Collect.Source(1).Compute(6).Type="ArrayTranslate"
+Powersupply.Collect.Source(1).Compute(6).Column=3
+Powersupply.Collect.Source(1).Compute(6).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// SystemName,DeviceID,PATROLStatusArray,StatusInformation
+Powersupply.Collect.Source(1).Compute(7).Type="ArrayTranslate"
+Powersupply.Collect.Source(1).Compute(7).Column=4
+Powersupply.Collect.Source(1).Compute(7).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+Powersupply.Collect.Source(1).Compute(7).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// SystemName,DeviceID,PATROLStatus,StatusInformation
+Powersupply.Collect.Source(1).Compute(8).Type="Convert"
+Powersupply.Collect.Source(1).Compute(8).Column=3
+Powersupply.Collect.Source(1).Compute(8).ConversionType="Array2SimpleStatus"
+// ValueTable = Source(1)
+// SystemName,Caption,PATROLStatus,StatusDescriptions
+Powersupply.Collect.ValueTable=%Powersupply.Collect.Source(1)%
+Powersupply.Collect.DeviceID=ValueTable.Column(2)
+Powersupply.Collect.Status=ValueTable.Column(3)
+Powersupply.Collect.StatusInformation=ValueTable.Column(4)
+
+//
+//  Memory (Cache)
+//
+
+//
+// Discovery
+
+// Source(1) = HITACHI_CacheMemory
+// SystemName,DeviceID
+Memory.Discovery.Source(1).Type="WBEM"
+Memory.Discovery.Source(1).WbemQuery="SELECT SystemName,DeviceID FROM HITACHI_CacheMemory"
+Memory.Discovery.Source(1).WbemNameSpace=HITACHI_NAMESPACE
+
+// Duplicate the DeviceID to make DeviceID and DisplayID
+// SystemName,DeviceID,DisplayID
+Memory.Discovery.Source(1).Compute(1).Type="DuplicateColumn"
+Memory.Discovery.Source(1).Compute(1).Column=2
+
+// Add ":" And SystemaName to DeviceID to make ID unique
+// SystemName,DeviceID,DisplayID
+Memory.Discovery.Source(1).Compute(2).Type="LeftConcat"
+Memory.Discovery.Source(1).Compute(2).Column=2
+Memory.Discovery.Source(1).Compute(2).String=":"
+
+Memory.Discovery.Source(1).Compute(3).Type="LeftConcat"
+Memory.Discovery.Source(1).Compute(3).Column=2
+Memory.Discovery.Source(1).Compute(3).String=Column(1)
+
+// Instance Table
+// SystemName,DeviceID,DisplayID
+Memory.Discovery.InstanceTable=%Memory.Discovery.Source(1)%
+Memory.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Memory.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+Memory.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(1)
+
+//
+// Collect
+
+// Collect type is multiinstance
+Memory.Collect.Type="MultiInstance"
+
+// Source(1) = HITACHI_CacheMemory
+// SystemName;DeviceID;OperationalStatus;
+Memory.Collect.Source(1).Type="Wbem"
+Memory.Collect.Source(1).WbemQuery="SELECT SystemName,DeviceID,OperationalStatus,HealthState FROM HITACHI_CacheMemory"
+Memory.Collect.Source(1).WbemNameSpace=HITACHI_NAMESPACE
+
+// Add ":" And SystemaName to Caption to make ID unique
+// SystemName,DeviceID,OperationalStatus
+Memory.Collect.Source(1).Compute(1).Type="LeftConcat"
+Memory.Collect.Source(1).Compute(1).Column=2
+Memory.Collect.Source(1).Compute(1).String=":"
+
+Memory.Collect.Source(1).Compute(2).Type="LeftConcat"
+Memory.Collect.Source(1).Compute(2).Column=2
+Memory.Collect.Source(1).Compute(2).String=Column(1)
+
+Memory.Collect.Source(1).Compute(3).Type="LeftConcat"
+Memory.Collect.Source(1).Compute(3).Column=4
+Memory.Collect.Source(1).Compute(3).String="Health"
+
+
+// add HealthState to operationalStatus
+// SystemName,DeviceID,OperationalStatus,HealthState
+
+Memory.Collect.Source(1).Compute(4).Type="RightConcat"
+Memory.Collect.Source(1).Compute(4).Column=3
+Memory.Collect.Source(1).Compute(4).String=Column(4)
+
+
+// Duplicate the "OperationalStatus" column
+// SystemName,DeviceID,PatrolStatus,HealthState
+Memory.Collect.Source(1).Compute(5).Type="DuplicateColumn"
+Memory.Collect.Source(1).Compute(5).Column=3
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// SystemName,DeviceID,PATROLStatusArray,OperationalStatus,HealthState
+Memory.Collect.Source(1).Compute(6).Type="ArrayTranslate"
+Memory.Collect.Source(1).Compute(6).Column=3
+Memory.Collect.Source(1).Compute(6).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// SystemName,DeviceID,PATROLStatusArray,StatusInformation
+Memory.Collect.Source(1).Compute(7).Type="ArrayTranslate"
+Memory.Collect.Source(1).Compute(7).Column=4
+Memory.Collect.Source(1).Compute(7).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+Memory.Collect.Source(1).Compute(7).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// SystemName,DeviceID,PATROLStatus,StatusInformation
+Memory.Collect.Source(1).Compute(8).Type="Convert"
+Memory.Collect.Source(1).Compute(8).Column=3
+Memory.Collect.Source(1).Compute(8).ConversionType="Array2SimpleStatus"
+
+// ValueTable = Source(1)
+// SystemName,Caption,PATROLStatus,StatusDescriptions
+Memory.Collect.ValueTable=%Memory.Collect.Source(1)%
+Memory.Collect.DeviceID=ValueTable.Column(2)
+Memory.Collect.Status=ValueTable.Column(3)
+Memory.Collect.StatusInformation=ValueTable.Column(4)
+
+//
+//  Batteries (Cache)
+//
+
+//
+// Discovery
+
+// Source(1) = HITACHI_Battery
+// SystemName,DeviceID
+Battery.Discovery.Source(1).Type="WBEM"
+Battery.Discovery.Source(1).WbemQuery="SELECT SystemName,DeviceID FROM HITACHI_Battery"
+Battery.Discovery.Source(1).WbemNameSpace=HITACHI_NAMESPACE
+
+// Duplicate the DeviceID to make DeviceID and DisplayID
+// SystemName,DeviceID,DisplayID
+Battery.Discovery.Source(1).Compute(1).Type="DuplicateColumn"
+Battery.Discovery.Source(1).Compute(1).Column=2
+
+// Add ":" And SystemaName to DeviceID to make ID unique
+// SystemName,DeviceID,DisplayID
+Battery.Discovery.Source(1).Compute(2).Type="LeftConcat"
+Battery.Discovery.Source(1).Compute(2).Column=2
+Battery.Discovery.Source(1).Compute(2).String=":"
+
+Battery.Discovery.Source(1).Compute(3).Type="LeftConcat"
+Battery.Discovery.Source(1).Compute(3).Column=2
+Battery.Discovery.Source(1).Compute(3).String=Column(1)
+
+// Instance Table
+// SystemName,DeviceID,DisplayID
+Battery.Discovery.InstanceTable=%Battery.Discovery.Source(1)%
+Battery.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Battery.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+Battery.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(1)
+
+//
+// Collect
+
+// Collect type is multiinstance
+Battery.Collect.Type="MultiInstance"
+
+// Source(1) = HITACHI_Battery
+// SystemName;DeviceID;OperationalStatus;
+Battery.Collect.Source(1).Type="Wbem"
+Battery.Collect.Source(1).WbemQuery="SELECT SystemName,DeviceID,OperationalStatus,HealthState FROM HITACHI_Battery"
+Battery.Collect.Source(1).WbemNameSpace=HITACHI_NAMESPACE
+
+// Add ":" And SystemaName to Caption to make ID unique
+// SystemName,DeviceID,OperationalStatus
+Battery.Collect.Source(1).Compute(1).Type="LeftConcat"
+Battery.Collect.Source(1).Compute(1).Column=2
+Battery.Collect.Source(1).Compute(1).String=":"
+
+Battery.Collect.Source(1).Compute(2).Type="LeftConcat"
+Battery.Collect.Source(1).Compute(2).Column=2
+Battery.Collect.Source(1).Compute(2).String=Column(1)
+
+
+Battery.Collect.Source(1).Compute(3).Type="LeftConcat"
+Battery.Collect.Source(1).Compute(3).Column=4
+Battery.Collect.Source(1).Compute(3).String="Health"
+
+
+// add HealthState to operationalStatus
+// SystemName,DeviceID,OperationalStatus,HealthState
+
+Battery.Collect.Source(1).Compute(4).Type="RightConcat"
+Battery.Collect.Source(1).Compute(4).Column=3
+Battery.Collect.Source(1).Compute(4).String=Column(4)
+
+
+// Duplicate the "OperationalStatus" column
+// SystemName,DeviceID,PatrolStatus,HealthState
+Battery.Collect.Source(1).Compute(5).Type="DuplicateColumn"
+Battery.Collect.Source(1).Compute(5).Column=3
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// SystemName,DeviceID,PATROLStatusArray,OperationalStatus,HealthState
+Battery.Collect.Source(1).Compute(6).Type="ArrayTranslate"
+Battery.Collect.Source(1).Compute(6).Column=3
+Battery.Collect.Source(1).Compute(6).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// SystemName,DeviceID,PATROLStatusArray,StatusInformation
+Battery.Collect.Source(1).Compute(7).Type="ArrayTranslate"
+Battery.Collect.Source(1).Compute(7).Column=4
+Battery.Collect.Source(1).Compute(7).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+Battery.Collect.Source(1).Compute(7).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// SystemName,DeviceID,PATROLStatus,StatusInformation
+Battery.Collect.Source(1).Compute(8).Type="Convert"
+Battery.Collect.Source(1).Compute(8).Column=3
+Battery.Collect.Source(1).Compute(8).ConversionType="Array2SimpleStatus"
+
+// ValueTable = Source(1)
+// SystemName,Caption,PATROLStatus,StatusDescriptions
+Battery.Collect.ValueTable=%Battery.Collect.Source(1)%
+Battery.Collect.DeviceID=ValueTable.Column(2)
+Battery.Collect.Status=ValueTable.Column(3)
+Battery.Collect.StatusInformation=ValueTable.Column(4)
+
+
+//
+//  LogicalDisks (Raid Groups)
+//
+
+//
+// Discovery
+
+// Source(1) = HITACHI_DiskDrive
+// SystemName,DeviceID,BlockSize,NumberOfBlocks,ErrorMethodology
+LogicalDisk.Discovery.Source(1).Type="WBEM"
+LogicalDisk.Discovery.Source(1).WbemQuery="SELECT SystemName,DeviceID,BlockSize,NumberOfBlocks,ErrorMethodology FROM HITACHI_ArrayGroup"
+LogicalDisk.Discovery.Source(1).WbemNameSpace=HITACHI_NAMESPACE
+
+// Duplicate the DeviceID to make DeviceID and DisplayID
+// SystemName,DeviceID,DisplayID,BlockSize,NumberOfBlocks,ErrorMethodology
+LogicalDisk.Discovery.Source(1).Compute(1).Type="DuplicateColumn"
+LogicalDisk.Discovery.Source(1).Compute(1).Column=2
+
+// Add ":" And SystemaName to DeviceID to make ID unique
+// SystemName,DeviceID,DisplayID,BlockSize,NumberOfBlocks,ErrorMethodology
+LogicalDisk.Discovery.Source(1).Compute(2).Type="LeftConcat"
+LogicalDisk.Discovery.Source(1).Compute(2).Column=2
+LogicalDisk.Discovery.Source(1).Compute(2).String=":"
+
+LogicalDisk.Discovery.Source(1).Compute(3).Type="LeftConcat"
+LogicalDisk.Discovery.Source(1).Compute(3).Column=2
+LogicalDisk.Discovery.Source(1).Compute(3).String=Column(1)
+
+// Multiply BlockSize by Number of Blocks to Get Size
+// SystemName,DeviceID,DisplayID,BlockSize,NumberOfBlocks,ErrorMethodology
+LogicalDisk.Discovery.Source(1).Compute(4).Type="Multiply"
+LogicalDisk.Discovery.Source(1).Compute(4).Column=4
+LogicalDisk.Discovery.Source(1).Compute(4).MultiplyBy=Column(5)
+
+// Instance Table
+// SystemName,DeviceID,DisplayID,BlockSize,NumberOfBlocks,ErrorMethodology
+LogicalDisk.Discovery.InstanceTable=%LogicalDisk.Discovery.Source(1)%
+LogicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+LogicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+LogicalDisk.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(1)
+LogicalDisk.Discovery.Instance.Size=InstanceTable.Column(4)
+LogicalDisk.Discovery.Instance.RAIDLevel=InstanceTable.Column(6)
+
+//
+// Collect
+
+// Collect type is multiinstance
+LogicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = HITACHI_Fan
+// SystemName;DeviceID;OperationalStatus;
+LogicalDisk.Collect.Source(1).Type="Wbem"
+LogicalDisk.Collect.Source(1).WbemQuery="SELECT SystemName,DeviceID,OperationalStatus,HealthState FROM HITACHI_ArrayGroup"
+LogicalDisk.Collect.Source(1).WbemNameSpace=HITACHI_NAMESPACE
+
+// Add ":" And SystemaName to Caption to make ID unique
+// SystemName,DeviceID,OperationalStatus,HealthState
+LogicalDisk.Collect.Source(1).Compute(1).Type="LeftConcat"
+LogicalDisk.Collect.Source(1).Compute(1).Column=2
+LogicalDisk.Collect.Source(1).Compute(1).String=":"
+
+LogicalDisk.Collect.Source(1).Compute(2).Type="LeftConcat"
+LogicalDisk.Collect.Source(1).Compute(2).Column=2
+LogicalDisk.Collect.Source(1).Compute(2).String=Column(1)
+
+
+LogicalDisk.Collect.Source(1).Compute(3).Type="LeftConcat"
+LogicalDisk.Collect.Source(1).Compute(3).Column=4
+LogicalDisk.Collect.Source(1).Compute(3).String="Health"
+
+
+// add HealthState to operationalStatus
+// SystemName,DeviceID,OperationalStatus,HealthState
+
+LogicalDisk.Collect.Source(1).Compute(4).Type="RightConcat"
+LogicalDisk.Collect.Source(1).Compute(4).Column=3
+LogicalDisk.Collect.Source(1).Compute(4).String=Column(4)
+
+
+// Duplicate the "OperationalStatus" column
+// SystemName,DeviceID,PatrolStatus,HealthState
+LogicalDisk.Collect.Source(1).Compute(5).Type="DuplicateColumn"
+LogicalDisk.Collect.Source(1).Compute(5).Column=3
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// SystemName,DeviceID,PATROLStatusArray,OperationalStatus,HealthState
+LogicalDisk.Collect.Source(1).Compute(6).Type="ArrayTranslate"
+LogicalDisk.Collect.Source(1).Compute(6).Column=3
+LogicalDisk.Collect.Source(1).Compute(6).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// SystemName,DeviceID,PATROLStatusArray,StatusInformation
+LogicalDisk.Collect.Source(1).Compute(7).Type="ArrayTranslate"
+LogicalDisk.Collect.Source(1).Compute(7).Column=4
+LogicalDisk.Collect.Source(1).Compute(7).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+LogicalDisk.Collect.Source(1).Compute(7).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// SystemName,DeviceID,PATROLStatus,StatusInformation
+LogicalDisk.Collect.Source(1).Compute(8).Type="Convert"
+LogicalDisk.Collect.Source(1).Compute(8).Column=3
+LogicalDisk.Collect.Source(1).Compute(8).ConversionType="Array2SimpleStatus"
+
+// ValueTable = Source(1)
+// SystemName,Caption,PATROLStatus,StatusDescriptions
+LogicalDisk.Collect.ValueTable=%LogicalDisk.Collect.Source(1)%
+LogicalDisk.Collect.DeviceID=ValueTable.Column(2)
+LogicalDisk.Collect.Status=ValueTable.Column(3)
+LogicalDisk.Collect.StatusInformation=ValueTable.Column(4)
+
+//
+//  Other Devices (StorageProcessorSystem, StorageProcessorCard, Protocol Processor)
+//
+
+//
+// Discovery
+
+// Source(1) = HITACHI_StorageProcessorSystem
+// DeviceID;DisplayID;
+OtherDevice.Discovery.Source(1).Type="WBEM"
+OtherDevice.Discovery.Source(1).WbemQuery="SELECT Name,Caption FROM HITACHI_StorageProcessorSystem"
+OtherDevice.Discovery.Source(1).WbemNameSpace=HITACHI_NAMESPACE
+
+// Source (2) = Joint of 1 and the Enclosure 9 table
+// DeviceID;DisplayID;DeviceID;StorageSystemName;
+OtherDevice.Discovery.Source(2).Type="TableJoint"
+OtherDevice.Discovery.Source(2).LeftTable=%OtherDevice.Discovery.Source(1)%
+OtherDevice.Discovery.Source(2).RightTable=%Enclosure.Discovery.Source(9)%
+OtherDevice.Discovery.Source(2).LeftKeyColumn=1
+OtherDevice.Discovery.Source(2).RightKeyColumn=1
+
+
+// Add a device type
+// DeviceID,DisplayID,DeviceID,StorageSystemName,DeviceType
+OtherDevice.Discovery.Source(2).Compute(1).Type="RightConcat"
+OtherDevice.Discovery.Source(2).Compute(1).Column=4
+OtherDevice.Discovery.Source(2).Compute(1).String=";Controller"
+
+// Keep only useful columns
+// DeviceID,DisplayID,StorageSystemName,DeviceType
+OtherDevice.Discovery.Source(2).Compute(2).Type="KeepColumns"
+OtherDevice.Discovery.Source(2).Compute(2).ColumnNumbers="1,2,4,5"
+
+// Source(2) = Protocol Processor
+// DeviceID,StorageSystemName
+OtherDevice.Discovery.Source(3).Type="WBEM"
+OtherDevice.Discovery.Source(3).WbemQuery="SELECT DeviceID,SystemName FROM HITACHI_SCSIArbitraryLogicalUnit"
+OtherDevice.Discovery.Source(3).WbemNameSpace=HITACHI_NAMESPACE
+
+// Add a device type
+// DeviceID,StorageSystemName,DeviceType
+OtherDevice.Discovery.Source(3).Compute(1).Type="RightConcat"
+OtherDevice.Discovery.Source(3).Compute(1).Column=2
+OtherDevice.Discovery.Source(3).Compute(1).String=";Protocol Processor"
+
+// Remove Hitachi from the Device ID
+// DeviceID,StorageSystemName,DeviceType
+OtherDevice.Discovery.Source(3).Compute(2).Type="Replace"
+OtherDevice.Discovery.Source(3).Compute(2).Column=1
+OtherDevice.Discovery.Source(3).Compute(2).Replace="HITACHI "
+OtherDevice.Discovery.Source(3).Compute(2).ReplaceBy=""
+
+// Duplicate the Device ID
+// DeviceID,DisplayID,StorageSystemName,DeviceType
+OtherDevice.Discovery.Source(3).Compute(3).Type="DuplicateColumn"
+OtherDevice.Discovery.Source(3).Compute(3).Column=1
+
+// Source 4 = Union of 2 & 3
+// DeviceID,DisplayID,StorageSystemName,DeviceType
+OtherDevice.Discovery.Source(4).Type="TableUnion"
+OtherDevice.Discovery.Source(4).Table1=%OtherDevice.Discovery.Source(2)%
+OtherDevice.Discovery.Source(4).Table2=%OtherDevice.Discovery.Source(3)%
+
+// Add ":" And SystemaName to Caption to make ID unique
+// DeviceID,DisplayID,StorageSystemName,DeviceType
+OtherDevice.Discovery.Source(4).Compute(1).Type="LeftConcat"
+OtherDevice.Discovery.Source(4).Compute(1).Column=2
+OtherDevice.Discovery.Source(4).Compute(1).String=":"
+
+OtherDevice.Discovery.Source(4).Compute(2).Type="LeftConcat"
+OtherDevice.Discovery.Source(4).Compute(2).Column=2
+OtherDevice.Discovery.Source(4).Compute(2).String=Column(3)
+
+
+// Instance Table
+// DeviceID,DisplayID,StorageSystemName,DeviceType
+OtherDevice.Discovery.InstanceTable=%OtherDevice.Discovery.Source(4)%
+OtherDevice.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+OtherDevice.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+OtherDevice.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(3)
+OtherDevice.Discovery.Instance.DeviceType=InstanceTable.Column(4)
+
+//
+// Collect
+
+// Collect type is multiinstance
+OtherDevice.Collect.Type="MultiInstance"
+
+// Source(1) = HITACHI_StorageProcessorSystem
+// DeviceID;OperationalStatus;healthstate
+OtherDevice.Collect.Source(1).Type="Wbem"
+OtherDevice.Collect.Source(1).WbemQuery="SELECT Name,OperationalStatus,HealthState FROM HITACHI_StorageProcessorSystem"
+OtherDevice.Collect.Source(1).WbemNameSpace=HITACHI_NAMESPACE
+
+// Source (2) = Joint of 1 and the Enclosure 9 table
+// DeviceID;OperationalStatus;healthstate;DeviceID;StorageSystemName;
+OtherDevice.Collect.Source(2).Type="TableJoint"
+OtherDevice.Collect.Source(2).LeftTable=%OtherDevice.Collect.Source(1)%
+OtherDevice.Collect.Source(2).RightTable=%Enclosure.Discovery.Source(9)%
+OtherDevice.Collect.Source(2).LeftKeyColumn=1
+OtherDevice.Collect.Source(2).RightKeyColumn=1
+
+// Keep only useful columns
+// DeviceID;OperationalStatus;healthstate;StorageSystemName;
+OtherDevice.Collect.Source(2).Compute(1).Type="KeepColumns"
+OtherDevice.Collect.Source(2).Compute(1).ColumnNumbers="1,2,3,4"
+
+// Source(3) = HITACHI_StorageProcessorSystem
+// DeviceID;OperationalStatus;HealthState;StorageSystemName;
+OtherDevice.Collect.Source(3).Type="Wbem"
+OtherDevice.Collect.Source(3).WbemQuery="SELECT DeviceID,OperationalStatus,HealthState,SystemName FROM HITACHI_SCSIArbitraryLogicalUnit"
+OtherDevice.Collect.Source(3).WbemNameSpace=HITACHI_NAMESPACE
+
+// Remove Hitachi from the Device ID
+// DeviceID;OperationalStatus;healthstate;StorageSystemName;
+OtherDevice.Collect.Source(3).Compute(1).Type="Replace"
+OtherDevice.Collect.Source(3).Compute(1).Column=1
+OtherDevice.Collect.Source(3).Compute(1).Replace="HITACHI "
+OtherDevice.Collect.Source(3).Compute(1).ReplaceBy=""
+
+// Source 4 = Union of 2 & 3
+// DeviceID;OperationalStatus;healthstate;StorageSystemName;
+OtherDevice.Collect.Source(4).Type="TableUnion"
+OtherDevice.Collect.Source(4).Table1=%OtherDevice.Collect.Source(2)%
+OtherDevice.Collect.Source(4).Table2=%OtherDevice.Collect.Source(3)%
+
+// Add ":" And SystemaName to Caption to make ID unique
+// DeviceID;OperationalStatus;StorageSystemName;
+// OtherDevice.Collect.Source(4).Compute(1).Type="LeftConcat"
+// OtherDevice.Collect.Source(4).Compute(1).Column=1
+// OtherDevice.Collect.Source(4).Compute(1).String=":"
+
+// OtherDevice.Collect.Source(4).Compute(2).Type="LeftConcat"
+// OtherDevice.Collect.Source(4).Compute(2).Column=1
+// OtherDevice.Collect.Source(4).Compute(2).String=Column(3)
+
+// Duplicate the "OperationalStatus" column
+// DeviceID;OperationalStatus;healthstate;StorageSystemName;
+OtherDevice.Collect.Source(4).Compute(1).Type="LeftConcat"
+OtherDevice.Collect.Source(4).Compute(1).Column=4
+OtherDevice.Collect.Source(4).Compute(1).String="Health"
+
+// add HealthState to operationalStatus
+// Duplicate the "OperationalStatus" column
+// DeviceID;OperationalStatus;healthstate;StorageSystemName;
+OtherDevice.Collect.Source(4).Compute(2).Type="RightConcat"
+OtherDevice.Collect.Source(4).Compute(2).Column=3
+OtherDevice.Collect.Source(4).Compute(2).String=Column(4)
+
+// Duplicate the "OperationalStatus" column
+// DeviceID;patrolStatus;statusinformation;healthstate;StorageSystemName;
+OtherDevice.Collect.Source(4).Compute(3).Type="DuplicateColumn"
+OtherDevice.Collect.Source(4).Compute(3).Column=3
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// DeviceID,PATROLStatusArray,OperationalStatus,healthstate,StorageSystemName
+OtherDevice.Collect.Source(4).Compute(4).Type="ArrayTranslate"
+OtherDevice.Collect.Source(4).Compute(4).Column=2
+OtherDevice.Collect.Source(4).Compute(4).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// DeviceID,PATROLStatusArray,StatusInformation,healthstate,SystemName
+OtherDevice.Collect.Source(4).Compute(5).Type="ArrayTranslate"
+OtherDevice.Collect.Source(4).Compute(5).Column=3
+OtherDevice.Collect.Source(4).Compute(5).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+OtherDevice.Collect.Source(4).Compute(5).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// DeviceID,PATROLStatus,StatusInformation,healthstate,SystemName
+OtherDevice.Collect.Source(4).Compute(6).Type="Convert"
+OtherDevice.Collect.Source(4).Compute(6).Column=2
+OtherDevice.Collect.Source(4).Compute(6).ConversionType="Array2SimpleStatus"
+
+// ValueTable = Source(1)
+// DeviceID,PATROLStatus,StatusDescriptions,healthstate,SystemName
+OtherDevice.Collect.ValueTable=%OtherDevice.Collect.Source(4)%
+OtherDevice.Collect.DeviceID=ValueTable.Column(1)
+OtherDevice.Collect.Status=ValueTable.Column(2)
+OtherDevice.Collect.StatusInformation=ValueTable.Column(3)
+
+
+// The DMTFOperationStatusTranslationTable
+DMTFOperationStatusTranslationTable(2)="OK"
+DMTFOperationStatusTranslationTable(3)="WARN"
+DMTFOperationStatusTranslationTable(4)="WARN"
+DMTFOperationStatusTranslationTable(5)="WARN"
+DMTFOperationStatusTranslationTable(6)="ALARM"
+DMTFOperationStatusTranslationTable(7)="ALARM"
+DMTFOperationStatusTranslationTable(8)="WARN"
+DMTFOperationStatusTranslationTable(9)="WARN"
+DMTFOperationStatusTranslationTable(10)="ALARM"
+DMTFOperationStatusTranslationTable(11)="WARN"
+DMTFOperationStatusTranslationTable(12)="ALARM"
+DMTFOperationStatusTranslationTable(13)="ALARM"
+DMTFOperationStatusTranslationTable(14)="ALARM"
+DMTFOperationStatusTranslationTable(15)="OK"
+DMTFOperationStatusTranslationTable(16)="WARN"
+DMTFOperationStatusTranslationTable(17)="OK"
+DMTFOperationStatusTranslationTable(18)="OK"
+DMTFOperationStatusTranslationTable("Health0")="UNKNOWN"
+DMTFOperationStatusTranslationTable("Health5")="OK"
+DMTFOperationStatusTranslationTable("Health10")="WARN"
+DMTFOperationStatusTranslationTable("Heatlh15")="WARN"
+DMTFOperationStatusTranslationTable("Health20")="ALARM"
+DMTFOperationStatusTranslationTable("Health25")="ALARM"
+DMTFOperationStatusTranslationTable("Health30")="ALARM"
+
+DMTFOperationStatusTranslationTable(Default)="UNKNOWN"
+
+// The DMTFOperationStatusInformationTranslationTable
+DMTFOperationStatusInformationTranslationTable(2)=""
+DMTFOperationStatusInformationTranslationTable(3)="Degraded"
+DMTFOperationStatusInformationTranslationTable(4)="Stressed"
+DMTFOperationStatusInformationTranslationTable(5)="Predicted Failure"
+DMTFOperationStatusInformationTranslationTable(6)="Error"
+DMTFOperationStatusInformationTranslationTable(7)="Non-Recoverable Error"
+DMTFOperationStatusInformationTranslationTable(8)="Starting"
+DMTFOperationStatusInformationTranslationTable(9)="Stopping"
+DMTFOperationStatusInformationTranslationTable(10)="Stopped"
+DMTFOperationStatusInformationTranslationTable(11)="In Service"
+DMTFOperationStatusInformationTranslationTable(12)="No Contact"
+DMTFOperationStatusInformationTranslationTable(13)="Lost Communication"
+DMTFOperationStatusInformationTranslationTable(14)="Aborted"
+DMTFOperationStatusInformationTranslationTable(15)="Dormant"
+DMTFOperationStatusInformationTranslationTable(16)="Supporting Entity in Error"
+DMTFOperationStatusInformationTranslationTable(17)="Completed"
+DMTFOperationStatusInformationTranslationTable(18)="Power Mode"
+DMTFOperationStatusInformationTranslationTable("Health0")="Unknown"
+DMTFOperationStatusInformationTranslationTable("Health5")=""
+DMTFOperationStatusInformationTranslationTable("Health10")="Degraded"
+DMTFOperationStatusInformationTranslationTable("Heatlh15")="Minor Failure"
+DMTFOperationStatusInformationTranslationTable("Health20")="Major Failure"
+DMTFOperationStatusInformationTranslationTable("Health25")="Critical Failure"
+DMTFOperationStatusInformationTranslationTable("Health30")="Non-Recoverable Error"
+DMTFOperationStatusInformationTranslationTable(Default)=""

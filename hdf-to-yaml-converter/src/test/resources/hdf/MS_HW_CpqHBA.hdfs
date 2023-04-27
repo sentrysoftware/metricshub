@@ -1,0 +1,240 @@
+//
+//
+//                 C O N N E C T O R
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//               by Sentry Software (c)
+//
+//                  MS_HW_CpqHBA.hdf
+//
+//      Supports: The HBA cards in HP ProLiant systems
+//      Connects to: hp Insight Manager under Windows, Linux and Tru64
+//
+//
+
+// HEADER
+
+hdf.DisplayName="HP Insight Management Agent - HBA"
+hdf.Version="1.0"
+hdf.Comments="This connector monitors the HBA cards present in an HP ProLiant system by connecting to the HP Insight Management agent."
+hdf.RemoteSupport="true"
+hdf.TypicalPlatform="HP ProLiant"
+hdf.ReliesOn="HP Insight Management Agents"
+hdf.AppliesToOS="NT,Linux,OSF1,VMS,OOB,Solaris"
+
+
+// DETECTION
+
+// The system must have at least one HBA
+Detection.Criteria(1).Type="SNMP"
+Detection.Criteria(1).SnmpGetNext="1.3.6.1.4.1.232.16.2.7.1.1"
+
+
+//
+//   O T H E R   D E V I C E  (host bus adapters)
+//
+
+
+//
+// Discovery
+
+// Source(1) = the cpqFcaHostCntlr SNMP table
+// DeviceID;ModelCode;WWNAddress;SerialNumber;HWLocation;
+NetworkCard.Discovery.Source(1).Type="SnmpTable"
+NetworkCard.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.232.16.2.7.1.1"
+NetworkCard.Discovery.Source(1).SnmpTableSelectColumns="ID,3,6,10,11"
+
+// Translate ModelCode into a more readable string
+// DeviceID;Model;WWNAddress;SerialNumber;HWLocation;
+NetworkCard.Discovery.Source(1).Compute(1).Type="Translate"
+NetworkCard.Discovery.Source(1).Compute(1).Column="2"
+NetworkCard.Discovery.Source(1).Compute(1).TranslationTable="HostControllerModelTranslationTable"
+
+// The HostControllerModelTranslationTable
+HostControllerModelTranslationTable(2)="Compaq StorageWorks FC HBA/P"
+HostControllerModelTranslationTable(3)="Compaq StorageWorks FC HBA/E"
+HostControllerModelTranslationTable(4)="Compaq StorageWorks 64-Bit/66-Mhz FC HBA"
+HostControllerModelTranslationTable(5)="Compaq Smart Array, SAN Access Module"
+HostControllerModelTranslationTable(6)="FCA-2101"
+HostControllerModelTranslationTable(7)="Compaq StorageWorks 64bit/33Mhz PCI to FC HBA"
+HostControllerModelTranslationTable(8)="FCA-221x"
+HostControllerModelTranslationTable(9)="Dual Port Fibre Channel Mezzanine Card (2 Gb)"
+HostControllerModelTranslationTable(10)="PCI-X 2Gb FCA2404 FC HBA"
+HostControllerModelTranslationTable(11)="PCI-X 2Gb FCA2214 FC HBA"
+HostControllerModelTranslationTable(12)="PCI-X 2Gb A7298A FC HBA"
+HostControllerModelTranslationTable(13)="PCI-X 2Gb FCA2214DC FC HBA"
+HostControllerModelTranslationTable(14)="PCI-X Dual Channel 2GB A6826A FC HBA"
+HostControllerModelTranslationTable(15)="FC Mezzaine Card G3"
+HostControllerModelTranslationTable(16)="FC Mezzaine Card G4"
+HostControllerModelTranslationTable(17)="PCI-X 2GB AB466A/AB467A FC HBA"
+HostControllerModelTranslationTable(18)="FC HBA"
+HostControllerModelTranslationTable(19)="HP FC1143 4Gb PCI-X 2.0 HBA"
+HostControllerModelTranslationTable(20)="HP FC1243 4Gb PCI-X 2.0 DC HBA"
+HostControllerModelTranslationTable(21)="HP FC2143 4Gb PCI-X 2.0 HBA"
+HostControllerModelTranslationTable(22)="HP FC2243 4Gb PCI-X 2.0 DC HBA"
+HostControllerModelTranslationTable(23)="HP StorageWorks 1050 HBA"
+HostControllerModelTranslationTable(24)="Emulex LPe1105-HP 4Gb FC HBA"
+HostControllerModelTranslationTable(25)="Qlogic QMH2462 4Gb FC HBA"
+HostControllerModelTranslationTable(26)="HP FC1142SR 4Gb PCI-e HBA"
+HostControllerModelTranslationTable(27)="HP FC1242SR 4Gb PCI-e DC HBA"
+HostControllerModelTranslationTable(28)="HP FC2142SR 4Gb PCI-e HBA"
+HostControllerModelTranslationTable(29)="HP FC2242SR 4Gb PCI-e DC HBA"
+HostControllerModelTranslationTable(30)="Emulex based BL20p FC Mezz HBA"
+HostControllerModelTranslationTable(31)="HP StorageWorks 81Q 8Gb PCI-e FC HBA"
+HostControllerModelTranslationTable(32)="HP StorageWorks 82Q 8Gb PCI-e Dual Port FC HBA"
+HostControllerModelTranslationTable(33)="QLogic QMH2562 8Gb FC HBA"
+HostControllerModelTranslationTable(34)="HP StorageWorks 81E 8Gb PCI-e FC HBA"
+HostControllerModelTranslationTable(35)="HP StorageWorks 82E 8Gb PCI-e Dual Port FC HBA"
+HostControllerModelTranslationTable(36)="Emulex LPe 1205-HP 8Gb FC HBA"
+HostControllerModelTranslationTable(37)="HP SN1000E 16Gb Single Port FC HBA"
+HostControllerModelTranslationTable(38)="HP SN1000E 16Gb Dual Port FC HBA"
+HostControllerModelTranslationTable(39)="HP SN1000Q 16Gb Single Port FC HBA"
+HostControllerModelTranslationTable(40)="HP SN1000Q 16Gb Dual Port FC HBA"
+HostControllerModelTranslationTable(41)="HP SN1100E 16Gb Single Port FC HBA"
+HostControllerModelTranslationTable(42)="HP SN1100E 16Gb Dual Port FC HBA"
+HostControllerModelTranslationTable(43)="HP StorageWorks 81B 8Gb Single Port PCI-e FC HBA"
+HostControllerModelTranslationTable(44)="HP StorageWorks 82B 8Gb Dual Port PCI-e FC HBA"
+HostControllerModelTranslationTable(45)="HP StorageWorks CN1100E Dual Port Converged Network Adapter"
+HostControllerModelTranslationTable(46)="HP FlexFabric 10Gb 2-port 554FLB Adapter"
+HostControllerModelTranslationTable(47)="HP FlexFabric 10Gb 2-port 554M Adapter"
+HostControllerModelTranslationTable(48)="HP FlexFabric 10Gb 2-port 554FLR-SFP+ Adapter"
+HostControllerModelTranslationTable(49)="HP Fibre Channel 8Gb LPe1205A Mezz"
+HostControllerModelTranslationTable(50)="HP StorageWorks CN1000Q Dual Port Converged Network Adapter"
+HostControllerModelTranslationTable(51)="HP QMH2572 8Gb FC HBA for c-Class BladeSystem"
+HostControllerModelTranslationTable(52)="HP FlexFabric 10Gb 2-port 526FLR-SFP+ Adapter"
+HostControllerModelTranslationTable(53)="HP QMH2672 16Gb FC HBA for c-Class BladeSystem"
+HostControllerModelTranslationTable(54)="HP FlexFabric 10Gb 2-port 534FLB Adapter"
+HostControllerModelTranslationTable(55)="HP FlexFabric 10Gb 2-port 534FLR-SFP+ Adapter"
+HostControllerModelTranslationTable(56)="HP FlexFabric 10Gb 2-port 534M Adapter"
+HostControllerModelTranslationTable(57)="HP StoreFabric CN1100R Dual Port Converged Network Adapter"
+HostControllerModelTranslationTable(58)="HP Fibre Channel 16Gb LPe1605 Mezz"
+HostControllerModelTranslationTable(59)="HP FlexFabric 20Gb 2-port 630FLB Adapter"
+HostControllerModelTranslationTable(60)="HP FlexFabric 20Gb 2-port 630M Adapter"
+HostControllerModelTranslationTable(61)="HP FlexFabric 10Gb 2-port 556FLR-SFP+ Adapter"
+HostControllerModelTranslationTable(62)="HP FlexFabric 20Gb 2-port 650M Adapter"
+HostControllerModelTranslationTable(63)="HP FlexFabric 20Gb 2-port 650FLB FIO Adapter"
+HostControllerModelTranslationTable(64)="HP StoreFabric CN1200e Dual Port Converged Network Adapter"
+HostControllerModelTranslationTable(65)="HP FlexFabric 10Gb 2-port 536FLB Adapter"
+HostControllerModelTranslationTable(66)="HPE FlexFabric 10Gb 2-port 533FLR-T Adapter"
+HostControllerModelTranslationTable(67)="HPE FlexFabric 10Gb 2-port 556FLR-T Adapter"
+HostControllerModelTranslationTable(68)="HPE StoreFabric CN1100R-T Adapter"
+HostControllerModelTranslationTable(69)="HPE StoreFabric CN1200E-T Dual Port CNA"
+HostControllerModelTranslationTable(70)="HPE FlexFabric 10Gb 4-port 536FLR-T Adapter"
+HostControllerModelTranslationTable(71)="HPE FlexFabric 10G 2-port 556FLB Adapter"
+HostControllerModelTranslationTable(72)="HPE Synergy 2820C 10Gb Converged Network Adapter"
+HostControllerModelTranslationTable(73)="HPE Synergy 3520C 10/20Gb Converged Network Adapter"
+HostControllerModelTranslationTable(74)="HPE Synergy 3530C 16G FC HBA"
+HostControllerModelTranslationTable(75)="HPE Synergy 3820C 10/20Gb CNA"
+HostControllerModelTranslationTable(76)="HPE Synergy 3830C 16G FC HBA"
+HostControllerModelTranslationTable(77)="HPE StoreFabric 84Q 4P 8Gb FC HBA"
+HostControllerModelTranslationTable(78)="HPE StoreFabric SN1100Q 16Gb 1P FC HBA"
+HostControllerModelTranslationTable(79)="HPE StoreFabric SN1100Q 16Gb 2P FC HBA"
+HostControllerModelTranslationTable(80)="HPE StoreFabric 84E 4P 8Gb FC HBA"
+HostControllerModelTranslationTable(81)="HPE StoreFabric SN1100E 4-port 16Gb FC HBA"
+HostControllerModelTranslationTable(82)="HPE SN1600Q 32Gb 1p FC HBA"
+HostControllerModelTranslationTable(83)="HPE SN1600Q 32Gb 2p FC HBA"
+HostControllerModelTranslationTable(84)="HPE SN1600E 32Gb 1p FC HBA"
+HostControllerModelTranslationTable(85)="HPE SN1600E 32Gb 2p FC HBA"
+HostControllerModelTranslationTable(86)="HPE SN1200E 32Gb 1p FC HBA"
+HostControllerModelTranslationTable(87)="HPE SN1200E 32Gb 2p FC HBA"
+HostControllerModelTranslationTable(88)="HPE Synergy 4820C 10/20/25Gb CNA"
+HostControllerModelTranslationTable(89)="HPE StoreFabric CN1200R 10Gb T CNA"
+HostControllerModelTranslationTable(90)="HPE StoreFabric CN1300R 10/25Gb CNA"
+HostControllerModelTranslationTable(91)="HPE Eth 10/25Gb 2p 622FLR-SFP28 CNA"
+HostControllerModelTranslationTable(92)="HPE Synergy 5330C 32Gb FC HBA"
+HostControllerModelTranslationTable(93)="HPE Synergy 5830C 32Gb FC HBA"
+HostControllerModelTranslationTable(94)="HPE Synergy 6820C 25/50Gb CNA"
+HostControllerModelTranslationTable(95)="HPE SN1610E 32Gb 1p FC HBA"
+HostControllerModelTranslationTable(96)="HPE SN1610E 32Gb 2p FC HBA"
+HostControllerModelTranslationTable(97)="HPE SN1610Q 32Gb 1p FC HBA"
+HostControllerModelTranslationTable(98)="HPE SN1610Q 32Gb 2p FC HBA"
+HostControllerModelTranslationTable(Default)="FC HBA"
+
+// DeviceID;Model;WWNAddress;SerialNumber;HWLocation;
+NetworkCard.Discovery.Source(1).Compute(2).Type="LeftConcat"
+NetworkCard.Discovery.Source(1).Compute(2).Column="5"
+NetworkCard.Discovery.Source(1).Compute(2).String="Location: "
+
+// InstanceTable
+NetworkCard.Discovery.InstanceTable=%NetworkCard.Discovery.Source(1)%
+NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+NetworkCard.Discovery.Instance.Model=InstanceTable.Column(2)
+NetworkCard.Discovery.Instance.DeviceType="FC Port"
+NetworkCard.Discovery.Instance.PhysicalAddress=InstanceTable.Column(3)
+NetworkCard.Discovery.Instance.PhysicalAddressType="WWN"
+NetworkCard.Discovery.Instance.SerialNumber=InstanceTable.Column(4)
+NetworkCard.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(5)
+
+
+//
+// Collect
+
+NetworkCard.Collect.Type="MultiInstance"
+
+// Source(1) = the cpqFcaHostCntlr snmp table
+// ID;Status
+NetworkCard.Collect.Source(1).Type="SnmpTable"
+NetworkCard.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.232.16.2.7.1.1"
+NetworkCard.Collect.Source(1).SnmpTableSelectColumns="ID,4"
+
+// Duplicate the status column
+// ID;Status;Status;Status;
+NetworkCard.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+NetworkCard.Collect.Source(1).Compute(1).Column=2
+NetworkCard.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+NetworkCard.Collect.Source(1).Compute(2).Column=2
+
+// Translate the first status column into a PATROL status
+// ID;PATROLStatus;Status;Status;
+NetworkCard.Collect.Source(1).Compute(3).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(3).Column=2
+NetworkCard.Collect.Source(1).Compute(3).TranslationTable="NetworkCardStatusTranslationTable"
+
+// The NetworkCardStatusTranslationTable
+NetworkCardStatusTranslationTable(2)="OK"
+NetworkCardStatusTranslationTable(3)="ALARM"
+NetworkCardStatusTranslationTable(4)="OK"
+NetworkCardStatusTranslationTable(5)="WARN"
+NetworkCardStatusTranslationTable(6)="OK"
+NetworkCardStatusTranslationTable(7)="OK"
+NetworkCardStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate the second status column into a more readable string
+// ID;PATROLStatus;StatusInformation;Status;
+NetworkCard.Collect.Source(1).Compute(4).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(4).Column=3
+NetworkCard.Collect.Source(1).Compute(4).TranslationTable="NetworkCardStatusInformationTranslationTable"
+
+// The NetworkCardStatusInformationTranslationTable
+NetworkCardStatusInformationTranslationTable(2)=""
+NetworkCardStatusInformationTranslationTable(3)="Failed"
+NetworkCardStatusInformationTranslationTable(4)="Shutdown"
+NetworkCardStatusInformationTranslationTable(5)="Loop Degraded"
+NetworkCardStatusInformationTranslationTable(6)="Loop Failed"
+NetworkCardStatusInformationTranslationTable(7)="Not Connected"
+NetworkCardStatusInformationTranslationTable(Default)="Unknown Status"
+
+// Translate the third status column into LinkStatus
+// ID;PATROLStatus;StatusInformation;LinkStatus;
+NetworkCard.Collect.Source(1).Compute(5).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(5).Column=4
+NetworkCard.Collect.Source(1).Compute(5).TranslationTable="NetworkCardLinkStatusTranslationTable"
+
+// The NetworkCardLinkStatusTranslationTable
+NetworkCardLinkStatusTranslationTable(2)="OK"
+NetworkCardLinkStatusTranslationTable(3)="WARN"
+NetworkCardLinkStatusTranslationTable(4)="OK"
+NetworkCardLinkStatusTranslationTable(5)="OK"
+NetworkCardLinkStatusTranslationTable(6)="WARN"
+NetworkCardLinkStatusTranslationTable(7)="WARN"
+NetworkCardLinkStatusTranslationTable(Default)="OK"
+
+// The ValueTable = source(1)
+NetworkCard.Collect.ValueTable=%NetworkCard.Collect.Source(1)%
+NetworkCard.Collect.DeviceID=ValueTable.Column(1)
+NetworkCard.Collect.Status=ValueTable.Column(2)
+NetworkCard.Collect.StatusInformation=ValueTable.Column(3)
+NetworkCard.Collect.LinkStatus=ValueTable.Column(4)

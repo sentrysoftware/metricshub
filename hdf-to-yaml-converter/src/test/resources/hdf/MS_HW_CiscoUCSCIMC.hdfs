@@ -1,0 +1,1249 @@
+//
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//             MS_HW_CiscoUCSCIMC.hdf
+//
+//         Supports: Cisco UCS C-Series Servers
+//
+//
+
+// HEADER
+
+hdf.DisplayName="Cisco UCS C-Series CIMC (SNMP)"
+hdf.TypicalPlatform="Cisco UCS"
+hdf.ReliesOn="Cisco CIMC"
+hdf.Comments="This connector provides hardware monitoring for the Cisco C-Series Servers with CIMC cards via SNMP"
+hdf.RemoteSupport="true"
+hdf.LocalSupport="false"
+hdf.AppliesToOS="OOB"
+
+// DETECTION
+// Does a get_next to see if there that there is come CPU information
+//We are sure to have a cisco
+Detection.Criteria(1).Type="SNMP"
+Detection.Criteria(1).SnmpGetNext="1.3.6.1.4.1.9.9.719.1.41.9"
+
+//Now make sure it's a C series
+Detection.Criteria(2).Type="SNMP"
+Detection.Criteria(2).SnmpGet="1.3.6.1.2.1.1.1.0"
+Detection.Criteria(2).ExpectedResult="Cisco Integrated Management Controller"
+
+// Enclosure (Old Systems)
+// Vendor/Model in one field, no spaces.
+// Model;
+Enclosure.Discovery.Source(1).Type="SnmpGet"
+Enclosure.Discovery.Source(1).SnmpOid="1.3.6.1.2.1.1.1.0"
+
+// Get rid of CIMC in the model
+// Model;
+Enclosure.Discovery.Source(1).Compute(1).Type="Replace"
+Enclosure.Discovery.Source(1).Compute(1).Column="1"
+Enclosure.Discovery.Source(1).Compute(1).Replace="Cisco Integrated Management Controller(CIMC) ["
+Enclosure.Discovery.Source(1).Compute(1).ReplaceBy=""
+
+
+// Get rid of Cisco IMC in the model
+// Model;
+Enclosure.Discovery.Source(1).Compute(2).Type="Replace"
+Enclosure.Discovery.Source(1).Compute(2).Column="1"
+Enclosure.Discovery.Source(1).Compute(2).Replace="Cisco Integrated Management Controller(Cisco IMC) ["
+Enclosure.Discovery.Source(1).Compute(2).ReplaceBy=""
+
+// Add a Joiner
+// MSHW;Model;
+Enclosure.Discovery.Source(1).Compute(3).Type="LeftConcat"
+Enclosure.Discovery.Source(1).Compute(3).Column=1
+Enclosure.Discovery.Source(1).Compute(3).String="MSHW;"
+
+//Exclude the second enclosure created in case the output of the getnext is on two lines
+// MSHW;Model
+Enclosure.Discovery.Source(1).Compute(4).Type="ExcludeMatchingLines"
+Enclosure.Discovery.Source(1).Compute(4).Column=2
+Enclosure.Discovery.Source(1).Compute(4).RegExp="^]"
+
+// Enclosure (New Systems)
+
+// Source(2) = cucsComputeRackUnitEntry
+// DN;Model;Serial;OperState;Vendor;EnclosurePresence;
+Enclosure.Discovery.Source(2).Type="SnmpTable"
+Enclosure.Discovery.Source(2).SnmpTableOid="1.3.6.1.4.1.9.9.719.1.9.35.1"
+Enclosure.Discovery.Source(2).SnmpTableSelectColumns="2,32,47,42,51,45"
+
+//Remove lines where cucsComputeRackUnitPresence = 1(Empty) and 11 (Missing)
+Enclosure.Discovery.Source(2).Compute(1).Type="ExcludeMatchingLines"
+Enclosure.Discovery.Source(2).Compute(1).Column=6
+Enclosure.Discovery.Source(2).Compute(1).ValueList="1,11"
+
+// Remove SYS/
+// DN;Model;Serial;OperState;Vendor;EnclosurePresence
+Enclosure.Discovery.Source(2).Compute(2).Type="Replace"
+Enclosure.Discovery.Source(2).Compute(2).Column="1"
+Enclosure.Discovery.Source(2).Compute(2).Replace="sys/"
+Enclosure.Discovery.Source(2).Compute(2).ReplaceBy=""
+
+// Add a Joiner
+// MSHW;DN;Model;Serial;OperState;Vendor;EnclosurePresence
+Enclosure.Discovery.Source(2).Compute(3).Type="LeftConcat"
+Enclosure.Discovery.Source(2).Compute(3).Column=1
+Enclosure.Discovery.Source(2).Compute(3).String="MSHW;"
+
+// Join Old and New
+// MSHW;Model;MSHW;DN;Model;Serial;OperState;Vendor;EnclosurePresence
+Enclosure.Discovery.Source(3).Type="TableJoint"
+Enclosure.Discovery.Source(3).LeftTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Source(3).RightTable=%Enclosure.Discovery.Source(2)%
+Enclosure.Discovery.Source(3).LeftKeyColumn=1
+Enclosure.Discovery.Source(3).RightKeyColumn=1
+Enclosure.Discovery.Source(3).DefaultRightLine=";;;;;;"
+
+// Use the Old model if New model not present
+// MSHW;Model;MSHW;DN;Model;Serial;OperState;Vendor;EnclosurePresence
+Enclosure.Discovery.Source(3).Compute(1).Type="LeftConcat"
+Enclosure.Discovery.Source(3).Compute(1).Column=5
+Enclosure.Discovery.Source(3).Compute(1).String="MSHW"
+
+Enclosure.Discovery.Source(3).Compute(2).Type="RightConcat"
+Enclosure.Discovery.Source(3).Compute(2).Column=5
+Enclosure.Discovery.Source(3).Compute(2).String="MSHW"
+
+Enclosure.Discovery.Source(3).Compute(3).Type="Replace"
+Enclosure.Discovery.Source(3).Compute(3).Column=5
+Enclosure.Discovery.Source(3).Compute(3).Replace="MSHWMSHW"
+Enclosure.Discovery.Source(3).Compute(3).ReplaceBy=Column(2)
+
+Enclosure.Discovery.Source(3).Compute(4).Type="Replace"
+Enclosure.Discovery.Source(3).Compute(4).Column=5
+Enclosure.Discovery.Source(3).Compute(4).Replace="MSHW"
+Enclosure.Discovery.Source(3).Compute(4).ReplaceBy=""
+
+// Source(4) = cucsComputeMbPowerStatsEntry
+// DN;Powerconsupmtion
+Enclosure.Discovery.Source(4).Type="SnmpTable"
+Enclosure.Discovery.Source(4).SnmpTableOid="1.3.6.1.4.1.9.9.719.1.9.14.1"
+Enclosure.Discovery.Source(4).SnmpTableSelectColumns="2,4"
+
+// Remove SYS/
+// DN;powerconsumption
+Enclosure.Discovery.Source(4).Compute(1).Type="Replace"
+Enclosure.Discovery.Source(4).Compute(1).Column="1"
+Enclosure.Discovery.Source(4).Compute(1).Replace="sys/"
+Enclosure.Discovery.Source(4).Compute(1).ReplaceBy=""
+
+// Remove /board/power-stats
+// DN;powerconsumption
+Enclosure.Discovery.Source(4).Compute(2).Type="Replace"
+Enclosure.Discovery.Source(4).Compute(2).Column="1"
+Enclosure.Discovery.Source(4).Compute(2).Replace="/board/power-stats"
+Enclosure.Discovery.Source(4).Compute(2).ReplaceBy=""
+
+//Now join Enclosure.discovery(3) and (4)
+// MSHW;Model;MSHW;DN;Model;Serial;OperState;Vendor;EnclosurePresence;DN;powerconsumption
+Enclosure.Discovery.Source(5).Type="TableJoint"
+Enclosure.Discovery.Source(5).LeftTable=%Enclosure.Discovery.Source(3)%
+Enclosure.Discovery.Source(5).RightTable=%Enclosure.Discovery.Source(4)%
+Enclosure.Discovery.Source(5).LeftKeyColumn=4
+Enclosure.Discovery.Source(5).RightKeyColumn=1
+Enclosure.Discovery.Source(5).DefaultRightLine=";;"
+
+// The InstanceTable
+// MSHW;Model;MSHW;DN;Model;Serial;OperState;Vendor;EnclosurePresence;DN;powerconsumption
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(5)%
+Enclosure.Discovery.Instance.DeviceID="CiscoUCS-Server"
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(5)
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(6)
+Enclosure.Discovery.Instance.ParameterActivation.Status=InstanceTable.Column(7)
+Enclosure.Discovery.Instance.ParameterActivation.PowerConsumption=InstanceTable.column(11)
+Enclosure.Discovery.Instance.Vendor="Cisco"
+
+
+//
+// Enclosure collect
+
+// Collect type is MultiInstance
+Enclosure.Collect.Type="MultiInstance"
+
+// Source(1) = cucsEquipmentEnclosureEntry
+// DN;OperState;
+Enclosure.Collect.Source(1).Type="SnmpTable"
+Enclosure.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.9.9.719.1.9.35.1"
+Enclosure.Collect.Source(1).SnmpTableSelectColumns="2,42"
+
+// Duplicate the StatusCode column
+// DN;OperState;OperState;
+Enclosure.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Enclosure.Collect.Source(1).Compute(1).Column=2
+
+// Translate 1st StatusCode into PATROLSTatus
+// DN;PATROLStatus;OperState;
+Enclosure.Collect.Source(1).Compute(2).Type="Translate"
+Enclosure.Collect.Source(1).Compute(2).Column=2
+Enclosure.Collect.Source(1).Compute(2).TranslationTable="enclosureStatusTranslationTable"
+
+// Translate second STatusCode into a more readable string
+// DN;PATROLStatus;StatusInformation;
+Enclosure.Collect.Source(1).Compute(3).Type="Translate"
+Enclosure.Collect.Source(1).Compute(3).Column=3
+Enclosure.Collect.Source(1).Compute(3).TranslationTable="enclosureStatusInformationTranslationTable"
+
+// Remove /SYS
+// DN;PATROLStatus;StatusInformation;
+Enclosure.Collect.Source(1).Compute(4).Type="Replace"
+Enclosure.Collect.Source(1).Compute(4).Column="1"
+Enclosure.Collect.Source(1).Compute(4).Replace="sys/"
+Enclosure.Collect.Source(1).Compute(4).ReplaceBy=""
+
+// Join the Discovery to the Collect
+// MSHW;Model;MSHW;DN;Model;Serial;OperState;Vendor;EnclosurePresence;DN;PATROLStatus;OperState;
+Enclosure.Collect.Source(2).Type="TableJoint"
+Enclosure.Collect.Source(2).LeftTable=%Enclosure.Discovery.Source(3)%
+Enclosure.Collect.Source(2).RightTable=%Enclosure.Collect.Source(1)%
+Enclosure.Collect.Source(2).LeftKeyColumn=4
+Enclosure.Collect.Source(2).RightKeyColumn=1
+Enclosure.Collect.Source(2).DefaultRightLine=";;;;;;"
+
+// Source(3) = cucsComputeMbPowerStatsEntry
+// DN;Powerconsupmtion
+Enclosure.Collect.Source(3).Type="SnmpTable"
+Enclosure.Collect.Source(3).SnmpTableOid="1.3.6.1.4.1.9.9.719.1.9.14.1"
+Enclosure.Collect.Source(3).SnmpTableSelectColumns="2,4"
+
+// Remove SYS/
+// DN;powerconsumption
+Enclosure.Collect.Source(3).Compute(1).Type="Replace"
+Enclosure.Collect.Source(3).Compute(1).Column="1"
+Enclosure.Collect.Source(3).Compute(1).Replace="sys/"
+Enclosure.Collect.Source(3).Compute(1).ReplaceBy=""
+
+// Remove /board/power-stats
+// DN;powerconsumption
+Enclosure.Collect.Source(3).Compute(2).Type="Replace"
+Enclosure.Collect.Source(3).Compute(2).Column="1"
+Enclosure.Collect.Source(3).Compute(2).Replace="/board/power-stats"
+Enclosure.Collect.Source(3).Compute(2).ReplaceBy=""
+
+//Now join Enclosure.Collect(3) and (2)
+// MSHW;Model;MSHW;DN;Model;Serial;OperState;Vendor;EnclosurePresence;DN;PATROLStatus;OperState;DN;powerconsumption
+Enclosure.Collect.Source(4).Type="TableJoint"
+Enclosure.Collect.Source(4).LeftTable=%Enclosure.Collect.Source(2)%
+Enclosure.Collect.Source(4).RightTable=%Enclosure.Collect.Source(3)%
+Enclosure.Collect.Source(4).LeftKeyColumn=4
+Enclosure.Collect.Source(4).RightKeyColumn=1
+Enclosure.Collect.Source(4).DefaultRightLine=";;"
+
+// ValueTable = Source(1)
+// MSHW;Model;MSHW;DN;Model;Serial;OperState;Vendor;EnclosurePresence;DN;PATROLStatus;OperState;DN;powerconsumption
+Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(4)%
+Enclosure.Collect.DeviceID="CiscoUCS-Server"
+Enclosure.Collect.Status=ValueTable.Column(11)
+Enclosure.Collect.StatusInformation=ValueTable.Column(12)
+Enclosure.Collect.PowerConsumption=ValueTable.Column(14)
+
+
+
+// The enclosureStatusTranslationTable
+// The enclosureStatusTranslationTable
+enclosureStatusTranslationTable(0)="UNKNOWN"
+enclosureStatusTranslationTable(1)="WARN"
+enclosureStatusTranslationTable(10)="OK"
+enclosureStatusTranslationTable(11)="OK"
+enclosureStatusTranslationTable(12)="OK"
+enclosureStatusTranslationTable(13)="OK"
+enclosureStatusTranslationTable(14)="OK"
+enclosureStatusTranslationTable(15)="OK"
+enclosureStatusTranslationTable(20)="OK"
+enclosureStatusTranslationTable(21)="OK"
+enclosureStatusTranslationTable(29)="WARN"
+enclosureStatusTranslationTable(30)="WARN"
+enclosureStatusTranslationTable(31)="WARN"
+enclosureStatusTranslationTable(32)="WARN"
+enclosureStatusTranslationTable(33)="ALARM"
+enclosureStatusTranslationTable(34)="ALARM"
+enclosureStatusTranslationTable(35)="ALARM"
+enclosureStatusTranslationTable(36)="OK"
+enclosureStatusTranslationTable(40)="OK"
+enclosureStatusTranslationTable(41)="OK"
+enclosureStatusTranslationTable(50)="ALARM"
+enclosureStatusTranslationTable(60)="WARN"
+enclosureStatusTranslationTable(61)="WARN"
+enclosureStatusTranslationTable(62)="WARN"
+enclosureStatusTranslationTable(63)="ALARM"
+enclosureStatusTranslationTable(101)="OK"
+enclosureStatusTranslationTable(201)="OK"
+enclosureStatusTranslationTable(202)="OK"
+enclosureStatusTranslationTable(203)="OK"
+enclosureStatusTranslationTable(204)="ALARM"
+enclosureStatusTranslationTable(210)="OK"
+enclosureStatusTranslationTable(211)="WARN"
+enclosureStatusTranslationTable(212)="WARN"
+enclosureStatusTranslationTable(Default)="Unknown Status"
+
+enclosureStatusInformationTranslationTable(0)="Indeterminate"
+enclosureStatusInformationTranslationTable(1)="Unassociated"
+enclosureStatusInformationTranslationTable(10)="OK"
+enclosureStatusInformationTranslationTable(11)="Discovery"
+enclosureStatusInformationTranslationTable(12)="Config"
+enclosureStatusInformationTranslationTable(13)="Unconfig"
+enclosureStatusInformationTranslationTable(14)="PowerOff"
+enclosureStatusInformationTranslationTable(15)="Restart"
+enclosureStatusInformationTranslationTable(20)="Maintenance"
+enclosureStatusInformationTranslationTable(21)="Test"
+enclosureStatusInformationTranslationTable(29)="Compute Mismatch"
+enclosureStatusInformationTranslationTable(30)="Compute Failed"
+enclosureStatusInformationTranslationTable(31)="Degraded"
+enclosureStatusInformationTranslationTable(32)="Discovery Failed"
+enclosureStatusInformationTranslationTable(33)="Config Failure"
+enclosureStatusInformationTranslationTable(34)="Unconfig Failed"
+enclosureStatusInformationTranslationTable(35)="Test Failed"
+//MSHW-3654 test failure should be map to ok according to cisco
+enclosureStatusInformationTranslationTable(36)="Maintenance Failed"
+enclosureStatusInformationTranslationTable(40)="Removed"
+enclosureStatusInformationTranslationTable(41)="Disabled"
+enclosureStatusInformationTranslationTable(50)="Inaccessible"
+enclosureStatusInformationTranslationTable(60)="Thermal Problem"
+enclosureStatusInformationTranslationTable(61)="Power Problem"
+enclosureStatusInformationTranslationTable(62)="Voltage Problem"
+enclosureStatusInformationTranslationTable(63)="Inoperable"
+enclosureStatusInformationTranslationTable(101)="Decommissioning"
+enclosureStatusInformationTranslationTable(201)="BIOS Restore"
+enclosureStatusInformationTranslationTable(202)="CMOS Reset"
+enclosureStatusInformationTranslationTable(203)="Diagnostics"
+enclosureStatusInformationTranslationTable(204)="Diagnostics Failed"
+enclosureStatusInformationTranslationTable(210)="Pending Reboot"
+enclosureStatusInformationTranslationTable(211)="Pending Reassociation"
+enclosureStatusInformationTranslationTable(212)="SVNIC Not Present"
+enclosureStatusInformationTranslationTable(Default)="Unknown Status"
+
+
+//
+// FANS
+//
+
+//
+// Fan discovery
+
+// Source(1) = cucsEquipmentFanEntry
+// DN;FanPresence;
+Fan.Discovery.Source(1).Type="SnmpTable"
+Fan.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.9.9.719.1.15.12.1"
+Fan.Discovery.Source(1).SnmpTableSelectColumns="2,13"
+
+//Remove lines where cucsEquipmentFanPresence = empty string
+Fan.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Fan.Discovery.Source(1).Compute(1).Column=2
+Fan.Discovery.Source(1).Compute(1).RegExp="."
+
+//Remove lines where cucsEquipmentFanPresence = 1(Empty) and 11 (Missing)
+Fan.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+Fan.Discovery.Source(1).Compute(2).Column=2
+Fan.Discovery.Source(1).Compute(2).ValueList="1,11"
+
+// Remove SYS/
+// DN
+Fan.Discovery.Source(1).Compute(3).Type="Replace"
+Fan.Discovery.Source(1).Compute(3).Column="1"
+Fan.Discovery.Source(1).Compute(3).Replace="sys/"
+Fan.Discovery.Source(1).Compute(3).ReplaceBy=""
+
+// InstanceTable = Source(1)
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Fan.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+
+//
+// Fan collect
+
+// Collect type is MultiInstance
+Fan.Collect.Type="MultiInstance"
+
+// Source(1) = cucsEquipmentFanEntry
+// DN;OperState;
+Fan.Collect.Source(1).Type="SnmpTable"
+Fan.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.9.9.719.1.15.12.1"
+Fan.Collect.Source(1).SnmpTableSelectColumns="2,9"
+
+//Do not collect for removed devices
+Fan.Collect.Source(1).Compute(1).Type="ExcludeMatchingLines"
+Fan.Collect.Source(1).Compute(1).Column=2
+Fan.Collect.Source(1).Compute(1).ValueList="6"
+
+// Remove SYS/
+// DN;OperState;
+Fan.Collect.Source(1).Compute(2).Type="Replace"
+Fan.Collect.Source(1).Compute(2).Column="1"
+Fan.Collect.Source(1).Compute(2).Replace="sys/"
+Fan.Collect.Source(1).Compute(2).ReplaceBy=""
+
+// Duplicate the StatusCode column
+// DN;OperState;OperState;
+Fan.Collect.Source(1).Compute(3).Type="DuplicateColumn"
+Fan.Collect.Source(1).Compute(3).Column=2
+
+// Translate 1st StatusCode into PATROLStatus
+// DN;PATROLStatus;OperState;
+Fan.Collect.Source(1).Compute(4).Type="Translate"
+Fan.Collect.Source(1).Compute(4).Column=2
+Fan.Collect.Source(1).Compute(4).TranslationTable="statusTranslationTable"
+
+// The statusTranslationTable
+// The statusTranslationTable
+statusTranslationTable(0)="UNKNOWN"
+statusTranslationTable(1)="OK"
+statusTranslationTable(2)="ALARM"
+statusTranslationTable(3)="WARN"
+statusTranslationTable(4)="ALARM"
+statusTranslationTable(5)="WARN"
+statusTranslationTable(6)="ALARM"
+statusTranslationTable(7)="WARN"
+statusTranslationTable(8)="WARN"
+statusTranslationTable(9)="WARN"
+statusTranslationTable(10)="WARN"
+statusTranslationTable(11)="WARN"
+statusTranslationTable(12)="ALARM"
+statusTranslationTable(13)="WARN"
+statusTranslationTable(14)="WARN"
+statusTranslationTable(51)="WARN"
+statusTranslationTable(52)="WARN"
+statusTranslationTable(81)="WARN"
+statusTranslationTable(82)="WARN"
+statusTranslationTable(83)="WARN"
+statusTranslationTable(84)="WARN"
+statusTranslationTable(100)="WARN"
+statusTranslationTable(101)="WARN"
+statusTranslationTable(102)="ALARM"
+statusTranslationTable(103)="OK"
+statusTranslationTable(104)="ALARM"
+statusTranslationTable(105)="WARN"
+statusTranslationTable(106)="WARN"
+statusTranslationTable(107)="WARN"
+statusTranslationTable(108)="WARN"
+statusTranslationTable(Default)="Unknown Status"
+
+// Translate second STatusCode into a more readable string
+// DN;PATROLStatus;StatusInformation;
+Fan.Collect.Source(1).Compute(5).Type="Translate"
+Fan.Collect.Source(1).Compute(5).Column=3
+Fan.Collect.Source(1).Compute(5).TranslationTable="statusInformationTranslationTable"
+
+// The statusInformationTranslationTable
+statusInformationTranslationTable(0)="Unknown"
+statusInformationTranslationTable(1)="Operable"
+statusInformationTranslationTable(2)="Inoperable"
+statusInformationTranslationTable(3)="Degraded"
+statusInformationTranslationTable(4)="Powered Off"
+statusInformationTranslationTable(5)="Power Problem"
+statusInformationTranslationTable(6)="Removed"
+statusInformationTranslationTable(7)="Voltage Problem"
+statusInformationTranslationTable(8)="Thermal Problem"
+statusInformationTranslationTable(9)="Performance Problem"
+statusInformationTranslationTable(10)="Accessibility Problem"
+statusInformationTranslationTable(11)="Identity Unestablishable"
+statusInformationTranslationTable(12)="Bios Post Timeout"
+statusInformationTranslationTable(13)="Disabled"
+statusInformationTranslationTable(14)="Malformed FRU"
+statusInformationTranslationTable(51)="Fabric Conn Problem"
+statusInformationTranslationTable(52)="Fabric Unsupported Conn"
+statusInformationTranslationTable(81)="Config"
+statusInformationTranslationTable(82)="Equipment Problem"
+statusInformationTranslationTable(83)="Decommissioning"
+statusInformationTranslationTable(84)="Chassis Limit Exceeded"
+statusInformationTranslationTable(100)="Not Supported"
+statusInformationTranslationTable(101)="Discovery"
+statusInformationTranslationTable(102)="Discovery Failed"
+statusInformationTranslationTable(103)="Identify"
+statusInformationTranslationTable(104)="Post Failure"
+statusInformationTranslationTable(105)="Upgrade Problem"
+statusInformationTranslationTable(106)="Peer Comm Problem"
+statusInformationTranslationTable(107)="Auto Upgrade"
+statusInformationTranslationTable(108)="Link Activate Blocked"
+statusInformationTranslationTable(Default)="Unknown Status"
+
+// ValueTable = Source(1)
+Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+Fan.Collect.DeviceID=ValueTable.Column(1)
+Fan.Collect.Status=ValueTable.Column(2)
+Fan.Collect.StatusInformation=ValueTable.Column(3)
+
+
+
+//
+// PowerSupply
+//
+
+//
+// PowerSupply discovery
+
+// Source(1) = cucsEquipmentPowerSupplyEntry
+// DN;Model;Serial;Revision;PsuPresence;
+PowerSupply.Discovery.Source(1).Type="SnmpTable"
+PowerSupply.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.9.9.719.1.15.56.1"
+PowerSupply.Discovery.Source(1).SnmpTableSelectColumns="2,6,13,12,11"
+
+//Remove lines where cucsEquipmentPresence = empty string
+PowerSupply.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+PowerSupply.Discovery.Source(1).Compute(1).Column=5
+PowerSupply.Discovery.Source(1).Compute(1).RegExp="."
+
+//Remove lines where cucsEquipmentPsuPresence = 1(Empty) and 11 (Missing)
+PowerSupply.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+PowerSupply.Discovery.Source(1).Compute(2).Column=5
+PowerSupply.Discovery.Source(1).Compute(2).ValueList="1,11"
+
+
+// Remove SYS/
+// DN;Model;Serial;Revision;
+PowerSupply.Discovery.Source(1).Compute(3).Type="Replace"
+PowerSupply.Discovery.Source(1).Compute(3).Column="1"
+PowerSupply.Discovery.Source(1).Compute(3).Replace="sys/"
+PowerSupply.Discovery.Source(1).Compute(3).ReplaceBy=""
+
+// Add Identifiers
+// DN;Model;Serial;Revision;
+PowerSupply.Discovery.Source(1).Compute(4).Type="LeftConcat"
+PowerSupply.Discovery.Source(1).Compute(4).Column=2
+PowerSupply.Discovery.Source(1).Compute(4).String="Model Number: "
+
+PowerSupply.Discovery.Source(1).Compute(5).Type="LeftConcat"
+PowerSupply.Discovery.Source(1).Compute(5).Column=3
+PowerSupply.Discovery.Source(1).Compute(5).String="Serial Number: "
+
+PowerSupply.Discovery.Source(1).Compute(6).Type="LeftConcat"
+PowerSupply.Discovery.Source(1).Compute(6).Column=4
+PowerSupply.Discovery.Source(1).Compute(6).String="Revision: "
+
+
+// InstanceTable = Source(1)
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PowerSupply.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+PowerSupply.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
+PowerSupply.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(3)
+PowerSupply.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(4)
+
+
+//
+// PowerSupply collect
+
+// Collect type is MultiInstance
+PowerSupply.Collect.Type="MultiInstance"
+
+// Source(1) = cucsEquipmentPowerSupplyEntry
+// DN;OperState;
+PowerSupply.Collect.Source(1).Type="SnmpTable"
+PowerSupply.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.9.9.719.1.15.56.1"
+PowerSupply.Collect.Source(1).SnmpTableSelectColumns="2,7"
+
+//Do not collect for removed devices
+PowerSupply.Collect.Source(1).Compute(1).Type="ExcludeMatchingLines"
+PowerSupply.Collect.Source(1).Compute(1).Column=2
+PowerSupply.Collect.Source(1).Compute(1).ValueList="6"
+
+// Remove SYS/
+// DN;OperState;
+PowerSupply.Collect.Source(1).Compute(2).Type="Replace"
+PowerSupply.Collect.Source(1).Compute(2).Column="1"
+PowerSupply.Collect.Source(1).Compute(2).Replace="sys/"
+PowerSupply.Collect.Source(1).Compute(2).ReplaceBy=""
+
+// Duplicate the StatusCode column
+// DN;OperState;OperState;
+PowerSupply.Collect.Source(1).Compute(3).Type="DuplicateColumn"
+PowerSupply.Collect.Source(1).Compute(3).Column=2
+
+// Translate 1st StatusCode into PATROLStatus
+// DN;PATROLStatus;OperState;
+PowerSupply.Collect.Source(1).Compute(4).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(4).Column=2
+PowerSupply.Collect.Source(1).Compute(4).TranslationTable="statusTranslationTable"
+
+// Translate second STatusCode into a more readable string
+// DN;PATROLStatus;StatusInformation;
+PowerSupply.Collect.Source(1).Compute(5).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(5).Column=3
+PowerSupply.Collect.Source(1).Compute(5).TranslationTable="statusInformationTranslationTable"
+
+// ValueTable = Source(1)
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(1)
+PowerSupply.Collect.Status=ValueTable.Column(2)
+PowerSupply.Collect.StatusInformation=ValueTable.Column(3)
+
+
+//
+// PhysicalDisk
+//
+
+//
+// PhysicalDisk discovery
+
+// Source(1) = cucsEquipmentPhysicalDiskEntry
+// DN;SerialNumber;Size;Vendor;DiskPresence;Model
+PhysicalDisk.Discovery.Source(1).Type="SnmpTable"
+PhysicalDisk.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.9.9.719.1.45.4.1"
+PhysicalDisk.Discovery.Source(1).SnmpTableSelectColumns="2,12,13,14,10,7"
+
+//Remove lines where cucsStorageLocalDiskPresence = empty string
+PhysicalDisk.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+PhysicalDisk.Discovery.Source(1).Compute(1).Column=5
+PhysicalDisk.Discovery.Source(1).Compute(1).RegExp="."
+
+PhysicalDisk.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+PhysicalDisk.Discovery.Source(1).Compute(2).Column=5
+PhysicalDisk.Discovery.Source(1).Compute(2).ValueList="1,11"
+
+// Remove SYS/
+// DN;Model;Size;Vendor;
+PhysicalDisk.Discovery.Source(1).Compute(3).Type="Replace"
+PhysicalDisk.Discovery.Source(1).Compute(3).Column="1"
+PhysicalDisk.Discovery.Source(1).Compute(3).Replace="sys/"
+PhysicalDisk.Discovery.Source(1).Compute(3).ReplaceBy=""
+
+// Convert the size into bytes
+// DN;Model;Size;Vendor;
+PhysicalDisk.Discovery.Source(1).Compute(4).Type="Multiply"
+PhysicalDisk.Discovery.Source(1).Compute(4).Column=3
+PhysicalDisk.Discovery.Source(1).Compute(4).MultiplyBy=1048576
+
+// InstanceTable = Source(1)
+// DN;SerialNumber;Size;Vendor;DiskPresence;Model
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PhysicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+PhysicalDisk.Discovery.Instance.SerialNumber=InstanceTable.Column(2)
+PhysicalDisk.Discovery.Instance.Vendor=InstanceTable.Column(4)
+PhysicalDisk.Discovery.Instance.Model=InstanceTable.Column(6)
+PhysicalDisk.Discovery.Instance.Size=InstanceTable.Column(3)
+
+
+//
+// PhysicalDisk collect
+
+// Collect type is MultiInstance
+PhysicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = cucsEquipmentPhysicalDiskEntry
+// DN;OperState;
+PhysicalDisk.Collect.Source(1).Type="SnmpTable"
+PhysicalDisk.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.9.9.719.1.45.4.1"
+PhysicalDisk.Collect.Source(1).SnmpTableSelectColumns="2,9"
+
+//Do not collect for removed devices
+PhysicalDisk.Collect.Source(1).Compute(1).Type="ExcludeMatchingLines"
+PhysicalDisk.Collect.Source(1).Compute(1).Column=2
+PhysicalDisk.Collect.Source(1).Compute(1).ValueList="6"
+
+// Remove SYS/
+// DN;OperState;
+PhysicalDisk.Collect.Source(1).Compute(2).Type="Replace"
+PhysicalDisk.Collect.Source(1).Compute(2).Column="1"
+PhysicalDisk.Collect.Source(1).Compute(2).Replace="sys/"
+PhysicalDisk.Collect.Source(1).Compute(2).ReplaceBy=""
+
+// Duplicate the StatusCode column
+// DN;OperState;OperState;
+PhysicalDisk.Collect.Source(1).Compute(3).Type="DuplicateColumn"
+PhysicalDisk.Collect.Source(1).Compute(3).Column=2
+
+// Translate 1st StatusCode into PATROLStatus
+// DN;PATROLStatus;OperState;
+PhysicalDisk.Collect.Source(1).Compute(4).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(4).Column=2
+PhysicalDisk.Collect.Source(1).Compute(4).TranslationTable="statusTranslationTable"
+
+// Translate second STatusCode into a more readable string
+// DN;PATROLStatus;StatusInformation;
+PhysicalDisk.Collect.Source(1).Compute(5).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(5).Column=3
+PhysicalDisk.Collect.Source(1).Compute(5).TranslationTable="statusInformationTranslationTable"
+
+// ValueTable = Source(1)
+PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(1)%
+PhysicalDisk.Collect.DeviceID=ValueTable.Column(1)
+PhysicalDisk.Collect.Status=ValueTable.Column(2)
+PhysicalDisk.Collect.StatusInformation=ValueTable.Column(3)
+
+
+//
+// CPU
+//
+
+//
+// CPU discovery
+
+// Source(1) = cucsProcessorUnitTable
+// DN;Model;Speed;Vendor;CPUPresence;
+CPU.Discovery.Source(1).Type="SnmpTable"
+CPU.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.9.9.719.1.41.9.1"
+CPU.Discovery.Source(1).SnmpTableSelectColumns="2,8,17,21,13"
+
+//Remove lines where Device Presence = empty string
+CPU.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+CPU.Discovery.Source(1).Compute(1).Column=5
+CPU.Discovery.Source(1).Compute(1).RegExp="."
+
+//Remove lines where cucsProcessorUnitPresence = 1(Empty) and 11 (Missing)
+CPU.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+CPU.Discovery.Source(1).Compute(2).Column=5
+CPU.Discovery.Source(1).Compute(2).ValueList="1,11"
+
+// Remove SYS/
+// DN;Model;Speed;Vendor;
+CPU.Discovery.Source(1).Compute(3).Type="Replace"
+CPU.Discovery.Source(1).Compute(3).Column="1"
+CPU.Discovery.Source(1).Compute(3).Replace="sys/"
+CPU.Discovery.Source(1).Compute(3).ReplaceBy=""
+
+// InstanceTable = Source(1)
+CPU.Discovery.InstanceTable=%CPU.Discovery.Source(1)%
+CPU.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+CPU.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+CPU.Discovery.Instance.Vendor=InstanceTable.Column(4)
+CPU.Discovery.Instance.Model=InstanceTable.Column(2)
+CPU.Discovery.Instance.MaximumSpeed=InstanceTable.Column(3)
+
+
+//
+// CPU collect
+
+// Collect type is MultiInstance
+CPU.Collect.Type="MultiInstance"
+
+// Source(1) = cucsProcessorUnitTable
+// DN;OperState;
+CPU.Collect.Source(1).Type="SnmpTable"
+CPU.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.9.9.719.1.41.9.1"
+CPU.Collect.Source(1).SnmpTableSelectColumns="2,9"
+
+//Do not collect for removed devices
+CPU.Collect.Source(1).Compute(1).Type="ExcludeMatchingLines"
+CPU.Collect.Source(1).Compute(1).Column=2
+CPU.Collect.Source(1).Compute(1).ValueList="6"
+
+// Remove SYS/
+// DN;OperState;
+CPU.Collect.Source(1).Compute(2).Type="Replace"
+CPU.Collect.Source(1).Compute(2).Column="1"
+CPU.Collect.Source(1).Compute(2).Replace="sys/"
+CPU.Collect.Source(1).Compute(2).ReplaceBy=""
+
+// Duplicate the StatusCode column
+// DN;OperState;OperState;
+CPU.Collect.Source(1).Compute(3).Type="DuplicateColumn"
+CPU.Collect.Source(1).Compute(3).Column=2
+
+// Translate 1st StatusCode into PATROLSTatus
+// DN;PATROLStatus;OperState;
+CPU.Collect.Source(1).Compute(4).Type="Translate"
+CPU.Collect.Source(1).Compute(4).Column=2
+CPU.Collect.Source(1).Compute(4).TranslationTable="statusTranslationTable"
+
+// Translate second STatusCode into a more readable string
+// DN;PATROLStatus;StatusInformation;
+CPU.Collect.Source(1).Compute(5).Type="Translate"
+CPU.Collect.Source(1).Compute(5).Column=3
+CPU.Collect.Source(1).Compute(5).TranslationTable="statusInformationTranslationTable"
+
+// ValueTable = Source(1)
+CPU.Collect.ValueTable=%CPU.Collect.Source(1)%
+CPU.Collect.DeviceID=ValueTable.Column(1)
+CPU.Collect.Status=ValueTable.Column(2)
+CPU.Collect.StatusInformation=ValueTable.Column(3)
+
+//
+// Memory
+//
+
+//
+// Memory discovery
+
+// Source(1) = cucsMemoryUnitEntry
+// DN;Location;Presence;CapacityMB;Serial;Speed;Type
+Memory.Discovery.Source(1).Type="SnmpTable"
+Memory.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.9.9.719.1.30.11.1"
+Memory.Discovery.Source(1).SnmpTableSelectColumns="2,11,17,6,19,21,23"
+
+//Remove lines where cucsStorageLocalDiskPresence = empty string
+Memory.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Memory.Discovery.Source(1).Compute(1).Column=3
+Memory.Discovery.Source(1).Compute(1).RegExp="."
+
+// Exclude  "Missing" memory modules
+// DN;Location;Presence;CapacityMB;Serial;Speed;Type
+Memory.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+Memory.Discovery.Source(1).Compute(2).Column=3
+Memory.Discovery.Source(1).Compute(2).ValueList="1,11"
+
+// Remove SYS/
+// DN;Location;Presence;CapacityMB;Serial;Speed;
+Memory.Discovery.Source(1).Compute(3).Type="Replace"
+Memory.Discovery.Source(1).Compute(3).Column="1"
+Memory.Discovery.Source(1).Compute(3).Replace="sys/"
+Memory.Discovery.Source(1).Compute(3).ReplaceBy=""
+
+// Add Identifiers
+// DN;Location;Presence;CapacityMB;Serial;Speed;
+Memory.Discovery.Source(1).Compute(4).Type="LeftConcat"
+Memory.Discovery.Source(1).Compute(4).Column=2
+Memory.Discovery.Source(1).Compute(4).String="Location: "
+
+Memory.Discovery.Source(1).Compute(5).Type="LeftConcat"
+Memory.Discovery.Source(1).Compute(5).Column=6
+Memory.Discovery.Source(1).Compute(5).String="Speed: "
+
+// Translate the Type
+// DeviceID;PATROLStatus;
+Memory.Discovery.Source(1).Compute(6).Type="Translate"
+Memory.Discovery.Source(1).Compute(6).Column=7
+Memory.Discovery.Source(1).Compute(6).TranslationTable="memorytypeTranslationTable"
+
+// The memorytypeTranslationTable
+memorytypeTranslationTable(0)="Undiscovered"
+memorytypeTranslationTable(1)="Other"
+memorytypeTranslationTable(2)="Unknown"
+memorytypeTranslationTable(3)="DRAM"
+memorytypeTranslationTable(4)="EDRAM"
+memorytypeTranslationTable(5)="VRAM"
+memorytypeTranslationTable(6)="SRAM"
+memorytypeTranslationTable(7)="RAM"
+memorytypeTranslationTable(8)="ROM"
+memorytypeTranslationTable(9)="FLASH"
+memorytypeTranslationTable(10)="EEPROM"
+memorytypeTranslationTable(11)="FEPROM"
+memorytypeTranslationTable(12)="EPROM"
+memorytypeTranslationTable(13)="CDRAM"
+memorytypeTranslationTable(14)="N3 DRAM"
+memorytypeTranslationTable(15)="SDRAM"
+memorytypeTranslationTable(16)="SGRAM"
+memorytypeTranslationTable(17)="RDRAM"
+memorytypeTranslationTable(18)="DDR"
+memorytypeTranslationTable(19)="DDR2"
+memorytypeTranslationTable(20)="ddr2FbDimm"
+memorytypeTranslationTable(24)="DDR3"
+memorytypeTranslationTable(25)="FBD2"
+memorytypeTranslationTable(26)="DDR4"
+
+
+// InstanceTable = Source(1)
+// DN;Location;Presence;Capacity;Serial;Speed;Type
+Memory.Discovery.InstanceTable=%Memory.Discovery.Source(1)%
+Memory.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Memory.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+Memory.Discovery.Instance.Size=InstanceTable.Column(4)
+Memory.Discovery.Instance.SerialNumber=InstanceTable.Column(5)
+Memory.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
+Memory.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(6)
+Memory.Discovery.Instance.Type=InstanceTable.Column(7)
+
+
+//
+// Memory collect
+
+// Collect type is MultiInstance
+Memory.Collect.Type="MultiInstance"
+
+// Source(1) = cucsMemoryUnitEntry
+// DN;OperState;
+Memory.Collect.Source(1).Type="SnmpTable"
+Memory.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.9.9.719.1.30.11.1"
+Memory.Collect.Source(1).SnmpTableSelectColumns="2,13"
+
+//Do not collect for removed devices
+Memory.Collect.Source(1).Compute(1).Type="ExcludeMatchingLines"
+Memory.Collect.Source(1).Compute(1).Column=2
+Memory.Collect.Source(1).Compute(1).ValueList="6"
+
+// Remove SYS/
+// DN;OperState;
+Memory.Collect.Source(1).Compute(2).Type="Replace"
+Memory.Collect.Source(1).Compute(2).Column="1"
+Memory.Collect.Source(1).Compute(2).Replace="sys/"
+Memory.Collect.Source(1).Compute(2).ReplaceBy=""
+
+// Duplicate the StatusCode column
+// DN;OperState;OperState;
+Memory.Collect.Source(1).Compute(3).Type="DuplicateColumn"
+Memory.Collect.Source(1).Compute(3).Column=2
+
+// Translate 1st StatusCode into PATROLSTatus
+// DN;PATROLStatus;OperState;
+Memory.Collect.Source(1).Compute(4).Type="Translate"
+Memory.Collect.Source(1).Compute(4).Column=2
+Memory.Collect.Source(1).Compute(4).TranslationTable="statusTranslationTable"
+
+// Translate second STatusCode into a more readable string
+// DN;PATROLStatus;StatusInformation;
+Memory.Collect.Source(1).Compute(5).Type="Translate"
+Memory.Collect.Source(1).Compute(5).Column=3
+Memory.Collect.Source(1).Compute(5).TranslationTable="statusInformationTranslationTable"
+
+// ValueTable = Source(1)
+Memory.Collect.ValueTable=%Memory.Collect.Source(1)%
+Memory.Collect.DeviceID=ValueTable.Column(1)
+Memory.Collect.Status=ValueTable.Column(2)
+Memory.Collect.StatusInformation=ValueTable.Column(3)
+
+//
+// Battery
+//
+
+//
+// Battery discovery
+
+// Source(1) = cucsStorageRaidBatteryEntry
+// DN;Model;Vendor;RaidBatteryPresence;
+Battery.Discovery.Source(1).Type="SnmpTable"
+Battery.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.9.9.719.1.45.11.1"
+Battery.Discovery.Source(1).SnmpTableSelectColumns="2,7,14,10"
+
+//Remove lines where cucsStorageRaidBatteryPresence = empty string
+Battery.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Battery.Discovery.Source(1).Compute(1).Column=4
+Battery.Discovery.Source(1).Compute(1).RegExp="."
+
+//Remove lines where cucsStorageRaidBatteryPresence = 1(Empty) and 11 (Missing)
+Battery.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+Battery.Discovery.Source(1).Compute(2).Column=4
+Battery.Discovery.Source(1).Compute(2).ValueList="1,11"
+
+
+// Remove SYS/
+// DN;Model;Vendor;
+Battery.Discovery.Source(1).Compute(3).Type="Replace"
+Battery.Discovery.Source(1).Compute(3).Column="1"
+Battery.Discovery.Source(1).Compute(3).Replace="sys/"
+Battery.Discovery.Source(1).Compute(3).ReplaceBy=""
+
+// InstanceTable = Source(1)
+// DN;Model;Vendor;
+Battery.Discovery.InstanceTable=%Battery.Discovery.Source(1)%
+Battery.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Battery.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+Battery.Discovery.Instance.Vendor=InstanceTable.Column(3)
+Battery.Discovery.Instance.Model=InstanceTable.Column(2)
+
+
+
+//
+// Battery collect
+
+// Collect type is MultiInstance
+Battery.Collect.Type="MultiInstance"
+
+// Source(1) = cucsProcessorUnitTable
+// DN;OperState;
+Battery.Collect.Source(1).Type="SnmpTable"
+Battery.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.9.9.719.1.45.11.1"
+Battery.Collect.Source(1).SnmpTableSelectColumns="2,9"
+
+//Do not collect for removed devices
+Battery.Collect.Source(1).Compute(1).Type="ExcludeMatchingLines"
+Battery.Collect.Source(1).Compute(1).Column=2
+Battery.Collect.Source(1).Compute(1).ValueList="6"
+
+// Remove SYS/
+// DN;OperState;
+Battery.Collect.Source(1).Compute(2).Type="Replace"
+Battery.Collect.Source(1).Compute(2).Column="1"
+Battery.Collect.Source(1).Compute(2).Replace="sys/"
+Battery.Collect.Source(1).Compute(2).ReplaceBy=""
+
+// Duplicate the StatusCode column
+// DN;OperState;OperState;
+Battery.Collect.Source(1).Compute(3).Type="DuplicateColumn"
+Battery.Collect.Source(1).Compute(3).Column=2
+
+// Translate 1st StatusCode into PATROLSTatus
+// DN;PATROLStatus;OperState;
+Battery.Collect.Source(1).Compute(4).Type="Translate"
+Battery.Collect.Source(1).Compute(4).Column=2
+Battery.Collect.Source(1).Compute(4).TranslationTable="statusTranslationTable"
+
+// Translate second STatusCode into a more readable string
+// DN;PATROLStatus;StatusInformation;
+Battery.Collect.Source(1).Compute(5).Type="Translate"
+Battery.Collect.Source(1).Compute(5).Column=3
+Battery.Collect.Source(1).Compute(5).TranslationTable="statusInformationTranslationTable"
+
+// ValueTable = Source(1)
+Battery.Collect.ValueTable=%Battery.Collect.Source(1)%
+Battery.Collect.DeviceID=ValueTable.Column(1)
+Battery.Collect.Status=ValueTable.Column(2)
+Battery.Collect.StatusInformation=ValueTable.Column(3)
+
+
+//
+// DiskController
+//
+
+//
+// DiskController discovery
+
+// Source(1) = cucsProcessorUnitTable
+// DN;Model;SerialNumber;Vendor;Revision;DiskControllerPresence;
+DiskController.Discovery.Source(1).Type="SnmpTable"
+DiskController.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.9.9.719.1.45.1.1"
+DiskController.Discovery.Source(1).SnmpTableSelectColumns="2,5,14,18,13,12"
+
+//Remove lines where DevicePresence = empty string
+DiskController.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+DiskController.Discovery.Source(1).Compute(1).Column=6
+DiskController.Discovery.Source(1).Compute(1).RegExp="."
+
+//Remove lines where cucsStorageControllerPresence = 1(Empty) and 11 (Missing)
+DiskController.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+DiskController.Discovery.Source(1).Compute(2).Column=6
+DiskController.Discovery.Source(1).Compute(2).ValueList="1,11"
+
+// Remove SYS/
+// DN;Model;SerialNumber;Vendor;Revision;
+DiskController.Discovery.Source(1).Compute(3).Type="Replace"
+DiskController.Discovery.Source(1).Compute(3).Column="1"
+DiskController.Discovery.Source(1).Compute(3).Replace="sys/"
+DiskController.Discovery.Source(1).Compute(3).ReplaceBy=""
+
+// InstanceTable = Source(1)
+// DN;Model;SerialNumber;Vendor;Revision;
+DiskController.Discovery.InstanceTable=%DiskController.Discovery.Source(1)%
+DiskController.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+DiskController.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+DiskController.Discovery.Instance.Vendor=InstanceTable.Column(4)
+DiskController.Discovery.Instance.Model=InstanceTable.Column(2)
+DiskController.Discovery.Instance.SerialNumber=InstanceTable.Column(3)
+DiskController.Discovery.Instance.FirmwareVersion=InstanceTable.Column(5)
+
+
+//
+// DiskController collect
+
+// Collect type is MultiInstance
+DiskController.Collect.Type="MultiInstance"
+
+// Source(1) = cucsProcessorUnitTable
+// DN;OperState;
+DiskController.Collect.Source(1).Type="SnmpTable"
+DiskController.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.9.9.719.1.45.1.1"
+DiskController.Collect.Source(1).SnmpTableSelectColumns="2,6"
+
+//Do not collect for removed devices
+DiskController.Collect.Source(1).Compute(1).Type="ExcludeMatchingLines"
+DiskController.Collect.Source(1).Compute(1).Column=2
+DiskController.Collect.Source(1).Compute(1).ValueList="6"
+
+// Remove SYS/
+// DN;OperState;
+DiskController.Collect.Source(1).Compute(2).Type="Replace"
+DiskController.Collect.Source(1).Compute(2).Column="1"
+DiskController.Collect.Source(1).Compute(2).Replace="sys/"
+DiskController.Collect.Source(1).Compute(2).ReplaceBy=""
+
+// Duplicate the StatusCode column
+// DN;OperState;OperState;
+DiskController.Collect.Source(1).Compute(3).Type="DuplicateColumn"
+DiskController.Collect.Source(1).Compute(3).Column=2
+
+// Translate 1st StatusCode into PATROLSTatus
+// DN;PATROLStatus;OperState;
+DiskController.Collect.Source(1).Compute(4).Type="Translate"
+DiskController.Collect.Source(1).Compute(4).Column=2
+DiskController.Collect.Source(1).Compute(4).TranslationTable="statusTranslationTable"
+
+// Translate second STatusCode into a more readable string
+// DN;PATROLStatus;StatusInformation;
+DiskController.Collect.Source(1).Compute(5).Type="Translate"
+DiskController.Collect.Source(1).Compute(5).Column=3
+DiskController.Collect.Source(1).Compute(5).TranslationTable="statusInformationTranslationTable"
+
+// ValueTable = Source(1)
+DiskController.Collect.ValueTable=%DiskController.Collect.Source(1)%
+DiskController.Collect.DeviceID=ValueTable.Column(1)
+DiskController.Collect.ControllerStatus=ValueTable.Column(2)
+DiskController.Collect.StatusInformation=ValueTable.Column(3)
+
+
+//
+// OtherDevice
+//
+
+//
+// OtherDevice discovery
+
+// Source(1) = cucsEquipmentOtherDeviceEntry
+// DN;FlexFlashControllerPresence;
+OtherDevice.Discovery.Source(1).Type="SnmpTable"
+OtherDevice.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.9.9.719.1.45.35.1"
+OtherDevice.Discovery.Source(1).SnmpTableSelectColumns="2,17"
+
+//Remove lines where Device Presence = empty string
+OtherDevice.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+OtherDevice.Discovery.Source(1).Compute(1).Column=2
+OtherDevice.Discovery.Source(1).Compute(1).RegExp="."
+
+//Remove lines where cucsStorageControllerPresence = 1(Empty) and 11 (Missing)
+OtherDevice.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+OtherDevice.Discovery.Source(1).Compute(2).Column=2
+OtherDevice.Discovery.Source(1).Compute(2).ValueList="1,11"
+
+// Remove SYS/
+// DN
+OtherDevice.Discovery.Source(1).Compute(3).Type="Replace"
+OtherDevice.Discovery.Source(1).Compute(3).Column="1"
+OtherDevice.Discovery.Source(1).Compute(3).Replace="sys/"
+OtherDevice.Discovery.Source(1).Compute(3).ReplaceBy=""
+
+// InstanceTable = Source(1)
+OtherDevice.Discovery.InstanceTable=%OtherDevice.Discovery.Source(1)%
+OtherDevice.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+OtherDevice.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+OtherDevice.Discovery.Instance.DeviceType="FlexFlash"
+
+
+//
+// OtherDevice collect
+
+// Collect type is MultiInstance
+OtherDevice.Collect.Type="MultiInstance"
+
+// Source(1) = cucsEquipmentOtherDeviceEntry
+// DN;OperState;
+OtherDevice.Collect.Source(1).Type="SnmpTable"
+OtherDevice.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.9.9.719.1.45.35.1"
+OtherDevice.Collect.Source(1).SnmpTableSelectColumns="2,10"
+
+//Do not collect for removed devices
+OtherDevice.Collect.Source(1).Compute(1).Type="ExcludeMatchingLines"
+OtherDevice.Collect.Source(1).Compute(1).Column=2
+OtherDevice.Collect.Source(1).Compute(1).ValueList="6"
+
+
+// Remove SYS/
+// DN;OperState;
+OtherDevice.Collect.Source(1).Compute(2).Type="Replace"
+OtherDevice.Collect.Source(1).Compute(2).Column="1"
+OtherDevice.Collect.Source(1).Compute(2).Replace="sys/"
+OtherDevice.Collect.Source(1).Compute(2).ReplaceBy=""
+
+// Duplicate the StatusCode column
+// DN;OperState;OperState;
+OtherDevice.Collect.Source(1).Compute(3).Type="DuplicateColumn"
+OtherDevice.Collect.Source(1).Compute(3).Column=2
+
+// Translate 1st StatusCode into PATROLSTatus
+// DN;PATROLStatus;OperState;
+OtherDevice.Collect.Source(1).Compute(4).Type="Translate"
+OtherDevice.Collect.Source(1).Compute(4).Column=2
+OtherDevice.Collect.Source(1).Compute(4).TranslationTable="statusTranslationTable"
+
+// Translate second STatusCode into a more readable string
+// DN;PATROLStatus;StatusInformation;
+OtherDevice.Collect.Source(1).Compute(5).Type="Translate"
+OtherDevice.Collect.Source(1).Compute(5).Column=3
+OtherDevice.Collect.Source(1).Compute(5).TranslationTable="statusInformationTranslationTable"
+
+// ValueTable = Source(1)
+OtherDevice.Collect.ValueTable=%OtherDevice.Collect.Source(1)%
+OtherDevice.Collect.DeviceID=ValueTable.Column(1)
+OtherDevice.Collect.Status=ValueTable.Column(2)
+OtherDevice.Collect.StatusInformation=ValueTable.Column(3)
+
+//
+// Temperatures
+//
+
+// Temperature discovery
+
+// Source(1) = Ambient temperature
+// Temperature;
+Temperature.Discovery.Source(1).Type="SnmpGet"
+Temperature.Discovery.Source(1).SnmpOid="1.3.6.1.4.1.9.9.719.1.9.44.1.4.1"
+
+//now right concat ID and display name
+// ID;DisplayID;WarningThreshold;AlarmThreshold;temp
+Temperature.Discovery.Source(1).Compute(1).Type="LeftConcat"
+Temperature.Discovery.Source(1).Compute(1).Column=1
+Temperature.Discovery.Source(1).Compute(1).String="4;Ambient;40;45;"
+
+// Source(2) = Front temperature
+// Temperature;
+Temperature.Discovery.Source(2).Type="SnmpGet"
+Temperature.Discovery.Source(2).SnmpOid="1.3.6.1.4.1.9.9.719.1.9.44.1.8.1"
+
+//now right concat ID and display name
+// ID;DisplayID;WarningThreshold;AlarmThreshold;temp
+Temperature.Discovery.Source(2).Compute(1).Type="LeftConcat"
+Temperature.Discovery.Source(2).Compute(1).Column=1
+Temperature.Discovery.Source(2).Compute(1).String="8;Front;40;45;"
+
+// Source(3) = IOH1 temperature
+// Temperature;
+Temperature.Discovery.Source(3).Type="SnmpGet"
+Temperature.Discovery.Source(3).SnmpOid="1.3.6.1.4.1.9.9.719.1.9.44.1.13.1"
+
+//now right concat ID and display name
+// ID;DisplayID;WarningThreshold;AlarmThreshold;temp
+Temperature.Discovery.Source(3).Compute(1).Type="LeftConcat"
+Temperature.Discovery.Source(3).Compute(1).Column=1
+Temperature.Discovery.Source(3).Compute(1).String="13;IOH1;80;85;"
+
+// Source(4) = IOH2 temperature
+// Temperature;
+Temperature.Discovery.Source(4).Type="SnmpGet"
+Temperature.Discovery.Source(4).SnmpOid="1.3.6.1.4.1.9.9.719.1.9.44.1.17.1"
+
+//now right concat ID and display name
+// ID;DisplayID;WarningThreshold;AlarmThreshold;temp
+Temperature.Discovery.Source(4).Compute(1).Type="LeftConcat"
+Temperature.Discovery.Source(4).Compute(1).Column=1
+Temperature.Discovery.Source(4).Compute(1).String="17;IOH2;80;85;"
+
+// Source(5) = Rear temperature
+// Temperature;
+Temperature.Discovery.Source(5).Type="SnmpGet"
+Temperature.Discovery.Source(5).SnmpOid="1.3.6.1.4.1.9.9.719.1.9.44.1.21.1"
+
+//now right concat ID and display name
+// ID;DisplayID;WarningThreshold;AlarmThreshold;temp
+Temperature.Discovery.Source(5).Compute(1).Type="LeftConcat"
+Temperature.Discovery.Source(5).Compute(1).Column=1
+Temperature.Discovery.Source(5).Compute(1).String="21;Rear;60;70;"
+
+//now union all and exlude 0 temperature
+
+// Union of all the table
+//ID;DisplayID;temp
+Temperature.Discovery.Source(6).Type="TableUnion"
+Temperature.Discovery.Source(6).Table1=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Source(6).Table2=%Temperature.Discovery.Source(2)%
+Temperature.Discovery.Source(6).Table3=%Temperature.Discovery.Source(3)%
+Temperature.Discovery.Source(6).Table4=%Temperature.Discovery.Source(4)%
+Temperature.Discovery.Source(6).Table5=%Temperature.Discovery.Source(5)%
+
+Temperature.Discovery.Source(6).Compute(1).Type="ExcludeMatchingLines"
+Temperature.Discovery.Source(6).Compute(1).Column=5
+Temperature.Discovery.Source(6).Compute(1).ValueList="0"
+
+
+// InstanceTable = Source(6)
+// ID;DisplayID;WarningThreshold;AlarmThreshold;temp
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(6)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Temperature.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+Temperature.Discovery.Instance.WarningThreshold=InstanceTable.Column(3)
+Temperature.Discovery.Instance.AlarmThreshold=InstanceTable.Column(4)
+
+
+// Collect type = mono-instance
+Temperature.Collect.Type="MonoInstance"
+
+// Get the temperature value
+// temp;
+Temperature.Collect.Source(1).Type="SnmpGet"
+Temperature.Collect.Source(1).SnmpOid="1.3.6.1.4.1.9.9.719.1.9.44.1.%Temperature.Collect.DeviceID%.1"
+
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.Temperature=ValueTable.Column(1)

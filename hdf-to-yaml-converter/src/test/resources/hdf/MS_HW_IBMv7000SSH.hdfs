@@ -1,0 +1,1408 @@
+////////////////////////////////////////////////////////////////
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//
+//
+
+//
+// Header
+//
+
+hdf.DisplayName="IBM Storwize Disk Arrays (SSH)"
+hdf.TypicalPlatform="IBM Storwize"
+hdf.ReliesOn="IBM Storwize SSH console"
+hdf.Version="1.0"
+hdf.Comments="This connector discovers the enclosure and the disks of IBM SAN disk arrays, as well as the storage pools and storage volumes. It will also discover and monitor the FC ports, physical and logical disks of the array. It logs in directly to the v7000 cluster's management interface."
+hdf.RemoteSupport="true"
+hdf.LocalSupport="false"
+hdf.AppliesToOS="Storage"
+
+// Run lsstoragesystem to see if it's a V7000
+Detection.Criteria(1).Type="TelnetInteractive"
+Detection.Criteria(1).Step(1).Type="Sleep"
+Detection.Criteria(1).Step(1).Duration=1
+
+Detection.Criteria(1).Step(2).Type="WaitFor"
+Detection.Criteria(1).Step(2).TelnetOnly=1
+Detection.Criteria(1).Step(2).Text="ogin:"
+Detection.Criteria(1).Step(2).TimeOut=20
+
+Detection.Criteria(1).Step(3).Type="SendUsername"
+Detection.Criteria(1).Step(3).TelnetOnly=1
+
+Detection.Criteria(1).Step(4).Type="WaitFor"
+Detection.Criteria(1).Step(4).TelnetOnly=1
+Detection.Criteria(1).Step(4).Text="assword:"
+Detection.Criteria(1).Step(4).TimeOut=20
+
+Detection.Criteria(1).Step(5).Type="SendPassword"
+Detection.Criteria(1).Step(5).TelnetOnly=1
+
+Detection.Criteria(1).Step(6).Type="WaitForPrompt"
+Detection.Criteria(1).Step(6).TimeOut=60
+
+Detection.Criteria(1).Step(7).Type="SendText"
+Detection.Criteria(1).Step(7).Text="lsenclosure -delim :\n"
+
+Detection.Criteria(1).Step(8).Type="GetUntilPrompt"
+Detection.Criteria(1).Step(8).TimeOut=30
+Detection.Criteria(1).Step(8).Capture="True"
+
+Detection.Criteria(1).Step(9).Type="SendText"
+Detection.Criteria(1).Step(9).Text="exit\n"
+
+Detection.Criteria(1).ExpectedResult="id:status:type:managed:IO_group_id:IO_group_name:product_MTM:serial_number"
+Detection.Criteria(1).ForceSerialization=1
+
+//
+// Enclosure
+//
+
+//
+// Discovery
+
+// Source(1) = lsenclosure
+Enclosure.Discovery.Source(1).Type="TelnetInteractive"
+
+Enclosure.Discovery.Source(1).Step(1).Type="Sleep"
+Enclosure.Discovery.Source(1).Step(1).Duration=1
+
+Enclosure.Discovery.Source(1).Step(2).Type="WaitFor"
+Enclosure.Discovery.Source(1).Step(2).Text="ogin:"
+Enclosure.Discovery.Source(1).Step(2).Timeout=20
+Enclosure.Discovery.Source(1).Step(2).TelnetOnly=1
+
+Enclosure.Discovery.Source(1).Step(3).Type="Sleep"
+Enclosure.Discovery.Source(1).Step(3).Duration=3
+
+Enclosure.Discovery.Source(1).Step(4).Type="SendUsername"
+Enclosure.Discovery.Source(1).Step(4).TelnetOnly=1
+
+Enclosure.Discovery.Source(1).Step(5).Type="WaitFor"
+Enclosure.Discovery.Source(1).Step(5).Text="assword:"
+Enclosure.Discovery.Source(1).Step(5).TelnetOnly=1
+Enclosure.Discovery.Source(1).Step(5).TimeOut=20
+
+Enclosure.Discovery.Source(1).Step(6).Type="Sleep"
+Enclosure.Discovery.Source(1).Step(6).Duration=3
+
+Enclosure.Discovery.Source(1).Step(7).Type="SendPassword"
+Enclosure.Discovery.Source(1).Step(7).TelnetOnly=1
+
+Enclosure.Discovery.Source(1).Step(8).Type="WaitForPrompt"
+Enclosure.Discovery.Source(1).Step(8).TimeOut=60
+
+Enclosure.Discovery.Source(1).Step(9).Type="SendText"
+Enclosure.Discovery.Source(1).Step(9).Text="lsenclosure -delim :\n"
+
+Enclosure.Discovery.Source(1).Step(10).Type="GetUntilPrompt"
+Enclosure.Discovery.Source(1).Step(10).TimeOut=60
+Enclosure.Discovery.Source(1).Step(10).Capture="True"
+
+Enclosure.Discovery.Source(1).Step(11).Type="SendText"
+Enclosure.Discovery.Source(1).Step(11).Text="exit\n"
+Enclosure.Discovery.Source(1).Step(11).Capture="False"
+
+Enclosure.Discovery.Source(1).Separators=":"
+Enclosure.Discovery.Source(1).SelectColumns="1,7,8"
+Enclosure.Discovery.Source(1).ForceSerialization=1
+
+// Exclude the Header Row
+// id;model;serial_number;
+Enclosure.Discovery.Source(1).Compute(1).Type="ExcludeMatchingLines"
+Enclosure.Discovery.Source(1).Compute(1).Column=1
+Enclosure.Discovery.Source(1).Compute(1).ValueList="id"
+
+// Exclude the echo of the command
+// id;model;serial_number;
+Enclosure.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+Enclosure.Discovery.Source(1).Compute(2).Column=1
+Enclosure.Discovery.Source(1).Compute(2).ValueList="lsenclosure -delim "
+
+// Instance Table
+// id;model;serial_number;
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Enclosure.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+Enclosure.Discovery.Instance.Vendor="IBM"
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(2)
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(3)
+Enclosure.Discovery.Instance.Type="Enclosure"
+
+// Source(2) = lsenclosure & lsenclosurecanister
+Enclosure.Discovery.Source(2).Type="TelnetInteractive"
+
+Enclosure.Discovery.Source(2).Step(1).Type="Sleep"
+Enclosure.Discovery.Source(2).Step(1).Duration=1
+
+Enclosure.Discovery.Source(2).Step(2).Type="WaitFor"
+Enclosure.Discovery.Source(2).Step(2).Text="ogin:"
+Enclosure.Discovery.Source(2).Step(2).Timeout=20
+Enclosure.Discovery.Source(2).Step(2).TelnetOnly=1
+
+Enclosure.Discovery.Source(2).Step(3).Type="Sleep"
+Enclosure.Discovery.Source(2).Step(3).Duration=3
+
+Enclosure.Discovery.Source(2).Step(4).Type="SendUsername"
+Enclosure.Discovery.Source(2).Step(4).TelnetOnly=1
+
+Enclosure.Discovery.Source(2).Step(5).Type="WaitFor"
+Enclosure.Discovery.Source(2).Step(5).Text="assword:"
+Enclosure.Discovery.Source(2).Step(5).TelnetOnly=1
+Enclosure.Discovery.Source(2).Step(5).TimeOut=20
+
+Enclosure.Discovery.Source(2).Step(6).Type="Sleep"
+Enclosure.Discovery.Source(2).Step(6).Duration=3
+
+Enclosure.Discovery.Source(2).Step(7).Type="SendPassword"
+Enclosure.Discovery.Source(2).Step(7).TelnetOnly=1
+
+Enclosure.Discovery.Source(2).Step(8).Type="WaitForPrompt"
+Enclosure.Discovery.Source(2).Step(8).TimeOut=30
+
+Enclosure.Discovery.Source(2).Step(9).Type="SendText"
+Enclosure.Discovery.Source(2).Step(9).Text="lsenclosure -nohdr | while read encID OtherOutput; do echo MS_HW_ENCLOSURE_START;lsenclosure $encID; echo MS_HW_ENCLOSURE_END; done; \n"
+
+Enclosure.Discovery.Source(2).Step(10).Type="GetUntilPrompt"
+Enclosure.Discovery.Source(2).Step(10).TimeOut=60
+Enclosure.Discovery.Source(2).Step(10).Capture="True"
+
+Enclosure.Discovery.Source(2).Step(11).Type="SendText"
+Enclosure.Discovery.Source(2).Step(11).Text="lsenclosurecanister -nohdr | while read encID canisterID status;do echo MS_HW_CANISTER_START;lsenclosurecanister -canister $canisterID $encID; echo MS_HW_CANISTER_END; done; \n"
+
+Enclosure.Discovery.Source(2).Step(12).Type="GetUntilPrompt"
+Enclosure.Discovery.Source(2).Step(12).TimeOut=30
+Enclosure.Discovery.Source(2).Step(12).Capture="True"
+
+Enclosure.Discovery.Source(2).Step(13).Type="SendText"
+Enclosure.Discovery.Source(2).Step(13).Text="exit\n"
+Enclosure.Discovery.Source(2).Step(13).Capture="False"
+
+Enclosure.Discovery.Source(2).ForceSerialization=1
+
+// Parse the output of lsenclosure and lsenclosurecanister with an AWK script to get LEDs and Temperatures (to be used later)
+// DeviceID;Class;DevicePath;
+Enclosure.Discovery.Source(2).Compute(1).Type="Awk"
+Enclosure.Discovery.Source(2).Compute(1).AwkScript=EmbeddedFile(1)
+
+
+
+// Collect type is multiinstance (acutally it's no-instance, but nevermind...)
+Enclosure.Collect.Type="MultiInstance"
+
+// Source(2) = lsenclosure & lsenclosurecanister
+Enclosure.Collect.Source(1).Type="TelnetInteractive"
+
+Enclosure.Collect.Source(1).Step(1).Type="Sleep"
+Enclosure.Collect.Source(1).Step(1).Duration=1
+
+Enclosure.Collect.Source(1).Step(2).Type="WaitFor"
+Enclosure.Collect.Source(1).Step(2).Text="ogin:"
+Enclosure.Collect.Source(1).Step(2).Timeout=20
+Enclosure.Collect.Source(1).Step(2).TelnetOnly=1
+
+Enclosure.Collect.Source(1).Step(3).Type="Sleep"
+Enclosure.Collect.Source(1).Step(3).Duration=3
+
+Enclosure.Collect.Source(1).Step(4).Type="SendUsername"
+Enclosure.Collect.Source(1).Step(4).TelnetOnly=1
+
+Enclosure.Collect.Source(1).Step(5).Type="WaitFor"
+Enclosure.Collect.Source(1).Step(5).Text="assword:"
+Enclosure.Collect.Source(1).Step(5).TelnetOnly=1
+Enclosure.Collect.Source(1).Step(5).TimeOut=20
+
+Enclosure.Collect.Source(1).Step(6).Type="Sleep"
+Enclosure.Collect.Source(1).Step(6).Duration=3
+
+Enclosure.Collect.Source(1).Step(7).Type="SendPassword"
+Enclosure.Collect.Source(1).Step(7).TelnetOnly=1
+
+Enclosure.Collect.Source(1).Step(8).Type="WaitForPrompt"
+Enclosure.Collect.Source(1).Step(8).TimeOut=60
+
+Enclosure.Collect.Source(1).Step(9).Type="SendText"
+Enclosure.Collect.Source(1).Step(9).Text="lsenclosure -nohdr | while read encID OtherOutput; do echo MS_HW_ENCLOSURE_START;lsenclosure $encID; echo MS_HW_ENCLOSURE_END; done; \n"
+
+Enclosure.Collect.Source(1).Step(10).Type="GetUntilPrompt"
+Enclosure.Collect.Source(1).Step(10).TimeOut=30
+Enclosure.Collect.Source(1).Step(10).Capture="True"
+
+Enclosure.Collect.Source(1).Step(11).Type="SendText"
+Enclosure.Collect.Source(1).Step(11).Text="lsenclosurecanister -nohdr | while read encID canisterID status;do echo MS_HW_CANISTER_START;lsenclosurecanister -canister $canisterID $encID; echo MS_HW_CANISTER_END; done; \n"
+
+Enclosure.Collect.Source(1).Step(12).Type="GetUntilPrompt"
+Enclosure.Collect.Source(1).Step(12).TimeOut=30
+Enclosure.Collect.Source(1).Step(12).Capture="True"
+
+Enclosure.Collect.Source(1).Step(13).Type="SendText"
+Enclosure.Collect.Source(1).Step(13).Text="exit\n"
+Enclosure.Collect.Source(1).Step(13).Capture="False"
+
+Enclosure.Collect.Source(1).ForceSerialization=1
+
+// Parse the output of lsenclosure and lsenclosurecanister with an AWK script to get LEDs and Temperatures (to be used later)
+// DeviceID;Class;DevicePath;
+Enclosure.Collect.Source(1).Compute(1).Type="Awk"
+Enclosure.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+
+//
+// Battery
+//
+
+//
+// Discovery
+
+// Source(1) = lsenclosurebattery
+Battery.Discovery.Source(1).Type="TelnetInteractive"
+
+
+Battery.Discovery.Source(1).Step(1).Type="Sleep"
+Battery.Discovery.Source(1).Step(1).Duration=1
+
+Battery.Discovery.Source(1).Step(2).Type="WaitFor"
+Battery.Discovery.Source(1).Step(2).Text="ogin:"
+Battery.Discovery.Source(1).Step(2).Timeout=20
+Battery.Discovery.Source(1).Step(2).TelnetOnly=1
+
+Battery.Discovery.Source(1).Step(3).Type="Sleep"
+Battery.Discovery.Source(1).Step(3).Duration=3
+
+Battery.Discovery.Source(1).Step(4).Type="SendUsername"
+Battery.Discovery.Source(1).Step(4).TelnetOnly=1
+
+Battery.Discovery.Source(1).Step(5).Type="WaitFor"
+Battery.Discovery.Source(1).Step(5).Text="assword:"
+Battery.Discovery.Source(1).Step(5).TelnetOnly=1
+Battery.Discovery.Source(1).Step(5).TimeOut=20
+
+Battery.Discovery.Source(1).Step(6).Type="Sleep"
+Battery.Discovery.Source(1).Step(6).Duration=3
+
+Battery.Discovery.Source(1).Step(7).Type="SendPassword"
+Battery.Discovery.Source(1).Step(7).TelnetOnly=1
+
+Battery.Discovery.Source(1).Step(8).Type="WaitForPrompt"
+Battery.Discovery.Source(1).Step(8).TimeOut=60
+
+Battery.Discovery.Source(1).Step(9).Type="SendText"
+Battery.Discovery.Source(1).Step(9).Text="lsenclosurebattery -delim :\n"
+
+Battery.Discovery.Source(1).Step(10).Type="GetUntilPrompt"
+Battery.Discovery.Source(1).Step(10).TimeOut=30
+Battery.Discovery.Source(1).Step(10).Capture="True"
+
+Battery.Discovery.Source(1).Step(11).Type="SendText"
+Battery.Discovery.Source(1).Step(11).Text="exit\n"
+Battery.Discovery.Source(1).Step(11).Capture="False"
+
+Battery.Discovery.Source(1).Separators=":"
+Battery.Discovery.Source(1).SelectColumns="1,2,3"
+Battery.Discovery.Source(1).ForceSerialization=1
+
+// Exclude the Header Row
+// enclosure_id;battery_id;status;
+Battery.Discovery.Source(1).Compute(1).Type="ExcludeMatchingLines"
+Battery.Discovery.Source(1).Compute(1).Column=1
+Battery.Discovery.Source(1).Compute(1).ValueList="enclosure_id"
+
+// Exclude the echo of the command
+// enclosure_id;battery_id;status;
+Battery.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+Battery.Discovery.Source(1).Compute(2).Column=1
+Battery.Discovery.Source(1).Compute(2).ValueList="lsenclosurebattery -delim "
+
+// Keep only instances with a valid ID
+// enclosure_id;battery_id;status;
+Battery.Discovery.Source(1).Compute(3).Type="KeepOnlyMatchingLines"
+Battery.Discovery.Source(1).Compute(3).Column=2
+Battery.Discovery.Source(1).Compute(3).RegExp="^[0-9]+$"
+
+// Exclude batteries that are offline
+// enclosure_id;battery_id;status;
+Battery.Discovery.Source(1).Compute(4).Type="ExcludeMatchingLines"
+Battery.Discovery.Source(1).Compute(4).Column=3
+Battery.Discovery.Source(1).Compute(4).ValueList="offline"
+
+// Add a : and the Enclosure ID to the battery ID:
+// enclosure_id;battery_id;status;
+Battery.Discovery.Source(1).Compute(5).Type="LeftConcat"
+Battery.Discovery.Source(1).Compute(5).Column=2
+Battery.Discovery.Source(1).Compute(5).String=":"
+
+Battery.Discovery.Source(1).Compute(6).Type="LeftConcat"
+Battery.Discovery.Source(1).Compute(6).Column=2
+Battery.Discovery.Source(1).Compute(6).String=Column(1)
+
+
+// Instance Table
+// Name;Id
+Battery.Discovery.InstanceTable=%Battery.Discovery.Source(1)%
+Battery.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Battery.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+Battery.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(1)
+
+
+//
+// Battery
+//
+// Collect type is multiinstance
+Battery.Collect.Type="MultiInstance"
+
+//
+// Collect
+
+// Source(1) = lsenclosurebattery
+Battery.Collect.Source(1).Type="TelnetInteractive"
+
+Battery.Collect.Source(1).Step(1).Type="Sleep"
+Battery.Collect.Source(1).Step(1).Duration=1
+
+Battery.Collect.Source(1).Step(2).Type="WaitFor"
+Battery.Collect.Source(1).Step(2).Text="ogin:"
+Battery.Collect.Source(1).Step(2).Timeout=20
+Battery.Collect.Source(1).Step(2).TelnetOnly=1
+
+Battery.Collect.Source(1).Step(3).Type="Sleep"
+Battery.Collect.Source(1).Step(3).Duration=3
+
+Battery.Collect.Source(1).Step(4).Type="SendUsername"
+Battery.Collect.Source(1).Step(4).TelnetOnly=1
+
+Battery.Collect.Source(1).Step(5).Type="WaitFor"
+Battery.Collect.Source(1).Step(5).Text="assword:"
+Battery.Collect.Source(1).Step(5).TelnetOnly=1
+Battery.Collect.Source(1).Step(5).TimeOut=20
+
+Battery.Collect.Source(1).Step(6).Type="Sleep"
+Battery.Collect.Source(1).Step(6).Duration=3
+
+Battery.Collect.Source(1).Step(7).Type="SendPassword"
+Battery.Collect.Source(1).Step(7).TelnetOnly=1
+
+Battery.Collect.Source(1).Step(8).Type="WaitForPrompt"
+Battery.Collect.Source(1).Step(8).TimeOut=60
+
+Battery.Collect.Source(1).Step(9).Type="SendText"
+Battery.Collect.Source(1).Step(9).Text="lsenclosurebattery -delim :\n"
+
+Battery.Collect.Source(1).Step(10).Type="GetUntilPrompt"
+Battery.Collect.Source(1).Step(10).TimeOut=30
+Battery.Collect.Source(1).Step(10).Capture="True"
+
+Battery.Collect.Source(1).Step(11).Type="SendText"
+Battery.Collect.Source(1).Step(11).Text="exit\n"
+Battery.Collect.Source(1).Step(11).Capture="False"
+
+Battery.Collect.Source(1).Separators=":"
+Battery.Collect.Source(1).SelectColumns="1,2,3,5,7"
+Battery.Collect.Source(1).ForceSerialization=1
+
+// Exclude the Header Row
+// enclosure_id;battery_id;status;recondition_needed;end_of_life_warning;
+Battery.Collect.Source(1).Compute(1).Type="ExcludeMatchingLines"
+Battery.Collect.Source(1).Compute(1).Column=1
+Battery.Collect.Source(1).Compute(1).ValueList="enclosure_id"
+
+// Exclude the echo of the command
+// enclosure_id;battery_id;status;recondition_needed;end_of_life_warning;
+Battery.Collect.Source(1).Compute(2).Type="ExcludeMatchingLines"
+Battery.Collect.Source(1).Compute(2).Column=1
+Battery.Collect.Source(1).Compute(2).ValueList="lsenclosurebattery -delim "
+
+// Add a : and the Enclosure ID to the battery ID:
+// enclosure_id;battery_id;status;recondition_needed;end_of_life_warning;
+Battery.Collect.Source(1).Compute(3).Type="LeftConcat"
+Battery.Collect.Source(1).Compute(3).Column=2
+Battery.Collect.Source(1).Compute(3).String=":"
+
+Battery.Collect.Source(1).Compute(4).Type="LeftConcat"
+Battery.Collect.Source(1).Compute(4).Column=2
+Battery.Collect.Source(1).Compute(4).String=Column(1)
+
+// Duplicate end_of_life_warning
+// enclosure_id;battery_id;status;recondition_needed;end_of_life_warning;end_of_life_warning;
+Battery.Collect.Source(1).Compute(5).Type="DuplicateColumn"
+Battery.Collect.Source(1).Compute(5).Column=5
+
+// Duplicate recondition_needed
+// enclosure_id;battery_id;status;recondition_needed;recondition_needed;end_of_life_warning;end_of_life_warning;
+Battery.Collect.Source(1).Compute(6).Type="DuplicateColumn"
+Battery.Collect.Source(1).Compute(6).Column=4
+
+// Duplicate status
+// enclosure_id;battery_id;status;status;recondition_needed;recondition_needed;end_of_life_warning;end_of_life_warning;
+Battery.Collect.Source(1).Compute(7).Type="DuplicateColumn"
+Battery.Collect.Source(1).Compute(7).Column=3
+
+// Now translate "online/degraded/offline" into OK/Warning/Alarm
+// enclosure_id;battery_id;PatrolStatus;status;recondition_needed;recondition_needed;end_of_life_warning;end_of_life_warning;
+Battery.Collect.Source(1).Compute(8).Type="Translate"
+Battery.Collect.Source(1).Compute(8).Column=3
+Battery.Collect.Source(1).Compute(8).TranslationTable="onlinedegradedofflineStatusTranslationTable"
+
+// The online degraded offline Status Table
+onlinedegradedofflineStatusTranslationTable("online")="OK"
+onlinedegradedofflineStatusTranslationTable("degraded")="ALARM"
+onlinedegradedofflineStatusTranslationTable("offline")="ALARM"
+onlinedegradedofflineStatusTranslationTable(Default)="UNKNOWN"
+
+// Now translate "online/degraded/offline" into Status Info
+// enclosure_id;battery_id;PatrolStatus;StatusInformation;recondition_needed;recondition_needed;end_of_life_warning;end_of_life_warning;
+Battery.Collect.Source(1).Compute(9).Type="Translate"
+Battery.Collect.Source(1).Compute(9).Column=4
+Battery.Collect.Source(1).Compute(9).TranslationTable="onlinedegradedofflineStatusInformationTranslationTable"
+
+// The online degraded offline StatusInformation Table
+onlinedegradedofflineStatusInformationTranslationTable("online")="OK"
+onlinedegradedofflineStatusInformationTranslationTable("degraded")="Degraded"
+onlinedegradedofflineStatusInformationTranslationTable("offline")="Offline"
+onlinedegradedofflineStatusInformationTranslationTable(Default)="Unknown Status"
+
+
+// Now translate "yes/no" into OK/Warning/Alarm for Reconditioning
+// enclosure_id;battery_id;PatrolStatus;StatusInformation;Patrolrecondition_needed;recondition_needed;end_of_life_warning;end_of_life_warning;
+Battery.Collect.Source(1).Compute(10).Type="Translate"
+Battery.Collect.Source(1).Compute(10).Column=5
+Battery.Collect.Source(1).Compute(10).TranslationTable="yesnoWarningStatusTranslationTable"
+
+// The yes no Status Table
+yesnoWarningStatusTranslationTable("no")="OK"
+yesnoWarningStatusTranslationTable("yes")="WARN"
+yesnoWarningStatusTranslationTable(Default)="UNKNOWN"
+
+// Now translate "yes/no" into Status Info for Reconditioning
+// enclosure_id;battery_id;PatrolStatus;StatusInformation;Patrolrecondition_needed;StausInfoRecondition_needed;end_of_life_warning;end_of_life_warning;
+Battery.Collect.Source(1).Compute(11).Type="Translate"
+Battery.Collect.Source(1).Compute(11).Column=6
+Battery.Collect.Source(1).Compute(11).TranslationTable="reconditioningStatusInformationTranslationTable"
+
+// The online degraded offline StatusInformation Table
+reconditioningStatusInformationTranslationTable("no")=""
+reconditioningStatusInformationTranslationTable("yes")=" - The battery needs to be reconditioned, but cannot be reconditioned because of one or more errors."
+reconditioningStatusInformationTranslationTable(Default)=""
+
+// Now translate "yes/no" into OK/Warning/Alarm for End of Life
+// enclosure_id;battery_id;PatrolStatus;StatusInformation;Patrolrecondition_needed;StausInfoRecondition_needed;Patrolend_of_life_warning;end_of_life_warning;
+Battery.Collect.Source(1).Compute(12).Type="Translate"
+Battery.Collect.Source(1).Compute(12).Column=7
+Battery.Collect.Source(1).Compute(12).TranslationTable="yesnoWarningStatusTranslationTable"
+
+// Now translate "yes/no" into Status Info for End of Life
+// enclosure_id;battery_id;PatrolStatus;StatusInformation;Patrolrecondition_needed;StausInfoRecondition_needed;Patrolend_of_life_warning;StatusInfoend_of_life_warning;
+Battery.Collect.Source(1).Compute(13).Type="Translate"
+Battery.Collect.Source(1).Compute(13).Column=8
+Battery.Collect.Source(1).Compute(13).TranslationTable="endOfLifeStatusInformationTranslationTable"
+
+// The online degraded offline StatusInformation Table
+endOfLifeStatusInformationTranslationTable("no")=""
+endOfLifeStatusInformationTranslationTable("yes")=" -  The battery is reaching its end of life, and needs to be replaced."
+endOfLifeStatusInformationTranslationTable(Default)=""
+
+// Make a copy to aid debugging / support
+// enclosure_id;battery_id;PatrolStatus;StatusInformation;Patrolrecondition_needed;StausInfoRecondition_needed;Patrolend_of_life_warning;StatusInfoend_of_life_warning;
+Battery.Collect.Source(2)=%Battery.Collect.Source(1)%
+
+// Merge all the Patrol values into PatrolStatus
+// enclosure_id;battery_id;PATROLStatusArray;StatusInformation;Patrolrecondition_needed;StausInfoRecondition_needed;Patrolend_of_life_warning;StatusInfoend_of_life_warning;
+Battery.Collect.Source(2).Compute(1).Type="RightConcat"
+Battery.Collect.Source(2).Compute(1).Column=3
+Battery.Collect.Source(2).Compute(1).String="|"
+
+Battery.Collect.Source(2).Compute(2).Type="RightConcat"
+Battery.Collect.Source(2).Compute(2).Column=3
+Battery.Collect.Source(2).Compute(2).String=Column(5)
+
+Battery.Collect.Source(2).Compute(3).Type="RightConcat"
+Battery.Collect.Source(2).Compute(3).Column=3
+Battery.Collect.Source(2).Compute(3).String="|"
+
+Battery.Collect.Source(2).Compute(4).Type="RightConcat"
+Battery.Collect.Source(2).Compute(4).Column=3
+Battery.Collect.Source(2).Compute(4).String=Column(7)
+
+// Merge all the Status Information values into StatusInformation
+// enclosure_id;battery_id;PATROLStatusArray;StatusInformationArray;Patrolrecondition_needed;StausInfoRecondition_needed;Patrolend_of_life_warning;StatusInfoend_of_life_warning;
+Battery.Collect.Source(2).Compute(5).Type="RightConcat"
+Battery.Collect.Source(2).Compute(5).Column=4
+Battery.Collect.Source(2).Compute(5).String=Column(6)
+
+Battery.Collect.Source(2).Compute(6).Type="RightConcat"
+Battery.Collect.Source(2).Compute(6).Column=4
+Battery.Collect.Source(2).Compute(6).String=Column(8)
+
+// Keep only the IDs and Merged Status/StatusInformation
+// enclosure_id;battery_id;PATROLStatusArray;StatusInformationArray;
+Battery.Collect.Source(2).Compute(7).Type="KeepColumns"
+Battery.Collect.Source(2).Compute(7).ColumnNumbers="1,2,3,4"
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// enclosure_id;battery_id;PatrolStatus;StatusInformationArray;
+Battery.Collect.Source(2).Compute(8).Type="Convert"
+Battery.Collect.Source(2).Compute(8).Column=3
+Battery.Collect.Source(2).Compute(8).ConversionType="Array2SimpleStatus"
+
+// ValueTable = Source(1)
+// enclosure_id;battery_id;PatrolStatus;StatusInformation;
+Battery.Collect.ValueTable=%Battery.Collect.Source(2)%
+Battery.Collect.DeviceID=ValueTable.Column(2)
+Battery.Collect.Status=ValueTable.Column(3)
+Battery.Collect.StatusInformation=ValueTable.Column(4)
+
+//
+// PhysicalDisk
+//
+
+//
+// Discovery
+
+// Source(1) = lsdrive
+PhysicalDisk.Discovery.Source(1).Type="TelnetInteractive"
+
+
+PhysicalDisk.Discovery.Source(1).Step(1).Type="Sleep"
+PhysicalDisk.Discovery.Source(1).Step(1).Duration=1
+
+PhysicalDisk.Discovery.Source(1).Step(2).Type="WaitFor"
+PhysicalDisk.Discovery.Source(1).Step(2).Text="ogin:"
+PhysicalDisk.Discovery.Source(1).Step(2).Timeout=20
+PhysicalDisk.Discovery.Source(1).Step(2).TelnetOnly=1
+
+PhysicalDisk.Discovery.Source(1).Step(3).Type="Sleep"
+PhysicalDisk.Discovery.Source(1).Step(3).Duration=3
+
+PhysicalDisk.Discovery.Source(1).Step(4).Type="SendUsername"
+PhysicalDisk.Discovery.Source(1).Step(4).TelnetOnly=1
+
+PhysicalDisk.Discovery.Source(1).Step(5).Type="WaitFor"
+PhysicalDisk.Discovery.Source(1).Step(5).Text="assword:"
+PhysicalDisk.Discovery.Source(1).Step(5).TelnetOnly=1
+PhysicalDisk.Discovery.Source(1).Step(5).TimeOut=20
+
+PhysicalDisk.Discovery.Source(1).Step(6).Type="Sleep"
+PhysicalDisk.Discovery.Source(1).Step(6).Duration=3
+
+PhysicalDisk.Discovery.Source(1).Step(7).Type="SendPassword"
+PhysicalDisk.Discovery.Source(1).Step(7).TelnetOnly=1
+
+PhysicalDisk.Discovery.Source(1).Step(8).Type="WaitForPrompt"
+PhysicalDisk.Discovery.Source(1).Step(8).TimeOut=60
+
+PhysicalDisk.Discovery.Source(1).Step(9).Type="SendText"
+PhysicalDisk.Discovery.Source(1).Step(9).Text="lsdrive -bytes -delim :\n"
+
+PhysicalDisk.Discovery.Source(1).Step(10).Type="GetUntilPrompt"
+PhysicalDisk.Discovery.Source(1).Step(10).TimeOut=30
+PhysicalDisk.Discovery.Source(1).Step(10).Capture="True"
+
+PhysicalDisk.Discovery.Source(1).Step(11).Type="SendText"
+PhysicalDisk.Discovery.Source(1).Step(11).Text="exit\n"
+PhysicalDisk.Discovery.Source(1).Step(11).Capture="False"
+
+// id:status:error_sequence_number:use:tech_type:capacity:mdisk_id:mdisk_name:member_id:enclosure_id:slot_id:node_id:node_name
+// id;tech_type;capacity;mdisk_name;enclosure_id;slot_id;
+PhysicalDisk.Discovery.Source(1).Separators=":"
+PhysicalDisk.Discovery.Source(1).SelectColumns="1,5,6,8,10,11"
+PhysicalDisk.Discovery.Source(1).ForceSerialization=1
+
+// Exclude the Header Row
+// id;tech_type;capacity;mdisk_name;enclosure_id;slot_id;
+PhysicalDisk.Discovery.Source(1).Compute(1).Type="ExcludeMatchingLines"
+PhysicalDisk.Discovery.Source(1).Compute(1).Column=1
+PhysicalDisk.Discovery.Source(1).Compute(1).ValueList="id"
+
+// Exclude the echo of the command
+// id;tech_type;capacity;mdisk_name;enclosure_id;slot_id;
+PhysicalDisk.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+PhysicalDisk.Discovery.Source(1).Compute(2).Column=1
+PhysicalDisk.Discovery.Source(1).Compute(2).ValueList="lsdrive -bytes -delim "
+
+// Keep only instances with a valid ID
+// id;tech_type;capacity;mdisk_name;enclosure_id;slot_id;
+PhysicalDisk.Discovery.Source(1).Compute(3).Type="KeepOnlyMatchingLines"
+PhysicalDisk.Discovery.Source(1).Compute(3).Column=6
+PhysicalDisk.Discovery.Source(1).Compute(3).RegExp="^[0-9]+$"
+
+// Add a : and the Enclosure ID to the  slot ID:
+// id;tech_type;capacity;mdisk_name;enclosure_id;slot_id;
+PhysicalDisk.Discovery.Source(1).Compute(4).Type="LeftConcat"
+PhysicalDisk.Discovery.Source(1).Compute(4).Column=6
+PhysicalDisk.Discovery.Source(1).Compute(4).String=":"
+
+PhysicalDisk.Discovery.Source(1).Compute(5).Type="LeftConcat"
+PhysicalDisk.Discovery.Source(1).Compute(5).Column=6
+PhysicalDisk.Discovery.Source(1).Compute(5).String=Column(5)
+
+// Add "DriveID: to the ID
+// id;tech_type;capacity;mdisk_name;enclosure_id;slot_id;
+PhysicalDisk.Discovery.Source(1).Compute(6).Type="LeftConcat"
+PhysicalDisk.Discovery.Source(1).Compute(6).Column=1
+PhysicalDisk.Discovery.Source(1).Compute(6).String="Drive ID: "
+
+
+// Now let's collect the FRU information for each disk
+PhysicalDisk.Discovery.Source(2).Type="TelnetInteractive"
+
+PhysicalDisk.Discovery.Source(2).Step(1).Type="Sleep"
+PhysicalDisk.Discovery.Source(2).Step(1).Duration=1
+
+PhysicalDisk.Discovery.Source(2).Step(2).Type="WaitFor"
+PhysicalDisk.Discovery.Source(2).Step(2).Text="ogin:"
+PhysicalDisk.Discovery.Source(2).Step(2).Timeout=20
+PhysicalDisk.Discovery.Source(2).Step(2).TelnetOnly=1
+
+PhysicalDisk.Discovery.Source(2).Step(3).Type="Sleep"
+PhysicalDisk.Discovery.Source(2).Step(3).Duration=3
+
+PhysicalDisk.Discovery.Source(2).Step(4).Type="SendUsername"
+PhysicalDisk.Discovery.Source(2).Step(4).TelnetOnly=1
+
+PhysicalDisk.Discovery.Source(2).Step(5).Type="WaitFor"
+PhysicalDisk.Discovery.Source(2).Step(5).Text="assword:"
+PhysicalDisk.Discovery.Source(2).Step(5).TelnetOnly=1
+PhysicalDisk.Discovery.Source(2).Step(5).TimeOut=20
+
+PhysicalDisk.Discovery.Source(2).Step(6).Type="Sleep"
+PhysicalDisk.Discovery.Source(2).Step(6).Duration=3
+
+PhysicalDisk.Discovery.Source(2).Step(7).Type="SendPassword"
+PhysicalDisk.Discovery.Source(2).Step(7).TelnetOnly=1
+
+PhysicalDisk.Discovery.Source(2).Step(8).Type="WaitForPrompt"
+PhysicalDisk.Discovery.Source(2).Step(8).TimeOut=60
+
+PhysicalDisk.Discovery.Source(2).Step(9).Type="SendText"
+PhysicalDisk.Discovery.Source(2).Step(9).Text="lsdrive -nohdr | while read driveID OtherOutput; do echo MS_HW_DRIVE_START;lsdrive -delim : $driveID; echo MS_HW_DRIVE_END; done;\n"
+
+PhysicalDisk.Discovery.Source(2).Step(10).Type="GetUntilPrompt"
+PhysicalDisk.Discovery.Source(2).Step(10).TimeOut=30
+PhysicalDisk.Discovery.Source(2).Step(10).Capture="True"
+
+PhysicalDisk.Discovery.Source(2).Step(11).Type="SendText"
+PhysicalDisk.Discovery.Source(2).Step(11).Text="exit\n"
+PhysicalDisk.Discovery.Source(2).Step(11).Capture="False"
+
+// Process Through an Awk Script
+// id;Vendor;Model;SerialNumber;Firmware;AdditionalFRUInformation;
+PhysicalDisk.Discovery.Source(2).Compute(1).Type="Awk"
+PhysicalDisk.Discovery.Source(2).Compute(1).AwkScript=EmbeddedFile(2)
+PhysicalDisk.Discovery.Source(2).Compute(1).KeepOnlyRegExp="^MSHW;"
+PhysicalDisk.Discovery.Source(2).Compute(1).Separators=";"
+PhysicalDisk.Discovery.Source(2).Compute(1).SelectColumns="2,3,4,5,6,7"
+
+// Add "DriveID: to the ID
+// id;Vendor;Model;SerialNumber;Firmware;AdditionalFRUInformation;
+PhysicalDisk.Discovery.Source(2).Compute(2).Type="LeftConcat"
+PhysicalDisk.Discovery.Source(2).Compute(2).Column=1
+PhysicalDisk.Discovery.Source(2).Compute(2).String="Drive ID: "
+
+// Join the main discovery with the FRU
+// id;tech_type;capacity;mdisk_name;enclosure_id;slot_id;id;Vendor;Model;SerialNumber;Firmware;AdditionalFRUInformation;
+PhysicalDisk.Discovery.Source(3).Type="TableJoint"
+PhysicalDisk.Discovery.Source(3).LeftTable=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Source(3).RightTable=%PhysicalDisk.Discovery.Source(2)%
+PhysicalDisk.Discovery.Source(3).LeftKeyColumn=1
+PhysicalDisk.Discovery.Source(3).RightKeyColumn=1
+PhysicalDisk.Discovery.Source(3).DefaultRightLine=";;;;;"
+
+// Add AdditionalFruInformation to Tech Type
+// id;AdditionalFRUInformation;capacity;mdisk_name;enclosure_id;slot_id;id;Vendor;Model;SerialNumber;Firmware;AdditionalFRUInformation;
+PhysicalDisk.Discovery.Source(3).Compute(1).Type="RightConcat"
+PhysicalDisk.Discovery.Source(3).Compute(1).Column=2
+PhysicalDisk.Discovery.Source(3).Compute(1).String=" - "
+
+PhysicalDisk.Discovery.Source(3).Compute(2).Type="RightConcat"
+PhysicalDisk.Discovery.Source(3).Compute(2).Column=2
+PhysicalDisk.Discovery.Source(3).Compute(2).String=Column(12)
+
+PhysicalDisk.Discovery.Source(3).Compute(3).Type="LeftConcat"
+PhysicalDisk.Discovery.Source(3).Compute(3).Column=4
+PhysicalDisk.Discovery.Source(3).Compute(3).String="MDisk Name: "
+
+// Instance Table
+//  1          2                  3          4           5         6     7     8    9       10            11    12
+// id;AdditionalFRUInformation;capacity;mdisk_name;enclosure_id;slot_id;id;Vendor;Model;SerialNumber;Firmware;AdditionalFRUInformation;
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(3)%
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(6)
+PhysicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(6)
+PhysicalDisk.Discovery.Instance.Size=InstanceTable.Column(3)
+PhysicalDisk.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(5)
+PhysicalDisk.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(1)
+PhysicalDisk.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(4)
+PhysicalDisk.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(2)
+PhysicalDisk.Discovery.Instance.SerialNumber=InstanceTable.Column(10)
+PhysicalDisk.Discovery.Instance.FirmwareVersion=InstanceTable.Column(11)
+PhysicalDisk.Discovery.Instance.Model=InstanceTable.Column(9)
+PhysicalDisk.Discovery.Instance.Vendor=InstanceTable.Column(8)
+
+
+//
+// Collect
+
+// Collect type is multiinstance
+PhysicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = lsdrive
+PhysicalDisk.Collect.Source(1).Type="TelnetInteractive"
+
+PhysicalDisk.Collect.Source(1).Step(1).Type="Sleep"
+PhysicalDisk.Collect.Source(1).Step(1).Duration=1
+
+PhysicalDisk.Collect.Source(1).Step(2).Type="WaitFor"
+PhysicalDisk.Collect.Source(1).Step(2).Text="ogin:"
+PhysicalDisk.Collect.Source(1).Step(2).Timeout=20
+PhysicalDisk.Collect.Source(1).Step(2).TelnetOnly=1
+
+PhysicalDisk.Collect.Source(1).Step(3).Type="Sleep"
+PhysicalDisk.Collect.Source(1).Step(3).Duration=3
+
+PhysicalDisk.Collect.Source(1).Step(4).Type="SendUsername"
+PhysicalDisk.Collect.Source(1).Step(4).TelnetOnly=1
+
+PhysicalDisk.Collect.Source(1).Step(5).Type="WaitFor"
+PhysicalDisk.Collect.Source(1).Step(5).Text="assword:"
+PhysicalDisk.Collect.Source(1).Step(5).TelnetOnly=1
+PhysicalDisk.Collect.Source(1).Step(5).TimeOut=20
+
+PhysicalDisk.Collect.Source(1).Step(6).Type="Sleep"
+PhysicalDisk.Collect.Source(1).Step(6).Duration=3
+
+PhysicalDisk.Collect.Source(1).Step(7).Type="SendPassword"
+PhysicalDisk.Collect.Source(1).Step(7).TelnetOnly=1
+
+PhysicalDisk.Collect.Source(1).Step(8).Type="WaitForPrompt"
+PhysicalDisk.Collect.Source(1).Step(8).TimeOut=60
+
+PhysicalDisk.Collect.Source(1).Step(9).Type="SendText"
+PhysicalDisk.Collect.Source(1).Step(9).Text="lsdrive -delim :\n"
+
+PhysicalDisk.Collect.Source(1).Step(10).Type="GetUntilPrompt"
+PhysicalDisk.Collect.Source(1).Step(10).TimeOut=30
+PhysicalDisk.Collect.Source(1).Step(10).Capture="True"
+
+PhysicalDisk.Collect.Source(1).Step(11).Type="SendText"
+PhysicalDisk.Collect.Source(1).Step(11).Text="exit\n"
+PhysicalDisk.Collect.Source(1).Step(11).Capture="False"
+
+// id:status:error_sequence_number:use:tech_type:capacity:mdisk_id:mdisk_name:member_id:enclosure_id:slot_id:node_id:node_name
+// id;status;error_sequence_number;enclosure_id;slot_id;
+PhysicalDisk.Collect.Source(1).Separators=":"
+PhysicalDisk.Collect.Source(1).SelectColumns="1,2,3,10,11"
+PhysicalDisk.Collect.Source(1).ForceSerialization=1
+
+// Exclude the Header Row
+// id;status;error_sequence_number;enclosure_id;slot_id;
+PhysicalDisk.Collect.Source(1).Compute(1).Type="ExcludeMatchingLines"
+PhysicalDisk.Collect.Source(1).Compute(1).Column=1
+PhysicalDisk.Collect.Source(1).Compute(1).ValueList="id"
+
+// Exclude the echo of the command
+// id;status;error_sequence_number;enclosure_id;slot_id;
+PhysicalDisk.Collect.Source(1).Compute(2).Type="ExcludeMatchingLines"
+PhysicalDisk.Collect.Source(1).Compute(2).Column=1
+PhysicalDisk.Collect.Source(1).Compute(2).ValueList="lsdrive -bytes -delim "
+
+// Add a : and the Enclosure ID to the  slot ID:
+// id;status;error_sequence_number;enclosure_id;slot_id;
+PhysicalDisk.Collect.Source(1).Compute(3).Type="LeftConcat"
+PhysicalDisk.Collect.Source(1).Compute(3).Column=5
+PhysicalDisk.Collect.Source(1).Compute(3).String=":"
+
+PhysicalDisk.Collect.Source(1).Compute(4).Type="LeftConcat"
+PhysicalDisk.Collect.Source(1).Compute(4).Column=5
+PhysicalDisk.Collect.Source(1).Compute(4).String=Column(4)
+
+// Now translate "online/degraded/offline" into OK/Warning/Alarm
+// id;status;error_sequence_number;enclosure_id;slot_id;
+PhysicalDisk.Collect.Source(1).Compute(5).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(5).Column=2
+PhysicalDisk.Collect.Source(1).Compute(5).TranslationTable="onlinedegradedofflineStatusTranslationTable"
+
+// Add an identifier to the error sequence number, which will become the status information.
+// id;status;error_sequence_number;enclosure_id;slot_id;
+PhysicalDisk.Collect.Source(1).Compute(6).Type="LeftConcat"
+PhysicalDisk.Collect.Source(1).Compute(6).Column=3
+PhysicalDisk.Collect.Source(1).Compute(6).String="Error Sequence Number (If Applicable):"
+
+// ValueTable = Source(1)
+// id;status;error_sequence_number;enclosure_id;slot_id;
+PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(1)%
+PhysicalDisk.Collect.DeviceID=ValueTable.Column(5)
+PhysicalDisk.Collect.Status=ValueTable.Column(2)
+PhysicalDisk.Collect.StatusInformation=ValueTable.Column(3)
+
+
+//
+// PowerSupply
+//
+
+//
+// Discovery
+
+// Source(1) = lsenclosurepsu
+PowerSupply.Discovery.Source(1).Type="TelnetInteractive"
+
+
+PowerSupply.Discovery.Source(1).Step(1).Type="Sleep"
+PowerSupply.Discovery.Source(1).Step(1).Duration=1
+
+PowerSupply.Discovery.Source(1).Step(2).Type="WaitFor"
+PowerSupply.Discovery.Source(1).Step(2).Text="ogin:"
+PowerSupply.Discovery.Source(1).Step(2).Timeout=20
+PowerSupply.Discovery.Source(1).Step(2).TelnetOnly=1
+
+PowerSupply.Discovery.Source(1).Step(3).Type="Sleep"
+PowerSupply.Discovery.Source(1).Step(3).Duration=3
+
+PowerSupply.Discovery.Source(1).Step(4).Type="SendUsername"
+PowerSupply.Discovery.Source(1).Step(4).TelnetOnly=1
+
+PowerSupply.Discovery.Source(1).Step(5).Type="WaitFor"
+PowerSupply.Discovery.Source(1).Step(5).Text="assword:"
+PowerSupply.Discovery.Source(1).Step(5).TelnetOnly=1
+PowerSupply.Discovery.Source(1).Step(5).TimeOut=20
+
+PowerSupply.Discovery.Source(1).Step(6).Type="Sleep"
+PowerSupply.Discovery.Source(1).Step(6).Duration=3
+
+PowerSupply.Discovery.Source(1).Step(7).Type="SendPassword"
+PowerSupply.Discovery.Source(1).Step(7).TelnetOnly=1
+
+PowerSupply.Discovery.Source(1).Step(8).Type="WaitForPrompt"
+PowerSupply.Discovery.Source(1).Step(8).TimeOut=60
+
+PowerSupply.Discovery.Source(1).Step(9).Type="SendText"
+PowerSupply.Discovery.Source(1).Step(9).Text="lsenclosurepsu -delim :\n"
+
+PowerSupply.Discovery.Source(1).Step(10).Type="GetUntilPrompt"
+PowerSupply.Discovery.Source(1).Step(10).TimeOut=30
+PowerSupply.Discovery.Source(1).Step(10).Capture="True"
+
+PowerSupply.Discovery.Source(1).Step(11).Type="SendText"
+PowerSupply.Discovery.Source(1).Step(11).Text="exit\n"
+PowerSupply.Discovery.Source(1).Step(11).Capture="False"
+
+// enclosure_id:PSU_id:status
+// enclosure_id:PSU_id:status
+PowerSupply.Discovery.Source(1).Separators=":"
+PowerSupply.Discovery.Source(1).SelectColumns="1,2,3"
+PowerSupply.Discovery.Source(1).ForceSerialization=1
+
+// Exclude the Header Row
+// enclosure_id:PSU_id:status
+PowerSupply.Discovery.Source(1).Compute(1).Type="ExcludeMatchingLines"
+PowerSupply.Discovery.Source(1).Compute(1).Column=1
+PowerSupply.Discovery.Source(1).Compute(1).ValueList="enclosure_id"
+
+// Exclude the echo of the command
+// enclosure_id:PSU_id:status
+PowerSupply.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+PowerSupply.Discovery.Source(1).Compute(2).Column=1
+PowerSupply.Discovery.Source(1).Compute(2).ValueList="lsenclosurepsu -delim "
+
+// Keep only instances with a valid ID
+// enclosure_id:PSU_id:status
+PowerSupply.Discovery.Source(1).Compute(3).Type="KeepOnlyMatchingLines"
+PowerSupply.Discovery.Source(1).Compute(3).Column=2
+PowerSupply.Discovery.Source(1).Compute(3).RegExp="^[0-9]+$"
+
+// Add a : and the Enclosure ID to the  slot ID:
+// enclosure_id:PSU_id:status
+PowerSupply.Discovery.Source(1).Compute(4).Type="LeftConcat"
+PowerSupply.Discovery.Source(1).Compute(4).Column=2
+PowerSupply.Discovery.Source(1).Compute(4).String=":"
+
+PowerSupply.Discovery.Source(1).Compute(5).Type="LeftConcat"
+PowerSupply.Discovery.Source(1).Compute(5).Column=2
+PowerSupply.Discovery.Source(1).Compute(5).String=Column(1)
+
+// Exclude PowerSupply that are offline
+// enclosure_id:PSU_id:status
+PowerSupply.Discovery.Source(1).Compute(6).Type="ExcludeMatchingLines"
+PowerSupply.Discovery.Source(1).Compute(6).Column=3
+PowerSupply.Discovery.Source(1).Compute(6).ValueList="offline"
+
+
+
+// Instance Table
+// enclosure_id:PSU_id:status
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+PowerSupply.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+PowerSupply.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(1)
+
+//
+// Collect
+
+// Collect type is multiinstance
+PowerSupply.Collect.Type="MultiInstance"
+
+// Source(1) = lsdrive
+PowerSupply.Collect.Source(1).Type="TelnetInteractive"
+
+PowerSupply.Collect.Source(1).Step(1).Type="Sleep"
+PowerSupply.Collect.Source(1).Step(1).Duration=1
+
+PowerSupply.Collect.Source(1).Step(2).Type="WaitFor"
+PowerSupply.Collect.Source(1).Step(2).Text="ogin:"
+PowerSupply.Collect.Source(1).Step(2).Timeout=20
+PowerSupply.Collect.Source(1).Step(2).TelnetOnly=1
+
+PowerSupply.Collect.Source(1).Step(3).Type="Sleep"
+PowerSupply.Collect.Source(1).Step(3).Duration=3
+
+PowerSupply.Collect.Source(1).Step(4).Type="SendUsername"
+PowerSupply.Collect.Source(1).Step(4).TelnetOnly=1
+
+PowerSupply.Collect.Source(1).Step(5).Type="WaitFor"
+PowerSupply.Collect.Source(1).Step(5).Text="assword:"
+PowerSupply.Collect.Source(1).Step(5).TelnetOnly=1
+PowerSupply.Collect.Source(1).Step(5).TimeOut=20
+
+PowerSupply.Collect.Source(1).Step(6).Type="Sleep"
+PowerSupply.Collect.Source(1).Step(6).Duration=3
+
+PowerSupply.Collect.Source(1).Step(7).Type="SendPassword"
+PowerSupply.Collect.Source(1).Step(7).TelnetOnly=1
+
+PowerSupply.Collect.Source(1).Step(8).Type="WaitForPrompt"
+PowerSupply.Collect.Source(1).Step(8).TimeOut=60
+
+PowerSupply.Collect.Source(1).Step(9).Type="SendText"
+PowerSupply.Collect.Source(1).Step(9).Text="lsenclosurepsu -delim :\n"
+
+PowerSupply.Collect.Source(1).Step(10).Type="GetUntilPrompt"
+PowerSupply.Collect.Source(1).Step(10).TimeOut=30
+PowerSupply.Collect.Source(1).Step(10).Capture="True"
+
+PowerSupply.Collect.Source(1).Step(11).Type="SendText"
+PowerSupply.Collect.Source(1).Step(11).Text="exit\n"
+PowerSupply.Collect.Source(1).Step(11).Capture="False"
+
+// enclosure_id:PSU_id:status
+PowerSupply.Collect.Source(1).Separators=":"
+PowerSupply.Collect.Source(1).SelectColumns="1,2,3"
+PowerSupply.Collect.Source(1).ForceSerialization=1
+
+// Exclude the Header Row
+// enclosure_id:PSU_id:status
+PowerSupply.Collect.Source(1).Compute(1).Type="ExcludeMatchingLines"
+PowerSupply.Collect.Source(1).Compute(1).Column=1
+PowerSupply.Collect.Source(1).Compute(1).ValueList="enclosure_id"
+
+// Exclude the echo of the command
+// enclosure_id:PSU_id:status
+PowerSupply.Collect.Source(1).Compute(2).Type="ExcludeMatchingLines"
+PowerSupply.Collect.Source(1).Compute(2).Column=1
+PowerSupply.Collect.Source(1).Compute(2).ValueList="lsenclosurepsu -delim "
+
+// Add a : and the Enclosure ID to the  slot ID:
+// enclosure_id:PSU_id:status
+PowerSupply.Collect.Source(1).Compute(3).Type="LeftConcat"
+PowerSupply.Collect.Source(1).Compute(3).Column=2
+PowerSupply.Collect.Source(1).Compute(3).String=":"
+
+PowerSupply.Collect.Source(1).Compute(4).Type="LeftConcat"
+PowerSupply.Collect.Source(1).Compute(4).Column=2
+PowerSupply.Collect.Source(1).Compute(4).String=Column(1)
+
+// Now translate "online/degraded/offline" into OK/Warning/Alarm
+// enclosure_id:PSU_id:Patrolstatus
+PowerSupply.Collect.Source(1).Compute(5).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(5).Column=3
+PowerSupply.Collect.Source(1).Compute(5).TranslationTable="onlinedegradedofflineStatusTranslationTable"
+
+// ValueTable = Source(1)
+// enclosure_id:PSU_id:Patrolstatus
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(2)
+PowerSupply.Collect.Status=ValueTable.Column(3)
+
+
+//
+// OtherDevice (Enclosure Canister)
+//
+
+//
+// Discovery
+
+// Source(1) = lsenclosurepsu
+OtherDevice.Discovery.Source(1).Type="TelnetInteractive"
+
+OtherDevice.Discovery.Source(1).Step(1).Type="Sleep"
+OtherDevice.Discovery.Source(1).Step(1).Duration=1
+
+OtherDevice.Discovery.Source(1).Step(2).Type="WaitFor"
+OtherDevice.Discovery.Source(1).Step(2).Text="ogin:"
+OtherDevice.Discovery.Source(1).Step(2).Timeout=20
+OtherDevice.Discovery.Source(1).Step(2).TelnetOnly=1
+
+OtherDevice.Discovery.Source(1).Step(3).Type="Sleep"
+OtherDevice.Discovery.Source(1).Step(3).Duration=3
+
+OtherDevice.Discovery.Source(1).Step(4).Type="SendUsername"
+OtherDevice.Discovery.Source(1).Step(4).TelnetOnly=1
+
+OtherDevice.Discovery.Source(1).Step(5).Type="WaitFor"
+OtherDevice.Discovery.Source(1).Step(5).Text="assword:"
+OtherDevice.Discovery.Source(1).Step(5).TelnetOnly=1
+OtherDevice.Discovery.Source(1).Step(5).TimeOut=20
+
+OtherDevice.Discovery.Source(1).Step(6).Type="Sleep"
+OtherDevice.Discovery.Source(1).Step(6).Duration=3
+
+OtherDevice.Discovery.Source(1).Step(7).Type="SendPassword"
+OtherDevice.Discovery.Source(1).Step(7).TelnetOnly=1
+
+OtherDevice.Discovery.Source(1).Step(8).Type="WaitForPrompt"
+OtherDevice.Discovery.Source(1).Step(8).TimeOut=60
+
+OtherDevice.Discovery.Source(1).Step(9).Type="SendText"
+OtherDevice.Discovery.Source(1).Step(9).Text="lsenclosurecanister -delim :\n"
+
+OtherDevice.Discovery.Source(1).Step(10).Type="GetUntilPrompt"
+OtherDevice.Discovery.Source(1).Step(10).TimeOut=30
+OtherDevice.Discovery.Source(1).Step(10).Capture="True"
+
+OtherDevice.Discovery.Source(1).Step(11).Type="SendText"
+OtherDevice.Discovery.Source(1).Step(11).Text="exit\n"
+OtherDevice.Discovery.Source(1).Step(11).Capture="False"
+
+// enclosure_id:Canister_id:status
+// enclosure_id:Canister_id:status
+OtherDevice.Discovery.Source(1).Separators=":"
+OtherDevice.Discovery.Source(1).SelectColumns="1,2,3"
+OtherDevice.Discovery.Source(1).ForceSerialization=1
+
+// Exclude the Header Row
+// enclosure_id:Canister_id:status
+OtherDevice.Discovery.Source(1).Compute(1).Type="ExcludeMatchingLines"
+OtherDevice.Discovery.Source(1).Compute(1).Column=1
+OtherDevice.Discovery.Source(1).Compute(1).ValueList="enclosure_id"
+
+// Exclude the echo of the command
+// enclosure_id:Canister_id:status
+OtherDevice.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+OtherDevice.Discovery.Source(1).Compute(2).Column=1
+OtherDevice.Discovery.Source(1).Compute(2).ValueList="lsenclosurecanister -delim "
+
+// Keep only instances with a valid ID
+// enclosure_id:Canister_id:status
+OtherDevice.Discovery.Source(1).Compute(3).Type="KeepOnlyMatchingLines"
+OtherDevice.Discovery.Source(1).Compute(3).Column=2
+OtherDevice.Discovery.Source(1).Compute(3).RegExp="^[0-9]+$"
+
+// Add a : and the Enclosure ID to the  slot ID:
+// enclosure_id:Canister_id:status
+OtherDevice.Discovery.Source(1).Compute(4).Type="LeftConcat"
+OtherDevice.Discovery.Source(1).Compute(4).Column=2
+OtherDevice.Discovery.Source(1).Compute(4).String=":"
+
+OtherDevice.Discovery.Source(1).Compute(5).Type="LeftConcat"
+OtherDevice.Discovery.Source(1).Compute(5).Column=2
+OtherDevice.Discovery.Source(1).Compute(5).String=Column(1)
+
+// Exclude Canisters that are offline
+// enclosure_id:Canister_id:status
+OtherDevice.Discovery.Source(1).Compute(6).Type="ExcludeMatchingLines"
+OtherDevice.Discovery.Source(1).Compute(6).Column=3
+OtherDevice.Discovery.Source(1).Compute(6).ValueList="offline"
+
+// Instance Table
+// enclosure_id:Canister_id:status
+OtherDevice.Discovery.InstanceTable=%OtherDevice.Discovery.Source(1)%
+OtherDevice.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+OtherDevice.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+OtherDevice.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(1)
+OtherDevice.Discovery.Instance.DeviceType="Canister"
+
+//
+// Collect
+
+// Collect type is multiinstance
+OtherDevice.Collect.Type="MultiInstance"
+
+// Source(1) = lsdrive
+OtherDevice.Collect.Source(1).Type="TelnetInteractive"
+
+OtherDevice.Collect.Source(1).Step(1).Type="Sleep"
+OtherDevice.Collect.Source(1).Step(1).Duration=1
+
+OtherDevice.Collect.Source(1).Step(2).Type="WaitFor"
+OtherDevice.Collect.Source(1).Step(2).Text="ogin:"
+OtherDevice.Collect.Source(1).Step(2).Timeout=20
+OtherDevice.Collect.Source(1).Step(2).TelnetOnly=1
+
+OtherDevice.Collect.Source(1).Step(3).Type="Sleep"
+OtherDevice.Collect.Source(1).Step(3).Duration=3
+
+OtherDevice.Collect.Source(1).Step(4).Type="SendUsername"
+OtherDevice.Collect.Source(1).Step(4).TelnetOnly=1
+
+OtherDevice.Collect.Source(1).Step(5).Type="WaitFor"
+OtherDevice.Collect.Source(1).Step(5).Text="assword:"
+OtherDevice.Collect.Source(1).Step(5).TelnetOnly=1
+OtherDevice.Collect.Source(1).Step(5).TimeOut=20
+
+OtherDevice.Collect.Source(1).Step(6).Type="Sleep"
+OtherDevice.Collect.Source(1).Step(6).Duration=3
+
+OtherDevice.Collect.Source(1).Step(7).Type="SendPassword"
+OtherDevice.Collect.Source(1).Step(7).TelnetOnly=1
+
+OtherDevice.Collect.Source(1).Step(8).Type="WaitForPrompt"
+OtherDevice.Collect.Source(1).Step(8).TimeOut=60
+
+OtherDevice.Collect.Source(1).Step(9).Type="SendText"
+OtherDevice.Collect.Source(1).Step(9).Text="lsenclosurecanister -delim :\n"
+
+OtherDevice.Collect.Source(1).Step(10).Type="GetUntilPrompt"
+OtherDevice.Collect.Source(1).Step(10).TimeOut=30
+OtherDevice.Collect.Source(1).Step(10).Capture="True"
+
+OtherDevice.Collect.Source(1).Step(11).Type="SendText"
+OtherDevice.Collect.Source(1).Step(11).Text="exit\n"
+OtherDevice.Collect.Source(1).Step(11).Capture="False"
+
+// enclosure_id:Canister_id:status
+OtherDevice.Collect.Source(1).Separators=":"
+OtherDevice.Collect.Source(1).SelectColumns="1,2,3"
+OtherDevice.Collect.Source(1).ForceSerialization=1
+
+// Exclude the Header Row
+// enclosure_id:Canister_id:status
+OtherDevice.Collect.Source(1).Compute(1).Type="ExcludeMatchingLines"
+OtherDevice.Collect.Source(1).Compute(1).Column=1
+OtherDevice.Collect.Source(1).Compute(1).ValueList="enclosure_id"
+
+// Exclude the echo of the command
+// enclosure_id:Canister_id:status
+OtherDevice.Collect.Source(1).Compute(2).Type="ExcludeMatchingLines"
+OtherDevice.Collect.Source(1).Compute(2).Column=1
+OtherDevice.Collect.Source(1).Compute(2).ValueList="lsenclosurecanister -delim "
+
+// Add a : and the Enclosure ID to the  slot ID:
+// enclosure_id:Canister_id:status
+OtherDevice.Collect.Source(1).Compute(3).Type="LeftConcat"
+OtherDevice.Collect.Source(1).Compute(3).Column=2
+OtherDevice.Collect.Source(1).Compute(3).String=":"
+
+OtherDevice.Collect.Source(1).Compute(4).Type="LeftConcat"
+OtherDevice.Collect.Source(1).Compute(4).Column=2
+OtherDevice.Collect.Source(1).Compute(4).String=Column(1)
+
+// Now translate "online/degraded/offline" into OK/Warning/Alarm
+// enclosure_id:Canister_id:Patrolstatus
+OtherDevice.Collect.Source(1).Compute(5).Type="Translate"
+OtherDevice.Collect.Source(1).Compute(5).Column=3
+OtherDevice.Collect.Source(1).Compute(5).TranslationTable="onlinedegradedofflineStatusTranslationTable"
+
+// ValueTable = Source(1)
+// enclosure_id:Canister_id:Patrolstatus
+OtherDevice.Collect.ValueTable=%OtherDevice.Collect.Source(1)%
+OtherDevice.Collect.DeviceID=ValueTable.Column(2)
+OtherDevice.Collect.Status=ValueTable.Column(3)
+
+//
+// LEDs
+//
+
+//
+// Discovery
+
+// Source (1) = Enclosure Discovery Source (2)
+LED.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+
+// Keep Only LEDs
+// MS_HW_LED;ID;Status;OnStatus;BlinkingStatus;OffStatus;AttachToDeviceID;
+LED.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+LED.Discovery.Source(1).Compute(1).Column=1
+LED.Discovery.Source(1).Compute(1).ValueList="MS_HW_LED"
+
+// The instance table
+// MS_HW_LED;ID;Status;OnStatus;BlinkingStatus;OffStatus;AttachToDeviceID;
+LED.Discovery.InstanceTable=%LED.Discovery.Source(1)%
+LED.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+LED.Discovery.Instance.AttachedtoDeviceID=InstanceTable.Column(7)
+LED.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+LED.Discovery.Instance.OnStatus=InstanceTable.Column(4)
+LED.Discovery.Instance.BlinkingStatus=InstanceTable.Column(5)
+LED.Discovery.Instance.OffStatus=InstanceTable.Column(6)
+
+
+//
+// Collect
+
+// Collect type is multi-instance
+LED.Collect.Type="MultiInstance"
+
+// Source (1) = Enclosure Collect Source (1)
+LED.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Keep Only LEDs
+// MS_HW_LED;ID;Status;OnStatus;BlinkingStatus;OffStatus;AttachToDeviceID;
+LED.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+LED.Collect.Source(1).Compute(1).Column=1
+LED.Collect.Source(1).Compute(1).ValueList="MS_HW_LED"
+
+// Duplicate State column
+// MS_HW_LED;ID;Status;Status;OnStatus;BlinkingStatus;OffStatus;AttachToDeviceID;
+LED.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+LED.Collect.Source(1).Compute(2).Column=3
+
+// Translate first State column into 0 (for Off), 1 (for Blinking) and 2 (for On)
+// MS_HW_LED;ID;PatrolStatus;Status;OnStatus;BlinkingStatus;OffStatus;AttachToDeviceID;
+LED.Collect.Source(1).Compute(3).Type="Translate"
+LED.Collect.Source(1).Compute(3).Column=3
+LED.Collect.Source(1).Compute(3).TranslationTable="LEDStateTranslationTable"
+
+// The LEDStateTranslationTable
+LEDStateTranslationTable("on")="On"
+LEDStateTranslationTable("off")="Off"
+LEDStateTranslationTable("slow_flashing")="Blinking"
+LEDStateTranslationTable("flashing")="Blinking"
+LEDStateTranslationTable("slow_flashing_enclosure_fault")="Blinking"
+LEDStateTranslationTable("slow_flashing_enclosure_identify")="Blinking"
+LEDStateTranslationTable("slow_flashing_canister_fault")="Blinking"
+
+// Translate seconf State column into Status Information
+// MS_HW_LED;ID;PatrolStatus;StatusInformation;OnStatus;BlinkingStatus;OffStatus;AttachToDeviceID;
+LED.Collect.Source(1).Compute(4).Type="Translate"
+LED.Collect.Source(1).Compute(4).Column=4
+LED.Collect.Source(1).Compute(4).TranslationTable="LEDStatusInformationTranslationTable"
+
+// The LEDStateTranslationTable
+LEDStatusInformationTranslationTable("on")="On"
+LEDStatusInformationTranslationTable("off")="Off"
+LEDStatusInformationTranslationTable("slow_flashing")="Slow Flashing"
+LEDStatusInformationTranslationTable("flashing")="Flashing"
+LEDStatusInformationTranslationTable("slow_flashing_enclosure_fault")="Insufficient Battery Power."
+LEDStatusInformationTranslationTable("slow_flashing_enclosure_identify")="Flashing"
+LEDStatusInformationTranslationTable("slow_flashing_canister_fault")="LED is in Identify Mode (This mode conceals faults as the system cannot set the LED to on.)"
+
+// ValueTable = Source(1)
+// MS_HW_LED;ID;PatrolStatus;StatusInformation;OnStatus;BlinkingStatus;OffStatus;AttachToDeviceID;
+LED.Collect.ValueTable=%LED.Collect.Source(1)%
+LED.Collect.DeviceID=ValueTable.Column(2)
+LED.Collect.Status=ValueTable.Column(3)
+LED.Collect.StatusInformation=ValueTable.Column(4)
+
+//
+// Temperature
+//
+
+//
+// Discovery
+
+// Source (1) = Enclosure Discovery Source (2)
+Temperature.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+
+// Keep Only LEDs
+// MS_HW_TEMPERATURE;ID;Temperature;AttachToDeviceID
+Temperature.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Temperature.Discovery.Source(1).Compute(1).Column=1
+Temperature.Discovery.Source(1).Compute(1).ValueList="MS_HW_TEMPERATURE"
+
+// The instance table
+// MS_HW_TEMPERATURE;ID;Temperature;AttachToDeviceID
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Temperature.Discovery.Instance.AttachedtoDeviceID=InstanceTable.Column(4)
+Temperature.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+
+
+// Collect type is multi-instance
+Temperature.Collect.Type="MultiInstance"
+
+// Source (1) = Enclosure Collect Source (1)
+Temperature.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Keep Only LEDs
+// MS_HW_TEMPERATURE;ID;Temperature;AttachToDeviceID
+Temperature.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Temperature.Collect.Source(1).Compute(1).Column=1
+Temperature.Collect.Source(1).Compute(1).ValueList="MS_HW_TEMPERATURE"
+
+
+// ValueTable = Source(1)
+// MS_HW_TEMPERATURE;ID;Temperature;AttachToDeviceID
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.DeviceID=ValueTable.Column(2)
+Temperature.Collect.Temperature=ValueTable.Column(3)
+
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1)= Takes the output of lsenclosure and lsenclosurecanister to output LEDs and Temperatures.
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(1):
+BEGIN { enclosureSection = 0 ; canisterSection = 0; faultLED = "" ; identify_LED = ""}
+
+$1 ~ /MS_HW_ENCLOSURE_START/  {enclosureSection = 1}
+$1 ~ /^id$/  && $2 ~ /^[0-9]+$/ {enclosureID = $2}
+$1 ~ /fault_LED/ {faultLED = $2 ; }
+$1 ~ /identify_LED/ {identifyLED = $2 ; }
+$1 ~ /MS_HW_ENCLOSURE_END/ && enclosureID != "" {
+	                         if (faultLED != "") { if (faultLED ~ /slow_flashing/ ) { faultLED = "slow_flashing_enclosure_fault" }
+                                              #                 ID                 ; Status   ;  OnStatus ; BlinkingStatus ; OffStatus ; AttachToDeviceID
+	                                              print "MS_HW_LED;Enclosure " enclosureID " Fault;"faultLED";ALARM;WARN;OK;" enclosureID ";"
+	                                             }
+	                         if (identifyLED != "") { if (faultLED ~ /slow_flashing/ ) { faultLED = "slow_flashing_enclosure_identify" }
+                                              #                 ID                 ; Status   ;  OnStatus ; BlinkingStatus ; OffStatus ; AttachToDeviceID
+	                                              print "MS_HW_LED;Enclosure " enclosureID " Indentify;" identifyLED ";OK;OK;OK;" enclosureID ";"
+	                                             }
+	                         enclosureID = ""; faultLED = ""; identifyLED = "";
+	                         }
+
+
+$1 ~ /MS_HW_CANISTER_START/  {canisterSection = 1}
+$1 ~ /enclosure_id/  && $2 ~ /^[0-9]+$/ {enclosureID = $2}
+$1 ~ /canister_id/  && $2 ~ /^[0-9]+$/ {canisterID = $2}
+$1 ~ /fault_LED/ {faultLED = $2 ; }
+$1 ~ /temperature/ && $2 ~ /^[0-9]+$/ {temperature = $2 ; }
+$1 ~ /MS_HW_CANISTER_END/ && enclosureID != ""{
+	                         if (faultLED != "") { if (faultLED ~ /slow_flashing/ ) { faultLED = "slow_flashing_canister_fault" }
+                                              #                 ID                 ; Status   ;  OnStatus ; BlinkingStatus ; OffStatus ; AttachToDeviceID
+	                                              print "MS_HW_LED;Enclosure " enclosureID ":Canister " canisterID " Fault;"faultLED";ALARM;WARN;OK;" enclosureID ";"
+	                                             }
+                           if (temperature != "") {
+                                              #                 ID                 ; Temperature   ; AttachToDeviceID
+	                                              print "MS_HW_TEMPERATURE;Enclosure " enclosureID ":Canister " canisterID ";"temperature";" enclosureID ";"
+	                                             }
+ 	                         enclosureID = ""; canisterID = "" ; faultLED = ""; temperature = "";
+ 	                        }
+EmbeddedFile(1).End
+/////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(2)= Takes the output of lsdrive to get drive fru information
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(2):
+BEGIN{FS="[:]"};
+$1 ~ /^id$/ {DiskID=$2}
+$1 ~ /tech_type/ {DiskType=$2;gsub(/_.*/,"",DiskType);}
+$1 ~ /vendor_id/ {Vendor=$2}
+$1 ~ /product_id/ {Model=$2}
+$1 ~ /FRU_part_number/ {PartNumber= "Part Number: "$2}
+$1 ~ /FRU_identity/ {SerialNumber=$2}
+$1 ~ /RPM/ {RPM="RPM: " $2}
+$1 ~ /firmware_level/ {Firmware = $2}
+$1 ~ /MS_HW_DRIVE_END/{
+     print ("MSHW;" DiskID ";" Vendor ";" Model ";" SerialNumber ";" Firmware ";" RPM " - " PartNumber ";" )
+     }
+EmbeddedFile(2).End
+/////////////////////////////////////////////////////////////////////

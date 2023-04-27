@@ -1,0 +1,415 @@
+//
+//
+//                 C O N N E C T O R
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//                 MS_HW_IBMAIXSissasraidmgr.hdf
+//
+//      Supports: x86 Servers
+//			Monitors: Raid contollers, arrays and disks managed by Sas2Ircu (LSI, usually Dell)
+//      Connects to: Sas2Ircu under Linux
+//
+
+//
+// HEADER
+//
+
+hdf.DisplayName="IBM AIX - sissasraidmgr Disk Controllers"
+hdf.TypicalPlatform="IBM POWER"
+hdf.ReliesOn="sissasraidmgr managed RAID card"
+hdf.Comments="Gives physical disk and array status."
+hdf.Version="1.1"
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="RS6000"
+hdf.Comments="Provides the monitoring of RAID controllers in IBM AIX servers through the syssasraidmgr command line utility."
+
+//
+// DETECTION
+//
+
+// Check the utility exists
+Detection.Criteria(1).Type="OSCommand"
+Detection.Criteria(1).CommandLine="cd /etc/objrepos;%{SUDO:/usr/bin/sissasraidmgr}/usr/bin/sissasraidmgr"
+Detection.Criteria(1).ExpectedResult="0940-002 Invalid or no command specified"
+Detection.Criteria(1).ErrorMessage="sissasraidmgr not installed on this server / insufficient rights"
+
+// Check there are appropriate controllers installed
+Detection.Criteria(2).Type="OSCommand"
+Detection.Criteria(2).CommandLine="ls /dev/sissas*"
+Detection.Criteria(2).ExpectedResult="/dev/sissas[0-9]"
+Detection.Criteria(2).ErrorMessage="No sissas controllers found"
+
+Detection.Criteria(3).Type="OSCommand"
+Detection.Criteria(3).CommandLine="for CTRL in `ls /dev/sissas* | sed s:/dev/::`;do cd /etc/objrepos;%{SUDO:/usr/bin/sissasraidmgr} /usr/bin/sissasraidmgr -Ll $CTRL;done;"
+Detection.Criteria(3).ExpectedResult="hdisk[0-9]"
+Detection.Criteria(3).ErrorMessage="No sissasraidmgr managed disks found."
+
+//
+// SUDO-able commands
+//
+Sudo(1).Command="/usr/bin/sissasraidmgr"
+
+//
+// DISK CONTROLLERS
+//
+
+//
+// Discovery
+
+// Source(1) = Output of sas2ircu script
+DiskController.Discovery.Source(1).Type="OsCommand"
+DiskController.Discovery.Source(1).CommandLine="for CTRL in `ls /dev/sissas* | sed s:/dev/::`;do cd /etc/objrepos;%{SUDO:/usr/bin/sissasraidmgr} /usr/bin/sissasraidmgr -Ll $CTRL;done;"
+
+// Reformat Source(1) output via EmbeddedFile(2)
+//
+DiskController.Discovery.Source(1).Compute(1).Type="Awk"
+DiskController.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+DiskController.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW"
+DiskController.Discovery.Source(1).Compute(1).Separators=";"
+
+// Make a copy of DiskController Source 1 so that it can be used by other discoveries
+DiskController.Discovery.Source(2)=%DiskController.Discovery.Source(1)%
+
+// Keep only Controllers
+// MSHW_CTRL;ControllerID;State;Description;
+DiskController.Discovery.Source(2).Compute(1).Type="KeepOnlyMatchingLines"
+DiskController.Discovery.Source(2).Compute(1).Column="1"
+DiskController.Discovery.Source(2).Compute(1).ValueList="MSHW_CTRL"
+
+DiskController.Discovery.Source(2).Compute(2).Type="LeftConcat"
+DiskController.Discovery.Source(2).Compute(2).Column=3
+DiskController.Discovery.Source(2).Compute(2).String="State: "
+
+
+// The InstanceTable
+// MSHW_CTRL;ControllerID;State;Description;
+DiskController.Discovery.InstanceTable=%DiskController.Discovery.Source(2)%
+DiskController.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+DiskController.Discovery.Instance.ControllerNumber=InstanceTable.Column(2)
+DiskController.Discovery.Instance.Model=InstanceTable.Column(4)
+DiskController.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(3)
+
+//
+// Collect
+
+// Collect type is "all instances in one shot"
+DiskController.Collect.Type="MultiInstance"
+
+
+// There is no DiskController Status (it's too basic of a controller to have one)
+// We're just using this so that we can collect for other classes.
+
+// Source(1) = Output of sas2ircu script
+DiskController.Collect.Source(1).Type="OsCommand"
+DiskController.Collect.Source(1).CommandLine="for CTRL in `ls /dev/sissas* | sed s:/dev/::`;do cd /etc/objrepos;%{SUDO:/usr/bin/sissasraidmgr} /usr/bin/sissasraidmgr -Ll $CTRL;done;"
+
+// Reformat Source(1) output via EmbeddedFile(2)
+//
+DiskController.Collect.Source(1).Compute(1).Type="Awk"
+DiskController.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+DiskController.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW"
+DiskController.Collect.Source(1).Compute(1).Separators=";"
+
+// Make a copy of DiskController Source 1 so that it can be used by other discoveries
+DiskController.Collect.Source(2)=%DiskController.Discovery.Source(1)%
+
+// Keep only Controllers
+// MSHW_CTRL;ControllerID;State;Description;
+DiskController.Collect.Source(2).Compute(1).Type="KeepOnlyMatchingLines"
+DiskController.Collect.Source(2).Compute(1).Column="1"
+DiskController.Collect.Source(2).Compute(1).ValueList="MSHW_CTRL"
+
+// ValueTable = Source(1)
+// MSHW_CTRL;ControllerID;ControllerType;BIOS;ControllerFirmware;ControllerSlot;
+DiskController.Collect.ValueTable=%DiskController.Collect.Source(2)%
+DiskController.Collect.DeviceID=ValueTable.Column(2)
+
+//
+// PHYSICAL DISKS
+//
+
+//
+// Discovery
+
+// Source(1) = Discovery Instance Table
+PhysicalDisk.Discovery.Source(1)=%DiskController.Discovery.Source(1)%
+
+// Keep only PhysicalDisks
+// MSHW_PD;diskID;State;Description;Size;PrimaryControllerID;
+PhysicalDisk.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+PhysicalDisk.Discovery.Source(1).Compute(1).Column="1"
+PhysicalDisk.Discovery.Source(1).Compute(1).ValueList="MSHW_PD"
+
+// Translate size into bytes
+// MSHW_PD;diskID;State;Description;Size;PrimaryControllerID;
+PhysicalDisk.Discovery.Source(1).Compute(2).Type="Multiply"
+PhysicalDisk.Discovery.Source(1).Compute(2).Column=5
+// PhysicalDisk.Discovery.Source(1).Compute(2).MultiplyBy="1073741824"
+PhysicalDisk.Discovery.Source(1).Compute(2).MultiplyBy="1000000000"
+
+// InstanceTable = Source(1)
+// MSHW_PD;diskID;State;Description;Size;PrimaryControllerID;
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Instance.ControllerNumber=InstanceTable.Column(6)
+PhysicalDisk.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(4)
+PhysicalDisk.Discovery.Instance.Size=InstanceTable.Column(5)
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+PhysicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+
+//
+// Collect
+
+// Collect type is "all instances in one shot"
+PhysicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = Collect Instance Table
+PhysicalDisk.Collect.Source(1)=%DiskController.Collect.Source(1)%
+
+// Keep only PhysicalDisks
+// MSHW_PD;diskID;State;Description;Size;PrimaryControllerID;
+PhysicalDisk.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+PhysicalDisk.Collect.Source(1).Compute(1).Column="1"
+PhysicalDisk.Collect.Source(1).Compute(1).ValueList="MSHW_PD"
+
+// Keep only ID and State
+// EnclosureSlot;State;
+PhysicalDisk.Collect.Source(1).Compute(2).Type="KeepColumns"
+PhysicalDisk.Collect.Source(1).Compute(2).ColumnNumbers="2,3"
+
+// Duplicate the state column
+// EnclosureSlot;State;State;
+PhysicalDisk.Collect.Source(1).Compute(3).Type="DuplicateColumn"
+PhysicalDisk.Collect.Source(1).Compute(3).Column="2"
+
+// Translate the first state column into a PATROLStatus
+// EnclosureSlot;PATROLStatus;state
+PhysicalDisk.Collect.Source(1).Compute(4).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(4).Column="2"
+PhysicalDisk.Collect.Source(1).Compute(4).TranslationTable="PhysicalDiskStatusTranslationTable"
+
+// Translate the second state column into a more readable string
+// EnclosureSlot;PATROLStatus;statusInformation
+PhysicalDisk.Collect.Source(1).Compute(5).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(5).Column="3"
+PhysicalDisk.Collect.Source(1).Compute(5).TranslationTable="PhysicalDiskStatusInformationTranslationTable"
+
+// ValueTable = Source(1)
+PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(1)%
+PhysicalDisk.Collect.DeviceID=ValueTable.Column(1)
+PhysicalDisk.Collect.Status=ValueTable.Column(2)
+PhysicalDisk.Collect.StatusInformation=ValueTable.Column(3)
+
+// The PhysicalDiskStatusTranslationTable
+PhysicalDiskStatusTranslationTable("Active")="OK"
+PhysicalDiskStatusTranslationTable("Failed")="ALARM"
+PhysicalDiskStatusTranslationTable("RWProtected")="WARN"
+PhysicalDiskStatusTranslationTable("Available")="OK"
+PhysicalDiskStatusTranslationTable(Default)="WARN"
+
+// The PhysicalDiskStatusInformationTranslationTable
+PhysicalDiskStatusInformationTranslationTable("Active")="Active"
+PhysicalDiskStatusInformationTranslationTable("Failed")="Failed"
+PhysicalDiskStatusInformationTranslationTable("RWProtected")="RWProtected (Formatting/Rebuilding)"
+PhysicalDiskStatusInformationTranslationTable("Available")="Available"
+PhysicalDiskStatusInformationTranslationTable(Default)="Unknown Status"
+
+//
+// LOGICAL DISKS
+//
+
+//
+// Discovery
+
+// Source(1) = Discovery Instance Table
+LogicalDisk.Discovery.Source(1)=%DiskController.Discovery.Source(1)%
+
+// Keep only LogicalDisks
+// MSHW_PD;diskID;State;Description;Size;PrimaryControllerID;
+LogicalDisk.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+LogicalDisk.Discovery.Source(1).Compute(1).Column="1"
+LogicalDisk.Discovery.Source(1).Compute(1).ValueList="MSHW_LD"
+
+// Translate size into bytes
+// MSHW_PD;diskID;State;Description;Size;PrimaryControllerID;
+LogicalDisk.Discovery.Source(1).Compute(2).Type="Multiply"
+LogicalDisk.Discovery.Source(1).Compute(2).Column=5
+LogicalDisk.Discovery.Source(1).Compute(2).MultiplyBy="1073741824"
+
+// InstanceTable = Source(1)
+// MSHW_PD;diskID;State;Description;Size;PrimaryControllerID;
+LogicalDisk.Discovery.InstanceTable=%LogicalDisk.Discovery.Source(1)%
+LogicalDisk.Discovery.Instance.ControllerNumber=InstanceTable.Column(6)
+LogicalDisk.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(4)
+LogicalDisk.Discovery.Instance.Size=InstanceTable.Column(5)
+LogicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+LogicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+
+//
+// Collect
+
+// Collect type is "all instances in one shot"
+LogicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = Collect Instance Table
+LogicalDisk.Collect.Source(1)=%DiskController.Collect.Source(1)%
+
+// Keep only LogicalDisks
+// MSHW_PD;diskID;State;Description;Size;PrimaryControllerID;
+LogicalDisk.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+LogicalDisk.Collect.Source(1).Compute(1).Column="1"
+LogicalDisk.Collect.Source(1).Compute(1).ValueList="MSHW_LD"
+
+// Keep only ID and State
+// EnclosureSlot;State;
+LogicalDisk.Collect.Source(1).Compute(2).Type="KeepColumns"
+LogicalDisk.Collect.Source(1).Compute(2).ColumnNumbers="2,3"
+
+// Duplicate the state column
+// EnclosureSlot;State;State;
+LogicalDisk.Collect.Source(1).Compute(3).Type="DuplicateColumn"
+LogicalDisk.Collect.Source(1).Compute(3).Column="2"
+
+// Translate the first state column into a PATROLStatus
+// EnclosureSlot;PATROLStatus;state
+LogicalDisk.Collect.Source(1).Compute(4).Type="Translate"
+LogicalDisk.Collect.Source(1).Compute(4).Column="2"
+LogicalDisk.Collect.Source(1).Compute(4).TranslationTable="LogicalDiskStatusTranslationTable"
+
+// ValueTable = Source(1)
+LogicalDisk.Collect.ValueTable=%LogicalDisk.Collect.Source(1)%
+LogicalDisk.Collect.DeviceID=ValueTable.Column(1)
+LogicalDisk.Collect.Status=ValueTable.Column(2)
+LogicalDisk.Collect.StatusInformation=ValueTable.Column(3)
+
+// The LogicalDiskStatusTranslationTable
+LogicalDiskStatusTranslationTable("Optimal")="OK"
+LogicalDiskStatusTranslationTable("Rebuilding")="WARN"
+LogicalDiskStatusTranslationTable(Default)="ALARM"
+
+
+//
+// BATTERIES
+//
+
+//
+// Discovery
+
+// Source(1) = Output of sas2ircu script
+Battery.Discovery.Source(1).Type="OsCommand"
+Battery.Discovery.Source(1).CommandLine="for CTRL in `ls /dev/sissas* | sed s:/dev/::`;do cd /etc/objrepos;%{SUDO:/usr/bin/sissasraidmgr} /usr/bin/sissasraidmgr -M -o0 -l $CTRL;done;"
+
+// Reformat Source(1) output via EmbeddedFile(2)
+// MSHW;Controller;State;
+Battery.Discovery.Source(1).Compute(1).Type="Awk"
+Battery.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(2)
+Battery.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW"
+Battery.Discovery.Source(1).Compute(1).Separators=";"
+
+// The InstanceTable
+// MSHW;Controller;State;
+Battery.Discovery.InstanceTable=%Battery.Discovery.Source(1)%
+Battery.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Battery.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+Battery.Discovery.Instance.AttachedToDeviceType="DiskController"
+
+//
+// Collect
+
+// Collect type is "all instances in one shot"
+Battery.Collect.Type="MultiInstance"
+
+// Source(1) = Output of sas2ircu script
+Battery.Collect.Source(1).Type="OsCommand"
+Battery.Collect.Source(1).CommandLine="for CTRL in `ls /dev/sissas* | sed s:/dev/::`;do cd /etc/objrepos;%{SUDO:/usr/bin/sissasraidmgr} /usr/bin/sissasraidmgr -M -o0 -l $CTRL;done;"
+
+// Reformat Source(1) output via EmbeddedFile(2)
+// MSHW;Controller;State;
+Battery.Collect.Source(1).Compute(1).Type="Awk"
+Battery.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(2)
+Battery.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW"
+Battery.Collect.Source(1).Compute(1).Separators=";"
+
+// Keep only ID and State
+// Controller;State;
+Battery.Collect.Source(1).Compute(2).Type="KeepColumns"
+Battery.Collect.Source(1).Compute(2).ColumnNumbers="2,3"
+
+// Duplicate the state column
+// Controller;State;State;
+Battery.Collect.Source(1).Compute(3).Type="DuplicateColumn"
+Battery.Collect.Source(1).Compute(3).Column="2"
+
+// Translate the first state column into a PATROLStatus
+// Controller;PATROLStatus;state
+Battery.Collect.Source(1).Compute(4).Type="Translate"
+Battery.Collect.Source(1).Compute(4).Column="2"
+Battery.Collect.Source(1).Compute(4).TranslationTable="BatteryStatusTranslationTable"
+
+// ValueTable = Source(1)
+Battery.Collect.ValueTable=%Battery.Collect.Source(1)%
+Battery.Collect.DeviceID=ValueTable.Column(1)
+Battery.Collect.Status=ValueTable.Column(2)
+Battery.Collect.StatusInformation=ValueTable.Column(3)
+
+// The LogicalDiskStatusTranslationTable
+BatteryStatusTranslationTable("No battery warning/error")="OK"
+BatteryStatusTranslationTable(Default)="ALARM"
+
+
+////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = Controller / Physicaldisk / Logical Disk awk
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(1):
+$1 ~ /^sissas[0-9]/ && $3 !~ /HA/ {ControllerID = $1;
+	                                 if ($3 ~ /Primary/) {PrimaryControllerID = $1}
+	                                 	else {PrimaryControllerID = ""}
+	                                 State = $3;
+	                                 Description = $0;
+	                                 gsub(/(.*Secondary *)|(.*Primary *)/,"",Description)
+	                                 print ("MSHW_CTRL;" ControllerID ";" State ";" Description ";")
+	                                }
+# Only print Logical/Physical Disks if Controller is Primary
+$1 ~ /^[ph]disk[0-9]/ && PrimaryControllerID != "" {
+                     diskID = $1
+	                   State = $3
+	                   Start = index($0,$3) + length ($3)
+	                   End = match($0,/[0-9.]+[MmGgTt][Bb]/); Length = End - Start
+	                   Description = substr($0,Start,Length)
+                     gsub(/ +$/,"",Description);gsub(/^ +/,"",Description);
+                     Size = substr($0,End)
+                     gsub(/ +.+$/,"",Size)
+                     if (Size ~ /[Mm][Bb]/) {gsub (/[Mm][Bb]/,"",Size);Size = Size / 1024};
+                     if (Size ~ /[Tt][Bb]/) {gsub (/[Tt][Bb]/,"",Size);Size = Size * 1024};
+                     if (Size ~ /[Gg][Bb]/) {gsub (/[Gg][Bb]/,"",Size)}
+                     if ($1 ~ /hdisk/) {type="MSHW_LD"}
+                     if ($1 ~ /pdisk/) {type="MSHW_PD"}
+                     print type ";" diskID ";" State ";Description: " Description ";" Size ";" PrimaryControllerID ";"
+	                 }
+EmbeddedFile(1).End
+/////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(2) = Batteries awk
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(2):
+BEGIN {FS="[:]"}
+$1 ~ /RAID Adapter/ { Controller = $2 ; gsub(/ /,"",Controller);}
+$1 ~ /Battery State/ { State = $2 ; gsub(/^ +/,"",State); gsub(/ +$/,"",State);
+	                     print "MSHW;" Controller ";" State ";"
+	                    }
+EmbeddedFile(2).End
+/////////////////////////////////////////////////////////

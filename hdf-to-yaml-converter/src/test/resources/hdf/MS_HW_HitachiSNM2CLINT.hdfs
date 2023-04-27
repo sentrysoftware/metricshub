@@ -1,0 +1,89 @@
+//
+//
+//
+//
+
+//
+// Header
+//
+
+hdf.DisplayName="Hitachi HDS AMS/HUS (SNM2 CLI on Windows)"
+hdf.TypicalPlatform="Hitachi AMS,Hitachi HUS"
+hdf.ReliesOn="Hitachi SNM2 CLI"
+hdf.Version="1.0"
+hdf.Comments="This connector discovers the status of Hitachi AMS/HUS's Processors, CSW, Cache, SM, Power Supplies, Batteries, Fans, Physical Disks and Environment."
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="Storage"
+hdf.NoAutoDetection="true"
+
+#include MS_HW_HitachiSNM2CLI.hhdf
+
+
+//
+// DETECTION
+//
+
+// Check we are running these commands locally on a Windows Server
+// WINDOWS ONLY
+Detection.Criteria(1).Type="OSCommand"
+Detection.Criteria(1).CommandLine="echo %OS%"
+Detection.Criteria(1).ErrorMessage="Connector only works on a Windows NT Server"
+Detection.Criteria(1).ExpectedResult="Windows_NT"
+Detection.Criteria(1).ExecuteLocally=1
+Detection.Criteria(1).ForceSerialization=1
+
+
+// STONAVM_HOME should be defined
+// WINDOWS ONLY
+Detection.Criteria(2).Type="OSCommand"
+Detection.Criteria(2).CommandLine="IF DEFINED STONAVM_HOME ( echo STONAVM_HOME Defined )"
+Detection.Criteria(2).ErrorMessage="STONAVM_HOME is not defined"
+Detection.Criteria(2).ExpectedResult="STONAVM_HOME Defined"
+Detection.Criteria(2).ExecuteLocally=1
+Detection.Criteria(2).ForceSerialization=1
+
+// We should be able to authenticate
+// WINDOWS ONLY
+Detection.Criteria(3).Type="OSCommand"
+Detection.Criteria(3).CommandLine="set STONAVM_RSP_PASS=on&& echo %{PASSWORD}> ""%STONAVM_HOME%\MS_HW_pwdfile"" && ""%STONAVM_HOME%\auaccountenv"" -set -uid %{USERNAME} -passwdfile ""%STONAVM_HOME%\MS_HW_pwdfile"""
+Detection.Criteria(3).ErrorMessage="SNM2 CLI is unable to authenticate."
+Detection.Criteria(3).ExpectedResult="The account information has been set successfully"
+Detection.Criteria(3).ExecuteLocally=1
+Detection.Criteria(3).ForceSerialization=1
+
+// Windows Constants
+#define _EF1_COMMAND_PART1 copy %EmbeddedFile(1)% %EmbeddedFile(1)%.bat & %EmbeddedFile(1)%.bat %{USERNAME} %{PASSWORD}
+#define _EF1_COMMAND_PART2  & del /F /Q %EmbeddedFile(1)%.bat
+
+/////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = Main Collection Script
+///
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(1):
+@echo off
+set username=%1
+set password=%2
+set STONAVM_ACT=on
+set STONAVM_RSP_PASS=on
+set MS_HW_pwdfile=MS_HW_pwdfile%random%
+set MS_HW_unitlist=MS_HW_unitlist%random%
+IF DEFINED STONAVM_HOME (
+	echo %password%> "%STONAVM_HOME%\%MS_HW_pwdfile%"
+	"%STONAVM_HOME%\auaccountenv" -set -uid %username% -passwdfile "%STONAVM_HOME%\%MS_HW_pwdfile%"
+	"%STONAVM_HOME%\auunitref" | more +1  | nawk.exe "{print $1 }" > "%STONAVM_HOME%\%MS_HW_unitlist%"
+	FOR /f "usebackq tokens=*" %%i IN ("%STONAVM_HOME%\%MS_HW_unitlist%") DO (
+	  echo %password%> "%STONAVM_HOME%\%MS_HW_pwdfile%"
+	  "%STONAVM_HOME%\auaccountenv" -set -uid %username% -passwdfile "%STONAVM_HOME%\%MS_HW_pwdfile%"
+    echo MS_HW_SYSTEM_START %%i
+		"%STONAVM_HOME%\%3" %4 %5 -unit %%i
+		echo MS_HW_SYSTEM_END %%i
+		)
+	del /f "%STONAVM_HOME%\%MS_HW_unitlist%"
+  "%STONAVM_HOME%\auaccountenv" -rm
+	)
+EmbeddedFile(1).End
+/////////////////////////////////////////////////////////////////////

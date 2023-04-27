@@ -1,0 +1,916 @@
+//
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//                   MS_HW_CpMgServNT
+//
+//      Supports: HP Insight Manager (Server Agent)
+//
+//
+
+//
+// HEADER
+//
+
+hdf.DisplayName="HP Insight Management Agent - Server"
+hdf.TypicalPlatform="HP ProLiant"
+hdf.ReliesOn="HP Insight Management Agents"
+hdf.Version="1.4"
+hdf.Comments="This connector provides hardware monitoring through the HP Insight Manager (Server Agent) which supports almost all HP ProLiant and Integrity servers under Windows and Linux, as well as Tru64 servers."
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="NT,Linux,OSF1,VMS,OOB,Solaris"
+hdf.Supersedes="MS_HW_HPInsightwmi.hdf,MS_HW_SunCediag.hdf,MS_HW_SunFmadm.hdf,MS_HW_SunPrtdiag.hdf,MS_HW_SunPrtpicl.hdf,MS_HW_SunPsrinfo.hdf,MS_HW_SunPsrinfoT1.hdf,MS_HW_SunScSnapshot.hdf,MS_HW_IpmiTool.hdf,MS_HW_VMwareESX4i.hdf,MS_HW_VMwareESXi.hdf,MS_HW_VMwareESXiDisksIPMI.hdf,MS_HW_VMwareESXiDisksStorage.hdf,MS_HW_HPInsightwbem.hdf"
+
+
+//
+// DETECTION
+//
+
+// check that we got at least one CPU declared here
+// Note: we used to check that we had an enclosure declared, but HP BladeSystems have that OID too
+// so this connector was automatically activating itself on HP BladeSystem enclosures while it didn't have to
+// Let's just hope that there is no HP PRoLiant or Integrity or AlphaServer systems where no CPU
+// is declared in the SNMP tree...
+Detection.Criteria(1).Type="SNMP"
+Detection.Criteria(1).SnmpGetNext="1.3.6.1.4.1.232.1.2.2.1.1"
+
+
+//
+// Enclosure: computer
+//
+
+// Get the model name
+// ServerID;ModelName;
+Enclosure.Discovery.Source(1).Type="SnmpTable"
+Enclosure.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.232.2.2.4"
+Enclosure.Discovery.Source(1).SnmpTableSelectColumns="ID,2"
+
+// Now, get some additional information
+// ServerID;ServiceNumber;ProductID;SerialNumber;
+Enclosure.Discovery.Source(2).Type="SnmpTable"
+Enclosure.Discovery.Source(2).SnmpTableOid="1.3.6.1.4.1.232.2.2.2"
+Enclosure.Discovery.Source(2).SnmpTableSelectColumns="ID,5,6,1"
+
+// Add "Product ID: " to the ProductID column
+// ServerID;ServiceNumber;ProductID;SerialNumber;
+Enclosure.Discovery.Source(2).Compute(1).Type="LeftConcat"
+Enclosure.Discovery.Source(2).Compute(1).Column=3
+Enclosure.Discovery.Source(2).Compute(1).String="Part Number: "
+
+// Add "Service Number: " to the ServiceID column
+// ServerID;ServiceNumber;ProductID;SerialNumber;
+Enclosure.Discovery.Source(2).Compute(2).Type="LeftConcat"
+Enclosure.Discovery.Source(2).Compute(2).Column=2
+Enclosure.Discovery.Source(2).Compute(2).String="Alternative Serial Number: "
+
+// Source(3) = Table joint of Source(1) and Source(2)
+// ServerID;ModelName;ServerID;ServiceNumber;ProductID;SerialNumber;
+Enclosure.Discovery.Source(3).Type="TableJoint"
+Enclosure.Discovery.Source(3).LeftTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Source(3).RightTable=%Enclosure.Discovery.Source(2)%
+Enclosure.Discovery.Source(3).LeftKeyColumn=1
+Enclosure.Discovery.Source(3).RightKeyColumn=1
+Enclosure.Discovery.Source(3).DefaultRightLine=";;;;"
+
+// Source(4) = cpqHePowerMeter SNMP Table
+// ServerID;Supported;Status;CurrentReading;
+Enclosure.Discovery.Source(4).Type="SnmpTable"
+Enclosure.Discovery.Source(4).SnmpTableOid="1.3.6.1.4.1.232.6.2.15"
+Enclosure.Discovery.Source(4).SnmpTableSelectColumns="ID,1,2,3"
+
+// Keep only if Supported == 2, Status == 2 and CurrentReading is not -1
+// ServerID;Supported;Status;CurrentReading;
+Enclosure.Discovery.Source(4).Compute(1).Type="KeepOnlyMatchingLines"
+Enclosure.Discovery.Source(4).Compute(1).Column=2
+Enclosure.Discovery.Source(4).Compute(1).ValueList="2"
+Enclosure.Discovery.Source(4).Compute(2).Type="KeepOnlyMatchingLines"
+Enclosure.Discovery.Source(4).Compute(2).Column=3
+Enclosure.Discovery.Source(4).Compute(2).ValueList="2"
+Enclosure.Discovery.Source(4).Compute(3).Type="ExcludeMatchingLines"
+Enclosure.Discovery.Source(4).Compute(3).Column=4
+Enclosure.Discovery.Source(4).Compute(3).ValueList="-1,0"
+
+// PowerConsumption - Backup Method - Calculate from Power Supply consumption
+// Source(5) = cpqHePowerMeter SNMP Table
+// ServerID;PowerSupplyCapacityUsed;
+Enclosure.Discovery.Source(5).Type="SnmpTable"
+Enclosure.Discovery.Source(5).SnmpTableOid="1.3.6.1.4.1.232.6.2.9.3.1"
+Enclosure.Discovery.Source(5).SnmpTableSelectColumns="1,7"
+
+// Awk the results to get an overall consumed
+// ServerID;Supported;Status;CurrentReading;
+Enclosure.Discovery.Source(5).Compute(1).Type="Awk"
+Enclosure.Discovery.Source(5).Compute(1).AwkScript=EmbeddedFile(1)
+Enclosure.Discovery.Source(5).Compute(1).KeepOnlyRegExp="^MSHW;"
+Enclosure.Discovery.Source(5).Compute(1).Separators=";"
+Enclosure.Discovery.Source(5).Compute(1).SelectColumns="2,3,4,5"
+
+// Exclude if all power supplies read zero
+// ServerID;Supported;Status;CurrentReading;
+Enclosure.Discovery.Source(5).Compute(2).Type="ExcludeMatchingLines"
+Enclosure.Discovery.Source(5).Compute(2).Column=4
+Enclosure.Discovery.Source(5).Compute(2).ValueList="0"
+
+// Union the Power Consumption tables, hopefully one will match
+// ServerID;Supported;Status;CurrentReading;
+Enclosure.Discovery.Source(6).Type="TableUnion"
+Enclosure.Discovery.Source(6).Table1=%Enclosure.Discovery.Source(4)%
+Enclosure.Discovery.Source(6).Table2=%Enclosure.Discovery.Source(5)%
+
+// Source(5) = Table joint between Source(3) and Source(6)
+// ServerID;ModelName;ServerID;ServiceNumber;ProductID;SerialNumber;ServerID;Supported;Status;CurrentReading;
+Enclosure.Discovery.Source(7).Type="TableJoint"
+Enclosure.Discovery.Source(7).LeftTable=%Enclosure.Discovery.Source(3)%
+Enclosure.Discovery.Source(7).RightTable=%Enclosure.Discovery.Source(6)%
+Enclosure.Discovery.Source(7).LeftKeyColumn=1
+Enclosure.Discovery.Source(7).RightKeyColumn=1
+Enclosure.Discovery.Source(7).DefaultRightLine=";;;;"
+
+
+// InstanceTable = Source(5)
+// ServerID;ModelName;ServerID;ServiceNumber;ProductID;SerialNumber;ServerID;Supported;Status;CurrentReading;
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(7)%
+Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Enclosure.Discovery.Instance.Vendor="HP"
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(2)
+Enclosure.Discovery.Instance.Type="Computer"
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(6)
+Enclosure.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(5)
+Enclosure.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(4)
+Enclosure.Discovery.Instance.ParameterActivation.PowerConsumption=InstanceTable.Column(10)
+
+
+//
+// Collect
+
+// Collect type is mono-instance
+Enclosure.Collect.Type="MultiInstance"
+
+// Source(1) = cpqHePowerMeter SNMP Table
+// CurrentReading;
+// Enclosure.Collect.Source(1).Type="SnmpGet"
+// Enclosure.Collect.Source(1).SnmpOid="1.3.6.1.4.1.232.6.2.15.3.%Enclosure.Collect.DeviceID%"
+
+// Get a list of Enclosures
+// ServerID
+Enclosure.Collect.Source(1).Type="SnmpTable"
+Enclosure.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.232.2.2.4"
+Enclosure.Collect.Source(1).SnmpTableSelectColumns="ID"
+
+// Source(2) = cpqHePowerMeter SNMP Table
+// ID;CurrentReading;
+Enclosure.Collect.Source(2).Type="SnmpTable"
+Enclosure.Collect.Source(2).SnmpTableOid="1.3.6.1.4.1.232.6.2.15"
+Enclosure.Collect.Source(2).SnmpTableSelectColumns="ID,3"
+
+// PowerConsumption - Backup Method - Calculate from Power Supply consumption
+// Source(3) = cpqHePowerMeter SNMP Table
+// ServerID;PowerSupplyCapacityUsed;
+Enclosure.Collect.Source(3).Type="SnmpTable"
+Enclosure.Collect.Source(3).SnmpTableOid="1.3.6.1.4.1.232.6.2.9.3.1"
+Enclosure.Collect.Source(3).SnmpTableSelectColumns="1,7"
+
+// Awk the results to get an overall consumed
+// ServerID;CurrentReading;
+Enclosure.Collect.Source(3).Compute(1).Type="Awk"
+Enclosure.Collect.Source(3).Compute(1).AwkScript=EmbeddedFile(1)
+Enclosure.Collect.Source(3).Compute(1).KeepOnlyRegExp="^MSHW;"
+Enclosure.Collect.Source(3).Compute(1).Separators=";"
+Enclosure.Collect.Source(3).Compute(1).SelectColumns="2,5"
+
+// Union the Power Consumption tables, hopefully one will match
+// ID;CurrentReading;
+Enclosure.Collect.Source(4).Type="TableUnion"
+Enclosure.Collect.Source(4).Table1=%Enclosure.Collect.Source(2)%
+Enclosure.Collect.Source(4).Table2=%Enclosure.Collect.Source(3)%
+
+// Source(3) = Table joint between Source(1) and Source(4)
+// This is because the PowerMeter Table does not exist in early versions of the HP agent, so we collect a list of IDs from the main table to avoid "no collect value errors"
+// ID;ID;CurrentReading;
+Enclosure.Collect.Source(5).Type="TableJoint"
+Enclosure.Collect.Source(5).LeftTable=%Enclosure.Collect.Source(1)%
+Enclosure.Collect.Source(5).RightTable=%Enclosure.Collect.Source(4)%
+Enclosure.Collect.Source(5).LeftKeyColumn=1
+Enclosure.Collect.Source(5).RightKeyColumn=1
+Enclosure.Collect.Source(5).DefaultRightLine=";;"
+
+// ValueTable = Source(1)
+// ID;ID;CurrentReading;
+Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(5)%
+Enclosure.Collect.DeviceID=ValueTable.Column(1)
+Enclosure.Collect.PowerConsumption=ValueTable.Column(3)
+
+
+//
+// CPUS
+//
+
+//
+// CPU discovery
+
+// Source(1) = cpqSeCpuTable SNMP table
+// ID;Name;Speed;VendorCode;SocketNumber;
+CPU.Discovery.Source(1).Type="SnmpTable"
+CPU.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.232.1.2.2.1.1"
+CPU.Discovery.Source(1).SnmpTableSelectColumns="ID,3,4,8,9"
+
+// Remove processors whose vendor is "0" (zero)
+// because it means: no processor
+// ID;Name;Speed;VendorCode;SocketNumber;
+CPU.Discovery.Source(1).Compute(1).Type="ExcludeMatchingLines"
+CPU.Discovery.Source(1).Compute(1).Column=4
+CPU.Discovery.Source(1).Compute(1).ValueList="0"
+
+// Translate vendor number
+// ID;Name;Speed;VendorName;SocketNumber;
+CPU.Discovery.Source(1).Compute(2).Type="Translate"
+CPU.Discovery.Source(1).Compute(2).Column=4
+CPU.Discovery.Source(1).Compute(2).TranslationTable="vendorTranslationTable"
+
+// Replace "IPF" by "Itanium" in the model string
+// ID;Name;Speed;VendorName;SocketNumber;
+CPU.Discovery.Source(1).Compute(3).Type="Replace"
+CPU.Discovery.Source(1).Compute(3).Column=2
+CPU.Discovery.Source(1).Compute(3).Replace="IPF"
+CPU.Discovery.Source(1).Compute(3).ReplaceBy="Itanium"
+
+CPU.Discovery.Source(1).Compute(4).Type="Replace"
+CPU.Discovery.Source(1).Compute(4).Column=2
+CPU.Discovery.Source(1).Compute(4).Replace="Intel"
+CPU.Discovery.Source(1).Compute(4).ReplaceBy=""
+
+CPU.Discovery.Source(1).Compute(5).Type="Replace"
+CPU.Discovery.Source(1).Compute(5).Column=2
+CPU.Discovery.Source(1).Compute(5).Replace="AMD"
+CPU.Discovery.Source(1).Compute(5).ReplaceBy=""
+
+CPU.Discovery.Source(1).Compute(6).Type="Replace"
+CPU.Discovery.Source(1).Compute(6).Column=2
+CPU.Discovery.Source(1).Compute(6).Replace="(R)"
+CPU.Discovery.Source(1).Compute(6).ReplaceBy=""
+
+CPU.Discovery.Source(1).Compute(7).Type="Replace"
+CPU.Discovery.Source(1).Compute(7).Column=2
+CPU.Discovery.Source(1).Compute(7).Replace="CPU"
+CPU.Discovery.Source(1).Compute(7).ReplaceBy=""
+
+// Add "Socket " to the left of the SocketNumber column
+// ID;Name;Speed;VendorName;SocketNumber;
+CPU.Discovery.Source(1).Compute(8).Type="LeftConcat"
+CPU.Discovery.Source(1).Compute(8).Column=5
+CPU.Discovery.Source(1).Compute(8).String="Location: Socket Number "
+
+// Replace "0" by "Unknown" in the SocketNumber column
+// ID;Name;Speed;VendorName;SocketNumber;
+CPU.Discovery.Source(1).Compute(9).Type="Replace"
+CPU.Discovery.Source(1).Compute(9).Column=5
+CPU.Discovery.Source(1).Compute(9).Replace="Location: Socket Number 0"
+CPU.Discovery.Source(1).Compute(9).ReplaceBy=""
+
+// Instance Table
+CPU.Discovery.InstanceTable=%CPU.Discovery.Source(1)%
+CPU.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+CPU.Discovery.Instance.Model=InstanceTable.Column(2)
+CPU.Discovery.Instance.Vendor=InstanceTable.Column(4)
+CPU.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(5)
+CPU.Discovery.Instance.MaximumSpeed=InstanceTable.Column(3)
+
+// Collect
+
+// Collect is multi-instance (all instances in one shot)
+cpu.Collect.Type="MultiInstance"
+
+// Source(1) = cpqSeCpuTable SNMP table
+// ID;Speed;Status;PredictsFailure
+CPU.Collect.Source(1).Type="SnmpTable"
+CPU.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.232.1.2.2.1.1"
+CPU.Collect.Source(1).SnmpTableSelectColumns="ID,4,6,10"
+
+// Duplicate status, because we will translate it two times
+// ID;Speed;Status;Status;PredictsFailure
+CPU.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+CPU.Collect.Source(1).Compute(1).Column=3
+
+// Translate Status into PATROLStatus
+// ID;Speed;PATROLStatus;Status;PredictsFailure
+CPU.Collect.Source(1).Compute(2).Type="Translate"
+CPU.Collect.Source(1).Compute(2).Column=3
+CPU.Collect.Source(1).Compute(2).TranslationTable="cpuStatusTranslationTable"
+
+// Translate second Status into more readable string
+// ID;Speed;PATROLStatus;StatusInformation;PredictsFailure
+CPU.Collect.Source(1).Compute(3).Type="Translate"
+CPU.Collect.Source(1).Compute(3).Column=4
+CPU.Collect.Source(1).Compute(3).TranslationTable="cpuStatusInformationTranslationTable"
+
+// Translate the PredictsFailure code into 0 = OK or 1 = bad
+// ID;Speed;PATROLStatus;StatusInformation;PredictsFailure
+CPU.Collect.Source(1).Compute(4).Type="Translate"
+CPU.Collect.Source(1).Compute(4).Column=5
+CPU.Collect.Source(1).Compute(4).TranslationTable="cpuPredictedFailureTranslationTable"
+
+// ValueTable = Source(1)
+cpu.Collect.ValueTable=%CPU.Collect.Source(1)%
+cpu.Collect.DeviceID=ValueTable.Column(1)
+cpu.Collect.CurrentSpeed=ValueTable.Column(2)
+cpu.Collect.Status=ValueTable.Column(3)
+cpu.Collect.StatusInformation=ValueTable.Column(4)
+cpu.Collect.PredictedFailure=ValueTable.Column(5)
+
+// The cpuStatusTranslationTable
+cpuStatusTranslationTable(2)="OK"
+cpuStatusTranslationTable(3)="WARN"
+cpuStatusTranslationTable(4)="ALARM"
+cpuStatusTranslationTable(5)="WARN"
+cpuStatusTranslationTable(6)="ALARM"
+cpuStatusTranslationTable(Default)="UNKNOWN"
+
+// The cpuStatusInformationTranslationTable
+cpuStatusInformationTranslationTable(2)=""
+cpuStatusInformationTranslationTable(3)="Degraded"
+cpuStatusInformationTranslationTable(4)="Failed"
+cpuStatusInformationTranslationTable(5)="Disabled"
+cpuStatusInformationTranslationTable(6)="Non-recoverable"
+cpuStatusInformationTranslationTable(Default)="Unknown Status"
+
+// The vendorTranslationTable
+vendorTranslationTable(1)=""
+vendorTranslationTable(2)="Intel"
+vendorTranslationTable(3)="AMD"
+vendorTranslationTable(4)="Cyrix"
+vendorTranslationTable(5)="Ti"
+vendorTranslationTable(6)="Nexgen"
+vendorTranslationTable(7)="Compaq"
+vendorTranslationTable(8)="Samsung"
+vendorTranslationTable(9)="Mitsubishi"
+vendorTranslationTable(10)="Mips"
+vendorTranslationTable(Default)=""
+
+// The cpuPredictedFailureTranslationTable
+cpuPredictedFailureTranslationTable(3)="1"
+cpuPredictedFailureTranslationTable(Default)="0"
+
+
+
+
+////////////////////////////////
+// TEMPERATURES
+//
+// Temperature discovery
+///////////////////////////////////
+///////////////////////////////////
+// Source(1) = temperature SNMP table
+// ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
+Temperature.Discovery.Source(1).Type="SnmpTable"
+Temperature.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.232.6.2.6.8.1"
+Temperature.Discovery.Source(1).SnmpTableSelectColumns="ID,3,4,5,7,6"
+
+// Replace readings of -1 with "" to deactivate the temperature parameter
+// ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
+Temperature.Discovery.Source(1).Compute(1).Type="Replace"
+Temperature.Discovery.Source(1).Compute(1).Column=3
+Temperature.Discovery.Source(1).Compute(1).Replace="-1"
+Temperature.Discovery.Source(1).Compute(1).ReplaceBy=""
+
+//Adding a N for negative thresholds
+// ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
+Temperature.Discovery.Source(1).Compute(2).Type="Replace"
+Temperature.Discovery.Source(1).Compute(2).Column=4
+Temperature.Discovery.Source(1).Compute(2).Replace="-"
+Temperature.Discovery.Source(1).Compute(2).ReplaceBy="N"
+
+// Translate the SensorLocationCode to a more human-readable string
+// ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
+Temperature.Discovery.Source(1).Compute(3).Type="Translate"
+Temperature.Discovery.Source(1).Compute(3).TranslationTable="TemperatureTypeTranslationTable"
+Temperature.Discovery.Source(1).Compute(3).Column=2
+
+
+// Adding MSHW to catch invalid thresholds..
+// Using a trick method to only remove leading zeros
+// ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
+Temperature.Discovery.Source(1).Compute(4).Type="LeftConcat"
+Temperature.Discovery.Source(1).Compute(4).Column=4
+Temperature.Discovery.Source(1).Compute(4).String="MSHW_"
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Setting the threshold according to the threshold Type for warn
+//If threshold type = 9 it means it's a warning threshold. AlarmThreshold = WarningThreshold+5
+//The status has to be deactivated for valid thresholds
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Copy the table
+Temperature.Discovery.Source(2)=%Temperature.Discovery.Source(1)%
+
+//Keep only caution's threshold's type
+// ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
+Temperature.Discovery.Source(2).Compute(1).Type="KeepOnlyMatchingLines"
+Temperature.Discovery.Source(2).Compute(1).Column=5
+Temperature.Discovery.Source(2).Compute(1).ValueList=9
+
+//keep only valid thresholds
+// ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
+Temperature.Discovery.Source(2).Compute(2).Type="ExcludeMatchingLines"
+Temperature.Discovery.Source(2).Compute(2).Column=4
+Temperature.Discovery.Source(2).Compute(2).ValueList="MSHW_0,MSHW_N"
+
+// Remove MSHW_ for Valid values
+// ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
+Temperature.Discovery.Source(2).Compute(3).Type="Replace"
+Temperature.Discovery.Source(2).Compute(3).Column=4
+Temperature.Discovery.Source(2).Compute(3).Replace="MSHW_"
+Temperature.Discovery.Source(2).Compute(3).ReplaceBy=""
+
+
+//Adding another threshold column to make the difference between warnthresholds and alarm threhsolds
+// ID;SensorLocationCode;Temperature;WarnThreshold;AlarmThreshold;ThresholdType;Condition
+Temperature.Discovery.Source(2).Compute(4).Type="DuplicateColumn"
+Temperature.Discovery.Source(2).Compute(4).Column=4
+
+
+//Adding 5 degrees to the Warningthreshold for AlarmThreshold
+// ID;SensorLocationCode;Temperature;WarnThreshold;AlarmThreshold;ThresholdType;Condition
+Temperature.Discovery.Source(2).Compute(5).Type="Add"
+Temperature.Discovery.Source(2).Compute(5).Column=5
+Temperature.Discovery.Source(2).Compute(5).Add=5
+
+// Replace condition with "" to deactivate the status parameter
+// ID;SensorLocationCode;Temperature;WarnThreshold;AlarmThreshold;ThresholdType;Condition
+Temperature.Discovery.Source(2).Compute(6).Type="Replace"
+Temperature.Discovery.Source(2).Compute(6).Column=7
+Temperature.Discovery.Source(2).Compute(6).Replace=Column(7)
+Temperature.Discovery.Source(2).Compute(6).ReplaceBy=""
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//Setting the thresholds for thresholds Type=alarm
+//If threshold type = 15 it means it's an alarm threshold. WarnThreshold =  Alarmthreshold-5
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//Copy the table
+Temperature.Discovery.Source(3)=%Temperature.Discovery.Source(1)%
+
+//Keep only alarms thresholdtype
+// ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
+Temperature.Discovery.Source(3).Compute(1).Type="KeepOnlyMatchingLines"
+Temperature.Discovery.Source(3).Compute(1).Column=5
+Temperature.Discovery.Source(3).Compute(1).ValueList=15
+
+//Keep only valid thresholds
+// ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
+Temperature.Discovery.Source(3).Compute(2).Type="ExcludeMatchingLines"
+Temperature.Discovery.Source(3).Compute(2).Column=4
+Temperature.Discovery.Source(3).Compute(2).ValueList="MSHW_0,MSHW_N"
+
+// Remove MSHW_ for valid thresholds
+// ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
+Temperature.Discovery.Source(3).Compute(3).Type="Replace"
+Temperature.Discovery.Source(3).Compute(3).Column=4
+Temperature.Discovery.Source(3).Compute(3).Replace="MSHW_"
+Temperature.Discovery.Source(3).Compute(3).ReplaceBy=""
+
+//Adding another threshold column to make the difference between warnthreshold and alarm threhsold
+// ID;SensorLocationCode;Temperature;WarnThreshold;AlarmThreshold;ThresholdType;Condition
+Temperature.Discovery.Source(3).Compute(4).Type="DuplicateColumn"
+Temperature.Discovery.Source(3).Compute(4).Column=4
+
+//Substracting 5 degrees to the alarm threshold for warn Threshold
+// ID;SensorLocationCode;Temperature;WarnThreshold;AlarmThreshold;ThresholdType;Condition
+Temperature.Discovery.Source(3).Compute(5).Type="Substract"
+Temperature.Discovery.Source(3).Compute(5).Column=4
+Temperature.Discovery.Source(3).Compute(5).Substract=5
+
+// Replace condition with "" to deactivate the status parameter
+// ID;SensorLocationCode;Temperature;WarnThreshold;AlarmThreshold;ThresholdType;Condition
+Temperature.Discovery.Source(3).Compute(6).Type="Replace"
+Temperature.Discovery.Source(3).Compute(6).Column=7
+Temperature.Discovery.Source(3).Compute(6).Replace=Column(7)
+Temperature.Discovery.Source(3).Compute(6).ReplaceBy=""
+
+//////////////////////////////////////////////////////////////////////////////////////
+//Removing thresolds for non caution/critical threshold's type keep status active
+/////////////////////////////////////////////////////////////////////////////////////
+//Copy the table
+Temperature.Discovery.Source(4)=%Temperature.Discovery.Source(1)%
+
+//Exclude caution/critical threshold's type
+// ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
+Temperature.Discovery.Source(4).Compute(1).Type="ExcludeMatchingLines"
+Temperature.Discovery.Source(4).Compute(1).Column=5
+Temperature.Discovery.Source(4).Compute(1).ValueList="9,15"
+
+//replace by an emtpy string the threshold column
+// ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
+Temperature.Discovery.Source(4).Compute(2).Type="Replace"
+Temperature.Discovery.Source(4).Compute(2).Column=4
+Temperature.Discovery.Source(4).Compute(2).Replace=column(4)
+Temperature.Discovery.Source(4).Compute(2).ReplaceBy=""
+
+//Adding another threshold column to make the difference between warnthreshold and alarm threhsold
+// ID;SensorLocationCode;Temperature;WarnThreshold;AlarmThreshold;ThresholdType;Condition
+Temperature.Discovery.Source(4).Compute(3).Type="DuplicateColumn"
+Temperature.Discovery.Source(4).Compute(3).Column=4
+
+////////////////////////////////////////////////////////////////////////////////////////////
+//Removing thresholds for unvalid caution/critical threshold's type and keep status active
+/////////////////////////////////////////////////////////////////////////////////////////
+//Copy the table
+Temperature.Discovery.Source(5)=%Temperature.Discovery.Source(1)%
+
+//Exclude caution/critical threshold's type
+// ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
+Temperature.Discovery.Source(5).Compute(1).Type="KeepOnlyMatchingLines"
+Temperature.Discovery.Source(5).Compute(1).Column=5
+Temperature.Discovery.Source(5).Compute(1).ValueList="9,15"
+
+//Keep only valid thresholds
+// ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
+Temperature.Discovery.Source(5).Compute(2).Type="KeepOnlyMatchingLines"
+Temperature.Discovery.Source(5).Compute(2).Column=4
+Temperature.Discovery.Source(5).Compute(2).ValueList="MSHW_0,MSHW_N"
+
+//replace by an emtpy string the threshold column
+// ID;SensorLocationCode;Temperature;Threshold;ThresholdType;Condition
+Temperature.Discovery.Source(5).Compute(3).Type="Replace"
+Temperature.Discovery.Source(5).Compute(3).Column=4
+Temperature.Discovery.Source(5).Compute(3).Replace=column(4)
+Temperature.Discovery.Source(5).Compute(3).ReplaceBy=""
+
+//Adding another threshold column to make the difference between warnthreshold and alarm threhsold
+// ID;SensorLocationCode;Temperature;WarnThreshold;AlarmThreshold;ThresholdType;Condition
+Temperature.Discovery.Source(5).Compute(4).Type="DuplicateColumn"
+Temperature.Discovery.Source(5).Compute(4).Column=4
+
+/////////////////////////////////////////////
+//Merging all the sources tables
+//////////////////////////////////////////
+
+// ID;SensorLocationCode;Temperature;WarnThreshold;AlarmThreshold;ThresholdType;Condition
+Temperature.Discovery.Source(6).Type="TableUnion"
+Temperature.Discovery.Source(6).Table1=%Temperature.Discovery.Source(2)%
+Temperature.Discovery.Source(6).Table2=%Temperature.Discovery.Source(3)%
+Temperature.Discovery.Source(6).Table3=%Temperature.Discovery.Source(4)%
+Temperature.Discovery.Source(6).Table4=%Temperature.Discovery.Source(5)%
+
+// InstanceTable = Source(6)
+// ID;SensorLocationCode;Temperature;WarnThreshold;AlarmThreshold;ThresholdType;Condition
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(6)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Temperature.Discovery.Instance.TemperatureType=InstanceTable.Column(2)
+Temperature.Discovery.Instance.WarningThreshold=InstanceTable.Column(4)
+Temperature.Discovery.Instance.AlarmThreshold=InstanceTable.Column(5)
+Temperature.Discovery.Instance.ParameterActivation.Temperature=InstanceTable.Column(3)
+Temperature.Discovery.Instance.ParameterActivation.Status=InstanceTable.Column(7)
+
+
+TemperatureTypeTranslationTable(1)=""
+TemperatureTypeTranslationTable(2)=""
+TemperatureTypeTranslationTable(3)="System"
+TemperatureTypeTranslationTable(4)="System Board"
+TemperatureTypeTranslationTable(5)="I/O Board"
+TemperatureTypeTranslationTable(6)="CPU"
+TemperatureTypeTranslationTable(7)="Memory"
+TemperatureTypeTranslationTable(8)="Storage"
+TemperatureTypeTranslationTable(9)="Removable Media"
+TemperatureTypeTranslationTable(10)="Power Supply"
+TemperatureTypeTranslationTable(11)="Ambient"
+TemperatureTypeTranslationTable(12)="Chassis"
+TemperatureTypeTranslationTable(13)="Bridge Card"
+TemperatureTypeTranslationTable(default)=""
+
+// Collect
+
+// Collect is multi-instance (all instances in one shot)
+Temperature.Collect.Type="MultiInstance"
+
+// Source(1) = temperature SNMP table
+// ID;Temperature;Condition;
+Temperature.Collect.Source(1).Type="SnmpTable"
+Temperature.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.232.6.2.6.8.1"
+Temperature.Collect.Source(1).SnmpTableSelectColumns="ID,4,6"
+
+// Duplicate status, because we will translate it two times
+// ID;Temperature;Condition;Condition;
+Temperature.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Temperature.Collect.Source(1).Compute(1).Column=3
+
+// Translate Status into PATROLStatus
+// ID;Temperature;PATROLStatus;Condition;
+Temperature.Collect.Source(1).Compute(2).Type="Translate"
+Temperature.Collect.Source(1).Compute(2).Column=3
+Temperature.Collect.Source(1).Compute(2).TranslationTable="TemperatureStatusTranslationTable"
+
+// Translate second Status into more readable string
+// ID;Temperature;PATROLStatus;StatusInformation;
+Temperature.Collect.Source(1).Compute(3).Type="Translate"
+Temperature.Collect.Source(1).Compute(3).Column=4
+Temperature.Collect.Source(1).Compute(3).TranslationTable="TemperatureStatusInformationTranslationTable"
+
+// ValueTable = Source(1)
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.DeviceID=ValueTable.Column(1)
+Temperature.Collect.Temperature=ValueTable.Column(2)
+Temperature.Collect.Status=ValueTable.Column(3)
+Temperature.Collect.StatusInformation=ValueTable.Column(4)
+
+// The TemperatureStatusTranslationTable
+TemperatureStatusTranslationTable(2)="OK"
+TemperatureStatusTranslationTable(3)="WARN"
+TemperatureStatusTranslationTable(4)="ALARM"
+TemperatureStatusTranslationTable(Default)="UNKNOWN"
+
+// The TemperatureStatusInformationTranslationTable
+TemperatureStatusInformationTranslationTable(2)=""
+TemperatureStatusInformationTranslationTable(3)="Degraded"
+TemperatureStatusInformationTranslationTable(4)="Failed"
+TemperatureStatusInformationTranslationTable(Default)="Unknown Status"
+
+//
+// FANS
+//
+
+//
+// Fan discovery
+
+// Source(1) = cpqHeFltTolFanTable
+// ID;LocationCode;Present
+Fan.Discovery.Source(1).Type="SnmpTable"
+Fan.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.232.6.2.6.7.1"
+Fan.Discovery.Source(1).SnmpTableSelectColumns="ID,3,4"
+
+// Keep only present fans
+// ID;LocationCode;Present
+Fan.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Fan.Discovery.Source(1).Compute(1).Column=3
+Fan.Discovery.Source(1).Compute(1).ValueList="3"
+
+// Translate LocationCode into Location
+// ID;Location;Present
+Fan.Discovery.Source(1).Compute(2).Type="Translate"
+Fan.Discovery.Source(1).Compute(2).Column=2
+Fan.Discovery.Source(1).Compute(2).TranslationTable="FanTypeTranslationTable"
+
+// The FanTypeTranslationTable
+FanTypeTranslationTable(1)="Other"
+FanTypeTranslationTable(2)="Unknown"
+FanTypeTranslationTable(3)="System"
+FanTypeTranslationTable(4)="System board"
+FanTypeTranslationTable(5)="I/O Board"
+FanTypeTranslationTable(6)="CPU"
+FanTypeTranslationTable(7)="Memory"
+FanTypeTranslationTable(8)="Storage"
+FanTypeTranslationTable(9)="Removable media"
+FanTypeTranslationTable(10)="Power supply"
+FanTypeTranslationTable(11)="Ambient"
+FanTypeTranslationTable(12)="Chassis"
+FanTypeTranslationTable(13)="Bridge card"
+FanTypeTranslationTable(14)="Management board"
+FanTypeTranslationTable(15)="Backplane"
+FanTypeTranslationTable(16)="Network slot"
+FanTypeTranslationTable(17)="Blade slot"
+FanTypeTranslationTable(18)="Virtual"
+FanTypeTranslationTable(default)=""
+
+// InstanceTable = Source(1)
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Fan.Discovery.Instance.FanType=InstanceTable.Column(2)
+
+
+//
+// Fan collect
+
+// Collect type is mono-instance
+Fan.Collect.Type="MonoInstance"
+
+// Do an SNMP get directly on the status
+// StatusCode
+Fan.Collect.Source(1).Type="SnmpGet"
+Fan.Collect.Source(1).SnmpOid="1.3.6.1.4.1.232.6.2.6.7.1.9.%Fan.Collect.DeviceID%"
+
+// Duplicate the StatusCode column
+// StatusCode;StatusCode;
+Fan.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Fan.Collect.Source(1).Compute(1).Column=1
+
+// Translate 1st StatusCode into PATROLSTatus
+// PATROLStatus;StatusCode;
+Fan.Collect.Source(1).Compute(2).Type="Translate"
+Fan.Collect.Source(1).Compute(2).Column=1
+Fan.Collect.Source(1).Compute(2).TranslationTable="FanStatusTranslationTable"
+
+// The FanStatusTranslationTable
+FanStatusTranslationTable(1)="OK"
+FanStatusTranslationTable(2)="OK"
+FanStatusTranslationTable(3)="WARN"
+FanStatusTranslationTable(4)="ALARM"
+FanStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate second STatusCode into a more readable string
+// PATROLStatus;StatusInformation;
+Fan.Collect.Source(1).Compute(3).Type="Translate"
+Fan.Collect.Source(1).Compute(3).Column=2
+Fan.Collect.Source(1).Compute(3).TranslationTable="FanStatusInformationTranslationTable"
+
+// The FanStatusInformationTranslationTable
+FanStatusInformationTranslationTable(1)="Other"
+FanStatusInformationTranslationTable(2)="OK"
+FanStatusInformationTranslationTable(3)="Degraded"
+FanStatusInformationTranslationTable(4)="Failed"
+FanStatusInformationTranslationTable(Default)="Unknown Status"
+
+
+// ValueTable = Source(1)
+Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+Fan.Collect.Status=ValueTable.Column(1)
+Fan.Collect.StatusInformation=ValueTable.Column(2)
+
+
+// VOLTAGES
+// No voltage
+
+// POWER SUPPLIES
+
+// Power Supply discovery
+
+// Source(1) = cpqHeFltTolPowerSupplyTable SNMP table
+// DeviceID;Present;CapacityUsed;Capacity;SalePartNumber;SerialNumber;SparePartNumber;
+PowerSupply.Discovery.Source(1).Type="SnmpTable"
+PowerSupply.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.232.6.2.9.3.1"
+PowerSupply.Discovery.Source(1).SnmpTableSelectColumns="ID,3,7,8,10,11,16"
+
+// Keep only power supplies that are actually present
+// DeviceID;Present;CapacityUsed;Capacity
+PowerSupply.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+PowerSupply.Discovery.Source(1).Compute(1).Column=2
+PowerSupply.Discovery.Source(1).Compute(1).ValueList="3"
+
+// Replace the "0" value in CapacityUsed by an empty string
+// DeviceID;Present;CapacityUsed;Capacity;
+PowerSupply.Discovery.Source(1).Compute(2).Type="Replace"
+PowerSupply.Discovery.Source(1).Compute(2).Column=3
+PowerSupply.Discovery.Source(1).Compute(2).Replace="0"
+PowerSupply.Discovery.Source(1).Compute(2).ReplaceBy=""
+
+PowerSupply.Discovery.Source(1).Compute(3).Type="LeftConcat"
+PowerSupply.Discovery.Source(1).Compute(3).Column=5
+PowerSupply.Discovery.Source(1).Compute(3).String="Alternative Part Number: "
+
+PowerSupply.Discovery.Source(1).Compute(4).Type="LeftConcat"
+PowerSupply.Discovery.Source(1).Compute(4).Column=7
+PowerSupply.Discovery.Source(1).Compute(4).String="Spare Part Number: "
+
+PowerSupply.Discovery.Source(1).Compute(5).Type="LeftConcat"
+PowerSupply.Discovery.Source(1).Compute(5).Column=6
+PowerSupply.Discovery.Source(1).Compute(5).String="SerialNumber: "
+
+
+// InstanceTable...
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+//PowerSupply.Discovery.Instance.ParameterActivation.UsedWatts=InstanceTable.Column(3)
+PowerSupply.Discovery.Instance.PowerSupplyPower=InstanceTable.Column(4)
+PowerSupply.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(6)
+PowerSupply.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(5)
+PowerSupply.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(7)
+
+
+// Power Supply collect
+
+// Source(1) = cpqHeFltTolPowerSupplyTable SNMP table
+// DeviceID;Status;CapacityUsed;condition
+PowerSupply.Collect.Type="MultiInstance"
+PowerSupply.Collect.Source(1).Type="SnmpTable"
+PowerSupply.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.232.6.2.9.3.1"
+PowerSupply.Collect.Source(1).SnmpTableSelectColumns="ID,5,7,4"
+
+// Duplicate the Status column
+// DeviceID;Status;Status;CapacityUsed;condition
+PowerSupply.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+PowerSupply.Collect.Source(1).Compute(1).Column="2"
+
+// Translate the first Status column into PATROL Status
+// DeviceID;PATROLStatus;Status;CapacityUsed;condition
+PowerSupply.Collect.Source(1).Compute(2).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(2).Column="2"
+PowerSupply.Collect.Source(1).Compute(2).TranslationTable="PowerSupplyStatusTranslationTable"
+
+// Translate Status into a more readable string
+// DeviceID;PATROLStatus;StatusInformation;CapacityUsed;condition
+PowerSupply.Collect.Source(1).Compute(3).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(3).Column="3"
+PowerSupply.Collect.Source(1).Compute(3).TranslationTable="PowerSupplyStatusInformationTranslationTable"
+
+
+// Translate Status into a more readable string
+// DeviceID;PATROLStatus;StatusInformation;CapacityUsed;condition
+PowerSupply.Collect.Source(1).Compute(4).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(4).Column="5"
+PowerSupply.Collect.Source(1).Compute(4).TranslationTable="PowerSupplyConditionTranslationTable"
+
+//now take the worst case between condition and status
+// DeviceID;PATROLStatus;StatusInformation;CapacityUsed;condition
+PowerSupply.Collect.Source(1).Compute(5).Type="Awk"
+PowerSupply.Collect.Source(1).Compute(5).AwkScript=EmbeddedFile(2)
+
+
+
+// ValueTable
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(1)
+PowerSupply.Collect.Status=ValueTable.Column(2)
+PowerSupply.Collect.StatusInformation=ValueTable.Column(3)
+//PowerSupply.Collect.UsedWatts=ValueTable.Column(4)
+
+//the PowerSupplyConditionTranslationTable
+
+PowerSupplyConditionTranslationTable(1)="UNKNOWN"
+PowerSupplyConditionTranslationTable(2)="OK"
+PowerSupplyConditionTranslationTable(3)="WARN"
+PowerSupplyConditionTranslationTable(4)="ALARM"
+PowerSupplyConditionTranslationTable(Default)="UNKNOWN"
+
+// The PowerSupplyStatusTranslationTable
+PowerSupplyStatusTranslationTable(1)="OK"
+PowerSupplyStatusTranslationTable(2)="ALARM"
+PowerSupplyStatusTranslationTable(3)="ALARM"
+PowerSupplyStatusTranslationTable(4)="ALARM"
+PowerSupplyStatusTranslationTable(5)="ALARM"
+PowerSupplyStatusTranslationTable(6)="WARN"
+PowerSupplyStatusTranslationTable(7)="ALARM"
+PowerSupplyStatusTranslationTable(8)="ALARM"
+PowerSupplyStatusTranslationTable(9)="ALARM"
+PowerSupplyStatusTranslationTable(10)="ALARM"
+PowerSupplyStatusTranslationTable(11)="ALARM"
+PowerSupplyStatusTranslationTable(12)="ALARM"
+PowerSupplyStatusTranslationTable(13)="ALARM"
+PowerSupplyStatusTranslationTable(14)="ALARM"
+PowerSupplyStatusTranslationTable(15)="ALARM"
+PowerSupplyStatusTranslationTable(16)="ALARM"
+PowerSupplyStatusTranslationTable(Default)="UNKNOWN"
+
+// The PowerSupplyStatusInformationTranslationTable
+PowerSupplyStatusInformationTranslationTable(1)="OK"
+PowerSupplyStatusInformationTranslationTable(2)="General failure"
+PowerSupplyStatusInformationTranslationTable(3)="Bist failure"
+PowerSupplyStatusInformationTranslationTable(4)="Fan failure"
+PowerSupplyStatusInformationTranslationTable(5)="Temperature failure"
+PowerSupplyStatusInformationTranslationTable(6)="Interlock open"
+PowerSupplyStatusInformationTranslationTable(7)="EPROM failed"
+PowerSupplyStatusInformationTranslationTable(8)="VREF failed"
+PowerSupplyStatusInformationTranslationTable(9)="DAC failed"
+PowerSupplyStatusInformationTranslationTable(10)="RAM test failed"
+PowerSupplyStatusInformationTranslationTable(11)="Voltage channel failed"
+PowerSupplyStatusInformationTranslationTable(12)="Orring Diode failed"
+PowerSupplyStatusInformationTranslationTable(13)="Brown out"
+PowerSupplyStatusInformationTranslationTable(14)="Giveup on startup"
+PowerSupplyStatusInformationTranslationTable(15)="NVRAM Invalid"
+PowerSupplyStatusInformationTranslationTable(16)="Calibration table invalid"
+PowerSupplyStatusInformationTranslationTable(Default)="Unknown Status"
+
+////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = Power Supply Consumed
+///    Sums up the Power Supply Consumed for all power supplies
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(1):
+BEGIN {FS="[;]"}
+$1 ~ /[0-9]+/ && $2 ~ /[0-9]+/ {if (PowerConsumption[$1] == "") {PowerConsumption[$1] = $2}
+                                   else {PowerConsumption[$1] = PowerConsumption[$1] + $2}
+                               }
+END { for (chassis in PowerConsumption) {print "MSHW;" chassis ";;;" PowerConsumption[chassis]}
+    }
+EmbeddedFile(1).End
+
+
+////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(2) = Power Supply worst case between status and condition
+// Input: DeviceID;PATROLStatus;StatusInformation;CapacityUsed;condition
+///Output: DeviceID;PATROLStatus;StatusInformation;CapacityUsed;condition
+/////////////////////////////////////////////////////////
+EmbeddedFile(2):
+BEGIN {FS=";";}
+{
+  status = "UNKNOWN";
+  if ($2 == "OK" || $5 == "OK") {
+    status = "OK";
+  }
+  if ($2 == "WARN" || $5 == "WARN") {
+    status = "WARN";
+  }
+  if ($2 == "ALARM" || $5 == "ALARM") {
+    status = "ALARM";
+  }
+  print $1";"status";"$3";"$4";"$5
+}
+EmbeddedFile(2).End

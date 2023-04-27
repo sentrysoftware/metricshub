@@ -1,0 +1,685 @@
+//
+//
+//                 C O N N E C T O R
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//              by Sentry Software (c)
+//
+//                  MS_HW_HPiLO.hdf
+//
+//      Supports: HP 9000 and Integrity equipped with an Integrated Lights-Out Management Card
+//		Monitors: environment (temperatures, fans, power supplies and voltages)
+//      Connects to: the iLO card through Telnet
+//
+//
+
+//
+// HEADER
+//
+
+hdf.DisplayName="HP MP/GSP card"
+hdf.TypicalPlatform="HP 9000,HP Integrity,HP SuperDome"
+hdf.ReliesOn="HP MP/GSP card"
+hdf.Comments="Gives environmental information (temperatures, fans, etc.) on HP 9000 and Integrity servers through HP Integrated Lights-Out Management Card"
+hdf.Version="1.1"
+hdf.RemoteSupport="true"
+hdf.LocalSupport="false"
+hdf.AppliesToOS="OOB"
+
+// SUDO-ABLE COMMANDS
+// None.
+
+//
+// DETECTION
+//
+
+// host should respond to telnet the way described below
+Detection.Criteria(1).Type="TelnetInteractive"
+Detection.Criteria(1).ForceSerialization=1
+
+Detection.Criteria(1).Step(1).Type="Sleep"
+Detection.Criteria(1).Step(1).Duration=1
+
+Detection.Criteria(1).Step(2).Type="WaitFor"
+Detection.Criteria(1).Step(2).TelnetOnly=1
+Detection.Criteria(1).Step(2).Text="ogin:"
+Detection.Criteria(1).Step(2).TimeOut=20
+
+Detection.Criteria(1).Step(3).Type="SendUsername"
+Detection.Criteria(1).Step(3).TelnetOnly=1
+
+Detection.Criteria(1).Step(4).Type="WaitFor"
+Detection.Criteria(1).Step(4).TelnetOnly=1
+Detection.Criteria(1).Step(4).Text="assword:"
+Detection.Criteria(1).Step(4).TimeOut=10
+
+Detection.Criteria(1).Step(5).Type="SendPassword"
+Detection.Criteria(1).Step(5).TelnetOnly=1
+
+Detection.Criteria(1).Step(6).Type="Sleep"
+Detection.Criteria(1).Step(6).Duration=5
+
+Detection.Criteria(1).Step(7).Type="SendText"
+Detection.Criteria(1).Step(7).Text="_MSHW_ASCIICODE_5_cf_MSHW_ASCIICODE_2_\nCM\n"
+
+Detection.Criteria(1).Step(8).Type="WaitForPrompt"
+Detection.Criteria(1).Step(8).Timeout=20
+
+Detection.Criteria(1).Step(9).Type="SendText"
+Detection.Criteria(1).Step(9).Text="HE\nQ\n"
+
+Detection.Criteria(1).Step(10).Type="GetUntilPrompt"
+Detection.Criteria(1).Step(10).TimeOut=20
+Detection.Criteria(1).Step(10).Capture="True"
+
+Detection.Criteria(1).Step(11).Type="SendText"
+Detection.Criteria(1).Step(11).Text="_MSHW_ASCIICODE_2_X\nCO\n"
+Detection.Criteria(1).Step(11).Capture="False"
+
+
+
+Detection.Criteria(1).ExpectedResult="Quit help"
+
+//
+// COMPUTER
+//
+
+//
+// Discovery
+
+// Source(1) = Output of the PS -nc command through telnet
+// Enclosure.Discovery.Source(1) will be used by the others discoveries to avoid
+// repeating 3 times the same command
+Enclosure.Discovery.Source(1).Type="TelnetInteractive"
+Enclosure.Discovery.Source(1).ForceSerialization=1
+
+Enclosure.Discovery.Source(1).Step(1).Type="Sleep"
+Enclosure.Discovery.Source(1).Step(1).Duration=1
+
+Enclosure.Discovery.Source(1).Step(2).Type="WaitFor"
+Enclosure.Discovery.Source(1).Step(2).TelnetOnly=1
+Enclosure.Discovery.Source(1).Step(2).Text="ogin:"
+Enclosure.Discovery.Source(1).Step(2).Timeout=20
+
+Enclosure.Discovery.Source(1).Step(3).Type="SendUsername"
+Enclosure.Discovery.Source(1).Step(3).TelnetOnly=1
+
+Enclosure.Discovery.Source(1).Step(4).Type="WaitFor"
+Enclosure.Discovery.Source(1).Step(4).TelnetOnly=1
+Enclosure.Discovery.Source(1).Step(4).Text="assword:"
+Enclosure.Discovery.Source(1).Step(4).TimeOut=10
+
+Enclosure.Discovery.Source(1).Step(5).Type="SendPassword"
+Enclosure.Discovery.Source(1).Step(5).TelnetOnly=1
+
+Enclosure.Discovery.Source(1).Step(6).Type="Sleep"
+Enclosure.Discovery.Source(1).Step(6).Duration=5
+
+Enclosure.Discovery.Source(1).Step(7).Type="SendText"
+Enclosure.Discovery.Source(1).Step(7).Text="_MSHW_ASCIICODE_5_cf_MSHW_ASCIICODE_2_\nCM\n"
+
+Enclosure.Discovery.Source(1).Step(8).Type="WaitForPrompt"
+Enclosure.Discovery.Source(1).Step(8).TimeOut=10
+
+Enclosure.Discovery.Source(1).Step(9).Type="SendText"
+Enclosure.Discovery.Source(1).Step(9).Text="PS\n\n"
+
+Enclosure.Discovery.Source(1).Step(10).Type="GetUntilPrompt"
+Enclosure.Discovery.Source(1).Step(10).TimeOut=15
+Enclosure.Discovery.Source(1).Step(10).Capture="True"
+
+Enclosure.Discovery.Source(1).Step(11).Type="SendText"
+Enclosure.Discovery.Source(1).Step(11).Text="_MSHW_ASCIICODE_2_X\nCO\n"
+Enclosure.Discovery.Source(1).Step(11).Capture="False"
+
+// Source(2) = copy of Source(1)
+Enclosure.Discovery.Source(2)=%Enclosure.Discovery.Source(1)%
+
+// Compute the output of the PS command with an awk script
+// to know whether we need to activate the PowerUsage parameter
+// ComputerID;Model;SerialNumber;PowerUsageActivation
+Enclosure.Discovery.Source(2).Compute(1).Type="Awk"
+Enclosure.Discovery.Source(2).Compute(1).AwkScript=EmbeddedFile(1)
+Enclosure.Discovery.Source(2).Compute(1).KeepOnlyRegExp="^MSHW;"
+Enclosure.Discovery.Source(2).Compute(1).Separators=";"
+Enclosure.Discovery.Source(2).Compute(1).SelectColumns="2,3,4,5"
+
+// The discovery table = source(1)
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(2)%
+Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Enclosure.Discovery.Instance.Vendor="HP"
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(2)
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(3)
+Enclosure.Discovery.Instance.ParameterActivation.PowerConsumption=InstanceTable.Column(4)
+Enclosure.Discovery.Instance.Type="Computer"
+
+//
+// Collect
+
+Enclosure.Collect.Type="MonoInstance"
+
+// Source(1) = Output of the PS -nc command through telnet
+// Enclosure.Collect.Source(1) will be used by the others collects to avoid
+// repeating 3 times the same command
+Enclosure.Collect.Source(1).Type="TelnetInteractive"
+Enclosure.Collect.Source(1).ForceSerialization=1
+
+Enclosure.Collect.Source(1).Step(1).Type="Sleep"
+Enclosure.Collect.Source(1).Step(1).Duration=1
+
+Enclosure.Collect.Source(1).Step(2).Type="WaitFor"
+Enclosure.Collect.Source(1).Step(2).TelnetOnly=1
+Enclosure.Collect.Source(1).Step(2).Text="ogin:"
+Enclosure.Collect.Source(1).Step(2).Timeout=20
+
+Enclosure.Collect.Source(1).Step(3).Type="SendUsername"
+Enclosure.Collect.Source(1).Step(3).TelnetOnly=1
+
+Enclosure.Collect.Source(1).Step(4).Type="WaitFor"
+Enclosure.Collect.Source(1).Step(4).TelnetOnly=1
+Enclosure.Collect.Source(1).Step(4).Text="assword:"
+Enclosure.Collect.Source(1).Step(4).TimeOut=10
+
+Enclosure.Collect.Source(1).Step(5).Type="SendPassword"
+Enclosure.Collect.Source(1).Step(5).TelnetOnly=1
+
+Enclosure.Collect.Source(1).Step(6).Type="Sleep"
+Enclosure.Collect.Source(1).Step(6).Duration=5
+
+Enclosure.Collect.Source(1).Step(7).Type="SendText"
+Enclosure.Collect.Source(1).Step(7).Text="_MSHW_ASCIICODE_5_cf_MSHW_ASCIICODE_2_\nCM\n"
+
+Enclosure.Collect.Source(1).Step(8).Type="WaitForPrompt"
+Enclosure.Collect.Source(1).Step(8).TimeOut=10
+
+Enclosure.Collect.Source(1).Step(9).Type="SendText"
+Enclosure.Collect.Source(1).Step(9).Text="PS\n\n"
+
+Enclosure.Collect.Source(1).Step(10).Type="GetUntilPrompt"
+Enclosure.Collect.Source(1).Step(10).TimeOut=15
+Enclosure.Collect.Source(1).Step(10).Capture="True"
+
+Enclosure.Collect.Source(1).Step(11).Type="SendText"
+Enclosure.Collect.Source(1).Step(11).Text="_MSHW_ASCIICODE_2_X\nCO\n"
+Enclosure.Collect.Source(1).Step(11).Capture="False"
+
+//Enclosure.Collect.Source(1).Separators="\n"
+//Enclosure.Collect.Source(1).SelectColumns="1"
+
+
+// Source(2) = copy of Source(1) (we're not going to alter
+// source(1) which will be useful for other collects that will
+// rely on
+Enclosure.Collect.Source(2)=%Enclosure.Collect.Source(1)%
+
+// Process the PS output with an AWK script
+// powerState;powerUsage;
+Enclosure.Collect.Source(2).Compute(1).Type="Awk"
+Enclosure.Collect.Source(2).Compute(1).AwkScript=EmbeddedFile(2)
+Enclosure.Collect.Source(2).Compute(1).KeepOnlyRegExp="^MSHW;"
+Enclosure.Collect.Source(2).Compute(1).Separators=";"
+Enclosure.Collect.Source(2).Compute(1).SelectColumns="2,3"
+
+// Duplicate the system power state
+// powerState;powerState;powerUsage;
+Enclosure.Collect.Source(2).Compute(2).Type="DuplicateColumn"
+Enclosure.Collect.Source(2).Compute(2).Column="1"
+
+// Now translate "on/off" into OK/ALARM
+// status;powerState;powerUsage;
+Enclosure.Collect.Source(2).Compute(3).Type="Translate"
+Enclosure.Collect.Source(2).Compute(3).Column="1"
+Enclosure.Collect.Source(2).Compute(3).TranslationTable="SystemPowerTranslationTable"
+
+// The SystemPowerTranslationTable
+SystemPowerTranslationTable("on")="OK"
+SystemPowerTranslationTable("off")="ALARM"
+SystemPowerTranslationTable("undefined")="OK"
+SystemPowerTranslationTable(Default)="UNKNOWN"
+
+// ValueTable = Source(1)
+Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(2)%
+Enclosure.Collect.Status=ValueTable.Column(1)
+Enclosure.Collect.StatusInformation=ValueTable.Column(2)
+Enclosure.Collect.PowerConsumption=ValueTable.Column(3)
+
+
+//
+// FANS
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(1)
+Fan.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Extract the fans from the PS output
+// FanID;FanType;
+Fan.Discovery.Source(1).Compute(1).Type="Awk"
+Fan.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(3)
+Fan.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+Fan.Discovery.Source(1).Compute(1).Separators=";"
+Fan.Discovery.Source(1).Compute(1).SelectColumns="2,3"
+
+// Instance Table = Source(1)
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Fan.Discovery.Instance.FanType=InstanceTable.Column(2)
+
+//
+// Collect
+
+// Collect type is "all instances in one shot"
+Fan.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Collect.Source(1)
+// Yeah that's kind of weird. Fan collect values will be refreshed only when/whether
+// enclosure collect values are refreshed. This is to spare some unneeded telnet sessions.
+Fan.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Extract the fans from the PS output
+// FanID;Status;
+Fan.Collect.Source(1).Compute(1).Type="Awk"
+Fan.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(3)
+Fan.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+Fan.Collect.Source(1).Compute(1).Separators=";"
+Fan.Collect.Source(1).Compute(1).SelectColumns="2,4"
+
+
+// Duplicate the status column
+// FanID;status;status
+Fan.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+Fan.Collect.Source(1).Compute(2).Column="2"
+
+// Translate first status column into a PATROL status
+// FanID;PATROLStatus;status
+Fan.Collect.Source(1).Compute(3).Type="Translate"
+Fan.Collect.Source(1).Compute(3).Column="2"
+Fan.Collect.Source(1).Compute(3).TranslationTable="fanStatusTranslationTable"
+
+// The fanStatusTranslationTable
+fanStatusTranslationTable("normal")="OK"
+fanStatusTranslationTable("low speed")="WARN"
+fanStatusTranslationTable("high speed")="OK"
+fanStatusTranslationTable("failure")="ALARM"
+fanStatusTranslationTable("not installed")="OK"
+fanStatusTranslationTable(Default)="UNKNOWN"
+
+// Let the second status table as is, will be used as statusInformation
+
+// ValueTable = Source(1)
+Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+Fan.Collect.DeviceID=ValueTable.Column(1)
+Fan.Collect.Status=ValueTable.Column(2)
+Fan.Collect.StatusInformation=ValueTable.Column(3)
+
+
+
+
+//
+// TEMPERATURES
+//
+
+//
+// Discovery
+
+// Source(1) = copy of the %Enclosure.Discovery.Source(1)%
+
+// InstanceTable = Static simple table
+Temperature.Discovery.InstanceTable="1;General"
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Temperature.Discovery.Instance.TemperatureType=InstanceTable.Column(2)
+
+//
+// Collect
+
+// Collect type is all instances in one single shot
+Temperature.Collect.Type="MultiInstance"
+
+// Source(1) = copy of %Enclosure.Collect.Source(1)%
+Temperature.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Extract the temperature information from the PS output with an awk script
+// TemperatureStatus;
+Temperature.Collect.Source(1).Compute(1).Type="Awk"
+Temperature.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(4)
+Temperature.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+Temperature.Collect.Source(1).Compute(1).Separators=";"
+Temperature.Collect.Source(1).Compute(1).SelectColumns="2"
+
+// Duplicate the TemperatureStatus column
+// TemperatureStatus;TemperatureStatus
+Temperature.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+Temperature.Collect.Source(1).Compute(2).Column="1"
+
+// Translate the first TemperatureStatus into a PATROL Status
+// PATROLStatus;TemperatureStatus
+Temperature.Collect.Source(1).Compute(3).Type="Translate"
+Temperature.Collect.Source(1).Compute(3).Column="1"
+Temperature.Collect.Source(1).Compute(3).TranslationTable="TemperatureStatusTranslationTable"
+
+// The TemperatureStatusTranslationTable
+TemperatureStatusTranslationTable("Normal")="OK"
+TemperatureStatusTranslationTable("Low OverTemp")="WARN"
+TemperatureStatusTranslationTable("Med OverTemp")="ALARM"
+TemperatureStatusTranslationTable("High OverTemp")="ALARM"
+TemperatureStatusTranslationTable(Default)="UNKNOWN"
+
+// Collect table = Source(1)
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.DeviceID="1"
+Temperature.Collect.Status=ValueTable.Column(1)
+Temperature.Collect.StatusInformation=ValueTable.Column(2)
+
+
+//
+// POWER SUPPLY
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(1)
+PowerSupply.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Extract the fans from the PS output
+// PowerSupplyID;PowerSupplyType;
+PowerSupply.Discovery.Source(1).Compute(1).Type="Awk"
+PowerSupply.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(5)
+PowerSupply.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+PowerSupply.Discovery.Source(1).Compute(1).Separators=";"
+PowerSupply.Discovery.Source(1).Compute(1).SelectColumns="2,3"
+
+// Instance Table = Source(1)
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PowerSupply.Discovery.Instance.PowerSupplyType=InstanceTable.Column(2)
+
+//
+// Collect
+
+// Collect type is "all instances in one shot"
+PowerSupply.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Collect.Source(1)
+// Yeah that's kind of weird. Power supply collect values will be refreshed only when/whether
+// enclosure collect values are refreshed. This is to spare some unneeded telnet sessions.
+PowerSupply.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Extract the fans from the PS output
+// PowerSupplyID;Status;
+PowerSupply.Collect.Source(1).Compute(1).Type="Awk"
+PowerSupply.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(5)
+PowerSupply.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+PowerSupply.Collect.Source(1).Compute(1).Separators=";"
+PowerSupply.Collect.Source(1).Compute(1).SelectColumns="2,4"
+
+
+// Duplicate the status column
+// PowerSupplyID;status;status
+PowerSupply.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+PowerSupply.Collect.Source(1).Compute(2).Column="2"
+
+// Translate first status column into a PATROL status
+// PowerSupplyID;PATROLStatus;status
+PowerSupply.Collect.Source(1).Compute(3).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(3).Column="2"
+PowerSupply.Collect.Source(1).Compute(3).TranslationTable="powerSupplyStatusTranslationTable"
+
+// The powerSupplyStatusTranslationTable
+powerSupplyStatusTranslationTable("normal")="OK"
+powerSupplyStatusTranslationTable("A/C Disconnected or Out of Range")="ALARM"
+powerSupplyStatusTranslationTable("fault")="ALARM"
+powerSupplyStatusTranslationTable("failure")="ALARM"
+powerSupplyStatusTranslationTable("Predictive Failure asserted")="WARN"
+powerSupplyStatusTranslationTable(Default)="UNKNOWN"
+
+// ValueTable = Source(1)
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(1)
+PowerSupply.Collect.Status=ValueTable.Column(2)
+PowerSupply.Collect.StatusInformation=ValueTable.Column(3)
+
+
+
+////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = awk script that extract the server model
+///    and serial number from the DF -specific 0 -nc command
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(1):
+BEGIN {
+	powerUsagePresent = "";
+}
+/^System Power usage:.*Watts/ {
+	powerUsagePresent = 2
+}
+END {
+	print "MSHW;HP_MP_GSP;9000/Integrity;;" powerUsagePresent
+}
+EmbeddedFile(1).End
+/////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(2) = awk script that report the power state and usage
+///                      from the PS output
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(2):
+BEGIN {
+	powerState = "";
+	powerUsage = "";
+}
+/^System Power state:/ {
+	powerState = $4;
+}
+/^System Power state +:/ {
+	powerState = $5;
+}
+/.*[a-z].*System power state:/ {
+	systemPowerStateIndex = index($0, "System power state:");
+	if (systemPowerStateIndex > 1)
+	{
+		systemPowerStateInformation = substr($0, systemPowerStateIndex, length($0) - systemPowerStateIndex + 1);
+		split(systemPowerStateInformation, systemPowerStateWord);
+		powerState = systemPowerStateWord[4];
+	}
+}
+/^System Power usage:.*Watts/ {
+	powerUsage = $4;
+}
+END {
+	print "MSHW;" powerState ";" powerUsage ";"
+}
+EmbeddedFile(2).End
+/////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(3) = awk script that extract the fans
+///    from the PS command
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(3):
+BEGIN {
+	doubleFanArray = 0;
+}
+/Fans +State +Fans +State/ {
+	doubleFanArray = 1;
+}
+/^[0-9]+ .* \| / {
+	fanID = $1
+	fanLocation = ""
+	pipeIndex = index($0, "|")
+	status = substr($0, pipeIndex + 2, length($0) - pipeIndex - 1)
+	while (substr(status, length(status), 1) == " ") { status = substr(status, 1, length(status) - 1); }
+	print "MSHW;" fanID ";" fanLocation ";" status ";"
+}
+($0 ~ /^Fan  *[0-9]+/ && doubleFanArray == 0) {
+	fanID = $2
+	if (index($0, "(") > 1)
+	{
+		fanLocation = $3
+	}
+	else
+	{
+		fanLocation = ""
+	}
+	status = substr($0, 31, length($0) - 30)
+	while (substr(status, length(status), 1) == " ") { status = substr(status, 1, length(status) - 1); }
+	print "MSHW;" fanID ";" fanLocation ";" status ";"
+}
+/[A-Za-z]+ Fan [0-9]+/ {
+	fanID = $3;
+	fanLocation = $1
+	status = substr($0, 31, length($0) - 30)
+	while (substr(status, length(status), 1) == " ") { status = substr(status, 1, length(status) - 1); }
+	print "MSHW;" fanID ";" fanLocation ";" status ";"
+}
+($0 ~ /^Fan  *[0-9]+/ && doubleFanArray == 1) {
+	fanID = $2
+	if (index($0, "(") > 1)
+	{
+		fanLocation = $3
+	}
+	else
+	{
+		fanLocation = ""
+	}
+	if (length($0) > 40)
+	{
+		status = substr($0, 21, 20)
+	}
+	else
+	{
+		status = substr($0, 21, length($0) - 20)
+	}
+	while (substr(status, length(status), 1) == " ") { status = substr(status, 1, length(status) - 1); }
+	print "MSHW;" fanID ";" fanLocation ";" status ";"
+
+	if (length($0) > 40)
+	{
+		secondFanInformation = substr($0, 41, length($0)-40)
+		if (split(secondFanInformation, secondFanWord) >= 3)
+		{
+			fanID = secondFanWord[2]
+			if (index(secondFanInformation, "(") > 1)
+			{
+				fanLocation = secondFanWord[3]
+			}
+			else
+			{
+				fanLocation = ""
+			}
+			status = substr(secondFanInformation, 21, length(secondFanInformation) - 20)
+			while (substr(status, length(status), 1) == " ") { status = substr(status, 1, length(status) - 1); }
+			print "MSHW;" fanID ";" fanLocation ";" status ";"
+		}
+	}
+}
+EmbeddedFile(3).End
+/////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(4) = awk script that reports the temperature status
+///                      from the PS output
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(4):
+BEGIN {
+	temperatureStatus = "";
+}
+/^Temperature +: / {
+	if (length($0) > 34)
+	{
+		temperatureStatus = substr($0, 21, 14)
+	}
+	else
+	{
+		temperatureStatus = substr($0, 21, length($0) - 20)
+	}
+	while (substr(temperatureStatus, length(temperatureStatus), 1) == " ") { temperatureStatus = substr(temperatureStatus, 1, length(temperatureStatus) - 1); }
+}
+/^Temperature status +: / {
+	if (length($0) > 40)
+	{
+		temperatureStatus = substr($0, 27, 14)
+	}
+	else
+	{
+		temperatureStatus = substr($0, 27, length($0) - 26)
+	}
+	while (substr(temperatureStatus, length(temperatureStatus), 1) == " ") { temperatureStatus = substr(temperatureStatus, 1, length(temperatureStatus) - 1); }
+}
+END {
+	print "MSHW;" temperatureStatus ";"
+}
+EmbeddedFile(4).End
+/////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(5) = awk script that extract the power supplies
+///    from the PS command
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(5):
+/^[0-9]+ .* Type [0-9] +\| / {
+	psID = $1
+	typeIndex = index($0, "Type")
+	psType = substr($0, typeIndex, 6)
+	psStatus = substr($0, 4, typeIndex - 4)
+	while (substr(psStatus, length(psStatus), 1) == " ") { psStatus = substr(psStatus, 1, length(psStatus) - 1); }
+	if (psStatus != "Not Installed")
+	{
+		print "MSHW;" psID ";" psType ";" psStatus ";"
+	}
+}
+/^[0-9]+ .* [0-9]+ Watt +\| / {
+	psID = $1
+	typeIndex = index($0, "Watt") - 5
+	psType = substr($0, typeIndex, 9)
+	psStatus = substr($0, 4, typeIndex - 4)
+	while (substr(psStatus, length(psStatus), 1) == " ") { psStatus = substr(psStatus, 1, length(psStatus) - 1); }
+	if (psStatus != "Not Installed")
+	{
+		print "MSHW;" psID ";" psType ";" psStatus ";"
+	}
+}
+/^Power Supply [0-9]/ {
+	psID = $3
+	psType = ""
+	psStatus = $4
+	for (i=5 ; i<=NF ; i++)
+	{
+		psStatus = psStatus " " $i
+	}
+	if (psStatus != "Not Installed")
+	{
+		print "MSHW;" psID ";" psType ";" psStatus ";"
+	}
+}
+EmbeddedFile(5).End
+/////////////////////////////////////////////////////////////////////
+

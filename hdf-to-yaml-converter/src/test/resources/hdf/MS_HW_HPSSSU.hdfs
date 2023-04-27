@@ -1,0 +1,228 @@
+//
+//
+//
+//                 C O N N E C T O R
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//               by Sentry Software (c)
+//
+//                 MS_HW_HPSSSU.hdf
+//
+//		Monitors: HP EVA Disk Array
+//      Connects to: HP EVA Command View
+//
+//
+
+//
+// HEADER
+//
+
+hdf.DisplayName="HP StorageWorks EVA (SSSU) - Patrol Agent on Windows"
+hdf.TypicalPlatform="HP StorageWorks EVA"
+hdf.ReliesOn="HP StorageWorks Command View EVA SSSU "
+hdf.Comments="This connector provides hardware monitoring through the HP StorageWorks Command View EVA SSSU command line utility"
+hdf.Version="1.1"
+hdf.LocalSupport="true"
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="Storage"
+hdf.NoAutoDetection="true"
+hdf.Supersedes="MS_HW_SMISDiskArray.hdf"
+
+#include MS_HW_HPSSSU.hhdf
+
+//
+// DETECTION
+//
+
+// The Patrol Agent should be on a server running Windows
+Detection.Criteria(1).Type="OSCommand"
+Detection.Criteria(1).CommandLine="echo %OS%"
+Detection.Criteria(1).ErrorMessage="Connector only works when the Patrol Agent is installed on a server running Windows"
+Detection.Criteria(1).ExpectedResult="Windows_NT"
+Detection.Criteria(1).ExecuteLocally=1
+
+
+
+Enclosure.Discovery.Source(1).Type="OsCommand"
+Enclosure.Discovery.Source(1).CommandLine="copy %EmbeddedFile(1)% %EmbeddedFile(1)%.bat & %EmbeddedFile(1)%.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q %EmbeddedFile(1)%.bat"
+Enclosure.Discovery.Source(1).ExecuteLocally=1
+Enclosure.Discovery.Source(1).TimeOut="600"
+
+// Source(1) = the output of "%EmbeddedFile(1)%
+Enclosure.Collect.Source(1).Type="OsCommand"
+// Comment out next line for emulation, second line for real
+Enclosure.Collect.Source(1).CommandLine="copy %EmbeddedFile(1)% %EmbeddedFile(1)%.bat > NUL & %EmbeddedFile(1)%.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q %EmbeddedFile(1)%.bat"
+// Enclosure.Collect.Source(1).CommandLine="type %%Patrol_Home%%MS_HW_SSSU.out"
+Enclosure.Collect.Source(1).ExecuteLocally=1
+Enclosure.Collect.Source(1).TimeOut="600"
+
+
+
+LogicalDisk.Discovery.Source(1).Type="OsCommand"
+LogicalDisk.Discovery.Source(1).CommandLine="copy %EmbeddedFile(3)% %EmbeddedFile(3)%.bat & %EmbeddedFile(3)%.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q %EmbeddedFile(3)%.bat"
+LogicalDisk.Discovery.Source(1).ExecuteLocally=1
+LogicalDisk.Discovery.Source(1).TimeOut="3600"
+
+
+LogicalDisk.Collect.Source(1).Type="OsCommand"
+LogicalDisk.Collect.Source(1).CommandLine="copy %EmbeddedFile(3)% %EmbeddedFile(3)%.bat & %EmbeddedFile(3)%.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q %EmbeddedFile(3)%.bat"
+LogicalDisk.Collect.Source(1).ExecuteLocally=1
+LogicalDisk.Collect.Source(1).TimeOut="3600"
+
+/////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = The SSSU Batch file
+///
+///
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(1):
+@echo off
+set password=%2
+
+REM enabledelayedexpansion allows variables to be set within the FOR loops using the !variable! instead of %variable%
+setlocal enabledelayedexpansion
+
+REM Test enabledelayedexpansion
+set MS_HW_enabledelayedexpansion=EnabledEnabled
+IF "!MS_HW_enabledelayedexpansion:~0,7!"=="Enabled" (goto enabledelayedexpansion_successful)
+
+REM Test failed
+echo enabledelayedexpansion test failed
+GOTO:END
+
+:enabledelayedexpansion_successful
+
+
+REM Echo the time
+echo START TIME %TIME%
+
+REM A For loop.  It will take the output of LS SYSTEM
+REM wait for the trigger "Systems available" (trigger name MS_HW_SSSU)
+REM then will run the SSSU commands for all systems after that
+REM with MS_HW_SECTION as a divider for each command for easier awk...
+REM and an MS_HW_ENCLOSURE <Enclosure Name> as a divider for each enclosure
+FOR /f "tokens=*" %%i IN ('sssu "SELECT Manager %3 username=%1 password=!password!" "LS SYSTEM"') DO (
+         IF DEFINED MS_HW_SSSU (
+                     echo.
+                     if "%%i" == "No Systems found" (echo No Systems found
+                                                     GOTO:END)
+                     echo Found System %%i
+                     echo MS_HW_ENCLOSURE %%i
+                     echo MS_HW_SECTION LS CONTROLLER FULL XML BEGIN !TIME!
+                     cmd /c sssu "SELECT Manager %3 username=%1 password=!password!" "SELECT SYSTEM \"%%i\"" "SET OPTIONS ON_ERROR=Exit_on_error NORETRIES" "LS CONTROLLER FULL XML"
+                     echo.
+                     echo MS_HW_SECTION LS CONTROLLER FULL XML END !TIME!
+                     echo MS_HW_SECTION LS CONTROLLER_ENCLOSURE FULL XML BEGIN !TIME!
+                     cmd /c sssu "SELECT Manager %3 username=%1 password=!password!" "SELECT SYSTEM \"%%i\"" "SET OPTIONS ON_ERROR=Exit_on_error NORETRIES" "LS CONTROLLER_ENCLOSURE FULL XML"
+                     echo.
+                     echo MS_HW_SECTION LS CONTROLLER_ENCLOSURE FULL XML END !TIME!
+                     echo.
+                     echo MS_HW_SECTION LS DISK FULL XML BEGIN !TIME!
+                     cmd /c sssu "SELECT Manager %3 username=%1 password=!password!" "SELECT SYSTEM \"%%i\"" "SET OPTIONS ON_ERROR=Exit_on_error NORETRIES" "LS DISK FULL XML"
+                     echo.
+                     echo MS_HW_SECTION LS DISK FULL XML END !TIME!
+
+                     echo.
+                     echo MS_HW_SECTION LS DISKSHELF FULL XML BEGIN !TIME!
+                     cmd /c sssu "SELECT Manager %3 username=%1 password=!password!" "SELECT SYSTEM \"%%i\"" "SET OPTIONS ON_ERROR=Exit_on_error NORETRIES" "LS DISKSHELF FULL XML"
+                     echo.
+                     echo MS_HW_SECTION LS DISKSHELF FULL XML END !TIME!
+
+                     echo.
+                     echo MS_HW_SECTION LS SNAPSHOT FULL XML BEGIN !TIME!
+                     cmd /c sssu "SELECT Manager %3 username=%1 password=!password!" "SELECT SYSTEM \"%%i\"" "SET OPTIONS ON_ERROR=Exit_on_error NORETRIES" "LS SNAPSHOT FULL XML"
+                     echo.
+                     echo MS_HW_SECTION LS SNAPSHOT FULL XML END !TIME!
+
+                     ) ELSE (echo  %%i
+                             set MS_HW_SSSU_SYS=%%i & IF "!MS_HW_SSSU_SYS:~0,17!"=="Systems available" (
+                                                      set MS_HW_SSSU=TRUE
+                                                      )
+                            )
+         )
+
+:END
+IF NOT DEFINED MS_HW_SSSU (echo Text "Systems Available" not found in output.)
+
+REM Echo the time
+echo.
+echo END TIME !TIME!
+EmbeddedFile(1).End
+/////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(3) = The SSSU Batch file
+///
+///
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(3):
+@echo off
+set password=%2
+
+REM enabledelayedexpansion allows variables to be set within the FOR loops using the !variable! instead of %variable%
+setlocal enabledelayedexpansion
+
+REM Test enabledelayedexpansion
+set MS_HW_enabledelayedexpansion=EnabledEnabled
+IF "!MS_HW_enabledelayedexpansion:~0,7!"=="Enabled" (goto enabledelayedexpansion_successful)
+
+REM Test failed
+echo enabledelayedexpansion test failed
+GOTO:END
+
+:enabledelayedexpansion_successful
+
+
+REM Echo the time
+echo START TIME %TIME%
+
+REM A For loop.  It will take the output of LS SYSTEM
+REM wait for the trigger "Systems available" (trigger name MS_HW_SSSU)
+REM then will run the SSSU commands for all systems after that
+REM with MS_HW_SECTION as a divider for each command for easier awk...
+REM and an MS_HW_ENCLOSURE <Enclosure Name> as a divider for each enclosure
+FOR /f "tokens=*" %%i IN ('sssu "SELECT Manager %3 username=%1 password=!password!" "LS SYSTEM"') DO (
+         IF DEFINED MS_HW_SSSU (
+                     echo.
+                     if "%%i" == "No Systems found" (echo No Systems found
+                                                     GOTO:END)
+                     echo Found System %%i
+                     echo MS_HW_ENCLOSURE %%i
+                     echo.
+
+                     echo.
+                     echo MS_HW_SECTION LS VDISK FULL XML BEGIN !TIME!
+                     cmd /c sssu "SELECT Manager %3 username=%1 password=!password!" "SELECT SYSTEM \"%%i\"" "SET OPTIONS ON_ERROR=Exit_on_error NORETRIES" "LS VDISK FULL XML"
+                     echo.
+                     echo MS_HW_SECTION LS VDISK FULL XML END !TIME!
+
+                     echo MS_HW_SECTION LS DISK_GROUP FULL XML BEGIN !TIME!
+                     cmd /c sssu "SELECT Manager %3 username=%1 password=!password!" "SELECT SYSTEM \"%%i\"" "SET OPTIONS ON_ERROR=Exit_on_error NORETRIES" "LS DISK_GROUP FULL XML"
+                     echo.
+                     echo MS_HW_SECTION LS DISK_GROUP FULL XML END !TIME!
+
+                     ) ELSE (echo  %%i
+                             set MS_HW_SSSU_SYS=%%i & IF "!MS_HW_SSSU_SYS:~0,17!"=="Systems available" (
+                                                      set MS_HW_SSSU=TRUE
+                                                      )
+                            )
+         )
+
+:END
+IF NOT DEFINED MS_HW_SSSU (echo Text "Systems Available" not found in output.)
+
+REM Echo the time
+echo.
+echo END TIME %TIME%
+EmbeddedFile(3).End
+/////////////////////////////////////////////////////////////////////

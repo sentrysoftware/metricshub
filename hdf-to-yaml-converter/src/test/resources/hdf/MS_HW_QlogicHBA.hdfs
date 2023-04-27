@@ -1,0 +1,133 @@
+////////////////////////////////////////////////////////////////
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//
+//      Supports: QLogic HBAs
+//                Connects to the QLogic CIM Agent for ESX
+//      This provider is similar to the SMI-S Provider but is not compliant
+//      There are no generic parent objects and no associations...
+//
+
+
+//
+// Header
+//
+
+hdf.DisplayName="QLogic HBAs - VMware ESX"
+hdf.TypicalPlatform="Any system with QLogic"
+hdf.ReliesOn="QLogic CIM Agent for VMware ESX"
+hdf.Version="1.0"
+hdf.Comments="This connector discovers the QLogic HBAs of a server. It relies on the WBEM technology."
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="Linux,OOB"
+hdf.Supersedes="MS_HW_QlogicSCLI.hdf"
+
+//
+// Detection
+//
+
+// There must be FC Ports declared in the QLogic/cimv2 namespace
+Detection.Criteria(1).Type="WBEM"
+Detection.Criteria(1).WbemQuery="SELECT PortType FROM QLogicFC_Port"
+Detection.Criteria(1).WbemNameSpace="qlogic/cimv2"
+Detection.Criteria(1).ExpectedResult="\(0\)\|\(1\)\|\(10\)\|\(11\)\|\(12\);"
+
+
+//
+// FC Ports ("Network cards")
+//
+
+// Source(1) = CIM_FCPort
+// InstanceID;PortTypeCode;PortWWN;PhyPortNumber;NodeWWN;Speed;AdapterModel;VPDData;
+NetworkCard.Discovery.Source(1).Type="WBEM"
+NetworkCard.Discovery.Source(1).WbemQuery="SELECT InstanceID,PortType,PortName,PhyPortNumber,NodeName,Speed,AdapterModel,VPDData FROM QLogicFC_Port"
+NetworkCard.Discovery.Source(1).WbemNameSpace="qlogic/cimv2"
+
+// Translate PortType into a more readable string
+// InstanceID;PortType;PortWWN;PhyPortNumber;NodeWWN;Speed;AdapterModel;VPDData;
+NetworkCard.Discovery.Source(1).Compute(1).Type="Translate"
+NetworkCard.Discovery.Source(1).Compute(1).Column=2
+NetworkCard.Discovery.Source(1).Compute(1).TranslationTable="PortTypeTranslationTable"
+
+// The PortTypeTranslationTable
+PortTypeTranslationTable(10)="HBA FC Port N"
+PortTypeTranslationTable(11)="HBA FC Port NL"
+PortTypeTranslationTable(12)="HBA FC Port F/NL"
+PortTypeTranslationTable(Default)="HBA FC Port"
+
+// Convert Speed from bps to Mbps (divide by 1062500)
+// InstanceID;PortType;PortWWN;PhyPortNumber;NodeWWN;Speed;AdapterModel;VPDData;
+NetworkCard.Discovery.Source(1).Compute(2).Type="Divide"
+NetworkCard.Discovery.Source(1).Compute(2).Column=6
+NetworkCard.Discovery.Source(1).Compute(2).DivideBy=1062500
+
+// Remove the dashes from the WWNs
+// InstanceID;PortType;PortWWN;PhyPortNumber;NodeWWN;Speed;AdapterModel;VPDData;
+NetworkCard.Discovery.Source(1).Compute(3).Type="Replace"
+NetworkCard.Discovery.Source(1).Compute(3).Column=3
+NetworkCard.Discovery.Source(1).Compute(3).Replace="-"
+NetworkCard.Discovery.Source(1).Compute(3).ReplaceBy=""
+NetworkCard.Discovery.Source(1).Compute(4).Type="Replace"
+NetworkCard.Discovery.Source(1).Compute(4).Column=4
+NetworkCard.Discovery.Source(1).Compute(4).Replace="-"
+NetworkCard.Discovery.Source(1).Compute(4).ReplaceBy=""
+
+// Add "VPD Data: " for AdditionalInformation1
+NetworkCard.Discovery.Source(1).Compute(5).Type="LeftConcat"
+NetworkCard.Discovery.Source(1).Compute(5).Column=8
+NetworkCard.Discovery.Source(1).Compute(5).String="VPD Data: "
+
+// InstanceTable = Source(10)
+// InstanceID;PortType;PortWWN;PhyPortNumber;NodeWWN;Speed;AdapterModel;VPDData;
+NetworkCard.Discovery.InstanceTable=%NetworkCard.Discovery.Source(1)%
+NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+NetworkCard.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+NetworkCard.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(8)
+NetworkCard.Discovery.Instance.Model=InstanceTable.Column(7)
+NetworkCard.Discovery.Instance.Vendor="QLogic"
+NetworkCard.Discovery.Instance.BandWidth=InstanceTable.Column(6)
+NetworkCard.Discovery.Instance.PhysicalAddress=InstanceTable.Column(3)
+NetworkCard.Discovery.Instance.PhysicalAddressType="WWN"
+NetworkCard.Discovery.Instance.DeviceType=InstanceTable.Column(2)
+
+// Collect
+
+// The NetworkCard collect is a "MultiInstance" collect
+NetworkCard.Collect.Type="MultiInstance"
+
+// Source(1) = CIM_FCPort
+// InstanceID;Speed;LinkStatus;
+NetworkCard.Collect.Source(1).Type="WBEM"
+NetworkCard.Collect.Source(1).WbemQuery="SELECT InstanceID,Speed,LinkStatus FROM QLogicFC_Port"
+NetworkCard.Collect.Source(1).WbemNameSpace="qlogic/cimv2"
+
+// Translate the Link Status
+// InstanceID;Speed;PatrolLinkStatus;
+NetworkCard.Collect.Source(1).Compute(1).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(1).Column=3
+NetworkCard.Collect.Source(1).Compute(1).TranslationTable="LinkStatusTranslationTable"
+
+// The SpeedToLinkStatusTranslationTable
+LinkStatusTranslationTable(0)="OK"
+LinkStatusTranslationTable("")="WARN"
+LinkStatusTranslationTable(Default)="WARN"
+
+// Convert Speed from bps to Mbps (divide by 1062500)
+// InstanceID;Speed;PatrolLinkStatus;
+NetworkCard.Collect.Source(1).Compute(2).Type="Divide"
+NetworkCard.Collect.Source(1).Compute(2).Column=2
+NetworkCard.Collect.Source(1).Compute(2).DivideBy=1062500
+
+// ValueTable = Source(1)
+// InstanceID;Speed;PatrolLinkStatus;
+NetworkCard.Collect.ValueTable=%NetworkCard.Collect.Source(1)%
+NetworkCard.Collect.DeviceID=ValueTable.Column(1)
+NetworkCard.Collect.LinkStatus=ValueTable.Column(3)
+NetworkCard.Collect.LinkSpeed=ValueTable.Column(2)

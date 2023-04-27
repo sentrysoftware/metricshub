@@ -1,0 +1,383 @@
+//
+//
+//                 C O N N E C T O R
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//                MS_HW_SunPrtdiagLom.hdf
+//
+//      Supports: Sun machines
+//		Monitors: environment (temperatures, fans, power supplies and voltages)
+//      Connects to: prtdiag or lom under Solaris
+//
+//
+
+//
+// HEADER
+//
+
+hdf.DisplayName="Oracle/Sun Solaris - Multi-core Processors (psrinfo)"
+hdf.TypicalPlatform="Oracle/Sun"
+hdf.ReliesOn="Sun Solaris system commands (psrinfo, etc.)"
+hdf.Comments="This connector discovers and monitors the multi-core processors (SPARC T1, T2, T2+ and Intel Xeon) through the psrinfo system command."
+hdf.Version="1.0"
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="Solaris"
+hdf.Supersedes="MS_HW_SunPsrinfo.hdf"
+
+//
+// DETECTION
+//
+
+// OS should be SunOS or Solaris
+Detection.Criteria(1).Type="OS"
+Detection.Criteria(1).KeepOnly="SunOS,Solaris"
+
+// psrinfo should return that we have more than one virtual processor
+Detection.Criteria(2).Type="OsCommand"
+Detection.Criteria(2).CommandLine="/usr/sbin/psrinfo -vp"
+Detection.Criteria(2).ExpectedResult="physical processor has [0-9]+.* virtual processors"
+
+
+//
+// Processors
+//
+
+//
+// Discovery
+
+// Source(1) = psrinfo -vp
+cpu.Discovery.Source(1).Type="OsCommand"
+cpu.Discovery.Source(1).CommandLine="/usr/sbin/psrinfo -vp"
+
+// Send psrinfo'soutput through awk %EmbeddedFile(1)%
+// cpuID;cpuModel;cpuSpeed
+cpu.Discovery.Source(1).Compute(1).Type="Awk"
+cpu.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+cpu.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+cpu.Discovery.Source(1).Compute(1).Separators=";"
+cpu.Discovery.Source(1).Compute(1).SelectColumns="2,3,4"
+
+// Instance table = source(1)
+cpu.Discovery.InstanceTable=%cpu.Discovery.Source(1)%
+cpu.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+cpu.Discovery.Instance.Model=InstanceTable.Column(2)
+cpu.Discovery.Instance.MaximumSpeed=InstanceTable.Column(3)
+//cpu.Discovery.Instance.AttachedToDeviceID="SUN"
+//cpu.Discovery.Instance.AttachedToDeviceType="Computer"
+
+
+//
+// Collect
+
+// Collect type = multi-instance
+cpu.Collect.Type="MultiInstance"
+
+// Source(1) = psrinfo -vp
+cpu.Collect.Source(1).Type="OsCommand"
+cpu.Collect.Source(1).CommandLine="/usr/sbin/psrinfo -vp"
+
+// Send psrinfo'soutput through awk %EmbeddedFile(1)%
+// cpuID;cpuModel;cpuSpeed
+cpu.Collect.Source(1).Compute(1).Type="Awk"
+cpu.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+cpu.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+cpu.Collect.Source(1).Compute(1).Separators=";"
+cpu.Collect.Source(1).Compute(1).SelectColumns="2,3,4"
+
+
+// ValueTable = source(1)
+cpu.Collect.ValueTable=%cpu.Collect.Source(1)%
+cpu.Collect.DeviceID=ValueTable.Column(1)
+
+
+//
+// CPU Cores
+//
+
+//
+// Discovery
+
+// Source(1) = psrinfo -vp
+CpuCore.Discovery.Source(1).Type="OsCommand"
+CpuCore.Discovery.Source(1).CommandLine="/usr/sbin/psrinfo -vp"
+
+// Send psrinfo'soutput through awk %EmbeddedFile(2)%
+// CoreID;PhysicalProcessorID;
+CpuCore.Discovery.Source(1).Compute(1).Type="Awk"
+CpuCore.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(2)
+CpuCore.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+CpuCore.Discovery.Source(1).Compute(1).Separators=";"
+CpuCore.Discovery.Source(1).Compute(1).SelectColumns="2,3"
+
+// Duplicate the PhysicalProcessorID column
+// CoreID;PhysicalProcessorID;PhysicalProcessorID;
+CpuCore.Discovery.Source(1).Compute(2).Type="DuplicateColumn"
+CpuCore.Discovery.Source(1).Compute(2).Column=2
+
+// Add "Part of physical processor " to the second PhysicalProcessorID
+// CoreID;PhysicalProcessorID;AdditionalInformation;
+CpuCore.Discovery.Source(1).Compute(3).Type="LeftConcat"
+CpuCore.Discovery.Source(1).Compute(3).Column=3
+CpuCore.Discovery.Source(1).Compute(3).String="Physical Processor ID: "
+
+// Source(1) = kstat -p cpu_info:::current_clock_Hz
+// CoreID;CurrentSpeed;
+CpuCore.Discovery.Source(2).Type="OsCommand"
+CpuCore.Discovery.Source(2).CommandLine="/usr/bin/kstat -p cpu_info:::current_clock_Hz"
+CpuCore.Discovery.Source(2).KeepOnlyRegExp="^cpu_info"
+CpuCore.Discovery.Source(2).Separators=":"
+CpuCore.Discovery.Source(2).SelectColumns="2,4"
+
+// Replace current_clock_Hz
+// CoreID;CurrentSpeed;
+CpuCore.Discovery.Source(2).Compute(1).Type="Replace"
+CpuCore.Discovery.Source(2).Compute(1).Column=2
+CpuCore.Discovery.Source(2).Compute(1).Replace="current_clock_Hz"
+CpuCore.Discovery.Source(2).Compute(1).ReplaceBy=""
+
+// Replace spaces
+// CoreID;CurrentSpeed;
+CpuCore.Discovery.Source(2).Compute(2).Type="Replace"
+CpuCore.Discovery.Source(2).Compute(2).Column=2
+CpuCore.Discovery.Source(2).Compute(2).Replace=" "
+CpuCore.Discovery.Source(2).Compute(2).ReplaceBy=""
+
+// Replace tabs
+// CoreID;CurrentSpeed;
+CpuCore.Discovery.Source(2).Compute(3).Type="Replace"
+CpuCore.Discovery.Source(2).Compute(3).Column=2
+CpuCore.Discovery.Source(2).Compute(3).Replace="\t"
+CpuCore.Discovery.Source(2).Compute(3).ReplaceBy=""
+
+
+// Convert Speed from Hz to MHz
+// CoreID;CurrentSpeed;
+CpuCore.Discovery.Source(2).Compute(4).Type="Divide"
+CpuCore.Discovery.Source(2).Compute(4).Column=2
+CpuCore.Discovery.Source(2).Compute(4).DivideBy=1000000
+
+// Join (1) and (2)  2 will only be poluated on T5, M5, M6 or later
+// CoreID;PhysicalProcessorID;AdditionalInformation;CoreID;CurrentSpeed;
+CpuCore.Discovery.Source(3).Type="TableJoint"
+CpuCore.Discovery.Source(3).LeftTable=%CpuCore.Discovery.Source(1)%
+CpuCore.Discovery.Source(3).RightTable=%CpuCore.Discovery.Source(2)%
+CpuCore.Discovery.Source(3).LeftKeyColumn="1"
+CpuCore.Discovery.Source(3).RightKeyColumn="1"
+CpuCore.Discovery.Source(3).DefaultRightLine=";;"
+
+// Instance table = source(3)
+// CoreID;PhysicalProcessorID;AdditionalInformation;CoreID;CurrentSpeed;
+CpuCore.Discovery.InstanceTable=%CpuCore.Discovery.Source(3)%
+CpuCore.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+CpuCore.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+CpuCore.Discovery.Instance.AttachedToDeviceType="Cpu"
+CpuCore.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(3)
+CpuCore.Discovery.Instance.ParameterActivation.CurrentSpeed=ValueTable.Column(5)
+
+//
+// Collect
+
+// Collect type = multi-instance
+CpuCore.Collect.Type="MultiInstance"
+
+// Source(1) = psrinfo -v
+CpuCore.Collect.Source(1).Type="OsCommand"
+CpuCore.Collect.Source(1).CommandLine="/usr/sbin/psrinfo"
+CpuCore.Collect.Source(1).KeepOnlyRegExp="^[0-9]+ "
+CpuCore.Collect.Source(1).Separators=" \t"
+CpuCore.Collect.Source(1).SelectColumns="1,2"
+
+// Duplicate the status column
+// CoreID;cpuStatus;cpuStatus
+CpuCore.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+CpuCore.Collect.Source(1).Compute(1).Column=2
+
+// Translate the first status column into a PATROL status
+// CoreID;PATROLStatus;cpuStatus
+CpuCore.Collect.Source(1).Compute(2).Type="Translate"
+CpuCore.Collect.Source(1).Compute(2).Column=2
+CpuCore.Collect.Source(1).Compute(2).TranslationTable="cpuStatusTranslationTable"
+
+// Translate the second status column into a more readable string
+// CoreID;PATROLStatus;statusInformation
+CpuCore.Collect.Source(1).Compute(3).Type="Translate"
+CpuCore.Collect.Source(1).Compute(3).Column=3
+CpuCore.Collect.Source(1).Compute(3).TranslationTable="cpuStatusInformationTranslationTable"
+
+// Source(1) = kstat -p cpu_info:::current_clock_Hz
+// CoreID;CurrentSpeed;
+CpuCore.Collect.Source(2).Type="OsCommand"
+CpuCore.Collect.Source(2).CommandLine="/usr/bin/kstat -p cpu_info:::current_clock_Hz"
+CpuCore.Collect.Source(2).KeepOnlyRegExp="^cpu_info"
+CpuCore.Collect.Source(2).Separators=":"
+CpuCore.Collect.Source(2).SelectColumns="2,4"
+
+// Replace current_clock_Hz
+// CoreID;CurrentSpeed;
+CpuCore.Collect.Source(2).Compute(1).Type="Replace"
+CpuCore.Collect.Source(2).Compute(1).Column=2
+CpuCore.Collect.Source(2).Compute(1).Replace="current_clock_Hz"
+CpuCore.Collect.Source(2).Compute(1).ReplaceBy=""
+
+// Replace spaces
+// CoreID;CurrentSpeed;
+CpuCore.Collect.Source(2).Compute(2).Type="Replace"
+CpuCore.Collect.Source(2).Compute(2).Column=2
+CpuCore.Collect.Source(2).Compute(2).Replace=" "
+CpuCore.Collect.Source(2).Compute(2).ReplaceBy=""
+
+// Replace tabs
+// CoreID;CurrentSpeed;
+CpuCore.Collect.Source(2).Compute(3).Type="Replace"
+CpuCore.Collect.Source(2).Compute(3).Column=2
+CpuCore.Collect.Source(2).Compute(3).Replace="\t"
+CpuCore.Collect.Source(2).Compute(3).ReplaceBy=""
+
+// Convert Speed from Hz to MHz
+// CoreID;CurrentSpeed;
+CpuCore.Collect.Source(2).Compute(4).Type="Divide"
+CpuCore.Collect.Source(2).Compute(4).Column=2
+CpuCore.Collect.Source(2).Compute(4).DivideBy=1000000
+
+// Join (1) and (2)  2 will only be poluated on T5, M5, M6 or later
+// CoreID;PATROLStatus;statusInformation;CoreID;CurrentSpeed;
+CpuCore.Collect.Source(3).Type="TableJoint"
+CpuCore.Collect.Source(3).LeftTable=%CpuCore.Collect.Source(1)%
+CpuCore.Collect.Source(3).RightTable=%CpuCore.Collect.Source(2)%
+CpuCore.Collect.Source(3).LeftKeyColumn="1"
+CpuCore.Collect.Source(3).RightKeyColumn="1"
+CpuCore.Collect.Source(3).DefaultRightLine=";;"
+
+// ValueTable = source(3)
+// CoreID;PATROLStatus;statusInformation;CoreID;CurrentSpeed;
+CpuCore.Collect.ValueTable=%CpuCore.Collect.Source(3)%
+CpuCore.Collect.DeviceID=ValueTable.Column(1)
+CpuCore.Collect.Status=ValueTable.Column(2)
+CpuCore.Collect.StatusInformation=ValueTable.Column(3)
+CpuCore.Collect.CurrentSpeed=ValueTable.Column(5)
+
+// The cpuStatusTranslationTable
+cpuStatusTranslationTable("on-line")="OK"
+cpuStatusTranslationTable("no-intr")="OK"
+cpuStatusTranslationTable("off-line")="ALARM"
+cpuStatusTranslationTable("powered")="ALARM"
+cpuStatusTranslationTable("faulted")="ALARM"
+cpuStatusTranslationTable(Default)="UNKNOWN"
+
+// The cpuStatusInformationTranslationTable
+cpuStatusInformationTranslationTable("on-line")="On-line"
+cpuStatusInformationTranslationTable("no-intr")="Non-interruptible"
+cpuStatusInformationTranslationTable("off-line")="Off-line"
+cpuStatusInformationTranslationTable("powered")="Powered off"
+cpuStatusInformationTranslationTable("faulted")="Faulted"
+cpuStatusInformationTranslationTable(Default)="Unknown Status"
+
+
+
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = awk script that parse the psrinfo -vp output
+///                      and returns the list of physical cpus
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(1):
+BEGIN {
+	cpuID = 0;
+}
+/clock [0-9]+ MHz\)/ {
+	printf("MSHW;%d;%s;%d\n", cpuID, $1, $(NF-1));
+	cpuID++;
+}
+EmbeddedFile(1).End
+/////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(2) = awk script that parse the psrinfo -vp output
+///                      and returns the list of CPU cores
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(2):
+BEGIN {
+	cpuID = 0;
+}
+/physical processor has [0-9]+.* virtual processors \([0-9\- ,]+\)/ {
+    gsub(",", " ");
+    split($0, temporaryList, "[\(\)]");
+    coreCount = split(temporaryList[2], coreArray, " ");
+    for (i=1; i<=coreCount; i++)
+    {
+    	if (index(coreArray[i], "-") > 0)
+    	{
+			split(coreArray[i], rangeArray, "-");
+			for (coreID=rangeArray[1]; coreID<=rangeArray[2]; coreID++)
+			{
+				printf("MSHW;%d;%d\n", coreID, cpuID);
+			}
+    	}
+    	else
+    	{
+            printf("MSHW;%d;%d\n", coreArray[i], cpuID);
+        }
+    }
+
+	cpuID++;
+}
+EmbeddedFile(2).End
+/////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(3) = awk script that parse the psrinfo -v output
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(3):
+($1 == "Status" && $3 == "processor") {
+        processorId = $4
+        processorStatus = ""
+        processorType = ""
+        processorSpeed = ""
+}
+
+($1 == "Status" && $3 == "virtual" && $4 == "processor") {
+		processorId = $5
+		processorStatus = ""
+		processorType = ""
+		processorSpeed = ""
+}
+
+($1 == "Processor" && $2 == "has" && $3 == "been") {
+        processorStatus = $4
+}
+
+($2 == "since") {
+		processorStatus = $1
+}
+
+($3 == "since") {
+		processorStatus = $1 " " $2
+}
+
+($1 == "The" && $3 == "processor" && $4 == "operates" && length(processorId) > 0) {
+        processorType = $2
+        processorSpeed = $6
+
+        print "MSHW;" processorId ";" processorType ";" processorSpeed ";" processorStatus
+
+        processorId = ""
+}
+EmbeddedFile(3).End
+/////////////////////////////////////////////////////////////////////

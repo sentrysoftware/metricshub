@@ -144,6 +144,23 @@ public class ComputeTypeProcessor extends AbstractStateConverter {
 			return compute;
 		}
 
+		// Check the sources
+		final JsonNode sources = job.get(SOURCES);
+		if (sources == null) {
+			((ObjectNode) job)
+					.set(
+							SOURCES,
+							JsonNodeFactory.instance.objectNode()
+									.set(
+											sourceName,
+											JsonNodeFactory.instance.objectNode()
+													.set(
+															COMPUTES,
+															JsonNodeFactory.instance.arrayNode()
+																	.add(compute))));
+			return compute;
+		}
+
 		// Check the source
 		final JsonNode source = job.get(SOURCES).get(sourceName);
 		if(source == null) {

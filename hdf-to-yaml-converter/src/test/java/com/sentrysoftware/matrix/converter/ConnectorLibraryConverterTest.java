@@ -12,6 +12,8 @@ import java.util.List;
 import javax.json.JsonException;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -29,6 +31,7 @@ class ConnectorLibraryConverterTest {
 	private Path tempDir;
 
 	@Test
+	@DisabledOnOs(OS.MAC) // Just a difference of one file `.DS_STORE` that mac puts everywhere.
 	void testProcess() throws IOException {
 		final ConnectorLibraryConverter processor = new ConnectorLibraryConverter(Path.of(HDF_DIRECTORY), tempDir);
 		processor.process();
@@ -36,6 +39,8 @@ class ConnectorLibraryConverterTest {
 		final File emc = tempDir.resolve("DellEMCPowerStoreREST.yaml").toFile();
 		assertTrue(dell.exists());
 		assertTrue(emc.exists());
+
+		assertEquals(processor.getSourceDirectory().toFile().list().length, processor.getOutputDirectory().toFile().list().length);
 	}
 
 	@Test

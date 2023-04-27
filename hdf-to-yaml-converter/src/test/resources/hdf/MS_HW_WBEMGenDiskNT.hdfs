@@ -1,0 +1,255 @@
+//
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//                MS_HW_WBEMGenDiskNT.hdf
+//
+//      Supports: S.M.A.R.T.-enabled disks that are directly handled by Windows (and WBEM)
+//				  This exclude disks handled by Windows that are logical disks provided by
+//				  a RAID controller, for example
+//
+//
+
+// HEADER
+
+hdf.DisplayName="WMI - Disks"
+hdf.TypicalPlatform="Any system"
+hdf.ReliesOn="WMI"
+hdf.Version="1.1"
+hdf.Comments="This connector provides monitoring of the S.M.A.R.T.-enabled disks that are directly handled by Windows (and WBEM through the WMI service). It tries to exclude disks that are actually logical disks exposed by some RAID controllers."
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="NT"
+
+// DETECTION
+
+Detection.Criteria(1).Type="OS"
+Detection.Criteria(1).KeepOnly="NT"
+
+Detection.Criteria(2).Type="Service"
+Detection.Criteria(2).ServiceName="WINMGMT"
+
+Detection.Criteria(3).Type="WMI"
+Detection.Criteria(3).WbemNameSpace="root\WMI"
+Detection.Criteria(3).WbemQuery="SELECT InstanceName FROM MSStorageDriver_FailurePredictStatus WHERE Active=TRUE"
+Detection.Criteria(3).ExpectedResult="\(^[^M]...\)\|\(^.[^P]..\)\|\(^..[^I].\)\|\(^...[^O]\)"
+
+
+//
+// DISK CONTROLLERS
+//
+
+//
+// Discovery
+
+// Source(1) = list of the disks that supports S.M.A.R.T. and that are directly
+// exposed through the WMI WBEM provider
+// InstanceName;
+DiskController.Discovery.Source(1).Type="WMI"
+DiskController.Discovery.Source(1).WbemNameSpace="root\WMI"
+DiskController.Discovery.Source(1).WbemQuery="SELECT InstanceName FROM MSStorageDriver_FailurePredictStatus WHERE Active=TRUE"
+
+// Source(2) = table that translate the InstanceName of the WMI provider into a PnPDeviceID
+// PnPDeviceID;InstanceNameList
+DiskController.Discovery.Source(2).Type="WMI"
+DiskController.Discovery.Source(2).WbemNameSpace="root\WMI"
+DiskController.Discovery.Source(2).WbemQuery="SELECT InstanceName,InstanceNameList FROM MSWMI_PnPInstanceNames"
+
+// Extract the first instance name within the instancenamelist
+// PnPDeviceID;InstanceName
+DiskController.Discovery.Source(2).Compute(1).Type="Extract"
+DiskController.Discovery.Source(2).Compute(1).Column=2
+DiskController.Discovery.Source(2).Compute(1).SubColumn=1
+DiskController.Discovery.Source(2).Compute(1).SubSeparators="|"
+
+// Source(3) = jointure of source(1) and source(2) in order to have the PnPDeviceID
+// of the disks that supports S.M.A.R.T.
+// InstanceName;PnPDeviceID;InstanceName
+DiskController.Discovery.Source(3).Type="TableJoint"
+DiskController.Discovery.Source(3).LeftTable=%DiskController.Discovery.Source(1)%
+DiskController.Discovery.Source(3).RightTable=%DiskController.Discovery.Source(2)%
+DiskController.Discovery.Source(3).LeftKeyColumn=1
+DiskController.Discovery.Source(3).RightKeyColumn=2
+
+// Source(4) = Table that links the PnP Devices (who controls who)
+// Antecedent;Dependent   (that will contain ControllerPnPDeviceID;DiskPnPDeviceID)
+DiskController.Discovery.Source(4).Type="WMI"
+DiskController.Discovery.Source(4).WbemQuery="SELECT Antecedent,Dependent FROM CIM_ControlledBy"
+DiskController.Discovery.Source(4).Compute(1).Type="Extract"
+DiskController.Discovery.Source(4).Compute(1).Column=1
+DiskController.Discovery.Source(4).Compute(1).SubColumn=2
+DiskController.Discovery.Source(4).Compute(1).SubSeparators=""""
+DiskController.Discovery.Source(4).Compute(2).Type="Extract"
+DiskController.Discovery.Source(4).Compute(2).Column=2
+DiskController.Discovery.Source(4).Compute(2).SubColumn=2
+DiskController.Discovery.Source(4).Compute(2).SubSeparators=""""
+DiskController.Discovery.Source(4).Compute(3).Type="Replace"
+DiskController.Discovery.Source(4).Compute(3).Column=1
+DiskController.Discovery.Source(4).Compute(3).Replace="\\"
+DiskController.Discovery.Source(4).Compute(3).ReplaceBy="\"
+DiskController.Discovery.Source(4).Compute(4).Type="Replace"
+DiskController.Discovery.Source(4).Compute(4).Column=2
+DiskController.Discovery.Source(4).Compute(4).Replace="\\"
+DiskController.Discovery.Source(4).Compute(4).ReplaceBy="\"
+
+// Source(5) = jointure of source(4) with source(3)
+// ControllerPnPDeviceID;DiskPnPDeviceID;DiskInstanceName;DiskPnPDeviceID;DiskInstanceName
+DiskController.Discovery.Source(5).Type="TableJoint"
+DiskController.Discovery.Source(5).LeftTable=%DiskController.Discovery.Source(4)%
+DiskController.Discovery.Source(5).RightTable=%DiskController.Discovery.Source(3)%
+DiskController.Discovery.Source(5).LeftKeyColumn=2
+DiskController.Discovery.Source(5).RightKeyColumn=2
+
+// Exclude disks that have a PNP ID that begins with MPIO (Multipath IO Disks can only occur in external Disks Bays), or contain PROD_LOGICAL_VOLUME (HP Raid Logical Disks)
+// ControllerPnPDeviceID;DiskPnPDeviceID;DiskInstanceName;DiskPnPDeviceID;DiskInstanceName
+DiskController.Discovery.Source(5).Compute(1).Type="ExcludeMatchingLines"
+DiskController.Discovery.Source(5).Compute(1).Column=2
+DiskController.Discovery.Source(5).Compute(1).RegExp="\(^MPIO\)\|\(PROD_LOGICAL_VOLUME\)"
+
+// Source(6) = the CIM_ControllerTable (more information about them)
+// Name;PnPDeviceID
+DiskController.Discovery.Source(6).Type="WMI"
+DiskController.Discovery.Source(6).WbemQuery="SELECT Name,PNPDeviceID FROM CIM_Controller"
+
+// Remove HBA controllers (Emulex, QLogic, etc.)
+// Name;PnPDeviceID
+DiskController.Discovery.Source(6).Compute(1).Type="ExcludeMatchingLines"
+DiskController.Discovery.Source(6).Compute(1).Column=1
+DiskController.Discovery.Source(6).Compute(1).RegExp="\(Emulex\)\|\(QLogic\)\|\(EMS Device Bus\)"
+
+// Source(7) = jointure of source(6) and source(5) (will contain only one line per disk controller)
+// ControllerName;ControllerPnPDeviceID;ControllerPnPDeviceID;DiskPnPDeviceID;DiskInstanceName;DiskInstanceName;DiskPnPDeviceID
+DiskController.Discovery.Source(7).Type="TableJoint"
+DiskController.Discovery.Source(7).LeftTable=%DiskController.Discovery.Source(6)%
+DiskController.Discovery.Source(7).RightTable=%DiskController.Discovery.Source(5)%
+DiskController.Discovery.Source(7).LeftKeyColumn=2
+DiskController.Discovery.Source(7).RightKeyColumn=1
+
+// Pfew... that's end, folks! here is the InstanceTable: Source(7)
+DiskController.Discovery.InstanceTable=%DiskController.Discovery.Source(7)%
+DiskController.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+DiskController.Discovery.Instance.ControllerNumber=InstanceTable.Column(2)
+DiskController.Discovery.Instance.Vendor=""
+DiskController.Discovery.Instance.Model=InstanceTable.Column(1)
+
+
+//
+// PHYSICAL DISKS
+//
+
+//
+// Discovery
+
+// Source(1) = the Win32_DiskDrive table (more information about those disks)
+// DiskIndex;DiskManufacturer;DiskModel;DiskPNPDeviceID;DiskSize;
+PhysicalDisk.Discovery.Source(1).Type="WMI"
+PhysicalDisk.Discovery.Source(1).WbemQuery="SELECT Index,Manufacturer,Model,PNPDeviceID,Size FROM Win32_DiskDrive"
+
+// Source(2) = jointure of DiskController.Discovery.Source(5) with Source(1)
+// ControllerPnPDeviceID;DiskPnPDeviceID;DiskInstanceName;DiskPnPDeviceID;DiskInstanceName;DiskIndex;DiskManufacturer;DiskModel;DiskPNPDeviceID;DiskSize;
+PhysicalDisk.Discovery.Source(2).Type="TableJoint"
+PhysicalDisk.Discovery.Source(2).LeftTable=%DiskController.Discovery.Source(5)%
+PhysicalDisk.Discovery.Source(2).RightTable=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Source(2).LeftKeyColumn=2
+PhysicalDisk.Discovery.Source(2).RightKeyColumn=4
+
+// Source(3) = jointure of Source(2) with DiskController.Discovery.Source(6) to keep only
+// disks attached to actual disk controllers that are not HBAs
+// ControllerPnPDeviceID;DiskPnPDeviceID;DiskInstanceName;DiskPnPDeviceID;DiskInstanceName;DiskIndex;DiskManufacturer;DiskModel;DiskPNPDeviceID;DiskSize;ControllerName;ControllerPnPDeviceID;
+PhysicalDisk.Discovery.Source(3).Type="TableJoint"
+PhysicalDisk.Discovery.Source(3).LeftTable=%PhysicalDisk.Discovery.Source(2)%
+PhysicalDisk.Discovery.Source(3).RightTable=%DiskController.Discovery.Source(6)%
+PhysicalDisk.Discovery.Source(3).LeftKeyColumn=1
+PhysicalDisk.Discovery.Source(3).RightKeyColumn=2
+
+// The instance table...
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(3)%
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+PhysicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(6)
+PhysicalDisk.Discovery.Instance.Vendor=InstanceTable.Column(8)
+PhysicalDisk.Discovery.Instance.Size=InstanceTable.Column(10)
+PhysicalDisk.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(1)
+PhysicalDisk.Discovery.Instance.AttachedToDeviceType="DiskController"
+
+
+//
+// Collect
+
+// This a multi-instance collect (please minimize the number of wbem queries...)
+PhysicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = the Win32_DiskDrive table
+// PnPDeviceID;Status
+PhysicalDisk.Collect.Source(1).Type="WMI"
+PhysicalDisk.Collect.Source(1).WbemQuery="SELECT PnPDeviceID,Status FROM Win32_DiskDrive"
+
+// Source(2) = jointure of Source(1) with DiskController.Discovery.Source(2)
+// in order to link PnPDeviceID with InstanceName in the WMI namespace
+// PnPDeviceID;Status;PnPDeviceID;InstanceName
+PhysicalDisk.Collect.Source(2).Type="TableJoint"
+PhysicalDisk.Collect.Source(2).LeftTable=%PhysicalDisk.Collect.Source(1)%
+PhysicalDisk.Collect.Source(2).RightTable=%DiskController.Discovery.Source(2)%
+PhysicalDisk.Collect.Source(2).LeftKeyColumn=1
+PhysicalDisk.Collect.Source(2).RightKeyColumn=1
+
+// Source(3) = the list of the disks that supports S.M.A.R.T. and that are directly
+// exposed through the WMI WBEM provider
+// InstanceName;PredictFailure
+PhysicalDisk.Collect.Source(3).Type="WMI"
+PhysicalDisk.Collect.Source(3).WbemNameSpace="root\WMI"
+PhysicalDisk.Collect.Source(3).WbemQuery="SELECT InstanceName,PredictFailure FROM MSStorageDriver_FailurePredictStatus WHERE Active=TRUE"
+
+// Source(4) = jointure of source(2) with source(3) (to have all information
+// in the same table
+// PnPDeviceID;Status;PnPDeviceID;InstanceName;InstanceName;PredictFailure
+PhysicalDisk.Collect.Source(4).Type="TableJoint"
+PhysicalDisk.Collect.Source(4).LeftTable=%PhysicalDisk.Collect.Source(2)%
+PhysicalDisk.Collect.Source(4).RightTable=%PhysicalDisk.Collect.Source(3)%
+PhysicalDisk.Collect.Source(4).LeftKeyColumn=4
+PhysicalDisk.Collect.Source(4).RightKeyColumn=1
+
+// Duplicate the Status column (to be translated two times)
+// PnPDeviceID;Status;PatrolStatus;InformationStatus;PnPDeviceID;InstanceName;InstanceName;PredictFailure
+PhysicalDisk.Collect.Source(4).Compute(1).Type="DuplicateColumn"
+PhysicalDisk.Collect.Source(4).Compute(1).Column=2
+PhysicalDisk.Collect.Source(4).Compute(2).Type="DuplicateColumn"
+PhysicalDisk.Collect.Source(4).Compute(2).Column=2
+
+// Translate the WBEM Status field into PATROL status
+PhysicalDisk.Collect.Source(4).Compute(3).Type="Translate"
+PhysicalDisk.Collect.Source(4).Compute(3).Column=3
+PhysicalDisk.Collect.Source(4).Compute(3).TranslationTable="PhysicalDiskStatusTranslationTable"
+
+// Translate the WBEM Status field into a more readable string
+PhysicalDisk.Collect.Source(4).Compute(4).Type="Translate"
+PhysicalDisk.Collect.Source(4).Compute(4).Column=4
+PhysicalDisk.Collect.Source(4).Compute(4).TranslationTable="PhysicalDiskInformationStatusTranslationTable"
+
+// And here is the ValueTable
+PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(4)%
+PhysicalDisk.Collect.DeviceID=ValueTable.Column(6)
+PhysicalDisk.Collect.Status=ValueTable.Column(3)
+PhysicalDisk.Collect.StatusInformation=ValueTable.Column(4)
+PhysicalDisk.Collect.PredictedFailure=ValueTable.Column(8)
+
+// The PhysicalDiskStatusTranslationTable
+PhysicalDiskStatusTranslationTable("OK")="OK"
+PhysicalDiskStatusTranslationTable("Error")="ALARM"
+PhysicalDiskStatusTranslationTable("Degraded")="WARN"
+PhysicalDiskStatusTranslationTable("Pred Fail")="WARN"
+PhysicalDiskStatusTranslationTable("Service")="WARN"
+PhysicalDiskStatusTranslationTable(Default)="UNKNWON"
+
+// The PhysicalDiskInformationStatusTranslationTable
+PhysicalDiskInformationStatusTranslationTable("OK")=""
+PhysicalDiskInformationStatusTranslationTable("Error")="Error"
+PhysicalDiskInformationStatusTranslationTable("Degraded")="Degraded"
+PhysicalDiskInformationStatusTranslationTable("Pred Fail")="Predicted Failure"
+PhysicalDiskInformationStatusTranslationTable("Service")="Service"
+PhysicalDiskInformationStatusTranslationTable(Default)="Unknown"
+

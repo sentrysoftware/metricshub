@@ -1,0 +1,155 @@
+//
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//                   MS_HW_CpqSiMem.hdf
+//
+//      Supports: HP Insight Manager (Server Agent)
+//
+//
+
+//
+// HEADER
+//
+
+hdf.DisplayName="HP Insight Management Agent (v8.20 or lower) - Memory"
+hdf.TypicalPlatform="HP ProLiant"
+hdf.ReliesOn="HP Insight Management Agents"
+hdf.Version="1.4"
+hdf.Comments="This connector provides Memory Information through the HP Insight Manager (Older Server Agents)."
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="NT,Linux,OSF1,VMS,OOB,Solaris"
+
+
+//
+// DETECTION
+//
+
+// See if there are any Memory Modules in the CpqSiMem Table
+
+Detection.Criteria(1).Type="SNMP"
+Detection.Criteria(1).SnmpGetNext="1.3.6.1.4.1.232.2.2.4.5.1"
+
+
+// MEMORY MODULES
+
+// Memory discovery
+// ID;Size;Type;Technology;SerialNo
+Memory.Discovery.Source(1).Type="SnmpTable"
+Memory.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.232.2.2.4.5.1"
+Memory.Discovery.Source(1).SnmpTableSelectColumns="ID,3,4,6,10"
+
+// Remove modules for which we have no size (means they don't exist)
+Memory.Discovery.Source(1).Compute(1).Type="ExcludeMatchingLines"
+Memory.Discovery.Source(1).Compute(1).Column="2"
+//Memory.Discovery.Source(1).Compute(1).ValueList="0"
+Memory.Discovery.Source(1).Compute(1).Regexp="^0$"
+
+// Convert size to MB
+Memory.Discovery.Source(1).Compute(2).Type="Divide"
+Memory.Discovery.Source(1).Compute(2).Column="2"
+Memory.Discovery.Source(1).Compute(2).DivideBy="1024"
+
+// Translate memory type
+Memory.Discovery.Source(1).Compute(3).Type="Translate"
+Memory.Discovery.Source(1).Compute(3).Column="3"
+Memory.Discovery.Source(1).Compute(3).TranslationTable="memoryTypeTranslationTable"
+
+// Translate memory technology
+Memory.Discovery.Source(1).Compute(4).Type="Translate"
+Memory.Discovery.Source(1).Compute(4).Column="4"
+Memory.Discovery.Source(1).Compute(4).TranslationTable="memoryTechnologyTranslationTable"
+
+// Concat type and technology
+Memory.Discovery.Source(1).Compute(5).Type="RightConcat"
+Memory.Discovery.Source(1).Compute(5).Column="3"
+Memory.Discovery.Source(1).Compute(5).String=Column(4)
+
+Memory.Discovery.InstanceTable=%Memory.Discovery.Source(1)%
+Memory.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Memory.Discovery.Instance.Size=InstanceTable.Column(2)
+Memory.Discovery.Instance.Type=InstanceTable.Column(3)
+Memory.Discovery.Instance.SerialNumber=InstanceTable.Column(5)
+
+memoryTypeTranslationTable(1)=""
+memoryTypeTranslationTable(2)="Board "
+memoryTypeTranslationTable(3)="Single-width "
+memoryTypeTranslationTable(4)="Double-width "
+memoryTypeTranslationTable(5)="SIMM "
+memoryTypeTranslationTable(6)="PCMCIA "
+memoryTypeTranslationTable(7)="Compaq-specific "
+memoryTypeTranslationTable(8)="DIMM "
+memoryTypeTranslationTable(9)="DIMM (small outline) "
+memoryTypeTranslationTable(10)="RIMM "
+memoryTypeTranslationTable(11)="SRIMM "
+memoryTypeTranslationTable(12)="FB-DIMM "
+memoryTypeTranslationTable(13)="DIMM-DDR "
+memoryTypeTranslationTable(14)="DIMM-DDR2 "
+memoryTypeTranslationTable(15)="DIMM-DDR3 "
+memoryTypeTranslationTable(16)="DIMM-FBD2 "
+memoryTypeTranslationTable(17)="FB-DIMM-DDR2 "
+memoryTypeTranslationTable(18)="FB-DIMM-DDR3 "
+
+memoryTechnologyTranslationTable(1)=""
+memoryTechnologyTranslationTable(2)="Fast-page"
+memoryTechnologyTranslationTable(3)="EDO"
+memoryTechnologyTranslationTable(4)="Burst-EDO"
+memoryTechnologyTranslationTable(5)="Synchronous"
+memoryTechnologyTranslationTable(6)="RDRAM"
+
+//
+// Collect
+
+Memory.Collect.Type="MultiInstance"
+
+// Source(1) = The cpqSiMemModuleTable (for older HP ProLiant systems)
+// DeviceID;ECCStatus
+Memory.Collect.Source(1).Type="SnmpTable"
+Memory.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.232.2.2.4.5.1"
+Memory.Collect.Source(1).SnmpTableSelectColumns="ID,11"
+
+// Duplicate ECCStatus
+// DeviceID;ECCStatus;ECCStatus
+Memory.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Memory.Collect.Source(1).Compute(1).Column="2"
+
+// Translate first ECCStatus into a PATROL Status
+// DeviceID;PATROLStatus;ECCStatus
+Memory.Collect.Source(1).Compute(2).Type="Translate"
+Memory.Collect.Source(1).Compute(2).Column="2"
+Memory.Collect.Source(1).Compute(2).TranslationTable="memoryECCStatusTranslationTable"
+
+// Translate second ECCStatus into a more readable string
+// DeviceID;PATROLStatus;statusInformation
+Memory.Collect.Source(1).Compute(3).Type="Translate"
+Memory.Collect.Source(1).Compute(3).Column="3"
+Memory.Collect.Source(1).Compute(3).TranslationTable="memoryECCStatusInformationTranslationTable"
+
+// The memoryECCStatusTranslationTable
+memoryECCStatusTranslationTable(0)="OK"
+memoryECCStatusTranslationTable(1)="OK"
+memoryECCStatusTranslationTable(2)="OK"
+memoryECCStatusTranslationTable(3)="WARN"
+memoryECCStatusTranslationTable(4)="WARN"
+memoryECCStatusTranslationTable(Default)="UNKNOWN"
+
+// The memoryECCStatusInformationTranslationTable
+memoryECCStatusInformationTranslationTable(0)=""
+memoryECCStatusInformationTranslationTable(1)=""
+memoryECCStatusInformationTranslationTable(2)=""
+memoryECCStatusInformationTranslationTable(3)="Too many ECC errors"
+memoryECCStatusInformationTranslationTable(4)="Too many ECC errors"
+memoryECCStatusInformationTranslationTable(Default)="Unknown Status"
+
+// ValueTable = Source(1)
+// DeviceID;PATROLStatus;statusInformation
+Memory.Collect.ValueTable=%Memory.Collect.Source(1)%
+Memory.Collect.DeviceID=ValueTable.Column(1)
+Memory.Collect.Status=ValueTable.Column(2)
+Memory.Collect.StatusInformation=ValueTable.Column(3)

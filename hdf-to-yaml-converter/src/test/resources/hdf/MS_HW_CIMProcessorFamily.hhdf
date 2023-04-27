@@ -1,0 +1,2 @@
+#include CpuFamilyTranslationTable.hhdf
+#include CpuVendorTranslationTable.hhdf

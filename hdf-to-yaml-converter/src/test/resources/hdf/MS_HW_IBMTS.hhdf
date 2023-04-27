@@ -1,0 +1,192 @@
+///////////////////////////////////////////////////////////
+//
+//     SMI-S shared HDF
+//
+//     To be included in the IBM TS3100 TS3200 and Dell Tape Libraries Connectors
+//
+///////////////////////////////////////////////////////////
+
+//
+// DETECTION
+// Does a get_next to see if there that the global OID table is populated.
+Detection.Criteria(1).Type="SNMP"
+Detection.Criteria(1).SnmpGetNext="_ROOT_OID.2"
+
+//
+// Enclosure
+//
+
+// Source(1) = 	tapeLibrarySystem SNMP table (3100)
+// Model;LibraryType;Manufacturer;AgentVersion;
+Enclosure.Discovery.Source(1).Type="SnmpTable"
+Enclosure.Discovery.Source(1).SnmpTableOid="_ROOT_OID.1"
+Enclosure.Discovery.Source(1).SnmpTableSelectColumns="1,2,3,4"
+
+Enclosure.Discovery.Source(1).Compute(1).Type="LeftConcat"
+Enclosure.Discovery.Source(1).Compute(1).Column=1
+Enclosure.Discovery.Source(1).Compute(1).String="Part Number: "
+
+// InstanceTable = Source(1)
+// Model;LibraryType;Manufacturer;AgentVersion;
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Instance.DeviceID="_LIBRARY_ID"
+Enclosure.Discovery.Instance.DisplayID="_LIBRARY_ID"
+Enclosure.Discovery.Instance.Vendor=InstanceTable.Column(3)
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(2)
+Enclosure.Discovery.Instance.BiosVersion=InstanceTable.Column(4)
+Enclosure.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(1)
+Enclosure.Discovery.Instance.Type="Storage"
+
+//
+// Collect
+
+Enclosure.Collect.Type="MultiInstance"
+
+// Source(1) = 	ibm3100StatusGlobalStatus SNMP OID
+// Status
+Enclosure.Collect.Source(1).Type="SnmpGet"
+Enclosure.Collect.Source(1).SnmpOid="_ROOT_OID.2.1.0"
+
+// Duplicate status, because we will translate it two times
+// Status;Status;
+Enclosure.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Enclosure.Collect.Source(1).Compute(1).Column="1"
+
+// Translate Status into PATROLStatus
+// PATROLStatus;Status;
+Enclosure.Collect.Source(1).Compute(2).Type="Translate"
+Enclosure.Collect.Source(1).Compute(2).Column="1"
+Enclosure.Collect.Source(1).Compute(2).TranslationTable="StatusTranslationTable"
+
+// Translate second Status into more readable string
+// PATROLStatus;StatusInformation;
+Enclosure.Collect.Source(1).Compute(3).Type="Translate"
+Enclosure.Collect.Source(1).Compute(3).Column="2"
+Enclosure.Collect.Source(1).Compute(3).TranslationTable="StatusInformationTranslationTable"
+
+Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(1)%
+Enclosure.Collect.DeviceID="_LIBRARY_ID"
+Enclosure.Collect.Status=ValueTable.Column(1)
+Enclosure.Collect.StatusInformation=ValueTable.Column(2)
+
+// The StatusTranslationTable
+StatusTranslationTable(1)="UNKNOWN"
+StatusTranslationTable(2)="UNKNOWN"
+StatusTranslationTable(3)="OK"
+StatusTranslationTable(4)="WARN"
+StatusTranslationTable(5)="ALARM"
+StatusTranslationTable(6)="ALARM"
+StatusTranslationTable(Default)="UNKNOWN"
+
+// The StatusInformationTranslationTable
+StatusInformationTranslationTable(1)="Other Status"
+StatusInformationTranslationTable(2)="Unknown"
+StatusInformationTranslationTable(3)=""
+StatusInformationTranslationTable(4)="Non-Critical"
+StatusInformationTranslationTable(5)="Critical"
+StatusInformationTranslationTable(6)="Non-Recoverable"
+StatusInformationTranslationTable(Default)="Unknown Status"
+
+
+//
+// Robotics
+//
+
+// Source = Get the Robotics info 3100
+// ID;Vendor;Model;FirwareVersion;SerialNumber
+Robotic.Discovery.Source(1).Type="SnmpTable"
+Robotic.Discovery.Source(1).SnmpTableOid="_ROOT_OID.3.1.1"
+Robotic.Discovery.Source(1).SnmpTableSelectColumns="ID,7,8,9,10"
+
+Robotic.Discovery.Source(1).Compute(1).Type="LeftConcat"
+Robotic.Discovery.Source(1).Compute(1).Column=4
+Robotic.Discovery.Source(1).Compute(1).String="Firmware Version: "
+
+// Instance Table
+// ID;Vendor;Model;FirwareVersion;SerialNumber
+Robotic.Discovery.InstanceTable=%Robotic.Discovery.Source(1)%
+Robotic.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Robotic.Discovery.Instance.Vendor=InstanceTable.Column(2)
+Robotic.Discovery.Instance.Model=InstanceTable.Column(3)
+Robotic.Discovery.Instance.SerialNumber=InstanceTable.Column(5)
+Robotic.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(4)
+Robotic.Discovery.Instance.RoboticType="Media Transfer"
+
+
+//
+// Collect
+
+Robotic.Collect.Type="MultiInstance"
+
+// Get the Robotics status 3100
+// ID;Status;
+Robotic.Collect.Source(1).Type="SnmpTable"
+Robotic.Collect.Source(1).SnmpTableOid="_ROOT_OID.3.1.1"
+Robotic.Collect.Source(1).SnmpTableSelectColumns="ID,23,24"
+
+// Translate Status into PATROLStatus
+// deviceID;PATROLStatus;Status;
+Robotic.Collect.Source(1).Compute(1).Type="Translate"
+Robotic.Collect.Source(1).Compute(1).Column=2
+Robotic.Collect.Source(1).Compute(1).TranslationTable="RoboticStatusTranslationTable"
+
+// The StatusTranslationTable
+RoboticStatusTranslationTable(0)="OK"
+RoboticStatusTranslationTable(1)="OK"
+RoboticStatusTranslationTable(2)="WARN"
+RoboticStatusTranslationTable(3)="ALARM"
+RoboticStatusTranslationTable(4)="ALARM"
+RoboticStatusTranslationTable(Default)="UNKNOWN"
+
+// Value Table
+Robotic.Collect.ValueTable=%Robotic.Collect.Source(1)%
+Robotic.Collect.DeviceID=ValueTable.Column(1)
+Robotic.Collect.Status=ValueTable.Column(2)
+Robotic.Collect.StatusInformation=ValueTable.Column(3)
+
+//
+// Tape Drives
+//
+
+// Source(1) = 	physicalDriveEntry SNMP table 3100
+// ID;Vendor;Model;Firmware;SerialNumber;
+TapeDrive.Discovery.Source(1).Type="SnmpTable"
+TapeDrive.Discovery.Source(1).SnmpTableOid="_ROOT_OID.3.2.1"
+TapeDrive.Discovery.Source(1).SnmpTableSelectColumns="ID,7,8,9,10"
+
+TapeDrive.Discovery.Source(1).Compute(1).Type="LeftConcat"
+TapeDrive.Discovery.Source(1).Compute(1).Column=4
+TapeDrive.Discovery.Source(1).Compute(1).String="Firmware Version: "
+
+// Instance Table
+// ID;Vendor;Model;Firmware;SerialNumber;
+TapeDrive.Discovery.InstanceTable=%TapeDrive.Discovery.Source(1)%
+TapeDrive.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+TapeDrive.Discovery.Instance.Vendor=InstanceTable.Column(2)
+TapeDrive.Discovery.Instance.Model=InstanceTable.Column(3)
+TapeDrive.Discovery.Instance.SerialNumber=InstanceTable.Column(5)
+TapeDrive.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(4)
+
+//
+// Collect
+
+TapeDrive.Collect.Type="MultiInstance"
+
+// Source(1) = 	physicalDriveEntry SNMP table 3100
+// ID;Loads;HardWriteErrorCount;HardReadErrorCount;
+TapeDrive.Collect.Source(1).Type="SnmpTable"
+TapeDrive.Collect.Source(1).SnmpTableOid="_ROOT_OID.3.2.1"
+TapeDrive.Collect.Source(1).SnmpTableSelectColumns="ID,14,16,18"
+
+// Add Read & Write Errors
+// ID;Loads;HardErrorCount;HardReadErrorCount;
+TapeDrive.Collect.Source(1).Compute(1).Type="Add"
+TapeDrive.Collect.Source(1).Compute(1).Column=3
+TapeDrive.Collect.Source(1).Compute(1).Add=Column(4)
+
+// Value Table
+// ID;Loads;HardErrorCount;HardReadErrorCount;
+TapeDrive.Collect.ValueTable=%TapeDrive.Collect.Source(1)%
+TapeDrive.Collect.DeviceID=ValueTable.Column(1)
+TapeDrive.Collect.ErrorCount=ValueTable.Column(3)
+TapeDrive.Collect.MountCount=ValueTable.Column(2)

@@ -1,0 +1,263 @@
+//
+//
+//                 C O N N E C T O R
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//                MS_HW_SunTapeDrives.hdf
+//
+//      Supports: Sun machines
+//		Monitors: tape drives
+//      Connects to: iostat under Solaris
+//
+//
+
+//
+// HEADER
+//
+
+hdf.DisplayName="Oracle/Sun Solaris - Tape Drives"
+hdf.TypicalPlatform="Oracle/Sun"
+hdf.ReliesOn="Sun Solaris system commands (iostat, dd)"
+hdf.Comments="Gives physical disk information (status and error count) on Sun Solaris systems through the iostat -En utility. Supports only official Sun disks."
+hdf.Version="1.0"
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="Solaris"
+
+//
+// SUDO-able commands
+//
+// Sudo(1).Command="/usr/bin/dd"
+
+
+//
+// DETECTION
+//
+
+Detection.Criteria(1).Type="OS"
+Detection.Criteria(1).KeepOnly="SunOS,Solaris"
+
+Detection.Criteria(2).Type="OSCommand"
+Detection.Criteria(2).CommandLine="/usr/bin/iostat -En"
+Detection.Criteria(2).ExpectedResult="^rmt/.*Soft [Ee]rrors.*Hard [Ee]rrors.*Transport [Ee]rrors"
+
+
+//
+// TAPE DRIVES
+//
+
+//
+// Discovery
+
+// Source(2) = output of iostat
+TapeDrive.Discovery.Source(1).Type="OsCommand"
+TapeDrive.Discovery.Source(1).CommandLine="iostat -En"
+
+// Reformat iostat's output through awk (see EmbeddedFile(1))
+// DeviceID;Vendor;Model;SerialNumber
+TapeDrive.Discovery.Source(1).Compute(1).Type="Awk"
+TapeDrive.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+TapeDrive.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+TapeDrive.Discovery.Source(1).Compute(1).Separators=";"
+TapeDrive.Discovery.Source(1).Compute(1).SelectColumns="2,3,4"
+
+// InstanceTable = Source(1)
+TapeDrive.Discovery.InstanceTable=%TapeDrive.Discovery.Source(1)%
+TapeDrive.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+TapeDrive.Discovery.Instance.Vendor=InstanceTable.Column(2)
+TapeDrive.Discovery.Instance.Model=InstanceTable.Column(3)
+TapeDrive.Discovery.Instance.SerialNumber=InstanceTable.Column(4)
+
+
+//
+// Collect
+
+// Collect type is "all instances in one shot"
+TapeDrive.Collect.Type="MultiInstance"
+
+// Source(1) = output of iostat
+TapeDrive.Collect.Source(1).Type="OsCommand"
+TapeDrive.Collect.Source(1).CommandLine="/usr/bin/iostat -En"
+
+// Source(1) = output of iostat reformatted by awk (see EmbeddedFile(2))
+// DeviceID;ErrorCount;
+TapeDrive.Collect.Source(1).Compute(1).Type="Awk"
+TapeDrive.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(2)
+TapeDrive.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+TapeDrive.Collect.Source(1).Compute(1).Separators=";"
+TapeDrive.Collect.Source(1).Compute(1).SelectColumns="2,3"
+
+// ValueTable = Source(1)
+TapeDrive.Collect.ValueTable=%TapeDrive.Collect.Source(1)%
+TapeDrive.Collect.DeviceID=ValueTable.Column(1)
+TapeDrive.Collect.ErrorCount=ValueTable.Column(2)
+
+
+///////////////////////////////////////////////////////////////
+///
+///    Embedded File 1
+///
+///    AWK script that takes iostat -En as stdin
+///    and returns a table with all the tape drives of
+///    the computer
+///
+///////////////////////////////////////////////////////////////
+
+EmbeddedFile(1):
+($0 ~ "^rmt/[0-9]") {
+	tapeID = $1
+	vendor = ""
+	product = ""
+	model = ""
+	productmodel = ""
+	serial = ""
+}
+
+($0 ~ /Vendor: /) {
+	index1 = index($0, "Vendor: " ) + length("Vendor: ")
+	vendor = substr($0, index1, length-index1)
+	index1 = index(vendor, ":")
+	if (index1 > 0)
+	{
+		vendor = substr(vendor, 1, index1-1)
+		n = split(vendor, a, " ")
+		vendor = ""
+		for (i=1 ; i<n ; i++)
+		{
+			vendor = vendor a[i]
+			if (i < n-1)
+				vendor = vendor " "
+		}
+	}
+}
+
+($0 ~ /Model: /) {
+	index1 = index($0, "Model: " ) + length("Model: ")
+	model = substr($0, index1, length-index1)
+	index1 = index(model, ":")
+	if (index1 > 0)
+	{
+		model = substr(model, 1, index1-1)
+		n = split(model, a, " ")
+		model = ""
+		for (i=1 ; i<n ; i++)
+		{
+			model = model a[i]
+			if (i < n-1)
+				model = model " "
+		}
+	}
+}
+
+($0 ~ /Product: /) {
+	index1 = index($0, "Product: " ) + length("Product: ")
+	product = substr($0, index1, length-index1)
+	index1 = index(product, ":")
+	if (index1 > 0)
+	{
+		product = substr(product, 1, index1-1)
+		n = split(product, a, " ")
+		product = ""
+		for (i=1 ; i<n ; i++)
+		{
+			product = product a[i]
+			if (i < n-1)
+				product = product " "
+		}
+	}
+}
+
+($0 ~ /Serial No: /) {
+	index1 = index($0, "Serial No: " ) + length("Serial No: ")
+	serial = substr($0, index1, length-index1)
+	index1 = index(serial, ":")
+	if (index1 > 0)
+	{
+		serial = substr(serial, 1, index1-1)
+		n = split(serial, a, " ")
+		serial = ""
+		for (i=1 ; i<n ; i++)
+		{
+			serial = serial a[i]
+			if (i < n-1)
+				serial = serial " "
+		}
+	}
+}
+
+($0 ~ /Serial No:/) {
+	if (product != "" && model != "")
+	{
+		productmodel = product " " model
+	}
+	else
+	{
+		productmodel = product model
+	}
+
+	if (tapeID != "")
+	{
+		print "MSHW;" tapeID ";" vendor ";" productmodel ";" serial
+	}
+
+	disk = ""
+	vendor = ""
+	product = ""
+	model = ""
+	productmodel = ""
+	serial = ""
+}
+EmbeddedFile(1).End
+//////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////
+///
+///    Embedded File 2
+///
+///    AWK script that takes iostat -En as stdin
+///    and returns a table with the error count of each tape drive
+///    in the computer
+///
+///////////////////////////////////////////////////////////////
+EmbeddedFile(2):
+($0 ~ "^rmt/[0-9]") {
+	tapeID = $1
+	softerror = 0
+	harderror = 0
+	transporterror = 0
+	totalerror = 0
+}
+
+($2 == "Soft" && $3 == "Errors:") {
+	softerror = $4
+}
+
+($5 == "Hard" && $6 == "Errors:") {
+	harderror = $7
+}
+
+($8 == "Transport" && $9 == "Errors:") {
+	transporterror = $10
+}
+
+($0 ~ /Serial No:/) {
+	totalerror = transporterror + harderror
+
+	if (tapeID != "")
+	{
+		print "MSHW;" tapeID ";" totalerror
+	}
+
+	tapeID = ""
+	softerror = 0
+	harderror = 0
+	transporterror = 0
+	totalerror = 0
+}
+EmbeddedFile(2).End
+///////////////////////////////////////////////////////////////////
+

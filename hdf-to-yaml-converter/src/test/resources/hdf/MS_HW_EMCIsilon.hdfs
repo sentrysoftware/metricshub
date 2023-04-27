@@ -1,0 +1,126 @@
+////////////////////////////////////////////////////////////////
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//
+//      Supports: EMC Isilon Systems
+//                Connects to the SSH interface of the cluster.
+//
+
+//
+// Header
+//
+
+hdf.DisplayName="EMC Isilon (SSH)"
+hdf.TypicalPlatform="EMC Isilon"
+hdf.ReliesOn="EMC Isilon SSH interface"
+hdf.Version="1.0"
+hdf.Comments="This connector discovers the status of an EMC Isilon Storage Cluster"
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="Storage"
+
+// Check that sudo is working by running /usr/bin/isi status -w
+Detection.Criteria(2).Type="OSCommand"
+Detection.Criteria(2).CommandLine="/bin/zsh -c ""%{SUDO:/usr/bin/isi_for_array} /usr/bin/isi_for_array /usr/bin/isi status -w"" "
+Detection.Criteria(2).ErrorMessage="Unable to run /usr/bin/isi status -w.  Check rights / sudo status."
+Detection.Criteria(2).ExpectedResult="Cluster Name:"
+
+// Constants
+#define _IsiStatusCommand /usr/bin/isi status -w
+#define _IsiDevicesCommand /usr/bin/isi devices
+#define _IsiBatteryCommand /usr/bin/isi batterystatus
+#define _IsiDrivesCommand /usr/bin/isi devices
+#define _IsiNetworkCommand /usr/bin/isi networks list interfaces --verbose --wide --show-inactive
+
+// Includes
+#include MS_HW_EMCIsilon.hhdf
+
+/////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(3) = The /usr/bin/isi batterystatus awk script
+///
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(3):
+{nodeName = $1 ; gsub (/:/,"",nodeName);}
+NF > 4 {
+	if ($2 ~ /battery/ && $(NF-2) ~ /:/) {ID = $0; gsub (/ :[^:]*$/,"",ID); gsub (/^[^:]*: /,"",ID);
+                            status = $(NF-1)
+                            print "MSHW_BATTERY;" nodeName ";" nodeName"-"ID ";" ID ";" status";"status";"
+                           }
+	}
+EmbeddedFile(3).End
+/////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(5) = The /usr/bin/isi devices
+///
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(5):
+{nodeName = $1 ; gsub (/:/,"",nodeName);}
+
+$2 ~ /^Node$/ { nodeNumber = $3 ; gsub (/,/,"",nodeNumber);
+	              print "MSHW_Node;" nodeName ";" nodeNumber ";"
+	            }
+
+$2 ~ /^Bay$/  { Location = $3 ; Location = "Bay-" Location
+	              Lnum = $5 ; Lnum = "Lnum-" Lnum
+	              Status = $6 ; gsub(/\].*$/,"",Status);gsub(/^.*\[/,"",Status);
+	              SerialNumber = $7 ; gsub (/^SN:/,"",SerialNumber)
+	              if ( Status != "EMPTY" ) {
+	                 print "MSHW_PhysicalDisk;" nodeName ";" nodeName "-" Location ";" Location ";" Lnum ";" SerialNumber ";" Status ";" Status ";"
+	                }
+	            }
+EmbeddedFile(5).End
+/////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(6) = The /usr/bin/isi networks list interfaces --verbose --wide --show-inactive
+///
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(6):
+$1 ~ /^Node/ {NodeNumber = $NF}
+$1 ~ /^Interface/ {Interface = $NF }
+$1 ~ /^NIC/ && $2 ~ /Name/ {NICName = $NF}
+$1 ~ /^Status/ {Status = $0 ; gsub (/^.*Status: /,"",Status) ; gsub (/ +$/,"",Status) }
+$1 ~ /^IP/ && $2 ~ /Addrs/ {IPAddress = $NF
+	                          print "MSHW;" NodeNumber ";" NICName ";" NICName ";" Interface ";" IPAddress ";" Status ";"
+	                         }
+EmbeddedFile(6).End
+/////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(9) = isi storagepool list --verbose --format list
+///
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(9):
+BEGIN { FS="[,]" }
+NF >= 8 &&  $(NF-1) ~ /^[0-9]/ && $(NF-4) ~ /^[0-9]/ {
+    ID = $1
+    HDDSize = $(NF-4)
+    SSDSize = $(NF-1)
+    TotalSize = (HDDSize + SSDSize) / 1000000000
+    print "MSHW;" ID ";" TotalSize ";"
+    }
+EmbeddedFile(9).End
+/////////////////////////////////////////////////////////////////////

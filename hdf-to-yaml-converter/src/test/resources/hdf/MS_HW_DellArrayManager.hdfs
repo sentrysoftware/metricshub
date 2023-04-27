@@ -1,0 +1,305 @@
+//
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//                 MS_HW_DellArrayManager
+//
+//      Connects to: Dell OpenManage Array Manager
+//
+//
+
+
+// Header
+
+hdf.DisplayName="Dell OpenManage Array Manager"
+hdf.TypicalPlatform="Dell PowerEdge"
+hdf.ReliesOn="Dell OpenManage Server Administrator"
+hdf.Version="1.0"
+hdf.Comments="This connector provides disks monitoring through the Dell OpenManage Array Manager SNMP agent (not to be confused with Storage Manager)."
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="NT,Linux"
+
+
+// Detection
+
+Detection.Criteria(1).Type="SNMP"
+Detection.Criteria(1).SnmpGetNext="1.3.6.1.4.1.674.10893.1.1.130.4.1"
+
+
+// Disk controllers
+
+// Discovery
+
+// Source(1) = the controllerTable
+// ID;ControllerIndex;Model;FWRev;
+DiskController.Discovery.Source(1).Type="SnmpTable"
+DiskController.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.674.10893.1.1.130.1.1"
+DiskController.Discovery.Source(1).SnmpTableSelectColumns="ID,1,2,8"
+
+// The InstanceTable
+DiskController.Discovery.InstanceTable=%DiskController.Discovery.Source(1)%
+DiskController.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+DiskController.Discovery.Instance.ControllerNumber=InstanceTable.Column(2)
+DiskController.Discovery.Instance.Model=InstanceTable.Column(3)
+DiskController.Discovery.Instance.FirmwareVersion=InstanceTable.Column(4)
+
+
+/////////////////////////////////////////////////
+///  ***  P H Y S I C A L   D I S K S   ***   ///
+/////////////////////////////////////////////////
+
+//
+// Discovery
+
+// Source(1) = the arrayDiskTable snmp table
+// ID;DiskNumber;Vendor;Serial;SizeMB
+PhysicalDisk.Discovery.Source(1).Type="SnmpTable"
+PhysicalDisk.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.674.10893.1.1.130.4.1"
+PhysicalDisk.Discovery.Source(1).SnmpTableSelectColumns="ID,1,3,7,11"
+
+// Source(2) = the arrayDiskChannelConnectionTable snmp table
+// DiskNumber;ControllerNumber
+PhysicalDisk.Discovery.Source(2).Type="SnmpTable"
+PhysicalDisk.Discovery.Source(2).SnmpTableOid="1.3.6.1.4.1.674.10893.1.1.130.6.1"
+PhysicalDisk.Discovery.Source(2).SnmpTableSelectColumns="3,7"
+
+// Source(3) = a default value tables in order to be able to attach disks to a controller
+// This is because some computers with DELL Array Manager don't have this previous
+// table (arrayDiskChannelConnectionTable)
+PhysicalDisk.Discovery.Source(3)="1;1;\n2;1;\n3;1;\n4;1;\n5;1;\n6;1;\n7;1;\n8;1;\n9;1;\n10;1;\n11;1;\n12;1;\n13;1;\n14;1;\n15;1;\n16;1;\n17;1;\n18;1;\n19;1;\n20;1;\n21;1\n22;1\n23;1\n24;1\n25;1\n26;1\n27;1\n28;1\n29;1\n30;1\n31;1\n32;1\n33;1\n34;1\n35;1\n36;1\n37;1\n38;1\n39;1\n40;1"
+
+// Source(4) = Union of Source(2) (the real arrayDiskChannelConnectionTable) and
+// Source(3) (the default values)
+PhysicalDisk.Discovery.Source(4).Type="TableUnion"
+PhysicalDisk.Discovery.Source(4).Table1=%PhysicalDisk.Discovery.Source(2)%
+PhysicalDisk.Discovery.Source(4).Table2=%PhysicalDisk.Discovery.Source(3)%
+
+// Source(5) = table joint between Source(1) and Source(4)
+// ID;DiskNumber;Vendor;Serial;SizeMB;DiskNumber;ControllerNumber
+PhysicalDisk.Discovery.Source(5).Type="TableJoint"
+PhysicalDisk.Discovery.Source(5).LeftTable=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Source(5).RightTable=%PhysicalDisk.Discovery.Source(4)%
+PhysicalDisk.Discovery.Source(5).LeftKeyColumn="2"
+PhysicalDisk.Discovery.Source(5).RightKeyColumn="1"
+
+// Convert the size into bytes
+// ID;DiskNumber;Vendor;Serial;Size;DiskNumber;ControllerNumber
+PhysicalDisk.Discovery.Source(5).Compute(1).Type="Multiply"
+PhysicalDisk.Discovery.Source(5).Compute(1).Column="5"
+PhysicalDisk.Discovery.Source(5).Compute(1).MultiplyBy="1048576"
+
+// The instance table = Source(1)
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(5)%
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PhysicalDisk.Discovery.Instance.ControllerNumber=InstanceTable.Column(7)
+PhysicalDisk.Discovery.Instance.Vendor=InstanceTable.Column(3)
+PhysicalDisk.Discovery.Instance.Size=InstanceTable.Column(5)
+PhysicalDisk.Discovery.Instance.SerialNumber=InstanceTable.Column(4)
+
+//
+// Collect
+
+// Collect type = mono-instance
+PhysicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = SNMP Get on the arrayDiskState value of the arrayDiskTable SNMP table
+// ID;arrayDiskStatus;arrayDiskSeverity
+PhysicalDisk.Collect.Source(1).Type="SnmpTable"
+PhysicalDisk.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.674.10893.1.1.130.4.1"
+PhysicalDisk.Collect.Source(1).SnmpTableSelectColumns="ID,4,5"
+
+// Translate the arrayDiskState into a PATROL status
+// patrolDiskStatus;arrayDiskState
+PhysicalDisk.Collect.Source(1).Compute(1).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(1).Column="3"
+PhysicalDisk.Collect.Source(1).Compute(1).TranslationTable="PhysicalDiskStatusTranslationTable"
+
+// Translate the arrayDiskState into a PATROL information
+// patrolDiskStatus;arrayDiskState
+PhysicalDisk.Collect.Source(1).Compute(2).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(2).Column="2"
+PhysicalDisk.Collect.Source(1).Compute(2).TranslationTable="PhysicalDiskStatusInformationTranslationTable"
+
+// ValueTable = Source(1)
+PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(1)%
+PhysicalDisk.Collect.DeviceID=ValueTable.Column(1)
+PhysicalDisk.Collect.Status=ValueTable.Column(3)
+PhysicalDisk.Collect.StatusInformation=ValueTable.Column(2)
+
+// The PhysicalDiskStatusTranslationTable
+PhysicalDiskStatusTranslationTable(0)="OK"
+PhysicalDiskStatusTranslationTable(1)="WARN"
+PhysicalDiskStatusTranslationTable(2)="ALARM"
+PhysicalDiskStatusTranslationTable(3)="ALARM"
+PhysicalDiskStatusTranslationTable(Default)="UNKNOWN"
+
+// The PhysicalDiskStatusInformationTranslationTable
+PhysicalDiskStatusInformationTranslationTable(1)="Ready"
+PhysicalDiskStatusInformationTranslationTable(2)="Failed"
+PhysicalDiskStatusInformationTranslationTable(3)="Online"
+PhysicalDiskStatusInformationTranslationTable(4)="Offline"
+PhysicalDiskStatusInformationTranslationTable(5)="Degraded"
+PhysicalDiskStatusInformationTranslationTable(6)="Recovering"
+PhysicalDiskStatusInformationTranslationTable(7)="Removed"
+PhysicalDiskStatusInformationTranslationTable(8)="Resynching"
+PhysicalDiskStatusInformationTranslationTable(9)="Rebuilding"
+PhysicalDiskStatusInformationTranslationTable(10)="No media"
+PhysicalDiskStatusInformationTranslationTable(11)="Formatting"
+PhysicalDiskStatusInformationTranslationTable(12)="Diagnosing"
+PhysicalDiskStatusInformationTranslationTable(13)="Initializing"
+PhysicalDiskStatusInformationTranslationTable(Default)="Unknown Status"
+
+
+///////////////////////////////////////////////
+///  ***  L O G I C A L   D I S K S   ***   ///
+///////////////////////////////////////////////
+
+//
+// Discovery
+
+// Source(1) = the virtualDiskTable snmp table
+// ID;virtualDiskNumber;SizeMB;RaidLevel
+LogicalDisk.Discovery.Source(1).Type="SnmpTable"
+LogicalDisk.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.674.10893.1.1.140.1.1"
+LogicalDisk.Discovery.Source(1).SnmpTableSelectColumns="ID,1,6,13"
+
+// Translate size into bytes
+// ID;virtualDiskNumber;Size;RaidLevel
+LogicalDisk.Discovery.Source(1).Compute(1).Type="Multiply"
+LogicalDisk.Discovery.Source(1).Compute(1).Column="3"
+LogicalDisk.Discovery.Source(1).Compute(1).MultiplyBy="1048576"
+
+// Translate the FaultToleranceLevel into a more readable string
+// ID;ControllerNumber;RAIDLevel;Size
+LogicalDisk.Discovery.Source(1).Compute(2).Type="Translate"
+LogicalDisk.Discovery.Source(1).Compute(2).Column="4"
+LogicalDisk.Discovery.Source(1).Compute(2).TranslationTable="RAIDLevelTranslationTable"
+
+// The RAIDLevelTranslationTable
+RAIDLevelTranslationTable(1)="Concatenated"
+RAIDLevelTranslationTable(2)="0"
+RAIDLevelTranslationTable(3)="1"
+RAIDLevelTranslationTable(4)="2"
+RAIDLevelTranslationTable(5)="3"
+RAIDLevelTranslationTable(6)="4"
+RAIDLevelTranslationTable(7)="5"
+RAIDLevelTranslationTable(8)="6"
+RAIDLevelTranslationTable(9)="7"
+RAIDLevelTranslationTable(10)="10"
+RAIDLevelTranslationTable(11)="30"
+RAIDLevelTranslationTable(12)="50"
+RAIDLevelTranslationTable(13)="Add Spares"
+RAIDLevelTranslationTable(14)="Delete Logical"
+RAIDLevelTranslationTable(15)="Transform Logical"
+RAIDLevelTranslationTable(18)="0+1"
+RAIDLevelTranslationTable(Default)=""
+
+// Source(2) = the arrayDiskLogicalConnectionTable snmp table
+// physicalDiskNumber;VirtualDiskNumber
+LogicalDisk.Discovery.Source(2).Type="SnmpTable"
+LogicalDisk.Discovery.Source(2).SnmpTableOid="1.3.6.1.4.1.674.10893.1.1.140.3.1"
+LogicalDisk.Discovery.Source(2).SnmpTableSelectColumns="3,5"
+
+// Source(3) = table joint between source(1) and source(2)
+// ID;virtualDiskNumber;Size;RaidLevel;physicalDiskNumber;VirtualDiskNumber
+LogicalDisk.Discovery.Source(3).Type="TableJoint"
+LogicalDisk.Discovery.Source(3).LeftTable=%LogicalDisk.Discovery.Source(1)%
+LogicalDisk.Discovery.Source(3).RightTable=%LogicalDisk.Discovery.Source(2)%
+LogicalDisk.Discovery.Source(3).LeftKeyColumn="2"
+LogicalDisk.Discovery.Source(3).RightKeyColumn="2"
+
+// Source(4) = the arrayDiskChannelConnectionTable snmp table
+// arrayDiskNumber;controllerNumber
+LogicalDisk.Discovery.Source(4).Type="SnmpTable"
+LogicalDisk.Discovery.Source(4).SnmpTableOid="1.3.6.1.4.1.674.10893.1.1.130.6.1"
+LogicalDisk.Discovery.Source(4).SnmpTableSelectColumns="3,7"
+
+// Source(5) = a default value tables in order to be able to attach disks to a controller
+// This is because some computers with DELL Array Manager don't have this previous
+// table (arrayDiskChannelConnectionTable)
+LogicalDisk.Discovery.Source(5)="1;1;\n2;1;\n3;1;\n4;1;\n5;1;\n6;1;\n7;1;\n8;1;\n9;1;\n10;1;\n11;1;\n12;1;\n13;1;\n14;1;\n15;1;\n16;1;\n17;1;\n18;1;\n19;1;\n20;1;\n21;1\n22;1\n23;1\n24;1\n25;1\n26;1\n27;1\n28;1\n29;1\n30;1\n31;1\n32;1\n33;1\n34;1\n35;1\n36;1\n37;1\n38;1\n39;1\n40;1"
+
+// Source(6) = Union of Source(4) (the real arrayDiskChannelConnectionTable) and
+// Source(5) (the default values)
+LogicalDisk.Discovery.Source(6).Type="TableUnion"
+LogicalDisk.Discovery.Source(6).Table1=%LogicalDisk.Discovery.Source(4)%
+LogicalDisk.Discovery.Source(6).Table2=%LogicalDisk.Discovery.Source(5)%
+
+// Source(5) = table joint between source(3) and source(6)
+// ID;virtualDiskNumber;Size;RaidLevel;physicalDiskNumber;VirtualDiskNumber;arrayDiskNumber;controllerNumber
+LogicalDisk.Discovery.Source(7).Type="TableJoint"
+LogicalDisk.Discovery.Source(7).LeftTable=%LogicalDisk.Discovery.Source(3)%
+LogicalDisk.Discovery.Source(7).RightTable=%LogicalDisk.Discovery.Source(6)%
+LogicalDisk.Discovery.Source(7).LeftKeyColumn="5"
+LogicalDisk.Discovery.Source(7).RightKeyColumn="1"
+
+// The InstanceTable
+LogicalDisk.Discovery.InstanceTable=%LogicalDisk.Discovery.Source(7)%
+LogicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+LogicalDisk.Discovery.Instance.ControllerNumber=InstanceTable.Column(8)
+LogicalDisk.Discovery.Instance.Size=InstanceTable.Column(3)
+LogicalDisk.Discovery.Instance.RAIDLevel=InstanceTable.Column(4)
+
+//
+// Collect
+
+// Collect type = mono-instance
+LogicalDisk.Collect.Type="MonoInstance"
+
+// Source(1) = SNMP Get on the virtualDiskState value of the virtualDiskTable SNMP table
+// virtualDiskState
+LogicalDisk.Collect.Source(1).Type="SnmpGet"
+LogicalDisk.Collect.Source(1).SnmpOid="1.3.6.1.4.1.674.10893.1.1.140.1.1.4.%LogicalDisk.Collect.DeviceID%"
+
+// Duplicate this status, because we will translate it two times
+// virtualDiskState;virtualDiskState
+LogicalDisk.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+LogicalDisk.Collect.Source(1).Compute(1).Column="1"
+
+// Translate the virtualDiskState into a PATROL status
+// patrolDiskStatus;virtualDiskState
+LogicalDisk.Collect.Source(1).Compute(2).Type="Translate"
+LogicalDisk.Collect.Source(1).Compute(2).Column="1"
+LogicalDisk.Collect.Source(1).Compute(2).TranslationTable="LogicalDiskStatusTranslationTable"
+
+// Translate the virtualDiskState into a more readable string
+// patrolDiskStatus;arrayDiskStatusInformation
+LogicalDisk.Collect.Source(1).Compute(3).Type="Translate"
+LogicalDisk.Collect.Source(1).Compute(3).Column="2"
+LogicalDisk.Collect.Source(1).Compute(3).TranslationTable="LogicalDiskStatusInformationTranslationTable"
+
+// ValueTable = Source(1)
+LogicalDisk.Collect.ValueTable=%LogicalDisk.Collect.Source(1)%
+LogicalDisk.Collect.Status=ValueTable.Column(1)
+LogicalDisk.Collect.StatusInformation=ValueTable.Column(2)
+
+// The LogicalDiskStatusTranslationTable
+LogicalDiskStatusTranslationTable(1)="OK"
+LogicalDiskStatusTranslationTable(2)="ALARM"
+LogicalDiskStatusTranslationTable(3)="OK"
+LogicalDiskStatusTranslationTable(4)="ALARM"
+LogicalDiskStatusTranslationTable(6)="WARN"
+LogicalDiskStatusTranslationTable(15)="WARN"
+LogicalDiskStatusTranslationTable(24)="WARN"
+LogicalDiskStatusTranslationTable(26)="OK"
+LogicalDiskStatusTranslationTable(35)="OK"
+LogicalDiskStatusTranslationTable(Default)="UNKNOWN"
+
+// The LogicalDiskStatusInformationTranslationTable
+LogicalDiskStatusInformationTranslationTable(1)="Ready"
+LogicalDiskStatusInformationTranslationTable(2)="Failed"
+LogicalDiskStatusInformationTranslationTable(3)="Online"
+LogicalDiskStatusInformationTranslationTable(4)="Offline"
+LogicalDiskStatusInformationTranslationTable(6)="Degraded"
+LogicalDiskStatusInformationTranslationTable(15)="Resynching"
+LogicalDiskStatusInformationTranslationTable(24)="Rebuilding"
+LogicalDiskStatusInformationTranslationTable(26)="Formatting"
+LogicalDiskStatusInformationTranslationTable(35)="Initializing"
+LogicalDiskStatusInformationTranslationTable(Default)="Unknown Status"
+

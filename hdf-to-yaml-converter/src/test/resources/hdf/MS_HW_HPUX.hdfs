@@ -1,0 +1,197 @@
+//
+//
+//                 C O N N E C T O R
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//                   MS_HW_HPUX.hdf
+//
+//      Supports: HP-UX machines
+//		Monitors: processors
+//      Connects to: different HP-UX standard tools (ioscan, model, etc.)
+//
+//
+
+//
+// HEADER
+//
+
+hdf.DisplayName="HP-UX - Common"
+hdf.TypicalPlatform="HP 9000,HP Integrity,HP SuperDome"
+hdf.ReliesOn="HP-UX system commands (ioscan, etc.)"
+hdf.Comments="Discovers the model and type of HP-UX systems. Discovers and monitors processors."
+hdf.Version="1.2"
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="HP"
+
+// Sudo-able commands
+Sudo(1).Command="/usr/bin/adb"
+
+//
+// DETECTION
+//
+
+// OS should be HP (for HP-UX, whatever version)
+Detection.Criteria(1).Type="OS"
+Detection.Criteria(1).KeepOnly="HP"
+
+// The various following tools have to be present
+Detection.Criteria(2).Type="OSCommand"
+Detection.Criteria(2).CommandLine="/bin/ls /usr/bin/model"
+Detection.Criteria(2).ExpectedResult="^/usr/bin/model$"
+
+//
+// COMPUTER
+//
+
+//
+// Discovery
+
+// Source(1) = the output of /usr/bin/model
+// ComputerModel;
+Enclosure.Discovery.Source(1).Type="OsCommand"
+Enclosure.Discovery.Source(1).CommandLine="/usr/bin/model"
+Enclosure.Discovery.Source(1).Separators="\n"
+Enclosure.Discovery.Source(1).SelectColumns="1-"
+
+// The discovery table
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Instance.DeviceID="HPUX"
+Enclosure.Discovery.Instance.Vendor="HP"
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(1)
+Enclosure.Discovery.Instance.Type="Computer"
+
+
+//
+// Processors
+//
+
+//
+// Discovery
+
+// Source(1) = sh -%EmbeddedFile(2)%
+// cpuID;cpuSpeed;cpuModel
+cpu.Discovery.Source(1).Type="OsCommand"
+cpu.Discovery.Source(1).CommandLine="/bin/sh %EmbeddedFile(1)%"
+cpu.Discovery.Source(1).KeepOnlyRegExp="^MSHW;"
+cpu.Discovery.Source(1).Separators=";"
+cpu.Discovery.Source(1).SelectColumns="3,5,6"
+
+// Instance table = source(1)
+cpu.Discovery.InstanceTable=%cpu.Discovery.Source(1)%
+cpu.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+cpu.Discovery.Instance.Model=InstanceTable.Column(3)
+cpu.Discovery.Instance.MaximumSpeed=InstanceTable.Column(2)
+cpu.Discovery.Instance.AttachedToDeviceID="HPUX"
+cpu.Discovery.Instance.AttachedToDeviceType="Computer"
+
+//
+// Collect
+
+// Collect type = multi-instance
+cpu.Collect.Type="MultiInstance"
+
+// Source(1) = sh -f %EmbeddedFile(1)%
+// cpuID;cpuStatus
+cpu.Collect.Source(1).Type="OsCommand"
+cpu.Collect.Source(1).CommandLine="/bin/sh %EmbeddedFile(1)%"
+cpu.Collect.Source(1).KeepOnlyRegExp="^MSHW;"
+cpu.Collect.Source(1).Separators=";"
+cpu.Collect.Source(1).SelectColumns="3,4"
+
+// Duplicate the status column
+// cpuID;cpuStatus;cpuStatus
+cpu.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+cpu.Collect.Source(1).Compute(1).Column="2"
+
+// Translate the first status column into a PATROL status
+// cpuID;PATROLStatus;cpuStatus
+cpu.Collect.Source(1).Compute(2).Type="Translate"
+cpu.Collect.Source(1).Compute(2).Column="2"
+cpu.Collect.Source(1).Compute(2).TranslationTable="cpuStatusTranslationTable"
+
+// Translate the second status column into a more readable string
+// cpuID;PATROLStatus;statusInformation
+cpu.Collect.Source(1).Compute(3).Type="Translate"
+cpu.Collect.Source(1).Compute(3).Column="3"
+cpu.Collect.Source(1).Compute(3).TranslationTable="cpuStatusInformationTranslationTable"
+
+// ValueTable = source(1)
+cpu.Collect.ValueTable=%cpu.Collect.Source(1)%
+cpu.Collect.DeviceID=ValueTable.Column(1)
+cpu.Collect.Status=ValueTable.Column(2)
+cpu.Collect.StatusInformation=ValueTable.Column(3)
+
+// The cpuStatusTranslationTable
+cpuStatusTranslationTable("CLAIMED")="OK"
+cpuStatusTranslationTable("UNCLAIMED")="WARN"
+cpuStatusTranslationTable("DIFF_HW")="WARN"
+cpuStatusTranslationTable("NO_HW")="ALARM"
+cpuStatusTranslationTable("ERROR")="ALARM"
+cpuStatusTranslationTable("SCAN")="WARN"
+cpuStatusTranslationTable(Default)="UNKNOWN"
+
+// The cpuStatusInformationTranslationTable
+cpuStatusInformationTranslationTable("CLAIMED")="Claimed"
+cpuStatusInformationTranslationTable("UNCLAIMED")="Unclaimed"
+cpuStatusInformationTranslationTable("DIFF_HW")="Bad driver"
+cpuStatusInformationTranslationTable("NO_HW")="Not responding"
+cpuStatusInformationTranslationTable("ERROR")="Error"
+cpuStatusInformationTranslationTable("SCAN")="Locked"
+cpuStatusInformationTranslationTable(Default)="Unknown Status"
+
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = shell script that lists the processors
+///
+/////////////////////////////////////////////////////////
+
+EmbeddedFile(1):
+#!/bin/sh
+
+/bin/echo "Getting processor information"
+
+ISIA64=`/usr/bin/model|/bin/cut -d " " -f1`
+
+case $ISIA64 in
+
+ia64)
+	PROCESSORSPEED=`/usr/contrib/bin/machinfo|/bin/awk '/Clock speed/ { print $4 }'`
+	PROCESSORMODEL=`/usr/contrib/bin/machinfo|/bin/awk '/processor model:/ { print $4 " " $5 " " $6 " " $7 " " $8 }'`
+	if /bin/test "$PROCESSORMODEL" = "" ; then
+		PROCESSORMODEL="Intel Itanium"
+	fi
+	;;
+
+*)
+	MACHINEMODEL=`/usr/bin/model|/bin/cut -d / -f3`
+
+	OSREVISION=`/usr/bin/uname -r`
+	case $OSREVISION in
+
+	*10*)
+		PROCESSORSPEED=`/bin/echo itick_per_tick/D|%{SUDO:/usr/bin/adb}/usr/bin/adb /stand/vmunix /dev/kmem|/bin/tail -1|/bin/awk '{print $2/10000}'`
+		PROCESSORMODEL=`/bin/grep "^$MACHINEMODEL" /usr/lib/sched.models|/bin/awk '{print $3}'`
+		;;
+
+	*11*)
+		PROCESSORSPEED=`/bin/echo itick_per_tick/D|%{SUDO:/usr/bin/adb}/usr/bin/adb -k /stand/vmunix /dev/kmem|/bin/tail -1|/bin/awk '{print $2/10000}'`
+		PROCESSORMODEL=`/bin/grep "^$MACHINEMODEL" /usr/sam/lib/mo/sched.models|/bin/awk '{print $3}'`
+		;;
+
+	esac
+esac
+
+/usr/sbin/ioscan -FkC processor|/bin/awk -F : -v Speed="$PROCESSORSPEED" -v Model="$PROCESSORMODEL" '{print "MSHW;" $11 ";" $13 ";" $16 ";" Speed ";" Model}'
+
+EmbeddedFile(1).End
+/////////////////////////////////////////////////////////////////////
+
+

@@ -1,0 +1,856 @@
+////////////////////////////////////////////////////////////////
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//      Supports: Super Micro
+//                Connects to REST API
+//
+
+//
+// Header
+//
+
+hdf.DisplayName="SuperMicro (REST)"
+hdf.TypicalPlatform="SuperMicro"
+hdf.Version="1.0"
+hdf.Comments="This connector provides hardware monitoring for SuperMicro Systems via Redfish REST API. It monitors the Enclosure and Physical Disks as well as the various environment sensors (CPUs, temperatures, fans, power supplies, Memory and Network cards)."
+hdf.ReliesOn="SuperMicro Baseboard Management Controller REST API"
+hdf.RemoteSupport="true"
+hdf.LocalSupport="false"
+hdf.AppliesToOS="OOB"
+
+// Hardware Sentry v10.2.00+
+Detection.Criteria(1).Type="KMVersion"
+Detection.Criteria(1).Version="10.2.00"
+
+// DETECTION
+Detection.Criteria(2).Type="HTTP"
+Detection.Criteria(2).Method="GET"
+Detection.Criteria(2).Header="Authorization: Basic %{BASIC_AUTH_BASE64}"
+Detection.Criteria(2).URL="/redfish/v1/Systems/1"
+Detection.Criteria(2).ExpectedResult="Supermicro"
+Detection.Criteria(2).ErrorMessage="Invalid credentials / not a SuperMicro system"
+
+//
+// Enclosure
+//
+
+// Discovery
+Enclosure.Discovery.Source(1).Type="HTTP"
+Enclosure.Discovery.Source(1).Method="GET"
+Enclosure.Discovery.Source(1).Url="/redfish/v1/Systems"
+Enclosure.Discovery.Source(1).Header="Authorization: Basic %{BASIC_AUTH_BASE64}"
+Enclosure.Discovery.Source(1).ResultContent="body"
+
+Enclosure.Discovery.Source(1).Compute(1).Type="Json2Csv"
+Enclosure.Discovery.Source(1).Compute(1).EntryKey="/Members"
+Enclosure.Discovery.Source(1).Compute(1).Properties="/@odata.id;"
+Enclosure.Discovery.Source(1).Compute(1).Separator=";"
+
+Enclosure.Discovery.Source(2)=%Enclosure.Discovery.Source(1)%
+
+// Enclosure.Discovery.Source(2).Column(2) = Systems
+Enclosure.Discovery.Source(3).Type="HTTP"
+Enclosure.Discovery.Source(3).Method="GET"
+Enclosure.Discovery.Source(3).Header="Authorization: Basic %{BASIC_AUTH_BASE64}"
+Enclosure.Discovery.Source(3).ExecuteForEachEntryOf=%Enclosure.Discovery.Source(2)%
+Enclosure.Discovery.Source(3).Url="%Entry.Column(2)%"
+Enclosure.Discovery.Source(3).ResultContent="body"
+Enclosure.Discovery.Source(3).EntryConcatMethod="JSONArray"
+
+Enclosure.Discovery.Source(3).Compute(1).Type="Json2Csv"
+Enclosure.Discovery.Source(3).Compute(1).EntryKey="/"
+Enclosure.Discovery.Source(3).Compute(1).Properties="/@odata.id;/Name;/SerialNumber;/PartNumber;/Manufacturer;/Model;"
+Enclosure.Discovery.Source(3).Compute(1).Separator=";"
+
+// For use in other Discoveries
+Enclosure.Discovery.Source(4).Type="HTTP"
+Enclosure.Discovery.Source(4).Method="GET"
+Enclosure.Discovery.Source(4).Header="Authorization: Basic %{BASIC_AUTH_BASE64}"
+Enclosure.Discovery.Source(4).Url="/redfish/v1/Chassis"
+Enclosure.Discovery.Source(4).ResultContent="body"
+
+Enclosure.Discovery.Source(4).Compute(1).Type="Json2Csv"
+Enclosure.Discovery.Source(4).Compute(1).EntryKey="/Members"
+Enclosure.Discovery.Source(4).Compute(1).Properties="/@odata.id;"
+Enclosure.Discovery.Source(4).Compute(1).Separator=";"
+
+Enclosure.Discovery.Source(5).Type="HTTP"
+Enclosure.Discovery.Source(5).Method="GET"
+Enclosure.Discovery.Source(5).Header="Authorization: Basic %{BASIC_AUTH_BASE64}"
+Enclosure.Discovery.Source(5).Url="%Entry.Column(2)%"
+Enclosure.Discovery.Source(5).ExecuteForEachEntryOf="%Enclosure.Discovery.Source(4)%"
+Enclosure.Discovery.Source(5).ResultContent="body"
+Enclosure.Discovery.Source(5).EntryConcatMethod="JSONArrayExtended"
+
+Enclosure.Discovery.Source(5).Compute(1).Type="Json2Csv"
+Enclosure.Discovery.Source(5).Compute(1).EntryKey="/Entry/Value"
+Enclosure.Discovery.Source(5).Compute(1).Properties="/@odata.id;/Links/ComputerSystems[0]/@odata.id;"
+Enclosure.Discovery.Source(5).Compute(1).Separator=";"
+
+// Enclosure Instance Table
+// Json;odata.id;Name;SerialNumber;PartNumber;Manufacturer;Model
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(3)%
+Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Enclosure.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(4)
+Enclosure.Discovery.Instance.Vendor=InstanceTable.Column(6)
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(7)
+Enclosure.Discovery.Instance.Type="Enclosure"
+
+
+// Collection
+
+// Collection Type
+Enclosure.Collect.Type="MultiInstance"
+
+Enclosure.Collect.Source(1).Type="HTTP"
+Enclosure.Collect.Source(1).Method="GET"
+Enclosure.Collect.Source(1).Header="Authorization: Basic %{BASIC_AUTH_BASE64}"
+Enclosure.Collect.Source(1).Url="/redfish/v1/Systems"
+Enclosure.Collect.Source(1).ResultContent="body"
+
+Enclosure.Collect.Source(1).Compute(1).Type="Json2Csv"
+Enclosure.Collect.Source(1).Compute(1).EntryKey="/Members"
+Enclosure.Collect.Source(1).Compute(1).Properties="/@odata.id;"
+Enclosure.Collect.Source(1).Compute(1).Separator=";"
+
+Enclosure.Collect.Source(2)=%Enclosure.Collect.Source(1)%
+
+Enclosure.Collect.Source(3).Type="HTTP"
+Enclosure.Collect.Source(3).Method="GET"
+Enclosure.Collect.Source(3).Header="Authorization: Basic %{BASIC_AUTH_BASE64}"
+Enclosure.Collect.Source(3).ExecuteForEachEntryOf=%Enclosure.Collect.Source(2)%
+Enclosure.Collect.Source(3).Url="%Entry.Column(2)%"
+Enclosure.Collect.Source(3).ResultContent="body"
+Enclosure.Collect.Source(3).EntryConcatMethod="JSONArray"
+
+Enclosure.Collect.Source(3).Compute(1).Type="Json2Csv"
+Enclosure.Collect.Source(3).Compute(1).EntryKey="/"
+Enclosure.Collect.Source(3).Compute(1).Properties="/@odata.id;/Status/Health;/Status/Health;"
+Enclosure.Collect.Source(3).Compute(1).Separator=";"
+
+Enclosure.Collect.Source(3).Compute(2).Type="Translate"
+Enclosure.Collect.Source(3).Compute(2).Column=3
+Enclosure.Collect.Source(3).Compute(2).TranslationTable="StatusTranslationTable"
+
+Enclosure.Collect.Source(3).Compute(3).Type="Translate"
+Enclosure.Collect.Source(3).Compute(3).Column=4
+Enclosure.Collect.Source(3).Compute(3).TranslationTable="StatusInformationTranslationTable"
+
+// For use in other Collects
+Enclosure.Collect.Source(4).Type="HTTP"
+Enclosure.Collect.Source(4).Method="GET"
+Enclosure.Collect.Source(4).Header="Authorization: Basic %{BASIC_AUTH_BASE64}"
+Enclosure.Collect.Source(4).Url="/redfish/v1/Chassis"
+Enclosure.Collect.Source(4).ResultContent="body"
+
+Enclosure.Collect.Source(4).Compute(1).Type="Json2Csv"
+Enclosure.Collect.Source(4).Compute(1).EntryKey="/Members"
+Enclosure.Collect.Source(4).Compute(1).Properties="/@odata.id;"
+Enclosure.Collect.Source(4).Compute(1).Separator=";"
+
+Enclosure.Collect.Source(5).Type="HTTP"
+Enclosure.Collect.Source(5).Method="GET"
+Enclosure.Collect.Source(5).Header="Authorization: Basic %{BASIC_AUTH_BASE64}"
+Enclosure.Collect.Source(5).Url="%Entry.Column(2)%"
+Enclosure.Collect.Source(5).ExecuteForEachEntryOf="%Enclosure.Collect.Source(4)%"
+Enclosure.Collect.Source(5).ResultContent="body"
+Enclosure.Collect.Source(5).EntryConcatMethod="JSONArrayExtended"
+
+Enclosure.Collect.Source(5).Compute(1).Type="Json2Csv"
+Enclosure.Collect.Source(5).Compute(1).EntryKey="/Entry/Value"
+Enclosure.Collect.Source(5).Compute(1).Properties="/@odata.id;/Links/ComputerSystems[0]/@odata.id;"
+Enclosure.Collect.Source(5).Compute(1).Separator=";"
+
+// Enclosure Value Table
+// JsonID;odata.id;PatrolStatus;StatusInformation
+Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(3)%
+Enclosure.Collect.DeviceID=ValueTable.Column(2)
+Enclosure.Collect.Status=ValueTable.Column(3)
+Enclosure.Collect.StatusInformation=ValueTable.Column(4)
+
+//
+// CPU
+//
+
+// Discovery
+CPU.Discovery.Source(1).Type="HTTP"
+CPU.Discovery.Source(1).Method="GET"
+CPU.Discovery.Source(1).Header="Authorization: Basic %{BASIC_AUTH_BASE64}"
+CPU.Discovery.Source(1).ExecuteForEachEntryOf=%Enclosure.Discovery.Source(2)%
+CPU.Discovery.Source(1).Url="%Entry.Column(2)%/Processors"
+CPU.Discovery.Source(1).ResultContent="body"
+CPU.Discovery.Source(1).EntryConcatMethod="JSONArrayExtended"
+
+CPU.Discovery.Source(1).Compute(1).Type="Json2Csv"
+CPU.Discovery.Source(1).Compute(1).EntryKey="/Entry/Value/Members"
+CPU.Discovery.Source(1).Compute(1).Properties="../../Column(2);/@odata.id;"
+CPU.Discovery.Source(1).Compute(1).Separator=";"
+
+// JsonID;<System>;@odata.id
+CPU.Discovery.Source(2).Type="HTTP"
+CPU.Discovery.Source(2).Method="GET"
+CPU.Discovery.Source(2).Header="Authorization: Basic %{BASIC_AUTH_BASE64}"
+CPU.Discovery.Source(2).ExecuteForEachEntryOf=%CPU.Discovery.Source(1)%
+CPU.Discovery.Source(2).Url="%Entry.Column(3)%"
+CPU.Discovery.Source(2).ResultContent="body"
+CPU.Discovery.Source(2).EntryConcatMethod="JSONArrayExtended"
+
+CPU.Discovery.Source(2).Compute(1).Type="Json2Csv"
+CPU.Discovery.Source(2).Compute(1).EntryKey="/Entry/Value"
+CPU.Discovery.Source(2).Compute(1).Properties="../Column(2);/Id;/Socket;/Manufacturer;/Model;/MaxSpeedMHz;"
+CPU.Discovery.Source(2).Compute(1).Separator=";"
+
+// JSONID;<system>;Id;Socket;Manufacturer;Model;MaxSpeedMHz
+CPU.Discovery.InstanceTable=%CPU.Discovery.Source(2)%
+CPU.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+CPU.Discovery.Instance.Vendor=InstanceTable.Column(5)
+CPU.Discovery.Instance.Model=InstanceTable.Column(6)
+CPU.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+CPU.Discovery.Instance.MaximumSpeed=InstanceTable.Column(7)
+
+CPU.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+
+// COLLECTION
+CPU.Collect.Type="MultiInstance"
+
+CPU.Collect.Source(1).Type="HTTP"
+CPU.Collect.Source(1).Method="GET"
+CPU.Collect.Source(1).Header="Authorization: Basic %{BASIC_AUTH_BASE64}"
+CPU.Collect.Source(1).ExecuteForEachEntryOf=%Enclosure.Collect.Source(2)%
+CPU.Collect.Source(1).Url="%Entry.Column(2)%/Processors"
+CPU.Collect.Source(1).ResultContent="body"
+CPU.Collect.Source(1).EntryConcatMethod="JsonArray"
+
+CPU.Collect.Source(1).Compute(1).Type="Json2Csv"
+CPU.Collect.Source(1).Compute(1).EntryKey="/Members"
+CPU.Collect.Source(1).Compute(1).Properties="/@odata.Id;"
+CPU.Collect.Source(1).Compute(1).Separator=";"
+
+CPU.Collect.Source(2).Type="HTTP"
+CPU.Collect.Source(2).Method="GET"
+CPU.Collect.Source(2).Header="Authorization: Basic %{BASIC_AUTH_BASE64}"
+CPU.Collect.Source(2).ExecuteForEachEntryOf=%CPU.Collect.Source(1)%
+CPU.Collect.Source(2).Url="%Entry.Column(2)%"
+CPU.Collect.Source(2).ResultContent="body"
+CPU.Collect.Source(2).EntryConcatMethod="JsonArray"
+
+CPU.Collect.Source(2).Compute(1).Type="Json2Csv"
+CPU.Collect.Source(2).Compute(1).EntryKey="/"
+CPU.Collect.Source(2).Compute(1).Properties="/Id;/Status/Health;/Status/Health;"
+CPU.Collect.Source(2).Compute(1).Separator=";"
+
+CPU.Collect.Source(2).Compute(2).Type="Translate"
+CPU.Collect.Source(2).Compute(2).Column=3
+CPU.Collect.Source(2).Compute(2).TranslationTable="StatusTranslationTable"
+
+CPU.Collect.Source(2).Compute(3).Type="Translate"
+CPU.Collect.Source(2).Compute(3).Column=4
+CPU.Collect.Source(2).Compute(3).TranslationTable="StatusInformationTranslationTable"
+
+// CPU value table
+// JSONID;ID;PatrolStatus;StatusInformation;
+CPU.Collect.ValueTable=%CPU.Collect.Source(2)%
+CPU.Collect.DeviceID=ValueTable.Column(2)
+CPU.Collect.Status=ValueTable.Column(3)
+CPU.Collect.StatusInformation=ValueTable.Column(4)
+
+
+//
+// Memory
+//
+
+// Discovery
+
+Memory.Discovery.Source(1).Type="HTTP"
+Memory.Discovery.Source(1).Method="GET"
+Memory.Discovery.Source(1).Header="Authorization: Basic %{BASIC_AUTH_BASE64}"
+Memory.Discovery.Source(1).ExecuteForEachEntryOf=%Enclosure.Discovery.Source(2)%
+Memory.Discovery.Source(1).Url="%Entry.Column(2)%/Memory"
+Memory.Discovery.Source(1).ResultContent="body"
+Memory.Discovery.Source(1).EntryConcatMethod="JSONArrayExtended"
+
+Memory.Discovery.Source(1).Compute(1).Type="Json2Csv"
+Memory.Discovery.Source(1).Compute(1).EntryKey="/Entry/Value/Members"
+Memory.Discovery.Source(1).Compute(1).Properties="../../Column(2);/@odata.id;"
+Memory.Discovery.Source(1).Compute(1).Separator=";"
+
+Memory.Discovery.Source(2).Type="HTTP"
+Memory.Discovery.Source(2).Method="GET"
+Memory.Discovery.Source(2).Header="Authorization: Basic %{BASIC_AUTH_BASE64}"
+Memory.Discovery.Source(2).ExecuteForEachEntryOf=%Memory.Discovery.Source(1)%
+Memory.Discovery.Source(2).Url="%Entry.Column(3)%"
+Memory.Discovery.Source(2).ResultContent="body"
+Memory.Discovery.Source(2).EntryConcatMethod="JSONArrayExtended"
+
+Memory.Discovery.Source(2).Compute(1).Type="Json2Csv"
+Memory.Discovery.Source(2).Compute(1).EntryKey="/Entry/Value"
+Memory.Discovery.Source(2).Compute(1).Properties="../Column(2);/Id;/DeviceLocator;/CapacityMiB;/Manufacturer;/PartNumber;/SerialNumber;/MemoryDeviceType;"
+Memory.Discovery.Source(2).Compute(1).Separator=";"
+
+// JSON;<System>;Id;DeviceLocator;CapacityMiB;Manufacturer;PartNumber;SerialNumber;MemoryDeviceType;
+Memory.Discovery.InstanceTable=%Memory.Discovery.Source(2)%
+Memory.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+Memory.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+Memory.Discovery.Instance.Size=InstanceTable.Column(5)
+Memory.Discovery.Instance.Vendor=InstanceTable.Column(6)
+Memory.Discovery.Instance.Model=InstanceTable.Column(7)
+Memory.Discovery.Instance.SerialNumber=InstanceTable.Column(8)
+Memory.Discovery.Instance.Type=InstanceTable.Column(9)
+
+Memory.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+
+
+// COLLECTION
+Memory.Collect.Type="MultiInstance"
+
+Memory.Collect.Source(1).Type="HTTP"
+Memory.Collect.Source(1).Method="GET"
+Memory.Collect.Source(1).Header="Authorization: Basic %{BASIC_AUTH_BASE64}"
+Memory.Collect.Source(1).ExecuteForEachEntryOf=%Enclosure.Collect.Source(2)%
+Memory.Collect.Source(1).Url="%Entry.Column(2)%/Memory"
+Memory.Collect.Source(1).ResultContent="body"
+Memory.Collect.Source(1).EntryConcatMethod="JsonArray"
+
+Memory.Collect.Source(1).Compute(1).Type="Json2Csv"
+Memory.Collect.Source(1).Compute(1).EntryKey="/Members"
+Memory.Collect.Source(1).Compute(1).Properties="/@odata.Id;"
+Memory.Collect.Source(1).Compute(1).Separator=";"
+
+Memory.Collect.Source(2).Type="HTTP"
+Memory.Collect.Source(2).Method="GET"
+Memory.Collect.Source(2).Header="Authorization: Basic %{BASIC_AUTH_BASE64}"
+Memory.Collect.Source(2).ExecuteForEachEntryOf=%Memory.Collect.Source(1)%
+Memory.Collect.Source(2).Url="%Entry.Column(2)%"
+Memory.Collect.Source(2).ResultContent="body"
+Memory.Collect.Source(2).EntryConcatMethod="JsonArray"
+
+Memory.Collect.Source(2).Compute(1).Type="Json2Csv"
+Memory.Collect.Source(2).Compute(1).EntryKey="/"
+Memory.Collect.Source(2).Compute(1).Properties="/Id;/Status/Health;/Status/Health;"
+Memory.Collect.Source(2).Compute(1).Separator=";"
+
+Memory.Collect.Source(2).Compute(2).Type="Translate"
+Memory.Collect.Source(2).Compute(2).Column=3
+Memory.Collect.Source(2).Compute(2).TranslationTable="StatusTranslationTable"
+
+Memory.Collect.Source(2).Compute(3).Type="Translate"
+Memory.Collect.Source(2).Compute(3).Column=4
+Memory.Collect.Source(2).Compute(3).TranslationTable="StatusInformationTranslationTable"
+
+// Memory Value Table
+// JSONID;ID;PatrolStatus;StatusInformation;
+Memory.Collect.ValueTable=%Memory.Collect.Source(2)%
+Memory.Collect.DeviceID=ValueTable.Column(2)
+Memory.Collect.Status=ValueTable.Column(3)
+Memory.Collect.StatusInformation=ValueTable.Column(4)
+
+//
+// FANS
+//
+
+// Discovery
+
+Fan.Discovery.Source(1).Type="HTTP"
+Fan.Discovery.Source(1).Method="GET"
+Fan.Discovery.Source(1).Header="Authorization: Basic %{BASIC_AUTH_BASE64}"
+Fan.Discovery.Source(1).ExecuteForEachEntryOf=%Enclosure.Discovery.Source(5)%
+Fan.Discovery.Source(1).Url="%Entry.Column(2)%/Thermal"
+Fan.Discovery.Source(1).ResultContent="body"
+Fan.Discovery.Source(1).EntryConcatMethod="JSONArrayExtended"
+
+Fan.Discovery.Source(1).Compute(1).Type="Json2Csv"
+Fan.Discovery.Source(1).Compute(1).EntryKey="/Entry/Value/Fans"
+Fan.Discovery.Source(1).Compute(1).Properties="../../Column(3);/MemberId;/FanName;/Status/State;LowerThresholdNonCritical;LowerThresholdCritical;"
+Fan.Discovery.Source(1).Compute(1).Separator=";"
+
+// Remove Fans that are not populated
+Fan.Discovery.Source(1).Compute(2).Type="KeepOnlyMatchingLines"
+Fan.Discovery.Source(1).Compute(2).Column=5
+Fan.Discovery.Source(1).Compute(2).RegExp="Enabled"
+
+// Fan Instance Table
+// JsonID;<System>;MemberId;FanName;Status/State;LowerThresholdNonCritical;LowerThresholdCritical;
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+Fan.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+Fan.Discovery.Instance.WarningThreshold=InstanceTable.Column(6)
+Fan.Discovery.Instance.AlarmThreshold=InstanceTable.Column(7)
+
+Fan.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+
+// Collection
+Fan.Collect.Type="MultiInstance"
+
+Fan.Collect.Source(1).Type="HTTP"
+Fan.Collect.Source(1).Method="GET"
+Fan.Collect.Source(1).Header="Authorization: Basic %{BASIC_AUTH_BASE64}"
+Fan.Collect.Source(1).ExecuteForEachEntryOf=%Enclosure.Collect.Source(5)%
+Fan.Collect.Source(1).Url="%Entry.Column(2)%/Thermal"
+Fan.Collect.Source(1).ResultContent="body"
+Fan.Collect.Source(1).EntryConcatMethod="JsonArray"
+
+Fan.Collect.Source(1).Compute(1).Type="Json2Csv"
+Fan.Collect.Source(1).Compute(1).EntryKey="/Fans"
+Fan.Collect.Source(1).Compute(1).Properties="/MemberId;/Status/Health;/Status/Health;/Reading;/Reading;/MinReadingRange;/MaxReadingRange;"
+Fan.Collect.Source(1).Compute(1).Separator=";"
+
+Fan.Collect.Source(1).Compute(2).Type="Translate"
+Fan.Collect.Source(1).Compute(2).Column=3
+Fan.Collect.Source(1).Compute(2).TranslationTable="StatusTranslationTable"
+
+Fan.Collect.Source(1).Compute(3).Type="Translate"
+Fan.Collect.Source(1).Compute(3).Column=4
+Fan.Collect.Source(1).Compute(3).TranslationTable="StatusInformationTranslationTable"
+
+// Compute 4 - 5 (Get RPM range and convert to Speed Percentage)
+Fan.Collect.Source(1).Compute(4).Type="Substract"
+Fan.Collect.Source(1).Compute(4).Column=8
+Fan.Collect.Source(1).Compute(4).Substract=Column(7)
+
+Fan.Collect.Source(1).Compute(5).Type="Divide"
+Fan.Collect.Source(1).Compute(5).Column=6
+Fan.Collect.Source(1).Compute(5).DivideBy=Column(8)
+
+Fan.Collect.Source(1).Compute(6).Type="Multiply"
+Fan.Collect.Source(1).Compute(6).Column=6
+Fan.Collect.Source(1).Compute(6).MultiplyBy=100
+
+// Fan Value Table
+// JSONID;MemberId;PatrolStatus;StatusInformation;Reading;MinReadingRange;MaxReadingRange;
+Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+Fan.Collect.DeviceID=ValueTable.Column(2)
+Fan.Collect.Status=ValueTable.Column(3)
+Fan.Collect.StatusInformation=ValueTable.Column(4)
+Fan.Collect.Speed=ValueTable.Column(5)
+Fan.Collect.SpeedPercent=ValueTable.Column(6)
+
+//
+// PhysicalDisk
+//
+
+// Discovery
+
+PhysicalDisk.Discovery.Source(1).Type="HTTP"
+PhysicalDisk.Discovery.Source(1).Method="GET"
+PhysicalDisk.Discovery.Source(1).Header="Authorization: Basic %{BASIC_AUTH_BASE64}"
+PhysicalDisk.Discovery.Source(1).ExecuteForEachEntryOf=%Enclosure.Discovery.Source(1)%
+PhysicalDisk.Discovery.Source(1).Url="%Entry.Column(2)%/SimpleStorage"
+PhysicalDisk.Discovery.Source(1).ResultContent="body"
+PhysicalDisk.Discovery.Source(1).EntryConcatMethod="JSONArrayExtended"
+
+PhysicalDisk.Discovery.Source(1).Compute(1).Type="Json2Csv"
+PhysicalDisk.Discovery.Source(1).Compute(1).EntryKey="/Entry/Value/Members"
+PhysicalDisk.Discovery.Source(1).Compute(1).Properties="../../Column(2);/@odata.id;"
+PhysicalDisk.Discovery.Source(1).Compute(1).Separator=";"
+
+PhysicalDisk.Discovery.Source(2).Type="HTTP"
+PhysicalDisk.Discovery.Source(2).Method="GET"
+PhysicalDisk.Discovery.Source(2).Header="Authorization: Basic %{BASIC_AUTH_BASE64}"
+PhysicalDisk.Discovery.Source(2).ExecuteForEachEntryOf=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Source(2).Url="%Entry.Column(3)%"
+PhysicalDisk.Discovery.Source(2).ResultContent="body"
+PhysicalDisk.Discovery.Source(2).EntryConcatMethod="JSONArrayExtended"
+
+PhysicalDisk.Discovery.Source(2).Compute(1).Type="Json2Csv"
+PhysicalDisk.Discovery.Source(2).Compute(1).EntryKey="/Entry/Value/Devices"
+PhysicalDisk.Discovery.Source(2).Compute(1).Properties="../../Column(2);/Name;/Manufacturer;/Model;"
+PhysicalDisk.Discovery.Source(2).Compute(1).Separator=";"
+
+// PhysicalDisk Instance Table
+// JSONID;<System>;Name;Manufacturer;Model;
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(2)%
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+PhysicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+PhysicalDisk.Discovery.Instance.Vendor=InstanceTable.Column(4)
+PhysicalDisk.Discovery.Instance.Model=InstanceTable.Column(5)
+
+PhysicalDisk.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+
+// Collection
+PhysicalDisk.Collect.Type="MultiInstance"
+
+PhysicalDisk.Collect.Source(1).Type="HTTP"
+PhysicalDisk.Collect.Source(1).Method="GET"
+PhysicalDisk.Collect.Source(1).Header="Authorization: Basic %{BASIC_AUTH_BASE64}"
+PhysicalDisk.Collect.Source(1).ExecuteForEachEntryOf=%Enclosure.Collect.Source(1)%
+PhysicalDisk.Collect.Source(1).Url="%Entry.Column(2)%/SimpleStorage"
+PhysicalDisk.Collect.Source(1).ResultContent="body"
+PhysicalDisk.Collect.Source(1).EntryConcatMethod="JsonArray"
+
+PhysicalDisk.Collect.Source(1).Compute(1).Type="Json2Csv"
+PhysicalDisk.Collect.Source(1).Compute(1).EntryKey="/Members"
+PhysicalDisk.Collect.Source(1).Compute(1).Properties="/@odata.id;"
+PhysicalDisk.Collect.Source(1).Compute(1).Separator=";"
+
+PhysicalDisk.Collect.Source(2).Type="HTTP"
+PhysicalDisk.Collect.Source(2).Method="GET"
+PhysicalDisk.Collect.Source(2).Header="Authorization: Basic %{BASIC_AUTH_BASE64}"
+PhysicalDisk.Collect.Source(2).ExecuteForEachEntryOf=%PhysicalDisk.Collect.Source(1)%
+PhysicalDisk.Collect.Source(2).Url="%Entry.Column(2)%"
+PhysicalDisk.Collect.Source(2).ResultContent="body"
+PhysicalDisk.Collect.Source(2).EntryConcatMethod="JsonArray"
+
+PhysicalDisk.Collect.Source(2).Compute(1).Type="Json2Csv"
+PhysicalDisk.Collect.Source(2).Compute(1).EntryKey="/Devices"
+PhysicalDisk.Collect.Source(2).Compute(1).Properties="/Name;/Status/Health;/Status/Health;"
+PhysicalDisk.Collect.Source(2).Compute(1).Separator=";"
+
+PhysicalDisk.Collect.Source(2).Compute(2).Type="Translate"
+PhysicalDisk.Collect.Source(2).Compute(2).Column=3
+PhysicalDisk.Collect.Source(2).Compute(2).TranslationTable="StatusTranslationTable"
+
+PhysicalDisk.Collect.Source(2).Compute(3).Type="Translate"
+PhysicalDisk.Collect.Source(2).Compute(3).Column=4
+PhysicalDisk.Collect.Source(2).Compute(3).TranslationTable="StatusInformationTranslationTable"
+
+// PhysicalDisk Value Table
+// JSONID;Name;PatrolStatus;StatusInformation;
+PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(2)%
+PhysicalDisk.Collect.DeviceID=ValueTable.Column(2)
+PhysicalDisk.Collect.Status=ValueTable.Column(3)
+PhysicalDisk.Collect.StatusInformation=ValueTable.Column(4)
+
+//
+// PowerSupply
+//
+
+// Discovery
+
+PowerSupply.Discovery.Source(1).Type="HTTP"
+PowerSupply.Discovery.Source(1).Method="GET"
+PowerSupply.Discovery.Source(1).Header="Authorization: Basic %{BASIC_AUTH_BASE64}"
+PowerSupply.Discovery.Source(1).ExecuteForEachEntryOf=%Enclosure.Discovery.Source(5)%
+PowerSupply.Discovery.Source(1).Url="%Entry.Column(2)%/Power"
+PowerSupply.Discovery.Source(1).ResultContent="body"
+PowerSupply.Discovery.Source(1).EntryConcatMethod="JSONArrayExtended"
+
+PowerSupply.Discovery.Source(1).Compute(1).Type="Json2Csv"
+PowerSupply.Discovery.Source(1).Compute(1).EntryKey="Entry/Value/PowerSupplies"
+PowerSupply.Discovery.Source(1).Compute(1).Properties="../../Column(3);/MemberId;/Name;/Status/State;/PowerSupplyType;/LineInputVoltage;/Model;/firmwareVersion;/SerialNumber;"
+PowerSupply.Discovery.Source(1).Compute(1).Separator=";"
+
+// Exclude PowerSupplies that are marked as "Absent" at discovery
+PowerSupply.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+PowerSupply.Discovery.Source(1).Compute(2).Column=5
+PowerSupply.Discovery.Source(1).Compute(2).RegExp="Absent"
+
+PowerSupply.Discovery.Source(1).Compute(3).Type="LeftConcat"
+PowerSupply.Discovery.Source(1).Compute(3).Column=8
+PowerSupply.Discovery.Source(1).Compute(3).String="Model: "
+
+PowerSupply.Discovery.Source(1).Compute(4).Type="LeftConcat"
+PowerSupply.Discovery.Source(1).Compute(4).Column=9
+PowerSupply.Discovery.Source(1).Compute(4).String="Firmware Version: "
+
+PowerSupply.Discovery.Source(1).Compute(5).Type="LeftConcat"
+PowerSupply.Discovery.Source(1).Compute(5).Column=10
+PowerSupply.Discovery.Source(1).Compute(5).String="Serial Number: "
+
+// PowerSupply Instance Table
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+PowerSupply.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+PowerSupply.Discovery.Instance.PowerSupplyType=InstanceTable.Column(6)
+PowerSupply.Discovery.Instance.PowerSupplyPower=InstanceTable.Column(7)
+PowerSupply.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(8)
+PowerSupply.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(9)
+PowerSupply.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(10)
+
+PowerSupply.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+
+// Collection
+PowerSupply.Collect.Type="MultiInstance"
+
+PowerSupply.Collect.Source(1).Type="HTTP"
+PowerSupply.Collect.Source(1).Method="GET"
+PowerSupply.Collect.Source(1).Header="Authorization: Basic %{BASIC_AUTH_BASE64}"
+PowerSupply.Collect.Source(1).ExecuteForEachEntryOf=%Enclosure.Collect.Source(5)%
+PowerSupply.Collect.Source(1).Url="%Entry.Column(2)%/Power"
+PowerSupply.Collect.Source(1).ResultContent="body"
+PowerSupply.Collect.Source(1).EntryConcatMethod="JsonArray"
+
+PowerSupply.Collect.Source(1).Compute(1).Type="Json2Csv"
+PowerSupply.Collect.Source(1).Compute(1).EntryKey="/PowerSupplies"
+PowerSupply.Collect.Source(1).Compute(1).Properties="/MemberId;/Status/Health;/Status/Health;"
+PowerSupply.Collect.Source(1).Compute(1).Separator=";"
+
+PowerSupply.Collect.Source(1).Compute(2).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(2).Column=3
+PowerSupply.Collect.Source(1).Compute(2).TranslationTable="StatusTranslationTable"
+
+PowerSupply.Collect.Source(1).Compute(3).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(3).Column=4
+PowerSupply.Collect.Source(1).Compute(3).TranslationTable="StatusInformationTranslationTable"
+
+// PowerSupply Value Table
+// JSONID;MemberId;PatrolStatus;StatusInformation;
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(2)
+PowerSupply.Collect.Status=ValueTable.Column(3)
+PowerSupply.Collect.StatusInformation=ValueTable.Column(4)
+
+//
+// Temperature
+//
+
+// Discovery
+
+Temperature.Discovery.Source(1).Type="HTTP"
+Temperature.Discovery.Source(1).Method="GET"
+Temperature.Discovery.Source(1).Header="Authorization: Basic %{BASIC_AUTH_BASE64}"
+Temperature.Discovery.Source(1).ExecuteForEachEntryOf=%Enclosure.Discovery.Source(5)%
+Temperature.Discovery.Source(1).Url="%Entry.Column(2)%/Thermal"
+Temperature.Discovery.Source(1).ResultContent="body"
+Temperature.Discovery.Source(1).EntryConcatMethod="JSONArrayExtended"
+
+Temperature.Discovery.Source(1).Compute(1).Type="Json2Csv"
+Temperature.Discovery.Source(1).Compute(1).EntryKey="/Entry/Value/Temperatures"
+Temperature.Discovery.Source(1).Compute(1).Properties="../../Column(3);/MemberId;/Name;/Status/State;/UpperThresholdNoncritical;/UpperThresholdCritical;"
+Temperature.Discovery.Source(1).Compute(1).Separator=";"
+
+// Keep only Temperature Sensors marked as "Enabled"
+Temperature.Discovery.Source(1).Compute(2).Type="KeepOnlyMatchingLines"
+Temperature.Discovery.Source(1).Compute(2).Column=5
+Temperature.Discovery.Source(1).Compute(2).RegExp="Enabled"
+
+// Temperature Instance Table
+// JSONID;<System>;MemberId;Name;State;UpperThresholdNoncritical;UpperThresholdCritical;
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+Temperature.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+
+Temperature.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+
+// Collection
+
+// Collection Type
+Temperature.Collect.Type="MultiInstance"
+
+Temperature.Collect.Source(1).Type="HTTP"
+Temperature.Collect.Source(1).Method="GET"
+Temperature.Collect.Source(1).Header="Authorization: Basic %{BASIC_AUTH_BASE64}"
+Temperature.Collect.Source(1).ExecuteForEachEntryOf=%Enclosure.Collect.Source(5)%
+Temperature.Collect.Source(1).Url="%Entry.Column(2)%/Thermal"
+Temperature.Collect.Source(1).ResultContent="body"
+Temperature.Collect.Source(1).EntryConcatMethod="JsonArray"
+
+Temperature.Collect.Source(1).Compute(1).Type="Json2Csv"
+Temperature.Collect.Source(1).Compute(1).EntryKey="/Temperatures"
+Temperature.Collect.Source(1).Compute(1).Properties="/MemberId;/Status/Health;/Status/Health;/ReadingCelsius;"
+Temperature.Collect.Source(1).Compute(1).Separator=";"
+
+Temperature.Collect.Source(1).Compute(2).Type="Translate"
+Temperature.Collect.Source(1).Compute(2).Column=3
+Temperature.Collect.Source(1).Compute(2).TranslationTable="StatusTranslationTable"
+
+Temperature.Collect.Source(1).Compute(3).Type="Translate"
+Temperature.Collect.Source(1).Compute(3).Column=4
+Temperature.Collect.Source(1).Compute(3).TranslationTable="StatusInformationTranslationTable"
+
+
+// Temperature Value Table
+// JSONID;MemberID;PatrolStatus;StatusInformation;ReadingCelsius;
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.DeviceID=ValueTable.Column(2)
+Temperature.Collect.Status=ValueTable.Column(3)
+Temperature.Collect.StatusInformation=ValueTable.Column(4)
+Temperature.Collect.Temperature=ValueTable.Column(5)
+
+
+//
+// Voltage
+//
+
+// Discovery
+
+Voltage.Discovery.Source(1).Type="HTTP"
+Voltage.Discovery.Source(1).Method="GET"
+Voltage.Discovery.Source(1).Header="Authorization: Basic %{BASIC_AUTH_BASE64}"
+Voltage.Discovery.Source(1).ExecuteForEachEntryOf=%Enclosure.Discovery.Source(5)%
+Voltage.Discovery.Source(1).Url="%Entry.Column(2)%/Power"
+Voltage.Discovery.Source(1).ResultContent="body"
+Voltage.Discovery.Source(1).EntryConcatMethod="JSONArrayExtended"
+
+Voltage.Discovery.Source(1).Compute(1).Type="Json2Csv"
+Voltage.Discovery.Source(1).Compute(1).EntryKey="/Entry/Value/Voltages"
+Voltage.Discovery.Source(1).Compute(1).Properties="../../Column(3);/MemberId;/Name;/Status/State;/UpperThresholdNoncritical;/UpperThresholdCritical;"
+Voltage.Discovery.Source(1).Compute(1).Separator=";"
+
+// Keep only Voltage Sensors marked as "Enabled"
+Voltage.Discovery.Source(1).Compute(2).Type="KeepOnlyMatchingLines"
+Voltage.Discovery.Source(1).Compute(2).Column=5
+Voltage.Discovery.Source(1).Compute(2).RegExp="Enabled"
+
+// Voltage Instance Table
+// JSONID;<System>;MemberId;Name;State;UpperThresholdNoncritical;UpperThresholdCritical;
+Voltage.Discovery.InstanceTable=%Voltage.Discovery.Source(1)%
+Voltage.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+Voltage.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+
+Voltage.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+
+// Collection
+
+// Collection Type
+Voltage.Collect.Type="MultiInstance"
+
+Voltage.Collect.Source(1).Type="HTTP"
+Voltage.Collect.Source(1).Method="GET"
+Voltage.Collect.Source(1).Header="Authorization: Basic %{BASIC_AUTH_BASE64}"
+Voltage.Collect.Source(1).ExecuteForEachEntryOf=%Enclosure.Collect.Source(5)%
+Voltage.Collect.Source(1).Url="%Entry.Column(2)%/Power"
+Voltage.Collect.Source(1).ResultContent="body"
+Voltage.Collect.Source(1).EntryConcatMethod="JsonArray"
+
+Voltage.Collect.Source(1).Compute(1).Type="Json2Csv"
+Voltage.Collect.Source(1).Compute(1).EntryKey="/Voltages"
+Voltage.Collect.Source(1).Compute(1).Properties="/MemberId;/Status/Health;/Status/Health;/ReadingVolts;"
+Voltage.Collect.Source(1).Compute(1).Separator=";"
+
+Voltage.Collect.Source(1).Compute(2).Type="Translate"
+Voltage.Collect.Source(1).Compute(2).Column=3
+Voltage.Collect.Source(1).Compute(2).TranslationTable="StatusTranslationTable"
+
+Voltage.Collect.Source(1).Compute(3).Type="Translate"
+Voltage.Collect.Source(1).Compute(3).Column=4
+Voltage.Collect.Source(1).Compute(3).TranslationTable="StatusInformationTranslationTable"
+
+Voltage.Collect.Source(1).Compute(4).Type="Multiply"
+Voltage.Collect.Source(1).Compute(4).Column=5
+Voltage.Collect.Source(1).Compute(4).MultiplyBy=1000
+
+// Voltage Value Table
+// JSONID;MemberID;PatrolStatus;StatusInformation;ReadingCelsius;
+Voltage.Collect.ValueTable=%Voltage.Collect.Source(1)%
+Voltage.Collect.DeviceID=ValueTable.Column(2)
+Voltage.Collect.Status=ValueTable.Column(3)
+Voltage.Collect.StatusInformation=ValueTable.Column(4)
+Voltage.Collect.Voltage=ValueTable.Column(5)
+
+//
+// NetworkCard
+//
+
+// Discovery
+
+NetworkCard.Discovery.Source(1).Type="HTTP"
+NetworkCard.Discovery.Source(1).Method="GET"
+NetworkCard.Discovery.Source(1).Header="Authorization: Basic %{BASIC_AUTH_BASE64}"
+NetworkCard.Discovery.Source(1).ExecuteForEachEntryOf=%Enclosure.Discovery.Source(2)%
+NetworkCard.Discovery.Source(1).Url="%Entry.Column(2)%/EthernetInterfaces"
+NetworkCard.Discovery.Source(1).ResultContent="body"
+NetworkCard.Discovery.Source(1).EntryConcatMethod="JSONArrayExtended"
+
+NetworkCard.Discovery.Source(1).Compute(1).Type="Json2Csv"
+NetworkCard.Discovery.Source(1).Compute(1).EntryKey="Entry/Value/Members"
+NetworkCard.Discovery.Source(1).Compute(1).Properties="../../Column(2);/@odata.id;"
+NetworkCard.Discovery.Source(1).Compute(1).Separator=";"
+
+NetworkCard.Discovery.Source(2).Type="HTTP"
+NetworkCard.Discovery.Source(2).Method="GET"
+NetworkCard.Discovery.Source(2).Header="Authorization: Basic %{BASIC_AUTH_BASE64}"
+NetworkCard.Discovery.Source(2).ExecuteForEachEntryOf=%NetworkCard.Discovery.Source(1)%
+NetworkCard.Discovery.Source(2).Url="%Entry.Column(3)%"
+NetworkCard.Discovery.Source(2).ResultContent="body"
+NetworkCard.Discovery.Source(2).EntryConcatMethod="JSONArrayExtended"
+
+NetworkCard.Discovery.Source(2).Compute(1).Type="Json2Csv"
+NetworkCard.Discovery.Source(2).Compute(1).EntryKey="/Entry/Value"
+NetworkCard.Discovery.Source(2).Compute(1).Properties="../Column(2);/Id;/Name;/MACAddress;/Status/State"
+NetworkCard.Discovery.Source(2).Compute(1).Separator=";"
+
+NetworkCard.Discovery.Source(2).Compute(2).Type="Translate"
+NetworkCard.Discovery.Source(2).Compute(2).Column=6
+NetworkCard.Discovery.Source(2).Compute(2).TranslationTable="LinkSpeedDeactivationTranslationTable"
+
+LinkSpeedDeactivationTranslationTable("Enabled")="True"
+LinkSpeedDeactivationTranslationTable(Default)=""
+
+// NetworkCard Instance Table
+// JsonID;System;Id;Name;MACAddress;State;
+NetworkCard.Discovery.InstanceTable=%NetworkCard.Discovery.Source(2)%
+NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+NetworkCard.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+NetworkCard.Discovery.Instance.PhysicalAddress=InstanceTable.Column(5)
+NetworkCard.Discovery.Instance.ParameterActivation.LinkSpeed=InstanceTable.Column(6)
+
+NetworkCard.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+
+// Collection
+
+// Collection Type
+NetworkCard.Collect.Type="MultiInstance"
+
+NetworkCard.Collect.Source(1).Type="HTTP"
+NetworkCard.Collect.Source(1).Method="GET"
+NetworkCard.Collect.Source(1).Header="Authorization: Basic %{BASIC_AUTH_BASE64}"
+NetworkCard.Collect.Source(1).ExecuteForEachEntryOf=%Enclosure.Collect.Source(1)%
+NetworkCard.Collect.Source(1).Url="%Entry.Column(2)%/EthernetInterfaces"
+NetworkCard.Collect.Source(1).ResultContent="body"
+NetworkCard.Collect.Source(1).EntryConcatMethod="JsonArray"
+
+NetworkCard.Collect.Source(1).Compute(1).Type="Json2Csv"
+NetworkCard.Collect.Source(1).Compute(1).EntryKey="/Members"
+NetworkCard.Collect.Source(1).Compute(1).Properties="/@odata.id;"
+NetworkCard.Collect.Source(1).Compute(1).Separator=";"
+
+NetworkCard.Collect.Source(2).Type="HTTP"
+NetworkCard.Collect.Source(2).Method="GET"
+NetworkCard.Collect.Source(2).Header="Authorization: Basic %{BASIC_AUTH_BASE64}"
+NetworkCard.Collect.Source(2).ExecuteForEachEntryOf=%NetworkCard.Collect.Source(1)%
+NetworkCard.Collect.Source(2).Url="%Entry.Column(2)%"
+NetworkCard.Collect.Source(2).ResultContent="body"
+NetworkCard.Collect.Source(2).EntryConcatMethod="JsonArray"
+
+NetworkCard.Collect.Source(2).Compute(1).Type="Json2Csv"
+NetworkCard.Collect.Source(2).Compute(1).EntryKey="/"
+NetworkCard.Collect.Source(2).Compute(1).Properties="/Id;/Status/State;/Status/State;/Status/Health;/SpeedMbps;"
+NetworkCard.Collect.Source(2).Compute(1).Separator=";"
+
+NetworkCard.Collect.Source(2).Compute(2).Type="Translate"
+NetworkCard.Collect.Source(2).Compute(2).Column=3
+NetworkCard.Collect.Source(2).Compute(2).TranslationTable="NetworkCardStatusTranslationTable"
+
+NetworkCardStatusTranslationTable("Disabled")="OK"
+NetworkCardStatusTranslationTable("Enabled")="OK"
+NetworkCardStatusTranslationTable(Default)="ALARM"
+
+NetworkCard.Collect.Source(2).Compute(3).Type="Translate"
+NetworkCard.Collect.Source(2).Compute(3).Column=4
+NetworkCard.Collect.Source(2).Compute(3).TranslationTable="LinkStatusTranslationTable"
+
+LinkStatusTranslationTable("Disabled")="WARN"
+LinkStatusTranslationTable("Enabled")="OK"
+LinkStatusTranslationTable(Default)="WARN"
+
+NetworkCard.Collect.Source(2).Compute(4).Type="Translate"
+NetworkCard.Collect.Source(2).Compute(4).Column=5
+NetworkCard.Collect.Source(2).Compute(4).TranslationTable="StatusInformationTranslationTable"
+
+// NetworkCard Value Table
+// JSONID;Id;NetworkCardStatus;LinkStatus;StatusInformation;SpeedMbps;
+NetworkCard.Collect.ValueTable=%NetworkCard.Collect.Source(2)%
+NetworkCard.Collect.DeviceID=ValueTable.Column(2)
+NetworkCard.Collect.Status=ValueTable.Column(3)
+NetworkCard.Collect.LinkStatus=ValueTable.Column(4)
+NetworkCard.Collect.StatusInformation=ValueTable.Column(5)
+NetworkCard.Collect.LinkSpeed=ValueTable.Column(6)
+
+
+StatusTranslationTable("OK")="OK"
+StatusTranslationTable("Warning")="WARN"
+StatusTranslationTable("Critical")="ALARM"
+StatusTranslationTable(Default)="ALARM"
+
+StatusInformationTranslationTable("OK")="The device is running normal."
+StatusInformationTranslationTable("Warning")="The device has warning state."
+StatusInformationTranslationTable("Critical")="The device is in critical state."
+StatusInformationTranslationTable(Default)="Alarm"

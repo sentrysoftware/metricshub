@@ -1,0 +1,886 @@
+//
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//             MS_HW_HPBladeSystem.hdf
+//
+//         Supports: HP BladeSystem racks
+//
+//
+
+// HEADER
+
+hdf.DisplayName="HP BladeSystem"
+hdf.TypicalPlatform="HP BladeSystem"
+hdf.ReliesOn="HP iLO / HP Insight Management Agents"
+hdf.Version="1.0"
+hdf.Comments="This connector provides hardware monitoring for the HP BladeSystem racks through the HP Insight Management Agents."
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="OOB,NT,Linux,Solaris"
+
+//
+// DETECTION
+//
+
+// Criteria 1: Must have a cpqRackCommonEnclosureEntry entry
+Detection.Criteria(1).Type="SNMP"
+Detection.Criteria(1).SnmpGetNext="1.3.6.1.4.1.232.22.2.3.1.1.1.1"
+
+//
+// ENCLOSURES
+//
+
+//
+// Discovery
+
+// Get the various enclosures (server and power supply enclosures)
+// Rack;Chassis;Model;HasBlades;SerialNumber;PartNumber;SparePartNumber;
+Enclosure.Discovery.Source(1).Type="SnmpTable"
+Enclosure.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.232.22.2.3.1.1.1"
+Enclosure.Discovery.Source(1).SnmpTableSelectColumns="1,2,3,17,7,5,6"
+
+// Build enclsoure ID from rack.chassis
+// DeviceID;Chassis;Model;HasBlade;SerialNumber;PartNumber;SparePartNumber;
+Enclosure.Discovery.Source(1).Compute(1).Type="RightConcat"
+Enclosure.Discovery.Source(1).Compute(1).Column="1"
+Enclosure.Discovery.Source(1).Compute(1).String="/"
+
+Enclosure.Discovery.Source(1).Compute(2).Type="RightConcat"
+Enclosure.Discovery.Source(1).Compute(2).Column="1"
+Enclosure.Discovery.Source(1).Compute(2).String=Column(2)
+
+// Translate the HasBlades column into an "EnclosureType"
+Enclosure.Discovery.Source(1).Compute(3).Type="Translate"
+Enclosure.Discovery.Source(1).Compute(3).Column="4"
+Enclosure.Discovery.Source(1).Compute(3).TranslationTable="EnclosureTypeTranslationTable"
+
+// Identify the Part Numbers
+// DeviceID;Chassis;Model;HasBlade;SerialNumber;PartNumber;SparePartNumber;
+Enclosure.Discovery.Source(1).Compute(4).Type="LeftConcat"
+Enclosure.Discovery.Source(1).Compute(4).Column="6"
+Enclosure.Discovery.Source(1).Compute(4).String="Part Number: "
+
+Enclosure.Discovery.Source(1).Compute(5).Type="LeftConcat"
+Enclosure.Discovery.Source(1).Compute(5).Column="7"
+Enclosure.Discovery.Source(1).Compute(5).String="Spare Part Number: "
+
+
+// The EnclosureTypeTranslationTable
+EnclosureTypeTranslationTable(2)="Blade"
+EnclosureTypeTranslationTable(Default)="Other"
+
+// Source(2) = cpqRackPowerSupplyTable SNMP table
+// Rack;Chassis;PowerConsumption
+Enclosure.Discovery.Source(2).Type="SnmpTable"
+Enclosure.Discovery.Source(2).SnmpTableOid="1.3.6.1.4.1.232.22.2.5.1.1.1"
+Enclosure.Discovery.Source(2).SnmpTableSelectColumns="1,2,10"
+
+// Compute the total power consumption "per chassis" (through a smart AWK script)
+// EnclosureID;PowerConsumption
+Enclosure.Discovery.Source(2).Compute(1).Type="Awk"
+Enclosure.Discovery.Source(2).Compute(1).AwkScript=EmbeddedFile(1)
+Enclosure.Discovery.Source(2).Compute(1).KeepOnlyRegExp="^MSHW;"
+Enclosure.Discovery.Source(2).Compute(1).Separators=";"
+Enclosure.Discovery.Source(2).Compute(1).SelectColumns="2,3"
+
+// Source(3) = Table joint of Source(1) and Source(2)
+// DeviceID;Chassis;Model;HasBlade;SerialNumber;PartNumber;SparePartNumber;EnclosureID;PowerConsumption
+Enclosure.Discovery.Source(3).Type="TableJoint"
+Enclosure.Discovery.Source(3).LeftTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Source(3).RightTable=%Enclosure.Discovery.Source(2)%
+Enclosure.Discovery.Source(3).LeftKeyColumn=1
+Enclosure.Discovery.Source(3).RightKeyColumn=1
+Enclosure.Discovery.Source(3).DefaultRightLine=";0;"
+
+// The InstanceTable
+// DeviceID;Chassis;Model;HasBlade;SerialNumber;PartNumber;SparePartNumber;EnclosureID;PowerConsumption
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(3)%
+Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Enclosure.Discovery.Instance.Vendor="HP"
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(3)
+Enclosure.Discovery.Instance.Type=InstanceTable.Column(4)
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(5)
+Enclosure.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(6)
+Enclosure.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(7)
+Enclosure.Discovery.Instance.ParameterActivation.PowerConsumption=InstanceTable.Column(9)
+
+
+//
+// Collect
+
+Enclosure.Collect.Type="MultiInstance"
+
+// Get the various enclosures (server and power supply enclosures)
+// Rack;Chassis;Condition
+Enclosure.Collect.Source(1).Type="SnmpTable"
+Enclosure.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.232.22.2.3.1.1.1"
+Enclosure.Collect.Source(1).SnmpTableSelectColumns="1,2,16"
+
+// Build enclsoure ID from rack.chassis
+// DeviceID;Chassis;Condition
+Enclosure.Collect.Source(1).Compute(1).Type="RightConcat"
+Enclosure.Collect.Source(1).Compute(1).Column="1"
+Enclosure.Collect.Source(1).Compute(1).String="/"
+
+Enclosure.Collect.Source(1).Compute(2).Type="RightConcat"
+Enclosure.Collect.Source(1).Compute(2).Column="1"
+Enclosure.Collect.Source(1).Compute(2).String=Column(2)
+
+// Duplicate the condition column
+// DeviceID;Chassis;Condition;Condition
+Enclosure.Collect.Source(1).Compute(3).Type="DuplicateColumn"
+Enclosure.Collect.Source(1).Compute(3).Column="3"
+
+// Translate the first condition into a PATROL status
+// DeviceID;Chassis;Status;Condition
+Enclosure.Collect.Source(1).Compute(4).Type="Translate"
+Enclosure.Collect.Source(1).Compute(4).Column="3"
+Enclosure.Collect.Source(1).Compute(4).TranslationTable="EnclosureStatusTranslationTable"
+
+// The EnclosureStatusTranslationTable
+EnclosureStatusTranslationTable(2)="OK"
+EnclosureStatusTranslationTable(3)="WARN"
+EnclosureStatusTranslationTable(4)="ALARM"
+EnclosureStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate the second condition into a more readable string
+// DeviceID;Chassis;Status;statusInformation
+Enclosure.Collect.Source(1).Compute(5).Type="Translate"
+Enclosure.Collect.Source(1).Compute(5).Column="4"
+Enclosure.Collect.Source(1).Compute(5).TranslationTable="EnclosureStatusInformationTranslationTable"
+
+// The EnclosureStatusTranslationTable
+EnclosureStatusInformationTranslationTable(2)=""
+EnclosureStatusInformationTranslationTable(3)="Degraded"
+EnclosureStatusInformationTranslationTable(4)="Failed"
+EnclosureStatusInformationTranslationTable(Default)="Unknown Status"
+
+// Source(2) = cpqRackPowerSupplyTable SNMP table
+// Rack;Chassis;PowerConsumption
+Enclosure.Collect.Source(2).Type="SnmpTable"
+Enclosure.Collect.Source(2).SnmpTableOid="1.3.6.1.4.1.232.22.2.5.1.1.1"
+Enclosure.Collect.Source(2).SnmpTableSelectColumns="1,2,10"
+
+// Compute the total power consumption "per chassis" (through a smart AWK script)
+// EnclosureID;PowerConsumption
+Enclosure.Collect.Source(2).Compute(1).Type="Awk"
+Enclosure.Collect.Source(2).Compute(1).AwkScript=EmbeddedFile(1)
+Enclosure.Collect.Source(2).Compute(1).KeepOnlyRegExp="^MSHW;"
+Enclosure.Collect.Source(2).Compute(1).Separators=";"
+Enclosure.Collect.Source(2).Compute(1).SelectColumns="2,3"
+
+// Source(3) = Table joint of Source(1) and Source(2)
+// DeviceID;Chassis;Status;statusInformation;EnclosureID;PowerConsumption
+Enclosure.Collect.Source(3).Type="TableJoint"
+Enclosure.Collect.Source(3).LeftTable=%Enclosure.Collect.Source(1)%
+Enclosure.Collect.Source(3).RightTable=%Enclosure.Collect.Source(2)%
+Enclosure.Collect.Source(3).LeftKeyColumn=1
+Enclosure.Collect.Source(3).RightKeyColumn=1
+Enclosure.Collect.Source(3).DefaultRightLine=";0;"
+
+// ValueTable = Source(3)
+Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(3)%
+Enclosure.Collect.DeviceID=ValueTable.Column(1)
+Enclosure.Collect.Status=ValueTable.Column(3)
+Enclosure.Collect.StatusInformation=ValueTable.Column(4)
+Enclosure.Collect.PowerConsumption=ValueTable.Column(6)
+
+
+//
+// TEMPERATURES
+
+// Temperature discovery
+
+//
+// TEMPERATURES
+
+// Temperature discovery
+
+// Source(1) = cpqRackCommonEnclosureTempTable SNMP table
+// ID;Rack;Chassis;Location;Temperature;WarningThreshold;Condition
+Temperature.Discovery.Source(1).Type="SnmpTable"
+Temperature.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.232.22.2.3.1.2.1"
+Temperature.Discovery.Source(1).SnmpTableSelectColumns="ID,1,2,5,6,7,8"
+
+// Now, build the enclosure ID (for attachment) from Rack and Chassis
+// ID;Rack;Chassis;Location;Temperature;WarningThreshold;Condition
+Temperature.Discovery.Source(1).Compute(1).Type="RightConcat"
+Temperature.Discovery.Source(1).Compute(1).Column="2"
+Temperature.Discovery.Source(1).Compute(1).String="/"
+
+// ID;Rack;Chassis;Location;Temperature;WarningThreshold;Condition
+Temperature.Discovery.Source(1).Compute(2).Type="RightConcat"
+Temperature.Discovery.Source(1).Compute(2).Column="2"
+Temperature.Discovery.Source(1).Compute(2).String=Column(3)
+
+// Replace a Temperature of -1 (Not Applicable) with blank
+// ID;Rack;Chassis;Location;Temperature;WarningThreshold;Condition
+Temperature.Discovery.Source(1).Compute(3).Type="Replace"
+Temperature.Discovery.Source(1).Compute(3).Column=5
+Temperature.Discovery.Source(1).Compute(3).Replace="-1"
+Temperature.Discovery.Source(1).Compute(3).ReplaceBy=""
+
+// Replace a Temperature of 0 (Zeroed) with blank
+// ID;Rack;Chassis;Location;Temperature;WarningThreshold;Condition
+Temperature.Discovery.Source(1).Compute(4).Type="Replace"
+Temperature.Discovery.Source(1).Compute(4).Column=5
+Temperature.Discovery.Source(1).Compute(4).Replace="0"
+Temperature.Discovery.Source(1).Compute(4).ReplaceBy=""
+
+// Replace a Condition of 1 (unknown) with blank
+// ID;Rack;Chassis;Location;Temperature;WarningThreshold;Condition
+Temperature.Discovery.Source(1).Compute(5).Type="Replace"
+Temperature.Discovery.Source(1).Compute(5).Column=7
+Temperature.Discovery.Source(1).Compute(5).Replace="1"
+Temperature.Discovery.Source(1).Compute(5).ReplaceBy=""
+
+// Replace a WarningThreshold of -1 (Not Applicable) with blank
+// ID;Rack;Chassis;Location;Temperature;WarningThreshold;Condition
+Temperature.Discovery.Source(1).Compute(6).Type="Replace"
+Temperature.Discovery.Source(1).Compute(6).Column=6
+Temperature.Discovery.Source(1).Compute(6).Replace="-1"
+Temperature.Discovery.Source(1).Compute(6).ReplaceBy=""
+
+// We're now going to filter copies of the source table to do parameter activation
+// for temperature and status, deactivating status if a valid temperature is found
+
+// Take a copy of Source 1
+// ID;Rack;Chassis;Location;Temperature;WarningThreshold;Condition
+Temperature.Discovery.Source(2)=%Temperature.Discovery.Source(1)%
+
+// Keep only Sensors with a temperature and a threshold
+// ID;Rack;Chassis;Location;Temperature;WarningThreshold;Condition
+Temperature.Discovery.Source(2).Compute(1).Type="KeepOnlyMatchingLines"
+Temperature.Discovery.Source(2).Compute(1).Column=5
+Temperature.Discovery.Source(2).Compute(1).Regexp="."
+
+Temperature.Discovery.Source(2).Compute(2).Type="KeepOnlyMatchingLines"
+Temperature.Discovery.Source(2).Compute(2).Column=6
+Temperature.Discovery.Source(2).Compute(2).Regexp="."
+
+// We are now assuming this sensor has a valid numeric event generation mechanism
+// So blank the condition column to deactivate the parameter
+// ID;Rack;Chassis;Location;Temperature;WarningThreshold;Condition
+Temperature.Discovery.Source(2).Compute(3).Type="Replace"
+Temperature.Discovery.Source(2).Compute(3).Column=7
+Temperature.Discovery.Source(2).Compute(3).Replace=Column(7)
+Temperature.Discovery.Source(2).Compute(3).ReplaceBy=""
+
+// Now filter to find sensors without a valid numeric event generation mechanism
+// Take a copy of Source 1
+// ID;Rack;Chassis;Location;Temperature;WarningThreshold;Condition
+Temperature.Discovery.Source(3)=%Temperature.Discovery.Source(1)%
+
+// Exclude Sensors that have a valid WarningThreshold (these will be in Source 2)
+// ID;Rack;Chassis;Location;Temperature;WarningThreshold;Condition
+Temperature.Discovery.Source(3).Compute(1).Type="ExcludeMatchingLines"
+Temperature.Discovery.Source(3).Compute(1).Column=6
+Temperature.Discovery.Source(3).Compute(1).RegExp="."
+
+//keep only sensors with a valid condition
+// ID;Rack;Chassis;Location;Temperature;WarningThreshold;Condition
+Temperature.Discovery.Source(3).Compute(2).Type="KeepOnlyMatchingLines"
+Temperature.Discovery.Source(3).Compute(2).Column=7
+Temperature.Discovery.Source(3).Compute(2).RegExp="."
+
+// Source 4 = Union of 2 (sensors with a temperature and threshold) and 3 (sensors without a threshold)
+// ID;Rack;Chassis;Location;Temperature;WarningThreshold;Condition
+Temperature.Discovery.Source(4).Type="TableUnion"
+Temperature.Discovery.Source(4).Table1=%Temperature.Discovery.Source(2)%
+Temperature.Discovery.Source(4).Table2=%Temperature.Discovery.Source(3)%
+
+
+// InstanceTable = Source(4)
+// ID;Rack;Chassis;Location;Temperature;WarningThreshold;Condition
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(4)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Temperature.Discovery.Instance.TemperatureType=InstanceTable.Column(4)
+Temperature.Discovery.Instance.WarningThreshold=InstanceTable.Column(6)
+Temperature.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+Temperature.Discovery.Instance.AttachedToDeviceType="Computer"
+Temperature.Discovery.Instance.ParameterActivation.Status=InstanceTable.Column(7)
+Temperature.Discovery.Instance.ParameterActivation.Temperature=InstanceTable.Column(5)
+
+
+//
+// Temperature collect
+
+// Collect type is "multi-instance"
+Temperature.Collect.Type="MultiInstance"
+
+// Source(1) = cpqRackCommonEnclosureTempTable SNMP table
+// ID;Temperature;Condition
+Temperature.Collect.Source(1).Type="SnmpTable"
+Temperature.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.232.22.2.3.1.2.1"
+Temperature.Collect.Source(1).SnmpTableSelectColumns="ID,6,8"
+
+// Duplicate the Condition column
+// ID;Temperature;Condition;Condition
+Temperature.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Temperature.Collect.Source(1).Compute(1).Column="3"
+
+// Translate Condition into a PATROL Status
+// ID;PATROLStatus;Condition
+Temperature.Collect.Source(1).Compute(2).Type="Translate"
+Temperature.Collect.Source(1).Compute(2).Column="3"
+Temperature.Collect.Source(1).Compute(2).TranslationTable="TemperatureStatusTranslationTable"
+
+// The TemperatureStatusTranslationTable
+// Status of 1 is Unknown.  Any sensor with a status of unknown will have its status parameter deactivated
+// We are setting it to "" here due to the PM still activating and taking this value into consideration.
+TemperatureStatusTranslationTable(1)=""
+TemperatureStatusTranslationTable(2)="OK"
+TemperatureStatusTranslationTable(3)="WARN"
+TemperatureStatusTranslationTable(4)="ALARM"
+TemperatureStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate the 2nd Condition column into a more readable string
+// ID;PATROLStatus;statusInformation
+Temperature.Collect.Source(1).Compute(3).Type="Translate"
+Temperature.Collect.Source(1).Compute(3).Column="4"
+Temperature.Collect.Source(1).Compute(3).TranslationTable="TemperatureStatusInformationTranslationTable"
+
+// The TemperatureStatusInformationTranslationTable
+TemperatureStatusInformationTranslationTable(1)=""
+TemperatureStatusInformationTranslationTable(2)=""
+TemperatureStatusInformationTranslationTable(3)="Too Hot"
+TemperatureStatusInformationTranslationTable(4)="Critically Too Hot"
+TemperatureStatusInformationTranslationTable(Default)="Unknown Status"
+
+// The ValueTable
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.DeviceID=ValueTable.Column(1)
+Temperature.Collect.Temperature=ValueTable.Column(2)
+Temperature.Collect.Status=ValueTable.Column(3)
+Temperature.Collect.StatusInformation=ValueTable.Column(4)
+
+
+//
+// FANS
+
+// Fan discovery
+
+// Source(1) = cpqRackCommonEnclosureFanTable SNMP table
+// ID;Rack;Chassis;Location;Present
+Fan.Discovery.Source(1).Type="SnmpTable"
+Fan.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.232.22.2.3.1.3.1"
+Fan.Discovery.Source(1).SnmpTableSelectColumns="ID,1,2,5,8"
+
+// Keep only "present" fans
+// ID;Rack;Chassis;Location;Present
+Fan.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Fan.Discovery.Source(1).Compute(1).Column="5"
+Fan.Discovery.Source(1).Compute(1).ValueList="3"
+
+// Now, build the enclosure ID (for attachment) from Rack and Chassis
+// ID;Rack.;Chassis;Location;Present
+Fan.Discovery.Source(1).Compute(2).Type="RightConcat"
+Fan.Discovery.Source(1).Compute(2).Column="2"
+Fan.Discovery.Source(1).Compute(2).String="/"
+
+// ID;EnclosureID;Chassis;Location;Present
+Fan.Discovery.Source(1).Compute(3).Type="RightConcat"
+Fan.Discovery.Source(1).Compute(3).Column="2"
+Fan.Discovery.Source(1).Compute(3).String=Column(3)
+
+// InstanceTable = Source(1)
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Fan.Discovery.Instance.FanType=InstanceTable.Column(4)
+Fan.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+Fan.Discovery.Instance.AttachedToDeviceType="Computer"
+
+//
+// Fan collect
+
+// Collect type is "multi-instance"
+Fan.Collect.Type="MultiInstance"
+
+// Source(1) = cpqRackCommonEnclosureFanTable SNMP table
+// ID;Condition
+Fan.Collect.Source(1).Type="SnmpTable"
+Fan.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.232.22.2.3.1.3.1"
+Fan.Collect.Source(1).SnmpTableSelectColumns="ID,11"
+
+// Duplicate the Condition column
+// ID;Condition;Condition
+Fan.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Fan.Collect.Source(1).Compute(1).Column="2"
+
+// Translate Condition into a PATROL Status
+// ID;PATROLStatus;Condition
+Fan.Collect.Source(1).Compute(2).Type="Translate"
+Fan.Collect.Source(1).Compute(2).Column="2"
+Fan.Collect.Source(1).Compute(2).TranslationTable="FanStatusTranslationTable"
+
+// The FanStatusTranslationTable
+FanStatusTranslationTable(2)="OK"
+FanStatusTranslationTable(3)="WARN"
+FanStatusTranslationTable(4)="ALARM"
+FanStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate the 2nd Condition column into a more readable string
+// ID;PATROLStatus;statusInformation
+Fan.Collect.Source(1).Compute(3).Type="Translate"
+Fan.Collect.Source(1).Compute(3).Column="3"
+Fan.Collect.Source(1).Compute(3).TranslationTable="FanStatusInformationTranslationTable"
+
+// The OtherDeviceStatusInformationTranslationTable
+FanStatusInformationTranslationTable(2)=""
+FanStatusInformationTranslationTable(3)="Degraded"
+FanStatusInformationTranslationTable(4)="Failed"
+FanStatusInformationTranslationTable(Default)="Unknown Status"
+
+// The ValueTable
+Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+Fan.Collect.DeviceID=ValueTable.Column(1)
+Fan.Collect.Status=ValueTable.Column(2)
+Fan.Collect.StatusInformation=ValueTable.Column(3)
+
+
+// VOLTAGES
+
+// No voltage
+
+//
+// POWER SUPPLIES
+//
+
+//
+// Power Supply discovery
+
+// Source(1) = cpqRackPowerSupplyEntry SNMP table
+// ID;Rack;Chassis;PowerMax;Present
+PowerSupply.Discovery.Source(1).Type="SnmpTable"
+PowerSupply.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.232.22.2.5.1.1.1"
+PowerSupply.Discovery.Source(1).SnmpTableSelectColumns="ID,1,2,9,16"
+
+// Keep only "present" power supplies
+// ID;Rack;Chassis;PowerMax;Present
+PowerSupply.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+PowerSupply.Discovery.Source(1).Compute(1).Column="5"
+PowerSupply.Discovery.Source(1).Compute(1).ValueList="3"
+
+// Now, build the enclosure ID (for attachment) from Rack and Chassis
+// ID;Rack.;Chassis;PowerMax;Present
+PowerSupply.Discovery.Source(1).Compute(2).Type="RightConcat"
+PowerSupply.Discovery.Source(1).Compute(2).Column="2"
+PowerSupply.Discovery.Source(1).Compute(2).String="/"
+
+// ID;EnclosureID;Chassis;PowerMax;Present
+PowerSupply.Discovery.Source(1).Compute(3).Type="RightConcat"
+PowerSupply.Discovery.Source(1).Compute(3).Column="2"
+PowerSupply.Discovery.Source(1).Compute(3).String=Column(3)
+
+// Remove "-1" in PowerMax column
+PowerSupply.Discovery.Source(1).Compute(4).Type="Replace"
+PowerSupply.Discovery.Source(1).Compute(4).Column="4"
+PowerSupply.Discovery.Source(1).Compute(4).Replace="-1"
+PowerSupply.Discovery.Source(1).Compute(4).ReplaceBy=""
+
+// InstanceTable = Source(1)
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PowerSupply.Discovery.Instance.PowerSupplyPower=InstanceTable.Column(4)
+PowerSupply.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+PowerSupply.Discovery.Instance.AttachedToDeviceType="Computer"
+
+//
+// Power Supply collect
+
+// Collect type is "multi-instance"
+PowerSupply.Collect.Type="MultiInstance"
+
+// Source(1) = cpqRackPowerSupplyEntry SNMP table
+// ID;PowerUsed;StatusInformationCode;Condition
+PowerSupply.Collect.Source(1).Type="SnmpTable"
+PowerSupply.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.232.22.2.5.1.1.1"
+PowerSupply.Collect.Source(1).SnmpTableSelectColumns="ID,10,14,17"
+
+// Translate Condition into a PATROL Status
+// ID;PowerUsed;StatusInformationCode;Status
+PowerSupply.Collect.Source(1).Compute(1).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(1).Column="4"
+PowerSupply.Collect.Source(1).Compute(1).TranslationTable="PowerSupplyStatusTranslationTable"
+
+// The PowerSupplyStatusTranslationTable
+PowerSupplyStatusTranslationTable(2)="OK"
+PowerSupplyStatusTranslationTable(3)="WARN"
+PowerSupplyStatusTranslationTable(4)="ALARM"
+PowerSupplyStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate StatusInformationCode into a more readable string
+// ID;PowerUsed;StatusInformation;Status
+PowerSupply.Collect.Source(1).Compute(2).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(2).Column="3"
+PowerSupply.Collect.Source(1).Compute(2).TranslationTable="PowerSupplyStatusInformationTranslationTable"
+
+// The PowerSupplyStatusInformationTranslationTable
+PowerSupplyStatusInformationTranslationTable(1)=""
+PowerSupplyStatusInformationTranslationTable(2)="General Failure"
+PowerSupplyStatusInformationTranslationTable(3)="Bist Failure"
+PowerSupplyStatusInformationTranslationTable(4)="Fan Failure"
+PowerSupplyStatusInformationTranslationTable(5)="Temperature Failure"
+PowerSupplyStatusInformationTranslationTable(6)="Interlock Open"
+PowerSupplyStatusInformationTranslationTable(7)="Eprom Failed"
+PowerSupplyStatusInformationTranslationTable(8)="VRef Failed"
+PowerSupplyStatusInformationTranslationTable(9)="DAC Failed"
+PowerSupplyStatusInformationTranslationTable(10)="RAM Test Failed"
+PowerSupplyStatusInformationTranslationTable(11)="Voltage Channel Failed"
+PowerSupplyStatusInformationTranslationTable(12)="Orring Diode Failed"
+PowerSupplyStatusInformationTranslationTable(13)="Brown-Out"
+PowerSupplyStatusInformationTranslationTable(14)="Give Up On Startup"
+PowerSupplyStatusInformationTranslationTable(15)="NVRAM Invalid"
+PowerSupplyStatusInformationTranslationTable(16)="Calibration Table Invalid"
+PowerSupplyStatusInformationTranslationTable(Default)="Unknown Status"
+
+// Remove "-1" in PowerUsed column
+PowerSupply.Collect.Source(1).Compute(3).Type="Replace"
+PowerSupply.Collect.Source(1).Compute(3).Column="2"
+PowerSupply.Collect.Source(1).Compute(3).Replace="-1"
+PowerSupply.Collect.Source(1).Compute(3).ReplaceBy=""
+
+// The ValueTable
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(1)
+PowerSupply.Collect.Status=ValueTable.Column(4)
+PowerSupply.Collect.StatusInformation=ValueTable.Column(3)
+//PowerSupply.Collect.UsedWatts=ValueTable.Column(2)
+
+
+//
+// BLADES
+//
+
+//
+// Discovery
+
+// Source(1) = cpqRackServerBladeTable SNMP Table
+// DeviceID;Rack;Chassis;BladeName;Present;SerialNumber;Model;
+Blade.Discovery.Source(1).Type="SnmpTable"
+Blade.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.232.22.2.4.1.1.1"
+Blade.Discovery.Source(1).SnmpTableSelectColumns="ID,1,2,4,12,16,17"
+
+// Keep only present blades
+// DeviceID;Rack;Chassis;BladeName;Present;SerialNumber;Model;
+Blade.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Blade.Discovery.Source(1).Compute(1).Column=5
+Blade.Discovery.Source(1).Compute(1).ValueList="3"
+
+// Concat Rack and Chassis to make up the EnclosureID
+// DeviceID;EnclosureID;Chassis;BladeName;Present;SerialNumber;Model;
+Blade.Discovery.Source(1).Compute(2).Type="RightConcat"
+Blade.Discovery.Source(1).Compute(2).Column=2
+Blade.Discovery.Source(1).Compute(2).String="/"
+
+Blade.Discovery.Source(1).Compute(3).Type="RightConcat"
+Blade.Discovery.Source(1).Compute(3).Column=2
+Blade.Discovery.Source(1).Compute(3).String=Column(3)
+
+// InstanceTable = Source(1)
+Blade.Discovery.InstanceTable=%Blade.Discovery.Source(1)%
+Blade.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Blade.Discovery.Instance.BladeName=InstanceTable.Column(4)
+Blade.Discovery.Instance.BladeModel=InstanceTable.Column(7)
+Blade.Discovery.Instance.SerialNumber=InstanceTable.Column(6)
+Blade.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+Blade.Discovery.Instance.AttachedToDeviceType="Computer"
+
+
+//
+// Collect
+
+// Collect type is "multi-instance"
+Blade.Collect.Type="MultiInstance"
+
+// Source(1) = cqpRackServerBladeTable SNMP Table
+// DeviceID;BladeStatus;BladePowered;
+Blade.Collect.Source(1).Type="SnmpTable"
+Blade.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.232.22.2.4.1.1.1"
+Blade.Collect.Source(1).SnmpTableSelectColumns="ID,21,25"
+
+// Duplicate the BladeStatus column
+// DeviceID;BladeStatus;BladeStatus;BladePowered;
+Blade.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Blade.Collect.Source(1).Compute(1).Column=2
+
+// Translate the first BladeStatus column into a PATROL Status
+// DeviceID;PATROLStatus;BladeStatus;BladePowered;
+Blade.Collect.Source(1).Compute(2).Type="Translate"
+Blade.Collect.Source(1).Compute(2).Column=2
+Blade.Collect.Source(1).Compute(2).TranslationTable="BladeStatusTranslationTable"
+
+// The BladeStatusTranslationTable
+BladeStatusTranslationTable(1)="OK"
+BladeStatusTranslationTable(2)="OK"
+BladeStatusTranslationTable(3)="WARN"
+BladeStatusTranslationTable(4)="ALARM"
+BladeStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate the second BladeStatus column into a more readable string
+// DeviceID;PATROLStatus;StatusInformation;BladePowered;
+Blade.Collect.Source(1).Compute(3).Type="Translate"
+Blade.Collect.Source(1).Compute(3).Column=3
+Blade.Collect.Source(1).Compute(3).TranslationTable="BladeStatusInformationTranslationTable"
+
+// The BladeStatusInformationTranslationTable
+BladeStatusInformationTranslationTable(1)=""
+BladeStatusInformationTranslationTable(2)=""
+BladeStatusInformationTranslationTable(3)="Degraded"
+BladeStatusInformationTranslationTable(4)="Failed"
+BladeStatusInformationTranslationTable(Default)="Unknown Status"
+
+// Translate the BladePowered column
+// DeviceID;PATROLStatus;StatusInformation;PowerState;
+Blade.Collect.Source(1).Compute(4).Type="Translate"
+Blade.Collect.Source(1).Compute(4).Column=4
+Blade.Collect.Source(1).Compute(4).TranslationTable="BladePowerStateTranslationTable"
+
+// The BladeStatusInformationTranslationTable
+BladePowerStateTranslationTable(1)=""
+BladePowerStateTranslationTable(2)="on"
+BladePowerStateTranslationTable(3)="off"
+BladePowerStateTranslationTable(4)="off"
+BladePowerStateTranslationTable(5)=""
+BladePowerStateTranslationTable(Default)=""
+
+
+// ValueTable = Source(1)
+Blade.Collect.ValueTable=%Blade.Collect.Source(1)%
+Blade.Collect.DeviceID=ValueTable.Column(1)
+Blade.Collect.Status=ValueTable.Column(2)
+Blade.Collect.StatusInformation=ValueTable.Column(3)
+Blade.Collect.PowerState=ValueTable.Column(4)
+
+
+//
+// FUSES and SWITCHES (O T H E R _ D E V I C E)
+//
+
+//
+// Fuses and switches discovery
+
+// Source(1) = cpqRackCommonEnclosureFuseTable SNMP table
+// ID;Rack;Chassis;Location;Present
+OtherDevice.Discovery.Source(1).Type="SnmpTable"
+OtherDevice.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.232.22.2.3.1.4.1"
+OtherDevice.Discovery.Source(1).SnmpTableSelectColumns="ID,1,2,5,6"
+
+// Keep only "present" fuses
+// ID;Rack;Chassis;Location;Present
+OtherDevice.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+OtherDevice.Discovery.Source(1).Compute(1).Column="5"
+OtherDevice.Discovery.Source(1).Compute(1).ValueList="3"
+
+// Now, build the enclosure ID (for attachment) from Rack and Chassis
+// ID;Rack.;Chassis;Location;Present
+OtherDevice.Discovery.Source(1).Compute(2).Type="RightConcat"
+OtherDevice.Discovery.Source(1).Compute(2).Column="2"
+OtherDevice.Discovery.Source(1).Compute(2).String="/"
+
+// ID;EnclosureID;Chassis;Location;Present
+OtherDevice.Discovery.Source(1).Compute(3).Type="RightConcat"
+OtherDevice.Discovery.Source(1).Compute(3).Column="2"
+OtherDevice.Discovery.Source(1).Compute(3).String=Column(3)
+
+// Add "Fuse" before the Fuse ID (so that we won't get confused with switch objects)
+// Fuse_ID;EnclosureID;Chassis;Location;Present
+OtherDevice.Discovery.Source(1).Compute(4).Type="LeftConcat"
+OtherDevice.Discovery.Source(1).Compute(4).Column=1
+OtherDevice.Discovery.Source(1).Compute(4).String="MSHW_Fuse_ID_"
+
+// Now, add "Fuse" as the device type
+// Fuse_ID;EnclosureID;Chassis;DeviceType;Location;Present
+OtherDevice.Discovery.Source(1).Compute(5).Type="RightConcat"
+OtherDevice.Discovery.Source(1).Compute(5).Column=3
+OtherDevice.Discovery.Source(1).Compute(5).String=";Fuse"
+
+// Keep only useful columns (no "Present")
+// Fuse_ID;EnclosureID;DeviceType;AdditionalLabel;
+OtherDevice.Discovery.Source(1).Compute(6).Type="KeepColumns"
+OtherDevice.Discovery.Source(1).Compute(6).ColumnNumbers="1,2,4,5"
+
+
+// Source(2) = cpqRackNetConnectorTable SNMP Table
+// ID;Rack;Chassis;Model;Present;
+OtherDevice.Discovery.Source(2).Type="SnmpTable"
+OtherDevice.Discovery.Source(2).SnmpTableOid="1.3.6.1.4.1.232.22.2.6.1.1.1"
+OtherDevice.Discovery.Source(2).SnmpTableSelectColumns="ID,1,2,6,13"
+
+// Keep only present switches
+// ID;Rack;Chassis;Model;Present;
+OtherDevice.Discovery.Source(2).Compute(1).Type="KeepOnlyMatchingLines"
+OtherDevice.Discovery.Source(2).Compute(1).Column=5
+OtherDevice.Discovery.Source(2).Compute(1).ValueList="3"
+
+// Now, build the enclosure ID (for attachment) from Rack and Chassis
+// ID;EnclosureID;Chassis;Model;Present;
+OtherDevice.Discovery.Source(2).Compute(2).Type="RightConcat"
+OtherDevice.Discovery.Source(2).Compute(2).Column="2"
+OtherDevice.Discovery.Source(2).Compute(2).String="/"
+
+OtherDevice.Discovery.Source(2).Compute(3).Type="RightConcat"
+OtherDevice.Discovery.Source(2).Compute(3).Column="2"
+OtherDevice.Discovery.Source(2).Compute(3).String=Column(3)
+
+// Add "Switch" before the switch ID (so that we won't get confused with switch objects)
+// Switch_ID;EnclosureID;Chassis;Model;Present;
+OtherDevice.Discovery.Source(2).Compute(4).Type="LeftConcat"
+OtherDevice.Discovery.Source(2).Compute(4).Column=1
+OtherDevice.Discovery.Source(2).Compute(4).String="SW"
+
+// Now, add "Switch" as the device type
+// Switch_ID;EnclosureID;Chassis;DeviceType;Model;Present
+OtherDevice.Discovery.Source(2).Compute(5).Type="RightConcat"
+OtherDevice.Discovery.Source(2).Compute(5).Column=3
+OtherDevice.Discovery.Source(2).Compute(5).String=";Switch"
+
+// Keep only useful columns (no "Present")
+// Switch_ID;EnclosureID;DeviceType;Model;
+OtherDevice.Discovery.Source(2).Compute(6).Type="KeepColumns"
+OtherDevice.Discovery.Source(2).Compute(6).ColumnNumbers="1,2,4,5"
+
+
+// Source(3) = Table union of Source(1) and Source(2)
+// ID;EnclosureID;DeviceType;Model;
+OtherDevice.Discovery.Source(3).Type="TableUnion"
+OtherDevice.Discovery.Source(3).Table1=%OtherDevice.Discovery.Source(1)%
+OtherDevice.Discovery.Source(3).Table2=%OtherDevice.Discovery.Source(2)%
+
+
+// InstanceTable = Source(3)
+OtherDevice.Discovery.InstanceTable=%OtherDevice.Discovery.Source(3)%
+OtherDevice.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+OtherDevice.Discovery.Instance.AdditionalLabel=InstanceTable.Column(4)
+OtherDevice.Discovery.Instance.DeviceType=InstanceTable.Column(3)
+OtherDevice.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+OtherDevice.Discovery.Instance.AttachedToDeviceType="Computer"
+
+
+//
+// Fuse & switch collect
+
+// Collect type is "multi-instance"
+OtherDevice.Collect.Type="MultiInstance"
+
+// Source(1) = cpqRackCommonEnclosureFuseTable SNMP table
+// ID;Condition
+OtherDevice.Collect.Source(1).Type="SnmpTable"
+OtherDevice.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.232.22.2.3.1.4.1"
+OtherDevice.Collect.Source(1).SnmpTableSelectColumns="ID,7"
+
+// Add "Fuse" before the Fuse ID (so that we won't get confused with switch objects)
+// Fuse_ID;Condition
+OtherDevice.Collect.Source(1).Compute(1).Type="LeftConcat"
+OtherDevice.Collect.Source(1).Compute(1).Column=1
+OtherDevice.Collect.Source(1).Compute(1).String="MSHW_Fuse_ID_"
+
+// Duplicate the Condition column
+// Fuse_ID;Condition;Condition
+OtherDevice.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+OtherDevice.Collect.Source(1).Compute(2).Column="2"
+
+// Translate Condition into a PATROL Status
+// Fuse_ID;PATROLStatus;Condition
+OtherDevice.Collect.Source(1).Compute(3).Type="Translate"
+OtherDevice.Collect.Source(1).Compute(3).Column="2"
+OtherDevice.Collect.Source(1).Compute(3).TranslationTable="FuseStatusTranslationTable"
+
+// The FuseStatusTranslationTable
+FuseStatusTranslationTable(2)="OK"
+FuseStatusTranslationTable(4)="ALARM"
+FuseStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate the 2nd Condition column into a more readable string
+// Fuse_ID;PATROLStatus;statusInformation
+OtherDevice.Collect.Source(1).Compute(4).Type="Translate"
+OtherDevice.Collect.Source(1).Compute(4).Column="3"
+OtherDevice.Collect.Source(1).Compute(4).TranslationTable="FuseStatusInformationTranslationTable"
+
+// The FuseStatusInformationTranslationTable
+FuseStatusInformationTranslationTable(2)=""
+FuseStatusInformationTranslationTable(4)="Tripped"
+FuseStatusInformationTranslationTable(Default)="Unknown Status"
+
+// Source(2) = cpqRackConnectorTable SNMP Table
+// ID;Present
+OtherDevice.Collect.Source(2).Type="SnmpTable"
+OtherDevice.Collect.Source(2).SnmpTableOid="1.3.6.1.4.1.232.22.2.6.1.1.1"
+OtherDevice.Collect.Source(2).SnmpTableSelectColumns="ID,13"
+
+// Add "VC" before the switch ID (so that we won't get confused with fuse objects)
+// VCID;Condition
+OtherDevice.Collect.Source(2).Compute(1).Type="LeftConcat"
+OtherDevice.Collect.Source(2).Compute(1).Column=1
+OtherDevice.Collect.Source(2).Compute(1).String="SW"
+
+// Duplicate the Condition column
+// VCID;Condition;Condition
+OtherDevice.Collect.Source(2).Compute(2).Type="DuplicateColumn"
+OtherDevice.Collect.Source(2).Compute(2).Column="2"
+
+// Translate Condition into a PATROL Status
+// VCID;PATROLStatus;Condition
+OtherDevice.Collect.Source(2).Compute(3).Type="Translate"
+OtherDevice.Collect.Source(2).Compute(3).Column="2"
+OtherDevice.Collect.Source(2).Compute(3).TranslationTable="VCStatusTranslationTable"
+
+// The VCStatusTranslationTable
+VCStatusTranslationTable(3)="OK"
+VCStatusTranslationTable(2)="ALARM"
+VCStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate the 2nd Condition column into a more readable string
+// VCID;PATROLStatus;statusInformation
+OtherDevice.Collect.Source(2).Compute(4).Type="Translate"
+OtherDevice.Collect.Source(2).Compute(4).Column="3"
+OtherDevice.Collect.Source(2).Compute(4).TranslationTable="VCStatusInformationTranslationTable"
+
+// The VCStatusInformationTranslationTable
+VCStatusInformationTranslationTable(3)=""
+VCStatusInformationTranslationTable(2)="Absent"
+VCStatusInformationTranslationTable(Default)="Unknown Status"
+
+// Source(3) = Table union of Source(1) and Source(2)
+// DeviceID;PATROLStatus;statusInformation
+OtherDevice.Collect.Source(3).Type="TableUnion"
+OtherDevice.Collect.Source(3).Table1=%OtherDevice.Collect.Source(1)%
+OtherDevice.Collect.Source(3).Table2=%OtherDevice.Collect.Source(2)%
+
+
+// The ValueTable
+OtherDevice.Collect.ValueTable=%OtherDevice.Collect.Source(3)%
+OtherDevice.Collect.DeviceID=ValueTable.Column(1)
+OtherDevice.Collect.Status=ValueTable.Column(2)
+OtherDevice.Collect.StatusInformation=ValueTable.Column(3)
+
+
+/////////////////////////////////////////////////////////////
+///
+///    Embedded File 1
+///
+///    AWK script that compute the total power consumption
+///    per chassis
+///
+/////////////////////////////////////////////////////////////
+
+EmbeddedFile(1):
+BEGIN { FS = ";" }
+{
+	enclosureID = $1 "/" $2
+	power[enclosureID] += $3
+}
+END {
+	for (enclosureID in power)
+	{
+		print "MSHW;" enclosureID ";" power[enclosureID]
+	}
+}
+EmbeddedFile(1).End
+///////////////////////////////////////////////////////////////

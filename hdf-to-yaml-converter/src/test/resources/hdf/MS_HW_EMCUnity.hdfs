@@ -1,0 +1,756 @@
+////////////////////////////////////////////////////////////////
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//
+//      Supports: EMC Unity Storage System
+//                Connects to an Embedded SMI-S WBEM agent
+//
+//
+
+// Constants
+#define _COMPUTERSYSTEM_DEDICATED_REGEXP "\(^3|\)\|\(|3|\)\|\(^12|\)\|\(|12|\)\|\(^15|\)\|\(^16|\)\|\(^24|\)\|\(^25|\)"
+#define _FCPORT_TYPE_VALUELIST "10,11,12"
+
+//
+// Header
+//
+
+hdf.DisplayName="EMC Unity SMI-S Agent"
+hdf.TypicalPlatform="EMC Unity"
+hdf.ReliesOn="EMC Unity SMI-S Agent"
+hdf.Version="1.0"
+hdf.Comments="This connector discovers the enclosure and the disks of Unity disk arrays, as well as the storage pools. It will also discover and monitor the FC ports, network cards of the array and the various environment sensors (fans, power supplies, controllers). It relies on the array embedded SMI-S."
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="Storage"
+hdf.LocalSupport="false"
+
+//
+// Detection
+// Verify that there is a CIM_ComputerSystem instance where Dedicated == 3, 12, 15, 16, 24, 25 (Storage)
+//  Storage,  I/O,  Block Server, File Server,  NAS Head,  Self-contained NAS
+
+Detection.Criteria(1).Type="WBEM"
+Detection.Criteria(1).WbemNameSpace=root/emc/smis
+Detection.Criteria(1).WbemQuery="SELECT Dedicated FROM CIM_ComputerSystem"
+Detection.Criteria(1).ExpectedResult="\(^3|\)\|\(|3|\)\|\(^12|\)\|\(|12|\)\|\(^15|\)\|\(^16|\)\|\(^24|\)\|\(^25|\)"
+
+//
+// Enclosure
+//
+
+//
+// Discovery
+
+
+// Source(1) = EMC_VNXe_ArrayChassisLeaf
+// EMC_ArrayChassis;Model;SerialNumber
+Enclosure.Discovery.Source(1).Type="WBEM"
+Enclosure.Discovery.Source(1).WbemQuery="SELECT __PATH,Model,SerialNumber FROM EMC_VNXe_ArrayChassisLeaf"
+Enclosure.Discovery.Source(1).WbemNameSpace="root/emc/smis"
+
+
+// Source(2) = EMC_VNXe_StorageSystem_ArrayChassis_SystemPackagingAssocLeaf (link between EMC_VNXe_ArrayChassisLeaf and EMC_VNXe_StorageSystemLeaf)
+// EMC_ArrayChassis;EMC_StorageSystem;
+Enclosure.Discovery.Source(2).Type="WBEM"
+Enclosure.Discovery.Source(2).WbemQuery="SELECT Antecedent,Dependent FROM EMC_VNXe_StorageSystem_ArrayChassis_SystemPackagingAssocLeaf"
+Enclosure.Discovery.Source(2).WbemNameSpace="root/emc/smis"
+
+
+// Source(3) = EMC_VNXe_StorageSystemLeaf
+// EMC_StorageSystem;ElementName;OtherIdentifyingInfo;HealthState;
+Enclosure.Discovery.Source(3).Type="WBEM"
+Enclosure.Discovery.Source(3).WbemQuery="SELECT __PATH,ElementName,OtherIdentifyingInfo,HealthState FROM EMC_VNXe_StorageSystemLeaf"
+Enclosure.Discovery.Source(3).WbemNameSpace="root/emc/smis"
+
+// Source(4) = EMC_VNXe_ArrayChassisLeaf Source (1) joined to  EMC_VNXe_StorageSystem_ArrayChassis_SystemPackagingAssocLeaf (2)
+// EMC_ArrayChassis;Model;SerialNumber;EMC_ArrayChassis;EMC_StorageSystem;
+Enclosure.Discovery.Source(4).Type="TableJoint"
+Enclosure.Discovery.Source(4).LeftTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Source(4).RightTable=%Enclosure.Discovery.Source(2)%
+Enclosure.Discovery.Source(4).LeftKeyColumn=1
+Enclosure.Discovery.Source(4).RightKeyColumn=1
+Enclosure.Discovery.Source(4).KeyType="Wbem"
+Enclosure.Discovery.Source(4).DefaultRightLine=";;"
+
+// Source(5) = Source (4) joined to EMC_StorageSystem Source (3)
+// EMC_ArrayChassis;Model;SerialNumber;EMC_ArrayChassis;EMC_Storage	System;EMC_StorageSystem;ElementName;OtherIdentifyingInfo;HealthState;
+Enclosure.Discovery.Source(5).Type="TableJoint"
+Enclosure.Discovery.Source(5).LeftTable=%Enclosure.Discovery.Source(4)%
+Enclosure.Discovery.Source(5).RightTable=%Enclosure.Discovery.Source(3)%
+Enclosure.Discovery.Source(5).LeftKeyColumn=5
+Enclosure.Discovery.Source(5).RightKeyColumn=1
+Enclosure.Discovery.Source(5).KeyType="Wbem"
+Enclosure.Discovery.Source(5).DefaultRightLine=";;;;"
+
+
+// InstanceTable = Source()
+// EMC_ArrayChassis;Model;SerialNumber;EMC_ArrayChassis;EMC_StorageSystem;EMC_StorageSystem;ElementName;OtherIdentifyingInfo;HealthState;
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(5)%
+Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+Enclosure.Discovery.Instance.DisplayID=InstanceTable.Column(7)
+Enclosure.Discovery.Instance.Vendor="EMC"
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(2)
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(3)
+Enclosure.Discovery.Instance.Type="Storage"
+Enclosure.Discovery.Instance.ParameterActivation.Status=InstanceTable.Column(9)
+
+//
+// Collect
+
+// Collect type is multiinstance
+Enclosure.Collect.Type="MultiInstance"
+
+
+// Source(1) = EMC_VNXe_StorageSystemLeaf
+//name is the serial number so using it for the serial number
+// Name;HealthState;
+Enclosure.Collect.Source(1).Type="Wbem"
+Enclosure.Collect.Source(1).WbemQuery="SELECT Name,HealthState FROM EMC_VNXe_StorageSystemLeaf"
+Enclosure.Collect.Source(1).WbemNamespace="root/emc/smis"
+
+// Duplicate the "HealthStateArray" column
+// EMC_StorageSystem;HealthStateArray;HealthStateArray;
+Enclosure.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Enclosure.Collect.Source(1).Compute(1).Column=2
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// EMC_StorageSystem;PATROLStatusArray;Status
+Enclosure.Collect.Source(1).Compute(2).Type="Translate"
+Enclosure.Collect.Source(1).Compute(2).Column=2
+Enclosure.Collect.Source(1).Compute(2).TranslationTable="statusTranslationTable"
+
+// And finally, we translate DMTF's HealthState code into a more readable status string
+// EMC_StorageSystem;PATROLStatusArray;StatusInformation
+Enclosure.Collect.Source(1).Compute(3).Type="Translate"
+Enclosure.Collect.Source(1).Compute(3).Column=3
+Enclosure.Collect.Source(1).Compute(3).TranslationTable="statusInformationTranslationTable"
+
+
+// ValueTable = Source(1)
+Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(1)%
+Enclosure.Collect.DeviceID=ValueTable.Column(1)
+Enclosure.Collect.Status=ValueTable.Column(2)
+Enclosure.Collect.StatusInformation=ValueTable.Column(3)
+
+//
+// FC Ports ("Network cards")
+//
+
+// Source(1) = CIM_FCPort
+// PortID;PortTypeCode;Speed;PermanentAddress;EnabledState;ElementName;
+NetworkCard.Discovery.Source(1).Type="WBEM"
+NetworkCard.Discovery.Source(1).WbemQuery="SELECT DeviceID,PortType,Speed,PermanentAddress,EnabledState,ElementName FROM CIM_FCPort"
+NetworkCard.Discovery.Source(1).WbemNameSpace=root/emc/smis
+
+// Keep only "internal" ports (no ports that actually are remote ports of servers or disk arrays)
+// PortID;PortTypeCode;Speed;PermanentAddress;EnabledState;ElementName;
+NetworkCard.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+NetworkCard.Discovery.Source(1).Compute(1).Column=2
+NetworkCard.Discovery.Source(1).Compute(1).ValueList=_FCPORT_TYPE_VALUELIST
+
+// Keep only activated ports
+// PortID;PortTypeCode;Speed;PermanentAddress;EnabledState;ElementName;
+NetworkCard.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+NetworkCard.Discovery.Source(1).Compute(2).Column=5
+NetworkCard.Discovery.Source(1).Compute(2).ValueList="3"
+
+// Translate PortType into a more readable string
+// PortID;PortType;Speed;PermanentAddress;EnabledState;ElementName;
+NetworkCard.Discovery.Source(1).Compute(3).Type="Translate"
+NetworkCard.Discovery.Source(1).Compute(3).Column=2
+NetworkCard.Discovery.Source(1).Compute(3).TranslationTable="PortTypeTranslationTable"
+
+// The PortTypeTranslationTable
+PortTypeTranslationTable(10)="FC Port N"
+PortTypeTranslationTable(11)="FC Port NL"
+PortTypeTranslationTable(12)="FC Port F/NL"
+PortTypeTranslationTable(13)="FC Port Nx"
+PortTypeTranslationTable(14)="FC Port E"
+PortTypeTranslationTable(15)="FC Port F"
+PortTypeTranslationTable(16)="FC Port FL"
+PortTypeTranslationTable(17)="FC Port B"
+PortTypeTranslationTable(18)="FC Port G"
+PortTypeTranslationTable(19)="FC Port GL"
+PortTypeTranslationTable(Default)="FC Port"
+
+// Convert Speed from bps to Mbps (divide by 1000000)
+// PortID;PortType;SpeedMbps;PermanentAddress;EnabledState;ElementName;
+NetworkCard.Discovery.Source(1).Compute(4).Type="Divide"
+NetworkCard.Discovery.Source(1).Compute(4).Column=3
+NetworkCard.Discovery.Source(1).Compute(4).DivideBy=1000000
+
+// PortID;PortTypeCode;Speed;PermanentAddress;EnabledState;ElementName;
+NetworkCard.Discovery.Source(2).Type="WBEM"
+NetworkCard.Discovery.Source(2).WbemQuery="SELECT DeviceID,PortType,Speed,PermanentAddress,EnabledState,ElementName FROM CIM_EthernetPort"
+NetworkCard.Discovery.Source(2).WbemNameSpace=root/emc/smis
+
+// Keep only activated ports
+// PortID;PortTypeCode;Speed;PermanentAddress;EnabledState;ElementName;
+NetworkCard.Discovery.Source(2).Compute(1).Type="ExcludeMatchingLines"
+NetworkCard.Discovery.Source(2).Compute(1).Column=5
+NetworkCard.Discovery.Source(2).Compute(1).ValueList="3"
+
+// Translate PortType into a more readable string
+// PortID;PortType;Speed;PermanentAddress;EnabledState;ElementName;
+NetworkCard.Discovery.Source(2).Compute(2).Type="Translate"
+NetworkCard.Discovery.Source(2).Compute(2).Column=2
+NetworkCard.Discovery.Source(2).Compute(2).TranslationTable="EthernetPortTypeTranslationTable"
+
+// The EthernetPortTypeTranslationTable
+EthernetPortTypeTranslationTable(50)="10 BaseT"
+EthernetPortTypeTranslationTable(51)="10-100 BaseT"
+EthernetPortTypeTranslationTable(52)="100 BaseT"
+EthernetPortTypeTranslationTable(53)="1000 BaseT"
+EthernetPortTypeTranslationTable(54)="2500 BaseT"
+EthernetPortTypeTranslationTable(55)="10G BaseT"
+EthernetPortTypeTranslationTable(56)="10G BaseCX4"
+EthernetPortTypeTranslationTable(Default)="Ethernet Port"
+
+// Convert Speed from bps to Mbps (divide by 1000000)
+// PortID;PortType;SpeedMbps;PermanentAddress;EnabledState;ElementName;
+NetworkCard.Discovery.Source(2).Compute(3).Type="Divide"
+NetworkCard.Discovery.Source(2).Compute(3).Column=3
+NetworkCard.Discovery.Source(2).Compute(3).DivideBy=1000000
+
+//Merging FC port and Ethernet port
+NetworkCard.Discovery.Source(3).Type="TableUnion"
+NetworkCard.Discovery.Source(3).Table1=%NetworkCard.Discovery.Source(1)%
+NetworkCard.Discovery.Source(3).Table3=%NetworkCard.Discovery.Source(2)%
+
+// InstanceTable = Source(5)
+// PortID;PortType;Speed;PermanentAddress;EnabledState;ElementName
+NetworkCard.Discovery.InstanceTable=%NetworkCard.Discovery.Source(3)%
+NetworkCard.Discovery.Instance.DisplayID=InstanceTable.Column(6)
+NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+NetworkCard.Discovery.Instance.PhysicalAddress=InstanceTable.Column(4)
+NetworkCard.Discovery.Instance.PhysicalAddressType="WWN"
+NetworkCard.Discovery.Instance.DeviceType=InstanceTable.Column(2)
+
+//
+// Collect
+
+// The NetworkCard collect is a "MultiInstance" collect
+NetworkCard.Collect.Type="MultiInstance"
+
+// Source(1) = CIM_FCPort
+// PortID;PortTypeCode;EnabledState;Speed;HealthStateArray
+NetworkCard.Collect.Source(1).Type="WBEM"
+NetworkCard.Collect.Source(1).WbemQuery="SELECT DeviceID,PortType,EnabledState,Speed,HealthState FROM CIM_FCPort"
+NetworkCard.Collect.Source(1).WbemNameSpace=root/emc/smis
+
+// Keep only "internal" ports (no ports that actually are remote ports of servers or disk arrays)
+// PortID;PortTypeCode;EnabledState;Speed;HealthStateArray
+NetworkCard.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+NetworkCard.Collect.Source(1).Compute(1).Column=2
+NetworkCard.Collect.Source(1).Compute(1).ValueList=_FCPORT_TYPE_VALUELIST
+
+// Keep only activated ports
+// PortID;PortTypeCode;EnabledState;Speed;HealthStateArray
+NetworkCard.Collect.Source(1).Compute(2).Type="ExcludeMatchingLines"
+NetworkCard.Collect.Source(1).Compute(2).Column=3
+NetworkCard.Collect.Source(1).Compute(2).ValueList="3"
+
+// Duplicate the "HealthStateArray" column
+// PortID;PortTypeCode;EnabledState;Speed;HealthStateArray;HealthStateArray;
+NetworkCard.Collect.Source(1).Compute(3).Type="DuplicateColumn"
+NetworkCard.Collect.Source(1).Compute(3).Column=5
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// PortID;PortTypeCode;EnabledState;Speed;PATROLStatusArray;Status
+NetworkCard.Collect.Source(1).Compute(4).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(4).Column=5
+NetworkCard.Collect.Source(1).Compute(4).TranslationTable="statusTranslationTable"
+
+// And finally, we translate DMTF's HealthState code into a more readable status string
+// PortID;PortTypeCode;EnabledState;Speed;PATROLStatusArray;StatusInformation
+NetworkCard.Collect.Source(1).Compute(5).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(5).Column=6
+NetworkCard.Collect.Source(1).Compute(5).TranslationTable="statusInformationTranslationTable"
+
+//duplicate the speed into in order to check the linkstatus
+// PortID;PortTypeCode;EnabledState;Speed;LinkStatus;HealthStateArray;HealthStateArray;
+NetworkCard.Collect.Source(1).Compute(6).Type="DuplicateColumn"
+NetworkCard.Collect.Source(1).Compute(6).Column=4
+
+//convert the link speed into mbs
+// PortID;PortTypeCode;EnabledState;Speed;LinkStatus;HealthStateArray;HealthStateArray;
+NetworkCard.Collect.Source(1).Compute(7).Type="Divide"
+NetworkCard.Collect.Source(1).Compute(7).Column=4
+NetworkCard.Collect.Source(1).Compute(7).DivideBy=1000000
+
+// Finally, we check whether we have a 'Speed' number, meaning that the link is up
+// Otherwise, if no speed, it means that the link is down
+// PortID;PortTypeCode;EnabledState;Speed;LinkStatus;PATROLStatusArray;Status
+NetworkCard.Collect.Source(1).Compute(8).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(8).Column=5
+NetworkCard.Collect.Source(1).Compute(8).TranslationTable="SpeedToLinkStatusTranslationTable"
+
+// The SpeedToLinkStatusTranslationTable
+SpeedToLinkStatusTranslationTable(0)="WARN"
+SpeedToLinkStatusTranslationTable("")="WARN"
+SpeedToLinkStatusTranslationTable(Default)="OK"
+
+// Source(2) = CIM_EthernetPort
+// PortID;PortTypeCode;EnabledState;Speed;HealthStateArray
+NetworkCard.Collect.Source(2).Type="WBEM"
+NetworkCard.Collect.Source(2).WbemQuery="SELECT DeviceID,PortType,EnabledState,Speed,HealthState FROM CIM_EthernetPort"
+NetworkCard.Collect.Source(2).WbemNameSpace=root/emc/smis
+
+
+// Keep only activated ports
+// PortID;PortTypeCode;EnabledState;Speed;HealthStateArray
+NetworkCard.Collect.Source(2).Compute(1).Type="ExcludeMatchingLines"
+NetworkCard.Collect.Source(2).Compute(1).Column=3
+NetworkCard.Collect.Source(2).Compute(1).ValueList="3"
+
+// Duplicate the "HealthStateArray" column
+// PortID;PortTypeCode;EnabledState;Speed;HealthStateArray;HealthStateArray;
+NetworkCard.Collect.Source(2).Compute(2).Type="DuplicateColumn"
+NetworkCard.Collect.Source(2).Compute(2).Column=5
+
+// Then we translate DMTF's HealthState code into OK/WARN/ALARM (for the Status parameter)
+// PortID;PortTypeCode;EnabledState;Speed;PATROLStatusArray;Status
+NetworkCard.Collect.Source(2).Compute(3).Type="Translate"
+NetworkCard.Collect.Source(2).Compute(3).Column=5
+NetworkCard.Collect.Source(2).Compute(3).TranslationTable="statusTranslationTable"
+
+// And finally, we translate DMTF's HealthState code into a more readable status string
+// PortID;PortTypeCode;EnabledState;Speed;PATROLStatusArray;StatusInformation
+NetworkCard.Collect.Source(2).Compute(4).Type="Translate"
+NetworkCard.Collect.Source(2).Compute(4).Column=6
+NetworkCard.Collect.Source(2).Compute(4).TranslationTable="statusInformationTranslationTable"
+
+
+//duplicate the speed into in order to check the linkstatus
+// PortID;PortTypeCode;EnabledState;Speed;LinkStatus;HealthStateArray;HealthStateArray;
+NetworkCard.Collect.Source(2).Compute(5).Type="DuplicateColumn"
+NetworkCard.Collect.Source(2).Compute(5).Column=4
+
+//convert the link speed into mbs
+// PortID;PortTypeCode;EnabledState;Speed;LinkStatus;HealthStateArray;HealthStateArray;
+NetworkCard.Collect.Source(2).Compute(6).Type="Divide"
+NetworkCard.Collect.Source(2).Compute(6).Column=4
+NetworkCard.Collect.Source(2).Compute(6).DivideBy=1000000
+
+// Finally, we check whether we have a 'Speed' number, meaning that the link is up
+// Otherwise, if no speed, it means that the link is down
+// PortID;PortTypeCode;EnabledState;Speed;LinkStatus;PATROLStatusArray;Status
+NetworkCard.Collect.Source(2).Compute(7).Type="Translate"
+NetworkCard.Collect.Source(2).Compute(7).Column=5
+NetworkCard.Collect.Source(2).Compute(7).TranslationTable="SpeedToLinkStatusTranslationTable"
+
+
+//Merging FC port and Ethernet port
+NetworkCard.Collect.Source(3).Type="TableUnion"
+NetworkCard.Collect.Source(3).Table1=%NetworkCard.Collect.Source(1)%
+NetworkCard.Collect.Source(3).Table3=%NetworkCard.Collect.Source(2)%
+
+
+// ValueTable = Source(3)
+NetworkCard.Collect.ValueTable=%NetworkCard.Collect.Source(3)%
+NetworkCard.Collect.DeviceID=ValueTable.Column(1)
+NetworkCard.Collect.Status=ValueTable.Column(5)
+NetworkCard.Collect.StatusInformation=ValueTable.Column(6)
+NetworkCard.Collect.LinkSpeed=ValueTable.Column(4)
+NetworkCard.Collect.LinkStatus=ValueTable.Column(5)
+
+
+
+//
+// Fans
+//
+
+//
+// Discovery
+
+// Source(1) = CIM_Fan
+// FanID;ElementName
+Fan.Discovery.Source(1).Type="Wbem"
+Fan.Discovery.Source(1).WbemNameSpace=root/emc/smis
+Fan.Discovery.Source(1).WbemQuery="SELECT DeviceID, ElementName FROM CIM_Fan"
+
+
+// InstanceTable = Source(2)
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Fan.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+
+
+//
+// Collect
+
+// The Fan collect is a "MultiInstance" collect
+Fan.Collect.Type="MultiInstance"
+
+// Source(1) = CIM_Fan
+// FanID;HealthState;
+Fan.Collect.Source(1).Type="Wbem"
+Fan.Collect.Source(1).WbemNameSpace=root/emc/smis
+Fan.Collect.Source(1).WbemQuery="SELECT DeviceID,HealthState FROM CIM_Fan"
+
+// Duplicate the "HealthStateArray" column
+// FanID;HealthStateArray;HealthStateArray;
+Fan.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Fan.Collect.Source(1).Compute(1).Column=2
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// FanID;PATROLStatusArray;Status
+Fan.Collect.Source(1).Compute(2).Type="Translate"
+Fan.Collect.Source(1).Compute(2).Column=2
+Fan.Collect.Source(1).Compute(2).TranslationTable="statusTranslationTable"
+
+// And finally, we translate DMTF's HealthState code into a more readable status string
+// FanID;PATROLStatusArray;StatusInformation
+Fan.Collect.Source(1).Compute(3).Type="Translate"
+Fan.Collect.Source(1).Compute(3).Column=3
+Fan.Collect.Source(1).Compute(3).TranslationTable="statusInformationTranslationTable"
+
+// ValueTable = Source(1)
+Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+Fan.Collect.DeviceID=ValueTable.Column(1)
+Fan.Collect.Status=ValueTable.Column(2)
+Fan.Collect.StatusInformation=ValueTable.Column(3)
+
+
+
+//
+// Power Supplies
+//
+
+//
+// Discovery
+
+// Source(1) = CIM_PowerSupply
+// PowerSupplyID;ElementName
+PowerSupply.Discovery.Source(1).Type="Wbem"
+PowerSupply.Discovery.Source(1).WbemNameSpace=root/emc/smis
+PowerSupply.Discovery.Source(1).WbemQuery="SELECT DeviceID, ElementName FROM CIM_PowerSupply"
+
+// InstanceTable = Source(2)
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PowerSupply.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+
+
+//
+// Collect
+
+// The PowerSupply collect is a "MultiInstance" collect
+PowerSupply.Collect.Type="MultiInstance"
+
+// Source(1) = CIM_PowerSupply
+// PowerSupplyID;HealthState;
+PowerSupply.Collect.Source(1).Type="Wbem"
+PowerSupply.Collect.Source(1).WbemNameSpace=root/emc/smis
+PowerSupply.Collect.Source(1).WbemQuery="SELECT DeviceID,HealthState FROM CIM_PowerSupply"
+
+// Duplicate the "HealthStateArray" column
+// PowerSupplyID;HealthStateArray;HealthStateArray;
+PowerSupply.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+PowerSupply.Collect.Source(1).Compute(1).Column=2
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// PowerSupplyID;PATROLStatusArray;Status
+PowerSupply.Collect.Source(1).Compute(2).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(2).Column=2
+PowerSupply.Collect.Source(1).Compute(2).TranslationTable="statusTranslationTable"
+
+// And finally, we translate DMTF's HealthState code into a more readable status string
+// PowerSupplyID;PATROLStatusArray;StatusInformation
+PowerSupply.Collect.Source(1).Compute(3).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(3).Column=3
+PowerSupply.Collect.Source(1).Compute(3).TranslationTable="statusInformationTranslationTable"
+
+
+// ValueTable = Source(1)
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(1)
+PowerSupply.Collect.Status=ValueTable.Column(2)
+PowerSupply.Collect.StatusInformation=ValueTable.Column(3)
+
+
+
+//
+// Other devices (CIM_ComputerSystem that don't have a chassis, i.e. that we haven't created as an enclosure yet)
+//
+
+//
+// Discovery
+
+// Source(1) = CIM_ComputerSystem
+// ComputerID;ClassName;ElementName;
+//replace with the controller name
+OtherDevice.Discovery.Source(1).Type="Wbem"
+OtherDevice.Discovery.Source(1).WbemQuery="SELECT Name,ElementName FROM EMC_VNXe_StorageProcessorSystemLeaf"
+OtherDevice.Discovery.Source(1).WbemNameSpace=root/emc/smis
+
+
+// InstanceTable = Source(2)
+// ComputerID;ElementName;
+OtherDevice.Discovery.InstanceTable=%OtherDevice.Discovery.Source(1)%
+OtherDevice.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+OtherDevice.Discovery.Instance.DeviceType="Controller"
+OtherDevice.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+
+//
+// Collect
+
+// Collect type is multi-instance
+OtherDevice.Collect.Type="MultiInstance"
+
+// Source(1) = CIM_ComputerSystem
+// ComputerID;HealthState;
+OtherDevice.Collect.Source(1).Type="Wbem"
+OtherDevice.Collect.Source(1).WbemQuery="SELECT Name,HealthState FROM CIM_ComputerSystem"
+OtherDevice.Collect.Source(1).WbemNameSpace=root/emc/smis
+
+// Duplicate the "HealthStateArray" column
+// ComputerID;HealthStateArray;HealthStateArray;
+OtherDevice.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+OtherDevice.Collect.Source(1).Compute(1).Column=2
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// ComputerID;PATROLStatusArray;Status
+OtherDevice.Collect.Source(1).Compute(2).Type="Translate"
+OtherDevice.Collect.Source(1).Compute(2).Column=2
+OtherDevice.Collect.Source(1).Compute(2).TranslationTable="statusTranslationTable"
+
+// And finally, we translate DMTF's HealthState code into a more readable status string
+// ComputerID;PATROLStatusArray;StatusInformation
+OtherDevice.Collect.Source(1).Compute(3).Type="Translate"
+OtherDevice.Collect.Source(1).Compute(3).Column=3
+OtherDevice.Collect.Source(1).Compute(3).TranslationTable="statusInformationTranslationTable"
+
+// Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
+OtherDevice.Collect.ValueTable=%OtherDevice.Collect.Source(1)%
+OtherDevice.Collect.DeviceID=ValueTable.Column(1)
+OtherDevice.Collect.Status=ValueTable.Column(2)
+OtherDevice.Collect.StatusInformation=ValueTable.Column(3)
+
+//  Physical disks
+//
+
+//
+// Discovery
+
+// Source(1) = EMC_VNXe_DiskDriveLeaf
+// DiskID;DiskName
+PhysicalDisk.Discovery.Source(1).Type="WBEM"
+PhysicalDisk.Discovery.Source(1).WbemQuery="SELECT __PATH,deviceID FROM EMC_VNXe_DiskDriveLeaf"
+PhysicalDisk.Discovery.Source(1).WbemNameSpace=root/emc/smis
+
+//Source(2) = EMC_VNXe_DiskModuleLeaf
+// DiskModuleID;SN;Model,Manufacturer
+PhysicalDisk.Discovery.Source(2).Type="WBEM"
+PhysicalDisk.Discovery.Source(2).WbemQuery="SELECT __PATH,SerialNumber,Model,Manufacturer FROM EMC_VNXe_DiskModuleLeaf"
+PhysicalDisk.Discovery.Source(2).WbemNameSpace=root/emc/smis
+
+////Source(3) = EMC_VNXe_DiskExtentLeaf
+// DiskExtentID;blocksize;consumableBlocks,DeviceID
+PhysicalDisk.Discovery.Source(3).Type="WBEM"
+PhysicalDisk.Discovery.Source(3).WbemQuery="SELECT __PATH,blockSize,NumberOfBlocks,DeviceID FROM EMC_VNXe_DiskExtentLeaf"
+PhysicalDisk.Discovery.Source(3).WbemNameSpace=root/emc/smis
+
+//calculate the size of the disk
+// DiskExtentID;size;NumberOfBlocks
+PhysicalDisk.Discovery.Source(3).Compute(1).Type="Multiply"
+PhysicalDisk.Discovery.Source(3).Compute(1).Column="2"
+PhysicalDisk.Discovery.Source(3).Compute(1).MultiplyBy=Column(3)
+
+////let's statrt the association between the 3 tables
+/// first between DiskdriveLeaf and DiskmoduleLeaf
+// DiskmoduleID;DiskID;
+PhysicalDisk.Discovery.Source(4).Type="WBEM"
+PhysicalDisk.Discovery.Source(4).WbemQuery="SELECT Antecedent,Dependent FROM EMC_VNXe_DiskModule_DiskDrive_RealizesAssocLeaf"
+PhysicalDisk.Discovery.Source(4).WbemNameSpace="root/emc/smis"
+
+///Second Between DiskDriveLeaf and DiskExtentLeaf
+//
+PhysicalDisk.Discovery.Source(5).Type="WBEM"
+PhysicalDisk.Discovery.Source(5).WbemQuery="SELECT Antecedent,Dependent FROM EMC_VNXe_DiskDrive_DiskExtent_MediaPresentAssocLeaf"
+PhysicalDisk.Discovery.Source(5).WbemNameSpace="root/emc/smis"
+
+
+//let's do the tablejoint between source(1) and source(2)
+//DiskID;DiskName;DiskmoduleID;DiskID;
+PhysicalDisk.Discovery.Source(6).Type="TableJoint"
+PhysicalDisk.Discovery.Source(6).LeftTable=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Source(6).RightTable=%PhysicalDisk.Discovery.Source(4)%
+PhysicalDisk.Discovery.Source(6).LeftKeyColumn=1
+PhysicalDisk.Discovery.Source(6).RightKeyColumn=2
+PhysicalDisk.Discovery.Source(6).KeyType="Wbem"
+PhysicalDisk.Discovery.Source(6).DefaultRightLine=";;"
+
+//let's do the tablejoint between source(6) and source(2)
+//DiskID;DiskName;DiskmoduleID;DiskID;DiskModuleID;SN;Model;Manufacturer
+PhysicalDisk.Discovery.Source(7).Type="TableJoint"
+PhysicalDisk.Discovery.Source(7).LeftTable=%PhysicalDisk.Discovery.Source(6)%
+PhysicalDisk.Discovery.Source(7).RightTable=%PhysicalDisk.Discovery.Source(2)%
+PhysicalDisk.Discovery.Source(7).LeftKeyColumn=3
+PhysicalDisk.Discovery.Source(7).RightKeyColumn=1
+PhysicalDisk.Discovery.Source(7).KeyType="Wbem"
+PhysicalDisk.Discovery.Source(7).DefaultRightLine=";;;"
+
+//let's do the tablejoint between source(7) and source(5)
+//DiskID;DiskName;DiskmoduleID;DiskID;DiskModuleID;SN;Model;Manufacturer;DiskID;DiskExtentID;
+PhysicalDisk.Discovery.Source(8).Type="TableJoint"
+PhysicalDisk.Discovery.Source(8).LeftTable=%PhysicalDisk.Discovery.Source(7)%
+PhysicalDisk.Discovery.Source(8).RightTable=%PhysicalDisk.Discovery.Source(5)%
+PhysicalDisk.Discovery.Source(8).LeftKeyColumn=1
+PhysicalDisk.Discovery.Source(8).RightKeyColumn=1
+PhysicalDisk.Discovery.Source(8).KeyType="Wbem"
+PhysicalDisk.Discovery.Source(8).DefaultRightLine=";;"
+
+//let's do the tablejoint between source(8) and source(3)
+//DiskID;DiskName;DiskmoduleID;DiskID;DiskModuleID;SN;Model;Manufacturer;DiskID;DiskExtentID;DiskExtentID;size;consumableBlocks;DeviceID
+PhysicalDisk.Discovery.Source(9).Type="TableJoint"
+PhysicalDisk.Discovery.Source(9).LeftTable=%PhysicalDisk.Discovery.Source(8)%
+PhysicalDisk.Discovery.Source(9).RightTable=%PhysicalDisk.Discovery.Source(3)%
+PhysicalDisk.Discovery.Source(9).LeftKeyColumn=10
+PhysicalDisk.Discovery.Source(9).RightKeyColumn=1
+PhysicalDisk.Discovery.Source(9).KeyType="Wbem"
+PhysicalDisk.Discovery.Source(9).DefaultRightLine=";;;"
+
+
+// Finally here is the instance table...
+//DiskID;DiskName;DiskmoduleID;DiskID;DiskModuleID;SN;Model;Manufacturer;DiskID;DiskExtentID;DiskExtentID;size;consumableBlocks;DeviceID
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(9)%
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(14)
+PhysicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+PhysicalDisk.Discovery.Instance.Model=InstanceTable.Column(7)
+PhysicalDisk.Discovery.Instance.Vendor=InstanceTable.Column(8)
+PhysicalDisk.Discovery.Instance.Size=InstanceTable.Column(12)
+PhysicalDisk.Discovery.Instance.SerialNumber=InstanceTable.Column(6)
+PhysicalDisk.Discovery.Instance.AttachedToDeviceType="Enclosure"
+
+
+// Collect
+
+// The physical disk collect is a "MultiInstance" collect
+PhysicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = the only source = CIM_DiskDrive
+// DiskID;HealthStateArray
+PhysicalDisk.Collect.Source(1).Type="WBEM"
+PhysicalDisk.Collect.Source(1).WbemQuery="SELECT DeviceID,HealthState FROM EMC_VNXe_DiskDriveLeaf"
+PhysicalDisk.Collect.Source(1).WbemNameSpace=root/emc/smis
+
+// Duplicate the "HealthStateArray" column
+// DiskID;HealthStateArray;HealthStateArray;
+PhysicalDisk.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+PhysicalDisk.Collect.Source(1).Compute(1).Column=2
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// DiskID;PATROLStatusArray;Status
+PhysicalDisk.Collect.Source(1).Compute(2).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(2).Column=2
+PhysicalDisk.Collect.Source(1).Compute(2).TranslationTable="statusTranslationTable"
+
+// And finally, we translate DMTF's HealthState code into a more readable status string
+// DiskID;PATROLStatusArray;StatusInformation
+PhysicalDisk.Collect.Source(1).Compute(3).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(3).Column=3
+PhysicalDisk.Collect.Source(1).Compute(3).TranslationTable="statusInformationTranslationTable"
+
+
+// Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
+PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(1)%
+PhysicalDisk.Collect.DeviceID=ValueTable.Column(1)
+PhysicalDisk.Collect.Status=ValueTable.Column(2)
+PhysicalDisk.Collect.StatusInformation=ValueTable.Column(3)
+
+//
+// Logical disks
+//
+
+//
+// Discovery
+
+
+
+
+// Source(1) = CIM_StoragePool
+// PoolID;SizeBytes;Label;UnallocatedSpaceActivation;Primordial;
+LogicalDisk.Discovery.Source(1).Type="WBEM"
+LogicalDisk.Discovery.Source(1).WbemQuery="SELECT __PATH,TotalManagedSpace,Name,RemainingManagedSpace,Primordial FROM CIM_StoragePool"
+LogicalDisk.Discovery.Source(1).WbemNameSpace=root/emc/smis
+
+// Do not take into account the storage pools when counting the total logical disk size
+//PoolID;SizeBytes;Label;UnallocatedSpace;LogicalDiskType;
+LogicalDisk.Discovery.Source(1).Compute(1).Type="Translate"
+LogicalDisk.Discovery.Source(1).Compute(1).Column=5
+LogicalDisk.Discovery.Source(1).Compute(1).TranslationTable="PrimordialStoragePoolTranslationTable"
+
+// The PrimordialStoragePoolTranslationTable
+PrimordialStoragePoolTranslationTable("true")="0;Primordial Storage Pool"
+PrimordialStoragePoolTranslationTable(Default)="0;Storage Pool"
+
+// However, exclude storage pools whose size is zero
+// PoolID;SizeBytes;Label;UnallocatedSpaceActivation;LogicalDiskType;
+LogicalDisk.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+LogicalDisk.Discovery.Source(1).Compute(2).Column=2
+LogicalDisk.Discovery.Source(1).Compute(2).ValueList="0"
+
+
+// However, exclude storage pools whose size is zero
+// PoolID;SizeBytes;UseForCapacityReport;Label;UnallocatedSpaceActivation;LogicalDiskType;
+LogicalDisk.Discovery.Source(1).Compute(3).Type="DuplicateColumn"
+LogicalDisk.Discovery.Source(1).Compute(3).Column=2
+
+
+// Here is the instance table
+// PoolID;SizeBytes;UseForCapacityReport;Label;UnallocatedSpace;LogicalDiskType;
+LogicalDisk.Discovery.InstanceTable=%LogicalDisk.Discovery.Source(1)%
+LogicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+LogicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+LogicalDisk.Discovery.Instance.Size=InstanceTable.Column(2)
+LogicalDisk.Discovery.Instance.UseForCapacityReport=InstanceTable.Column(3)
+LogicalDisk.Discovery.Instance.ParameterActivation.UnallocatedSpace=InstanceTable.Column(5)
+LogicalDisk.Discovery.Instance.LogicalDiskType=InstanceTable.Column(6)
+LogicalDisk.Discovery.Instance.AttachedToDeviceType="Enclosure"
+
+
+//
+// Collect
+
+// The LogicalDisk  collect is a "MultiInstance" collect
+LogicalDisk.Collect.Type="MultiInstance"
+
+// Source(2) = CIM_StoragePool
+// DiskID;UnallocatedSpace;
+LogicalDisk.Collect.Source(1).Type="WBEM"
+LogicalDisk.Collect.Source(1).WbemQuery="SELECT __PATH,RemainingManagedSpace FROM CIM_StoragePool"
+LogicalDisk.Collect.Source(1).WbemNameSpace=root/emc/smis
+
+// Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
+LogicalDisk.Collect.ValueTable=%LogicalDisk.Collect.Source(1)%
+LogicalDisk.Collect.DeviceID=ValueTable.Column(1)
+LogicalDisk.Collect.UnallocatedSpace=ValueTable.Column(2)
+
+
+// The statusTranslationTable
+statusTranslationTable(0)="UNKNOWN"
+statusTranslationTable(5)="OK"
+statusTranslationTable(10)="WARN"
+statusTranslationTable(15)="WARN"
+statusTranslationTable(20)="ALARM"
+statusTranslationTable(25)="ALARM"
+statusTranslationTable(30)="ALARM"
+statusTranslationTable(Default)="UNKNOWN"
+
+// The statusInformationTranslationTable
+statusInformationTranslationTable(0)="Unknown"
+statusInformationTranslationTable(5)=""
+statusInformationTranslationTable(10)="Degraded"
+statusInformationTranslationTable(15)="Minor Failure"
+statusInformationTranslationTable(20)="Major Failure"
+statusInformationTranslationTable(25)="Critical Failure"
+statusInformationTranslationTable(30)="Non-Recoverable Error"
+statusInformationTranslationTable(Default)="Unknown Status"

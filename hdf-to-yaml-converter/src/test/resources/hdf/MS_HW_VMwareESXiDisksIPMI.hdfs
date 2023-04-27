@@ -1,0 +1,180 @@
+//
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//                MS_HW_VMwareESX4iDisksIPMI.hdf
+//
+//      Supports: Any Server running a VMware ESX 4i
+//
+//
+//
+
+// HEADER
+
+hdf.DisplayName="VMware ESXi - Disks (IPMI)"
+hdf.TypicalPlatform="VMware ESXi"
+hdf.ReliesOn="WBEM"
+hdf.Version="1.1"
+hdf.Comments="This connector provides disk monitoring through the VMware ESX4i agent's discrete IPMI sensors"
+hdf.RemoteSupport="true"
+hdf.LocalSupport="true"
+hdf.AppliesToOS="OOB,Linux"
+
+// Checking the version of ESXi
+Detection.Criteria(1).Type="WBEM"
+Detection.Criteria(1).WbemNameSpace="root/cimv2"
+Detection.Criteria(1).WbemQuery="SELECT MajorVersion FROM VMware_HypervisorSoftwareIdentity"
+Detection.Criteria(1).ExpectedResult="^[34567]"
+
+// Check that there are sensors of IPMI Type 13 and SensorType 11 (Presence)
+Detection.Criteria(2).Type="WBEM"
+Detection.Criteria(2).WbemNameSpace="root/cimv2"
+Detection.Criteria(2).WbemQuery="SELECT IpmiSensorType,SensorType,CurrentState FROM OMC_DiscreteSensor"
+Detection.Criteria(2).ExpectedResult="^13;11;Assert;"
+
+
+
+// PhysicalDisk
+//
+// The requirement for non-presence sensors has been removed.  The connector will get a status by combining the presence and status healthstatus.
+
+PhysicalDisk.Discovery.Source(1).Type="Wbem"
+PhysicalDisk.Discovery.Source(1).WbemQuery="SELECT MonitoredDeviceID,Caption,HealthState,IpmiSensorType,SensorType,CurrentState,DeviceID FROM OMC_DiscreteSensor"
+PhysicalDisk.Discovery.Source(1).WbemNameSpace="root/cimv2"
+
+// Keep only Sensors of IPMI type 13
+// MonitoredDeviceID,Caption,HealthState,IpmiSensorType,SensorType,CurrentState,DeviceID
+PhysicalDisk.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+PhysicalDisk.Discovery.Source(1).Compute(1).Column=4
+PhysicalDisk.Discovery.Source(1).Compute(1).ValueList="13"
+
+
+// Keep only Sensors of SensorType 11 (Presence)
+// MonitoredDeviceID,Caption,HealthState,IpmiSensorType,SensorType,CurrentState,DeviceID
+PhysicalDisk.Discovery.Source(1).Compute(2).Type="KeepOnlyMatchingLines"
+PhysicalDisk.Discovery.Source(1).Compute(2).Column=5
+PhysicalDisk.Discovery.Source(1).Compute(2).ValueList="11"
+
+// Keep only Disks that are "Present", i.e. presence = Assert
+// MonitoredDeviceID,Caption,HealthState,IpmiSensorType,SensorType,CurrentState,DeviceID
+PhysicalDisk.Discovery.Source(1).Compute(3).Type="KeepOnlyMatchingLines"
+PhysicalDisk.Discovery.Source(1).Compute(3).Column=6
+PhysicalDisk.Discovery.Source(1).Compute(3).ValueList="Assert"
+
+// Remove "Drive Present" from caption
+// MonitoredDeviceID,Caption,HealthState,IpmiSensorType,SensorType,CurrentState,DeviceID
+PhysicalDisk.Discovery.Source(1).Compute(4).Type="Replace"
+PhysicalDisk.Discovery.Source(1).Compute(4).Column=2
+PhysicalDisk.Discovery.Source(1).Compute(4).Replace="Drive Present"
+PhysicalDisk.Discovery.Source(1).Compute(4).ReplaceBy=""
+
+// Concat PD to the Device ID (to avoid numerical comparison table join in Patrol)
+// MonitoredDeviceID,Caption,HealthState,IpmiSensorType,SensorType,CurrentState,DeviceID
+PhysicalDisk.Discovery.Source(1).Compute(5).Type="LeftConcat"
+PhysicalDisk.Discovery.Source(1).Compute(5).Column=7
+PhysicalDisk.Discovery.Source(1).Compute(5).String="PD"
+
+// The Instance table
+// MonitoredDeviceID,Caption,HealthState,IpmiSensorType,SensorType,CurrentState,DeviceID
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(7)
+PhysicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+// PhysicalDisk.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
+
+
+//
+// Collect
+
+// The DiskController collect is a "MultiInstance" collect
+PhysicalDisk.Collect.Type="MultiInstance"
+
+// Get a list of discrete sensors
+// DeviceID,Caption,HealthState,IpmiSensorType
+PhysicalDisk.Collect.Source(1).Type="WBEM"
+PhysicalDisk.Collect.Source(1).WbemQuery="SELECT MonitoredDeviceID,Caption,HealthState,IpmiSensorType,SensorType,DeviceID FROM OMC_DiscreteSensor"
+PhysicalDisk.Collect.Source(1).WbemNameSpace="root/cimv2"
+
+// Keep only Sensors of IPMI type 13
+// MonitoredDeviceID,Caption,HealthState,IpmiSensorType,SensorType,DeviceID
+PhysicalDisk.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+PhysicalDisk.Collect.Source(1).Compute(1).Column=4
+PhysicalDisk.Collect.Source(1).Compute(1).ValueList="13"
+
+// Keep only MonitoredDeviceID,Caption,HealthState so that we can use the same awk array translation as in memory.collect
+// MonitoredDeviceID,Caption,HealthState,SensorType,DeviceID
+PhysicalDisk.Collect.Source(1).Compute(2).Type="KeepColumns"
+PhysicalDisk.Collect.Source(1).Compute(2).ColumnNumbers="1,2,3,5,6"
+
+// Process the discrete sensors to take worse Status and make each ID unique
+// DeviceID,StatusInformation,HealthState
+PhysicalDisk.Collect.Source(1).Compute(3).Type="Awk"
+PhysicalDisk.Collect.Source(1).Compute(3).AwkScript=EmbeddedFile(1)
+PhysicalDisk.Collect.Source(1).Compute(3).KeepOnlyRegExp="^MSHW;"
+PhysicalDisk.Collect.Source(1).Compute(3).Separators=";"
+PhysicalDisk.Collect.Source(1).Compute(3).SelectColumns="2,3,4"
+
+// Patrol Status comes from HealthState
+// DeviceID,StatusInformation,HealthState
+PhysicalDisk.Collect.Source(1).Compute(4).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(4).Column=3
+PhysicalDisk.Collect.Source(1).Compute(4).TranslationTable="statusTranslationTable"
+
+// Add PD to the Identifier (see discovery)
+// DeviceID,StatusInformation,HealthState
+PhysicalDisk.Collect.Source(1).Compute(5).Type="LeftConcat"
+PhysicalDisk.Collect.Source(1).Compute(5).Column=1
+PhysicalDisk.Collect.Source(1).Compute(5).String="PD"
+
+// ValueTable = Source(1)
+// DeviceID,StatusInformation,PatrolStatus
+PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(1)%
+PhysicalDisk.Collect.DeviceID=ValueTable.Column(1)
+PhysicalDisk.Collect.Status=ValueTable.Column(3)
+PhysicalDisk.Collect.StatusInformation=ValueTable.Column(2)
+
+
+// The statusTranslationTable
+statusTranslationTable(0)="UNKNOWN"
+statusTranslationTable(5)="OK"
+statusTranslationTable(10)="WARN"
+statusTranslationTable(15)="WARN"
+statusTranslationTable(20)="ALARM"
+statusTranslationTable(25)="ALARM"
+statusTranslationTable(30)="ALARM"
+statusTranslationTable(Default)="UNKNOWN"
+
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = awk script that parse the output of Physical Disk Collect Source (1)
+///
+///
+/////////////////////////////////////////////////////////
+
+EmbeddedFile(1):
+BEGIN {FS="[;]"}
+{ID = $5; gsub("\.[^.]*$","",ID);
+ if ($4 == "11") { PresenceID[ID] = $5 };
+ if (ID in tags2) {
+	                  if (tags3[ID] < $3) {tags3[ID] = ($3);}
+	                  if ($3 > 5) {if (tags2[ID]=="") {tags2[ID] = $2}
+	                               else {tags2[ID] = (tags2[ID] " - " $2)}
+	                              }
+	                 }
+	else {if ($3 > 0) {tags3[ID] = ($3)};
+		    if ($3 > 5) {tags2[ID] = $2};
+		   }
+}
+END { for (ID in tags3)
+      print ("MSHW;" PresenceID[ID] ";"tags2[ID]";"tags3[ID]";")
+    }
+EmbeddedFile(1).End
+///////////////////////////////////////////////////////////////

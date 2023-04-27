@@ -146,7 +146,7 @@ public class MappingConvertersWrapper {
 	 */
 	private void postConvertDiscovery(final String monitorType, final JsonNode discovery) {
 		final JsonNode mapping = discovery.get(MAPPING);
-		if (mapping != null && mapping.get(ATTRIBUTES) != null) {
+		if (mapping != null && mapping.get(ATTRIBUTES) != null && getConverterForMonitorType(monitorType) != null) {
 			getConverterForMonitorType(monitorType).postConvertDiscoveryProperties(mapping);
 		}
 	}

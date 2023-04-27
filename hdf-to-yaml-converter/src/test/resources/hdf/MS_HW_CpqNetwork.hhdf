@@ -1,0 +1,376 @@
+//
+// DETECTION
+//
+
+
+// Criteria(2): there must be something in the ifTable SNMP Table (NICs)
+Detection.Criteria(1).Type="SNMP"
+Detection.Criteria(1).SnmpGetNext="1.3.6.1.4.1.232.18.2.3.1"
+
+
+// ###################
+// ## NETWORK CARDS ##
+// ###################
+
+
+// Source(1) = cpqNicIfLogMapTable
+// Full path:	iso(1).org(3).dod(6).internet(1).private(4).enterprises(1).compaq(232).cpqNic(18).cpqNicComponent(2).cpqNicIfLogMap(2).cpqNicIfLogMapTable(1)
+// ID;Name;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;SpeedMbps;DisplayID;
+// "ID,21,5,4,9,20,8,11,19"
+NetworkCard.Discovery.Source(1).Type="SnmpTable"
+NetworkCard.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.232.18.2.2.1.1"
+NetworkCard.Discovery.Source(1).SnmpTableSelectColumns="ID,21,5,4,9,20,8,11,19,21"
+
+// Keep only real Team NICs
+// ID;Name;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;SpeedMbps;DisplayID;
+NetworkCard.Discovery.Source(1).Compute(1).Type="ExcludeMatchingLines"
+NetworkCard.Discovery.Source(1).Compute(1).Column=3
+NetworkCard.Discovery.Source(1).Compute(1).ValueList=",0,1"
+
+// Add "VirtualInterface-" to the ID code in a readable string, so the Teaming is not removed
+// ID;Name;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;SpeedMbps;DisplayID;
+NetworkCard.Discovery.Source(1).Compute(2).Type="LeftConcat"
+NetworkCard.Discovery.Source(1).Compute(2).Column=1
+NetworkCard.Discovery.Source(1).Compute(2).String="VirtualInterface-"
+
+// Add "DeviceType" Column (Virtual)
+// ID;DeviceType;Name;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;SpeedMbps;DisplayID;
+NetworkCard.Discovery.Source(1).Compute(3).Type="RightConcat"
+NetworkCard.Discovery.Source(1).Compute(3).Column=1
+NetworkCard.Discovery.Source(1).Compute(3).String=";Aggregate"
+
+// Count Column Label
+// ID;DeviceType;Name;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;SpeedMbps;DisplayID;
+NetworkCard.Discovery.Source(1).Compute(4).Type="LeftConcat"
+NetworkCard.Discovery.Source(1).Compute(4).Column=4
+NetworkCard.Discovery.Source(1).Compute(4).String="NICs Count: "
+
+// Translate the GroupType column content to a readable string
+// ID;DeviceType;Name;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;SpeedMbps;DisplayID;
+NetworkCard.Discovery.Source(1).Compute(5).Type="Translate"
+NetworkCard.Discovery.Source(1).Compute(5).Column=5
+NetworkCard.Discovery.Source(1).Compute(5).TranslationTable="TeamNICSGroupTypeTranslationTable"
+
+// The TeamNICSGroupTypeTranslationTable
+TeamNICSGroupTypeTranslationTable(1)="Unknown"
+TeamNICSGroupTypeTranslationTable(2)="Not fault tolerant"
+TeamNICSGroupTypeTranslationTable(3)="Redundant Pair"
+TeamNICSGroupTypeTranslationTable(4)="Network Fault Tolerance"
+TeamNICSGroupTypeTranslationTable(5)="Adaptive Load Balancing"
+TeamNICSGroupTypeTranslationTable(6)="Fast EtherChannel"
+TeamNICSGroupTypeTranslationTable(7)="Gigabit EtherChannel"
+TeamNICSGroupTypeTranslationTable(8)="IEEE802.3ad Link Aggregation"
+TeamNICSGroupTypeTranslationTable(9)="Switch-assisted load balancing"
+TeamNICSGroupTypeTranslationTable(10)="Transmit Load Balancing"
+TeamNICSGroupTypeTranslationTable(11)="Redundancy Set"
+TeamNICSGroupTypeTranslationTable(Default)="Unknown"
+
+// GroupType Column Label
+// ID;DeviceType;Name;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;SpeedMbps;DisplayID;
+NetworkCard.Discovery.Source(1).Compute(6).Type="LeftConcat"
+NetworkCard.Discovery.Source(1).Compute(6).Column=5
+NetworkCard.Discovery.Source(1).Compute(6).String="Type: "
+
+// Translate the SwitchoverMode column content to a readable string
+// ID;DeviceType;Name;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;SpeedMbps;DisplayID;
+NetworkCard.Discovery.Source(1).Compute(7).Type="Translate"
+NetworkCard.Discovery.Source(1).Compute(7).Column=6
+NetworkCard.Discovery.Source(1).Compute(7).TranslationTable="TeamNICSSwitchoverModeTranslationTable"
+
+// The TeamNICSSwitchoverModeTranslationTable
+TeamNICSSwitchoverModeTranslationTable(1)="Unknown"
+TeamNICSSwitchoverModeTranslationTable(2)="Not fault tolerant"
+TeamNICSSwitchoverModeTranslationTable(3)="Manual switch"
+TeamNICSSwitchoverModeTranslationTable(4)="Switch On Fail"
+TeamNICSSwitchoverModeTranslationTable(5)="Preferred Primary"
+TeamNICSSwitchoverModeTranslationTable(6)="Auto"
+TeamNICSSwitchoverModeTranslationTable(7)="Preference Order"
+TeamNICSSwitchoverModeTranslationTable(Default)="Unknown"
+
+// SwitchoverMode Column Label
+// ID;DeviceType;Name;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;SpeedMbps;DisplayID;
+NetworkCard.Discovery.Source(1).Compute(8).Type="LeftConcat"
+NetworkCard.Discovery.Source(1).Compute(8).Column=6
+NetworkCard.Discovery.Source(1).Compute(8).String="Switch over Mode: "
+
+// Add an empty column (Location and PartNumber)
+// ID;DeviceType;Name;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;SpeedMbps;DisplayID;Location;PartNumber
+NetworkCard.Discovery.Source(1).Compute(9).Type="RightConcat"
+NetworkCard.Discovery.Source(1).Compute(9).Column=11
+NetworkCard.Discovery.Source(1).Compute(9).String=";;;"
+
+// Add LinkStatus and Desactivate it for Virtual NetWorkCard
+// ID;DeviceType;Name;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;LinkStatus;SpeedMbps;DisplayID;Location;PartNumber
+NetworkCard.Discovery.Source(1).Compute(10).Type="RightConcat"
+NetworkCard.Discovery.Source(1).Compute(10).Column=9
+NetworkCard.Discovery.Source(1).Compute(10).String=";"
+
+// Source(2) = cpqNicIfPhysAdapterEntry
+// ID;Role;MacAddress;Status;SpeedMbps;DisplayID;Location;PartNumber;Port;
+// ID;3;4;14;36;39;31;32;10
+NetworkCard.Discovery.Source(2).Type="SnmpTable"
+NetworkCard.Discovery.Source(2).SnmpTableOid="1.3.6.1.4.1.232.18.2.3.1.1"
+NetworkCard.Discovery.Source(2).SnmpTableSelectColumns="ID,3,4,14,36,39,31,32,10"
+
+// Replace Count and name by CountBlank and NameBlank in source(2) to match the same column number with the source(1)
+// Add "DeviceType" Column (Physical Adapter) as empty to match the same column number with the source(1)
+// Source(1)
+// ID;DeviceType;Name;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;SpeedMbps;DisplayID;Location;PartNumber
+// Source(2)
+// Transform : ID;Role;MacAddress;Status;SpeedMbps;DisplayID;Location;PartNumber;Port;
+// To : 	   ID;DeviceType;NameBlank;CountBlank;Role;MacAddress;Status;SpeedMbps;DisplayID;Location;PartNumber;Port;
+NetworkCard.Discovery.Source(2).Compute(1).Type="RightConcat"
+NetworkCard.Discovery.Source(2).Compute(1).Column=1
+NetworkCard.Discovery.Source(2).Compute(1).String=";Physical Adapter;;"
+
+
+// Replace SwitchoverMode and IPV6Address by SwitchoverModeBlank and IPV6AddressBlank to match the same column number with the source(1)
+//	ID;NameBlank;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;;SpeedMbps;DisplayID;
+// Source(2)
+// Transform : ID;DeviceType;NameBlank;CountBlank;Role;MacAddress;Status;SpeedMbps;DisplayID;Location;PartNumber;Port;
+// To : 	   ID;DeviceType;NameBlank;CountBlank;Role;SwitchoverModeBlank;SwitchoverModeBlank;MacAddress;Status;SpeedMbps;DisplayID;Location;PartNumber;Port;
+NetworkCard.Discovery.Source(2).Compute(2).Type="RightConcat"
+NetworkCard.Discovery.Source(2).Compute(2).Column=5
+NetworkCard.Discovery.Source(2).Compute(2).String=";;"
+
+// Add the word Location
+// ID;DeviceType;NameBlank;CountBlank;Role;SwitchoverModeBlank;SwitchoverModeBlank;MacAddress;Status;SpeedMbps;DisplayID;Location;PartNumber;Port;
+NetworkCard.Discovery.Source(2).Compute(3).Type="LeftConcat"
+NetworkCard.Discovery.Source(2).Compute(3).Column=12
+NetworkCard.Discovery.Source(2).Compute(3).String="Location: "
+
+// Add the word PartNumber
+// ID;DeviceType;NameBlank;CountBlank;Role;SwitchoverModeBlank;SwitchoverModeBlank;MacAddress;Status;SpeedMbps;DisplayID;Location;PartNumber;Port;
+NetworkCard.Discovery.Source(2).Compute(4).Type="LeftConcat"
+NetworkCard.Discovery.Source(2).Compute(4).Column=13
+NetworkCard.Discovery.Source(2).Compute(4).String="Part Number: "
+
+// Translate the Role column content to a readable string
+// ID;DeviceType;NameBlank;CountBlank;Role;SwitchoverModeBlank;SwitchoverModeBlank;MacAddress;Status;SpeedMbps;DisplayID;Location;PartNumber;Port;
+NetworkCard.Discovery.Source(2).Compute(5).Type="Translate"
+NetworkCard.Discovery.Source(2).Compute(5).Column=5
+NetworkCard.Discovery.Source(2).Compute(5).TranslationTable="PhysicalAdapterRoleTranslationTable"
+
+// The PhysicalAdapterRoleTranslationTable (Role)
+PhysicalAdapterRoleTranslationTable(1)="Unknow"
+PhysicalAdapterRoleTranslationTable(2)="Primary"
+PhysicalAdapterRoleTranslationTable(3)="Secondary"
+PhysicalAdapterRoleTranslationTable(4)="Member"
+PhysicalAdapterRoleTranslationTable(5)="TxRx"
+PhysicalAdapterRoleTranslationTable(6)="Tx"
+PhysicalAdapterRoleTranslationTable(7)="Standby"
+PhysicalAdapterRoleTranslationTable(8)="None"
+PhysicalAdapterRoleTranslationTable(255)="Not Applicable"
+PhysicalAdapterRoleTranslationTable(Default)="Unknown"
+
+// Add the word Role
+// ID;DeviceType;NameBlank;CountBlank;Role;SwitchoverModeBlank;IPV6AddressBlank;MacAddress;Status;SpeedMbps;DisplayID;Location;PartNumber;Port;
+NetworkCard.Discovery.Source(2).Compute(6).Type="LeftConcat"
+NetworkCard.Discovery.Source(2).Compute(6).Column=5
+NetworkCard.Discovery.Source(2).Compute(6).String="Role: "
+
+// Add the word port
+// ID;DeviceType;NameBlank;CountBlank;Role;SwitchoverModeBlank;IPV6AddressBlank;MacAddress;Status;SpeedMbps;DisplayID;Location;PartNumber;Port;
+NetworkCard.Discovery.Source(2).Compute(7).Type="LeftConcat"
+NetworkCard.Discovery.Source(2).Compute(7).Column=14
+NetworkCard.Discovery.Source(2).Compute(7).String=" - Port "
+
+// Add Port in the DeviceType
+// ID;DeviceType;NameBlank;CountBlank;Role;SwitchoverModeBlank;IPV6AddressBlank;MacAddress;Status;SpeedMbps;DisplayID;Location;PartNumber;Port;
+NetworkCard.Discovery.Source(2).Compute(8).Type="RightConcat"
+NetworkCard.Discovery.Source(2).Compute(8).Column=2
+NetworkCard.Discovery.Source(2).Compute(8).String=Column(14)
+
+// Add LinkStatus and active it for Physical NetWorkCard
+// ID;DeviceType;NameBlank;CountBlank;Role;SwitchoverModeBlank;IPV6AddressBlank;MacAddress;Status;LinkStatus;SpeedMbps;DisplayID;Location;PartNumber;Port;
+NetworkCard.Discovery.Source(2).Compute(9).Type="RightConcat"
+NetworkCard.Discovery.Source(2).Compute(9).Column=9
+NetworkCard.Discovery.Source(2).Compute(9).String=";1"
+
+// InstanceTable = constant source
+// source(1) ID;DeviceType;Name;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;LinkStatus;SpeedMbps;DisplayID;
+// source(2) ID;DeviceType;NameBlank;CountBlank;Role;SwitchoverModeBlank;IPV6AddressBlank;MacAddress;Status;LinkStatus;SpeedMbps;DisplayID;Location;PartNumber;Port;
+// Source(3) = Table union of Source(1) and Source(2)
+NetworkCard.Discovery.Source(3).Type="TableUnion"
+NetworkCard.Discovery.Source(3).Table1=%NetworkCard.Discovery.Source(1)%
+NetworkCard.Discovery.Source(3).Table2=%NetworkCard.Discovery.Source(2)%
+
+// source(1) ID;DeviceType;Name;Count;GroupType;SwitchoverMode;IPV6Address;MacAddress;Status;LinkStatus;SpeedMbps;DisplayID;
+// source(2) ID;DeviceType;NameBlank;CountBlank;Role;SwitchoverModeBlank;IPV6AddressBlank;MacAddress;Status;LinkStatus;SpeedMbps;DisplayID;Location;PartNumber;Port;
+NetworkCard.Discovery.InstanceTable=Discovery_source
+NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+NetworkCard.Discovery.Instance.DisplayID=InstanceTable.Column(12)
+NetworkCard.Discovery.Instance.DeviceType=InstanceTable.Column(2)
+NetworkCard.Discovery.Instance.Model=InstanceTable.Column(3)
+NetworkCard.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(5)
+NetworkCard.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(13)
+NetworkCard.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(14)
+NetworkCard.Discovery.Instance.LogicalAddress=InstanceTable.Column(7)
+NetworkCard.Discovery.Instance.LogicalAddressType="IP"
+NetworkCard.Discovery.Instance.PhysicalAddress=InstanceTable.Column(8)
+NetworkCard.Discovery.Instance.PhysicalAddressType="MAC"
+NetworkCard.Discovery.Instance.ParameterActivation.LinkStatus=InstanceTable.Column(10)
+
+//
+// COLLECT of Virtual (Team NICs) and Physical Network cards
+//
+
+// ## Team NICs Collect process ## //
+
+// Collect type is multi-instance
+NetworkCard.Collect.Type="MultiInstance"
+
+
+// Source(1) = cpqNicIfLogMapTable
+// Full path:	iso(1).org(3).dod(6).internet(1).private(4).enterprises(1).compaq(232).cpqNic(18).cpqNicComponent(2).cpqNicIfLogMap(2).cpqNicIfLogMapTable(1)
+// ID;Count;SpeedMbps;Status;Condition;
+// "ID,5,19,10,11"
+NetworkCard.Collect.Source(1).Type="SnmpTable"
+NetworkCard.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.232.18.2.2.1.1"
+NetworkCard.Collect.Source(1).SnmpTableSelectColumns="ID,5,19,11,10"
+
+// Keep only real Team NICs: remove empty or 0 values
+// ID;Count;SpeedMbps;Status;Condition;
+NetworkCard.Collect.Source(1).Compute(1).Type="ExcludeMatchingLines"
+NetworkCard.Collect.Source(1).Compute(1).Column=2
+NetworkCard.Collect.Source(1).Compute(1).RegExp="\(^$\)\|\(^0$\)"
+
+// Keep only real Team NICs: remove empty or 0 values
+// ID;SpeedMbps;Status;Condition;
+NetworkCard.Collect.Source(1).Compute(2).Type="KeepColumns"
+NetworkCard.Collect.Source(1).Compute(2).ColumnNumbers="1,3,4,5"
+
+// Add "Virtual-" to the ID code in a readable string, so the Teaming is not considered as a duplicate !!!
+// ID;SpeedMbps;Status;Condition;
+NetworkCard.Collect.Source(1).Compute(3).Type="LeftConcat"
+NetworkCard.Collect.Source(1).Compute(3).Column=1
+NetworkCard.Collect.Source(1).Compute(3).String="VirtualInterface-"
+
+// Translate the Condition column into a PATROLStatus
+// ID;SpeedMbps;Status;PATROLStatus;
+NetworkCard.Collect.Source(1).Compute(4).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(4).Column=4
+NetworkCard.Collect.Source(1).Compute(4).TranslationTable="TeamNICStatusTranslationTable"
+
+// The TeamNICStatusTranslationTable
+TeamNICStatusTranslationTable(1)="UNKNOWN"
+TeamNICStatusTranslationTable(2)="OK"
+TeamNICStatusTranslationTable(3)="WARN"
+TeamNICStatusTranslationTable(4)="ALARM"
+TeamNICStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate the first Status column into a StatusInformation
+// ID;SpeedMbps;StatusInformation;PATROLStatus;
+NetworkCard.Collect.Source(1).Compute(5).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(5).Column=3
+NetworkCard.Collect.Source(1).Compute(5).TranslationTable="TeamNICStatusInformationTranslationTable"
+
+// Translate the first Status column into a StatusInformation
+// ID;SpeedMbps;StatusInformation;PATROLStatus;RightConcat
+NetworkCard.Collect.Source(1).Compute(6).Type="DuplicateColumn"
+NetworkCard.Collect.Source(1).Compute(6).Column=4
+
+// The TeamNICStatusInformationTranslationTable
+TeamNICStatusInformationTranslationTable(1)="Unknown"
+TeamNICStatusInformationTranslationTable(2)=""
+TeamNICStatusInformationTranslationTable(3)="Primary Failed"
+TeamNICStatusInformationTranslationTable(4)="Standby Failed"
+TeamNICStatusInformationTranslationTable(5)="Group Failed"
+TeamNICStatusInformationTranslationTable(6)="Redundancy Reduced"
+TeamNICStatusInformationTranslationTable(7)="Redundancy Lost"
+TeamNICStatusInformationTranslationTable(Default)="Unknown"
+
+// Source(2) = cpqNicIfPhysAdapterTable
+// ID;SpeedMbps;Status;Condition;DuplexState;GoodTransmits;GoodReceives;BadTransmits;BadReceives;InOctets;OutOctets;
+NetworkCard.Collect.Source(2).Type="SnmpTable"
+NetworkCard.Collect.Source(2).SnmpTableOid="1.3.6.1.4.1.232.18.2.3.1.1"
+NetworkCard.Collect.Source(2).SnmpTableSelectColumns="ID,36,14,12,11,16,17,18,19,37,38"
+
+// Computes TotalError ( = BadTransmits + BadReceives )
+// ID;SpeedMbps;Status;Condition;DuplexState;GoodTransmits;GoodReceives;BadTransmits;BadReceives;InOctets;OutOctets;
+NetworkCard.Collect.Source(2).Compute(1).Type="Add"
+NetworkCard.Collect.Source(2).Compute(1).Column=8
+NetworkCard.Collect.Source(2).Compute(1).Add=Column(9)
+
+// ADD LinkStatus
+// ID;SpeedMbps;StatusInformation;Condition;LinkStatus;DuplexState;GoodTransmits;GoodReceives;TotalError;BadReceives;InOctets;OutOctets;
+NetworkCard.Collect.Source(2).Compute(2).Type="DuplicateColumn"
+NetworkCard.Collect.Source(2).Compute(2).Column=4
+
+// Translate LinkStatus to link Plug or Unplug
+// ID;SpeedMbps;StatusInformation;Condtion;LinkStatus;DuplexState;GoodTransmits;GoodReceives;TotalError;BadReceives;InOctets;OutOctets;
+NetworkCard.Collect.Source(2).Compute(3).Type="Translate"
+NetworkCard.Collect.Source(2).Compute(3).Column=5
+NetworkCard.Collect.Source(2).Compute(3).TranslationTable="LinkStatusTranslationTable"
+
+// DuplexModeTranslationTable
+LinkStatusTranslationTable(1)="OK"
+LinkStatusTranslationTable(2)="OK"
+LinkStatusTranslationTable(3)="OK"
+LinkStatusTranslationTable(4)="WARN"
+LinkStatusTranslationTable(default)="OK"
+
+// Translate the Condition column into a PATROLStatus
+// ID;SpeedMbps;StatusInformation;PATROLStatus;LinkStatus;DuplexState;GoodTransmits;GoodReceives;TotalError;BadReceives;InOctets;OutOctets;
+NetworkCard.Collect.Source(2).Compute(4).Type="Translate"
+NetworkCard.Collect.Source(2).Compute(4).Column=4
+NetworkCard.Collect.Source(2).Compute(4).TranslationTable="PhysicalAdapterStatusTranslationTable"
+
+// The PhysicalAdapterStatusTranslationTable
+PhysicalAdapterStatusTranslationTable(1)="UNKNOWN"
+PhysicalAdapterStatusTranslationTable(2)="OK"
+PhysicalAdapterStatusTranslationTable(3)="WARN"
+PhysicalAdapterStatusTranslationTable(4)="ALARM"
+PhysicalAdapterStatusTranslationTable(Default)="UNKNOWN"
+
+// Translate the first Status column into a StatusInformation
+// ID;SpeedMbps;StatusInformation;PATROLStatus;LinkStatus;DuplexState;GoodTransmits;GoodReceives;TotalError;BadReceives;InOctets;OutOctets;
+NetworkCard.Collect.Source(2).Compute(5).Type="Translate"
+NetworkCard.Collect.Source(2).Compute(5).Column=3
+NetworkCard.Collect.Source(2).Compute(5).TranslationTable="PhysicalAdapterStatusInformationTranslationTable"
+
+// The TeamNICStatusInformationTranslationTable
+PhysicalAdapterStatusInformationTranslationTable(1)="Unknown"
+PhysicalAdapterStatusInformationTranslationTable(2)="ok"
+PhysicalAdapterStatusInformationTranslationTable(3)="General Failure"
+PhysicalAdapterStatusInformationTranslationTable(4)="Link Failure"
+PhysicalAdapterStatusInformationTranslationTable(Default)="Unknown"
+
+// Translate duplexState to correctly duplexMode
+// ID;SpeedMbps;StatusInformation;PATROLStatus;LinkStatus;DuplexState;GoodTransmits;GoodReceives;TotalError;BadReceives;InOctets;OutOctets;
+NetworkCard.Collect.Source(2).Compute(6).Type="Translate"
+NetworkCard.Collect.Source(2).Compute(6).Column=6
+NetworkCard.Collect.Source(2).Compute(6).TranslationTable="DuplexModeTranslationTable"
+
+// DuplexModeTranslationTable
+DuplexModeTranslationTable(1)="1"
+DuplexModeTranslationTable(2)="0"
+DuplexModeTranslationTable(3)="1"
+DuplexModeTranslationTable(default)="1"
+
+// InstanceTable = constant source
+// source(1) ID;SpeedMbps;PATROLStatus;StatusInformation;
+// source(2) ID;SpeedMbps;StatusInformation;PATROLStatus;LinkStatus;DuplexState;GoodTransmits;GoodReceives;TotalError;BadReceives;InOctets;OutOctets;
+// Source(3) = Table union of Source(1) and Source(2)
+NetworkCard.Collect.Source(3).Type="TableUnion"
+NetworkCard.Collect.Source(3).Table1=%NetworkCard.Collect.Source(1)%
+NetworkCard.Collect.Source(3).Table2=%NetworkCard.Collect.Source(2)%
+
+
+// ## The END ## //
+
+// ValueTable = Source(&)
+// source(1) ID;SpeedMbps;StatusInformation;PATROLStatus;
+// source(2) ID;SpeedMbps;StatusInformation;PATROLStatus;LinkStatus;DuplexState;GoodTransmits;GoodReceives;TotalError;BadReceives;InOctets;OutOctets;
+NetworkCard.Collect.ValueTable=Collect_source
+NetworkCard.Collect.DeviceID=ValueTable.Column(1)
+NetworkCard.Collect.LinkSpeed=ValueTable.Column(2)
+NetworkCard.Collect.Status=ValueTable.Column(4)
+NetworkCard.Collect.StatusInformation=ValueTable.Column(3)
+NetworkCard.Collect.LinkStatus=ValueTable.Column(5)
+NetworkCard.Collect.DuplexMode=ValueTable.Column(6)
+NetworkCard.Collect.TransmittedPackets=ValueTable.Column(7)
+NetworkCard.Collect.ReceivedPackets=ValueTable.Column(8)
+NetworkCard.Collect.ErrorCount=ValueTable.Column(9)
+NetworkCard.Collect.ReceivedBytes=ValueTable.Column(11)
+NetworkCard.Collect.TransmittedBytes=ValueTable.Column(12)

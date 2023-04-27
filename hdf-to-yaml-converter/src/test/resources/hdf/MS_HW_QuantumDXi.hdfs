@@ -1,0 +1,1744 @@
+//
+//
+//                 C O N N E C T O R
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//              by Sentry Software (c)
+//
+//                  Quantum DXi
+//
+//      Supports:  Quantum DXi Systems
+//
+//      Connects to:  The DXi's controller
+//
+//
+
+//
+// HEADER
+
+hdf.DisplayName="Quantum DXi (SSH)"
+hdf.TypicalPlatform="Quantum DXi"
+hdf.ReliesOn="Commands on the Quantum DXi controller"
+hdf.Version="1.0"
+hdf.Comments="This connector discovers the enclosure, fans, memory, voltages and temperatures of the DXi appliance."
+hdf.RemoteSupport="true"
+hdf.LocalSupport="false"
+hdf.AppliesToOS="Storage"
+
+// host should respond to telnet the way described below
+Detection.Criteria(1).Type="TelnetInteractive"
+
+Detection.Criteria(1).Step(1).Type="Sleep"
+Detection.Criteria(1).Step(1).Duration=1
+
+Detection.Criteria(1).Step(2).Type="WaitFor"
+Detection.Criteria(1).Step(2).TelnetOnly=1
+Detection.Criteria(1).Step(2).Text="ogin:"
+Detection.Criteria(1).Step(2).TimeOut=60
+
+Detection.Criteria(1).Step(3).Type="SendUsername"
+Detection.Criteria(1).Step(3).TelnetOnly=1
+
+Detection.Criteria(1).Step(4).Type="WaitFor"
+Detection.Criteria(1).Step(4).TelnetOnly=1
+Detection.Criteria(1).Step(4).Text="assword:"
+Detection.Criteria(1).Step(4).TimeOut=30
+
+Detection.Criteria(1).Step(5).Type="SendPassword"
+Detection.Criteria(1).Step(5).TelnetOnly=1
+
+Detection.Criteria(1).Step(6).Type="WaitForPrompt"
+Detection.Criteria(1).Step(6).TimeOut=30
+
+Detection.Criteria(1).Step(7).Type="SendText"
+Detection.Criteria(1).Step(7).Text="syscli --getstatus syscomponent --systemboard\n"
+
+Detection.Criteria(1).Step(8).Type="GetUntilPrompt"
+Detection.Criteria(1).Step(8).TimeOut=15
+Detection.Criteria(1).Step(8).Capture="True"
+
+Detection.Criteria(1).Step(9).Type="SendText"
+Detection.Criteria(1).Step(9).Text="logout\n quit\n exit\n"
+Detection.Criteria(1).Step(9).Capture="False"
+
+Detection.Criteria(1).ExpectedResult="System Component"
+
+
+//
+// COMPUTER
+//
+
+//
+// Discovery
+
+// Source(1)
+Enclosure.Discovery.Source(1).Type="TelnetInteractive"
+
+Enclosure.Discovery.Source(1).Step(1).Type="Sleep"
+Enclosure.Discovery.Source(1).Step(1).Duration=1
+Enclosure.Discovery.Source(1).Step(1).TelnetOnly=1
+
+Enclosure.Discovery.Source(1).Step(2).Type="WaitFor"
+Enclosure.Discovery.Source(1).Step(2).Text="ogin:"
+Enclosure.Discovery.Source(1).Step(2).Timeout=60
+Enclosure.Discovery.Source(1).Step(2).TelnetOnly=1
+
+Enclosure.Discovery.Source(1).Step(3).Type="SendUsername"
+Enclosure.Discovery.Source(1).Step(3).TelnetOnly=1
+
+Enclosure.Discovery.Source(1).Step(4).Type="WaitFor"
+Enclosure.Discovery.Source(1).Step(4).Text="assword:"
+Enclosure.Discovery.Source(1).Step(4).TimeOut=30
+Enclosure.Discovery.Source(1).Step(4).TelnetOnly=1
+
+Enclosure.Discovery.Source(1).Step(5).Type="SendPassword"
+Enclosure.Discovery.Source(1).Step(5).TelnetOnly=1
+
+Enclosure.Discovery.Source(1).Step(6).Type="WaitForPrompt"
+Enclosure.Discovery.Source(1).Step(6).TimeOut=30
+
+Enclosure.Discovery.Source(1).Step(7).Type="SendText"
+Enclosure.Discovery.Source(1).Step(7).Text="syscli --getstatus storagearray\n"
+
+Enclosure.Discovery.Source(1).Step(8).Type="GetUntilPrompt"
+Enclosure.Discovery.Source(1).Step(8).TimeOut=60
+Enclosure.Discovery.Source(1).Step(8).Capture="True"
+
+Enclosure.Discovery.Source(1).Step(9).Type="SendText"
+Enclosure.Discovery.Source(1).Step(9).Text="syscli --getstatus systemboard\n"
+
+Enclosure.Discovery.Source(1).Step(10).Type="GetUntilPrompt"
+Enclosure.Discovery.Source(1).Step(10).TimeOut=60
+Enclosure.Discovery.Source(1).Step(10).Capture="True"
+
+Enclosure.Discovery.Source(1).Step(11).Type="SendText"
+Enclosure.Discovery.Source(1).Step(11).Text="for array in `syscli --getstatus storagearray | grep -oP '(?<=Name = )[\w\d]+'`; do echo MSHW_START $array;syscli --getstatus storagearraydetails --name $array ; echo MSHW_END $array; done\n"
+
+Enclosure.Discovery.Source(1).Step(12).Type="GetUntilPrompt"
+Enclosure.Discovery.Source(1).Step(12).TimeOut=60
+Enclosure.Discovery.Source(1).Step(12).Capture="True"
+
+Enclosure.Discovery.Source(1).Step(13).Type="SendText"
+Enclosure.Discovery.Source(1).Step(13).Text="syscli --getstatus hostbusadapter\n"
+
+Enclosure.Discovery.Source(1).Step(14).Type="GetUntilPrompt"
+Enclosure.Discovery.Source(1).Step(14).TimeOut=60
+Enclosure.Discovery.Source(1).Step(14).Capture="True"
+
+Enclosure.Discovery.Source(1).Step(15).Type="SendText"
+Enclosure.Discovery.Source(1).Step(15).Text="exit\nlogout\nquit\n"
+Enclosure.Discovery.Source(1).Step(15).Capture="False"
+
+// Run the Command Outputs through an AWK Script
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
+Enclosure.Discovery.Source(1).Compute(1).Type="Awk"
+Enclosure.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+Enclosure.Discovery.Source(1).Compute(1).Separators=";"
+Enclosure.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+
+// Make a copy of the discovery
+Enclosure.Discovery.Source(2)=%Enclosure.Discovery.Source(1)%
+
+// Add "Location: " to AdditionalInformation
+Enclosure.Discovery.Source(2).Compute(1).Type="LeftConcat"
+Enclosure.Discovery.Source(2).Compute(1).Column=8
+Enclosure.Discovery.Source(2).Compute(1).String="Location: "
+
+
+Enclosure.Discovery.Source(3)=%Enclosure.Discovery.Source(1)%
+
+// Keep only "Enclosure"
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
+Enclosure.Discovery.Source(3).Compute(1).Type="KeepOnlyMatchingLines"
+Enclosure.Discovery.Source(3).Compute(1).Column=3
+Enclosure.Discovery.Source(3).Compute(1).RegExp="Enclosure"
+
+// Add "Configuration: " to AdditionalInformation1
+Enclosure.Discovery.Source(3).Compute(2).Type="LeftConcat"
+Enclosure.Discovery.Source(3).Compute(2).Column=9
+Enclosure.Discovery.Source(3).Compute(2).String="Configuration: "
+
+// Instance Table
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(3)%
+Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(4)
+Enclosure.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+Enclosure.Discovery.Instance.Type="Storage"
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(8)
+Enclosure.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(9)
+Enclosure.Discovery.Instance.BiosVersion=InstanceTable.Column(10)
+
+//
+// Collect
+
+// Collect type is multi-instance (execute once)
+Enclosure.Collect.Type="MultiInstance"
+
+Enclosure.Collect.Source(1).Type="TelnetInteractive"
+
+Enclosure.Collect.Source(1).Step(1).Type="Sleep"
+Enclosure.Collect.Source(1).Step(1).Duration=1
+Enclosure.Collect.Source(1).Step(1).TelnetOnly=1
+
+Enclosure.Collect.Source(1).Step(2).Type="WaitFor"
+Enclosure.Collect.Source(1).Step(2).Text="ogin:"
+Enclosure.Collect.Source(1).Step(2).Timeout=60
+Enclosure.Collect.Source(1).Step(2).TelnetOnly=1
+
+Enclosure.Collect.Source(1).Step(3).Type="SendUsername"
+Enclosure.Collect.Source(1).Step(3).TelnetOnly=1
+
+Enclosure.Collect.Source(1).Step(4).Type="WaitFor"
+Enclosure.Collect.Source(1).Step(4).Text="assword:"
+Enclosure.Collect.Source(1).Step(4).TimeOut=30
+Enclosure.Collect.Source(1).Step(4).TelnetOnly=1
+
+Enclosure.Collect.Source(1).Step(5).Type="SendPassword"
+Enclosure.Collect.Source(1).Step(5).TelnetOnly=1
+
+Enclosure.Collect.Source(1).Step(6).Type="WaitForPrompt"
+Enclosure.Collect.Source(1).Step(6).TimeOut=30
+
+Enclosure.Collect.Source(1).Step(7).Type="SendText"
+Enclosure.Collect.Source(1).Step(7).Text="syscli --getstatus storagearray\n"
+
+Enclosure.Collect.Source(1).Step(8).Type="GetUntilPrompt"
+Enclosure.Collect.Source(1).Step(8).TimeOut=60
+Enclosure.Collect.Source(1).Step(8).Capture="True"
+
+Enclosure.Collect.Source(1).Step(9).Type="SendText"
+Enclosure.Collect.Source(1).Step(9).Text="syscli --getstatus systemboard\n"
+
+Enclosure.Collect.Source(1).Step(10).Type="GetUntilPrompt"
+Enclosure.Collect.Source(1).Step(10).TimeOut=60
+Enclosure.Collect.Source(1).Step(10).Capture="True"
+
+Enclosure.Collect.Source(1).Step(11).Type="SendText"
+Enclosure.Collect.Source(1).Step(11).Text="for array in `syscli --getstatus storagearray | grep -oP '(?<=Name = )[\w\d]+'`; do echo MSHW_START $array;syscli --getstatus storagearraydetails --name $array ; echo MSHW_END $array; done\n"
+
+Enclosure.Collect.Source(1).Step(12).Type="GetUntilPrompt"
+Enclosure.Collect.Source(1).Step(12).TimeOut=60
+Enclosure.Collect.Source(1).Step(12).Capture="True"
+
+Enclosure.Collect.Source(1).Step(13).Type="SendText"
+Enclosure.Collect.Source(1).Step(13).Text="syscli --getstatus hostbusadapter\n"
+
+Enclosure.Collect.Source(1).Step(14).Type="GetUntilPrompt"
+Enclosure.Collect.Source(1).Step(14).TimeOut=60
+Enclosure.Collect.Source(1).Step(14).Capture="True"
+
+Enclosure.Collect.Source(1).Step(15).Type="SendText"
+Enclosure.Collect.Source(1).Step(15).Text="exit\nlogout\nquit\n"
+Enclosure.Collect.Source(1).Step(15).Capture="False"
+
+// Run the Command Outputs through an AWK Script
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
+Enclosure.Collect.Source(1).Compute(1).Type="Awk"
+Enclosure.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+Enclosure.Collect.Source(1).Compute(1).Separators=";"
+Enclosure.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+
+
+// Make a copy of the discovery
+Enclosure.Collect.Source(2)=%Enclosure.Collect.Source(1)%
+
+// Keep only "Enclosure"
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
+Enclosure.Collect.Source(2).Compute(1).Type="KeepOnlyMatchingLines"
+Enclosure.Collect.Source(2).Compute(1).Column=3
+Enclosure.Collect.Source(2).Compute(1).RegExp="Enclosure"
+
+// Translate Status into PATROLStatus
+// MSHW;ID;Type;Name;Value;PatrolStatus;StatusInformation;Model;Configuration;SystemVersion;
+Enclosure.Collect.Source(2).Compute(2).Type="Translate"
+Enclosure.Collect.Source(2).Compute(2).Column=6
+Enclosure.Collect.Source(2).Compute(2).TranslationTable="StatusTranslationTable"
+
+// The StatusTranslationTable
+StatusTranslationTable("Normal")="OK"
+StatusTranslationTable("Ready")="OK"
+StatusTranslationTable("Running")="OK"
+StatusTranslationTable("Up")="OK"
+StatusTranslationTable("Down")="WARN"
+StatusTranslationTable("Attention")="WARN"
+StatusTranslationTable("Initializing")="WARN"
+StatusTranslationTable("Warning")="WARN"
+StatusTranslationTable("Rebuilding")="WARN"
+StatusTranslationTable("Failure")="ALARM"
+StatusTranslationTable("NA")="UNKNOWN"
+StatusTranslationTable("Online")="OK"
+// Global Hot Spare
+StatusTranslationTable("Global")="OK"
+StatusTranslationTable("Unknown")="UNKNOWN"
+StatusTranslationTable(Default)="ALARM"
+StatusTranslationTable("Unassigned")="OK"
+
+
+// ValueTable = Source(1)
+Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(2)%
+Enclosure.Collect.DeviceID=ValueTable.Column(4)
+Enclosure.Collect.Status=ValueTable.Column(6)
+Enclosure.Collect.StatusInformation=ValueTable.Column(7)
+
+//
+// Temperatures
+//
+
+//
+// Discovery
+
+
+//
+// Collect
+
+
+// Source(1) = copy of Enclosure.Discovery.Source(2)
+Temperature.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep only "Temperature"
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+Temperature.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Temperature.Discovery.Source(1).Compute(1).Column=3
+Temperature.Discovery.Source(1).Compute(1).ValueList="Temperature,Thermal"
+
+// InstanceTable = Source(1)
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Temperature.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+Temperature.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(8)
+Temperature.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(9)
+Temperature.Discovery.Instance.ParameterActivation.Temperature=InstanceTable.Column(5)
+
+//
+// Collect
+
+// Collect type is multi-instance (execute once)
+Temperature.Collect.Type="MultiInstance"
+
+Temperature.Collect.Source(1).Type="TelnetInteractive"
+
+Temperature.Collect.Source(1).Step(1).Type="Sleep"
+Temperature.Collect.Source(1).Step(1).Duration=1
+Temperature.Collect.Source(1).Step(1).TelnetOnly=1
+
+Temperature.Collect.Source(1).Step(2).Type="WaitFor"
+Temperature.Collect.Source(1).Step(2).Text="ogin:"
+Temperature.Collect.Source(1).Step(2).Timeout=60
+Temperature.Collect.Source(1).Step(2).TelnetOnly=1
+
+Temperature.Collect.Source(1).Step(3).Type="SendUsername"
+Temperature.Collect.Source(1).Step(3).TelnetOnly=1
+
+Temperature.Collect.Source(1).Step(4).Type="WaitFor"
+Temperature.Collect.Source(1).Step(4).Text="assword:"
+Temperature.Collect.Source(1).Step(4).TimeOut=30
+Temperature.Collect.Source(1).Step(4).TelnetOnly=1
+
+Temperature.Collect.Source(1).Step(5).Type="SendPassword"
+Temperature.Collect.Source(1).Step(5).TelnetOnly=1
+
+Temperature.Collect.Source(1).Step(6).Type="WaitForPrompt"
+Temperature.Collect.Source(1).Step(6).TimeOut=30
+
+Temperature.Collect.Source(1).Step(7).Type="SendText"
+Temperature.Collect.Source(1).Step(7).Text="syscli --getstatus storagearray\n"
+
+Temperature.Collect.Source(1).Step(8).Type="GetUntilPrompt"
+Temperature.Collect.Source(1).Step(8).TimeOut=60
+Temperature.Collect.Source(1).Step(8).Capture="True"
+
+Temperature.Collect.Source(1).Step(9).Type="SendText"
+Temperature.Collect.Source(1).Step(9).Text="syscli --getstatus systemboard\n"
+
+Temperature.Collect.Source(1).Step(10).Type="GetUntilPrompt"
+Temperature.Collect.Source(1).Step(10).TimeOut=60
+Temperature.Collect.Source(1).Step(10).Capture="True"
+
+Temperature.Collect.Source(1).Step(11).Type="SendText"
+Temperature.Collect.Source(1).Step(11).Text="for array in `syscli --getstatus storagearray | grep -oP '(?<=Name = )[\w\d]+'`; do echo MSHW_START $array;syscli --getstatus storagearraydetails --name $array ; echo MSHW_END $array; done\n"
+
+Temperature.Collect.Source(1).Step(12).Type="GetUntilPrompt"
+Temperature.Collect.Source(1).Step(12).TimeOut=60
+Temperature.Collect.Source(1).Step(12).Capture="True"
+
+Temperature.Collect.Source(1).Step(13).Type="SendText"
+Temperature.Collect.Source(1).Step(13).Text="syscli --getstatus hostbusadapter\n"
+
+Temperature.Collect.Source(1).Step(14).Type="GetUntilPrompt"
+Temperature.Collect.Source(1).Step(14).TimeOut=60
+Temperature.Collect.Source(1).Step(14).Capture="True"
+
+Temperature.Collect.Source(1).Step(15).Type="SendText"
+Temperature.Collect.Source(1).Step(15).Text="exit\nlogout\nquit\n"
+Temperature.Collect.Source(1).Step(15).Capture="False"
+
+// Run the Command Outputs through an AWK Script
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
+Temperature.Collect.Source(1).Compute(1).Type="Awk"
+Temperature.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+Temperature.Collect.Source(1).Compute(1).Separators=";"
+Temperature.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+// Keep only "Temperature"
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+Temperature.Collect.Source(1).Compute(2).Type="KeepOnlyMatchingLines"
+Temperature.Collect.Source(1).Compute(2).Column=3
+Temperature.Collect.Source(1).Compute(2).ValueList="Temperature,Thermal"
+
+// Translate Status into PATROLStatus
+// MSHW;ID;Type;Name;Value;PatrolStatus;StatusInformation;Location;AttachedTo;
+Temperature.Collect.Source(1).Compute(3).Type="Translate"
+Temperature.Collect.Source(1).Compute(3).Column=6
+Temperature.Collect.Source(1).Compute(3).TranslationTable="StatusTranslationTable"
+
+// ValueTable = Source(1)
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.DeviceID=ValueTable.Column(2)
+Temperature.Collect.Status=ValueTable.Column(6)
+Temperature.Collect.StatusInformation=ValueTable.Column(7)
+Temperature.Collect.Temperature=ValueTable.Column(5)
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(2)
+Voltage.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep only "Voltage"
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+Voltage.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Voltage.Discovery.Source(1).Compute(1).Column=3
+Voltage.Discovery.Source(1).Compute(1).RegExp="Voltage"
+
+// InstanceTable = Source(1)
+Voltage.Discovery.InstanceTable=%Voltage.Discovery.Source(1)%
+Voltage.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Voltage.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+Voltage.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(8)
+Voltage.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(9)
+Voltage.Discovery.Instance.ParameterActivation.Voltage=InstanceTable.Column(5)
+
+//
+// Collect
+
+//
+// Collect
+
+// Collect type is multi-instance (execute once)
+Voltage.Collect.Type="MultiInstance"
+
+Voltage.Collect.Source(1).Type="TelnetInteractive"
+
+Voltage.Collect.Source(1).Step(1).Type="Sleep"
+Voltage.Collect.Source(1).Step(1).Duration=1
+Voltage.Collect.Source(1).Step(1).TelnetOnly=1
+
+Voltage.Collect.Source(1).Step(2).Type="WaitFor"
+Voltage.Collect.Source(1).Step(2).Text="ogin:"
+Voltage.Collect.Source(1).Step(2).Timeout=60
+Voltage.Collect.Source(1).Step(2).TelnetOnly=1
+
+Voltage.Collect.Source(1).Step(3).Type="SendUsername"
+Voltage.Collect.Source(1).Step(3).TelnetOnly=1
+
+Voltage.Collect.Source(1).Step(4).Type="WaitFor"
+Voltage.Collect.Source(1).Step(4).Text="assword:"
+Voltage.Collect.Source(1).Step(4).TimeOut=30
+Voltage.Collect.Source(1).Step(4).TelnetOnly=1
+
+Voltage.Collect.Source(1).Step(5).Type="SendPassword"
+Voltage.Collect.Source(1).Step(5).TelnetOnly=1
+
+Voltage.Collect.Source(1).Step(6).Type="WaitForPrompt"
+Voltage.Collect.Source(1).Step(6).TimeOut=30
+
+Voltage.Collect.Source(1).Step(7).Type="SendText"
+Voltage.Collect.Source(1).Step(7).Text="syscli --getstatus storagearray\n"
+
+Voltage.Collect.Source(1).Step(8).Type="GetUntilPrompt"
+Voltage.Collect.Source(1).Step(8).TimeOut=60
+Voltage.Collect.Source(1).Step(8).Capture="True"
+
+Voltage.Collect.Source(1).Step(9).Type="SendText"
+Voltage.Collect.Source(1).Step(9).Text="syscli --getstatus systemboard\n"
+
+Voltage.Collect.Source(1).Step(10).Type="GetUntilPrompt"
+Voltage.Collect.Source(1).Step(10).TimeOut=60
+Voltage.Collect.Source(1).Step(10).Capture="True"
+
+Voltage.Collect.Source(1).Step(11).Type="SendText"
+Voltage.Collect.Source(1).Step(11).Text="for array in `syscli --getstatus storagearray | grep -oP '(?<=Name = )[\w\d]+'`; do echo MSHW_START $array;syscli --getstatus storagearraydetails --name $array ; echo MSHW_END $array; done\n"
+
+Voltage.Collect.Source(1).Step(12).Type="GetUntilPrompt"
+Voltage.Collect.Source(1).Step(12).TimeOut=60
+Voltage.Collect.Source(1).Step(12).Capture="True"
+
+Voltage.Collect.Source(1).Step(13).Type="SendText"
+Voltage.Collect.Source(1).Step(13).Text="syscli --getstatus hostbusadapter\n"
+
+Voltage.Collect.Source(1).Step(14).Type="GetUntilPrompt"
+Voltage.Collect.Source(1).Step(14).TimeOut=60
+Voltage.Collect.Source(1).Step(14).Capture="True"
+
+Voltage.Collect.Source(1).Step(15).Type="SendText"
+Voltage.Collect.Source(1).Step(15).Text="exit\nlogout\nquit\n"
+Voltage.Collect.Source(1).Step(15).Capture="False"
+
+// Run the Command Outputs through an AWK Script
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
+Voltage.Collect.Source(1).Compute(1).Type="Awk"
+Voltage.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+Voltage.Collect.Source(1).Compute(1).Separators=";"
+Voltage.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+// Keep only "Voltage"
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+Voltage.Collect.Source(1).Compute(2).Type="KeepOnlyMatchingLines"
+Voltage.Collect.Source(1).Compute(2).Column=3
+Voltage.Collect.Source(1).Compute(2).RegExp="Voltage"
+
+// Translate Status into PATROLStatus
+// MSHW;ID;Type;Name;Value;PatrolStatus;StatusInformation;Location;AttachedTo;
+Voltage.Collect.Source(1).Compute(3).Type="Translate"
+Voltage.Collect.Source(1).Compute(3).Column=6
+Voltage.Collect.Source(1).Compute(3).TranslationTable="StatusTranslationTable"
+
+// Multiply Voltage by 1000 to get mV
+// MSHW;ID;Type;Name;Value;PatrolStatus;StatusInformation;Location;AttachedTo;
+Voltage.Collect.Source(1).Compute(4).Type="Multiply"
+Voltage.Collect.Source(1).Compute(4).Column="5"
+Voltage.Collect.Source(1).Compute(4).MultiplyBy="1000"
+
+// ValueTable = Source(1)
+Voltage.Collect.ValueTable=%Voltage.Collect.Source(1)%
+Voltage.Collect.DeviceID=ValueTable.Column(2)
+Voltage.Collect.Status=ValueTable.Column(6)
+Voltage.Collect.StatusInformation=ValueTable.Column(7)
+Voltage.Collect.Voltage=ValueTable.Column(5)
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(2)
+Memory.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep only "DIMM"
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+Memory.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Memory.Discovery.Source(1).Compute(1).Column=3
+Memory.Discovery.Source(1).Compute(1).RegExp="DIMM"
+
+// InstanceTable = Source(1)
+Memory.Discovery.InstanceTable=%Memory.Discovery.Source(1)%
+Memory.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Memory.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+Memory.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(8)
+Memory.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(9)
+
+//
+// Collect
+
+// Collect type is multi-instance (execute once)
+Memory.Collect.Type="MultiInstance"
+
+Memory.Collect.Source(1).Type="TelnetInteractive"
+
+Memory.Collect.Source(1).Step(1).Type="Sleep"
+Memory.Collect.Source(1).Step(1).Duration=1
+Memory.Collect.Source(1).Step(1).TelnetOnly=1
+
+Memory.Collect.Source(1).Step(2).Type="WaitFor"
+Memory.Collect.Source(1).Step(2).Text="ogin:"
+Memory.Collect.Source(1).Step(2).Timeout=60
+Memory.Collect.Source(1).Step(2).TelnetOnly=1
+
+Memory.Collect.Source(1).Step(3).Type="SendUsername"
+Memory.Collect.Source(1).Step(3).TelnetOnly=1
+
+Memory.Collect.Source(1).Step(4).Type="WaitFor"
+Memory.Collect.Source(1).Step(4).Text="assword:"
+Memory.Collect.Source(1).Step(4).TimeOut=30
+Memory.Collect.Source(1).Step(4).TelnetOnly=1
+
+Memory.Collect.Source(1).Step(5).Type="SendPassword"
+Memory.Collect.Source(1).Step(5).TelnetOnly=1
+
+Memory.Collect.Source(1).Step(6).Type="WaitForPrompt"
+Memory.Collect.Source(1).Step(6).TimeOut=30
+
+Memory.Collect.Source(1).Step(7).Type="SendText"
+Memory.Collect.Source(1).Step(7).Text="syscli --getstatus storagearray\n"
+
+Memory.Collect.Source(1).Step(8).Type="GetUntilPrompt"
+Memory.Collect.Source(1).Step(8).TimeOut=60
+Memory.Collect.Source(1).Step(8).Capture="True"
+
+Memory.Collect.Source(1).Step(9).Type="SendText"
+Memory.Collect.Source(1).Step(9).Text="syscli --getstatus systemboard\n"
+
+Memory.Collect.Source(1).Step(10).Type="GetUntilPrompt"
+Memory.Collect.Source(1).Step(10).TimeOut=60
+Memory.Collect.Source(1).Step(10).Capture="True"
+
+Memory.Collect.Source(1).Step(11).Type="SendText"
+Memory.Collect.Source(1).Step(11).Text="for array in `syscli --getstatus storagearray | grep -oP '(?<=Name = )[\w\d]+'`; do echo MSHW_START $array;syscli --getstatus storagearraydetails --name $array ; echo MSHW_END $array; done\n"
+
+Memory.Collect.Source(1).Step(12).Type="GetUntilPrompt"
+Memory.Collect.Source(1).Step(12).TimeOut=60
+Memory.Collect.Source(1).Step(12).Capture="True"
+
+Memory.Collect.Source(1).Step(13).Type="SendText"
+Memory.Collect.Source(1).Step(13).Text="syscli --getstatus hostbusadapter\n"
+
+Memory.Collect.Source(1).Step(14).Type="GetUntilPrompt"
+Memory.Collect.Source(1).Step(14).TimeOut=60
+Memory.Collect.Source(1).Step(14).Capture="True"
+
+Memory.Collect.Source(1).Step(15).Type="SendText"
+Memory.Collect.Source(1).Step(15).Text="exit\nlogout\nquit\n"
+Memory.Collect.Source(1).Step(15).Capture="False"
+
+// Run the Command Outputs through an AWK Script
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
+Memory.Collect.Source(1).Compute(1).Type="Awk"
+Memory.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+Memory.Collect.Source(1).Compute(1).Separators=";"
+Memory.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+
+// Keep only "DIMM"
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+Memory.Collect.Source(1).Compute(2).Type="KeepOnlyMatchingLines"
+Memory.Collect.Source(1).Compute(2).Column=3
+Memory.Collect.Source(1).Compute(2).RegExp="DIMM"
+
+// Translate Status into PATROLStatus
+// MSHW;ID;Type;Name;Value;PatrolStatus;StatusInformation;Location;AttachedTo;
+Memory.Collect.Source(1).Compute(3).Type="Translate"
+Memory.Collect.Source(1).Compute(3).Column=6
+Memory.Collect.Source(1).Compute(3).TranslationTable="StatusTranslationTable"
+
+// ValueTable = Source(1)
+Memory.Collect.ValueTable=%Memory.Collect.Source(1)%
+Memory.Collect.DeviceID=ValueTable.Column(2)
+Memory.Collect.Status=ValueTable.Column(6)
+Memory.Collect.StatusInformation=ValueTable.Column(7)
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(2)
+Fan.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep only "Fan"
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+Fan.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Fan.Discovery.Source(1).Compute(1).Column=3
+Fan.Discovery.Source(1).Compute(1).RegExp="Fan"
+
+// InstanceTable = Source(1)
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Fan.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+Fan.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(8)
+Fan.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(9)
+Fan.Discovery.Instance.ParameterActivation.Speed=InstanceTable.Column(5)
+
+
+//
+// Collect
+
+// Collect type is "all instances in one shot"
+Fan.Collect.Type="MultiInstance"
+//
+// Collect
+
+// Collect type is multi-instance (execute once)
+Fan.Collect.Type="MultiInstance"
+
+Fan.Collect.Source(1).Type="TelnetInteractive"
+
+Fan.Collect.Source(1).Step(1).Type="Sleep"
+Fan.Collect.Source(1).Step(1).Duration=1
+Fan.Collect.Source(1).Step(1).TelnetOnly=1
+
+Fan.Collect.Source(1).Step(2).Type="WaitFor"
+Fan.Collect.Source(1).Step(2).Text="ogin:"
+Fan.Collect.Source(1).Step(2).Timeout=60
+Fan.Collect.Source(1).Step(2).TelnetOnly=1
+
+Fan.Collect.Source(1).Step(3).Type="SendUsername"
+Fan.Collect.Source(1).Step(3).TelnetOnly=1
+
+Fan.Collect.Source(1).Step(4).Type="WaitFor"
+Fan.Collect.Source(1).Step(4).Text="assword:"
+Fan.Collect.Source(1).Step(4).TimeOut=30
+Fan.Collect.Source(1).Step(4).TelnetOnly=1
+
+Fan.Collect.Source(1).Step(5).Type="SendPassword"
+Fan.Collect.Source(1).Step(5).TelnetOnly=1
+
+Fan.Collect.Source(1).Step(6).Type="WaitForPrompt"
+Fan.Collect.Source(1).Step(6).TimeOut=30
+
+Fan.Collect.Source(1).Step(7).Type="SendText"
+Fan.Collect.Source(1).Step(7).Text="syscli --getstatus storagearray\n"
+
+Fan.Collect.Source(1).Step(8).Type="GetUntilPrompt"
+Fan.Collect.Source(1).Step(8).TimeOut=60
+Fan.Collect.Source(1).Step(8).Capture="True"
+
+Fan.Collect.Source(1).Step(9).Type="SendText"
+Fan.Collect.Source(1).Step(9).Text="syscli --getstatus systemboard\n"
+
+Fan.Collect.Source(1).Step(10).Type="GetUntilPrompt"
+Fan.Collect.Source(1).Step(10).TimeOut=60
+Fan.Collect.Source(1).Step(10).Capture="True"
+
+Fan.Collect.Source(1).Step(11).Type="SendText"
+Fan.Collect.Source(1).Step(11).Text="for array in `syscli --getstatus storagearray | grep -oP '(?<=Name = )[\w\d]+'`; do echo MSHW_START $array;syscli --getstatus storagearraydetails --name $array ; echo MSHW_END $array; done\n"
+
+Fan.Collect.Source(1).Step(12).Type="GetUntilPrompt"
+Fan.Collect.Source(1).Step(12).TimeOut=60
+Fan.Collect.Source(1).Step(12).Capture="True"
+
+Fan.Collect.Source(1).Step(13).Type="SendText"
+Fan.Collect.Source(1).Step(13).Text="syscli --getstatus hostbusadapter\n"
+
+Fan.Collect.Source(1).Step(14).Type="GetUntilPrompt"
+Fan.Collect.Source(1).Step(14).TimeOut=60
+Fan.Collect.Source(1).Step(14).Capture="True"
+
+Fan.Collect.Source(1).Step(15).Type="SendText"
+Fan.Collect.Source(1).Step(15).Text="exit\nlogout\nquit\n"
+Fan.Collect.Source(1).Step(15).Capture="False"
+
+// Run the Command Outputs through an AWK Script
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
+Fan.Collect.Source(1).Compute(1).Type="Awk"
+Fan.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+Fan.Collect.Source(1).Compute(1).Separators=";"
+Fan.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+// Keep only "Fan"
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+Fan.Collect.Source(1).Compute(2).Type="KeepOnlyMatchingLines"
+Fan.Collect.Source(1).Compute(2).Column=3
+Fan.Collect.Source(1).Compute(2).RegExp="Fan"
+
+// Translate Status into PATROLStatus
+// MSHW;ID;Type;Name;Value;PatrolStatus;StatusInformation;Location;AttachedTo;
+Fan.Collect.Source(1).Compute(3).Type="Translate"
+Fan.Collect.Source(1).Compute(3).Column=6
+Fan.Collect.Source(1).Compute(3).TranslationTable="StatusTranslationTable"
+
+// ValueTable = Source(1)
+Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+Fan.Collect.DeviceID=ValueTable.Column(2)
+Fan.Collect.Status=ValueTable.Column(6)
+Fan.Collect.StatusInformation=ValueTable.Column(7)
+Fan.Collect.Speed=ValueTable.Column(5)
+
+//
+// PowerSupplys
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(2)
+PowerSupply.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep only "PowerSupply"
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+PowerSupply.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+PowerSupply.Discovery.Source(1).Compute(1).Column=3
+PowerSupply.Discovery.Source(1).Compute(1).ValueList="Power"
+
+// InstanceTable = Source(1)
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+PowerSupply.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+PowerSupply.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(8)
+PowerSupply.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(9)
+
+//
+// Collect
+
+// Collect type is multi-instance (execute once)
+PowerSupply.Collect.Type="MultiInstance"
+
+PowerSupply.Collect.Source(1).Type="TelnetInteractive"
+
+PowerSupply.Collect.Source(1).Step(1).Type="Sleep"
+PowerSupply.Collect.Source(1).Step(1).Duration=1
+PowerSupply.Collect.Source(1).Step(1).TelnetOnly=1
+
+PowerSupply.Collect.Source(1).Step(2).Type="WaitFor"
+PowerSupply.Collect.Source(1).Step(2).Text="ogin:"
+PowerSupply.Collect.Source(1).Step(2).Timeout=60
+PowerSupply.Collect.Source(1).Step(2).TelnetOnly=1
+
+PowerSupply.Collect.Source(1).Step(3).Type="SendUsername"
+PowerSupply.Collect.Source(1).Step(3).TelnetOnly=1
+
+PowerSupply.Collect.Source(1).Step(4).Type="WaitFor"
+PowerSupply.Collect.Source(1).Step(4).Text="assword:"
+PowerSupply.Collect.Source(1).Step(4).TimeOut=30
+PowerSupply.Collect.Source(1).Step(4).TelnetOnly=1
+
+PowerSupply.Collect.Source(1).Step(5).Type="SendPassword"
+PowerSupply.Collect.Source(1).Step(5).TelnetOnly=1
+
+PowerSupply.Collect.Source(1).Step(6).Type="WaitForPrompt"
+PowerSupply.Collect.Source(1).Step(6).TimeOut=30
+
+PowerSupply.Collect.Source(1).Step(7).Type="SendText"
+PowerSupply.Collect.Source(1).Step(7).Text="syscli --getstatus storagearray\n"
+
+PowerSupply.Collect.Source(1).Step(8).Type="GetUntilPrompt"
+PowerSupply.Collect.Source(1).Step(8).TimeOut=60
+PowerSupply.Collect.Source(1).Step(8).Capture="True"
+
+PowerSupply.Collect.Source(1).Step(9).Type="SendText"
+PowerSupply.Collect.Source(1).Step(9).Text="syscli --getstatus systemboard\n"
+
+PowerSupply.Collect.Source(1).Step(10).Type="GetUntilPrompt"
+PowerSupply.Collect.Source(1).Step(10).TimeOut=60
+PowerSupply.Collect.Source(1).Step(10).Capture="True"
+
+PowerSupply.Collect.Source(1).Step(11).Type="SendText"
+PowerSupply.Collect.Source(1).Step(11).Text="for array in `syscli --getstatus storagearray | grep -oP '(?<=Name = )[\w\d]+'`; do echo MSHW_START $array;syscli --getstatus storagearraydetails --name $array ; echo MSHW_END $array; done\n"
+
+PowerSupply.Collect.Source(1).Step(12).Type="GetUntilPrompt"
+PowerSupply.Collect.Source(1).Step(12).TimeOut=60
+PowerSupply.Collect.Source(1).Step(12).Capture="True"
+
+PowerSupply.Collect.Source(1).Step(13).Type="SendText"
+PowerSupply.Collect.Source(1).Step(13).Text="syscli --getstatus hostbusadapter\n"
+
+PowerSupply.Collect.Source(1).Step(14).Type="GetUntilPrompt"
+PowerSupply.Collect.Source(1).Step(14).TimeOut=60
+PowerSupply.Collect.Source(1).Step(14).Capture="True"
+
+PowerSupply.Collect.Source(1).Step(15).Type="SendText"
+PowerSupply.Collect.Source(1).Step(15).Text="exit\nlogout\nquit\n"
+PowerSupply.Collect.Source(1).Step(15).Capture="False"
+
+// Run the Command Outputs through an AWK Script
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
+PowerSupply.Collect.Source(1).Compute(1).Type="Awk"
+PowerSupply.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+PowerSupply.Collect.Source(1).Compute(1).Separators=";"
+PowerSupply.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+// Keep only "PowerSupply"
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+PowerSupply.Collect.Source(1).Compute(2).Type="KeepOnlyMatchingLines"
+PowerSupply.Collect.Source(1).Compute(2).Column=3
+PowerSupply.Collect.Source(1).Compute(2).ValueList="Power"
+
+// Translate Status into PATROLStatus
+// MSHW;ID;Type;Name;Value;PatrolStatus;StatusInformation;Location;AttachedTo;
+PowerSupply.Collect.Source(1).Compute(3).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(3).Column=6
+PowerSupply.Collect.Source(1).Compute(3).TranslationTable="StatusTranslationTable"
+
+// ValueTable = Source(1)
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(2)
+PowerSupply.Collect.Status=ValueTable.Column(6)
+PowerSupply.Collect.StatusInformation=ValueTable.Column(7)
+
+//
+// Batterys
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(2)
+Battery.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep only "Battery"
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+Battery.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Battery.Discovery.Source(1).Compute(1).Column=3
+Battery.Discovery.Source(1).Compute(1).ValueList="Batteries"
+
+// InstanceTable = Source(1)
+Battery.Discovery.InstanceTable=%Battery.Discovery.Source(1)%
+Battery.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Battery.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+Battery.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(8)
+Battery.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(9)
+
+//
+// Collect
+
+// Collect type is multi-instance (execute once)
+Battery.Collect.Type="MultiInstance"
+
+Battery.Collect.Source(1).Type="TelnetInteractive"
+
+Battery.Collect.Source(1).Step(1).Type="Sleep"
+Battery.Collect.Source(1).Step(1).Duration=1
+Battery.Collect.Source(1).Step(1).TelnetOnly=1
+
+Battery.Collect.Source(1).Step(2).Type="WaitFor"
+Battery.Collect.Source(1).Step(2).Text="ogin:"
+Battery.Collect.Source(1).Step(2).Timeout=60
+Battery.Collect.Source(1).Step(2).TelnetOnly=1
+
+Battery.Collect.Source(1).Step(3).Type="SendUsername"
+Battery.Collect.Source(1).Step(3).TelnetOnly=1
+
+Battery.Collect.Source(1).Step(4).Type="WaitFor"
+Battery.Collect.Source(1).Step(4).Text="assword:"
+Battery.Collect.Source(1).Step(4).TimeOut=30
+Battery.Collect.Source(1).Step(4).TelnetOnly=1
+
+Battery.Collect.Source(1).Step(5).Type="SendPassword"
+Battery.Collect.Source(1).Step(5).TelnetOnly=1
+
+Battery.Collect.Source(1).Step(6).Type="WaitForPrompt"
+Battery.Collect.Source(1).Step(6).TimeOut=30
+
+Battery.Collect.Source(1).Step(7).Type="SendText"
+Battery.Collect.Source(1).Step(7).Text="syscli --getstatus storagearray\n"
+
+Battery.Collect.Source(1).Step(8).Type="GetUntilPrompt"
+Battery.Collect.Source(1).Step(8).TimeOut=60
+Battery.Collect.Source(1).Step(8).Capture="True"
+
+Battery.Collect.Source(1).Step(9).Type="SendText"
+Battery.Collect.Source(1).Step(9).Text="syscli --getstatus systemboard\n"
+
+Battery.Collect.Source(1).Step(10).Type="GetUntilPrompt"
+Battery.Collect.Source(1).Step(10).TimeOut=60
+Battery.Collect.Source(1).Step(10).Capture="True"
+
+Battery.Collect.Source(1).Step(11).Type="SendText"
+Battery.Collect.Source(1).Step(11).Text="for array in `syscli --getstatus storagearray | grep -oP '(?<=Name = )[\w\d]+'`; do echo MSHW_START $array;syscli --getstatus storagearraydetails --name $array ; echo MSHW_END $array; done\n"
+
+Battery.Collect.Source(1).Step(12).Type="GetUntilPrompt"
+Battery.Collect.Source(1).Step(12).TimeOut=60
+Battery.Collect.Source(1).Step(12).Capture="True"
+
+Battery.Collect.Source(1).Step(13).Type="SendText"
+Battery.Collect.Source(1).Step(13).Text="syscli --getstatus hostbusadapter\n"
+
+Battery.Collect.Source(1).Step(14).Type="GetUntilPrompt"
+Battery.Collect.Source(1).Step(14).TimeOut=60
+Battery.Collect.Source(1).Step(14).Capture="True"
+
+Battery.Collect.Source(1).Step(15).Type="SendText"
+Battery.Collect.Source(1).Step(15).Text="exit\nlogout\nquit\n"
+Battery.Collect.Source(1).Step(15).Capture="False"
+
+// Run the Command Outputs through an AWK Script
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
+Battery.Collect.Source(1).Compute(1).Type="Awk"
+Battery.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+Battery.Collect.Source(1).Compute(1).Separators=";"
+Battery.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+// Keep only "Battery"
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+Battery.Collect.Source(1).Compute(2).Type="KeepOnlyMatchingLines"
+Battery.Collect.Source(1).Compute(2).Column=3
+Battery.Collect.Source(1).Compute(2).ValueList="Batteries"
+
+// Translate Status into PATROLStatus
+// MSHW;ID;Type;Name;Value;PatrolStatus;StatusInformation;Location;AttachedTo;
+Battery.Collect.Source(1).Compute(3).Type="Translate"
+Battery.Collect.Source(1).Compute(3).Column=6
+Battery.Collect.Source(1).Compute(3).TranslationTable="StatusTranslationTable"
+
+// ValueTable = Source(1)
+Battery.Collect.ValueTable=%Battery.Collect.Source(1)%
+Battery.Collect.DeviceID=ValueTable.Column(2)
+Battery.Collect.Status=ValueTable.Column(6)
+Battery.Collect.StatusInformation=ValueTable.Column(7)
+
+//
+// DiskControllers
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(2)
+DiskController.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep only "DiskController"
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+DiskController.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+DiskController.Discovery.Source(1).Compute(1).Column=3
+DiskController.Discovery.Source(1).Compute(1).ValueList="Controllers"
+
+// InstanceTable = Source(1)
+DiskController.Discovery.InstanceTable=%DiskController.Discovery.Source(1)%
+DiskController.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+DiskController.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+DiskController.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(8)
+DiskController.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(9)
+//
+// Collect
+
+// Collect type is multi-instance (execute once)
+DiskController.Collect.Type="MultiInstance"
+
+DiskController.Collect.Source(1).Type="TelnetInteractive"
+
+DiskController.Collect.Source(1).Step(1).Type="Sleep"
+DiskController.Collect.Source(1).Step(1).Duration=1
+DiskController.Collect.Source(1).Step(1).TelnetOnly=1
+
+DiskController.Collect.Source(1).Step(2).Type="WaitFor"
+DiskController.Collect.Source(1).Step(2).Text="ogin:"
+DiskController.Collect.Source(1).Step(2).Timeout=60
+DiskController.Collect.Source(1).Step(2).TelnetOnly=1
+
+DiskController.Collect.Source(1).Step(3).Type="SendUsername"
+DiskController.Collect.Source(1).Step(3).TelnetOnly=1
+
+DiskController.Collect.Source(1).Step(4).Type="WaitFor"
+DiskController.Collect.Source(1).Step(4).Text="assword:"
+DiskController.Collect.Source(1).Step(4).TimeOut=30
+DiskController.Collect.Source(1).Step(4).TelnetOnly=1
+
+DiskController.Collect.Source(1).Step(5).Type="SendPassword"
+DiskController.Collect.Source(1).Step(5).TelnetOnly=1
+
+DiskController.Collect.Source(1).Step(6).Type="WaitForPrompt"
+DiskController.Collect.Source(1).Step(6).TimeOut=30
+
+DiskController.Collect.Source(1).Step(7).Type="SendText"
+DiskController.Collect.Source(1).Step(7).Text="syscli --getstatus storagearray\n"
+
+DiskController.Collect.Source(1).Step(8).Type="GetUntilPrompt"
+DiskController.Collect.Source(1).Step(8).TimeOut=60
+DiskController.Collect.Source(1).Step(8).Capture="True"
+
+DiskController.Collect.Source(1).Step(9).Type="SendText"
+DiskController.Collect.Source(1).Step(9).Text="syscli --getstatus systemboard\n"
+
+DiskController.Collect.Source(1).Step(10).Type="GetUntilPrompt"
+DiskController.Collect.Source(1).Step(10).TimeOut=60
+DiskController.Collect.Source(1).Step(10).Capture="True"
+
+DiskController.Collect.Source(1).Step(11).Type="SendText"
+DiskController.Collect.Source(1).Step(11).Text="for array in `syscli --getstatus storagearray | grep -oP '(?<=Name = )[\w\d]+'`; do echo MSHW_START $array;syscli --getstatus storagearraydetails --name $array ; echo MSHW_END $array; done\n"
+
+DiskController.Collect.Source(1).Step(12).Type="GetUntilPrompt"
+DiskController.Collect.Source(1).Step(12).TimeOut=60
+DiskController.Collect.Source(1).Step(12).Capture="True"
+
+DiskController.Collect.Source(1).Step(13).Type="SendText"
+DiskController.Collect.Source(1).Step(13).Text="syscli --getstatus hostbusadapter\n"
+
+DiskController.Collect.Source(1).Step(14).Type="GetUntilPrompt"
+DiskController.Collect.Source(1).Step(14).TimeOut=60
+DiskController.Collect.Source(1).Step(14).Capture="True"
+
+DiskController.Collect.Source(1).Step(15).Type="SendText"
+DiskController.Collect.Source(1).Step(15).Text="exit\nlogout\nquit\n"
+DiskController.Collect.Source(1).Step(15).Capture="False"
+
+// Run the Command Outputs through an AWK Script
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
+DiskController.Collect.Source(1).Compute(1).Type="Awk"
+DiskController.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+DiskController.Collect.Source(1).Compute(1).Separators=";"
+DiskController.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+
+// Keep only "DiskController"
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+DiskController.Collect.Source(1).Compute(2).Type="KeepOnlyMatchingLines"
+DiskController.Collect.Source(1).Compute(2).Column=3
+DiskController.Collect.Source(1).Compute(2).ValueList="Controllers"
+
+// Translate Status into PATROLStatus
+// MSHW;ID;Type;Name;Value;PatrolStatus;StatusInformation;Location;AttachedTo;
+DiskController.Collect.Source(1).Compute(3).Type="Translate"
+DiskController.Collect.Source(1).Compute(3).Column=6
+DiskController.Collect.Source(1).Compute(3).TranslationTable="StatusTranslationTable"
+
+// ValueTable = Source(1)
+DiskController.Collect.ValueTable=%DiskController.Collect.Source(1)%
+DiskController.Collect.DeviceID=ValueTable.Column(2)
+DiskController.Collect.ControllerStatus=ValueTable.Column(6)
+DiskController.Collect.StatusInformation=ValueTable.Column(7)
+
+//
+// PhysicalDisks
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(2)
+PhysicalDisk.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep only "PhysicalDisk"
+// MSHW;ID;Type;Name;Size;Status;StatusInformation;Location;AttachedTo;
+PhysicalDisk.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+PhysicalDisk.Discovery.Source(1).Compute(1).Column=3
+PhysicalDisk.Discovery.Source(1).Compute(1).ValueList="Drives"
+
+// Translate size into bytes
+// MSHW;ID;Type;Name;Size;Status;StatusInformation;Location;AttachedTo;
+PhysicalDisk.Discovery.Source(1).Compute(2).Type="Multiply"
+PhysicalDisk.Discovery.Source(1).Compute(2).Column=5
+PhysicalDisk.Discovery.Source(1).Compute(2).MultiplyBy=1000000000
+
+// InstanceTable = Source(1)
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+PhysicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+PhysicalDisk.Discovery.Instance.Size=InstanceTable.Column(5)
+PhysicalDisk.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(8)
+PhysicalDisk.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(9)
+
+//
+// Collect
+
+// Collect type is multi-instance (execute once)
+PhysicalDisk.Collect.Type="MultiInstance"
+
+PhysicalDisk.Collect.Source(1).Type="TelnetInteractive"
+
+PhysicalDisk.Collect.Source(1).Step(1).Type="Sleep"
+PhysicalDisk.Collect.Source(1).Step(1).Duration=1
+PhysicalDisk.Collect.Source(1).Step(1).TelnetOnly=1
+
+PhysicalDisk.Collect.Source(1).Step(2).Type="WaitFor"
+PhysicalDisk.Collect.Source(1).Step(2).Text="ogin:"
+PhysicalDisk.Collect.Source(1).Step(2).Timeout=60
+PhysicalDisk.Collect.Source(1).Step(2).TelnetOnly=1
+
+PhysicalDisk.Collect.Source(1).Step(3).Type="SendUsername"
+PhysicalDisk.Collect.Source(1).Step(3).TelnetOnly=1
+
+PhysicalDisk.Collect.Source(1).Step(4).Type="WaitFor"
+PhysicalDisk.Collect.Source(1).Step(4).Text="assword:"
+PhysicalDisk.Collect.Source(1).Step(4).TimeOut=30
+PhysicalDisk.Collect.Source(1).Step(4).TelnetOnly=1
+
+PhysicalDisk.Collect.Source(1).Step(5).Type="SendPassword"
+PhysicalDisk.Collect.Source(1).Step(5).TelnetOnly=1
+
+PhysicalDisk.Collect.Source(1).Step(6).Type="WaitForPrompt"
+PhysicalDisk.Collect.Source(1).Step(6).TimeOut=30
+
+PhysicalDisk.Collect.Source(1).Step(7).Type="SendText"
+PhysicalDisk.Collect.Source(1).Step(7).Text="syscli --getstatus storagearray\n"
+
+PhysicalDisk.Collect.Source(1).Step(8).Type="GetUntilPrompt"
+PhysicalDisk.Collect.Source(1).Step(8).TimeOut=60
+PhysicalDisk.Collect.Source(1).Step(8).Capture="True"
+
+PhysicalDisk.Collect.Source(1).Step(9).Type="SendText"
+PhysicalDisk.Collect.Source(1).Step(9).Text="syscli --getstatus systemboard\n"
+
+PhysicalDisk.Collect.Source(1).Step(10).Type="GetUntilPrompt"
+PhysicalDisk.Collect.Source(1).Step(10).TimeOut=60
+PhysicalDisk.Collect.Source(1).Step(10).Capture="True"
+
+PhysicalDisk.Collect.Source(1).Step(11).Type="SendText"
+PhysicalDisk.Collect.Source(1).Step(11).Text="for array in `syscli --getstatus storagearray | grep -oP '(?<=Name = )[\w\d]+'`; do echo MSHW_START $array;syscli --getstatus storagearraydetails --name $array ; echo MSHW_END $array; done\n"
+
+PhysicalDisk.Collect.Source(1).Step(12).Type="GetUntilPrompt"
+PhysicalDisk.Collect.Source(1).Step(12).TimeOut=60
+PhysicalDisk.Collect.Source(1).Step(12).Capture="True"
+
+PhysicalDisk.Collect.Source(1).Step(13).Type="SendText"
+PhysicalDisk.Collect.Source(1).Step(13).Text="syscli --getstatus hostbusadapter\n"
+
+PhysicalDisk.Collect.Source(1).Step(14).Type="GetUntilPrompt"
+PhysicalDisk.Collect.Source(1).Step(14).TimeOut=60
+PhysicalDisk.Collect.Source(1).Step(14).Capture="True"
+
+PhysicalDisk.Collect.Source(1).Step(15).Type="SendText"
+PhysicalDisk.Collect.Source(1).Step(15).Text="exit\nlogout\nquit\n"
+PhysicalDisk.Collect.Source(1).Step(15).Capture="False"
+
+// Run the Command Outputs through an AWK Script
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
+PhysicalDisk.Collect.Source(1).Compute(1).Type="Awk"
+PhysicalDisk.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+PhysicalDisk.Collect.Source(1).Compute(1).Separators=";"
+PhysicalDisk.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+// Keep only "PhysicalDisk"
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+PhysicalDisk.Collect.Source(1).Compute(2).Type="KeepOnlyMatchingLines"
+PhysicalDisk.Collect.Source(1).Compute(2).Column=3
+PhysicalDisk.Collect.Source(1).Compute(2).ValueList="Drives"
+
+// Translate Status into PATROLStatus
+// MSHW;ID;Type;Name;Value;PatrolStatus;StatusInformation;Location;AttachedTo;
+PhysicalDisk.Collect.Source(1).Compute(3).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(3).Column=6
+PhysicalDisk.Collect.Source(1).Compute(3).TranslationTable="StatusTranslationTable"
+
+// ValueTable = Source(1)
+PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(1)%
+PhysicalDisk.Collect.DeviceID=ValueTable.Column(2)
+PhysicalDisk.Collect.Status=ValueTable.Column(6)
+PhysicalDisk.Collect.StatusInformation=ValueTable.Column(7)
+
+
+//
+// LogicalDisks
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(2)
+LogicalDisk.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep only "LogicalDisk"
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+LogicalDisk.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+LogicalDisk.Discovery.Source(1).Compute(1).Column=3
+LogicalDisk.Discovery.Source(1).Compute(1).ValueList="Volumes"
+
+// Translate size into bytes
+// MSHW;ID;Type;Name;Size;Status;StatusInformation;Location;AttachedTo;
+LogicalDisk.Discovery.Source(1).Compute(2).Type="Multiply"
+LogicalDisk.Discovery.Source(1).Compute(2).Column=5
+LogicalDisk.Discovery.Source(1).Compute(2).MultiplyBy=1073741824
+
+// InstanceTable = Source(1)
+LogicalDisk.Discovery.InstanceTable=%LogicalDisk.Discovery.Source(1)%
+LogicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+LogicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+LogicalDisk.Discovery.Instance.Size=InstanceTable.Column(5)
+LogicalDisk.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(8)
+LogicalDisk.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(9)
+
+//
+// Collect
+
+// Collect type is multi-instance (execute once)
+LogicalDisk.Collect.Type="MultiInstance"
+
+LogicalDisk.Collect.Source(1).Type="TelnetInteractive"
+
+LogicalDisk.Collect.Source(1).Step(1).Type="Sleep"
+LogicalDisk.Collect.Source(1).Step(1).Duration=1
+LogicalDisk.Collect.Source(1).Step(1).TelnetOnly=1
+
+LogicalDisk.Collect.Source(1).Step(2).Type="WaitFor"
+LogicalDisk.Collect.Source(1).Step(2).Text="ogin:"
+LogicalDisk.Collect.Source(1).Step(2).Timeout=60
+LogicalDisk.Collect.Source(1).Step(2).TelnetOnly=1
+
+LogicalDisk.Collect.Source(1).Step(3).Type="SendUsername"
+LogicalDisk.Collect.Source(1).Step(3).TelnetOnly=1
+
+LogicalDisk.Collect.Source(1).Step(4).Type="WaitFor"
+LogicalDisk.Collect.Source(1).Step(4).Text="assword:"
+LogicalDisk.Collect.Source(1).Step(4).TimeOut=30
+LogicalDisk.Collect.Source(1).Step(4).TelnetOnly=1
+
+LogicalDisk.Collect.Source(1).Step(5).Type="SendPassword"
+LogicalDisk.Collect.Source(1).Step(5).TelnetOnly=1
+
+LogicalDisk.Collect.Source(1).Step(6).Type="WaitForPrompt"
+LogicalDisk.Collect.Source(1).Step(6).TimeOut=30
+
+LogicalDisk.Collect.Source(1).Step(7).Type="SendText"
+LogicalDisk.Collect.Source(1).Step(7).Text="syscli --getstatus storagearray\n"
+
+LogicalDisk.Collect.Source(1).Step(8).Type="GetUntilPrompt"
+LogicalDisk.Collect.Source(1).Step(8).TimeOut=60
+LogicalDisk.Collect.Source(1).Step(8).Capture="True"
+
+LogicalDisk.Collect.Source(1).Step(9).Type="SendText"
+LogicalDisk.Collect.Source(1).Step(9).Text="syscli --getstatus systemboard\n"
+
+LogicalDisk.Collect.Source(1).Step(10).Type="GetUntilPrompt"
+LogicalDisk.Collect.Source(1).Step(10).TimeOut=60
+LogicalDisk.Collect.Source(1).Step(10).Capture="True"
+
+LogicalDisk.Collect.Source(1).Step(11).Type="SendText"
+LogicalDisk.Collect.Source(1).Step(11).Text="for array in `syscli --getstatus storagearray | grep -oP '(?<=Name = )[\w\d]+'`; do echo MSHW_START $array;syscli --getstatus storagearraydetails --name $array ; echo MSHW_END $array; done\n"
+
+LogicalDisk.Collect.Source(1).Step(12).Type="GetUntilPrompt"
+LogicalDisk.Collect.Source(1).Step(12).TimeOut=60
+LogicalDisk.Collect.Source(1).Step(12).Capture="True"
+
+LogicalDisk.Collect.Source(1).Step(13).Type="SendText"
+LogicalDisk.Collect.Source(1).Step(13).Text="syscli --getstatus hostbusadapter\n"
+
+LogicalDisk.Collect.Source(1).Step(14).Type="GetUntilPrompt"
+LogicalDisk.Collect.Source(1).Step(14).TimeOut=60
+LogicalDisk.Collect.Source(1).Step(14).Capture="True"
+
+LogicalDisk.Collect.Source(1).Step(15).Type="SendText"
+LogicalDisk.Collect.Source(1).Step(15).Text="exit\nlogout\nquit\n"
+LogicalDisk.Collect.Source(1).Step(15).Capture="False"
+
+// Run the Command Outputs through an AWK Script
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
+LogicalDisk.Collect.Source(1).Compute(1).Type="Awk"
+LogicalDisk.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+LogicalDisk.Collect.Source(1).Compute(1).Separators=";"
+LogicalDisk.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+
+// Keep only "LogicalDisk"
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+LogicalDisk.Collect.Source(1).Compute(2).Type="KeepOnlyMatchingLines"
+LogicalDisk.Collect.Source(1).Compute(2).Column=3
+LogicalDisk.Collect.Source(1).Compute(2).ValueList="Volumes"
+
+// Translate Status into PATROLStatus
+// MSHW;ID;Type;Name;Value;PatrolStatus;StatusInformation;Location;AttachedTo;
+LogicalDisk.Collect.Source(1).Compute(3).Type="Translate"
+LogicalDisk.Collect.Source(1).Compute(3).Column=6
+LogicalDisk.Collect.Source(1).Compute(3).TranslationTable="StatusTranslationTable"
+
+// ValueTable = Source(1)
+LogicalDisk.Collect.ValueTable=%LogicalDisk.Collect.Source(1)%
+LogicalDisk.Collect.DeviceID=ValueTable.Column(2)
+LogicalDisk.Collect.Status=ValueTable.Column(6)
+LogicalDisk.Collect.StatusInformation=ValueTable.Column(7)
+
+//
+// OtherDevices
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(2)
+OtherDevice.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep only "OtherDevice"
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+OtherDevice.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+OtherDevice.Discovery.Source(1).Compute(1).Column=3
+OtherDevice.Discovery.Source(1).Compute(1).ValueList="IPMI,FCC"
+
+// InstanceTable = Source(1)
+OtherDevice.Discovery.InstanceTable=%OtherDevice.Discovery.Source(1)%
+OtherDevice.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+OtherDevice.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+OtherDevice.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(8)
+OtherDevice.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(9)
+
+
+//
+// Collect
+
+// Collect type is multi-instance (execute once)
+OtherDevice.Collect.Type="MultiInstance"
+
+OtherDevice.Collect.Source(1).Type="TelnetInteractive"
+
+OtherDevice.Collect.Source(1).Step(1).Type="Sleep"
+OtherDevice.Collect.Source(1).Step(1).Duration=1
+OtherDevice.Collect.Source(1).Step(1).TelnetOnly=1
+
+OtherDevice.Collect.Source(1).Step(2).Type="WaitFor"
+OtherDevice.Collect.Source(1).Step(2).Text="ogin:"
+OtherDevice.Collect.Source(1).Step(2).Timeout=60
+OtherDevice.Collect.Source(1).Step(2).TelnetOnly=1
+
+OtherDevice.Collect.Source(1).Step(3).Type="SendUsername"
+OtherDevice.Collect.Source(1).Step(3).TelnetOnly=1
+
+OtherDevice.Collect.Source(1).Step(4).Type="WaitFor"
+OtherDevice.Collect.Source(1).Step(4).Text="assword:"
+OtherDevice.Collect.Source(1).Step(4).TimeOut=30
+OtherDevice.Collect.Source(1).Step(4).TelnetOnly=1
+
+OtherDevice.Collect.Source(1).Step(5).Type="SendPassword"
+OtherDevice.Collect.Source(1).Step(5).TelnetOnly=1
+
+OtherDevice.Collect.Source(1).Step(6).Type="WaitForPrompt"
+OtherDevice.Collect.Source(1).Step(6).TimeOut=30
+
+OtherDevice.Collect.Source(1).Step(7).Type="SendText"
+OtherDevice.Collect.Source(1).Step(7).Text="syscli --getstatus storagearray\n"
+
+OtherDevice.Collect.Source(1).Step(8).Type="GetUntilPrompt"
+OtherDevice.Collect.Source(1).Step(8).TimeOut=60
+OtherDevice.Collect.Source(1).Step(8).Capture="True"
+
+OtherDevice.Collect.Source(1).Step(9).Type="SendText"
+OtherDevice.Collect.Source(1).Step(9).Text="syscli --getstatus systemboard\n"
+
+OtherDevice.Collect.Source(1).Step(10).Type="GetUntilPrompt"
+OtherDevice.Collect.Source(1).Step(10).TimeOut=60
+OtherDevice.Collect.Source(1).Step(10).Capture="True"
+
+OtherDevice.Collect.Source(1).Step(11).Type="SendText"
+OtherDevice.Collect.Source(1).Step(11).Text="for array in `syscli --getstatus storagearray | grep -oP '(?<=Name = )[\w\d]+'`; do echo MSHW_START $array;syscli --getstatus storagearraydetails --name $array ; echo MSHW_END $array; done\n"
+
+OtherDevice.Collect.Source(1).Step(12).Type="GetUntilPrompt"
+OtherDevice.Collect.Source(1).Step(12).TimeOut=60
+OtherDevice.Collect.Source(1).Step(12).Capture="True"
+
+OtherDevice.Collect.Source(1).Step(13).Type="SendText"
+OtherDevice.Collect.Source(1).Step(13).Text="syscli --getstatus hostbusadapter\n"
+
+OtherDevice.Collect.Source(1).Step(14).Type="GetUntilPrompt"
+OtherDevice.Collect.Source(1).Step(14).TimeOut=60
+OtherDevice.Collect.Source(1).Step(14).Capture="True"
+
+OtherDevice.Collect.Source(1).Step(15).Type="SendText"
+OtherDevice.Collect.Source(1).Step(15).Text="exit\nlogout\nquit\n"
+OtherDevice.Collect.Source(1).Step(15).Capture="False"
+
+// Run the Command Outputs through an AWK Script
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;Model;Configuration;SystemVersion;
+OtherDevice.Collect.Source(1).Compute(1).Type="Awk"
+OtherDevice.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+OtherDevice.Collect.Source(1).Compute(1).Separators=";"
+OtherDevice.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+
+// Keep only "OtherDevice"
+// MSHW;ID;Type;Name;Value;Status;StatusInformation;Location;AttachedTo;
+OtherDevice.Collect.Source(1).Compute(2).Type="KeepOnlyMatchingLines"
+OtherDevice.Collect.Source(1).Compute(2).Column=3
+OtherDevice.Collect.Source(1).Compute(2).ValueList="IPMI,FCC"
+
+// Translate Status into PATROLStatus
+// MSHW;ID;Type;Name;Value;PatrolStatus;StatusInformation;Location;AttachedTo;
+OtherDevice.Collect.Source(1).Compute(3).Type="Translate"
+OtherDevice.Collect.Source(1).Compute(3).Column=6
+OtherDevice.Collect.Source(1).Compute(3).TranslationTable="StatusTranslationTable"
+
+// ValueTable = Source(1)
+OtherDevice.Collect.ValueTable=%OtherDevice.Collect.Source(1)%
+OtherDevice.Collect.DeviceID=ValueTable.Column(2)
+OtherDevice.Collect.Status=ValueTable.Column(6)
+OtherDevice.Collect.StatusInformation=ValueTable.Column(7)
+
+
+
+
+//
+// Discovery
+
+// Source(1)
+NetworkCard.Discovery.Source(1).Type="TelnetInteractive"
+
+NetworkCard.Discovery.Source(1).Step(1).Type="Sleep"
+NetworkCard.Discovery.Source(1).Step(1).Duration=1
+NetworkCard.Discovery.Source(1).Step(1).TelnetOnly=1
+
+NetworkCard.Discovery.Source(1).Step(2).Type="WaitFor"
+NetworkCard.Discovery.Source(1).Step(2).Text="ogin:"
+NetworkCard.Discovery.Source(1).Step(2).Timeout=60
+NetworkCard.Discovery.Source(1).Step(2).TelnetOnly=1
+
+NetworkCard.Discovery.Source(1).Step(3).Type="SendUsername"
+NetworkCard.Discovery.Source(1).Step(3).TelnetOnly=1
+
+NetworkCard.Discovery.Source(1).Step(4).Type="WaitFor"
+NetworkCard.Discovery.Source(1).Step(4).Text="assword:"
+NetworkCard.Discovery.Source(1).Step(4).TimeOut=30
+NetworkCard.Discovery.Source(1).Step(4).TelnetOnly=1
+
+NetworkCard.Discovery.Source(1).Step(5).Type="SendPassword"
+NetworkCard.Discovery.Source(1).Step(5).TelnetOnly=1
+
+NetworkCard.Discovery.Source(1).Step(6).Type="WaitForPrompt"
+NetworkCard.Discovery.Source(1).Step(6).TimeOut=30
+
+NetworkCard.Discovery.Source(1).Step(7).Type="SendText"
+NetworkCard.Discovery.Source(1).Step(7).Text="syscli --getstatus commoncomponent --storagearray\n"
+
+NetworkCard.Discovery.Source(1).Step(8).Type="GetUntilPrompt"
+NetworkCard.Discovery.Source(1).Step(8).TimeOut=60
+NetworkCard.Discovery.Source(1).Step(8).Capture="True"
+
+NetworkCard.Discovery.Source(1).Step(9).Type="SendText"
+NetworkCard.Discovery.Source(1).Step(9).Text="syscli --getstatus networkport\n"
+
+NetworkCard.Discovery.Source(1).Step(10).Type="GetUntilPrompt"
+NetworkCard.Discovery.Source(1).Step(10).TimeOut=60
+NetworkCard.Discovery.Source(1).Step(10).Capture="True"
+
+NetworkCard.Discovery.Source(1).Step(11).Type="SendText"
+NetworkCard.Discovery.Source(1).Step(11).Text="syscli --show netcfg\n"
+
+NetworkCard.Discovery.Source(1).Step(12).Type="GetUntilPrompt"
+NetworkCard.Discovery.Source(1).Step(12).TimeOut=60
+NetworkCard.Discovery.Source(1).Step(12).Capture="True"
+
+NetworkCard.Discovery.Source(1).Step(13).Type="SendText"
+NetworkCard.Discovery.Source(1).Step(13).Text="exit\nlogout\nquit\n"
+NetworkCard.Discovery.Source(1).Step(13).Capture="False"
+
+// Run the Command Outputs through an AWK Script
+// MSHW;deviceID;Speed;LinkStatus;receivePackets;transmitPackets;Errors;receiveBytes;transmitBytes;Address;AddressType;AttachedTo;
+NetworkCard.Discovery.Source(1).Compute(1).Type="Awk"
+NetworkCard.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(2)
+NetworkCard.Discovery.Source(1).Compute(1).Separators=";"
+NetworkCard.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+
+// InstanceTable = Source(1)
+// MSHW;deviceID;Speed;LinkStatus;receivePackets;transmitPackets;Errors;receiveBytes;transmitBytes;Address;AddressType;AttachedTo;
+NetworkCard.Discovery.InstanceTable=%NetworkCard.Discovery.Source(1)%
+NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+NetworkCard.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+NetworkCard.Discovery.Instance.PhysicalAddress=InstanceTable.Column(10)
+NetworkCard.Discovery.Instance.PhysicalAddressType=InstanceTable.Column(11)
+NetworkCard.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(12)
+
+
+//
+// Collect
+
+// Collect type is "all instances in one shot"
+NetworkCard.Collect.Type="MultiInstance"
+
+// Source(1)
+NetworkCard.Collect.Source(1).Type="TelnetInteractive"
+
+NetworkCard.Collect.Source(1).Step(1).Type="Sleep"
+NetworkCard.Collect.Source(1).Step(1).Duration=1
+NetworkCard.Collect.Source(1).Step(1).TelnetOnly=1
+
+NetworkCard.Collect.Source(1).Step(2).Type="WaitFor"
+NetworkCard.Collect.Source(1).Step(2).Text="ogin:"
+NetworkCard.Collect.Source(1).Step(2).Timeout=60
+NetworkCard.Collect.Source(1).Step(2).TelnetOnly=1
+
+NetworkCard.Collect.Source(1).Step(3).Type="SendUsername"
+NetworkCard.Collect.Source(1).Step(3).TelnetOnly=1
+
+NetworkCard.Collect.Source(1).Step(4).Type="WaitFor"
+NetworkCard.Collect.Source(1).Step(4).Text="assword:"
+NetworkCard.Collect.Source(1).Step(4).TimeOut=30
+NetworkCard.Collect.Source(1).Step(4).TelnetOnly=1
+
+NetworkCard.Collect.Source(1).Step(5).Type="SendPassword"
+NetworkCard.Collect.Source(1).Step(5).TelnetOnly=1
+
+NetworkCard.Collect.Source(1).Step(6).Type="WaitForPrompt"
+NetworkCard.Collect.Source(1).Step(6).TimeOut=30
+
+NetworkCard.Collect.Source(1).Step(7).Type="SendText"
+NetworkCard.Collect.Source(1).Step(7).Text="syscli --getstatus commoncomponent --storagearray\n"
+
+NetworkCard.Collect.Source(1).Step(8).Type="GetUntilPrompt"
+NetworkCard.Collect.Source(1).Step(8).TimeOut=60
+NetworkCard.Collect.Source(1).Step(8).Capture="True"
+
+NetworkCard.Collect.Source(1).Step(9).Type="SendText"
+NetworkCard.Collect.Source(1).Step(9).Text="syscli --getstatus networkport\n"
+
+NetworkCard.Collect.Source(1).Step(10).Type="GetUntilPrompt"
+NetworkCard.Collect.Source(1).Step(10).TimeOut=60
+NetworkCard.Collect.Source(1).Step(10).Capture="True"
+
+NetworkCard.Collect.Source(1).Step(11).Type="SendText"
+NetworkCard.Collect.Source(1).Step(11).Text="syscli --show netcfg\n"
+
+NetworkCard.Collect.Source(1).Step(12).Type="GetUntilPrompt"
+NetworkCard.Collect.Source(1).Step(12).TimeOut=60
+NetworkCard.Collect.Source(1).Step(12).Capture="True"
+
+NetworkCard.Collect.Source(1).Step(13).Type="SendText"
+NetworkCard.Collect.Source(1).Step(13).Text="exit\nlogout\nquit\n"
+NetworkCard.Collect.Source(1).Step(13).Capture="False"
+
+// Run the Command Outputs through an AWK Script
+// MSHW;deviceID;Speed;LinkStatus;receivePackets;transmitPackets;Errors;receiveBytes;transmitBytes;Address;AddressType;AttachedTo;
+NetworkCard.Collect.Source(1).Compute(1).Type="Awk"
+NetworkCard.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(2)
+NetworkCard.Collect.Source(1).Compute(1).Separators=";"
+NetworkCard.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+
+// Translate the Link Status
+// MSHW;deviceID;Speed;LinkStatus;receivePackets;transmitPackets;Errors;receiveBytes;transmitBytes;Address;AddressType;AttachedTo;
+NetworkCard.Collect.Source(1).Compute(2).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(2).Column=4
+NetworkCard.Collect.Source(1).Compute(2).TranslationTable="LinkTranslationTable"
+
+// The StatusTranslationTable
+LinkTranslationTable("Up")="OK"
+LinkTranslationTable("Down")="WARN"
+LinkTranslationTable(Default)="UNKNOWN"
+
+
+// And here is the ValueTable
+NetworkCard.Collect.ValueTable=%NetworkCard.Collect.Source(1)%
+NetworkCard.Collect.DeviceID=ValueTable.Column(2)
+NetworkCard.Collect.ReceivedPackets=ValueTable.Column(5)
+NetworkCard.Collect.TransmittedPackets=ValueTable.Column(6)
+NetworkCard.Collect.ErrorCount=ValueTable.Column(7)
+NetworkCard.Collect.ReceivedBytes=ValueTable.Column(8)
+NetworkCard.Collect.TransmittedBytes=ValueTable.Column(9)
+NetworkCard.Collect.LinkStatus=ValueTable.Column(4)
+NetworkCard.Collect.LinkSpeed=ValueTable.Column(3)
+
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = awk script that parse the output syscli
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(1):
+# header
+$1 ~ /Product/ && $2 ~ /Model/ {Model = $NF}
+$1 ~ /Hardware/ && $2 ~ /Configuration/ {Configuration = $NF}
+$1 ~ /System/ && $2 ~ /Version/ {SystemVersion = $NF}
+$1 ~ /System/ && $2 ~ /Serial/ && $3 ~ /Number/ {SystemSerialNumber = $NF}
+
+# syscli --getstatus storagearray
+# SECTION storagearray
+$0 ~ /syscli --getstatus storagearray/ {Section = "storagearray"}
+
+Section == "storagearray" && $1 ~ /Array/ && $2 ~ /=/ { ID = $NF ; gsub(/[\]]/,"",ID) ; ID = "Array_" ID
+                           Type[ID] = "Enclosure"
+                         }
+Section == "storagearray" && $1 ~ /Name/ && $2 ~ /=/ { Name[ID] = $0 ; gsub(/^.*= /,"",Name[ID]) }
+
+Section == "storagearray" && $1 ~ /Status/ && $2 ~ /=/ { Status[ID] = $3 ;
+                            StatusInformation[ID] = $0 ; gsub(/^.*= /,"",StatusInformation[ID])
+                          }
+
+# syscli --getstatus systemboard
+# SECTION systemboard
+$0 ~ /syscli --getstatus systemboard/ {Section = "systemboard"}
+
+Section == "systemboard" && $1 ~ /Component/ && $2 ~ /=/ { ID = "SysBoard_" $NF ; gsub(/[\]]/,"",ID) }
+
+Section == "systemboard" && $1 ~ /Type/ && $2 ~ /=/ { Type[ID] = $NF }
+
+Section == "systemboard" && $1 ~ /Value/ && $2 ~ /=/ { Value[ID] = $3 }
+
+Section == "systemboard" && $1 ~ /Status/ && $2 ~ /=/ { Status[ID] = $3 ;
+                            StatusInformation[ID] = $0 ; gsub(/^.*= /,"",StatusInformation[ID])
+                          }
+Section == "systemboard" && $1 ~ /Name/ && $2 ~ /=/ { Name[ID] = $0 ; gsub(/^.*= /,"",Name[ID])
+#Attaching to Array One
+                                          AttachedTo[ID] = Name["Array_1"]
+                                        }
+
+
+
+# SECTION storagearraydetails
+#  for array in `syscli --getstatus storagearray | grep -oP '(?<=Name = )[\w\d]+'`; do echo MSHW_START $array;syscli --getstatus storagearraydetails --name $array ; echo MSHW_END $array; done
+
+$1 ~ /MSHW_START/ { SectionEnclosure = $2 ; Section = "storagearraydetails" }
+
+Section == "storagearraydetails" && $1 ~ /Name/ { SectionType = $3 }
+
+Section == "storagearraydetails" && $1 ~ /subcomponent/ {Section = "storagearraydetails_subcomponent"}
+
+
+
+# SECTION storagearraydetails_subcomponent
+Section == "storagearraydetails_subcomponent" && $1 ~ /[\[]component/ {Section = "storagearraydetails"}
+
+Section == "storagearraydetails_subcomponent" && $1 ~ /subcomponent/ && SectionEnclosure != "" {
+    ID = SectionEnclosure "_" SectionType "_" $NF ; gsub(/[\]]/,"",ID)
+    AttachedTo[ID] = SectionEnclosure
+    Type[ID] = SectionType
+    }
+
+Section == "storagearraydetails_subcomponent" && $1 ~ /Name/ && $2 ~ /=/ {
+    Name[ID] = $0 ; gsub(/^.*= /,"",Name[ID]) ;
+    }
+
+Section == "storagearraydetails_subcomponent" && $1 ~ /Location/ && $2 ~ /=/ {
+    Location[ID] = $0 ; gsub(/^.*= /,"",Location[ID])
+    }
+
+Section == "storagearraydetails_subcomponent" && $1 ~ /Value/ && $2 ~ /=/ { Value[ID] = $3 }
+
+Section == "storagearraydetails_subcomponent" && $1 ~ /Status/ && $2 ~ /=/ { Status[ID] = $3 ;
+                            StatusInformation[ID] = $0 ; gsub(/^.*= /,"",StatusInformation[ID])
+                          }
+
+# syscli --getstatus hostbusadapter
+# SECTION hostbusadapter
+$0 ~ /syscli --getstatus hostbusadapter/ {Section = "hostbusadapter"}
+
+Section == "hostbusadapter" && $1 ~ /Hostbus/ && $2 ~ Adapter && $3 ~ /=/ { ID = "HBA_" $NF ; gsub(/[\]]/,"",ID) ; Type[ID] = "FCC"}
+
+Section == "hostbusadapter" && $1 ~ /Status/ && $2 ~ /=/ { Status[ID] = $3 ;
+                            StatusInformation[ID] = $0 ; gsub(/^.*= /,"",StatusInformation[ID])
+                          }
+Section == "hostbusadapter" && $1 ~ /Name/ && $2 ~ /=/ { Name[ID] = $0 ; gsub(/^.*= /,"",Name[ID])
+#Attaching to Array One
+                                          AttachedTo[ID] = Name["Array_1"]
+                                        }
+
+
+END { for (ID in Name) {
+#Clean Up
+          if ( Type[ID] == "Voltage" && Name[ID] ~ /Power/ ) { Type[ID] = "Power" }
+          if ( Value[ID] == "NA" ) { Value[ID] = ""}
+#Print
+          if ( Name[ID] != "" ) {
+              if ( Type[ID] == "Enclosure" ) {print "MSHW;" ID ";" Type[ID] ";" Name[ID] ";" Value[ID] ";" Status[ID] ";" StatusInformation[ID] ";" Model ";" Configuration ";" SystemVersion ";" }
+                  else {print "MSHW;" ID ";" Type[ID] ";" Name[ID] ";" Value[ID] ";" Status[ID] ";" StatusInformation[ID] ";" Location[ID] ";" AttachedTo[ID] ";"}
+              }
+          }
+    }
+EmbeddedFile(1).End
+/////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////:
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(2) = awk script that parse the output syscli
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(2):
+# syscli --getstatus commoncomponent --storagearray
+$0 ~ /Component Name =/ { AttachedTo = $NF}
+
+# syscli --getstatus networkport
+$1 ~ /Name/ && $2 ~ /=/ {deviceID = $NF}
+$1 ~ /Value/ && $2 ~ /=/ { Speed[deviceID] = $3 ;
+                           if ( Speed[deviceID] ~ /NA/ ) { Speed[deviceID] = ""}
+                           if ( $4 ~ /[Gg][Bb]/ ) { Speed[deviceID] = Speed[deviceID] * 1000 }
+                         }
+$1 ~ /Status/ && $2 ~ /=/ { LinkStatus[deviceID] = $3 }
+
+# syscli --show netcfg
+/^eth[0-9][0-9]* |^vmnic[0-9][0-9]* |^em[0-9][0-9]* |^[Pp][0-9][0-9]*[Pp][0-9][0-9]* / {
+	deviceID = $1 ; MAC[deviceID] = $NF ;
+}
+/^ +RX packets:/ {
+	receivePackets[deviceID] = substr($2, 9, length($2) - 8)
+	receiveErrors[deviceID] = substr($3, 8, length($3) - 7)
+}
+/^ +TX packets:/ {
+	transmitPackets[deviceID] = substr($2, 9, length($2) - 8)
+	transmitErrors[deviceID] = substr($3, 8, length($3) - 7)
+}
+/^ +RX bytes:.*TX bytes:/ {
+	receiveBytes[deviceID] = substr($2, 7, length($2) - 6)
+	transmitBytes[deviceID] = substr($6, 7, length($6) - 6)
+}
+
+END { for (deviceID in Speed) {
+      print "MSHW;" deviceID ";" Speed[deviceID] ";" LinkStatus[deviceID] ";" receivePackets[deviceID] ";" transmitPackets[deviceID]";" receiveErrors[deviceID] + transmitErrors[deviceID] ";" receiveBytes[deviceID] ";" transmitBytes[deviceID] ";" MAC[deviceID] ";MAC;" AttachedTo ";"
+      }
+    }
+EmbeddedFile(2).End
+/////////////////////////////////////////////////////////////////////

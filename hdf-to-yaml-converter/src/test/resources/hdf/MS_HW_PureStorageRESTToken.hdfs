@@ -1,0 +1,681 @@
+//
+//
+//                   C O N N E C T O R
+//
+//                         f o r
+//
+//                    Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//               MS_HW_PureStorageRESTToken.hdf
+//
+//    Supports: Pure Storage FA Series API Version 1.13+
+//
+//         Connects to:  The Pure Storage REST API
+
+
+// HEADER
+hdf.DisplayName="Pure Storage FA Series (REST Token Authentication)"
+hdf.TypicalPlatform="Pure Storage"
+hdf.ReliesOn="Pure Storage REST API"
+hdf.Version="1.0"
+hdf.Comments="This connector discovers the environmental, physical disks, management network cards and fiber ports on Pure Storage FA Series arrays. It relies on the Pure Storage API version 1.13 and higher, and must be provided the token in the password."
+hdf.RemoteSupport="true"
+hdf.LocalSupport="false"
+hdf.AppliesToOS="Storage"
+
+// Try and get a token
+Detection.Criteria(1).Type="HTTP"
+Detection.Criteria(1).Method="POST"
+Detection.Criteria(1).URL="/api/1.13/auth/session"
+Detection.Criteria(1).Header=EmbeddedFile(1)
+Detection.Criteria(1).Body="{""api_token"": ""%{PASSWORD}""}"
+Detection.Criteria(1).ResultContent="all"
+Detection.Criteria(1).ExpectedResult="session"
+Detection.Criteria(1).ErrorMessage="Authentication Failed. Check the provided authentication token."
+
+
+//
+// Enclosures
+//
+
+// Discovery
+// Get Session
+Enclosure.Discovery.Source(1).Type="HTTP"
+Enclosure.Discovery.Source(1).Method="POST"
+Enclosure.Discovery.Source(1).URL="/api/1.13/auth/session"
+Enclosure.Discovery.Source(1).Header=EmbeddedFile(1)
+Enclosure.Discovery.Source(1).Body="{""api_token"": ""%{PASSWORD}""}"
+Enclosure.Discovery.Source(1).ResultContent="all"
+
+//Parse Cookie
+Enclosure.Discovery.Source(1).Compute(1).Type="Awk"
+Enclosure.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(2)
+
+// For use in Fan, Temperature, PowerSupply
+Enclosure.Discovery.Source(2).Type="HTTP"
+Enclosure.Discovery.Source(2).Method="GET"
+Enclosure.Discovery.Source(2).URL="/api/1.13/hardware"
+Enclosure.Discovery.Source(2).Header=EmbeddedFile(3)
+Enclosure.Discovery.Source(2).AuthenticationToken=%Enclosure.Discovery.Source(1)%
+
+// Convert JSON to CSV
+// Name is taken 3 times. Unique ID, Controller, and Name
+// json;status;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
+Enclosure.Discovery.Source(2).Compute(1).Type="Json2Csv"
+Enclosure.Discovery.Source(2).Compute(1).EntryKey="/"
+Enclosure.Discovery.Source(2).Compute(1).Properties="/status;/slot;/name;/temperature;/index;/identify;/voltage;/model;/speed;/serial;/details;"
+
+// Parse Hardware query results
+Enclosure.Discovery.Source(2).Compute(2).Type="Awk"
+Enclosure.Discovery.Source(2).Compute(2).AwkScript=EmbeddedFile(4)
+
+// For use in other discoveries
+Enclosure.Discovery.Source(3)=%Enclosure.Discovery.Source(2)%
+
+// Keep Only Enclosures
+// name;model;serial;MSHW_Enclosure;DeviceType
+Enclosure.Discovery.Source(3).Compute(1).Type="KeepOnlyMatchingLines"
+Enclosure.Discovery.Source(3).Compute(1).Column=4
+Enclosure.Discovery.Source(3).Compute(1).RegExp="MSHW_Enclosure"
+
+// Get drive for otherdevice and PhysicalDisk
+Enclosure.Discovery.Source(4).Type="HTTP"
+Enclosure.Discovery.Source(4).Method="GET"
+Enclosure.Discovery.Source(4).URL="/api/1.13/drive"
+Enclosure.Discovery.Source(4).Header=EmbeddedFile(3)
+Enclosure.Discovery.Source(4).AuthenticationToken=%Enclosure.Discovery.Source(1)%
+
+// Convert JSON to CSV
+// JSON;protocol;name;name;name;capacity;type;
+Enclosure.Discovery.Source(4).Compute(1).Type="Json2Csv"
+Enclosure.Discovery.Source(4).Compute(1).EntryKey="/"
+Enclosure.Discovery.Source(4).Compute(1).Properties="/name;/capacity;/type;/status;"
+
+// Parse Drive query results
+// name;enclosure;displayID;capacity;type;status;MSHW_DRIVE;DeviceType
+Enclosure.Discovery.Source(4).Compute(2).Type="Awk"
+Enclosure.Discovery.Source(4).Compute(2).AwkScript=EmbeddedFile(5)
+
+Enclosure.Discovery.Source(4).Compute(3).Type="ExcludeMatchingLines"
+Enclosure.Discovery.Source(4).Compute(3).Column=6
+Enclosure.Discovery.Source(4).Compute(3).RegExp="unused"
+
+// InstanceTable
+// name;model;serial;MSHW_Enclosure;DeviceType
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(3)%
+Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Enclosure.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(2)
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(3)
+Enclosure.Discovery.Instance.Type=InstanceTable.Column(5)
+Enclosure.Discovery.Instance.Vendor="Pure Storage"
+
+
+// Collect
+// MultiInstance
+Enclosure.Collect.Type="MultiInstance"
+
+Enclosure.Collect.Source(1).Type="HTTP"
+Enclosure.Collect.Source(1).Method="GET"
+Enclosure.Collect.Source(1).URL="/api/1.13/hardware"
+Enclosure.Collect.Source(1).Header=EmbeddedFile(3)
+Enclosure.Collect.Source(1).AuthenticationToken=%Enclosure.Discovery.Source(1)%
+
+// Convert JSON to CSV
+// Status is collected 2 times. Status; StatusInformation
+// json;status;status;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
+Enclosure.Collect.Source(1).Compute(1).Type="Json2Csv"
+Enclosure.Collect.Source(1).Compute(1).EntryKey="/"
+Enclosure.Collect.Source(1).Compute(1).Properties="/status;/status;/slot;/name;/temperature;/index;/identify;/voltage;/model;/speed;/serial;/details;"
+
+// Translate PatrolStatus
+// json;PatrolStatus;status;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
+Enclosure.Collect.Source(1).Compute(2).Type="Translate"
+Enclosure.Collect.Source(1).Compute(2).Column=2
+Enclosure.Collect.Source(1).Compute(2).TranslationTable="StatusTranslationTable"
+
+// Translate Status Information
+// json;PatrolStatus;StatusInformation;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
+Enclosure.Collect.Source(1).Compute(3).Type="Translate"
+Enclosure.Collect.Source(1).Compute(3).Column=3
+Enclosure.Collect.Source(1).Compute(3).TranslationTable="StatusInformationTranslationTable"
+
+Enclosure.Collect.Source(2).Type="HTTP"
+Enclosure.Collect.Source(2).Method="GET"
+Enclosure.Collect.Source(2).URL="/api/1.13/drive"
+Enclosure.Collect.Source(2).Header=EmbeddedFile(3)
+Enclosure.Collect.Source(2).AuthenticationToken=%Enclosure.Discovery.Source(1)%
+
+// Convert JSON to CSV
+// JSON;name;status;status;
+Enclosure.Collect.Source(2).Compute(1).Type="Json2Csv"
+Enclosure.Collect.Source(2).Compute(1).EntryKey="/"
+Enclosure.Collect.Source(2).Compute(1).Properties="/name;/status;/status;"
+
+// Translate PatrolStatus
+// JSON;name;PatrolStatus;status;
+Enclosure.Collect.Source(2).Compute(2).Type="Translate"
+Enclosure.Collect.Source(2).Compute(2).Column=3
+Enclosure.Collect.Source(2).Compute(2).TranslationTable="DriveTranslationTable"
+
+// Translate Status Information
+// JSON;name;PatrolStatus;StatusInformation;
+Enclosure.Collect.Source(2).Compute(3).Type="Translate"
+Enclosure.Collect.Source(2).Compute(3).Column=4
+Enclosure.Collect.Source(2).Compute(3).TranslationTable="DriveInformationTranslationTable"
+
+// ValueTable
+// json;PatrolStatus;StatusInformation;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
+Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(1)%
+Enclosure.Collect.DeviceID=ValueTable.Column(5)
+Enclosure.Collect.Status=ValueTable.Column(2)
+Enclosure.Collect.StatusInformation=ValueTable.Column(3)
+
+
+//
+// Blade
+//
+
+// Discovery
+Blade.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+
+// Keep Only Blades
+// name;model;serial;MSHW_Blade;DeviceType
+Blade.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Blade.Discovery.Source(1).Compute(1).Column=4
+Blade.Discovery.Source(1).Compute(1).RegExp="MSHW_Blade"
+
+Blade.Discovery.Source(1).Compute(2).Type="LeftConcat"
+Blade.Discovery.Source(1).Compute(2).Column=4
+Blade.Discovery.Source(1).Compute(2).String="Type: "
+
+// InstanceTable
+// name;model;serial;MSHW_Blade;DeviceType
+Blade.Discovery.InstanceTable=%Blade.Discovery.Source(1)%
+Blade.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Blade.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+Blade.Discovery.Instance.BladeName=InstanceTable.Column(1)
+Blade.Discovery.Instance.BladeModel=InstanceTable.Column(2)
+Blade.Discovery.Instance.SerialNumber=InstanceTable.Column(3)
+Blade.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(5)
+
+// Collect
+// MultiInstance
+Blade.Collect.Type="MultiInstance"
+
+Blade.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// InstanceTable
+// json;PatrolStatus;StatusInformation;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
+Blade.Collect.ValueTable=%Blade.Collect.Source(1)%
+Blade.Collect.DeviceID=ValueTable.Column(5)
+Blade.Collect.Status=ValueTable.Column(2)
+Blade.Collect.StatusInformation=ValueTable.Column(3)
+
+
+//
+// Temperature
+//
+
+// Discovery
+// name;enclosure;displayID;MSHW_Temperature;DeviceType
+Temperature.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+
+// name;enclosure;displayID;MSHW_Temperature;DeviceType
+Temperature.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Temperature.Discovery.Source(1).Compute(1).Column=4
+Temperature.Discovery.Source(1).Compute(1).RegExp="MSHW_Temperature"
+
+// InstanceTable
+// name;enclosure;displayID;MSHW_Temperature;DeviceType
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Temperature.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+
+Temperature.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+Temperature.Discovery.Instance.AttachedToDeviceType=InstanceTable.Column(5)
+
+// Collect
+// MultiInstance
+Temperature.Collect.Type="MultiInstance"
+
+// ValueTable
+// JSONID;status;status;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
+Temperature.Collect.ValueTable=%Enclosure.Collect.Source(1)%
+Temperature.Collect.DeviceID=ValueTable.Column(5)
+Temperature.Collect.Temperature=ValueTable.Column(6)
+Temperature.Collect.Status=ValueTable.Column(2)
+Temperature.Collect.StatusInformation=ValueTable.Column(3)
+
+
+//
+// Fan
+//
+
+// Discovery
+// name;enclosure;displayID;MSHW_FAN;DeviceType
+Fan.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+
+// name;enclosure;displayID;MSHW_FAN;DeviceType
+Fan.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Fan.Discovery.Source(1).Compute(1).Column=4
+Fan.Discovery.Source(1).Compute(1).RegExp="MSHW_FAN"
+
+// InstanceTable
+// name;enclosure;displayID;MSHW_FAN;DeviceType
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Fan.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+
+Fan.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+Fan.Discovery.Instance.AttachedToDeviceType=InstanceTable.Column(5)
+
+// Collect
+// MultiInstance
+Fan.Collect.Type="MultiInstance"
+
+// ValueTable
+// JSONID;status;status;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
+Fan.Collect.ValueTable=%Enclosure.Collect.Source(1)%
+Fan.Collect.DeviceID=ValueTable.Column(5)
+Fan.Collect.Status=ValueTable.Column(2)
+Fan.Collect.StatusInformation=ValueTable.Column(3)
+
+
+//
+// PowerSupply
+//
+
+// Discovery
+// name;enclosure;displayID;model;serial;MSHW_PWR;DeviceType
+PowerSupply.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+
+// name;enclosure;displayID;model;serial;MSHW_PWR;DeviceType
+PowerSupply.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+PowerSupply.Discovery.Source(1).Compute(1).Column=6
+PowerSupply.Discovery.Source(1).Compute(1).RegExp="MSHW_PWR"
+
+PowerSupply.Discovery.Source(1).Compute(2).Type="LeftConcat"
+PowerSupply.Discovery.Source(1).Compute(2).Column=5
+PowerSupply.Discovery.Source(1).Compute(2).String="Serial Number: "
+
+// InstanceTable
+// name;enclosure;displayID;model;serial;MSHW_PWR;DeviceType
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PowerSupply.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+PowerSupply.Discovery.Instance.PowerSupplyType=InstanceTable.Column(4)
+PowerSupply.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(5)
+
+PowerSupply.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+PowerSupply.Discovery.Instance.AttachedToDeviceType=InstanceTable.Column(7)
+
+// Collect
+// MultiInstance
+PowerSupply.Collect.Type="MultiInstance"
+
+// ValueTable
+// JSONID;status;status;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
+PowerSupply.Collect.ValueTable=%Enclosure.Collect.Source(1)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(5)
+PowerSupply.Collect.Status=ValueTable.Column(2)
+PowerSupply.Collect.StatusInformation=ValueTable.Column(3)
+
+
+//
+// NetworkCard
+//
+
+// Discovery
+NetworkCard.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+
+// name;enclosure;displayID;MSHW_NetworkCard;DeviceType
+NetworkCard.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+NetworkCard.Discovery.Source(1).Compute(1).Column=4
+NetworkCard.Discovery.Source(1).Compute(1).RegExp="MSHW_NetworkCard"
+
+NetworkCard.Discovery.Source(2).Type="HTTP"
+NetworkCard.Discovery.Source(2).Method="GET"
+NetworkCard.Discovery.Source(2).URL="/api/1.13/network"
+NetworkCard.Discovery.Source(2).Header=EmbeddedFile(3)
+NetworkCard.Discovery.Source(2).AuthenticationToken=%Enclosure.Discovery.Source(1)%
+
+// json;name;hwaddr;enabled;
+NetworkCard.Discovery.Source(2).Compute(1).Type="Json2Csv"
+NetworkCard.Discovery.Source(2).Compute(1).EntryKey="/"
+NetworkCard.Discovery.Source(2).Compute(1).Properties="/name;/hwaddr;/enabled"
+
+// Extract Name
+// json;name;hwaddr;enabled;
+NetworkCard.Discovery.Source(2).Compute(2).Type="Extract"
+NetworkCard.Discovery.Source(2).Compute(2).Column=2
+NetworkCard.Discovery.Source(2).Compute(2).SubColumn=2
+NetworkCard.Discovery.Source(2).Compute(2).SubSeparators="."
+
+// Table Join
+// Left Table :  name;enclosure;displayID;MSHW_NetworkCard;DeviceType
+// Right Table : json;name;hwaddr;enabled;
+// Result: name;enclosure;displayID;MSHW_NetworkCard;DeviceType;json;name;hwaddr;enabled;
+NetworkCard.Discovery.Source(3).Type="TableJoint"
+NetworkCard.Discovery.Source(3).LeftTable=%NetworkCard.Discovery.Source(1)%
+NetworkCard.Discovery.Source(3).RightTable=%NetworkCard.Discovery.Source(2)%
+NetworkCard.Discovery.Source(3).LeftKeyColumn=3
+NetworkCard.Discovery.Source(3).RightKeyColumn=2
+
+// Translate "enabled" to Link Speed Activation
+NetworkCard.Discovery.Source(3).Compute(1).Type="Translate"
+NetworkCard.Discovery.Source(3).Compute(1).Column=9
+NetworkCard.Discovery.Source(3).Compute(1).TranslationTable="LinkSpeedActivationTable"
+
+LinkSpeedActivationTable("true")="true"
+LinkSpeedActivationTable("false")=""
+
+// InstanceTable
+// name;enclosure;displayID;MSHW_NetworkCard;DeviceType;json;name;hwaddr;enabled;
+NetworkCard.Discovery.InstanceTable=%NetworkCard.Discovery.Source(3)%
+NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+NetworkCard.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+NetworkCard.Discovery.Instance.PhysicalAddress=InstanceTable.Column(7)
+NetworkCard.Discovery.Instance.ParameterActivation.LinkSpeed=InstanceTable.Column(9)
+NetworkCard.Discovery.Instance.PhysicalAddressType=InstanceTable.Column(10)
+
+
+NetworkCard.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+NetworkCard.Discovery.Instance.AttachedToDeviceType=InstanceTable.Column(5)
+
+// Collect
+// MultiInstance
+NetworkCard.Collect.Type="MultiInstance"
+
+// JSONID;status;status;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
+NetworkCard.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// status;status;name;speed;
+NetworkCard.Collect.Source(1).Compute(1).Type="KeepColumns"
+NetworkCard.Collect.Source(1).Compute(1).ColumnNumbers="2,3,5"
+
+// Get Network information
+NetworkCard.Collect.Source(2).Type="HTTP"
+NetworkCard.Collect.Source(2).Method="GET"
+NetworkCard.Collect.Source(2).URL="/api/1.13/network"
+NetworkCard.Collect.Source(2).Header=EmbeddedFile(3)
+NetworkCard.Collect.Source(2).AuthenticationToken=%Enclosure.Discovery.Source(1)%
+
+// Convert JSON to CSV
+// json;name;speed;
+NetworkCard.Collect.Source(2).Compute(1).Type="Json2Csv"
+NetworkCard.Collect.Source(2).Compute(1).EntryKey="/"
+NetworkCard.Collect.Source(2).Compute(1).Properties="/name;/speed;/enabled;"
+
+// Network Speed in b. Convert to Mb
+// json;name;speed;enabled;
+NetworkCard.Collect.Source(2).Compute(2).Type="Divide"
+NetworkCard.Collect.Source(2).Compute(2).Column=3
+NetworkCard.Collect.Source(2).Compute(2).DivideBy=1000000
+
+// Join Tables
+// Table 1 : PatrolStatus;StatusInformation;name;
+// Table 2 : json;name;speed;enabled;
+NetworkCard.Collect.Source(3).Type="TableJoint"
+NetworkCard.Collect.Source(3).LeftTable=%NetworkCard.Collect.Source(1)%
+NetworkCard.Collect.Source(3).RightTable=%NetworkCard.Collect.Source(2)%
+NetworkCard.Collect.Source(3).LeftKeyColumn=3
+NetworkCard.Collect.Source(3).RightKeyColumn=2
+
+// PatrolStatus;StatusInformation;name;json;name;speed;enabled;
+NetworkCard.Collect.Source(3).Compute(1).Type="Translate"
+NetworkCard.Collect.Source(3).Compute(1).Column=7
+NetworkCard.Collect.Source(3).Compute(1).TranslationTable="LinkStatusTranslationTable"
+
+LinkStatusTranslationTable("false")="WARN"
+LinkStatusTranslationTable(Default)="OK"
+
+// ValueTable
+// PatrolStatus;StatusInformation;name;json;name;speed;
+NetworkCard.Collect.ValueTable=%NetworkCard.Collect.Source(3)%
+NetworkCard.Collect.DeviceID=ValueTable.Column(3)
+NetworkCard.Collect.Status=ValueTable.Column(1)
+NetworkCard.Collect.StatusInformation=ValueTable.Column(2)
+NetworkCard.Collect.LinkSpeed=ValueTable.Column(6)
+NetworkCard.Collect.LinkStatus=ValueTable.Column(7)
+
+
+//
+// PhysicalDisk
+//
+
+// Discovery
+
+// name;enclosure;displayID;capacity;type;status;MSHW_Type;DeviceType
+PhysicalDisk.Discovery.Source(1)=%Enclosure.Discovery.Source(4)%
+
+// Keep only "MSHW_Drive"
+// name;enclosure;displayID;capacity;type;status;MSHW_Type;DeviceType
+PhysicalDisk.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+PhysicalDisk.Discovery.Source(1).Compute(1).Column=7
+PhysicalDisk.Discovery.Source(1).Compute(1).RegExp="MSHW_Drive"
+
+// InstanceTable
+// name;enclosure;displayID;capacity;type;status;MSHW_Type;DeviceType
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PhysicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+PhysicalDisk.Discovery.Instance.Size=InstanceTable.Column(4)
+PhysicalDisk.Discovery.Instance.Model=InstanceTable.Column(5)
+
+PhysicalDisk.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+PhysicalDisk.Discovery.Instance.AttachedToDeviceType=InstanceTable.Column(8)
+
+// Collect
+// MultiInstance
+PhysicalDisk.Collect.Type="MultiInstance"
+
+// ValueTable
+// JSON;name;PatrolStatus;StatusInformation;
+PhysicalDisk.Collect.ValueTable=%Enclosure.Collect.Source(2)%
+PhysicalDisk.Collect.DeviceID=ValueTable.Column(2)
+PhysicalDisk.Collect.Status=ValueTable.Column(3)
+PhysicalDisk.Collect.StatusInformation=ValueTable.Column(4)
+
+//
+// OtherDevices
+//
+
+// Discovery
+// name;enclosure;displayID;capacity;type;status;MSHW_Type;DeviceType
+OtherDevice.Discovery.Source(1)=%Enclosure.Discovery.Source(4)%
+
+// Keep only "MSHW_OtherDevice"
+// name;enclosure;displayID;capacity;type;status;MSHW_Type;DeviceType
+OtherDevice.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+OtherDevice.Discovery.Source(1).Compute(1).Column=7
+OtherDevice.Discovery.Source(1).Compute(1).RegExp="MSHW_OtherDevice"
+
+// InstanceTable
+// name;enclosure;displayID;capacity;type;status;MSHW_Type;DeviceType
+OtherDevice.Discovery.InstanceTable=%OtherDevice.Discovery.Source(1)%
+OtherDevice.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+OtherDevice.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+OtherDevice.Discovery.Instance.DeviceType=InstanceTable.Column(5)
+
+OtherDevice.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+OtherDevice.Discovery.Instance.AttachedToDeviceType=InstanceTable.Column(8)
+
+
+// Collect
+// MultiInstance
+OtherDevice.Collect.Type="MultiInstance"
+
+// ValueTable
+// JSON;name;PatrolStatus;StatusInformation;
+OtherDevice.Collect.ValueTable=%Enclosure.Collect.Source(2)%
+OtherDevice.Collect.DeviceID=ValueTable.Column(2)
+OtherDevice.Collect.Status=ValueTable.Column(3)
+OtherDevice.Collect.StatusInformation=ValueTable.Column(4)
+
+// The Patrol Status translation table
+StatusTranslationTable("ready")="OK"
+StatusTranslationTable("ok")="OK"
+StatusTranslationTable("degraded")="WARN"
+StatusTranslationTable("failed")="ALARM"
+StatusTranslationTable("not_installed")="ALARM"
+StatusTranslationTable(Default)="ALARM"
+
+// The status information translation table
+StatusInformationTranslationTable("ready")="OK"
+StatusInformationTranslationTable("ok")=""
+StatusInformationTranslationTable("degraded")="Degraded"
+StatusInformationTranslationTable("failed")="Failed"
+StatusInformationTranslationTable("not_installed")="Missing"
+
+// The Drive PatrolStatus translation Table
+DriveTranslationTable("healthy")="OK"
+DriveTranslationTable("foreign")="WARN"
+DriveTranslationTable("reachable")="WARN"
+DriveTranslationTable("failed")="ALARM"
+DriveTranslationTable("missing")="ALARM"
+DriveTranslationTable(Default)="ALARM"
+
+// The Drive StatusInformation translation Table
+DriveInformationTranslationTable("healthy")="healthy"
+DriveInformationTranslationTable("foreign")="Drive is foreign to the array - "
+DriveInformationTranslationTable("reachable")="Reachable but not initialized - "
+DriveInformationTranslationTable("failed")="Failed - "
+DriveInformationTranslationTable("missing")="Missing - "
+
+/////////////////////////////////////////////////////////
+////  AWK Scripts
+/////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = Headers
+/////////////////////////////////////////////////////////
+EmbeddedFile(1):
+Content-Type:application/json
+Accept:application/json
+EmbeddedFile(1).End
+/////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(2) = AuthenticationToken parsing
+/////////////////////////////////////////////////////////
+EmbeddedFile(2):
+BEGIN {FS=":";}
+{
+if ($1 == "Set-Cookie")
+    {
+	     split($2,outputarray,";")
+	     AuthenticationToken=outputarray[1]
+	     print AuthenticationToken
+    }
+}
+EmbeddedFile(2).End
+/////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(3) = Headers + cookie
+/////////////////////////////////////////////////////////
+EmbeddedFile(3):
+Content-Type: application/json
+Accept: application/json
+Cookie: %{AUTHENTICATIONTOKEN}
+EmbeddedFile(3).End
+/////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(4) = awk script that parse the output of hardware query
+///    json;status;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
+///     1     2     3    4    5             6      7       8      9      10   11     12
+///
+///    Enclosure
+///    name;model;serial;MSHW_Enclosure;DeviceType
+///
+///    Blade
+///    name;model;serial;MSHW_Blade;DeviceType
+///
+///    Temperature
+///    name;enclosure;displayID;MSHW_Temperature;DeviceType
+///
+///    Fan
+///    name;enclosure;displayID;MSHW_FAN;DeviceType
+///
+///    PowerSupply
+///    name;enclosure;displayID;model;serial;MSHW_PWR;DeviceType
+///
+///    NetworkCard
+///    name;enclosure;displayID;MSHW_NetworkCard;DeviceType
+/////////////////////////////////////////////////////////
+EmbeddedFile(4):
+BEGIN {FS=";";}
+{
+  enclosure = $4 ; gsub ("[.].+","",enclosure);
+  displayID = $4 ; gsub ("^.+[.]","",displayID);
+  if ($4 ~ /^CH[0-9]+$/) { print $4 ";" $9 ";" $11 ";MSHW_Enclosure;Enclosure" }
+
+  if ($4 ~ /^SH[0-9]+$/) { print $4 ";" $9 ";" $11 ";MSHW_Blade;Blade" }
+  if ($4 ~ /^CT[0-9]+$/) { print $4 ";" $9 ";" $11 ";MSHW_Blade;Blade" }
+
+  if ($4 ~ /^CT[0-9]+\.TMP[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_Temperature;Blade"}
+  if ($4 ~ /^CH[0-9]+\.TMP[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_Temperature;Enclosure"}
+  if ($4 ~ /^SH[0-9]+\.TMP[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_Temperature;Blade"}
+
+  if ($4 ~ /^CT[0-9]+\.FAN[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_FAN;Blade"}
+  if ($4 ~ /^CH[0-9]+\.FAN[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_FAN;Enclosure"}
+  if ($4 ~ /^SH[0-9]+\.FAN[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_FAN;Blade"}
+
+  if ($4 ~ /^CT[0-9]+\.PWR[0-9]+$/) { print $4 ";" enclosure ";" displayID ";" $9 ";" $11 ";MSHW_PWR;Blade"}
+  if ($4 ~ /^CH[0-9]+\.PWR[0-9]+$/) { print $4 ";" enclosure ";" displayID ";" $9 ";" $11 ";MSHW_PWR;Enclosure"}
+  if ($4 ~ /^SH[0-9]+\.PWR[0-9]+$/) { print $4 ";" enclosure ";" displayID ";" $9 ";" $11 ";MSHW_PWR;Blade"}
+
+  if ($4 ~ /^CT[0-9]+\.ETH[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_NetworkCard;Blade;MAC"}
+  if ($4 ~ /^CH[0-9]+\.ETH[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_NetworkCard;Enclosure;MAC"}
+  if ($4 ~ /^SH[0-9]+\.ETH[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_NetworkCard;Blade;MAC"}
+
+  if ($4 ~ /^CT[0-9]+\.FC[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_NetworkCard;Blade;WWN"}
+  if ($4 ~ /^CH[0-9]+\.FC[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_NetworkCard;Enclosure;WWN"}
+  if ($4 ~ /^SH[0-9]+\.FC[0-9]+$/) { print $4 ";" enclosure ";" displayID ";MSHW_NetworkCard;Blade;WWN"}
+}
+EmbeddedFile(4).End
+/////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(5) = awk script that parse the output of drive query
+///    json;name;capacity;type;status;
+///
+///    PhysicalDisk
+///    name;enclosure;displayID;capacity;type;status;MSHW_Type;DeviceType
+/////////////////////////////////////////////////////////
+EmbeddedFile(5):
+BEGIN {FS=";";}
+{
+  enclosure = $2 ; gsub ("[.].+","",enclosure);
+  displayID = $2 ; gsub ("^.+[.]","",displayID);
+
+  if ($2 ~ /^CT[0-9]+\.BAY[0-9]+$/) { print $2 ";" enclosure ";" displayID ";" $3 ";" $4 ";" $5 ";MSHW_Drive;DiskController"}
+  if ($2 ~ /^CH[0-9]+\.BAY[0-9]+$/) { print $2 ";" enclosure ";" displayID ";" $3 ";" $4 ";" $5 ";MSHW_Drive;Enclosure"}
+  if ($2 ~ /^SH[0-9]+\.BAY[0-9]+$/) { print $2 ";" enclosure ";" displayID ";" $3 ";" $4 ";" $5 ";MSHW_Drive;Disk Shelf"}
+
+  if ($2 ~ /^CT[0-9]+\.NVB[0-9]+$/) { print $2 ";" enclosure ";" displayID ";" $3 ";" $4 ";" $5 ";MSHW_OtherDevice;DiskController"}
+  if ($2 ~ /^CH[0-9]+\.NVB[0-9]+$/) { print $2 ";" enclosure ";" displayID ";" $3 ";" $4 ";" $5 ";MSHW_OtherDevice;Enclosure"}
+  if ($2 ~ /^SH[0-9]+\.NVB[0-9]+$/) { print $2 ";" enclosure ";" displayID ";" $3 ";" $4 ";" $5 ";MSHW_OtherDevice;Disk Shelf"}
+
+}
+EmbeddedFile(5).End
+/////////////////////////////////////////////////////////////////////

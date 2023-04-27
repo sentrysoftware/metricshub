@@ -1,0 +1,1608 @@
+//
+//
+//                 C O N N E C T O R
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//              by Sentry Software (c)
+//
+//                MS_HW_HPDotHill.hdf.hdf
+//
+//      Supports:  HP (DotHill) P2000 / MSA
+//
+//      Connects to:  The P2000 / MSA management card
+//
+//
+
+//
+// HEADER
+
+hdf.DisplayName="HP MSA 2000 & P2000"
+hdf.TypicalPlatform="HP StorageWorks MSA P2000"
+hdf.ReliesOn="HP MSA Management Card"
+hdf.Version="1.0"
+hdf.Comments="This connector discovers the Environmental, Physical Disk, Logical Disk, Management Network Cards and Fibre Ports on P2000 / MSA Series Filers. We recommend setting the collection interval for all MSA Disk arrays to at least 15 minutes to prevent the management card from being overloaded."
+hdf.RemoteSupport="true"
+hdf.LocalSupport="false"
+hdf.AppliesToOS="Storage"
+hdf.Supersedes="MS_HW_MIB2.hdf"
+
+// host should respond to telnet the way described below
+Detection.Criteria(1).Type="TelnetInteractive"
+Detection.Criteria(1).ForceSerialization=1
+
+Detection.Criteria(1).Step(1).Type="Sleep"
+Detection.Criteria(1).Step(1).Duration=1
+
+Detection.Criteria(1).Step(2).Type="WaitFor"
+Detection.Criteria(1).Step(2).TelnetOnly=1
+Detection.Criteria(1).Step(2).Text="ogin:"
+Detection.Criteria(1).Step(2).TimeOut=60
+
+Detection.Criteria(1).Step(3).Type="SendUsername"
+Detection.Criteria(1).Step(3).TelnetOnly=1
+
+Detection.Criteria(1).Step(4).Type="WaitFor"
+Detection.Criteria(1).Step(4).TelnetOnly=1
+Detection.Criteria(1).Step(4).Text="assword:"
+Detection.Criteria(1).Step(4).TimeOut=60
+
+Detection.Criteria(1).Step(5).Type="SendPassword"
+Detection.Criteria(1).Step(5).TelnetOnly=1
+
+Detection.Criteria(1).Step(6).Type="WaitForPrompt"
+Detection.Criteria(1).Step(6).TimeOut=60
+
+Detection.Criteria(1).Step(7).Type="SendText"
+Detection.Criteria(1).Step(7).Text="set cli-parameters pager off\n"
+
+Detection.Criteria(1).Step(8).Type="GetUntilPrompt"
+Detection.Criteria(1).Step(8).TimeOut=60
+Detection.Criteria(1).Step(8).Capture="True"
+
+Detection.Criteria(1).Step(9).Type="SendText"
+Detection.Criteria(1).Step(9).Text="versions\n"
+
+Detection.Criteria(1).Step(10).Type="GetUntilPrompt"
+Detection.Criteria(1).Step(10).TimeOut=60
+Detection.Criteria(1).Step(10).Capture="True"
+
+Detection.Criteria(1).Step(11).Type="SendText"
+Detection.Criteria(1).Step(11).Text="exit\n"
+Detection.Criteria(1).Step(11).Capture="False"
+
+Detection.Criteria(1).ExpectedResult="\(Storage Controller CPU Type\)\|\(Controller . Versions\)"
+
+
+
+//
+// COMPUTER
+//
+
+//
+// Discovery
+
+// Source(1) = Output of show configuration
+
+
+Enclosure.Discovery.Source(1).Type="TelnetInteractive"
+Enclosure.Discovery.Source(1).ForceSerialization=1
+
+Enclosure.Discovery.Source(1).Step(1).Type="Sleep"
+Enclosure.Discovery.Source(1).Step(1).Duration=1
+Enclosure.Discovery.Source(1).Step(1).TelnetOnly=1
+
+Enclosure.Discovery.Source(1).Step(2).Type="WaitFor"
+Enclosure.Discovery.Source(1).Step(2).Text="ogin:"
+Enclosure.Discovery.Source(1).Step(2).Timeout=60
+Enclosure.Discovery.Source(1).Step(2).TelnetOnly=1
+
+Enclosure.Discovery.Source(1).Step(3).Type="SendUsername"
+Enclosure.Discovery.Source(1).Step(3).TelnetOnly=1
+
+Enclosure.Discovery.Source(1).Step(4).Type="WaitFor"
+Enclosure.Discovery.Source(1).Step(4).Text="assword:"
+Enclosure.Discovery.Source(1).Step(4).TimeOut=60
+Enclosure.Discovery.Source(1).Step(4).TelnetOnly=1
+
+Enclosure.Discovery.Source(1).Step(5).Type="SendPassword"
+Enclosure.Discovery.Source(1).Step(5).TelnetOnly=1
+
+Enclosure.Discovery.Source(1).Step(6).Type="WaitForPrompt"
+Enclosure.Discovery.Source(1).Step(6).TimeOut=120
+
+Enclosure.Discovery.Source(1).Step(7).Type="SendText"
+Enclosure.Discovery.Source(1).Step(7).Text="set cli-parameters pager off\n"
+Enclosure.Discovery.Source(1).Step(8).Type="GetUntilPrompt"
+Enclosure.Discovery.Source(1).Step(8).TimeOut=60
+Enclosure.Discovery.Source(1).Step(8).Capture="True"
+
+Enclosure.Discovery.Source(1).Step(9).Type="SendText"
+Enclosure.Discovery.Source(1).Step(9).Text="set cli-parameters base 10\n"
+Enclosure.Discovery.Source(1).Step(9).Capture="False"
+Enclosure.Discovery.Source(1).Step(10).Type="GetUntilPrompt"
+Enclosure.Discovery.Source(1).Step(10).TimeOut=60
+Enclosure.Discovery.Source(1).Step(10).Capture="True"
+
+Enclosure.Discovery.Source(1).Step(11).Type="SendText"
+Enclosure.Discovery.Source(1).Step(11).Text="set cli-parameters api\n"
+Enclosure.Discovery.Source(1).Step(11).Capture="False"
+Enclosure.Discovery.Source(1).Step(12).Type="GetUntilPrompt"
+Enclosure.Discovery.Source(1).Step(12).TimeOut=60
+Enclosure.Discovery.Source(1).Step(12).Capture="True"
+
+Enclosure.Discovery.Source(1).Step(13).Type="SendText"
+Enclosure.Discovery.Source(1).Step(13).Text="set cli-parameters timeout 350\n"
+Enclosure.Discovery.Source(1).Step(13).Capture="False"
+Enclosure.Discovery.Source(1).Step(14).Type="GetUntilPrompt"
+Enclosure.Discovery.Source(1).Step(14).TimeOut=60
+Enclosure.Discovery.Source(1).Step(14).Capture="True"
+
+Enclosure.Discovery.Source(1).Step(15).Type="SendText"
+Enclosure.Discovery.Source(1).Step(15).Text="set cli-parameters brief off\n"
+Enclosure.Discovery.Source(1).Step(15).Capture="False"
+Enclosure.Discovery.Source(1).Step(16).Type="GetUntilPrompt"
+Enclosure.Discovery.Source(1).Step(16).TimeOut=60
+Enclosure.Discovery.Source(1).Step(16).Capture="True"
+
+Enclosure.Discovery.Source(1).Step(17).Type="SendText"
+Enclosure.Discovery.Source(1).Step(17).Text="set cli-parameters locale en\n"
+Enclosure.Discovery.Source(1).Step(17).Capture="False"
+Enclosure.Discovery.Source(1).Step(18).Type="GetUntilPrompt"
+Enclosure.Discovery.Source(1).Step(18).TimeOut=60
+Enclosure.Discovery.Source(1).Step(18).Capture="True"
+
+Enclosure.Discovery.Source(1).Step(19).Type="SendText"
+Enclosure.Discovery.Source(1).Step(19).Text="set cli-parameters precision 10\n"
+Enclosure.Discovery.Source(1).Step(19).Capture="False"
+Enclosure.Discovery.Source(1).Step(20).Type="GetUntilPrompt"
+Enclosure.Discovery.Source(1).Step(20).TimeOut=60
+Enclosure.Discovery.Source(1).Step(20).Capture="True"
+
+Enclosure.Discovery.Source(1).Step(21).Type="SendText"
+Enclosure.Discovery.Source(1).Step(21).Text="set cli-parameters temperature-scale c\n"
+Enclosure.Discovery.Source(1).Step(21).Capture="False"
+Enclosure.Discovery.Source(1).Step(22).Type="GetUntilPrompt"
+Enclosure.Discovery.Source(1).Step(22).TimeOut=60
+Enclosure.Discovery.Source(1).Step(22).Capture="True"
+
+Enclosure.Discovery.Source(1).Step(23).Type="SendText"
+Enclosure.Discovery.Source(1).Step(23).Text="set cli-parameters units GB\n"
+Enclosure.Discovery.Source(1).Step(23).Capture="False"
+Enclosure.Discovery.Source(1).Step(24).Type="GetUntilPrompt"
+Enclosure.Discovery.Source(1).Step(24).TimeOut=60
+Enclosure.Discovery.Source(1).Step(24).Capture="True"
+
+// Enclosure.Discovery.Source(1).Step(25).Type="SendText"
+// Enclosure.Discovery.Source(1).Step(25).Text="show configuration\n"
+// Enclosure.Discovery.Source(1).Step(25).Capture="False"
+// Enclosure.Discovery.Source(1).Step(26).Type="WaitFor"
+// Enclosure.Discovery.Source(1).Step(26).Text="</RESPONSE>"
+// Enclosure.Discovery.Source(1).Step(26).TimeOut=3600
+// Enclosure.Discovery.Source(1).Step(26).Capture="True"
+
+Enclosure.Discovery.Source(1).Step(25).Type="SendText"
+Enclosure.Discovery.Source(1).Step(25).Text="show system\n"
+Enclosure.Discovery.Source(1).Step(25).Capture="False"
+Enclosure.Discovery.Source(1).Step(26).Type="GetUntilPrompt"
+Enclosure.Discovery.Source(1).Step(26).TimeOut=60
+Enclosure.Discovery.Source(1).Step(26).Capture="True"
+
+Enclosure.Discovery.Source(1).Step(27).Type="SendText"
+Enclosure.Discovery.Source(1).Step(27).Text="show controllers\n"
+Enclosure.Discovery.Source(1).Step(27).Capture="False"
+Enclosure.Discovery.Source(1).Step(28).Type="GetUntilPrompt"
+Enclosure.Discovery.Source(1).Step(28).TimeOut=120
+Enclosure.Discovery.Source(1).Step(28).Capture="True"
+
+Enclosure.Discovery.Source(1).Step(29).Type="SendText"
+Enclosure.Discovery.Source(1).Step(29).Text="versions detail\n"
+Enclosure.Discovery.Source(1).Step(29).Capture="False"
+Enclosure.Discovery.Source(1).Step(30).Type="GetUntilPrompt"
+Enclosure.Discovery.Source(1).Step(30).TimeOut=120
+Enclosure.Discovery.Source(1).Step(30).Capture="True"
+
+Enclosure.Discovery.Source(1).Step(31).Type="SendText"
+Enclosure.Discovery.Source(1).Step(31).Text="show ports\n"
+Enclosure.Discovery.Source(1).Step(31).Capture="False"
+Enclosure.Discovery.Source(1).Step(32).Type="GetUntilPrompt"
+Enclosure.Discovery.Source(1).Step(32).TimeOut=120
+Enclosure.Discovery.Source(1).Step(32).Capture="True"
+
+Enclosure.Discovery.Source(1).Step(33).Type="SendText"
+Enclosure.Discovery.Source(1).Step(33).Text="show disks\n"
+Enclosure.Discovery.Source(1).Step(33).Capture="False"
+Enclosure.Discovery.Source(1).Step(34).Type="GetUntilPrompt"
+Enclosure.Discovery.Source(1).Step(34).TimeOut=360
+Enclosure.Discovery.Source(1).Step(34).Capture="True"
+
+Enclosure.Discovery.Source(1).Step(35).Type="SendText"
+Enclosure.Discovery.Source(1).Step(35).Text="show disks encl\n"
+Enclosure.Discovery.Source(1).Step(35).Capture="False"
+Enclosure.Discovery.Source(1).Step(36).Type="GetUntilPrompt"
+Enclosure.Discovery.Source(1).Step(36).TimeOut=360
+Enclosure.Discovery.Source(1).Step(36).Capture="True"
+
+Enclosure.Discovery.Source(1).Step(37).Type="SendText"
+Enclosure.Discovery.Source(1).Step(37).Text="show vdisks\n"
+Enclosure.Discovery.Source(1).Step(37).Capture="False"
+Enclosure.Discovery.Source(1).Step(38).Type="GetUntilPrompt"
+Enclosure.Discovery.Source(1).Step(38).TimeOut=360
+Enclosure.Discovery.Source(1).Step(38).Capture="True"
+
+Enclosure.Discovery.Source(1).Step(39).Type="SendText"
+Enclosure.Discovery.Source(1).Step(39).Text="show enclosures\n"
+Enclosure.Discovery.Source(1).Step(39).Capture="False"
+Enclosure.Discovery.Source(1).Step(40).Type="GetUntilPrompt"
+Enclosure.Discovery.Source(1).Step(40).TimeOut=120
+Enclosure.Discovery.Source(1).Step(40).Capture="True"
+
+Enclosure.Discovery.Source(1).Step(41).Type="SendText"
+Enclosure.Discovery.Source(1).Step(41).Text="show frus\n"
+Enclosure.Discovery.Source(1).Step(41).Capture="False"
+Enclosure.Discovery.Source(1).Step(42).Type="GetUntilPrompt"
+Enclosure.Discovery.Source(1).Step(42).TimeOut=60
+Enclosure.Discovery.Source(1).Step(43).Capture="True"
+
+Enclosure.Discovery.Source(1).Step(44).Type="SendText"
+Enclosure.Discovery.Source(1).Step(44).Text="exit\n"
+Enclosure.Discovery.Source(1).Step(44).Capture="False"
+
+// Now process this information through an awk script to get a table of all parameters
+// Various Table Configurations depending on component type
+// MSHW;basetype;....................
+Enclosure.Discovery.Source(1).Compute(1).Type="Awk"
+Enclosure.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+Enclosure.Discovery.Source(1).Compute(1).Separators=";"
+Enclosure.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+
+// Make a copy of Table 1 so that a clean copy can be used by other discoveries
+// MSHW;basetype;....................
+Enclosure.Discovery.Source(2)=%Enclosure.Discovery.Source(1)%
+
+// Keep only components of basetype "system"
+// MSHW;basetype;DisplayName;vendor;model;
+Enclosure.Discovery.Source(2).Compute(1).Type="KeepOnlyMatchingLines"
+Enclosure.Discovery.Source(2).Compute(1).Column=2
+Enclosure.Discovery.Source(2).Compute(1).RegExp="^system$"
+
+// Get another copy of Enclosure 1 to get SKU information
+// Make a copy of Table 1 so that a clean copy can be used by other discoveries
+// MSHW;basetype;....................
+Enclosure.Discovery.Source(3)=%Enclosure.Discovery.Source(1)%
+
+// Keep only components of basetype "enclosure-sku"
+// Last column artificially set in awk script to "system" to match up in table join
+// MSHW;basetype;skupartnumber;skuserialnumber;"system"
+Enclosure.Discovery.Source(3).Compute(1).Type="KeepOnlyMatchingLines"
+Enclosure.Discovery.Source(3).Compute(1).Column=2
+Enclosure.Discovery.Source(3).Compute(1).RegExp="^enclosure-sku$"
+
+// Source(4) = Table joint of source(2) and source(3)
+// MSHW;basetype;DisplayName;vendor;model;basetype;skupartnumber;skuserialnumber;basetype;
+Enclosure.Discovery.Source(4).Type="TableJoint"
+Enclosure.Discovery.Source(4).LeftTable=%Enclosure.Discovery.Source(2)%
+Enclosure.Discovery.Source(4).RightTable=%Enclosure.Discovery.Source(3)%
+Enclosure.Discovery.Source(4).LeftKeyColumn=1
+Enclosure.Discovery.Source(4).RightKeyColumn=5
+Enclosure.Discovery.Source(4).DefaultRightLine=";;;"
+
+Enclosure.Discovery.Source(4).Compute(1).Type="LeftConcat"
+Enclosure.Discovery.Source(4).Compute(1).Column="7"
+Enclosure.Discovery.Source(4).Compute(1).String="Part Number: "
+
+
+// The Enclosure Instance Table
+// MSHW;basetype;DisplayName;vendor;model;basetype;skupartnumber;skuserialnumber;basetype;
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(4)%
+Enclosure.Discovery.Instance.DeviceID="HPMSA2000"
+Enclosure.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+Enclosure.Discovery.Instance.Vendor=InstanceTable.Column(4)
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(5)
+Enclosure.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(7)
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(8)
+Enclosure.Discovery.Instance.Type="Storage"
+
+
+// Now going to try and sort out the component to enclosure
+Enclosure.Discovery.Source(5)=%Enclosure.Discovery.Source(1)%
+
+// Keep only enclosure fru's, i.e. component to blade
+// MSHW;basetype;bladeSN;componentSN;componentID;
+Enclosure.Discovery.Source(5).Compute(1).Type="KeepOnlyMatchingLines"
+Enclosure.Discovery.Source(5).Compute(1).Column=2
+Enclosure.Discovery.Source(5).Compute(1).RegExp="^enclosure-fru$"
+
+// Now getting blade info
+Enclosure.Discovery.Source(6)=%Enclosure.Discovery.Source(1)%
+
+// Keep only enclosure environmental i.e. blade info
+// MSHW;basetype;bladeSerial;bladeID;healthnumeric;productID;
+Enclosure.Discovery.Source(6).Compute(1).Type="KeepOnlyMatchingLines"
+Enclosure.Discovery.Source(6).Compute(1).Column=2
+Enclosure.Discovery.Source(6).Compute(1).RegExp="^enclosure.environmental$"
+
+// Join the Component to Blade table with the Blade Info Table
+// MSHW;basetype;bladeSN;componentSN;componentID;MSHW;basetype;bladeSerial;bladeID;healthnumeric;productID;
+Enclosure.Discovery.Source(7).Type="TableJoint"
+Enclosure.Discovery.Source(7).LeftTable=%Enclosure.Discovery.Source(5)%
+Enclosure.Discovery.Source(7).RightTable=%Enclosure.Discovery.Source(6)%
+Enclosure.Discovery.Source(7).LeftKeyColumn=3
+Enclosure.Discovery.Source(7).RightKeyColumn=3
+// Enclosure.Discovery.Source(7).DefaultRightLine=""
+
+// Filter out unwated columns
+//   1      2       3         4           5        6      7        8         9        10            11
+// MSHW;basetype;bladeSN;componentSN;componentID;MSHW;basetype;bladeSerial;bladeID;healthnumeric;productID;
+//                       componentSN;componentID;                          bladeID;             ;productID;
+Enclosure.Discovery.Source(7).Compute(1).Type="KeepColumns"
+Enclosure.Discovery.Source(7).Compute(1).ColumnNumbers="4,5,9,11"
+
+// Add the blade ID to the ProductID
+// componentSN;componentID;bladeID;productID;
+Enclosure.Discovery.Source(7).Compute(2).Type="RightConcat"
+Enclosure.Discovery.Source(7).Compute(2).Column=4
+Enclosure.Discovery.Source(7).Compute(2).String=Column(3)
+
+// Add a dash to the product ID
+// componentSN;componentID;bladeID;productID;
+Enclosure.Discovery.Source(7).Compute(3).Type="RightConcat"
+Enclosure.Discovery.Source(7).Compute(3).Column=4
+Enclosure.Discovery.Source(7).Compute(3).String="-"
+
+// Add the componentID to the productID
+// componentSN;componentID;bladeID;productID;
+Enclosure.Discovery.Source(7).Compute(4).Type="RightConcat"
+Enclosure.Discovery.Source(7).Compute(4).Column=4
+Enclosure.Discovery.Source(7).Compute(4).String=Column(2)
+
+// Add a dash to the product ID
+// componentSN;componentID;bladeID;productID;
+Enclosure.Discovery.Source(7).Compute(5).Type="RightConcat"
+Enclosure.Discovery.Source(7).Compute(5).Column=4
+Enclosure.Discovery.Source(7).Compute(5).String="-"
+
+// Add a Attach to Device type of Blade
+// componentSN;componentID;bladeID;productID;AttachToType;
+Enclosure.Discovery.Source(7).Compute(6).Type="RightConcat"
+Enclosure.Discovery.Source(7).Compute(6).Column=4
+Enclosure.Discovery.Source(7).Compute(6).String=";Blade"
+
+//
+// Collect
+
+Enclosure.Collect.Type="MultiInstance"
+
+Enclosure.Collect.Source(1).Type="TelnetInteractive"
+Enclosure.Collect.Source(1).ForceSerialization=1
+
+Enclosure.Collect.Source(1).Step(1).Type="Sleep"
+Enclosure.Collect.Source(1).Step(1).Duration=1
+Enclosure.Collect.Source(1).Step(1).TelnetOnly=1
+
+Enclosure.Collect.Source(1).Step(2).Type="WaitFor"
+Enclosure.Collect.Source(1).Step(2).Text="ogin:"
+Enclosure.Collect.Source(1).Step(2).Timeout=60
+Enclosure.Collect.Source(1).Step(2).TelnetOnly=1
+
+Enclosure.Collect.Source(1).Step(3).Type="SendUsername"
+Enclosure.Collect.Source(1).Step(3).TelnetOnly=1
+
+Enclosure.Collect.Source(1).Step(4).Type="WaitFor"
+Enclosure.Collect.Source(1).Step(4).Text="assword:"
+Enclosure.Collect.Source(1).Step(4).TimeOut=60
+Enclosure.Collect.Source(1).Step(4).TelnetOnly=1
+
+Enclosure.Collect.Source(1).Step(5).Type="SendPassword"
+Enclosure.Collect.Source(1).Step(5).TelnetOnly=1
+
+Enclosure.Collect.Source(1).Step(6).Type="WaitForPrompt"
+Enclosure.Collect.Source(1).Step(6).TimeOut=120
+
+Enclosure.Collect.Source(1).Step(7).Type="SendText"
+Enclosure.Collect.Source(1).Step(7).Text="set cli-parameters pager off\n"
+Enclosure.Collect.Source(1).Step(8).Type="WaitForPrompt"
+Enclosure.Collect.Source(1).Step(8).TimeOut=60
+
+Enclosure.Collect.Source(1).Step(9).Type="SendText"
+Enclosure.Collect.Source(1).Step(9).Text="set cli-parameters base 10\n"
+Enclosure.Collect.Source(1).Step(10).Type="WaitForPrompt"
+Enclosure.Collect.Source(1).Step(10).TimeOut=60
+
+Enclosure.Collect.Source(1).Step(11).Type="SendText"
+Enclosure.Collect.Source(1).Step(11).Text="set cli-parameters api\n"
+Enclosure.Collect.Source(1).Step(12).Type="WaitForPrompt"
+Enclosure.Collect.Source(1).Step(12).TimeOut=60
+
+Enclosure.Collect.Source(1).Step(13).Type="SendText"
+Enclosure.Collect.Source(1).Step(13).Text="set cli-parameters timeout 350\n"
+Enclosure.Collect.Source(1).Step(14).Type="WaitForPrompt"
+Enclosure.Collect.Source(1).Step(14).TimeOut=60
+
+Enclosure.Collect.Source(1).Step(15).Type="SendText"
+Enclosure.Collect.Source(1).Step(15).Text="set cli-parameters brief off\n"
+Enclosure.Collect.Source(1).Step(16).Type="WaitForPrompt"
+Enclosure.Collect.Source(1).Step(16).TimeOut=60
+
+Enclosure.Collect.Source(1).Step(17).Type="SendText"
+Enclosure.Collect.Source(1).Step(17).Text="set cli-parameters locale en\n"
+Enclosure.Collect.Source(1).Step(18).Type="WaitForPrompt"
+Enclosure.Collect.Source(1).Step(18).TimeOut=60
+
+Enclosure.Collect.Source(1).Step(19).Type="SendText"
+Enclosure.Collect.Source(1).Step(19).Text="set cli-parameters precision 10\n"
+Enclosure.Collect.Source(1).Step(20).Type="WaitForPrompt"
+Enclosure.Collect.Source(1).Step(20).TimeOut=60
+
+Enclosure.Collect.Source(1).Step(21).Type="SendText"
+Enclosure.Collect.Source(1).Step(21).Text="set cli-parameters temperature-scale c\n"
+Enclosure.Collect.Source(1).Step(22).Type="WaitForPrompt"
+Enclosure.Collect.Source(1).Step(22).TimeOut=60
+
+Enclosure.Collect.Source(1).Step(23).Type="SendText"
+Enclosure.Collect.Source(1).Step(23).Text="set cli-parameters units GB\n"
+Enclosure.Collect.Source(1).Step(24).Type="WaitForPrompt"
+Enclosure.Collect.Source(1).Step(24).TimeOut=60
+
+// Enclosure.Collect.Source(1).Step(25).Type="SendText"
+// Enclosure.Collect.Source(1).Step(25).Text="show configuration\n"
+// Enclosure.Collect.Source(1).Step(25).Capture="False"
+// Enclosure.Collect.Source(1).Step(26).Type="WaitFor"
+// Enclosure.Collect.Source(1).Step(26).Text="</RESPONSE>"
+// Enclosure.Collect.Source(1).Step(26).TimeOut=3600
+// Enclosure.Collect.Source(1).Step(26).Capture="True"
+
+Enclosure.Collect.Source(1).Step(25).Type="SendText"
+Enclosure.Collect.Source(1).Step(25).Text="show system\n"
+Enclosure.Collect.Source(1).Step(25).Capture="False"
+Enclosure.Collect.Source(1).Step(26).Type="GetUntilPrompt"
+Enclosure.Collect.Source(1).Step(26).TimeOut=60
+Enclosure.Collect.Source(1).Step(26).Capture="True"
+
+Enclosure.Collect.Source(1).Step(27).Type="SendText"
+Enclosure.Collect.Source(1).Step(27).Text="show controllers\n"
+Enclosure.Collect.Source(1).Step(27).Capture="False"
+Enclosure.Collect.Source(1).Step(28).Type="GetUntilPrompt"
+Enclosure.Collect.Source(1).Step(28).TimeOut=120
+Enclosure.Collect.Source(1).Step(28).Capture="True"
+
+Enclosure.Collect.Source(1).Step(29).Type="SendText"
+Enclosure.Collect.Source(1).Step(29).Text="versions detail\n"
+Enclosure.Collect.Source(1).Step(29).Capture="False"
+Enclosure.Collect.Source(1).Step(30).Type="GetUntilPrompt"
+Enclosure.Collect.Source(1).Step(30).TimeOut=120
+Enclosure.Collect.Source(1).Step(30).Capture="True"
+
+Enclosure.Collect.Source(1).Step(31).Type="SendText"
+Enclosure.Collect.Source(1).Step(31).Text="show ports\n"
+Enclosure.Collect.Source(1).Step(31).Capture="False"
+Enclosure.Collect.Source(1).Step(32).Type="GetUntilPrompt"
+Enclosure.Collect.Source(1).Step(32).TimeOut=120
+Enclosure.Collect.Source(1).Step(32).Capture="True"
+
+Enclosure.Collect.Source(1).Step(33).Type="SendText"
+Enclosure.Collect.Source(1).Step(33).Text="show disks\n"
+Enclosure.Collect.Source(1).Step(33).Capture="False"
+Enclosure.Collect.Source(1).Step(34).Type="GetUntilPrompt"
+Enclosure.Collect.Source(1).Step(34).TimeOut=360
+Enclosure.Collect.Source(1).Step(34).Capture="True"
+
+Enclosure.Collect.Source(1).Step(35).Type="SendText"
+Enclosure.Collect.Source(1).Step(35).Text="show disks encl\n"
+Enclosure.Collect.Source(1).Step(35).Capture="False"
+Enclosure.Collect.Source(1).Step(36).Type="GetUntilPrompt"
+Enclosure.Collect.Source(1).Step(36).TimeOut=360
+Enclosure.Collect.Source(1).Step(36).Capture="True"
+
+Enclosure.Collect.Source(1).Step(37).Type="SendText"
+Enclosure.Collect.Source(1).Step(37).Text="show vdisks\n"
+Enclosure.Collect.Source(1).Step(37).Capture="False"
+Enclosure.Collect.Source(1).Step(38).Type="GetUntilPrompt"
+Enclosure.Collect.Source(1).Step(38).TimeOut=360
+Enclosure.Collect.Source(1).Step(38).Capture="True"
+
+Enclosure.Collect.Source(1).Step(39).Type="SendText"
+Enclosure.Collect.Source(1).Step(39).Text="show enclosures\n"
+Enclosure.Collect.Source(1).Step(39).Capture="False"
+Enclosure.Collect.Source(1).Step(40).Type="GetUntilPrompt"
+Enclosure.Collect.Source(1).Step(40).TimeOut=120
+Enclosure.Collect.Source(1).Step(40).Capture="True"
+
+Enclosure.Collect.Source(1).Step(41).Type="SendText"
+Enclosure.Collect.Source(1).Step(41).Text="show frus\n"
+Enclosure.Collect.Source(1).Step(41).Capture="False"
+Enclosure.Collect.Source(1).Step(42).Type="GetUntilPrompt"
+Enclosure.Collect.Source(1).Step(42).TimeOut=60
+Enclosure.Collect.Source(1).Step(43).Capture="True"
+
+Enclosure.Collect.Source(1).Step(44).Type="SendText"
+Enclosure.Collect.Source(1).Step(44).Text="exit\n"
+Enclosure.Collect.Source(1).Step(44).Capture="False"
+
+// Now process this information through an awk script to get a table of all parameters
+// Various Table Configurations depending on component type
+// MSHW;basetype;....................
+Enclosure.Collect.Source(1).Compute(1).Type="Awk"
+Enclosure.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+Enclosure.Collect.Source(1).Compute(1).Separators=";"
+Enclosure.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+
+// Source(2) = copy of Enclosure.Collect.Source(1)
+Enclosure.Collect.Source(2)=%Enclosure.Collect.Source(1)%
+
+// Keep only components of basetype "system"
+// MSHW;basetype;ID;vendor;model;
+Enclosure.Collect.Source(2).Compute(1).Type="KeepOnlyMatchingLines"
+Enclosure.Collect.Source(2).Compute(1).Column=2
+Enclosure.Collect.Source(2).Compute(1).RegExp="^system$"
+
+// ValueTable = Source(2)
+// basetype;ID;vendor;model;
+Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(2)%
+Enclosure.Collect.DeviceID="HPMSA2000"
+
+
+// Blades (Environmental Enclosures)
+
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(2)
+Blade.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep only components of basetype "enclosure-environmental"
+//MSHW;basetype;bladeSerial;bladeID;healthnumeric;productID;
+Blade.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Blade.Discovery.Source(1).Compute(1).Column=2
+Blade.Discovery.Source(1).Compute(1).RegExp="^enclosure.environmental$"
+
+// InstanceTable = Source(1)
+Blade.Discovery.InstanceTable=%Blade.Discovery.Source(1)%
+Blade.Discovery.Instance.DeviceID=InstanceTable.Column(4)
+Blade.Discovery.Instance.BladeModel=InstanceTable.Column(6)
+Blade.Discovery.Instance.SerialNumber=InstanceTable.Column(3)
+Blade.Discovery.Instance.AttachedToDeviceID="HPMSA2000"
+Blade.Discovery.Instance.AttachedToDeviceType="Enclosure"
+Blade.Discovery.Instance.ParameterActivation.Status=InstanceTable.Column(5)
+
+//
+// Collect
+
+// Collect type is multi-instance
+Blade.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Discovery.Source(1)
+Blade.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Keep only components of basetype "enclosure-components"
+//MSHW;basetype;bladeSerial;bladeID;healthnumeric;productID;
+Blade.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Blade.Collect.Source(1).Compute(1).Column=2
+Blade.Collect.Source(1).Compute(1).RegExp="^enclosure.environmental$"
+
+// Translate the healthnumeric
+//MSHW;basetype;bladeSerial;bladeID;healthnumeric;productID;
+Blade.Collect.Source(1).Compute(2).Type="Translate"
+Blade.Collect.Source(1).Compute(2).Column=5
+Blade.Collect.Source(1).Compute(2).TranslationTable="EnclosureComponentsStatusTranslationTable"
+
+// ValueTable = Source(1)
+Blade.Collect.ValueTable=%Blade.Collect.Source(1)%
+Blade.Collect.DeviceID=ValueTable.Column(4)
+Blade.Collect.Status=ValueTable.Column(5)
+
+
+// OtherDevice (Controllers and Compact Flash)
+
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(2)
+OtherDevice.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep only components of basetype "controllers or compact flash"
+//MSHW;basetype;ID;healthnumeric;healthreason;position;description;serialnumber;firmwareversion;
+OtherDevice.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+OtherDevice.Discovery.Source(1).Compute(1).Column=2
+OtherDevice.Discovery.Source(1).Compute(1).RegExp="^\(controllers\)\|\(compact.flash\)$"
+
+// Exclude second controller in single controller systems
+//MSHW;basetype;ID;healthnumeric;healthreason;position;description;serialnumber;firmwareversion;
+OtherDevice.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+OtherDevice.Discovery.Source(1).Compute(2).Column=5
+OtherDevice.Discovery.Source(1).Compute(2).RegExp="\(single controller only\)\|\(Disabled\)"
+
+OtherDevice.Discovery.Source(1).Compute(3).Type="LeftConcat"
+OtherDevice.Discovery.Source(1).Compute(3).Column="6"
+OtherDevice.Discovery.Source(1).Compute(3).String="Location: "
+
+OtherDevice.Discovery.Source(1).Compute(4).Type="LeftConcat"
+OtherDevice.Discovery.Source(1).Compute(4).Column="9"
+OtherDevice.Discovery.Source(1).Compute(4).String="firmwareversion: "
+
+OtherDevice.Discovery.Source(1).Compute(5).Type="LeftConcat"
+OtherDevice.Discovery.Source(1).Compute(5).Column="8"
+OtherDevice.Discovery.Source(1).Compute(5).String="serialnumber: "
+
+// InstanceTable = Source(1)
+//MSHW;basetype;ID;healthnumeric;healthreason;position;description;serialnumber;firmwareversion;
+OtherDevice.Discovery.InstanceTable=%OtherDevice.Discovery.Source(1)%
+OtherDevice.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+OtherDevice.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(6)
+//OtherDevice.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(8)
+OtherDevice.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(8)
+//OtherDevice.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(9)
+OtherDevice.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(9)
+OtherDevice.Discovery.Instance.DeviceType=InstanceTable.Column(7)
+
+//
+// Collect
+
+// Collect type is multi-instance
+OtherDevice.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Collect.Source(1)
+OtherDevice.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Keep only components of basetype "controllers or compact flash"
+//MSHW;basetype;ID;healthnumeric;healthreason;position;description;serialnumber;firmwareversion;
+OtherDevice.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+OtherDevice.Collect.Source(1).Compute(1).Column=2
+OtherDevice.Collect.Source(1).Compute(1).RegExp="^\(controllers\)\|\(compact.flash\)$"
+
+// Translate the healthnumeric
+//MSHW;basetype;ID;healthnumeric;healthreason;position;description;serialnumber;firmwareversion;
+OtherDevice.Collect.Source(1).Compute(2).Type="Translate"
+OtherDevice.Collect.Source(1).Compute(2).Column=4
+OtherDevice.Collect.Source(1).Compute(2).TranslationTable="OtherDeviceHealthNumericTranslationTable"
+
+// OtherDeviceHealthNumericTranslationTable
+OtherDeviceHealthNumericTranslationTable(0)="OK"
+OtherDeviceHealthNumericTranslationTable(1)="WARN"
+OtherDeviceHealthNumericTranslationTable(Default)="ALARM"
+
+// The value table
+//MSHW;basetype;ID;healthnumeric;healthreason;position;description;serialnumber;firmwareversion;
+OtherDevice.Collect.ValueTable=%OtherDevice.Collect.Source(1)%
+OtherDevice.Collect.DeviceID=ValueTable.Column(3)
+OtherDevice.Collect.Status=ValueTable.Column(4)
+OtherDevice.Collect.StatusInformation=ValueTable.Column(5)
+
+
+// PhysicalDisk
+
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(1)
+PhysicalDisk.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep only components of basetype "drives"
+// MSHW;basetype;ID;enclosureid;serialnumber;vendor;model;revision;type;size;sizenumeric;healthnumeric;healthreason;
+PhysicalDisk.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+PhysicalDisk.Discovery.Source(1).Compute(1).Column=2
+PhysicalDisk.Discovery.Source(1).Compute(1).RegExp="^drives$"
+
+// Convert SizeNumeric to bytes
+// MSHW;basetype;ID;enclosureid;serialnumber;vendor;model;revision;type;size;sizenumeric;healthnumeric;healthreason;
+PhysicalDisk.Discovery.Source(1).Compute(2).Type="Multiply"
+PhysicalDisk.Discovery.Source(1).Compute(2).Column=11
+PhysicalDisk.Discovery.Source(1).Compute(2).MultiplyBy=512
+
+PhysicalDisk.Discovery.Source(1).Compute(3).Type="LeftConcat"
+PhysicalDisk.Discovery.Source(1).Compute(3).Column=9
+PhysicalDisk.Discovery.Source(1).Compute(3).String="Type: "
+
+
+// InstanceTable = Source(1)
+// MSHW;basetype;ID;enclosureid;serialnumber;vendor;model;revision;type;size;sizenumeric;healthnumeric;healthreason;
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+PhysicalDisk.Discovery.Instance.Size=InstanceTable.Column(11)
+PhysicalDisk.Discovery.Instance.SerialNumber=InstanceTable.Column(5)
+PhysicalDisk.Discovery.Instance.Vendor=InstanceTable.Column(6)
+PhysicalDisk.Discovery.Instance.Model=InstanceTable.Column(7)
+PhysicalDisk.Discovery.Instance.FirmwareVersion=InstanceTable.Column(8)
+PhysicalDisk.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(9)
+
+
+//
+// Collect
+
+// Collect type is multi-instance
+PhysicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Collect.Source(1)
+PhysicalDisk.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Keep only components of basetype "drives"
+// MSHW;basetype;ID;enclosureid;serialnumber;vendor;model;revision;type;size;sizenumeric;healthnumeric;healthreason;
+PhysicalDisk.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+PhysicalDisk.Collect.Source(1).Compute(1).Column=2
+PhysicalDisk.Collect.Source(1).Compute(1).RegExp="^drives$"
+
+// Translate the healthnumeric
+// MSHW;basetype;ID;enclosureid;serialnumber;vendor;model;revision;type;size;sizenumeric;healthnumeric;healthreason;
+PhysicalDisk.Collect.Source(1).Compute(2).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(2).Column=12
+PhysicalDisk.Collect.Source(1).Compute(2).TranslationTable="PhysicalDiskHealthNumericTranslationTable"
+
+// PhysicalDiskHealthNumericTranslationTable
+PhysicalDiskHealthNumericTranslationTable(0)="OK"
+PhysicalDiskHealthNumericTranslationTable(1)="WARN"
+PhysicalDiskHealthNumericTranslationTable("Up")="OK"
+PhysicalDiskHealthNumericTranslationTable("Degraded")="OK"
+PhysicalDiskHealthNumericTranslationTable("Fault")="OK"
+PhysicalDiskHealthNumericTranslationTable("Unknown")="UNKNOWN"
+PhysicalDiskHealthNumericTranslationTable("N/A")="UNKNOWN"
+PhysicalDiskHealthNumericTranslationTable(Default)="ALARM"
+
+
+
+// The value table
+// MSHW;basetype;ID;enclosureid;serialnumber;vendor;model;revision;type;size;sizenumeric;healthnumeric;healthreason;
+PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(1)%
+PhysicalDisk.Collect.DeviceID=ValueTable.Column(3)
+PhysicalDisk.Collect.Status=ValueTable.Column(12)
+PhysicalDisk.Collect.StatusInformation=ValueTable.Column(13)
+
+
+// Temperature
+
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(1)
+Temperature.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep only components of basetype "enclosure-components"
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;
+Temperature.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Temperature.Discovery.Source(1).Compute(1).Column=2
+Temperature.Discovery.Source(1).Compute(1).RegExp="^enclosure.components$"
+
+// Keep only components of type "Temp"
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;
+Temperature.Discovery.Source(1).Compute(2).Type="KeepOnlyMatchingLines"
+Temperature.Discovery.Source(1).Compute(2).Column=3
+Temperature.Discovery.Source(1).Compute(2).RegExp="^[Tt][Ee][Mm][Pp]"
+
+// Join the Temperature table with the component identifier table (ENC.DISC.7)
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;componentSN;componentID;bladeID;componentDescription;AttachToType;
+Temperature.Discovery.Source(2).Type="TableJoint"
+Temperature.Discovery.Source(2).LeftTable=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Source(2).RightTable=%Enclosure.Discovery.Source(7)%
+Temperature.Discovery.Source(2).LeftKeyColumn=9
+Temperature.Discovery.Source(2).RightKeyColumn=1
+
+// Add the type to the ID:
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;componentSN;componentID;bladeID;componentDescription;AttachToType;
+Temperature.Discovery.Source(2).Compute(1).Type="LeftConcat"
+Temperature.Discovery.Source(2).Compute(1).Column=4
+Temperature.Discovery.Source(2).Compute(1).String=Column(3)
+
+// Add component description to the ID
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;componentSN;componentID;bladeID;componentDescription;AttachToType;
+Temperature.Discovery.Source(2).Compute(2).Type="LeftConcat"
+Temperature.Discovery.Source(2).Compute(2).Column=4
+Temperature.Discovery.Source(2).Compute(2).String=Column(13)
+
+Temperature.Discovery.Source(2).Compute(3).Type="LeftConcat"
+Temperature.Discovery.Source(2).Compute(3).Column=4
+Temperature.Discovery.Source(2).Compute(3).String="Part Number: "
+
+Temperature.Discovery.Source(2).Compute(4).Type="LeftConcat"
+Temperature.Discovery.Source(2).Compute(4).Column=7
+Temperature.Discovery.Source(2).Compute(4).String="SerialNumber: "
+
+
+// InstanceTable = Source(1)
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(2)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(4)
+Temperature.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(6)
+Temperature.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(7)
+Temperature.Discovery.Instance.ParameterActivation.Temperature=InstanceTable.Column(8)
+Temperature.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(12)
+
+
+//
+// Collect
+
+// Collect type is multi-instance
+Temperature.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Discovery.Source(1)
+Temperature.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Keep only components of basetype "enclosure-components"
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;
+Temperature.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Temperature.Collect.Source(1).Compute(1).Column=2
+Temperature.Collect.Source(1).Compute(1).RegExp="^enclosure.components$"
+
+// Keep only components of type "Temp"
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;
+Temperature.Collect.Source(1).Compute(2).Type="KeepOnlyMatchingLines"
+Temperature.Collect.Source(1).Compute(2).Column=3
+Temperature.Collect.Source(1).Compute(2).RegExp="^[Tt][Ee][Mm][Pp]"
+
+// Translate the healthnumeric
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;
+Temperature.Collect.Source(1).Compute(3).Type="Translate"
+Temperature.Collect.Source(1).Compute(3).Column=5
+Temperature.Collect.Source(1).Compute(3).TranslationTable="EnclosureComponentsStatusTranslationTable"
+
+// Join the Fan table with the component identifier table (ENC.DISC.7)
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;componentSN;componentID;bladeID;componentDescription;AttachToType;
+Temperature.Collect.Source(2).Type="TableJoint"
+Temperature.Collect.Source(2).LeftTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.Source(2).RightTable=%Enclosure.Discovery.Source(7)%
+Temperature.Collect.Source(2).LeftKeyColumn=9
+Temperature.Collect.Source(2).RightKeyColumn=1
+
+// Add the type to the ID:
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;componentSN;componentID;bladeID;componentDescription;AttachToType;
+Temperature.Collect.Source(2).Compute(1).Type="LeftConcat"
+Temperature.Collect.Source(2).Compute(1).Column=4
+Temperature.Collect.Source(2).Compute(1).String=Column(3)
+
+// Add component description to the ID
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;componentSN;componentID;bladeID;componentDescription;AttachToType;
+Temperature.Collect.Source(2).Compute(2).Type="LeftConcat"
+Temperature.Collect.Source(2).Compute(2).Column=4
+Temperature.Collect.Source(2).Compute(2).String=Column(13)
+
+
+// ValueTable = Source(1)
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(2)%
+Temperature.Collect.DeviceID=ValueTable.Column(4)
+Temperature.Collect.Status=ValueTable.Column(5)
+Temperature.Collect.Temperature=ValueTable.Column(8)
+
+// Fan
+
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(1)
+Fan.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep only components of basetype "enclosure-components"
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;
+Fan.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Fan.Discovery.Source(1).Compute(1).Column=2
+Fan.Discovery.Source(1).Compute(1).RegExp="^\(enclosure.components\)\|\(fan\)$"
+
+// Keep only components of type "Fan" or ""  (note the RegEx is a negative Exclude
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;
+Fan.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+Fan.Discovery.Source(1).Compute(2).Column=3
+Fan.Discovery.Source(1).Compute(2).RegExp="^[^Ff]*[^Aa]*[^Nn]*$"
+
+
+// Join the Fan table with the component identifier table (ENC.DISC.7)
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;componentSN;componentID;bladeID;componentDescription;AttachToType;
+Fan.Discovery.Source(2).Type="TableJoint"
+Fan.Discovery.Source(2).LeftTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Source(2).RightTable=%Enclosure.Discovery.Source(7)%
+Fan.Discovery.Source(2).LeftKeyColumn=9
+Fan.Discovery.Source(2).RightKeyColumn=1
+Fan.Discovery.Source(2).DefaultRightLine=";;HPMSA2000;;Enclosure;"
+
+
+// Add the type to the ID:
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;componentSN;componentID;bladeID;componentDescription;AttachToType;
+Fan.Discovery.Source(2).Compute(1).Type="LeftConcat"
+Fan.Discovery.Source(2).Compute(1).Column=4
+Fan.Discovery.Source(2).Compute(1).String=Column(3)
+
+// Add component description to the ID
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;componentSN;componentID;bladeID;componentDescription;AttachToType;
+Fan.Discovery.Source(2).Compute(2).Type="LeftConcat"
+Fan.Discovery.Source(2).Compute(2).Column=4
+Fan.Discovery.Source(2).Compute(2).String=Column(13)
+
+Fan.Discovery.Source(2).Compute(3).Type="LeftConcat"
+Fan.Discovery.Source(2).Compute(3).Column=6
+Fan.Discovery.Source(2).Compute(3).String="Part Number: "
+
+Fan.Discovery.Source(2).Compute(3).Type="LeftConcat"
+Fan.Discovery.Source(2).Compute(3).Column=7
+Fan.Discovery.Source(2).Compute(3).String="SerialNumber: "
+
+// InstanceTable = Source(1)
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;componentSN;componentID;bladeID;componentDescription;AttachToType;
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(2)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(4)
+Fan.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(6)
+Fan.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(7)
+Fan.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(12)
+Fan.Discovery.Instance.AttachedToDeviceType=InstanceTable.Column(14)
+
+//
+// Collect
+
+// Collect type is multi-instance
+Fan.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Collect.Source(1)
+Fan.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Keep only components of basetype "enclosure-components"
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;
+Fan.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Fan.Collect.Source(1).Compute(1).Column=2
+Fan.Collect.Source(1).Compute(1).RegExp="^\(enclosure.components\)\|\(fan\)$"
+
+// Keep only components of type "Fan" or ""  (note the RegEx is a negative Exclude
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;
+Fan.Collect.Source(1).Compute(2).Type="ExcludeMatchingLines"
+Fan.Collect.Source(1).Compute(2).Column=3
+Fan.Collect.Source(1).Compute(2).RegExp="^[^Ff]*[^Aa]*[^Nn]*$"
+
+// Translate the healthnumeric
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;
+Fan.Collect.Source(1).Compute(3).Type="Translate"
+Fan.Collect.Source(1).Compute(3).Column=5
+Fan.Collect.Source(1).Compute(3).TranslationTable="EnclosureComponentsStatusTranslationTable"
+
+// Join the Fan table with the component identifier table (ENC.DISC.7)
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;componentSN;componentID;bladeID;componentDescription;AttachToType;
+Fan.Collect.Source(2).Type="TableJoint"
+Fan.Collect.Source(2).LeftTable=%Fan.Collect.Source(1)%
+Fan.Collect.Source(2).RightTable=%Enclosure.Discovery.Source(7)%
+Fan.Collect.Source(2).LeftKeyColumn=9
+Fan.Collect.Source(2).RightKeyColumn=1
+Fan.Collect.Source(2).DefaultRightLine=";;HPMSA2000;;"
+
+// Add the type to the ID:
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;componentSN;componentID;bladeID;componentDescription;AttachToType;
+Fan.Collect.Source(2).Compute(1).Type="LeftConcat"
+Fan.Collect.Source(2).Compute(1).Column=4
+Fan.Collect.Source(2).Compute(1).String=Column(3)
+
+// Add component description to the ID
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;componentSN;componentID;bladeID;componentDescription;AttachToType;
+Fan.Collect.Source(2).Compute(2).Type="LeftConcat"
+Fan.Collect.Source(2).Compute(2).Column=4
+Fan.Collect.Source(2).Compute(2).String=Column(13)
+
+// ValueTable = Source(1)
+Fan.Collect.ValueTable=%Fan.Collect.Source(2)%
+Fan.Collect.DeviceID=ValueTable.Column(4)
+Fan.Collect.Status=ValueTable.Column(5)
+
+// PowerSupply
+
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(1)
+PowerSupply.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep only components of basetype "enclosure-components"
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;
+PowerSupply.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+PowerSupply.Discovery.Source(1).Compute(1).Column=2
+PowerSupply.Discovery.Source(1).Compute(1).RegExp="^\(enclosure.components\)\|\(power.supplies\)$"
+
+// Keep only components of type "PSU" or ""  (note the RegEx is a negative Exclude
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;
+PowerSupply.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+PowerSupply.Discovery.Source(1).Compute(2).Column=3
+PowerSupply.Discovery.Source(1).Compute(2).RegExp="^[^Pp]*[^Ss]*[^Uu]*$"
+
+
+// Join the PowerSupply table with the component identifier table (ENC.DISC.7)
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;componentID;bladeID;componentDescription;AttachToType;
+PowerSupply.Discovery.Source(2).Type="TableJoint"
+PowerSupply.Discovery.Source(2).LeftTable=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Source(2).RightTable=%Enclosure.Discovery.Source(7)%
+PowerSupply.Discovery.Source(2).LeftKeyColumn=9
+PowerSupply.Discovery.Source(2).RightKeyColumn=1
+PowerSupply.Discovery.Source(2).DefaultRightLine=";;HPMSA2000;;Enclosure;"
+
+// Add the type to the ID:
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;componentSN;componentID;bladeID;componentDescription;AttachToType;
+PowerSupply.Discovery.Source(2).Compute(1).Type="LeftConcat"
+PowerSupply.Discovery.Source(2).Compute(1).Column=4
+PowerSupply.Discovery.Source(2).Compute(1).String=Column(3)
+
+// Add component description to the ID
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;componentSN;componentID;bladeID;componentDescription;AttachToType;
+PowerSupply.Discovery.Source(2).Compute(2).Type="LeftConcat"
+PowerSupply.Discovery.Source(2).Compute(2).Column=4
+PowerSupply.Discovery.Source(2).Compute(2).String=Column(13)
+
+PowerSupply.Discovery.Source(2).Compute(2).Type="LeftConcat"
+PowerSupply.Discovery.Source(2).Compute(2).Column=7
+PowerSupply.Discovery.Source(2).Compute(2).String="SerialNumber: "
+
+// InstanceTable = Source(1)
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;componentSN;componentID;bladeID;componentDescription;AttachToType;
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(2)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(4)
+PowerSupply.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(6)
+PowerSupply.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(7)
+PowerSupply.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(12)
+PowerSupply.Discovery.Instance.AttachedToDeviceType=InstanceTable.Column(14)
+
+//
+// Collect
+
+// Collect type is multi-instance
+PowerSupply.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Discovery.Source(1)
+PowerSupply.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Keep only components of basetype "enclosure-components"
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;
+PowerSupply.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+PowerSupply.Collect.Source(1).Compute(1).Column=2
+PowerSupply.Collect.Source(1).Compute(1).RegExp="^\(enclosure.components\)\|\(power.supplies\)$"
+
+// Keep only components of type "PSU" or ""  (note the RegEx is a negative Exclude
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;
+PowerSupply.Collect.Source(1).Compute(2).Type="ExcludeMatchingLines"
+PowerSupply.Collect.Source(1).Compute(2).Column=3
+PowerSupply.Collect.Source(1).Compute(2).RegExp="^[^Pp]*[^Ss]*[^Uu]*$"
+
+// Translate the healthnumeric
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;
+PowerSupply.Collect.Source(1).Compute(3).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(3).Column=5
+PowerSupply.Collect.Source(1).Compute(3).TranslationTable="EnclosureComponentsStatusTranslationTable"
+
+// Join the PowerSupply table with the component identifier table (ENC.DISC.7)
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;componentSN;componentID;bladeID;componentDescription;AttachToType;
+PowerSupply.Collect.Source(2).Type="TableJoint"
+PowerSupply.Collect.Source(2).LeftTable=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.Source(2).RightTable=%Enclosure.Discovery.Source(7)%
+PowerSupply.Collect.Source(2).LeftKeyColumn=9
+PowerSupply.Collect.Source(2).RightKeyColumn=1
+PowerSupply.Collect.Source(2).DefaultRightLine=";;HPMSA2000;;"
+
+// Add the type to the ID:
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;componentSN;componentID;bladeID;componentDescription;AttachToType;
+PowerSupply.Collect.Source(2).Compute(1).Type="LeftConcat"
+PowerSupply.Collect.Source(2).Compute(1).Column=4
+PowerSupply.Collect.Source(2).Compute(1).String=Column(3)
+
+// Add component description to the ID
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;componentSN;componentID;bladeID;componentDescription;AttachToType;
+PowerSupply.Collect.Source(2).Compute(2).Type="LeftConcat"
+PowerSupply.Collect.Source(2).Compute(2).Column=4
+PowerSupply.Collect.Source(2).Compute(2).String=Column(13)
+
+// ValueTable = Source(1)
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(2)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(4)
+PowerSupply.Collect.Status=ValueTable.Column(5)
+
+
+// Voltage
+
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(1)
+Voltage.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep only components of basetype "enclosure-components"
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;
+Voltage.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Voltage.Discovery.Source(1).Compute(1).Column=2
+Voltage.Discovery.Source(1).Compute(1).RegExp="^enclosure.components$"
+
+// Keep only components of type "Voltage"
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;
+Voltage.Discovery.Source(1).Compute(2).Type="KeepOnlyMatchingLines"
+Voltage.Discovery.Source(1).Compute(2).Column=3
+Voltage.Discovery.Source(1).Compute(2).RegExp="^[Vv][Oo][Ll][Tt]"
+
+// Join the Voltage table with the component identifier table (ENC.DISC.7)
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;componentSN;componentID;bladeID;componentDescription;AttachToType;
+Voltage.Discovery.Source(2).Type="TableJoint"
+Voltage.Discovery.Source(2).LeftTable=%Voltage.Discovery.Source(1)%
+Voltage.Discovery.Source(2).RightTable=%Enclosure.Discovery.Source(7)%
+Voltage.Discovery.Source(2).LeftKeyColumn=9
+Voltage.Discovery.Source(2).RightKeyColumn=1
+
+// Add the type to the ID:
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;componentSN;componentID;bladeID;componentDescription;AttachToType;
+Voltage.Discovery.Source(2).Compute(1).Type="LeftConcat"
+Voltage.Discovery.Source(2).Compute(1).Column=4
+Voltage.Discovery.Source(2).Compute(1).String=Column(3)
+
+// Add component description to the ID
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;componentSN;componentID;bladeID;componentDescription;AttachToType;
+Voltage.Discovery.Source(2).Compute(2).Type="LeftConcat"
+Voltage.Discovery.Source(2).Compute(2).Column=4
+Voltage.Discovery.Source(2).Compute(2).String=Column(13)
+
+Voltage.Discovery.Source(2).Compute(3).Type="LeftConcat"
+Voltage.Discovery.Source(2).Compute(3).Column=6
+Voltage.Discovery.Source(2).Compute(2).String="Part Number: "
+
+Voltage.Discovery.Source(2).Compute(4).Type="LeftConcat"
+Voltage.Discovery.Source(2).Compute(4).Column=7
+Voltage.Discovery.Source(2).Compute(4).String="SerialNumber: "
+
+
+// InstanceTable = Source(1)
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;componentSN;componentID;bladeID;componentDescription;AttachToType;
+Voltage.Discovery.InstanceTable=%Voltage.Discovery.Source(2)%
+Voltage.Discovery.Instance.DeviceID=InstanceTable.Column(4)
+Voltage.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(6)
+Voltage.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(7)
+Voltage.Discovery.Instance.ParameterActivation.Voltage=InstanceTable.Column(8)
+Voltage.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(12)
+Voltage.Discovery.Instance.AttachedToDeviceType="Blade"
+
+//
+// Collect
+
+// Collect type is multi-instance
+Voltage.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Discovery.Source(1)
+Voltage.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Keep only components of basetype "enclosure-components"
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;
+Voltage.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Voltage.Collect.Source(1).Compute(1).Column=2
+Voltage.Collect.Source(1).Compute(1).RegExp="^enclosure.components$"
+
+// Keep only components of type "Voltage"
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;
+Voltage.Collect.Source(1).Compute(2).Type="KeepOnlyMatchingLines"
+Voltage.Collect.Source(1).Compute(2).Column=3
+Voltage.Collect.Source(1).Compute(2).RegExp="^[Vv][Oo][Ll][Tt]"
+
+// Translate the healthnumeric
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;
+Voltage.Collect.Source(1).Compute(3).Type="Translate"
+Voltage.Collect.Source(1).Compute(3).Column=5
+Voltage.Collect.Source(1).Compute(3).TranslationTable="EnclosureComponentsStatusTranslationTable"
+
+// Convert Volts to MilliVolts
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;
+Voltage.Collect.Source(1).Compute(4).Type="Multiply"
+Voltage.Collect.Source(1).Compute(4).Column=8
+Voltage.Collect.Source(1).Compute(4).MultiplyBy=1000
+
+// Join the Voltage table with the component identifier table (ENC.DISC.7)
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;componentSN;componentID;bladeID;componentDescription;AttachToType;
+Voltage.Collect.Source(2).Type="TableJoint"
+Voltage.Collect.Source(2).LeftTable=%Voltage.Collect.Source(1)%
+Voltage.Collect.Source(2).RightTable=%Enclosure.Discovery.Source(7)%
+Voltage.Collect.Source(2).LeftKeyColumn=9
+Voltage.Collect.Source(2).RightKeyColumn=1
+
+// Add the type to the ID:
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;componentSN;componentID;bladeID;componentDescription;AttachToType;
+Voltage.Collect.Source(2).Compute(1).Type="LeftConcat"
+Voltage.Collect.Source(2).Compute(1).Column=4
+Voltage.Collect.Source(2).Compute(1).String=Column(3)
+
+// Add component description to the ID
+// MSHW;basetype;type;enclosureunitnumber;status;partnnumber;serialnumber;additionaldata;componentSN;componentSN;componentID;bladeID;componentDescription;AttachToType;
+Voltage.Collect.Source(2).Compute(2).Type="LeftConcat"
+Voltage.Collect.Source(2).Compute(2).Column=4
+Voltage.Collect.Source(2).Compute(2).String=Column(13)
+
+// ValueTable = Source(1)
+Voltage.Collect.ValueTable=%Voltage.Collect.Source(2)%
+Voltage.Collect.DeviceID=ValueTable.Column(4)
+Voltage.Collect.Status=ValueTable.Column(5)
+Voltage.Collect.Voltage=ValueTable.Column(8)
+
+// EnclosureComponentsStatusTranslationTable
+EnclosureComponentsStatusTranslationTable("ok")="OK"
+EnclosureComponentsStatusTranslationTable("degraded")="WARN"
+EnclosureComponentsStatusTranslationTable("fault")="ALARM"
+EnclosureComponentsStatusTranslationTable("unknown")="UNKNOWN"
+EnclosureComponentsStatusTranslationTable("error")="WARN"
+EnclosureComponentsStatusTranslationTable("warning")="ALARM"
+EnclosureComponentsStatusTranslationTable("n/a")="UNKNOWN"
+EnclosureComponentsStatusTranslationTable("up")="OK"
+EnclosureComponentsStatusTranslationTable(Default)="ALARM"
+
+// FC + Network Cards
+//
+
+//
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(1)
+NetworkCard.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep only components of basetype "port or network-parameters"
+// MSHW;basetype;ID;media;targetid;actualspeed;healthnumeric;healthreason;
+NetworkCard.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+NetworkCard.Discovery.Source(1).Compute(1).Column=2
+NetworkCard.Discovery.Source(1).Compute(1).RegExp="^\(port\)\|\(network.parameters\)$"
+
+// InstanceTable = Source(1)
+// MSHW;basetype;ID;media;targetid;actualspeed;healthnumeric;healthreason;
+NetworkCard.Discovery.InstanceTable=%NetworkCard.Discovery.Source(1)%
+NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+NetworkCard.Discovery.Instance.DeviceType=InstanceTable.Column(4)
+NetworkCard.Discovery.Instance.ParameterActivation.LinkSpeed=InstanceTable.Column(6)
+
+//
+// Collect
+
+// Collect type is multi-instance
+NetworkCard.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Discovery.Source(1)
+NetworkCard.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Keep only components of basetype "port or network-parameters"
+// MSHW;basetype;ID;media;targetid;actualspeed;healthnumeric;healthreason;
+NetworkCard.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+NetworkCard.Collect.Source(1).Compute(1).Column=2
+NetworkCard.Collect.Source(1).Compute(1).RegExp="^\(port\)\|\(network.parameters\)$"
+
+// Duplicate the Health Numeric column
+// MSHW;basetype;ID;media;targetid;actualspeed;healthnumeric;healthnumeric;healthreason;
+NetworkCard.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+NetworkCard.Collect.Source(1).Compute(2).Column=7
+
+// Translate the First Health Numeric into a Patrol Status
+// MSHW;basetype;ID;media;targetid;actualspeed;healthnumeric;healthnumeric;healthreason;
+NetworkCard.Collect.Source(1).Compute(3).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(3).Column=7
+NetworkCard.Collect.Source(1).Compute(3).TranslationTable="NetworkCardStatusTranslationTable"
+
+// NetworkCardStatusTranslationTable
+NetworkCardStatusTranslationTable(0)="OK"
+NetworkCardStatusTranslationTable(1)="WARN"
+NetworkCardStatusTranslationTable(4)="OK"
+NetworkCardStatusTranslationTable("Up")="OK"
+NetworkCardStatusTranslationTable("Warning")="WARN"
+NetworkCardStatusTranslationTable("Error")="ALARM"
+NetworkCardStatusTranslationTable("Not Present")=""
+NetworkCardStatusTranslationTable("Disconnected")="OK"
+NetworkCardStatusTranslationTable("Unknown")="UNKNOWN"
+NetworkCardStatusTranslationTable(Default)="ALARM"
+
+
+// Translate the First Health Numeric into a LinkStatus
+// MSHW;basetype;ID;media;targetid;actualspeed;healthnumeric;healthnumeric;healthreason;
+NetworkCard.Collect.Source(1).Compute(4).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(4).Column=8
+NetworkCard.Collect.Source(1).Compute(4).TranslationTable="NetworkLinkStatusTranslationTable"
+
+// NetworkCardStatusTranslationTable
+NetworkLinkStatusTranslationTable(4)="WARN"
+NetworkLinkStatusTranslationTable("Disconnected")="WARN"
+NetworkLinkStatusTranslationTable(Default)="OK"
+
+// ValueTable = Source(1)
+// MSHW;basetype;ID;media;targetid;actualspeed;healthnumeric;healthnumeric;healthreason;
+NetworkCard.Collect.ValueTable=%NetworkCard.Collect.Source(1)%
+NetworkCard.Collect.DeviceID=ValueTable.Column(3)
+NetworkCard.Collect.StatusInformation=ValueTable.Column(9)
+NetworkCard.Collect.LinkStatus=ValueTable.Column(8)
+NetworkCard.Collect.LinkSpeed=ValueTable.Column(6)
+NetworkCard.Collect.Status=ValueTable.Column(7)
+
+
+// LogicalDisk
+
+// Discovery
+
+// Source(1) = copy of Enclosure.Discovery.Source(1)
+LogicalDisk.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// Keep only components of basetype "virtual.disks"
+// MSHW;basetype;name;size;sizenumeric;freespace;freespacenumeric;raidtype;diskcount;healthnumeric;healthreason;
+LogicalDisk.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+LogicalDisk.Discovery.Source(1).Compute(1).Column=2
+LogicalDisk.Discovery.Source(1).Compute(1).RegExp="^virtual.disks$"
+
+// Convert SizeNumeric to bytes
+// MSHW;basetype;name;size;sizenumeric;freespace;freespacenumeric;raidtype;diskcount;healthnumeric;healthreason;
+LogicalDisk.Discovery.Source(1).Compute(2).Type="Multiply"
+LogicalDisk.Discovery.Source(1).Compute(2).Column=5
+LogicalDisk.Discovery.Source(1).Compute(2).MultiplyBy=512
+
+// InstanceTable = Source(1)
+// MSHW;basetype;name;size;sizenumeric;freespace;freespacenumeric;raidtype;diskcount;healthnumeric;healthreason;
+LogicalDisk.Discovery.InstanceTable=%LogicalDisk.Discovery.Source(1)%
+LogicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+LogicalDisk.Discovery.Instance.RaidLevel=InstanceTable.Column(8)
+LogicalDisk.Discovery.Instance.Size=InstanceTable.Column(5)
+LogicalDisk.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(9)
+LogicalDisk.Discovery.Instance.ParameterActivation.UnallocatedSpace=InstanceTable.Column(7)
+LogicalDisk.Discovery.Instance.AttachedToDeviceID="HPMSA2000"
+
+//
+// Collect
+
+// Collect type is multi-instance
+LogicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = copy of Enclosure.Collect.Source(1)
+LogicalDisk.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+
+// Keep only components of basetype "virtual.disks"
+// MSHW;basetype;name;size;sizenumeric;freespace;freespacenumeric;raidtype;diskcount;healthnumeric;healthreason;
+LogicalDisk.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+LogicalDisk.Collect.Source(1).Compute(1).Column=2
+LogicalDisk.Collect.Source(1).Compute(1).RegExp="^virtual.disks$"
+
+// Translate the healthnumeric
+// MSHW;basetype;name;size;sizenumeric;freespace;freespacenumeric;raidtype;diskcount;healthnumeric;healthreason;
+LogicalDisk.Collect.Source(1).Compute(2).Type="Translate"
+LogicalDisk.Collect.Source(1).Compute(2).Column=10
+LogicalDisk.Collect.Source(1).Compute(2).TranslationTable="LogicalDiskHealthNumericTranslationTable"
+
+// LogicalDiskHealthNumericTranslationTable
+LogicalDiskHealthNumericTranslationTable(0)="OK"
+LogicalDiskHealthNumericTranslationTable(1)="WARN"
+LogicalDiskHealthNumericTranslationTable("CRIT")="ALARM"
+LogicalDiskHealthNumericTranslationTable("FTDN")="WARN"
+LogicalDiskHealthNumericTranslationTable("FTOL")="OK"
+LogicalDiskHealthNumericTranslationTable("OFFL")="ALARM"
+LogicalDiskHealthNumericTranslationTable("QTCR")="WARN"
+LogicalDiskHealthNumericTranslationTable("QTDN")="WARN"
+LogicalDiskHealthNumericTranslationTable("QTOF")="ALARM"
+LogicalDiskHealthNumericTranslationTable("STOP")="ALARM"
+LogicalDiskHealthNumericTranslationTable("UP")="OK"
+LogicalDiskHealthNumericTranslationTable("UNKN")="UNKNOWN"
+LogicalDiskHealthNumericTranslationTable(Default)="ALARM"
+
+
+// Convert freespacenumeric to bytes
+// MSHW;basetype;name;size;sizenumeric;freespace;freespacenumeric;raidtype;diskcount;healthnumeric;healthreason;
+LogicalDisk.Collect.Source(1).Compute(3).Type="Multiply"
+LogicalDisk.Collect.Source(1).Compute(3).Column=7
+LogicalDisk.Collect.Source(1).Compute(3).MultiplyBy=512
+
+// The value table
+// MSHW;basetype;name;size;sizenumeric;freespace;freespacenumeric;raidtype;diskcount;healthnumeric;healthreason;
+LogicalDisk.Collect.ValueTable=%LogicalDisk.Collect.Source(1)%
+LogicalDisk.Collect.DeviceID=ValueTable.Column(3)
+LogicalDisk.Collect.Status=ValueTable.Column(10)
+LogicalDisk.Collect.StatusInformation=ValueTable.Column(11)
+LogicalDisk.Collect.UnallocatedSpace=ValueTable.Column(7)
+
+
+////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = awk script that parse the output of show configuration and produces a table of components and status
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(1):
+BEGIN {basetype=""}
+$0 ~ /<OBJECT/ && $0 ~ /basetype=/ {for (i=1; i<=NF; i++) {if ($i ~ /^basetype=/) {basetype=$i;gsub(/(^.*=")|("$)/,"",basetype);
+	                                                                               }
+	                                                        }
+	                                 }
+
+function setValue(value) {value=$0
+	                        gsub("</PROPERTY>.*","",value);
+	                        gsub("^.*<PROPERTY.*>","",value)
+	                        return value}
+
+
+#Extract Enclosure information
+# G1 and G2 use "system", G3 uses "system-information"
+basetype == "system-information" {basetype = "system"}
+($1 ~ /<PROPERTY/ && basetype == "system") {
+     if ($0 ~ /name="system-name"/) {DisplayName=setValue($0)}
+     if ($0 ~ /name="vendor.name"/) {vendor=setValue($0)}
+     if ($0 ~ /name="product.id"/)  {model=setValue($0)}
+    }
+$1 ~ "/OBJECT" && (basetype == "system" || basetype == "system-information") {print ("MSHW;"basetype";"DisplayName";"vendor";"model";");
+	                                         basetype="";DisplayName="";vendor="";model="";
+	                                        }
+
+#Extract Blade Information (enclosure-environmental / enclosure-sku)
+($1 ~ /<PROPERTY/ && basetype == "enclosure-sku") {basetype="enclosure-environmental"
+	                                                 bladeID="System"
+	                                                }
+
+($1 ~ /<PROPERTY/ && basetype == "enclosure-environmental") {
+	   if ($0 ~ /name="sku.partnumber"/) {productID=setValue($0)}
+     if ($0 ~ /name="sku.serialnumber"/) {bladeSerial=setValue($0)}
+     if ($0 ~ /name="chassis"/) {bladeSerial=setValue($0)}
+     if ($0 ~ /name="id"/) {bladeID=setValue($0)}
+     if ($0 ~ /name="status"/)  {healthnumeric=tolower(setValue($0))}
+     if ($0 ~ /name="Product ID"/) {productID=setValue($0)}
+    }
+$1 ~ "/OBJECT" && basetype == "enclosure-environmental" {print ("MSHW;"basetype";"bladeSerial";"bladeID";"healthnumeric";"productID";");
+	                                       basetype="";bladeSerial="";bladeID="";healthnumeric="";productID="";
+                                                                      }
+
+#Extract Controllers information
+($1 ~ /<PROPERTY/ && basetype == "controllers") {
+     if ($0 ~ /name="controller.id"/) {ID=setValue($0)}
+     if ($0 ~ /name="serial.number"/) {serialnumber=setValue($0)}
+     if ($0 ~ /name="sc.fw"/) {firmwareversion=setValue($0)}
+     if ($0 ~ /name="health.numeric"/) {healthnumeric=setValue($0)}
+     if ($0 ~ /name="health.reason"/) {healthreason=setValue($0)}
+     if ($0 ~ /name="position"/) {position=setValue($0)}
+     if ($0 ~ /name="description"/) {description=setValue($0)}
+     }
+
+
+# Print Must Matchup with Compact Flash
+$1 ~ "/OBJECT" && basetype == "controllers" {print ("MSHW;"basetype";CTRL-"ID";"healthnumeric";"healthreason";"position";"description";SN: "serialnumber";SC FW: "firmwareversion";");
+	                                         basetype="";ID="";serialnumber="";firmwareversion="";healthnumeric="";healthreason="";position="";description="";
+	                                        }
+
+#Extract Management Port information
+
+($1 ~ /<PROPERTY/ && basetype == "network-parameters") {
+     if ($0 ~ /name="durable.id"/) {ID=setValue($0)}
+     if ($0 ~ /name="network-parameters"/) {ipaddress=setValue($0)}
+     if ($0 ~ /name="health-numeric"/) {healthnumeric=setValue($0)}
+     if ($0 ~ /name="healthreason"/) {healthreason=setValue($0)}
+     if ($0 ~ /name="mac-address"/) { macaddress=setValue($0)}
+     }
+# Print Must Matchup with FC Ports
+$1 ~ "/OBJECT" && basetype == "network-parameters" {print ("MSHW;"basetype";"ID";Ethernet;"        ";"           ";"healthnumeric";"healthreason";");
+	                                         basetype="";ID="";ipaddress="";healthnumeric="";healthreason="";macaddress="";addresstype="";
+	                                        }
+
+#Extract FC Port information
+#G1 and G2
+
+($1 ~ /<PROPERTY/ && basetype == "port") {
+     if ($0 ~ /name="port"/) {ID=setValue($0)}
+     if ($0 ~ /name="media"/) {media=setValue($0)}
+     if ($0 ~ /name="target.id"/) {targetid=setValue($0)}
+     if ($0 ~ /name="actual.speed"/) {actualspeed=setValue($0);gsub(/[gG][Bb]/,"000",actualspeed);}
+     if ($0 ~ /name="health.numeric"/) {healthnumeric=setValue($0)}
+     if ($0 ~ /name="health.reason"/) {healthreason=setValue($0);gsub(/Host port is OK/,"",healthreason)}
+     }
+#G3
+($1 ~ /<PROPERTY/ && basetype == "name") {
+     if ($0 ~ /name="controller"/) {ID="Ctlr-" setValue($0) ID}
+     if ($0 ~ /name="channel"/) {ID=ID " Ch-" setValue($0) }
+     if ($0 ~ /name="media"/) {media=setValue($0);if (media=="SAS") {basetype="";ID="";media="";targetid="";actualspeed="";healthnumeric="";healthreason="";}}
+     if ($0 ~ /name="actual.speed"/) {actualspeed=setValue($0);gsub(/[gG][Bb]*/,"000",actualspeed);gsub(/[\.A-Za-z]/,"",actualspeed);}
+     if ($0 ~ /name="status"/) {healthnumeric=setValue($0);if (status=="Not Present") {basetype=""}}
+     }
+# Print Must Matchup with Management Ports
+$1 ~ "/OBJECT" && (basetype == "port" || ( basetype == "name" && media != "") ) {basetype = "port"
+	                                         print ("MSHW;"basetype";"ID";"media ";"targetid";"actualspeed";"healthnumeric";"healthreason";");
+	                                         basetype="";ID="";media="";targetid="";actualspeed="";healthnumeric="";healthreason="";
+	                                        }
+
+#Extract compact-flash information
+($1 ~ /<PROPERTY/ && basetype == "compact-flash") {
+     if ($0 ~ /name="controller.id"/) {ID=setValue($0)}
+     if ($0 ~ /name="name"/) {name=setValue($0)}
+     if ($0 ~ /name="cache.flush"/) {cacheflush=setValue($0)}
+     if ($0 ~ /name="health.numeric"/) {healthnumeric=setValue($0)}
+     if ($0 ~ /name="healthreason"/) {healthreason=setValue($0);gsub(/CompactFlash is OK./,"",healthreason);}
+     }
+# Print Must Matchup with Controllers
+$1 ~ "/OBJECT" && basetype == "compact-flash" {print ("MSHW;"basetype";CF-"ID";"healthnumeric";"cacheflush" "healthreason";"        ";"name       ";"            ";");
+	                                                            basetype="";ID="";name="";cacheflush="";healthnumeric="";healthreason="";
+	                                        }
+
+#Extract drives information
+# G1 and G2 use "drives", G3 uses "drive"
+basetype == "drive" {basetype = "drives"}
+($1 ~ /<PROPERTY/ && basetype == "drives") {
+     if ($0 ~ /name="location"/) {ID=setValue($0)}
+     if ($0 ~ /name="enclosure.id"/) {enclosureid=setValue($0)}
+     if ($0 ~ /name="serial.number"/) {serialnumber=setValue($0)}
+     if ($0 ~ /name="vendor"/) {vendor=setValue($0)}
+     if ($0 ~ /name="model"/) {model=setValue($0)}
+     if ($0 ~ /name="revision"/) {revision=setValue($0)}
+     if ($0 ~ /name="type"/) {type=setValue($0)}
+     if ($0 ~ /name="size"/) {size=setValue($0)}
+     if ($0 ~ /name="size.numeric"/) {sizenumeric=setValue($0)}
+     if ($0 ~ /name="health.numeric"/) {healthnumeric=setValue($0)}
+     if ($0 ~ /name="health.reason"/) {healthreason=setValue($0)}
+ #G3 Specific
+     if ($0 ~ /name="status"/) {healthnumeric=setValue($0)}
+     if ($0 ~ /name="size" units="gb"/) {size=setValue($0)}
+     }
+$1 ~ "/OBJECT" && basetype == "drives" {print ("MSHW;"basetype";"ID";"enclosureid";"serialnumber";"vendor";"model";"revision";"type";"size";"sizenumeric";"healthnumeric";"healthreason";");
+	                                                    basetype="";ID="";enclosureid="";serialnumber="";vendor="";model="";revision="";type="";size="";sizenumeric="";healthnumeric="";healthreason="";
+	                                        }
+
+#Extract virtual-disks information
+# G1 and G2 use "virtual-disks", G3 uses "virtual-disk"
+basetype == "virtual-disk" {basetype = "virtual-disks"}
+ ($1 ~ /<PROPERTY/ && basetype == "virtual-disks") {
+     if ($0 ~ /name="name"/) {name=setValue($0)}
+     if ($0 ~ /name="size"/) {size=setValue($0)}
+     if ($0 ~ /name="size.numeric"/) {sizenumeric=setValue($0)}
+     if ($0 ~ /name="freespace"/) {freespace=setValue($0)}
+     if ($0 ~ /name="freespace.numeric"/) {freespacenumeric=setValue($0)}
+     if ($0 ~ /name="raidtype"/) {raidtype=setValue($0)}
+     if ($0 ~ /name="diskcount"/) {diskcount=setValue($0);diskcount="Disk Count: " diskcount;}
+     if ($0 ~ /name="health.numeric"/) {healthnumeric=setValue($0)}
+     if ($0 ~ /name="health.reason"/) {healthreason=setValue($0)}
+#G3 Specific
+        if ($0 ~ /name="status"/) {healthnumeric=setValue($0)
+        	                         healthreason=setValue($0)
+# Translate the Health Reason Here to avoid conflict with G1/G2 healthreason
+                                   gsub("CRIT","Critical",healthreason)
+                                   gsub("FTDN","Fault tolerant with down disks",healthreason)
+                                   gsub("FTOL","Fault tolerant and online",healthreason)
+                                   gsub("OFFL","Offline",healthreason)
+                                   gsub("QTCR","Quarantined critical",healthreason)
+                                   gsub("QTDN","Quarantined with down disks",healthreason)
+                                   gsub("QTOF","Quarantined offline",healthreason)
+                                   gsub("STOP","Stopped",healthreason)
+                                   gsub("U[Pp]","Up. No Fault Tolerance Attributes",healthreason)
+                                   gsub("UNKN","Unknown",healthreason)
+        	                         }
+    if ($0 ~ /name="blocks"/) {sizenumeric=setValue($0)
+    	                         blocksize=$0
+    	                         gsub(/^.*blocksize="/,"",blocksize);
+	                             gsub(/".*$/,"",blocksize)
+                               sizenumeric=sizenumeric * blocksize / 512;
+    	                        }
+
+     }
+$1 ~ "/OBJECT" && basetype == "virtual-disks" {print ("MSHW;"basetype";"name";"size";"sizenumeric";"freespace";"freespacenumeric";"raidtype";"diskcount";"healthnumeric";"healthreason";");
+	                                                    basetype="";name="";size="";sizenumeric="";freespace="";freespacenumeric="";raidtype="";diskcount="";healthnumeric="";healthreason="";
+	                                        }
+
+#Extract enclosure-components information (FANS, TEMPERATURES, VOLTAGES, POWER SUPPLIES)
+# G1 and G2 use "enclosure-components", G3 uses "patr"
+basetype == "enclosure-component" {basetype = "enclosure-components"}
+($1 ~ /<PROPERTY/ && basetype == "enclosure-components") {
+     if ($0 ~ /name="type"/) {type=setValue($0)}
+     if ($0 ~ /name="enclosure.unit.number"/) {enclosureunitnumber=setValue($0)}
+     if ($0 ~ /name="status"/) {status=setValue($0);status=tolower(status);if (status=="absent") {basetype=""}}
+     if ($0 ~ /name="fru.partnnumber"/) {partnnumber=setValue($0)}
+     if ($0 ~ /name="fru.serialnumber"/) {serialnumber=setValue($0)}
+     if ($0 ~ /name="additional.data"/) {additionaldata=setValue($0);property=$0;gsub(/[^0-9.]/,"",additionaldata)}
+     if ($0 ~ /name="FRU S.N"/) {componentSN=setValue($0)}
+     }
+$1 ~ "/OBJECT" && basetype == "enclosure-components" {if (type !~ /[Dd]isk/) {
+	                                                       print ("MSHW;"basetype";"type";"enclosureunitnumber";"status";Part Number: "partnnumber"; "serialnumber";"additionaldata";"componentSN";");
+	                                                       basetype="";type="";name="";enclosureunitnumber="";status="";partnnumber="";serialnumber="";additionaldata="";componentSN="";
+	                                                                              }
+	                                                      }
+
+# Other G3s have seperate FAN and Power Supply Sections
+($1 ~ /<PROPERTY/ && basetype == "fan") {
+     if ($0 ~ /name="location"/) {location=setValue($0)}
+	   if ($0 ~ /name="status"/) {status=setValue($0);status=tolower(status);if (status=="not present" || status=="disconnected") {basetype=""}}
+     if ($0 ~ /name="speed"/) {speed=setValue($0)}
+     }
+$1 ~ "/OBJECT" && basetype == "fan" {print ("MSHW;"basetype";;"location";"status";;;;system;");
+	                                                       basetype="";location="";status="";
+	                                                      }
+
+($1 ~ /<PROPERTY/ && basetype == "power-supplies") {
+     if ($0 ~ /name="location"/) {location=setValue($0)}
+     if ($0 ~ /name="serial.number"/) {serialnumber=setValue($0)}
+     if ($0 ~ /name="configuration.serialnumber"/) {componentSN=setValue($0)}
+	   if ($0 ~ /name="status"/) {status=setValue($0);status=tolower(status);if (status=="not present" || status=="disconnected") {basetype=""}}
+     if ($0 ~ /name="part.number"/) {partnnumber=setValue($0)}
+     }
+$1 ~ "/OBJECT" && basetype == "power-supplies" {print ("MSHW;"basetype";;Location: "location";"status";Part Number: "partnnumber"; "serialnumber";;system;");
+	                                                       basetype="";location="";status="";partnnumber="";serialnumber="";
+	                                                      }
+
+
+
+#Extract the Component to EnvEnc (Blade) table
+# G3s do not use basetype for these variables, using a different test:
+$0 ~ /<OBJECT/ && $0 ~ /name="enclosure-fru"/ {basetype = "enclosure-fru"}
+$0 ~ /<OBJECT/ && $0 ~ /name="midplane-fru"/ {basetype = "enclosure-fru"}
+
+($1 ~ /<PROPERTY/ && basetype == "enclosure-fru") {
+     if ($0 ~ /name="Configuration SN"/) {bladeSN=setValue($0)}
+     if ($0 ~ /name="Serial Number"/) {componentSN=setValue($0)}
+     if ($0 ~ /name="FRU Location"/) {componentID=setValue($0)}
+     }
+$1 ~ "/OBJECT" && basetype == "enclosure-fru" {print ("MSHW;"basetype";"bladeSN";"componentSN";"componentID";")
+	                                                basetype="";bladeSN="";componentSN="";componentID=""
+	                                               }
+EmbeddedFile(1).End
+/////////////////////////////////////////////////////////////////////

@@ -1,0 +1,158 @@
+
+//
+// DETECTION
+//
+
+// OS should be Linux (yes, the HMC is actually a Linux PC!)
+Detection.Criteria(1).Type="OS"
+Detection.Criteria(1).KeepOnly="Linux"
+
+
+
+//
+// Enclosures
+//
+
+//
+// Discovery
+
+// Source(1) = lssyscfg's output
+// Name;ModelType;SerialNumber;IPAddress;
+Enclosure.Discovery.Source(1).Type="OsCommand"
+Enclosure.Discovery.Source(1).CommandLine="lssyscfg -r sys -F name,type_model,serial_num,ipaddr"
+Enclosure.Discovery.Source(1).KeepOnlyRegExp=",[0-9\.]+$"
+Enclosure.Discovery.Source(1).Separators=","
+Enclosure.Discovery.Source(1).SelectColumns="1,2,3,4"
+
+Enclosure.Discovery.Source(1).Compute(1).Type="LeftConcat"
+Enclosure.Discovery.Source(1).Compute(1).Column=4
+Enclosure.Discovery.Source(1).Compute(1).String="IP: "
+
+// InstanceTable = Source(1)
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Enclosure.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+Enclosure.Discovery.Instance.Vendor="IBM"
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(2)
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(3)
+Enclosure.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(4)
+
+
+//
+// Collect
+
+// Collect type is multi-instance
+Enclosure.Collect.Type="MultiInstance"
+
+// Source(1) = lssvcevents output
+// SystemName;EventStatus;Description;RefCode;EventTime;
+Enclosure.Collect.Source(1).Type="OsCommand"
+Enclosure.Collect.Source(1).CommandLine="lssvcevents -t hardware -d 0 -F _EVENTFIELDS"
+Enclosure.Collect.Source(1).KeepOnlyRegExp=",Open,"
+Enclosure.Collect.Source(1).Separators=","
+// Moved to individual HDFS
+// Enclosure.Collect.Source(1).SelectColumns="1,2,3,4,5"
+
+// Make sure we keep only "Open" events
+// v7 // SystemName;Open;Description;RefCode;EventTime;
+// v8 // SystemName;Open;Description;RefCode;EventTime;FRUDetails;
+Enclosure.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Enclosure.Collect.Source(1).Compute(1).Column=2
+Enclosure.Collect.Source(1).Compute(1).ValueList="Open"
+
+// Replace "Open" by "ALARM"
+// v7 //  SystemName;Status;Description;RefCode;EventTime;
+// v8 //  SystemName;Status;Description;RefCode;EventTime;FRUDetails;
+Enclosure.Collect.Source(1).Compute(2).Type="Replace"
+Enclosure.Collect.Source(1).Compute(2).Column=2
+Enclosure.Collect.Source(1).Compute(2).Replace="Open"
+Enclosure.Collect.Source(1).Compute(2).ReplaceBy="ALARM"
+
+// Add the RefCode and EventTime to the Description
+Enclosure.Collect.Source(1).Compute(3).Type="RightConcat"
+Enclosure.Collect.Source(1).Compute(3).Column=3
+Enclosure.Collect.Source(1).Compute(3).String=" - RefCode: "
+
+Enclosure.Collect.Source(1).Compute(4).Type="RightConcat"
+Enclosure.Collect.Source(1).Compute(4).Column=3
+Enclosure.Collect.Source(1).Compute(4).String=Column(4)
+
+Enclosure.Collect.Source(1).Compute(5).Type="RightConcat"
+Enclosure.Collect.Source(1).Compute(5).Column=3
+Enclosure.Collect.Source(1).Compute(5).String=" - EventTime: "
+
+Enclosure.Collect.Source(1).Compute(6).Type="RightConcat"
+Enclosure.Collect.Source(1).Compute(6).Column=3
+Enclosure.Collect.Source(1).Compute(6).String=Column(5)
+
+// Source(2) = Table joint of Enclosure.Discovery.Source(1) and Collect.Source(1)
+// The idea is to get one error per system, and show "OK" if nothing is found
+// v7 // Name;ModelType;SerialNumber;IPAddress;SystemName;Status;Description;RefCode;EventTime;
+// v8 // Name;ModelType;SerialNumber;IPAddress;SystemName;Status;Description;RefCode;EventTime;FRUDetails;
+Enclosure.Collect.Source(2).Type="TableJoint"
+Enclosure.Collect.Source(2).LeftTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Collect.Source(2).RightTable=%Enclosure.Collect.Source(1)%
+Enclosure.Collect.Source(2).LeftKeyColumn=1
+Enclosure.Collect.Source(2).RightKeyColumn=1
+Enclosure.Collect.Source(2).DefaultRightLine="SystemName;OK;No error reported by lssvcevents as of today;;"
+
+// ValueTable = Source(2)
+Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(2)%
+Enclosure.Collect.DeviceID=ValueTable.Column(1)
+Enclosure.Collect.Status=ValueTable.Column(6)
+Enclosure.Collect.StatusInformation=ValueTable.Column(7)
+
+
+//
+// LED
+//
+
+//
+// Discovery
+
+// Source(1) = Enclosure(1).Discovery.Source(1), because there is statically one System Attention LED for each system
+// Name;ModelType;SerialNumber;IPAddress;
+LED.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+// The discovery table
+LED.Discovery.InstanceTable=%LED.Discovery.Source(1)%
+LED.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+LED.Discovery.Instance.DisplayID="System Attention"
+//LED.Discovery.Instance.Name="System Attention"
+LED.Discovery.Instance.Color="Amber"
+LED.Discovery.Instance.OnStatus="ALARM"
+LED.Discovery.Instance.BlinkingStatus="ALARM"
+LED.Discovery.Instance.OffStatus="OK"
+LED.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(1)
+LED.Discovery.Instance.AttachedToDeviceType="Enclosure"
+
+
+
+//
+// Collect
+
+// Collect type = multi-instance
+LED.Collect.Type="MultiInstance"
+
+// Source(1) = result of lsled for each monitored physical system
+// LEDID;ledStatus
+LED.Collect.Source(1).Type="OsCommand"
+LED.Collect.Source(1).CommandLine="for machine in $(lssyscfg -r sys -F name); do status=`lsled -r sa -t phys -m $machine -F state`; echo ""MSHW;$machine;$status"" ; done"
+LED.Collect.Source(1).KeepOnlyRegExp="^MSHW;"
+LED.Collect.Source(1).SelectColumns="2,3"
+LED.Collect.Source(1).Separators=";"
+
+// Translate the first status column into a PATROL status
+// LEDID;ledStatus
+LED.Collect.Source(1).Compute(1).Type="Translate"
+LED.Collect.Source(1).Compute(1).Column=2
+LED.Collect.Source(1).Compute(1).TranslationTable="LEDStatusTranslationTable"
+
+// The LEDStatusTranslationTable
+LEDStatusTranslationTable("on")="On"
+LEDStatusTranslationTable(Default)="Off"
+
+// CollectTable = Source(1)
+LED.Collect.ValueTable=%LED.Collect.Source(1)%
+LED.Collect.DeviceID=ValueTable.Column(1)
+LED.Collect.Status=ValueTable.Column(2)

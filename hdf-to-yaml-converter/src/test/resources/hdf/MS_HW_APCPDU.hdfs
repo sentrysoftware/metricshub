@@ -1,0 +1,521 @@
+////////////////////////////////////////////////////////////////
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//
+//      Supports: APC PDU
+//                Connects to a SNMP agent
+//
+//
+
+
+//
+// Header
+//
+
+hdf.DisplayName="APC PDU (SNMP)"
+hdf.TypicalPlatform="APC PDU"
+hdf.ReliesOn="PDU SNMP Enabled"
+hdf.Version="1.0"
+hdf.Comments="This connector provides hardware monitoring through APC PDU SNMP interface."
+hdf.RemoteSupport="true"
+hdf.LocalSupport="false"
+hdf.AppliesToOS="OOB"
+
+//
+// DETECTION
+// Does a SnmpGet to see if this device is an APC PDU device
+
+Detection.Criteria(1).Type="SNMP"
+Detection.Criteria(1).SnmpGet="1.3.6.1.4.1.318.1.1.26.2.1.3.1"
+Detection.Criteria(1).ExpectedResult="PDU"
+
+//
+// Enclosure
+//
+
+// Source(1)
+//ID;HardwareRevision;FirmwareVersion;DateOfManufacture;ModelNumber;SerialNumber
+
+Enclosure.Discovery.Source(1).Type="SnmpTable"
+Enclosure.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.318.1.1.26.2.1"
+Enclosure.Discovery.Source(1).SnmpTableSelectColumns="3,5,6,7,8,9"
+
+// Add "Date of Manufacture: " to DateOfManufacture
+
+Enclosure.Discovery.Source(1).Compute(1).Type="LeftConcat"
+Enclosure.Discovery.Source(1).Compute(1).Column=4
+Enclosure.Discovery.Source(1).Compute(1).String="Date of Manufacture: "
+
+// Add "Firmware Version: " to FirmwareVersion
+
+Enclosure.Discovery.Source(1).Compute(2).Type="LeftConcat"
+Enclosure.Discovery.Source(1).Compute(2).Column=3
+Enclosure.Discovery.Source(1).Compute(2).String="Firmware Version: "
+
+// Add "Hardware Revision: " to HardwareRevision
+
+Enclosure.Discovery.Source(1).Compute(3).Type="LeftConcat"
+Enclosure.Discovery.Source(1).Compute(3).Column=2
+Enclosure.Discovery.Source(1).Compute(3).String="Hardware Revision: "
+
+// InstanceTable = Source(1)
+//ID;HardwareRevision;FirmwareVersion;DateOfManufacture;ModelNumber;SerialNumber
+
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Enclosure.Discovery.Instance.Vendor="APC"
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(5)
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(6)
+Enclosure.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
+Enclosure.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(3)
+Enclosure.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(4)
+Enclosure.Discovery.Instance.Type="PDU"
+
+// Collect
+// ID;
+
+Enclosure.Collect.Source(1).Type="SnmpGet"
+Enclosure.Collect.Source(1).SnmpOid="1.3.6.1.4.1.318.1.1.26.2.1.3.1"
+
+// Add an identifier to enable table Joints
+// MSHW;ID;
+
+Enclosure.Collect.Source(1).Compute(1).Type="LeftConcat"
+Enclosure.Collect.Source(1).Compute(1).Column=1
+Enclosure.Collect.Source(1).Compute(1).String="MSHW;"
+
+// Source(2) = Status;
+
+Enclosure.Collect.Source(2).Type="SnmpGet"
+Enclosure.Collect.Source(2).SnmpOid="1.3.6.1.4.1.318.1.1.26.4.3.1.4.1"
+
+// Add an identifier to enable table Joints
+// MSHW;Status;
+
+Enclosure.Collect.Source(2).Compute(1).Type="LeftConcat"
+Enclosure.Collect.Source(2).Compute(1).Column=1
+Enclosure.Collect.Source(2).Compute(1).String="MSHW;"
+
+// Duplicate the Status column
+// MSHW;Status;Status;
+
+Enclosure.Collect.Source(2).Compute(2).Type="DuplicateColumn"
+Enclosure.Collect.Source(2).Compute(2).Column=2
+
+// Translate Status of the PDU
+// MSHW;Status;Status;
+
+Enclosure.Collect.Source(2).Compute(3).Type="Translate"
+Enclosure.Collect.Source(2).Compute(3).Column=2
+Enclosure.Collect.Source(2).Compute(3).TranslationTable="enclosureStatusTranslationTable"
+
+// Translate Status Information of the PDU
+// MSHW;Status;StatusInformation;
+
+Enclosure.Collect.Source(2).Compute(4).Type="Translate"
+Enclosure.Collect.Source(2).Compute(4).Column=3
+Enclosure.Collect.Source(2).Compute(4).TranslationTable="enclosureStatusInformationTranslationTable"
+
+// TableJoin of Source(1) and Source(2) into Source(3)
+// MSHW;ID;MSHW;Status;StatusInformation;
+
+Enclosure.Collect.Source(3).Type="TableJoint"
+Enclosure.Collect.Source(3).LeftTable=%Enclosure.Collect.Source(1)%
+Enclosure.Collect.Source(3).RightTable=%Enclosure.Collect.Source(2)%
+Enclosure.Collect.Source(3).LeftKeyColumn=1
+Enclosure.Collect.Source(3).RightKeyColumn=1
+
+// Source(4) = Power Consumption;
+// PowerConsumption;
+
+Enclosure.Collect.Source(4).Type="SnmpGet"
+Enclosure.Collect.Source(4).SnmpOid="1.3.6.1.4.1.318.1.1.26.4.3.1.5.1"
+
+// Add an identifier to enable table Joints
+// MSHW;PowerConsumption;
+
+Enclosure.Collect.Source(4).Compute(1).Type="LeftConcat"
+Enclosure.Collect.Source(4).Compute(1).Column=1
+Enclosure.Collect.Source(4).Compute(1).String="MSHW;"
+
+// Multiply the PowerConsumption by 10
+// MSHW;PowerConsumption;
+
+Enclosure.Collect.Source(4).Compute(2).Type="Multiply"
+Enclosure.Collect.Source(4).Compute(2).Column=2
+Enclosure.Collect.Source(4).Compute(2).MultiplyBy=10
+
+// TableJoin of Source(3) and Source(4) into Source(5)
+// MSHW;ID;MSHW;Status;StatusInformation;MSHW;PowerConsumption;
+
+Enclosure.Collect.Source(5).Type="TableJoint"
+Enclosure.Collect.Source(5).LeftTable=%Enclosure.Collect.Source(3)%
+Enclosure.Collect.Source(5).RightTable=%Enclosure.Collect.Source(4)%
+Enclosure.Collect.Source(5).LeftKeyColumn=1
+Enclosure.Collect.Source(5).RightKeyColumn=1
+
+
+// ValueTable = Source(5)
+// MSHW;ID;MSHW;Status;StatusInformation;MSHW;PowerConsumption;
+
+Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(5)%
+Enclosure.Collect.DeviceID=ValueTable.Column(2)
+Enclosure.Collect.Status=ValueTable.Column(4)
+Enclosure.Collect.StatusInformation=ValueTable.Column(5)
+Enclosure.Collect.PowerConsumption=ValueTable.Column(7)
+
+//
+// PowerSupply
+//
+
+// Source(1) = PowerSupply Table
+// Enclosure ID;
+
+PowerSupply.Discovery.Source(1).Type="SnmpGet"
+PowerSupply.Discovery.Source(1).SnmpOid="1.3.6.1.4.1.318.1.1.26.2.1.3.1"
+
+// Add the Power Supply Identifier
+// MSHW;PowerSupplyID;Enclosure ID;
+
+PowerSupply.Discovery.Source(1).Compute(1).Type="LeftConcat"
+PowerSupply.Discovery.Source(1).Compute(1).Column=1
+PowerSupply.Discovery.Source(1).Compute(1).String="MSHW;Power Supply 1;"
+
+// Source(2) = PowerSupply Table
+// Enclosure ID;
+
+PowerSupply.Discovery.Source(2).Type="SnmpGet"
+PowerSupply.Discovery.Source(2).SnmpOid="1.3.6.1.4.1.318.1.1.26.2.1.3.1"
+
+// Add the Power Supply Identifier
+// MSHW;PowerSupplyID;Enclosure ID;
+
+PowerSupply.Discovery.Source(2).Compute(1).Type="LeftConcat"
+PowerSupply.Discovery.Source(2).Compute(1).Column=1
+PowerSupply.Discovery.Source(2).Compute(1).String="MSHW;Power Supply 2;"
+
+// Collect of Power Supply 1 status
+// Status;
+
+PowerSupply.Discovery.Source(3).Type="SnmpGet"
+PowerSupply.Discovery.Source(3).SnmpOid="1.3.6.1.4.1.318.1.1.26.4.3.1.13.1"
+
+// Add an identifier to enable table Joints
+// MSHW;Status;
+
+PowerSupply.Discovery.Source(3).Compute(1).Type="LeftConcat"
+PowerSupply.Discovery.Source(3).Compute(1).Column=1
+PowerSupply.Discovery.Source(3).Compute(1).String="MSHW;"
+
+// Exclude line if status is 3 (Not Installed)
+
+PowerSupply.Discovery.Source(3).Compute(2).Type="ExcludeMatchingLines"
+PowerSupply.Discovery.Source(3).Compute(2).Column=2
+PowerSupply.Discovery.Source(3).Compute(2).RegExp="3"
+
+// Collect of Power Supply 2 status
+// Status;
+
+PowerSupply.Discovery.Source(4).Type="SnmpGet"
+PowerSupply.Discovery.Source(4).SnmpOid="1.3.6.1.4.1.318.1.1.26.4.3.1.14.1"
+
+// Add an identifier to enable table Joints
+// MSHW;Status;
+
+PowerSupply.Discovery.Source(4).Compute(1).Type="LeftConcat"
+PowerSupply.Discovery.Source(4).Compute(1).Column=1
+PowerSupply.Discovery.Source(4).Compute(1).String="MSHW;"
+
+// Exclude line if status is 3 (Not Installed)
+
+PowerSupply.Discovery.Source(4).Compute(2).Type="ExcludeMatchingLines"
+PowerSupply.Discovery.Source(4).Compute(2).Column=2
+PowerSupply.Discovery.Source(4).Compute(2).RegExp="3"
+
+// TableJoin of Source(1) and Source(3) into Source(5)
+// MSHW;PowerSupplyID;Enclosure ID;MSHW;Status;
+
+PowerSupply.Discovery.Source(5).Type="TableJoint"
+PowerSupply.Discovery.Source(5).LeftTable=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Source(5).RightTable=%PowerSupply.Discovery.Source(3)%
+PowerSupply.Discovery.Source(5).LeftKeyColumn=1
+PowerSupply.Discovery.Source(5).RightKeyColumn=1
+
+// TableJoin of Source(2) and Source(4) into Source(6)
+// MSHW;PowerSupplyID;Enclosure ID;MSHW;Status;
+
+PowerSupply.Discovery.Source(6).Type="TableJoint"
+PowerSupply.Discovery.Source(6).LeftTable=%PowerSupply.Discovery.Source(2)%
+PowerSupply.Discovery.Source(6).RightTable=%PowerSupply.Discovery.Source(4)%
+PowerSupply.Discovery.Source(6).LeftKeyColumn=1
+PowerSupply.Discovery.Source(6).RightKeyColumn=1
+
+// Source(7) = Union of Source(6) and Source(5)
+// MSHW;PowerSupplyID;Enclosure ID;MSHW;Status;
+
+PowerSupply.Discovery.Source(7).Type="TableUnion"
+PowerSupply.Discovery.Source(7).Table1=%PowerSupply.Discovery.Source(5)%
+PowerSupply.Discovery.Source(7).Table2=%PowerSupply.Discovery.Source(6)%
+
+// InstanceTable = Source(7)
+// MSHW;PowerSupplyID;Enclosure ID;MSHW;Status;
+
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(7)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+PowerSupply.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+PowerSupply.Discovery.Instance.PowerSupplyType="PDU"
+PowerSupply.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(3)
+
+// Collect
+
+PowerSupply.Collect.Type="MultiInstance"
+
+// Enclosure ID;
+
+PowerSupply.Collect.Source(1).Type="SnmpGet"
+PowerSupply.Collect.Source(1).SnmpOid="1.3.6.1.4.1.318.1.1.26.2.1.3.1"
+
+// Add an identifier to enable table Joints
+// MSHW;Enclosure ID;
+
+PowerSupply.Collect.Source(1).Compute(1).Type="LeftConcat"
+PowerSupply.Collect.Source(1).Compute(1).Column=1
+PowerSupply.Collect.Source(1).Compute(1).String="MSHW;"
+
+// Collect of Power Supply 1 status
+// Status;
+
+PowerSupply.Collect.Source(2).Type="SnmpGet"
+PowerSupply.Collect.Source(2).SnmpOid="1.3.6.1.4.1.318.1.1.26.4.3.1.13.1"
+
+// Add an identifier to enable table Joints as well as the ID of the Power Supply
+// MSHW;PowerSupplyID;Status;
+
+PowerSupply.Collect.Source(2).Compute(1).Type="LeftConcat"
+PowerSupply.Collect.Source(2).Compute(1).Column=1
+PowerSupply.Collect.Source(2).Compute(1).String="MSHW;Power Supply 1;"
+
+// Duplicate the Status column
+// MSHW;PowerSupplyID;Status;Status;
+
+PowerSupply.Collect.Source(2).Compute(2).Type="DuplicateColumn"
+PowerSupply.Collect.Source(2).Compute(2).Column=3
+
+// Translate the Power Supply Status
+
+PowerSupply.Collect.Source(2).Compute(3).Type="Translate"
+PowerSupply.Collect.Source(2).Compute(3).Column=3
+PowerSupply.Collect.Source(2).Compute(3).TranslationTable="powerStatusTranslationTable"
+
+// Translate the Power Supply Status Information
+
+PowerSupply.Collect.Source(2).Compute(4).Type="Translate"
+PowerSupply.Collect.Source(2).Compute(4).Column=4
+PowerSupply.Collect.Source(2).Compute(4).TranslationTable="powerStatusInformationTranslationTable"
+
+// Collect of Power Supply 2 Status
+// PowerSupply2Status;
+
+PowerSupply.Collect.Source(3).Type="SnmpGet"
+PowerSupply.Collect.Source(3).SnmpOid="1.3.6.1.4.1.318.1.1.26.4.3.1.14.1"
+
+// Add an identifier to enable table Joints as well as the ID of the Power Supply
+// MSHW;PowerSupplyID;Status;
+
+PowerSupply.Collect.Source(3).Compute(1).Type="LeftConcat"
+PowerSupply.Collect.Source(3).Compute(1).Column=1
+PowerSupply.Collect.Source(3).Compute(1).String="MSHW;Power Supply 2;"
+
+// Duplicate the Status column
+// MSHW;PowerSupplyID;Status;Status;
+
+PowerSupply.Collect.Source(3).Compute(2).Type="DuplicateColumn"
+PowerSupply.Collect.Source(3).Compute(2).Column=3
+
+// Translate the Power Supply Status
+
+PowerSupply.Collect.Source(3).Compute(3).Type="Translate"
+PowerSupply.Collect.Source(3).Compute(3).Column=3
+PowerSupply.Collect.Source(3).Compute(3).TranslationTable="powerStatusTranslationTable"
+
+// Translate the Power Supply Status Information
+
+PowerSupply.Collect.Source(3).Compute(4).Type="Translate"
+PowerSupply.Collect.Source(3).Compute(4).Column=4
+PowerSupply.Collect.Source(3).Compute(4).TranslationTable="powerStatusInformationTranslationTable"
+
+// TableJoin of Source(1) and Source(2) into Source(4)
+// MSHW;Enclosure ID;MSHW;PowerSupplyID;Status;Status Information;
+
+PowerSupply.Collect.Source(4).Type="TableJoint"
+PowerSupply.Collect.Source(4).LeftTable=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.Source(4).RightTable=%PowerSupply.Collect.Source(2)%
+PowerSupply.Collect.Source(4).LeftKeyColumn=1
+PowerSupply.Collect.Source(4).RightKeyColumn=1
+
+// TableJoin of Source(1) and Source(3) into Source(5)
+// MSHW;Enclosure ID;MSHW;PowerSupplyID;Status;Status Information;
+
+PowerSupply.Collect.Source(5).Type="TableJoint"
+PowerSupply.Collect.Source(5).LeftTable=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.Source(5).RightTable=%PowerSupply.Collect.Source(3)%
+PowerSupply.Collect.Source(5).LeftKeyColumn=1
+PowerSupply.Collect.Source(5).RightKeyColumn=1
+
+// Source(6) = Union of Source(4) and Source(5)
+// MSHW;Enclosure ID;MSHW;PowerSupplyID;Status;Status Information;
+
+PowerSupply.Collect.Source(6).Type="TableUnion"
+PowerSupply.Collect.Source(6).Table1=%PowerSupply.Collect.Source(4)%
+PowerSupply.Collect.Source(6).Table2=%PowerSupply.Collect.Source(5)%
+
+// ValueTable = Source(6)
+// MSHW;Enclosure ID;MSHW;PowerSupplyID;Status;Status Information;
+
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(6)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(4)
+PowerSupply.Collect.Status=ValueTable.Column(5)
+PowerSupply.Collect.StatusInformation=ValueTable.Column(6)
+
+//
+// Temperature
+//
+
+// Source(1) = EnclosureID
+// EnclosureID
+
+Temperature.Discovery.Source(1).Type="SnmpGet"
+Temperature.Discovery.Source(1).SnmpOid="1.3.6.1.4.1.318.1.1.26.2.1.3.1"
+
+// Source(2) = ID
+// ID
+
+Temperature.Discovery.Source(2).Type="SnmpGet"
+Temperature.Discovery.Source(2).SnmpOid="1.3.6.1.4.1.318.1.1.26.10.2.2.1.3.1"
+
+// Add an identifier to enable table Joints
+// MSHW;EnclosureID;
+
+Temperature.Discovery.Source(1).Compute(1).Type="LeftConcat"
+Temperature.Discovery.Source(1).Compute(1).Column=1
+Temperature.Discovery.Source(1).Compute(1).String="MSHW;"
+
+// Add an identifier to enable table Joints
+// MSHW;ID;
+
+Temperature.Discovery.Source(2).Compute(1).Type="LeftConcat"
+Temperature.Discovery.Source(2).Compute(1).Column=1
+Temperature.Discovery.Source(2).Compute(1).String="MSHW;"
+
+// Keep only lines with an ID in source(2)
+//ID;
+
+Temperature.Discovery.Source(2).Compute(2).Type="KeepOnlyMatchingLines"
+Temperature.Discovery.Source(2).Compute(2).Column=2
+Temperature.Discovery.Source(2).Compute(2).RegExp="."
+
+// Join the Enclosure ID with the collected data
+// MSHW;EnclosureID;MSHW;ID;
+
+Temperature.Discovery.Source(3).Type="TableJoint"
+Temperature.Discovery.Source(3).LeftTable=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Source(3).RightTable=%Temperature.Discovery.Source(2)%
+Temperature.Discovery.Source(3).LeftKeyColumn=1
+Temperature.Discovery.Source(3).RightKeyColumn=1
+
+// Mapping to Instance table for source(3)
+// MSHW;EnclosureID;MSHW;ID;
+
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(3)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(4)
+Temperature.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+Temperature.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+Temperature.Discovery.Instance.TemperatureType="Enclosure"
+
+// Collect
+// ID;Temperature;Status;
+
+Temperature.Collect.Source(1).Type="SnmpTable"
+Temperature.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.318.1.1.26.10.2.2.1"
+Temperature.Collect.Source(1).SnmpTableSelectColumns="3,8,9"
+
+// Duplicate the Status column
+// ID;Temperature;Status;Status;
+
+Temperature.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Temperature.Collect.Source(1).Compute(1).Column=3
+
+//Translate status of the Temperature
+
+Temperature.Collect.Source(1).Compute(2).Type="Translate"
+Temperature.Collect.Source(1).Compute(2).Column=3
+Temperature.Collect.Source(1).Compute(2).TranslationTable="tempStatusTranslationTable"
+
+//Translate status information of the Temperature
+
+Temperature.Collect.Source(1).Compute(3).Type="Translate"
+Temperature.Collect.Source(1).Compute(3).Column=4
+Temperature.Collect.Source(1).Compute(3).TranslationTable="tempStatusInfoTranslationTable"
+
+// ValueTable = Source(3)
+// ID;Temperature;Status;StatusInformation;
+
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.DeviceID=ValueTable.Column(1)
+Temperature.Collect.Temperature=ValueTable.Column(2)
+Temperature.Collect.Status=ValueTable.Column(3)
+Temperature.Collect.StatusInformation=ValueTable.Column(4)
+
+//Temperature Status Translation Table
+
+tempStatusTranslationTable(1)="Not Present"
+tempStatusTranslationTable(2)="OK"
+tempStatusTranslationTable(3)="OK"
+tempStatusTranslationTable(4)="OK"
+tempStatusTranslationTable(5)="WARNING"
+tempStatusTranslationTable(6)="ALARM"
+tempStatusTranslationTable(Default)="OK"
+
+//Temperature Status Information Translation Table
+
+tempStatusTranslationTable(1)="Not Present"
+tempStatusTranslationTable(2)="Below Minimum Threshold"
+tempStatusTranslationTable(3)="Below Low Threshold"
+tempStatusTranslationTable(4)="Within Normal Threshold"
+tempStatusTranslationTable(5)="Above High Threshold"
+tempStatusTranslationTable(6)="Above Max Threshold"
+tempStatusTranslationTable(Default)="OK"
+
+//Power Supply Status Translation Table
+
+powerStatusTranslationTable(1)="OK"
+powerStatusTranslationTable(2)="Alarm"
+powerStatusTranslationTable(3)="Alarm"
+powerStatusTranslationTable(Default)="OK"
+
+//Power Supply Status Translation Table
+
+powerStatusInformationTranslationTable(1)="Normal"
+powerStatusInformationTranslationTable(2)="Alarm"
+powerStatusInformationTranslationTable(3)="Not Installed"
+
+//Enclosure Status Translation Table
+
+enclosureStatusTranslationTable(1)="OK"
+enclosureStatusTranslationTable(2)="OK"
+enclosureStatusTranslationTable(3)="WARNING"
+enclosureStatusTranslationTable(4)="ALARM"
+
+//Enclosure Status Information Translation Table
+
+enclosureStatusInformationTranslationTable(1)="Low Load"
+enclosureStatusInformationTranslationTable(2)="Normal"
+enclosureStatusInformationTranslationTable(3)="Near Overload"
+enclosureStatusInformationTranslationTable(4)="Overload"

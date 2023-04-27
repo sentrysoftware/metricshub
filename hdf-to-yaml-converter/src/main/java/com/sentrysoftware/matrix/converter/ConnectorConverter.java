@@ -21,8 +21,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ConnectorConverter {
 
-	private static final Set<Pattern> IGNORED_KEY_PATTERNS = Set.of(
-		// Add key pattern to ignore here
+	private static final Map<Pattern, String> IGNORED_KEY_PATTERNS = Map.of(
+		Pattern.compile(ConversionHelper.buildCriteriaKeyRegex("type")), "cpucore",
+		Pattern.compile(ConversionHelper.buildCriteriaKeyRegex("type")), "telnetinteractive"
 	);
 
 	@NonNull
@@ -138,8 +139,8 @@ public class ConnectorConverter {
 			() -> {
 				// The key doesn't match any parser, add it to the problem list, except if it's
 				// safe to ignore
-				if (!isKeySafeToIgnore(key)) {
-					preConnector.getProblemList().add("Invalid key: " + key);
+				if (!isKeyValueSafeToIgnore(key, value)) {
+					preConnector.getProblemList().add(String.format("Invalid key value: %s - %s", key, value));
 				}
 			}
 		);
@@ -185,11 +186,16 @@ public class ConnectorConverter {
 	 * Check whether the specified key is in the "safe ignore" list (i.e. there
 	 * is no converter matching, but it's still a valid key)
 	 * 
-	 * @param key Key to check
+	 * @param key 	Key to check
+	 * @param value value to check
 	 * @return whether the specified key is safe to ignore
 	 */
-	static boolean isKeySafeToIgnore(final String key) {
-		return IGNORED_KEY_PATTERNS.stream().anyMatch(p -> p.matcher(key).find());
+	static boolean isKeyValueSafeToIgnore(final String key, final String value) {
+		for(Entry<Pattern,String> entry : IGNORED_KEY_PATTERNS.entrySet()){
+			if(entry.getKey().matcher(key).find() && entry.getValue().equals(value.toLowerCase())){
+				return true;
+			}
+		}
+		return false;
 	}
-
 }

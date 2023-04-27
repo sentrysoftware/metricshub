@@ -1,0 +1,200 @@
+Detection.Criteria(1).Type="OSCommand"
+Detection.Criteria(1).CommandLine="_EsxcliConstant system version get"
+Detection.Criteria(1).ExpectedResult="Version: [567]"
+Detection.Criteria(1).ExecuteLocally=_ExecuteLocally
+
+// Check that there are FC LUNs
+Detection.Criteria(2).Type="OSCommand"
+Detection.Criteria(2).CommandLine="_EsxcliConstant storage core path list"
+Detection.Criteria(2).ExpectedResult="Transport: fc"
+Detection.Criteria(2).ExecuteLocally=_ExecuteLocally
+
+// LUNs
+
+//
+// Discovery
+
+// Get the list of LUNs from esxcli storage core path list
+//
+LUN.Discovery.Source(1).Type="OsCommand"
+LUN.Discovery.Source(1).CommandLine="_EsxcliConstant storage core path list"
+LUN.Discovery.Source(1).ExecuteLocally=_ExecuteLocally
+
+// AWK it
+// MSHW;LunName;LunInfo;NumberPaths;LunStatusInfo;
+// LunName;LunInfo;
+LUN.Discovery.Source(1).Compute(1).Type="Awk"
+LUN.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+LUN.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+LUN.Discovery.Source(1).Compute(1).Separators=";"
+LUN.Discovery.Source(1).Compute(1).SelectColumns="2,3"
+
+// InstanceTable = Source(1)
+// LunName;LunInfo;
+LUN.Discovery.InstanceTable=%LUN.Discovery.Source(1)%
+LUN.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+LUN.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+LUN.Discovery.Instance.ArrayName=InstanceTable.Column(2)
+
+
+//
+// COLLECT
+
+// Collect type is multi-instance
+LUN.Collect.Type="MultiInstance"
+
+// Get the list of LUNs from esxcli storage core path list
+//
+LUN.Collect.Source(1).Type="OsCommand"
+LUN.Collect.Source(1).CommandLine="_EsxcliConstant storage core path list"
+LUN.Collect.Source(1).ExecuteLocally=_ExecuteLocally
+
+// AWK it
+// MSHW;LunName;LunInfo;NumberPaths;LunStatusInfo;
+// LunName;NumberPaths;LunStatusInfo;
+LUN.Collect.Source(1).Compute(1).Type="Awk"
+LUN.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+LUN.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+LUN.Collect.Source(1).Compute(1).Separators=";"
+LUN.Collect.Source(1).Compute(1).SelectColumns="2,4,5"
+
+// ValueTable = Source(1)
+// LunName;NumberPaths;LunStatusInfo;
+LUN.Collect.ValueTable=%LUN.Collect.Source(1)%
+LUN.Collect.DeviceID=ValueTable.Column(1)
+LUN.Collect.AvailablePathCount=ValueTable.Column(2)
+LUN.Collect.AvailablePathInformation=ValueTable.Column(3)
+
+
+// OtherDevice
+
+//
+// Discovery
+
+// Get the list of SD Cards from esxcli storage core device list
+//
+OtherDevice.Discovery.Source(1).Type="OsCommand"
+OtherDevice.Discovery.Source(1).CommandLine="_EsxcliConstant storage core device list"
+OtherDevice.Discovery.Source(1).ExecuteLocally=_ExecuteLocally
+
+// AWK it
+// Type;USBID;Vendor;Model;
+OtherDevice.Discovery.Source(1).Compute(1).Type="Awk"
+OtherDevice.Discovery.Source(1).Compute(1).AwkScript=EmbeddedFile(2)
+OtherDevice.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+OtherDevice.Discovery.Source(1).Compute(1).Separators=";"
+OtherDevice.Discovery.Source(1).Compute(1).SelectColumns="2,3,4,5"
+
+// InstanceTable = Source(1)
+// Type;USBID;Vendor;Model;
+OtherDevice.Discovery.InstanceTable=%OtherDevice.Discovery.Source(1)%
+OtherDevice.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+OtherDevice.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+OtherDevice.Discovery.Instance.DeviceType=InstanceTable.Column(1)
+OtherDevice.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(3)
+OtherDevice.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(4)
+
+//
+// COLLECT
+
+// Collect type is multi-instance
+OtherDevice.Collect.Type="MultiInstance"
+
+// Get the list of SD Cards from esxcli storage core device list
+//
+OtherDevice.Collect.Source(1).Type="OsCommand"
+OtherDevice.Collect.Source(1).CommandLine="_EsxcliConstant storage core device list"
+OtherDevice.Collect.Source(1).ExecuteLocally=_ExecuteLocally
+
+// AWK it
+// USBID;Status;StatusInformation;
+OtherDevice.Collect.Source(1).Compute(1).Type="Awk"
+OtherDevice.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(2)
+OtherDevice.Collect.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
+OtherDevice.Collect.Source(1).Compute(1).Separators=";"
+OtherDevice.Collect.Source(1).Compute(1).SelectColumns="3,6,7"
+
+// Patrol Status comes from Status
+// USBID;PatrolStatus;StatusInformation;
+OtherDevice.Collect.Source(1).Compute(2).Type="Translate"
+OtherDevice.Collect.Source(1).Compute(2).Column=2
+OtherDevice.Collect.Source(1).Compute(2).TranslationTable="statusTranslationTable"
+
+// The statusTranslationTable
+statusTranslationTable("on")="OK"
+statusTranslationTable("off")="OK"
+statusTranslationTable("dead")="ALARM"
+statusTranslationTable(Default)="WARN"
+
+// ValueTable = Source(1)
+// USBID;Status;StatusInformation;
+OtherDevice.Collect.ValueTable=%OtherDevice.Collect.Source(1)%
+OtherDevice.Collect.DeviceID=ValueTable.Column(1)
+OtherDevice.Collect.Status=ValueTable.Column(2)
+OtherDevice.Collect.StatusInformation=ValueTable.Column(3)
+
+/////////////////////////////////////////////////////////////
+///
+///    Embedded File 1
+///
+///    AWK script that takes the wonderful array of objects and returns them in column form
+///	   MSHW;LunName;LunInfo;NumberPaths;LunStatusInfo;
+///
+/////////////////////////////////////////////////////////////
+EmbeddedFile(1):
+$1 ~ /UID:/ {LunID = ""}
+
+$1 ~ /Runtime/ && $2 ~ /Name:/ {PathNameTempVar = $3}
+
+$1 ~ /Device:/ && $2 ~ /^naa/ { LunID= $2
+	                              PathName[LunID] = PathNameTempVar
+	                            }
+
+$1 ~ /Device:/ && $2 ~ /^eui/ { LunID= $2
+	                              PathName[LunID] = PathNameTempVar
+	                            }
+
+
+$1 ~ /Device/ && $2 ~ /Display/ && $3 ~ /Name:/ && LunID != "" { LunName[LunID] = $0 ;
+	                                                gsub(/\(.+\)/,"",LunName[LunID]) ;
+	                                                gsub(" *Device Display Name: *","",LunName[LunID])
+	                                              }
+
+$1 ~ /State:/ { if ($2 ~ /active/) {PathCount[LunID] = PathCount[LunID] + 1}
+	              StatusInformation[LunID] = StatusInformation[LunID] PathName[LunID] "=" $2 "   "
+	            }
+$1 ~ /Transport:/ {Transport[LunID]=$2}
+
+END { for (LunID in LunName) { if (PathCount[LunID] == "") {PathCount[LunID] = 0}
+	                             if (Transport[LunID]=="fc") {print "MSHW;" LunID ";" LunName[LunID] ";" PathCount[LunID] ";" StatusInformation[LunID]}
+  	                         }
+	  }
+EmbeddedFile(1).End
+/////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////
+///
+///    Embedded File 2
+///
+///    AWK script that takes the wonderful array of objects and returns them in column form
+///	   MSHW;Type;USBID;Vendor;Model;Status;StatusInformation;
+///
+/////////////////////////////////////////////////////////////
+EmbeddedFile(2):
+	$1 ~ /Display/ && $2 ~ /Name:/ { Type = $0 ;
+	                                 gsub(/\(.+\)/,"",Type) ;
+	                                 gsub(" *Display Name: *","",Type)
+	                                 USBID = $0
+	                                 gsub(/.*\(/,"",USBID) ;
+	                                 gsub(/\).*/,"",USBID) ;
+	                               }
+
+$1 ~ /Vendor:/ { Vendor = $0 ; gsub(/.*: /,"",Vendor) }
+$1 ~ /Model:/ { Model = $0 ; gsub(/.*: /,"",Model) }
+$1 ~ /Status:/ {
+	              Status = $2;
+	              StatusInformation = $0 ; gsub(/.*: /,"",StatusInformation)
+	             }
+$0 ~ /Is Boot USB Device: true/ { print "MSHW;" Type ";" USBID ";Vendor: " Vendor ";Model: " Model";" Status ";" StatusInformation ";" }
+EmbeddedFile(2).End
+/////////////////////////////////////////////////////////////

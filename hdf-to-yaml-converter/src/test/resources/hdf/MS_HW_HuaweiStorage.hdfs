@@ -1,0 +1,1116 @@
+////////////////////////////////////////////////////////////////
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//               by Sentry Software (c)
+//
+//
+//      Supports: Huawei Storage Systems
+//                Connects to Huawei Storage System's SNMP Agent
+//
+
+
+//
+// Header
+//
+
+hdf.DisplayName="Huawei Storage System (OceanStor)"
+hdf.TypicalPlatform="Huawei OceanStor"
+hdf.ReliesOn="Huawei Storage System SNMP Agent"
+hdf.Version="1.0"
+hdf.Comments="This connector discovers the enclosure(s) and the disks of Huawei Storage Systems as well as the various environment sensors (temperatures, fans, power supplies). It relies on the SNMP protocol."
+hdf.RemoteSupport="true"
+hdf.LocalSupport="false"
+hdf.AppliesToOS="Storage"
+
+//
+// Detection
+//
+
+// Verify that there is a Huawei Storage System
+Detection.Criteria(1).Type="SNMP"
+Detection.Criteria(1).SnmpGetNext="1.3.6.1.4.1.34774.4.1.23.5.6.1"
+
+
+// Enclosure
+
+// Discovery
+
+// Source(1) = hwInfoEnclosureEntry
+// ID,Name,Role,Type,SerialNumber
+Enclosure.Discovery.Source(1).Type="SnmpTable"
+Enclosure.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.34774.4.1.23.5.6.1"
+Enclosure.Discovery.Source(1).SnmpTableSelectColumns="ID,2,3,7,9"
+
+// Translate the Role
+// ID,Name,Role,Type,SerialNumber
+Enclosure.Discovery.Source(1).Compute(1).Type="Translate"
+Enclosure.Discovery.Source(1).Compute(1).Column=3
+Enclosure.Discovery.Source(1).Compute(1).TranslationTable="RoleTranslationTable"
+
+// The RoleTranslationTable
+RoleTranslationTable(0)="Disk Shelf"
+RoleTranslationTable(1)="Controller"
+RoleTranslationTable(2)="Data Switch"
+RoleTranslationTable(3)="Managed Switch"
+RoleTranslationTable(4)="Management Server"
+RoleTranslationTable(Default)=""
+
+// Translate the Type
+// ID,Name,Role,Type,SerialNumber
+Enclosure.Discovery.Source(1).Compute(2).Type="Translate"
+Enclosure.Discovery.Source(1).Compute(2).Column=4
+Enclosure.Discovery.Source(1).Compute(2).TranslationTable="TypeTranslationTable"
+
+// The RoleTranslationTable
+TypeTranslationTable(0)="BMC Controller"
+TypeTranslationTable(1)="2U SAS 12 Disk Controller"
+TypeTranslationTable(2)="2U SAS 24 Disk Controller"
+TypeTranslationTable(16)="2U SAS 12 Disk Shelf"
+TypeTranslationTable(17)="2U SAS 24 Disk Shelf"
+TypeTranslationTable(18)="4U SAS 24 Disk Shelf"
+TypeTranslationTable(19)="4U FC 24 Disk Shelf"
+TypeTranslationTable(20)="1U PCIe Data Switch"
+TypeTranslationTable(21)="4U SAS 75 Disk Shelf"
+TypeTranslationTable(22)="SVP"
+TypeTranslationTable(23)="2U 12GSAS 12 Disk Controller"
+TypeTranslationTable(24)="2U SAS 25 Disk Shelf 2.5inch"
+TypeTranslationTable(25)="4U SAS 24 Disk Shelf 3.5inch"
+TypeTranslationTable(26)="2U 12GSAS 25 Disk Controller"
+TypeTranslationTable(96)="3U 2 Independent Controller Head"
+TypeTranslationTable(97)="6U 4 Independent Controller Head"
+TypeTranslationTable(Default)=""
+
+Enclosure.Discovery.Source(1).Compute(3).Type="LeftConcat"
+Enclosure.Discovery.Source(1).Compute(3).Column=4
+Enclosure.Discovery.Source(1).Compute(3).String="Role: "
+
+// Instance Table
+// ID,Name,Role,Type,SerialNumber
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Enclosure.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+Enclosure.Discovery.Instance.Vendor="Huawei"
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(3)
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(5)
+Enclosure.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(4)
+
+//
+// Collect
+
+// Collect type is mono-instance
+Enclosure.Collect.Type="MultiInstance"
+
+// Source(1) = hwInfoEnclosureEntry
+// Name,Status
+Enclosure.Collect.Source(1).Type="SnmpTable"
+Enclosure.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.34774.4.1.23.5.6.1"
+Enclosure.Collect.Source(1).SnmpTableSelectColumns="2,4"
+
+// Duplicate the Status column
+// Name;Status;Status;
+Enclosure.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Enclosure.Collect.Source(1).Compute(1).Column=2
+
+// Translate the first status column into a PATROLStatus
+// Name;PATROLStatus;Status;
+Enclosure.Collect.Source(1).Compute(2).Type="Translate"
+Enclosure.Collect.Source(1).Compute(2).Column=2
+Enclosure.Collect.Source(1).Compute(2).TranslationTable="StatusTranslationTable"
+
+// The diskStatusTranslationTable
+StatusTranslationTable(0)="UNKNOWN"
+StatusTranslationTable(1)="OK"
+StatusTranslationTable(2)="ALARM"
+StatusTranslationTable(3)="WARN"
+StatusTranslationTable(4)="WARN"
+StatusTranslationTable(5)="WARN"
+StatusTranslationTable(6)="WARN"
+StatusTranslationTable(7)="WARN"
+StatusTranslationTable(8)="OK"
+StatusTranslationTable(9)="WARN"
+StatusTranslationTable(10)="OK"
+StatusTranslationTable(11)="WARN"
+StatusTranslationTable(12)="WARN"
+StatusTranslationTable(13)="WARN"
+StatusTranslationTable(14)="WARN"
+StatusTranslationTable(15)="OK"
+StatusTranslationTable(Default)="UNKNOWN"
+
+// Translate the second status column into a more readable string
+// Name;PATROLStatus;StatusInformation;
+Enclosure.Collect.Source(1).Compute(3).Type="Translate"
+Enclosure.Collect.Source(1).Compute(3).Column=3
+Enclosure.Collect.Source(1).Compute(3).TranslationTable="StatusInformationTranslationTable"
+
+// The diskStatusInformationTranslationTable
+StatusInformationTranslationTable(0)="Unknown Status"
+StatusInformationTranslationTable(1)=""
+StatusInformationTranslationTable(2)="Fault"
+StatusInformationTranslationTable(3)="Pre-Fail"
+StatusInformationTranslationTable(4)="Partially Broken"
+StatusInformationTranslationTable(5)="Degraded"
+StatusInformationTranslationTable(6)="Bad Sectors Found"
+StatusInformationTranslationTable(7)="Bit Errors Found"
+StatusInformationTranslationTable(8)="Consistent"
+StatusInformationTranslationTable(9)="Inconsistent"
+StatusInformationTranslationTable(10)="Busy"
+StatusInformationTranslationTable(11)="No Input"
+StatusInformationTranslationTable(12)="Low Battery"
+StatusInformationTranslationTable(13)="Single Link Fault"
+StatusInformationTranslationTable(14)="Invalid"
+StatusInformationTranslationTable(15)="Write Protect"
+StatusInformationTranslationTable(Default)="UNKNOWN"
+
+// Value Table
+// Name;PATROLStatus;StatusInformation;
+Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(1)%
+Enclosure.Collect.DeviceID=ValueTable.Column(1)
+Enclosure.Collect.Status=ValueTable.Column(2)
+Enclosure.Collect.StatusInformation=ValueTable.Column(3)
+
+
+
+
+//
+// PHYSICAL DISKS
+//
+
+//
+// Discovery
+
+// Source(1) = hwInfoDiskEntry
+// Location;DiskType;Capacity;Role;Speed;Model;Firmware;Vendor;SerialNumber;LogicalDiskName;
+PhysicalDisk.Discovery.Source(1).Type="SnmpTable"
+PhysicalDisk.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.34774.4.1.23.5.1.1"
+PhysicalDisk.Discovery.Source(1).SnmpTableSelectColumns="4,5,6,7,8,12,13,14,15,18"
+
+// Convert Size from Mbytes to Bytes
+// Location;DiskType;Capacity;Role;Speed;Model;Firmware;Vendor;SerialNumber;LogicalDiskName;
+PhysicalDisk.Discovery.Source(1).Compute(1).Type="Multiply"
+PhysicalDisk.Discovery.Source(1).Compute(1).Column=3
+PhysicalDisk.Discovery.Source(1).Compute(1).MultiplyBy=1048576
+
+// Translate the Role
+// Location;DiskType;Capacity;Role;Speed;Model;Firmware;Vendor;SerialNumber;LogicalDiskName;
+PhysicalDisk.Discovery.Source(1).Compute(2).Type="Translate"
+PhysicalDisk.Discovery.Source(1).Compute(2).Column=4
+PhysicalDisk.Discovery.Source(1).Compute(2).TranslationTable="DiskRoleTranslationTable"
+
+// The DiskRoleTranslationTable
+DiskRoleTranslationTable(1)="Role: Idle Disk"
+DiskRoleTranslationTable(2)="Role: Member of a Logical Disk"
+DiskRoleTranslationTable(3)="Role: Hot Spare"
+DiskRoleTranslationTable(4)="Role: Cache Disk"
+DiskRoleTranslationTable(Default)=""
+
+// Translate the DiskType
+// Location;DiskType;Capacity;Role;Speed;Model;Firmware;Vendor;SerialNumber;LogicalDiskName;
+PhysicalDisk.Discovery.Source(1).Compute(3).Type="Translate"
+PhysicalDisk.Discovery.Source(1).Compute(3).Column=4
+PhysicalDisk.Discovery.Source(1).Compute(3).TranslationTable="DiskTypeTranslationTable"
+
+// The DiskTypeTranslationTable
+DiskTypeTranslationTable(0)="FC"
+DiskTypeTranslationTable(1)="SAS"
+DiskTypeTranslationTable(2)="SATA"
+DiskTypeTranslationTable(3)="SSD"
+DiskTypeTranslationTable(4)="NL_SAS"
+DiskTypeTranslationTable(5)="SLC SSD"
+DiskTypeTranslationTable(6)="MLC SSD"
+DiskTypeTranslationTable(Default)=""
+
+// Add "Speed: " to the Speed
+// Location;DiskType;Capacity;Role;Speed;Model;Firmware;Vendor;SerialNumber;LogicalDiskName;
+PhysicalDisk.Discovery.Source(1).Compute(4).Type="LeftConcat"
+PhysicalDisk.Discovery.Source(1).Compute(4).Column=5
+PhysicalDisk.Discovery.Source(1).Compute(4).String="Speed: "
+
+// Add "Logical Disk: " to the Speed
+// Location;DiskType;Capacity;Role;Speed;Model;Firmware;Vendor;SerialNumber;LogicalDiskName;
+PhysicalDisk.Discovery.Source(1).Compute(5).Type="LeftConcat"
+PhysicalDisk.Discovery.Source(1).Compute(5).Column=10
+PhysicalDisk.Discovery.Source(1).Compute(5).String="Logical Disk: "
+
+// Duplicate the Location
+// Location;Location;DiskType;Capacity;Role;Speed;Model;Firmware;Vendor;SerialNumber;LogicalDiskName;
+PhysicalDisk.Discovery.Source(1).Compute(6).Type="DuplicateColumn"
+PhysicalDisk.Discovery.Source(1).Compute(6).Column=1
+
+// Extract the Enclosure from the Location
+// Enclosure;Location;DiskType;Capacity;Role;Speed;Model;Firmware;Vendor;SerialNumber;LogicalDiskName;
+PhysicalDisk.Discovery.Source(1).Compute(7).Type="Extract"
+PhysicalDisk.Discovery.Source(1).Compute(7).Column=1
+PhysicalDisk.Discovery.Source(1).Compute(7).SubColumn=1
+PhysicalDisk.Discovery.Source(1).Compute(7).SubSeparators="."
+
+// Duplicate the Location
+// Enclosure;Location;DisplayID;DiskType;Capacity;Role;Speed;Model;Firmware;Vendor;SerialNumber;LogicalDiskName;
+PhysicalDisk.Discovery.Source(1).Compute(8).Type="DuplicateColumn"
+PhysicalDisk.Discovery.Source(1).Compute(8).Column=2
+
+// Add a dot to the Enclosure
+// Enclosure;Location;DisplayID;DiskType;Capacity;Role;Speed;Model;Firmware;Vendor;SerialNumber;LogicalDiskName;
+PhysicalDisk.Discovery.Source(1).Compute(9).Type="RightConcat"
+PhysicalDisk.Discovery.Source(1).Compute(9).Column=1
+PhysicalDisk.Discovery.Source(1).Compute(9).String="."
+
+// Remove the Enclosure from the displayid
+// Enclosure;Location;DisplayID;DiskType;Capacity;Role;Speed;Model;Firmware;Vendor;SerialNumber;LogicalDiskName;
+PhysicalDisk.Discovery.Source(1).Compute(10).Type="Replace"
+PhysicalDisk.Discovery.Source(1).Compute(10).Column=3
+PhysicalDisk.Discovery.Source(1).Compute(10).Replace=Column(1)
+PhysicalDisk.Discovery.Source(1).Compute(10).ReplaceBy=""
+
+// Remove the dot from the enclosure
+// Enclosure;Location;DisplayID;DiskType;Capacity;Role;Speed;Model;Firmware;Vendor;SerialNumber;LogicalDiskName;
+PhysicalDisk.Discovery.Source(1).Compute(11).Type="Replace"
+PhysicalDisk.Discovery.Source(1).Compute(11).Column=1
+PhysicalDisk.Discovery.Source(1).Compute(11).Replace="."
+PhysicalDisk.Discovery.Source(1).Compute(11).ReplaceBy=""
+
+PhysicalDisk.Discovery.Source(1).Compute(12).Type="LeftConcat"
+PhysicalDisk.Discovery.Source(1).Compute(12).Column=4
+PhysicalDisk.Discovery.Source(1).Compute(12).String="Type: "
+
+
+// InstanceTable = Source(1)
+//     1        2           3       4         5    6     7     8       9      10         11       12
+// Enclosure;Location;DisplayID;DiskType;Capacity;Role;Speed;Model;Firmware;Vendor;SerialNumber;LogicalDiskName;
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+PhysicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+PhysicalDisk.Discovery.Instance.Model=InstanceTable.Column(8)
+//PhysicalDisk.Discovery.Instance.AdditionalInformation4=InstanceTable.Column(4) property not supported
+// The Capacity is a 64 bit OID, so we can't add it until SNMPv2 Support is enabled
+PhysicalDisk.Discovery.Instance.Size=InstanceTable.Column(5)
+PhysicalDisk.Discovery.Instance.SerialNumber=InstanceTable.Column(11)
+PhysicalDisk.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(1)
+PhysicalDisk.Discovery.Instance.FirmwareVersion=InstanceTable.Column(9)
+PhysicalDisk.Discovery.Instance.Vendor=InstanceTable.Column(10)
+PhysicalDisk.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(6)
+PhysicalDisk.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(7)
+PhysicalDisk.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(12)
+
+
+//
+// Collect
+
+// Collect type is multi-instance
+PhysicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = hwInfoDiskEntry
+// Location;Status;
+PhysicalDisk.Collect.Source(1).Type="SnmpTable"
+PhysicalDisk.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.34774.4.1.23.5.1.1"
+PhysicalDisk.Collect.Source(1).SnmpTableSelectColumns="4,2"
+
+// Duplicate the Status column
+// Location;Status;Status;
+PhysicalDisk.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+PhysicalDisk.Collect.Source(1).Compute(1).Column=2
+
+// Translate the first status column into a PATROLStatus
+// Location;PATROLStatus;Status;
+PhysicalDisk.Collect.Source(1).Compute(2).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(2).Column=2
+PhysicalDisk.Collect.Source(1).Compute(2).TranslationTable="StatusTranslationTable"
+
+// Translate the second status column into a more readable string
+// DiskID;PATROLStatus;StatusInformation;
+PhysicalDisk.Collect.Source(1).Compute(3).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(3).Column=3
+PhysicalDisk.Collect.Source(1).Compute(3).TranslationTable="StatusInformationTranslationTable"
+
+// ValueTable = Source(1)
+PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(1)%
+PhysicalDisk.Collect.DeviceID=ValueTable.Column(1)
+PhysicalDisk.Collect.Status=ValueTable.Column(2)
+PhysicalDisk.Collect.StatusInformation=ValueTable.Column(3)
+
+
+//
+// PowerSupply
+//
+
+//
+// Discovery
+
+// Source(1) = hwInfoDiskEntry
+// Location;Vendor;Model;
+PowerSupply.Discovery.Source(1).Type="SnmpTable"
+PowerSupply.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.34774.4.1.23.5.3.1"
+PowerSupply.Discovery.Source(1).SnmpTableSelectColumns="2,6,7"
+
+// Duplicate the Location
+// Location;Location;Vendor;Model;
+PowerSupply.Discovery.Source(1).Compute(1).Type="DuplicateColumn"
+PowerSupply.Discovery.Source(1).Compute(1).Column=1
+
+// Extract the Enclosure from the Location
+// Enclosure;Location;Vendor;Model;
+PowerSupply.Discovery.Source(1).Compute(2).Type="Extract"
+PowerSupply.Discovery.Source(1).Compute(2).Column=1
+PowerSupply.Discovery.Source(1).Compute(2).SubColumn=1
+PowerSupply.Discovery.Source(1).Compute(2).SubSeparators="."
+
+// Duplicate the Location
+// Enclosure;Location;DisplayID;Vendor;Model;
+PowerSupply.Discovery.Source(1).Compute(3).Type="DuplicateColumn"
+PowerSupply.Discovery.Source(1).Compute(3).Column=2
+
+// Add a dot to the Enclosure
+// Enclosure;Location;DisplayID;Vendor;Model;
+PowerSupply.Discovery.Source(1).Compute(4).Type="RightConcat"
+PowerSupply.Discovery.Source(1).Compute(4).Column=1
+PowerSupply.Discovery.Source(1).Compute(4).String="."
+
+// Remove the Enclosure from the displayid
+// Enclosure;Location;DisplayID;Vendor;Model;
+PowerSupply.Discovery.Source(1).Compute(5).Type="Replace"
+PowerSupply.Discovery.Source(1).Compute(5).Column=3
+PowerSupply.Discovery.Source(1).Compute(5).Replace=Column(1)
+PowerSupply.Discovery.Source(1).Compute(5).ReplaceBy=""
+
+// Remove the dot from the enclosure
+// Enclosure;Location;DisplayID;Vendor;Model;
+PowerSupply.Discovery.Source(1).Compute(6).Type="Replace"
+PowerSupply.Discovery.Source(1).Compute(6).Column=1
+PowerSupply.Discovery.Source(1).Compute(6).Replace="."
+PowerSupply.Discovery.Source(1).Compute(6).ReplaceBy=""
+
+PowerSupply.Discovery.Source(1).Compute(7).Type="LeftConcat"
+PowerSupply.Discovery.Source(1).Compute(7).Column=4
+PowerSupply.Discovery.Source(1).Compute(7).String="Vendor: "
+
+PowerSupply.Discovery.Source(1).Compute(8).Type="LeftConcat"
+PowerSupply.Discovery.Source(1).Compute(8).Column=5
+PowerSupply.Discovery.Source(1).Compute(8).String="Model: "
+
+// InstanceTable = Source(1)
+// Enclosure;Location;DisplayID;Vendor;Model;
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+PowerSupply.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+PowerSupply.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(4)
+PowerSupply.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(5)
+PowerSupply.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(1)
+
+
+//
+// Collect
+
+// Collect type is multi-instance
+PowerSupply.Collect.Type="MultiInstance"
+
+// Source(1) = hwInfoDiskEntry
+// Location;Status;
+PowerSupply.Collect.Source(1).Type="SnmpTable"
+PowerSupply.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.34774.4.1.23.5.3.1"
+PowerSupply.Collect.Source(1).SnmpTableSelectColumns="2,3"
+
+// Duplicate the Status column
+// Location;Status;Status;
+PowerSupply.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+PowerSupply.Collect.Source(1).Compute(1).Column=2
+
+// Translate the first status column into a PATROLStatus
+// Location;PATROLStatus;Status;
+PowerSupply.Collect.Source(1).Compute(2).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(2).Column=2
+PowerSupply.Collect.Source(1).Compute(2).TranslationTable="StatusTranslationTable"
+
+// Translate the second status column into a more readable string
+// DiskID;PATROLStatus;StatusInformation;
+PowerSupply.Collect.Source(1).Compute(3).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(3).Column=3
+PowerSupply.Collect.Source(1).Compute(3).TranslationTable="StatusInformationTranslationTable"
+
+// ValueTable = Source(1)
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(1)
+PowerSupply.Collect.Status=ValueTable.Column(2)
+PowerSupply.Collect.StatusInformation=ValueTable.Column(3)
+
+
+//
+// OtherDevice
+//
+
+//
+// Discovery
+
+// Source(1) = hwInfoControllerTable
+// Location;Role;
+OtherDevice.Discovery.Source(1).Type="SnmpTable"
+OtherDevice.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.34774.4.1.23.5.2.1"
+OtherDevice.Discovery.Source(1).SnmpTableSelectColumns="5,6"
+
+// Translate the Role
+// Location;Role;
+OtherDevice.Discovery.Source(1).Compute(1).Type="Translate"
+OtherDevice.Discovery.Source(1).Compute(1).Column=2
+OtherDevice.Discovery.Source(1).Compute(1).TranslationTable="ControllerRoleTranslationTable"
+
+// The ControllerRoleTranslationTable
+ControllerRoleTranslationTable(0)="Ordinary Cluster Member"
+ControllerRoleTranslationTable(1)="Cluster Master"
+ControllerRoleTranslationTable(2)="Cluster Preparation"
+ControllerRoleTranslationTable(Default)=""
+
+// Specify the Type
+// Location;Role;Type;
+OtherDevice.Discovery.Source(1).Compute(2).Type="RightConcat"
+OtherDevice.Discovery.Source(1).Compute(2).Column=2
+OtherDevice.Discovery.Source(1).Compute(2).String=";Controller"
+
+// Source(2) = hwInfoInterfaceModuleTable
+// Location;
+OtherDevice.Discovery.Source(2).Type="SnmpTable"
+OtherDevice.Discovery.Source(2).SnmpTableOid="1.3.6.1.4.1.34774.4.1.23.5.13.1"
+OtherDevice.Discovery.Source(2).SnmpTableSelectColumns="2"
+
+// Specify the Type and add a blank Role
+// Location;Role;Type;
+OtherDevice.Discovery.Source(2).Compute(1).Type="RightConcat"
+OtherDevice.Discovery.Source(2).Compute(1).Column=1
+OtherDevice.Discovery.Source(2).Compute(1).String=";;Interface Module"
+
+// Source(3) = hwInfoExpBoardTable
+// Location;
+OtherDevice.Discovery.Source(3).Type="SnmpTable"
+OtherDevice.Discovery.Source(3).SnmpTableOid="1.3.6.1.4.1.34774.4.1.23.5.14.1"
+OtherDevice.Discovery.Source(3).SnmpTableSelectColumns="2"
+
+// Specify the Type and add a blank Role
+// Location;Role;Type;
+OtherDevice.Discovery.Source(3).Compute(1).Type="RightConcat"
+OtherDevice.Discovery.Source(3).Compute(1).Column=1
+OtherDevice.Discovery.Source(3).Compute(1).String=";;Expansion Board"
+
+// Union 1,2 and 3
+// Location;Role;Type;
+OtherDevice.Discovery.Source(4).Type="TableUnion"
+OtherDevice.Discovery.Source(4).Table1=%OtherDevice.Discovery.Source(1)%
+OtherDevice.Discovery.Source(4).Table2=%OtherDevice.Discovery.Source(2)%
+OtherDevice.Discovery.Source(4).Table3=%OtherDevice.Discovery.Source(3)%
+
+// Duplicate the Location
+// Location;Role;Type;
+OtherDevice.Discovery.Source(4).Compute(1).Type="DuplicateColumn"
+OtherDevice.Discovery.Source(4).Compute(1).Column=1
+
+// Extract the Enclosure from the Location
+// Enclosure;Location;Role;Type;
+OtherDevice.Discovery.Source(4).Compute(2).Type="Extract"
+OtherDevice.Discovery.Source(4).Compute(2).Column=1
+OtherDevice.Discovery.Source(4).Compute(2).SubColumn=1
+OtherDevice.Discovery.Source(4).Compute(2).SubSeparators="."
+
+// Duplicate the Location
+// Enclosure;Location;DisplayID;Role;Type;
+OtherDevice.Discovery.Source(4).Compute(3).Type="DuplicateColumn"
+OtherDevice.Discovery.Source(4).Compute(3).Column=2
+
+// Add a dot to the Enclosure
+// Enclosure;Location;DisplayID;;Role;Type;
+OtherDevice.Discovery.Source(4).Compute(4).Type="RightConcat"
+OtherDevice.Discovery.Source(4).Compute(4).Column=1
+OtherDevice.Discovery.Source(4).Compute(4).String="."
+
+// Remove the Enclosure from the displayid
+// Enclosure;Location;DisplayID;Role;Type;
+OtherDevice.Discovery.Source(4).Compute(5).Type="Replace"
+OtherDevice.Discovery.Source(4).Compute(5).Column=3
+OtherDevice.Discovery.Source(4).Compute(5).Replace=Column(1)
+OtherDevice.Discovery.Source(4).Compute(5).ReplaceBy=""
+
+// Remove the dot from the enclosure
+// Enclosure;Location;DisplayID;Role;Type;
+OtherDevice.Discovery.Source(4).Compute(6).Type="Replace"
+OtherDevice.Discovery.Source(4).Compute(6).Column=1
+OtherDevice.Discovery.Source(4).Compute(6).Replace="."
+OtherDevice.Discovery.Source(4).Compute(6).ReplaceBy=""
+
+OtherDevice.Discovery.Source(4).Compute(7).Type="LeftConcat"
+OtherDevice.Discovery.Source(4).Compute(7).Column=4
+OtherDevice.Discovery.Source(4).Compute(7).String="Role: "
+
+// InstanceTable = Source(1)
+// Enclosure;Location;DisplayID;Role;Type;
+OtherDevice.Discovery.InstanceTable=%OtherDevice.Discovery.Source(4)%
+OtherDevice.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+OtherDevice.Discovery.Instance.DeviceType=InstanceTable.Column(5)
+OtherDevice.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+OtherDevice.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(1)
+OtherDevice.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(4)
+
+
+//
+// Collect
+
+// Collect type is multi-instance
+OtherDevice.Collect.Type="MultiInstance"
+
+// Source(1) = hwInfoControllerTable
+// Location;Status;
+OtherDevice.Collect.Source(1).Type="SnmpTable"
+OtherDevice.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.34774.4.1.23.5.2.1"
+OtherDevice.Collect.Source(1).SnmpTableSelectColumns="5,2"
+
+// Source(2) = hwInfoInterfaceModuleTable
+// Location;Status;
+OtherDevice.Collect.Source(2).Type="SnmpTable"
+OtherDevice.Collect.Source(2).SnmpTableOid="1.3.6.1.4.1.34774.4.1.23.5.13.1"
+OtherDevice.Collect.Source(2).SnmpTableSelectColumns="2,3"
+
+// Source(3) = hwInfoExpBoardTable
+// Location;Status;
+OtherDevice.Collect.Source(3).Type="SnmpTable"
+OtherDevice.Collect.Source(3).SnmpTableOid="1.3.6.1.4.1.34774.4.1.23.5.14.1"
+OtherDevice.Collect.Source(3).SnmpTableSelectColumns="2,3"
+
+// Union 1,2 and 3
+// Location;Status;
+OtherDevice.Collect.Source(4).Type="TableUnion"
+OtherDevice.Collect.Source(4).Table1=%OtherDevice.Collect.Source(1)%
+OtherDevice.Collect.Source(4).Table2=%OtherDevice.Collect.Source(2)%
+OtherDevice.Collect.Source(4).Table3=%OtherDevice.Collect.Source(3)%
+
+
+// Duplicate the Status column
+// Location;Status;Status;
+OtherDevice.Collect.Source(4).Compute(1).Type="DuplicateColumn"
+OtherDevice.Collect.Source(4).Compute(1).Column=2
+
+// Translate the first status column into a PATROLStatus
+// Location;PATROLStatus;Status;
+OtherDevice.Collect.Source(4).Compute(2).Type="Translate"
+OtherDevice.Collect.Source(4).Compute(2).Column=2
+OtherDevice.Collect.Source(4).Compute(2).TranslationTable="StatusTranslationTable"
+
+// Translate the second status column into a more readable string
+// DiskID;PATROLStatus;StatusInformation;
+OtherDevice.Collect.Source(4).Compute(3).Type="Translate"
+OtherDevice.Collect.Source(4).Compute(3).Column=3
+OtherDevice.Collect.Source(4).Compute(3).TranslationTable="StatusInformationTranslationTable"
+
+// ValueTable = Source(1)
+OtherDevice.Collect.ValueTable=%OtherDevice.Collect.Source(4)%
+OtherDevice.Collect.DeviceID=ValueTable.Column(1)
+OtherDevice.Collect.Status=ValueTable.Column(2)
+OtherDevice.Collect.StatusInformation=ValueTable.Column(3)
+
+//
+// Fan
+//
+
+//
+// Discovery
+
+// Source(1) = hwInfoDiskEntry
+// Location;
+Fan.Discovery.Source(1).Type="SnmpTable"
+Fan.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.34774.4.1.23.5.4.1"
+Fan.Discovery.Source(1).SnmpTableSelectColumns="2"
+
+// Duplicate the Location
+// Location;Location;
+Fan.Discovery.Source(1).Compute(1).Type="DuplicateColumn"
+Fan.Discovery.Source(1).Compute(1).Column=1
+
+// Extract the Enclosure from the Location
+// Enclosure;Location;
+Fan.Discovery.Source(1).Compute(2).Type="Extract"
+Fan.Discovery.Source(1).Compute(2).Column=1
+Fan.Discovery.Source(1).Compute(2).SubColumn=1
+Fan.Discovery.Source(1).Compute(2).SubSeparators="."
+
+// Duplicate the Location
+// Enclosure;Location;DisplayID;
+Fan.Discovery.Source(1).Compute(3).Type="DuplicateColumn"
+Fan.Discovery.Source(1).Compute(3).Column=2
+
+// Add a dot to the Enclosure
+// Enclosure;Location;DisplayID;
+Fan.Discovery.Source(1).Compute(4).Type="RightConcat"
+Fan.Discovery.Source(1).Compute(4).Column=1
+Fan.Discovery.Source(1).Compute(4).String="."
+
+// Remove the Enclosure from the displayid
+// Enclosure;Location;DisplayID;
+Fan.Discovery.Source(1).Compute(5).Type="Replace"
+Fan.Discovery.Source(1).Compute(5).Column=3
+Fan.Discovery.Source(1).Compute(5).Replace=Column(1)
+Fan.Discovery.Source(1).Compute(5).ReplaceBy=""
+
+// Remove the dot from the enclosure
+// Enclosure;Location;DisplayID;
+Fan.Discovery.Source(1).Compute(6).Type="Replace"
+Fan.Discovery.Source(1).Compute(6).Column=1
+Fan.Discovery.Source(1).Compute(6).Replace="."
+Fan.Discovery.Source(1).Compute(6).ReplaceBy=""
+
+
+// InstanceTable = Source(1)
+// Enclosure;Location;DisplayID;
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Fan.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+Fan.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(1)
+
+
+//
+// Collect
+
+// Collect type is multi-instance
+Fan.Collect.Type="MultiInstance"
+
+// Source(1) = hwInfoDiskEntry
+// Location;Status;
+Fan.Collect.Source(1).Type="SnmpTable"
+Fan.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.34774.4.1.23.5.4.1"
+Fan.Collect.Source(1).SnmpTableSelectColumns="2,3"
+
+// Duplicate the Status column
+// Location;Status;Status;
+Fan.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Fan.Collect.Source(1).Compute(1).Column=2
+
+// Translate the first status column into a PATROLStatus
+// Location;PATROLStatus;Status;
+Fan.Collect.Source(1).Compute(2).Type="Translate"
+Fan.Collect.Source(1).Compute(2).Column=2
+Fan.Collect.Source(1).Compute(2).TranslationTable="StatusTranslationTable"
+
+// Translate the second status column into a more readable string
+// DiskID;PATROLStatus;StatusInformation;
+Fan.Collect.Source(1).Compute(3).Type="Translate"
+Fan.Collect.Source(1).Compute(3).Column=3
+Fan.Collect.Source(1).Compute(3).TranslationTable="StatusInformationTranslationTable"
+
+// ValueTable = Source(1)
+Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+Fan.Collect.DeviceID=ValueTable.Column(1)
+Fan.Collect.Status=ValueTable.Column(2)
+Fan.Collect.StatusInformation=ValueTable.Column(3)
+
+
+//
+// Battery
+//
+
+//
+// Discovery
+
+// Source(1) = hwInfoDiskEntry
+// Location;
+Battery.Discovery.Source(1).Type="SnmpTable"
+Battery.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.34774.4.1.23.5.5.1"
+Battery.Discovery.Source(1).SnmpTableSelectColumns="2"
+
+// Duplicate the Location
+// Location;Location;
+Battery.Discovery.Source(1).Compute(1).Type="DuplicateColumn"
+Battery.Discovery.Source(1).Compute(1).Column=1
+
+// Extract the Enclosure from the Location
+// Enclosure;Location;
+Battery.Discovery.Source(1).Compute(2).Type="Extract"
+Battery.Discovery.Source(1).Compute(2).Column=1
+Battery.Discovery.Source(1).Compute(2).SubColumn=1
+Battery.Discovery.Source(1).Compute(2).SubSeparators="."
+
+// Duplicate the Location
+// Enclosure;Location;DisplayID;
+Battery.Discovery.Source(1).Compute(3).Type="DuplicateColumn"
+Battery.Discovery.Source(1).Compute(3).Column=2
+
+// Add a dot to the Enclosure
+// Enclosure;Location;DisplayID;
+Battery.Discovery.Source(1).Compute(4).Type="RightConcat"
+Battery.Discovery.Source(1).Compute(4).Column=1
+Battery.Discovery.Source(1).Compute(4).String="."
+
+// Remove the Enclosure from the displayid
+// Enclosure;Location;DisplayID;
+Battery.Discovery.Source(1).Compute(5).Type="Replace"
+Battery.Discovery.Source(1).Compute(5).Column=3
+Battery.Discovery.Source(1).Compute(5).Replace=Column(1)
+Battery.Discovery.Source(1).Compute(5).ReplaceBy=""
+
+// Remove the dot from the enclosure
+// Enclosure;Location;DisplayID;
+Battery.Discovery.Source(1).Compute(6).Type="Replace"
+Battery.Discovery.Source(1).Compute(6).Column=1
+Battery.Discovery.Source(1).Compute(6).Replace="."
+Battery.Discovery.Source(1).Compute(6).ReplaceBy=""
+
+
+// InstanceTable = Source(1)
+// Enclosure;Location;DisplayID;
+Battery.Discovery.InstanceTable=%Battery.Discovery.Source(1)%
+Battery.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Battery.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+Battery.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(1)
+
+
+//
+// Collect
+
+// Collect type is multi-instance
+Battery.Collect.Type="MultiInstance"
+
+// Source(1) = hwInfoDiskEntry
+// Location;Status;
+Battery.Collect.Source(1).Type="SnmpTable"
+Battery.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.34774.4.1.23.5.5.1"
+Battery.Collect.Source(1).SnmpTableSelectColumns="2,3"
+
+// Duplicate the Status column
+// Location;Status;Status;
+Battery.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Battery.Collect.Source(1).Compute(1).Column=2
+
+// Translate the first status column into a PATROLStatus
+// Location;PATROLStatus;Status;
+Battery.Collect.Source(1).Compute(2).Type="Translate"
+Battery.Collect.Source(1).Compute(2).Column=2
+Battery.Collect.Source(1).Compute(2).TranslationTable="StatusTranslationTable"
+
+// Translate the second status column into a more readable string
+// DiskID;PATROLStatus;StatusInformation;
+Battery.Collect.Source(1).Compute(3).Type="Translate"
+Battery.Collect.Source(1).Compute(3).Column=3
+Battery.Collect.Source(1).Compute(3).TranslationTable="StatusInformationTranslationTable"
+
+// ValueTable = Source(1)
+Battery.Collect.ValueTable=%Battery.Collect.Source(1)%
+Battery.Collect.DeviceID=ValueTable.Column(1)
+Battery.Collect.Status=ValueTable.Column(2)
+Battery.Collect.StatusInformation=ValueTable.Column(3)
+
+
+
+//
+// LogicalDisk
+//
+
+//
+// Discovery
+
+// Source(1) = hwInfoDiskDomainEntry
+// Name;Capacity;Free;
+LogicalDisk.Discovery.Source(1).Type="SnmpTable"
+LogicalDisk.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.34774.4.1.23.4.1.1"
+LogicalDisk.Discovery.Source(1).SnmpTableSelectColumns="2,5,6"
+
+// Specify the Type
+// Name;Capacity;Free;Type;
+LogicalDisk.Discovery.Source(1).Compute(1).Type="RightConcat"
+LogicalDisk.Discovery.Source(1).Compute(1).Column=3
+LogicalDisk.Discovery.Source(1).Compute(1).String=";DiskDomain"
+
+// Source(2) = hwInfoStoragePoolTable
+// Name;Capacity;Free;
+LogicalDisk.Discovery.Source(2).Type="SnmpTable"
+LogicalDisk.Discovery.Source(2).SnmpTableOid="1.3.6.1.4.1.34774.4.1.23.4.2.1"
+LogicalDisk.Discovery.Source(2).SnmpTableSelectColumns="2,5,9"
+
+// Specify the Type
+// Name;Capacity;Free;Type;
+LogicalDisk.Discovery.Source(2).Compute(1).Type="RightConcat"
+LogicalDisk.Discovery.Source(2).Compute(1).Column=3
+LogicalDisk.Discovery.Source(2).Compute(1).String=";Storage Pool"
+
+// Source(3) = hwInfoStorageTierTable
+// Name;Capacity;Free;
+LogicalDisk.Discovery.Source(3).Type="SnmpTable"
+LogicalDisk.Discovery.Source(3).SnmpTableOid="1.3.6.1.4.1.34774.4.1.23.4.3.1"
+LogicalDisk.Discovery.Source(3).SnmpTableSelectColumns="2"
+
+// Specify the Type
+// Name;Capacity;Free;Type;
+LogicalDisk.Discovery.Source(3).Compute(1).Type="RightConcat"
+LogicalDisk.Discovery.Source(3).Compute(1).Column=1
+LogicalDisk.Discovery.Source(3).Compute(1).String=";Storage Tier"
+
+// Union 1,2 and 3
+// Name;Capacity;Free;Type;
+LogicalDisk.Discovery.Source(4).Type="TableUnion"
+LogicalDisk.Discovery.Source(4).Table1=%LogicalDisk.Discovery.Source(1)%
+LogicalDisk.Discovery.Source(4).Table2=%LogicalDisk.Discovery.Source(2)%
+LogicalDisk.Discovery.Source(4).Table3=%LogicalDisk.Discovery.Source(3)%
+
+// Convert Size from Mbytes to Bytes
+// Name;Capacity;Free;Type;
+LogicalDisk.Discovery.Source(4).Compute(1).Type="Multiply"
+LogicalDisk.Discovery.Source(4).Compute(1).Column=2
+LogicalDisk.Discovery.Source(4).Compute(1).MultiplyBy=1048576
+
+LogicalDisk.Discovery.Source(4).Compute(2).Type="LeftConcat"
+LogicalDisk.Discovery.Source(4).Compute(2).Column=4
+LogicalDisk.Discovery.Source(4).Compute(2).String="Type: "
+
+// InstanceTable = Source(1)
+// Name;Capacity;Free;Type;
+LogicalDisk.Discovery.InstanceTable=%LogicalDisk.Discovery.Source(4)%
+LogicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+LogicalDisk.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(4)
+LogicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(1)
+LogicalDisk.Discovery.Instance.AttachedToDeviceID="CTE0"
+// 64 bit OID
+ LogicalDisk.Discovery.Instance.Size=InstanceTable.Column(2)
+
+
+//
+// Collect
+
+// Collect type is multi-instance
+LogicalDisk.Collect.Type="MultiInstance"
+
+// Source(1) = hwInfoDiskDomainEntry
+// Location;Status;FreeSpace;
+LogicalDisk.Collect.Source(1).Type="SnmpTable"
+LogicalDisk.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.34774.4.1.23.4.1.1"
+LogicalDisk.Collect.Source(1).SnmpTableSelectColumns="2,3,6"
+
+// Source(2) = hwInfoStoragePoolTable
+// Location;Status;FreeSpace;
+LogicalDisk.Collect.Source(2).Type="SnmpTable"
+LogicalDisk.Collect.Source(2).SnmpTableOid="1.3.6.1.4.1.34774.4.1.23.4.2.1"
+LogicalDisk.Collect.Source(2).SnmpTableSelectColumns="2,5,9"
+
+// Source(3) = hwInfoStorageTierTable
+// Location;Status;FreeSpace;
+LogicalDisk.Collect.Source(3).Type="SnmpTable"
+LogicalDisk.Collect.Source(3).SnmpTableOid="1.3.6.1.4.1.34774.4.1.23.4.3.1"
+LogicalDisk.Collect.Source(3).SnmpTableSelectColumns="2,4,8"
+
+// Union 1,2 and 3
+// Location;Status;FreeSpace;
+LogicalDisk.Collect.Source(4).Type="TableUnion"
+LogicalDisk.Collect.Source(4).Table1=%LogicalDisk.Collect.Source(1)%
+LogicalDisk.Collect.Source(4).Table2=%LogicalDisk.Collect.Source(2)%
+LogicalDisk.Collect.Source(4).Table3=%LogicalDisk.Collect.Source(3)%
+
+
+// Duplicate the Status column
+// Location;Status;Status;FreeSpace;
+LogicalDisk.Collect.Source(4).Compute(1).Type="DuplicateColumn"
+LogicalDisk.Collect.Source(4).Compute(1).Column=2
+
+// Translate the first status column into a PATROLStatus
+// Location;PATROLStatus;Status;FreeSpace;
+LogicalDisk.Collect.Source(4).Compute(2).Type="Translate"
+LogicalDisk.Collect.Source(4).Compute(2).Column=2
+LogicalDisk.Collect.Source(4).Compute(2).TranslationTable="StatusTranslationTable"
+
+// Translate the second status column into a more readable string
+// DiskID;PATROLStatus;StatusInformation;FreeSpace;
+LogicalDisk.Collect.Source(4).Compute(3).Type="Translate"
+LogicalDisk.Collect.Source(4).Compute(3).Column=3
+LogicalDisk.Collect.Source(4).Compute(3).TranslationTable="StatusInformationTranslationTable"
+
+// Convert Size from Mbytes to Bytes
+// DiskID;PATROLStatus;StatusInformation;FreeSpace;
+LogicalDisk.Collect.Source(4).Compute(4).Type="Multiply"
+LogicalDisk.Collect.Source(4).Compute(4).Column=4
+LogicalDisk.Collect.Source(4).Compute(4).MultiplyBy=1048576
+
+// ValueTable = Source(1)
+LogicalDisk.Collect.ValueTable=%LogicalDisk.Collect.Source(4)%
+LogicalDisk.Collect.DeviceID=ValueTable.Column(1)
+LogicalDisk.Collect.Status=ValueTable.Column(2)
+LogicalDisk.Collect.StatusInformation=ValueTable.Column(3)
+// 64 bit OID
+LogicalDisk.Collect.UnallocatedSpace=ValueTable.Column(4)
+
+
+//
+// Discovery
+
+// Source(1) = hwStorageFrontEndHostPortEntry
+// Location;PhysicalAddress;Type;Status;
+NetworkCard.Discovery.Source(1).Type="SnmpTable"
+NetworkCard.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.34774.4.1.19.8.11.1"
+NetworkCard.Discovery.Source(1).SnmpTableSelectColumns="5,4,2,3"
+
+// Duplicate the Location
+// Location;Location;PhysicalAddress;Type;Status;
+NetworkCard.Discovery.Source(1).Compute(1).Type="DuplicateColumn"
+NetworkCard.Discovery.Source(1).Compute(1).Column=1
+
+// Extract the Enclosure from the Location
+// Enclosure;Location;PhysicalAddress;Type;Status;
+NetworkCard.Discovery.Source(1).Compute(2).Type="Extract"
+NetworkCard.Discovery.Source(1).Compute(2).Column=1
+NetworkCard.Discovery.Source(1).Compute(2).SubColumn=1
+NetworkCard.Discovery.Source(1).Compute(2).SubSeparators="."
+
+// Duplicate the Location
+// Enclosure;Location;DisplayID;PhysicalAddress;Type;Status;
+NetworkCard.Discovery.Source(1).Compute(3).Type="DuplicateColumn"
+NetworkCard.Discovery.Source(1).Compute(3).Column=2
+
+// Add a dot to the Enclosure
+// Enclosure;Location;DisplayID;PhysicalAddress;Type;Status;
+NetworkCard.Discovery.Source(1).Compute(4).Type="RightConcat"
+NetworkCard.Discovery.Source(1).Compute(4).Column=1
+NetworkCard.Discovery.Source(1).Compute(4).String="."
+
+// Remove the Enclosure from the displayid
+// Enclosure;Location;DisplayID;PhysicalAddress;Type;Status;
+NetworkCard.Discovery.Source(1).Compute(5).Type="Replace"
+NetworkCard.Discovery.Source(1).Compute(5).Column=3
+NetworkCard.Discovery.Source(1).Compute(5).Replace=Column(1)
+NetworkCard.Discovery.Source(1).Compute(5).ReplaceBy=""
+
+// Remove the dot from the enclosure
+// Enclosure;Location;DisplayID;PhysicalAddress;Type;Status;
+NetworkCard.Discovery.Source(1).Compute(6).Type="Replace"
+NetworkCard.Discovery.Source(1).Compute(6).Column=1
+NetworkCard.Discovery.Source(1).Compute(6).Replace="."
+NetworkCard.Discovery.Source(1).Compute(6).ReplaceBy=""
+
+// Duplicate the Type
+// Enclosure;Location;DisplayID;PhysicalAddress;Type;Type;Status;
+NetworkCard.Discovery.Source(1).Compute(7).Type="DuplicateColumn"
+NetworkCard.Discovery.Source(1).Compute(7).Column=5
+
+// Translate the Type
+// Enclosure;Location;DisplayID;PhysicalAddress;Type;AddressType;Status;
+NetworkCard.Discovery.Source(1).Compute(8).Type="Translate"
+NetworkCard.Discovery.Source(1).Compute(8).Column=5
+NetworkCard.Discovery.Source(1).Compute(8).TranslationTable="PortTypeTranslationTable"
+
+// The PortTypeTranslationTable
+PortTypeTranslationTable(0)="SAS"
+PortTypeTranslationTable(1)="FC"
+PortTypeTranslationTable(2)="iSCSI"
+PortTypeTranslationTable(5)="iSCSI"
+PortTypeTranslationTable(8)="FCoE"
+PortTypeTranslationTable(Default)=""
+
+
+// Translate the Address Type
+// Enclosure;Location;DisplayID;PhysicalAddress;Type;AddressType;Status;
+NetworkCard.Discovery.Source(1).Compute(9).Type="Translate"
+NetworkCard.Discovery.Source(1).Compute(9).Column=6
+NetworkCard.Discovery.Source(1).Compute(9).TranslationTable="AddressTypeTranslationTable"
+
+// The AddressTypeTranslationTable
+AddressTypeTranslationTable(0)="WWN"
+AddressTypeTranslationTable(1)="WWN"
+AddressTypeTranslationTable(2)="MAC"
+AddressTypeTranslationTable(5)="MAC"
+AddressTypeTranslationTable(8)="MAC"
+AddressTypeTranslationTable(Default)=""
+
+// Exclude ports that do not exist
+// Enclosure;Location;DisplayID;PhysicalAddress;Type;AddressType;Status;
+NetworkCard.Discovery.Source(1).Compute(10).Type="ExcludeMatchingLines"
+NetworkCard.Discovery.Source(1).Compute(10).Column=7
+NetworkCard.Discovery.Source(1).Compute(10).ValueList="2"
+
+// InstanceTable = Source(1)
+// Enclosure;Location;DisplayID;PhysicalAddress;Type;AddressType;Status;
+NetworkCard.Discovery.InstanceTable=%NetworkCard.Discovery.Source(1)%
+NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+NetworkCard.Discovery.Instance.DeviceType=InstanceTable.Column(5)
+NetworkCard.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+NetworkCard.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(1)
+NetworkCard.Discovery.Instance.PhysicalAddress=InstanceTable.Column(4)
+NetworkCard.Discovery.Instance.PhysicalAddressType=InstanceTable.Column(6)
+
+
+
+//
+// Collect
+
+// Collect type is multi-instance
+NetworkCard.Collect.Type="MultiInstance"
+
+// Source(1) = hwInfoDiskEntry
+// Location;Status;
+NetworkCard.Collect.Source(1).Type="SnmpTable"
+NetworkCard.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.34774.4.1.19.8.11.1"
+NetworkCard.Collect.Source(1).SnmpTableSelectColumns="5,3"
+
+// Duplicate the Status column
+// Location;Status;Status;
+NetworkCard.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+NetworkCard.Collect.Source(1).Compute(1).Column=2
+
+// Duplicate the Status column
+// Location;Status;Status;Status;
+NetworkCard.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+NetworkCard.Collect.Source(1).Compute(2).Column=2
+
+// Translate the first status column into a PATROLStatus
+// Location;PATROLStatus;Status;Status;
+NetworkCard.Collect.Source(1).Compute(3).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(3).Column=2
+NetworkCard.Collect.Source(1).Compute(3).TranslationTable="PortStatusTranslationTable"
+
+// The PortStatusTranslationTable
+PortStatusTranslationTable(0)="OK"
+PortStatusTranslationTable(1)="OK"
+PortStatusTranslationTable(2)="ALARM"
+PortStatusTranslationTable(3)="WARN"
+PortStatusTranslationTable(4)="ALARM"
+PortStatusTranslationTable(5)="WARN"
+PortStatusTranslationTable(6)="OK"
+PortStatusTranslationTable(7)="OK"
+PortStatusTranslationTable(8)="WARN"
+PortStatusTranslationTable(9)="WARN"
+PortStatusTranslationTable(Default)=""
+
+// Translate the second status column into a more readable string
+// DiskID;PATROLStatus;StatusInformation;Status;
+NetworkCard.Collect.Source(1).Compute(4).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(4).Column=3
+NetworkCard.Collect.Source(1).Compute(4).TranslationTable="PortStatusInformationTranslationTable"
+
+// The ControllerRoleTranslationTable
+PortStatusInformationTranslationTable(0)="Link Down"
+PortStatusInformationTranslationTable(1)="Link Up"
+PortStatusInformationTranslationTable(2)="Missing"
+PortStatusInformationTranslationTable(3)="Link Bad"
+PortStatusInformationTranslationTable(4)="Hardware Error"
+PortStatusInformationTranslationTable(5)="Speed Does Not Match"
+PortStatusInformationTranslationTable(6)="Enabled"
+PortStatusInformationTranslationTable(7)="Disabled"
+PortStatusInformationTranslationTable(8)="MAC Error"
+PortStatusInformationTranslationTable(9)="Lane Does Not Match"
+PortStatusInformationTranslationTable(Default)=""
+
+// Translate the Third status column into a more readable string
+// DiskID;PATROLStatus;StatusInformation;LinkStatus;
+NetworkCard.Collect.Source(1).Compute(5).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(5).Column=4
+NetworkCard.Collect.Source(1).Compute(5).TranslationTable="LinkStatusTranslationTable"
+
+// The ControllerRoleTranslationTable
+LinkStatusTranslationTable(0)="WARN"
+LinkStatusTranslationTable(1)="OK"
+LinkStatusTranslationTable(2)=""
+LinkStatusTranslationTable(3)="WARN"
+LinkStatusTranslationTable(4)=""
+LinkStatusTranslationTable(5)="WARN"
+LinkStatusTranslationTable(6)=""
+LinkStatusTranslationTable(7)=""
+LinkStatusTranslationTable(8)=""
+LinkStatusTranslationTable(9)="WARN"
+LinkStatusTranslationTable(Default)=""
+
+// ValueTable = Source(1)
+NetworkCard.Collect.ValueTable=%NetworkCard.Collect.Source(1)%
+NetworkCard.Collect.DeviceID=ValueTable.Column(1)
+NetworkCard.Collect.Status=ValueTable.Column(2)
+NetworkCard.Collect.StatusInformation=ValueTable.Column(3)
+NetworkCard.Collect.LinkStatus=ValueTable.Column(4)

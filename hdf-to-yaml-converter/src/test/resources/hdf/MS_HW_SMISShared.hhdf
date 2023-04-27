@@ -1,0 +1,939 @@
+///////////////////////////////////////////////////////////
+//
+//     SMI-S shared HDF
+//
+//     To be included in SMI-S disk arrays, tape libraries and switches
+//
+///////////////////////////////////////////////////////////
+
+
+// Please define the following constants before including this header:
+//  - _FCPORT_TYPE_VALUELIST
+//  - _COMPUTERSYSTEM_DEDICATED_REGEXP
+
+
+
+//
+// Enclosure
+//
+
+//
+// Discovery
+
+// Source(1) = CIM_Chassis
+// ChassisID;Manufacturer;Model;SerialNumber;
+Enclosure.Discovery.Source(1).Type="WBEM"
+Enclosure.Discovery.Source(1).WbemQuery="SELECT __PATH,Manufacturer,Model,SerialNumber FROM CIM_Chassis"
+Enclosure.Discovery.Source(1).WbemNameSpace=Automatic
+
+// In the manufacturer name, keep only the first word (to avoid things like "Brocade Communications Systems, Inc."
+// It'll be Cisco or Brocade anyway...
+// ChassisID;Manufacturer;Model;SerialNumber;
+Enclosure.Discovery.Source(1).Compute(1).Type="Extract"
+Enclosure.Discovery.Source(1).Compute(1).Column=2
+Enclosure.Discovery.Source(1).Compute(1).Subcolumn=1
+Enclosure.Discovery.Source(1).Compute(1).Subseparators=" "
+
+// Source(2) = CIM_ComputerSystemPackage (link between CIM_Chassis and CIM_ComputerSystem)
+// ChassisID;ComputerID;
+Enclosure.Discovery.Source(2).Type="WBEM"
+Enclosure.Discovery.Source(2).WbemQuery="SELECT Antecedent,Dependent FROM CIM_ComputerSystemPackage"
+Enclosure.Discovery.Source(2).WbemNameSpace=Automatic
+
+// Source(3) = CIM_ComputerSystem
+// ComputerID;ElementName;Dedicated
+Enclosure.Discovery.Source(3).Type="WBEM"
+Enclosure.Discovery.Source(3).WbemQuery="SELECT __PATH,ElementName,Dedicated FROM CIM_ComputerSystem"
+Enclosure.Discovery.Source(3).WbemNameSpace=Automatic
+
+// Keep only storage systems
+// ComputerID;ElementName;Dedicated;
+Enclosure.Discovery.Source(3).Compute(1).Type="KeepOnlyMatchingLines"
+Enclosure.Discovery.Source(3).Compute(1).Column=3
+Enclosure.Discovery.Source(3).Compute(1).RegExp=_COMPUTERSYSTEM_DEDICATED_REGEXP
+
+// Source(4) = CIM_ProductPhysicalComponent
+// PackageID;ProductID;
+Enclosure.Discovery.Source(4).Type="WBEM"
+Enclosure.Discovery.Source(4).WbemQuery="SELECT PartComponent,GroupComponent FROM CIM_ProductPhysicalComponent"
+Enclosure.Discovery.Source(4).WbemNameSpace=Automatic
+
+// Source(5) = CIM_Product
+// ProductID;Vendor;Model;SerialNumber;PartNumber;
+Enclosure.Discovery.Source(5).Type="WBEM"
+Enclosure.Discovery.Source(5).WbemQuery="SELECT __PATH,Vendor,Name,IdentifyingNumber,SKUNumber FROM CIM_Product"
+Enclosure.Discovery.Source(5).WbemNameSpace=Automatic
+
+// In the manufacturer name, keep only the first word (to avoid things like "Brocade Communications Systems, Inc."
+// It'll be Cisco or Brocade anyway...
+// ProductID;Vendor;Model;SerialNumber;PartNumber;
+Enclosure.Discovery.Source(5).Compute(1).Type="Extract"
+Enclosure.Discovery.Source(5).Compute(1).Column=2
+Enclosure.Discovery.Source(5).Compute(1).Subcolumn=1
+Enclosure.Discovery.Source(5).Compute(1).Subseparators=" "
+
+// Concat SerialNumber and PartNumber
+// ProductID;Vendor;Model;SerialNumber - PartNumber;PartNumber;
+Enclosure.Discovery.Source(5).Compute(2).Type="RightConcat"
+Enclosure.Discovery.Source(5).Compute(2).Column=4
+Enclosure.Discovery.Source(5).Compute(2).String=" - SKU: "
+
+Enclosure.Discovery.Source(5).Compute(3).Type="RightConcat"
+Enclosure.Discovery.Source(5).Compute(3).Column=4
+Enclosure.Discovery.Source(5).Compute(3).String=Column(5)
+
+// Source(6) = Table joint between Source(3) and source(2)
+// ComputerID;ElementName;Dedicated;ChassisID;ComputerID;
+Enclosure.Discovery.Source(6).Type="TableJoint"
+Enclosure.Discovery.Source(6).LeftTable=%Enclosure.Discovery.Source(3)%
+Enclosure.Discovery.Source(6).RightTable=%Enclosure.Discovery.Source(2)%
+Enclosure.Discovery.Source(6).LeftKeyColumn=1
+Enclosure.Discovery.Source(6).RightKeyColumn=2
+Enclosure.Discovery.Source(6).KeyType="Wbem"
+
+// Source(7) = Table joint of Source(6) and Source(1)
+// ComputerID;ElementName;Dedicated;ChassisID;ComputerID;ChassisID;Manufacturer;Model;SerialNumber;
+Enclosure.Discovery.Source(7).Type="TableJoint"
+Enclosure.Discovery.Source(7).LeftTable=%Enclosure.Discovery.Source(6)%
+Enclosure.Discovery.Source(7).RightTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Source(7).LeftKeyColumn=4
+Enclosure.Discovery.Source(7).RightKeyColumn=1
+Enclosure.Discovery.Source(7).KeyType="Wbem"
+//Enclosure.Discovery.Source(7).DefaultRightLine=";;;;"
+
+// Source(8) = Table joint of Source(4) and Source(5)
+// PackageID;ProductID;ProductID;Vendor;Model;SerialNumber - PartNumber;PartNumber;
+Enclosure.Discovery.Source(8).Type="TableJoint"
+Enclosure.Discovery.Source(8).LeftTable=%Enclosure.Discovery.Source(4)%
+Enclosure.Discovery.Source(8).RightTable=%Enclosure.Discovery.Source(5)%
+Enclosure.Discovery.Source(8).LeftKeyColumn=2
+Enclosure.Discovery.Source(8).RightKeyColumn=1
+Enclosure.Discovery.Source(8).KeyType="Wbem"
+
+// Source(9) = Table joint of Source(7) and Source(8)
+// ComputerID;ElementName;Dedicated;ChassisID;ComputerID;ChassisID;Manufacturer;Model;SerialNumber;PackageID;ProductID;ProductID;Vendor;Model;SerialNumber - PartNumber;PartNumber;
+Enclosure.Discovery.Source(9).Type="TableJoint"
+Enclosure.Discovery.Source(9).LeftTable=%Enclosure.Discovery.Source(7)%
+Enclosure.Discovery.Source(9).RightTable=%Enclosure.Discovery.Source(8)%
+Enclosure.Discovery.Source(9).LeftKeyColumn=4
+Enclosure.Discovery.Source(9).RightKeyColumn=1
+Enclosure.Discovery.Source(9).KeyType="Wbem"
+Enclosure.Discovery.Source(9).DefaultRightLine=";;;;;;;"
+
+// Keep only useful columns
+// ComputerID;ElementName;ChassisID;Vendor1;Model1;SerialNumber1;Vendor2;Model2;SerialNumber2;
+Enclosure.Discovery.Source(9).Compute(1).Type="KeepColumns"
+Enclosure.Discovery.Source(9).Compute(1).ColumnNumbers="1,2,4,7,8,9,13,14,15"
+
+// Reprocess Model1/Model2, Vendor1/Vendor2, etc. with an AWK script
+// ComputerID;ChassisID;Vendor;Model;SerialNumber;
+Enclosure.Discovery.Source(9).Compute(2).Type="Awk"
+Enclosure.Discovery.Source(9).Compute(2).AwkScript=EmbeddedFile(1)
+Enclosure.Discovery.Source(9).Compute(2).KeepOnlyRegExp="^MSHW;"
+Enclosure.Discovery.Source(9).Compute(2).Separators=";"
+Enclosure.Discovery.Source(9).Compute(2).SelectColumns="2,3,4,5,6"
+
+// InstanceTable = Source(9)
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(9)%
+Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Enclosure.Discovery.Instance.Vendor=InstanceTable.Column(3)
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(4)
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(5)
+Enclosure.Discovery.Instance.Type="Storage"
+
+// Source(10) = CIM_SystemComponent
+// Make the link between "logical" devices and CIM_ComputerSystem
+// LogicalDeviceID;ParentID;
+Enclosure.Discovery.Source(10).Type="WBEM"
+Enclosure.Discovery.Source(10).WbemQuery="SELECT PartComponent,GroupComponent FROM CIM_SystemComponent"
+Enclosure.Discovery.Source(10).WbemNameSpace=Automatic
+
+// Source(11) = Copy of Source(10)
+// LogicalDeviceID;ParentID;
+Enclosure.Discovery.Source(11)=%Enclosure.Discovery.Source(10)%
+
+// Keep only the parentID
+// ParentID;
+Enclosure.Discovery.Source(11).Compute(1).Type="KeepColumns"
+Enclosure.Discovery.Source(11).Compute(1).ColumnNumbers="2"
+
+// Logically, there are many duplicates in this list
+// We're going to remove all duplicates for performance purpose
+// But we need an AWK script for that
+// ParentID
+Enclosure.Discovery.Source(11).Compute(2).Type="Awk"
+Enclosure.Discovery.Source(11).Compute(2).AwkScript=EmbeddedFile(3)
+Enclosure.Discovery.Source(11).Compute(2).Separators=";"
+Enclosure.Discovery.Source(11).Compute(2).SelectColumns="1"
+
+// Source(12) = Source(11) with Source(10) so that we will get parent's parent
+// ParentID;ParentID;GrandParentID;
+Enclosure.Discovery.Source(12).Type="TableJoint"
+Enclosure.Discovery.Source(12).LeftTable=%Enclosure.Discovery.Source(11)%
+Enclosure.Discovery.Source(12).RightTable=%Enclosure.Discovery.Source(10)%
+Enclosure.Discovery.Source(12).LeftKeyColumn=1
+Enclosure.Discovery.Source(12).RightKeyColumn=1
+Enclosure.Discovery.Source(12).KeyType="Wbem"
+Enclosure.Discovery.Source(12).DefaultRightLine=";;"
+
+// Source(13) = Table joint of Source(10) and Source(12)
+// LogicalDeviceID;ParentID;ParentID;ParentID;GrandParentID;
+Enclosure.Discovery.Source(13).Type="TableJoint"
+Enclosure.Discovery.Source(13).LeftTable=%Enclosure.Discovery.Source(10)%
+Enclosure.Discovery.Source(13).RightTable=%Enclosure.Discovery.Source(12)%
+Enclosure.Discovery.Source(13).LeftKeyColumn=2
+Enclosure.Discovery.Source(13).RightKeyColumn=1
+Enclosure.Discovery.Source(13).KeyType="Wbem"
+Enclosure.Discovery.Source(13).DefaultRightLine=";;;"
+
+// Now, parse this table through an AWK script in order to keep
+// only the LogicalDeviceID and the real top-level ComputerSystemID
+// LogicalDeviceID;ComputerSystemID;
+Enclosure.Discovery.Source(13).Compute(1).Type="Awk"
+Enclosure.Discovery.Source(13).Compute(1).AwkScript=EmbeddedFile(2)
+Enclosure.Discovery.Source(13).Compute(1).Separators=";"
+Enclosure.Discovery.Source(13).Compute(1).SelectColumns="1,2"
+
+
+// Source(14) = Table Joint of Source(13) and Source(9)
+// This is to make sure 2 things:
+// - we only keep links to enclosures that have been created
+// - we got the ID of these enclosures right (because WBEM IDs can be messed up, but that's okay)
+// LogicalDeviceID;ComputerSystemID;ComputerID;ChassisID;Vendor;Model;SerialNumber;
+Enclosure.Discovery.Source(14).Type="TableJoint"
+Enclosure.Discovery.Source(14).LeftTable=%Enclosure.Discovery.Source(13)%
+Enclosure.Discovery.Source(14).RightTable=%Enclosure.Discovery.Source(9)%
+Enclosure.Discovery.Source(14).LeftKeyColumn=2
+Enclosure.Discovery.Source(14).RightKeyColumn=1
+Enclosure.Discovery.Source(14).KeyType="Wbem"
+
+// And now, keep only LogicalDeviceID and the ComputerID that we got from Source(9)
+// LogicalDeviceID;ComputerID;
+Enclosure.Discovery.Source(14).Compute(1).Type="KeepColumns"
+Enclosure.Discovery.Source(14).Compute(1).ColumnNumbers="1,3"
+
+// Source(15) = CIM_Realizes
+// PackageID;LogicalDeviceID;
+Enclosure.Discovery.Source(15).Type="WBEM"
+Enclosure.Discovery.Source(15).WbemQuery="SELECT Antecedent,Dependent FROM CIM_Realizes"
+Enclosure.Discovery.Source(15).WbemNameSpace=Automatic
+
+// Source(16) = CIM_PhysicalPackage
+// PackageID;Manufacturer;Model;SerialNumber;
+Enclosure.Discovery.Source(16).Type="WBEM"
+Enclosure.Discovery.Source(16).WbemQuery="SELECT __PATH,Manufacturer,Model,SerialNumber FROM CIM_PhysicalPackage"
+Enclosure.Discovery.Source(16).WbemNameSpace=Automatic
+
+// Source(17) = Table joint of Source(15) and Source(16)
+// PackageID;LogicalDeviceID;PackageID;Manufacturer;Model;SerialNumber;
+Enclosure.Discovery.Source(17).Type="TableJoint"
+Enclosure.Discovery.Source(17).LeftTable=%Enclosure.Discovery.Source(15)%
+Enclosure.Discovery.Source(17).RightTable=%Enclosure.Discovery.Source(16)%
+Enclosure.Discovery.Source(17).LeftKeyColumn=1
+Enclosure.Discovery.Source(17).RightKeyColumn=1
+Enclosure.Discovery.Source(17).KeyType="Wbem"
+
+// Source(18) = Table joint of Source(14) and Source(17)
+// LogicalDeviceID;ComputerSystemID;PackageID;LogicalDeviceID;PackageID;Manufacturer;Model;SerialNumber;
+Enclosure.Discovery.Source(18).Type="TableJoint"
+Enclosure.Discovery.Source(18).LeftTable=%Enclosure.Discovery.Source(14)%
+Enclosure.Discovery.Source(18).RightTable=%Enclosure.Discovery.Source(17)%
+Enclosure.Discovery.Source(18).LeftKeyColumn=1
+Enclosure.Discovery.Source(18).RightKeyColumn=2
+Enclosure.Discovery.Source(18).KeyType="Wbem"
+Enclosure.Discovery.Source(18).DefaultRightLine=";;;;;;"
+
+// Keep only useful columns
+// LogicalDeviceID;ComputerSystemID;Manufacturer;Model;SerialNumber;
+Enclosure.Discovery.Source(18).Compute(1).Type="KeepColumns"
+Enclosure.Discovery.Source(18).Compute(1).ColumnNumbers="1,2,6,7,8"
+
+
+
+//
+// Collect
+
+// Collect type is multiinstance
+Enclosure.Collect.Type="MultiInstance"
+
+// Source(1) = CIM_ComputerSystem (what else? we're looking for logical devices that have
+// a status, and that corresponds to a CIM_Chassis instance)
+// ComputerID;OperationalStatus;
+Enclosure.Collect.Source(1).Type="Wbem"
+Enclosure.Collect.Source(1).WbemQuery="SELECT __PATH,OperationalStatus FROM CIM_ComputerSystem"
+Enclosure.Collect.Source(1).WbemNamespace=Automatic
+
+// Duplicate the "OperationalStatusArray" column
+// ComputerID;OperationalStatusArray;OperationalStatusArray;
+Enclosure.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Enclosure.Collect.Source(1).Compute(1).Column=2
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// ComputerID;PATROLStatusArray;Status
+Enclosure.Collect.Source(1).Compute(2).Type="ArrayTranslate"
+Enclosure.Collect.Source(1).Compute(2).Column=2
+Enclosure.Collect.Source(1).Compute(2).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// ComputerID;PATROLStatusArray;StatusInformation
+Enclosure.Collect.Source(1).Compute(3).Type="ArrayTranslate"
+Enclosure.Collect.Source(1).Compute(3).Column=3
+Enclosure.Collect.Source(1).Compute(3).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+Enclosure.Collect.Source(1).Compute(3).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// ComputerID;PATROLStatus;StatusInformation
+Enclosure.Collect.Source(1).Compute(4).Type="Convert"
+Enclosure.Collect.Source(1).Compute(4).Column=2
+Enclosure.Collect.Source(1).Compute(4).ConversionType="Array2SimpleStatus"
+
+// ValueTable = Source(1)
+Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(1)%
+Enclosure.Collect.DeviceID=ValueTable.Column(1)
+Enclosure.Collect.Status=ValueTable.Column(2)
+Enclosure.Collect.StatusInformation=ValueTable.Column(3)
+
+
+//
+// FC Ports ("Network cards")
+//
+
+// Source(1) = CIM_FCPort
+// PortID;PortTypeCode;Speed;PermanentAddress;EnabledState;ElementName;
+NetworkCard.Discovery.Source(1).Type="WBEM"
+NetworkCard.Discovery.Source(1).WbemQuery="SELECT __PATH,PortType,Speed,PermanentAddress,EnabledState,ElementName FROM CIM_FCPort"
+NetworkCard.Discovery.Source(1).WbemNameSpace=Automatic
+
+// Keep only "internal" ports (no ports that actually are remote ports of servers or disk arrays)
+// PortID;PortTypeCode;Speed;PermanentAddress;EnabledState;ElementName;
+NetworkCard.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+NetworkCard.Discovery.Source(1).Compute(1).Column=2
+NetworkCard.Discovery.Source(1).Compute(1).ValueList=_FCPORT_TYPE_VALUELIST
+
+// Keep only activated ports
+// PortID;PortTypeCode;Speed;PermanentAddress;EnabledState;ElementName;
+NetworkCard.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+NetworkCard.Discovery.Source(1).Compute(2).Column=5
+NetworkCard.Discovery.Source(1).Compute(2).ValueList="3"
+
+// Translate PortType into a more readable string
+// PortID;PortType;Speed;PermanentAddress;EnabledState;ElementName;
+NetworkCard.Discovery.Source(1).Compute(3).Type="Translate"
+NetworkCard.Discovery.Source(1).Compute(3).Column=2
+NetworkCard.Discovery.Source(1).Compute(3).TranslationTable="PortTypeTranslationTable"
+
+// The PortTypeTranslationTable
+PortTypeTranslationTable(10)="FC Port N"
+PortTypeTranslationTable(11)="FC Port NL"
+PortTypeTranslationTable(12)="FC Port F/NL"
+PortTypeTranslationTable(13)="FC Port Nx"
+PortTypeTranslationTable(14)="FC Port E"
+PortTypeTranslationTable(15)="FC Port F"
+PortTypeTranslationTable(16)="FC Port FL"
+PortTypeTranslationTable(17)="FC Port B"
+PortTypeTranslationTable(18)="FC Port G"
+PortTypeTranslationTable(19)="FC Port GL"
+PortTypeTranslationTable(Default)="FC Port"
+
+// Convert Speed from bps to Mbps (divide by 1000000)
+// PortID;PortType;SpeedMbps;PermanentAddress;EnabledState;ElementName;
+NetworkCard.Discovery.Source(1).Compute(4).Type="Divide"
+NetworkCard.Discovery.Source(1).Compute(4).Column=3
+NetworkCard.Discovery.Source(1).Compute(4).DivideBy=1000000
+
+// Source(2) = Table joint of Source(1) and Enclosure.Discovery.Source(18)
+// so we know in which chassis each FC port is located
+// PortID;PortType;Speed;PermanentAddress;EnabledState;ElementName;LogicalDeviceID;ComputerSystemID;Manufacturer;Model;SerialNumber;
+NetworkCard.Discovery.Source(2).Type="TableJoint"
+NetworkCard.Discovery.Source(2).LeftTable=%NetworkCard.Discovery.Source(1)%
+NetworkCard.Discovery.Source(2).RightTable=%Enclosure.Discovery.Source(18)%
+NetworkCard.Discovery.Source(2).LeftKeyColumn=1
+NetworkCard.Discovery.Source(2).RightKeyColumn=1
+NetworkCard.Discovery.Source(2).DefaultRightLine=";;;;"
+NetworkCard.Discovery.Source(2).KeyType="Wbem"
+
+// Add 'Element ID: ' Label to ElementName
+NetworkCard.Discovery.Source(2).Compute(1).Type="LeftConcat"
+NetworkCard.Discovery.Source(2).Compute(1).Column=6
+NetworkCard.Discovery.Source(2).Compute(1).String="Element ID: "
+
+// InstanceTable = Source(4)
+// PortID;PortType;Speed;PermanentAddress;EnabledState;ElementName;LogicalDeviceID;ComputerSystemID;Manufacturer;Model;SerialNumber;
+NetworkCard.Discovery.InstanceTable=%NetworkCard.Discovery.Source(2)%
+NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+NetworkCard.Discovery.Instance.BandWidth=InstanceTable.Column(3)
+NetworkCard.Discovery.Instance.PhysicalAddress=InstanceTable.Column(4)
+NetworkCard.Discovery.Instance.PhysicalAddressType="WWN"
+NetworkCard.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(8)
+NetworkCard.Discovery.Instance.DeviceType=InstanceTable.Column(2)
+NetworkCard.Discovery.Instance.Vendor=InstanceTable.Column(9)
+NetworkCard.Discovery.Instance.Model=InstanceTable.Column(10)
+NetworkCard.Discovery.Instance.SerialNumber=InstanceTable.Column(11)
+NetworkCard.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(6)
+
+
+//
+// Collect
+
+// The NetworkCard collect is a "MultiInstance" collect
+NetworkCard.Collect.Type="MultiInstance"
+
+// Source(1) = CIM_FCPort
+// PortID;PortTypeCode;EnabledState;Speed;OperationalStatusArray
+NetworkCard.Collect.Source(1).Type="WBEM"
+NetworkCard.Collect.Source(1).WbemQuery="SELECT __PATH,PortType,EnabledState,Speed,OperationalStatus FROM CIM_FCPort"
+NetworkCard.Collect.Source(1).WbemNameSpace=Automatic
+
+// Keep only "internal" ports (no ports that actually are remote ports of servers or disk arrays)
+// PortID;PortTypeCode;EnabledState;Speed;OperationalStatusArray
+NetworkCard.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+NetworkCard.Collect.Source(1).Compute(1).Column=2
+NetworkCard.Collect.Source(1).Compute(1).ValueList=_FCPORT_TYPE_VALUELIST
+
+// Keep only activated ports
+// PortID;PortTypeCode;EnabledState;Speed;OperationalStatusArray
+NetworkCard.Collect.Source(1).Compute(2).Type="ExcludeMatchingLines"
+NetworkCard.Collect.Source(1).Compute(2).Column=3
+NetworkCard.Collect.Source(1).Compute(2).ValueList="3"
+
+// Duplicate the "OperationalStatusArray" column
+// PortID;PortTypeCode;EnabledState;Speed;OperationalStatusArray;OperationalStatusArray;
+NetworkCard.Collect.Source(1).Compute(3).Type="DuplicateColumn"
+NetworkCard.Collect.Source(1).Compute(3).Column=5
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// PortID;PortTypeCode;EnabledState;Speed;PATROLStatusArray;Status
+NetworkCard.Collect.Source(1).Compute(4).Type="ArrayTranslate"
+NetworkCard.Collect.Source(1).Compute(4).Column=5
+NetworkCard.Collect.Source(1).Compute(4).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// The DMTFOperationStatusTranslationTable
+DMTFOperationStatusTranslationTable(2)="OK"
+DMTFOperationStatusTranslationTable(3)="WARN"
+DMTFOperationStatusTranslationTable(4)="WARN"
+DMTFOperationStatusTranslationTable(5)="WARN"
+DMTFOperationStatusTranslationTable(6)="ALARM"
+DMTFOperationStatusTranslationTable(7)="ALARM"
+DMTFOperationStatusTranslationTable(8)="WARN"
+DMTFOperationStatusTranslationTable(9)="WARN"
+DMTFOperationStatusTranslationTable(10)="ALARM"
+DMTFOperationStatusTranslationTable(11)="WARN"
+DMTFOperationStatusTranslationTable(12)="ALARM"
+DMTFOperationStatusTranslationTable(13)="ALARM"
+DMTFOperationStatusTranslationTable(14)="ALARM"
+DMTFOperationStatusTranslationTable(15)="OK"
+DMTFOperationStatusTranslationTable(16)="WARN"
+DMTFOperationStatusTranslationTable(17)="OK"
+DMTFOperationStatusTranslationTable(18)="OK"
+DMTFOperationStatusTranslationTable(Default)="UNKNOWN"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// PortID;PortTypeCode;EnabledState;Speed;PATROLStatusArray;StatusInformation
+NetworkCard.Collect.Source(1).Compute(5).Type="ArrayTranslate"
+NetworkCard.Collect.Source(1).Compute(5).Column=6
+NetworkCard.Collect.Source(1).Compute(5).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+NetworkCard.Collect.Source(1).Compute(5).ResultSeparator=" - "
+
+// The DMTFOperationStatusInformationTranslationTable
+DMTFOperationStatusInformationTranslationTable(2)=""
+DMTFOperationStatusInformationTranslationTable(3)="Degraded"
+DMTFOperationStatusInformationTranslationTable(4)="Stressed"
+DMTFOperationStatusInformationTranslationTable(5)="Predicted Failure"
+DMTFOperationStatusInformationTranslationTable(6)="Error"
+DMTFOperationStatusInformationTranslationTable(7)="Non-Recoverable Error"
+DMTFOperationStatusInformationTranslationTable(8)="Starting"
+DMTFOperationStatusInformationTranslationTable(9)="Stopping"
+DMTFOperationStatusInformationTranslationTable(10)="Stopped"
+DMTFOperationStatusInformationTranslationTable(11)="In Service"
+DMTFOperationStatusInformationTranslationTable(12)="No Contact"
+DMTFOperationStatusInformationTranslationTable(13)="Lost Communication"
+DMTFOperationStatusInformationTranslationTable(14)="Aborted"
+DMTFOperationStatusInformationTranslationTable(15)="Dormant"
+DMTFOperationStatusInformationTranslationTable(16)="Supporting Entity in Error"
+DMTFOperationStatusInformationTranslationTable(17)="Completed"
+DMTFOperationStatusInformationTranslationTable(18)="Power Mode"
+DMTFOperationStatusInformationTranslationTable(Default)=""
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// PortID;PortTypeCode;EnabledState;Speed;PATROLStatus;StatusInformation
+NetworkCard.Collect.Source(1).Compute(6).Type="Convert"
+NetworkCard.Collect.Source(1).Compute(6).Column=5
+NetworkCard.Collect.Source(1).Compute(6).ConversionType="Array2SimpleStatus"
+
+// Finally, we check whether we have a 'Speed' number, meaning that the link is up
+// Otherwise, if no speed, it means that the link is down
+// PortID;PortTypeCode;EnabledState;LinkStatus;PATROLStatusArray;Status
+NetworkCard.Collect.Source(1).Compute(7).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(7).Column=4
+NetworkCard.Collect.Source(1).Compute(7).TranslationTable="SpeedToLinkStatusTranslationTable"
+
+// The SpeedToLinkStatusTranslationTable
+SpeedToLinkStatusTranslationTable(0)="WARN"
+SpeedToLinkStatusTranslationTable("")="WARN"
+SpeedToLinkStatusTranslationTable(Default)="OK"
+
+
+// ValueTable = Source(1)
+NetworkCard.Collect.ValueTable=%NetworkCard.Collect.Source(1)%
+NetworkCard.Collect.DeviceID=ValueTable.Column(1)
+NetworkCard.Collect.Status=ValueTable.Column(5)
+NetworkCard.Collect.StatusInformation=ValueTable.Column(6)
+NetworkCard.Collect.LinkStatus=ValueTable.Column(4)
+
+
+
+
+
+//
+// Temperatures
+//
+
+//
+// Discovery
+
+// Source(1) = CIM_NumericSensor
+// TemperatureID;SensorType;WarningThreshold;AlarmThreshold
+Temperature.Discovery.Source(1).Type="Wbem"
+Temperature.Discovery.Source(1).WbemNameSpace=Automatic
+Temperature.Discovery.Source(1).WbemQuery="SELECT __PATH,SensorType,UpperThresholdNonCritical,UpperThresholdCritical FROM CIM_NumericSensor"
+
+// Keep only temperature sensors
+// TemperatureID;SensorType;WarningThreshold;AlarmThreshold
+Temperature.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Temperature.Discovery.Source(1).Compute(1).Column=2
+Temperature.Discovery.Source(1).Compute(1).ValueList="2"
+
+// Source(2) = Table joint between Source(1) and Enclosure.Discovery.Source(18)
+// TemperatureID;SensorType;WarningThreshold;AlarmThreshold;LogicalDeviceID;ComputerSystemID;Manufacturer;Model;SerialNumber;
+Temperature.Discovery.Source(2).Type="TableJoint"
+Temperature.Discovery.Source(2).LeftTable=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Source(2).RightTable=%Enclosure.Discovery.Source(18)%
+Temperature.Discovery.Source(2).LeftKeyColumn=1
+Temperature.Discovery.Source(2).RightKeyColumn=1
+Temperature.Discovery.Source(2).KeyType="Wbem"
+Temperature.Discovery.Source(2).DefaultRightLine=";;;;"
+
+// InstanceTable = Source(2)
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(2)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Temperature.Discovery.Instance.WarningThreshold=InstanceTable.Column(3)
+Temperature.Discovery.Instance.AlarmThreshold=InstanceTable.Column(4)
+Temperature.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(6)
+
+
+//
+// Collect
+
+// The Temperature collect is a "MultiInstance" collect
+Temperature.Collect.Type="MultiInstance"
+
+// Source(1) = CIM_NumericSensor
+// TemperatureID;SensorType;CurrentReading;OperationalStatus
+Temperature.Collect.Source(1).Type="Wbem"
+Temperature.Collect.Source(1).WbemNameSpace=Automatic
+Temperature.Collect.Source(1).WbemQuery="SELECT __PATH,SensorType,CurrentReading,OperationalStatus FROM CIM_NumericSensor"
+
+// Keep only temperature sensors
+// TemperatureID;SensorType;CurrentReading;OperationalStatusArray
+Temperature.Collect.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+Temperature.Collect.Source(1).Compute(1).Column=2
+Temperature.Collect.Source(1).Compute(1).ValueList="2"
+
+// Duplicate the "OperationalStatusArray" column
+// TemperatureID;SensorType;CurrentReading;OperationalStatusArray;OperationalStatusArray;
+Temperature.Collect.Source(1).Compute(2).Type="DuplicateColumn"
+Temperature.Collect.Source(1).Compute(2).Column=4
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// TemperatureID;DeviceID;SensorType;CurrentReading;PATROLStatusArray;Status
+Temperature.Collect.Source(1).Compute(3).Type="ArrayTranslate"
+Temperature.Collect.Source(1).Compute(3).Column=4
+Temperature.Collect.Source(1).Compute(3).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// TemperatureID;DeviceID;SensorType;CurrentReading;PATROLStatusArray;StatusInformation
+Temperature.Collect.Source(1).Compute(4).Type="ArrayTranslate"
+Temperature.Collect.Source(1).Compute(4).Column=5
+Temperature.Collect.Source(1).Compute(4).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+Temperature.Collect.Source(1).Compute(4).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// TemperatureID;DeviceID;SensorType;CurrentReading;PATROLStatus;StatusInformation
+Temperature.Collect.Source(1).Compute(5).Type="Convert"
+Temperature.Collect.Source(1).Compute(5).Column=4
+Temperature.Collect.Source(1).Compute(5).ConversionType="Array2SimpleStatus"
+
+// ValueTable = Source(1)
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.DeviceID=ValueTable.Column(1)
+Temperature.Collect.Temperature=ValueTable.Column(3)
+Temperature.Collect.Status=ValueTable.Column(4)
+Temperature.Collect.StatusInformation=ValueTable.Column(5)
+
+
+
+//
+// Fans
+//
+
+//
+// Discovery
+
+// Source(1) = CIM_Fan
+// FanID;
+Fan.Discovery.Source(1).Type="Wbem"
+Fan.Discovery.Source(1).WbemNameSpace=Automatic
+Fan.Discovery.Source(1).WbemQuery="SELECT __PATH FROM CIM_Fan"
+
+// Source(2) = Table joint between Source(1) and Enclosure.Discovery.Source(18)
+// FanID;LogicalDeviceID;ChassisID;
+Fan.Discovery.Source(2).Type="TableJoint"
+Fan.Discovery.Source(2).LeftTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Source(2).RightTable=%Enclosure.Discovery.Source(18)%
+Fan.Discovery.Source(2).LeftKeyColumn=1
+Fan.Discovery.Source(2).RightKeyColumn=1
+Fan.Discovery.Source(2).DefaultRightLine=";;;;"
+Fan.Discovery.Source(2).KeyType="Wbem"
+
+// InstanceTable = Source(2)
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(2)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Fan.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(3)
+
+
+//
+// Collect
+
+// The Fan collect is a "MultiInstance" collect
+Fan.Collect.Type="MultiInstance"
+
+// Source(1) = CIM_Fan
+// FanID;OperationalStatus;
+Fan.Collect.Source(1).Type="Wbem"
+Fan.Collect.Source(1).WbemNameSpace=Automatic
+Fan.Collect.Source(1).WbemQuery="SELECT __PATH,OperationalStatus FROM CIM_Fan"
+
+// Duplicate the "OperationalStatusArray" column
+// FanID;OperationalStatusArray;OperationalStatusArray;
+Fan.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Fan.Collect.Source(1).Compute(1).Column=2
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// FanID;PATROLStatusArray;Status
+Fan.Collect.Source(1).Compute(2).Type="ArrayTranslate"
+Fan.Collect.Source(1).Compute(2).Column=2
+Fan.Collect.Source(1).Compute(2).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// FanID;PATROLStatusArray;StatusInformation
+Fan.Collect.Source(1).Compute(3).Type="ArrayTranslate"
+Fan.Collect.Source(1).Compute(3).Column=3
+Fan.Collect.Source(1).Compute(3).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+Fan.Collect.Source(1).Compute(3).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// FanID;PATROLStatus;StatusInformation
+Fan.Collect.Source(1).Compute(4).Type="Convert"
+Fan.Collect.Source(1).Compute(4).Column=2
+Fan.Collect.Source(1).Compute(4).ConversionType="Array2SimpleStatus"
+
+// ValueTable = Source(1)
+Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+Fan.Collect.DeviceID=ValueTable.Column(1)
+Fan.Collect.Status=ValueTable.Column(2)
+Fan.Collect.StatusInformation=ValueTable.Column(3)
+
+
+
+//
+// Power Supplies
+//
+
+//
+// Discovery
+
+// Source(1) = CIM_PowerSupply
+// PowerSupplyID;
+PowerSupply.Discovery.Source(1).Type="Wbem"
+PowerSupply.Discovery.Source(1).WbemNameSpace=Automatic
+PowerSupply.Discovery.Source(1).WbemQuery="SELECT __PATH FROM CIM_PowerSupply"
+
+// Source(2) = Table joint between Source(1) and Enclosure.Discovery.Source(18)
+// PowerSupplyID;LogicalDeviceID;ComputerSystemID;Manufacturer;Model;SerialNumber;
+PowerSupply.Discovery.Source(2).Type="TableJoint"
+PowerSupply.Discovery.Source(2).LeftTable=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Source(2).RightTable=%Enclosure.Discovery.Source(18)%
+PowerSupply.Discovery.Source(2).LeftKeyColumn=1
+PowerSupply.Discovery.Source(2).RightKeyColumn=1
+PowerSupply.Discovery.Source(2).DefaultRightLine=";;;;"
+PowerSupply.Discovery.Source(2).KeyType="Wbem"
+
+// InstanceTable = Source(2)
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(2)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PowerSupply.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(3)
+
+
+//
+// Collect
+
+// The PowerSupply collect is a "MultiInstance" collect
+PowerSupply.Collect.Type="MultiInstance"
+
+// Source(1) = CIM_PowerSupply
+// PowerSupplyID;OperationalStatus;
+PowerSupply.Collect.Source(1).Type="Wbem"
+PowerSupply.Collect.Source(1).WbemNameSpace=Automatic
+PowerSupply.Collect.Source(1).WbemQuery="SELECT __PATH,OperationalStatus FROM CIM_PowerSupply"
+
+// Duplicate the "OperationalStatusArray" column
+// PowerSupplyID;OperationalStatusArray;OperationalStatusArray;
+PowerSupply.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+PowerSupply.Collect.Source(1).Compute(1).Column=2
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// PowerSupplyID;PATROLStatusArray;Status
+PowerSupply.Collect.Source(1).Compute(2).Type="ArrayTranslate"
+PowerSupply.Collect.Source(1).Compute(2).Column=2
+PowerSupply.Collect.Source(1).Compute(2).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// PowerSupplyID;PATROLStatusArray;StatusInformation
+PowerSupply.Collect.Source(1).Compute(3).Type="ArrayTranslate"
+PowerSupply.Collect.Source(1).Compute(3).Column=3
+PowerSupply.Collect.Source(1).Compute(3).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+PowerSupply.Collect.Source(1).Compute(3).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// PowerSupplyID;PATROLStatus;StatusInformation
+PowerSupply.Collect.Source(1).Compute(4).Type="Convert"
+PowerSupply.Collect.Source(1).Compute(4).Column=2
+PowerSupply.Collect.Source(1).Compute(4).ConversionType="Array2SimpleStatus"
+
+// ValueTable = Source(1)
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(1)
+PowerSupply.Collect.Status=ValueTable.Column(2)
+PowerSupply.Collect.StatusInformation=ValueTable.Column(3)
+
+
+
+//
+// Other devices (CIM_ComputerSystem that don't have a chassis, i.e. that we haven't created as an enclosure yet)
+//
+
+//
+// Discovery
+
+// Source(1) = CIM_ComputerSystem
+// ComputerID;ClassName;ElementName;
+OtherDevice.Discovery.Source(1).Type="Wbem"
+OtherDevice.Discovery.Source(1).WbemQuery="SELECT __PATH,CreationClassName,ElementName FROM CIM_ComputerSystem"
+OtherDevice.Discovery.Source(1).WbemNameSpace=Automatic
+
+// In the CreationClassName, keep only what's after the '_'
+// (in HPEVA_StorageProcessorSystem, keep only StorageProcessorSystem)
+// ComputerID;ElementType;ElementName;
+OtherDevice.Discovery.Source(1).Compute(1).Type="Extract"
+OtherDevice.Discovery.Source(1).Compute(1).Column=2
+OtherDevice.Discovery.Source(1).Compute(1).Subseparators="_"
+OtherDevice.Discovery.Source(1).Compute(1).Subcolumn=2
+
+// Source(2) = Table joint of Source(1) and Enclosure.Discovery.Source(18)
+// ComputerID;ElementType;ElementName;LogicalDeviceID;ComputerSystemID;Manufacturer;Model;SerialNumber;
+OtherDevice.Discovery.Source(2).Type="TableJoint"
+OtherDevice.Discovery.Source(2).LeftTable=%OtherDevice.Discovery.Source(1)%
+OtherDevice.Discovery.Source(2).RightTable=%Enclosure.Discovery.Source(18)%
+OtherDevice.Discovery.Source(2).LeftKeyColumn=1
+OtherDevice.Discovery.Source(2).RightKeyColumn=1
+OtherDevice.Discovery.Source(2).KeyType="Wbem"
+//OtherDevice.Discovery.Source(2).DefaultRightLine=";;;;;"
+
+// Insert ChassisID between ElementType and ElementName
+// ComputerID;ElementType;;ElementName;LogicalDeviceID;ComputerSystemID;Manufacturer;Model;SerialNumber;
+OtherDevice.Discovery.Source(2).Compute(1).Type="RightConcat"
+OtherDevice.Discovery.Source(2).Compute(1).Column=2
+OtherDevice.Discovery.Source(2).Compute(1).String=";"
+
+// ComputerID;ElementType;ChassisID;ElementName;LogicalDeviceID;ComputerSystemID;Manufacturer;Model;SerialNumber;
+OtherDevice.Discovery.Source(2).Compute(2).Type="RightConcat"
+OtherDevice.Discovery.Source(2).Compute(2).Column=3
+OtherDevice.Discovery.Source(2).Compute(2).String=Column(6)
+
+// Keep only useful columns for this special type of devices
+// ComputerID;ElementType;ChassisID;ElementName;SerialNumber;
+OtherDevice.Discovery.Source(2).Compute(3).Type="KeepColumns"
+OtherDevice.Discovery.Source(2).Compute(3).ColumnNumbers="1,2,3,4,9"
+
+// Add "Serial Number: " for AdditionalInformation1
+OtherDevice.Discovery.Source(2).Compute(4).Type="LeftConcat"
+OtherDevice.Discovery.Source(2).Compute(4).Column=5
+OtherDevice.Discovery.Source(2).Compute(4).String="Serial Number: "
+
+// InstanceTable = Source(2)
+OtherDevice.Discovery.InstanceTable=%OtherDevice.Discovery.Source(2)%
+OtherDevice.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+OtherDevice.Discovery.Instance.DeviceType=InstanceTable.Column(2)
+OtherDevice.Discovery.Instance.AdditionalLabel=InstanceTable.Column(4)
+OtherDevice.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(5)
+OtherDevice.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(3)
+
+//
+// Collect
+
+// Collect type is multi-instance
+OtherDevice.Collect.Type="MultiInstance"
+
+// Source(1) = CIM_ComputerSystem
+// ComputerID;OperationalStatus;
+OtherDevice.Collect.Source(1).Type="Wbem"
+OtherDevice.Collect.Source(1).WbemQuery="SELECT __PATH,OperationalStatus FROM CIM_ComputerSystem"
+OtherDevice.Collect.Source(1).WbemNameSpace=Automatic
+
+// Duplicate the "OperationalStatusArray" column
+// ComputerID;OperationalStatusArray;OperationalStatusArray;
+OtherDevice.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+OtherDevice.Collect.Source(1).Compute(1).Column=2
+
+// Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+// ComputerID;PATROLStatusArray;Status
+OtherDevice.Collect.Source(1).Compute(2).Type="ArrayTranslate"
+OtherDevice.Collect.Source(1).Compute(2).Column=2
+OtherDevice.Collect.Source(1).Compute(2).TranslationTable="DMTFOperationStatusTranslationTable"
+
+// And finally, we translate DMTF's OperationalStatus code into a more readable status string
+// ComputerID;PATROLStatusArray;StatusInformation
+OtherDevice.Collect.Source(1).Compute(3).Type="ArrayTranslate"
+OtherDevice.Collect.Source(1).Compute(3).Column=3
+OtherDevice.Collect.Source(1).Compute(3).TranslationTable="DMTFOperationStatusInformationTranslationTable"
+OtherDevice.Collect.Source(1).Compute(3).ResultSeparator=" - "
+
+// Convert PATROLStatusArray to a simple (unique) PATROLStatus
+// ComputerID;PATROLStatus;StatusInformation
+OtherDevice.Collect.Source(1).Compute(4).Type="Convert"
+OtherDevice.Collect.Source(1).Compute(4).Column=2
+OtherDevice.Collect.Source(1).Compute(4).ConversionType="Array2SimpleStatus"
+
+// Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
+OtherDevice.Collect.ValueTable=%OtherDevice.Collect.Source(1)%
+OtherDevice.Collect.DeviceID=ValueTable.Column(1)
+OtherDevice.Collect.Status=ValueTable.Column(2)
+OtherDevice.Collect.StatusInformation=ValueTable.Column(3)
+
+
+
+////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = awk script that takes the cim_computersystem
+///    table, whjch contains 2 entries for model, vendor and serialnumber
+///    Re-process that to keep only the valid information
+///
+///    Input : ComputerID;ElementName;ChassisID;Vendor1;Model1;SerialNumber1;Vendor2;Model2;SerialNumber2;
+///    Output: MSHW;ComputerID;ChassisID;Vendor;Model;SerialNumber;
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(1):
+BEGIN { FS=";" }
+{
+	computerID = $1
+	elementName = $2
+	chassisID = $3
+	vendor1 = $4
+	model1 = $5
+	serialNumber1 = $6
+	vendor2 = $7
+	model2 = $8
+	serialNumber2 = $9
+
+	if (vendor2 != "")
+	{
+		vendor = vendor2
+	}
+	else
+	{
+		vendor = vendor1
+	}
+
+	if (model2 != "")
+	{
+		model = model2
+	}
+	else
+	{
+		model = model1
+	}
+
+	if (length(serialNumber2) > 10)
+	{
+		serialNumber = serialNumber2
+	}
+	else
+	{
+		serialNumber = serialNumber1
+	}
+
+	if (model != "")
+	{
+		model = model " - " elementName
+	}
+	else
+	{
+		model =  elementName
+	}
+
+	print "MSHW;" computerID ";" chassisID ";" vendor ";" model ";" serialNumber
+}
+EmbeddedFile(1).End
+////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = awk script that takes the the weird table
+///    containing LogicalDeviceID;ParentID;ParentID;GrandParentID
+///    and returns LogicalDeviceID with either ParentID or GrandParentID
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(2):
+BEGIN { FS=";" }
+{
+	deviceID = $1
+	parentID = $2
+	grandParentID = $5
+
+	if (grandParentID != "")
+	{
+		print deviceID ";" grandParentID
+	}
+	else
+	{
+		print deviceID ";" parentID
+	}
+}
+EmbeddedFile(2).End
+////////////////////////////////////////////////////////////////////
+
+
+
+////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(3) = awk script equivalent of the 'uniq' command
+///
+/////////////////////////////////////////////////////////
+EmbeddedFile(3):
+BEGIN { alreadyFoundList = ";"; }
+{
+	if (index(alreadyFoundList, ";" $0 ";") == 0)
+	{
+		print $0
+		alreadyFoundList = alreadyFoundList $0 ";"
+	}
+}
+EmbeddedFile(3).End
+////////////////////////////////////////////////////////////////////

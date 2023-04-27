@@ -1,0 +1,570 @@
+//
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//              MS_HW_StorageTekLSeries.hdf
+//
+//      Supports: the LSeries Tape Libraries from Storage Tek
+//		Requires: Remote monitoring (use the /SENTRY/HARDWARE/remoteMonitor variable)
+//		Version 1.1 (March 2008): added tape library serial number + IP Address + Ether Address, robotics, cleaning cartridge and moved Tape Drives from Other Device to Tape Drive
+//
+//
+
+// HEADER
+
+hdf.DisplayName="StorageTek LSeries Tape Library"
+hdf.TypicalPlatform="StorageTek LSeries"
+hdf.ReliesOn="StorageTek LSeries SNMP Agent"
+hdf.Version="1.1"
+hdf.Comments="This connector provides basic hardware monitoring of the StorageTek LSeries tape libraries through their built-in SNMP agent. Needs to run remotely."
+hdf.RemoteSupport="true"
+hdf.LocalSupport="false"
+hdf.AppliesToOS="Storage"
+
+// DETECTION
+
+Detection.Criteria(1).Type="SNMP"
+Detection.Criteria(1).SnmpGetNext="1.3.6.1.4.1.1211.1.12.4.2.1"
+
+
+//
+// ENCLOSURE
+
+// Get the model name and manufacturer of the tape library
+// Vendor;Vendor
+Enclosure.Discovery.Source(1).Type="SnmpTable"
+Enclosure.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.1211.1.12.3.16"
+Enclosure.Discovery.Source(1).SnmpTableSelectColumns="1,2"
+
+// Add "LSeries" to the model name
+Enclosure.Discovery.Source(1).Compute(1).Type="LeftConcat"
+Enclosure.Discovery.Source(1).Compute(1).Column="2"
+Enclosure.Discovery.Source(1).Compute(1).String="LSeries ;"
+
+// Get the serial number the tape library
+Enclosure.Discovery.Source(2).Type="SnmpGet"
+Enclosure.Discovery.Source(2).SnmpOid="1.3.6.1.4.1.1211.1.12.3.4.0"
+
+// Get the IP address of the library
+Enclosure.Discovery.Source(3).Type="SnmpGet"
+Enclosure.Discovery.Source(3).SnmpOid="1.3.6.1.4.1.1211.1.12.3.13.1.0"
+
+// Add IP Address title
+Enclosure.Discovery.Source(3).Compute(1).Type="LeftConcat"
+Enclosure.Discovery.Source(3).Compute(1).Column="1"
+Enclosure.Discovery.Source(3).Compute(1).String="IP Address: "
+
+// Get the Ethernet address of the library
+Enclosure.Discovery.Source(4).Type="SnmpGet"
+Enclosure.Discovery.Source(4).SnmpOid="1.3.6.1.4.1.1211.1.12.3.13.3.0"
+
+// Add Ethernet Address title
+Enclosure.Discovery.Source(4).Compute(1).Type="LeftConcat"
+Enclosure.Discovery.Source(4).Compute(1).Column="1"
+Enclosure.Discovery.Source(4).Compute(1).String="Ethernet Address: "
+
+// Start the process of concatenating our information sources together
+// IPAddress;EthernetAddress
+Enclosure.Discovery.Source(4).Compute(2).Type="LeftConcat"
+Enclosure.Discovery.Source(4).Compute(2).Column="1"
+Enclosure.Discovery.Source(4).Compute(2).String=%Enclosure.Discovery.Source(3)%
+
+// SerialNumber;IPAddress;EthernetAddress
+Enclosure.Discovery.Source(4).Compute(3).Type="LeftConcat"
+Enclosure.Discovery.Source(4).Compute(3).Column="1"
+Enclosure.Discovery.Source(4).Compute(3).String=%Enclosure.Discovery.Source(2)%
+
+// Vendor;Model;SerialNumber;IPAddress;EthernetAddress
+Enclosure.Discovery.Source(4).Compute(4).Type="LeftConcat"
+Enclosure.Discovery.Source(4).Compute(4).Column="1"
+Enclosure.Discovery.Source(4).Compute(4).String=%Enclosure.Discovery.Source(1)%
+
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(4)%
+Enclosure.Discovery.Instance.DeviceID="STKLSeries"
+Enclosure.Discovery.Instance.Vendor=InstanceTable.Column(1)
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(2)
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(3)
+Enclosure.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(4)
+Enclosure.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(5)
+
+Enclosure.Discovery.Instance.Type="Storage"
+
+// Collect
+Enclosure.Collect.Type="MonoInstance"
+
+// Retrieve the lserLibState and lserLibStatusEnum OIDs (as it was a SNMP Table)
+// lserLibStatusEnum;statusInformation
+Enclosure.Collect.Source(1).Type="SnmpTable"
+Enclosure.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.1211.1.12.3"
+Enclosure.Collect.Source(1).SnmpTableSelectColumns="8,7"
+
+// Translate the lserLibStatusEnum into a PATROL status
+// PATROLStatus;statusInformation
+Enclosure.Collect.Source(1).Compute(1).Type="Translate"
+Enclosure.Collect.Source(1).Compute(1).Column="1"
+Enclosure.Collect.Source(1).Compute(1).TranslationTable="LibraryStatusTranslationTable"
+
+// The LibraryStatusTranslationTable
+LibraryStatusTranslationTable(2)="OK"
+LibraryStatusTranslationTable(3)="ALARM"
+LibraryStatusTranslationTable(4)="WARN"
+LibraryStatusTranslationTable(Default)="UNKNOWN"
+
+// ValueTable = Source(1)
+Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(1)%
+Enclosure.Collect.Status=ValueTable.Column(1)
+Enclosure.Collect.StatusInformation=ValueTable.Column(2)
+
+
+//
+// TEMPERATURES
+
+// Temperature discovery
+
+// Source(1) = lserHdwTempSensorTable
+// ID;temperatureName;warnThreshold;alarmThreshold
+Temperature.Discovery.Source(1).Type="SnmpTable"
+Temperature.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.1211.1.12.10.2.1"
+Temperature.Discovery.Source(1).SnmpTableSelectColumns="ID,2,5,6"
+
+// InstanceTable = Source(1)
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Temperature.Discovery.Instance.TemperatureType=InstanceTable.Column(2)
+Temperature.Discovery.Instance.WarningThreshold=InstanceTable.Column(3)
+Temperature.Discovery.Instance.AlarmThreshold=InstanceTable.Column(4)
+Temperature.Discovery.Instance.AttachedToDeviceID="STKLSeries"
+Temperature.Discovery.Instance.AttachedToDeviceType="Computer"
+
+// Temperature collect
+
+Temperature.Collect.Type="MonoInstance"
+Temperature.Collect.Source(1).Type="SnmpGet"
+Temperature.Collect.Source(1).SnmpOid="1.3.6.1.4.1.1211.1.12.10.2.1.3.%Temperature.Collect.DeviceID%"
+
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.Temperature=ValueTable.Column(1)
+
+//
+// FANS
+
+// Fan discovery
+
+// Source(1) = lserHdwFanTable SNMP table
+// ID;fanName
+Fan.Discovery.Source(1).Type="SnmpTable"
+Fan.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.1211.1.12.10.4.1"
+Fan.Discovery.Source(1).SnmpTableSelectColumns="ID,2"
+
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Fan.Discovery.Instance.FanType=InstanceTable.Column(2)
+Fan.Discovery.Instance.AttachedToDeviceID="STKLSeries"
+Fan.Discovery.Instance.AttachedToDeviceType="Computer"
+
+// Fan collect
+
+// Collect-type = multi-instance
+Fan.Collect.Type="MultiInstance"
+
+// Source(1) = lserHdwFanTable SNMP table
+// ID;fanStatus
+Fan.Collect.Source(1).Type="SnmpTable"
+Fan.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.1211.1.12.10.4.1"
+Fan.Collect.Source(1).SnmpTableSelectColumns="ID,3"
+
+// duplicate the status column
+// ID;fanStatus;fanStatus
+Fan.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+Fan.Collect.Source(1).Compute(1).Column="2"
+
+// Translate the first status column into a PATROL Status
+// ID;PATROLStatus;fanStatus
+Fan.Collect.Source(1).Compute(2).Type="Translate"
+Fan.Collect.Source(1).Compute(2).Column="2"
+Fan.Collect.Source(1).Compute(2).TranslationTable="FanStatusTranslationTable"
+
+// Translate the second status column into a more readable string
+// ID;PATROLStatus;statusInformation
+Fan.Collect.Source(1).Compute(3).Type="Translate"
+Fan.Collect.Source(1).Compute(3).Column="3"
+Fan.Collect.Source(1).Compute(3).TranslationTable="FanStatusInformationTranslationTable"
+
+// The FanStatusTranslationTable
+FanStatusTranslationTable(1)="ALARM"
+FanStatusTranslationTable(2)="OK"
+FanStatusTranslationTable(Default)="UNKNOWN"
+
+// The FanStatusInformationTranslationTable
+FanStatusInformationTranslationTable(1)="Failed"
+FanStatusInformationTranslationTable(2)=""
+FanStatusInformationTranslationTable(Default)="Unknown Status"
+
+// ValueTable = Source(1)
+Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+Fan.Collect.DeviceID=ValueTable.Column(1)
+Fan.Collect.Status=ValueTable.Column(2)
+Fan.Collect.StatusInformation=ValueTable.Column(3)
+
+
+// POWER SUPPLIES
+
+// Power Supply discovery
+
+// Source(1) = the lserHdwSupplrTable SNMP table
+// DeviceID;psName;psInstalled
+PowerSupply.Discovery.Source(1).Type="SnmpTable"
+PowerSupply.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.1211.1.12.10.6.1"
+PowerSupply.Discovery.Source(1).SnmpTableSelectColumns="ID,2,3"
+
+// Keep only actually installed power supplies
+// DeviceID;psName;psInstalled
+PowerSupply.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+PowerSupply.Discovery.Source(1).Compute(1).Column="3"
+PowerSupply.Discovery.Source(1).Compute(1).ValueList="2"
+
+// InstanceTable = Source(1)
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PowerSupply.Discovery.Instance.PowerSupplyType=InstanceTable.Column(2)
+PowerSupply.Discovery.Instance.AttachedToDeviceID="STKLSeries"
+PowerSupply.Discovery.Instance.AttachedToDeviceType="Computer"
+
+// Power Supply collect
+
+// Collect type = Mono-Instance (one collect for each instance)
+PowerSupply.Collect.Type="MultiInstance"
+
+// Source(1) = the lserHdwSupplrTable SNMP table
+// DeviceID;psStatus
+PowerSupply.Collect.Source(1).Type="SnmpTable"
+PowerSupply.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.1211.1.12.10.6.1"
+PowerSupply.Collect.Source(1).SnmpTableSelectColumns="ID,4"
+
+// Duplicate this psStatus column
+// DeviceID;psStatus;psStatus
+PowerSupply.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+PowerSupply.Collect.Source(1).Compute(1).Column="2"
+
+// Now translate the 1st psStatus into a PATROL Status
+PowerSupply.Collect.Source(1).Compute(2).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(2).Column="2"
+PowerSupply.Collect.Source(1).Compute(2).TranslationTable="PowerSupplyStatusTranslationTable"
+
+// Translate the 2nd psStatus into a more readable string
+PowerSupply.Collect.Source(1).Compute(3).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(3).Column="3"
+PowerSupply.Collect.Source(1).Compute(3).TranslationTable="PowerSupplyStatusInformationTranslationTable"
+
+// ValueTable = Source(1)
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(1)
+PowerSupply.Collect.Status=ValueTable.Column(2)
+PowerSupply.Collect.StatusInformation=ValueTable.Column(3)
+
+// The PowerSupplyStatusTranslationTable
+PowerSupplyStatusTranslationTable(1)="ALARM"
+PowerSupplyStatusTranslationTable(2)="OK"
+PowerSupplyStatusTranslationTable(Default)="UNKNOWN"
+
+// The PowerSupplyStatusInformationTranslationTable
+PowerSupplyStatusInformationTranslationTable(1)="Failed"
+PowerSupplyStatusInformationTranslationTable(2)=""
+PowerSupplyStatusInformationTranslationTable(Default)="Unknown Status"
+
+
+//
+// OTHER DEVICES: Cartridge access ports (CAPs) and Cleaning Cartridges
+
+// CAP
+// Source(1) = the lserCapTable
+// ID;Name;Name
+OtherDevice.Discovery.Source(1).Type="SnmpTable"
+OtherDevice.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.1211.1.12.5.2.1"
+OtherDevice.Discovery.Source(1).SnmpTableSelectColumns="ID,30,30"
+
+// Add the device type: "Cartridge Access Port", as a 4th column
+// ID;Name;Name;"Cartright Access Port"
+OtherDevice.Discovery.Source(1).Compute(1).Type="RightConcat"
+OtherDevice.Discovery.Source(1).Compute(1).Column="3"
+OtherDevice.Discovery.Source(1).Compute(1).String=";Cartridge Access Port"
+
+// Now add the "CAP" mention to the ID, to help us distinguish drives from CAPs, during the collect
+// CAP_ID;Name;Name;"Cartridge Access Port"
+OtherDevice.Discovery.Source(1).Compute(2).Type="LeftConcat"
+OtherDevice.Discovery.Source(1).Compute(2).Column="1"
+OtherDevice.Discovery.Source(1).Compute(2).String="CAP"
+
+// Activate Status parameter, deactivate UsageCount parameter
+OtherDevice.Discovery.Source(1).Compute(3).Type="RightConcat"
+OtherDevice.Discovery.Source(1).Compute(3).Column=4
+OtherDevice.Discovery.Source(1).Compute(3).String=";1;;"
+
+// Cleaning cartridge
+// ID;Label;Type;LocationElementID
+OtherDevice.Discovery.Source(2).Type="SnmpTable"
+OtherDevice.Discovery.Source(2).SnmpTableOid="1.3.6.1.4.1.1211.1.12.3.17.5.1"
+OtherDevice.Discovery.Source(2).SnmpTableSelectColumns="ID,2,3,4"
+
+// Start the process of concatenating Element ID to Label and Type and do it nicely
+// ID; - Label;Type;LocationElementID
+OtherDevice.Discovery.Source(2).Compute(1).Type="LeftConcat"
+OtherDevice.Discovery.Source(2).Compute(1).Column="2"
+OtherDevice.Discovery.Source(2).Compute(1).String=" - "
+
+// ID;Type - Label;Type;LocationElementID
+OtherDevice.Discovery.Source(2).Compute(2).Type="LeftConcat"
+OtherDevice.Discovery.Source(2).Compute(2).Column="2"
+OtherDevice.Discovery.Source(2).Compute(2).String=Column(3)
+
+// ID; - Type - Label;Type;LocationElementID
+OtherDevice.Discovery.Source(2).Compute(3).Type="LeftConcat"
+OtherDevice.Discovery.Source(2).Compute(3).Column="2"
+OtherDevice.Discovery.Source(2).Compute(3).String=" - "
+
+// ID;LocationElementID - Type - Label;Type;LocationElementID
+OtherDevice.Discovery.Source(2).Compute(4).Type="LeftConcat"
+OtherDevice.Discovery.Source(2).Compute(4).Column="2"
+OtherDevice.Discovery.Source(2).Compute(4).String=Column(4)
+
+// Now add the device type: "Cleaning Cartridge", as a 4th column
+// ID;LocationElementID (Type - Label);Type;LocationElementID;Cleaning Cartridge
+OtherDevice.Discovery.Source(2).Compute(5).Type="RightConcat"
+OtherDevice.Discovery.Source(2).Compute(5).Column="3"
+OtherDevice.Discovery.Source(2).Compute(5).String=";Cleaning Cartridge"
+
+// Now add the "CleaningCartridge" mention to the ID, to help us distinguish CAPs from Cleaning Cartridges, during the collect
+// CLeaningCartridge_ID;LocationElementID (Type - Label);Type;LocationElementID;Cleaning Cartridge
+OtherDevice.Discovery.Source(2).Compute(6).Type="LeftConcat"
+OtherDevice.Discovery.Source(2).Compute(6).Column="1"
+OtherDevice.Discovery.Source(2).Compute(6).String="CleaningCartridge"
+
+// Deactivate Status parameter, activate UsageCount parameter
+// CleaningCartridge_ID;LocationElementID (Type - Label);Type;LocationElementID;;1;Cleaning Cartridge
+OtherDevice.Discovery.Source(2).Compute(7).Type="RightConcat"
+OtherDevice.Discovery.Source(2).Compute(7).Column=4
+OtherDevice.Discovery.Source(2).Compute(7).String=";;1"
+
+// Union of the CAP and Cleaning Cartridge table
+OtherDevice.Discovery.Source(3).Type="TableUnion"
+OtherDevice.Discovery.Source(3).Table1=%OtherDevice.Discovery.Source(1)%
+OtherDevice.Discovery.Source(3).Table2=%OtherDevice.Discovery.Source(2)%
+
+// InstanceTable = Source(1)
+OtherDevice.Discovery.InstanceTable=%OtherDevice.Discovery.Source(3)%
+OtherDevice.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+OtherDevice.Discovery.Instance.AdditionalLabel=InstanceTable.Column(2)
+OtherDevice.Discovery.Instance.DeviceType=InstanceTable.Column(4)
+OtherDevice.Discovery.Instance.AttachedToDeviceID="STKLSeries"
+OtherDevice.Discovery.Instance.AttachedToDeviceType="Computer"
+OtherDevice.Discovery.Instance.ParameterActivation.Status=InstanceTable.Column(5)
+OtherDevice.Discovery.Instance.ParameterActivation.UsageCount=InstanceTable.Column(6)
+
+// Collect
+OtherDevice.Collect.Type="MultiInstance"
+
+// Source(2) = the lserCapTable
+// ID;lserCapStatusEnum;lserCapState
+OtherDevice.Collect.Source(1).Type="SnmpTable"
+OtherDevice.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.1211.1.12.5.2.1"
+OtherDevice.Collect.Source(1).SnmpTableSelectColumns="ID,5,4"
+
+// Translate lserCapStatusEnum into a PATROL Status
+// ID;PATROLStatus;lserCapState
+OtherDevice.Collect.Source(1).Compute(1).Type="Translate"
+OtherDevice.Collect.Source(1).Compute(1).Column="2"
+OtherDevice.Collect.Source(1).Compute(1).TranslationTable="CapStatusTranslationTable"
+
+// Now add the "CAP" mention to the ID, to help us distinguish CAPs from CleaningCartrdiges
+// CAP_ID;PATROLStatus;lserCapState
+OtherDevice.Collect.Source(1).Compute(2).Type="LeftConcat"
+OtherDevice.Collect.Source(1).Compute(2).Column="1"
+OtherDevice.Collect.Source(1).Compute(2).String="CAP"
+
+// Cleaning cartridge
+// ID;UsageCount
+OtherDevice.Collect.Source(2).Type="SnmpTable"
+OtherDevice.Collect.Source(2).SnmpTableOid="1.3.6.1.4.1.1211.1.12.3.17.5.1"
+OtherDevice.Collect.Source(2).SnmpTableSelectColumns="ID,6"
+
+// Now add the "CleaningCartridge" mention to the ID, to help us distinguish CAPs from Cleaning Cartridges, during the collect
+OtherDevice.Collect.Source(2).Compute(1).Type="LeftConcat"
+OtherDevice.Collect.Source(2).Compute(1).Column="1"
+OtherDevice.Collect.Source(2).Compute(1).String="CleaningCartridge"
+
+// Add blank columns between ID and UsageCount for UsageCount to be in the right column
+// ID;;;UsageCount
+OtherDevice.Collect.Source(2).Compute(2).Type="RightConcat"
+OtherDevice.Collect.Source(2).Compute(2).Column=1
+OtherDevice.Collect.Source(2).Compute(2).String=";;"
+
+// Union of the CAP and Cleaning Cartridge table
+// CAP_ID;PATROLStatus;lserCapState
+// CleaningCartridge_ID;;;UsageCount
+OtherDevice.Collect.Source(3).Type="TableUnion"
+OtherDevice.Collect.Source(3).Table1=%OtherDevice.Collect.Source(1)%
+OtherDevice.Collect.Source(3).Table2=%OtherDevice.Collect.Source(2)%
+
+// ValueTable = Source(1)
+OtherDevice.Collect.ValueTable=%OtherDevice.Collect.Source(3)%
+OtherDevice.Collect.DeviceID=ValueTable.Column(1)
+OtherDevice.Collect.Status=ValueTable.Column(2)
+OtherDevice.Collect.StatusInformation=ValueTable.Column(3)
+OtherDevice.Collect.UsageCount=ValueTable.Column(4)
+
+// The CapStatusTranslationTable
+CapStatusTranslationTable(2)="OK"
+CapStatusTranslationTable(3)="ALARM"
+CapStatusTranslationTable(4)="WARN"
+CapStatusTranslationTable(Default)="OK"
+
+
+// Robotic
+// Discovery
+
+// Source(1) = lserDriveTable
+// ID;SerialNumber;PartNumberFirmWare version
+Robotic.Discovery.Source(1).Type="SnmpTable"
+Robotic.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.1211.1.12.6.2.1"
+Robotic.Discovery.Source(1).SnmpTableSelectColumns="ID,4,5,6"
+
+// Add Part number string to the part number
+Robotic.Discovery.Source(1).Compute(1).Type="LeftConcat"
+Robotic.Discovery.Source(1).Compute(1).Column="3"
+Robotic.Discovery.Source(1).Compute(1).String="Part Number: "
+
+// Add firmware version string to the firmware version
+Robotic.Discovery.Source(1).Compute(2).Type="LeftConcat"
+Robotic.Discovery.Source(1).Compute(2).Column="4"
+Robotic.Discovery.Source(1).Compute(2).String="Firmware Version: "
+
+// InstanceTable = Source(1)
+Robotic.Discovery.InstanceTable=%Robotic.Discovery.Source(1)%
+Robotic.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Robotic.Discovery.Instance.SerialNumber=InstanceTable.Column(2)
+Robotic.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(3)
+Robotic.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(4)
+Robotic.Discovery.Instance.AttachedToDeviceID="STKLSeries"
+Robotic.Discovery.Instance.AttachedToDeviceType="Computer"
+
+// Collect
+// Collect-type = mono-instance
+Robotic.Collect.Type="MultiInstance"
+
+// ID;StatusInformation;StatusEnum;GoodEmptyMotionCount;FailedEmptyMotionCount;GoodPartMotion;FailedPartMotion;GoodFullMotionCount;FailedFullMotionCount
+Robotic.Collect.Source(1).Type="SnmpTable"
+Robotic.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.1211.1.12.6.2.1"
+Robotic.Collect.Source(1).SnmpTableSelectColumns="ID,2,3,14,15,16,17,18,19"
+
+// Translate the statusEnum into a PATROL status. Same possible values as the library status
+// ID;StatusInformation;PATROLStatus;GoodEmptyMotionCount;FailedEmptyMotionCount;GoodPartMotion;FailedPartMotion;GoodFullMotionCount;FailedFullMotionCount
+Robotic.Collect.Source(1).Compute(1).Type="Translate"
+Robotic.Collect.Source(1).Compute(1).Column="3"
+Robotic.Collect.Source(1).Compute(1).TranslationTable="LibraryStatusTranslationTable"
+
+// Add all motions (good and failed ones) together in column 4
+Robotic.Collect.Source(1).Compute(2).Type="Add"
+Robotic.Collect.Source(1).Compute(2).Column="4"
+Robotic.Collect.Source(1).Compute(2).Add=Column(5)
+
+Robotic.Collect.Source(1).Compute(3).Type="Add"
+Robotic.Collect.Source(1).Compute(3).Column="4"
+Robotic.Collect.Source(1).Compute(3).Add=Column(6)
+
+Robotic.Collect.Source(1).Compute(4).Type="Add"
+Robotic.Collect.Source(1).Compute(4).Column="4"
+Robotic.Collect.Source(1).Compute(4).Add=Column(7)
+
+Robotic.Collect.Source(1).Compute(5).Type="Add"
+Robotic.Collect.Source(1).Compute(5).Column="4"
+Robotic.Collect.Source(1).Compute(5).Add=Column(8)
+
+Robotic.Collect.Source(1).Compute(6).Type="Add"
+Robotic.Collect.Source(1).Compute(6).Column="4"
+Robotic.Collect.Source(1).Compute(6).Add=Column(9)
+
+// Add failed motions (only!) to column 5
+Robotic.Collect.Source(1).Compute(7).Type="Add"
+Robotic.Collect.Source(1).Compute(7).Column="5"
+Robotic.Collect.Source(1).Compute(7).Add=Column(7)
+
+Robotic.Collect.Source(1).Compute(8).Type="Add"
+Robotic.Collect.Source(1).Compute(8).Column="5"
+Robotic.Collect.Source(1).Compute(8).Add=Column(9)
+
+// In the end, we have:
+// ID;StatusInformation;StatusEnum;TotalMoves;ErrorCount (i.e. total failed moves);various move counts that we don't need
+// ValueTable = Source(1)
+Robotic.Collect.ValueTable=%Robotic.Collect.Source(1)%
+Robotic.Collect.DeviceID=ValueTable.Column(1)
+Robotic.Collect.Status=ValueTable.Column(2)
+Robotic.Collect.StatusInformation=ValueTable.Column(3)
+Robotic.Collect.MoveCount=ValueTable.Column(4)
+Robotic.Collect.ErrorCount=ValueTable.Column(5)
+
+// Tape Drive
+// Discovery
+
+// Source(1) = lserDriveTable
+// ID;ElementID;Row;Column;Type;Vendor;SerialNumber
+TapeDrive.Discovery.Source(1).Type="SnmpTable"
+TapeDrive.Discovery.Source(1).SnmpTableOid="1.3.6.1.4.1.1211.1.12.4.2.1"
+TapeDrive.Discovery.Source(1).SnmpTableSelectColumns="ID,2,3,4,5,6,7"
+
+TapeDrive.Discovery.Source(1).Compute(1).Type="LeftConcat"
+TapeDrive.Discovery.Source(1).Compute(1).Column="2"
+TapeDrive.Discovery.Source(1).Compute(1).String="Element ID: "
+
+TapeDrive.Discovery.Source(1).Compute(2).Type="LeftConcat"
+TapeDrive.Discovery.Source(1).Compute(2).Column="3"
+TapeDrive.Discovery.Source(1).Compute(2).String="Physical Row No: "
+
+TapeDrive.Discovery.Source(1).Compute(3).Type="LeftConcat"
+TapeDrive.Discovery.Source(1).Compute(3).Column="4"
+TapeDrive.Discovery.Source(1).Compute(3).String="Physical Column No: "
+
+// InstanceTable = Source(1)
+TapeDrive.Discovery.InstanceTable=%TapeDrive.Discovery.Source(1)%
+TapeDrive.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+TapeDrive.Discovery.Instance.Model=InstanceTable.Column(5)
+TapeDrive.Discovery.Instance.Vendor=InstanceTable.Column(6)
+TapeDrive.Discovery.Instance.SerialNumber=InstanceTable.Column(7)
+TapeDrive.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(2)
+TapeDrive.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(3)
+TapeDrive.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(4)
+TapeDrive.Discovery.Instance.AttachedToDeviceID="STKLSeries"
+TapeDrive.Discovery.Instance.AttachedToDeviceType="Computer"
+
+// Collect
+TapeDrive.Collect.Type="MultiInstance"
+
+// Source(1) = lserDriveTable
+// ID;lserDriveStatusEnum;lserDriveState;MountCount
+TapeDrive.Collect.Source(1).Type="SnmpTable"
+TapeDrive.Collect.Source(1).SnmpTableOid="1.3.6.1.4.1.1211.1.12.4.2.1"
+TapeDrive.Collect.Source(1).SnmpTableSelectColumns="ID,11,10,25"
+
+// Translate lserDriveStatusEnum into a PATROLStatus
+// ID;PATROLStatus;lserDriveState;MountCount
+TapeDrive.Collect.Source(1).Compute(1).Type="Translate"
+TapeDrive.Collect.Source(1).Compute(1).Column="2"
+TapeDrive.Collect.Source(1).Compute(1).TranslationTable="TapeDriveStatusTranslationTable"
+
+// The DriveStatusTranslationTable
+TapeDriveStatusTranslationTable(2)="OK"
+TapeDriveStatusTranslationTable(3)="ALARM"
+TapeDriveStatusTranslationTable(4)="WARN"
+TapeDriveStatusTranslationTable(Default)="OK"
+
+// ValueTable = Source(1)
+TapeDrive.Collect.ValueTable=%TapeDrive.Collect.Source(1)%
+TapeDrive.Collect.DeviceID=ValueTable.Column(1)
+TapeDrive.Collect.Status=ValueTable.Column(2)
+TapeDrive.Collect.StatusInformation=ValueTable.Column(3)
+TapeDrive.Collect.MountCount=ValueTable.Column(4)

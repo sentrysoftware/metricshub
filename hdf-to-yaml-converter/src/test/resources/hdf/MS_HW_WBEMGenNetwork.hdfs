@@ -1,0 +1,347 @@
+//
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//                MS_HW_WBEMGenNetwork.hdf
+//
+//      Supports: any NT/2000/2K3 machine with the WINMGMT (WBEM) service running
+//
+//
+//	Version 1.1 (October 2004): added monitoring of trasnmitted and received errors
+
+// HEADER
+
+hdf.DisplayName="WMI - Network"
+hdf.TypicalPlatform="Any system"
+hdf.ReliesOn="WMI"
+hdf.Version="1.3"
+hdf.Comments="This connector provides the monitoring of network cards on all Windows-based systems through the WMI layer (root/WMI namespace)."
+hdf.RemoteSupport="true"
+hdf.AppliesToOS="NT"
+
+//
+// DETECTION
+//
+
+// OS must be Windows NT-derivative
+Detection.Criteria(1).Type="OS"
+Detection.Criteria(1).KeepOnly="NT"
+
+// WMI must be available
+Detection.Criteria(2).Type="Service"
+Detection.Criteria(2).ServiceName="WINMGMT"
+
+// The root\wmi namespace must have the MSNdis_MediaConnectStatus
+Detection.Criteria(3).Type="WMI"
+Detection.Criteria(3).WbemQuery="SELECT InstanceName FROM MSNdis_MediaConnectStatus"
+Detection.Criteria(3).WbemNameSpace="root\wmi"
+
+// There must be at least one Ethernet network adapter
+Detection.Criteria(4).Type="WMI"
+Detection.Criteria(4).WbemQuery="SELECT AdapterType FROM Win32_NetworkAdapter"
+Detection.Criteria(4).WbemNameSpace="root\cimv2"
+Detection.Criteria(4).ExpectedResult="^Ethernet 802\.3;$"
+
+//
+// Network card
+//
+
+//
+// Discovery
+
+// Source(1) = Win32_NetworkAdapter WMI class
+// AdapterType;MACAddress;Name;PNPDeviceID;
+NetworkCard.Discovery.Source(1).Type="WMI"
+NetworkCard.Discovery.Source(1).WbemNameSpace="root\cimv2"
+NetworkCard.Discovery.Source(1).WbemQuery="SELECT AdapterType,MACAddress,Name,PNPDeviceID FROM Win32_NetworkAdapter"
+
+// Keep only Ethernet cards
+// AdapterType;MACAddress;Name;PNPDeviceID;
+NetworkCard.Discovery.Source(1).Compute(1).Type="KeepOnlyMatchingLines"
+NetworkCard.Discovery.Source(1).Compute(1).Column=1
+NetworkCard.Discovery.Source(1).Compute(1).RegExp="^Ethernet 802\.3$"
+
+// Avoid any network interface whose PnPDeviceID looks like ROOT\something,
+// which means that it's actually not a real device
+// AdapterType;MACAddress;Name;PNPDeviceID;
+NetworkCard.Discovery.Source(1).Compute(2).Type="ExcludeMatchingLines"
+NetworkCard.Discovery.Source(1).Compute(2).Column=4
+NetworkCard.Discovery.Source(1).Compute(2).RegExp="^ROOT\\"
+
+// Avoid any network interface whose PnPDeviceID looks like COMPOSITEBUS\something,
+// These are virtual ports
+// AdapterType;MACAddress;Name;PNPDeviceID;
+NetworkCard.Discovery.Source(1).Compute(3).Type="ExcludeMatchingLines"
+NetworkCard.Discovery.Source(1).Compute(3).Column=4
+NetworkCard.Discovery.Source(1).Compute(3).RegExp="^COMPOSITEBUS\\"
+
+// Avoid any network interface whose PnPDeviceID looks like ...\MSRRAS\...,
+// These are WAN ports (not physical)
+// AdapterType;MACAddress;Name;PNPDeviceID;
+NetworkCard.Discovery.Source(1).Compute(4).Type="ExcludeMatchingLines"
+NetworkCard.Discovery.Source(1).Compute(4).Column=4
+NetworkCard.Discovery.Source(1).Compute(4).RegExp="\\MSRRAS\\"
+
+// Avoid any network interface whose name contains "Virtual"
+// These are obviously virtual
+// AdapterType;MACAddress;Name;PNPDeviceID;
+NetworkCard.Discovery.Source(1).Compute(5).Type="ExcludeMatchingLines"
+NetworkCard.Discovery.Source(1).Compute(5).Column=3
+NetworkCard.Discovery.Source(1).Compute(5).RegExp="Virtual"
+
+// Keep only the network card name and PNPDeviceID (which will be referred to in the root/WMI namespace)
+// MACAddress;Name;PNPDeviceID;
+NetworkCard.Discovery.Source(1).Compute(6).Type="KeepColumns"
+NetworkCard.Discovery.Source(1).Compute(6).ColumnNumbers="2,3,4"
+
+// Source(2) = Win32_PnPEntity WMI class
+// MSNdisID;PNPDeviceID;
+NetworkCard.Discovery.Source(2).Type="WMI"
+NetworkCard.Discovery.Source(2).WbemNameSpace="root\cimv2"
+NetworkCard.Discovery.Source(2).WbemQuery="SELECT Name,PNPDeviceID FROM Win32_PnPEntity"
+
+// Source(3) = Table joint of Source(1) and Source(2)
+// MACAddress;Name;PNPDeviceID;MSNdisID;PNPDeviceID;
+NetworkCard.Discovery.Source(3).Type="TableJoint"
+NetworkCard.Discovery.Source(3).LeftTable=%NetworkCard.Discovery.Source(1)%
+NetworkCard.Discovery.Source(3).RightTable=%NetworkCard.Discovery.Source(2)%
+NetworkCard.Discovery.Source(3).LeftKeyColumn=3
+NetworkCard.Discovery.Source(3).RightKeyColumn=2
+
+// Add "PnPDeviceId: " to the PnPDeviceId column
+// MACAddress;Name;PNPDeviceID;MSNdisID;PNPDeviceID;
+NetworkCard.Discovery.Source(3).Compute(1).Type="LeftConcat"
+NetworkCard.Discovery.Source(3).Compute(1).Column=3
+NetworkCard.Discovery.Source(3).Compute(1).String="PnP Device Id: "
+
+// InstanceTable = Source(3)
+NetworkCard.Discovery.InstanceTable=%NetworkCard.Discovery.Source(3)%
+NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(4)
+NetworkCard.Discovery.Instance.Model=InstanceTable.Column(2)
+NetworkCard.Discovery.Instance.PhysicalAddress=InstanceTable.Column(1)
+NetworkCard.Discovery.Instance.PhysicalAddressType="MAC"
+NetworkCard.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(3)
+
+
+//
+// COLLECT
+
+// Collect type is multi-instance
+NetworkCard.Collect.Type="MultiInstance"
+
+// Status
+// DeviceID;HardwareStatus
+NetworkCard.Collect.Source(1).Type="WMI"
+NetworkCard.Collect.Source(1).WbemNameSpace="root\wmi"
+NetworkCard.Collect.Source(1).WbemQuery="SELECT InstanceName,NdisHardwareStatus FROM MSNdis_HardwareStatus"
+
+// DeviceID;HardwareStatus;HardwareStatus
+NetworkCard.Collect.Source(1).Compute(1).Type="DuplicateColumn"
+NetworkCard.Collect.Source(1).Compute(1).Column="2"
+
+// DeviceID;PATROLStatus;HardwareStatus
+NetworkCard.Collect.Source(1).Compute(2).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(2).Column="2"
+NetworkCard.Collect.Source(1).Compute(2).TranslationTable="GenericStatusTranslationTable"
+
+// DeviceID;PATROLStatus;StatusInformation
+NetworkCard.Collect.Source(1).Compute(3).Type="Translate"
+NetworkCard.Collect.Source(1).Compute(3).Column="3"
+NetworkCard.Collect.Source(1).Compute(3).TranslationTable="GenericStatusInformationTranslationTable"
+
+// LinkStatus
+// DeviceID;MediaConnectStatus
+NetworkCard.Collect.Source(2).Type="WMI"
+NetworkCard.Collect.Source(2).WbemNameSpace="root\wmi"
+NetworkCard.Collect.Source(2).WbemQuery="SELECT InstanceName,NdisMediaConnectStatus FROM MSNdis_MediaConnectStatus"
+
+// DeviceID;LinkStatus
+NetworkCard.Collect.Source(2).Compute(1).Type="Translate"
+NetworkCard.Collect.Source(2).Compute(1).Column="2"
+NetworkCard.Collect.Source(2).Compute(1).TranslationTable="GenericLinkStatusTranslationTable"
+
+// ErrorCount
+
+// Transmitted errors
+// DeviceID;TransmitError
+NetworkCard.Collect.Source(3).Type="WMI"
+NetworkCard.Collect.Source(3).WbemNameSpace="root\wmi"
+NetworkCard.Collect.Source(3).WbemQuery="SELECT InstanceName,NdisTransmitsError FROM MSNdis_TransmitsError"
+
+// Received errors
+// DeviceID;ReceiveError
+NetworkCard.Collect.Source(4).Type="WMI"
+NetworkCard.Collect.Source(4).WbemNameSpace="root\wmi"
+NetworkCard.Collect.Source(4).WbemQuery="SELECT InstanceName,NdisReceiveError FROM MSNdis_ReceiveError"
+
+// TransmitsOK
+// DeviceID;TransmitsOK
+NetworkCard.Collect.Source(5).Type="WMI"
+NetworkCard.Collect.Source(5).WbemNameSpace="root\wmi"
+NetworkCard.Collect.Source(5).WbemQuery="SELECT InstanceName,NdisTransmitsOK FROM MSNdis_TransmitsOK"
+
+// ReceivesOK
+// DeviceID;ReceivesOK
+NetworkCard.Collect.Source(6).Type="WMI"
+NetworkCard.Collect.Source(6).WbemNameSpace="root\wmi"
+NetworkCard.Collect.Source(6).WbemQuery="SELECT InstanceName,NdisReceivesOK FROM MSNdis_ReceivesOK"
+
+// Joint all of these tables
+
+// Source(7) = Source(3) + Source(4)
+// DeviceID;TransmitError;DeviceID;ReceiveError
+NetworkCard.Collect.Source(7).Type="TableJoint"
+NetworkCard.Collect.Source(7).LeftTable=%NetworkCard.Collect.Source(3)%
+NetworkCard.Collect.Source(7).RightTable=%NetworkCard.Collect.Source(4)%
+NetworkCard.Collect.Source(7).LeftKeyColumn=1
+NetworkCard.Collect.Source(7).RightKeyColumn=1
+
+// Source(8) = Source(5) + Source(6)
+// DeviceID;TransmitsOK;DeviceID;ReceivesOK
+NetworkCard.Collect.Source(8).Type="TableJoint"
+NetworkCard.Collect.Source(8).LeftTable=%NetworkCard.Collect.Source(5)%
+NetworkCard.Collect.Source(8).RightTable=%NetworkCard.Collect.Source(6)%
+NetworkCard.Collect.Source(8).LeftKeyColumn=1
+NetworkCard.Collect.Source(8).RightKeyColumn=1
+
+// Source(9) = Source(8) + Source(7)
+// DeviceID;TransmitsOK;DeviceID;ReceivesOK;DeviceID;TransmitError;DeviceID;ReceiveError;
+NetworkCard.Collect.Source(9).Type="TableJoint"
+NetworkCard.Collect.Source(9).LeftTable=%NetworkCard.Collect.Source(8)%
+NetworkCard.Collect.Source(9).RightTable=%NetworkCard.Collect.Source(7)%
+NetworkCard.Collect.Source(9).LeftKeyColumn=1
+NetworkCard.Collect.Source(9).RightKeyColumn=1
+NetworkCard.Collect.Source(9).DefaultRightLine=";0;;0;"
+
+// Computes TransmittedPackets ( = TransmitErrors + TransmitsOK )
+// DeviceID;TransmittedPackets;DeviceID;ReceivesOK;DeviceID;TransmitError;DeviceID;ReceiveError
+NetworkCard.Collect.Source(9).Compute(1).Type="Add"
+NetworkCard.Collect.Source(9).Compute(1).Column=2
+NetworkCard.Collect.Source(9).Compute(1).Add=Column(6)
+
+// Computes ReceivedPackets ( = ReceivedErrors + ReceivesOK)
+// DeviceID;TransmittedPackets;DeviceID;ReceivedPackets;DeviceID;TransmitError;DeviceID;ReceiveError;
+NetworkCard.Collect.Source(9).Compute(2).Type="Add"
+NetworkCard.Collect.Source(9).Compute(2).Column=4
+NetworkCard.Collect.Source(9).Compute(2).Add=Column(8)
+
+// Computes totalErrors ( = TransmitError + ReceiveError )
+// DeviceID;TransmittedPackets;DeviceID;ReceivedPackets;DeviceID;TotalError;DeviceID;ReceiveError;
+NetworkCard.Collect.Source(9).Compute(3).Type="Add"
+NetworkCard.Collect.Source(9).Compute(3).Column=6
+NetworkCard.Collect.Source(9).Compute(3).Add=Column(8)
+
+// Join LinkStatus and Status tables
+// DeviceID;LinkStatus;DeviceID;PATROLStatus;StatusInformation
+NetworkCard.Collect.Source(10).Type="TableJoint"
+NetworkCard.Collect.Source(10).LeftTable=%NetworkCard.Collect.Source(2)%
+NetworkCard.Collect.Source(10).RightTable=%NetworkCard.Collect.Source(1)%
+NetworkCard.Collect.Source(10).LeftKeyColumn=1
+NetworkCard.Collect.Source(10).RightKeyColumn=1
+NetworkCard.Collect.Source(10).DefaultRightLine=";;;"
+
+// Link Speed
+// DeviceID;LinkSpeed
+NetworkCard.Collect.Source(11).Type="WMI"
+NetworkCard.Collect.Source(11).WbemNameSpace="root\wmi"
+NetworkCard.Collect.Source(11).WbemQuery="SELECT InstanceName,NdisLinkSpeed FROM MSNdis_LinkSpeed"
+
+// Convert LinkSpeed into Mbp/s
+// DeviceID;LinkSpeed
+NetworkCard.Collect.Source(11).Compute(1).Type="Divide"
+NetworkCard.Collect.Source(11).Compute(1).Column="2"
+NetworkCard.Collect.Source(11).Compute(1).DivideBy="10000"
+
+// Join Status/LinkStatus with LinkSpeed
+// DeviceID;LinkStatus;DeviceID;PATROLStatus;StatusInformation;DeviceID;LinkSpeed;
+NetworkCard.Collect.Source(12).Type="TableJoint"
+NetworkCard.Collect.Source(12).LeftTable=%NetworkCard.Collect.Source(10)%
+NetworkCard.Collect.Source(12).RightTable=%NetworkCard.Collect.Source(11)%
+NetworkCard.Collect.Source(12).LeftKeyColumn=1
+NetworkCard.Collect.Source(12).RightKeyColumn=1
+
+// Join Source(12) + Source(9)
+// DeviceID;LinkStatus;DeviceID;PATROLStatus;StatusInformation;DeviceID;LinkSpeed;DeviceID;TransmittedPackets;DeviceID;ReceivedPackets;DeviceID;TotalError;DeviceID;ReceiveError;
+NetworkCard.Collect.Source(13).Type="TableJoint"
+NetworkCard.Collect.Source(13).LeftTable=%NetworkCard.Collect.Source(12)%
+NetworkCard.Collect.Source(13).RightTable=%NetworkCard.Collect.Source(9)%
+NetworkCard.Collect.Source(13).LeftKeyColumn=1
+NetworkCard.Collect.Source(13).RightKeyColumn=1
+NetworkCard.Collect.Source(13).DefaultRightLine=";;;;;;;;"
+
+// Now replace some "special" chars in one of the DeviceID columns with underscores
+// as it looks like the perfmon instances can't have '#' or '/'
+// This allow us to make proper table join with Win32_PerfRawData_Tcpip_NetworkInterface
+NetworkCard.Collect.Source(13).Compute(1).Type="Replace"
+NetworkCard.Collect.Source(13).Compute(1).Column=8
+NetworkCard.Collect.Source(13).Compute(1).Replace="#"
+NetworkCard.Collect.Source(13).Compute(1).ReplaceBy="_"
+
+NetworkCard.Collect.Source(13).Compute(2).Type="Replace"
+NetworkCard.Collect.Source(13).Compute(2).Column=8
+NetworkCard.Collect.Source(13).Compute(2).Replace="/"
+NetworkCard.Collect.Source(13).Compute(2).ReplaceBy="_"
+
+// Traffic in bytes (through performance counters)
+// Name;BytesReceived;BytesTransmitted
+NetworkCard.Collect.Source(14).Type="WMI"
+NetworkCard.Collect.Source(14).WbemNameSpace="root\cimv2"
+NetworkCard.Collect.Source(14).WbemQuery="SELECT Name,BytesReceivedPersec,BytesSentPersec FROM Win32_PerfRawData_Tcpip_NetworkInterface"
+
+// Replace [] with () (weird difference between these 2 WMI classes)
+NetworkCard.Collect.Source(14).Compute(1).Type="Replace"
+NetworkCard.Collect.Source(14).Compute(1).Column=1
+NetworkCard.Collect.Source(14).Compute(1).Replace="["
+NetworkCard.Collect.Source(14).Compute(1).ReplaceBy="("
+
+NetworkCard.Collect.Source(14).Compute(2).Type="Replace"
+NetworkCard.Collect.Source(14).Compute(2).Column=1
+NetworkCard.Collect.Source(14).Compute(2).Replace="]"
+NetworkCard.Collect.Source(14).Compute(2).ReplaceBy=")"
+
+// Final Join: Source(13) + Source(14)
+// DeviceID;LinkStatus;DeviceID;PATROLStatus;StatusInformation;DeviceID;LinkSpeed;DeviceID;TransmittedPackets;DeviceID;ReceivedPackets;DeviceID;TotalError;DeviceID;ReceiveError;Name;BytesReceived;BytesTransmitted
+NetworkCard.Collect.Source(15).Type="TableJoint"
+NetworkCard.Collect.Source(15).LeftTable=%NetworkCard.Collect.Source(13)%
+NetworkCard.Collect.Source(15).RightTable=%NetworkCard.Collect.Source(14)%
+NetworkCard.Collect.Source(15).LeftKeyColumn=8
+NetworkCard.Collect.Source(15).RightKeyColumn=1
+NetworkCard.Collect.Source(15).DefaultRightLine=";;;"
+
+// And here is the ValueTable (at last!)
+NetworkCard.Collect.ValueTable=%NetworkCard.Collect.Source(15)%
+NetworkCard.Collect.DeviceID=ValueTable.Column(1)
+NetworkCard.Collect.Status=ValueTable.Column(4)
+NetworkCard.Collect.StatusInformation=ValueTable.Column(5)
+NetworkCard.Collect.LinkStatus=ValueTable.Column(2)
+NetworkCard.Collect.LinkSpeed=ValueTable.Column(7)
+NetworkCard.Collect.ErrorCount=ValueTable.Column(13)
+NetworkCard.Collect.TransmittedPackets=ValueTable.Column(9)
+NetworkCard.Collect.ReceivedPackets=ValueTable.Column(11)
+NetworkCard.Collect.ReceivedBytes=ValueTable.Column(17)
+NetworkCard.Collect.TransmittedBytes=ValueTable.Column(18)
+
+
+// GenericStatusTranslationTable
+GenericStatusTranslationTable(0)="OK"
+GenericStatusTranslationTable(1)="OK"
+GenericStatusTranslationTable(2)="OK"
+GenericStatusTranslationTable(3)="WARN"
+GenericStatusTranslationTable(4)="ALARM"
+
+// GenericStatusInformationTranslationTable
+GenericStatusInformationTranslationTable(0)=""
+GenericStatusInformationTranslationTable(1)="Initializing"
+GenericStatusInformationTranslationTable(2)="Reset"
+GenericStatusInformationTranslationTable(3)="Closing"
+GenericStatusInformationTranslationTable(4)="Not-ready"
+
+// GenericLinkStatusTranslationTable
+GenericLinkStatusTranslationTable(0)="OK"
+GenericLinkStatusTranslationTable(1)="WARN"

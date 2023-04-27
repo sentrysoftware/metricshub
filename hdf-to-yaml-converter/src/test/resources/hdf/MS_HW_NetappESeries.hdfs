@@ -1,0 +1,996 @@
+////////////////////////////////////////////////////////////////
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//      Supports: NetApp E-Series
+//                Connects to REST API
+//
+
+//
+// Header
+//
+
+hdf.DisplayName="NetApp E-Series"
+hdf.TypicalPlatform="NetApp E-Series"
+hdf.Version="1.0"
+hdf.Comments="This connector discovers the status of a NetApp E-Series Storage Array, including environment sensors (temperatures, fans, power supplies, etc.). Relies on NetApp SANtricity REST API"
+hdf.RemoteSupport="true"
+hdf.LocalSupport="false"
+hdf.AppliesToOS="Storage"
+
+
+// DETECTION
+// Queries the REST interface for a response containing 'netapp-e'
+Detection.Criteria(1).Type="HTTP"
+Detection.Criteria(1).Method="GET"
+Detection.Criteria(1).URL="/devmgr/v2/storage-systems/1"
+Detection.Criteria(1).ExpectedResult="""chassisSerialNumber"":"
+Detection.Criteria(1).ErrorMessage="Invalid credentials / not a NetApp E-Series"
+
+
+//
+// Enclosure
+//
+
+// Discovery
+// Queries the REST interface for Enclosure information
+Enclosure.Discovery.Source(1).Type="HTTP"
+Enclosure.Discovery.Source(1).Method="GET"
+Enclosure.Discovery.Source(1).Url="/devmgr/v2/storage-systems/1"
+Enclosure.Discovery.Source(1).ResultContent="body"
+
+// Transform JSON to CSV to extract information
+// JSONID;name;model;fwVersionl;chassisSerialNumber
+Enclosure.Discovery.Source(1).Compute(1).Type="Json2Csv"
+Enclosure.Discovery.Source(1).Compute(1).EntryKey="/"
+Enclosure.Discovery.Source(1).Compute(1).Properties="/name;/model;/chassisSerialNumber;"
+Enclosure.Discovery.Source(1).Compute(1).Separator=";"
+
+Enclosure.Discovery.Source(1).Compute(2).Type="LeftConcat"
+Enclosure.Discovery.Source(1).Compute(2).Column=1
+Enclosure.Discovery.Source(1).Compute(2).String="MSHW;"
+
+//Trays
+Enclosure.Discovery.Source(2).Type="HTTP"
+Enclosure.Discovery.Source(2).Method="GET"
+Enclosure.Discovery.Source(2).Url="/devmgr/v2/storage-systems/1/hardware-inventory"
+Enclosure.Discovery.Source(2).ResultContent="body"
+
+Enclosure.Discovery.Source(3)=%Enclosure.Discovery.Source(2)%
+
+// Transform JSON to CSV to extract information
+Enclosure.Discovery.Source(3).Compute(1).Type="Json2Csv"
+Enclosure.Discovery.Source(3).Compute(1).EntryKey="/trays"
+Enclosure.Discovery.Source(3).Compute(1).Properties="/trayRef;/trayId;/partNumber;/serialNumber;"
+Enclosure.Discovery.Source(3).Compute(1).Separator=";"
+
+Enclosure.Discovery.Source(3).Compute(2).Type="LeftConcat"
+Enclosure.Discovery.Source(3).Compute(2).Column=1
+Enclosure.Discovery.Source(3).Compute(2).String="MSHW;"
+
+Enclosure.Discovery.Source(4).Type="TableJoint"
+Enclosure.Discovery.Source(4).LeftTable=%Enclosure.Discovery.Source(3)%
+Enclosure.Discovery.Source(4).RightTable=%Enclosure.Discovery.Source(1)%
+Enclosure.Discovery.Source(4).LeftKeyColumn=1
+Enclosure.Discovery.Source(4).RightKeyColumn=1
+
+//mshw;jsonid;trayRef;trayId;partNumber;serialNumber;mshw;jsonid;name;model;chassisSerialNumber
+// 1    2       3       4        5         6          7     8       9   10   11
+
+// Add "Model: E" for AdditionalInformation3
+//mshw;jsonid;trayRef;trayId;partNumber;serialNumber;mshw;jsonid;name;model;chassisSerialNumber
+Enclosure.Discovery.Source(4).Compute(1).Type="LeftConcat"
+Enclosure.Discovery.Source(4).Compute(1).Column=10
+Enclosure.Discovery.Source(4).Compute(1).String="E"
+
+// Add "Chassis Serial Number: " to AdditionalInformation2
+Enclosure.Discovery.Source(4).Compute(2).Type="LeftConcat"
+Enclosure.Discovery.Source(4).Compute(2).Column=11
+Enclosure.Discovery.Source(4).Compute(2).String="Chassis Serial Number: "
+
+// Add "Storage System: "
+Enclosure.Discovery.Source(4).Compute(3).Type="LeftConcat"
+Enclosure.Discovery.Source(4).Compute(3).Column=9
+Enclosure.Discovery.Source(4).Compute(3).String="Storage System: "
+
+// Add "Tray: " to DisplayID
+Enclosure.Discovery.Source(4).Compute(4).Type="LeftConcat"
+Enclosure.Discovery.Source(4).Compute(4).Column=4
+Enclosure.Discovery.Source(4).Compute(4).String="Tray: "
+
+Enclosure.Discovery.Source(4).Compute(5).Type="LeftConcat"
+Enclosure.Discovery.Source(4).Compute(5).Column=5
+Enclosure.Discovery.Source(4).Compute(5).String="Part Number: "
+
+// Enclosure Instance Table
+// JSONID;name;model;chassisSerialNumber
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(4)%
+Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+Enclosure.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(10)
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(6)
+Enclosure.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(9)
+Enclosure.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(11)
+Enclosure.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(5)
+Enclosure.Discovery.Instance.Type="Storage"
+Enclosure.Discovery.Instance.Vendor="NetApp"
+
+// Collection
+
+// Collection Type
+Enclosure.Collect.Type="MultiInstance"
+
+// Queries the REST interface for Enclosure information
+Enclosure.Collect.Source(1).Type="HTTP"
+Enclosure.Collect.Source(1).Method="GET"
+Enclosure.Collect.Source(1).Url="/devmgr/v2/storage-systems/1"
+Enclosure.Collect.Source(1).ResultContent="body"
+
+// Use Json2Csv to process HTTP Response (using same entry twice to easily duplicate column)
+// JSONID;status;status;
+Enclosure.Collect.Source(1).Compute(1).Type="Json2Csv"
+Enclosure.Collect.Source(1).Compute(1).EntryKey="/"
+Enclosure.Collect.Source(1).Compute(1).Properties="/status;/status"
+Enclosure.Collect.Source(1).Compute(1).Separator=";"
+
+// Translate API status to PatrolStatus
+Enclosure.Collect.Source(1).Compute(2).Type="Translate"
+Enclosure.Collect.Source(1).Compute(2).Column=2
+Enclosure.Collect.Source(1).Compute(2).TranslationTable="StatusTranslationTable"
+
+Enclosure.Collect.Source(1).Compute(3).Type="LeftConcat"
+Enclosure.Collect.Source(1).Compute(3).Column=1
+Enclosure.Collect.Source(1).Compute(3).String="MSHW;"
+
+// This Source is used for almost all other classes
+// Queries the REST interface for Enclosure information
+Enclosure.Collect.Source(2).Type="HTTP"
+Enclosure.Collect.Source(2).Method="GET"
+Enclosure.Collect.Source(2).Url="/devmgr/v2/storage-systems/1/hardware-inventory"
+Enclosure.Collect.Source(2).ResultContent="body"
+
+Enclosure.Collect.Source(3)=%Enclosure.Collect.Source(2)%
+
+// Transform JSON to CSV to extract information
+Enclosure.Collect.Source(3).Compute(1).Type="Json2Csv"
+Enclosure.Collect.Source(3).Compute(1).EntryKey="/trays"
+Enclosure.Collect.Source(3).Compute(1).Properties="/trayRef;"
+Enclosure.Collect.Source(3).Compute(1).Separator=";"
+
+Enclosure.Collect.Source(3).Compute(2).Type="LeftConcat"
+Enclosure.Collect.Source(3).Compute(2).Column=1
+Enclosure.Collect.Source(3).Compute(2).String="MSHW;"
+
+Enclosure.Collect.Source(4).Type="TableJoint"
+Enclosure.Collect.Source(4).LeftTable=%Enclosure.Collect.Source(3)%
+Enclosure.Collect.Source(4).RightTable=%Enclosure.Collect.Source(1)%
+Enclosure.Collect.Source(4).LeftKeyColumn=1
+Enclosure.Collect.Source(4).RightKeyColumn=1
+
+//MSHW;JSONID;trayRef;MSHW;JSONID;PatrolStatus;StatusInformation
+
+// Enclosure Value Table
+// JsonID;PatrolStatus;StatusInformation
+Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(4)%
+Enclosure.Collect.DeviceID=ValueTable.Column(3)
+Enclosure.Collect.Status=ValueTable.Column(6)
+Enclosure.Collect.StatusInformation=ValueTable.Column(7)
+
+
+//
+// PhysicalDisk
+//
+
+// PhysicalDisk Source(1) = HardwareInventory
+PhysicalDisk.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+
+// Use Json2Csv to process HTTP Response
+// JsonID;manufacturer;productID;serialNumber;label;firmwareVersion;rawCapacity;maxSpeed;phyDriveType;
+PhysicalDisk.Discovery.Source(1).Compute(1).Type="Json2Csv"
+PhysicalDisk.Discovery.Source(1).Compute(1).EntryKey="drives"
+PhysicalDisk.Discovery.Source(1).Compute(1).Properties="/manufacturer;/productID;/serialNumber;/physicalLocation/label;/firmwareVersion;/rawCapacity;/maxSpeed;/phyDriveTypeData/phyDriveType;../physicalLocation/trayRef;"
+PhysicalDisk.Discovery.Source(1).Compute(1).Separator=";"
+
+// Label column 8 with speed for additional information
+PhysicalDisk.Discovery.Source(1).Compute(2).Type="Replace"
+PhysicalDisk.Discovery.Source(1).Compute(2).Column=8
+PhysicalDisk.Discovery.Source(1).Compute(2).Replace="speed"
+PhysicalDisk.Discovery.Source(1).Compute(2).ReplaceBy="Speed: "
+
+PhysicalDisk.Discovery.Source(1).Compute(3).Type="LeftConcat"
+PhysicalDisk.Discovery.Source(1).Compute(3).Column=5
+PhysicalDisk.Discovery.Source(1).Compute(3).String="Bay - "
+
+PhysicalDisk.Discovery.Source(1).Compute(4).Type="LeftConcat"
+PhysicalDisk.Discovery.Source(1).Compute(4).Column=9
+PhysicalDisk.Discovery.Source(1).Compute(4).String="Disk Type: "
+
+
+// PhysicalDisk Instance Table
+// JsonID;manufacturer;productID;serialNumber;label;firmwareVersion;rawCapacity;maxSpeed;phyDriveType;
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PhysicalDisk.Discovery.Instance.Vendor=InstanceTable.Column(2)
+PhysicalDisk.Discovery.Instance.Model=InstanceTable.Column(3)
+PhysicalDisk.Discovery.Instance.SerialNumber=InstanceTable.Column(4)
+PhysicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(5)
+PhysicalDisk.Discovery.Instance.FirmwareVersion=InstanceTable.Column(6)
+PhysicalDisk.Discovery.Instance.Size=InstanceTable.Column(7)
+PhysicalDisk.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(8)
+PhysicalDisk.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(9)
+
+PhysicalDisk.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(10)
+
+// Collect
+
+// Collect type = multi-instance
+PhysicalDisk.Collect.Type="MultiInstance"
+
+// PhysicalDisk Source(1) = HardwareInventory
+PhysicalDisk.Collect.Source(1)=%Enclosure.Collect.Source(2)%
+
+// Use Json2Csv to process HTTP Response (using same entry twice to easily duplicate column)
+// JsonID;status;status;
+PhysicalDisk.Collect.Source(1).Compute(1).Type="Json2Csv"
+PhysicalDisk.Collect.Source(1).Compute(1).EntryKey="drives"
+PhysicalDisk.Collect.Source(1).Compute(1).Properties="/status;/status;/ssdWearLife/spareBlocksRemainingPercent;"
+PhysicalDisk.Collect.Source(1).Compute(1).Separator=";"
+
+// Translate API status to PatrolStatus
+PhysicalDisk.Collect.Source(1).Compute(2).Type="Translate"
+PhysicalDisk.Collect.Source(1).Compute(2).Column=2
+PhysicalDisk.Collect.Source(1).Compute(2).TranslationTable="StatusTranslationTable"
+
+// PhysicalDisk Value Table
+// JsonID;PatrolStatus;StatusInformation;EnduranceRemaining
+PhysicalDisk.Collect.ValueTable=%PhysicalDisk.Collect.Source(1)%
+PhysicalDisk.Collect.DeviceID=ValueTable.Column(1)
+PhysicalDisk.Collect.Status=ValueTable.Column(2)
+PhysicalDisk.Collect.StatusInformation=ValueTable.Column(3)
+PhysicalDisk.Collect.EnduranceRemaining=ValueTable.Column(4)
+
+
+//
+// PowerSupply
+//
+
+//Discovery
+
+// PowerSupply Source(1) = HardwareInventory
+PowerSupply.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+
+// Use Json2Csv to process HTTP Response
+// JsonID;location;model;serialnumber;vendor;
+PowerSupply.Discovery.Source(1).Compute(1).Type="Json2Csv"
+PowerSupply.Discovery.Source(1).Compute(1).EntryKey="powerSupplies"
+PowerSupply.Discovery.Source(1).Compute(1).Properties="/physicalLocation/slot;/partnumber;/serialNumber;/vendorName;../physicalLocation/trayRef;"
+PowerSupply.Discovery.Source(1).Compute(1).Separator=";"
+
+PowerSupply.Discovery.Source(1).Compute(2).Type="LeftConcat"
+PowerSupply.Discovery.Source(1).Compute(2).Column=2
+PowerSupply.Discovery.Source(1).Compute(2).String="PSU - "
+
+PowerSupply.Discovery.Source(1).Compute(3).Type="LeftConcat"
+PowerSupply.Discovery.source(1).Compute(3).Column=3
+PowerSupply.Discovery.Source(1).Compute(3).String="Part Number: "
+
+PowerSupply.Discovery.Source(1).Compute(4).Type="LeftConcat"
+PowerSupply.Discovery.source(1).Compute(4).Column=5
+PowerSupply.Discovery.Source(1).Compute(4).String="Vendor: "
+
+PowerSupply.Discovery.Source(1).Compute(5).Type="LeftConcat"
+PowerSupply.Discovery.Source(1).Compute(5).Column=4
+PowerSupply.Discovery.Source(1).Compute(5).String="Serial Number: "
+
+// PowerSupply Instance Table
+// JsonID;location;model;serialnumber;vendor;
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+PowerSupply.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+PowerSupply.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(4)
+PowerSupply.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(3)
+PowerSupply.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(5)
+
+PowerSupply.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(6)
+
+// Collection
+
+// Collection Type
+PowerSupply.Collect.Type="MultiInstance"
+
+// PowerSupply Source(1) = HardwareInventory
+PowerSupply.Collect.Source(1)=%Enclosure.Collect.Source(2)%
+
+// Use Json2Csv to process HTTP Response (using same entry twice to easily duplicate column)
+// JsonID;status;status;
+PowerSupply.Collect.Source(1).Compute(1).Type="Json2Csv"
+PowerSupply.Collect.Source(1).Compute(1).EntryKey="powerSupplies"
+PowerSupply.Collect.Source(1).Compute(1).Properties="/status;/status;"
+PowerSupply.Collect.Source(1).Compute(1).Separator=";"
+
+// Translate API Status into PatrolStatus
+PowerSupply.Collect.Source(1).Compute(2).Type="Translate"
+PowerSupply.Collect.Source(1).Compute(2).Column=2
+PowerSupply.Collect.Source(1).Compute(2).TranslationTable="StatusTranslationTable"
+
+// PowerSupply Value Table
+// JsonID;PatrolStatus;StatusInformation
+PowerSupply.Collect.ValueTable=%PowerSupply.Collect.Source(1)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(1)
+PowerSupply.Collect.Status=ValueTable.Column(2)
+PowerSupply.Collect.StatusInformation=ValueTable.Column(3)
+
+//
+// FANS
+//
+
+// Discovery
+
+// Fan Source(1) = HardwareInventory
+Fan.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+
+// Use Json2Csv to process HTTP Response
+// JsonID;location
+Fan.Discovery.Source(1).Compute(1).Type="Json2Csv"
+Fan.Discovery.Source(1).Compute(1).EntryKey="fans"
+Fan.Discovery.Source(1).Compute(1).Properties="/physicalLocation/slot;../physicalLocation/trayRef;"
+Fan.Discovery.Source(1).Compute(1).Separator=";"
+
+Fan.Discovery.Source(1).Compute(2).Type="LeftConcat"
+Fan.Discovery.Source(1).Compute(2).Column=2
+Fan.Discovery.Source(1).Compute(2).String="Fan - "
+
+// Fan Instance Table
+// JsonID;location;
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Fan.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+
+Fan.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(3)
+
+// Collection
+
+// Collection type
+Fan.Collect.Type="MultiInstance"
+
+// Fan Source(1) = HardwareInventory
+Fan.Collect.Source(1)=%Enclosure.Collect.Source(2)%
+
+// Use Json2Csv to process HTTP Response (using same entry twice to easily duplicate column)
+// JsonID;status;status
+Fan.Collect.Source(1).Compute(1).Type="Json2Csv"
+Fan.Collect.Source(1).Compute(1).EntryKey="fans"
+Fan.Collect.Source(1).Compute(1).Properties="/status;/status;"
+Fan.Collect.Source(1).Compute(1).Separator=";"
+
+// Translate API Status into PatrolStatus
+Fan.Collect.Source(1).Compute(2).Type="Translate"
+Fan.Collect.Source(1).Compute(2).Column=2
+Fan.Collect.Source(1).Compute(2).TranslationTable="StatusTranslationTable"
+
+// Fan Value Table
+// JsonID;PatrolStatus;StatusInformation
+Fan.Collect.ValueTable=%Fan.Collect.Source(1)%
+Fan.Collect.DeviceID=ValueTable.Column(1)
+Fan.Collect.Status=ValueTable.Column(2)
+Fan.Collect.StatusInformation=ValueTable.Column(3)
+
+
+//
+// Battery
+//
+
+// Discovery
+
+// Battery Source(1) = HardwareInventory
+Battery.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+
+// Use Json2Csv to process HTTP Response
+// JsonID;location;Model;SerialNumber;type
+Battery.Discovery.Source(1).Compute(1).Type="Json2Csv"
+Battery.Discovery.Source(1).Compute(1).EntryKey="batteries"
+Battery.Discovery.Source(1).Compute(1).Properties="/physicalLocation/slot;/vendorPN;/vendorSN;/fruType;../physicalLocation/trayRef;"
+Battery.Discovery.Source(1).Compute(1).Separator=";"
+
+Battery.Discovery.Source(1).Compute(2).Type="LeftConcat"
+Battery.Discovery.Source(1).Compute(2).Column=4
+Battery.Discovery.Source(1).Compute(2).String="Serial Number: "
+
+
+// Battery Instance Table
+// JsonID;location;Model;SerialNumber;type
+Battery.Discovery.InstanceTable=%Battery.Discovery.Source(1)%
+Battery.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Battery.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+Battery.Discovery.Instance.Model=InstanceTable.Column(3)
+Battery.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(4)
+Battery.Discovery.Instance.Type=InstanceTable.Column(5)
+
+Battery.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(6)
+
+// Collection
+
+// Collection type
+Battery.Collect.Type="MultiInstance"
+
+// Battery Source(1) = HardwareInventory
+Battery.Collect.Source(1)=%Enclosure.Collect.Source(2)%
+
+// Use Json2Csv to process HTTP Response (using same entry twice to easily duplicate column)
+// JsonID;status;status;
+Battery.Collect.Source(1).Compute(1).Type="Json2Csv"
+Battery.Collect.Source(1).Compute(1).EntryKey="batteries"
+Battery.Collect.Source(1).Compute(1).Properties="/status;/status;"
+Battery.Collect.Source(1).Compute(1).Separator=";"
+
+// Translate API status into PatrolStatus
+Battery.Collect.Source(1).Compute(2).Type="Translate"
+Battery.Collect.Source(1).Compute(2).Column=2
+Battery.Collect.Source(1).Compute(2).TranslationTable="StatusTranslationTable"
+
+// Battery Value Table
+// JsonID;PatrolStatus;StatusInformation
+Battery.Collect.ValueTable=%Battery.Collect.Source(1)%
+Battery.Collect.DeviceID=ValueTable.Column(1)
+Battery.Collect.Status=ValueTable.Column(2)
+Battery.Collect.StatusInformation=ValueTable.Column(3)
+
+//
+// DiskController
+//
+
+// Discovery
+
+// DiskController Source(1) = HardwareInventory
+DiskController.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+
+// Use Json2Csv to process HTTP Response
+// JsonID;location;Vendor;Model;SerialNumber;Type
+DiskController.Discovery.Source(1).Compute(1).Type="Json2Csv"
+DiskController.Discovery.Source(1).Compute(1).EntryKey="controllers"
+DiskController.Discovery.Source(1).Compute(1).Properties="/physicalLocation/slot;/manufacturer;/oemPartNumber;/serialNumber;/fruType;/partNumber;../physicalLocation/trayRef;"
+DiskController.Discovery.Source(1).Compute(1).Separator=";"
+
+DiskController.Discovery.Source(1).Compute(2).Type="LeftConcat"
+DiskController.Discovery.Source(1).Compute(2).Column=7
+DiskController.Discovery.Source(1).Compute(2).String="Part Number: "
+
+DiskController.Discovery.Source(1).Compute(2).Type="LeftConcat"
+DiskController.Discovery.Source(1).Compute(2).Column=6
+DiskController.Discovery.Source(1).Compute(2).String="Type: "
+
+// DiskController Instance Table
+// JsonID;location;Vendor;Model;SerialNumber;Type
+DiskController.Discovery.InstanceTable=%DiskController.Discovery.Source(1)%
+DiskController.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+DiskController.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+DiskController.Discovery.Instance.Vendor=InstanceTable.Column(3)
+DiskController.Discovery.Instance.Model=InstanceTable.Column(4)
+DiskController.Discovery.Instance.SerialNumber=InstanceTable.Column(5)
+DiskController.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(6)
+DiskController.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(7)
+
+DiskController.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(8)
+
+// Collection
+
+// Collection type
+DiskController.Collect.Type="MultiInstance"
+
+// DiskController Source(1) = HardwareInventory
+DiskController.Collect.Source(1)=%Enclosure.Collect.Source(2)%
+
+// Use Json2Csv to process HTTP Response (using same entry twice to easily duplicate column)
+// JsonID;status;status;
+DiskController.Collect.Source(1).Compute(1).Type="Json2Csv"
+DiskController.Collect.Source(1).Compute(1).EntryKey="controllers"
+DiskController.Collect.Source(1).Compute(1).Properties="/status;/status;"
+DiskController.Collect.Source(1).Compute(1).Separator=";"
+
+// Translate API status into PatrolStatus
+DiskController.Collect.Source(1).Compute(2).Type="Translate"
+DiskController.Collect.Source(1).Compute(2).Column=2
+DiskController.Collect.Source(1).Compute(2).TranslationTable="StatusTranslationTable"
+
+// DiskController Value Table
+DiskController.Collect.ValueTable=%DiskController.Collect.Source(1)%
+DiskController.Collect.DeviceID=ValueTable.Column(1)
+DiskController.Collect.ControllerStatus=ValueTable.Column(2)
+DiskController.Collect.StatusInformation=ValueTable.Column(3)
+
+//
+// Temperature
+//
+
+// Discovery
+
+// Temperature Source(1) = HardwareInventory
+Temperature.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+
+// Use Json2Csv to process HTTP Response
+Temperature.Discovery.Source(1).Compute(1).Type="Json2Csv"
+Temperature.Discovery.Source(1).Compute(1).EntryKey="thermalSensors"
+Temperature.Discovery.Source(1).Compute(1).Properties="/physicalLocation/slot;../physicalLocation/trayRef"
+Temperature.Discovery.Source(1).Compute(1).Separator=";"
+
+Temperature.Discovery.Source(1).Compute(2).Type="LeftConcat"
+Temperature.Discovery.Source(1).Compute(2).Column=2
+Temperature.Discovery.Source(1).Compute(2).String="Temp - "
+
+// Temperature Instance Table
+// JsonID;location;
+Temperature.Discovery.InstanceTable=%Temperature.Discovery.Source(1)%
+Temperature.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Temperature.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+
+// Collection
+
+// Collection Type
+Temperature.Collect.Type="MultiInstance"
+
+// Temperature Source(1) = HardwareInventory
+Temperature.Collect.Source(1)=%Enclosure.Collect.Source(2)%
+
+// Use Json2Csv to process HTTP Response (using same entry twice to easily duplicate column)
+// JsonID;status;status;
+Temperature.Collect.Source(1).Compute(1).Type="Json2Csv"
+Temperature.Collect.Source(1).Compute(1).EntryKey="thermalSensors"
+Temperature.Collect.Source(1).Compute(1).Properties="/status;/status;"
+Temperature.Collect.Source(1).Compute(1).Separator=";"
+
+// Translate API status into PatrolStatus
+Temperature.Collect.Source(1).Compute(2).Type="Translate"
+Temperature.Collect.Source(1).Compute(2).Column=2
+Temperature.Collect.Source(1).Compute(2).TranslationTable="StatusTranslationTable"
+
+// Temperature Value Table
+// JsonID;PatrolStatus;StatusInformation;
+Temperature.Collect.ValueTable=%Temperature.Collect.Source(1)%
+Temperature.Collect.DeviceID=ValueTable.Column(1)
+Temperature.Collect.Status=ValueTable.Column(2)
+Temperature.Collect.StatusInformation=ValueTable.Column(3)
+
+//
+// Memory
+//
+
+// Discovery
+
+// Memory Source(1) = HardwareInventory
+Memory.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+
+// Use Json2Csv to process HTTP Response
+// JsonID;location;serialNumber;Model;Vendor;Size;
+Memory.Discovery.Source(1).Compute(1).Type="Json2Csv"
+Memory.Discovery.Source(1).Compute(1).EntryKey="cacheMemoryDimms"
+Memory.Discovery.Source(1).Compute(1).Properties="/physicalLocation/slot;/serialNumber;/manufacturerPartNumber;/manufacturer;/capacityInMegabytes;../physicalLocation/trayRef;"
+Memory.Discovery.Source(1).Compute(1).Separator=";"
+
+// Memory Instance Table
+// Patrol appends MB twice to the size field!
+// JsonID;location;serialNumber;Model;Vendor;Size;
+Memory.Discovery.InstanceTable=%Memory.Discovery.Source(1)%
+Memory.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+Memory.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+Memory.Discovery.Instance.SerialNumber=InstanceTable.Column(3)
+Memory.Discovery.Instance.Model=InstanceTable.Column(4)
+Memory.Discovery.Instance.Vendor=InstanceTable.Column(5)
+Memory.Discovery.Instance.Size=InstanceTable.Column(6)
+
+Memory.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(7)
+
+// Collection
+
+// Collection type
+Memory.Collect.Type="MultiInstance"
+
+// Memory Source(1) = HardwareInventory
+Memory.Collect.Source(1)=%Enclosure.Collect.Source(2)%
+
+// Use Json2Csv to process HTTP Response (using same entry twice to easily duplicate column)
+// JsonID;status;status;
+Memory.Collect.Source(1).Compute(1).Type="Json2Csv"
+Memory.Collect.Source(1).Compute(1).EntryKey="cacheMemoryDimms"
+Memory.Collect.Source(1).Compute(1).Properties="/status;/status;"
+Memory.Collect.Source(1).Compute(1).Separator=";"
+
+// Translate API status into PatrolStatus
+Memory.Collect.Source(1).Compute(2).Type="Translate"
+Memory.Collect.Source(1).Compute(2).Column=2
+Memory.Collect.Source(1).Compute(2).TranslationTable="StatusTranslationTable"
+
+// Memory Value Table
+// JsonID;PatrolStatus;StatusInformation
+Memory.Collect.ValueTable=%Memory.Collect.Source(1)%
+Memory.Collect.DeviceID=ValueTable.Column(1)
+Memory.Collect.Status=ValueTable.Column(2)
+Memory.Collect.StatusInformation=ValueTable.Column(3)
+
+//
+// NetworkCard
+//
+
+// Source(1) =  Ethernet (hardware-inventory) [Controller 0]
+NetworkCard.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+
+// Use Json2Csv to process HTTP Response
+// JSONID;tray;label;MAC;LinkStatus
+NetworkCard.Discovery.Source(1).Compute(1).Type="Json2Csv"
+NetworkCard.Discovery.Source(1).Compute(1).EntryKey="/controllers[0]/netInterfaces"
+NetworkCard.Discovery.Source(1).Compute(1).Properties="/ethernet/physicalLocation/trayRef;/ethernet/physicalLocation/label;/ethernet/macAddr;/ethernet/linkStatus;"
+
+// add "eth - A-" to label
+NetworkCard.Discovery.Source(1).Compute(2).Type="LeftConcat"
+NetworkCard.Discovery.Source(1).Compute(2).Column=3
+NetworkCard.Discovery.Source(1).Compute(2).String="eth - A-"
+
+
+// Source(2) =  Ethernet (hardware-inventory) [Controller 1]
+NetworkCard.Discovery.Source(2)=%Enclosure.Discovery.Source(2)%
+
+// Use Json2Csv to process HTTP Response
+// JSONID;tray;label;mac;
+NetworkCard.Discovery.Source(2).Compute(1).Type="Json2Csv"
+NetworkCard.Discovery.Source(2).Compute(1).EntryKey="controllers[1]/netInterfaces"
+NetworkCard.Discovery.Source(2).Compute(1).Properties="/ethernet/physicalLocation/trayRef;/ethernet/physicalLocation/label;/ethernet/macAddr;/ethernet/linkStatus;"
+
+// add "eth - B-" to label
+NetworkCard.Discovery.Source(2).Compute(2).Type="LeftConcat"
+NetworkCard.Discovery.Source(2).Compute(2).Column=3
+NetworkCard.Discovery.Source(2).Compute(2).String="eth - B-"
+
+// Source(3) = Join Controller A and B Ethernet Cards
+// join tables
+NetworkCard.Discovery.Source(3).Type="TableUnion"
+NetworkCard.Discovery.Source(3).Table1=%NetworkCard.Discovery.Source(1)%
+NetworkCard.Discovery.Source(3).Table2=%NetworkCard.Discovery.Source(2)%
+
+// Add physical type designation column
+// JSONID;controllerRef;tray;label;mac;LinkStatus
+NetworkCard.Discovery.Source(3).Compute(1).Type="RightConcat"
+NetworkCard.Discovery.Source(3).Compute(1).Column=4
+NetworkCard.Discovery.Source(3).Compute(1).String=";MAC;;"
+
+// Source(4) =  Fibre (hardware-inventory)
+NetworkCard.Discovery.Source(4)=%Enclosure.Discovery.Source(2)%
+
+// Use Json2Csv to process HTTP Response
+// JSONID; ControllerRef; PortName; PortName; Channel; Slot; LinkStatus
+NetworkCard.Discovery.Source(4).Compute(1).Type="Json2Csv"
+NetworkCard.Discovery.Source(4).Compute(1).EntryKey="/fibrePorts"
+NetworkCard.Discovery.Source(4).Compute(1).Properties="/controllerId;/portName;/portName;/channel;/physicalLocation/slot;/linkStatus;"
+
+// Add Channel Label for AdditionalInformation1
+// JSONID; ControllerRef; PortName; PortName; Channel; Location; LinkStatus
+NetworkCard.Discovery.Source(4).Compute(2).Type="LeftConcat"
+NetworkCard.Discovery.Source(4).Compute(2).Column=5
+NetworkCard.Discovery.Source(4).Compute(2).String="Channel: "
+
+// Add Location Label for AdditionalInformation2
+// JSONID; ControllerRef; PortName; PortName; Channel; Location; LinkStatus
+NetworkCard.Discovery.Source(4).Compute(3).Type="LeftConcat"
+NetworkCard.Discovery.Source(4).Compute(3).Column=6
+NetworkCard.Discovery.Source(4).Compute(3).String="Location: "
+
+// Source(5) = Controllers (hardware-inventory)
+NetworkCard.Discovery.Source(5)=%Enclosure.Discovery.Source(2)%
+
+// Use Json2Csv to process HTTP Response
+// JSON ID;controllerRef;trayRef
+NetworkCard.Discovery.Source(5).Compute(1).Type="Json2Csv"
+NetworkCard.Discovery.Source(5).Compute(1).EntryKey="controllers"
+NetworkCard.Discovery.Source(5).Compute(1).Properties="/controllerRef;/physicalLocation/trayRef;"
+
+// Join Fibre table and Controller table on Controller Ref
+// LeftTable  = JSONID;ControllerRef;PortName;PortName;Channel;Location;LinkStatus
+// RightTable = JSONID;controllerRef;trayRef
+// Result = JSONID;ControllerRef;PortName;PortName;Channel;Location;LinkStatus;JSONID;controllerRef;trayRef
+NetworkCard.Discovery.Source(6).Type="TableJoint"
+NetworkCard.Discovery.Source(6).LeftTable=%NetworkCard.Discovery.Source(4)%
+NetworkCard.Discovery.Source(6).RightTable=%NetworkCard.Discovery.Source(5)%
+NetworkCard.Discovery.Source(6).LeftKeyColumn=2
+NetworkCard.Discovery.Source(6).RightKeyColumn=2
+
+// move tray ref to column 2 to match Ethernet table. (computes 1-3)
+NetworkCard.Discovery.Source(6).Compute(1).Type="DuplicateColumn"
+NetworkCard.Discovery.Source(6).Compute(1).Column=2
+
+// jsonid;controllerID;controllerID;portname;portname;channel;Location;linkStatus;jsonid;controllerref;trayref;
+NetworkCard.Discovery.Source(6).Compute(2).Type="Replace"
+NetworkCard.Discovery.Source(6).Compute(2).Column=3
+NetworkCard.Discovery.Source(6).Compute(2).Replace=Column(3)
+NetworkCard.Discovery.Source(6).Compute(2).ReplaceBy=Column(12)
+
+// drop extra columns
+// jsonid;controllerID;tray;portname;portname;channel;Location;jsonid;controllerref;trayref;
+NetworkCard.Discovery.Source(6).Compute(3).Type="KeepColumns"
+NetworkCard.Discovery.Source(6).Compute(3).ColumnNumbers="1,3,4,5,6,7,8"
+
+// Add physical type designation column
+// jsonid;tray;portname;portname;WWN;channel;Location;jsonid;
+NetworkCard.Discovery.Source(6).Compute(4).Type="RightConcat"
+NetworkCard.Discovery.Source(6).Compute(4).Column=4
+NetworkCard.Discovery.Source(6).Compute(4).String=";WWN"
+
+// add FC designation to label
+// jsonid;tray;portname;portname;WWN;channel;Location;jsonid;
+NetworkCard.Discovery.Source(6).Compute(5).Type="LeftConcat"
+NetworkCard.Discovery.Source(6).Compute(5).Column=3
+NetworkCard.Discovery.source(6).Compute(5).String="FC - "
+
+// Source(7) = Join Ethernet and Fibre
+// Table1 = JSONID;controllerRef;tray;label;mac;addressType
+// Table2 = JSONID;tray;portname;portname;WWN;channel;Location;jsonid;
+NetworkCard.Discovery.Source(7).Type="TableUnion"
+NetworkCard.Discovery.Source(7).Table1=%NetworkCard.Discovery.Source(3)%
+NetworkCard.Discovery.Source(7).Table2=%NetworkCard.Discovery.Source(6)%
+
+// JSONID;controller;tray;portname;WWN;portname;addresstype;linkStatus
+NetworkCard.Discovery.Source(7).Compute(1).Type="Translate"
+NetworkCard.Discovery.Source(7).Compute(1).Column=8
+NetworkCard.Discovery.Source(7).Compute(1).TranslationTable="LinkSpeedParameterTranslationTable"
+
+LinkSpeedParameterTranslationTable("none")=""
+LinkSpeedParameterTranslationTable("up")="OK"
+LinkSpeedParameterTranslationTable("down")=""
+LinkSpeedParameterTranslationTable("failed")=""
+LinkSpeedParameterTranslationTable(Default)="WARN"
+
+// NetworkCard Instance Table
+// JSONID;controller;tray;label;mac;addressType;
+// JSONID;tray;portname;portname;WWN;channel;Location;jsonid;
+NetworkCard.Discovery.InstanceTable=%NetworkCard.Discovery.Source(7)%
+NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+NetworkCard.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+NetworkCard.Discovery.Instance.PhysicalAddress=InstanceTable.Column(4)
+NetworkCard.Discovery.Instance.PhysicalAddressType=InstanceTable.Column(5)
+NetworkCard.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(6)
+NetworkCard.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(7)
+NetworkCard.Discovery.Instance.ParameterActivation.LinkSpeed=InstanceTable.Column(8)
+
+NetworkCard.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(2)
+
+// Collect
+
+// Collection type
+NetworkCard.Collect.Type="MultiInstance"
+
+// Source(1) = Ethernet (hardware-inventory) [Controller[0]]
+NetworkCard.Collect.Source(1)=%Enclosure.Collect.Source(2)%
+
+// Use Json2Csv to process HTTP Response
+// JSONID;linkStatus;linkStatus;linkStatus
+NetworkCard.Collect.Source(1).Compute(1).Type="Json2Csv"
+NetworkCard.Collect.Source(1).Compute(1).EntryKey="controllers[0]/netInterfaces"
+NetworkCard.Collect.Source(1).Compute(1).Properties="/ethernet/linkStatus;/ethernet/linkStatus;/ethernet/linkStatus;/ethernet/speed;"
+
+// Source(2) = Ethernet (hardware-inventory) [Controller[1]]
+NetworkCard.Collect.Source(2)=%Enclosure.Collect.Source(2)%
+
+// Use Json2Csv to process HTTP Response
+// JSONID;linkStatus;linkStatus;linkStatus
+NetworkCard.Collect.Source(2).Compute(1).Type="Json2Csv"
+NetworkCard.Collect.Source(2).Compute(1).EntryKey="controllers[1]/netInterfaces"
+NetworkCard.Collect.Source(2).Compute(1).Properties="/ethernet/linkStatus;/ethernet/linkStatus;/ethernet/linkStatus;/ethernet/speed;"
+
+// Source(3) = Union of Controller A and Controller B Ethernet devices.
+NetworkCard.Collect.Source(3).Type="TableUnion"
+NetworkCard.Collect.Source(3).Table1=%NetworkCard.Collect.Source(1)%
+NetworkCard.Collect.Source(3).Table2=%NetworkCard.Collect.Source(2)%
+
+// Fiber
+
+// Source(4) = fibrePorts (hardware-inventory)
+NetworkCard.Collect.Source(4)=%Enclosure.Collect.Source(2)%
+
+// Use Json2Csv to process HTTP Response
+// JSONID;linkStatus;linkStatus;linkStatus
+NetworkCard.Collect.Source(4).Compute(1).Type="Json2Csv"
+NetworkCard.Collect.Source(4).Compute(1).EntryKey="/fibrePorts"
+NetworkCard.Collect.Source(4).Compute(1).Properties="/linkStatus;/linkStatus;/linkStatus;/speed;"
+
+// Source(5) = Join Ethernet and Fibre tables
+NetworkCard.Collect.Source(5).Type="TableUnion"
+NetworkCard.Collect.Source(5).Table1=%NetworkCard.Collect.Source(3)%
+NetworkCard.Collect.Source(5).Table2=%NetworkCard.Collect.Source(4)%
+
+// JSONID;PatrolStatus;linkStatus
+NetworkCard.Collect.Source(5).Compute(1).Type="Translate"
+NetworkCard.Collect.Source(5).Compute(1).Column=2
+NetworkCard.Collect.Source(5).Compute(1).TranslationTable="NetworkCardStatusTranslationTable"
+
+// JSONID;PatrolStatus;linkStatus
+NetworkCard.Collect.Source(5).Compute(2).Type="Translate"
+NetworkCard.Collect.Source(5).Compute(2).Column=3
+NetworkCard.Collect.Source(5).Compute(2).TranslationTable="LinkStatusTranslationTable"
+
+NetworkCardStatusTranslationTable("none")="OK"
+NetworkCardStatusTranslationTable("up")="OK"
+NetworkCardStatusTranslationTable("down")="OK"
+NetworkCardStatusTranslationTable("failed")="ALARM"
+NetworkCardStatusTranslationTable(Default)="ALARM"
+
+LinkStatusTranslationTable("none")="WARN"
+LinkStatusTranslationTable("up")="OK"
+LinkStatusTranslationTable("down")="WARN"
+LinkStatusTranslationTable("failed")="ALARM"
+LinkStatusTranslationTable(Default)="WARN"
+
+// NetworkCard Value Table
+// JsonID;PatrolStatus;LinkStatus;StatusInformation
+NetworkCard.Collect.ValueTable=%NetworkCard.Collect.Source(5)%
+NetworkCard.Collect.DeviceID=ValueTable.Column(1)
+NetworkCard.Collect.Status=ValueTable.Column(2)
+NetworkCard.Collect.LinkStatus=ValueTable.Column(3)
+NetworkCard.Collect.StatusInformation=ValueTable.Column(4)
+NetworkCard.Collect.LinkSpeed=ValueTable.Column(5)
+
+
+//
+// Other Devices
+//
+
+OtherDevice.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+
+// Use Json2Csv to process HTTP Response
+OtherDevice.Discovery.Source(1).Compute(1).Type="Json2Csv"
+OtherDevice.Discovery.Source(1).Compute(1).EntryKey="sfps"
+OtherDevice.Discovery.Source(1).Compute(1).Properties="/physicalLocation/slot;/sfpType/vendorName;/sfpType/vendorPN;/sfpType/vendorSN;sfpType/sfpIdentType;../physicalLocation/trayRef;"
+OtherDevice.Discovery.Source(1).Compute(1).Separator=";"
+
+// Label with 'SFPS'
+OtherDevice.Discovery.Source(1).Compute(2).Type="LeftConcat"
+OtherDevice.Discovery.Source(1).Compute(2).Column=2
+OtherDevice.Discovery.Source(1).Compute(2).String="SFP - "
+
+OtherDevice.Discovery.Source(1).Compute(3).Type="LeftConcat"
+OtherDevice.Discovery.Source(1).Compute(3).Column=4
+OtherDevice.Discovery.Source(1).Compute(3).String="Part Number: "
+
+OtherDevice.Discovery.Source(1).Compute(4).Type="LeftConcat"
+OtherDevice.Discovery.Source(1).Compute(4).Column=3
+OtherDevice.Discovery.Source(1).Compute(4).String="Vendor: "
+
+OtherDevice.Discovery.Source(1).Compute(5).Type="LeftConcat"
+OtherDevice.Discovery.Source(1).Compute(5).Column=5
+OtherDevice.Discovery.Source(1).Compute(5).String="Serial Number: "
+
+
+// OtherDevice Instance Table
+// JsonID;location;Vendor;Model;SerialNumber;type;
+OtherDevice.Discovery.InstanceTable=%OtherDevice.Discovery.Source(1)%
+OtherDevice.Discovery.Instance.DeviceID=InstanceTable.Column(1)
+OtherDevice.Discovery.Instance.DisplayID=InstanceTable.Column(2)
+OtherDevice.Discovery.Instance.AdditionalInformation2=InstanceTable.Column(3)
+OtherDevice.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(4)
+OtherDevice.Discovery.Instance.AdditionalInformation3=InstanceTable.Column(5)
+OtherDevice.Discovery.Instance.DeviceType=InstanceTable.Column(6)
+
+OtherDevice.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(7)
+
+// Collection
+
+// Collection type
+OtherDevice.Collect.Type="MultiInstance"
+OtherDevice.Collect.Source(1)=%Enclosure.Collect.Source(2)%
+
+// Use Json2Csv to process HTTP Response (using same entry twice to easily duplicate column)
+// JsonID;status;status;
+OtherDevice.Collect.Source(1).Compute(1).Type="Json2Csv"
+OtherDevice.Collect.Source(1).Compute(1).EntryKey="sfps"
+OtherDevice.Collect.Source(1).Compute(1).Properties="/status;/status;"
+OtherDevice.Collect.Source(1).Compute(1).Separator=";"
+
+// Translate API status into PatrolStatus
+OtherDevice.Collect.Source(1).Compute(2).Type="Translate"
+OtherDevice.Collect.Source(1).Compute(2).Column=2
+OtherDevice.Collect.Source(1).Compute(2).TranslationTable="StatusTranslationTable"
+
+// OtherDevice Value Table
+// JsonID;PatrolStatus;StatusInformation
+OtherDevice.Collect.ValueTable=%OtherDevice.Collect.Source(1)%
+OtherDevice.Collect.DeviceID=ValueTable.Column(1)
+OtherDevice.Collect.Status=ValueTable.Column(2)
+OtherDevice.Collect.StatusInformation=ValueTable.Column(3)
+
+//
+// LogicalDisk
+//
+
+// Discovery
+
+// Source(1) = Volume information
+// Queries the REST interface for volume information
+LogicalDisk.Discovery.Source(1).Type="HTTP"
+LogicalDisk.Discovery.Source(1).Method="GET"
+LogicalDisk.Discovery.Source(1).Url="/devmgr/v2/storage-systems/1/volumes"
+LogicalDisk.Discovery.Source(1).ResultContent="body"
+
+// Use Json2Csv to process HTTP Response
+// JsonID;name;raidlevel;capacity;currentControllerID;
+LogicalDisk.Discovery.Source(1).Compute(1).Type="Json2Csv"
+LogicalDisk.Discovery.Source(1).Compute(1).EntryKey="/"
+LogicalDisk.Discovery.Source(1).Compute(1).Properties="/name;/raidLevel;/capacity;/currentControllerId;"
+LogicalDisk.Discovery.Source(1).Compute(1).Separator=";"
+
+//strip raid from raidlevel
+LogicalDisk.Discovery.Source(1).Compute(2).Type="Replace"
+LogicalDisk.Discovery.Source(1).Compute(2).Column=3
+LogicalDisk.Discovery.Source(1).Compute(2).Replace="raid"
+LogicalDisk.Discovery.Source(1).Compute(2).ReplaceBy=""
+
+LogicalDisk.Discovery.Source(1).Compute(3).Type="LeftConcat"
+LogicalDisk.Discovery.Source(1).Compute(3).Column=1
+LogicalDisk.Discovery.Source(1).Compute(3).String="MSHW;"
+
+
+// Source(2) = HardwareInventory
+LogicalDisk.Discovery.Source(2)=%Enclosure.Discovery.Source(2)%
+
+LogicalDisk.Discovery.Source(2).Compute(1).Type="Json2Csv"
+LogicalDisk.Discovery.Source(2).Compute(1).EntryKey="/controllers"
+LogicalDisk.Discovery.Source(2).Compute(1).Properties="/physicalLocation/trayRef;/controllerRef;"
+LogicalDisk.Discovery.Source(2).Compute(1).Separator=";"
+
+LogicalDisk.Discovery.Source(2).Compute(2).Type="LeftConcat"
+LogicalDisk.Discovery.Source(2).Compute(2).Column=1
+LogicalDisk.Discovery.Source(2).Compute(2).String="MSHW;"
+
+LogicalDisk.Discovery.Source(3).Type="TableJoint"
+LogicalDisk.Discovery.Source(3).LeftTable=%LogicalDisk.Discovery.Source(1)%
+LogicalDisk.Discovery.Source(3).RightTable=%LogicalDisk.Discovery.Source(2)%
+LogicalDisk.Discovery.Source(3).LeftKeyColumn=1
+LogicalDisk.Discovery.Source(3).RightKeyColumn=1
+
+// LogicalDisk Instance Table
+// JsonID;name;raidlevel;capacity;currentControllerID;
+LogicalDisk.Discovery.InstanceTable=%LogicalDisk.Discovery.Source(3)%
+LogicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+LogicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(3)
+LogicalDisk.Discovery.Instance.RaidLevel=InstanceTable.Column(4)
+LogicalDisk.Discovery.Instance.Size=InstanceTable.Column(5)
+LogicalDisk.Discovery.Instance.ControllerNumber=InstanceTable.Column(6)
+
+LogicalDisk.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(8)
+
+// Collection
+
+// Collection type
+LogicalDisk.Collect.Type="MultiInstance"
+
+// Queries the REST interface for volume information
+LogicalDisk.Collect.Source(1).Type="HTTP"
+LogicalDisk.Collect.Source(1).Method="GET"
+LogicalDisk.Collect.Source(1).Url="/devmgr/v2/storage-systems/1/volumes"
+LogicalDisk.Collect.Source(1).ResultContent="body"
+
+// Use Json2Csv to process HTTP Response (using same entry twice to easily duplicate column)
+// JsonID;status;status
+LogicalDisk.Collect.Source(1).Compute(1).Type="Json2Csv"
+LogicalDisk.Collect.Source(1).Compute(1).EntryKey="/"
+LogicalDisk.Collect.Source(1).Compute(1).Properties="/name;/status;/status;"
+LogicalDisk.Collect.Source(1).Compute(1).Separator=";"
+
+// Translate API status into PatrolStatus
+LogicalDisk.Collect.Source(1).Compute(2).Type="Translate"
+LogicalDisk.Collect.Source(1).Compute(2).Column=3
+LogicalDisk.Collect.Source(1).Compute(2).TranslationTable="StatusTranslationTable"
+
+// LogicalDisk Value Table
+// JsonID;PatrolStatus;StatusInformation
+LogicalDisk.Collect.ValueTable=%LogicalDisk.Collect.Source(1)%
+LogicalDisk.Collect.DeviceID=ValueTable.Column(2)
+LogicalDisk.Collect.Status=ValueTable.Column(3)
+LogicalDisk.Collect.StatusInformation=ValueTable.Column(4)
+
+// Status Translation Table for all classes
+StatusTranslationTable("optimal")="OK"
+StatusTranslationTable("maintenanceCharging")="OK"
+StatusTranslationTable("needsAttn")="WARN"
+StatusTranslationTable(Default)="ALARM"
