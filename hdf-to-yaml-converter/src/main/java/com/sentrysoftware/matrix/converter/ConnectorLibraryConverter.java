@@ -126,6 +126,8 @@ public class ConnectorLibraryConverter {
 				treatSingleLineComment(yamlWithComments, iterator, maybeComment);
 			} else if (maybeComment.contains("_comment: |-")) {
 				treatMultiLineComment(yamlWithComments, iterator, maybeComment);
+			} else if (maybeComment.contains("_comment: |2-")) {
+				treatMultiLineComment(yamlWithComments, iterator, maybeComment);
 			} else {
 				yamlWithComments.add(maybeComment);
 			}
