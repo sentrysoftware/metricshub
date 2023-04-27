@@ -22,7 +22,7 @@ public class EntryConcatMethodProcessor extends AbstractExecuteForEach {
 	private static final Map<String, String> CONVERSIONS = EntryConcatMethod
 		.ENUM_VALUES
 		.stream()
-		.collect(Collectors.toMap(k -> k.name().toLowerCase(), EntryConcatMethod::getName));
+		.collect(Collectors.toMap(k -> k.getName().toLowerCase(), v -> v.name().toLowerCase()));
 
 	@Override
 	public Matcher getMatcher(String key) {

@@ -1,0 +1,663 @@
+////////////////////////////////////////////////////////////////
+//
+//    H a r d w a r e   D e f i n i t i o n   F i l e
+//
+//                       f o r
+//
+//                 Hardware Sentry
+//
+//                 by Sentry Software (c)
+//
+//      Supports: EMC PowerStore
+//                Connects to EMC REST API
+//
+
+//
+// Header
+//
+
+hdf.DisplayName="Dell EMC PowerStore (REST)"
+hdf.TypicalPlatform="PowerStore REST"
+hdf.Version="1.0"
+hdf.Comments="This connector provides hardware monitoring through the PowerStore Management REST API. It monitors the Enclosure and Physical Disks as well as the various environment sensors (fans, power supplies, memory, batteries and network cards)."
+hdf.RemoteSupport="true"
+hdf.LocalSupport="false"
+hdf.AppliesToOS="Storage"
+
+//
+// DETECTION
+//
+
+// Hardware Sentry v10.2.00+
+Detection.Criteria(1).Type="KMVersion"
+Detection.Criteria(1).Version="10.2.00"
+
+Detection.Criteria(2).Type="HTTP"
+Detection.Criteria(2).Url="/api/rest/appliance?select=*"
+Detection.Criteria(2).ExpectedResult="powerstore"
+
+
+//
+// Enclosure
+//
+
+// Discovery
+Enclosure.Discovery.Source(1).Type="HTTP"
+Enclosure.Discovery.Source(1).Method="GET"
+Enclosure.Discovery.Source(1).Url="/api/rest/hardware?select=*&limit=2000"
+Enclosure.Discovery.Source(1).Header=EmbeddedFile(1)
+
+Enclosure.Discovery.Source(2)=%Enclosure.Discovery.Source(1)%
+
+Enclosure.Discovery.Source(2).Compute(1).Type="Json2Csv"
+Enclosure.Discovery.Source(2).Compute(1).EntryKey="/"
+Enclosure.Discovery.Source(2).Compute(1).Properties="/id;/type;/appliance_id;/model;/serial_number;"
+
+Enclosure.Discovery.Source(2).Compute(2).Type="KeepOnlyMatchingLines"
+Enclosure.Discovery.Source(2).Compute(2).Column=3
+Enclosure.Discovery.Source(2).Compute(2).ValueList="Base_Enclosure"
+
+Enclosure.Discovery.Source(3).Type="HTTP"
+Enclosure.Discovery.Source(3).Method="GET"
+Enclosure.Discovery.Source(3).Url="/api/rest/appliance?select=*&limit=2000"
+Enclosure.Discovery.Source(3).Header=EmbeddedFile(1)
+
+Enclosure.Discovery.Source(3).Compute(1).Type="Json2Csv"
+Enclosure.Discovery.Source(3).Compute(1).EntryKey="/"
+Enclosure.Discovery.Source(3).Compute(1).Properties="/id;/type;/name;/model;/service_tag;"
+
+// Join information from Base_Enclosure and Appliance
+// Left Table: JSONID;ID;Type;name;model;service_tag;
+// Right Table: JSONID;id;type;appliance_id;model;serial_number;
+// Result: JSONID;ID;Type;name;model;service_tag;JSONID;id;type;appliance_id;model;serial_number;
+Enclosure.Discovery.Source(4).Type="TableJoint"
+Enclosure.Discovery.Source(4).LeftTable=%Enclosure.Discovery.Source(3)%
+Enclosure.Discovery.Source(4).RightTable=%Enclosure.Discovery.Source(2)%
+Enclosure.Discovery.Source(4).LeftKeyColumn=2
+Enclosure.Discovery.Source(4).RightKeyColumn=4
+
+// Discovery
+Enclosure.Discovery.Source(5).Type="HTTP"
+Enclosure.Discovery.Source(5).Method="GET"
+Enclosure.Discovery.Source(5).Url="/api/rest/hardware?select=id,type,appliance_id,serial_number,name&amp;type=eq.Node&limit=2000"
+Enclosure.Discovery.Source(5).Header=EmbeddedFile(1)
+
+Enclosure.Discovery.Source(5).Compute(1).Type="Json2Csv"
+Enclosure.Discovery.Source(5).Compute(1).EntryKey="/"
+Enclosure.Discovery.Source(5).Compute(1).Properties="/id;/type;/appliance_id;/serial_number;/name;"
+
+
+
+// Enclosure Instance Table
+Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(4)%
+Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Enclosure.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+Enclosure.Discovery.Instance.Model=InstanceTable.Column(5)
+Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(6)
+Enclosure.Discovery.Instance.Type="Storage"
+Enclosure.Discovery.Instance.Vendor="Dell EMC"
+
+// Collect
+Enclosure.Collect.Type="MultiInstance"
+
+Enclosure.Collect.Source(1).Type="HTTP"
+Enclosure.Collect.Source(1).Method="GET"
+Enclosure.Collect.Source(1).Url="/api/rest/hardware?select=*&limit=2000"
+Enclosure.Collect.Source(1).Header=EmbeddedFile(1)
+
+Enclosure.Collect.Source(2)=%Enclosure.Collect.Source(1)%
+
+Enclosure.Collect.Source(2).Compute(1).Type="Json2Csv"
+Enclosure.Collect.Source(2).Compute(1).EntryKey="/"
+Enclosure.Collect.Source(2).Compute(1).Properties="/id;/type;/lifecycle_state;/lifecycle_state;/appliance_id;"
+
+Enclosure.Collect.Source(2).Compute(2).Type="Translate"
+Enclosure.Collect.Source(2).Compute(2).Column=4
+Enclosure.Collect.Source(2).Compute(2).TranslationTable="StatusTranslationTable"
+
+Enclosure.Collect.Source(2).Compute(3).Type="Translate"
+Enclosure.Collect.Source(2).Compute(3).Column=5
+Enclosure.Collect.Source(2).Compute(3).TranslationTable="StatusInformationTranslationTable"
+
+Enclosure.Collect.Source(3)=%Enclosure.Collect.Source(2)%
+
+Enclosure.Collect.Source(3).Compute(1).Type="KeepOnlyMatchingLines"
+Enclosure.Collect.Source(3).Compute(1).Column=3
+Enclosure.Collect.Source(3).Compute(1).ValueList="Base_Enclosure"
+
+Enclosure.Collect.Source(3).Compute(2).Type="Replace"
+Enclosure.Collect.Source(3).Compute(2).Column=2
+Enclosure.Collect.Source(3).Compute(2).Replace=Column(2)
+Enclosure.Collect.Source(3).Compute(2).ReplaceBy=Column(6)
+
+// Enclosure Value Table
+Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(3)%
+Enclosure.Collect.DeviceID=ValueTable.Column(2)
+Enclosure.Collect.Status=ValueTable.Column(4)
+Enclosure.Collect.StatusInformation=ValueTable.Column(5)
+
+
+
+//
+// DiskController
+//
+
+DiskController.Discovery.InstanceTable=%Enclosure.Discovery.Source(5)%
+DiskController.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+DiskController.Discovery.Instance.SerialNumber=InstanceTable.Column(5)
+DiskController.Discovery.Instance.DisplayID=InstanceTable.Column(6)
+
+DiskController.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(4)
+
+
+
+//
+// Memory
+//
+
+// Discovery
+Memory.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+Memory.Discovery.Source(1).Compute(1).Type="Json2Csv"
+Memory.Discovery.Source(1).Compute(1).EntryKey="/"
+Memory.Discovery.Source(1).Compute(1).Properties="/id;/type;/parent_id;/serial_number;/name;"
+
+Memory.Discovery.Source(1).Compute(2).Type="KeepOnlyMatchingLines"
+Memory.Discovery.Source(1).Compute(2).Column=3
+Memory.Discovery.Source(1).Compute(2).ValueList="DIMM"
+
+// Join tables to remove controller name from display name.
+// Left Table: JSON_ID;ID;Type;Parent_ID;serial_number;name;
+// Right Table: JSON_ID;id;type;appliance_id;serial_number;name;
+Memory.Discovery.Source(2).Type="TableJoint"
+Memory.Discovery.Source(2).LeftTable=%Memory.Discovery.Source(1)%
+Memory.Discovery.Source(2).RightTable=%Enclosure.Discovery.Source(5)%
+Memory.Discovery.Source(2).LeftKeyColumn=4
+Memory.Discovery.Source(2).RightKeyColumn=2
+
+Memory.Discovery.Source(2).Compute(1).Type="RightConcat"
+Memory.Discovery.Source(2).Compute(1).Column=12
+Memory.Discovery.Source(2).Compute(1).String="-"
+
+Memory.Discovery.Source(2).Compute(2).Type="Replace"
+Memory.Discovery.Source(2).Compute(2).Column=6
+Memory.Discovery.Source(2).Compute(2).Replace=Column(12)
+Memory.Discovery.Source(2).Compute(2).ReplaceBy=""
+
+// Memory Instance Table
+Memory.Discovery.InstanceTable=%Memory.Discovery.Source(2)%
+Memory.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Memory.Discovery.Instance.DisplayID=InstanceTable.Column(6)
+Memory.Discovery.Instance.SerialNumber=InstanceTable.Column(5)
+
+Memory.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(4)
+Memory.Discovery.Instance.AttachedToDeviceType="DiskController"
+
+// Collect
+Memory.Collect.Type="MultiInstance"
+
+// Memory Value Table
+// JSON;id;type;lifecycle_state;lifecycle_state;appliance_id;
+Memory.Collect.ValueTable=%Enclosure.Collect.Source(2)%
+Memory.Collect.DeviceID=ValueTable.Column(2)
+Memory.Collect.Status=ValueTable.Column(4)
+Memory.Collect.StatusInformation=ValueTable.Column(5)
+
+
+
+//
+// FANS
+//
+
+// Discovery
+Fan.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+Fan.Discovery.Source(1).Compute(1).Type="Json2Csv"
+Fan.Discovery.Source(1).Compute(1).EntryKey="/"
+Fan.Discovery.Source(1).Compute(1).Properties="/id;/type;/parent_id;/name;"
+
+Fan.Discovery.Source(1).Compute(2).Type="KeepOnlyMatchingLines"
+Fan.Discovery.Source(1).Compute(2).Column=3
+Fan.Discovery.Source(1).Compute(2).ValueList="Fan"
+
+// Join tables to remove controller name from display name.
+// Left Table: JSON_ID;ID;Type;Parent_ID;serial_number;name;
+// Right Table: JSON_ID;id;type;appliance_id;serial_number;name;
+Fan.Discovery.Source(2).Type="TableJoint"
+Fan.Discovery.Source(2).LeftTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.Source(2).RightTable=%Enclosure.Discovery.Source(5)%
+Fan.Discovery.Source(2).LeftKeyColumn=4
+Fan.Discovery.Source(2).RightKeyColumn=2
+
+Fan.Discovery.Source(2).Compute(1).Type="RightConcat"
+Fan.Discovery.Source(2).Compute(1).Column=11
+Fan.Discovery.Source(2).Compute(1).String="-"
+
+Fan.Discovery.Source(2).Compute(2).Type="Replace"
+Fan.Discovery.Source(2).Compute(2).Column=5
+Fan.Discovery.Source(2).Compute(2).Replace=Column(11)
+Fan.Discovery.Source(2).Compute(2).ReplaceBy=""
+
+// Fan Instance Table
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(2)%
+Fan.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Fan.Discovery.Instance.DisplayID=InstanceTable.Column(5)
+
+Fan.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(4)
+Fan.Discovery.Instance.AttachedToDeviceType="DiskController"
+
+// Collect
+Fan.Collect.Type="MultiInstance"
+
+// Fan Value Table
+// JSON;id;type;lifecycle_state;lifecycle_state;appliance_id;
+Fan.Collect.ValueTable=%Enclosure.Collect.Source(2)%
+Fan.Collect.DeviceID=ValueTable.Column(2)
+Fan.Collect.Status=ValueTable.Column(4)
+Fan.Collect.StatusInformation=ValueTable.Column(5)
+
+
+
+//
+// PhysicalDisk
+//
+
+PhysicalDisk.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+PhysicalDisk.Discovery.Source(1).Compute(1).Type="Json2Csv"
+PhysicalDisk.Discovery.Source(1).Compute(1).EntryKey="/"
+PhysicalDisk.Discovery.Source(1).Compute(1).Properties="/id;/type;/parent_id;/serial_number;/name;/extra_details/model_name;/extra_details/drive_type;/extra_details/firmware_version;/extra_details/size;"
+
+PhysicalDisk.Discovery.Source(1).Compute(2).Type="KeepOnlyMatchingLines"
+PhysicalDisk.Discovery.Source(1).Compute(2).Column=3
+PhysicalDisk.Discovery.Source(1).Compute(2).ValueList="M2_Drive,Drive"
+
+PhysicalDisk.Discovery.Source(1).Compute(3).Type="LeftConcat"
+PhysicalDisk.Discovery.Source(1).Compute(3).Column=2
+PhysicalDisk.Discovery.Source(1).Compute(3).String="DiskController;"
+
+// Join tables to remove controller name from display name.
+// Left Table: JSON_ID;ID;Type;Parent_ID;serial_number;name;
+// Right Table: JSON_ID;id;type;appliance_id;serial_number;name;
+PhysicalDisk.Discovery.Source(2).Type="TableJoint"
+PhysicalDisk.Discovery.Source(2).LeftTable=%PhysicalDisk.Discovery.Source(1)%
+PhysicalDisk.Discovery.Source(2).RightTable=%Enclosure.Discovery.Source(5)%
+PhysicalDisk.Discovery.Source(2).LeftKeyColumn=5
+PhysicalDisk.Discovery.Source(2).RightKeyColumn=2
+
+PhysicalDisk.Discovery.Source(2).Compute(1).Type="RightConcat"
+PhysicalDisk.Discovery.Source(2).Compute(1).Column=17
+PhysicalDisk.Discovery.Source(2).Compute(1).String="-"
+
+PhysicalDisk.Discovery.Source(2).Compute(2).Type="Replace"
+PhysicalDisk.Discovery.Source(2).Compute(2).Column=7
+PhysicalDisk.Discovery.Source(2).Compute(2).Replace=Column(17)
+PhysicalDisk.Discovery.Source(2).Compute(2).ReplaceBy=""
+
+PhysicalDisk.Discovery.Source(3).Type="HTTP"
+PhysicalDisk.Discovery.Source(3).Method="GET"
+PhysicalDisk.Discovery.Source(3).ExecuteForEachEntryOf=%Enclosure.Discovery.Source(2)%
+PhysicalDisk.Discovery.Source(3).Url="/api/rest/hardware?select=id,type,appliance_id,serial_number,name,extra_details&amp;parent_id=eq.%Entry.Column(2)%&limit=2000"
+PhysicalDisk.Discovery.Source(3).Header=EmbeddedFile(1)
+PhysicalDisk.Discovery.Source(3).ResultContent="body"
+PhysicalDisk.Discovery.Source(3).EntryConcatMethod="JSONArrayExtended"
+
+PhysicalDisk.Discovery.Source(3).Compute(1).Type="Json2Csv"
+PhysicalDisk.Discovery.Source(3).Compute(1).EntryKey="/Entry/Value"
+PhysicalDisk.Discovery.Source(3).Compute(1).Properties="/id;/type;/appliance_id;/serial_number;/name;/extra_details/model_name;/extra_details/drive_type;/extra_details/firmware_version;/extra_details/size;"
+
+PhysicalDisk.Discovery.Source(3).Compute(2).Type="KeepOnlyMatchingLines"
+PhysicalDisk.Discovery.Source(3).Compute(2).Column=3
+PhysicalDisk.Discovery.Source(3).Compute(2).ValueList="M2_Drive,Drive"
+
+PhysicalDisk.Discovery.Source(3).Compute(3).Type="LeftConcat"
+PhysicalDisk.Discovery.Source(3).Compute(3).Column=2
+PhysicalDisk.Discovery.Source(3).Compute(3).String="Enclosure;"
+
+// Table Union
+// Join disks from DiskController as well as those attached to enclosure.
+PhysicalDisk.Discovery.Source(4).Type="TableUnion"
+PhysicalDisk.Discovery.Source(4).Table1=%PhysicalDisk.Discovery.Source(2)%
+PhysicalDisk.Discovery.Source(4).Table2=%PhysicalDisk.Discovery.Source(3)%
+
+// PhysicalDisk Instance Table
+PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(4)%
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+PhysicalDisk.Discovery.Instance.SerialNumber=InstanceTable.Column(6)
+PhysicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(7)
+PhysicalDisk.Discovery.Instance.Model=InstanceTable.Column(8)
+PhysicalDisk.Discovery.Instance.Size=InstanceTable.Column(11)
+
+PhysicalDisk.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(5)
+PhysicalDisk.Discovery.Instance.AttachedToDeviceType=InstanceTable.Column(2)
+
+// Collect
+PhysicalDisk.Collect.Type="MultiInstance"
+
+// PhysicalDisk Value Table
+// JSON;id;type;lifecycle_state;lifecycle_state;appliance_id;
+PhysicalDisk.Collect.ValueTable=%Enclosure.Collect.Source(2)%
+PhysicalDisk.Collect.DeviceID=ValueTable.Column(2)
+PhysicalDisk.Collect.Status=ValueTable.Column(4)
+PhysicalDisk.Collect.StatusInformation=ValueTable.Column(5)
+
+
+
+//
+// PowerSupply
+//
+
+// Discovery
+PowerSupply.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+PowerSupply.Discovery.Source(1).Compute(1).Type="Json2Csv"
+PowerSupply.Discovery.Source(1).Compute(1).EntryKey="/"
+PowerSupply.Discovery.Source(1).Compute(1).Properties="/id;/type;/parent_id;/serial_number;/name;"
+
+PowerSupply.Discovery.Source(1).Compute(2).Type="KeepOnlyMatchingLines"
+PowerSupply.Discovery.Source(1).Compute(2).Column=3
+PowerSupply.Discovery.Source(1).Compute(2).ValueList="Power_Supply"
+
+
+// Join tables to remove controller name from display name.
+// Left Table: JSON_ID;ID;Type;Parent_ID;serial_number;name;
+// Right Table: JSON_ID;id;type;appliance_id;serial_number;name;
+PowerSupply.Discovery.Source(2).Type="TableJoint"
+PowerSupply.Discovery.Source(2).LeftTable=%PowerSupply.Discovery.Source(1)%
+PowerSupply.Discovery.Source(2).RightTable=%Enclosure.Discovery.Source(5)%
+PowerSupply.Discovery.Source(2).LeftKeyColumn=4
+PowerSupply.Discovery.Source(2).RightKeyColumn=2
+
+PowerSupply.Discovery.Source(2).Compute(1).Type="RightConcat"
+PowerSupply.Discovery.Source(2).Compute(1).Column=12
+PowerSupply.Discovery.Source(2).Compute(1).String="-"
+
+PowerSupply.Discovery.Source(2).Compute(2).Type="Replace"
+PowerSupply.Discovery.Source(2).Compute(2).Column=6
+PowerSupply.Discovery.Source(2).Compute(2).Replace=Column(12)
+PowerSupply.Discovery.Source(2).Compute(2).ReplaceBy=""
+
+PowerSupply.Discovery.Source(2).Compute(3).Type="LeftConcat"
+PowerSupply.Discovery.Source(2).Compute(3).Column=5
+PowerSupply.Discovery.Source(2).Compute(3).String="SerialNumber: "
+
+// PowerSupply Instance Table
+PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(2)%
+PowerSupply.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+PowerSupply.Discovery.Instance.DisplayID=InstanceTable.Column(6)
+PowerSupply.Discovery.Instance.AdditionalInformation1=InstanceTable.Column(5)
+PowerSupply.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(4)
+PowerSupply.Discovery.Instance.AttachedToDeviceType="DiskController"
+
+// Collect
+PowerSupply.Collect.Type="MultiInstance"
+
+// PowerSupply Value Table
+// JSON;id;type;lifecycle_state;lifecycle_state;appliance_id;
+PowerSupply.Collect.ValueTable=%Enclosure.Collect.Source(2)%
+PowerSupply.Collect.DeviceID=ValueTable.Column(2)
+PowerSupply.Collect.Status=ValueTable.Column(4)
+PowerSupply.Collect.StatusInformation=ValueTable.Column(5)
+
+
+
+//
+// Battery
+//
+
+Battery.Discovery.Source(1)=%Enclosure.Discovery.Source(1)%
+
+Battery.Discovery.Source(1).Compute(1).Type="Json2Csv"
+Battery.Discovery.Source(1).Compute(1).EntryKey="/"
+Battery.Discovery.Source(1).Compute(1).Properties="/id;/type;/parent_id;/serial_number;/name;"
+
+Battery.Discovery.Source(1).Compute(2).Type="KeepOnlyMatchingLines"
+Battery.Discovery.Source(1).Compute(2).Column=3
+Battery.Discovery.Source(1).Compute(2).ValueList="Battery"
+
+
+// Join tables to remove controller name from display name.
+// Left Table: JSON_ID;ID;Type;Parent_ID;serial_number;name;
+// Right Table: JSON_ID;id;type;appliance_id;serial_number;name;
+Battery.Discovery.Source(2).Type="TableJoint"
+Battery.Discovery.Source(2).LeftTable=%Battery.Discovery.Source(1)%
+Battery.Discovery.Source(2).RightTable=%Enclosure.Discovery.Source(5)%
+Battery.Discovery.Source(2).LeftKeyColumn=4
+Battery.Discovery.Source(2).RightKeyColumn=2
+
+Battery.Discovery.Source(2).Compute(1).Type="RightConcat"
+Battery.Discovery.Source(2).Compute(1).Column=12
+Battery.Discovery.Source(2).Compute(1).String="-"
+
+Battery.Discovery.Source(2).Compute(2).Type="Replace"
+Battery.Discovery.Source(2).Compute(2).Column=6
+Battery.Discovery.Source(2).Compute(2).Replace=Column(12)
+Battery.Discovery.Source(2).Compute(2).ReplaceBy=""
+
+// Battery Instance Table
+Battery.Discovery.InstanceTable=%Battery.Discovery.Source(2)%
+Battery.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+Battery.Discovery.Instance.DisplayID=InstanceTable.Column(6)
+
+Battery.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(4)
+Battery.Discovery.Instance.AttachedToDeviceType="DiskController"
+
+// Collect
+Battery.Collect.Type="MultiInstance"
+
+// Battery Value Table
+// JSON;id;type;lifecycle_state;lifecycle_state;appliance_id;
+Battery.Collect.ValueTable=%Enclosure.Collect.Source(2)%
+Battery.Collect.DeviceID=ValueTable.Column(2)
+Battery.Collect.Status=ValueTable.Column(4)
+Battery.Collect.StatusInformation=ValueTable.Column(5)
+
+
+
+//
+// NetworkCard
+//
+
+// Get SASPorts
+NetworkCard.Discovery.Source(1).Type="HTTP"
+NetworkCard.Discovery.Source(1).Method="GET"
+NetworkCard.Discovery.Source(1).Url="/api/rest/sas_port?select=id,node_id,name,sfp_id,is_link_up&limit=2000"
+NetworkCard.Discovery.Source(1).Header=EmbeddedFile(1)
+
+NetworkCard.Discovery.Source(1).Compute(1).Type="Json2Csv"
+NetworkCard.Discovery.Source(1).Compute(1).EntryKey="/"
+NetworkCard.Discovery.Source(1).Compute(1).Properties="/id;/node_id;/name;/null;/is_link_up;"
+
+NetworkCard.Discovery.Source(1).Compute(2).Type="RightConcat"
+NetworkCard.Discovery.Source(1).Compute(2).Column=6
+NetworkCard.Discovery.Source(1).Compute(2).String=";SAS"
+
+// Get EthernetPorts
+NetworkCard.Discovery.Source(2).Type="HTTP"
+NetworkCard.Discovery.Source(2).Method="GET"
+NetworkCard.Discovery.Source(2).Url="/api/rest/eth_port?select=id,node_id,name,mac_address,is_link_up&limit=2000"
+NetworkCard.Discovery.Source(2).Header=EmbeddedFile(1)
+
+NetworkCard.Discovery.Source(2).Compute(1).Type="Json2Csv"
+NetworkCard.Discovery.Source(2).Compute(1).EntryKey="/"
+NetworkCard.Discovery.Source(2).Compute(1).Properties="/id;/node_id;/name;/mac_address;/is_link_up;"
+
+NetworkCard.Discovery.Source(2).Compute(2).Type="RightConcat"
+NetworkCard.Discovery.Source(2).Compute(2).Column=6
+NetworkCard.Discovery.Source(2).Compute(2).String=";Ethernet"
+
+// Get FCPorts
+NetworkCard.Discovery.Source(3).Type="HTTP"
+NetworkCard.Discovery.Source(3).Method="GET"
+NetworkCard.Discovery.Source(3).Url="/api/rest/fc_port?select=id,node_id,name,wwn,is_link_up&limit=2000"
+NetworkCard.Discovery.Source(3).Header=EmbeddedFile(1)
+
+NetworkCard.Discovery.Source(3).Compute(1).Type="Json2Csv"
+NetworkCard.Discovery.Source(3).Compute(1).EntryKey="/"
+NetworkCard.Discovery.Source(3).Compute(1).Properties="/id;/node_id;/name;/wwn;/is_link_up;"
+
+NetworkCard.Discovery.Source(3).Compute(2).Type="RightConcat"
+NetworkCard.Discovery.Source(3).Compute(2).Column=6
+NetworkCard.Discovery.Source(3).Compute(2).String=";FC"
+
+NetworkCard.Discovery.Source(4).Type="TableUnion"
+NetworkCard.Discovery.Source(4).Table1=%NetworkCard.Discovery.Source(1)%
+NetworkCard.Discovery.Source(4).Table2=%NetworkCard.Discovery.Source(2)%
+NetworkCard.Discovery.Source(4).Table3=%NetworkCard.Discovery.Source(3)%
+
+// Disable speed for link_down ports
+NetworkCard.Discovery.Source(4).Compute(1).Type="Replace"
+NetworkCard.Discovery.Source(4).Compute(1).Column=6
+NetworkCard.Discovery.Source(4).Compute(1).Replace="FALSE"
+NetworkCard.Discovery.Source(4).Compute(1).ReplaceBy=""
+
+// Join tables to remove controller name from display name.
+// Left Table: JSON_ID;ID;node_id;name;wwn;link
+// Right Table: JSON_ID;id;type;appliance_id;serial_number;name;
+NetworkCard.Discovery.Source(5).Type="TableJoint"
+NetworkCard.Discovery.Source(5).LeftTable=%NetworkCard.Discovery.Source(4)%
+NetworkCard.Discovery.Source(5).RightTable=%Enclosure.Discovery.Source(5)%
+NetworkCard.Discovery.Source(5).LeftKeyColumn=3
+NetworkCard.Discovery.Source(5).RightKeyColumn=2
+
+NetworkCard.Discovery.Source(5).Compute(1).Type="RightConcat"
+NetworkCard.Discovery.Source(5).Compute(1).Column=13
+NetworkCard.Discovery.Source(5).Compute(1).String="-"
+
+NetworkCard.Discovery.Source(5).Compute(2).Type="Replace"
+NetworkCard.Discovery.Source(5).Compute(2).Column=4
+NetworkCard.Discovery.Source(5).Compute(2).Replace=Column(13)
+NetworkCard.Discovery.Source(5).Compute(2).ReplaceBy=""
+
+// NetworkCard Instance Table
+NetworkCard.Discovery.InstanceTable=%NetworkCard.Discovery.Source(5)%
+NetworkCard.Discovery.Instance.DeviceID=InstanceTable.Column(2)
+NetworkCard.Discovery.Instance.DisplayID=InstanceTable.Column(4)
+NetworkCard.Discovery.Instance.LogicalAddress=InstanceTable.Column(5)
+NetworkCard.Discovery.Instance.DeviceType=InstanceTable.Column(7)
+NetworkCard.Discovery.Instance.ParameterActivation.LinkSpeed=InstanceTable.Column(6)
+
+NetworkCard.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(9)
+NetworkCard.Discovery.Instance.AttachedToDeviceType="DiskController"
+
+// Collect
+NetworkCard.Collect.Type="MultiInstance"
+
+// Get SASPorts
+NetworkCard.Collect.Source(1).Type="HTTP"
+NetworkCard.Collect.Source(1).Method="GET"
+NetworkCard.Collect.Source(1).Url="/api/rest/sas_port?select=id,is_link_up,speed&limit=2000"
+NetworkCard.Collect.Source(1).Header=EmbeddedFile(1)
+
+NetworkCard.Collect.Source(1).Compute(1).Type="Json2Csv"
+NetworkCard.Collect.Source(1).Compute(1).EntryKey="/"
+NetworkCard.Collect.Source(1).Compute(1).Properties="/id;/is_link_up;/is_link_up;/is_link_up;/speed"
+
+// Get EthernetPorts
+NetworkCard.Collect.Source(2).Type="HTTP"
+NetworkCard.Collect.Source(2).Method="GET"
+NetworkCard.Collect.Source(2).Url="/api/rest/eth_port?select=id,is_link_up,current_speed&limit=2000"
+NetworkCard.Collect.Source(2).Header=EmbeddedFile(1)
+
+NetworkCard.Collect.Source(2).Compute(1).Type="Json2Csv"
+NetworkCard.Collect.Source(2).Compute(1).EntryKey="/"
+NetworkCard.Collect.Source(2).Compute(1).Properties="/id;/is_link_up;/is_link_up;/is_link_up;/current_speed"
+
+// Get FCPorts
+NetworkCard.Collect.Source(3).Type="HTTP"
+NetworkCard.Collect.Source(3).Method="GET"
+NetworkCard.Collect.Source(3).Url="/api/rest/fc_port?select=id,is_link_up,current_speed&limit=2000"
+NetworkCard.Collect.Source(3).Header=EmbeddedFile(1)
+
+NetworkCard.Collect.Source(3).Compute(1).Type="Json2Csv"
+NetworkCard.Collect.Source(3).Compute(1).EntryKey="/"
+NetworkCard.Collect.Source(3).Compute(1).Properties="/id;/is_link_up;/is_link_up;/is_link_up;/current_speed"
+
+NetworkCard.Collect.Source(4).Type="TableUnion"
+NetworkCard.Collect.Source(4).Table1=%NetworkCard.Collect.Source(1)%
+NetworkCard.Collect.Source(4).Table2=%NetworkCard.Collect.Source(2)%
+NetworkCard.Collect.Source(4).Table3=%NetworkCard.Collect.Source(3)%
+
+NetworkCard.Collect.Source(4).Compute(1).Type="Translate"
+NetworkCard.Collect.Source(4).Compute(1).Column=3
+NetworkCard.Collect.Source(4).Compute(1).TranslationTable="NetworkStatusTranslationTable"
+
+NetworkStatusTranslationTable("TRUE")="OK"
+NetworkStatusTranslationTable("FALSE")="OK"
+NetworkStatusTranslationTable(default)="WARN"
+
+NetworkCard.Collect.Source(4).Compute(2).Type="Translate"
+NetworkCard.Collect.Source(4).Compute(2).Column=4
+NetworkCard.Collect.Source(4).Compute(2).TranslationTable="NetworkStatusInformationTranslationTable"
+
+NetworkStatusInformationTranslationTable("TRUE")="Link is up"
+NetworkStatusInformationTranslationTable("FALSE")="Link is down"
+NetworkStatusInformationTranslationTable(default)="Unknown status"
+
+NetworkCard.Collect.Source(4).Compute(3).Type="Translate"
+NetworkCard.Collect.Source(4).Compute(3).Column=5
+NetworkCard.Collect.Source(4).Compute(3).TranslationTable="NetworkLinkStatusTranslationTable"
+
+NetworkLinkStatusTranslationTable("TRUE")="OK"
+NetworkLinkStatusTranslationTable("FALSE")="WARN"
+
+NetworkCard.Collect.Source(4).Compute(4).Type="Translate"
+NetworkCard.Collect.Source(4).Compute(4).Column=6
+NetworkCard.Collect.Source(4).Compute(4).TranslationTable="LinkSpeedTranslationTable"
+
+LinkSpeedTranslationTable("10_Mbps")=10
+LinkSpeedTranslationTable("100_Mbps")=100
+LinkSpeedTranslationTable("1_Gbps")=1000
+LinkSpeedTranslationTable("3_Gbps")=3000
+LinkSpeedTranslationTable("4_Gbps")=4000
+LinkSpeedTranslationTable("6_Gbps")=6000
+LinkSpeedTranslationTable("8_Gbps")=8000
+LinkSpeedTranslationTable("10_Gbps")=10000
+LinkSpeedTranslationTable("12_Gbps")=12000
+LinkSpeedTranslationTable("16_Gbps")=16000
+LinkSpeedTranslationTable("25_Gbps")=25000
+LinkSpeedTranslationTable("32_Gbps")=32000
+LinkSpeedTranslationTable("40_Gbps")=40000
+LinkSpeedTranslationTable("null")=""
+LinkSpeedTranslationTable(default)=""
+
+// NetworkCard Value Table
+// JSON;id;type;lifecycle_state;lifecycle_state;appliance_id;
+NetworkCard.Collect.ValueTable=%NetworkCard.Collect.Source(4)%
+NetworkCard.Collect.DeviceID=ValueTable.Column(2)
+NetworkCard.Collect.Status=ValueTable.Column(3)
+NetworkCard.Collect.StatusInformation=ValueTable.Column(4)
+NetworkCard.Collect.LinkStatus=ValueTable.Column(5)
+NetworkCard.Collect.LinkSpeed=ValueTable.Column(6)
+
+
+// Status Translation Table for all classes
+StatusTranslationTable("Uninitialized")="OK"
+StatusTranslationTable("Healthy")="OK"
+StatusTranslationTable("Initializing")="OK"
+StatusTranslationTable("Failed")="ALARM"
+StatusTranslationTable("Disconnected")="WARN"
+StatusTranslationTable("Prepare_Failed")="OK"
+StatusTranslationTable("Trigger_Update")="OK"
+StatusTranslationTable("Empty")="OK"
+
+StatusInformationTranslationTable("Uninitialized")="System is starting up."
+StatusInformationTranslationTable("Healthy")="Hardware is healthy."
+StatusInformationTranslationTable("Initializing")="System is starting up."
+StatusInformationTranslationTable("Failed")="ALARM"
+StatusInformationTranslationTable("Disconnected")="WARN"
+StatusInformationTranslationTable("Prepare_Failed")="OK"
+StatusInformationTranslationTable("Trigger_Update")="OK"
+StatusInformationTranslationTable("Empty")="OK"
+
+
+/////////////////////////////////////////////////////////
+///
+///    E M B E D D E D   F I L E ! ! !
+///
+///    EmbeddedFile(1) = Headers
+/////////////////////////////////////////////////////////
+EmbeddedFile(1):
+Accept:application/json
+EmbeddedFile(1).End
+/////////////////////////////////////////////////////////
