@@ -23,7 +23,8 @@ public class ConnectorConverter {
 
 	private static final Map<Pattern, String> IGNORED_KEY_PATTERNS = Map.of(
 		Pattern.compile(ConversionHelper.buildCriteriaKeyRegex("type")), "cpucore",
-		Pattern.compile(ConversionHelper.buildCriteriaKeyRegex("type")), "telnetinteractive"
+		Pattern.compile(ConversionHelper.buildCriteriaKeyRegex("type")), "telnetinteractive",
+		Pattern.compile(ConversionHelper.buildCriteriaKeyRegex("type")), "snmp"
 	);
 
 	@NonNull
