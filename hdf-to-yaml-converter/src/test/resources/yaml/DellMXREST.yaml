@@ -1,0 +1,1118 @@
+---
+embedded:
+  EmbeddedFile(1): "Accept:application/json"
+translations:
+  TypeTranslationTable:
+    "8000": "Storage IOM"
+    "4000": "NETWORK IO Module"
+    "1000": "Server"
+    "2000": "Chassis"
+    "3000": "Storage"
+    disabled: "Ethernet;MAC"
+    enabled: "FC;WWN"
+  FcLinkStatusTranslationTable:
+    default: "degraded"
+    up: "ok"
+  StatusInformationTranslationTable:
+    default: "failed"
+    "5000": "The device/group does not have a valid status."
+    "4000": "The device is in critical state."
+    "1000": "The device is running normal."
+    "2000": "Status is not determined."
+    "3000": "The device has warning state."
+  StatusTranslationTable:
+    default: "failed"
+    "5000": "UNKNOWN"
+    "4000": "failed"
+    "1000": "ok"
+    "2000": "UNKNOWN"
+    "3000": "degraded"
+  LinkSpeedDeactivationTranslationTable:
+    "0": ""
+    default: "True"
+connector:
+  displayName: "Dell MX Chassis and Blades (REST)"
+  platforms: "Dell MX7000"
+  version: "1.0"
+  information: "This connector provides hardware monitoring for Dell MX Series. It monitors the enclosure and physical disks as well as the various environment sensors (CPUs, temperatures, fans, power supplies, memory, disk controllers, batteries and network cards)."
+  detection:
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "OOB"
+    criteria:
+      # Hardware Sentry v10.2.00+
+    - type: "productRequirements"
+      kmVersion: "10.2.00"
+    - type: "http"
+      method: "GET"
+      url: "/api/DeviceService/Devices"
+      header: "EmbeddedFile(1)"
+      expectedResult: "api"
+      errorMessage: "Invalid credentials / not an MX7000"
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          # List the devices
+          type: "http"
+          method: "GET"
+          url: "/api/DeviceService/Devices"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+          - type: "json2csv"
+            entryKey: "/value"
+            properties: "/@odata.id;/DeviceName;/Identifier;/Model;/Type;/SlotConfiguration/ChassisName;/SlotConfiguration/SlotNumber;"
+            separator: ";"
+        source(2):
+          # keep only chassis and blades
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          computes:
+          - type: "keepOnlyMatchingLines"
+            column: 6
+            regExp: "2000"
+          - type: "translate"
+            column: 6
+            translationTable: "TypeTranslationTable"
+      mapping:
+        # Enclosure Instance Table
+        source: "$monitors.enclosure.discovery.sources.source(2)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(3)"
+          model: "$column(5)"
+          serial_number: "$column(4)"
+          vendor: "Dell"
+          type: "$column(6)"
+          name: "sprintf(\"%s (%s %s - %s)\", $column(3), \"Dell\", $column(5), $column(6))"
+    collect:
+      # Collection
+      type: "multiInstance"
+      sources:
+        source(1):
+          type: "http"
+          method: "GET"
+          url: "/api/DeviceService/Devices"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+          - type: "json2csv"
+            entryKey: "/value"
+            properties: "/DeviceName;/Status;/Status;/SlotConfiguration/SlotNumber;"
+            separator: ";"
+          - type: "translate"
+            column: 3
+            translationTable: "StatusTranslationTable"
+          - type: "translate"
+            column: 4
+            translationTable: "StatusInformationTranslationTable"
+      mapping:
+        # Enclosure Value Table
+        source: "$monitors.enclosure.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="enclosure"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  blade:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          # now create a container blade with global status
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          computes:
+          - type: "keepOnlyMatchingLines"
+            column: 6
+            regExp: "1000"
+            # \"jsonid;/@odata.id;/DeviceName;/Identifier;/Model;/Type;/SlotConfiguration/ChassisName;/SlotConfiguration/SlotNumber;\"
+          - type: "replace"
+            column: 6
+            existingValue: "1000"
+            newValue: "blade"
+      mapping:
+        # Enclosure Instance Table
+        source: "$monitors.blade.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(3)"
+          blade_name: "$column(3)"
+          model: "$column(5)"
+          serial_number: "$column(4)"
+          info: "Vendor: Dell"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(7)"
+          name: "sprintf(\"%s (%s - %s)\", $column(3), $column(3), $column(5))"
+    collect:
+      sources:
+        source(1):
+          # collect the blades
+          # "JSONID;/DeviceName;/Status;/Status;/SlotConfiguration/SlotNumber;"
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(1)$"
+      mapping:
+        source: "$monitors.blade.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="blade"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          # first other device represent the network switchs
+          type: "http"
+          method: "GET"
+          url: "/api/DeviceService/Devices"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+          - type: "json2csv"
+            entryKey: "/value"
+            properties: "/@odata.type;/DeviceName;/DeviceName;/Identifier;/Model;/Type;"
+            separator: ";"
+        source(2):
+          type: "copy"
+          from: "$monitors.other_device.discovery.sources.source(1)$"
+          computes:
+          - type: "excludeMatchingLines"
+            column: 7
+            regExp: "\\(1000\\)\\|\\(2000\\)"
+          - type: "translate"
+            column: 7
+            translationTable: "TypeTranslationTable"
+        source(3):
+          type: "copy"
+          from: "$monitors.other_device.discovery.sources.source(1)$"
+          computes:
+          - type: "keepOnlyMatchingLines"
+            column: 7
+            regExp: "2000"
+        source(4):
+          # now attach the other device to the chassis
+          type: "tableJoin"
+          leftTable: "$monitors.other_device.discovery.sources.source(2)$"
+          rightTable: "$monitors.other_device.discovery.sources.source(3)$"
+          leftKeyColumn: 2
+          rightKeyColumn: 2
+          computes:
+          - type: "replace"
+            column: 2
+            existingValue: "Column(2)"
+            newValue: "Column(10)"
+        source(5):
+          # add the chassis controllers (CMC)
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(2)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(2)$/InventoryDetails('chassisControllerList')"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+          - type: "json2csv"
+            entryKey: "/Entry/Value/InventoryInfo"
+            properties: "../../Column(2);/Name;/Name;/FirmwareVersion;"
+            separator: ";"
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            regExp: "."
+        source(6):
+          type: "tableUnion"
+          tables:
+          - "$monitors.other_device.discovery.sources.source(4)$"
+          - "$monitors.other_device.discovery.sources.source(5)$"
+          computes:
+          - type: "leftConcat"
+            column: 5
+            value: "SerialNumber: "
+      mapping:
+        source: "$monitors.other_device.discovery.sources.source(6)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          device_type: "$column(7)"
+          info: "join($column(5), $column(6), \" \")"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s: %s\", $column(7), $column(4))"
+    collect:
+      sources:
+        source(1):
+          # Collect
+          type: "http"
+          method: "GET"
+          url: "/api/DeviceService/Devices"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+          - type: "json2csv"
+            entryKey: "/value"
+            properties: "/DeviceName;/Status;/Status;"
+            separator: ";"
+          - type: "translate"
+            column: 3
+            translationTable: "StatusTranslationTable"
+          - type: "translate"
+            column: 4
+            translationTable: "StatusInformationTranslationTable"
+        source(2):
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(2)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(2)$/InventoryDetails('chassisControllerList')"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+          - type: "json2csv"
+            entryKey: "/Entry/Value/InventoryInfo"
+            properties: "/Name;/Health;/Health;"
+            separator: ";"
+          - type: "translate"
+            column: 3
+            translationTable: "StatusTranslationTable"
+          - type: "translate"
+            column: 4
+            translationTable: "StatusInformationTranslationTable"
+        source(3):
+          type: "tableUnion"
+          tables:
+          - "$monitors.other_device.collect.sources.source(1)$"
+          - "$monitors.other_device.collect.sources.source(2)$"
+      mapping:
+        # Blade Value Table
+        source: "$monitors.other_device.collect.sources.source(3)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="other_device"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  cpu:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(2)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(2)$/InventoryDetails('serverProcessors')"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+          - type: "json2csv"
+            entryKey: "/Entry/Value/InventoryInfo"
+            properties: "../../Column(2);/SlotNumber;/BrandName;/ModelName;/MaxSpeed;"
+            separator: ";"
+          - type: "replace"
+            column: 3
+            existingValue: "CPU."
+            newValue: ""
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            regExp: "."
+            # compute now the disk ID
+          - type: "rightConcat"
+            column: 2
+            value: ";"
+            # compute now the disk ID
+          - type: "leftConcat"
+            column: 3
+            value: "Column(2)"
+          - type: "rightConcat"
+            column: 3
+            value: "Column(4)"
+      mapping:
+        # CPU Instance Table
+        source: "$monitors.cpu.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          vendor: "$column(5)"
+          model: "$column(6)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s - %s - %mhhf.s)\", $column(4), $column(5), $column(6), $column(7))"
+        metrics:
+          hw.cpu.speed.limit{limit_type="max"}: "megaHertz2Hertz($column(7))"
+    collect:
+      # Collect
+      type: "multiInstance"
+      sources:
+        source(1):
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(2)$"
+            concatMethod: "json_array"
+          url: "$entry.column(2)$/InventoryDetails('serverProcessors')"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+          - type: "json2csv"
+            entryKey: "/Entry/Value/InventoryInfo"
+            properties: "../../Column(2);/SlotNumber;/Status;/Status;"
+            separator: ";"
+          - type: "translate"
+            column: 4
+            translationTable: "StatusTranslationTable"
+          - type: "translate"
+            column: 5
+            translationTable: "StatusInformationTranslationTable"
+          - type: "rightConcat"
+            column: 2
+            value: "Column(3)"
+      mapping:
+        # CPU Value Table
+        source: "$monitors.cpu.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="cpu"}: "$column(4)"
+        legacyTextParameters:
+          StatusInformation: "$column(5)"
+  memory:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(2)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(2)$/InventoryDetails('serverMemoryDevices')"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+          - type: "json2csv"
+            entryKey: "/Entry/Value/InventoryInfo"
+            properties: "../../Column(2);/InstanceId;/Name;/Size;/Manufacturer;/PartNumber;/SerialNumber;"
+            separator: ";"
+          - type: "replace"
+            column: 4
+            existingValue: "DIMM."
+            newValue: ""
+            # Exclude memory with empty names
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            regExp: "."
+      mapping:
+        # Memory Instance Table
+        source: "$monitors.memory.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(8)"
+          __display_id: "$column(4)"
+          vendor: "$column(6)"
+          model: "$column(7)"
+          serial_number: "$column(8)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s (%s) - %s)\", $column(4), $column(6), $column(7), $column(5))"
+        metrics:
+          hw.memory.limit: "mebiByte2Byte($column(5))"
+    collect:
+      # Collect
+      type: "multiInstance"
+      sources:
+        source(1):
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(2)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(2)$/InventoryDetails('serverMemoryDevices')"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+          - type: "json2csv"
+            entryKey: "Entry/Value/InventoryInfo"
+            properties: "/InstanceId;/Status;/Status;/SerialNumber;"
+            separator: ";"
+          - type: "translate"
+            column: 3
+            translationTable: "StatusTranslationTable"
+          - type: "translate"
+            column: 4
+            translationTable: "StatusInformationTranslationTable"
+      mapping:
+        # Memory Value Table
+        source: "$monitors.memory.collect.sources.source(1)$"
+        deviceId: "$column(5)"
+        metrics:
+          hw.status{hw.type="memory"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(2)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(2)$/InventoryDetails('chassisFansList')"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+          - type: "json2csv"
+            entryKey: "/Entry/Value/InventoryInfo"
+            properties: "../../Column(3);/MemberId;/Name;/MemberId"
+            separator: ";"
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            regExp: "."
+          - type: "leftConcat"
+            column: 3
+            value: "Column(2)"
+            # remove /entry/value from jsonid to use it in the above tablejoint
+          - type: "replace"
+            column: 1
+            existingValue: "/Entry/Value"
+            newValue: ""
+      mapping:
+        # Fan Instance Table
+        source: "$monitors.fan.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          hw.parent.type: "Chassis"
+          hw.parent.id: "$column(2)"
+          name: "$column(4)"
+    collect:
+      # Collection
+      type: "multiInstance"
+      sources:
+        source(1):
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(2)$"
+            concatMethod: "json_array"
+          url: "$entry.column(2)$/InventoryDetails('chassisFansList')"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+          - type: "json2csv"
+            entryKey: "/InventoryInfo"
+            properties: "/MemberId;/Status;/Speed;/Pwm;/Status;"
+            separator: ";"
+          - type: "translate"
+            column: 3
+            translationTable: "StatusTranslationTable"
+          - type: "translate"
+            column: 6
+            translationTable: "StatusInformationTranslationTable"
+        source(2):
+          type: "tableJoin"
+          leftTable: "$monitors.fan.collect.sources.source(1)$"
+          rightTable: "$monitors.fan.discovery.sources.source(1)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          computes:
+          - type: "leftConcat"
+            column: 2
+            value: "Column(8)"
+      mapping:
+        # Fan Value Table
+        source: "$monitors.fan.collect.sources.source(2)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="fan"}: "$column(3)"
+          hw.fan.speed: "$column(4)"
+          hw.fan.speed_ratio: "percent2Ratio($column(5))"
+        legacyTextParameters:
+          StatusInformation: "$column(6)"
+  disk_controller:
+    discovery:
+      sources:
+        source(1):
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(2)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(2)$/InventoryDetails('serverRaidControllers')"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+          - type: "json2csv"
+            entryKey: "/Entry/Value/InventoryInfo"
+            properties: "../../Column(2);/Fqdd;/FirmwareVersion;/ServerVirtualDisks;"
+            separator: ";"
+          - type: "duplicateColumn"
+            column: 2
+          - type: "rightConcat"
+            column: 3
+            value: "Column(4)"
+          - type: "keepOnlyMatchingLines"
+            column: 5
+            regExp: "."
+      mapping:
+        # DiskController Instance Table
+        # JsonID;<System>;<System+Fqdd/name>(unique);Fqdd;FirmwareVersion;ServerVirtualDisks;
+        source: "$monitors.disk_controller.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          controller_number: "$column(3)"
+          firmware_version: "$column(5)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s %s\"), \"Disk Controller\", $column(4))"
+    collect:
+      # Collection
+      type: "multiInstance"
+      sources:
+        source(1):
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(2)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(2)$/InventoryDetails('serverRaidControllers')"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+          - type: "json2csv"
+            entryKey: "/Entry/Value/InventoryInfo"
+            properties: "../../Column(2);/Fqdd;/Status;/Status;"
+            separator: ";"
+          - type: "translate"
+            column: 4
+            translationTable: "StatusTranslationTable"
+          - type: "translate"
+            column: 5
+            translationTable: "StatusInformationTranslationTable"
+          - type: "duplicateColumn"
+            column: 2
+          - type: "rightConcat"
+            column: 3
+            value: "Column(4)"
+      mapping:
+        # DiskController Value Table
+        source: "$monitors.disk_controller.collect.sources.source(1)$"
+        deviceId: "$column(3)"
+        metrics:
+          hw.status{hw.type="disk_controller"}: "$column(5)"
+        legacyTextParameters:
+          StatusInformation: "$column(6)"
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(2)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(2)$/InventoryDetails('serverArrayDisks')"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+          - type: "json2csv"
+            entryKey: "/Entry/Value/InventoryInfo"
+            properties: "../../Column(2);/Id;/DiskNumber;/VendorName;/SerialNumber;/ModelNumber;/Size;/MediaType;/BusType;"
+            separator: ";"
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            regExp: "."
+      mapping:
+        # PhysicalDisk Instance Table
+        # 1        #  2       3   4        #  5        #    6        #  7        #    8     9         10
+        # EntryKey;BladeId;/Id;/DiskNumber;/VendorName;/SerialNumber;/ModelNumber;/Size;/MediaType;/BusType;
+        source: "$monitors.physical_disk.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(6)"
+          __display_id: "$column(4)"
+          vendor: "$column(5)"
+          serial_number: "$column(6)"
+          model: "$column(7)"
+          info: "join($column(10), $column(9), \" \")"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s - %s)\", $column(4), $column(7), $column(8))"
+        metrics:
+          hw.physical_disk.size: "$column(8)"
+    collect:
+      # Collection
+      type: "multiInstance"
+      sources:
+        source(1):
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(2)$"
+            concatMethod: "json_array"
+          url: "$entry.column(2)$/InventoryDetails('serverArrayDisks')"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+          - type: "json2csv"
+            entryKey: "/InventoryInfo"
+            properties: "/SerialNumber;/Status;/Status;/RemainingReadWriteEndurance;"
+            separator: ";"
+          - type: "translate"
+            column: 3
+            translationTable: "StatusTranslationTable"
+          - type: "translate"
+            column: 4
+            translationTable: "StatusInformationTranslationTable"
+          - type: "replace"
+            column: 5
+            existingValue: "255"
+            newValue: ""
+      mapping:
+        # PhysicalDisk Value Table
+        source: "$monitors.physical_disk.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="physical_disk"}: "$column(3)"
+          hw.physical_disk.endurance_utilization{state="remaining"}: "percent2Ratio($column(5))"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(2)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(2)$/InventoryDetails('serverRaidControllers')"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+          - type: "json2csv"
+            entryKey: "/Entry/Value/InventoryInfo/ServerVirtualDisks"
+            properties: "../../../Column(2);/Id;/Fqdd;/Layout;/MediaType;/Size;../Fqdd"
+            separator: ";"
+          - type: "rightConcat"
+            column: 2
+            value: "Column(8)"
+      mapping:
+        # LogicalDisk Instance Table
+        source: "$monitors.logical_disk.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          raid_level: "$column(5)"
+          type: "$column(6)"
+          hw.logical_disk.limit: "$column(7)"
+          hw.parent.type: "disk_controller"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
+          name: "sprintf(\"%s (%s - %s)\", $column(4), $column(5), $column(7))"
+    collect:
+      # Collect
+      type: "multiInstance"
+      sources:
+        source(1):
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(2)$"
+            concatMethod: "json_array"
+          url: "$entry.column(2)$/InventoryDetails('serverRaidControllers')"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+          - type: "json2csv"
+            entryKey: "/InventoryInfo/ServerVirtualDisks"
+            properties: "/Id;/Status;/Status;"
+            separator: ";"
+          - type: "translate"
+            column: 3
+            translationTable: "StatusTranslationTable"
+          - type: "translate"
+            column: 4
+            translationTable: "StatusInformationTranslationTable"
+      mapping:
+        # LogicalDisk Value Table
+        source: "$monitors.logical_disk.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="logical_disk"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(2)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(2)$/InventoryDetails('chassisPowerSupplies')"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+          - type: "json2csv"
+            entryKey: "/Entry/Value/InventoryInfo"
+            properties: "../../Column(3);/MemberId;/Name;/CapacityWatts;/PowerSupplyType;/EnableState;/MemberId"
+            separator: ";"
+          - type: "excludeMatchingLines"
+            column: 7
+            regExp: "Absent"
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            regExp: "."
+          - type: "leftConcat"
+            column: 3
+            value: "Column(2)"
+          - type: "replace"
+            column: 1
+            existingValue: "/Entry/Value"
+            newValue: ""
+      mapping:
+        # PowerSupply Instance Table
+        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          power_supply_type: "$column(6)"
+          hw.parent.type: "Chassis"
+          hw.parent.id: "$column(2)"
+          name: "sprintf(\"%s (%s - %s)\", $column(4), $column(6), $column(5))"
+        metrics:
+          hw.power_supply.limit: "$column(5)"
+    collect:
+      # Collection
+      type: "multiInstance"
+      sources:
+        source(1):
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(2)$"
+            concatMethod: "json_array"
+          url: "$entry.column(2)$/InventoryDetails('chassisPowerSupplies')"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+          - type: "json2csv"
+            entryKey: "/InventoryInfo"
+            properties: "/MemberId;/HealthState;/HealthState;"
+            separator: ";"
+          - type: "translate"
+            column: 3
+            translationTable: "StatusTranslationTable"
+          - type: "translate"
+            column: 4
+            translationTable: "StatusInformationTranslationTable"
+        source(2):
+          type: "tableJoin"
+          leftTable: "$monitors.power_supply.collect.sources.source(1)$"
+          rightTable: "$monitors.power_supply.discovery.sources.source(1)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          computes:
+            # jsonid;/MemberId;/HealthState;/HealthState;jsonid;../../Column(3);/MemberId;/Name;/CapacityWatts;/PowerSupplyType;/EnableState;/MemberId
+          - type: "leftConcat"
+            column: 2
+            value: "Column(6)"
+      mapping:
+        # PowerSupply Value Table
+        source: "$monitors.power_supply.collect.sources.source(2)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="power_supply"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  battery:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(2)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(2)$/InventoryDetails('subsystemRollupStatus')"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+          - type: "json2csv"
+            entryKey: "/Entry/Value/InventoryInfo"
+            properties: "../../Column(2);../../Column(2);/SubsystemName;"
+            separator: ";"
+          - type: "keepOnlyMatchingLines"
+            column: 4
+            regExp: "batteryRollupStatus"
+          - type: "rightConcat"
+            column: 3
+            value: "Column(4)"
+      mapping:
+        # Battery Instance Table
+        source: "$monitors.battery.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "battery"
+          hw.parent.type: "enclosure"
+          name: "battery"
+    collect:
+      # Collection
+      type: "multiInstance"
+      sources:
+        source(1):
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(2)$"
+            concatMethod: "json_array"
+          url: "$entry.column(2)$/InventoryDetails('subsystemRollupStatus')"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+          - type: "json2csv"
+            entryKey: "/Entry/Value/InventoryInfo"
+            properties: "../../Column(2);/Status;/Status;/SubsystemName;"
+            separator: ";"
+          - type: "translate"
+            column: 3
+            translationTable: "StatusTranslationTable"
+          - type: "translate"
+            column: 4
+            translationTable: "StatusInformationTranslationTable"
+          - type: "rightConcat"
+            column: 2
+            value: "Column(5)"
+      mapping:
+        # Battery Value Table
+        source: "$monitors.battery.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="battery"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(2)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(2)$/InventoryDetails('chassisTemperatureList')"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+          - type: "json2csv"
+            entryKey: "/Entry/Value/InventoryInfo"
+            properties: "../../Column(3);/MemberId;/SensorName;/UpperThresholdNoncritical;/UpperThresholdCritical;/ReadingCelsius;/MemberId"
+            separator: ";"
+          - type: "keepOnlyMatchingLines"
+            column: 4
+            regExp: "."
+          - type: "keepOnlyMatchingLines"
+            column: 7
+            regExp: "."
+          - type: "leftConcat"
+            column: 3
+            value: "Column(2)"
+            # remove /entry/value from jsonid to use it in the above tablejoint
+          - type: "replace"
+            column: 1
+            existingValue: "/Entry/Value"
+            newValue: ""
+      mapping:
+        # Temperature Instance Table
+        # JsonId;<System>;MemberId;SensorName;
+        source: "$monitors.temperature.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          hw.parent.type: "Chassis"
+          hw.parent.id: "$column(2)"
+          name: "$column(4)"
+    collect:
+      # Collection
+      type: "multiInstance"
+      sources:
+        source(1):
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(2)$"
+            concatMethod: "json_array"
+          url: "$entry.column(2)$/InventoryDetails('chassisTemperatureList')"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+          - type: "json2csv"
+            entryKey: "/InventoryInfo"
+            properties: "/MemberId;/Status;/ReadingCelsius;/Status;"
+            separator: ";"
+          - type: "translate"
+            column: 3
+            translationTable: "StatusTranslationTable"
+          - type: "translate"
+            column: 5
+            translationTable: "StatusInformationTranslationTable"
+        source(2):
+          # as fan and psu joint with temp discovery to compute id with enclosure id
+          # jsonid;/MemberId;/Status;/ReadingCelsius;/Status;jsonid;../../Column(3);/MemberId;/SensorName;/UpperThresholdNoncritical;/UpperThresholdCritical;/ReadingCelsius;Memberid
+          type: "tableJoin"
+          leftTable: "$monitors.temperature.collect.sources.source(1)$"
+          rightTable: "$monitors.temperature.discovery.sources.source(1)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          computes:
+          - type: "leftConcat"
+            column: 2
+            value: "Column(7)"
+      mapping:
+        # Temperature Value Table
+        source: "$monitors.temperature.collect.sources.source(2)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="temperature"}: "$column(3)"
+          hw.temperature: "$column(4)"
+        legacyTextParameters:
+          StatusInformation: "$column(5)"
+  network:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(2)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(2)$/InventoryDetails('serverNetworkInterfaces')"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+          - type: "json2csv"
+            entryKey: "/Entry/Value/InventoryInfo/Ports/Partitions"
+            properties: "../../../../Column(2);/Fqdd;/PermanentMacAddress;../ProductName;../../VendorName;/FcoeMode;/MaxBandwidth;"
+            separator: ";"
+          - type: "translate"
+            column: 7
+            translationTable: "TypeTranslationTable"
+          - type: "translate"
+            column: 9
+            translationTable: "LinkSpeedDeactivationTranslationTable"
+        source(2):
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(2)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(2)$/InventoryDetails('serverFcCards')"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+          - type: "json2csv"
+            entryKey: "/Entry/Value/InventoryInfo"
+            properties: "../../Column(2);/Fqdd;/Wwn;/DeviceName;/VendorName;/PortSpeed;"
+            separator: ";"
+          - type: "rightConcat"
+            column: 6
+            value: ";FC;WWN"
+          - type: "replace"
+            column: 9
+            existingValue: " Gbps"
+            newValue: "000"
+          - type: "translate"
+            column: 9
+            translationTable: "LinkSpeedDeactivationTranslationTable"
+        source(3):
+          type: "tableUnion"
+          tables:
+          - "$monitors.network.discovery.sources.source(1)$"
+          - "$monitors.network.discovery.sources.source(2)$"
+          computes:
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            regExp: "."
+      mapping:
+        # NetworkCard Instance Table
+        source: "$monitors.network.discovery.sources.source(3)$"
+        attributes:
+          id: "$column(4)"
+          __display_id: "$column(3)"
+          physical_address: "$column(4)"
+          model: "$column(5)"
+          device_type: "$column(7)"
+          physical_address_type: "$column(8)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s - %s)\", $column(3), $column(7), $column(5))"
+    collect:
+      # Collection
+      type: "multiInstance"
+      sources:
+        source(1):
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(2)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(2)$/InventoryDetails('serverNetworkInterfaces')"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+          - type: "json2csv"
+            entryKey: "/Entry/Value/InventoryInfo/Ports/Partitions"
+            properties: "/PermanentMACAddress;../LinkSpeed;../LinkStatus;"
+            separator: ";"
+          - type: "duplicateColumn"
+            column: 4
+          - type: "translate"
+            column: 4
+            translationTable: "FCLinkStatusTranslationTable"
+        source(2):
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(2)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(2)$/InventoryDetails('serverFcCards')"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+          - type: "json2csv"
+            entryKey: "/Entry/Value/InventoryInfo"
+            properties: "/Wwn;/PortSpeed;/LinkStatus;"
+            separator: ";"
+          - type: "duplicateColumn"
+            column: 4
+          - type: "replace"
+            column: 3
+            existingValue: " Gbps"
+            newValue: "000"
+          - type: "translate"
+            column: 4
+            translationTable: "FcLinkStatusTranslationTable"
+          - type: "replace"
+            column: 3
+            existingValue: "No Link"
+            newValue: "0"
+        source(3):
+          type: "tableUnion"
+          tables:
+          - "$monitors.network.collect.sources.source(1)$"
+          - "$monitors.network.collect.sources.source(2)$"
+      mapping:
+        # NetworkCard Value Table
+        source: "$monitors.network.collect.sources.source(3)$"
+        deviceId: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(5)"
+        metrics:
+          hw.network.up: "legacyLinkStatus($column(4))"
+          hw.network.bandwidth.limit: "megaBit2Bit($column(3))"

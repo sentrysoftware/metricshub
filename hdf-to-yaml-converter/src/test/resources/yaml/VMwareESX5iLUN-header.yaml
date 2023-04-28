@@ -1,0 +1,135 @@
+---
+embedded:
+  EmbeddedFile(1): "$1 ~ /UID:/ {LunID = \"\"}\n\n$1 ~ /Runtime/ && $2 ~ /Name:/ {PathNameTempVar = $3}\n\n$1 ~ /Device:/ && $2 ~ /^naa/ { LunID= $2\n\t                              PathName[LunID] = PathNameTempVar\n\t                            }\n\n$1 ~ /Device:/ && $2 ~ /^eui/ { LunID= $2\n\t                              PathName[LunID] = PathNameTempVar\n\t                            }\n\n\n$1 ~ /Device/ && $2 ~ /Display/ && $3 ~ /Name:/ && LunID != \"\" { LunName[LunID] = $0 ;\n\t                                                gsub(/\\(.+\\)/,\"\",LunName[LunID]) ;\n\t                                                gsub(\" *Device Display Name: *\",\"\",LunName[LunID])\n\t                                              }\n\n$1 ~ /State:/ { if ($2 ~ /active/) {PathCount[LunID] = PathCount[LunID] + 1}\n\t              StatusInformation[LunID] = StatusInformation[LunID] PathName[LunID] \"=\" $2 \"   \"\n\t            }\n$1 ~ /Transport:/ {Transport[LunID]=$2}\n\nEND { for (LunID in LunName) { if (PathCount[LunID] == \"\") {PathCount[LunID] = 0}\n\t                             if (Transport[LunID]==\"fc\") {print \"MSHW;\" LunID \";\" LunName[LunID] \";\" PathCount[LunID] \";\" StatusInformation[LunID]}\n  \t                         }\n\t  }"
+  EmbeddedFile(2): "\t$1 ~ /Display/ && $2 ~ /Name:/ { Type = $0 ;\n\t                                 gsub(/\\(.+\\)/,\"\",Type) ;\n\t                                 gsub(\" *Display Name: *\",\"\",Type)\n\t                                 USBID = $0\n\t                                 gsub(/.*\\(/,\"\",USBID) ;\n\t                                 gsub(/\\).*/,\"\",USBID) ;\n\t                               }\n\n$1 ~ /Vendor:/ { Vendor = $0 ; gsub(/.*: /,\"\",Vendor) }\n$1 ~ /Model:/ { Model = $0 ; gsub(/.*: /,\"\",Model) }\n$1 ~ /Status:/ {\n\t              Status = $2;\n\t              StatusInformation = $0 ; gsub(/.*: /,\"\",StatusInformation)\n\t             }\n$0 ~ /Is Boot USB Device: true/ { print \"MSHW;\" Type \";\" USBID \";Vendor: \" Vendor \";Model: \" Model\";\" Status \";\" StatusInformation \";\" }"
+translations:
+  statusTranslationTable:
+    default: "degraded"
+    dead: "failed"
+    "off": "ok"
+    "on": "ok"
+connector:
+  detection:
+    criteria:
+    - type: "osCommand"
+      commandLine: "_EsxcliConstant system version get"
+      expectedResult: "Version: [567]"
+      executeLocally: false
+      # Check that there are FC LUNs
+    - type: "osCommand"
+      commandLine: "_EsxcliConstant storage core path list"
+      expectedResult: "Transport: fc"
+      executeLocally: false
+monitors:
+  lun:
+    discovery:
+      sources:
+        source(1):
+          # Get the list of LUNs from esxcli storage core path list
+          type: "osCommand"
+          commandLine: "_EsxcliConstant storage core path list"
+          executeLocally: false
+          computes:
+            # AWK it
+            # MSHW;LunName;LunInfo;NumberPaths;LunStatusInfo;
+            # LunName;LunInfo;
+          - type: "awk"
+            script: "EmbeddedFile(1)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3"
+      mapping:
+        # InstanceTable = Source(1)
+        # LunName;LunInfo;
+        source: "$monitors.lun.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(1)"
+          array_name: "$column(2)"
+          hw.parent.type: "enclosure"
+          name: "$column(2)"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Get the list of LUNs from esxcli storage core path list
+          type: "osCommand"
+          commandLine: "_EsxcliConstant storage core path list"
+          executeLocally: false
+          computes:
+            # AWK it
+            # MSHW;LunName;LunInfo;NumberPaths;LunStatusInfo;
+            # LunName;NumberPaths;LunStatusInfo;
+          - type: "awk"
+            script: "EmbeddedFile(1)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,4,5"
+      mapping:
+        # ValueTable = Source(1)
+        # LunName;NumberPaths;LunStatusInfo;
+        source: "$monitors.lun.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.lun.paths: "$column(2)"
+        legacyTextParameters:
+          AvailablePathInformation: "$column(3)"
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # Get the list of SD Cards from esxcli storage core device list
+          type: "osCommand"
+          commandLine: "_EsxcliConstant storage core device list"
+          executeLocally: false
+          computes:
+            # AWK it
+            # Type;USBID;Vendor;Model;
+          - type: "awk"
+            script: "EmbeddedFile(2)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3,4,5"
+      mapping:
+        # InstanceTable = Source(1)
+        # Type;USBID;Vendor;Model;
+        source: "$monitors.other_device.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(2)"
+          __display_id: "$column(2)"
+          device_type: "$column(1)"
+          info: "join($column(3), $column(4), \" \")"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s: %s\", $column(1), $column(2))"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Get the list of SD Cards from esxcli storage core device list
+          type: "osCommand"
+          commandLine: "_EsxcliConstant storage core device list"
+          executeLocally: false
+          computes:
+            # AWK it
+            # USBID;Status;StatusInformation;
+          - type: "awk"
+            script: "EmbeddedFile(2)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "3,6,7"
+            # Patrol Status comes from Status
+            # USBID;PatrolStatus;StatusInformation;
+          - type: "translate"
+            column: 2
+            translationTable: "statusTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        # USBID;Status;StatusInformation;
+        source: "$monitors.other_device.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="other_device"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"

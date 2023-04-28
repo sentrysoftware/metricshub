@@ -1,0 +1,197 @@
+---
+translations:
+  RAIDLevelTranslationTable:
+    "1": "0"
+    "2": "0+1"
+    default: ""
+    "3": "1"
+  PhysicalDiskStatusInformationTranslationTable:
+    "1": ""
+    "2": "Not responding"
+    default: "Unknown Status"
+    "3": "Not compatible!"
+    "256": "Offline"
+    "4": "Failed"
+    "5": "Initializing"
+    "6": "Offline requested"
+    "7": "Failed requested"
+  LogicalDiskStatusInformationTranslationTable:
+    "1": "Optimal"
+    "2": "Degraded"
+    default: "Unknown Status"
+    "3": "Failed"
+  LogicalDiskStatusTranslationTable:
+    "1": "ok"
+    "2": "degraded"
+    default: "UNKNOWN"
+    "3": "failed"
+  PhysicalDiskStatusTranslationTable:
+    "1": "ok"
+    "2": "failed"
+    default: "UNKNOWN"
+    "3": "failed"
+    "256": "degraded"
+    "4": "failed"
+    "5": "ok"
+    "6": "degraded"
+    "7": "degraded"
+connector:
+  displayName: "LSI 1030-based GAM Server"
+  platforms: "Fujitsu-Siemens PRIMERGY"
+  reliesOn: "LSI GAM Server"
+  version: "1.0"
+  information: "This connector provides disk monitoring for LSI c1030-based disk controllers (also known as LSI Integrated Mirroring) through the LSI1030 SNMP sub-agent."
+  detection:
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "NT"
+    - "Linux"
+    criteria:
+    - type: "snmpGetNext"
+      oid: "1.3.6.1.4.1.674.1.2.1.2.1"
+monitors:
+  disk_controller:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = The adapterTable SNMP table
+          # ID;controllerIndex;firmwareVersion;biosVersion;productName;driverVersion
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.674.1.2.1.2.1"
+          selectColumns: "ID,1,4,5,8,9"
+      mapping:
+        # InstanceTable = Source(1)
+        source: "$monitors.disk_controller.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          controller_number: "$column(2)"
+          model: "$column(5)"
+          firmware_version: "$column(3)"
+          bios_version: "$column(4)"
+          driver_version: "$column(6)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(1), $column(5))"
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = deviceTable SNMP table
+          # ID;ControllerIndex;sizeMB;deviceType;Vendor
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.674.1.2.3.2.1"
+          selectColumns: "ID,2,8,9,15"
+          computes:
+            # Keep only the disks (exclude CDROMs, tapes, etc.)
+            # ID;ControllerIndex;sizeMB;deviceType;Vendor
+          - type: "keepOnlyMatchingLines"
+            column: 4
+            valueList: "9"
+            # Convert size from megabytes to bytes
+            # ID;ControllerIndex;size;deviceType;Vendor
+          - type: "multiply"
+            column: 3
+            value: "1048576"
+      mapping:
+        # InstanceTable = Source(1)
+        source: "$monitors.physical_disk.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          vendor: "$column(5)"
+          hw.parent.type: "disk_controller"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+        metrics:
+          hw.physical_disk.size: "$column(3)"
+    collect:
+      # Collect type = mono-instance (one polling per instance)
+      type: "monoInstance"
+      sources:
+        source(1):
+          # Source(1) = Snmp Get on the state OID of the deviceTable
+          # state
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.674.1.2.3.2.1.7.%PhysicalDisk.Collect.DeviceID%"
+          computes:
+            # Duplicate the state column
+            # state;state
+          - type: "duplicateColumn"
+            column: 1
+            # Translate the first state column into a PATROLStatus
+            # PATROLStatus;state
+          - type: "translate"
+            column: 1
+            translationTable: "PhysicalDiskStatusTranslationTable"
+            # Translate the second state column into a more readable string
+            # PATROLStatus;statusInformation
+          - type: "translate"
+            column: 2
+            translationTable: "PhysicalDiskStatusInformationTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.physical_disk.collect.sources.source(1)$"
+        metrics:
+          hw.status{hw.type="physical_disk"}: "$column(1)"
+        legacyTextParameters:
+          StatusInformation: "$column(2)"
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = logicalDrive SNMP table
+          # ID;ControllerIndex;sizeMB;RAIDLevelCode
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.674.1.2.2.2.1"
+          selectColumns: "ID,2,5,6"
+          computes:
+            # Translate the RAID Level Code into a real RAIDLevel
+            # ID;ControllerIndex;sizeMB;RAIDLevel
+          - type: "translate"
+            column: 4
+            translationTable: "RAIDLevelTranslationTable"
+            # Convert SizeMB into bytes
+            # ID;ControllerIndex;size;RAIDLevel
+          - type: "multiply"
+            column: 3
+            value: "1048576"
+      mapping:
+        # Instance Table = Source(1)
+        source: "$monitors.logical_disk.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          hw.logical_disk.limit: "$column(3)"
+          raid_level: "$column(4)"
+          hw.parent.type: "disk_controller"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(4), $column(3))"
+    collect:
+      # Collect type: MonoInstance
+      type: "monoInstance"
+      sources:
+        source(1):
+          # Source(1) = the state column of the logicalDrive SNMP table
+          # state
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.674.1.2.2.2.1.3.%LogicalDisk.Collect.DeviceID%"
+          computes:
+            # Duplicate the state column
+            # state;state
+          - type: "duplicateColumn"
+            column: 1
+            # translate the state into a PATROL status
+            # PATROLStatus;state
+          - type: "translate"
+            column: 1
+            translationTable: "LogicalDiskStatusTranslationTable"
+            # translate the second state column into a more readable string
+            # PATROLStatus;statusInformation
+          - type: "translate"
+            column: 2
+            translationTable: "LogicalDiskStatusInformationTranslationTable"
+      mapping:
+        # The value table = source(1)
+        source: "$monitors.logical_disk.collect.sources.source(1)$"
+        metrics:
+          hw.status{hw.type="logical_disk"}: "$column(1)"
+        legacyTextParameters:
+          StatusInformation: "$column(2)"

@@ -1,0 +1,264 @@
+---
+embedded:
+  EmbeddedFile(1): "BEGIN {\n\tpowerUsagePresent = \"\";\n}\n/^System Power usage:.*Watts/ {\n\tpowerUsagePresent = 2\n}\nEND {\n\tprint \"MSHW;HP_MP_GSP;9000/Integrity;;\" powerUsagePresent\n}"
+  EmbeddedFile(3): "BEGIN {\n\tdoubleFanArray = 0;\n}\n/Fans +State +Fans +State/ {\n\tdoubleFanArray = 1;\n}\n/^[0-9]+ .* \\| / {\n\tfanID = $1\n\tfanLocation = \"\"\n\tpipeIndex = index($0, \"|\")\n\tstatus = substr($0, pipeIndex + 2, length($0) - pipeIndex - 1)\n\twhile (substr(status, length(status), 1) == \" \") { status = substr(status, 1, length(status) - 1); }\n\tprint \"MSHW;\" fanID \";\" fanLocation \";\" status \";\"\n}\n($0 ~ /^Fan  *[0-9]+/ && doubleFanArray == 0) {\n\tfanID = $2\n\tif (index($0, \"(\") > 1)\n\t{\n\t\tfanLocation = $3\n\t}\n\telse\n\t{\n\t\tfanLocation = \"\"\n\t}\n\tstatus = substr($0, 31, length($0) - 30)\n\twhile (substr(status, length(status), 1) == \" \") { status = substr(status, 1, length(status) - 1); }\n\tprint \"MSHW;\" fanID \";\" fanLocation \";\" status \";\"\n}\n/[A-Za-z]+ Fan [0-9]+/ {\n\tfanID = $3;\n\tfanLocation = $1\n\tstatus = substr($0, 31, length($0) - 30)\n\twhile (substr(status, length(status), 1) == \" \") { status = substr(status, 1, length(status) - 1); }\n\tprint \"MSHW;\" fanID \";\" fanLocation \";\" status \";\"\n}\n($0 ~ /^Fan  *[0-9]+/ && doubleFanArray == 1) {\n\tfanID = $2\n\tif (index($0, \"(\") > 1)\n\t{\n\t\tfanLocation = $3\n\t}\n\telse\n\t{\n\t\tfanLocation = \"\"\n\t}\n\tif (length($0) > 40)\n\t{\n\t\tstatus = substr($0, 21, 20)\n\t}\n\telse\n\t{\n\t\tstatus = substr($0, 21, length($0) - 20)\n\t}\n\twhile (substr(status, length(status), 1) == \" \") { status = substr(status, 1, length(status) - 1); }\n\tprint \"MSHW;\" fanID \";\" fanLocation \";\" status \";\"\n\n\tif (length($0) > 40)\n\t{\n\t\tsecondFanInformation = substr($0, 41, length($0)-40)\n\t\tif (split(secondFanInformation, secondFanWord) >= 3)\n\t\t{\n\t\t\tfanID = secondFanWord[2]\n\t\t\tif (index(secondFanInformation, \"(\") > 1)\n\t\t\t{\n\t\t\t\tfanLocation = secondFanWord[3]\n\t\t\t}\n\t\t\telse\n\t\t\t{\n\t\t\t\tfanLocation = \"\"\n\t\t\t}\n\t\t\tstatus = substr(secondFanInformation, 21, length(secondFanInformation) - 20)\n\t\t\twhile (substr(status, length(status), 1) == \" \") { status = substr(status, 1, length(status) - 1); }\n\t\t\tprint \"MSHW;\" fanID \";\" fanLocation \";\" status \";\"\n\t\t}\n\t}\n}"
+  EmbeddedFile(2): "BEGIN {\n\tpowerState = \"\";\n\tpowerUsage = \"\";\n}\n/^System Power state:/ {\n\tpowerState = $4;\n}\n/^System Power state +:/ {\n\tpowerState = $5;\n}\n/.*[a-z].*System power state:/ {\n\tsystemPowerStateIndex = index($0, \"System power state:\");\n\tif (systemPowerStateIndex > 1)\n\t{\n\t\tsystemPowerStateInformation = substr($0, systemPowerStateIndex, length($0) - systemPowerStateIndex + 1);\n\t\tsplit(systemPowerStateInformation, systemPowerStateWord);\n\t\tpowerState = systemPowerStateWord[4];\n\t}\n}\n/^System Power usage:.*Watts/ {\n\tpowerUsage = $4;\n}\nEND {\n\tprint \"MSHW;\" powerState \";\" powerUsage \";\"\n}"
+  EmbeddedFile(5): "/^[0-9]+ .* Type [0-9] +\\| / {\n\tpsID = $1\n\ttypeIndex = index($0, \"Type\")\n\tpsType = substr($0, typeIndex, 6)\n\tpsStatus = substr($0, 4, typeIndex - 4)\n\twhile (substr(psStatus, length(psStatus), 1) == \" \") { psStatus = substr(psStatus, 1, length(psStatus) - 1); }\n\tif (psStatus != \"Not Installed\")\n\t{\n\t\tprint \"MSHW;\" psID \";\" psType \";\" psStatus \";\"\n\t}\n}\n/^[0-9]+ .* [0-9]+ Watt +\\| / {\n\tpsID = $1\n\ttypeIndex = index($0, \"Watt\") - 5\n\tpsType = substr($0, typeIndex, 9)\n\tpsStatus = substr($0, 4, typeIndex - 4)\n\twhile (substr(psStatus, length(psStatus), 1) == \" \") { psStatus = substr(psStatus, 1, length(psStatus) - 1); }\n\tif (psStatus != \"Not Installed\")\n\t{\n\t\tprint \"MSHW;\" psID \";\" psType \";\" psStatus \";\"\n\t}\n}\n/^Power Supply [0-9]/ {\n\tpsID = $3\n\tpsType = \"\"\n\tpsStatus = $4\n\tfor (i=5 ; i<=NF ; i++)\n\t{\n\t\tpsStatus = psStatus \" \" $i\n\t}\n\tif (psStatus != \"Not Installed\")\n\t{\n\t\tprint \"MSHW;\" psID \";\" psType \";\" psStatus \";\"\n\t}\n}"
+  EmbeddedFile(4): "BEGIN {\n\ttemperatureStatus = \"\";\n}\n/^Temperature +: / {\n\tif (length($0) > 34)\n\t{\n\t\ttemperatureStatus = substr($0, 21, 14)\n\t}\n\telse\n\t{\n\t\ttemperatureStatus = substr($0, 21, length($0) - 20)\n\t}\n\twhile (substr(temperatureStatus, length(temperatureStatus), 1) == \" \") { temperatureStatus = substr(temperatureStatus, 1, length(temperatureStatus) - 1); }\n}\n/^Temperature status +: / {\n\tif (length($0) > 40)\n\t{\n\t\ttemperatureStatus = substr($0, 27, 14)\n\t}\n\telse\n\t{\n\t\ttemperatureStatus = substr($0, 27, length($0) - 26)\n\t}\n\twhile (substr(temperatureStatus, length(temperatureStatus), 1) == \" \") { temperatureStatus = substr(temperatureStatus, 1, length(temperatureStatus) - 1); }\n}\nEND {\n\tprint \"MSHW;\" temperatureStatus \";\"\n}"
+translations:
+  TemperatureStatusTranslationTable:
+    low overtemp: "degraded"
+    normal: "ok"
+    high overtemp: "failed"
+    default: "UNKNOWN"
+    med overtemp: "failed"
+  SystemPowerTranslationTable:
+    default: "UNKNOWN"
+    "off": "failed"
+    "on": "ok"
+    undefined: "ok"
+  fanStatusTranslationTable:
+    not installed: "ok"
+    normal: "ok"
+    low speed: "degraded"
+    default: "UNKNOWN"
+    high speed: "ok"
+    failure: "failed"
+  powerSupplyStatusTranslationTable:
+    normal: "ok"
+    default: "UNKNOWN"
+    failure: "failed"
+    a/c disconnected or out of range: "failed"
+    predictive failure asserted: "degraded"
+    fault: "failed"
+connector:
+  displayName: "HP MP/GSP card"
+  platforms: "HP 9000,HP Integrity,HP SuperDome"
+  reliesOn: "HP MP/GSP card"
+  information: "Gives environmental information (temperatures, fans, etc.) on HP 9000 and Integrity servers through HP Integrated Lights-Out Management Card"
+  version: "1.1"
+  detection:
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "OOB"
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(2):
+          # Source(2) = copy of Source(1)
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          computes:
+            # Compute the output of the PS command with an awk script
+            # to know whether we need to activate the PowerUsage parameter
+            # ComputerID;Model;SerialNumber;PowerUsageActivation
+          - type: "awk"
+            script: "EmbeddedFile(1)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3,4,5"
+      mapping:
+        # The discovery table = source(1)
+        source: "$monitors.enclosure.discovery.sources.source(2)$"
+        attributes:
+          id: "$column(1)"
+          vendor: "HP"
+          model: "$column(2)"
+          serial_number: "$column(3)"
+          type: "Computer"
+          name: "sprintf(\"%s (%s %s - %s)\", $column(1), \"HP\", $column(2), \"Computer\")"
+    collect:
+      type: "monoInstance"
+      sources:
+        source(2):
+          # Source(2) = copy of Source(1) (we're not going to alter
+          # source(1) which will be useful for other collects that will
+          # rely on
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(1)$"
+          computes:
+            # Process the PS output with an AWK script
+            # powerState;powerUsage;
+          - type: "awk"
+            script: "EmbeddedFile(2)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3"
+            # Duplicate the system power state
+            # powerState;powerState;powerUsage;
+          - type: "duplicateColumn"
+            column: 1
+            # Now translate "on/off" into OK/ALARM
+            # status;powerState;powerUsage;
+          - type: "translate"
+            column: 1
+            translationTable: "SystemPowerTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.enclosure.collect.sources.source(2)$"
+        metrics:
+          hw.status{hw.type="enclosure"}: "$column(1)"
+          hw.enclosure.power: "$column(3)"
+          hw.enclosure.energy: "fakeCounter($column(3))"
+        legacyTextParameters:
+          StatusInformation: "$column(2)"
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(1)
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          computes:
+            # Extract the fans from the PS output
+            # FanID;FanType;
+          - type: "awk"
+            script: "EmbeddedFile(3)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3"
+      mapping:
+        # Instance Table = Source(1)
+        source: "$monitors.fan.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          hw.parent.type: "enclosure"
+          name: "$column(1)"
+    collect:
+      # Collect type is \"all instances in one shot\"
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(1)
+          # Yeah that's kind of weird. Fan collect values will be refreshed only when/whether
+          # enclosure collect values are refreshed. This is to spare some unneeded telnet sessions.
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(1)$"
+          computes:
+            # Extract the fans from the PS output
+            # FanID;Status;
+          - type: "awk"
+            script: "EmbeddedFile(3)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,4"
+            # Duplicate the status column
+            # FanID;status;status
+          - type: "duplicateColumn"
+            column: 2
+            # Translate first status column into a PATROL status
+            # FanID;PATROLStatus;status
+          - type: "translate"
+            column: 2
+            translationTable: "fanStatusTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.fan.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="fan"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  temperature:
+    discovery:
+      mapping:
+        # InstanceTable = Static simple table
+        source: "1;General"
+        attributes:
+          id: "$column(1)"
+          temperature_type: "$column(2)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+    collect:
+      # Collect type is all instances in one single shot
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = copy of $monitors.enclosure.collect.sources.source(1)$
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(1)$"
+          computes:
+            # Extract the temperature information from the PS output with an awk script
+            # TemperatureStatus;
+          - type: "awk"
+            script: "EmbeddedFile(4)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2"
+            # Duplicate the TemperatureStatus column
+            # TemperatureStatus;TemperatureStatus
+          - type: "duplicateColumn"
+            column: 1
+            # Translate the first TemperatureStatus into a PATROL Status
+            # PATROLStatus;TemperatureStatus
+          - type: "translate"
+            column: 1
+            translationTable: "TemperatureStatusTranslationTable"
+      mapping:
+        # Collect table = Source(1)
+        source: "$monitors.temperature.collect.sources.source(1)$"
+        deviceId: "1"
+        metrics:
+          hw.status{hw.type="temperature"}: "$column(1)"
+        legacyTextParameters:
+          StatusInformation: "$column(2)"
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Discovery.Source(1)
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          computes:
+            # Extract the fans from the PS output
+            # PowerSupplyID;PowerSupplyType;
+          - type: "awk"
+            script: "EmbeddedFile(5)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3"
+      mapping:
+        # Instance Table = Source(1)
+        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          power_supply_type: "$column(2)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+    collect:
+      # Collect type is \"all instances in one shot\"
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = copy of Enclosure.Collect.Source(1)
+          # Yeah that's kind of weird. Power supply collect values will be refreshed only when/whether
+          # enclosure collect values are refreshed. This is to spare some unneeded telnet sessions.
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(1)$"
+          computes:
+            # Extract the fans from the PS output
+            # PowerSupplyID;Status;
+          - type: "awk"
+            script: "EmbeddedFile(5)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,4"
+            # Duplicate the status column
+            # PowerSupplyID;status;status
+          - type: "duplicateColumn"
+            column: 2
+            # Translate first status column into a PATROL status
+            # PowerSupplyID;PATROLStatus;status
+          - type: "translate"
+            column: 2
+            translationTable: "powerSupplyStatusTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.power_supply.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="power_supply"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"

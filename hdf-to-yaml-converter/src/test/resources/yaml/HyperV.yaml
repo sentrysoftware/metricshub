@@ -1,0 +1,82 @@
+---
+translations:
+  stateTranslationTable:
+    running: "ON"
+    offcritical: "OFF"
+    default: "OFF"
+    "off": "OFF"
+    suspended: "SUSPENDED"
+connector:
+  displayName: "Hyper-V"
+  platforms: "Hyper-V Servers"
+  reliesOn: "PowerShell"
+  version: "1.0"
+  information: "This connector provides hardware monitoring through Hyper-V PowerShell cmdlets. The user requires Hyper-V Administrators membership."
+  detection:
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "NT"
+    criteria:
+    - type: "productRequirements"
+      kmVersion: "11.3.00"
+    - type: "osCommand"
+      commandLine: "Powershell.exe Get-VM"
+      expectedResult: "State"
+monitors:
+  vm:
+    discovery:
+      sources:
+        source(1):
+          type: "osCommand"
+          commandLine: "PowerShell.exe \"Get-VM | Select-Object VMName, Id | ConvertTo-CSV -Delimiter ';'\""
+          beginAtLineNumber: 3
+          computes:
+          - type: "replace"
+            column: 1
+            existingValue: "\""
+            newValue: ""
+          - type: "replace"
+            column: 2
+            existingValue: "\""
+            newValue: ""
+          - type: "leftConcat"
+            column: 2
+            value: "GUID: "
+      mapping:
+        source: "$monitors.vm.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(1)"
+          info: "$column(2)"
+          hw.parent.type: "enclosure"
+          name: "$column(1)"
+    collect:
+      type: "multiInstance"
+      sources:
+        source(1):
+          type: "osCommand"
+          commandLine: "PowerShell.exe \"Get-VM | Select-Object VMName, ProcessorCount, State | ConvertTo-CSV -Delimiter ';'\""
+          beginAtLineNumber: 3
+          computes:
+          - type: "replace"
+            column: 1
+            existingValue: "\""
+            newValue: ""
+          - type: "replace"
+            column: 2
+            existingValue: "\""
+            newValue: ""
+          - type: "replace"
+            column: 3
+            existingValue: "\""
+            newValue: ""
+          - type: "translate"
+            column: 3
+            translationTable: "stateTranslationTable"
+      mapping:
+        source: "$monitors.vm.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.vm.power_ratio: "computePowerShareRatio($column(2))"
+          hw.vm.power_state: "$column(3)"

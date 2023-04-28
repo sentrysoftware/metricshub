@@ -1,0 +1,668 @@
+---
+translations:
+  RAIDLevelTranslationTable:
+    "1": ""
+    "2": "0"
+    default: ""
+    "3": "1"
+    "4": "5"
+    "5": "6"
+    "6": "10"
+    "7": "50"
+    "8": "60"
+    "9": "Concatenated 1"
+    "10": "Concatenated 5"
+  PhysicalStateInformationTranslationTable:
+    "2": "Ready"
+    default: "Unknown Status"
+    "3": "Online"
+    "4": "Foreign"
+    "5": "Offline"
+    "6": "Blocked"
+    "7": "Failed"
+    "8": "Non-Raid"
+    "9": "Removed"
+  GenericStatusTranslationTable:
+    default: "UNKNOWN"
+    "3": "ok"
+    "4": "degraded"
+    "5": "failed"
+    "6": "failed"
+  GenericStatusInformationTranslationTable:
+    default: "Unknown Status"
+    "3": ""
+    "4": "Non Critical"
+    "5": "Critical"
+    "6": "Unrecoverable"
+connector:
+  displayName: "Dell iDRAC - Storage"
+  platforms: "Dell PowerEdge"
+  reliesOn: "Dell iDRAC Management Card (iDRAC7 or Later)"
+  version: "1.0"
+  information: "This connector provides server storage monitoring through Dell's iDRAC Management Card for Dell servers with iDRAC7 or later."
+  detection:
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "OOB"
+    criteria:
+      # Detection
+      # Ensure that the physicalDiskTable is populated
+    - type: "snmpGetNext"
+      oid: "1.3.6.1.4.1.674.10892.5.5.1.20.130.4"
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Get the list of Disk Enclosures
+          # EnclosureID;Model;ServiceTag;Location;FQDD;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.674.10892.5.5.1.20.130.3.1"
+          selectColumns: "1,2,8,45,47"
+          computes:
+            # Extract the Raid Controller Name from the FQDD
+            # EnclosureID;Model;ServiceTag;Location;EnclosureFQDD;
+          - type: "extract"
+            column: 5
+            subSeparators: ":"
+            subColumn: 1
+        source(2):
+          # Get a list of server enclosures
+          # ChassisID;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.674.10892.5.4.300.10.1"
+          selectColumns: "1"
+          computes:
+            # Add "Not Applicable", i.e. internal enclosure to the name
+            # EnclosureID;ChassisID;
+          - type: "leftConcat"
+            column: 1
+            value: "Not Applicable;"
+        source(3):
+          # Join the Storage Enclosures to Chassis (the location of Not Applicable will match the Not Applicable we added to the server chassis table)
+          # EnclosureID;Model;ServiceTag;Location;EnclosureFQDD;EnclosureID;ChassisID;
+          type: "tableJoin"
+          leftTable: "$monitors.enclosure.discovery.sources.source(1)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(2)$"
+          leftKeyColumn: 4
+          rightKeyColumn: 1
+          defaultRightLine: "Storage;;"
+          computes:
+            # Replace the enclosure type of "Not Applicable" with "Computer".  For DAS, the default right line above would have filled this in.
+            # EnclosureID;Model;ServiceTag;Location;EnclosureFQDD;EnclosureType;ChassisID;
+          - type: "replace"
+            column: 6
+            existingValue: "Not Applicable"
+            newValue: "Computer"
+            # Replace the Enclosure ID of "Not Applicable" with the Chassis ID (applicable for internal disks
+            # EnclosureID;Model;ServiceTag;Location;EnclosureFQDD;EnclosureType;ChassisID;
+          - type: "replace"
+            column: 1
+            existingValue: "Not Applicable"
+            newValue: "Column(7)"
+        source(4):
+          # Copy Source (3) for association purposes (EnclosureID to AssociatedRaidController)
+          # EnclosureID;Model;ServiceTag;Location;EnclosureFQDD;EnclosureType;ChassisID;
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(3)$"
+          computes:
+            # Keep only the EnclosureID and AssociatedRaidController (becomes RaidControllerFQDD) and EnclosureType
+            # EnclosureID;EnclosureFQDD;EnclosureType;
+          - type: "keepColumns"
+            columnNumbers: "1,5,6"
+            # Exclude Enclosure types of "Computer" as we can't specify enclosures from another connector, so we want it to use the default allocation system.
+            # EnclosureID;EnclosureFQDD;EnclosureType;
+          - type: "excludeMatchingLines"
+            column: 3
+            valueList: "Computer"
+        source(5):
+          # Copy Source (3) to filter out Direct Attached Storage
+          # EnclosureID;Model;ServiceTag;Location;EnclosureFQDD;EnclosureType;ChassisID;
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(3)$"
+          computes:
+            # Keep only "Direct Attached Storage"
+            # EnclosureID;Model;ServiceTag;Location;EnclosureFQDD;EnclosureType;ChassisID;
+          - type: "excludeMatchingLines"
+            column: 3
+            valueList: "Not Applicable"
+      mapping:
+        # The Instance Table
+        # EnclosureID;Model;ServiceTag;Location;EnclosureFQDD;EnclosureType;ChassisID;
+        source: "$monitors.enclosure.discovery.sources.source(5)$"
+        attributes:
+          id: "$column(1)"
+          vendor: "Dell"
+          model: "$column(2)"
+          serial_number: "$column(3)"
+          type: "$column(6)"
+          name: "sprintf(\"%s (%s %s - %s)\", $column(1), \"Dell\", $column(2), $column(6))"
+    collect:
+      # Collect type is MultiInstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Enclosure Table
+          # EnclosureID;Status;Position;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.674.10892.5.5.1.20.130.3.1"
+          selectColumns: "ID,24,45"
+          computes:
+            # Exclude enclosures that have a position of N/A, i.e. inside the server chassis.
+            # EnclosureID;Status;Position;
+          - type: "excludeMatchingLines"
+            column: 3
+            valueList: "Not Applicable"
+            # Duplicate the Status column
+            # EnclosureID;Status;Status;Position;
+          - type: "duplicateColumn"
+            column: 2
+            # Translate first Enclosure.robeStatus into a PATROL status
+            # EnclosureID;PATROLStatus;Status;Position;
+          - type: "translate"
+            column: 2
+            translationTable: "GenericStatusTranslationTable"
+            # Translate second Enclosure.robeStatus into a more readable string
+            # EnclosureID;PATROLStatus;statusInformation;Position;
+          - type: "translate"
+            column: 3
+            translationTable: "GenericStatusInformationTranslationTable"
+      mapping:
+        # The ValueTable = Source(1)
+        source: "$monitors.enclosure.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="enclosure"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  disk_controller:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the controllerTable
+          # ControllerID;Model;FWVersion;DriverVersion;RaidControllerFQDD;Location;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.674.10892.5.5.1.20.130.1.1"
+          selectColumns: "1,2,8,41,78,79"
+      mapping:
+        # The InstanceTable
+        # ControllerID;Model;FWVersion;DriverVersion;RaidControllerFQDD;Location;
+        source: "$monitors.disk_controller.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          controller_number: "$column(5)"
+          model: "$column(2)"
+          firmware_version: "$column(3)"
+          driver_version: "$column(4)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(1), $column(2))"
+    collect:
+      # Collect type is MultiInstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # ControllerID;Status;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.674.10892.5.5.1.20.130.1.1"
+          selectColumns: "ID,38"
+          computes:
+            # Duplicate the Status column
+            # ControllerID;Status;Status;
+          - type: "duplicateColumn"
+            column: 2
+            # Translate first DiskController.robeStatus into a PATROL status
+            # ControllerID;PATROLStatus;Status;
+          - type: "translate"
+            column: 2
+            translationTable: "GenericStatusTranslationTable"
+            # Translate second DiskController.robeStatus into a more readable string
+            # ControllerID;PATROLStatus;statusInformation;
+          - type: "translate"
+            column: 3
+            translationTable: "GenericStatusInformationTranslationTable"
+      mapping:
+        # The ValueTable = Source(1)
+        source: "$monitors.disk_controller.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="disk_controller"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the physicalDiskTableEntry snmp table
+          # DiskID;Manufacturer;Model:SerialNumber;SizeMB;PartNumber;DiskFQDD;Location;physicalDiskName;State;FirmwareVersion
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.674.10892.5.5.1.20.130.4.1"
+          selectColumns: "1,3,6,7,11,27,54,55,2,4,8"
+          computes:
+            # Remove disks flagged as removed
+            # DiskID;Manufacturer;Model;SerialNumber;SizeB;PartNumber;EnclosureFQDD;Location;physicalDiskName;State;FirmwareVersion;
+          - type: "excludeMatchingLines"
+            column: 10
+            valueList: "9"
+            # Extract the Controller Number from the DiskFQDD
+            # DiskID;Manufacturer;Model:SerialNumber;SizeMB;PartNumber;EnclosureFQDD;Location;physicalDiskName;State;FirmwareVersion;
+          - type: "extract"
+            column: 7
+            subSeparators: ":"
+            subColumn: 2
+            # Convert MB to B
+            # DiskID;Manufacturer;Model:SerialNumber;SizeB;PartNumber;EnclosureFQDD;Location;physicalDiskName;State;FirmwareVersion;
+          - type: "multiply"
+            column: 5
+            value: "1048576"
+            # Add "Part Number"
+            # DiskID;Manufacturer;Model:SerialNumber;SizeB;PartNumber;EnclosureFQDD;Location;physicalDiskName;State;FirmwareVersion;
+          - type: "leftConcat"
+            column: 6
+            value: "Part Number: "
+            # Add "Location"
+            # DiskID;Manufacturer;Model:SerialNumber;SizeB;PartNumber;EnclosureFQDD;Location;physicalDiskName;State;FirmwareVersion
+          - type: "leftConcat"
+            column: 8
+            value: "Location: "
+        source(2):
+          # Attach the PhysicalDisk. to the Enclosures using Enclosure.Discovery(4)
+          # Internal Disks are not suppose to match, so will have a blank attach to and will be attached to the default main server enclosure
+          # DiskID;Manufacturer;Model:SerialNumber;SizeB;PartNumber;EnclosureFQDD;Location;physicalDiskName;State;EnclosureID;EnclosureFQDD;EnclosureType;
+          type: "tableJoin"
+          leftTable: "$monitors.physical_disk.discovery.sources.source(1)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(4)$"
+          leftKeyColumn: 7
+          rightKeyColumn: 2
+          defaultRightLine: ";;;"
+      mapping:
+        # The instance table = Source(1)
+        # DiskID;Manufacturer;Model;SerialNumber;SizeB;PartNumber;EnclosureFQDD;Location;physicalDiskName;State;FirmwareVersion;EnclosureID;EnclosureFQDD;EnclosureType;
+        source: "$monitors.physical_disk.discovery.sources.source(2)$"
+        attributes:
+          id: "$column(9)"
+          __display_id: "$column(9)"
+          vendor: "$column(2)"
+          serial_number: "$column(4)"
+          firmware_version: "$column(11)"
+          info: "join($column(8), $column(6), \" \")"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(12)"
+          name: "sprintf(\"%s (%s)\", $column(9), $column(5))"
+        metrics:
+          hw.physical_disk.size: "$column(5)"
+    collect:
+      # Collect type is MultiInstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # PhysicalDiskID;State;Status;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.674.10892.5.5.1.20.130.4.1"
+          selectColumns: "2,4,24"
+          computes:
+            # Translate first PhysicalDisk.robeStatus into a PATROL status
+            # PhysicalDiskID;State;PATROLStatus;
+          - type: "translate"
+            column: 3
+            translationTable: "GenericStatusTranslationTable"
+            # Translate PhysicalDisk State into a status information
+            # PhysicalDiskID;statusInformation;PATROLStatus;
+          - type: "translate"
+            column: 2
+            translationTable: "PhysicalStateInformationTranslationTable"
+      mapping:
+        # The ValueTable = Source(1)
+        # PhysicalDiskID;statusInformation;PATROLStatus;
+        source: "$monitors.physical_disk.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="physical_disk"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(2)"
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the virtualDiskTable snmp table
+          # LogicalDiskID;Name;SizeMB;RaidLevel;LogicalDiskFDQQ;Location;virtualDiskName
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.674.10892.5.5.1.20.140.1.1"
+          selectColumns: "1,2,6,13,35,36,2"
+          computes:
+            # Extract the Controller Number from the DiskFQDD
+            # LogicalDiskID;Name;SizeMB;RaidLevel;ControllerNumber;Location;virtualDiskName
+          - type: "extract"
+            column: 5
+            subSeparators: ":"
+            subColumn: 2
+            # Convert MB to B
+            # LogicalDiskID;Name;SizeB;RaidLevel;ControllerNumber;Location;virtualDiskName
+          - type: "multiply"
+            column: 3
+            value: "1048576"
+            # Translate the RaidLevel into a more readable string
+            # LogicalDiskID;Name;SizeB;RaidLevel;ControllerNumber;Location;virtualDiskName
+          - type: "translate"
+            column: 4
+            translationTable: "RAIDLevelTranslationTable"
+      mapping:
+        # The InstanceTable
+        # LogicalDiskID;Name;SizeB;RaidLevel;ControllerNumber;Location;virtualDiskName
+        source: "$monitors.logical_disk.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(7)"
+          hw.logical_disk.limit: "$column(3)"
+          raid_level: "$column(4)"
+          info: "join($column(6), $column(2), \" \")"
+          hw.parent.type: "disk_controller"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(5))"
+          name: "sprintf(\"%s (%s - %s)\", $column(7), $column(4), $column(3))"
+    collect:
+      # Collect type is MultiInstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # LogicalDiskID;Status;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.674.10892.5.5.1.20.140.1.1"
+          selectColumns: "ID,20"
+          computes:
+            # Duplicate the Status column
+            # LogicalDiskID;Status;Status;
+          - type: "duplicateColumn"
+            column: 2
+            # Translate first LogicalDisk.robeStatus into a PATROL status
+            # LogicalDiskID;PATROLStatus;Status;
+          - type: "translate"
+            column: 2
+            translationTable: "GenericStatusTranslationTable"
+            # Translate second LogicalDisk.robeStatus into a more readable string
+            # LogicalDiskID;PATROLStatus;statusInformation;
+          - type: "translate"
+            column: 3
+            translationTable: "GenericStatusInformationTranslationTable"
+      mapping:
+        # The ValueTable = Source(1)
+        source: "$monitors.logical_disk.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="logical_disk"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Fan.discovery
+          # FanID;FanFQDD;Location;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.674.10892.5.5.1.20.130.7.1"
+          selectColumns: "ID,20,21"
+          computes:
+            # Extract the Enclosure FQDD from the Fan FQDD
+            # FanID;EnclosureFQDD;Location;
+          - type: "extract"
+            column: 2
+            subSeparators: ":"
+            subColumn: 2
+        source(2):
+          # Attach the PhysicalDisk. to the Enclosures using Enclosure.Discovery(4)
+          # FanID;EnclosureFQDD;Location;EnclosureID;EnclosureFQDD;EnclosureType;
+          type: "tableJoin"
+          leftTable: "$monitors.fan.discovery.sources.source(1)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(4)$"
+          leftKeyColumn: 2
+          rightKeyColumn: 2
+      mapping:
+        # Instance Table
+        # FanID;EnclosureFQDD;Location;EnclosureID;EnclosureFQDD;EnclosureType;
+        source: "$monitors.fan.discovery.sources.source(2)$"
+        attributes:
+          id: "$column(1)"
+          info: "$column(3)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(4)"
+          name: "$column(1)"
+    collect:
+      # Collect type is MultiInstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # FanID;Status;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.674.10892.5.5.1.20.130.7.1"
+          selectColumns: "1,15"
+          computes:
+            # Duplicate the Status column
+            # FanID;Status;Status;
+          - type: "duplicateColumn"
+            column: 2
+            # Translate first Fan.robeStatus into a PATROL status
+            # FanID;PATROLStatus;Status;
+          - type: "translate"
+            column: 2
+            translationTable: "GenericStatusTranslationTable"
+            # Translate second Fan.robeStatus into a more readable string
+            # FanID;PATROLStatus;statusInformation;
+          - type: "translate"
+            column: 3
+            translationTable: "GenericStatusInformationTranslationTable"
+      mapping:
+        # The ValueTable = Source(1)
+        source: "$monitors.fan.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="fan"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # PowerSupply.discovery
+          # PSUID;PartNumber;FanFQDD;Location;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.674.10892.5.5.1.20.130.9.1"
+          selectColumns: "ID,7,15,16"
+          computes:
+            # Extract the Enclosure FQDD from the Fan FQDD
+            # PSUID;PartNumber;EnclosureFQDD;Location;
+          - type: "extract"
+            column: 3
+            subSeparators: ":"
+            subColumn: 2
+            # Add Part Number Tag
+            # PSUID;PartNumber;EnclosureFQDD;Location;
+          - type: "leftConcat"
+            column: 2
+            value: "Part Number: "
+        source(2):
+          # Attach the PhysicalDisk. to the Enclosures using Enclosure.Discovery(4)
+          # PSUID;PartNumber;EnclosureFQDD;Location;EnclosureID;EnclosureFQDD;EnclosureType;
+          type: "tableJoin"
+          leftTable: "$monitors.power_supply.discovery.sources.source(1)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(4)$"
+          leftKeyColumn: 3
+          rightKeyColumn: 2
+      mapping:
+        # Instance Table
+        # PSUID;PartNumber;EnclosureFQDD;Location;EnclosureID;EnclosureFQDD;EnclosureType;
+        source: "$monitors.power_supply.discovery.sources.source(2)$"
+        attributes:
+          id: "$column(1)"
+          info: "join($column(4), $column(2), \" \")"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(5)"
+          name: "sprintf(\"%s, $column(1))"
+    collect:
+      # Collect type is MultiInstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # PSUID;Status;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.674.10892.5.5.1.20.130.9.1"
+          selectColumns: "1,9"
+          computes:
+            # Duplicate the Status column
+            # PSUID;Status;Status;
+          - type: "duplicateColumn"
+            column: 2
+            # Translate first PowerSupply.robeStatus into a PATROL status
+            # PSUID;PATROLStatus;Status;
+          - type: "translate"
+            column: 2
+            translationTable: "GenericStatusTranslationTable"
+            # Translate second PowerSupply.robeStatus into a more readable string
+            # PSUID;PATROLStatus;statusInformation;
+          - type: "translate"
+            column: 3
+            translationTable: "GenericStatusInformationTranslationTable"
+      mapping:
+        # The ValueTable = Source(1)
+        source: "$monitors.power_supply.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="power_supply"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # OtherDevice.discovery
+          # OtherDeviceID;Type;PartNumber;DeviceFQDD;Location;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.674.10892.5.5.1.20.130.13.1"
+          selectColumns: "ID,2,6,15,16"
+          computes:
+            # Extract the Enclosure FQDD from the Fan FQDD
+            # OtherDeviceID;Type;PartNumber;EnclosureFQDD;Location;
+          - type: "extract"
+            column: 4
+            subSeparators: ":"
+            subColumn: 2
+            # Add Part Number Tag
+            # OtherDeviceID;Type;PartNumber;EnclosureFQDD;Location;
+          - type: "leftConcat"
+            column: 3
+            value: "Part Number: "
+        source(2):
+          # Attach the PhysicalDisk. to the Enclosures using Enclosure.Discovery(4)
+          # OtherDeviceID;Type;PartNumber;EnclosureFQDD;Location;EnclosureID;EnclosureFQDD;EnclosureType;
+          type: "tableJoin"
+          leftTable: "$monitors.other_device.discovery.sources.source(1)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(4)$"
+          leftKeyColumn: 4
+          rightKeyColumn: 2
+      mapping:
+        # Instance Table
+        # OtherDeviceID;Type;PartNumber;EnclosureFQDD;Location;EnclosureID;EnclosureFQDD;EnclosureType;
+        source: "$monitors.other_device.discovery.sources.source(2)$"
+        attributes:
+          id: "$column(1)"
+          device_type: "$column(2)"
+          info: "join($column(5), $column(3), \" \")"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(6)"
+          name: "sprintf(\"%s: %s\", $column(2), $column(1))"
+    collect:
+      # Collect type is MultiInstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # OtherDeviceID;Status;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.674.10892.5.5.1.20.130.13.1"
+          selectColumns: "1,11"
+          computes:
+            # Duplicate the Status column
+            # OtherDeviceID;Status;Status;
+          - type: "duplicateColumn"
+            column: 2
+            # Translate first OtherDevice.robeStatus into a PATROL status
+            # OtherDeviceID;PATROLStatus;Status;
+          - type: "translate"
+            column: 2
+            translationTable: "GenericStatusTranslationTable"
+            # Translate second OtherDevice.robeStatus into a more readable string
+            # OtherDeviceID;PATROLStatus;statusInformation;
+          - type: "translate"
+            column: 3
+            translationTable: "GenericStatusInformationTranslationTable"
+      mapping:
+        # The ValueTable = Source(1)
+        source: "$monitors.other_device.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="other_device"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  battery:
+    discovery:
+      sources:
+        source(1):
+          # Battery.discovery
+          # BatteryID;BatteryFQDD;Location;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.674.10892.5.5.1.20.130.15.1"
+          selectColumns: "ID,20,21"
+          computes:
+            # Extract the Enclosure FQDD from the Fan FQDD
+            # BatteryID;EnclosureFQDD;Location;
+          - type: "extract"
+            column: 2
+            subSeparators: ":"
+            subColumn: 2
+        source(2):
+          # Attach the PhysicalDisk. to the Enclosures using Enclosure.Discovery(4)
+          # BatteryID;EnclosureFQDD;Location;EnclosureID;EnclosureFQDD;EnclosureType;
+          type: "tableJoin"
+          leftTable: "$monitors.battery.discovery.sources.source(1)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(4)$"
+          leftKeyColumn: 2
+          rightKeyColumn: 2
+      mapping:
+        # Instance Table
+        # BatteryID;EnclosureFQDD;Location;EnclosureID;EnclosureFQDD;EnclosureType;
+        source: "$monitors.battery.discovery.sources.source(2)$"
+        attributes:
+          id: "$column(1)"
+          info: "$column(3)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(4)"
+          name: "$column(1)"
+    collect:
+      # Collect type is MultiInstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # BatteryID;Status;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.674.10892.5.5.1.20.130.15.1"
+          selectColumns: "1,6"
+          computes:
+            # Duplicate the Status column
+            # BatteryID;Status;Status;
+          - type: "duplicateColumn"
+            column: 2
+            # Translate first Battery.robeStatus into a PATROL status
+            # BatteryID;PATROLStatus;Status;
+          - type: "translate"
+            column: 2
+            translationTable: "GenericStatusTranslationTable"
+            # Translate second Battery.robeStatus into a more readable string
+            # BatteryID;PATROLStatus;statusInformation;
+          - type: "translate"
+            column: 3
+            translationTable: "GenericStatusInformationTranslationTable"
+      mapping:
+        # The ValueTable = Source(1)
+        source: "$monitors.battery.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="battery"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"

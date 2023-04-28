@@ -1,0 +1,147 @@
+---
+translations:
+  FanStatusTranslationTable:
+    "1": "degraded"
+    default: "ok"
+  PowerSupplyStatusTranslationTable:
+    "0": "ok"
+    "1": "ok"
+    "2": "degraded"
+    default: "UNKNOWN"
+    "3": "failed"
+    "4": "failed"
+    "5": "failed"
+    "7": "failed"
+  FanStatusInformationTranslationTable:
+    "1": "Non-critical Cooling Problem"
+    default: ""
+  PowerSupplyStatusInformationTranslationTable:
+    "0": ""
+    "1": ""
+    "2": "Non-critical Power Problem"
+    default: "Unknown Status"
+    "3": "Severe Power Problem - Shutting down!"
+    "4": "Critical Problem - Halting now!"
+    "5": "Critical Problem"
+    "7": "Critical Problem"
+connector:
+  displayName: "IBM AIX - CHRP Environment"
+  platforms: "IBM POWER"
+  reliesOn: "IBM AIX system commands (machstat)"
+  information: "Provides hardware environment information (temperature sensors, voltage sensors, fans, power supplies) on IBM CHRP-based AIX systems."
+  version: "1.0"
+  detection:
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "RS6000"
+    criteria:
+      # OS should be HP (for HP-UX, whatever version)
+    - type: "deviceType"
+      keep:
+      - "RS6000"
+      # The various following tools have to be present
+    - type: "osCommand"
+      commandLine: "%{SUDO:/usr/sbin/bootinfo}/usr/sbin/bootinfo -p"
+      expectedResult: "^chrp$"
+sudoCommands:
+- "/usr/sbin/bootinfo"
+- "/usr/sbin/machstat"
+monitors:
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = static table of one row
+          type: "static"
+          value: "SystemCooling;System Cooling;"
+      mapping:
+        # Instance Table = Source(1)
+        source: "$monitors.fan.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          hw.parent.type: "enclosure"
+          name: "$column(1)"
+    collect:
+      # Collect type = mono-instance
+      type: "monoInstance"
+      sources:
+        source(1):
+          # Source(1) = machstat -f
+          # EPOW Event;
+          type: "osCommand"
+          commandLine: "%{SUDO:/usr/sbin/machstat}/usr/sbin/machstat -f"
+          keep: "^[0-9] [0-9]"
+          separators: " "
+          selectColumns: "1"
+          computes:
+            # Duplicate the EPOW Event
+            # EPOW Event;EPOW Event
+          - type: "duplicateColumn"
+            column: 1
+            # Translate the first EPOW Event column into a PATROL Status
+            # PATROLStatus;EPOW Event
+          - type: "translate"
+            column: 1
+            translationTable: "FanStatusTranslationTable"
+            # Translate the second EPOW Event column into a more readable string
+            # PATROLStatus;statusInformation
+          - type: "translate"
+            column: 2
+            translationTable: "FanStatusInformationTranslationTable"
+      mapping:
+        # ValueTable = Source(1) (easy enough)
+        source: "$monitors.fan.collect.sources.source(1)$"
+        metrics:
+          hw.status{hw.type="fan"}: "$column(1)"
+        legacyTextParameters:
+          StatusInformation: "$column(2)"
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = static table of one row
+          type: "static"
+          value: "SystemPower;System Power;"
+      mapping:
+        # Instance Table = Source(1)
+        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          power_supply_type: "$column(2)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+    collect:
+      # Collect type = mono-instance
+      type: "monoInstance"
+      sources:
+        source(1):
+          # Source(1) = machstat -f
+          # EPOW Event;
+          type: "osCommand"
+          commandLine: "%{SUDO:/usr/sbin/machstat}/usr/sbin/machstat -f"
+          keep: "^[0-9] [0-9]"
+          separators: " "
+          selectColumns: "1"
+          computes:
+            # Duplicate the EPOW Event
+            # EPOW Event;EPOW Event
+          - type: "duplicateColumn"
+            column: 1
+            # Translate the first EPOW Event column into a PATROL Status
+            # PATROLStatus;EPOW Event
+          - type: "translate"
+            column: 1
+            translationTable: "PowerSupplyStatusTranslationTable"
+            # Translate the second EPOW Event column into a more readable string
+            # PATROLStatus;statusInformation
+          - type: "translate"
+            column: 2
+            translationTable: "PowerSupplyStatusInformationTranslationTable"
+      mapping:
+        # ValueTable = Source(1) (easy enough)
+        source: "$monitors.power_supply.collect.sources.source(1)$"
+        metrics:
+          hw.status{hw.type="power_supply"}: "$column(1)"
+        legacyTextParameters:
+          StatusInformation: "$column(2)"

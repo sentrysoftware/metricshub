@@ -1,0 +1,1270 @@
+---
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN { FS = ";" }
+    $1 ~ /^[0-9]+$/ {print ("MSHW;"$9";Fan Module "$9"-Fan 1;"$3";FM"$9"-1;Fan;"$2";;")
+                     print ("MSHW;"$9";Fan Module "$9"-Fan 2;"$5";FM"$9"-2;Fan;"$4";;")
+                     print ("MSHW;"$9";Fan Module "$9"-Fan 3;"$7";FM"$9"-3;Fan;"$6";;")
+                    }
+translations:
+  OtherDeviceTT:
+    "1": "ok"
+    "2": "failed"
+    default: "UNKNOWN"
+    "3": "UNKNOWN"
+  FanTT:
+    "1": "ok"
+    "2": "failed"
+    default: "UNKNOWN"
+    "3": "UNKNOWN"
+  IntakeTempInfoTT:
+    "1": ""
+    "2": "Intake Temperature High"
+    default: "UNKNOWN"
+    "3": "Intake Temperature Exceeds Threshold"
+    "4": "Intake Temperature Low"
+  PSUTT:
+    "1": "ok"
+    "2": "failed"
+    default: "UNKNOWN"
+    "3": "UNKNOWN"
+  bladeStatusTT:
+    "1": "ok"
+    "2": "failed"
+    default: "UNKNOWN"
+    "3": "UNKNOWN"
+  LEDStateTranslationTable:
+    "1": "Off"
+    "2": "On"
+  IntakeTempTT:
+    "1": "ok"
+    "2": "degraded"
+    default: "UNKNOWN"
+    "3": "failed"
+    "4": "degraded"
+  PowerStateTranslationTable:
+    "1": "off"
+    "2": "on"
+    default: ""
+    "3": "off"
+    "4": ""
+    "5": "off"
+    "6": "off"
+connector:
+  displayName: "Hitachi BladeSymphony Chassis"
+  platforms: "Hitachi BladeSymphony"
+  reliesOn: "Hitachi BladeSymphony Chassis Management Module"
+  version: "1.0"
+  information: "This connector provides hardware monitoring for the Hitachi BladeSymphony Chassis racks through the Hitachi BladeSymphony Chassis Management Module"
+  detection:
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "OOB"
+    criteria:
+      # Criteria 1: Must have a chassisConfigSystem entry
+    - type: "snmpGetNext"
+      oid: "1.3.6.1.4.1.116.5.39.1.10"
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Enclosure (Chassis) chassisConfigSystem Table
+          # Model;SerialNumber;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.116.5.39.1.10"
+          selectColumns: "1,4"
+      mapping:
+        # The InstanceTable
+        # Model;SerialNumber;
+        source: "$monitors.enclosure.discovery.sources.source(1)$"
+        attributes:
+          id: "Hitachi Blade Chassis"
+          vendor: "Hitachi"
+          model: "$column(1)"
+          type: "Blade Chassis"
+          serial_number: "$column(3)"
+          name: "sprintf(\"%s (%s %s - %s)\", \"Hitachi Blade Chassis\", \"Hitachi\", $column(1), \"Blade Chassis\")"
+    collect:
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Get the various enclosures (Chassis)
+          # PowerConsumptionKW
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.116.5.39.6.1.6.0"
+          computes:
+            # Convert 0.1KW to W
+            # PowerConsumptionW
+          - type: "multiply"
+            column: 1
+            value: "100"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.enclosure.collect.sources.source(1)$"
+        deviceId: "Hitachi Blade Chassis"
+        metrics:
+          hw.enclosure.power: "$column(1)"
+          hw.enclosure.energy: "fakeCounter($column(1))"
+  blade:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Blade Existance Table bladeInstallEntry
+          # SlotNumber;Exists
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.116.5.39.1.2.1.1"
+          selectColumns: "2,3"
+          computes:
+            # Keep only blades that "Exist"
+            # SlotNumber;Exists
+          - type: "keepOnlyMatchingLines"
+            column: 2
+            valueList: "2"
+        source(2):
+          # Source(2) = Blade FRU info table
+          # SlotNumber;Model;ModelNumber;Manufacturer;SerialNumber;Partition
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.116.5.39.2.2.1.1"
+          selectColumns: "2,3,4,6,8,11"
+          computes:
+            # Add the text "Partition"
+            # SlotNumber;Model;ModelNumber;Manufacturer;SerialNumber;Partition
+          - type: "leftConcat"
+            column: 6
+            value: "Partition: "
+            # Add the text "Model Number"
+            # SlotNumber;Model;ModelNumber;Manufacturer;SerialNumber;Partition
+          - type: "leftConcat"
+            column: 3
+            value: "Part Number: "
+        source(3):
+          # Source(3) = TableJoint of 1 & 2
+          # SlotNumber;Exists;SlotNumber;Model;ModelNumber;Manufacturer;SerialNumber;Partition
+          type: "tableJoin"
+          leftTable: "$monitors.blade.discovery.sources.source(1)$"
+          rightTable: "$monitors.blade.discovery.sources.source(2)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ";;;;;;"
+        source(4):
+          # To get the blade's power status, we need to know what partition it is part of.
+          # We're going to figure this out in the discovery as we don't want to repeatedly do it.
+          # ParitionNum;Slot1;Slot2;Slot3;Slot4;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.116.5.39.4.3.1"
+          selectColumns: "2,3,4,5,6"
+        source(5):
+          # Now make a table for slot1, then slot2, etc..
+          type: "copy"
+          from: "$monitors.blade.discovery.sources.source(4)$"
+          computes:
+            # ParitionNum;Slot1;
+          - type: "keepColumns"
+            columnNumbers: "1,2"
+        source(6):
+          # Now make a table for slot1, then slot2, etc..
+          type: "copy"
+          from: "$monitors.blade.discovery.sources.source(4)$"
+          computes:
+            # ParitionNum;Slot2;
+          - type: "keepColumns"
+            columnNumbers: "1,3"
+        source(7):
+          # Now make a table for slot1, then slot2, etc..
+          type: "copy"
+          from: "$monitors.blade.discovery.sources.source(4)$"
+          computes:
+            # ParitionNum;Slot3;
+          - type: "keepColumns"
+            columnNumbers: "1,4"
+        source(8):
+          # Now make a table for slot1, then slot2, etc..
+          type: "copy"
+          from: "$monitors.blade.discovery.sources.source(4)$"
+          computes:
+            # ParitionNum;Slot4;
+          - type: "keepColumns"
+            columnNumbers: "1,5"
+        source(9):
+          # Now union all the tables together
+          # PartitionNum;Slot;
+          type: "tableUnion"
+          tables:
+          - "$monitors.blade.discovery.sources.source(5)$"
+          - "$monitors.blade.discovery.sources.source(6)$"
+          - "$monitors.blade.discovery.sources.source(7)$"
+          - "$monitors.blade.discovery.sources.source(8)$"
+          computes:
+            # Exclude Slots = -1
+            # PartitionNum;Slot;
+          - type: "excludeMatchingLines"
+            column: 2
+            valueList: "-1"
+      mapping:
+        # InstanceTable = Source(1)
+        # SlotNumber;Exists;SlotNumber;Model;ModelNumber;Manufacturer;SerialNumber;Partition
+        source: "$monitors.blade.discovery.sources.source(3)$"
+        attributes:
+          id: "$column(1)"
+          model: "$column(4)"
+          serial_number: "$column(7)"
+          info: "join($column(5), $column(8), \" \")"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "Hitachi Blade Chassis"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(4))"
+    collect:
+      # Collect type is \"multi-instance\"
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = Blade Status Table
+          # SlotNumber;HealthStatus
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.116.5.39.3.2.1.1"
+          selectColumns: "2,3"
+          computes:
+            # Source(1) = Blade Status Table
+            # SlotNumber;PatrolStatus
+          - type: "translate"
+            column: 2
+            translationTable: "bladeStatusTT"
+        source(2):
+          # Source(2) = Partition Status Table
+          # PartitionNum;PowerStatus;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.116.5.39.5.1.1"
+          selectColumns: "2,3"
+          computes:
+            # Translate the Power State
+            # PartitionNum;PowerState;
+          - type: "translate"
+            column: 2
+            translationTable: "PowerStateTranslationTable"
+        source(3):
+          # Join Source(2) and Discovery (9) to map blade to partition
+          # PartitionNum;Slot;PartitionNum;PowerState;
+          type: "tableJoin"
+          leftTable: "$monitors.blade.discovery.sources.source(9)$"
+          rightTable: "$monitors.blade.collect.sources.source(2)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          computes:
+            # Keep only Slot and Power Status
+            # Slot;PowerState;
+          - type: "keepColumns"
+            columnNumbers: "2,4"
+        source(4):
+          # Join Source(1) and Source (3)
+          # SlotNumber;PatrolStatus;Slot;PowerState;
+          type: "tableJoin"
+          leftTable: "$monitors.blade.collect.sources.source(1)$"
+          rightTable: "$monitors.blade.collect.sources.source(3)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.blade.collect.sources.source(4)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="blade"}: "$column(2)"
+          hw.blade.power_state: "$column(4)"
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = fanInstallExist
+          # FanModID;FanSlot;FanExists
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.116.5.39.1.6.1.1"
+          selectColumns: "1,2,3"
+          computes:
+            # Add a "Attached to Chassis field" and a descriptive to the Fan Slot Number
+            # FanModID;AttachedTo;FanSlot Text;FanExists
+          - type: "leftConcat"
+            column: 2
+            value: "Hitachi Blade Chassis;Fan Module - Slot "
+        source(2):
+          # Source(2) = fanInfoEntry
+          # FanModID;FanSlot;FanType;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.116.5.39.2.6.1.1"
+          selectColumns: "1,2,3"
+        source(3):
+          # Source(3) = fanRpmEntry
+          # FanModID;Fan1Value;Fan1Valid;Fan2Value;Fan2Valid;Fan3Value;Fan3Valid;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.116.5.39.3.6.2.1"
+          selectColumns: "1,2,3,4,5,6,7"
+        source(4):
+          # Source(4) = fanRpmEntry
+          # FanModID;Fan1Value;Fan1Valid;Fan2Value;Fan2Valid;Fan3Value;Fan3Valid;FanModID;FanModSlot;FanModuleType;
+          type: "tableJoin"
+          leftTable: "$monitors.fan.discovery.sources.source(3)$"
+          rightTable: "$monitors.fan.discovery.sources.source(2)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          computes:
+            # Takes the horizontal list of fans modules and their fans and returns each fan individually
+            # !!! Watch columns in this awk, as it takes columns from both Source 2 & 3 and is not tolerant of column number modifications
+            # AttachedTo;FanSlot Text;FanModExists;FanSlot;FanType;Fan Speed;(FanStatus);
+          - type: "awk"
+            script: "EmbeddedFile(1)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3,4,5,6,7,8"
+        source(5):
+          # Source(5) = Table Joint of (1) and (2)
+          # FanModID;AttachedTo;FanSlot Text;FanModExists;FanModID;FanSlot;FanType;
+          type: "tableJoin"
+          leftTable: "$monitors.fan.discovery.sources.source(1)$"
+          rightTable: "$monitors.fan.discovery.sources.source(2)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          computes:
+            # Keep Only Columns
+            # AttachedTo;FanSlot Text;FanModExists;FanSlot;FanType;
+          - type: "keepColumns"
+            columnNumbers: "2,3,4,6,7"
+            # Add a blank speed column
+            # AttachedTo;FanSlot Text;FanModExists;FanSlot;FanType;(Fan Speed);FanStatus;
+          - type: "rightConcat"
+            column: 5
+            value: ";;FanStatusActivate"
+            # Add FM to the Slot
+            # AttachedTo;FanSlot Text;FanModExists;FanSlot;FanType;(Fan Speed);FanStatus;
+          - type: "leftConcat"
+            column: 4
+            value: "FM"
+        source(6):
+          # Source(6) = Table Union of (4) and (5)
+          # AttachedTo;FanSlot Text;FanModExists;FanSlot;FanType;Fan Speed;FanStatus;
+          type: "tableUnion"
+          tables:
+          - "$monitors.fan.discovery.sources.source(4)$"
+          - "$monitors.fan.discovery.sources.source(5)$"
+          computes:
+            # KeepOnly Fan Modules that Exists
+            # AttachedTo;FanSlot Text;FanModExists;FanSlot;FanType;Fan Speed;FanStatus;
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            valueList: "2"
+      mapping:
+        # InstanceTable = Source(6)
+        # Manually Setting Alarm Threshold to 100 as stopped Fans report a speed of 82
+        # AttachedTo;FanSlot Text;FanModExists;FanSlot;FanType;Fan Speed;FanStatus;
+        source: "$monitors.fan.discovery.sources.source(6)$"
+        attributes:
+          id: "$column(4)"
+          __display_id: "$column(2)"
+          hw.parent.type: "enclosure"
+          name: "$column(2)"
+        metrics:
+          hw.fan.speed.limit{limit_type="low.critical"}: "100"
+    collect:
+      # Collect type is \"multi-instance\"
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = fanStatusEntry
+          # FanSlot;FanStatus
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.116.5.39.3.6.1.1"
+          selectColumns: "2,3"
+          computes:
+            # Add FM to the Slot
+            # FanSlot;FanStatus
+          - type: "leftConcat"
+            column: 1
+            value: "FM"
+            # Add a Blank Speed Column
+            # FanSlot;(Fan Speed);FanStatus;
+          - type: "leftConcat"
+            column: 2
+            value: ";"
+            # Translate the Status
+            # FanSlot;(Fan Speed);PatrolStatus;
+          - type: "translate"
+            column: 3
+            translationTable: "FanTT"
+        source(2):
+          # Source(2) = fanRpmEntry
+          # FanModID;Fan1Value;Fan1Valid;Fan2Value;Fan2Valid;Fan3Value;Fan3Valid;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.116.5.39.3.6.2.1"
+          selectColumns: "1,2,3,4,5,6,7"
+        source(3):
+          # Source(3) = Table Join of Collect 2 and Discovery 2, so that we can use the same awk script as in the Discovery
+          # FanModID;Fan1Value;Fan1Valid;Fan2Value;Fan2Valid;Fan3Value;Fan3Valid;FanModID;FanModSlot;FanModuleType;
+          type: "tableJoin"
+          leftTable: "$monitors.fan.collect.sources.source(2)$"
+          rightTable: "$monitors.fan.discovery.sources.source(2)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          computes:
+            # Takes the horizontal list of fans modules and their fans and returns each fan individually
+            # AttachedTo;FanSlot Text;FanModExists;FanSlot;FanType;Fan Speed;(FanStatus);
+          - type: "awk"
+            script: "EmbeddedFile(1)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3,4,5,6,7,8"
+            # Takes the horizontal list of fans modules and their fans and returns each fan individually
+            # FanSlot;Fan Speed;(FanStatus);
+          - type: "keepColumns"
+            columnNumbers: "4,6,7"
+        source(4):
+          # Source 4 = Table Union of 1 & 3
+          # FanSlot;Fan Speed;PatrolStatus;
+          type: "tableUnion"
+          tables:
+          - "$monitors.fan.collect.sources.source(1)$"
+          - "$monitors.fan.collect.sources.source(3)$"
+      mapping:
+        # ValueTable = Source(4)
+        # FanSlot;Fan Speed;PatrolStatus;
+        source: "$monitors.fan.collect.sources.source(4)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.fan.speed: "$column(2)"
+          hw.status{hw.type="fan"}: "$column(3)"
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = psInstallEntry
+          # Slot;Exists
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.116.5.39.1.7.1.1"
+          selectColumns: "2,3"
+          computes:
+            # Keep only PSUs that exist
+            # Slot;Exists
+          - type: "keepOnlyMatchingLines"
+            column: 2
+            valueList: "2"
+        source(2):
+          # Source(2) = psInfoEntry
+          # Slot;SerialNumber;Type;PartNumber;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.116.5.39.2.7.1.1"
+          selectColumns: "2,3,4,5"
+          computes:
+            # Add Identifier to Part Number
+            # Slot;SerialNumber;Type;PartNumber;
+          - type: "leftConcat"
+            column: 4
+            value: "Part Number: "
+            # Add Identifier to Serial Number
+            # Slot;SerialNumber;Type;PartNumber;
+          - type: "leftConcat"
+            column: 2
+            value: "Serial Number: "
+        source(3):
+          # Source(3) = Table Joint of (1) & (2)
+          # Slot;Exists;Slot;SerialNumber;Type;PartNumber;
+          type: "tableJoin"
+          leftTable: "$monitors.power_supply.discovery.sources.source(1)$"
+          rightTable: "$monitors.power_supply.discovery.sources.source(2)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+      mapping:
+        # InstanceTable = Source(3)
+        # Slot;Exists;Slot;SerialNumber;Type;PartNumber;
+        source: "$monitors.power_supply.discovery.sources.source(3)$"
+        attributes:
+          id: "$column(1)"
+          power_supply_type: "$column(5)"
+          info: "join($column(6), $column(4), \" \")"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(5))"
+    collect:
+      # Collect type is \"multi-instance\"
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = psStatusEntry
+          # Slot;Status;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.116.5.39.3.7.1.1"
+          selectColumns: "2,3"
+          computes:
+            # Translate the Status
+            # Slot;PatrolStatus;
+          - type: "translate"
+            column: 2
+            translationTable: "PSUTT"
+      mapping:
+        # ValueTable = Source(4)
+        # Slot;PatrolStatus;
+        source: "$monitors.power_supply.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="power_supply"}: "$column(2)"
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Source (1) =Get the Chassis Upper and Lower
+          # TempUpper;
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.116.5.39.1.10.7.0"
+          computes:
+            # Add an identifier and a blank status
+            # ID;Location;(Status);TempUpper;
+          - type: "leftConcat"
+            column: 1
+            value: "Ambient;Chassis Ambient;;"
+        source(2):
+          # Source (2) =Get the Intake Temperature Status
+          # Status
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.116.5.39.6.1.8.0"
+          computes:
+            # Add an identifier
+            # ID;Location;Status;(TempUpper);
+          - type: "leftConcat"
+            column: 1
+            value: "Intake;Chassis Intake;"
+          - type: "rightConcat"
+            column: 3
+            value: ";"
+        source(3):
+          # Source (3) = Get the Power Supply Ambient Temperature Table
+          # ID;TempUpper
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.116.5.39.2.7.1.1"
+          selectColumns: "1,8"
+          computes:
+            # Duplicate the ID
+            # ID;ID;TempUpper
+          - type: "duplicateColumn"
+            column: 1
+            # Add Identifiers
+            # ID;Location;TempUpper
+          - type: "leftConcat"
+            column: 1
+            value: "AmbPS-"
+          - type: "leftConcat"
+            column: 2
+            value: "Ambient PSU-"
+        source(4):
+          # Source (4) = Get the Power Supply Ambient Temperature Table
+          # ID;TempUpper
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.116.5.39.2.7.1.1"
+          selectColumns: "1,10"
+          computes:
+            # Duplicate the ID
+            # ID;ID;TempUpper
+          - type: "duplicateColumn"
+            column: 1
+            # Add Identifiers
+            # ID;Location;TempUpper
+          - type: "leftConcat"
+            column: 1
+            value: "HSPS-"
+          - type: "leftConcat"
+            column: 2
+            value: "HotSpot PSU-"
+        source(5):
+          # Source (5) = Get the Power Supply Exhaust Temperature Table
+          # ID;TempUpper
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.116.5.39.2.7.1.1"
+          selectColumns: "1,12"
+          computes:
+            # Duplicate the ID
+            # ID;ID;TempUpper
+          - type: "duplicateColumn"
+            column: 1
+            # Add Identifiers
+            # ID;Location;TempUpper
+          - type: "leftConcat"
+            column: 1
+            value: "ExhPS-"
+          - type: "leftConcat"
+            column: 2
+            value: "Exhaust PSU-"
+        source(6):
+          # Source (6) = Get the Management Module Temperature Table
+          # ID;TempUpper
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.116.5.39.2.3.1.1"
+          selectColumns: "1,14"
+          computes:
+            # Duplicate the ID
+            # ID;ID;TempUpper
+          - type: "duplicateColumn"
+            column: 1
+            # Add Identifiers
+            # ID;Location;TempUpper
+          - type: "leftConcat"
+            column: 1
+            value: "MM-"
+          - type: "leftConcat"
+            column: 2
+            value: "Management Module-"
+        source(7):
+          # Source (6) = Union of 3 & 4 & 5 & 6
+          # ID;Location;TempUpper;
+          type: "tableUnion"
+          tables:
+          - "$monitors.temperature.discovery.sources.source(3)$"
+          - "$monitors.temperature.discovery.sources.source(4)$"
+          - "$monitors.temperature.discovery.sources.source(5)$"
+          - "$monitors.temperature.discovery.sources.source(6)$"
+          computes:
+            # Add an Identifier
+            # ID;Location;(Status);TempUpper
+          - type: "leftConcat"
+            column: 3
+            value: ";"
+        source(8):
+          # Source (8) = Union of 1 & 2 & 6
+          # ID;Location;Status;TempUpper;
+          type: "tableUnion"
+          tables:
+          - "$monitors.temperature.discovery.sources.source(1)$"
+          - "$monitors.temperature.discovery.sources.source(2)$"
+          - "$monitors.temperature.discovery.sources.source(7)$"
+          computes:
+            # Adjust the Upper Threshold units from 0.1�C to �C
+            # ID;Location;Status;TempUpper;
+          - type: "divide"
+            column: 4
+            value: "10"
+          - type: "leftConcat"
+            column: 2
+            value: "Location: "
+      mapping:
+        # InstanceTable = Source(3)
+        # ID;Location;Status;TempUpper;
+        source: "$monitors.temperature.discovery.sources.source(8)$"
+        attributes:
+          id: "$column(1)"
+          info: "$column(2)"
+          hw.parent.type: "enclosure"
+          name: "$column(1)"
+        metrics:
+          hw.temperature.limit{limit_type="high.critical"}: "$column(4)"
+    collect:
+      # Collect type is \"multi-instance\"
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source (1) =Get the Chassis Ambient
+          # Temp;
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.116.5.39.6.1.4.0"
+          computes:
+            # Add an identifier and a blank status
+            # ID;(Status);(StatusInformation);Temp;
+          - type: "leftConcat"
+            column: 1
+            value: "Ambient;;;"
+        source(2):
+          # Source (2) = Get the Intake Temperature Status
+          # Status
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.116.5.39.6.1.8.0"
+          computes:
+            # Add an identifier and a blank Temperature Field
+            # ID;Status;(Temp);
+          - type: "leftConcat"
+            column: 1
+            value: "Intake;"
+          - type: "rightConcat"
+            column: 2
+            value: ";"
+            # Duplicate Status Column
+            # ID;Status;Status;(Temp);
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the Patrol Status
+            # ID;PatrolStatus;Status;(Temp);
+          - type: "translate"
+            column: 2
+            translationTable: "IntakeTempTT"
+            # Translate the Patrol Status
+            # ID;PatrolStatus;StatusInformation;(Temp);
+          - type: "translate"
+            column: 3
+            translationTable: "IntakeTempInfoTT"
+        source(3):
+          # Source (3) = Get the Power Supply Ambient Temperature Table
+          # ID;Temp
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.116.5.39.3.7.2.1"
+          selectColumns: "1,2"
+          computes:
+            # Add an Identifier
+            # ID;Temp
+          - type: "leftConcat"
+            column: 1
+            value: "AmbPS-"
+        source(4):
+          # Source (4) = Get the Power Supply Ambient Temperature Table
+          # ID;Temp
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.116.5.39.3.7.2.1"
+          selectColumns: "1,4"
+          computes:
+            # Add an Identifier
+            # ID;Temp
+          - type: "leftConcat"
+            column: 1
+            value: "HSPS-"
+        source(5):
+          # Source (5) = Get the Power Supply Exhaust Temperature Table
+          # ID;Temp
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.116.5.39.3.7.2.1"
+          selectColumns: "1,6"
+          computes:
+            # Add an Identifier
+            # ID;Temp
+          - type: "leftConcat"
+            column: 1
+            value: "ExhPS-"
+        source(6):
+          # Source (6) = Get the Management Module Temperature Table
+          # ID;Temp
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.116.5.39.3.3.3.1"
+          selectColumns: "1,3"
+          computes:
+            # Add an Identifier
+            # ID;Temp;
+          - type: "leftConcat"
+            column: 1
+            value: "MM-"
+        source(7):
+          # Source (7) = Union of 3 & 4 & 5
+          # ID;Temp;
+          type: "tableUnion"
+          tables:
+          - "$monitors.temperature.collect.sources.source(3)$"
+          - "$monitors.temperature.collect.sources.source(4)$"
+          - "$monitors.temperature.collect.sources.source(5)$"
+          - "$monitors.temperature.collect.sources.source(6)$"
+          computes:
+            # Add an Identifier
+            # ID;(Status);(StatusInformation);Temp
+          - type: "leftConcat"
+            column: 2
+            value: ";;"
+        source(8):
+          # Source (7) = Union of 1 & 2 & 6
+          # ID;PatrolStatus;StatusInformation;Temp;
+          type: "tableUnion"
+          tables:
+          - "$monitors.temperature.collect.sources.source(1)$"
+          - "$monitors.temperature.collect.sources.source(2)$"
+          - "$monitors.temperature.collect.sources.source(7)$"
+          computes:
+            # Adjust the Upper Threshold units from 0.1�C to �C
+            # ID;PatrolStatus;StatusInformation;Temp;
+          - type: "divide"
+            column: 4
+            value: "10"
+      mapping:
+        # Value Table
+        # ID;PatrolStatus;StatusInformation;Temp;
+        source: "$monitors.temperature.collect.sources.source(8)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="temperature"}: "$column(2)"
+          hw.temperature: "$column(4)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = MM Existance Table
+          # SlotNumber;Exists
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.116.5.39.1.3.1.1"
+          selectColumns: "2,3"
+        source(2):
+          # Source (2) = mmInfoEntry (Management Modules)
+          # Slot;ProductName;PartNumber;Serial;Model;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.116.5.39.2.3.1.1"
+          selectColumns: "2,3,4,6,8"
+        source(3):
+          # Source(3) = Table Joint of 1 & 2
+          # Slot;ProductName;PartNumber;Serial;Model;SlotNumber;Exists;
+          type: "tableJoin"
+          leftTable: "$monitors.other_device.discovery.sources.source(2)$"
+          rightTable: "$monitors.other_device.discovery.sources.source(1)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          computes:
+            # Add an Identifier
+            # Type;Slot;ProductName;PartNumber;Serial;Model;SlotNumber;Exists;
+          - type: "leftConcat"
+            column: 1
+            value: "Management Module;MM-"
+        source(4):
+          # Source(4) = IOA Existance Table
+          # SlotNumber;Exists
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.116.5.39.1.5.1.1"
+          selectColumns: "2,3"
+        source(5):
+          # Source (5) = ioInfoEntry (IOA Modules)
+          # Slot;ProductName;PartNumber;Serial;Model;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.116.5.39.2.5.1.1"
+          selectColumns: "2,3,4,7,8"
+        source(6):
+          # Source(6) = Table Joint of 4 & 5
+          # Slot;ProductName;PartNumber;Serial;Model;SlotNumber;Exists;
+          type: "tableJoin"
+          leftTable: "$monitors.other_device.discovery.sources.source(5)$"
+          rightTable: "$monitors.other_device.discovery.sources.source(4)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          computes:
+            # Add an Identifier
+            # Type;Slot;ProductName;PartNumber;Serial;Model;SlotNumber;Exists;
+          - type: "leftConcat"
+            column: 1
+            value: "IOA module;IOA-"
+        source(7):
+          # Source(7) = IOA Existance Table
+          # SlotNumber;Exists
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.116.5.39.1.4.1.1"
+          selectColumns: "2,3"
+        source(8):
+          # Source (8) = swInfoEntry (Switches"
+          # Slot;ProductName;PartNumber;Serial;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.116.5.39.2.4.1.1"
+          selectColumns: "2,3,4,5"
+          computes:
+            # Add a Blank Model Column
+            # Slot;ProductName;PartNumber;Serial;(Model);
+          - type: "rightConcat"
+            column: 4
+            value: ";"
+        source(9):
+          # Source(9) = Table Joint of 7 & 8
+          # Slot;ProductName;PartNumber;Serial;Model;SlotNumber;Exists;
+          type: "tableJoin"
+          leftTable: "$monitors.other_device.discovery.sources.source(8)$"
+          rightTable: "$monitors.other_device.discovery.sources.source(7)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          computes:
+            # Add an Identifier
+            # Type;Slot;ProductName;PartNumber;Serial;Model;SlotNumber;Exists;
+          - type: "leftConcat"
+            column: 1
+            value: "Switch;SW-"
+        source(10):
+          # Source (10) = Union of 3 & 6 & 9
+          # Type;Slot;ProductName;PartNumber;Serial;Model;SlotNumber;Exists;
+          type: "tableUnion"
+          tables:
+          - "$monitors.other_device.discovery.sources.source(3)$"
+          - "$monitors.other_device.discovery.sources.source(6)$"
+          - "$monitors.other_device.discovery.sources.source(9)$"
+          computes:
+            # Add Labels to Part, Serial and Model Number
+            # Type;Slot;ProductName;PartNumber;Serial;Model;SlotNumber;Exists;
+          - type: "leftConcat"
+            column: 4
+            value: "Part Number: "
+            # Keep only OtherDevices that "Exist"
+            # Type;Slot;ProductName;PartNumber;Serial;Model;SlotNumber;Exists;
+          - type: "keepOnlyMatchingLines"
+            column: 8
+            valueList: "2"
+        source(11):
+          # Source (11) = Partitions partitionConfigEntry
+          # ID;PrimaryOtherDeviceID;Valid;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.116.5.39.4.2.1"
+          selectColumns: "1,2,4"
+          computes:
+            # Keep only OtherDevices that are "Valid"
+            # ID;PrimaryOtherDeviceID;Valid;
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            valueList: "1"
+        source(12):
+          # Source (12) = Partitions partitionOtherDeviceEntry
+          # ID;PartitionNumber;BladeDevice1;BladeDevice2;BladeDevice3;BladeDevice4;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.116.5.39.4.3.1"
+          selectColumns: "1,2,3,4,5,6"
+          computes:
+            # Add an Identifier to OtherDevice1, and spaces to 2 & 3 & 4
+            # ID;PartitionNumber;BladeDevice1;BladeDevice2;BladeDevice3;BladeDevice4;
+          - type: "leftConcat"
+            column: 3
+            value: " "
+          - type: "leftConcat"
+            column: 4
+            value: " "
+          - type: "leftConcat"
+            column: 5
+            value: " "
+          - type: "leftConcat"
+            column: 6
+            value: " "
+            # Remove Blades with ID "-1"
+            # ID;PartitionNumber;BladeDevice1;BladeDevice2;BladeDevice3;BladeDevice4;
+          - type: "replace"
+            column: 3
+            existingValue: " -1"
+            newValue: ""
+          - type: "replace"
+            column: 4
+            existingValue: " -1"
+            newValue: ""
+          - type: "replace"
+            column: 5
+            existingValue: " -1"
+            newValue: ""
+          - type: "replace"
+            column: 6
+            existingValue: " -1"
+            newValue: ""
+            # Combine all the Blades into one Column
+            # ID;PartitionNumber;BladeDevices;BladeDevice2;BladeDevice3;BladeDevice4;
+          - type: "rightConcat"
+            column: 3
+            value: "Column(4)"
+          - type: "rightConcat"
+            column: 3
+            value: "Column(5)"
+          - type: "rightConcat"
+            column: 3
+            value: "Column(6)"
+        source(13):
+          # Combine all the Blades into one Column
+          # ID;PrimaryOtherDeviceID;Valid;ID;PartitionNumber;BladeDevices;BladeDevice2;BladeDevice3;BladeDevice4;
+          type: "tableJoin"
+          leftTable: "$monitors.other_device.discovery.sources.source(11)$"
+          rightTable: "$monitors.other_device.discovery.sources.source(12)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          computes:
+            # Keep Only Useful Columns
+            # PartitionNumber;PrimaryOtherDeviceID;BladeDevices
+          - type: "keepColumns"
+            columnNumbers: "5,2,6"
+            # Add a Type and an Identifier PartitionNumber
+            # Type;PartitionNumber;PrimaryOtherDeviceID;BladeDevices
+          - type: "leftConcat"
+            column: 1
+            value: "Partition;PART-"
+            # Add Identifier to PrimaryOtherDeviceID
+            # Type;PartitionNumber;PrimaryOtherDeviceID;BladeDevices
+          - type: "leftConcat"
+            column: 3
+            value: "Primary Blade - "
+            # Add Identifier to BladeDevices
+            # Type;PartitionNumber;PrimaryOtherDeviceID;BladeDevices
+          - type: "leftConcat"
+            column: 4
+            value: "Component Blades: "
+            # Add Blank Columns to match up with Other Devices
+            # Type;PartitionNumber;PrimaryOtherDeviceID;BladeDevices;;;
+          - type: "rightConcat"
+            column: 4
+            value: ";;"
+        source(14):
+          # Table Union of 10 & 13
+          # Type;Slot           ;ProductName         ;PartNumber  ;Serial;Model;
+          # Type;PartitionNumber;PrimaryOtherDeviceID;BladeDevices;      ;     ;
+          type: "tableUnion"
+          tables:
+          - "$monitors.other_device.discovery.sources.source(10)$"
+          - "$monitors.other_device.discovery.sources.source(13)$"
+          computes:
+          - type: "leftConcat"
+            column: 6
+            value: "Model: "
+          - type: "leftConcat"
+            column: 5
+            value: "SerialNumber: "
+      mapping:
+        # InstanceTable = Source(14)
+        # Type;Slot        #  ;ProductName         ;PartNumber  ;Serial;Model;
+        # Type;PartitionNumber;PrimaryOtherDeviceID;BladeDevices;      ;     ;
+        source: "$monitors.other_device.discovery.sources.source(14)$"
+        attributes:
+          id: "$column(2)"
+          device_type: "$column(1)"
+          additional_label: "$column(3)"
+          info: "join($column(4), $column(5), $column(6), \" \")"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s: %s (%s)\", $column(1), $column(2), $column(3))"
+    collect:
+      # Collect type is \"multi-instance\"
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = mmStatusEntry
+          # Slot;Status;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.116.5.39.3.3.1.1"
+          selectColumns: "2,3"
+          computes:
+            # Add an Identifier
+            # Slot;Status;
+          - type: "leftConcat"
+            column: 1
+            value: "MM-"
+        source(2):
+          # Source(2) = ioStatusEntry
+          # Slot;Status;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.116.5.39.3.5.1.1"
+          selectColumns: "2,3"
+          computes:
+            # Add an Identifier
+            # Slot;Status;
+          - type: "leftConcat"
+            column: 1
+            value: "IOA-"
+        source(3):
+          # Source(3) = swStatusEntry
+          # Slot;Status;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.116.5.39.3.4.1.1"
+          selectColumns: "2,3"
+          computes:
+            # Add an Identifier
+            # Slot;Status;
+          - type: "leftConcat"
+            column: 1
+            value: "SW-"
+        source(4):
+          # Source(4) = swStatusEntry
+          # Slot;Status;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.116.5.39.5.1.1"
+          selectColumns: "2,4"
+          computes:
+            # Add an Identifier
+            # Slot;Status;
+          - type: "leftConcat"
+            column: 1
+            value: "PART-"
+        source(5):
+          # Source (5) = Union of 1 & 2 & 3 & 4
+          # Slot;Status;
+          type: "tableUnion"
+          tables:
+          - "$monitors.other_device.collect.sources.source(1)$"
+          - "$monitors.other_device.collect.sources.source(2)$"
+          - "$monitors.other_device.collect.sources.source(3)$"
+          - "$monitors.other_device.collect.sources.source(4)$"
+          computes:
+            # Translate the Status
+            # Slot;PatrolStatus;
+          - type: "translate"
+            column: 2
+            translationTable: "OtherDeviceTT"
+      mapping:
+        # The ValueTable
+        source: "$monitors.other_device.collect.sources.source(5)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="other_device"}: "$column(2)"
+  led:
+    discovery:
+      sources:
+        source(1):
+          # Source (1) = Node LED OID
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.116.5.39.6.1.9.0"
+          computes:
+            # Add an Identifier
+            # ID;Name;Value
+          - type: "leftConcat"
+            column: 1
+            value: "Node;Node Failure;"
+        source(2):
+          # Source (2) = Switch LED OID
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.116.5.39.6.1.10.0"
+          computes:
+            # Add an Identifier
+            # ID;Name;Value
+          - type: "leftConcat"
+            column: 1
+            value: "SW;Switch Failure;"
+        source(3):
+          # Source (3) = Power Supply LED OID
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.116.5.39.6.1.11.0"
+          computes:
+            # Add an Identifier
+            # ID;Name;Value
+          - type: "leftConcat"
+            column: 1
+            value: "PS;Power Supply Module Failure;"
+        source(4):
+          # Source (4) = Fan LED OID
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.116.5.39.6.1.12.0"
+          computes:
+            # Add an Identifier
+            # ID;Name;Value
+          - type: "leftConcat"
+            column: 1
+            value: "FM;Fan Module Failure;"
+        source(5):
+          # Source (5) = Temp LED OID
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.116.5.39.6.1.13.0"
+          computes:
+            # Add an Identifier
+            # ID;Name;Value
+          - type: "leftConcat"
+            column: 1
+            value: "Temp;Thermal Issue;"
+        source(6):
+          # Source (6) = Device LED OID
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.116.5.39.6.1.14.0"
+          computes:
+            # ID;Name;Value
+          - type: "leftConcat"
+            column: 1
+            value: "Device;Device in Server Blade Error;"
+        source(7):
+          # Source (7) = Union of 1 & 2 & 3 & 4 & 5
+          # ID;Name;Value
+          type: "tableUnion"
+          tables:
+          - "$monitors.led.discovery.sources.source(1)$"
+          - "$monitors.led.discovery.sources.source(2)$"
+          - "$monitors.led.discovery.sources.source(3)$"
+          - "$monitors.led.discovery.sources.source(4)$"
+          - "$monitors.led.discovery.sources.source(5)$"
+        source(8):
+          # Source (8) = Union of 7 & 6
+          # ID;Name;Value
+          type: "tableUnion"
+          tables:
+          - "$monitors.led.discovery.sources.source(7)$"
+          - "$monitors.led.discovery.sources.source(6)$"
+          computes:
+            # Keep only LEDs with valid value
+            # ID;Name;Value
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            valueList: "1,2"
+      mapping:
+        # Instance Table
+        # ID;Name;Value
+        source: "$monitors.led.discovery.sources.source(8)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(2)"
+          __on_status: "ALARM"
+          __off_status: "OK"
+          hw.parent.type: "enclosure"
+          name: "$column(2)"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source (1) = Node LED OID
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.116.5.39.6.1.9.0"
+          computes:
+            # Add an Identifier
+            # ID;Value
+          - type: "leftConcat"
+            column: 1
+            value: "Node;"
+        source(2):
+          # Source (2) = Switch LED OID
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.116.5.39.6.1.10.0"
+          computes:
+            # Add an Identifier
+            # ID;Value
+          - type: "leftConcat"
+            column: 1
+            value: "SW;"
+        source(3):
+          # Source (3) = Power Supply LED OID
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.116.5.39.6.1.11.0"
+          computes:
+            # Add an Identifier
+            # ID;Value
+          - type: "leftConcat"
+            column: 1
+            value: "PS;"
+        source(4):
+          # Source (4) = Fan LED OID
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.116.5.39.6.1.12.0"
+          computes:
+            # Add an Identifier
+            # ID;Value
+          - type: "leftConcat"
+            column: 1
+            value: "FM;"
+        source(5):
+          # Source (5) = Temp LED OID
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.116.5.39.6.1.13.0"
+          computes:
+            # Add an Identifier
+            # ID;Value
+          - type: "leftConcat"
+            column: 1
+            value: "Temp;"
+        source(6):
+          # Source (6) = Device LED OID
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.116.5.39.6.1.14.0"
+          computes:
+            # ID;Value
+          - type: "leftConcat"
+            column: 1
+            value: "Device;"
+        source(7):
+          # Source (7) = Union of 1 & 2 & 3 & 4 & 5
+          # ID;Value
+          type: "tableUnion"
+          tables:
+          - "$monitors.led.collect.sources.source(1)$"
+          - "$monitors.led.collect.sources.source(2)$"
+          - "$monitors.led.collect.sources.source(3)$"
+          - "$monitors.led.collect.sources.source(4)$"
+          - "$monitors.led.collect.sources.source(5)$"
+        source(8):
+          # Source (8) = Union of 7 & 6
+          # ID;Value
+          type: "tableUnion"
+          tables:
+          - "$monitors.led.collect.sources.source(7)$"
+          - "$monitors.led.collect.sources.source(6)$"
+          computes:
+            # Translate the LED value
+            # ID;PatrolValue
+          - type: "translate"
+            column: 2
+            translationTable: "LEDStateTranslationTable"
+      mapping:
+        # ValueTable = Source(8)
+        source: "$monitors.led.collect.sources.source(8)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="led"}: "legacyLedStatus($column(2))"

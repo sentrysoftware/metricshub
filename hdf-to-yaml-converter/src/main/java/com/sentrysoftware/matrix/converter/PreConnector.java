@@ -312,6 +312,7 @@ public class PreConnector {
 			} else if (group5 != null) {
 				if (!list.isEmpty()) {
 					// We've got the key-value pair
+					list.removeIf(x -> x.isEmpty());
 					comments.put(group5.trim().toLowerCase(), list);
 				}
 

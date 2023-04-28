@@ -1,0 +1,707 @@
+---
+translations:
+  rpmTranslationTable:
+    default: ""
+    rpm: "speedActivated"
+  percentTranslationTable:
+    default: ""
+    percent: "speedPercentActivated"
+  temperatureTranslationTable:
+    default: ""
+    c: "temperatureActivation"
+  linkTranslationTable:
+    offline: "degraded"
+    default: ""
+    no light: "degraded"
+    online: "ok"
+    disabled: "degraded"
+    none: "UNKNOWN"
+  StatusInformationTranslationTable:
+    notpresent: "Missing"
+    default: "Status not recognized"
+    test: "In Test Mode"
+    commerror: "Communication Error"
+    warning: "Warning"
+    error: "Error"
+    good: ""
+  StatusTranslationTable:
+    notpresent: "degraded"
+    default: "failed"
+    test: "degraded"
+    commerror: "UNKNOWN"
+    warning: "degraded"
+    error: "degraded"
+    good: "ok"
+connector:
+  displayName: "IBM FlashSystem 700/800"
+  platforms: "IBM FlashSystem"
+  reliesOn: "IBM FlashSystem 700/800 SNMP Agent"
+  version: "1.0"
+  information: "This connector discovers the enclosure(s) and the disks of IBM FlashSystem 700/800s as well as the various environment sensors (temperatures, fans, power supplies). It relies on the SNMP protocol."
+  detection:
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "Storage"
+    criteria:
+      # Verify that there is an IBM FlashSystem
+    - type: "snmpGetNext"
+      oid: "1.3.6.1.4.1.8378.10.1"
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = systemType
+          # Version
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.8378.10.1.1"
+        source(2):
+          # Source(2) = version
+          # Model
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.8378.10.1.0"
+          computes:
+            # Combine the two tables
+            # Model;Version;
+          - type: "rightConcat"
+            column: 1
+            value: "$monitors.enclosure.discovery.sources.source(1)$"
+          - type: "leftConcat"
+            column: 2
+            value: "FirmwareVersion: "
+      mapping:
+        # Instance Table
+        # Model;Version;
+        source: "$monitors.enclosure.discovery.sources.source(2)$"
+        attributes:
+          id: "IBM FlashSystem"
+          model: "$column(1)"
+          type: "Storage"
+          info: "$column(2)"
+          name: "sprintf(\"%s (%s - %s)\", \"IBM FlashSystem\", $column(1), \"Storage\")"
+    collect:
+      # Collect type is mono-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source (1) Overall Status
+          # Status
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.8378.10.1.3"
+          computes:
+            # Duplicate the Status column
+            # Status;Status;
+          - type: "duplicateColumn"
+            column: 1
+            # Translate the first status column into a PATROLStatus
+            # PATROLStatus;Status;
+          - type: "translate"
+            column: 1
+            translationTable: "StatusTranslationTable"
+            # Translate the second status column into a more readable string
+            # PATROLStatus;StatusInformation;
+          - type: "translate"
+            column: 2
+            translationTable: "StatusInformationTranslationTable"
+      mapping:
+        # Value Table
+        # PATROLStatus;StatusInformation;
+        source: "$monitors.enclosure.collect.sources.source(1)$"
+        deviceId: "IBM FlashSystem"
+        metrics:
+          hw.status{hw.type="enclosure"}: "$column(1)"
+        legacyTextParameters:
+          StatusInformation: "$column(2)"
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Fan Table
+          # ID;Name;Units;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.8378.10.1.6.0.1"
+          selectColumns: "ID,3,5"
+          computes:
+            # Duplicate the Units
+            # ID;Name;Units;Units;
+          - type: "duplicateColumn"
+            column: 3
+            # "Translate" The units.  This way it will only be
+            # ID;Name;SpeedActivation;Units;
+          - type: "translate"
+            column: 3
+            translationTable: "rpmTranslationTable"
+            # "Translate" The units.  This way it will only be
+            # ID;Name;SpeedActivation;SpeedPercentActivation;
+          - type: "translate"
+            column: 4
+            translationTable: "percentTranslationTable"
+            # Remove "Speed" and "Health" from the Name
+            # ID;Name;SpeedActivation;SpeedPercentActivation;
+          - type: "replace"
+            column: 2
+            existingValue: " Speed"
+            newValue: ""
+          - type: "replace"
+            column: 2
+            existingValue: " Health"
+            newValue: ""
+      mapping:
+        # InstanceTable = Source(1)
+        # ID;Name;SpeedActivation;SpeedPercentActivation;
+        source: "$monitors.fan.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(2)"
+          hw.parent.type: "enclosure"
+          name: "$column(2)"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = Fan Table
+          # ID;Value;Units;State;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.8378.10.1.6.0.1"
+          selectColumns: "ID,4,5,6"
+        source(2):
+          # Copy and keep only RPM
+          # ID;Value;Units;State;
+          type: "copy"
+          from: "$monitors.fan.collect.sources.source(1)$"
+          computes:
+            # Keep only RPM
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            valueList: "RPM"
+            # Copy and keep only RPM
+            # ID;Percent;Speed;Units;State;
+          - type: "leftConcat"
+            column: 2
+            value: ";"
+        source(3):
+          # Copy and keep only RPM
+          # ID;Value;Units;State;
+          type: "copy"
+          from: "$monitors.fan.collect.sources.source(1)$"
+          computes:
+            # Keep only RPM
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            valueList: "percent"
+            # Copy and keep only RPM
+            # ID;Percent;Speed;Units;State;
+          - type: "rightConcat"
+            column: 2
+            value: ";"
+        source(4):
+          # Union the two collects
+          # ID;Percent;Speed;Units;State;
+          type: "tableUnion"
+          tables:
+          - "$monitors.fan.collect.sources.source(2)$"
+          - "$monitors.fan.collect.sources.source(3)$"
+          computes:
+            # Duplicate the Status column
+            # ID;Percent;Speed;Units;State;State;
+          - type: "duplicateColumn"
+            column: 5
+            # Translate the first status column into a PATROLStatus
+            # ID;Percent;Speed;Units;PatrolStatus;State;
+          - type: "translate"
+            column: 5
+            translationTable: "StatusTranslationTable"
+            # Translate the second status column into a more readable string
+            # ID;Percent;Speed;Units;PatrolStatus;StatusInformation;
+          - type: "translate"
+            column: 6
+            translationTable: "StatusInformationTranslationTable"
+      mapping:
+        # ValueTable = Source(4)
+        # ID;Percent;Speed;Units;PatrolStatus;StatusInformation;
+        source: "$monitors.fan.collect.sources.source(4)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="fan"}: "$column(5)"
+          hw.fan.speed: "$column(3)"
+          hw.fan.speed_ratio: "percent2Ratio($column(2))"
+        legacyTextParameters:
+          StatusInformation: "$column(6)"
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Temperature Table
+          # ID;Type;Name;Units;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.8378.10.1.6.1.1"
+          selectColumns: "ID,2,3,5"
+          computes:
+            # "Translate" The units.  This way it will only be
+            # ID;Type;Name;TemperatureActivation;
+          - type: "translate"
+            column: 4
+            translationTable: "temperatureTranslationTable"
+            # Remove "Temperature" from the Name
+            # ID;Type;Name;TemperatureActivation;
+          - type: "replace"
+            column: 3
+            existingValue: "temperature"
+            newValue: ""
+          - type: "replace"
+            column: 3
+            existingValue: "temperature"
+            newValue: ""
+            # Add the Name to the Type
+            # ID;DisplayID;Name;TemperatureActivation;
+          - type: "rightConcat"
+            column: 2
+            value: " "
+          - type: "rightConcat"
+            column: 2
+            value: "Column(3)"
+      mapping:
+        # InstanceTable = Source(1)
+        # ID;DisplayID;Name;TemperatureActivation;
+        source: "$monitors.temperature.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(2)"
+          hw.parent.type: "enclosure"
+          name: "$column(2)"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = Temperature Table
+          # ID;Value;State;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.8378.10.1.6.1.1"
+          selectColumns: "ID,4,6"
+          computes:
+            # Duplicate the Status column
+            # ID;Value;State;State;
+          - type: "duplicateColumn"
+            column: 3
+            # Translate the first status column into a PATROLStatus
+            # ID;Value;PatrolStatus;State;
+          - type: "translate"
+            column: 3
+            translationTable: "StatusTranslationTable"
+            # Translate the second status column into a more readable string
+            # ID;Value;PatrolStatus;StatusInformation;
+          - type: "translate"
+            column: 4
+            translationTable: "StatusInformationTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        # ID;Value;PatrolStatus;StatusInformation;
+        source: "$monitors.temperature.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="temperature"}: "$column(3)"
+          hw.temperature: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = PowerSupply Table
+          # ID;Name;Units;Type;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.8378.10.1.6.2.1"
+          selectColumns: "ID,3,5,2"
+          computes:
+            # Keep only "boolean" i.e. power supply information
+            # ID;Name;Units;Type;
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            valueList: "boolean"
+            # Remove "Fault Detected" from the Name
+            # ID;Name;Units;Type;
+          - type: "replace"
+            column: 2
+            existingValue: " Fault Detected"
+            newValue: ""
+            # Add the Name to the Type
+            # ID;Name;Units;Type;
+          - type: "leftConcat"
+            column: 2
+            value: " "
+          - type: "leftConcat"
+            column: 2
+            value: "Column(4)"
+      mapping:
+        # InstanceTable = Source(1)
+        # ID;Name;Units;
+        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(2)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s, $column(2))"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = PowerSupply Table
+          # ID;State;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.8378.10.1.6.2.1"
+          selectColumns: "ID,6"
+          computes:
+            # Duplicate the Status column
+            # ID;State;State;
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the first status column into a PATROLStatus
+            # ID;PatrolStatus;State;
+          - type: "translate"
+            column: 2
+            translationTable: "StatusTranslationTable"
+            # Translate the second status column into a more readable string
+            # ID;PatrolStatus;StatusInformation;
+          - type: "translate"
+            column: 3
+            translationTable: "StatusInformationTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        # ID;PatrolStatus;StatusInformation;
+        source: "$monitors.power_supply.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="power_supply"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  voltage:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Power Supply Table
+          # ID;Name;Units;Type;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.8378.10.1.6.2.1"
+          selectColumns: "ID,3,5,2"
+        source(2):
+          # Source(2) = Battery Table
+          # ID;Name;Units;Type;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.8378.10.1.6.3.1"
+          selectColumns: "ID,3,5,2"
+          computes:
+            # Add a prefix to differentiate it from Power Supply Voltages
+            # ID;Name;Units;Type;
+          - type: "leftConcat"
+            column: 1
+            value: "Batt"
+        source(3):
+          # Union the two sources
+          # ID;Name;Units;Type;
+          type: "tableUnion"
+          tables:
+          - "$monitors.voltage.discovery.sources.source(1)$"
+          - "$monitors.voltage.discovery.sources.source(2)$"
+          computes:
+            # Keep only "volts" i.e. voltage information
+            # ID;Name;Units;Type;
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            valueList: "Volts"
+            # Remove "Temperature" from the Name
+            # ID;Name;Units;Type;
+          - type: "replace"
+            column: 2
+            existingValue: "voltage"
+            newValue: ""
+            # Add the Name to the Type
+            # ID;Name;Units;Type;
+          - type: "leftConcat"
+            column: 2
+            value: " "
+          - type: "leftConcat"
+            column: 2
+            value: "Column(4)"
+      mapping:
+        # InstanceTable = Source(1)
+        # ID;Name;Units;
+        source: "$monitors.voltage.discovery.sources.source(3)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(2)"
+          hw.parent.type: "enclosure"
+          name: "$column(2)"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = Voltage Table
+          # ID;State;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.8378.10.1.6.2.1"
+          selectColumns: "ID,6"
+        source(2):
+          # Source(2) = Battery Table
+          # ID;State;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.8378.10.1.6.3.1"
+          selectColumns: "ID,6"
+          computes:
+            # Add a prefix to differentiate it from Power Supply Voltages
+            # ID;Name;Units;Type;
+          - type: "leftConcat"
+            column: 1
+            value: "Batt"
+        source(3):
+          # Union the two sources
+          # ID;State;
+          type: "tableUnion"
+          tables:
+          - "$monitors.voltage.collect.sources.source(1)$"
+          - "$monitors.voltage.collect.sources.source(2)$"
+          computes:
+            # Duplicate the Status column
+            # ID;State;State;
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the first status column into a PATROLStatus
+            # ID;PatrolStatus;State;
+          - type: "translate"
+            column: 2
+            translationTable: "StatusTranslationTable"
+            # Translate the second status column into a more readable string
+            # ID;PatrolStatus;StatusInformation;
+          - type: "translate"
+            column: 3
+            translationTable: "StatusInformationTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        # ID;PatrolStatus;StatusInformation;
+        source: "$monitors.voltage.collect.sources.source(3)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="voltage"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  battery:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Battery Table
+          # ID;Name;Units;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.8378.10.1.6.3.1"
+          selectColumns: "ID,3,5"
+          computes:
+            # Keep only "boolean" i.e. battery information
+            # ID;Name;Units;
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            valueList: "boolean"
+            # Keep only "healths"
+            # ID;Name;Units;
+          - type: "keepOnlyMatchingLines"
+            column: 2
+            regExp: "Health"
+      mapping:
+        # InstanceTable = Source(1)
+        # ID;Name;Units;
+        source: "$monitors.battery.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(2)"
+          hw.parent.type: "enclosure"
+          name: "$column(2)"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = Battery Table
+          # ID;State;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.8378.10.1.6.3.1"
+          selectColumns: "ID,6"
+          computes:
+            # Duplicate the Status column
+            # ID;State;State;
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the first status column into a PATROLStatus
+            # ID;Value;PatrolStatus;State;
+          - type: "translate"
+            column: 2
+            translationTable: "StatusTranslationTable"
+            # Translate the second status column into a more readable string
+            # ID;Value;PatrolStatus;StatusInformation;
+          - type: "translate"
+            column: 3
+            translationTable: "StatusInformationTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        # ID;Value;PatrolStatus;StatusInformation;
+        source: "$monitors.battery.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="battery"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = PhysicalDisk Table
+          # ID;Name;Size;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.8378.10.4.1"
+          selectColumns: "ID,2,6"
+          computes:
+            # Convert MiB to bytes
+            # ID;Name;Size;
+          - type: "multiply"
+            column: 3
+            value: "1048576"
+      mapping:
+        # InstanceTable = Source(1)
+        # ID;Name;Size;
+        source: "$monitors.physical_disk.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(2)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s)\", $column(2), $column(3))"
+        metrics:
+          hw.physical_disk.size: "$column(3)"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = PhysicalDisk Table
+          # ID;State;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.8378.10.4.1"
+          selectColumns: "ID,4"
+          computes:
+            # Duplicate the Status column
+            # ID;State;State;
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the first status column into a PATROLStatus
+            # ID;Value;PatrolStatus;State;
+          - type: "translate"
+            column: 2
+            translationTable: "StatusTranslationTable"
+            # Translate the second status column into a more readable string
+            # ID;Value;PatrolStatus;StatusInformation;
+          - type: "translate"
+            column: 3
+            translationTable: "StatusInformationTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        # ID;Value;PatrolStatus;StatusInformation;
+        source: "$monitors.physical_disk.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="physical_disk"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  network:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = FC Port Table
+          # ID;PortID;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.8378.10.2.1"
+          selectColumns: "2,7"
+          computes:
+            # Add the PortIDType
+            # ID;PortID;PortIDType;
+          - type: "rightConcat"
+            column: 2
+            value: ";WWN"
+        source(2):
+          # Source(2) = iB Table
+          # ID;PortID;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.8378.10.3.1"
+          selectColumns: "2,6"
+          computes:
+            # Add the PortIDType
+            # ID;PortID;PortIDType;
+          - type: "rightConcat"
+            column: 2
+            value: ";GUID"
+        source(3):
+          # Union the two discovery
+          # ID;PortID;PortIDType;
+          type: "tableUnion"
+          tables:
+          - "$monitors.network.discovery.sources.source(1)$"
+          - "$monitors.network.discovery.sources.source(2)$"
+      mapping:
+        # InstanceTable = Source(1)
+        # ID;PortID;PortIDType;
+        source: "$monitors.network.discovery.sources.source(3)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(1)"
+          physical_address: "$column(2)"
+          physical_address_type: "$column(3)"
+          hw.parent.type: "enclosure"
+          name: "$column(1)"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = FC Port Table
+          # ID;LinkStatus;Speed;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.8378.10.2.1"
+          selectColumns: "2,5,9"
+        source(2):
+          # Source(2) = iB Table
+          # ID;LinkStatus;Speed;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.8378.10.3.1"
+          selectColumns: "2,5,8"
+        source(3):
+          # Union the two Collect
+          # ID;LinkStatus;Speed;
+          type: "tableUnion"
+          tables:
+          - "$monitors.network.collect.sources.source(1)$"
+          - "$monitors.network.collect.sources.source(2)$"
+          computes:
+            # Replace the GB units with 000
+            # ID;LinkStatus;Speed;
+          - type: "replace"
+            column: 3
+            existingValue: "Gb"
+            newValue: "000"
+            # Replace the Mb units with ""
+            # ID;LinkStatus;Speed;
+          - type: "replace"
+            column: 3
+            existingValue: "Mb"
+            newValue: ""
+            # Translate the link status
+            # ID;LinkStatus;Speed;
+          - type: "translate"
+            column: 2
+            translationTable: "linkTranslationTable"
+      mapping:
+        # ValueTable = Source(3)
+        # ID;LinkStatus;Speed;
+        source: "$monitors.network.collect.sources.source(3)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.network.up: "legacyLinkStatus($column(2))"
+          hw.network.bandwidth.limit: "megaBit2Bit($column(3))"

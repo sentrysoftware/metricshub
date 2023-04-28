@@ -6,20 +6,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Iterator;
 import java.util.List;
 
-import javax.json.JsonException;
-
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledOnOs;
-import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 
 class ConnectorLibraryConverterTest {
@@ -31,40 +25,36 @@ class ConnectorLibraryConverterTest {
 	private Path tempDir;
 
 	@Test
-	@DisabledOnOs(OS.MAC) // Just a difference of one file `.DS_STORE` that mac puts everywhere.
 	void testProcess() throws IOException {
-		final ConnectorLibraryConverter processor = new ConnectorLibraryConverter(Path.of(HDF_DIRECTORY), tempDir);
-		processor.process();
-		final File dell = tempDir.resolve("DellOpenManage.yaml").toFile();
-		final File emc = tempDir.resolve("DellEMCPowerStoreREST.yaml").toFile();
-		assertTrue(dell.exists());
-		assertTrue(emc.exists());
-
-		assertEquals(processor.getSourceDirectory().toFile().list().length, processor.getOutputDirectory().toFile().list().length);
-	}
-
-	@Test
-	void testProcessNode() throws IOException { 
 		final ObjectMapper mapper = JsonHelper.buildYamlMapper();
-		
 		final ConnectorLibraryConverter processor = new ConnectorLibraryConverter(Path.of(HDF_DIRECTORY), tempDir);
 		processor.process();
 
-		final Path expectedPath = Path.of(YAML_DIRECTORY, "DellOpenManage.yaml");
+		for (File yamlFile : List.of(processor.getOutputDirectory().toFile().list()).stream()
+				.map(x -> new File(processor.getOutputDirectory().toAbsolutePath() + "/" + x)).toList()) {
 
-		final File inputFile = tempDir.resolve("DellOpenManage.yaml").toFile();
-		final File expectedFile = expectedPath.toFile();
-		
-		assertTrue(inputFile.exists());
-		assertTrue(expectedFile.exists());
+			final File expected = new File("src/test/resources/yaml/" + yamlFile.getName());
 
-		final JsonNode expectedNode = mapper.readTree(expectedFile);
-		JsonNode inputNode = mapper.readTree(inputFile);
+			assertTrue(expected.exists());
+			assertTrue(yamlFile.exists());
 
-		removeJsonField((ObjectNode) inputNode);
+			JsonNode expectedNode = null;
+			JsonNode yaml = null;
 
-		// Comparing objects (no comments involved)
-		assertEquals(expectedNode.toPrettyString(), inputNode.toPrettyString());
+			try {
+				yaml = mapper.readTree(yamlFile);
+			} catch (Exception e) {
+				Assertions.fail(String.format("YAML is invalid! %s, %s", yamlFile, yaml));
+			}
+
+			try {
+				expectedNode = mapper.readTree(expected);
+			} catch (Exception e) {
+				Assertions.fail(String.format("YAML is invalid! %s, %s", expected, expectedNode));
+			}
+
+			assertEquals(expectedNode, yaml);
+		}
 	}
 
 	@Test
@@ -76,7 +66,7 @@ class ConnectorLibraryConverterTest {
 
 		final File inputFile = tempDir.resolve("DellOpenManage.yaml").toFile();
 		final File expectedFile = expectedPath.toFile();
-		
+
 		assertTrue(inputFile.exists());
 		assertTrue(expectedFile.exists());
 
@@ -85,27 +75,5 @@ class ConnectorLibraryConverterTest {
 
 		// compares line by line. includes comments
 		assertEquals(expectedLines, inputLines);
-	}
-
-	private static void removeJsonField(ObjectNode obj) throws JsonException{
-		obj.remove("_comment");
-	
-		Iterator<String> it = obj.fieldNames();
-		while(it.hasNext()){
-			String key = it.next();
-			Object childObj = obj.get(key);
-			if(childObj instanceof ArrayNode){
-				ArrayNode arrayChildObjs =((ArrayNode)childObj);
-				int size = arrayChildObjs.size();
-				for(int i=0;i<size;i++){
-					if (arrayChildObjs.get(i) instanceof ObjectNode){
-						removeJsonField((ObjectNode)arrayChildObjs.get(i));
-					}
-				}
-			}
-			if(childObj instanceof ObjectNode){
-				removeJsonField((ObjectNode)childObj);
-			}
-		}
 	}
 }

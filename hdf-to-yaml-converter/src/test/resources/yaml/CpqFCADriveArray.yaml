@@ -1,0 +1,386 @@
+---
+translations:
+  DiskControllerStatusTranslationTable:
+    "2": "ok"
+    default: "UNKNOWN"
+    "3": "failed"
+    "4": "failed"
+    "5": "degraded"
+  ArrayControllerModelTranslationTable:
+    "2": "Compaq StorageWorks RAID Array 4000"
+    default: "HP StorageWorks Controller"
+    "3": "Compaq StorageWorks Modular Smart Array 1000"
+    "4": "HP StorageWorks Modular Smart Array 500"
+    "5": "Compaq StorageWorks HSG80 RAID Array"
+    "6": "Compaq StorageWorks HSV110 Virtual Array"
+    "7": "HP StorageWorks Modular Smart Array 500 G2"
+    "8": "HP StorageWorks Modular Smart Array 20"
+    "9": "HP StorageWorks Modular Smart Array 1510i"
+  RAIDLevelTranslationTable:
+    "1": ""
+    "2": "0"
+    default: ""
+    "3": "1"
+    "4": "4"
+    "5": "5"
+    "7": "ADG"
+  PhysicalDiskStatusInformationTranslationTable:
+    "2": "Unconfigured"
+    default: "Unknown Status"
+    "3": ""
+    "4": "Too many errors"
+    "5": "Predicted failure"
+    "6": "Failed"
+  DiskControllerStatusInformationTranslationTable:
+    "2": ""
+    default: "Unknown Status"
+    "3": "Failed"
+    "4": "Offline"
+    "5": "Redundant path offline"
+  PhysicalDiskSMARTStatusTranslationTable:
+    "1": "FALSE"
+    "2": "FALSE"
+    default: "FALSE"
+    "3": "TRUE"
+  LogicalDiskStatusInformationTranslationTable:
+    "11": "Shutdown"
+    "12": "Expanding"
+    "13": "Not available"
+    "14": "Queued for expansion"
+    "15": "Hard error"
+    "2": ""
+    default: "Unknown Status"
+    "3": "Failed"
+    "4": "Unconfigured"
+    "5": "Recovering"
+    "6": "Ready for rebuild"
+    "7": "Rebuilding"
+    "8": "Wrong drive"
+    "9": "Bad connect"
+    "10": "Overheating"
+  StorageWorksModelTranslationTable:
+    "2": "Compaq StorageWorks RAID Array 4000/4100"
+    default: "HP/Compaq StorageWorks Array"
+    "3": "Compaq StorageWorks Modular Smart Array 1000"
+    "4": "HP StorageWorks Modular Smart Array 500"
+    "5": "Compaq StorageWorks Enterprise/Modular RAID Array"
+    "6": "Compaq StorageWorks Enterprise Virtual Array"
+    "7": "HP StorageWorks Modular Smart Array 500 G2"
+    "8": "HP StorageWorks Modular Smart Array 20"
+    "9": "HP StorageWorks Modular Smart Array 1500 CS"
+    "10": "HP StorageWorks Modular Smart Array 1510i"
+  DiskControllerBatteryStatusTranslationTable:
+    "2": "ok"
+    default: "UNKNOWN"
+    "3": "ok"
+    "4": "failed"
+    "5": "degraded"
+    "6": "ok"
+  LogicalDiskStatusTranslationTable:
+    "11": "failed"
+    "12": "ok"
+    "13": "failed"
+    "14": "ok"
+    "15": "failed"
+    "2": "ok"
+    default: "UNKNOWN"
+    "3": "failed"
+    "4": "ok"
+    "5": "degraded"
+    "6": "ok"
+    "7": "degraded"
+    "8": "failed"
+    "9": "failed"
+    "10": "degraded"
+  PhysicalDiskStatusTranslationTable:
+    "2": "ok"
+    default: "UNKNOWN"
+    "3": "ok"
+    "4": "degraded"
+    "5": "degraded"
+    "6": "failed"
+connector:
+  displayName: "HP Insight Management Agent - Fiber Array"
+  platforms: "HP ProLiant"
+  reliesOn: "HP Insight Management Agents"
+  version: "1.0"
+  information: "This connector monitors the fiber-connected HP/Compaq StorageWorks Arrays by connecting to the Fiber Array Management SNMP sub-agent of the HP Insight Manager agent."
+  detection:
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "NT"
+    - "Linux"
+    - "OSF1"
+    - "VMS"
+    - "OOB"
+    - "Solaris"
+    supersedes:
+    - "SunRaidctl"
+    - "SunIostat"
+    - "SunIostatNonSun"
+    - "SunTapeDrives"
+    criteria:
+      # The system must have a fiber-attached physical disk
+    - type: "snmpGetNext"
+      oid: "1.3.6.1.4.1.232.16.2.5.1.1"
+      # The system must have a StorageWorks box
+    - type: "snmpGetNext"
+      oid: "1.3.6.1.4.1.232.8.2.2.1.1"
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = cpqSsChassisTable SNMP table
+          # ID;ModelNumber
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.232.8.2.2.1.1"
+          selectColumns: "1,19"
+          computes:
+            # Translate the ModelNumber into a model name
+            # ID;Model
+          - type: "translate"
+            column: 2
+            translationTable: "StorageWorksModelTranslationTable"
+      mapping:
+        # InstanceTable = Source(1)
+        source: "$monitors.enclosure.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          model: "$column(2)"
+          type: "Storage"
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(2), \"Storage\")"
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the cpqFcaPhyDrv snmp table
+          # ID;EnclosureID;Model;Size;SerialNumber
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.232.16.2.5.1.1"
+          selectColumns: "ID,1,3,38,43"
+          computes:
+            # Change the 4294967295 size value into an empty string
+            # because this is not a real size
+          - type: "replace"
+            column: 4
+            existingValue: "4294967295"
+            newValue: ""
+            # Change the -1 size value into an empty string
+            # because this is not a real size
+          - type: "replace"
+            column: 4
+            existingValue: "-1"
+            newValue: ""
+            # Convert the size into bytes
+          - type: "multiply"
+            column: 4
+            value: "1048576"
+      mapping:
+        # The instance table = Source(1)
+        source: "$monitors.physical_disk.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          vendor: "$column(3)"
+          serial_number: "$column(5)"
+          hw.parent.type: ""
+          hw.parent.id: "$column(2)"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(4))"
+        metrics:
+          hw.physical_disk.size: "$column(4)"
+    collect:
+      # Collect type is: multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = the cpqFcaPhyDrv snmp table
+          # ID;status;SMARTstatus;ReadErrors;WriteErrors
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.232.16.2.5.1.1"
+          selectColumns: "ID,6,49,15,17"
+          computes:
+            # Duplicate the status column
+            # ID;status;status;SMARTstatus;ReadErrors;WriteErrors
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the first status column into a PATROL status
+            # ID;PATROLstatus;status;SMARTstatus;ReadErrors;WriteErrors
+          - type: "translate"
+            column: 2
+            translationTable: "PhysicalDiskStatusTranslationTable"
+            # Translate the second status column into a more readable string
+            # ID;PATROLstatus;statusInformation;SMARTstatus;ReadErrors;WriteErrors
+          - type: "translate"
+            column: 3
+            translationTable: "PhysicalDiskStatusInformationTranslationTable"
+            # Translate the SMARTstatus into a 0 (no failure predicted) or 1 (failure is predicted)
+            # ID;PATROLstatus;statusInformation;predictFailureStatus;ReadErrors;WriteErrors
+          - type: "translate"
+            column: 4
+            translationTable: "PhysicalDiskSMARTStatusTranslationTable"
+            # Add WriteErrors to ReadErros = ErrorCount
+            # ID;PATROLstatus;statusInformation;predictFailureStatus;ReadErrors;WriteErrors
+          - type: "add"
+            column: 5
+            value: "Column(6)"
+      mapping:
+        # The ValueTable = source(1)
+        source: "$monitors.physical_disk.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="physical_disk"}: "$column(2)"
+          hw.status{hw.type="physical_disk", state="predicted_failure"}: "boolean($column(4))"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the cpqFcaLogDrv snmp table
+          # ID;EnclosureID;FaultToleranceLevel;SizeMB
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.232.16.2.3.1.1"
+          selectColumns: "ID,1,3,9"
+          computes:
+            # Translate size into bytes
+            # ID;ControllerNumber;FaultToleranceLevel;Size
+          - type: "multiply"
+            column: 4
+            value: "1048576"
+            # Translate the FaultToleranceLevel into a more readable string
+            # ID;ControllerNumber;RAIDLevel;Size
+          - type: "translate"
+            column: 3
+            translationTable: "RAIDLevelTranslationTable"
+      mapping:
+        # The InstanceTable
+        source: "$monitors.logical_disk.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          hw.logical_disk.limit: "$column(4)"
+          raid_level: "$column(3)"
+          hw.parent.type: ""
+          hw.parent.id: "$column(2)"
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), $column(4))"
+    collect:
+      # Collect type = MultiInstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = the cpqFcaLogDrv snmp table
+          # ID;Status
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.232.16.2.3.1.1"
+          selectColumns: "ID,4"
+          computes:
+            # Duplicate the status column
+            # ID;Status;Status
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the first status column into a PATROL status
+            # ID;PATROLStatus;Status
+          - type: "translate"
+            column: 2
+            translationTable: "LogicalDiskStatusTranslationTable"
+            # Translate the second status column into a more readable string
+            # ID;PATROLStatus;StatusInformation
+          - type: "translate"
+            column: 3
+            translationTable: "LogicalDiskStatusInformationTranslationTable"
+      mapping:
+        # The ValueTable = source(1)
+        source: "$monitors.logical_disk.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="logical_disk"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  disk_controller:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the cpqFcaCntlr SNMP table
+          # DeviceID;BoxIndex;ModelCode
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.232.16.2.2.1.1"
+          selectColumns: "ID,1,3"
+          computes:
+            # Translate ModelCode into a more readable string
+            # DeviceID;BoxIndex;Model
+          - type: "translate"
+            column: 3
+            translationTable: "ArrayControllerModelTranslationTable"
+      mapping:
+        # InstanceTable
+        source: "$monitors.disk_controller.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          model: "$column(3)"
+          hw.parent.type: ""
+          hw.parent.id: "$column(2)"
+          name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(1), $column(3))"
+    collect:
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = the cpqFcaCntlr snmp table
+          # ID;Status
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.232.16.2.2.1.1"
+          selectColumns: "ID,5"
+          computes:
+            # Duplicate the status column
+            # ID;Status;Status
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the first status column into a PATROL status
+            # ID;PATROLStatus;Status
+          - type: "translate"
+            column: 2
+            translationTable: "DiskControllerStatusTranslationTable"
+            # Translate the second status column into a more readable string
+            # ID;PATROLStatus;StatusInformation
+          - type: "translate"
+            column: 3
+            translationTable: "DiskControllerStatusInformationTranslationTable"
+        source(2):
+          # Source(2) = cpqFcaAccel snmp table
+          # ID;BatteryStatus
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.232.16.2.2.2.1"
+          selectColumns: "ID,6"
+        source(3):
+          # Some hacks to manage the case where we don't have an Accel table
+          type: "copy"
+          from: "$monitors.disk_controller.collect.sources.source(1)$"
+          computes:
+          - type: "keepColumns"
+            columnNumbers: "1"
+        source(4):
+          type: "tableUnion"
+          tables:
+          - "$monitors.disk_controller.collect.sources.source(2)$"
+          - "$monitors.disk_controller.collect.sources.source(3)$"
+          computes:
+            # Translate the BatteryStatus column into a PATROL status
+            # ID;BatteryStatus
+          - type: "translate"
+            column: 2
+            translationTable: "DiskControllerBatteryStatusTranslationTable"
+        source(5):
+          # Source(5) = table joint of source(1) and source(2)
+          # ID;PATROLStatus;StatusInformation;ID;BatteryStatus
+          type: "tableJoin"
+          leftTable: "$monitors.disk_controller.collect.sources.source(1)$"
+          rightTable: "$monitors.disk_controller.collect.sources.source(4)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+      mapping:
+        # The ValueTable = source(1)
+        source: "$monitors.disk_controller.collect.sources.source(5)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="disk_controller"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"

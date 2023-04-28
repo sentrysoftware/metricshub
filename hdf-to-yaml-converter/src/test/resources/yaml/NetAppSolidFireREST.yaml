@@ -1,0 +1,997 @@
+---
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN { level = 0 ; networkSection = 0 }
+    # Preprocess the jsoninput into the linearray array
+    {
+      jsonInput = $0
+      gsub(",\"","\n\"",jsonInput)
+      gsub(/\{/,"{\n",jsonInput)
+      gsub(/\}/,"}\n",jsonInput)
+      lengthArray=split(jsonInput,lineArray,"\n")
+      # For each line in the JSON, search for Network Information
+      # We have to use a 1 to N for loop to keep the line order
+      for (lineNumber=1; lineNumber <= lengthArray; lineNumber++ ) {
+        line = lineArray[lineNumber]
+        attribute = line; gsub("\":.*$","",attribute) ; gsub("\"","",attribute)
+        value = line; gsub(".*\": ?\"?","",value ) ; gsub("\"$","",value)
+
+        # Find the NodeID
+        if ( attribute == "nodeID" ) { nodeID = value }
+
+        # We are going to use a "level" variable to know when we're at the network card entry level
+        if ( level < networkLevel ) { networkSection = 0 }
+        if ( attribute == "network" && value == "\{" ) { networkLevel = level + 1 ; networkSection = 1 }
+
+        # Find the network card name
+        if ( level == networkLevel && networkSection == 1 && value == "\{" ) {
+          cardName = nodeID "-" attribute
+          cards[cardName] = cardName
+          cardDisplayName[cardName] = attribute
+          node[cardName] = nodeID
+        }
+
+        # Keep track of the level (Needs to be after the above)
+        if ( line ~ /\{/ ) { level = level + 1 }
+        if ( line ~ /\}/ ) { level = level - 1 }
+
+        # Extract the Family, LinkSpeed, MacAddress, Status, address
+        if ( level == networkLevel + 1 && attribute == "family" ) { family[cardName] = value ; }
+        if ( level == networkLevel + 1 && attribute == "linkSpeed" ) { linkSpeed[cardName] = value ; }
+        if ( level == networkLevel + 1 && attribute == "macAddress" ) { macAddress[cardName] = value ; }
+        if ( level == networkLevel + 1 && attribute == "status" ) { status[cardName] = value ; }
+        if ( level == networkLevel + 1 && attribute == "address" ) { address[cardName] = value ; }
+      }
+    }
+    END {
+      for (cardName in cards) {
+        print node[cardName] ";" cards[cardName] ";" cardDisplayName[cardName] ";" family[cardName] ";" linkSpeed[cardName] ";" macAddress[cardName] ";" status[cardName] ";" address[cardName] ";"
+      }
+    }
+  EmbeddedFile(2): |-
+    BEGIN { FS = ";"; }
+    {
+      systemConsumption[$4] += $5;
+    }
+    END {
+      printf "Cluster;%s\n",systemConsumption["PW Consumption"];
+    }
+translations:
+  PhysicalDiskTranslationTable:
+    default: "failed"
+    available: "ok"
+    erasing: "degraded"
+    assigned: "ok"
+    failed: "failed"
+    removing: "degraded"
+  DiskControllerTranslationTable:
+    default: "failed"
+    healthy: "ok"
+  SensorStatusTranslationTable:
+    default: "failed"
+    not available: "ok"
+    ok: "ok"
+  LinkStatusTranslationTable:
+    default: "degraded"
+    up: "ok"
+    down: "degraded"
+    upandrunning: "ok"
+  PowerSupplyStatusTranslationTable:
+    failure detected: "failed"
+    default: "failed"
+    presence detected: "ok"
+    power supply ac lost: "failed"
+    ac lost or out-of-range: "failed"
+    config error: "degraded"
+    power supply inactive: "degraded"
+    ac out-of-range, but present: "degraded"
+  HardwareConfigTranslationTable:
+    "true": "ok"
+    "false": "failed"
+  LogicalDiskStatusTranslationTable:
+    default: "failed"
+    active: "ok"
+  NetworkCardStatusTranslationTable:
+    default: "failed"
+    up: "ok"
+    down: "ok"
+    upandrunning: "ok"
+connector:
+  displayName: "NetApp SolidFire (REST)"
+  platforms: "NetApp SolidFire"
+  reliesOn: "SolidFire API"
+  version: "1.0"
+  information: "This connector discovers and collects hardware health for NetApp SolidFire Storage Systems and communicates directly with the NetApp SolidFire System."
+  detection:
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "Storage"
+    criteria:
+      # Check that GetClusterInfo is in the expected format for SolidFire systems
+    - type: "http"
+      method: "POST"
+      url: "/json-rpc/9.0"
+      header: "Content-Type:text/plain"
+      body: "{\"method\" : \"GetClusterInfo\", \"id\" : \"Detection\" }"
+      expectedResult: "{\"id\":\"Detection\""
+      errorMessage: "Invalid Credentials / Not a SolidFire System"
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          type: "http"
+          method: "POST"
+          url: "/json-rpc/9.0"
+          header: "Content-Type:text/plain"
+          body: "{ \"method\" : \"GetClusterInfo\" }"
+          computes:
+            # JSON;Name;UUID
+          - type: "json2csv"
+            entryKey: "/result/clusterInfo"
+            properties: "/name;/uuid;"
+        source(2):
+          type: "http"
+          method: "POST"
+          url: "/json-rpc/9.0"
+          header: "Content-Type:text/plain"
+          body: "{ \"method\" : \"ListServices\" }"
+        source(3):
+          type: "http"
+          method: "POST"
+          url: "/json-rpc/9.0"
+          header: "Content-Type:text/plain"
+          body: "{ \"method\": \"GetIpmiInfo\", \"params\" : { \"force\" : true } }"
+        source(4):
+          # Hardware Info
+          type: "http"
+          method: "POST"
+          url: "/json-rpc/9.0"
+          header: "Content-Type:text/plain"
+          body: "{ \"method\": \"GetHardwareInfo\", \"params\" : { \"force\" : true } }"
+      mapping:
+        # Enclosure Instance Table
+        # JSON;Name;UUID
+        source: "$monitors.enclosure.discovery.sources.source(1)$"
+        attributes:
+          id: "Cluster"
+          __display_id: "$column(2)"
+          vendor: "NetApp"
+          model: "Solid Fire"
+          type: "enclosure"
+          serial_number: "$column(3)"
+          name: "sprintf(\"%s (%s %s - %s)\", $column(2), \"NetApp\", \"Solid Fire\", \"enclosure\")"
+    collect:
+      # Collection Type (Multi-instance)
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Services Table
+          type: "http"
+          method: "POST"
+          url: "/json-rpc/9.0"
+          header: "Content-Type:text/plain"
+          body: "{ \"method\" : \"ListServices\" }"
+        source(2):
+          # Hardware Info
+          type: "http"
+          method: "POST"
+          url: "/json-rpc/9.0"
+          header: "Content-Type:text/plain"
+          body: "{ \"method\": \"GetHardwareInfo\", \"params\" : { \"force\" : true } }"
+        source(3):
+          # Sensor Information
+          type: "http"
+          method: "POST"
+          url: "/json-rpc/9.0"
+          header: "Content-Type:text/plain"
+          body: "{ \"method\": \"GetIpmiInfo\", \"params\" : { \"force\" : true } }"
+        source(4):
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(3)$"
+          computes:
+            # JSON;nodeID;sensorID;sensorName;sensorReading
+          - type: "json2csv"
+            entryKey: "/result/nodes/result/ipmiInfo/sensors"
+            properties: "../../../nodeID;/sensorID;/sensorName;/sensorReading;"
+            # JSON;nodeID;sensorID;sensorName;sensorReading
+          - type: "keepOnlyMatchingLines"
+            column: 4
+            regExp: "PW Consumption"
+            # JSON;nodeID;nodeID-sensorID;sensorName;sensorReading
+          - type: "leftConcat"
+            column: 3
+            value: "Column(2)"
+            # Extract value from sensorReading;
+            # JSON;nodeID;nodeID-sensorID;sensorName;sensorReading
+          - type: "extract"
+            column: 5
+            subColumn: 1
+            subSeparators: " "
+            # Sum sensorReadings from all nodes
+            # "Cluster";PowerConsumption;
+          - type: "awk"
+            script: "EmbeddedFile(2)"
+      mapping:
+        source: "$monitors.enclosure.collect.sources.source(4)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.enclosure.power: "$column(2)"
+          hw.enclosure.energy: "fakeCounter($column(2))"
+  disk_controller:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(2)$"
+          computes:
+            # JSON;nodeid;servicetype;Name;SoftwareVersion;nodeType;
+          - type: "json2csv"
+            entryKey: "/result/services/service"
+            properties: "/nodeId;/serviceType;../node/name;../node/softwareVersion;../node/platformInfo/nodeType;"
+            # Keep only "master" servicetype
+            # JSON;nodeid;servicetype;Name;SoftwareVersion;nodeType;
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            regExp: "master"
+        source(2):
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(4)$"
+          computes:
+            # JSON;nodeid;servicetype;Name;SoftwareVersion;nodeType;
+          - type: "json2csv"
+            entryKey: "/result/nodes"
+            properties: "/nodeId;/result/hardwareInfo/boardSerial;"
+        source(3):
+          type: "tableJoin"
+          leftTable: "$monitors.disk_controller.discovery.sources.source(1)$"
+          rightTable: "$monitors.disk_controller.discovery.sources.source(2)$"
+          leftKeyColumn: 2
+          rightKeyColumn: 2
+      mapping:
+        # DiskController Instance Table
+        # JSON;nodeid;servicetype;Name;SoftwareVersion;nodeType;
+        source: "$monitors.disk_controller.discovery.sources.source(3)$"
+        attributes:
+          id: "$column(2)"
+          __display_id: "$column(4)"
+          firmware_version: "$column(5)"
+          model: "$column(6)"
+          serial_number: "$column(9)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "Cluster"
+          name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(4), $column(6))"
+    collect:
+      # Collect
+      type: "multiInstance"
+      sources:
+        source(1):
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(1)$"
+          computes:
+            # JSON;nodeid;servicetype;status;status;
+          - type: "json2csv"
+            entryKey: "/result/services/service"
+            properties: "/nodeId;/serviceType;/status;/status;"
+            # Keep only "master" servicetype
+            # JSON;nodeid;servicetype;status;status;
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            regExp: "master"
+            # Translate PatrolStatus
+            # JSON;nodeid;servicetype;PatrolStatus;status;
+          - type: "translate"
+            column: 4
+            translationTable: "DiskControllerTranslationTable"
+      mapping:
+        # DiskController Instance Table
+        # JSON;nodeid;servicetype;PatrolStatus;status;
+        source: "$monitors.disk_controller.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="disk_controller"}: "$column(4)"
+        legacyTextParameters:
+          StatusInformation: "$column(5)"
+  memory:
+    discovery:
+      sources:
+        source(1):
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(2)$"
+          computes:
+            # JSON;nodeid;servicetype;MEMORY_GB
+          - type: "json2csv"
+            entryKey: "/result/services/service"
+            properties: "/nodeId;/serviceType;../node/platformInfo/nodeMemoryGB;"
+            # Keep only "master" servicetype
+            # JSON;nodeid;servicetype;MEMORY_GB
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            regExp: "master"
+            # Convert GB to MB
+            # JSON;nodeid;servicetype;MEMORY_MB
+          - type: "multiply"
+            column: 4
+            value: "1024"
+      mapping:
+        # Memory InstanceTable
+        # JSON;nodeid;servicetype;MEMORY_MB
+        source: "$monitors.memory.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(2)"
+          __display_id: "memory"
+          hw.parent.type: "disk_controller"
+          hw.parent.id: "$column(2)"
+          name: "sprintf(\"%s (%s)\", \"memory\", $column(4))"
+        metrics:
+          hw.memory.limit: "mebiByte2Byte($column(4))"
+    collect:
+      type: "multiInstance"
+      sources:
+        source(1):
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(2)$"
+          computes:
+            # JSON;DeviceID;Status;StatusInformation;
+          - type: "json2csv"
+            entryKey: "/result/nodes"
+            properties: "/nodeId;/result/hardwareConfig/MEMORY_GB/Passed;/result/hardwareConfig/MEMORY_GB/Passed;"
+            # JSON;DeviceID;PatrolStatus;StatusInformation;
+          - type: "translate"
+            column: 3
+            translationTable: "HardwareConfigTranslationTable"
+      mapping:
+        # Memory Value table
+        # JSON;DeviceID;PatrolStatus;StatusInformation;
+        source: "$monitors.memory.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="memory"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  cpu:
+    discovery:
+      sources:
+        source(1):
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(4)$"
+          computes:
+            # "actual": "Intel(R) Xeon(R) CPU E5-2620 v4 @ 2.10GHz",
+            # JSON;nodeid;nodeID;actual;actual;actual;actual;
+          - type: "json2csv"
+            entryKey: "/result/nodes"
+            properties: "/nodeId;/nodeId;/result/hardwareInfo/hardwareConfig/CPU_MODEL_00/actual;/result/hardwareInfo/hardwareConfig/CPU_MODEL_00/actual;/result/hardwareInfo/hardwareConfig/CPU_MODEL_00/actual;/result/hardwareInfo/hardwareConfig/CPU_MODEL_00/actual;"
+            # JSON;nodeid;CPU1-nodeID;actual;actual;actual;actual;
+          - type: "leftConcat"
+            column: 3
+            value: "CPU1-"
+            # JSON;nodeid;CPU1-nodeID;CPU 1;actual;actual;actual;actual;
+          - type: "rightConcat"
+            column: 3
+            value: ";CPU1 "
+        source(2):
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(4)$"
+          computes:
+            # "actual": "Intel(R) Xeon(R) CPU E5-2620 v4 @ 2.10GHz",
+            # JSON;nodeid;actual;actual;actual;actual;
+          - type: "json2csv"
+            entryKey: "/result/nodes"
+            properties: "/nodeId;/nodeId;/result/hardwareInfo/hardwareConfig/CPU_MODEL_01/actual;/result/hardwareInfo/hardwareConfig/CPU_MODEL_01/actual;/result/hardwareInfo/hardwareConfig/CPU_MODEL_01/actual;/result/hardwareInfo/hardwareConfig/CPU_MODEL_01/actual;"
+          - type: "leftConcat"
+            column: 3
+            value: "CPU2-"
+            # JSON;nodeid;CPU1-nodeID;CPU 1;actual;actual;actual;actual;
+          - type: "rightConcat"
+            column: 3
+            value: ";CPU2 "
+        source(3):
+          type: "tableUnion"
+          tables:
+          - "$monitors.cpu.discovery.sources.source(1)$"
+          - "$monitors.cpu.discovery.sources.source(2)$"
+          computes:
+            # Extract Vendor
+            # JSON;nodeid;CPU-nodeID;CPU;Vendor;actual;actual;actual;
+          - type: "extract"
+            column: 5
+            subColumn: 1
+            subSeparators: " "
+            # Extract Model
+            # JSON;nodeid;CPU-nodeID;CPU;Vendor;Model;actual;actual;
+          - type: "extract"
+            column: 6
+            subColumn: 2
+            subSeparators: " "
+            # Extract Name
+            # JSON;nodeid;CPU-nodeID;CPU;Vendor;Model;Name;actual;
+          - type: "extract"
+            column: 7
+            subColumn: 4
+            subSeparators: " "
+            # Extract Speed
+            # JSON;nodeid;CPU-nodeID;CPU;Vendor;Model;Name;Speed;
+          - type: "extract"
+            column: 8
+            subColumn: 2
+            subSeparators: "@"
+            # JSON;nodeid;CPU-nodeID;DisplayName;Vendor;Model;Name;Speed;
+          - type: "rightConcat"
+            column: 4
+            value: "Column(7)"
+          - type: "replace"
+            column: 8
+            existingValue: "GHz"
+            newValue: ""
+          - type: "replace"
+            column: 8
+            existingValue: " "
+            newValue: ""
+          - type: "multiply"
+            column: 8
+            value: "1000"
+      mapping:
+        # CPU Instance Table
+        # JSON;nodeid;CPU-nodeID;DisplayName;Vendor;Model;Name;Speed;
+        source: "$monitors.cpu.discovery.sources.source(3)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          vendor: "$column(5)"
+          model: "$column(6)"
+          hw.parent.type: "disk_controller"
+          hw.parent.id: "$column(2)"
+          name: "sprintf(\"%s (%s - %s - %mhhf.s)\", $column(4), $column(5), $column(6), $column(8))"
+        metrics:
+          hw.cpu.speed.limit{limit_type="max"}: "megaHertz2Hertz($column(8))"
+    collect:
+      # Collect
+      type: "multiInstance"
+      sources:
+        source(1):
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(2)$"
+          computes:
+            # JSON;NodeID;CPU_MODEL_00_Status;CPU_MODEL_00_Status;
+          - type: "json2csv"
+            entryKey: "/result/nodes"
+            properties: "/nodeId;/result/hardwareInfo/hardwareConfig/CPU_MODEL_00/Passed;/result/hardwareInfo/hardwareConfig/CPU_MODEL_00/Passed;/result/hardwareInfo/hardwareConfig/CPU_MODEL_00/actual;"
+          - type: "leftConcat"
+            column: 2
+            value: "CPU1-"
+        source(2):
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(2)$"
+          computes:
+            # JSON;NodeID;CPU_MODEL_00_Status;CPU_MODEL_00_Status;
+          - type: "json2csv"
+            entryKey: "/result/nodes"
+            properties: "/nodeId;/result/hardwareInfo/hardwareConfig/CPU_MODEL_01/Passed;/result/hardwareInfo/hardwareConfig/CPU_MODEL_01/Passed;/result/hardwareInfo/hardwareConfig/CPU_MODEL_01/actual;"
+          - type: "leftConcat"
+            column: 2
+            value: "CPU2-"
+        source(3):
+          type: "tableUnion"
+          tables:
+          - "$monitors.cpu.collect.sources.source(1)$"
+          - "$monitors.cpu.collect.sources.source(2)$"
+          computes:
+            # JSON;NodeID;PatrolStatus;
+          - type: "translate"
+            column: 3
+            translationTable: "HardwareConfigTranslationTable"
+      mapping:
+        # CPU ValueTable
+        # JSON;NodeID;PatrolStatus;StatusInformation
+        source: "$monitors.cpu.collect.sources.source(3)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="cpu"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          type: "http"
+          method: "POST"
+          url: "/json-rpc/9.0"
+          header: "Content-Type:text/plain"
+          body: "{\"method\" : \"ListDrives\"}"
+          computes:
+            # JSON;NodeID;DriveID;
+          - type: "json2csv"
+            entryKey: "/result/drives"
+            properties: "/nodeId;/driveId;"
+        source(2):
+          type: "http"
+          method: "POST"
+          url: "/json-rpc/9.0"
+          header: "Content-Type:text/plain"
+          body: "{ \"method\": \"GetDriveHardwareInfo\", \"params\": { \"driveID\": \"$entry.column(3)$\" } }"
+          executeForEachEntryOf:
+            source: "$monitors.physical_disk.discovery.sources.source(1)$"
+            concatMethod: "json_array_extended"
+          computes:
+            # JSON;NodeID;UUID;logicalName;product;product;serial;size;description;
+          - type: "json2csv"
+            entryKey: "/Entry/value/result/driveHardwareInfo"
+            properties: "../../../Column(2);../../../Column(3);/product;/product;/serial;/size;/description;"
+            # Extract Vendor value from product
+            # JSON;NodeID;UUID;logicalName;Vendor;product;serial;size;description;
+          - type: "extract"
+            column: 4
+            subColumn: 1
+            subSeparators: " "
+            # Extract Model value from product
+            # JSON;NodeID;UUID;logicalName;Vendor;Model;serial;size;description;
+          - type: "extract"
+            column: 5
+            subColumn: 2
+            subSeparators: " "
+            # Extract type from description
+            # JSON;NodeID;UUID;logicalName;Vendor;Model;serial;size;type;
+          - type: "extract"
+            column: 8
+            subColumn: 1
+            subSeparators: " "
+          - type: "leftConcat"
+            column: 8
+            value: "Type: "
+      mapping:
+        # PhysicalDisk Instance
+        # JSON;NodeID;UUID;logicalName;Vendor;Model;serial;size;type;
+        source: "$monitors.physical_disk.discovery.sources.source(2)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(3)"
+          vendor: "$column(4)"
+          model: "$column(5)"
+          serial_number: "$column(6)"
+          info: "$column(8)"
+          hw.parent.type: "disk_controller"
+          hw.parent.id: "$column(2)"
+          name: "sprintf(\"%s (%s - %s)\", $column(3), $column(5), $column(7))"
+        metrics:
+          hw.physical_disk.size: "$column(7)"
+    collect:
+      # Collect
+      # Collect type: MultiInstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(1)$"
+          computes:
+            # JSON;driveId;driveStatus;driveStatus;
+          - type: "json2csv"
+            entryKey: "/result/services/drive"
+            properties: "/driveId;/driveStatus;/driveStatus;"
+            # Translate PatrolStatus
+            # JSON;driveId;PatrolStatus;driveStatus;
+          - type: "translate"
+            column: 3
+            translationTable: "PhysicalDiskTranslationTable"
+      mapping:
+        # PhysicalDisk Value Table
+        # MSHW;shelf;unique-id;bay-has-disk;bay-type;PatrolStatus;
+        source: "$monitors.physical_disk.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="physical_disk"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          type: "http"
+          method: "POST"
+          url: "/json-rpc/9.0"
+          header: "Content-Type:text/plain"
+          body: "{\"method\" : \"ListVolumes\", \"id\" : \"Cluster\" }"
+          computes:
+            # JSON;SystemID;UUID;Name;Size
+          - type: "json2csv"
+            entryKey: "/result/volumes"
+            properties: "../../id;/volumeUUID;/name;/totalSize;"
+      mapping:
+        # LogicalDisk Instance Table
+        # JSON;SystemID;UUID;Name;Size
+        source: "$monitors.logical_disk.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          hw.logical_disk.limit: "$column(5)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(2)"
+          name: "sprintf(\"%s (%s)\", $column(4), $column(5))"
+    collect:
+      # CollectionType (Multi-instance)
+      type: "multiInstance"
+      sources:
+        source(1):
+          type: "http"
+          method: "POST"
+          url: "/json-rpc/9.0"
+          header: "Content-Type:text/plain"
+          body: "{\"method\" : \"ListVolumes\", \"id\" : \"Cluster\" }"
+          computes:
+            # JSON;volumeUUID;Status;Status
+          - type: "json2csv"
+            entryKey: "/result/volumes"
+            properties: "/volumeUUID;/status;/status;"
+            # Translate PatrolStatus
+            # JSON;volumeUUID;PatrolStatus;StatusInformation
+          - type: "translate"
+            column: 3
+            translationTable: "LogicalDiskStatusTranslationTable"
+      mapping:
+        # LogicalDisk Value Table
+        # JSON;volumeUUID;PatrolStatus;StatusInformation
+        source: "$monitors.logical_disk.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="logical_disk"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(3)$"
+          computes:
+            # JSON;NodeID;SensorID;SensorName;SensorType;statesAsserted
+          - type: "json2csv"
+            entryKey: "/result/nodes/result/ipmiInfo/sensors"
+            properties: "../../../nodeID;/sensorID;/sensorName;/sensorType;/statesAsserted[0];"
+            # Keep only "master" servicetype
+            # JSON;NodeID;SensorID;SensorName;SensorType;statesAsserted
+          - type: "keepOnlyMatchingLines"
+            column: 5
+            regExp: "Power Supply"
+            # JSON;NodeID;NodeID-SensorID;SensorName;SensorType;statesAsserted
+          - type: "leftConcat"
+            column: 3
+            value: "Column(2)"
+      mapping:
+        # Powersupply Instance Table
+        # JSON;NodeID;NodeID-SensorID;SensorName;SensorType;statesAsserted
+        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          hw.parent.type: "disk_controller"
+          hw.parent.id: "$column(2)"
+          name: "sprintf(\"%s, $column(4))"
+    collect:
+      # Collection Type (Multi-instance)
+      type: "multiInstance"
+      sources:
+        source(1):
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(3)$"
+          computes:
+            # JSON;sensorID;statesAsserted;statesAsserted;nodeID
+          - type: "json2csv"
+            entryKey: "/result/nodes/result/ipmiInfo/sensors"
+            properties: "/sensorID;/statesAsserted[0];/statesAsserted[0];../../../nodeID;"
+            # JSON;sensorID;PatrolStatus;statesAsserted;nodeID
+          - type: "translate"
+            column: 3
+            translationTable: "PowerSupplyStatusTranslationTable"
+            # JSON;NodeID-sensorID;PatrolStatus;statesAsserted;nodeID
+          - type: "leftConcat"
+            column: 2
+            value: "Column(5)"
+      mapping:
+        # PowerSupply Value Table
+        # JSON;NodeID-sensorID;PatrolStatus;statesAsserted;nodeID
+        source: "$monitors.power_supply.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="power_supply"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  fan:
+    discovery:
+      sources:
+        source(1):
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(3)$"
+          computes:
+            # JSON;NodeID;sensorID;sensorName;sensorType;status;
+          - type: "json2csv"
+            entryKey: "/result/nodes/result/ipmiInfo/sensors"
+            properties: "../../../nodeID;/sensorID;/sensorName;/sensorType;/status;/lowerNonCritical;/upperNonCritical;/normalMinimum;/normalMaximum;"
+            # JSON;NodeID;sensorID;sensorName;sensorType;status;
+          - type: "keepOnlyMatchingLines"
+            column: 5
+            regExp: "fan"
+            # JSON;NodeID;sensorID;sensorName;sensorType;status;
+          - type: "excludeMatchingLines"
+            column: 6
+            valueList: "Not Available"
+            # JSON;NodeID;nodeID-sensorID;sensorName;sensorType;status;
+          - type: "leftConcat"
+            column: 3
+            value: "Column(2)"
+      mapping:
+        # Fan Instance Table
+        # JSON;NodeID;nodeID-sensorID;sensorName;sensorType;status;
+        source: "$monitors.fan.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          hw.parent.type: "disk_controller"
+          hw.parent.id: "$column(2)"
+          name: "$column(4)"
+        metrics:
+          hw.fan.speed.limit{limit_type="low.degraded"}: "$column(9)"
+          hw.fan.speed.limit{limit_type="low.critical"}: "$column(7)"
+    collect:
+      # Collection Type (Multi-instance)
+      type: "multiInstance"
+      sources:
+        source(1):
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(3)$"
+          computes:
+            # JSON;SensorID;status;status;nodeID;
+          - type: "json2csv"
+            entryKey: "/result/nodes/result/ipmiInfo/sensors"
+            properties: "/sensorID;/status;/status;../../../nodeID;/sensorReading;"
+            # JSON;SensorID;PatrolStatus;status;nodeID;
+          - type: "translate"
+            column: 3
+            translationTable: "SensorStatusTranslationTable"
+            # JSON;nodeID-SensorID;PatrolStatus;status;nodeID;
+          - type: "leftConcat"
+            column: 2
+            value: "Column(5)"
+          - type: "replace"
+            column: 6
+            existingValue: " (+/- 0) RPM"
+            newValue: ""
+      mapping:
+        # Fan Value Table
+        # JSON;nodeID-SensorID;PatrolStatus;status;nodeID;
+        source: "$monitors.fan.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="fan"}: "$column(3)"
+          hw.fan.speed: "$column(6)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(3)$"
+          computes:
+            # JSON;nodeID;sensorID;sensorName;sensorType;status;
+          - type: "json2csv"
+            entryKey: "/result/nodes/result/ipmiInfo/sensors"
+            properties: "../../../nodeID;/sensorID;/sensorName;/sensorType;/status;/lowerNonCritical;/upperNonCritical;/normalMinimum;/normalMaximum;"
+            # JSON;nodeID;sensorID;sensorName;sensorType;status;
+          - type: "keepOnlyMatchingLines"
+            column: 5
+            regExp: "temperature"
+            # JSON;nodeID;sensorID;sensorName;sensorType;status;
+          - type: "excludeMatchingLines"
+            column: 6
+            valueList: "Not Available"
+            # JSON;nodeID;nodeID-sensorID;sensorName;sensorType;status;
+          - type: "leftConcat"
+            column: 3
+            value: "Column(2)"
+            # normalMaximum and normalMinimum tempertures are negative for unknown reason.
+          - type: "replace"
+            column: 9
+            existingValue: "-"
+            newValue: ""
+          - type: "replace"
+            column: 10
+            existingValue: "-"
+            newValue: ""
+      mapping:
+        # Temperature Instance Table
+        # JSON;nodeID;nodeID-sensorID;sensorName;sensorType;status;
+        source: "$monitors.temperature.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          hw.parent.type: "disk_controller"
+          hw.parent.id: "$column(2)"
+          name: "$column(4)"
+        metrics:
+          hw.temperature.limit{limit_type="high.degraded"}: "$column(10)"
+          hw.temperature.limit{limit_type="high.critical"}: "$column(8)"
+    collect:
+      # Collection Type (Multi-instance)
+      type: "multiInstance"
+      sources:
+        source(1):
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(3)$"
+          computes:
+            # JSON;sensorID;status;status;nodeID
+          - type: "json2csv"
+            entryKey: "/result/nodes/result/ipmiInfo/sensors"
+            properties: "/sensorID;/status;/status;../../../nodeID;/sensorReading;"
+            # JSON;sensorID;PatrolStatus;status;nodeID
+          - type: "translate"
+            column: 3
+            translationTable: "SensorStatusTranslationTable"
+            # JSON;NodeID-sensorID;PatrolStatus;status;nodeID
+          - type: "leftConcat"
+            column: 2
+            value: "Column(5)"
+          - type: "replace"
+            column: 6
+            existingValue: " (+/- 0) degrees C"
+            newValue: ""
+      mapping:
+        # Temperature Value Table
+        # JSON;NodeID-sensorID;PatrolStatus;StatusInformation;nodeID
+        source: "$monitors.temperature.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="temperature"}: "$column(3)"
+          hw.temperature: "$column(6)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  voltage:
+    discovery:
+      sources:
+        source(1):
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(3)$"
+          computes:
+            # JSON;NodeID;SensorID;SensorName;SensorType;Status;
+          - type: "json2csv"
+            entryKey: "/result/nodes/result/ipmiInfo/sensors"
+            properties: "../../../nodeID;/sensorID;/sensorName;/sensorType;/status;/lowerNonCritical;/upperNonCritical;/normalMinimum;/normalMaximum;"
+            # JSON;NodeID;SensorID;SensorName;SensorType;Status;
+          - type: "keepOnlyMatchingLines"
+            column: 5
+            regExp: "voltage"
+            # JSON;NodeID;SensorID;SensorName;SensorType;Status;
+          - type: "excludeMatchingLines"
+            column: 6
+            valueList: "Not Available"
+            # JSON;NodeID;NodeID-SensorID;SensorName;SensorType;Status;
+          - type: "leftConcat"
+            column: 3
+            value: "Column(2)"
+          - type: "multiply"
+            column: 9
+            value: "1000"
+          - type: "multiply"
+            column: 10
+            value: "1000"
+      mapping:
+        # Voltage Instance Table
+        # JSON;NodeID;NodeID-SensorID;SensorName;SensorType;Status;
+        source: "$monitors.voltage.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          hw.parent.type: "disk_controller"
+          hw.parent.id: "$column(2)"
+          name: "$column(4)"
+        metrics:
+          hw.voltage.limit{limit_type="low.critical"}: "$column(9)"
+          hw.voltage.limit{limit_type="high.degraded"}: "$column(10)"
+    collect:
+      # Collection Type (Multi-instance)
+      type: "multiInstance"
+      sources:
+        source(1):
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(3)$"
+          computes:
+            # JSON;SystemID;UUID;Name;Size
+          - type: "json2csv"
+            entryKey: "/result/nodes/result/ipmiInfo/sensors"
+            properties: "/sensorID;/status;/status;../../../nodeID;/sensorReading;"
+          - type: "translate"
+            column: 3
+            translationTable: "SensorStatusTranslationTable"
+          - type: "leftConcat"
+            column: 2
+            value: "Column(5)"
+          - type: "replace"
+            column: 6
+            existingValue: " (+/- 0) Volts"
+            newValue: ""
+          - type: "multiply"
+            column: 6
+            value: "1000"
+      mapping:
+        # Voltage Value Table
+        # MSHW;unique-id;PatrolStatus;StatusInformation
+        source: "$monitors.voltage.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="voltage"}: "$column(3)"
+          hw.voltage: "$column(6)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  network:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          type: "http"
+          method: "POST"
+          url: "/json-rpc/9.0"
+          header: "Content-Type:text/plain"
+          body: "{ \"method\": \"GetNetworkConfig\", \"params\": { \"force\" : true } }"
+          computes:
+            # NodeID ; CardID ; CardDisplayID ; Family ; Speed ; MAC ; Status ;
+          - type: "awk"
+            script: "EmbeddedFile(1)"
+      mapping:
+        # NetworkCard Instance Table
+        # NodeID ; CardID ; CardDisplayID ; Family ; Speed ; MAC ; Status ;
+        source: "$monitors.network.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(2)"
+          __display_id: "$column(3)"
+          model: "$column(4)"
+          physical_address: "$column(6)"
+          physical_address_type: "MAC"
+          logical_address: "$column(8)"
+          logical_address_type: "IPv4"
+          hw.parent.type: "disk_controller"
+          hw.parent.id: "$column(1)"
+          name: "sprintf(\"%s (%s)\", $column(3), $column(4))"
+    collect:
+      # Collection type (Multi-instance)
+      type: "multiInstance"
+      sources:
+        source(1):
+          type: "http"
+          method: "POST"
+          url: "/json-rpc/9.0"
+          header: "Content-Type:text/plain"
+          body: "{ \"method\": \"GetNetworkConfig\", \"params\": { \"force\" : true } }"
+          computes:
+            # NodeID ; CardID ; CardDisplayID ; Family ; Speed ; MAC ; Status ;
+          - type: "awk"
+            script: "EmbeddedFile(1)"
+            # NodeID ; CardID ; CardDisplayID ; Family ; Speed ; MAC ; Status ; Status ;
+          - type: "duplicateColumn"
+            column: 7
+            # NodeID ; CardID ; CardDisplayID ; Family ; Speed ; MAC ; Status ; Status ; Status ; StatusInformation
+          - type: "duplicateColumn"
+            column: 7
+            # Translate NetworkCardStatus into PatrolStatus
+            # NodeID ; CardID ; CardDisplayID ; Family ; Speed ; MAC ; PatrolStatus ; Status ; Status ; StatusInformation
+          - type: "translate"
+            column: 7
+            translationTable: "NetworkCardStatusTranslationTable"
+            # Translate link-status status into LinkStatus
+            # NodeID ; CardID ; CardDisplayID ; Family ; Speed ; MAC ; PatrolStatus ; LinkStatus ; StatusInformation
+          - type: "translate"
+            column: 8
+            translationTable: "LinkStatusTranslationTable"
+      mapping:
+        # NetworkCard Value Table
+        # NodeID ; CardID ; CardDisplayID ; Family ; Speed ; MAC ; PatrolStatus ; LinkStatus ; StatusInformation
+        source: "$monitors.network.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.network.bandwidth.limit: "megaBit2Bit($column(5))"
+          hw.status{hw.type="network"}: "$column(7)"
+          hw.network.up: "legacyLinkStatus($column(8))"
+        legacyTextParameters:
+          StatusInformation: "$column(9)"

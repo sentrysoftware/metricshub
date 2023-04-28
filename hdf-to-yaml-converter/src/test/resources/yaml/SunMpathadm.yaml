@@ -1,0 +1,108 @@
+---
+embedded:
+  EmbeddedFile(1): |-
+    #!/bin/sh
+
+    # First of all, make sure the thing speaks english
+    LANG=C
+    export LANG
+
+    LunList=`%{SUDO:/usr/sbin/mpathadm} /usr/sbin/mpathadm list lu | grep /dev/rdsk/`
+    for Lun in $LunList; do
+         %{SUDO:/usr/sbin/mpathadm} /usr/sbin/mpathadm show lu $Lun
+         done
+  EmbeddedFile(3): |-
+    $1 ~ "/dev/rdsk" {LUNID = $1}
+    $0 ~ /Total Path Count/ {TotalPathCount = $NF }
+    $0 ~ /Operational Path Count/ {OperationalPathCount = $NF
+                                   PathCountInformation = OperationalPathCount " out of " TotalPathCount " operational. "
+    #                                  MSHW;LUNID;OperationalPathCount;PathCountInformation;
+                                   print "MSHW;" LUNID ";" OperationalPathCount ";" PathCountInformation ";"
+                                  }
+  EmbeddedFile(2): |-
+    tolower($0) ~ /^logical unit:/ {LUNID = $NF}
+    $1 ~ /Vendor:/ {Vendor = $0 ; gsub (/ +Vendor: +/,"",Vendor ) ; ArrayName = Vendor }
+    $1 ~ /Product:/ {Product= $0 ; gsub (/ +Product: +/,"",Product) ; ArrayName = ArrayName " " Product}
+    $1 ~ /Revision:/ {Revision= $0 ; gsub (/ +Revision: +/,"",Revision) ; ArrayName = ArrayName " " Revision}
+    $1 ~ /Name:/ && LUNID != "" {NAAID = $NF
+    #                                     MSHW;LUNID;ArrayName;NAAID;
+                                print "MSHW;" LUNID ";" ArrayName ";" NAAID ";"
+                                LUNID = "" ; NAAID = "" ;
+                                }
+connector:
+  displayName: "Oracle/Sun Solaris - mpathadm"
+  platforms: "Any system with mpathadm"
+  reliesOn: "Solaris Mpathadm utility"
+  version: "1.0"
+  information: "This connector provides the monitoring of LUNs on all Solaris 10.2 or later systems through the mpathadm utility."
+  detection:
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "Solaris"
+    criteria:
+      # Test the mpathadm command
+    - type: "osCommand"
+      commandLine: "%{SUDO:/usr/sbin/mpathadm} /usr/sbin/mpathadm list lu"
+      expectedResult: "/dev/rdsk"
+sudoCommands:
+- "/usr/sbin/mpathadm"
+monitors:
+  lun:
+    discovery:
+      sources:
+        source(1):
+          # Get the list of Ports and attributes from EF1
+          type: "osCommand"
+          commandLine: "/bin/sh %EmbeddedFile(1)%"
+          computes:
+            # AWK it
+            # LUNID;ArrayName;NAAID;
+          - type: "awk"
+            script: "EmbeddedFile(2)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3,4"
+      mapping:
+        # InstanceTable = Source(1)
+        # LUNID;ArrayName;NAAID;
+        source: "$monitors.lun.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(3)"
+          array_name: "$column(2)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s)\", $column(2), $column(1))"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Get the list of Ports from multipath -l
+          type: "osCommand"
+          commandLine: "%{SUDO:/usr/sbin/mpathadm} /usr/sbin/mpathadm list lu"
+          computes:
+            # AWK it
+            # LUNID;OperationalPathCount;PathCountInformation;
+          - type: "awk"
+            script: "EmbeddedFile(3)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3,4"
+        source(2):
+          # Join the collect with the discovery to get the NAAID
+          # LUNID;OperationalPathCount;PathCountInformation;
+          type: "tableJoin"
+          leftTable: "$monitors.lun.collect.sources.source(1)$"
+          rightTable: "$monitors.lun.discovery.sources.source(1)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+      mapping:
+        # ValueTable = Source(2)
+        # LUNID;OperationalPathCount;PathCountInformation;LUNID;ArrayName;NAAID;
+        source: "$monitors.lun.collect.sources.source(2)$"
+        deviceId: "$column(6)"
+        metrics:
+          hw.lun.paths: "$column(2)"
+        legacyTextParameters:
+          AvailablePathInformation: "$column(3)"

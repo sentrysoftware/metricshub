@@ -1,0 +1,442 @@
+---
+translations:
+  DMTFOperationStatusTranslationTable:
+    "11": "degraded"
+    "12": "failed"
+    "13": "failed"
+    "14": "failed"
+    "15": "degraded"
+    "16": "degraded"
+    "17": "ok"
+    "18": "ok"
+    "0": "ok"
+    "1": "ok"
+    "2": "ok"
+    default: "UNKNOWN"
+    "3": "degraded"
+    "4": "degraded"
+    "5": "degraded"
+    "6": "ok"
+    "7": "failed"
+    "8": "degraded"
+    "9": "degraded"
+    "10": "ok"
+  DMTFOperationToLinkStatusTranslationTable:
+    "1": "degraded"
+    default: ""
+  PortTypeTranslationTable:
+    "11": "HBA FC Port NL"
+    "12": "HBA FC Port F/NL"
+    default: "HBA FC Port"
+    "10": "HBA FC Port N"
+  DMTFOperationStatusInformationTranslationTable:
+    "11": "In Service"
+    "12": "No Contact"
+    "13": "Lost Communication"
+    "14": "Aborted"
+    "15": "Dormant"
+    "16": "Supporting Entity in Error"
+    "17": "Completed"
+    "18": "Power Mode"
+    "0": ""
+    "1": ""
+    "2": ""
+    default: "Unknown Status"
+    "3": "Degraded"
+    "4": "Stressed"
+    "5": "Predicted Failure"
+    "6": ""
+    "7": "Non-Recoverable Error"
+    "8": "Starting"
+    "9": "Stopping"
+    "10": "Stopped"
+  SpeedToLinkStatusTranslationTable:
+    "0": "degraded"
+    ? ""
+    : "degraded"
+    default: "ok"
+connector:
+  displayName: "SMI-S Compliant HBAs"
+  platforms: "Any system with Emulex,Any system with QLogic"
+  reliesOn: "SMI-S Agent provided by the HBA vendor"
+  version: "1.0"
+  information: "This connector discovers the HBAs of a server. It relies on the WBEM technology and supports SMI-S compliant HBAs only."
+  detection:
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "NT"
+    - "Linux"
+    - "RS6000"
+    - "HP"
+    - "OSF1"
+    - "VMS"
+    - "Solaris"
+    - "OOB"
+    criteria:
+      # There must be FC Ports declared in the automatically discovered namespace
+    - type: "wbem"
+      query: "SELECT PortType FROM CIM_FCPort"
+      namespace: "Automatic"
+      expectedResult: "\\(0\\)\\|\\(1\\)\\|\\(10\\)\\|\\(11\\)\\|\\(12\\);"
+      # Ensure that the creation class contains "HBA"
+      # This should match NetworkCard.Discovery.Source(1).Compute(1)
+    - type: "wbem"
+      query: "SELECT CreationClassName FROM CIM_FCPort"
+      namespace: "Automatic"
+      expectedResult: "\\([Hh][Bb][Aa]\\)\\|\\([Qq][Ll]ogic\\)\\|\\(IBM_FCPort\\)\\|\\(HPUX_FCPort\\)\\|\\(ELX\\)"
+monitors:
+  network:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = CIM_FCPort
+          # PortID;PortTypeCode;Speed;PermanentAddress;EnabledState;CreationClassName;DeviceID;SystemCreationClassName;SystemName;
+          type: "wbem"
+          query: "SELECT __PATH,PortType,Speed,PermanentAddress,EnabledState,CreationClassName,DeviceID,SystemCreationClassName,SystemName FROM CIM_FCPort"
+          namespace: "Automatic"
+          computes:
+            # Let's empty the path and rebuild it.  (Many providers have an issue with the __PATH for FCPorts)
+            # PortID;PortTypeCode;Speed;PermanentAddress;EnabledState;CreationClassName;DeviceID;SystemCreationClassName;SystemName;
+          - type: "replace"
+            column: 1
+            existingValue: "Column(1)"
+            newValue: ""
+            #  Rebuild the PATH
+            #    1       2          3       4            #   5             6            #   7       8            #           9
+            # PortID;PortTypeCode;Speed;PermanentAddress;EnabledState;CreationClassName;DeviceID;SystemCreationClassName;SystemName;
+          - type: "rightConcat"
+            column: 1
+            value: "Column(6)"
+          - type: "rightConcat"
+            column: 1
+            value: ".CreationClassName=\""
+          - type: "rightConcat"
+            column: 1
+            value: "Column(6)"
+          - type: "rightConcat"
+            column: 1
+            value: "\",DeviceID=\""
+          - type: "rightConcat"
+            column: 1
+            value: "Column(7)"
+          - type: "rightConcat"
+            column: 1
+            value: "\",SystemCreationClassName=\""
+          - type: "rightConcat"
+            column: 1
+            value: "Column(8)"
+          - type: "rightConcat"
+            column: 1
+            value: "\",SystemName=\""
+          - type: "rightConcat"
+            column: 1
+            value: "Column(9)"
+          - type: "rightConcat"
+            column: 1
+            value: "\""
+          - type: "keepColumns"
+            columnNumbers: "1,2,3,4,5,6"
+            # Keep only HBA port
+            # This should match Detection.Criteria(2)
+            # PortID;PortTypeCode;Speed;PermanentAddress;EnabledState;CreationClassName;
+          - type: "keepOnlyMatchingLines"
+            column: 6
+            regExp: "\\([Hh][Bb][Aa]\\)\\|\\([Qq][Ll]ogic\\)\\|\\(IBM_FCPort\\)\\|\\(HPUX_FCPort\\)\\|\\(ELX\\)"
+            # Keep only activated ports
+            # PortID;PortTypeCode;Speed;PermanentAddress;EnabledState;CreationClassName;
+          - type: "excludeMatchingLines"
+            column: 5
+            valueList: "3"
+            # Translate PortType into a more readable string
+            # PortID;PortType;Speed;PermanentAddress;EnabledState;CreationClassName;
+          - type: "translate"
+            column: 2
+            translationTable: "PortTypeTranslationTable"
+            # Convert Speed from bps to Mbps (divide by 1000000)
+            # PortID;PortType;SpeedMbps;PermanentAddress;EnabledState;CreationClassName;
+          - type: "divide"
+            column: 3
+            value: "1000000"
+        source(2):
+          # Source(2) = CIM_PhysicalPackage
+          # PackageID;Manufacturer;Model;SerialNumber;
+          type: "wbem"
+          query: "SELECT __PATH,Manufacturer,Model,SerialNumber FROM CIM_PhysicalPackage"
+          namespace: "Automatic"
+          computes:
+            # Keep only the first word of the Manufacturer name (to avoid stuff like "Corporations, Inc. and blah blah blah)
+            # PackageID;Manufacturer;Model;SerialNumber;
+          - type: "extract"
+            column: 2
+            subColumn: 1
+            subSeparators: " "
+        source(3):
+          # Source(3) = CIM_Realizes
+          # PackageID;PortControllerID or Port ID;
+          type: "wbem"
+          query: "SELECT Antecedent,Dependent FROM CIM_Realizes"
+          namespace: "Automatic"
+        source(4):
+          # Source(4) = CIM_ControlledBy
+          # PortControllerID;PortID;
+          type: "wbem"
+          query: "SELECT Antecedent,Dependent FROM CIM_ControlledBy"
+          namespace: "Automatic"
+        source(5):
+          # Source(5) = Table joint of Source(2) and Source(3)
+          # PackageID;Manufacturer;Model;SerialNumber;PackageID;PortControllerID or Port ID;
+          type: "tableJoin"
+          leftTable: "$monitors.network.discovery.sources.source(2)$"
+          rightTable: "$monitors.network.discovery.sources.source(3)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          keyType: "Wbem"
+        source(6):
+          # Source(6) = Table joint of Source(1) and Source(4)
+          # PortID;PortType;SpeedMbps;PermanentAddress;EnabledState;CreationClassName;PortControllerID;PortID;
+          type: "tableJoin"
+          leftTable: "$monitors.network.discovery.sources.source(1)$"
+          rightTable: "$monitors.network.discovery.sources.source(4)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 2
+          keyType: "Wbem"
+          defaultRightLine: ";;"
+        source(7):
+          # Will take those that match Port Controller ID in Source 7
+          # Source(7) = Table joint of Source(6) and Source(5) By Port Controller
+          # PortID;PortType;SpeedMbps;PermanentAddress;EnabledState;CreationClassName;PortControllerID;PortID;PackageID;Manufacturer;Model;SerialNumber;PackageID;PortControllerID or Port ID;
+          type: "tableJoin"
+          leftTable: "$monitors.network.discovery.sources.source(6)$"
+          rightTable: "$monitors.network.discovery.sources.source(5)$"
+          leftKeyColumn: 7
+          rightKeyColumn: 6
+          keyType: "Wbem"
+        source(8):
+          # Will take those that match Port ID or do not match anything in Source 8
+          # Source(8) = Table joint of Source(6) and Source(5) by Port ID
+          # PortID;PortType;SpeedMbps;PermanentAddress;EnabledState;CreationClassName;PortControllerID;PortID;PackageID;Manufacturer;Model;SerialNumber;PackageID;PortControllerID or Port ID;
+          type: "tableJoin"
+          leftTable: "$monitors.network.discovery.sources.source(6)$"
+          rightTable: "$monitors.network.discovery.sources.source(5)$"
+          leftKeyColumn: 8
+          rightKeyColumn: 6
+          keyType: "Wbem"
+          defaultRightLine: ";;;;;;"
+        source(9):
+          # Will match up any Source (8) lines with Source (5) by Port Controller, any that match are the same that matched in Source 7 and thus should be excluded.
+          # Source(9) = Table joint of Source(8) and Source(5) by Port Controller
+          # PortID;PortType;SpeedMbps;PermanentAddress;EnabledState;CreationClassName;PortControllerID;PortID;PackageID;Manufacturer;Model;SerialNumber;PackageID;PortControllerID or Port ID;PackageID;Manufacturer;Model;SerialNumber;PackageID;PortControllerID or Port ID;
+          type: "tableJoin"
+          leftTable: "$monitors.network.discovery.sources.source(8)$"
+          rightTable: "$monitors.network.discovery.sources.source(5)$"
+          leftKeyColumn: 7
+          rightKeyColumn: 6
+          keyType: "Wbem"
+          defaultRightLine: ";;;;;;"
+          computes:
+            # Exclude lines that matched.  Any lines that do match are taken care of in Source 7
+            # PortID;PortType;SpeedMbps;PermanentAddress;EnabledState;CreationClassName;PortControllerID;PortID;PackageID;Manufacturer;Model;SerialNumber;PackageID;PortControllerID or Port ID;PackageID;Manufacturer;Model;SerialNumber;PackageID;PortControllerID or Port ID;
+            #    1  ;  2     ;   3     ;    4           ;     5      ;      6          ;      7         ;  8   ;   9     ;   10       ;  11 ;  12        ;  13     ;            #   14         ;   15    ;  16        ; 17  ; 18         ;  19     ;   20            #         ;
+          - type: "excludeMatchingLines"
+            column: 20
+            regExp: "."
+            # Remove the Columns Added to perform KeepOnly
+            # PortID;PortType;SpeedMbps;PermanentAddress;EnabledState;CreationClassName;PortControllerID;PortID;PackageID;Manufacturer;Model;SerialNumber;PackageID;PortControllerID or Port ID;
+            #    1  ;  2     ;   3     ;    4           ;     5      ;      6          ;      7         ;  8   ;   9     ;   10       ;  11 ;  12        ;  13     ;            #   14         ;
+          - type: "keepColumns"
+            columnNumbers: "1,2,3,4,5,6,7,8,9,10,11,12,13,14"
+        source(10):
+          # Source(10) = Table union of Source(9) and Source(7)
+          # PortID;PortType;SpeedMbps;PermanentAddress;EnabledState;CreationClassName;PortControllerID;PortID;PackageID;Manufacturer;Model;SerialNumber;PackageID;PortControllerID or Port ID;
+          #    1  ;  2     ;   3     ;    4           ;     5      ;      6          ;      7         ;  8   ;   9     ;   10       ;  11 ;  12        ;  13     ;          #     14         ;
+          type: "tableUnion"
+          tables:
+          - "$monitors.network.discovery.sources.source(9)$"
+          - "$monitors.network.discovery.sources.source(7)$"
+      mapping:
+        # InstanceTable = Source(10)
+        # PortID;PortType;SpeedMbps;PermanentAddress;EnabledState;CreationClassName;PortControllerID;PortID;PackageID;Manufacturer;Model;SerialNumber;PackageID;PortControllerID;
+        source: "$monitors.network.discovery.sources.source(10)$"
+        attributes:
+          id: "$column(1)"
+          model: "$column(11)"
+          physical_address: "$column(4)"
+          physical_address_type: "WWN"
+          device_type: "$column(2)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(2), $column(11))"
+    collect:
+      # The NetworkCard collect is a \"MultiInstance\" collect
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = CIM_FCPort
+          # PortID;PortTypeCode;EnabledState;Speed;OperationalStatusArray;CreationClassName;DeviceID;SystemCreationClassName;SystemName;ElementID;
+          type: "wbem"
+          query: "SELECT __PATH,PortType,EnabledState,Speed,OperationalStatus,CreationClassName,DeviceID,SystemCreationClassName,SystemName,DeviceID FROM CIM_FCPort"
+          namespace: "Automatic"
+          computes:
+            # Let's empty the path and rebuild it.  (Many providers have an issue with the __PATH for FCPorts)
+            # PortID;PortTypeCode;EnabledState;Speed;OperationalStatusArray;CreationClassName;DeviceID;SystemCreationClassName;SystemName;ElementID;
+          - type: "replace"
+            column: 1
+            existingValue: "Column(1)"
+            newValue: ""
+            #  Rebuild the PATH
+            #    1       2          3           4            #   5             6            #   7       8            #           9          10
+            # PortID;PortTypeCode;EnabledState;Speed;OperationalStatusArray;CreationClassName;DeviceID;SystemCreationClassName;SystemName;ElementID;
+          - type: "rightConcat"
+            column: 1
+            value: "Column(6)"
+          - type: "rightConcat"
+            column: 1
+            value: ".CreationClassName=\""
+          - type: "rightConcat"
+            column: 1
+            value: "Column(6)"
+          - type: "rightConcat"
+            column: 1
+            value: "\",DeviceID=\""
+          - type: "rightConcat"
+            column: 1
+            value: "Column(7)"
+          - type: "rightConcat"
+            column: 1
+            value: "\",SystemCreationClassName=\""
+          - type: "rightConcat"
+            column: 1
+            value: "Column(8)"
+          - type: "rightConcat"
+            column: 1
+            value: "\",SystemName=\""
+          - type: "rightConcat"
+            column: 1
+            value: "Column(9)"
+          - type: "rightConcat"
+            column: 1
+            value: "\""
+          - type: "keepColumns"
+            columnNumbers: "1,2,3,4,5,10"
+        source(2):
+          # Switch to Source (2) to avoid renumbering
+          # PortID;PortTypeCode;EnabledState;Speed;OperationalStatusArray;ElementID;
+          type: "copy"
+          from: "$monitors.network.collect.sources.source(1)$"
+          computes:
+            # Keep only activated ports
+            # PortID;PortTypeCode;EnabledState;Speed;OperationalStatusArray;ElementID;
+          - type: "excludeMatchingLines"
+            column: 3
+            valueList: "3"
+            # Duplicate the "OperationalStatusArray" column Twice
+            # PortID;PortTypeCode;EnabledState;Speed;OperationalStatusArray;OperationalStatusArray;OperationalStatusArray;ElementID;
+          - type: "duplicateColumn"
+            column: 5
+          - type: "duplicateColumn"
+            column: 5
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # PortID;PortTypeCode;EnabledState;Speed;PATROLStatusArray;Status;OperationalStatusArray;ElementID;
+          - type: "arrayTranslate"
+            column: 5
+            translationTable: "DMTFOperationStatusTranslationTable"
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # PortID;PortTypeCode;EnabledState;Speed;PATROLStatusArray;StatusInformation.OperationalStatusArray;ElementID;
+          - type: "arrayTranslate"
+            column: 6
+            translationTable: "DMTFOperationStatusInformationTranslationTable"
+            resultSeparator: " - "
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # PortID;PortTypeCode;EnabledState;Speed;PATROLStatus;StatusInformation.OperationalStatusArray;ElementID;
+          - type: "convert"
+            column: 5
+            conversion: "array2SimpleStatus"
+            # Duplicate the Speed Column
+            # PortID;PortTypeCode;EnabledState;Speed;Speed;PATROLStatus;StatusInformation.OperationalStatusArray;ElementID;
+          - type: "duplicateColumn"
+            column: 4
+            # Finally, we check whether we have a 'Speed' number, meaning that the link is up
+            # Otherwise, if no speed, it means that the link is down
+            # PortID;PortTypeCode;EnabledState;LinkStatus;Speed;PATROLStatusArray;Status.OperationalStatusArray;ElementID;
+          - type: "translate"
+            column: 4
+            translationTable: "SpeedToLinkStatusTranslationTable"
+            # Then we translate DMTF's OperationStatus code into OK/WARN (for the LINK Status)
+            # PortID;PortTypeCode;EnabledState;LinkStatus;Speed;PATROLStatusArray;Status;OperationalLinkStatusArray;ElementID;
+          - type: "arrayTranslate"
+            column: 8
+            translationTable: "DMTFOperationToLinkStatusTranslationTable"
+            # Add the Speed State to the OperationalLinkStatus Array
+            # PortID;PortTypeCode;EnabledState;LinkStatus;Speed;PATROLStatusArray;Status;OperationalLinkStatusArray|LinkStatus;ElementID;
+          - type: "rightConcat"
+            column: 8
+            value: "|"
+          - type: "rightConcat"
+            column: 8
+            value: "Column(4)"
+            # Convert bits/sec into Mbps
+            # PortID;PortTypeCode;EnabledState;LinkStatus;SpeedMBps;PATROLStatusArray;Status;OperationalLinkStatusArray|LinkStatus;ElementID;
+          - type: "divide"
+            column: 5
+            value: "1000000"
+        source(3):
+          # Switch to Source (3) for debugging purposes
+          type: "copy"
+          from: "$monitors.network.collect.sources.source(2)$"
+          computes:
+            # Convert OperationalLinkStatus|SpeedStatus to a simple (unique) LinKStatus
+            # Thus if the Speed = 0 OR the OperationalLink Status indicates a link down, LinkStatus = WARN.
+            # LinkStatus will only = "OK" if speed > 0 and OperationalLink Status is not WARN
+            # PortID;PortTypeCode;EnabledState;LinkStatus;SpeedMBps;PATROLStatusArray;Status;OverallLinkStatus;ElementID;
+          - type: "convert"
+            column: 8
+            conversion: "array2SimpleStatus"
+        source(4):
+          # Now let's get some statistics
+          # Source(4) = CIM_FCPortStatistics
+          # ElementName;BytesReceived;BytesTransmitted;PacketsReceived;PacketsTransmitted;PrimitiveSeqProtocolErrCount;CRCErrors;InvalidTransmissionWords;
+          type: "wbem"
+          query: "SELECT ElementName,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,PrimitiveSeqProtocolErrCount,CRCErrors,InvalidTransmissionWords FROM CIM_FCPortStatistics"
+          namespace: "Automatic"
+          computes:
+            # Add the errorcounts together
+            #   1            #   2             3            #     4            5            #         6            #        7         8
+            # ElementName;BytesReceived;BytesTransmitted;PacketsReceived;PacketsTransmitted;PrimitiveSeqProtocolErrCount;CRCErrors;InvalidTransmissionWords;
+          - type: "add"
+            column: 6
+            value: "Column(7)"
+          - type: "add"
+            column: 6
+            value: "Column(8)"
+            # Remove unneeded columns
+            # ElementName;BytesReceived;BytesTransmitted;PacketsReceived;PacketsTransmitted;ErrorCount;
+          - type: "keepColumns"
+            columnNumbers: "1,2,3,4,5,6"
+        source(5):
+          # Because of issues with the PATH, we will Joint by ElementName
+          # Linking Port Status / Speed to Statistics
+          #   1          2          # 3          # 4        5          #   6           7          8          #   9        10           11          # 12          #    13          #    14          #      15
+          # PortID;PortTypeCode;EnabledState;LinkStatus;SpeedMBps;PATROLStatusArray;Status;OverallLinkStatus;ElementID;ElementName;BytesReceived;BytesTransmitted;PacketsReceived;PacketsTransmitted;Errorcount;
+          type: "tableJoin"
+          leftTable: "$monitors.network.collect.sources.source(3)$"
+          rightTable: "$monitors.network.collect.sources.source(4)$"
+          leftKeyColumn: 9
+          rightKeyColumn: 1
+          defaultRightLine: ";;;;;;"
+      mapping:
+        # ValueTable = Source(1)
+        #   1        # 2        #   3        #   4        5        #     6        #  7        # 8        #     9        10        #  11        #   12        #      13        #      14        #        15
+        # PortID;PortTypeCode;EnabledState;LinkStatus;SpeedMBps;PATROLStatusArray;Status;OverallLinkStatus;ElementID;ElementName;BytesReceived;BytesTransmitted;PacketsReceived;PacketsTransmitted;Errorcount;
+        source: "$monitors.network.collect.sources.source(5)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="network"}: "$column(6)"
+          hw.network.up: "legacyLinkStatus($column(4))"
+          hw.network.bandwidth.limit: "megaBit2Bit($column(5))"
+          hw.errors{hw.type="network"}: "$column(15)"
+          hw.network.packets{direction="receive"}: "$column(13)"
+          hw.network.packets{direction="transmit"}: "$column(14)"
+          hw.network.io{direction="receive"}: "$column(11)"
+          hw.network.io{direction="transmit"}: "$column(12)"
+        legacyTextParameters:
+          StatusInformation: "$column(7)"

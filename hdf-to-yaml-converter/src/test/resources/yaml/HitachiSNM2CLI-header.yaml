@@ -1,0 +1,604 @@
+---
+embedded:
+  EmbeddedFile(3): "BEGIN {SECTION=\"\";NNCSECTION=\"\"}\n\n$1 ~ /MS_HW_SYSTEM_START/  { systemName = $2 }\n\nSECTION != \"\" && $1 !~ /^[0-9]+/ && tolower($0) !~ /status/ && NF < 3 && NNCSECTION == \"\" { SECTION = \"\" }\n\n$1 ~ /^Controller$/ { SECTION = \"CTL\" }\nSECTION == \"CTL\" && $1 ~ /^[0-9]+/ && NNCSECTION == \"\" { ID = SECTION \"-\" $1\n                                     Status = $NF\n                                     print \"MSHW_OtherDevice;\" systemName \";\" systemName \".\" ID \";\" ID \";\" Status \";\" Status \";\"\n                                   }\n\n$1 ~ /^Cache$/ { SECTION = \"Cache\" }\nSECTION == \"Cache\" && $1 ~ /^[0-9]+/ && $2 ~ /^[0-9]+/ && NNCSECTION == \"\" { ID = SECTION \"-CTL\" $1 \"-Slot\" $2\n                                     Status = $NF\n                                     if ($3 !~ /---/) {print \"MSHW_Memory;\" systemName \";\" systemName \".\" ID \";\" ID \";\" Status \";\" Status \";\" }\n                                   }\n\n$1 ~ /^I.F$/ && $2 ~ /Module/ { SECTION = \"IF-Module\" }\n$1 ~ /^Interface$/ && $2 ~ /Board/ { SECTION = \"IF-Module\" }\nSECTION == \"IF-Module\" && $1 ~ /^[0-9]/ && $2 ~ /^[0-9]/ && NNCSECTION == \"\" { ID = SECTION \"-CTL\" $1 \"-IF\" $2\n                                     Status = $NF\n                                     print \"MSHW_NetworkCard;\" systemName \";\" systemName \".\" ID \";\" ID \";\" Status \";\" Status \";\"\n                                   }\n\n$1 ~ /^Battery$/ && $2 != /^Backup$/ { SECTION = \"Battery\" }\nSECTION == \"Battery\" && $1 ~ /^[0-9]/ && NNCSECTION == \"\" { ID = SECTION \"-\" $1\n                                     Status = $NF\n                                     print \"MSHW_Battery;\" systemName \";\" systemName \".\" ID \";\" ID \";\" Status \";\" Status \";\"\n                                   }\n\n$1 ~ /^Battery$/ && $2 ~ /^Backup$/{ SECTION = \"Battery-Backup\" }\nSECTION == \"Battery-Backup\" && $1 ~ /^[0-9]/ && NNCSECTION == \"\" { ID = SECTION \"-\" $1\n                                     Status = $NF\n                                     print \"MSHW_Battery;\" systemName \";\" systemName \".\" ID \";\" ID \";\" Status \";\" Status \";\"\n                                   }\n\n\n$1 ~ /^Additional$/ && $2 ~ /^Battery$/ { SECTION = \"Additional-Battery\" }\nSECTION == \"Additional-Battery\" && $1 ~ /^[0-9]/ && NNCSECTION == \"\" { ID = SECTION \"-\" $1\n                                     Status = $NF\n                                     print \"MSHW_Battery;\" systemName \";\" systemName \".\" ID \";\" ID \";\" Status \";\" Status \";\"\n                                   }\n\n$1 ~ /^Host$/ && $2 ~ /^Connector$/ { SECTION = \"Host-Connector\" }\nSECTION == \"Host-Connector\" && $1 ~ /^[0-9]/ && NNCSECTION == \"\" { ID = SECTION \"-\" $1\n                                     Status = $NF\n                                     print \"MSHW_NetworkCard;\" systemName \";\" systemName \".\" ID \";\" ID \";\" Status \";\" Status \";\"\n                                   }\n\n$1 ~ /^Fan$/ { SECTION = \"Fan\" }\nSECTION == \"Fan\" && $1 ~ /^[0-9C]/ && $2 ~ /^[0-9]/ && NNCSECTION == \"\" { ID = SECTION \"-Unit\" $1 \"-Fan\" $2\n                                     Status = $NF\n                                     print \"MSHW_Fan;\" systemName \";\" systemName \".\" ID \";\" ID \";\" Status \";\" Status \";\"\n                                   }\n$1 ~ /^AC$/ { SECTION = \"AC\" }\nSECTION == \"AC\" && $1 ~ /^[0-9C]/ && $2 ~ /^[0-9]/ && NNCSECTION == \"\" { ID = SECTION \"-Unit\" $1 \"-AC\" $2\n                                     Status = $NF\n                                     print \"MSHW_PowerSupply;\" systemName \";\" systemName \".\" ID \";\" ID \";\" Status \";\" Status \";\"\n                                   }\n\n$1 ~ /^DC$/ { SECTION = \"DC\" }\nSECTION == \"AC\" && $1 ~ /^[0-9C]/ && $2 ~ /^[0-9]/ && NNCSECTION == \"\" { ID = SECTION \"-Unit\" $1 \"-DC\" $2\n                                     Status = $NF\n                                     print \"MSHW_PowerSupply;\" systemName \";\" systemName \".\" ID \";\" ID \";\" Status \";\" Status \";\"\n                                   }\n\n$1 ~ /^ENC$/ { SECTION = \"ENC\" }\nSECTION == \"ENC\" && $1 ~ /^[0-9C]/ && $2 ~ /^[0-9]/ && NNCSECTION == \"\" { ID = SECTION \"-Unit\" $1 \"-ENCCable\" $2\n                                     Status = $NF\n                                     print \"MSHW_OtherDevice;\" systemName \";\" systemName \".\" ID \";\" ID \";\" Status \";\" Status \";\"\n                                   }\n\n$1 ~ /^Loop$/ { SECTION = \"Loop\" }\nSECTION == \"Loop\" && $1 ~ /^[0-9]/ && $2 ~ /^[0-9]/ && NNCSECTION == \"\" { ID = SECTION \"-Path\" $1 \"-Loop\" $2\n                                     Status = $NF\n                                     print \"MSHW_OtherDevice;\" systemName \";\" systemName \".\" ID \";\" ID \";\" Status \";\" Status \";\"\n                                   }\n\n$1 ~ /^Air$/ && $2 ~ /^Filter$/ && NNCSECTION == \"\" { SECTION = \"Air-Filter\"\n                                  ID = SECTION ; getline; getline ;\n                                  Status = $NF\n                                  print \"MSHW_OtherDevice;\" systemName \";\" systemName \".\" ID \";\" ID \";\" Status \";\" Status \";\"\n                                }\n\n$1 ~ /^NNC$/ && NF == 1 { SECTION = \"NNC\" }\nSECTION == \"NNC\" && $1 ~ /^[0-9]/ && NNCSECTION == \"\" { ID = SECTION \"-\" $1\n                                     Status = $NF\n                                     print \"MSHW_OtherDevice;\" systemName \";\" systemName \".\" ID \";\" ID \";\" Status \";\" Status \";\"\n                                   }\n\n# NNC SUB-COMPONENTS\n$1 ~ /^NNC[0-9]+$/ && $2 ~ /^Status$/ { NNCSECTION = $1 }\n\n$1 ~ /^DIMM+$/ && NNCSECTION != \"\" { SECTION = NNCSECTION \"-DIMM\"}\nSECTION ~ /NNC[0-9]+-DIMM/ && $1 ~ /^[A-Z][0-9]/ { ID = SECTION \"-\" $1\n                                     Status = $NF\n                                     print \"MSHW_Memory;\" systemName \";\" systemName \".\" ID \";\" ID \";\" Status \";\" Status \";\"\n                                   }\n\n$1 ~ /^PS$/ && NNCSECTION != \"\" { SECTION = NNCSECTION \"-PS\"\n\t                                if ( $2 != \"\" ) { ID = NNCSECTION \"-PS\"\n\t                                \t                status = $NF\n\t                                \t                print \"MSHW_PowerSupply;\" systemName \";\" systemName \".\" ID \";\" ID \";\" Status \";\" Status \";\"\n\t                                \t               }\n\t                              }\nSECTION ~ /NNC[0-9]+-PS/ && $1 ~ /^[0-9]/ { ID = NNCSECTION \"-PS\" $1\n                                     Status = $NF\n                                     print \"MSHW_PowerSupply;\" systemName \";\" systemName \".\" ID \";\" ID \";\" Status \";\" Status \";\"\n                                   }\n\n$1 ~ /^Fan$/ && NNCSECTION != \"\" { SECTION = NNCSECTION \"-Fan\"\n\t                                if ( $2 != \"\" ) { ID = NNCSECTION \"-Fan\"\n\t                                \t                status = $NF\n\t                                \t                print \"MSHW_Fan;\" systemName \";\" systemName \".\" ID \";\" ID \";\" Status \";\" Status \";\"\n\t                                \t               }\n\t                              }\nSECTION ~ /NNC[0-9]+-Fan/ && $1 ~ /^[0-9]/ { ID = NNCSECTION \"-Fan\" $1\n                                     Status = $NF\n                                     print \"MSHW_Fan;\" systemName \";\" systemName \".\" ID \";\" ID \";\" Status \";\" Status \";\"\n                                   }\n\n$1 ~ /^Extension$/ && $2 ~ /^Slot$/ && NNCSECTION != \"\" { SECTION = NNCSECTION \"-ExtSlot\"}\nSECTION ~ /NNC[0-9]+-ExtSlot/ && $1 ~ /^[0-9]/ { ID = SECTION \"-\" $1\n                                     Status = $NF\n                                     print \"MSHW_OtherDevice;\" systemName \";\" systemName \".\" ID \";\" ID \";\" Status \";\" Status \";\"\n                                   }\n\n$1 ~ /^Extension$/ && $2 ~ /^Card$/ && NNCSECTION != \"\" { SECTION = \"NNC-ExtCard\"}\nSECTION ~ /NNC-ExtCard/ && $1 ~ /^[0-9]/ && $2 ~ /^[0-9]/ { ID = \"NNC\" $1 \"-ExtCard-\" $2 ;\n                                     Status = $NF\n                                     print \"MSHW_OtherDevice;\" systemName \";\" systemName \".\" ID \";\" ID \";\" Status \";\" Status \";\"\n                                   }"
+  EmbeddedFile(2): |-
+    $0 ~ /^Array Unit Type/ {model = $NF}
+    $1 ~ /H.W/ && $2 ~ /Rev/ {firmware = $NF}
+    $1 ~ /Serial/ && $2 ~ /Number/ {serialNumber = $NF}
+    $1 ~ /MS_HW_SYSTEM_END/  { systemName = $2
+                              if (model != "") {print "MSHW;"systemName";"model";"firmware";"serialNumber";"}}
+  EmbeddedFile(5): "BEGIN {tableValid = \"\"}\n$1 ~ /MS_HW_SYSTEM_START/  { systemName = $2 }\n# Lightning 9500\n$0 ~ /Unit +No. +HDU +No. +Type +Physics +Status/ {tableValid = \"9500\"}\n$0 ~ /Unit +HDU +Type +Status/ {tableValid = \"AMS500\"}\n# AMS 500\n$1 ~ /MS_HW_SYSTEM_END/  { if (tableValid == \"\") {print \"No valid table format found\"}\n\t                             else {print \"Valid table format found for: \" systemName \" Type: \" tableValid }\n\t                         systemName = \"\" ; tableValid = \"\"\n\t                       }\n\n$1 ~ /^[0-9]+$/ && $2 ~ /^[0-9]+$/ && tableValid != \"\" {\n\tif (tableValid == \"9500\") {\n\t\tUnit = $1\n\t\tHDU = $2 ;\n\t\tStatusInformation = $0 ;\n\t\tStatus = $5 ;\n\t\t}\n\tif (tableValid == \"AMS500\") {\n\t\tUnit = $1\n\t\tHDU = $2 ;\n\t\tStatusInformation = $0 ;\n\t\tStatus = $4 ;\n\t\t}\n\tgsub (/^.*[0-9]+ +[0-9]+ +/,\"\",StatusInformation)\n\tgsub (/  +/,\" \",StatusInformation)\n\tif (Status ~ /100%/) {Status = \"Normal\"}\n\t\telse if (Status ~ /[0-9][0-9]%/) {Status = \"Rebuilding\"}\n# \tWatch out - Identifiers must match between the audrive vendor script (discovery) and the audrive status awk script (collect)\n\tDeviceID = systemName \".Unit-\" Unit \".HDU-\" HDU  ;\n# MSHW;DeviceID;Status;StatusInformation;\n\tprint \"MSHW;\" DeviceID \";\" Status \";\" StatusInformation \";\"\n\t}"
+  EmbeddedFile(4): "BEGIN {tableValid = \"\"}\n$1 ~ /MS_HW_SYSTEM_START/  { systemName = $2 }\n# AMS2100 / HUS 130 / SMS100 / HUS 110\n$0 ~ /Unit +HDU +Capacity +Drive +Type +Rotational +Speed +Vendor +ID +Product +ID +Revision +Serial.+/ {tableValid = \"AMS2100\"}\n# Lightning 9500\n$0 ~ /Unit +No. +HDU No. +Vendor +Product +Revision +Capacity +Serial +No. +Type/ {tableValid = \"9500\"}\n# AMS 500\n$0 ~ /Unit +HDU +Capacity +Drive +Type +Vendor +ID +Product +ID +Revision +Serial No./ {tableValid = \"AMS500\"}\n\n$1 ~ /MS_HW_SYSTEM_END/  { if (tableValid == \"\") {print \"No valid table format found\"}\n\t                             else {print \"Valid table format found. Type: \" tableValid }\n\t                         systemName = \"\" ; tableValid = \"\"\n\t                       }\n\n$1 ~ /^[0-9]+$/ && $2 ~ /^[0-9]+$/ && tableValid != \"\" {\n\tif (tableValid == \"AMS2100\") {\n\t\tUnit = $1\n\t\tHDU = $2 ;\n\t\tCapacity = $3 ;\n\t\tDriveType = $4\n\t\tSpeed = \"RPM: \" $5\n\t\tVendor = $6\n\t\tModel = $7\n\t\tFirmware = $8\n\t\tSerial = $9\n\t\t}\n\tif (tableValid == \"9500\") {\n\t\tUnit = $1\n\t\tHDU = $2 ;\n\t\tCapacity = $6\n\t\tDriveType = $8\n\t\tSpeed = \"\"\n\t\tVendor = $3\n\t\tModel = $4\n\t\tFirmware = $5\n\t\tSerial = $7\n\t\t}\n\tif (tableValid == \"AMS500\") {\n\t\tUnit = $1\n\t\tHDU = $2 ;\n\t\tCapacity = $3 ;\n\t\tDriveType = $4\n\t\tSpeed = \"\"\n\t\tVendor = $5\n\t\tModel = $6\n\t\tFirmware = $7\n\t\tSerial = $8\n\t\t}\n\tgsub (/[Tt][Bb]/,\"000000\",Capacity) ; gsub (/[Gg][Bb]/,\"000\",Capacity) ;  gsub (/[Mm][Bb]/,\"\",Capacity) ; CapacityGB = Capacity /1000 ;\n# \tWatch out - Identifiers must match between the audrive vendor script (discovery) and the audrive status awk script (collect)\n\tDeviceID = systemName \".Unit-\" Unit \".HDU-\" HDU  ; DisplayID = \"Unit-\" Unit \".HDU-\" HDU\n# MSHW;systemName;DeviceID;DisplayID;CapacityB;DriveType;Speed;Vendor;Model;Firmware;Serial;\n\tprint \"MSHW;\" systemName\";\" DeviceID \";\" DisplayID \";\" CapacityB \";\" DriveType \";\" Speed \";\" Vendor \";\" Model \";\" Firmware \";\" Serial \";\"\n\t}"
+  EmbeddedFile(7): "BEGIN {tableValid = \"\"}\n$1 ~ /MS_HW_SYSTEM_START/  { systemName = $2 }\n# HUS110\n$0 ~ /Group  Level +Groups +Type +Speed +Encryption +Total +Capacity +Free +Capacity +Priority +Status +Reconstruction +Progress/ {\n\ttableValid = \"HUS110\"\n\tstatusStartIndex = index($0,\"Status\"); statusEndIndex = index($0,\"Reconstruction\");\n\t}\n\n# HUS130\n$0 ~ /Group  Level +Groups +Type +Speed +Total +Capacity +Free +Capacity +Priority +Status +Reconstruction +Progress/ {\n\ttableValid = \"HUS130\"\n\tstatusStartIndex = index($0,\"Status\"); statusEndIndex = index($0,\"Reconstruction\");\n\t}\n\n\n# AMS2100\n$0 ~ /Group +Level +Groups +Type +Total +Capacity +Free +Capacity +Priority +Status +Reconstruction +Progress/ {\n\ttableValid = \"AMS2100\"\n\tstatusStartIndex = index($0,\"Status\"); statusEndIndex = index($0,\"Reconstruction\");\n\t}\n\n\n\n$1 ~ /MS_HW_SYSTEM_END/  { if (tableValid == \"\") {print \"No valid table format found\"}\n\t                             else {print \"Valid table format found for: \" systemName \" Type: \" tableValid  }\n\t                         systemName = \"\" ; tableValid = \"\"\n\t                       }\n\n$1 ~ /^[0-9]+$/ && $2 ~ /^[0-9]+/ && tableValid != \"\" {\n\tif (tableValid == \"HUS110\") {\n\t\tRG = $1\n\t\tCapacity = $8 ; CapacityGB = Capacity / 1024 ;\n\t\tCapacityFree = $10 ; CapacityFreeGB = CapacityFree / 1024 ;\n\t\tStripeSize = \"\" ;\n\t\tRAIDGroup = \"\"\n\t\tRaidLevel = $2 $3\n\t\tDiskType = $5\n\t\tStatus = substr($0,statusStartIndex,statusEndIndex-statusStartIndex);\n\t\t}\n\tif (tableValid == \"HUS130\") {\n\t\tRG = $1\n\t\tCapacity = $7 ; CapacityGB = Capacity / 1024 ;\n\t\tCapacityFree = $9 ; CapacityFreeGB = CapacityFree / 1024 ;\n\t\tStripeSize = \"\" ;\n\t\tRAIDGroup = \"\"\n\t\tRaidLevel = $2 $3\n\t\tDiskType = $5\n\t\tStatus = substr($0,statusStartIndex,statusEndIndex-statusStartIndex);\n\t\t}\n\tif (tableValid == \"AMS2100\") {\n\t\tRG = $1\n\t\tCapacity = $6 ; CapacityGB = Capacity / 1024 ;\n\t\tCapacityFree = $8 ; CapacityFreeGB = CapacityFree / 1024 ;\n\t\tStripeSize = \"\" ;\n\t\tRAIDGroup = \"\"\n\t\tRaidLevel = $2 $3\n\t\tDiskType = $5\n\t\tStatus = substr($0,statusStartIndex,statusEndIndex-statusStartIndex);\n\t\t}\n\tgsub (/^ +/,\"\",Status);gsub (/ +$/,\"\",Status);\n\tStatusInformation = Status\n\tDeviceID = systemName \".RG-\" RG ; DisplayID = \"RG-\" RG\n# MUST MATCH EF6 (Volumes)\n# MSHW;systemName;DeviceID;DisplayID;CapacityGB;StripeSize;RAIDGroup;RaidLevel;DiskType;Status;StatusInformation;LogicalDiskType;UseInCapacity;CapacityFreeGB;\n\tprint \"MSHW;\" systemName\";\" DeviceID \";\" DisplayID \";\" CapacityGB \";\" StripeSize \";\" RAIDGroup \";\" RaidLevel \";\" DiskType \";\" Status \";\" StatusInformation \";RaidGroup;1;\" CapacityFreeGB \";\"\n\t}"
+  EmbeddedFile(6): "BEGIN {tableValid = \"\"}\n$1 ~ /MS_HW_SYSTEM_START/  { systemName = $2 }\n# AMS2100\n$0 ~ /LU +Capacity +Size +Group +Pool +Level +Type +Status/ {tableValid = \"AMS2100\"}\n# 9500 / AMS500\n$0 ~ /LU +.Mbyte. +C-CTL +D-CTL +Group +Level +Type +Status/ {tableValid = \"9500\"}\n# AMS2300\n$0 ~ /LU +Capacity +Size +Group +Pool +Level +Type +of +Paths +Status/ {tableValid = \"AMS2300\"}\n# HUS110\n$0 ~ / +LU +Capacity +Size +Group +Pool +Mode +Level +Type +Speed +of +Paths +Status/ {tableValid = \"HUS110\"}\n\n$1 ~ /MS_HW_SYSTEM_END/  { if (tableValid == \"\") {print \"No valid table format found\"}\n\t                             else {print \"Valid table format found for: \" systemName \" Type: \" tableValid  }\n\t                         systemName = \"\" ; tableValid = \"\"\n\t                       }\n\n$1 ~ /^[0-9]+$/ && $2 ~ /^[0-9]+/ && tableValid != \"\" {\n\tif (tableValid == \"AMS2100\") {\n\t\tLU = $1\n\t\tCapacity = $2 ; CapacityGB = Capacity / 1024 ;\n\t\tStripeSize = $4 ;\n\t\tRAIDGroup = $5\n\t\tRaidLevel = $7 $8\n\t\tDiskType = $9\n\t\tStatus = $10\n\t\tStatusInformation = $10 \" \" $11 \" \" $12 \" \" $13\n\t\t}\n\tif (tableValid == \"HUS110\") {\n    LU = $1\n    Capacity = $2 ;\n    if ($3 ~ /[Mm][Bb]/) { CapacityGB = Capacity / 1024 }\n    if ($3 ~ /[Tt][Bb]/) { CapacityGB = Capacity * 1024 }\n    if ($3 ~ /[Gg][Bb]/) { CapacityGB = Capacity }\n    StripeSize = $4 ;\n    RAIDGroup = $5\n    if ( $9 ~ /^[0-9]/ ) { RaidLevel = $8 $9 ; DiskType = $10 ; Status = $13 }\n    else { RaidLevel = $8 ; DiskType = $9 ; Status = $12 }\n    if (Status ~ /^[0-9]/) {Status = $14}\n    StatusInformation = $14 \" \" $15 \" \" $16 \" \" $17\n    }\n\tif (tableValid == \"9500\") {\n\t\tLU = $1\n\t\tCapacity = $2 ; CapacityGB = Capacity / 1024 ;\n\t\tStripeSize = \"\"\n\t\tRAIDGroup = $5\n\t\tRaidLevel = $6 ; if (RaidLevel ~ /[(]/) {\n\t\t\tRaidLevel = RaidLevel $7\n\t\t\tDiskType = $8\n\t\t\tStatus = $9\n\t\t\tStatusInformation = $9 \" \" $10 \" \" $11 \" \" $12\n\t\t\t}\n\t\t\telse {\n\t\t\t\tDiskType = $7\n\t\t\t\tStatus = $NF\n\t\t\t\tStatusInformation = $8 \" \" $9 \" \" $10 \" \" $11\n\t\t\t\t}\n\t\t}\n\tif (tableValid == \"AMS2300\") {\n\t\tLU = $1\n\t\tCapacity = $2 ;\n\t\tif (Capacity ~ /[Bb]/) {\n\t\t\tif (Capacity ~ /[Mm][Bb]/) { gsub (/[Mm][Bb]/,\"\",Capacity); CapacityGB = Capacity / 1024 }\n\t\t\tif (Capacity ~ /[Tt][Bb]/) { gsub (/[Tt][Bb]/,\"\",Capacity); CapacityGB = Capacity * 1024 }\n\t\t\tif (Capacity ~ /[Gg][Bb]/) { gsub (/[Gg][Bb]/,\"\",Capacity); CapacityGB = Capacity }\n\t\t\tStripeSize = $3 ;\n\t\t\tRAIDGroup = $4\n\t\t\tRaidLevel = $6 $7\n\t\t\tDiskType = $8\n\t\t\tStatus = $10\n\t\t\tStatusInformation = $10 \" \" $11 \" \" $12 \" \" $13\n\t\t\t}\n\t\telse {\n\t\t\tif ($3 ~ /[Mm][Bb]/) { CapacityGB = Capacity / 1024 }\n\t\t\tif ($3 ~ /[Tt][Bb]/) { CapacityGB = Capacity * 1024 }\n\t\t\tif ($3 ~ /[Gg][Bb]/) { CapacityGB = Capacity }\n\t\t\tStripeSize = $4 ;\n\t\t\tRAIDGroup = $5\n\t\t\tRaidLevel = $7 $8\n\t\t\tDiskType = $9\n\t\t\tStatus = $11\n\t\t\tStatusInformation = $11 \" \" $12 \" \" $13 \" \" $14\n\t\t\t}\n\n\t\t}\n\tDeviceID = systemName \".LU-\" LU ; DisplayID = \"LU-\" LU\n# MUST MATCH EF7 (Raid Groups)\n# MSHW;systemName;DeviceID;DisplayID;CapacityGB;StripeSize;RAIDGroup;RaidLevel;DiskType;Status;StatusInformation;LogicalDiskType;UseInCapacity;CapacityFreeGB;\n\tprint \"MSHW;\" systemName\";\" DeviceID \";\" DisplayID \";\" CapacityGB \";\" StripeSize \";\" RAIDGroup \";\" RaidLevel \";\" DiskType \";\" Status \";\" StatusInformation \";Volume;0;;\"\n\t}"
+translations:
+  LogicalDriveStatusTT:
+    normal: "ok"
+    default: "failed"
+    normal(correction: "ok"
+  DriveStatusTT:
+    normal: "ok"
+    default: "failed"
+    standby: "ok"
+    rebuilding: "degraded"
+    mounted: "ok"
+    out: "ok"
+  opStatusTT:
+    normal: "ok"
+    default: "failed"
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Run auunitinfo through EF1
+          type: "osCommand"
+          commandLine: "_EF1_COMMAND_PART1 auunitinfo _EF1_COMMAND_PART2"
+          executeLocally: true
+          timeout: 1200
+          forceSerialization: true
+          computes:
+            # Process the command through an AWK script
+            # MSHW;systemName;model;firmware;serialNumber;
+          - type: "awk"
+            script: "EmbeddedFile(2)"
+            keep: "^MSHW"
+            separators: ";"
+        source(2):
+          # Now discover information for other discoveries
+          # Source(2) = Run auparts through EF1
+          type: "osCommand"
+          commandLine: "_EF1_COMMAND_PART1 auparts _EF1_COMMAND_PART2"
+          executeLocally: true
+          timeout: 1200
+          forceSerialization: true
+          computes:
+            # Process the command through an AWK script
+            # MSHW_Class;systemName;DeviceID;DisplayID;Status;Status;
+          - type: "awk"
+            script: "EmbeddedFile(3)"
+            keep: "^MSHW"
+            separators: ";"
+      mapping:
+        # Instance Table
+        # MSHW;systemName;model;firmware;serialNumber;
+        source: "$monitors.enclosure.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(2)"
+          __display_id: "$column(2)"
+          vendor: "Hitachi"
+          model: "$column(3)"
+          serial_number: "$column(5)"
+          type: "Storage"
+          name: "sprintf(\"%s (%s %s - %s)\", $column(2), \"Hitachi\", $column(3), \"Storage\")"
+    collect:
+      # Collect type: MultiInstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Now discover information for other discoveries
+          # Source(1) = Run auparts through EF1
+          type: "osCommand"
+          commandLine: "_EF1_COMMAND_PART1 auparts _EF1_COMMAND_PART2"
+          executeLocally: true
+          timeout: 1200
+          forceSerialization: true
+          computes:
+            # Process the command through an AWK script
+            # MSHW_Class;systemName;DeviceID;DisplayID;Status;Status;
+          - type: "awk"
+            script: "EmbeddedFile(3)"
+            keep: "^MSHW"
+            separators: ";"
+      mapping:
+        # The value table (taken from enclosure.discovery, since we don't actually want to collect anything.
+        source: "$monitors.enclosure.discovery.sources.source(1)$"
+        deviceId: "$column(2)"
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) =  audrive -vendor
+          type: "osCommand"
+          commandLine: "_EF1_COMMAND_PART1 audrive -vendor _EF1_COMMAND_PART2"
+          executeLocally: true
+          timeout: 1200
+          forceSerialization: true
+          computes:
+            # Process the command through an AWK script
+            # MSHW;systemName;DeviceID;DisplayID;CapacityGB;DriveType;Speed;Vendor;Model;Firmware;Serial;
+          - type: "awk"
+            script: "EmbeddedFile(4)"
+            keep: "^MSHW"
+            separators: ";"
+            # Convert Size from Gbytes to bytes
+            # MSHW;systemName;DeviceID;DisplayID;CapacityB;DriveType;Speed;Vendor;Model;Firmware;Serial;
+          - type: "multiply"
+            column: 5
+            value: "1073741824"
+          - type: "leftConcat"
+            column: 6
+            value: "Type: "
+      mapping:
+        # The discovery table
+        #   1      2        # 3       4        # 5         6        7      8      9   10        11
+        # MSHW;systemName;DeviceID;DisplayID;CapacityB;DriveType;Speed;Vendor;Model;Firmware;Serial;
+        source: "$monitors.physical_disk.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          vendor: "$column(8)"
+          model: "$column(9)"
+          serial_number: "$column(11)"
+          firmware_version: "$column(10)"
+          info: "join($column(7), $column(6), \" \")"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(2)"
+          name: "sprintf(\"%s (%s - %s)\", $column(4), $column(9), $column(5))"
+        metrics:
+          hw.physical_disk.size: "$column(5)"
+    collect:
+      # Collect type: MultiInstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = audrive -status
+          type: "osCommand"
+          commandLine: "_EF1_COMMAND_PART1 audrive -status _EF1_COMMAND_PART2"
+          executeLocally: true
+          timeout: 1200
+          forceSerialization: true
+          computes:
+            # Process the command through an AWK script
+            # MSHW;DeviceID;Status;StatusInformation;
+          - type: "awk"
+            script: "EmbeddedFile(5)"
+            keep: "^MSHW"
+            separators: ";"
+            # Translate the Status
+            # MSHW;DeviceID;Status;StatusInformation;
+          - type: "translate"
+            column: 3
+            translationTable: "DriveStatusTT"
+      mapping:
+        # The value table
+        # MSHW;DeviceID;Status;StatusInformation;
+        source: "$monitors.physical_disk.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="physical_disk"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) =  auluref -m
+          type: "osCommand"
+          commandLine: "_EF1_COMMAND_PART1 auluref -m _EF1_COMMAND_PART2"
+          executeLocally: true
+          timeout: 1200
+          forceSerialization: true
+          computes:
+            # Process the command through an AWK script
+            # MSHW;systemName;DeviceID;DisplayID;CapacityGB;StripeSize;RAIDGroup;RaidLevel;DiskType;Status;StatusInformation;LogicalDiskType;UseInCapacity;CapacityFreeGB;
+          - type: "awk"
+            script: "EmbeddedFile(6)"
+            keep: "^MSHW"
+            separators: ";"
+        source(2):
+          # Source(1) =  aurgref -m
+          type: "osCommand"
+          commandLine: "_EF1_COMMAND_PART1 aurgref -m _EF1_COMMAND_PART2"
+          executeLocally: true
+          timeout: 1200
+          forceSerialization: true
+          computes:
+            # Process the command through an AWK script
+            # MSHW;systemName;DeviceID;DisplayID;CapacityGB;StripeSize;RAIDGroup;RaidLevel;DiskType;Status;StatusInformation;LogicalDiskType;UseInCapacity;CapacityFreeGB;
+          - type: "awk"
+            script: "EmbeddedFile(7)"
+            keep: "^MSHW"
+            separators: ";"
+        source(3):
+          # Union Volumes (1) and Raid Groups (2)
+          # MSHW;systemName;DeviceID;DisplayID;CapacityGB;StripeSize;RAIDGroup;RaidLevel;DiskType;Status;StatusInformation;LogicalDiskType;UseInCapacity;CapacityFreeGB;
+          type: "tableUnion"
+          tables:
+          - "$monitors.logical_disk.discovery.sources.source(1)$"
+          - "$monitors.logical_disk.discovery.sources.source(2)$"
+          computes:
+            # Convert Size from Gbytes to bytes
+            # MSHW;systemName;DeviceID;DisplayID;CapacityB;StripeSize;RAIDGroup;RaidLevel;DiskType;Status;StatusInformation;LogicalDiskType;UseInCapacity;CapacityFreeGB;
+          - type: "multiply"
+            column: 5
+            value: "1073741824"
+          - type: "leftConcat"
+            column: 9
+            value: "Disk Type: "
+          - type: "leftConcat"
+            column: 6
+            value: "Stripe Size: "
+      mapping:
+        # The discovery table
+        #   1      2        # 3       4        # 5         6        7        # 8         9        10        11        #   12        #     13        #      14
+        # MSHW;systemName;DeviceID;DisplayID;CapacityB;StripeSize;RAIDGroup;RaidLevel;DiskType;Status;StatusInformation;LogicalDiskType;UseInCapacity;CapacityFreeGB;
+        source: "$monitors.logical_disk.discovery.sources.source(3)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          hw.logical_disk.limit: "$column(5)"
+          type: "$column(12)"
+          raid_level: "$column(8)"
+          info: "join($column(9), $column(6), \" \")"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(2)"
+          name: "sprintf(\"%s (%s - %s)\", $column(4), $column(8), $column(5))"
+    collect:
+      # Collect type: MultiInstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = auluref -m
+          type: "osCommand"
+          commandLine: "_EF1_COMMAND_PART1 auluref -m _EF1_COMMAND_PART2"
+          executeLocally: true
+          timeout: 1200
+          forceSerialization: true
+          computes:
+            # Process the command through an AWK script
+            # MSHW;systemName;DeviceID;DisplayID;CapacityGB;StripeSize;RAIDGroup;RaidLevel;DiskType;Status;StatusInformation;LogicalDiskType;UseInCapacity;CapacityFreeGB;
+          - type: "awk"
+            script: "EmbeddedFile(6)"
+            keep: "^MSHW"
+            separators: ";"
+        source(2):
+          # Source(2) = aurgref -m
+          type: "osCommand"
+          commandLine: "_EF1_COMMAND_PART1 aurgref -m _EF1_COMMAND_PART2"
+          executeLocally: true
+          timeout: 1200
+          forceSerialization: true
+          computes:
+            # Process the command through an AWK script
+            # MSHW;systemName;DeviceID;DisplayID;CapacityGB;StripeSize;RAIDGroup;RaidLevel;DiskType;Status;StatusInformation;LogicalDiskType;UseInCapacity;CapacityFreeGB;
+          - type: "awk"
+            script: "EmbeddedFile(7)"
+            keep: "^MSHW"
+            separators: ";"
+        source(3):
+          # Union Volumes (1) and Raid Groups (2)
+          # MSHW;systemName;DeviceID;DisplayID;CapacityGB;StripeSize;RAIDGroup;RaidLevel;DiskType;Status;StatusInformation;LogicalDiskType;UseInCapacity;CapacityFreeGB;
+          type: "tableUnion"
+          tables:
+          - "$monitors.logical_disk.collect.sources.source(1)$"
+          - "$monitors.logical_disk.collect.sources.source(2)$"
+          computes:
+            # Translate the Status
+            # MSHW;systemName;DeviceID;DisplayID;CapacityGB;StripeSize;RAIDGroup;RaidLevel;DiskType;Status;StatusInformation;LogicalDiskType;UseInCapacity;CapacityFreeGB;
+          - type: "translate"
+            column: 10
+            translationTable: "LogicalDriveStatusTT"
+      mapping:
+        # The value table
+        # MSHW;systemName;DeviceID;DisplayID;CapacityGB;StripeSize;RAIDGroup;RaidLevel;DiskType;Status;StatusInformation;LogicalDiskType;UseInCapacity;CapacityFreeGB;
+        source: "$monitors.logical_disk.collect.sources.source(3)$"
+        deviceId: "$column(3)"
+        metrics:
+          hw.status{hw.type="logical_disk"}: "$column(10)"
+          hw.logical_disk.usage{state="free"}: "$column(14)"
+          hw.logical_disk.usage{state="used"}: "collectAllocatedSpace()"
+        legacyTextParameters:
+          StatusInformation: "$column(11)"
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Enclosure Discovery 1
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(2)$"
+          computes:
+            # Keep only Fans
+            # MSHW_Fan;systemName;deviceID;displayID;Status;Status;
+          - type: "keepOnlyMatchingLines"
+            column: 1
+            regExp: "^MSHW_FAN$"
+      mapping:
+        # The discovery table
+        # MSHW_Fan;systemName;deviceID;displayID;Status;Status;
+        source: "$monitors.fan.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(2)"
+          name: "$column(4)"
+    collect:
+      # Collect
+      # Collect type: MultiInstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = Enclosure Collect 1
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(1)$"
+          computes:
+            # Keep only Fan
+            # MSHW_Fan;systemName;deviceID;displayID;Status;Status;
+          - type: "keepOnlyMatchingLines"
+            column: 1
+            regExp: "^MSHW_FAN$"
+            # Now translate  into OK/Warning/Alarm
+            # MSHW_Fan;systemName;deviceID;displayID;PatrolStatus;Status;
+          - type: "translate"
+            column: 5
+            translationTable: "opStatusTT"
+      mapping:
+        # The value table
+        # MSHW_Fan;systemName;deviceID;displayID;PatrolStatus;Status;
+        source: "$monitors.fan.collect.sources.source(1)$"
+        deviceId: "$column(3)"
+        metrics:
+          hw.status{hw.type="fan"}: "$column(5)"
+        legacyTextParameters:
+          StatusInformation: "$column(6)"
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Enclosure Discovery 1
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(2)$"
+          computes:
+            # Keep only OtherDevices
+            # MSHW_OtherDevice;systemName;deviceID;displayID;Status;Status;
+          - type: "keepOnlyMatchingLines"
+            column: 1
+            regExp: "^MSHW_OtherDevice$"
+      mapping:
+        # The discovery table
+        # MSHW_OtherDevice;systemName;deviceID;displayID;Status;Status;
+        source: "$monitors.other_device.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(2)"
+          name: "$column(4)"
+    collect:
+      # Collect
+      # Collect type: MultiInstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = Enclosure Collect 1
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(1)$"
+          computes:
+            # Keep only OtherDevice
+            # MSHW_OtherDevice;systemName;deviceID;displayID;Status;Status;
+          - type: "keepOnlyMatchingLines"
+            column: 1
+            regExp: "^MSHW_OtherDevice$"
+            # Now translate  into OK/Warning/Alarm
+            # MSHW_OtherDevice;systemName;deviceID;displayID;PatrolStatus;Status;
+          - type: "translate"
+            column: 5
+            translationTable: "opStatusTT"
+      mapping:
+        # The value table
+        # MSHW_OtherDevice;systemName;deviceID;displayID;PatrolStatus;Status;
+        source: "$monitors.other_device.collect.sources.source(1)$"
+        deviceId: "$column(3)"
+        metrics:
+          hw.status{hw.type="other_device"}: "$column(5)"
+        legacyTextParameters:
+          StatusInformation: "$column(6)"
+  memory:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Enclosure Discovery 1
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(2)$"
+          computes:
+            # Keep only Memorys
+            # MSHW_Memory;systemName;deviceID;displayID;Status;Status;
+          - type: "keepOnlyMatchingLines"
+            column: 1
+            regExp: "^MSHW_Memory$"
+      mapping:
+        # The discovery table
+        # MSHW_Memory;systemName;deviceID;displayID;Status;Status;
+        source: "$monitors.memory.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(2)"
+          name: "$column(4)"
+    collect:
+      # Collect
+      # Collect type: MultiInstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = Enclosure Collect 1
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(1)$"
+          computes:
+            # Keep only Memory
+            # MSHW_Memory;systemName;deviceID;displayID;Status;Status;
+          - type: "keepOnlyMatchingLines"
+            column: 1
+            regExp: "^MSHW_Memory$"
+            # Now translate  into OK/Warning/Alarm
+            # MSHW_Memory;systemName;deviceID;displayID;PatrolStatus;Status;
+          - type: "translate"
+            column: 5
+            translationTable: "opStatusTT"
+      mapping:
+        # The value table
+        # MSHW_Memory;systemName;deviceID;displayID;PatrolStatus;Status;
+        source: "$monitors.memory.collect.sources.source(1)$"
+        deviceId: "$column(3)"
+        metrics:
+          hw.status{hw.type="memory"}: "$column(5)"
+        legacyTextParameters:
+          StatusInformation: "$column(6)"
+  network:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Enclosure Discovery 1
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(2)$"
+          computes:
+            # Keep only NetworkCards
+            # MSHW_NetworkCard;systemName;deviceID;displayID;Status;Status;
+          - type: "keepOnlyMatchingLines"
+            column: 1
+            regExp: "^MSHW_NetworkCard$"
+      mapping:
+        # The discovery table
+        # MSHW_NetworkCard;systemName;deviceID;displayID;Status;Status;
+        source: "$monitors.network.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(2)"
+          name: "$column(4)"
+    collect:
+      # Collect
+      # Collect type: MultiInstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = Enclosure Collect 1
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(1)$"
+          computes:
+            # Keep only NetworkCard
+            # MSHW_NetworkCard;systemName;deviceID;displayID;Status;Status;
+          - type: "keepOnlyMatchingLines"
+            column: 1
+            regExp: "^MSHW_NetworkCard$"
+            # Now translate  into OK/Warning/Alarm
+            # MSHW_NetworkCard;systemName;deviceID;displayID;PatrolStatus;Status;
+          - type: "translate"
+            column: 5
+            translationTable: "opStatusTT"
+      mapping:
+        # The value table
+        # MSHW_NetworkCard;systemName;deviceID;displayID;PatrolStatus;Status;
+        source: "$monitors.network.collect.sources.source(1)$"
+        deviceId: "$column(3)"
+        metrics:
+          hw.status{hw.type="network"}: "$column(5)"
+        legacyTextParameters:
+          StatusInformation: "$column(6)"
+  battery:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Enclosure Discovery 1
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(2)$"
+          computes:
+            # Keep only Batterys
+            # MSHW_Battery;systemName;deviceID;displayID;Status;Status;
+          - type: "keepOnlyMatchingLines"
+            column: 1
+            regExp: "^MSHW_Battery$"
+      mapping:
+        # The discovery table
+        # MSHW_Battery;systemName;deviceID;displayID;Status;Status;
+        source: "$monitors.battery.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(2)"
+          name: "$column(4)"
+    collect:
+      # Collect
+      # Collect type: MultiInstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = Enclosure Collect 1
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(1)$"
+          computes:
+            # Keep only Battery
+            # MSHW_Battery;systemName;deviceID;displayID;Status;Status;
+          - type: "keepOnlyMatchingLines"
+            column: 1
+            regExp: "^MSHW_Battery$"
+            # Now translate  into OK/Warning/Alarm
+            # MSHW_Battery;systemName;deviceID;displayID;PatrolStatus;Status;
+          - type: "translate"
+            column: 5
+            translationTable: "opStatusTT"
+      mapping:
+        # The value table
+        # MSHW_Battery;systemName;deviceID;displayID;PatrolStatus;Status;
+        source: "$monitors.battery.collect.sources.source(1)$"
+        deviceId: "$column(3)"
+        metrics:
+          hw.status{hw.type="battery"}: "$column(5)"
+        legacyTextParameters:
+          StatusInformation: "$column(6)"
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Enclosure Discovery 1
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(2)$"
+          computes:
+            # Keep only PowerSupplys
+            # MSHW_PowerSupply;systemName;deviceID;displayID;Status;Status;
+          - type: "keepOnlyMatchingLines"
+            column: 1
+            regExp: "^MSHW_PowerSupply$"
+      mapping:
+        # The discovery table
+        # MSHW_PowerSupply;systemName;deviceID;displayID;Status;Status;
+        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(2)"
+          name: "sprintf(\"%s, $column(4))"
+    collect:
+      # Collect
+      # Collect type: MultiInstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = Enclosure Collect 1
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(1)$"
+          computes:
+            # Keep only PowerSupply
+            # MSHW_PowerSupply;systemName;deviceID;displayID;Status;Status;
+          - type: "keepOnlyMatchingLines"
+            column: 1
+            regExp: "^MSHW_PowerSupply$"
+            # Now translate  into OK/Warning/Alarm
+            # MSHW_PowerSupply;systemName;deviceID;displayID;PatrolStatus;Status;
+          - type: "translate"
+            column: 5
+            translationTable: "opStatusTT"
+      mapping:
+        # The value table
+        # MSHW_PowerSupply;systemName;deviceID;displayID;PatrolStatus;Status;
+        source: "$monitors.power_supply.collect.sources.source(1)$"
+        deviceId: "$column(3)"
+        metrics:
+          hw.status{hw.type="power_supply"}: "$column(5)"
+        legacyTextParameters:
+          StatusInformation: "$column(6)"

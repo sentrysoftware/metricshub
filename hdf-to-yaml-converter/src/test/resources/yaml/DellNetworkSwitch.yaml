@@ -1,0 +1,296 @@
+---
+embedded:
+  EmbeddedFile(1): |-
+    BEGIN { FS = ";"; PowerConsumption = ""; }
+    $1 ~ /MSHW/ {sum += $3; PowerConsumption=sum}
+    END {print "MSHW;"PowerConsumption";"}
+translations:
+  EnclosureStatusTranslationTable:
+    default: "UNKNOWN"
+    "3": "ok"
+    "4": "degraded"
+    "5": "failed"
+  StatusInformationTranslationTable:
+    "1": "normal"
+    "2": "Non-Critical"
+    default: "Unknown Status"
+    "3": "Critical"
+    "4": "Shutdown"
+    "5": "Not Present"
+    "6": "Not Functioning"
+  StatusTranslationTable:
+    "1": "ok"
+    "2": "degraded"
+    default: "UNKNOWN"
+    "3": "failed"
+    "4": "degraded"
+    "5": "failed"
+    "6": "failed"
+  EnclosureStatusInformationTranslationTable:
+    default: "Unknown Status"
+    "3": "ok"
+    "4": "Non-Critical"
+    "5": "Critical"
+connector:
+  displayName: "DELL PowerSwitch S-Series"
+  platforms: "DELL PowerSwitch S4000 Series"
+  reliesOn: "Switch's SNMP agent"
+  version: "1.0"
+  information: "This connector provides hardware monitoring through the switch's SNMP Agent"
+  detection:
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "Network"
+    criteria:
+      # DETECTION
+      # Does a get_next to see if this is a Dell switch/router
+    - type: "snmpGetNext"
+      oid: "1.3.6.1.4.1.674.10895.3000.1.2.100.2"
+      expectedResult: "^Dell Networking Ethernet"
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = FRU information
+          # Model;Vendor;Firmware;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.674.10895.3000.1.2.100"
+          selectColumns: "1,3,4"
+          computes:
+            # Add an identifier to enable table Joints
+            # MSHW;Role;Model;Vendor;Firmware;SerialNumber;
+          - type: "leftConcat"
+            column: 1
+            value: "MSHW;"
+          - type: "replace"
+            column: 2
+            existingValue: "Dell Networking "
+            newValue: ""
+          - type: "replace"
+            column: 2
+            existingValue: " switch/router"
+            newValue: ""
+        source(2):
+          # EnclosureID;SerialNumber;ServiceTag;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.674.10895.3000.1.2.100.8.1"
+          selectColumns: "ID,2,4"
+          computes:
+            # Add an identifier to enable table Joints
+            # MSHW;EnclosureID;SerialNumber;ServiceTag;ChassisServiceTag;
+          - type: "leftConcat"
+            column: 1
+            value: "MSHW;"
+        source(3):
+          # Join the EnclosureIDs with the FRUs
+          # MSHW;EnclosureID;SerialNumber;ServiceTag;MSHW;Model;Vendor;Firmware;
+          type: "tableJoin"
+          leftTable: "$monitors.enclosure.discovery.sources.source(2)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(1)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ";;"
+        source(4):
+          # Retrieve the power consumption info from Power Supplies
+          # ID;CurrentPower;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.674.10895.3000.1.2.110.7.2.1"
+          selectColumns: "ID,5"
+          computes:
+            # MSHW;ID;CurrentPower;
+          - type: "leftConcat"
+            column: 1
+            value: "MSHW;"
+            # Sum up the power consumption values from all PSes
+          - type: "awk"
+            script: "EmbeddedFile(1)"
+        source(5):
+          # MSHW;EnclosureID;SerialNumber;ServiceTag;MSHW;Model;Vendor;Firmware;MSHW;PowerConsumption;
+          type: "tableJoin"
+          leftTable: "$monitors.enclosure.discovery.sources.source(3)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(4)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ";;"
+      mapping:
+        # InstanceTable = Source(1)
+        # MSHW;EnclosureID;SerialNumber;ServiceTag;MSHW;Model;Vendor;Firmware;MSHW;PowerConsumption;
+        source: "$monitors.enclosure.discovery.sources.source(5)$"
+        attributes:
+          __display_id: "$column(6)"
+          id: "DellSwitch"
+          vendor: "$column(7)"
+          model: "$column(6)"
+          serial_number: "$column(3)"
+          bios_version: "$column(8)"
+          type: "Switch"
+          info: "$column(4)"
+          name: "sprintf(\"%s (%s %s - %s)\", $column(6), $column(7), $column(6), \"Switch\")"
+    collect:
+      type: "multiInstance"
+      sources:
+        source(1):
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.674.10895.3000.1.2.110"
+          selectColumns: "ID,1"
+          computes:
+            # Duplicate status, because we will translate it two times
+            # EnclosureID;Status;Status;
+          - type: "duplicateColumn"
+            column: 2
+            # Translate Status into PATROLStatus
+            # EnclosureID;PATROLStatus;Status;
+          - type: "translate"
+            column: 2
+            translationTable: "EnclosureStatusTranslationTable"
+            # Translate second Status into more readable string
+            # EnclosureID;PATROLStatus;StatusInformation;
+          - type: "translate"
+            column: 3
+            translationTable: "EnclosureStatusInformationTranslationTable"
+            # MSHW;EnclosureID;PATROLStatus;StatusInformation;
+          - type: "leftConcat"
+            column: 1
+            value: "MSHW;"
+        source(2):
+          # Retrieve the power consumption from power supplies
+          # ID;CurrentPower;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.674.10895.3000.1.2.110.7.2.1"
+          selectColumns: "ID,5"
+          computes:
+          - type: "leftConcat"
+            column: 1
+            value: "MSHW;"
+          - type: "awk"
+            script: "EmbeddedFile(1)"
+        source(3):
+          # MSHW;EnclosureID;PATROLStatus;StatusInformation;MSHW;PowerConsumption;
+          type: "tableJoin"
+          leftTable: "$monitors.enclosure.collect.sources.source(1)$"
+          rightTable: "$monitors.enclosure.collect.sources.source(2)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ";;"
+      mapping:
+        # Value Table
+        # MSHW;EnclosureID;PATROLStatus;StatusInformation;MSHW;PowerConsumption;
+        source: "$monitors.enclosure.collect.sources.source(3)$"
+        deviceId: "DellSwitch"
+        metrics:
+          hw.status{hw.type="enclosure"}: "$column(3)"
+          hw.enclosure.power: "$column(6)"
+          hw.enclosure.energy: "fakeCounter($column(6))"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = FRU information
+          # ID;Location;Speed;Status;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.674.10895.3000.1.2.110.7.1.1"
+          selectColumns: "ID,2,4,3"
+          computes:
+            # Exclude fans whose status = notPresent(5)
+          - type: "excludeMatchingLines"
+            column: 4
+            valueList: "5"
+      mapping:
+        # InstanceTable = Source(1)
+        # ID;Location;Speed;Status;
+        source: "$monitors.fan.discovery.sources.source(1)$"
+        attributes:
+          __display_id: "$column(2)"
+          id: "$column(1)"
+          hw.parent.type: "enclosure"
+          name: "$column(2)"
+    collect:
+      type: "multiInstance"
+      sources:
+        source(1):
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.674.10895.3000.1.2.110.7.1.1"
+          selectColumns: "ID,4,3"
+          computes:
+            # Duplicate status, because we will translate it two times
+            # ID;Speed;Status;Status;
+          - type: "duplicateColumn"
+            column: 3
+            # Translate Status into PATROLStatus
+            # ID;Speed;PATROLStatus;Status;
+          - type: "translate"
+            column: 3
+            translationTable: "StatusTranslationTable"
+            # Translate second Status into more readable string
+            # ID;PATROLStatus;StatusInformation;
+          - type: "translate"
+            column: 4
+            translationTable: "StatusInformationTranslationTable"
+      mapping:
+        # Value Table
+        # EnclosureID;PATROLStatus;StatusInformation;
+        source: "$monitors.fan.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="fan"}: "$column(3)"
+          hw.fan.speed: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = FRU information
+          # ID;Location;Status;CurrentPower;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.674.10895.3000.1.2.110.7.2.1"
+          selectColumns: "ID,2,3,5"
+          computes:
+            # Exclude fans whose status = notPresent(5)
+          - type: "excludeMatchingLines"
+            column: 3
+            valueList: "5"
+      mapping:
+        # InstanceTable = Source(1)
+        # ID;Location;Speed;Status;
+        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        attributes:
+          __display_id: "$column(2)"
+          id: "$column(1)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s, $column(2))"
+    collect:
+      type: "multiInstance"
+      sources:
+        source(1):
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.674.10895.3000.1.2.110.7.2.1"
+          selectColumns: "ID,3,5"
+          computes:
+            # Duplicate status, because we will translate it two times
+            # ID;Speed;Status;Status;
+          - type: "duplicateColumn"
+            column: 2
+            # Translate Status into PATROLStatus
+            # ID;Speed;PATROLStatus;Status;
+          - type: "translate"
+            column: 2
+            translationTable: "StatusTranslationTable"
+            # Translate second Status into more readable string
+            # ID;PATROLStatus;StatusInformation;
+          - type: "translate"
+            column: 3
+            translationTable: "StatusInformationTranslationTable"
+      mapping:
+        # Value Table
+        # EnclosureID;PATROLStatus;StatusInformation;
+        source: "$monitors.power_supply.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="power_supply"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"

@@ -1,0 +1,116 @@
+---
+embedded:
+  EmbeddedFile(1): "function printMSHW()\n  {\n   print(\"MSHW;\"pseudoName\";\"manufacturerID\";\"logicalDeviceID\";\"deviceWWN\";\"state\";\"policy\";\"alivePathCount\";\")\n\t pseudoName=\"\"\n\t manufacturerID=\"\"\n\t logicalDeviceID=\"\"\n\t pseudoName=\"\"\n\t deviceWWN=\"\"\n\t state=\"\"\n\t policy=\"\"\n\t alivePathCount=\"\"\n\t pathCountFlag=0\n  }\n\n$1~/Pseudo/ && $2~/name=/ {pseudoName = $2; gsub (/.*=/,\"\",pseudoName) }\n$2~/ID=/ {manufacturerID = $2 ; gsub (/.*=/,\"\",manufacturerID) ; manufacturerID = $1 \" \" manufacturerID}\n$1~/Logical/ && $2~/device/ && $3~/ID=/ {\n\t                                       logicalDeviceID=$0  ; gsub(/.?Logical device ID=/,\"\",logicalDeviceID);\n\t                                       gsub (/.*=/,\"\",logicalDeviceID)\n\t                                       if (pseudoName == \"\") {pseudoName = logicalDeviceID}\n\t                                      }\n$1~/Device/ && $2~/WWN=/ {deviceWWN = $2; gsub (/.*=/,\"\",deviceWWN); deviceWWN = \"naa.ID=\" deviceWWN}\n$1~/state=/ {state = $1 ; gsub (/state=/,\"\",state) ; gsub (/;/,\"\",state);}\n$2~/policy=/ {policy = $2 ; gsub (/policy=/,\"\",policy) ; gsub (/;/,\"\",policy);}\n\npathCountFlag==1 && logicalDeviceID !=\"\" {\n\t                if ($1 ~ /^[0-9]+$/) {\n\t                     if ($(NF-3)~/active/ && $(NF-2)~/alive/) {alivePathCount = alivePathCount + 1};\n\t                     if ($(NF-3)~/unlic/ && state~/alive/) {state=\"unlic\"} ;\n\t                    }\n\t                    else {printMSHW()}\n\t                }\n\n$0 ~ /### +HW +Path +I.O +Paths +Interf. +Mode +State/ {\n\t                                                     pathCountFlag=1;\n\t                                                     alivePathCount=0;\n\t                                                     getline\n\t                                                    }\n\nEND { if (logicalDeviceID !=\"\") {printMSHW()} }"
+translations:
+  LUNStatusTranslationTable:
+    default: "UNKNOWN"
+    alive: "ok"
+    unlic: "degraded"
+    dead: "failed"
+  LUNStatusInformationTranslationTable:
+    default: "UNKNOWN"
+    alive: ""
+    unlic: "One or more paths are unlicensed"
+    dead: "Dead"
+connector:
+  displayName: "EMC PowerPath (powermt)"
+  platforms: "Any system with EMC PowerPath"
+  reliesOn: "EMC powermt utility"
+  version: "1.0"
+  information: "This connector provides the monitoring of HBA cards on all Linux systems through the multipath utility."
+  detection:
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "NT"
+    - "Linux"
+    - "Solaris"
+    - "HP"
+    - "RS6000"
+    criteria:
+      # Test the multipath command
+    - type: "osCommand"
+      commandLine: "%{SUDO:powermt} powermt version"
+      expectedResult: "EMC powermt for PowerPath"
+      errorMessage: "EMC Powerpath not installed or not in path of Patrol User."
+      # Test the multipath command
+    - type: "osCommand"
+      commandLine: "%{SUDO:powermt} powermt check_registration"
+      expectedResult: "Key"
+      errorMessage: "No license key for EMC Powerpath."
+sudoCommands:
+- "powermt"
+monitors:
+  lun:
+    discovery:
+      sources:
+        source(1):
+          # Get the list of Ports from powermt display dev=all
+          type: "osCommand"
+          commandLine: "%{SUDO:powermt} powermt display dev=all"
+          computes:
+            # AWK it
+            # MSHW;pseudoName;manufacturerID;logicalDeviceID;deviceWWN;state;policy;alivePathCount;
+          - type: "awk"
+            script: "EmbeddedFile(1)"
+            keep: "^MSHW;"
+            separators: ";"
+            # Add some text to each additional information
+            # MSHW;pseudoName;manufacturerID;logicalDeviceID;deviceWWN;state;policy;alivePathCount;
+          - type: "leftConcat"
+            column: 5
+            value: "WWN: "
+          - type: "leftConcat"
+            column: 7
+            value: "Policy: "
+      mapping:
+        # InstanceTable = Source(1)
+        # MSHW;pseudoName;manufacturerID;logicalDeviceID;deviceWWN;state;policy;alivePathCount;
+        source: "$monitors.lun.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(4)"
+          __display_id: "$column(2)"
+          array_name: "$column(3)"
+          info: "join($column(5), $column(7), \" \")"
+          hw.parent.type: "enclosure"
+          name: "$column(3)"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Get the list of Ports from powermt display dev=all
+          type: "osCommand"
+          commandLine: "%{SUDO:powermt} powermt display dev=all"
+          computes:
+            # AWK it
+            # logicalDeviceID;state;alivePathCount;
+          - type: "awk"
+            script: "EmbeddedFile(1)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "4,6,8"
+            # Duplicate State
+            # logicalDeviceID;state;state;alivePathCount;
+          - type: "duplicateColumn"
+            column: 2
+            # The LUNStatusTranslationTable --> PatrolStatus
+            # logicalDeviceID;PatrolStatus;state;alivePathCount;
+          - type: "translate"
+            column: 2
+            translationTable: "LUNStatusTranslationTable"
+            # The LUNStatusTranslationTable --> PatrolStatus
+            # logicalDeviceID;PatrolStatus;StatusInformation;alivePathCount;
+          - type: "translate"
+            column: 3
+            translationTable: "LUNStatusInformationTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        # logicalDeviceID;PatrolStatus;StatusInformation;alivePathCount;
+        source: "$monitors.lun.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.lun.paths: "$column(4)"
+          hw.status{hw.type="lun"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"

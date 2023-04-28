@@ -1,0 +1,754 @@
+---
+embedded:
+  EmbeddedFile(1): "BEGIN { FS=\";\" }\n{\n\tcomputerID = $1\n\telementName = $2\n\tchassisID = $3\n\tvendor1 = $4\n\tmodel1 = $5\n\tserialNumber1 = $6\n\tvendor2 = $7\n\tmodel2 = $8\n\tserialNumber2 = $9\n\n\tif (vendor2 != \"\")\n\t{\n\t\tvendor = vendor2\n\t}\n\telse\n\t{\n\t\tvendor = vendor1\n\t}\n\n\tif (model2 != \"\")\n\t{\n\t\tmodel = model2\n\t}\n\telse\n\t{\n\t\tmodel = model1\n\t}\n\n\tif (length(serialNumber2) > 10)\n\t{\n\t\tserialNumber = serialNumber2\n\t}\n\telse\n\t{\n\t\tserialNumber = serialNumber1\n\t}\n\n\tif (model != \"\")\n\t{\n\t\tmodel = model \" - \" elementName\n\t}\n\telse\n\t{\n\t\tmodel =  elementName\n\t}\n\n\tprint \"MSHW;\" computerID \";\" chassisID \";\" vendor \";\" model \";\" serialNumber\n}"
+  EmbeddedFile(3): "BEGIN { alreadyFoundList = \";\"; }\n{\n\tif (index(alreadyFoundList, \";\" $0 \";\") == 0)\n\t{\n\t\tprint $0\n\t\talreadyFoundList = alreadyFoundList $0 \";\"\n\t}\n}"
+  EmbeddedFile(2): "BEGIN { FS=\";\" }\n{\n\tdeviceID = $1\n\tparentID = $2\n\tgrandParentID = $5\n\n\tif (grandParentID != \"\")\n\t{\n\t\tprint deviceID \";\" grandParentID\n\t}\n\telse\n\t{\n\t\tprint deviceID \";\" parentID\n\t}\n}"
+translations:
+  DMTFOperationStatusTranslationTable:
+    "11": "degraded"
+    "12": "failed"
+    "13": "failed"
+    "14": "failed"
+    "15": "ok"
+    "16": "degraded"
+    "17": "ok"
+    "18": "ok"
+    "2": "ok"
+    default: "UNKNOWN"
+    "3": "degraded"
+    "4": "degraded"
+    "5": "degraded"
+    "6": "failed"
+    "7": "failed"
+    "8": "degraded"
+    "9": "degraded"
+    "10": "failed"
+  PortTypeTranslationTable:
+    "11": "FC Port NL"
+    "12": "FC Port F/NL"
+    "13": "FC Port Nx"
+    default: "FC Port"
+    "14": "FC Port E"
+    "15": "FC Port F"
+    "16": "FC Port FL"
+    "17": "FC Port B"
+    "18": "FC Port G"
+    "19": "FC Port GL"
+    "10": "FC Port N"
+  DMTFOperationStatusInformationTranslationTable:
+    "11": "In Service"
+    "12": "No Contact"
+    "13": "Lost Communication"
+    "14": "Aborted"
+    "15": "Dormant"
+    "16": "Supporting Entity in Error"
+    "17": "Completed"
+    "18": "Power Mode"
+    "2": ""
+    default: ""
+    "3": "Degraded"
+    "4": "Stressed"
+    "5": "Predicted Failure"
+    "6": "Error"
+    "7": "Non-Recoverable Error"
+    "8": "Starting"
+    "9": "Stopping"
+    "10": "Stopped"
+  SpeedToLinkStatusTranslationTable:
+    "0": "degraded"
+    ? ""
+    : "degraded"
+    default: "ok"
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = CIM_Chassis
+          # ChassisID;Manufacturer;Model;SerialNumber;
+          type: "wbem"
+          query: "SELECT __PATH,Manufacturer,Model,SerialNumber FROM CIM_Chassis"
+          namespace: "Automatic"
+          computes:
+            # In the manufacturer name, keep only the first word (to avoid things like "Brocade Communications Systems, Inc."
+            # It'll be Cisco or Brocade anyway...
+            # ChassisID;Manufacturer;Model;SerialNumber;
+          - type: "extract"
+            column: 2
+            subColumn: 1
+            subSeparators: " "
+        source(2):
+          # Source(2) = CIM_ComputerSystemPackage (link between CIM_Chassis and CIM_ComputerSystem)
+          # ChassisID;ComputerID;
+          type: "wbem"
+          query: "SELECT Antecedent,Dependent FROM CIM_ComputerSystemPackage"
+          namespace: "Automatic"
+        source(3):
+          # Source(3) = CIM_ComputerSystem
+          # ComputerID;ElementName;Dedicated
+          type: "wbem"
+          query: "SELECT __PATH,ElementName,Dedicated FROM CIM_ComputerSystem"
+          namespace: "Automatic"
+          computes:
+            # Keep only storage systems
+            # ComputerID;ElementName;Dedicated;
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            regExp: "_COMPUTERSYSTEM_DEDICATED_REGEXP"
+        source(4):
+          # Source(4) = CIM_ProductPhysicalComponent
+          # PackageID;ProductID;
+          type: "wbem"
+          query: "SELECT PartComponent,GroupComponent FROM CIM_ProductPhysicalComponent"
+          namespace: "Automatic"
+        source(5):
+          # Source(5) = CIM_Product
+          # ProductID;Vendor;Model;SerialNumber;PartNumber;
+          type: "wbem"
+          query: "SELECT __PATH,Vendor,Name,IdentifyingNumber,SKUNumber FROM CIM_Product"
+          namespace: "Automatic"
+          computes:
+            # In the manufacturer name, keep only the first word (to avoid things like "Brocade Communications Systems, Inc."
+            # It'll be Cisco or Brocade anyway...
+            # ProductID;Vendor;Model;SerialNumber;PartNumber;
+          - type: "extract"
+            column: 2
+            subColumn: 1
+            subSeparators: " "
+            # Concat SerialNumber and PartNumber
+            # ProductID;Vendor;Model;SerialNumber - PartNumber;PartNumber;
+          - type: "rightConcat"
+            column: 4
+            value: " - SKU: "
+          - type: "rightConcat"
+            column: 4
+            value: "Column(5)"
+        source(6):
+          # Source(6) = Table joint between Source(3) and source(2)
+          # ComputerID;ElementName;Dedicated;ChassisID;ComputerID;
+          type: "tableJoin"
+          leftTable: "$monitors.enclosure.discovery.sources.source(3)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(2)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 2
+          keyType: "Wbem"
+        source(7):
+          # Source(7) = Table joint of Source(6) and Source(1)
+          # ComputerID;ElementName;Dedicated;ChassisID;ComputerID;ChassisID;Manufacturer;Model;SerialNumber;
+          type: "tableJoin"
+          leftTable: "$monitors.enclosure.discovery.sources.source(6)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(1)$"
+          leftKeyColumn: 4
+          rightKeyColumn: 1
+          keyType: "Wbem"
+        source(8):
+          # Source(8) = Table joint of Source(4) and Source(5)
+          # PackageID;ProductID;ProductID;Vendor;Model;SerialNumber - PartNumber;PartNumber;
+          type: "tableJoin"
+          leftTable: "$monitors.enclosure.discovery.sources.source(4)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(5)$"
+          leftKeyColumn: 2
+          rightKeyColumn: 1
+          keyType: "Wbem"
+        source(9):
+          # Source(9) = Table joint of Source(7) and Source(8)
+          # ComputerID;ElementName;Dedicated;ChassisID;ComputerID;ChassisID;Manufacturer;Model;SerialNumber;PackageID;ProductID;ProductID;Vendor;Model;SerialNumber - PartNumber;PartNumber;
+          type: "tableJoin"
+          leftTable: "$monitors.enclosure.discovery.sources.source(7)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(8)$"
+          leftKeyColumn: 4
+          rightKeyColumn: 1
+          keyType: "Wbem"
+          defaultRightLine: ";;;;;;;"
+          computes:
+            # Keep only useful columns
+            # ComputerID;ElementName;ChassisID;Vendor1;Model1;SerialNumber1;Vendor2;Model2;SerialNumber2;
+          - type: "keepColumns"
+            columnNumbers: "1,2,4,7,8,9,13,14,15"
+            # Reprocess Model1/Model2, Vendor1/Vendor2, etc. with an AWK script
+            # ComputerID;ChassisID;Vendor;Model;SerialNumber;
+          - type: "awk"
+            script: "EmbeddedFile(1)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3,4,5,6"
+        source(10):
+          # Source(10) = CIM_SystemComponent
+          # Make the link between "logical" devices and CIM_ComputerSystem
+          # LogicalDeviceID;ParentID;
+          type: "wbem"
+          query: "SELECT PartComponent,GroupComponent FROM CIM_SystemComponent"
+          namespace: "Automatic"
+        source(11):
+          # Source(11) = Copy of Source(10)
+          # LogicalDeviceID;ParentID;
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(10)$"
+          computes:
+            # Keep only the parentID
+            # ParentID;
+          - type: "keepColumns"
+            columnNumbers: "2"
+            # Logically, there are many duplicates in this list
+            # We're going to remove all duplicates for performance purpose
+            # But we need an AWK script for that
+            # ParentID
+          - type: "awk"
+            script: "EmbeddedFile(3)"
+            separators: ";"
+            selectColumns: "1"
+        source(12):
+          # Source(12) = Source(11) with Source(10) so that we will get parent's parent
+          # ParentID;ParentID;GrandParentID;
+          type: "tableJoin"
+          leftTable: "$monitors.enclosure.discovery.sources.source(11)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(10)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          keyType: "Wbem"
+          defaultRightLine: ";;"
+        source(13):
+          # Source(13) = Table joint of Source(10) and Source(12)
+          # LogicalDeviceID;ParentID;ParentID;ParentID;GrandParentID;
+          type: "tableJoin"
+          leftTable: "$monitors.enclosure.discovery.sources.source(10)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(12)$"
+          leftKeyColumn: 2
+          rightKeyColumn: 1
+          keyType: "Wbem"
+          defaultRightLine: ";;;"
+          computes:
+            # Now, parse this table through an AWK script in order to keep
+            # only the LogicalDeviceID and the real top-level ComputerSystemID
+            # LogicalDeviceID;ComputerSystemID;
+          - type: "awk"
+            script: "EmbeddedFile(2)"
+            separators: ";"
+            selectColumns: "1,2"
+        source(14):
+          # Source(14) = Table Joint of Source(13) and Source(9)
+          # This is to make sure 2 things:
+          # - we only keep links to enclosures that have been created
+          # - we got the ID of these enclosures right (because WBEM IDs can be messed up, but that's okay)
+          # LogicalDeviceID;ComputerSystemID;ComputerID;ChassisID;Vendor;Model;SerialNumber;
+          type: "tableJoin"
+          leftTable: "$monitors.enclosure.discovery.sources.source(13)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(9)$"
+          leftKeyColumn: 2
+          rightKeyColumn: 1
+          keyType: "Wbem"
+          computes:
+            # And now, keep only LogicalDeviceID and the ComputerID that we got from Source(9)
+            # LogicalDeviceID;ComputerID;
+          - type: "keepColumns"
+            columnNumbers: "1,3"
+        source(15):
+          # Source(15) = CIM_Realizes
+          # PackageID;LogicalDeviceID;
+          type: "wbem"
+          query: "SELECT Antecedent,Dependent FROM CIM_Realizes"
+          namespace: "Automatic"
+        source(16):
+          # Source(16) = CIM_PhysicalPackage
+          # PackageID;Manufacturer;Model;SerialNumber;
+          type: "wbem"
+          query: "SELECT __PATH,Manufacturer,Model,SerialNumber FROM CIM_PhysicalPackage"
+          namespace: "Automatic"
+        source(17):
+          # Source(17) = Table joint of Source(15) and Source(16)
+          # PackageID;LogicalDeviceID;PackageID;Manufacturer;Model;SerialNumber;
+          type: "tableJoin"
+          leftTable: "$monitors.enclosure.discovery.sources.source(15)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(16)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          keyType: "Wbem"
+        source(18):
+          # Source(18) = Table joint of Source(14) and Source(17)
+          # LogicalDeviceID;ComputerSystemID;PackageID;LogicalDeviceID;PackageID;Manufacturer;Model;SerialNumber;
+          type: "tableJoin"
+          leftTable: "$monitors.enclosure.discovery.sources.source(14)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(17)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 2
+          keyType: "Wbem"
+          defaultRightLine: ";;;;;;"
+          computes:
+            # Keep only useful columns
+            # LogicalDeviceID;ComputerSystemID;Manufacturer;Model;SerialNumber;
+          - type: "keepColumns"
+            columnNumbers: "1,2,6,7,8"
+      mapping:
+        # InstanceTable = Source(9)
+        source: "$monitors.enclosure.discovery.sources.source(9)$"
+        attributes:
+          id: "$column(1)"
+          vendor: "$column(3)"
+          model: "$column(4)"
+          serial_number: "$column(5)"
+          type: "Storage"
+          name: "sprintf(\"%s (%s %s - %s)\", $column(1), $column(3), $column(4), \"Storage\")"
+    collect:
+      # Collect type is multiinstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = CIM_ComputerSystem (what else? we're looking for logical devices that have
+          # a status, and that corresponds to a CIM_Chassis instance)
+          # ComputerID;OperationalStatus;
+          type: "wbem"
+          query: "SELECT __PATH,OperationalStatus FROM CIM_ComputerSystem"
+          namespace: "Automatic"
+          computes:
+            # Duplicate the "OperationalStatusArray" column
+            # ComputerID;OperationalStatusArray;OperationalStatusArray;
+          - type: "duplicateColumn"
+            column: 2
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # ComputerID;PATROLStatusArray;Status
+          - type: "arrayTranslate"
+            column: 2
+            translationTable: "DMTFOperationStatusTranslationTable"
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # ComputerID;PATROLStatusArray;StatusInformation
+          - type: "arrayTranslate"
+            column: 3
+            translationTable: "DMTFOperationStatusInformationTranslationTable"
+            resultSeparator: " - "
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # ComputerID;PATROLStatus;StatusInformation
+          - type: "convert"
+            column: 2
+            conversion: "array2SimpleStatus"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.enclosure.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="enclosure"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  network:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = CIM_FCPort
+          # PortID;PortTypeCode;Speed;PermanentAddress;EnabledState;ElementName;
+          type: "wbem"
+          query: "SELECT __PATH,PortType,Speed,PermanentAddress,EnabledState,ElementName FROM CIM_FCPort"
+          namespace: "Automatic"
+          computes:
+            # Keep only "internal" ports (no ports that actually are remote ports of servers or disk arrays)
+            # PortID;PortTypeCode;Speed;PermanentAddress;EnabledState;ElementName;
+          - type: "keepOnlyMatchingLines"
+            column: 2
+            valueList: "_FCPORT_TYPE_VALUELIST"
+            # Keep only activated ports
+            # PortID;PortTypeCode;Speed;PermanentAddress;EnabledState;ElementName;
+          - type: "excludeMatchingLines"
+            column: 5
+            valueList: "3"
+            # Translate PortType into a more readable string
+            # PortID;PortType;Speed;PermanentAddress;EnabledState;ElementName;
+          - type: "translate"
+            column: 2
+            translationTable: "PortTypeTranslationTable"
+            # Convert Speed from bps to Mbps (divide by 1000000)
+            # PortID;PortType;SpeedMbps;PermanentAddress;EnabledState;ElementName;
+          - type: "divide"
+            column: 3
+            value: "1000000"
+        source(2):
+          # Source(2) = Table joint of Source(1) and Enclosure.Discovery.Source(18)
+          # so we know in which chassis each FC port is located
+          # PortID;PortType;Speed;PermanentAddress;EnabledState;ElementName;LogicalDeviceID;ComputerSystemID;Manufacturer;Model;SerialNumber;
+          type: "tableJoin"
+          leftTable: "$monitors.network.discovery.sources.source(1)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(18)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ";;;;"
+          keyType: "Wbem"
+          computes:
+            # Add 'Element ID: ' Label to ElementName
+          - type: "leftConcat"
+            column: 6
+            value: "Element ID: "
+      mapping:
+        # InstanceTable = Source(4)
+        # PortID;PortType;Speed;PermanentAddress;EnabledState;ElementName;LogicalDeviceID;ComputerSystemID;Manufacturer;Model;SerialNumber;
+        source: "$monitors.network.discovery.sources.source(2)$"
+        attributes:
+          id: "$column(1)"
+          physical_address: "$column(4)"
+          physical_address_type: "WWN"
+          device_type: "$column(2)"
+          model: "$column(10)"
+          serial_number: "$column(11)"
+          info: "$column(6)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(8)"
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(2), $column(10))"
+    collect:
+      # The NetworkCard collect is a \"MultiInstance\" collect
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = CIM_FCPort
+          # PortID;PortTypeCode;EnabledState;Speed;OperationalStatusArray
+          type: "wbem"
+          query: "SELECT __PATH,PortType,EnabledState,Speed,OperationalStatus FROM CIM_FCPort"
+          namespace: "Automatic"
+          computes:
+            # Keep only "internal" ports (no ports that actually are remote ports of servers or disk arrays)
+            # PortID;PortTypeCode;EnabledState;Speed;OperationalStatusArray
+          - type: "keepOnlyMatchingLines"
+            column: 2
+            valueList: "_FCPORT_TYPE_VALUELIST"
+            # Keep only activated ports
+            # PortID;PortTypeCode;EnabledState;Speed;OperationalStatusArray
+          - type: "excludeMatchingLines"
+            column: 3
+            valueList: "3"
+            # Duplicate the "OperationalStatusArray" column
+            # PortID;PortTypeCode;EnabledState;Speed;OperationalStatusArray;OperationalStatusArray;
+          - type: "duplicateColumn"
+            column: 5
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # PortID;PortTypeCode;EnabledState;Speed;PATROLStatusArray;Status
+          - type: "arrayTranslate"
+            column: 5
+            translationTable: "DMTFOperationStatusTranslationTable"
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # PortID;PortTypeCode;EnabledState;Speed;PATROLStatusArray;StatusInformation
+          - type: "arrayTranslate"
+            column: 6
+            translationTable: "DMTFOperationStatusInformationTranslationTable"
+            resultSeparator: " - "
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # PortID;PortTypeCode;EnabledState;Speed;PATROLStatus;StatusInformation
+          - type: "convert"
+            column: 5
+            conversion: "array2SimpleStatus"
+            # Finally, we check whether we have a 'Speed' number, meaning that the link is up
+            # Otherwise, if no speed, it means that the link is down
+            # PortID;PortTypeCode;EnabledState;LinkStatus;PATROLStatusArray;Status
+          - type: "translate"
+            column: 4
+            translationTable: "SpeedToLinkStatusTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.network.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="network"}: "$column(5)"
+          hw.network.up: "legacyLinkStatus($column(4))"
+        legacyTextParameters:
+          StatusInformation: "$column(6)"
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = CIM_NumericSensor
+          # TemperatureID;SensorType;WarningThreshold;AlarmThreshold
+          type: "wbem"
+          namespace: "Automatic"
+          query: "SELECT __PATH,SensorType,UpperThresholdNonCritical,UpperThresholdCritical FROM CIM_NumericSensor"
+          computes:
+            # Keep only temperature sensors
+            # TemperatureID;SensorType;WarningThreshold;AlarmThreshold
+          - type: "keepOnlyMatchingLines"
+            column: 2
+            valueList: "2"
+        source(2):
+          # Source(2) = Table joint between Source(1) and Enclosure.Discovery.Source(18)
+          # TemperatureID;SensorType;WarningThreshold;AlarmThreshold;LogicalDeviceID;ComputerSystemID;Manufacturer;Model;SerialNumber;
+          type: "tableJoin"
+          leftTable: "$monitors.temperature.discovery.sources.source(1)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(18)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          keyType: "Wbem"
+          defaultRightLine: ";;;;"
+      mapping:
+        # InstanceTable = Source(2)
+        source: "$monitors.temperature.discovery.sources.source(2)$"
+        attributes:
+          id: "$column(1)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(6)"
+          name: "$column(1)"
+        metrics:
+          hw.temperature.limit{limit_type="high.degraded"}: "$column(3)"
+          hw.temperature.limit{limit_type="high.critical"}: "$column(4)"
+    collect:
+      # The Temperature collect is a \"MultiInstance\" collect
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = CIM_NumericSensor
+          # TemperatureID;SensorType;CurrentReading;OperationalStatus
+          type: "wbem"
+          namespace: "Automatic"
+          query: "SELECT __PATH,SensorType,CurrentReading,OperationalStatus FROM CIM_NumericSensor"
+          computes:
+            # Keep only temperature sensors
+            # TemperatureID;SensorType;CurrentReading;OperationalStatusArray
+          - type: "keepOnlyMatchingLines"
+            column: 2
+            valueList: "2"
+            # Duplicate the "OperationalStatusArray" column
+            # TemperatureID;SensorType;CurrentReading;OperationalStatusArray;OperationalStatusArray;
+          - type: "duplicateColumn"
+            column: 4
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # TemperatureID;DeviceID;SensorType;CurrentReading;PATROLStatusArray;Status
+          - type: "arrayTranslate"
+            column: 4
+            translationTable: "DMTFOperationStatusTranslationTable"
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # TemperatureID;DeviceID;SensorType;CurrentReading;PATROLStatusArray;StatusInformation
+          - type: "arrayTranslate"
+            column: 5
+            translationTable: "DMTFOperationStatusInformationTranslationTable"
+            resultSeparator: " - "
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # TemperatureID;DeviceID;SensorType;CurrentReading;PATROLStatus;StatusInformation
+          - type: "convert"
+            column: 4
+            conversion: "array2SimpleStatus"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.temperature.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.temperature: "$column(3)"
+          hw.status{hw.type="temperature"}: "$column(4)"
+        legacyTextParameters:
+          StatusInformation: "$column(5)"
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = CIM_Fan
+          # FanID;
+          type: "wbem"
+          namespace: "Automatic"
+          query: "SELECT __PATH FROM CIM_Fan"
+        source(2):
+          # Source(2) = Table joint between Source(1) and Enclosure.Discovery.Source(18)
+          # FanID;LogicalDeviceID;ChassisID;
+          type: "tableJoin"
+          leftTable: "$monitors.fan.discovery.sources.source(1)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(18)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ";;;;"
+          keyType: "Wbem"
+      mapping:
+        # InstanceTable = Source(2)
+        source: "$monitors.fan.discovery.sources.source(2)$"
+        attributes:
+          id: "$column(1)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(3)"
+          name: "$column(1)"
+    collect:
+      # The Fan collect is a \"MultiInstance\" collect
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = CIM_Fan
+          # FanID;OperationalStatus;
+          type: "wbem"
+          namespace: "Automatic"
+          query: "SELECT __PATH,OperationalStatus FROM CIM_Fan"
+          computes:
+            # Duplicate the "OperationalStatusArray" column
+            # FanID;OperationalStatusArray;OperationalStatusArray;
+          - type: "duplicateColumn"
+            column: 2
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # FanID;PATROLStatusArray;Status
+          - type: "arrayTranslate"
+            column: 2
+            translationTable: "DMTFOperationStatusTranslationTable"
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # FanID;PATROLStatusArray;StatusInformation
+          - type: "arrayTranslate"
+            column: 3
+            translationTable: "DMTFOperationStatusInformationTranslationTable"
+            resultSeparator: " - "
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # FanID;PATROLStatus;StatusInformation
+          - type: "convert"
+            column: 2
+            conversion: "array2SimpleStatus"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.fan.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="fan"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = CIM_PowerSupply
+          # PowerSupplyID;
+          type: "wbem"
+          namespace: "Automatic"
+          query: "SELECT __PATH FROM CIM_PowerSupply"
+        source(2):
+          # Source(2) = Table joint between Source(1) and Enclosure.Discovery.Source(18)
+          # PowerSupplyID;LogicalDeviceID;ComputerSystemID;Manufacturer;Model;SerialNumber;
+          type: "tableJoin"
+          leftTable: "$monitors.power_supply.discovery.sources.source(1)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(18)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ";;;;"
+          keyType: "Wbem"
+      mapping:
+        # InstanceTable = Source(2)
+        source: "$monitors.power_supply.discovery.sources.source(2)$"
+        attributes:
+          id: "$column(1)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(3)"
+          name: "sprintf(\"%s, $column(1))"
+    collect:
+      # The PowerSupply collect is a \"MultiInstance\" collect
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = CIM_PowerSupply
+          # PowerSupplyID;OperationalStatus;
+          type: "wbem"
+          namespace: "Automatic"
+          query: "SELECT __PATH,OperationalStatus FROM CIM_PowerSupply"
+          computes:
+            # Duplicate the "OperationalStatusArray" column
+            # PowerSupplyID;OperationalStatusArray;OperationalStatusArray;
+          - type: "duplicateColumn"
+            column: 2
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # PowerSupplyID;PATROLStatusArray;Status
+          - type: "arrayTranslate"
+            column: 2
+            translationTable: "DMTFOperationStatusTranslationTable"
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # PowerSupplyID;PATROLStatusArray;StatusInformation
+          - type: "arrayTranslate"
+            column: 3
+            translationTable: "DMTFOperationStatusInformationTranslationTable"
+            resultSeparator: " - "
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # PowerSupplyID;PATROLStatus;StatusInformation
+          - type: "convert"
+            column: 2
+            conversion: "array2SimpleStatus"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.power_supply.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="power_supply"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = CIM_ComputerSystem
+          # ComputerID;ClassName;ElementName;
+          type: "wbem"
+          query: "SELECT __PATH,CreationClassName,ElementName FROM CIM_ComputerSystem"
+          namespace: "Automatic"
+          computes:
+            # In the CreationClassName, keep only what's after the '_'
+            # (in HPEVA_StorageProcessorSystem, keep only StorageProcessorSystem)
+            # ComputerID;ElementType;ElementName;
+          - type: "extract"
+            column: 2
+            subSeparators: "_"
+            subColumn: 2
+        source(2):
+          # Source(2) = Table joint of Source(1) and Enclosure.Discovery.Source(18)
+          # ComputerID;ElementType;ElementName;LogicalDeviceID;ComputerSystemID;Manufacturer;Model;SerialNumber;
+          type: "tableJoin"
+          leftTable: "$monitors.other_device.discovery.sources.source(1)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(18)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          keyType: "Wbem"
+          computes:
+            # Insert ChassisID between ElementType and ElementName
+            # ComputerID;ElementType;;ElementName;LogicalDeviceID;ComputerSystemID;Manufacturer;Model;SerialNumber;
+          - type: "rightConcat"
+            column: 2
+            value: ";"
+            # ComputerID;ElementType;ChassisID;ElementName;LogicalDeviceID;ComputerSystemID;Manufacturer;Model;SerialNumber;
+          - type: "rightConcat"
+            column: 3
+            value: "Column(6)"
+            # Keep only useful columns for this special type of devices
+            # ComputerID;ElementType;ChassisID;ElementName;SerialNumber;
+          - type: "keepColumns"
+            columnNumbers: "1,2,3,4,9"
+            # Add \"Serial Number: \" for AdditionalInformation1
+          - type: "leftConcat"
+            column: 5
+            value: "Serial Number: "
+      mapping:
+        # InstanceTable = Source(2)
+        source: "$monitors.other_device.discovery.sources.source(2)$"
+        attributes:
+          id: "$column(1)"
+          device_type: "$column(2)"
+          additional_label: "$column(4)"
+          info: "$column(5)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(3)"
+          name: "sprintf(\"%s: %s (%s)\", $column(2), $column(1), $column(4))"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = CIM_ComputerSystem
+          # ComputerID;OperationalStatus;
+          type: "wbem"
+          query: "SELECT __PATH,OperationalStatus FROM CIM_ComputerSystem"
+          namespace: "Automatic"
+          computes:
+            # Duplicate the "OperationalStatusArray" column
+            # ComputerID;OperationalStatusArray;OperationalStatusArray;
+          - type: "duplicateColumn"
+            column: 2
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # ComputerID;PATROLStatusArray;Status
+          - type: "arrayTranslate"
+            column: 2
+            translationTable: "DMTFOperationStatusTranslationTable"
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # ComputerID;PATROLStatusArray;StatusInformation
+          - type: "arrayTranslate"
+            column: 3
+            translationTable: "DMTFOperationStatusInformationTranslationTable"
+            resultSeparator: " - "
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # ComputerID;PATROLStatus;StatusInformation
+          - type: "convert"
+            column: 2
+            conversion: "array2SimpleStatus"
+      mapping:
+        # Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
+        source: "$monitors.other_device.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="other_device"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"

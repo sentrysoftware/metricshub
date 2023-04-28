@@ -1,0 +1,358 @@
+---
+embedded:
+  EmbeddedFile(1): "BEGIN {\n\thardwarePath = \"\";\n\tproductName = \"\";\n}\n/^Product +:/ {\n\tcolonIndex = index($0, \":\");\n\tif (colonIndex > 10)\n\t{\n\t\tproductName = substr($0, colonIndex + 2)\n\t}\n}\n/^Hardware [pP]ath +:/ {\n\thardwarePath = $4\n\tif (productName != \"\")\n\t{\n\t\tprint \"MSHW;\" hardwarePath \";\" productName;\n\t\tproductName = \"\";\n\t}\n}"
+  EmbeddedFile(3): "BEGIN {\n\treadErrors = 0;\n\twriteErrors = 0;\n\treadReverseErrors = 0;\n\tverifyErrors = 0;\n\tstatus = \"\";\n}\n/^ *Read Errors: +[0-9]+/ {\n\treadErrors = $3;\n}\n/^ *Read Reverse Errors: +[0-9]+/ {\n\treadReverseErrors = $4;\n}\n/^ *Write Errors: +[0-9]+/ {\n\twriteErrors = $3;\n}\n/^ *Verify Errors: +[0-9]+/ {\n\tverifyErrors = $3;\n}\n/^Current [Ss]tatus +:/ {\n\tstatus = $4;\n\n\ttotalErrors = readErrors + readReverseErrors + writeErrors + verifyErrors;\n\tprint \"MSHW;\" totalErrors \";\" status \";\";\n}"
+  EmbeddedFile(2): "BEGIN {\n\thardwarePath = \"\";\n\tproductID = \"\";\n\tvendor = \"\";\n\tserialNumber = \"\";\n\tsize = \"\";\n\tcontrollerPath = \"\";\n}\n/^Hardware [Pp]ath:/ {\n\thardwarePath = $3;\n}\n/^Product Id:/ {\n\tproductID = $3;\n\tvendor = $5;\n}\n/^Serial [Nn]umber:/ {\n\tserialNumber = $3;\n}\n/^Capacity \\(M Byte\\): +[0-9\\.]+/ {\n\tsize = $4;\n}\n/^ *Verify Errors: +[0-9]+/ {\n\n\tif (hardwarePath != \"\" && productID != \"\" && size > 0)\n\t{\n\t\tn = split(hardwarePath, controllerPathArray, \"[\\.]\");\n\t\tcontrollerPath = controllerPathArray[1];\n\t\tfor (i=2 ; i<=n ; i++)\n\t\t{\n\t\t\tprint \"MSHW;\" hardwarePath \";\" controllerPath \";\" vendor \" \" productID \";\" size \";\" serialNumber \";\";\n\t\t\tcontrollerPath = controllerPath \".\" controllerPathArray[i];\n\t\t}\n\t\thardwarePath = \"\";\n\t\tproductID = \"\";\n\t\tvendor = \"\";\n\t\tserialNumber = \"\";\n\t\tsize = \"\";\n\t\tcontrollerPath = \"\";\n\t}\n}"
+  EmbeddedFile(5): "BEGIN {\n\tpdtUsed = \"\";\n\tpdtTotal = \"\";\n}\n/^ *Memory Error Log Summary *$/,/^ *Page Deallocation Table \\(PDT\\) *$/ {\n\tif ($NF ~ /^[0-9]+$/)\n\t{\n\t\tif ($2 ~ /^0x[0-9a-fA-F]+$/)\n\t\t{\n\t\t\tprint \"MSHW;\" $1 \";OK;\" $3 \" Errors Occured;\" $NF\n\t\t}\n\t\telse if ($3 ~ /^0x[0-9a-fA-F]+$/)\n\t\t{\n\t\t\tprint \"MSHW;\" $1 \" \" $2 \";OK;\" $4 \" Errors Occured;\" $NF\n\t\t}\n\t}\n}\n/^ *PDT Entries Used: +[0-9]+ *$/ {\n\tpdtUsed = $NF;\n}\n/^ *PDT Total Size: +[0-9]+ *$/ {\n\tpdtTotal = $NF;\n}\nEND {\n\tif (pdtUsed != \"\" && pdtTotal != \"\")\n\t{\n\t\tpdtPercentUsed = pdtUsed / pdtTotal * 100;\n\t\tif (pdtPercentUsed > 70)\n\t\t{\n\t\t\tpdtStatus = \"ALARM\";\n\t\t}\n\t\telse if (pdtPercentUsed > 50)\n\t\t{\n\t\t\tpdtStatus = \"WARN\";\n\t\t}\n\t\telse\n\t\t{\n\t\t\tpdtStatus = \"OK\";\n\t\t}\n\t\tprintf(\"MSHW;PDT;%s;%d%% Used;%d\\n\", pdtStatus, pdtPercentUsed, pdtUsed);\n\t}\n}"
+  EmbeddedFile(4): "BEGIN {\n\tprefixLetter = \"\";\n\tcabCell = \"\";\n\tmatrixFormat = 0;\n}\n/^ *Memory [Bb]oard [Ii]nventory *$/,/^ *Memory [Ee]rror [Ll]og [Ss]ummary *$/ {\n\tif ($0 ~ /Total/)\n\t{\n\t\tnext;\n\t}\n\n\tif ($0 ~ \"^ *CAB/CELL:\")\n\t{\n\t\tcabCell = $2;\n\t\tmatrixFormat = 1;\n\t\tsplit(\"A B C D E F G H\", slotLabel);\n\t}\n\n\tif ($0 ~ /Note: The first letter in all DIMM slots start with a/)\n\t{\n\t\tsplit($0, prefixArray, \"\\\"\");\n\t\tprefixLetter = prefixArray[2];\n\t}\n\n\tif ($0 ~ /Configured and Slot label for each DIMM/)\n\t{\n\t\tgetline\n\t\tgetline\n\t\tsplit($0, slotLabel);\n\t\tmatrixFormat = 1;\n\t}\n\n\tif (matrixFormat)\n\t{\n\t\tif ($0 ~ /^ *[0-9A-Za-z]+ +[0-9]+ +[0-9]+/)\n\t\t{\n\t\t\tif (tolower($1) == \"ext\")\n\t\t\t{\n\t\t\t\tbank = $1 \" \" $2 \" DIMM \";\n\t\t\t\tstartAt = 3;\n\t\t\t}\n\t\t\telse\n\t\t\t{\n\t\t\t\tbank = $1;\n\t\t\t\tstartAt = 2;\n\t\t\t}\n\n\t\t\tif (cabCell != \"\")\n\t\t\t{\n\t\t\t\tbank = cabCell \" \" bank;\n\t\t\t}\n\n\t\t\tif (prefixLetter != \"\")\n\t\t\t{\n\t\t\t\tbank = bank \"/\" prefixLetter;\n\t\t\t}\n\n\t\t\tfor (i=startAt ; i<=NF ; i++)\n\t\t\t{\n\t\t\t\tif ($i == 64 || $i == 128 || $i == 256 || $i == 512 || $i == 1024 || $i == 2048 || $i == 4096)\n\t\t\t\t{\n\t\t\t\t\tprint \"MSHW;\" bank slotLabel[(i - startAt + 1)] \";\" $i \";\"\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n\telse\n\t{\n\t\tlastMBColumn = 0;\n\t\tfor (i=2 ; i<=NF ; i++)\n\t\t{\n\t\t\tif ($i == 64 || $i == 128 || $i == 256 || $i == 512 || $i == 1024 || $i == 2048 || $i == 4096)\n\t\t\t{\n\t\t\t\tresult = \"MSHW;\"\n\t\t\t\tfor (j=lastMBColumn + 1 ; j<i-1 ; j++)\n\t\t\t\t{\n\t\t\t\t\tresult = result $j \" \"\n\t\t\t\t}\n\t\t\t\tresult = result $(i-1) \";\" $i \";\"\n\t\t\t\tprint result\n\t\t\t\tlastMBColumn = i;\n\t\t\t}\n\t\t}\n\t}\n\n}\nEND {\n\tprint \"MSHW;PDT;;Page Deallocation Table\"\n}"
+  EmbeddedFile(6): "BEGIN {Cabinet=\"\";IDIndex=\"\";Present=0;Failure=0;State=0;fans=\"\";powerSupplies=\"\"}\n/Cabinet [0-9]+ Hardware Inventory/,/=-+-=-+-=-+-=-+-=-+/ {\n\n# Processes the \"Overall Table\"\nif ($1 ~ /Cabinet/ && $2 ~ /[0-9]+/ && $3 ~ /Hardware/) {Cabinet = $2}\nif ($1 ~ /Component/ && $(NF-2) ~ /Present/ && $(NF-1) ~ /Failure/ && $NF ~ /State/) {IDIndex = match($0,$2)\n\t                                                                                   }\nif (IDIndex != \"\" && NF > 2 && $(NF-1) ~ /^[0-9]+$/) {\n\t                  DeviceID = substr($0,1,IDIndex) ; gsub (/^ +/,\"\",DeviceID);gsub (/ +$/,\"\",DeviceID);\n                    if (DeviceID ~ /[Ff]an/) {type = \"FAN-Global\" ; if ($NF !~ /[Uu]nknown/) {fans = \"Monitored\" }}\n                     \telse if (DeviceID ~ /[Pp]ower/) {type = \"PSU-Global\"; if ($NF !~ /[Uu]nknown/) {powerSupplies = \"Monitored\"}}\n                     \t\telse {type = \"OTHER\"}\n                    if ($Failure > 0) {status = \"ALARM\"; statusInformation = $Failure \" Failed\"}\n                    \telse {status = \"OK\" ; statusInformation = \"\"}\n                    print (\"MSHW;\" type \";CAB-\" Cabinet \" \" DeviceID \";\" status \";\" statusInformation \";\")\n                   }\n\nif (NF < 2) {IDIndex=\"\";Present=0;Failure=0;State=0;}\n\n# Processes the \"Individual Components\" - only if the Fans / Power Supplies are being monitored in the table above (not \"unknown\")  Flag fans & powerSupplies are used.\n\nif ($0 ~ /\\|[0-9]\\|[0-9]/) {\n                          ArrayLength=split($0,OutputArray,/\\|/);\n                          getline;\n                          split($0,LineArray,/\\|/);\n                          for (i=2;i<=ArrayLength-1;i++) {OutputArray[i]=OutputArray[i] LineArray[i];}\n                          getline;\n                          getline;\n                          while ($0 !~ /------------/) {\n                                                        split($0,LineArray,/\\|/);\n                                                        gsub(/ /,\"\",LineArray[1]);\n                                                        for (i=2;i<=ArrayLength-1;i++) {\n                                                        \t                              gsub(/ /,\"\",LineArray[i]);\n                                                        \t                              if (LineArray[1] ~ /^cf/ && fans != \"\") {type = \"FAN\"}\n                                                        \t                              \telse if (LineArray[1] ~ /^cp/ && powerSupplies != \"\") {type = \"PSU\"}\n                                                        \t                              \t\telse {type = \"\"}\n                                                        \t                              if ( LineArray[i] == \"p\" ) {status=\"OK\";statusInformation=\"\"}\n                                                        \t                              \telse if ( LineArray[i] == \"F\" ) {status=\"ALARM\";statusInformation=\"Failed\"}\n                                                        \t                              \t\telse {status=\"\";statusInformation=\"\"}\n                                                        \t                              if (type != \"\" && status != \"\") {print (\"MSHW;\"type\";CAB-\" Cabinet \" \" LineArray[1]\"-\" OutputArray[i] \";\" status \";\" statusInformation\";\");}\n                                                        \t                              }\n                                                        getline;\n                                                       }\n                          }\n                       }"
+translations:
+  PhysicalDiskStatusInformationTranslationTable:
+    incomplete: "Testing Incomplete"
+    default: "Unknown Status"
+    aborted: "Testing Aborted"
+    failure: "Testing Failed"
+    success: ""
+    testing: "Testing in Progress"
+    hung: "Testing Hung"
+    warning: "Testing Warning"
+    query pending: "User Input Expected"
+    suspended: "Testing Suspended"
+  PhysicalDiskStatusTranslationTable:
+    incomplete: "failed"
+    default: "UNKNOWN"
+    failure: "failed"
+    success: "ok"
+    hung: "degraded"
+    warning: "degraded"
+connector:
+  displayName: "HP-UX (STM)"
+  platforms: "HP 9000,HP Integrity,HP SuperDome"
+  reliesOn: "HP-UX Support Tools Manager (STM)"
+  information: "Provides physical disks and memory monitoring on HP-UX systems through the Support Tools Manager utilities (stm)."
+  version: "1.1"
+  detection:
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "HP"
+    criteria:
+      # OS should be HP (for HP-UX, whatever version)
+    - type: "deviceType"
+      keep:
+      - "HP"
+      # The stm executable needs to be present
+    - type: "osCommand"
+      commandLine: "/bin/ls /usr/bin/stm"
+      expectedResult: "^/usr/bin/stm$"
+      # stm must return something
+    - type: "osCommand"
+      commandLine: "/bin/echo \"map\"|/usr/bin/stm -c"
+      expectedResult: "Active Tool"
+monitors:
+  disk_controller:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = output of echo \"\"selclass type interface;cds\"\"|stm -c
+          type: "osCommand"
+          commandLine: "/bin/echo \"selclass type interface;cds\"|/usr/bin/stm -c"
+          timeout: 60
+          forceSerialization: true
+          computes:
+            # Process output of cstom through awk EmbeddedFile(1)
+            # This contains the list of all interfaces in the system, which happen
+            # to include disk controllers
+            # DeviceID;Model
+          - type: "awk"
+            script: "EmbeddedFile(1)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3"
+        source(2):
+          # Source(2) = output of echo \"\"selclass type Disk;wait;information;wait;infolog\"\"|stm -c
+          type: "osCommand"
+          commandLine: "/bin/echo \"selclass type Disk;wait;information;wait;infolog\"|/usr/bin/stm -c"
+          timeout: 60
+          forceSerialization: true
+          computes:
+            # Process the output of cstm throughawk EmbeddedFile(2)
+            # DeviceID;ControllerID;Vendor Model;sizeMB;SerialNumber
+          - type: "awk"
+            script: "EmbeddedFile(2)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3,4,5,6"
+        source(3):
+          # Source(3) = table joint of Source(1) and Source(2)
+          # This is to keep only interfaces that are disk controllers in fact,
+          # and among those disk controllers, the ones that actually have disks
+          # ControllerDeviceID;Model;DiskDeviceID;ControllerID;Vendor Model;sizeMB;SerialNumber
+          type: "tableJoin"
+          leftTable: "$monitors.disk_controller.discovery.sources.source(1)$"
+          rightTable: "$monitors.disk_controller.discovery.sources.source(2)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 2
+      mapping:
+        # InstanceTable = Source(3)
+        source: "$monitors.disk_controller.discovery.sources.source(3)$"
+        attributes:
+          id: "$column(1)"
+          controller_number: "$column(1)"
+          model: "$column(2)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(1), $column(2))"
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = table joint of DiskController.Discovery.Source(2) and DiskController.Discovery.Source(3)
+          # in order to keep only disks that are attached to an existing disk controller
+          # DeviceID;ControllerID;Vendor Model;sizeMB;SerialNumber;ControllerDeviceID;Model;DiskDeviceID;ControllerID;Vendor Model;sizeMB;SerialNumber
+          type: "tableJoin"
+          leftTable: "$monitors.disk_controller.discovery.sources.source(2)$"
+          rightTable: "$monitors.disk_controller.discovery.sources.source(3)$"
+          leftKeyColumn: 2
+          rightKeyColumn: 1
+          computes:
+            # Convert SizeMB into bytes
+            # DeviceID;ControllerID;Vendor Model;size;SerialNumber
+          - type: "multiply"
+            column: 4
+            value: "1048576"
+      mapping:
+        # InstanceTable = Source(1)
+        source: "$monitors.physical_disk.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          vendor: "$column(3)"
+          serial_number: "$column(5)"
+          hw.parent.type: "disk_controller"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(4))"
+        metrics:
+          hw.physical_disk.size: "$column(4)"
+    collect:
+      # Collect type is \"multi-instance\"
+      type: "monoInstance"
+      sources:
+        source(1):
+          # Source(1) = output of cstm echo \"\"selclass type Disk;wait;information;wait;infolog\"\"|stm -c
+          type: "osCommand"
+          commandLine: |-
+            /bin/echo "select path %PhysicalDisk.Collect.DeviceID%;wait;information;wait;infolog"|/usr/bin/stm -c
+            /bin/echo "select path %PhysicalDisk.Collect.DeviceID%;wait;veroptions execctrl iterations 1 behavior errorcount 10 testcoverage mincoverage gentactlog no reporterrors reportwarnings queries querynondes;verify;wait;currdevstatus"|/usr/bin/stm -c
+          timeout: 60
+          forceSerialization: true
+          computes:
+            # Process output of cstm through awk EmbeddedFile(2)
+            # ErrorCount;Status;
+          - type: "awk"
+            script: "EmbeddedFile(3)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3"
+            # Duplicate the status column
+            # ErrorCount;Status;Status
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the first status into a PATROL status
+            # ErrorCount;PATROLStatus;Status
+          - type: "translate"
+            column: 2
+            translationTable: "PhysicalDiskStatusTranslationTable"
+            # Translate the second Status into a more readable string
+            # ErrorCount;PATROLStatus;StatusInformation
+          - type: "translate"
+            column: 3
+            translationTable: "PhysicalDiskStatusInformationTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.physical_disk.collect.sources.source(1)$"
+        metrics:
+          hw.status{hw.type="physical_disk"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  memory:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = output of echo \"\"selclass type memory;wait;information;wait;infolog\"\"|stm -c
+          type: "osCommand"
+          commandLine: "/bin/echo \"selclass type memory;wait;information;wait;infolog\"|/usr/bin/stm -c"
+          timeout: 60
+          forceSerialization: true
+          computes:
+            # Process cstm output through awk EmbeddedFile(4)
+            # Memory modules' IDs and sizes and the "Page Deallocation Table (PDT)"
+            # DeviceID;Size;Type
+          - type: "awk"
+            script: "EmbeddedFile(4)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3,4"
+      mapping:
+        # InstanceTable = Source(&)
+        source: "$monitors.memory.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          type: "$column(3)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), $column(2))"
+        metrics:
+          hw.memory.limit: "mebiByte2Byte($column(2))"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = output of echo \"\"selclass type memory;wait;information;wait;infolog\"\"|stm -c
+          type: "osCommand"
+          commandLine: "/bin/echo \"selclass type memory;wait;information;wait;infolog\"|/usr/bin/stm -c"
+          timeout: 60
+          forceSerialization: true
+          computes:
+            # Process output of cstm through awk EmbeddedFile(5)
+            # Memory modules error count and status (as well as for the "Page Deallocation Table (PDT)")
+            # DeviceID;Status;StatusInformation;ErrorCount
+          - type: "awk"
+            script: "EmbeddedFile(5)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3,4,5"
+        source(2):
+          # Source(2) = copy of discovery.source(1)
+          # Yeah, that's because our source(1) does contain lines only about memory modules
+          # that encountered some errors. So we need to add the entire list of modules with
+          # an error count of zero. The collection process will keep only the first line
+          # DeviceID;Size;Type
+          type: "copy"
+          from: "$monitors.memory.discovery.sources.source(1)$"
+          computes:
+            # Remove size and type (keep only device ID)
+            # DeviceID
+          - type: "keepColumns"
+            columnNumbers: "1"
+            # Add fake OK and ErrorCount=0 columns
+            # DeviceID;OK;;0
+          - type: "rightConcat"
+            column: 1
+            value: ";OK;;0"
+        source(3):
+          # Source(3) = union of Source(1) and Source(2)
+          # DeviceID;Status;StatusInformation;ErrorCount
+          type: "tableUnion"
+          tables:
+          - "$monitors.memory.collect.sources.source(1)$"
+          - "$monitors.memory.collect.sources.source(2)$"
+      mapping:
+        # Okay, we have everything now (hope so)
+        # ValueTable = Source(3)
+        source: "$monitors.memory.collect.sources.source(3)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="memory"}: "$column(2)"
+          hw.errors{hw.type="memory"}: "$column(4)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = output of /bin/echo \"select device 1;info;wait;infolog;cds\"|/usr/bin/stm -c
+          type: "osCommand"
+          commandLine: "/bin/echo \"select device 1;info;wait;infolog;cds\"|/usr/bin/stm -c"
+          timeout: 60
+          forceSerialization: true
+          computes:
+            # Process cstm output through awk EmbeddedFile(6)
+            # Type;DeviceID
+          - type: "awk"
+            script: "EmbeddedFile(6)"
+            keep: "^MSHW;FAN"
+            separators: ";"
+            selectColumns: "2,3"
+      mapping:
+        # InstanceTable = Source(1)
+        source: "$monitors.fan.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(2)"
+          hw.parent.type: "enclosure"
+          name: "$column(2)"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = output of /bin/echo \"select device 1;info;wait;infolog;cds\"|/usr/bin/stm -c
+          type: "osCommand"
+          commandLine: "/bin/echo \"select device 1;info;wait;infolog;cds\"|/usr/bin/stm -c"
+          timeout: 60
+          forceSerialization: true
+          computes:
+            # Process cstm output through awk EmbeddedFile(6)
+            # DeviceID;Status;StatusInformation
+          - type: "awk"
+            script: "EmbeddedFile(6)"
+            keep: "^MSHW;FAN"
+            separators: ";"
+            selectColumns: "3,4,5"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.fan.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="fan"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = output of /bin/echo \"select device 1;info;wait;infolog;cds\"|/usr/bin/stm -c
+          type: "osCommand"
+          commandLine: "/bin/echo \"select device 1;info;wait;infolog;cds\"|/usr/bin/stm -c"
+          timeout: 60
+          forceSerialization: true
+          computes:
+            # Process cstm output through awk EmbeddedFile(6)
+            # Type;DeviceID
+          - type: "awk"
+            script: "EmbeddedFile(6)"
+            keep: "^MSHW;PSU"
+            separators: ";"
+            selectColumns: "2,3"
+      mapping:
+        # InstanceTable = Source(1)
+        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(2)"
+          power_supply_type: "$column(1)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s)\", $column(2), $column(1))"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = output of /bin/echo \"select device 1;info;wait;infolog;cds\"|/usr/bin/stm -c
+          type: "osCommand"
+          commandLine: "/bin/echo \"select device 1;info;wait;infolog;cds\"|/usr/bin/stm -c"
+          timeout: 60
+          forceSerialization: true
+          computes:
+            # Process cstm output through awk EmbeddedFile(6)
+            # DeviceID;Status;StatusInformation
+          - type: "awk"
+            script: "EmbeddedFile(6)"
+            keep: "^MSHW;PSU"
+            separators: ";"
+            selectColumns: "3,4,5"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.power_supply.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="power_supply"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"

@@ -1,0 +1,838 @@
+---
+embedded:
+  EmbeddedFile(1): "BEGIN {valid=\"\";chassis=\"\";primarychassis=\"\";typeStart=\"\"}\n# Get Chassis\n$1 ~ /chassis-[0-9]+/ { chassis = $1}\n\n#Find the Primary Chassis (the one with CPUs)\n$1 ~ /cpu-[0-9]+/ {primarychassis = chassis};\n\n# Process instances\nvalid != \"\" && NF > 4 && chassis != \"\" {\n    if ( $1 ~ /^chassis/ ) { id = $1}\n       else {id = chassis \"-\" $1}\n    name = substr($0,nameStart,nameLength) ; gsub(/ +$/,\"\",name);\n    state = substr($0,stateStart,stateLength) ; gsub(/ +$/,\"\",state );\n    manufacturer = substr($0,manufacturerStart,manufacturerLength ) ; gsub(/ +$/,\"\",manufacturer );\n    model = substr($0,modelStart,modelLength) ; gsub(/ +$/,\"\",model );\n    if (valid==\"withoutRPM\") {serialLength = length ($0) - serialStart }\n       else {if (typeStart == 0){rpm = substr($0,rpmStart) ; gsub(/ +$/,\"\",rpm ); gsub(/^ +/,\"\",rpm );} else {rpm = substr($0,rpmStart,rpmLength) ; gsub(/ +$/,\"\",rpm ); gsub(/^ +/,\"\",rpm );}}\n    serial = substr($0,serialStart,serialLength ) ; gsub(/ +$/,\"\",serial );\n    print \"MSHW;\" chassis \";\" id \";\" name \";\" state \";\" state \";\" manufacturer \";\" model \";\" serial \";\" rpm \";\"\n    }\n\n# Check for header with RPM\n$0 ~ / *NAME *STATE *MANUFACTURER *MODEL *SERIAL *RPM */ {\n     valid=\"withRPM\"\n     nameStart = index($0,\"NAME\")\n     stateStart = index($0,\"STATE\")\n     manufacturerStart = index($0,\"MANUFACTURER\")\n     modelStart = index($0,\"MODEL\")\n     serialStart = index($0,\"SERIAL\")\n     rpmStart = index($0,\"RPM\")\n\t typeStart = index($0,\"TYPE\")\n     nameLength = stateStart - nameStart - 1\n     stateLength = manufacturerStart - stateStart - 1\n     manufacturerLength = modelStart - manufacturerStart - 1\n     modelLength = serialStart - modelStart - 1\n     serialLength = rpmStart - serialStart - 1\n\t rpmLength = typeStart - rpmStart - 1\n    };\n\n# Check for header without RPM\n$0 ~ / *NAME *STATE *MANUFACTURER *MODEL *SERIAL *$/ {\n     valid=\"withoutRPM\"\n     nameStart = index($0,\"NAME\")\n     stateStart = index($0,\"STATE\")\n     manufacturerStart = index($0,\"MANUFACTURER\")\n     modelStart = index($0,\"MODEL\")\n     serialStart = index($0,\"SERIAL\")\n     nameLength = stateStart - nameStart - 1\n     stateLength = manufacturerStart - stateStart - 1\n     manufacturerLength = modelStart - manufacturerStart - 1\n     modelLength = serialStart - modelStart - 1\n     serialLength = rpmStart - serialStart - 1\n    };\n\nEND {print \"MSHW;PrimaryChassis;\"primarychassis\";\"}"
+  EmbeddedFile(3): |-
+    function sizeConvert(size)
+    {
+    if (size ~ /P$/) {gsub(/P/,"",size); size = size * 1048576 }
+    else if (size ~ /T$/) {gsub(/T/,"",size); size = size * 1024}
+    else if (size ~ /G$/) {gsub(/G/,"",size); size = size }
+    else if (size ~ /M$/) {gsub(/M/,"",size); size = size / 1024}
+    else if (size ~ /K$/) {gsub(/K/,"",size); size = size / 1048576 }
+    else {size = size / 1073741824 }
+    return size
+    }
+
+    $1 ~ /:/ && $1 !~ /Storage:/ {pool = $1 ; gsub(/:/,"",pool)}
+    $1 ~ /^Used/ && $2 ~ /^[0-9.]+/ && $3 ~ /bytes/ {Used = sizeConvert($2);}
+    $1 ~ /^Avail/ && $2 ~ /^[0-9.]+/ && $3 ~ /bytes/ {Available = sizeConvert($2);}
+    $1 ~ /^Free/ && $2 ~ /^[0-9.]+/ && $3 ~ /bytes/ {Free = sizeConvert($2);}
+
+
+
+
+    $1 ~ /State/ && pool != "" {
+                                State = $2
+                                print "MSHW;" pool ";" State";" State";" Used ";" Available ";" Free ";"
+                                pool = "" ; State= ""
+                               }
+  EmbeddedFile(2): |-
+    $1 ~ /pool/ && $2 ~ /=/ {pool = $3}
+    $1 ~ /status/ && $2 ~ /=/ {status= $3}
+    $1 ~ /profile/ && $2 ~ /=/ && pool != "" {
+                                profile= $3
+                                print "MSHW;" pool ";" profile ";"
+                                pool = "" ; status = ""
+                               }
+  EmbeddedFile(5): |-
+    BEGIN {valid=""}
+
+    # Process instances
+    valid != "" && NF > 4 && $1 ~ /[A-Za-z]+[0-9]+/ {
+        device = substr($0,deviceStart,deviceLength) ; gsub(/ +$/,"",device );
+        up = substr($0,upStart,upLength) ; gsub(/ +$/,"",up);
+        speed = substr($0,speedStart,speedLength ) ; gsub(/ +$/,"",speed);
+        if (speed ~ /Mbit/) {  gsub(/ Mbit.*/,"",speed);  }
+        else if (speed ~ /Gbit/) {  gsub(/ Gbit.*/,"",speed); speed = speed * 1000  }
+        mac= substr($0,macStart) ; gsub(/ +$/,"",mac); gsub(/:/,"",mac); mac = toupper(mac);
+        print "MSHW;" device ";" mac";" speed ";" device ";IP target;" up ";MAC;"
+        }
+
+    # Check for header
+    $0 ~ /^ *DEVICE +UP +SPEED +MAC/ {
+         valid="1"
+         deviceStart = index($0,"DEVICE")
+         upStart = index($0,"UP")
+         speedStart = index($0,"SPEED")
+         macStart = index($0,"MAC")
+         deviceLength = upStart - deviceStart - 1
+         upLength = speedStart - upStart - 1
+         speedLength = macStart - speedStart - 1
+        };
+  EmbeddedFile(4): |-
+    BEGIN {valid=""}
+
+    # Process instances
+    valid != "" && NF > 4 && $1 ~ /target-/ {
+        name = substr($0,nameStart,nameLength) ; gsub(/ +$/,"",name);
+        mode = substr($0,modeStart,modeLength) ; gsub(/ +$/,"",mode);
+        WWN = substr($0,WWNStart,WWNLength ) ; gsub(/ +$/,"",WWN); gsub(/wwn./,"",WWN);
+        port = substr($0,portStart,portLength) ; gsub(/ +$/,"",port);
+        speed = substr($0,speedStart) ; gsub(/ +$/,"",speed); gsub(/ Gbit.*/,"",speed); speed = speed * 1000;
+        print "MSHW;" name ";" WWN ";" speed ";" port ";FC " mode ";" speed ";WWN;"
+        }
+
+    # Check for header
+    $0 ~ /^ *NAME +MODE +WWN +PORT +SPEED/ {
+         valid="1"
+         nameStart = index($0,"NAME")
+         modeStart = index($0,"MODE")
+         WWNStart = index($0,"WWN")
+         portStart = index($0,"PORT")
+         speedStart = index($0,"SPEED")
+         nameLength = modeStart - nameStart - 1
+         modeLength = WWNStart - modeStart - 1
+         WWNLength = portStart - WWNStart - 1
+         portLength = speedStart - portStart - 1
+        };
+translations:
+  linkUPTranslationTable:
+    "true": "ok"
+    "false": "degraded"
+  FCspeedTranslationTable:
+    "0": "degraded"
+    default: "ok"
+  StatusTranslationTable:
+    default: "failed"
+    faulted: "failed"
+    absent: "failed"
+    ok: "ok"
+  LogicalDiskStatusTranslationTable:
+    default: "failed"
+    faulted: "failed"
+    online: "ok"
+connector:
+  displayName: "Oracle/Sun ZFS Storage Appliance"
+  platforms: "Oracle ZFS Storage Appliance"
+  reliesOn: "Oracle ZFS Command Line (SSH)"
+  information: "Provides chassis, CPU, disk, fan, memory, PSU and PCIe cards status for ZFS Storage Appliances"
+  version: "1.0"
+  detection:
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "Storage"
+    criteria:
+    - type: "osCommand"
+      commandLine: "maintenance hardware show"
+      expectedResult: " *NAME *STATE *MANUFACTURER *MODEL *SERIAL *"
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Enclosures
+          # Run the maintenance hardware show command
+          type: "osCommand"
+          forceSerialization: true
+          commandLine: "maintenance hardware show"
+          computes:
+            # AWK it
+            # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
+          - type: "awk"
+            script: "EmbeddedFile(1)"
+            keep: "^MSHW;"
+            separators: ";"
+        source(2):
+          # Make a copy so that other discoveries can use the raw results
+          # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          computes:
+            # Keep Only Chassis
+            # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            regExp: "chassis-[0-9]+$"
+        source(3):
+          # Make a copy so that other discoveries can use the Primary Chassis
+          # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(2)$"
+          computes:
+            # Keep Only Chassis
+            # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
+          - type: "keepOnlyMatchingLines"
+            column: 2
+            regExp: "chassis-[0-9]+$"
+      mapping:
+        # The discovery table = source(2)
+        # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
+        source: "$monitors.enclosure.discovery.sources.source(3)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          vendor: "$column(7)"
+          model: "$column(8)"
+          serial_number: "$column(9)"
+          type: "Chassis"
+          name: "sprintf(\"%s (%s %s - %s)\", $column(4), $column(7), $column(8), \"Chassis\")"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Run the maintenance hardware show command
+          type: "osCommand"
+          forceSerialization: true
+          commandLine: "maintenance hardware show"
+          computes:
+            # AWK it
+            # chassis;id;state;state;rpm;
+          - type: "awk"
+            script: "EmbeddedFile(1)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3,5,6,10"
+        source(2):
+          # Make a copy so that other discoveries can use the raw results
+          # chassis;id;state;state;rpm;
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(1)$"
+          computes:
+            # Keep Only Chassis
+            # chassis;id;PATROLStatus;state;rpm;
+          - type: "keepOnlyMatchingLines"
+            column: 2
+            regExp: "chassis-[0-9]+$"
+            # Translate the first Status code into a PATROLStatus
+            # chassis;id;PATROLStatus;state;rpm;
+          - type: "translate"
+            column: 3
+            translationTable: "StatusTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        # chassis;id;PATROLStatus;state;rpm;
+        source: "$monitors.enclosure.collect.sources.source(2)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="enclosure"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Take list of components from Enclosure 1
+          # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          computes:
+            # Keep Only Chassis
+            # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            regExp: "fan-[0-9]+$"
+            # Add Serial Number to Addtional Infomation
+            # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
+          - type: "leftConcat"
+            column: 9
+            value: "Serial Number: "
+            # Exclude absent instances
+            # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
+          - type: "excludeMatchingLines"
+            column: 5
+            valueList: "absent"
+      mapping:
+        # The discovery table = source(1)
+        # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
+        source: "$monitors.fan.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          info: "$column(9)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(2)"
+          name: "$column(4)"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Take the component status list from Enclosure 1
+          # chassis;id;state;state;rpm;
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(1)$"
+          computes:
+            # Keep Only Chassis
+            # chassis;id;PATROLStatus;state;rpm;
+          - type: "keepOnlyMatchingLines"
+            column: 2
+            regExp: "fan-[0-9]+$"
+            # Translate the first Status code into a PATROLStatus
+            # chassis;id;PATROLStatus;state;rpm;
+          - type: "translate"
+            column: 3
+            translationTable: "StatusTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        # chassis;id;PATROLStatus;state;rpm;
+        source: "$monitors.fan.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="fan"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Take list of components from Enclosure 1
+          # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          computes:
+            # Keep Only Chassis
+            # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            regExp: "psu-[0-9]+$"
+            # Add Serial Number to Addtional Infomation
+            # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
+          - type: "leftConcat"
+            column: 9
+            value: "Serial Number: "
+            # Exclude absent instances
+            # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
+          - type: "excludeMatchingLines"
+            column: 5
+            valueList: "absent"
+          - type: "leftConcat"
+            column: 7
+            value: "Vendor: "
+          - type: "leftConcat"
+            column: 8
+            value: "Model: "
+      mapping:
+        # The discovery table = source(1)
+        # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
+        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          info: "join($column(7), $column(8), $column(9), \" \")"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(2)"
+          name: "sprintf(\"%s, $column(4))"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Take the component status list from Enclosure 1
+          # chassis;id;state;state;rpm;
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(1)$"
+          computes:
+            # Keep Only Chassis
+            # chassis;id;PATROLStatus;state;rpm;
+          - type: "keepOnlyMatchingLines"
+            column: 2
+            regExp: "psu-[0-9]+$"
+            # Translate the first Status code into a PATROLStatus
+            # chassis;id;PATROLStatus;state;rpm;
+          - type: "translate"
+            column: 3
+            translationTable: "StatusTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        # chassis;id;PATROLStatus;state;rpm;
+        source: "$monitors.power_supply.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="power_supply"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # Take list of components from Enclosure 1
+          # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          computes:
+            # Keep Only Chassis
+            # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            regExp: "slot-[0-9]+$"
+            # Add Serial Number to Addtional Infomation
+            # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
+          - type: "leftConcat"
+            column: 9
+            value: "Serial Number: "
+            # Exclude absent instances
+            # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
+          - type: "excludeMatchingLines"
+            column: 5
+            valueList: "absent"
+          - type: "leftConcat"
+            column: 7
+            value: "Vendor: "
+      mapping:
+        # The discovery table = source(1)
+        # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
+        source: "$monitors.other_device.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          additional_label: "$column(8)"
+          device_type: "Slot"
+          info: "join($column(7), $column(9), \" \")"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(2)"
+          name: "sprintf(\"%s: %s (%s)\", \"Slot\", $column(4), $column(8))"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Take the component status list from Enclosure 1
+          # chassis;id;state;state;rpm;
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(1)$"
+          computes:
+            # Keep Only Chassis
+            # chassis;id;PATROLStatus;state;rpm;
+          - type: "keepOnlyMatchingLines"
+            column: 2
+            regExp: "slot-[0-9]+$"
+            # Translate the first Status code into a PATROLStatus
+            # chassis;id;PATROLStatus;state;rpm;
+          - type: "translate"
+            column: 3
+            translationTable: "StatusTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        # chassis;id;PATROLStatus;state;rpm;
+        source: "$monitors.other_device.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="other_device"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  cpu:
+    discovery:
+      sources:
+        source(1):
+          # Take list of components from Enclosure 1
+          # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          computes:
+            # Keep Only Chassis
+            # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            regExp: "cpu-[0-9]+$"
+            # Exclude absent instances
+            # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
+          - type: "excludeMatchingLines"
+            column: 5
+            valueList: "absent"
+      mapping:
+        # The discovery table = source(1)
+        # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
+        source: "$monitors.cpu.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          model: "$column(8)"
+          vendor: "$column(7)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(2)"
+          name: "sprintf(\"%s (%s - %s)\", $column(4), $column(7), $column(8))"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Take the component status list from Enclosure 1
+          # chassis;id;state;state;rpm;
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(1)$"
+          computes:
+            # Keep Only Chassis
+            # chassis;id;PATROLStatus;state;rpm;
+          - type: "keepOnlyMatchingLines"
+            column: 2
+            regExp: "cpu-[0-9]+$"
+            # Translate the first Status code into a PATROLStatus
+            # chassis;id;PATROLStatus;state;rpm;
+          - type: "translate"
+            column: 3
+            translationTable: "StatusTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        # chassis;id;PATROLStatus;state;rpm;
+        source: "$monitors.cpu.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="cpu"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  memory:
+    discovery:
+      sources:
+        source(1):
+          # Take list of components from Enclosure 1
+          # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          computes:
+            # Keep Only Chassis
+            # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            regExp: "memory-[0-9]+$"
+            # Exclude absent instances
+            # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
+          - type: "excludeMatchingLines"
+            column: 5
+            valueList: "absent"
+      mapping:
+        # The discovery table = source(1)
+        # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
+        source: "$monitors.memory.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          model: "$column(8)"
+          vendor: "$column(7)"
+          serial_number: "$column(9)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(2)"
+          name: "sprintf(\"%s (%s (%s))\", $column(4), $column(7), $column(8))"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Take the component status list from Enclosure 1
+          # chassis;id;state;state;rpm;
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(1)$"
+          computes:
+            # Keep Only Chassis
+            # chassis;id;PATROLStatus;state;rpm;
+          - type: "keepOnlyMatchingLines"
+            column: 2
+            regExp: "memory-[0-9]+$"
+            # Translate the first Status code into a PATROLStatus
+            # chassis;id;PATROLStatus;state;rpm;
+          - type: "translate"
+            column: 3
+            translationTable: "StatusTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        # chassis;id;PATROLStatus;state;rpm;
+        source: "$monitors.memory.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="memory"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Take list of components from Enclosure 1
+          # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          computes:
+            # Keep Only Chassis
+            # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            regExp: "disk-[0-9]+$"
+            # Exclude absent instances
+            # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
+          - type: "excludeMatchingLines"
+            column: 5
+            valueList: "absent"
+            # Convert size from GB to B
+            # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
+          - type: "multiply"
+            column: 11
+            value: "1000000000"
+            # "RPM: " to the rpm field
+            # MSHW;chassis;id;name;state;state;manufacturer;model;serial;RPM: rpm;size;
+          - type: "leftConcat"
+            column: 10
+            value: "RPM: "
+      mapping:
+        # The discovery table = source(1)
+        # MSHW;chassis;id;name;state;state;manufacturer;model;serial;rpm;size;
+        source: "$monitors.physical_disk.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          model: "$column(8)"
+          vendor: "$column(7)"
+          serial_number: "$column(9)"
+          info: "$column(10)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(2)"
+          name: "sprintf(\"%s (%s - %s)\", $column(4), $column(8), $column(11))"
+        metrics:
+          hw.physical_disk.size: "$column(11)"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Take the component status list from Enclosure 1
+          # chassis;id;state;state;rpm;
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(1)$"
+          computes:
+            # Keep Only Chassis
+            # chassis;id;PATROLStatus;state;rpm;
+          - type: "keepOnlyMatchingLines"
+            column: 2
+            regExp: "disk-[0-9]+$"
+            # Translate the first Status code into a PATROLStatus
+            # chassis;id;PATROLStatus;state;rpm;
+          - type: "translate"
+            column: 3
+            translationTable: "StatusTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        # chassis;id;PATROLStatus;state;rpm;
+        source: "$monitors.physical_disk.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="physical_disk"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          # LogicalDisk
+          # Run the status storage show command
+          type: "osCommand"
+          forceSerialization: true
+          commandLine: "status storage show"
+          computes:
+            # AWK it
+            # pool;Available;
+          - type: "awk"
+            script: "EmbeddedFile(3)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,6"
+            # Convert the size into bytes
+            # pool;Available;
+          - type: "multiply"
+            column: 2
+            value: "1073741824"
+        source(2):
+          # Run the configuration storage show command
+          type: "osCommand"
+          forceSerialization: true
+          commandLine: "Configuration storage show"
+          computes:
+            # AWK it
+            # pool;RaidLevel;
+          - type: "awk"
+            script: "EmbeddedFile(2)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3"
+        source(3):
+          # Join 1 & 2
+          # pool;Available;pool;RaidLevel;
+          type: "tableJoin"
+          leftTable: "$monitors.logical_disk.discovery.sources.source(1)$"
+          rightTable: "$monitors.logical_disk.discovery.sources.source(2)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ";;"
+          computes:
+            # Add PrimaryChassis to the right of the table
+            # pool;Available;pool;RaidLevel;PrimaryChassis;
+          - type: "rightConcat"
+            column: 4
+            value: ";PrimaryChassis"
+        source(4):
+          # Join Logical Disk Source with Enclosure Discovery 1
+          # pool;Available;pool;RaidLevel;PrimaryChassis;MSHW;PrimaryChassis;Chassis;
+          type: "tableJoin"
+          leftTable: "$monitors.logical_disk.discovery.sources.source(3)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(2)$"
+          leftKeyColumn: 5
+          rightKeyColumn: 2
+          defaultRightLine: ";;;"
+      mapping:
+        # InstanceTable = Source(3)
+        # pool;Available;pool;RaidLevel;PrimaryChassis;MSHW;PrimaryChassis;Chassis;
+        source: "$monitors.logical_disk.discovery.sources.source(4)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(1)"
+          hw.logical_disk.limit: "$column(2)"
+          raid_level: "$column(4)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(8)"
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(4), $column(2))"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Run the maintenance hardware show command
+          type: "osCommand"
+          forceSerialization: true
+          commandLine: "status storage show"
+          computes:
+            # AWK it
+            # pool;State;State;Free;
+          - type: "awk"
+            script: "EmbeddedFile(3)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3,4,7"
+            # Translate the first Status code into a PATROLStatus
+            # pool;PatrolStatus;State;Free;
+          - type: "translate"
+            column: 2
+            translationTable: "LogicalDiskStatusTranslationTable"
+            # Convert the free space into bytes
+            # pool;PatrolStatus;State;Free;
+          - type: "multiply"
+            column: 4
+            value: "1073741824"
+      mapping:
+        # ValueTable = Source(1)
+        # pool;PatrolStatus;State;Free;
+        source: "$monitors.logical_disk.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="logical_disk"}: "$column(2)"
+          hw.logical_disk.usage{state="free"}: "$column(4)"
+          hw.logical_disk.usage{state="used"}: "collectAllocatedSpace()"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  network:
+    discovery:
+      sources:
+        source(1):
+          # FC POrts
+          # Run the configuration san targets fc list
+          type: "osCommand"
+          forceSerialization: true
+          commandLine: "configuration san targets fc list"
+          computes:
+            # AWK it
+            # DeviceID;Address;DisplayID;Mode;AddressType;
+          - type: "awk"
+            script: "EmbeddedFile(4)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3,5,6,8"
+        source(2):
+          # Run the configuration net devices list
+          type: "osCommand"
+          forceSerialization: true
+          commandLine: "configuration net devices list"
+          computes:
+            # AWK it
+            # DeviceID;Address;DisplayID;Mode;AddressType;
+          - type: "awk"
+            script: "EmbeddedFile(5)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3,5,6,8"
+        source(3):
+          # Union 1 & 2
+          # DeviceID;Address;DisplayID;Mode;AddressType;
+          type: "tableUnion"
+          tables:
+          - "$monitors.network.discovery.sources.source(1)$"
+          - "$monitors.network.discovery.sources.source(2)$"
+          computes:
+            # Add PrimaryChassis to the right of the table
+            # DeviceID;Address;DisplayID;Mode;AddressType;PrimaryChassis;
+          - type: "rightConcat"
+            column: 5
+            value: ";PrimaryChassis"
+        source(4):
+          # Join Logical Disk Source with Enclosure Discovery 1
+          # DeviceID;Address;DisplayID;Mode;AddressType;PrimaryChassis;MSHW;PrimaryChassis;Chassis;
+          type: "tableJoin"
+          leftTable: "$monitors.network.discovery.sources.source(3)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(2)$"
+          leftKeyColumn: 6
+          rightKeyColumn: 2
+          defaultRightLine: ";;;"
+      mapping:
+        # InstanceTable = Source(3)
+        # DeviceID;Address;DisplayID;Mode;AddressType;PrimaryChassis;MSHW;PrimaryChassis;Chassis;
+        source: "$monitors.network.discovery.sources.source(4)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(3)"
+          physical_address: "$column(2)"
+          physical_address_type: "$column(5)"
+          device_type: "$column(4)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(9)"
+          name: "sprintf(\"%s (%s)\", $column(3), $column(4))"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Run the configuration san targets fc list command
+          type: "osCommand"
+          forceSerialization: true
+          commandLine: "configuration san targets fc list"
+          computes:
+            # AWK it
+            # ID;speed;link(speed);
+          - type: "awk"
+            script: "EmbeddedFile(4)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,4,7"
+            # Translate the link(speed) code into a LinkStatus
+            # ID;speed;LinkStatus;
+          - type: "translate"
+            column: 3
+            translationTable: "FCspeedTranslationTable"
+        source(2):
+          # Run the configuration net devices list command
+          type: "osCommand"
+          forceSerialization: true
+          commandLine: "configuration net devices list"
+          computes:
+            # AWK it
+            # ID;speed;linkUP;
+          - type: "awk"
+            script: "EmbeddedFile(5)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,4,7"
+            # Translate the linkUP code into a LinkStatus
+            # ID;speed;LinkStatus;
+          - type: "translate"
+            column: 3
+            translationTable: "linkUPTranslationTable"
+        source(3):
+          # Union 1 & 2
+          # ID;speed;LinkStatus;
+          type: "tableUnion"
+          tables:
+          - "$monitors.network.collect.sources.source(1)$"
+          - "$monitors.network.collect.sources.source(2)$"
+      mapping:
+        # ValueTable = 3(1)
+        # ID;speed;LinkStatus;
+        source: "$monitors.network.collect.sources.source(3)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.network.up: "legacyLinkStatus($column(3))"
+          hw.network.bandwidth.limit: "megaBit2Bit($column(2))"

@@ -1,0 +1,179 @@
+---
+extends:
+- "SMISShared-header"
+constants:
+  _COMPUTERSYSTEM_DEDICATED_REGEXP: "\"\\(^22|\\)\\|\\(|22|\\)\\|\\(^35|\\)\\|\\(|35|\\)\""
+  _FCPORT_TYPE_VALUELIST: "\"10,11,12\""
+translations:
+  TapeDriveNeedsCleaningTranslationTable:
+    default: "0"
+    "true": "1"
+    "false": "0"
+connector:
+  displayName: "SMI-S Compliant Storage Libraries"
+  platforms: "Any SMI-S compliant storage library"
+  reliesOn: "SMI-S Agent provided by the library vendor"
+  version: "1.1"
+  information: "This connector discovers the enclosure of a storage library as well as its specialized devices: tape drives, cartridges, media changers, etc. It will also discover and monitor the FC ports of the array and the various environment sensors when available (temperatures, fans, power supplies, etc.). It relies on the WBEM technology and supports SMI-S compliant tape libraries only."
+  detection:
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "Storage"
+    criteria:
+      # Verify that there is a CIM_ComputerSystem instance where Dedicated == 3 (Storage)
+      # Use this request to find the namespace automatically
+    - type: "wbem"
+      namespace: "Automatic"
+      query: "SELECT Name,Dedicated FROM CIM_ComputerSystem"
+      expectedResult: "[;|]\\(22\\|35\\)|[0-9|]*;$"
+      # There also must be disk drives declared in this namespace
+    - type: "wbem"
+      query: "SELECT DeviceID FROM CIM_TapeDrive"
+      namespace: "Automatic"
+monitors:
+  tape_drive:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = CIM_TapeDrive
+          # TapeID;MountCount;NeedsCleaning;
+          type: "wbem"
+          query: "SELECT __PATH,MountCount,NeedsCleaning FROM CIM_TapeDrive"
+          namespace: "Automatic"
+        source(2):
+          # Source(2) = Table joint of Source(1) and Enclosure.Discovery.Source(18)
+          # TapeID;MountCount;NeedsCleaning;LogicalDeviceID;ComputerSystemID;Manufacturer;Model;SerialNumber;
+          type: "tableJoin"
+          leftTable: "$monitors.tape_drive.discovery.sources.source(1)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(18)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          keyType: "Wbem"
+          defaultRightLine: ";;;;;"
+      mapping:
+        # InstanceTable = Source(2)
+        source: "$monitors.tape_drive.discovery.sources.source(2)$"
+        attributes:
+          id: "$column(1)"
+          model: "$column(7)"
+          serial_number: "$column(8)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(5)"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(7))"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = CIM_TapeDrive
+          # TapeID;OperationalStatus;MountCount;NeedsCleaning;
+          type: "wbem"
+          query: "SELECT __PATH,OperationalStatus,MountCount,NeedsCleaning FROM CIM_TapeDrive"
+          namespace: "Automatic"
+          computes:
+            # Duplicate the "OperationalStatusArray" column
+            # DeviceID;OperationalStatusArray;OperationalStatusArray;MountCount;NeedsCleaning;
+          - type: "duplicateColumn"
+            column: 2
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # DeviceID;PATROLStatusArray;Status;MountCount;NeedsCleaning;
+          - type: "arrayTranslate"
+            column: 2
+            translationTable: "DMTFOperationStatusTranslationTable"
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # DeviceID;PATROLStatusArray;StatusInformation;MountCount;NeedsCleaning;
+          - type: "arrayTranslate"
+            column: 3
+            translationTable: "DMTFOperationStatusInformationTranslationTable"
+            resultSeparator: " - "
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # DeviceID;PATROLStatus;StatusInformation;MountCount;NeedsCleaning;
+          - type: "convert"
+            column: 2
+            conversion: "array2SimpleStatus"
+            # Translate the NeedsCleaning column into 0 or 1
+            # DeviceID;PATROLStatus;StatusInformation;MountCount;NeedsCleaning;
+          - type: "translate"
+            column: 5
+            translationTable: "TapeDriveNeedsCleaningTranslationTable"
+      mapping:
+        # Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
+        source: "$monitors.tape_drive.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="tape_drive"}: "$column(2)"
+          hw.tape_drive.operations{type="mount"}: "$column(4)"
+          hw.status{hw.type="tape_drive", state="needs_cleaning"}: "legacyNeedsCleaning($column(5))"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  robotics:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          # Source(1) = CIM_MediaTransferDevice
+          # ChangerDeviceID;
+          type: "wbem"
+          query: "SELECT __PATH FROM CIM_MediaTransferDevice"
+          namespace: "Automatic"
+        source(2):
+          # Source(2) = Table joint of Source(5) and Enclosure.Discovery.Source(18)
+          # ChangerDeviceID;LogicalDeviceID;ComputerSystemID;Manufacturer;Model;SerialNumber;
+          type: "tableJoin"
+          leftTable: "$monitors.robotics.discovery.sources.source(1)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(18)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          keyType: "Wbem"
+          defaultRightLine: ";;;;;"
+      mapping:
+        # InstanceTable = Source(2)
+        source: "$monitors.robotics.discovery.sources.source(2)$"
+        attributes:
+          id: "$column(1)"
+          model: "$column(5)"
+          serial_number: "$column(6)"
+          robotic_type: "Media Transfer"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(3)"
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(5), \"Media Transfer\")"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = CIM_MediaTransferDevice
+          # MediaChangerID;OperationalStatus;
+          type: "wbem"
+          query: "SELECT __PATH,OperationalStatus FROM CIM_MediaTransferDevice"
+          namespace: "Automatic"
+          computes:
+            # Duplicate the "OperationalStatusArray" column
+            # DeviceID;OperationalStatusArray;OperationalStatusArray;
+          - type: "duplicateColumn"
+            column: 2
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # DeviceID;PATROLStatusArray;Status
+          - type: "arrayTranslate"
+            column: 2
+            translationTable: "DMTFOperationStatusTranslationTable"
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # DeviceID;PATROLStatusArray;StatusInformation
+          - type: "arrayTranslate"
+            column: 3
+            translationTable: "DMTFOperationStatusInformationTranslationTable"
+            resultSeparator: " - "
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # DeviceID;PATROLStatus;StatusInformation
+          - type: "convert"
+            column: 2
+            conversion: "array2SimpleStatus"
+      mapping:
+        # Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
+        source: "$monitors.robotics.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="robotics"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"

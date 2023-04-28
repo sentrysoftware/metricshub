@@ -1,0 +1,498 @@
+---
+embedded:
+  EmbeddedFile(1): "BEGIN {FS=\";\";size=\"\"}\n$6 ~ /^[0-9.]+ [GgTt]i*[Bb]$/ && $1 != \"\" {model=$3;gsub (/\\\"/,\"\",model);\n                                 firmware=$4;gsub (/\\\"/,\"\",firmware);\n                                 serial=$5;gsub (/\\\"/,\"\",serial);\n                                 size=$6;gsub (/[Gg].?[Bb]/,\"\",size); gsub (/\\\"/,\"\",size) ;\n                                 status=$7\n                                 if ($6 ~ /[Tt].?[Bb]/)\n                                 \t{\n                                 \t\tgsub (/[Tt].?[Bb]/,\"\",size);\n                                 \t\tsize = size * 1024;\n                                 \t}\n                                 print (\"MSHW;\"$1\";\"$2\";\"model\";\"firmware\";\"serial\";\"size\";\"status\";\")\n                                 }\n\n$7 ~ /^[0-9.]+ [GgTt]i*[Bb]$/ && $1 != \"\"  {model=$4;gsub (/\\\"/,\"\",model);\n                                 firmware=$5;gsub (/\\\"/,\"\",firmware);\n                                 serial=$6;gsub (/\\\"/,\"\",serial);\n                                 size=$7;gsub (/[Gg].?[Bb]/,\"\",size); gsub (/\\\"/,\"\",size) ;\n                                 if ($7 ~ /[Tt].?[Bb]/)\n                                 \t{\n                                 \t\tgsub (/[Tt].?[Bb]/,\"\",size);\n                                 \t\tsize = size * 1024;\n                                 \t}\n                                 status=$8\n                                 print (\"MSHW;\"$1\";\"$2\";\"model\";\"firmware\";\"serial\";\"size\";\"status\";\")\n                                 }"
+  EmbeddedFile(3): |-
+    BEGIN {FS=";";}
+    NF > 4 && $1 != "" {if ($1 ~ /^[0-9]+$/) {print "MSHW;" $2 ";" $3 ";" $5 ";"}
+                           else  {print "MSHW;" $1 ";" $2 ";" $4 ";"}
+                       }
+  EmbeddedFile(2): |-
+    BEGIN {FS=";";}
+    NF > 4 && $1 != "" {if ($4 ~ /^[0-9]+$/) {print "MSHW;" $1 ";" $2 ";" $3 ";" $4 ";" $5 ";"}
+                           else  {print "MSHW;" $1 ";" $2 ";" $4 ";"    ";" $6 ";"}
+                       }
+  EmbeddedFile(5): |-
+    BEGIN {FS=";";}
+    # The output can be either:
+    # SNMPID;ID;Status;Percentage;
+    # SNMPID;Status;Percentage;;
+    # So if 4th column is empty, take first 3, else take 1,3,4th.
+    $0 ~ /;/ {
+    if ($4 == "") {print "MSHW;" $1 ";" $2 ";" $3 ";"}
+    else { status = $3
+    # The translation table has also changed, so let's remap
+    # 0 = OK => 1
+    # 1 = Disabled => 2
+    # 2 = Discharged => 3
+    # 3 = SoftDisabled => 5
+      if ( status == "3" ) { status = 5 }
+      else if ( status == "2" ) { status = 3 }
+      else if ( status == "1" ) { status = 2 }
+      else if ( status == "0" ) { status = 1 }
+      print "MSHW;" $1 ";" status ";" $4 ";"}
+    }
+  EmbeddedFile(4): |-
+    BEGIN {FS=";";}
+    NF > 4 && $1 != "" {if ($3 ~ /^[0-9]+$/) {warnThreshold = ""
+                                              if ($4 ~ /[Cc][Pp][Uu]/ && $5 ~ /^[-0-9.]*$/) {if ($5 > 0) {warnThreshold = 50};
+                                                                                            if ($5 <= 0) {warnThreshold = -10};
+                                                                                           }
+                                              if ($4 ~ /[Aa]mbient/ && $5 ~ /^[-0-9.]*$/) {warnThreshold = 50}
+                                              print "MSHW;" $1 ";" $3 ";" $4 ";" $5 ";" $6 ";" warnThreshold ";"
+                                             }
+                          else {warnThreshold = ""
+                                if ($3 ~ /[Cc][Pp][Uu]/ && $4 ~ /^[-0-9.]*$/) {if ($4 > 0) {warnThreshold = 70};
+                                                                              if ($4 <= 0) {warnThreshold = -10};
+                                                                             }
+                                if ($3 ~ /[Aa]mbient/ && $4 ~ /^[-0-9.]*$/) {warnThreshold = 50}
+                                print "MSHW;" $1 ";" $2 ";" $3 ";" $4 ";" $5 ";" warnThreshold ";"
+                               }
+                       }
+translations:
+  BatteryStatusInformationTranslationTable:
+    "1": ""
+    "2": "Disabled"
+    default: "UNKNOWN"
+    "3": "Discharged"
+    "4": "Unknown Status (Check Cabling)"
+    "5": "Soft Disabled"
+  FanStatusTranslationTable:
+    "0": "UNKNOWN"
+    "1": "ok"
+    "2": "failed"
+    default: "UNKNOWN"
+  BatteryStatusTranslationTable:
+    "1": "ok"
+    "2": "ok"
+    default: "UNKNOWN"
+    "3": "ok"
+    "4": "degraded"
+    "5": "degraded"
+  FanLevelTranslationTable:
+    "0": ""
+    "1": "Speed Low"
+    "2": ""
+    default: "UNKNOWN"
+    "3": "Speed High"
+  diskStatusInformationTranslationTable:
+    "1": "ok"
+    "2": "Unknown"
+    default: "Unknown Status"
+    "3": "Absent"
+    "4": "Failed"
+    "5": "Spare"
+    "6": "Available"
+  diskStatusTranslationTable:
+    "1": "ok"
+    "2": "UNKNOWN"
+    default: "UNKNOWN"
+    "3": "failed"
+    "4": "failed"
+    "5": "ok"
+    "6": "ok"
+  powerSupplyStatusTranslationTable:
+    "1": "ok"
+    "2": "UNKNOWN"
+    default: "UNKNOWN"
+    "3": "failed"
+connector:
+  displayName: "Data Domain Storage Appliance (SNMP)"
+  platforms: "Data Domain"
+  reliesOn: "Data Domain SNMP Agent"
+  version: "1.0"
+  information: "This connector discovers the enclosure and the disks of Data Domain disk arrays as well as the various environment sensors (temperatures, fans, power supplies). It relies on the SNMP protocol."
+  detection:
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "Storage"
+    criteria:
+      # Verify that the DDN SNMP agent responds to our requests
+    - type: "snmpGetNext"
+      oid: "1.3.6.1.4.1.19746.1"
+monitors:
+  enclosure:
+    discovery:
+      mapping:
+        source: "Data Domain Appliance"
+        attributes:
+          id: "Data Domain Appliance"
+          vendor: "Data Domain"
+          type: "Storage"
+          name: "sprintf(\"%s (%s - %s)\", \"Data Domain Appliance\", \"Data Domain\", \"Storage\")"
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = diskPropertiesTable
+          # DeviceID;Enclosure;Model;Firmware;Serial;Size(TB/GB);Status;
+          # or
+          # DeviceID;Enclosure;;Model;Firmware;Serial;Size(TB/GB);Status;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.19746.1.6.1.1.1"
+          selectColumns: "ID,1,3,4,5,6,7,8"
+          computes:
+            # Process smcli's output through awk EmbeddedFile(1)
+            # DeviceID;Enclosure;Model;Firmware;Serial;Size(GB);
+          - type: "awk"
+            script: "EmbeddedFile(1)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3,4,5,6,7"
+            # Convert Size from Gbytes to bytes
+            # DeviceID;Enclosure;Model;Firmware;Serial;Size(B);
+          - type: "multiply"
+            column: 6
+            value: "1073741824"
+      mapping:
+        # InstanceTable = Source(3)
+        # DeviceID;Enclosure;Model;Firmware;Serial;SizeB;
+        source: "$monitors.physical_disk.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          model: "$column(3)"
+          serial_number: "$column(5)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), $column(6))"
+        metrics:
+          hw.physical_disk.size: "$column(6)"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = diskPropertiesTable
+          # DeviceID;Enclosure;Model;Firmware;Serial;Size(TB/GB);Status;
+          # or
+          # DeviceID;Enclosure;;Model;Firmware;Serial;Size(TB/GB);Status;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.19746.1.6.1.1.1"
+          selectColumns: "ID,1,3,4,5,6,7,8"
+          computes:
+            # Process smcli's output through awk EmbeddedFile(1)
+            # DiskID;Status;
+          - type: "awk"
+            script: "EmbeddedFile(1)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,8"
+            # Duplicate the Status column
+            # DiskID;Status;Status;
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the first status column into a PATROLStatus
+            # DiskID;PATROLStatus;Status;
+          - type: "translate"
+            column: 2
+            translationTable: "diskStatusTranslationTable"
+            # Translate the second status column into a more readable string
+            # DiskID;PATROLStatus;StatusInformation;
+          - type: "translate"
+            column: 3
+            translationTable: "diskStatusInformationTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.physical_disk.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="physical_disk"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = fileSystem Table
+          # DeviceID;Size(GB);;AvailableSpace(GB);;
+          # or
+          # ;DeviceID;Size(GB);;AvailableSpace(GB);
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.19746.1.3.2.1.1"
+          selectColumns: "2,3,4,5,6"
+          computes:
+            # Process the SNMP Table through EF3
+            # DeviceID;Size(GB);AvailableSpace(GB);
+          - type: "awk"
+            script: "EmbeddedFile(3)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3,4"
+            # Convert Size from Gbytes to bytes
+            # DeviceID;Size(B);AvailableSpace(GB);
+          - type: "multiply"
+            column: 2
+            value: "1073741824"
+      mapping:
+        # InstanceTable = Source(3)
+        # // DeviceID;Size(B);AvailableSpace(GB);
+        source: "$monitors.logical_disk.discovery.sources.source(1)$"
+        attributes:
+          __display_id: "$column(1)"
+          id: "$column(1)"
+          hw.logical_disk.limit: "$column(2)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = diskPropertiesTable
+          # DeviceID;Size(GB);AvailableSpace(GB);
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.19746.1.3.2.1.1"
+          selectColumns: "2,3,4,5,6"
+          computes:
+            # Process the SNMP Table through EF3
+            # DeviceID;Size(GB);AvailableSpace(GB);
+          - type: "awk"
+            script: "EmbeddedFile(3)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3,4"
+            # Convert AvailableSpace from Gbytes to bytes
+            # DeviceID;Size(GB);AvailableSpace(B);
+          - type: "multiply"
+            column: 3
+            value: "1073741824"
+      mapping:
+        # The value table
+        source: "$monitors.logical_disk.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.logical_disk.usage{state="free"}: "$column(3)"
+          hw.logical_disk.usage{state="used"}: "collectAllocatedSpace()"
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.19746.1.1.1.1.1.1"
+          selectColumns: "ID,1,3"
+      mapping:
+        # InstanceTable = Source(3)
+        # DeviceID;Enclosure;Location;
+        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          power_supply_type: "$column(3)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = diskPropertiesTable
+          # DeviceID;Status;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.19746.1.1.1.1.1.1"
+          selectColumns: "ID,4"
+          computes:
+            # Translate the first status column into a PATROLStatus
+            # DiskID;PATROLStatus;
+          - type: "translate"
+            column: 2
+            translationTable: "powerSupplyStatusTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.power_supply.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="power_supply"}: "$column(2)"
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Fan Table
+          # DeviceID;Enclosure;Location;FanLevel;Status;
+          # or
+          # DeviceID;;Enclosure;Location;FanLevel;Status;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.19746.1.1.3.1.1.1"
+          selectColumns: "ID,1,3,4,5,6"
+          computes:
+            # Process the tabel through awk EmbeddedFile(2) due to a change in the location of information in the MIB
+            # DeviceID;Enclosure;Location;FanLevel;Status;
+          - type: "awk"
+            script: "EmbeddedFile(2)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3,4,5,6"
+      mapping:
+        # InstanceTable = Source(3)
+        # DeviceID;Enclosure;Location;FanLevel;Status;
+        source: "$monitors.fan.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          hw.parent.type: "enclosure"
+          name: "$column(1)"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = diskPropertiesTable
+          # DeviceID;Enclosure;Location;FanLevel;Status;
+          # or
+          # DeviceID;;Enclosure;Location;FanLevel;Status;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.19746.1.1.3.1.1.1"
+          selectColumns: "ID,1,3,4,5,6"
+          computes:
+            # Process the tabel through awk EmbeddedFile(2) due to a change in the location of information in the MIB
+            # DeviceID;Enclosure;Location;FanLevel;Status;
+          - type: "awk"
+            script: "EmbeddedFile(2)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3,4,5,6"
+            # Translate the Level column to become Status Information
+            # DeviceID;Enclosure;Location;FanLevel;Status;
+          - type: "translate"
+            column: 4
+            translationTable: "FanLevelTranslationTable"
+            # Translate the first status column into a PATROLStatus
+            # DeviceID;Enclosure;Location;FanLevel;PATROLStatus;
+          - type: "translate"
+            column: 5
+            translationTable: "FanStatusTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.fan.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="fan"}: "$column(5)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Temperature Table
+          # DeviceID;Enclosure;Location;Temperature;Presence;
+          # or
+          # DeviceID;;Enclosure;Location;Temperature;Status;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.19746.1.1.2.1.1.1"
+          selectColumns: "ID,1,3,4,5,6"
+          computes:
+            # Process the tabel through awk EmbeddedFile(4) due to a change in the location of information in the MIB
+            # DeviceID;Enclosure;Location;Presence;Threshold;
+          - type: "awk"
+            script: "EmbeddedFile(4)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3,4,6,7"
+            # Exclude Missing Sensors (0 = Absent, 2 = Not Found)
+            # DeviceID;Enclosure;Location;Presence;Threshold;
+          - type: "excludeMatchingLines"
+            column: 4
+            valueList: "0,2"
+      mapping:
+        # InstanceTable = Source(3)
+        # DeviceID;Enclosure;Location;Presence;Threshold;
+        source: "$monitors.temperature.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          temperature_type: "$column(3)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+        metrics:
+          hw.temperature.limit{limit_type="high.degraded"}: "$column(5)"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = Temperature Table
+          # DeviceID;Enclosure;Location;Temperature;Presence;;
+          # or
+          # DeviceID;;Enclosure;Location;Temperature;Presence;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.19746.1.1.2.1.1.1"
+          selectColumns: "ID,1,3,4,5,6"
+          computes:
+            # Process the tabel through awk EmbeddedFile(4) due to a change in the location of information in the MIB
+            # DeviceID;Temperature;
+          - type: "awk"
+            script: "EmbeddedFile(4)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,5"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.temperature.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.temperature: "$column(2)"
+  battery:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Battery Table
+          # DeviceID
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.19746.1.2.3.1.1"
+          selectColumns: "ID"
+          computes:
+            # Duplicate the DeviceID
+            # DeviceID,DeviceID
+          - type: "duplicateColumn"
+            column: 1
+            # Add a label to the battery
+            # DeviceID,DisplayID
+          - type: "leftConcat"
+            column: 2
+            value: "NVRAM-"
+      mapping:
+        # InstanceTable = Source(1)
+        # DeviceID
+        source: "$monitors.battery.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(2)"
+          hw.parent.type: "enclosure"
+          name: "$column(2)"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = nvramBatteryTable
+          # DeviceID;Status;Percentage
+          # or
+          # DeviceID;ID;Status;Percentage
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.19746.1.2.3.1.1"
+          selectColumns: "ID,2,3,4"
+          computes:
+            # Process the tabel through awk EmbeddedFile(5) due to a change in the location of information in the MIB
+          - type: "awk"
+            script: "EmbeddedFile(5)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3,4"
+            # Duplicate the Status
+            # DeviceID;Status;Status;Percentage
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the first status column into a PATROLStatus
+            # DeviceID;PatrolStatus;Status;Percentage
+          - type: "translate"
+            column: 2
+            translationTable: "BatteryStatusTranslationTable"
+            # Translate the Second Status to become Status Information
+            # DeviceID;PatrolStatus;StatusInformation;Percentage
+          - type: "translate"
+            column: 3
+            translationTable: "BatteryStatusInformationTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.battery.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="battery"}: "$column(2)"
+          hw.battery.charge: "percent2Ratio($column(4))"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"

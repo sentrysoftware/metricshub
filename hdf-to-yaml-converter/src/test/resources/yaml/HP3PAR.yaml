@@ -1,0 +1,2057 @@
+---
+embedded:
+  EmbeddedFile(1): "BEGIN {FS=\"[;]\"}\nNF==6 { ElementName = $1\n\t      IdentifyingDescriptions = $2\n\t      Name = $3\n\t      OtherIdentifyingInfo = $4\n\t      PATH =  $5\n\t      split(IdentifyingDescriptions,Variables,\"|\")\n\t      split(OtherIdentifyingInfo,Values,\"|\")\n\t      for (Entry in Variables) {\n\t      \t  if (Variables[Entry] ~ /Node WWN/) { NodeWWN = Values[Entry]}\n\t      \t  if (Variables[Entry] ~ /Ipv4 Address/) { IPv4 = Values[Entry]}\n\t      \t  if (Variables[Entry] ~ /Ipv6 Address/) { Ipv6 = Values[Entry]}\n\t          if (Variables[Entry] ~ /Fully Qualified Domain Name/) { FQDN = Values[Entry]}\n\t          if (Variables[Entry] ~ /System ID/) { SystemID = Values[Entry]}\n\t          }\n\t      print(\"MSHW;\" ElementName \";\" Name \";\" NodeWWN \";\" IPv4 \";\" Ipv6 \";\" FQDN \";\" SystemID \";\" PATH \";\" )\n\t    }"
+translations:
+  DMTFOperationStatusTranslationTable:
+    "11": "degraded"
+    "99": "degraded"
+    "12": "failed"
+    "13": "failed"
+    "14": "failed"
+    "15": "ok"
+    "16": "degraded"
+    "17": "ok"
+    "18": "ok"
+    "2": "ok"
+    default: "UNKNOWN"
+    "3": "degraded"
+    "4": "degraded"
+    "5": "degraded"
+    "6": "failed"
+    "7": "failed"
+    "8": "degraded"
+    "9": "degraded"
+    "10": "failed"
+  ACStatusTranslationTable:
+    "1": "|OK"
+    default: "|UNKNOWN"
+    "3": "|ALARM"
+  PortTypeTranslationTable:
+    default: ""
+    tpd_ethernetport: "Ethernet Port;MAC"
+    tpd_fcport: "FC Port;WWN"
+    tpd_sasport: "SAS Port;"
+  DeviceTypeTranslationTable:
+    "1": "HDD"
+    "2": "HDD-NL"
+    default: "Unknown"
+    "4": "SSD"
+  FanSystemTypeTranslationTable:
+    default: "Enclosure"
+    tpd_storagesystem: "Enclosure"
+    tpd_nodesystem: "Blade"
+  InterconnectTypeTranslationTable:
+    "1": "Other"
+    "2": "N/A"
+    default: "Unknown"
+    "3": "ATA"
+    "4": "SATA"
+    "5": "SAS"
+    "6": "FC"
+    "7": "SOP"
+  DMTFOperationStatusInformationTranslationTable:
+    "11": "In Service"
+    "99": "Stopped"
+    "12": "No Contact"
+    "13": "Lost Communication"
+    "14": "Aborted"
+    "15": "Dormant"
+    "16": "Supporting Entity in Error"
+    "17": "Completed"
+    "18": "Power Mode"
+    "2": ""
+    default: ""
+    "3": "Degraded"
+    "4": "Stressed"
+    "5": "Predicted Failure"
+    "6": "Error"
+    "7": "Non-Recoverable Error"
+    "8": "Starting"
+    "9": "Stopping"
+    "10": "Stopped"
+  PrimordialTranslationTable:
+    default: ""
+    "true": "Primordial"
+    "false": "Disk Group"
+  ACStatusInformationTranslationTable:
+    "1": ""
+    default: ""
+    "3": " AC Failure"
+connector:
+  displayName: "HPE Primera / HP 3PAR Disk Array"
+  platforms: "HPE Primera / HP 3PAR"
+  reliesOn: "HPE Primera / HP 3PAR Embedded SMI-S Provider"
+  version: "1.0"
+  information: "This connector discovers the enclosure and the disks of HPE Primera and HP 3PAR disk arrays, as well as the storage pools. It also discovers and monitor the FC ports of the array and the various environment sensors when available (temperatures, fans, power supplies, etc.). It relies on the WBEM technology and supports SMI-S compliant disk arrays only."
+  detection:
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "Storage"
+    supersedes:
+    - "SMISDiskArray"
+    criteria:
+      # Verify that there is an TPD_StorageSystem instance
+    - type: "wbem"
+      namespace: "root/tpd"
+      query: "SELECT Name FROM TPD_StorageSystem"
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = TPD_SystemPackage
+          # Model,SerialNumber,Version,TPD_SystemPackage
+          type: "wbem"
+          query: "SELECT Model,SerialNumber,Version,__Path FROM TPD_SystemPackage"
+          namespace: "root/tpd"
+        source(2):
+          # Source(2) = TPD_StorageSystem
+          # ElementName,IdentifyingDescriptions,Name,OtherIdentifyingInfo,TPD_StorageSystem
+          type: "wbem"
+          query: "SELECT ElementName,IdentifyingDescriptions,Name,OtherIdentifyingInfo,__Path FROM TPD_StorageSystem"
+          namespace: "root/tpd"
+          computes:
+            # Awk the output to extract information
+            # MSHW,ElementName,Name,NodeWWN,IPv4,Ipv6,FQDN,SystemID,TPD_StorageSystem
+          - type: "awk"
+            script: "EmbeddedFile(1)"
+            keep: "^MSHW"
+        source(3):
+          # Source(3) = TPD_ComputerSystemPackage
+          # TPD_SystemPackage,TPD_StorageSystem
+          type: "wbem"
+          query: "SELECT Antecedent,Dependent FROM TPD_ComputerSystemPackage"
+          namespace: "root/tpd"
+        source(4):
+          # Source (4) = Join of TPD_StorageSystem and Association Table
+          # MSHW,ElementName,Name,NodeWWN,IPv4,Ipv6,FQDN,SystemID,TPD_StorageSystem,TPD_SystemPackage,TPD_StorageSystem
+          type: "tableJoin"
+          leftTable: "$monitors.enclosure.discovery.sources.source(2)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(3)$"
+          leftKeyColumn: 9
+          rightKeyColumn: 2
+          keyType: "Wbem"
+          defaultRightLine: ";;"
+        source(5):
+          # Source (5) = Join of (4) and TPD_SystemPackage
+          # MSHW,ElementName,Name,NodeWWN,IPv4,Ipv6,FQDN,SystemID,TPD_StorageSystem,TPD_SystemPackage,TPD_StorageSystem,Model,SerialNumber,Version,TPD_SystemPackage
+          type: "tableJoin"
+          leftTable: "$monitors.enclosure.discovery.sources.source(4)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(1)$"
+          leftKeyColumn: 10
+          rightKeyColumn: 4
+          keyType: "Wbem"
+          defaultRightLine: ";;;;"
+          computes:
+            # Remove Paths
+            #   1         2      3      4    5     6   7       8           9            #   10             11            # 12       13          14        15
+            # MSHW,ElementName,Name,NodeWWN,IPv4,Ipv6,FQDN,SystemID,TPD_StorageSystem,TPD_SystemPackage,TPD_StorageSystem,Model,SerialNumber,Version,TPD_SystemPackage
+            # ElementName,Name,NodeWWN,IPv4,Ipv6,FQDN,SystemID,Model,SerialNumber,Version
+          - type: "keepColumns"
+            columnNumbers: "2,3,4,5,6,7,8,12,13,14"
+            # Add 3 empty additionalInformationColumns
+            # ElementName,Name,NodeWWN,IPv4,Ipv6,FQDN,SystemID,Model,SerialNumber,Version,,,
+          - type: "rightConcat"
+            column: 10
+            value: ";;;"
+        source(6):
+          # Source (6) = TPD_DriveCage
+          # ElementName,Tag,ModelName,SerialNumber,FirmwareVersion,SaleableProductNumber,SaleableSerialNumber,ModelNumber
+          type: "wbem"
+          query: "SELECT ElementName,Tag,ModelName,SerialNumber,FirmwareVersion,SaleableProductNumber,SaleableSerialNumber,ModelNumber FROM TPD_DriveCage"
+          namespace: "root/tpd"
+          computes:
+            # Add 5 blank columns
+            # ElementName,Tag ,       ,    ,    ,    ,        ,ModelName,SerialNumber,FirmwareVersion,SaleableProductNumber,SaleableSerialNumber,ModelNumber
+            # ElementName,Name,NodeWWN,IPv4,Ipv6,FQDN,SystemID,Model    ,SerialNumber,Version        ,            #  ,            #        ,
+          - type: "rightConcat"
+            column: 2
+            value: ";;;;;"
+            # Add identifiers
+          - type: "leftConcat"
+            column: 11
+            value: "Alternative Part Number: "
+          - type: "leftConcat"
+            column: 12
+            value: "Serial Number: "
+          - type: "leftConcat"
+            column: 13
+            value: "Model: "
+        source(7):
+          # Union of Node Enclosure and Drive Cages
+          # ElementName,Name,NodeWWN,IPv4,Ipv6,FQDN,SystemID,Model,SerialNumber,Version,SaleableProductNumber,SaleableSerialNumber,ModelNumber
+          type: "tableUnion"
+          tables:
+          - "$monitors.enclosure.discovery.sources.source(5)$"
+          - "$monitors.enclosure.discovery.sources.source(6)$"
+          computes:
+          - type: "leftConcat"
+            column: 10
+            value: "FirmwareVersion: "
+      mapping:
+        # Instance Table
+        # ElementName,Name,NodeWWN,IPv4,Ipv6,FQDN,SystemID,Model,SerialNumber,Version,SaleableProductNumber,SaleableSerialNumber,ModelNumber
+        source: "$monitors.enclosure.discovery.sources.source(7)$"
+        attributes:
+          id: "$column(2)"
+          __display_id: "$column(1)"
+          vendor: "HP"
+          model: "$column(8)"
+          serial_number: "$column(9)"
+          bios_version: "$column(10)"
+          type: "Storage"
+          info: "join($column(11), $column(12), $column(13), \" \")"
+          name: "sprintf(\"%s (%s %s - %s)\", $column(1), \"HP\", $column(8), \"Storage\")"
+    collect:
+      # Collect type is mono-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = TPD_StorageSystem
+          # ElementName;OperationalStatus;
+          type: "wbem"
+          query: "SELECT Name,OperationalStatus FROM TPD_StorageSystem"
+          namespace: "root/tpd"
+        source(2):
+          # Source(2) = TPD_StorageSystem
+          # ElementName;OperationalStatus;
+          type: "wbem"
+          query: "SELECT Tag,OperationalStatus FROM TPD_DriveCage"
+          namespace: "root/tpd"
+        source(3):
+          # Union 1 and 2
+          # ElementName;OperationalStatus;
+          type: "tableUnion"
+          tables:
+          - "$monitors.enclosure.collect.sources.source(1)$"
+          - "$monitors.enclosure.collect.sources.source(2)$"
+          computes:
+            # Duplicate the "OperationalStatusArray" column
+            # Name;OperationalStatus;OperationalStatus;
+          - type: "duplicateColumn"
+            column: 2
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # Name;PATROLStatusArray;OperationalStatus;
+          - type: "arrayTranslate"
+            column: 2
+            translationTable: "DMTFOperationStatusTranslationTable"
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # Name;PATROLStatusArray;StatusDescriptions;
+          - type: "arrayTranslate"
+            column: 3
+            translationTable: "DMTFOperationStatusInformationTranslationTable"
+            resultSeparator: " - "
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # Name;PATROLStatus;StatusDescriptions;
+          - type: "convert"
+            column: 2
+            conversion: "array2SimpleStatus"
+      mapping:
+        # ValueTable = Source(1)
+        # Name;PATROLStatus;StatusDescriptions;
+        source: "$monitors.enclosure.collect.sources.source(3)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="enclosure"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  blade:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = TPD_Blade
+          # DeviceID,DisplayID,BiosVersion,KernelVersion,TPD_NodeSystem
+          type: "wbem"
+          query: "SELECT Name,Description,BiosVersion,KernelVersion,__PATH FROM TPD_NodeSystem"
+          namespace: "root/tpd"
+        source(2):
+          # Source(2) = TPD_NodePackage
+          # Manufacturer,Model,ModelName,Serialnumber,SparePartNumber,SaleableProductNumber,SaleableSerialNumber,TPD_NodePackage
+          type: "wbem"
+          query: "SELECT Manufacturer,Model,ModelName,Serialnumber,SparePartNumber,SaleableProductNumber,SaleableSerialNumber,__Path FROM TPD_NodePackage"
+          namespace: "root/tpd"
+        source(3):
+          # Source(3) = TPD_NodeSystemPackage
+          # TPD_NodePackage,TPD_NodeSystem
+          type: "wbem"
+          query: "SELECT Antecedent,Dependent FROM TPD_NodeSystemPackage"
+          namespace: "root/tpd"
+        source(4):
+          # Source (4) = Join of TPD_NodeSystem and Association Table
+          # DeviceID,DisplayID,BiosVersion,KernelVersion,TPD_NodeSystem,TPD_NodePackage,TPD_NodeSystem
+          type: "tableJoin"
+          leftTable: "$monitors.blade.discovery.sources.source(1)$"
+          rightTable: "$monitors.blade.discovery.sources.source(3)$"
+          leftKeyColumn: 5
+          rightKeyColumn: 2
+          keyType: "Wbem"
+          defaultRightLine: ";;"
+        source(5):
+          # Source (5) = Join of (4) and TPD_NodePackage
+          # DeviceID,DisplayID,BiosVersion,KernelVersion,TPD_NodeSystem,TPD_NodePackage,TPD_NodeSystem,Manufacturer,Model,ModelName,Serialnumber,SparePartNumber,SaleableProductNumber,SaleableSerialNumber,TPD_NodePackage
+          type: "tableJoin"
+          leftTable: "$monitors.blade.discovery.sources.source(4)$"
+          rightTable: "$monitors.blade.discovery.sources.source(2)$"
+          leftKeyColumn: 6
+          rightKeyColumn: 8
+          keyType: "Wbem"
+          defaultRightLine: ";;;;;;;;"
+          computes:
+            # Remove Paths (Except NodePackage)
+            #   1         2          3            #  4            5            #   6            # 7           8         9       10          11           12            #    13            #   14            #    15
+            # DeviceID,DisplayID,BiosVersion,KernelVersion,TPD_NodeSystem,TPD_NodePackage,TPD_NodeSystem,Manufacturer,Model,ModelName,Serialnumber,SparePartNumber,SaleableProductNumber,SaleableSerialNumber
+            # DeviceID,DisplayID,BiosVersion,KernelVersion,            #             #             #     Manufacturer,Model,ModelName,Serialnumber,SparePartNumber,SaleableProductNumber,SaleableSerialNumber
+          - type: "keepColumns"
+            columnNumbers: "1,2,3,4,8,9,10,11,12,13,14"
+            # Add identifiers (AdditionalInformation2)
+            #   1         2          3            #  4            5       6       7           8            #  9            10            #     11
+            # DeviceID,DisplayID,BiosVersion,KernelVersion,Manufacturer,Model,ModelName,Serialnumber,SparePartNumber,SaleableProductNumber,SaleableSerialNumber
+          - type: "leftConcat"
+            column: 3
+            value: "Bios Version: "
+          - type: "leftConcat"
+            column: 4
+            value: " - Kernel: "
+          - type: "rightConcat"
+            column: 3
+            value: "Column(4)"
+            # Add identifiers (AdditionalInformation1)
+            #   1         2          3            #         4            #   5       6       7           8            #  9            10            #     11
+            # DeviceID,DisplayID,AdditionalInformation2,KernelVersion,Manufacturer,Model,ModelName,Serialnumber,SparePartNumber,SaleableProductNumber,SaleableSerialNumber
+          - type: "leftConcat"
+            column: 5
+            value: "Manufacturer: "
+          - type: "leftConcat"
+            column: 9
+            value: " - Part Number: "
+          - type: "leftConcat"
+            column: 10
+            value: " - Alternative Part Number: "
+          - type: "leftConcat"
+            column: 11
+            value: " - Alternative Serial Number: "
+          - type: "rightConcat"
+            column: 5
+            value: "Column(9)"
+          - type: "rightConcat"
+            column: 5
+            value: "Column(10)"
+          - type: "rightConcat"
+            column: 5
+            value: "Column(11)"
+            # Remove whitespaces
+            # Remove the dash from the systemname
+          - type: "replace"
+            column: 5
+            existingValue: "  "
+            newValue: ""
+        source(6):
+          # Link Node to System
+          #  TPD_StorageSystem,TPD_NodeSystem
+          type: "wbem"
+          query: "SELECT GroupComponent,PartComponent FROM TPD_NodeComponentCS"
+          namespace: "root/tpd"
+        source(7):
+          # SystemID to System
+          # SystemID,TPD_StorageSystem
+          type: "wbem"
+          query: "SELECT Name,__PATH FROM TPD_StorageSystem"
+          namespace: "root/tpd"
+        source(8):
+          # NodeID to NodeSystem
+          # NodeID,TPD_NodeSystem
+          type: "wbem"
+          query: "SELECT Name,__PATH FROM TPD_NodeSystem"
+          namespace: "root/tpd"
+        source(9):
+          # Node to SystemID
+          # TPD_StorageSystem,TPD_NodeSystem,SystemID,TPD_StorageSystem
+          type: "tableJoin"
+          leftTable: "$monitors.blade.discovery.sources.source(6)$"
+          rightTable: "$monitors.blade.discovery.sources.source(7)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 2
+          keyType: "Wbem"
+        source(10):
+          # Node to SystemID
+          # TPD_StorageSystem,TPD_NodeSystem,SystemID,TPD_StorageSystem,NodeID,TPD_NodeSystem
+          type: "tableJoin"
+          leftTable: "$monitors.blade.discovery.sources.source(9)$"
+          rightTable: "$monitors.blade.discovery.sources.source(8)$"
+          leftKeyColumn: 2
+          rightKeyColumn: 2
+          keyType: "Wbem"
+          computes:
+            # Keep only SystemID and NodeID
+            # SystemID,NodeID
+          - type: "keepColumns"
+            columnNumbers: "3,5"
+        source(11):
+          # Attach SystemID to main node discovery
+          # DeviceID,DisplayID,AdditionalInformation2,KernelVersion,AdditionalInformation1,Model,ModelName,Serialnumber,SparePartNumber,SaleableProductNumber,SaleableSerialNumber,SystemID,NodeID
+          type: "tableJoin"
+          leftTable: "$monitors.blade.discovery.sources.source(5)$"
+          rightTable: "$monitors.blade.discovery.sources.source(10)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 2
+          keyType: "Wbem"
+          defaultRightLine: ";;"
+      mapping:
+        # Instance Table
+        #   1         2        # 3        #         #   4        #       5        #         6       7        #  8        #      9        #   10        #         11        #       12      13
+        # DeviceID,DisplayID,AdditionalInformation2,KernelVersion,AdditionalInformation1,Model,ModelName,Serialnumber,SparePartNumber,SaleableProductNumber,SaleableSerialNumber,SystemID,NodeID
+        source: "$monitors.blade.discovery.sources.source(11)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(2)"
+          model: "$column(6)"
+          serial_number: "$column(8)"
+          info: "join($column(5), $column(3), \" \")"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(12)"
+          name: "sprintf(\"%s (%s)\", $column(2), $column(6))"
+    collect:
+      # Collect type is multiinstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = TPD_NodeSystem
+          # DeviceID;OperationalStatus;
+          type: "wbem"
+          query: "SELECT Name,OperationalStatus FROM TPD_NodeSystem"
+          namespace: "root/tpd"
+          computes:
+            # Duplicate the "OperationalStatus" column
+            # DeviceID,OperationalStatus
+          - type: "duplicateColumn"
+            column: 2
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # DeviceID,PATROLStatusArray,OperationalStatus
+          - type: "arrayTranslate"
+            column: 2
+            translationTable: "DMTFOperationStatusTranslationTable"
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # DeviceID,PATROLStatusArray,StatusInformation
+          - type: "arrayTranslate"
+            column: 3
+            translationTable: "DMTFOperationStatusInformationTranslationTable"
+            resultSeparator: " - "
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # DeviceID,PATROLStatus,StatusInformation
+          - type: "convert"
+            column: 2
+            conversion: "array2SimpleStatus"
+      mapping:
+        # ValueTable = Source(1)
+        # SystemName,Caption,PATROLStatus,StatusDescriptions
+        source: "$monitors.blade.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="blade"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  battery:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = TPD_Battery
+          # DeviceID,Manufacturer,SystemName
+          type: "wbem"
+          query: "SELECT DeviceID,Manufacturer,SystemName,__PATH FROM TPD_Battery"
+          namespace: "root/tpd"
+          computes:
+            # Duplicate the DeviceID to make DeviceID and DisplayID
+            # DeviceID,DeviceID,Manufacturer,SystemName,TPD_Battery
+          - type: "duplicateColumn"
+            column: 1
+            # Add a dash to the left of the systemname
+          - type: "rightConcat"
+            column: 4
+            value: "-"
+            # Remove the SystemName from the DisplayID
+            # DeviceID,DisplayID,Manufacturer,SystemName,TPD_Battery
+          - type: "replace"
+            column: 2
+            existingValue: "Column(4)"
+            newValue: ""
+            # Remove the dash from the systemname
+          - type: "replace"
+            column: 4
+            existingValue: "-"
+            newValue: ""
+            # Add a descriptions
+          - type: "leftConcat"
+            column: 3
+            value: "Manufacturer: "
+        source(2):
+          # As this doesn't have a part number, let's see if we can get the associated power supply part number
+          # TPD_Battery,TPD_NodePowerSupply
+          type: "wbem"
+          query: "SELECT Antecedent,Dependent FROM TPD_PowerSupplyBattery"
+          namespace: "root/tpd"
+        source(3):
+          # PowerSupplyDescription to System
+          # Model,SparePartNumber,SerialNumber,TPD_NodePowerSupply
+          type: "wbem"
+          query: "SELECT Model,SparePartNumber,SerialNumber,__PATH FROM TPD_NodePowerSupply"
+          namespace: "root/tpd"
+        source(4):
+          # Battery to PowerSupply
+          # Model,SparePartNumber,SerialNumber,TPD_NodePowerSupply,TPD_Battery,TPD_NodePowerSupply
+          type: "tableJoin"
+          leftTable: "$monitors.battery.discovery.sources.source(3)$"
+          rightTable: "$monitors.battery.discovery.sources.source(2)$"
+          leftKeyColumn: 4
+          rightKeyColumn: 2
+          keyType: "Wbem"
+          computes:
+            # Group all Powersupply Information to a single field
+            # Model,SparePartNumber,SerialNumber,TPD_NodePowerSupply,TPD_Battery,TPD_NodePowerSupply
+          - type: "leftConcat"
+            column: 1
+            value: "Associated PSU Model: "
+          - type: "leftConcat"
+            column: 2
+            value: " - PSU Part Number: "
+          - type: "leftConcat"
+            column: 3
+            value: " - PSU Serial Number: "
+          - type: "rightConcat"
+            column: 1
+            value: "Column(2)"
+          - type: "rightConcat"
+            column: 1
+            value: "Column(3)"
+            # Keep only SystemID and NodeID
+            # PSUInfo,TPD_Battery
+          - type: "keepColumns"
+            columnNumbers: "1,5"
+        source(5):
+          # Battery to PowerSupplyInformation
+          # DeviceID,DisplayID,Manufacturer,SystemName,TPD_Battery,PSUInfo,TPD_Battery
+          type: "tableJoin"
+          leftTable: "$monitors.battery.discovery.sources.source(1)$"
+          rightTable: "$monitors.battery.discovery.sources.source(4)$"
+          leftKeyColumn: 5
+          rightKeyColumn: 2
+          keyType: "Wbem"
+          defaultRightLine: ";;"
+          computes:
+            # Remove Paths
+            # DeviceID,DisplayID,Manufacturer,SystemName,TPD_Battery,PSUInfo,TPD_Battery
+            # DeviceID,DisplayID,Manufacturer,SystemName,PSUInfo
+          - type: "keepColumns"
+            columnNumbers: "1,2,3,4,6"
+      mapping:
+        # Instance Table
+        # DeviceID,DisplayID,Manufacturer,SystemName,PSUInfo
+        source: "$monitors.battery.discovery.sources.source(5)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(2)"
+          info: "join($column(3), $column(5), \" \")"
+          hw.parent.type: "blade"
+          hw.parent.id: "$column(4)"
+          name: "$column(2)"
+    collect:
+      # Collect type is multiinstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = TPD_Battery
+          # DeviceID;OperationalStatus;
+          type: "wbem"
+          query: "SELECT DeviceID,OperationalStatus FROM TPD_Battery"
+          namespace: "root/tpd"
+          computes:
+            # Duplicate the "OperationalStatus" column
+            # DeviceID,OperationalStatus
+          - type: "duplicateColumn"
+            column: 2
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # DeviceID,PATROLStatusArray,OperationalStatus
+          - type: "arrayTranslate"
+            column: 2
+            translationTable: "DMTFOperationStatusTranslationTable"
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # DeviceID,PATROLStatusArray,StatusInformation
+          - type: "arrayTranslate"
+            column: 3
+            translationTable: "DMTFOperationStatusInformationTranslationTable"
+            resultSeparator: " - "
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # DeviceID,PATROLStatus,StatusInformation
+          - type: "convert"
+            column: 2
+            conversion: "array2SimpleStatus"
+      mapping:
+        # ValueTable = Source(1)
+        # SystemName,Caption,PATROLStatus,StatusDescriptions
+        source: "$monitors.battery.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="battery"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  cpu:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = TPD_NodeCPU
+          # DeviceID,DisplayID,Model,SystemName
+          type: "wbem"
+          query: "SELECT DeviceID,ElementName,Model,SystemName FROM TPD_NodeCPU"
+          namespace: "root/tpd"
+          computes:
+            # Remove (R)
+          - type: "replace"
+            column: 3
+            existingValue: "(R)"
+            newValue: ""
+      mapping:
+        # Instance Table
+        # DeviceID,DisplayID,Manufacturer,SystemName
+        source: "$monitors.cpu.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(2)"
+          info: "$column(3)"
+          hw.parent.type: "blade"
+          hw.parent.id: "$column(4)"
+          name: "$column(2)"
+    collect:
+      # Collect type is multiinstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = TPD_NodeCPU
+          # DeviceID;OperationalStatus;
+          type: "wbem"
+          query: "SELECT DeviceID,OperationalStatus FROM TPD_NodeCPU"
+          namespace: "root/tpd"
+          computes:
+            # Duplicate the "OperationalStatus" column
+            # DeviceID,OperationalStatus
+          - type: "duplicateColumn"
+            column: 2
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # DeviceID,PATROLStatusArray,OperationalStatus
+          - type: "arrayTranslate"
+            column: 2
+            translationTable: "DMTFOperationStatusTranslationTable"
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # DeviceID,PATROLStatusArray,StatusInformation
+          - type: "arrayTranslate"
+            column: 3
+            translationTable: "DMTFOperationStatusInformationTranslationTable"
+            resultSeparator: " - "
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # DeviceID,PATROLStatus,StatusInformation
+          - type: "convert"
+            column: 2
+            conversion: "array2SimpleStatus"
+      mapping:
+        # ValueTable = Source(1)
+        # SystemName,Caption,PATROLStatus,StatusDescriptions
+        source: "$monitors.cpu.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="cpu"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  memory:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = TPD_PhysicalMemory
+          # Tag,Capacity,ElementName,Manufacturer,PartNumber,SerialNumber,SlotID,TPD_PhysicalMemory
+          type: "wbem"
+          query: "SELECT Tag,Capacity,ElementName,Manufacturer,PartNumber,SerialNumber,SlotID,__PATH FROM TPD_PhysicalMemory"
+          namespace: "root/tpd"
+          computes:
+            # Add Slot Information
+            # Tag,Capacity,ElementName,Manufacturer,PartNumber,SerialNumber,SlotID,TPD_PhysicalMemory
+          - type: "leftConcat"
+            column: 7
+            value: "Location: "
+            # Convert Memory to MB
+          - type: "divide"
+            column: 2
+            value: "1048576"
+        source(2):
+          # As no systemname is listed, let's find the node by association
+          # TPD_NodePackage,TPD_PhysicalMemory
+          type: "wbem"
+          query: "SELECT GroupComponent,PartComponent FROM TPD_NodePackagedMemory"
+          namespace: "root/tpd"
+        source(3):
+          # PowerSupplyDescription to System
+          # NodeID,TPD_NodePackage
+          type: "wbem"
+          query: "SELECT Tag,__PATH FROM TPD_NodePackage"
+          namespace: "root/tpd"
+        source(4):
+          # Memory to PowerSupply
+          # TPD_NodePackage,TPD_PhysicalMemory,NodeID,TPD_NodePackage
+          type: "tableJoin"
+          leftTable: "$monitors.memory.discovery.sources.source(2)$"
+          rightTable: "$monitors.memory.discovery.sources.source(3)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 2
+          keyType: "Wbem"
+        source(5):
+          # Memory to PowerSupply
+          # Tag,Capacity,ElementName,Manufacturer,PartNumber,SerialNumber,SlotID,TPD_PhysicalMemory,TPD_NodePackage,TPD_PhysicalMemory,NodeID,TPD_NodePackage
+          type: "tableJoin"
+          leftTable: "$monitors.memory.discovery.sources.source(1)$"
+          rightTable: "$monitors.memory.discovery.sources.source(4)$"
+          leftKeyColumn: 8
+          rightKeyColumn: 2
+          keyType: "Wbem"
+          defaultRightLine: ";;;;"
+          computes:
+            # Remove Paths
+            # Tag,Capacity,ElementName,Manufacturer,PartNumber,SerialNumber,SlotID,TPD_PhysicalMemory,TPD_NodePackage,TPD_PhysicalMemory,NodeID,TPD_NodePackage
+            # Tag,Capacity,ElementName,Manufacturer,PartNumber,SerialNumber,SlotID,            #             #             #             NodeID
+          - type: "keepColumns"
+            columnNumbers: "1,2,3,4,5,6,7,11"
+      mapping:
+        # Instance Table
+        # Tag,Capacity,ElementName,Manufacturer,PartNumber,SerialNumber,SlotID,NodeID
+        source: "$monitors.memory.discovery.sources.source(5)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(3)"
+          vendor: "$column(4)"
+          model: "$column(5)"
+          serial_number: "$column(6)"
+          info: "$column(7)"
+          hw.parent.type: "blade"
+          hw.parent.id: "$column(8)"
+          name: "sprintf(\"%s (%s (%s) - %s)\", $column(3), $column(4), $column(5), $column(2))"
+        metrics:
+          hw.memory.limit: "mebiByte2Byte($column(2))"
+    collect:
+      # Collect type is multiinstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = TPD_PhysicalMemory
+          # DeviceID;OperationalStatus;
+          type: "wbem"
+          query: "SELECT Tag,OperationalStatus FROM TPD_PhysicalMemory"
+          namespace: "root/tpd"
+          computes:
+            # Duplicate the "OperationalStatus" column
+            # DeviceID,OperationalStatus
+          - type: "duplicateColumn"
+            column: 2
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # DeviceID,PATROLStatusArray,OperationalStatus
+          - type: "arrayTranslate"
+            column: 2
+            translationTable: "DMTFOperationStatusTranslationTable"
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # DeviceID,PATROLStatusArray,StatusInformation
+          - type: "arrayTranslate"
+            column: 3
+            translationTable: "DMTFOperationStatusInformationTranslationTable"
+            resultSeparator: " - "
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # DeviceID,PATROLStatus,StatusInformation
+          - type: "convert"
+            column: 2
+            conversion: "array2SimpleStatus"
+      mapping:
+        # ValueTable = Source(1)
+        # SystemName,Caption,PATROLStatus,StatusDescriptions
+        source: "$monitors.memory.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="memory"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = TPD_NodePowerSupply
+          # DeviceID,ElementName,SystemName,Manufacturer,ModelName,Model,SerialNumber,SparePartNumber
+          type: "wbem"
+          query: "SELECT DeviceID,ElementName,SystemName,Manufacturer,ModelName,Model,SerialNumber,SparePartNumber FROM TPD_NodePowerSupply"
+          namespace: "root/tpd"
+          computes:
+            # Add SystemType
+            # DeviceID,ElementName,SystemName,Manufacturer,ModelName,Model,SerialNumber,SparePartNumber,SystemType
+          - type: "rightConcat"
+            column: 8
+            value: ";Blade"
+        source(2):
+          # Source(2) = TPD_CagePowerSupply
+          # DeviceID,ElementName,Name,Manufacturer,ModelName,Model,SerialNumber,SparePartNumber
+          type: "wbem"
+          query: "SELECT DeviceID,ElementName,Name,Manufacturer,ModelName,Model,SerialNumber,SparePartNumber FROM TPD_CagePowerSupply"
+          namespace: "root/tpd"
+          computes:
+            # Add SystemType
+            # DeviceID,ElementName,Name,Manufacturer,ModelName,Model,SerialNumber,SparePartNumber,SystemType
+          - type: "rightConcat"
+            column: 8
+            value: ";Enclosure"
+            # Extract the SystemName from the Name
+            # DeviceID,ElementName,Name,Manufacturer,ModelName,Model,SerialNumber,SparePartNumber,SystemType
+          - type: "extract"
+            column: 3
+            subColumn: 1
+            subSeparators: "-"
+        source(3):
+          # Union of 1 and 2
+          # DeviceID,ElementName,Name,Manufacturer,ModelName,Model,SerialNumber,SparePartNumber,SystemType
+          type: "tableUnion"
+          tables:
+          - "$monitors.power_supply.discovery.sources.source(1)$"
+          - "$monitors.power_supply.discovery.sources.source(2)$"
+          computes:
+            # Add Identifiers
+            # DeviceID,ElementName,Name,Manufacturer,ModelName,Model,SerialNumber,SparePartNumber,SystemType
+          - type: "leftConcat"
+            column: 4
+            value: "Manufacturer: "
+          - type: "leftConcat"
+            column: 5
+            value: " - Alternative Part Number: "
+          - type: "leftConcat"
+            column: 6
+            value: " - Model: "
+          - type: "rightConcat"
+            column: 4
+            value: "Column(5)"
+          - type: "rightConcat"
+            column: 4
+            value: "Column(6)"
+          - type: "leftConcat"
+            column: 7
+            value: "Serial Number: "
+          - type: "leftConcat"
+            column: 8
+            value: "Part Number: "
+      mapping:
+        # Instance Table
+        # DeviceID,ElementName,Name,AdditionalInformation1,ModelName,Model,SerialNumber,SparePartNumber,SystemType
+        source: "$monitors.power_supply.discovery.sources.source(3)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(2)"
+          info: "join($column(4), $column(7), $column(8), \" \")"
+          hw.parent.type: "$column(9)"
+          hw.parent.id: "$column(3)"
+          name: "sprintf(\"%s, $column(2))"
+    collect:
+      # Collect type is multiinstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = TPD_PowerSupply
+          # DeviceID;OperationalStatus;ACStatus
+          type: "wbem"
+          query: "SELECT DeviceID,OperationalStatus,ACStatus FROM TPD_PowerSupply"
+          namespace: "root/tpd"
+          computes:
+            # Duplicate the "OperationalStatus" column
+            # DeviceID,OperationalStatus;ACStatus
+          - type: "duplicateColumn"
+            column: 2
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # DeviceID,PATROLStatusArray,OperationalStatus,ACStatus
+          - type: "arrayTranslate"
+            column: 2
+            translationTable: "DMTFOperationStatusTranslationTable"
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # DeviceID,PATROLStatusArray,StatusInformation,ACStatus
+          - type: "arrayTranslate"
+            column: 3
+            translationTable: "DMTFOperationStatusInformationTranslationTable"
+            resultSeparator: " - "
+            # Duplicate the "ACStatus" column
+            # DeviceID,PATROLStatusArray,StatusInformation,ACStatus,ACStatus
+          - type: "duplicateColumn"
+            column: 4
+            # Then we translate ACStatus into OK/WARN/ALARM (for the Status parameter)
+            # DeviceID,PATROLStatusArray,StatusInformation,ACStatusPatrol,ACStatus
+          - type: "arrayTranslate"
+            column: 4
+            translationTable: "ACStatusTranslationTable"
+            # Add the AC Status to the main Status Array
+            # DeviceID,PATROLStatusArray,OperationalStatus,ACStatus
+          - type: "rightConcat"
+            column: 2
+            value: "Column(4)"
+            # Then we translate ACStatus into Status Information
+            # DeviceID,PATROLStatusArray,StatusInformation,ACStatusPatrol,ACStatus
+          - type: "arrayTranslate"
+            column: 5
+            translationTable: "ACStatusInformationTranslationTable"
+            # Add the AC Status to the main StatusInformation Array
+            # DeviceID,PATROLStatusArray,OperationalStatus,ACStatusPatrol,ACStatusInformation
+          - type: "rightConcat"
+            column: 3
+            value: "Column(5)"
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # DeviceID,PATROLStatusArray,OperationalStatus,ACStatusPatrol,ACStatusInformation
+          - type: "convert"
+            column: 2
+            conversion: "array2SimpleStatus"
+      mapping:
+        # ValueTable = Source(1)
+        # SystemName,Caption,PATROLStatus,StatusDescriptions
+        source: "$monitors.power_supply.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="power_supply"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = TPD_Fan
+          # DeviceID,SystemName
+          type: "wbem"
+          query: "SELECT DeviceID,SystemCreationClassName,__PATH FROM TPD_Fan"
+          namespace: "root/tpd"
+          computes:
+            # Duplicate the DeviceID to make DeviceID and DisplayID
+            # DeviceID,DeviceID,SystemName,SystemCreationClassName,TPD_Fan
+          - type: "duplicateColumn"
+            column: 1
+            # Duplicate the DeviceID again to make SystemID
+            # DeviceID,DeviceID,DeviceID,SystemCreationClassName,TPD_Fan
+          - type: "duplicateColumn"
+            column: 1
+            # Extract the SystemName from the Name
+            # DeviceID,DeviceID,SystemID,SystemCreationClassName,TPD_Fan
+          - type: "extract"
+            column: 3
+            subColumn: 1
+            subSeparators: "-"
+            # Remove the SystemName from the DisplayID
+            # DeviceID,DisplayID,SystemID,SystemCreationClassName,TPD_Fan
+          - type: "replace"
+            column: 2
+            existingValue: "Column(3)"
+            newValue: ""
+            # Add a MSHW to the left of the DisplayID
+          - type: "leftConcat"
+            column: 2
+            value: "MSHW"
+            # Remove the MSHW dash from the DisplayID
+          - type: "replace"
+            column: 2
+            existingValue: "MSHW-"
+            newValue: ""
+            # Translate the SystemCreationClassName to SystemType
+            # DeviceID,DisplayID,SystemID,SystemType,TPD_Fan
+          - type: "translate"
+            column: 4
+            translationTable: "FanSystemTypeTranslationTable"
+        source(2):
+          # As this doesn't have a part number, let's see if we can get the associated power supply part number
+          # TPD_Fan,TPD_NodePowerSupply
+          type: "wbem"
+          query: "SELECT Antecedent,Dependent FROM TPD_PowerSupplyCooling"
+          namespace: "root/tpd"
+        source(3):
+          # PowerSupplyDescription to System
+          # Model,SparePartNumber,SerialNumber,TPD_NodePowerSupply
+          type: "wbem"
+          query: "SELECT Model,SparePartNumber,SerialNumber,__PATH FROM TPD_PowerSupply"
+          namespace: "root/tpd"
+        source(4):
+          # Fan to PowerSupply
+          # Model,SparePartNumber,SerialNumber,TPD_NodePowerSupply,TPD_Fan,TPD_NodePowerSupply
+          type: "tableJoin"
+          leftTable: "$monitors.fan.discovery.sources.source(3)$"
+          rightTable: "$monitors.fan.discovery.sources.source(2)$"
+          leftKeyColumn: 4
+          rightKeyColumn: 2
+          keyType: "Wbem"
+          computes:
+            # Group all Powersupply Information to a single field
+            # Model,SparePartNumber,SerialNumber,TPD_NodePowerSupply,TPD_Fan,TPD_NodePowerSupply
+          - type: "leftConcat"
+            column: 1
+            value: "Associated PSU Model: "
+          - type: "leftConcat"
+            column: 2
+            value: " - PSU Part Number: "
+          - type: "leftConcat"
+            column: 3
+            value: " - PSU Serial Number: "
+          - type: "rightConcat"
+            column: 1
+            value: "Column(2)"
+          - type: "rightConcat"
+            column: 1
+            value: "Column(3)"
+            # Keep only SystemID and NodeID
+            # PSUInfo,TPD_Fan
+          - type: "keepColumns"
+            columnNumbers: "1,5"
+        source(5):
+          # Fan to PowerSupplyInformation
+          # DeviceID,DisplayID,SystemID,SystemType,TPD_Fan,PSUInfo,TPD_Fan
+          type: "tableJoin"
+          leftTable: "$monitors.fan.discovery.sources.source(1)$"
+          rightTable: "$monitors.fan.discovery.sources.source(4)$"
+          leftKeyColumn: 5
+          rightKeyColumn: 2
+          keyType: "Wbem"
+          defaultRightLine: ";;"
+          computes:
+            # Remove Paths
+            # DeviceID,DisplayID,SystemID,SystemType,TPD_Fan,PSUInfo,TPD_Fan
+            # DeviceID,DisplayID,SystemID,SystemType,PSUInfo
+          - type: "keepColumns"
+            columnNumbers: "1,2,3,4,6"
+      mapping:
+        # Instance Table
+        # DeviceID,DisplayID,SystemID,SystemType,PSUInfo
+        source: "$monitors.fan.discovery.sources.source(5)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(2)"
+          info: "$column(5)"
+          hw.parent.type: "$column(4)"
+          hw.parent.id: "$column(3)"
+          name: "$column(2)"
+    collect:
+      # Collect type is multiinstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = TPD_Fan
+          # DeviceID;OperationalStatus;
+          type: "wbem"
+          query: "SELECT DeviceID,OperationalStatus FROM TPD_Fan"
+          namespace: "root/tpd"
+          computes:
+            # Duplicate the "OperationalStatus" column
+            # DeviceID,OperationalStatus
+          - type: "duplicateColumn"
+            column: 2
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # DeviceID,PATROLStatusArray,OperationalStatus
+          - type: "arrayTranslate"
+            column: 2
+            translationTable: "DMTFOperationStatusTranslationTable"
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # DeviceID,PATROLStatusArray,StatusInformation
+          - type: "arrayTranslate"
+            column: 3
+            translationTable: "DMTFOperationStatusInformationTranslationTable"
+            resultSeparator: " - "
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # DeviceID,PATROLStatus,StatusInformation
+          - type: "convert"
+            column: 2
+            conversion: "array2SimpleStatus"
+      mapping:
+        # ValueTable = Source(1)
+        # SystemName,Caption,PATROLStatus,StatusDescriptions
+        source: "$monitors.fan.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="fan"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  voltage:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = TPD_SFP
+          # DeviceID,DisplayID,VoltHighWarn,VoltLowWarn
+          type: "wbem"
+          query: "SELECT Tag,ElementName,VoltHighWarn,VoltLowWarn FROM TPD_SFP"
+          namespace: "root/tpd"
+          computes:
+            # Add Identifier
+            # DeviceID,DisplayID,VoltHighWarn,VoltLowWarn
+          - type: "leftConcat"
+            column: 2
+            value: "SFP "
+            # Duplicate the DeviceID
+            # DeviceID,DeviceID,DisplayID,VoltHighWarn,VoltLowWarn
+          - type: "duplicateColumn"
+            column: 1
+            # Extract the FCPortID From the DeviceID
+            # DeviceID,FCPortID,DisplayID,VoltHighWarn,VoltLowWarn
+          - type: "extract"
+            column: 2
+            subColumn: 1
+            subSeparators: "-"
+        source(2):
+          # Get SystemID from FC Port Class
+          # FCPortID,NodeID
+          type: "wbem"
+          query: "SELECT DeviceID,SystemName FROM TPD_FCPort"
+          namespace: "root/tpd"
+        source(3):
+          # Attach NodeID to main table
+          # DeviceID,FCPortID,DisplayID,VoltHighWarn,VoltLowWarn,FCPortID,NodeID
+          type: "tableJoin"
+          leftTable: "$monitors.voltage.discovery.sources.source(1)$"
+          rightTable: "$monitors.voltage.discovery.sources.source(2)$"
+          leftKeyColumn: 2
+          rightKeyColumn: 1
+          defaultRightLine: ";;"
+      mapping:
+        # Instance Table
+        # DeviceID,FCPortID,DisplayID,VoltHighWarn,VoltLowWarn,FCPortID,NodeID
+        source: "$monitors.voltage.discovery.sources.source(3)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(3)"
+          hw.parent.type: "blade"
+          hw.parent.id: "$column(7)"
+          name: "$column(3)"
+        metrics:
+          hw.voltage.limit{limit_type="high.degraded"}: "$column(4)"
+          hw.voltage.limit{limit_type="low.critical"}: "$column(5)"
+    collect:
+      # Collect type is multiinstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = TPD_NodeVoltage
+          # DeviceID;Voltage;
+          type: "wbem"
+          query: "SELECT Tag,Vcc FROM TPD_SFP"
+          namespace: "root/tpd"
+      mapping:
+        # ValueTable = Source(1)
+        # DeviceID;Voltage;
+        source: "$monitors.voltage.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.voltage: "$column(2)"
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = TPD_DiskDrive
+          # DeviceID,DisplayID,RPM,InterconnectType,DeviceType
+          type: "wbem"
+          query: "SELECT DeviceID,ElementName,RPM,InterconnectType,DeviceType FROM TPD_DiskDrive"
+          namespace: "root/tpd"
+          computes:
+            # Translate the InterConnectType
+            # DeviceID,DisplayID,RPM,InterconnectType,DeviceType
+          - type: "translate"
+            column: 4
+            translationTable: "InterconnectTypeTranslationTable"
+            # Translate the DeviceType
+            # DeviceID,DisplayID,RPM,InterconnectType,DeviceType
+          - type: "translate"
+            column: 5
+            translationTable: "DeviceTypeTranslationTable"
+            # Add RPM Unit
+            # DeviceID,DisplayID,RPM,InterconnectType,DeviceType
+          - type: "rightConcat"
+            column: 3
+            value: " RPM"
+        source(2):
+          # Source(2) = TPD_DiskDrivePackage
+          # DeviceID,Manufacturer,Model,SerialNumber
+          type: "wbem"
+          query: "SELECT Tag,Manufacturer,Model,SerialNumber FROM TPD_DiskDrivePackage"
+          namespace: "root/tpd"
+        source(3):
+          # Source(3) = TPD_DiskStorageExtent
+          # DeviceID,NumberOfBlocks,BlockSize
+          type: "wbem"
+          query: "SELECT DeviceID,NumberOfBlocks,BlockSize FROM TPD_DiskStorageExtent"
+          namespace: "root/tpd"
+          computes:
+            # Calculate the Capacity
+            # DeviceID,Capacity,BlockSize
+          - type: "multiply"
+            column: 2
+            value: "Column(3)"
+        source(4):
+          # Attach DiskDrive to DiskDrivePackage
+          # DeviceID,DisplayID,RPM,InterconnectType,DeviceType,DeviceID,Manufacturer,Model,SerialNumber
+          type: "tableJoin"
+          leftTable: "$monitors.physical_disk.discovery.sources.source(1)$"
+          rightTable: "$monitors.physical_disk.discovery.sources.source(2)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ";;;;"
+        source(5):
+          # Attach DiskStorageExtent
+          # DeviceID,DisplayID,RPM,InterconnectType,DeviceType,DeviceID,Manufacturer,Model,SerialNumber,DeviceID,Capacity,BlockSize
+          type: "tableJoin"
+          leftTable: "$monitors.physical_disk.discovery.sources.source(4)$"
+          rightTable: "$monitors.physical_disk.discovery.sources.source(3)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ";;;"
+          computes:
+            # Trim down the table
+            #    1       2        3          4           5           6          7        8          9       10       11       12
+            # DeviceID,DisplayID,RPM,InterconnectType,DeviceType,DeviceID,Manufacturer,Model,SerialNumber,DeviceID,Capacity,BlockSize
+            # DeviceID,DisplayID,RPM,InterconnectType,DeviceType,         Manufacturer,Model,SerialNumber,         Capacity
+          - type: "keepColumns"
+            columnNumbers: "1,2,3,4,5,7,8,9,11"
+        source(6):
+          # Build a table to link PhysicalDisks to Enclosures
+          # DeviceID,TPD_DiskDrivePackage
+          type: "wbem"
+          query: "SELECT Tag,__PATH FROM TPD_DiskDrivePackage"
+          namespace: "root/tpd"
+        source(7):
+          # TPD_Magazine,TPD_DiskDrivePackage
+          type: "wbem"
+          query: "SELECT GroupComponent,PartComponent FROM TPD_MagazineContainer"
+          namespace: "root/tpd"
+        source(8):
+          # MagazineID,TPD_Magazine
+          type: "wbem"
+          query: "SELECT Tag,__PATH FROM TPD_Magazine"
+          namespace: "root/tpd"
+          computes:
+            # Extract the EnclosureID From the MagazineID
+            # EnclosureID,TPD_Magazine
+          - type: "extract"
+            column: 1
+            subColumn: 1
+            subSeparators: "-"
+        source(9):
+          # Join the Physical Disk to Association Table
+          # DeviceID,TPD_DiskDrivePackage,TPD_Magazine,TPD_DiskDrivePackage
+          type: "tableJoin"
+          leftTable: "$monitors.physical_disk.discovery.sources.source(6)$"
+          rightTable: "$monitors.physical_disk.discovery.sources.source(7)$"
+          leftKeyColumn: 2
+          rightKeyColumn: 2
+          keyType: "Wbem"
+          defaultRightLine: ";;"
+        source(10):
+          # Join the above to the Magazine Table
+          # DeviceID,TPD_DiskDrivePackage,TPD_Magazine,TPD_DiskDrivePackage,EnclosureID,TPD_Magazine
+          type: "tableJoin"
+          leftTable: "$monitors.physical_disk.discovery.sources.source(9)$"
+          rightTable: "$monitors.physical_disk.discovery.sources.source(8)$"
+          leftKeyColumn: 3
+          rightKeyColumn: 2
+          keyType: "Wbem"
+          defaultRightLine: ";;"
+          computes:
+            # Trim the Table down
+            # DeviceID,TPD_DiskDrivePackage,TPD_Magazine,TPD_DiskDrivePackage,EnclosureID,TPD_Magazine
+            # DeviceID,            #             #             #              EnclosureID
+          - type: "keepColumns"
+            columnNumbers: "1,5"
+        source(11):
+          # Join the Main Physical Disks table to the Enclosure Table
+          # DeviceID,DisplayID,RPM,InterconnectType,DeviceType,Manufacturer,Model,SerialNumber,Capacity,DeviceID,EnclosureID
+          type: "tableJoin"
+          leftTable: "$monitors.physical_disk.discovery.sources.source(5)$"
+          rightTable: "$monitors.physical_disk.discovery.sources.source(10)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ";;"
+          computes:
+            # Add Enclosure Type
+            # DeviceID,DisplayID,RPM,InterconnectType,DeviceType,Manufacturer,Model,SerialNumber,Capacity,DeviceID,EnclosureID,EnclosureType
+          - type: "rightConcat"
+            column: 11
+            value: ";Enclosure"
+        source(12):
+          # InternalDisks
+          # Source(11) = TPD_DiskDrive
+          # DeviceID,DisplayID,Manufacturer,Model,SerialNumber,Capacity
+          type: "wbem"
+          query: "SELECT Tag,ElementName,Manufacturer,Model,SerialNumber,Capacity FROM TPD_IDEDrive"
+          namespace: "root/tpd"
+          computes:
+            # Add spaces to match the main Physical Disk Discovery
+            # DeviceID,DisplayID,(RPM),(InterConnectType),(DeviceType),Manufacturer,Model,SerialNumber,Capacity
+          - type: "rightConcat"
+            column: 2
+            value: ";;;"
+            # DeviceID,DisplayID,(RPM),(InterConnectType),(DeviceType),Manufacturer,Model,SerialNumber,Capacity,(DeviceID),EnclosureID
+          - type: "rightConcat"
+            column: 9
+            value: ";;EnclosureID"
+            # Copy the Device ID to the EnclosureID column
+            # DeviceID,DisplayID,(RPM),(InterConnectType),(DeviceType),Manufacturer,Model,SerialNumber,Capacity,(DeviceID),DeviceID
+          - type: "replace"
+            column: 11
+            existingValue: "Column(11)"
+            newValue: "Column(1)"
+            # Extract the EnclosureID from the DeviceID
+            # DeviceID,DisplayID,(RPM),(InterConnectType),(DeviceType),Manufacturer,Model,SerialNumber,Capacity,(DeviceID),EnclosureID
+          - type: "extract"
+            column: 11
+            subColumn: 1
+            subSeparators: "-"
+            # Add Enclosure Type
+            # DeviceID,DisplayID,(RPM),(InterConnectType),(DeviceType),Manufacturer,Model,SerialNumber,Capacity,(DeviceID),EnclosureID,EnclosureType
+          - type: "rightConcat"
+            column: 11
+            value: ";Blade"
+        source(13):
+          # Union the two discoveries
+          # DeviceID,DisplayID,RPM,InterconnectType,DeviceType,Manufacturer,Model,SerialNumber,Capacity,DeviceID,EnclosureID,EnclosureType
+          type: "tableUnion"
+          tables:
+          - "$monitors.physical_disk.discovery.sources.source(11)$"
+          - "$monitors.physical_disk.discovery.sources.source(12)$"
+      mapping:
+        # Instance Table
+        #     1       2       3        #  4        #  5        #   6        7        8        9        # 10        11         12
+        # DeviceID,DisplayID,RPM,InterconnectType,DeviceType,Manufacturer,Model,SerialNumber,Capacity,DeviceID,EnclosureID,EnclosureType
+        source: "$monitors.physical_disk.discovery.sources.source(13)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(2)"
+          vendor: "$column(6)"
+          model: "$column(7)"
+          serial_number: "$column(8)"
+          info: "join($column(3), $column(4), $column(5), \" \")"
+          hw.parent.type: "$column(12)"
+          hw.parent.id: "$column(11)"
+          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(7), $column(9))"
+        metrics:
+          hw.physical_disk.size: "$column(9)"
+    collect:
+      # Collect type is multiinstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = TPD_DiskDrive
+          # DeviceID;OperationalStatus;
+          type: "wbem"
+          query: "SELECT DeviceID,OperationalStatus FROM TPD_DiskDrive"
+          namespace: "root/tpd"
+        source(2):
+          # Source(2) = TPD_IDEDrive
+          # DeviceID;OperationalStatus;
+          type: "wbem"
+          query: "SELECT Tag,OperationalStatus FROM TPD_IDEDrive"
+          namespace: "root/tpd"
+        source(3):
+          # Union of (1) and (2)
+          # DeviceID;OperationalStatus;
+          type: "tableUnion"
+          tables:
+          - "$monitors.physical_disk.collect.sources.source(1)$"
+          - "$monitors.physical_disk.collect.sources.source(2)$"
+          computes:
+            # Duplicate the "OperationalStatus" column
+            # DeviceID,OperationalStatus
+          - type: "duplicateColumn"
+            column: 2
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # DeviceID,PATROLStatusArray,OperationalStatus
+          - type: "arrayTranslate"
+            column: 2
+            translationTable: "DMTFOperationStatusTranslationTable"
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # DeviceID,PATROLStatusArray,StatusInformation
+          - type: "arrayTranslate"
+            column: 3
+            translationTable: "DMTFOperationStatusInformationTranslationTable"
+            resultSeparator: " - "
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # DeviceID,PATROLStatus,StatusInformation
+          - type: "convert"
+            column: 2
+            conversion: "array2SimpleStatus"
+      mapping:
+        # ValueTable = Source(1)
+        # SystemName,Caption,PATROLStatus,StatusDescriptions
+        source: "$monitors.physical_disk.collect.sources.source(3)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="physical_disk"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = TPD_DynamicStoragePool
+          # DisplayID,DeviceID,TotalManagedSpace,Primordial,RaidType,CIM_StoragePool
+          type: "wbem"
+          query: "SELECT ElementName,PoolID,TotalManagedSpace,Primordial,RaidType,__PATH FROM TPD_DynamicStoragePool"
+          namespace: "root/tpd"
+          computes:
+            # Add Pool Type and Include in Capacity
+            # DisplayID,DeviceID,TotalManagedSpace,Primordial,RaidType,PoolType,IncludeInCapacity,CIM_StoragePool
+          - type: "rightConcat"
+            column: 5
+            value: ";CPG;1"
+        source(2):
+          # Source(2) = TPD_StoragePool
+          # DisplayID,DeviceID,TotalManagedSpace,Primordial,RaidType,CIM_StoragePool
+          type: "wbem"
+          query: "SELECT ElementName,PoolID,TotalManagedSpace,Primordial,RaidType,__PATH FROM TPD_StoragePool"
+          namespace: "root/tpd"
+          computes:
+            # Add Token PoolType and Include in Capacity
+            # DisplayID,DeviceID,TotalManagedSpace,Primordial,RaidType,PoolType,IncludeInCapacity,CIM_StoragePool
+          - type: "rightConcat"
+            column: 5
+            value: ";PoolType;0"
+            # Translate Primordial
+            # DisplayID,DeviceID,TotalManagedSpace,Primordial,RaidType,PoolType,IncludeInCapacity,CIM_StoragePool
+          - type: "translate"
+            column: 4
+            translationTable: "PrimordialTranslationTable"
+            # Put translated primordial in pool type
+            # DisplayID,DeviceID,TotalManagedSpace,Primordial,RaidType,PoolType,IncludeInCapacity,CIM_StoragePool
+          - type: "replace"
+            column: 6
+            existingValue: "Column(6)"
+            newValue: "Column(4)"
+        source(3):
+          # Source(3) = TPD_DeltaReplicaStoragePool
+          # DisplayID,DeviceID,TotalManagedSpace,Primordial,RaidType,CIM_StoragePool
+          type: "wbem"
+          query: "SELECT ElementName,PoolID,TotalManagedSpace,Primordial,RaidType,__PATH FROM TPD_DeltaReplicaStoragePool"
+          namespace: "root/tpd"
+          computes:
+            # Add Pool Type and Include in Capacity
+            # DisplayID,DeviceID,TotalManagedSpace,Primordial,RaidType,PoolType,IncludeInCapacity,CIM_StoragePool
+          - type: "rightConcat"
+            column: 5
+            value: ";Replica Pool;0"
+        source(4):
+          # Union all the pools
+          # DisplayID,DeviceID,TotalManagedSpace,Primordial,RaidType,PoolType,IncludeInCapacity,CIM_StoragePool
+          type: "tableUnion"
+          tables:
+          - "$monitors.logical_disk.discovery.sources.source(1)$"
+          - "$monitors.logical_disk.discovery.sources.source(2)$"
+          - "$monitors.logical_disk.discovery.sources.source(3)$"
+        source(5):
+          # Link the Pool to the Storage System
+          # SystemID,TPD_StorageSystem
+          type: "wbem"
+          query: "SELECT Name,__PATH FROM TPD_StorageSystem"
+          namespace: "root/tpd"
+        source(6):
+          # TPD_StorageSystem,CIM_StoragePool
+          type: "wbem"
+          query: "SELECT GroupComponent,PartComponent FROM TPD_HostedStoragePool"
+          namespace: "root/tpd"
+        source(7):
+          # CIM_StoragePool to SystemID
+          # TPD_StorageSystem,CIM_StoragePool,SystemID,TPD_StorageSystem
+          type: "tableJoin"
+          leftTable: "$monitors.logical_disk.discovery.sources.source(6)$"
+          rightTable: "$monitors.logical_disk.discovery.sources.source(5)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 2
+          keyType: "Wbem"
+        source(8):
+          # Attach the association table to the main discovery
+          # DisplayID,DeviceID,TotalManagedSpace,Primordial,RaidType,PoolType,IncludeInCapacity,CIM_StoragePool,TPD_StorageSystem,CIM_StoragePool,SystemID,TPD_StorageSystem
+          type: "tableJoin"
+          leftTable: "$monitors.logical_disk.discovery.sources.source(4)$"
+          rightTable: "$monitors.logical_disk.discovery.sources.source(7)$"
+          leftKeyColumn: 8
+          rightKeyColumn: 2
+          keyType: "Wbem"
+          defaultRightLine: ";;;;"
+          computes:
+            # Get rid of paths
+            #    1         2            #  3           4           5       6            # 7            #  8           9             10            #   11            # 12
+            # DisplayID,DeviceID,TotalManagedSpace,Primordial,RaidType,PoolType,IncludeInCapacity,CIM_StoragePool,TPD_StorageSystem,CIM_StoragePool,SystemID,TPD_StorageSystem
+          - type: "keepColumns"
+            columnNumbers: "1,2,3,4,5,6,7,11"
+      mapping:
+        # Instance Table
+        # DisplayID,DeviceID,TotalManagedSpace,Primordial,RaidType,PoolType,IncludeInCapacity,SystemID
+        source: "$monitors.logical_disk.discovery.sources.source(8)$"
+        attributes:
+          id: "$column(2)"
+          __display_id: "$column(1)"
+          hw.logical_disk.limit: "$column(3)"
+          raid_level: "$column(5)"
+          type: "$column(6)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(8)"
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(5), $column(3))"
+    collect:
+      # Collect type is multiinstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = CIM_StoragePool
+          # DeviceID;OperationalStatus;
+          type: "wbem"
+          query: "SELECT PoolID,OperationalStatus FROM CIM_StoragePool"
+          namespace: "root/tpd"
+          computes:
+            # Duplicate the "OperationalStatus" column
+            # DeviceID,OperationalStatus
+          - type: "duplicateColumn"
+            column: 2
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # DeviceID,PATROLStatusArray,OperationalStatus
+          - type: "arrayTranslate"
+            column: 2
+            translationTable: "DMTFOperationStatusTranslationTable"
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # DeviceID,PATROLStatusArray,StatusInformation
+          - type: "arrayTranslate"
+            column: 3
+            translationTable: "DMTFOperationStatusInformationTranslationTable"
+            resultSeparator: " - "
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # DeviceID,PATROLStatus,StatusInformation
+          - type: "convert"
+            column: 2
+            conversion: "array2SimpleStatus"
+      mapping:
+        # ValueTable = Source(1)
+        # SystemName,Caption,PATROLStatus,StatusDescriptions
+        source: "$monitors.logical_disk.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="logical_disk"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = CIM_Card
+          # DisplayID,DeviceID,Manufacturer,Model,SerialNumber,FirmwareVersion
+          type: "wbem"
+          query: "SELECT ElementName,Tag,Manufacturer,Model,SerialNumber,FirmwareVersion FROM TPD_PCICard"
+          namespace: "root/tpd"
+          computes:
+            # Add to display ID
+            # AttachedToType,Type,DisplayID,DeviceID,Manufacturer,Model,SerialNumber,FirmwareVersion
+          - type: "leftConcat"
+            column: 1
+            value: "Blade;PCI Card;pci-"
+        source(2):
+          # Source(2) = TPD_CageInterfaceCard
+          # DisplayID,DeviceID,Manufacturer,Model,SerialNumber,FirmwareVersion
+          type: "wbem"
+          query: "SELECT ElementName,Tag,Manufacturer,Model,SerialNumber,FirmwareVersion FROM TPD_CageInterfaceCard"
+          namespace: "root/tpd"
+          computes:
+            # Add to display ID
+            # AttachedToType,Type,DisplayID,DeviceID,Manufacturer,Model,SerialNumber,FirmwareVersion
+          - type: "leftConcat"
+            column: 1
+            value: "Enclosure;Interface Card;ifc-"
+        source(3):
+          # Source(3) = TPD_Magazine
+          # DisplayID,DeviceID,Manufacturer,Model,SerialNumber,FirmwareVersion
+          type: "wbem"
+          query: "SELECT ElementName,Tag,Manufacturer,Model,SerialNumber,FirmwareVersion FROM TPD_Magazine"
+          namespace: "root/tpd"
+          computes:
+            # Add to display ID
+            # AttachedToType,Type,DisplayID,DeviceID,Manufacturer,Model,SerialNumber,FirmwareVersion
+          - type: "leftConcat"
+            column: 1
+            value: "Enclosure;Magazine;mag-"
+        source(4):
+          # Union the First Group Together
+          # AttachedToType,Type,DisplayID,DeviceID,Manufacturer,Model,SerialNumber,FirmwareVersion
+          type: "tableUnion"
+          tables:
+          - "$monitors.other_device.discovery.sources.source(1)$"
+          - "$monitors.other_device.discovery.sources.source(2)$"
+          - "$monitors.other_device.discovery.sources.source(3)$"
+          computes:
+            # Duplicate the "OperationalStatus" column
+            # AttachedToType,Type,DisplayID,DeviceID,DeviceID,Manufacturer,Model,SerialNumber,FirmwareVersion
+          - type: "duplicateColumn"
+            column: 4
+            # Extract the SystemName
+            # AttachedToType,Type,DisplayID,DeviceID,SystemName,Manufacturer,Model,SerialNumber,FirmwareVersion
+          - type: "extract"
+            column: 5
+            subColumn: 1
+            subSeparators: "-"
+            # Add Descriptive
+            # AttachedToType,Type,DisplayID,DeviceID,SystemName,Manufacturer,Model,SerialNumber,FirmwareVersion
+          - type: "leftConcat"
+            column: 9
+            value: "Firmware Version: "
+        source(5):
+          # Source(5) = TPD_SFP
+          # DisplayID,DeviceID,Manufacturer,Model,SerialNumber,PartNumber
+          type: "wbem"
+          query: "SELECT ElementName,Tag,Manufacturer,Model,SerialNumber,PartNumber FROM TPD_SFP"
+          namespace: "root/tpd"
+          computes:
+            # Add to display ID
+            # AttachedToType,Type,DisplayID,DeviceID,Manufacturer,Model,SerialNumber,PartNumber
+          - type: "leftConcat"
+            column: 1
+            value: "Blade;SFP;sfp-"
+            # Add to display ID
+            # AttachedToType,Type,DisplayID,DeviceID,Manufacturer,Model,SerialNumber,PartNumber
+          - type: "leftConcat"
+            column: 8
+            value: "Part Number:"
+            # Duplicate the deviceID
+            # AttachedToType,Type,DisplayID,DeviceID,DeviceID,Manufacturer,Model,SerialNumber,PartNumber
+          - type: "duplicateColumn"
+            column: 4
+            # Extract the FCPortID
+            # AttachedToType,Type,DisplayID,DeviceID,FCPortID,Manufacturer,Model,SerialNumber,PartNumber
+          - type: "extract"
+            column: 5
+            subColumn: 1
+            subSeparators: "-"
+        source(6):
+          # Link the SFP to the Storage System
+          # FCPortID,SystemName
+          type: "wbem"
+          query: "SELECT DeviceID,SystemName FROM TPD_FCPort"
+          namespace: "root/tpd"
+        source(7):
+          # Join the FCPortSystem to the SFP table
+          # AttachedToType,Type,DisplayID,DeviceID,FCPortID,Manufacturer,Model,SerialNumber,PartNumber,FCPortID,SystemName
+          type: "tableJoin"
+          leftTable: "$monitors.other_device.discovery.sources.source(5)$"
+          rightTable: "$monitors.other_device.discovery.sources.source(6)$"
+          leftKeyColumn: 5
+          rightKeyColumn: 1
+          defaultRightLine: ";;"
+          computes:
+            # Replace the First FCPortID with the SystemName
+            # AttachedToType,Type,DisplayID,DeviceID,SystemName,Manufacturer,Model,SerialNumber,PartNumber,FCPortID,SystemName
+          - type: "replace"
+            column: 5
+            existingValue: "Column(5)"
+            newValue: "Column(11)"
+            # Trim the columns to match other discovery tables
+            # AttachedToType,Type,DisplayID,DeviceID,SystemName,Manufacturer,Model,SerialNumber,PartNumber
+          - type: "keepColumns"
+            columnNumbers: "1,2,3,4,5,6,7,8,9"
+        source(8):
+          # Union the first group with the SFP discovery
+          # AttachedToType,Type,DisplayID,DeviceID,SystemName,Manufacturer,Model,SerialNumber,PartNumber/Firmware
+          type: "tableUnion"
+          tables:
+          - "$monitors.other_device.discovery.sources.source(4)$"
+          - "$monitors.other_device.discovery.sources.source(7)$"
+          computes:
+            # Add Decriptives
+            # AttachedToType,Type,DisplayID,DeviceID,SystemName,Manufacturer,Model,SerialNumber,PartNumber/Firmware
+          - type: "leftConcat"
+            column: 6
+            value: "Manufacturer:"
+            # Add Decriptives
+            # AttachedToType,Type,DisplayID,DeviceID,SystemName,Manufacturer,Model,SerialNumber,PartNumber/Firmware
+          - type: "leftConcat"
+            column: 7
+            value: " - Model:"
+            # Join Manufacturer and Model
+            # AttachedToType,Type,DisplayID,DeviceID,SystemName,Manufacturer-Model,Model,SerialNumber,PartNumber/Firmware
+          - type: "rightConcat"
+            column: 6
+            value: "Column(7)"
+            # Add Decriptives
+            # AttachedToType,Type,DisplayID,DeviceID,SystemName,Manufacturer-Model,Model,SerialNumber,PartNumber/Firmware
+          - type: "leftConcat"
+            column: 8
+            value: "Serial Number:"
+      mapping:
+        # Instance Table
+        # AttachedToType,Type,DisplayID,DeviceID,SystemName,Manufacturer-Model,Model,SerialNumber,PartNumber/Firmware
+        source: "$monitors.other_device.discovery.sources.source(8)$"
+        attributes:
+          id: "$column(4)"
+          __display_id: "$column(3)"
+          device_type: "$column(2)"
+          info: "join($column(6), $column(8), $column(9), \" \")"
+          hw.parent.type: "$column(1)"
+          hw.parent.id: "$column(5)"
+          name: "sprintf(\"%s: %s\", $column(2), $column(3))"
+    collect:
+      # Collect type is multiinstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = CIM_Card   (TPD_PCICard / TPD_CageInterfaceCard)
+          # DeviceID;OperationalStatus;
+          type: "wbem"
+          query: "SELECT Tag,OperationalStatus FROM CIM_Card"
+          namespace: "root/tpd"
+        source(2):
+          # Source(2) = TPD_Magazine
+          # DeviceID;OperationalStatus;
+          type: "wbem"
+          query: "SELECT Tag,OperationalStatus FROM TPD_Magazine"
+          namespace: "root/tpd"
+        source(3):
+          # Source(3) = TPD_Magazine
+          # DeviceID;OperationalStatus;
+          type: "wbem"
+          query: "SELECT Tag,OperationalStatus FROM TPD_SFP"
+          namespace: "root/tpd"
+        source(4):
+          # Union all the collects
+          # DeviceID;OperationalStatus;
+          type: "tableUnion"
+          tables:
+          - "$monitors.other_device.collect.sources.source(1)$"
+          - "$monitors.other_device.collect.sources.source(2)$"
+          - "$monitors.other_device.collect.sources.source(3)$"
+          computes:
+            # Duplicate the "OperationalStatus" column
+            # DeviceID,OperationalStatus
+          - type: "duplicateColumn"
+            column: 2
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # DeviceID,PATROLStatusArray,OperationalStatus
+          - type: "arrayTranslate"
+            column: 2
+            translationTable: "DMTFOperationStatusTranslationTable"
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # DeviceID,PATROLStatusArray,StatusInformation
+          - type: "arrayTranslate"
+            column: 3
+            translationTable: "DMTFOperationStatusInformationTranslationTable"
+            resultSeparator: " - "
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # DeviceID,PATROLStatus,StatusInformation
+          - type: "convert"
+            column: 2
+            conversion: "array2SimpleStatus"
+      mapping:
+        # ValueTable = Source(1)
+        # SystemName,Caption,PATROLStatus,StatusDescriptions
+        source: "$monitors.other_device.collect.sources.source(4)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="other_device"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  network:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = CIM_NetworkPort
+          # DeviceID,DisplayID,Model,SystemName
+          type: "wbem"
+          query: "SELECT DeviceID,ElementName,SystemName,CreationClassName FROM CIM_NetworkPort"
+          namespace: "root/tpd"
+          computes:
+            # Translate the CreationClassName to a Port Type
+            # DeviceID,DisplayID,Model,SystemName
+          - type: "translate"
+            column: 4
+            translationTable: "PortTypeTranslationTable"
+      mapping:
+        # Instance Table
+        # DeviceID,DisplayID,Manufacturer,SystemName,AddressType
+        source: "$monitors.network.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(2)"
+          device_type: "$column(4)"
+          physical_address: "$column(1)"
+          physical_address_type: "$column(5)"
+          hw.parent.type: "blade"
+          hw.parent.id: "$column(3)"
+          name: "sprintf(\"%s (%s)\", $column(2), $column(4))"
+    collect:
+      # Collect type is multiinstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = CIM_NetworkPort
+          # DeviceID;OperationalStatus;
+          type: "wbem"
+          query: "SELECT DeviceID,OperationalStatus FROM CIM_NetworkPort"
+          namespace: "root/tpd"
+          computes:
+          - type: "replace"
+            column: 2
+            existingValue: "10"
+            newValue: "99"
+            # Duplicate the "OperationalStatus" column
+            # DeviceID,OperationalStatus
+          - type: "duplicateColumn"
+            column: 2
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # DeviceID,PATROLStatusArray,OperationalStatus
+          - type: "arrayTranslate"
+            column: 2
+            translationTable: "DMTFOperationStatusTranslationTable"
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # DeviceID,PATROLStatusArray,StatusInformation
+          - type: "arrayTranslate"
+            column: 3
+            translationTable: "DMTFOperationStatusInformationTranslationTable"
+            resultSeparator: " - "
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # DeviceID,PATROLStatus,StatusInformation
+          - type: "convert"
+            column: 2
+            conversion: "array2SimpleStatus"
+        source(2):
+          # Source(2) = CIM_NetworkPortStatistics
+          # DeviceID,CRCerrors,LinkFailures,LossOfSignalCounter,LossOfSyncCounter
+          type: "wbem"
+          query: "SELECT InstanceID,CRCerrors,LinkFailures,LossOfSignalCounter,LossOfSyncCounter FROM CIM_NetworkPortStatistics"
+          namespace: "root/tpd"
+          computes:
+          - type: "replace"
+            column: 1
+            existingValue: "HP_3PAR:"
+            newValue: ""
+          - type: "replace"
+            column: 1
+            existingValue: "-Stats"
+            newValue: ""
+            # sum up all errors with CRC
+            # DeviceID,Totalerrors,LinkFailures,LossOfSignalCounter,LossOfSyncCounter
+          - type: "add"
+            column: 2
+            value: "Column(3)"
+          - type: "add"
+            column: 2
+            value: "Column(5)"
+        source(3):
+          type: "tableJoin"
+          leftTable: "$monitors.network.collect.sources.source(1)$"
+          rightTable: "$monitors.network.collect.sources.source(2)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ";;;;;"
+        source(4):
+          # Source(4) now collect network statistics
+          # Source(2) = CIM_NetworkPortStatistics
+          # DeviceID, KBytesRead, KBytesWritten, ReadIOs, WriteIOs FROM TPD_PortStatisticalData
+          type: "wbem"
+          query: "SELECT InstanceID, KBytesRead, KBytesWritten, ReadIOs, WriteIOs FROM TPD_PortStatisticalData"
+          namespace: "root/tpd"
+          computes:
+          - type: "replace"
+            column: 1
+            existingValue: "HP_3PAR:"
+            newValue: ""
+          - type: "replace"
+            column: 1
+            existingValue: "-Stats"
+            newValue: ""
+            # now convert KBytes to bytes
+            # DeviceID, KBytesRead, KBytesWritten, ReadIOs, WriteIOs FROM TPD_PortStatisticalData
+          - type: "multiply"
+            column: 2
+            value: "1024"
+            # now convert KBytes to bytes
+            # DeviceID, KBytesRead, KBytesWritten, ReadIOs, WriteIOs FROM TPD_PortStatisticalData
+          - type: "multiply"
+            column: 3
+            value: "1024"
+        source(5):
+          type: "tableJoin"
+          leftTable: "$monitors.network.collect.sources.source(3)$"
+          rightTable: "$monitors.network.collect.sources.source(4)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ";;;;;"
+      mapping:
+        source: "$monitors.network.collect.sources.source(5)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="network"}: "$column(2)"
+          hw.errors{hw.type="network"}: "$column(5)"
+          hw.network.io{direction="receive"}: "$column(10)"
+          hw.network.io{direction="transmit"}: "$column(11)"
+          hw.network.packets{direction="receive"}: "$column(12)"
+          hw.network.packets{direction="transmit"}: "$column(13)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = TPD_SFP
+          # DisplayID,DeviceID,TempHighAlarm,TempHighWarn
+          type: "wbem"
+          query: "SELECT ElementName,Tag,TempHighAlarm,TempHighWarn FROM TPD_SFP"
+          namespace: "root/tpd"
+          computes:
+            # Duplicate the deviceID
+            # DisplayID,DeviceID,DeviceID,TempHighAlarm,TempHighWarn
+          - type: "duplicateColumn"
+            column: 2
+            # Extract the FCPortID
+            # DisplayID,DeviceID,FCPortID,TempHighAlarm,TempHighWarn
+          - type: "extract"
+            column: 3
+            subColumn: 1
+            subSeparators: "-"
+        source(2):
+          # Link the SFP to the Storage System
+          # FCPortID,SystemName
+          type: "wbem"
+          query: "SELECT DeviceID,SystemName FROM TPD_FCPort"
+          namespace: "root/tpd"
+        source(3):
+          # Join the FCPortSystem to the SFP table
+          # DisplayID,DeviceID,FCPortID,TempHighAlarm,TempHighWarn,FCPortID,SystemName
+          type: "tableJoin"
+          leftTable: "$monitors.temperature.discovery.sources.source(1)$"
+          rightTable: "$monitors.temperature.discovery.sources.source(2)$"
+          leftKeyColumn: 3
+          rightKeyColumn: 1
+          defaultRightLine: ";;"
+          computes:
+            # Add SystemType
+            # DisplayID,DeviceID,FCPortID,TempHighAlarm,TempHighWarn,FCPortID,SystemType,SystemName
+          - type: "rightConcat"
+            column: 6
+            value: ";Blade"
+            # Add a desciptive
+            # DisplayID,DeviceID,FCPortID,TempHighAlarm,TempHighWarn,FCPortID,SystemType,SystemName
+          - type: "leftConcat"
+            column: 1
+            value: "sfp-"
+        source(4):
+          # Source(4) = TPD_SFP
+          # DisplayID,DeviceID
+          type: "wbem"
+          query: "SELECT ElementName,DeviceID FROM TPD_DiskDrive"
+          namespace: "root/tpd"
+        source(5):
+          # Build a table to link PhysicalDisks to Enclosures
+          # DeviceID,TPD_DiskDrivePackage
+          type: "wbem"
+          query: "SELECT Tag,__PATH FROM TPD_DiskDrivePackage"
+          namespace: "root/tpd"
+        source(6):
+          # TPD_Magazine,TPD_DiskDrivePackage
+          type: "wbem"
+          query: "SELECT GroupComponent,PartComponent FROM TPD_MagazineContainer"
+          namespace: "root/tpd"
+        source(7):
+          # MagazineID,TPD_Magazine
+          type: "wbem"
+          query: "SELECT Tag,__PATH FROM TPD_Magazine"
+          namespace: "root/tpd"
+          computes:
+            # Extract the EnclosureID From the MagazineID
+            # EnclosureID,TPD_Magazine
+          - type: "extract"
+            column: 1
+            subColumn: 1
+            subSeparators: "-"
+        source(8):
+          # Join the Physical Disk to Association Table
+          # DeviceID,TPD_DiskDrivePackage,TPD_Magazine,TPD_DiskDrivePackage
+          type: "tableJoin"
+          leftTable: "$monitors.temperature.discovery.sources.source(5)$"
+          rightTable: "$monitors.temperature.discovery.sources.source(6)$"
+          leftKeyColumn: 2
+          rightKeyColumn: 2
+          keyType: "Wbem"
+          defaultRightLine: ";;"
+        source(9):
+          # Join the above to the Magazine Table
+          # DeviceID,TPD_DiskDrivePackage,TPD_Magazine,TPD_DiskDrivePackage,EnclosureID,TPD_Magazine
+          type: "tableJoin"
+          leftTable: "$monitors.temperature.discovery.sources.source(8)$"
+          rightTable: "$monitors.temperature.discovery.sources.source(7)$"
+          leftKeyColumn: 3
+          rightKeyColumn: 2
+          keyType: "Wbem"
+          defaultRightLine: ";;"
+          computes:
+            # Trim the Table down
+            # DeviceID,TPD_DiskDrivePackage,TPD_Magazine,TPD_DiskDrivePackage,EnclosureID,TPD_Magazine
+            # DeviceID,            #             #             #              EnclosureID
+          - type: "keepColumns"
+            columnNumbers: "1,5"
+        source(10):
+          # Join the Main Physical Disks table to the Enclosure Table
+          # DisplayID,DeviceID,DeviceID,EnclosureID
+          type: "tableJoin"
+          leftTable: "$monitors.temperature.discovery.sources.source(4)$"
+          rightTable: "$monitors.temperature.discovery.sources.source(9)$"
+          leftKeyColumn: 2
+          rightKeyColumn: 1
+          defaultRightLine: ";;"
+          computes:
+            # Trim the Table down
+            # DisplayID,DeviceID,DeviceID,EnclosureID
+            # DisplayID,DeviceID,EnclosureID
+          - type: "keepColumns"
+            columnNumbers: "1,2,4"
+            # Add Blank Columns to match other discovery
+            # DisplayID,DeviceID,FCPortID,TempHighAlarm,TempHighWarn,FCPortID,SystemType;SystemName
+          - type: "rightConcat"
+            column: 2
+            value: ";;;;Enclosure;"
+            # Add a desciptive
+            # DisplayID,DeviceID,FCPortID,TempHighAlarm,TempHighWarn,FCPortID,SystemType,SystemName
+          - type: "leftConcat"
+            column: 1
+            value: "drive-"
+        source(11):
+          # Union disk and sfp discoveries
+          # DisplayID,DeviceID,FCPortID,TempHighAlarm,TempHighWarn,FCPortID,SystemType;SystemName
+          type: "tableUnion"
+          tables:
+          - "$monitors.temperature.discovery.sources.source(3)$"
+          - "$monitors.temperature.discovery.sources.source(10)$"
+      mapping:
+        # Instance Table
+        # DisplayID,DeviceID,FCPortID,TempHighAlarm,TempHighWarn,FCPortID,SystemType;SystemName
+        source: "$monitors.temperature.discovery.sources.source(11)$"
+        attributes:
+          id: "$column(2)"
+          __display_id: "$column(1)"
+          hw.parent.type: "$column(7)"
+          hw.parent.id: "$column(8)"
+          name: "$column(1)"
+        metrics:
+          hw.temperature.limit{limit_type="high.degraded"}: "$column(5)"
+          hw.temperature.limit{limit_type="high.critical"}: "$column(4)"
+    collect:
+      # Collect type is multiinstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = TPD_SFP
+          # DeviceID;Temperature;
+          type: "wbem"
+          query: "SELECT Tag,Temperature FROM TPD_SFP"
+          namespace: "root/tpd"
+        source(2):
+          # Source(2) = TPD_DiskDrive
+          # DeviceID;Temperature;
+          type: "wbem"
+          query: "SELECT DeviceID,Temperature FROM TPD_DiskDrive"
+          namespace: "root/tpd"
+        source(3):
+          # Union SFP and DiskDrive
+          # DeviceID;Temperature;
+          type: "tableUnion"
+          tables:
+          - "$monitors.temperature.collect.sources.source(1)$"
+          - "$monitors.temperature.collect.sources.source(2)$"
+      mapping:
+        # ValueTable = Source(3)
+        # SystemName,Caption,PATROLStatus,StatusDescriptions
+        source: "$monitors.temperature.collect.sources.source(3)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.temperature: "$column(2)"

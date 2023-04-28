@@ -1,0 +1,1149 @@
+---
+translations:
+  DMTFOperationStatusTranslationTable:
+    health30: "failed"
+    health10: "degraded"
+    default: "UNKNOWN"
+    "10": "failed"
+    "11": "degraded"
+    "12": "failed"
+    "13": "failed"
+    health25: "failed"
+    "14": "failed"
+    "15": "ok"
+    "16": "degraded"
+    "17": "ok"
+    "18": "ok"
+    health20: "failed"
+    "2": "ok"
+    health5: "ok"
+    "3": "degraded"
+    "4": "degraded"
+    "5": "degraded"
+    "6": "failed"
+    "7": "failed"
+    "8": "degraded"
+    "9": "degraded"
+    heatlh15: "degraded"
+    health0: "UNKNOWN"
+  PortStateToLinkStatusTranslationTable:
+    "0": "degraded"
+    ? ""
+    : "degraded"
+    default: "ok"
+  PortTypeTranslationTable:
+    "0": "Ethernet Port"
+    "11": "FC Port NL"
+    "12": "FC Port F/NL"
+    "13": "FC Port Nx"
+    default: "FC Port"
+    "14": "FC Port E"
+    "15": "FC Port F"
+    "16": "FC Port FL"
+    "17": "FC Port B"
+    "18": "FC Port G"
+    "19": "FC Port GL"
+    "10": "FC Port N"
+  UsageRestrictionTranslationTable:
+    "2": "Front-end Port"
+    default: ""
+    "3": "Back-end Port"
+  DMTFOperationStatusInformationTranslationTable:
+    health30: "Non-Recoverable Error"
+    health10: "Degraded"
+    default: ""
+    "10": "Stopped"
+    "11": "In Service"
+    "12": "No Contact"
+    "13": "Lost Communication"
+    health25: "Critical Failure"
+    "14": "Aborted"
+    "15": "Dormant"
+    "16": "Supporting Entity in Error"
+    "17": "Completed"
+    "18": "Power Mode"
+    health20: "Major Failure"
+    "2": ""
+    health5: ""
+    "3": "Degraded"
+    "4": "Stressed"
+    "5": "Predicted Failure"
+    "6": "Error"
+    "7": "Non-Recoverable Error"
+    "8": "Starting"
+    "9": "Stopping"
+    heatlh15: "Minor Failure"
+    health0: "Unknown"
+connector:
+  detection:
+    supersedes:
+    - "SMISDiskArray"
+    criteria:
+    - type: "wbem"
+      namespace: "HITACHI_NAMESPACE"
+      query: "SELECT Name,Dedicated FROM HITACHI_StorageSystem"
+      # There also must be disk drives declared in this namespace
+    - type: "wbem"
+      query: "SELECT DeviceID FROM HITACHI_DiskDrive"
+      namespace: "HITACHI_NAMESPACE"
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = HITACHI_StorageSystem
+          # Name,Caption,HITACHI_StorageSystem
+          type: "wbem"
+          query: "SELECT Name,Caption,__Path FROM HITACHI_StorageSystem"
+          namespace: "HITACHI_NAMESPACE"
+          computes:
+            # caption is model@ipaddr-hostname so we keep only fqdn ;)
+            # Name,Caption,HITACHI_StorageSystem
+          - type: "extract"
+            column: 2
+            subColumn: 2
+            subSeparators: "@"
+        source(2):
+          # Source(2) = HITACHI_StorageSystem
+          # Manufacturer,Model,SerialNumber,HITACHI_DKCChassis
+          type: "wbem"
+          query: "SELECT Manufacturer,Model,SerialNumber,__Path FROM HITACHI_DKCChassis"
+          namespace: "HITACHI_NAMESPACE"
+        source(3):
+          # Source (3) = Association Table HITACHI_StorageSystemPackageDKC
+          # HITACHI_DKCChassis,HITACHI_StorageSystem
+          type: "wbem"
+          query: "SELECT Antecedent,Dependent FROM HITACHI_StorageSystemPackageDKC"
+          namespace: "HITACHI_NAMESPACE"
+        source(4):
+          # Source (4) = Union of Storage System with Association Table
+          # Name,Caption,HITACHI_StorageSystem,HITACHI_DKCChassis,HITACHI_StorageSystem
+          type: "tableJoin"
+          leftTable: "$monitors.enclosure.discovery.sources.source(1)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(3)$"
+          leftKeyColumn: 3
+          rightKeyColumn: 2
+          keyType: "Wbem"
+          defaultRightLine: ";;"
+        source(5):
+          # Source (5) = Union of "Storage System and Association Table" and Chassis
+          # Name,Caption,HITACHI_StorageSystem,HITACHI_DKCChassis,HITACHI_StorageSystem,Manufacturer,Model,SerialNumber,HITACHI_DKCChassis
+          type: "tableJoin"
+          leftTable: "$monitors.enclosure.discovery.sources.source(4)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(2)$"
+          leftKeyColumn: 4
+          rightKeyColumn: 4
+          keyType: "Wbem"
+          defaultRightLine: ";;;;"
+          computes:
+            # Remove Path Columns as they are no longer needed.
+            #   1      2             3            #       4            #       5            #  6         7       8            9
+            # Name,Caption,HITACHI_StorageSystem,HITACHI_DKCChassis,HITACHI_StorageSystem,Manufacturer,Model,SerialNumber,HITACHI_DKCChassis
+            # Name,Caption,            #             #             #             #        Manufacturer,Model,SerialNumber
+          - type: "keepColumns"
+            columnNumbers: "1,2,6,7,8"
+        source(6):
+          # Source(6) = HITACHI_StorageSystem
+          # Name,HITACHI_StorageProcessorSystem
+          type: "wbem"
+          query: "SELECT Name,__Path FROM HITACHI_StorageProcessorSystem"
+          namespace: "HITACHI_NAMESPACE"
+        source(7):
+          # Source (7) = Association Table HITACHI_StorageSystemPackageDKC
+          # HITACHI_StorageSystem,HITACHI_StorageProcessorSystem
+          type: "wbem"
+          query: "SELECT GroupComponent,PartComponent FROM HITACHI_ComponentCS"
+          namespace: "HITACHI_NAMESPACE"
+        source(8):
+          # Source (8) = Union of Storage System and Association Table
+          # HITACHI_StorageSystem,HITACHI_StorageProcessorSystem,Name,Caption,HITACHI_StorageSystem
+          type: "tableJoin"
+          leftTable: "$monitors.enclosure.discovery.sources.source(7)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(1)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 3
+          keyType: "Wbem"
+        source(9):
+          # Source (9) = Union of "Storage System with Association Table" and Storage Processor System
+          # Name,HITACHI_StorageProcessorSystem,HITACHI_StorageSystem,HITACHI_StorageProcessorSystem,Name,Caption,HITACHI_StorageSystem
+          type: "tableJoin"
+          leftTable: "$monitors.enclosure.discovery.sources.source(6)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(8)$"
+          leftKeyColumn: 2
+          rightKeyColumn: 2
+          keyType: "Wbem"
+          computes:
+            # Remove Path Columns as they are no longer needed.
+            #   1            #        2            #             # 3            #  4            #       5      6         7
+            # Name,HITACHI_StorageProcessorSystem,HITACHI_StorageSystem,HITACHI_StorageProcessorSystem,Name,Caption,HITACHI_StorageSystem
+            # StorageProcessorSystemName,        StorageSystemName,
+          - type: "keepColumns"
+            columnNumbers: "1,5"
+      mapping:
+        # Instance Table
+        # Name,Caption,Manufacturer,Model,SerialNumber
+        source: "$monitors.enclosure.discovery.sources.source(5)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(2)"
+          vendor: "$column(3)"
+          model: "$column(4)"
+          serial_number: "$column(5)"
+          type: "Storage"
+          name: "sprintf(\"%s (%s %s - %s)\", $column(2), $column(3), $column(4), \"Storage\")"
+    collect:
+      # Collect type is multiinstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = CIM_ComputerSystem
+          # Name;OperationalStatus;
+          type: "wbem"
+          query: "SELECT Name,OperationalStatus,HealthState FROM HITACHI_StorageSystem"
+          namespace: "HITACHI_NAMESPACE"
+          computes:
+            # add health to health state in order to make it unique
+            # systemname, operationalstatus, healthstate
+          - type: "leftConcat"
+            column: 3
+            value: "Health"
+            # add HealthState to operationalStatus
+            # systemname, operationalstatus, healthstate
+          - type: "rightConcat"
+            column: 2
+            value: "Column(3)"
+            # Duplicate the "OperationalStatus" column
+            # SystemName,PatrolStatus,HealthState
+          - type: "duplicateColumn"
+            column: 2
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # SystemName,PATROLStatusArray,OperationalStatus,HealthState
+          - type: "arrayTranslate"
+            column: 2
+            translationTable: "DMTFOperationStatusTranslationTable"
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # SystemName,PATROLStatusArray,StatusInformation,HealthState
+          - type: "arrayTranslate"
+            column: 3
+            translationTable: "DMTFOperationStatusInformationTranslationTable"
+            resultSeparator: " - "
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # SystemName,PATROLStatus,StatusInformation,HealthState
+          - type: "convert"
+            column: 2
+            conversion: "array2SimpleStatus"
+      mapping:
+        # ValueTable = Source(1)
+        # Name;PATROLStatus;StatusDescriptions;HealthState
+        source: "$monitors.enclosure.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="enclosure"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = HITACHI_DiskDrive
+          # SystemName,Caption,MaxMediaSizeKB,HITACHI_DiskDrive
+          type: "wbem"
+          query: "SELECT SystemName,Caption,MaxMediaSize,__Path FROM HITACHI_DiskDrive"
+          namespace: "HITACHI_NAMESPACE"
+          computes:
+            # Convert SizeK from 1000 of bytes to bytes
+            # SystemName,Caption,MaxMediaSizeB,HITACHI_DiskDrive
+          - type: "multiply"
+            column: 3
+            value: "1000"
+            # Duplicate the "Caption" column
+            # SystemName,Caption,DisplayID,MaxMediaSizeB,HITACHI_DiskDrive
+          - type: "duplicateColumn"
+            column: 2
+            # Add ":" And SystemaName to Caption to make ID unique
+            # SystemName,DeviceID,DisplayID,MaxMediaSizeB,HITACHI_DiskDrive
+          - type: "leftConcat"
+            column: 2
+            value: ":"
+          - type: "leftConcat"
+            column: 2
+            value: "Column(1)"
+        source(2):
+          # Source (2) = HITACHI_PhysicalDisk (FRU info)
+          # Manufacturer,Model,HITACHI_PhysicalDisk
+          type: "wbem"
+          query: "SELECT SerialNumber,Manufacturer,Model,__Path FROM HITACHI_PhysicalDisk"
+          namespace: "HITACHI_NAMESPACE"
+        source(3):
+          # Source (3) = Association Table HITACHI_StorageSystemPackageDKC
+          # HITACHI_PhysicalDisk,HITACHI_DiskDrive
+          type: "wbem"
+          query: "SELECT Antecedent,Dependent FROM HITACHI_PhysicalDiskRealizesDiskDrive"
+          namespace: "HITACHI_NAMESPACE"
+        source(4):
+          # Source (4) = Union of HITACHI_DiskDrive and Association Table
+          # SystemName,DeviceID,DisplayID,MaxMediaSizeB,HITACHI_DiskDrive,HITACHI_PhysicalDisk,HITACHI_DiskDrive
+          type: "tableJoin"
+          leftTable: "$monitors.physical_disk.discovery.sources.source(1)$"
+          rightTable: "$monitors.physical_disk.discovery.sources.source(3)$"
+          leftKeyColumn: 5
+          rightKeyColumn: 2
+          keyType: "Wbem"
+          defaultRightLine: ";;"
+        source(5):
+          # Source (5) = Union of "Storage System and Association Table" and Chassis
+          # SystemName,DeviceID,DisplayID,MaxMediaSizeB,HITACHI_DiskDrive,HITACHI_PhysicalDisk,HITACHI_DiskDrive,SerialNumber,Manufacturer,Model,HITACHI_PhysicalDisk
+          type: "tableJoin"
+          leftTable: "$monitors.physical_disk.discovery.sources.source(4)$"
+          rightTable: "$monitors.physical_disk.discovery.sources.source(2)$"
+          leftKeyColumn: 6
+          rightKeyColumn: 4
+          keyType: "Wbem"
+          defaultRightLine: ";;"
+          computes:
+            # Remove Path Columns as they are no longer needed.
+            #        1      2          3             4            #   5            #  6            #    7            8            9     10
+            # SystemName,DeviceID,DisplayID,MaxMediaSizeB,HITACHI_DiskDrive,HITACHI_PhysicalDisk,HITACHI_DiskDrive,SerialNumber,Manufacturer,Model,HITACHI_PhysicalDisk
+            # SystemName,DeviceID,DisplayID,MaxMediaSizeB,            #             #             #             #  Manufacturer,Model
+          - type: "keepColumns"
+            columnNumbers: "1,2,3,4,8,9,10"
+      mapping:
+        # Instance Table
+        # SystemName,DeviceID,DisplayID,MaxMediaSizeB,Serialnumber,Manufacturer,Model
+        source: "$monitors.physical_disk.discovery.sources.source(5)$"
+        attributes:
+          id: "$column(2)"
+          __display_id: "$column(3)"
+          vendor: "$column(6)"
+          model: "$column(7)"
+          serial_number: "$column(5)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(1)"
+          name: "sprintf(\"%s (%s - %s)\", $column(3), $column(7), $column(4))"
+        metrics:
+          hw.physical_disk.size: "$column(4)"
+    collect:
+      # Collect type is multiinstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = HITACHI_DiskDrive
+          # SystemName;Caption;OperationalStatus;
+          type: "wbem"
+          query: "SELECT SystemName,Caption,OperationalStatus,HealthState FROM HITACHI_DiskDrive"
+          namespace: "HITACHI_NAMESPACE"
+          computes:
+            # Add ":" And SystemaName to Caption to make ID unique
+            # SystemName,Caption,OperationalStatus
+          - type: "leftConcat"
+            column: 2
+            value: ":"
+          - type: "leftConcat"
+            column: 2
+            value: "Column(1)"
+          - type: "leftConcat"
+            column: 4
+            value: "Health"
+          - type: "rightConcat"
+            column: 3
+            value: "Column(4)"
+            # Duplicate the "OperationalStatus" column
+            # SystemName,DeviceID,PatrolStatus,HealthState
+          - type: "duplicateColumn"
+            column: 3
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # SystemName,DeviceID,PATROLStatusArray,OperationalStatus,HealthState
+          - type: "arrayTranslate"
+            column: 3
+            translationTable: "DMTFOperationStatusTranslationTable"
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # SystemName,DeviceID,PATROLStatusArray,StatusInformation
+          - type: "arrayTranslate"
+            column: 4
+            translationTable: "DMTFOperationStatusInformationTranslationTable"
+            resultSeparator: " - "
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # SystemName,DeviceID,PATROLStatus,StatusInformation
+          - type: "convert"
+            column: 3
+            conversion: "array2SimpleStatus"
+      mapping:
+        # ValueTable = Source(1)
+        # SystemName,Caption,PATROLStatus,StatusDescriptions
+        source: "$monitors.physical_disk.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="physical_disk"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  network:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = HITACHI_FCPort
+          # DeviceWWNID,Caption,Speedbps,PermanentAddress,StorageProcessorSystemTag,PortNumber,UsageRestriction,PortType;wwn/mac,linkstatusactivation
+          type: "wbem"
+          query: "SELECT DeviceID,Caption,Speed,PermanentAddress,SystemName,PortNumber,UsageRestriction,PortType FROM HITACHI_FCPort"
+          namespace: "HITACHI_NAMESPACE"
+          computes:
+          - type: "rightConcat"
+            column: 8
+            value: ";WWN;true"
+        source(2):
+          # Source(2) = HITACHI_EthernetPort
+          # DeviceWWNID,Caption,Speedbps,PermanentAddress,StorageProcessorSystemTag,PortNumber,UsageRestriction,PortType,wwn/mac,linkstatusactivation
+          type: "wbem"
+          query: "SELECT DeviceID,Caption,Speed,PermanentAddress,SystemName,PortNumber,UsageRestriction,PortType FROM HITACHI_EthernetPort"
+          namespace: "HITACHI_NAMESPACE"
+          computes:
+          - type: "rightConcat"
+            column: 8
+            value: ";MAC;"
+        source(3):
+          # Source 3 = Union of 1 & 2
+          type: "tableUnion"
+          tables:
+          - "$monitors.network.discovery.sources.source(1)$"
+          - "$monitors.network.discovery.sources.source(2)$"
+          computes:
+            # convert from bit per second to mega bytes per second
+            # DeviceWWNID,Caption,SpeedMBps,PermanentAddress,StorageProcessorSystemTag,PortNumber,UsageRestriction,PortType,MAC/WWN,linkstatusactivation
+          - type: "divide"
+            column: 3
+            value: "1062500"
+            # Translate the Port Type (FC Only)
+            # DeviceWWNID,Caption,SpeedMBps,PermanentAddress,StorageProcessorSystemTag,PortNumber,UsageRestriction,PortType,MAC/WWN,linkstatusactivation
+          - type: "translate"
+            column: 8
+            translationTable: "PortTypeTranslationTable"
+            # Translate the Port Direction
+            # DeviceWWNID,Caption,SpeedMBps,PermanentAddress,StorageProcessorSystemTag,PortNumber,UsageRestriction,PortType,linkstatusactivation
+          - type: "translate"
+            column: 7
+            translationTable: "UsageRestrictionTranslationTable"
+        source(4):
+          # Use the Enclosure table to get from StorageProcessorSystemTag to StorageSystemName:
+          # DeviceWWNID,Caption,SpeedMBps,PermanentAddress,StorageProcessorSystemTag,PortNumber,UsageRestriction,PortType,wwn/mac,linkstatusactivation,StorageProcessorSystemTag,StorageSystemName
+          type: "tableJoin"
+          leftTable: "$monitors.network.discovery.sources.source(3)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(9)$"
+          leftKeyColumn: 5
+          rightKeyColumn: 1
+          defaultRightLine: ";;"
+          computes:
+            # Duplicate Caption to make Display ID
+            # DeviceWWNID,DisplayID,Caption,SpeedMBps,PermanentAddress,StorageProcessorSystemTag,PortNumber,UsageRestriction,PortType,wwn/mac,linkstatusactivation,StorageProcessorSystemTag,StorageSystemName
+          - type: "duplicateColumn"
+            column: 2
+            # Add ":" And SystemaName to Caption to make DeviceID unique
+            # DeviceWWNID,DisplayID,DeviceID,SpeedMBps,PermanentAddress,StorageProcessorSystemTag,PortNumber,UsageRestriction,PortType,wwn/mac,linkstatusactivation,StorageProcessorSystemTag,StorageSystemName
+          - type: "leftConcat"
+            column: 3
+            value: ":"
+          - type: "leftConcat"
+            column: 3
+            value: "Column(13)"
+          - type: "leftConcat"
+            column: 7
+            value: "Port Number: "
+          - type: "leftConcat"
+            column: 8
+            value: "Usage Restriction: "
+      mapping:
+        # Instance Table
+        # DeviceWWNID,DisplayID,DeviceID,SpeedMBps,PermanentAddress,StorageProcessorSystemTag,PortNumber,UsageRestriction,PortType,wwn/mac,linkstatusactivation,StorageProcessorSystemTag,StorageSystemName
+        source: "$monitors.network.discovery.sources.source(4)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(2)"
+          physical_address: "$column(5)"
+          physical_address_type: "$column(10)"
+          device_type: "$column(9)"
+          info: "join($column(7), $column(8), \" \")"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(13)"
+          name: "sprintf(\"%s (%s)\", $column(2), $column(9))"
+    collect:
+      # Collect type is multiinstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = HITACHI_FCPort
+          # DeviceWWNID,Speed,OperationalStatus,StatusDescriptions
+          type: "wbem"
+          query: "SELECT DeviceID,Speed,OperationalStatus,HealthState FROM HITACHI_FCPort"
+          namespace: "HITACHI_NAMESPACE"
+        source(2):
+          # Source(2) = HITACHI_EthernetPort
+          # DeviceWWNID,Speed,OperationalStatus,StatusDescriptions
+          type: "wbem"
+          query: "SELECT DeviceID,Speed,OperationalStatus,HealthState FROM HITACHI_EthernetPort"
+          namespace: "HITACHI_NAMESPACE"
+        source(3):
+          # Source 3 = Union of 1 & 2
+          type: "tableUnion"
+          tables:
+          - "$monitors.network.collect.sources.source(1)$"
+          - "$monitors.network.collect.sources.source(2)$"
+          computes:
+            # Duplicate the "OperationalStatus" column
+            # DeviceWWNID,Speed,OperationalStatus,HealthState
+          - type: "leftConcat"
+            column: 4
+            value: "Health"
+          - type: "rightConcat"
+            column: 3
+            value: "Column(4)"
+            # duplicate column
+            # DeviceWWNID,Speed,PATROLStatusArray,OperationalStatus,healthState
+          - type: "duplicateColumn"
+            column: 3
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # DeviceWWNID,Speed,PATROLStatusArray,OperationalStatus,healthState
+          - type: "arrayTranslate"
+            column: 3
+            translationTable: "DMTFOperationStatusTranslationTable"
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # DeviceWWNID,Speed,PATROLStatusArray,StatusInformation,healthstate
+          - type: "arrayTranslate"
+            column: 4
+            translationTable: "DMTFOperationStatusInformationTranslationTable"
+            resultSeparator: " - "
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # DeviceWWNID,Speed,PATROLStatus,StatusInformation,healthstate
+          - type: "convert"
+            column: 3
+            conversion: "array2SimpleStatus"
+            # now convert speed to link status
+            # first let's duplicate speed column
+            # DeviceWWNID,Speed,linkstatus,PATROLStatus,StatusInformation,healthstate
+          - type: "duplicateColumn"
+            column: 2
+            # now translate the speed
+            # DeviceWWNID,Speed,linkstatus,PATROLStatus,StatusInformation,healthstate
+          - type: "translate"
+            column: 3
+            translationTable: "PortStateToLinkStatusTranslationTable"
+        source(4):
+          # Table Joint Collect to Discovery 2 to get DeviceID from DeviceWWNID
+          # DeviceWWNID,Speed,PATROLStatus,StatusInformation,DeviceWWNID,DisplayID,DeviceID,SpeedMBps,PermanentAddress,StorageProcessorSystemTag,PortNumber,UsageRestriction,PortType,StorageProcessorSystemTag,StorageSystemName
+          # DeviceWWNID,Speed,linkstatus,PATROLStatus,StatusInformation,healthstate,DeviceWWNID,DisplayID,DeviceID,SpeedMBps,PermanentAddress,StorageProcessorSystemTag,PortNumber,UsageRestriction,PortType,mac/wwn,StorageProcessorSystemTag,StorageSystemName
+          type: "tableJoin"
+          leftTable: "$monitors.network.collect.sources.source(3)$"
+          rightTable: "$monitors.network.discovery.sources.source(4)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ";;"
+          computes:
+          - type: "divide"
+            column: 2
+            value: "1062500"
+      mapping:
+        # ValueTable = Source(1)
+        # DeviceWWNID,Speed,PATROLStatus,StatusInformation,DeviceWWNID,DisplayID,DeviceID,SpeedMBps,PermanentAddress,StorageProcessorSystemTag,PortNumber,UsageRestriction,PortType,StorageProcessorSystemTag,StorageSystemName
+        # DeviceWWNID,Speed,linkstatus,PATROLStatus,StatusInformation,healthstate,DeviceWWNID,DisplayID,DeviceID,SpeedMBps,PermanentAddress,StorageProcessorSystemTag,PortNumber,UsageRestriction,PortType,mac/wwn,StorageProcessorSystemTag,StorageSystemName
+        source: "$monitors.network.collect.sources.source(4)$"
+        deviceId: "$column(9)"
+        metrics:
+          hw.network.bandwidth.limit: "megaBit2Bit($column(2))"
+          hw.network.up: "legacyLinkStatus($column(3))"
+          hw.status{hw.type="network"}: "$column(4)"
+        legacyTextParameters:
+          StatusInformation: "$column(5)"
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = HITACHI_DiskDrive
+          # SystemName,DeviceID
+          type: "wbem"
+          query: "SELECT SystemName,DeviceID FROM HITACHI_Fan"
+          namespace: "HITACHI_NAMESPACE"
+          computes:
+            # Duplicate the DeviceID to make DeviceID and DisplayID
+            # SystemName,DeviceID,DisplayID
+          - type: "duplicateColumn"
+            column: 2
+            # Add ":" And SystemaName to DeviceID to make ID unique
+            # SystemName,DeviceID,DisplayID
+          - type: "leftConcat"
+            column: 2
+            value: ":"
+          - type: "leftConcat"
+            column: 2
+            value: "Column(1)"
+      mapping:
+        # Instance Table
+        # SystemName,DeviceID,DisplayID
+        source: "$monitors.fan.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(2)"
+          __display_id: "$column(3)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(1)"
+          name: "$column(3)"
+    collect:
+      # Collect type is multiinstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = HITACHI_Fan
+          # SystemName;DeviceID;OperationalStatus;
+          type: "wbem"
+          query: "SELECT SystemName,DeviceID,OperationalStatus,HealthState FROM HITACHI_Fan"
+          namespace: "HITACHI_NAMESPACE"
+          computes:
+            # Add ":" And SystemaName to Caption to make ID unique
+            # SystemName,DeviceID,OperationalStatus
+          - type: "leftConcat"
+            column: 2
+            value: ":"
+          - type: "leftConcat"
+            column: 2
+            value: "Column(1)"
+          - type: "leftConcat"
+            column: 4
+            value: "Health"
+          - type: "rightConcat"
+            column: 3
+            value: "Column(4)"
+            # Duplicate the "OperationalStatus" column
+            # SystemName,DeviceID,PatrolStatus,HealthState
+          - type: "duplicateColumn"
+            column: 3
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # SystemName,DeviceID,PATROLStatusArray,OperationalStatus,HealthState
+          - type: "arrayTranslate"
+            column: 3
+            translationTable: "DMTFOperationStatusTranslationTable"
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # SystemName,DeviceID,PATROLStatusArray,StatusInformation
+          - type: "arrayTranslate"
+            column: 4
+            translationTable: "DMTFOperationStatusInformationTranslationTable"
+            resultSeparator: " - "
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # SystemName,DeviceID,PATROLStatus,StatusInformation
+          - type: "convert"
+            column: 3
+            conversion: "array2SimpleStatus"
+      mapping:
+        # ValueTable = Source(1)
+        # SystemName,Caption,PATROLStatus,StatusDescriptions
+        source: "$monitors.fan.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="fan"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = HITACHI_PowerSupply
+          # SystemName,DeviceID
+          type: "wbem"
+          query: "SELECT SystemName,DeviceID FROM HITACHI_PowerSupply"
+          namespace: "HITACHI_NAMESPACE"
+          computes:
+            # Duplicate the DeviceID to make DeviceID and DisplayID
+            # SystemName,DeviceID,DisplayID
+          - type: "duplicateColumn"
+            column: 2
+            # Add ":" And SystemaName to DeviceID to make ID unique
+            # SystemName,DeviceID,DisplayID
+          - type: "leftConcat"
+            column: 2
+            value: ":"
+          - type: "leftConcat"
+            column: 2
+            value: "Column(1)"
+      mapping:
+        # Instance Table
+        # SystemName,DeviceID,DisplayID
+        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(2)"
+          __display_id: "$column(3)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(1)"
+          name: "sprintf(\"%s, $column(3))"
+    collect:
+      # Collect type is multiinstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = HITACHI_PowerSupply
+          # SystemName;DeviceID;OperationalStatus;
+          type: "wbem"
+          query: "SELECT SystemName,DeviceID,OperationalStatus,HealthState FROM HITACHI_PowerSupply"
+          namespace: "HITACHI_NAMESPACE"
+          computes:
+            # Add ":" And SystemaName to Caption to make ID unique
+            # SystemName,DeviceID,OperationalStatus
+          - type: "leftConcat"
+            column: 2
+            value: ":"
+          - type: "leftConcat"
+            column: 2
+            value: "Column(1)"
+          - type: "leftConcat"
+            column: 4
+            value: "Health"
+          - type: "rightConcat"
+            column: 3
+            value: "Column(4)"
+            # Duplicate the "OperationalStatus" column
+            # SystemName,DeviceID,PatrolStatus,HealthState
+          - type: "duplicateColumn"
+            column: 3
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # SystemName,DeviceID,PATROLStatusArray,OperationalStatus,HealthState
+          - type: "arrayTranslate"
+            column: 3
+            translationTable: "DMTFOperationStatusTranslationTable"
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # SystemName,DeviceID,PATROLStatusArray,StatusInformation
+          - type: "arrayTranslate"
+            column: 4
+            translationTable: "DMTFOperationStatusInformationTranslationTable"
+            resultSeparator: " - "
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # SystemName,DeviceID,PATROLStatus,StatusInformation
+          - type: "convert"
+            column: 3
+            conversion: "array2SimpleStatus"
+      mapping:
+        # ValueTable = Source(1)
+        # SystemName,Caption,PATROLStatus,StatusDescriptions
+        source: "$monitors.power_supply.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="power_supply"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  memory:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = HITACHI_CacheMemory
+          # SystemName,DeviceID
+          type: "wbem"
+          query: "SELECT SystemName,DeviceID FROM HITACHI_CacheMemory"
+          namespace: "HITACHI_NAMESPACE"
+          computes:
+            # Duplicate the DeviceID to make DeviceID and DisplayID
+            # SystemName,DeviceID,DisplayID
+          - type: "duplicateColumn"
+            column: 2
+            # Add ":" And SystemaName to DeviceID to make ID unique
+            # SystemName,DeviceID,DisplayID
+          - type: "leftConcat"
+            column: 2
+            value: ":"
+          - type: "leftConcat"
+            column: 2
+            value: "Column(1)"
+      mapping:
+        # Instance Table
+        # SystemName,DeviceID,DisplayID
+        source: "$monitors.memory.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(2)"
+          __display_id: "$column(3)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(1)"
+          name: "$column(3)"
+    collect:
+      # Collect type is multiinstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = HITACHI_CacheMemory
+          # SystemName;DeviceID;OperationalStatus;
+          type: "wbem"
+          query: "SELECT SystemName,DeviceID,OperationalStatus,HealthState FROM HITACHI_CacheMemory"
+          namespace: "HITACHI_NAMESPACE"
+          computes:
+            # Add ":" And SystemaName to Caption to make ID unique
+            # SystemName,DeviceID,OperationalStatus
+          - type: "leftConcat"
+            column: 2
+            value: ":"
+          - type: "leftConcat"
+            column: 2
+            value: "Column(1)"
+          - type: "leftConcat"
+            column: 4
+            value: "Health"
+          - type: "rightConcat"
+            column: 3
+            value: "Column(4)"
+            # Duplicate the "OperationalStatus" column
+            # SystemName,DeviceID,PatrolStatus,HealthState
+          - type: "duplicateColumn"
+            column: 3
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # SystemName,DeviceID,PATROLStatusArray,OperationalStatus,HealthState
+          - type: "arrayTranslate"
+            column: 3
+            translationTable: "DMTFOperationStatusTranslationTable"
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # SystemName,DeviceID,PATROLStatusArray,StatusInformation
+          - type: "arrayTranslate"
+            column: 4
+            translationTable: "DMTFOperationStatusInformationTranslationTable"
+            resultSeparator: " - "
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # SystemName,DeviceID,PATROLStatus,StatusInformation
+          - type: "convert"
+            column: 3
+            conversion: "array2SimpleStatus"
+      mapping:
+        # ValueTable = Source(1)
+        # SystemName,Caption,PATROLStatus,StatusDescriptions
+        source: "$monitors.memory.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="memory"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  battery:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = HITACHI_Battery
+          # SystemName,DeviceID
+          type: "wbem"
+          query: "SELECT SystemName,DeviceID FROM HITACHI_Battery"
+          namespace: "HITACHI_NAMESPACE"
+          computes:
+            # Duplicate the DeviceID to make DeviceID and DisplayID
+            # SystemName,DeviceID,DisplayID
+          - type: "duplicateColumn"
+            column: 2
+            # Add ":" And SystemaName to DeviceID to make ID unique
+            # SystemName,DeviceID,DisplayID
+          - type: "leftConcat"
+            column: 2
+            value: ":"
+          - type: "leftConcat"
+            column: 2
+            value: "Column(1)"
+      mapping:
+        # Instance Table
+        # SystemName,DeviceID,DisplayID
+        source: "$monitors.battery.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(2)"
+          __display_id: "$column(3)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(1)"
+          name: "$column(3)"
+    collect:
+      # Collect type is multiinstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = HITACHI_Battery
+          # SystemName;DeviceID;OperationalStatus;
+          type: "wbem"
+          query: "SELECT SystemName,DeviceID,OperationalStatus,HealthState FROM HITACHI_Battery"
+          namespace: "HITACHI_NAMESPACE"
+          computes:
+            # Add ":" And SystemaName to Caption to make ID unique
+            # SystemName,DeviceID,OperationalStatus
+          - type: "leftConcat"
+            column: 2
+            value: ":"
+          - type: "leftConcat"
+            column: 2
+            value: "Column(1)"
+          - type: "leftConcat"
+            column: 4
+            value: "Health"
+          - type: "rightConcat"
+            column: 3
+            value: "Column(4)"
+            # Duplicate the "OperationalStatus" column
+            # SystemName,DeviceID,PatrolStatus,HealthState
+          - type: "duplicateColumn"
+            column: 3
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # SystemName,DeviceID,PATROLStatusArray,OperationalStatus,HealthState
+          - type: "arrayTranslate"
+            column: 3
+            translationTable: "DMTFOperationStatusTranslationTable"
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # SystemName,DeviceID,PATROLStatusArray,StatusInformation
+          - type: "arrayTranslate"
+            column: 4
+            translationTable: "DMTFOperationStatusInformationTranslationTable"
+            resultSeparator: " - "
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # SystemName,DeviceID,PATROLStatus,StatusInformation
+          - type: "convert"
+            column: 3
+            conversion: "array2SimpleStatus"
+      mapping:
+        # ValueTable = Source(1)
+        # SystemName,Caption,PATROLStatus,StatusDescriptions
+        source: "$monitors.battery.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="battery"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = HITACHI_DiskDrive
+          # SystemName,DeviceID,BlockSize,NumberOfBlocks,ErrorMethodology
+          type: "wbem"
+          query: "SELECT SystemName,DeviceID,BlockSize,NumberOfBlocks,ErrorMethodology FROM HITACHI_ArrayGroup"
+          namespace: "HITACHI_NAMESPACE"
+          computes:
+            # Duplicate the DeviceID to make DeviceID and DisplayID
+            # SystemName,DeviceID,DisplayID,BlockSize,NumberOfBlocks,ErrorMethodology
+          - type: "duplicateColumn"
+            column: 2
+            # Add ":" And SystemaName to DeviceID to make ID unique
+            # SystemName,DeviceID,DisplayID,BlockSize,NumberOfBlocks,ErrorMethodology
+          - type: "leftConcat"
+            column: 2
+            value: ":"
+          - type: "leftConcat"
+            column: 2
+            value: "Column(1)"
+            # Multiply BlockSize by Number of Blocks to Get Size
+            # SystemName,DeviceID,DisplayID,BlockSize,NumberOfBlocks,ErrorMethodology
+          - type: "multiply"
+            column: 4
+            value: "Column(5)"
+      mapping:
+        # Instance Table
+        # SystemName,DeviceID,DisplayID,BlockSize,NumberOfBlocks,ErrorMethodology
+        source: "$monitors.logical_disk.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(2)"
+          __display_id: "$column(3)"
+          hw.logical_disk.limit: "$column(4)"
+          raid_level: "$column(6)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(1)"
+          name: "sprintf(\"%s (%s - %s)\", $column(3), $column(6), $column(4))"
+    collect:
+      # Collect type is multiinstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = HITACHI_Fan
+          # SystemName;DeviceID;OperationalStatus;
+          type: "wbem"
+          query: "SELECT SystemName,DeviceID,OperationalStatus,HealthState FROM HITACHI_ArrayGroup"
+          namespace: "HITACHI_NAMESPACE"
+          computes:
+            # Add ":" And SystemaName to Caption to make ID unique
+            # SystemName,DeviceID,OperationalStatus,HealthState
+          - type: "leftConcat"
+            column: 2
+            value: ":"
+          - type: "leftConcat"
+            column: 2
+            value: "Column(1)"
+          - type: "leftConcat"
+            column: 4
+            value: "Health"
+          - type: "rightConcat"
+            column: 3
+            value: "Column(4)"
+            # Duplicate the "OperationalStatus" column
+            # SystemName,DeviceID,PatrolStatus,HealthState
+          - type: "duplicateColumn"
+            column: 3
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # SystemName,DeviceID,PATROLStatusArray,OperationalStatus,HealthState
+          - type: "arrayTranslate"
+            column: 3
+            translationTable: "DMTFOperationStatusTranslationTable"
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # SystemName,DeviceID,PATROLStatusArray,StatusInformation
+          - type: "arrayTranslate"
+            column: 4
+            translationTable: "DMTFOperationStatusInformationTranslationTable"
+            resultSeparator: " - "
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # SystemName,DeviceID,PATROLStatus,StatusInformation
+          - type: "convert"
+            column: 3
+            conversion: "array2SimpleStatus"
+      mapping:
+        # ValueTable = Source(1)
+        # SystemName,Caption,PATROLStatus,StatusDescriptions
+        source: "$monitors.logical_disk.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="logical_disk"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = HITACHI_StorageProcessorSystem
+          # DeviceID;DisplayID;
+          type: "wbem"
+          query: "SELECT Name,Caption FROM HITACHI_StorageProcessorSystem"
+          namespace: "HITACHI_NAMESPACE"
+        source(2):
+          # Source (2) = Joint of 1 and the Enclosure 9 table
+          # DeviceID;DisplayID;DeviceID;StorageSystemName;
+          type: "tableJoin"
+          leftTable: "$monitors.other_device.discovery.sources.source(1)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(9)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          computes:
+            # Add a device type
+            # DeviceID,DisplayID,DeviceID,StorageSystemName,DeviceType
+          - type: "rightConcat"
+            column: 4
+            value: ";Controller"
+            # Keep only useful columns
+            # DeviceID,DisplayID,StorageSystemName,DeviceType
+          - type: "keepColumns"
+            columnNumbers: "1,2,4,5"
+        source(3):
+          # Source(2) = Protocol Processor
+          # DeviceID,StorageSystemName
+          type: "wbem"
+          query: "SELECT DeviceID,SystemName FROM HITACHI_SCSIArbitraryLogicalUnit"
+          namespace: "HITACHI_NAMESPACE"
+          computes:
+            # Add a device type
+            # DeviceID,StorageSystemName,DeviceType
+          - type: "rightConcat"
+            column: 2
+            value: ";Protocol Processor"
+            # Remove Hitachi from the Device ID
+            # DeviceID,StorageSystemName,DeviceType
+          - type: "replace"
+            column: 1
+            existingValue: "HITACHI "
+            newValue: ""
+            # Duplicate the Device ID
+            # DeviceID,DisplayID,StorageSystemName,DeviceType
+          - type: "duplicateColumn"
+            column: 1
+        source(4):
+          # Source 4 = Union of 2 & 3
+          # DeviceID,DisplayID,StorageSystemName,DeviceType
+          type: "tableUnion"
+          tables:
+          - "$monitors.other_device.discovery.sources.source(2)$"
+          - "$monitors.other_device.discovery.sources.source(3)$"
+          computes:
+            # Add ":" And SystemaName to Caption to make ID unique
+            # DeviceID,DisplayID,StorageSystemName,DeviceType
+          - type: "leftConcat"
+            column: 2
+            value: ":"
+          - type: "leftConcat"
+            column: 2
+            value: "Column(3)"
+      mapping:
+        # Instance Table
+        # DeviceID,DisplayID,StorageSystemName,DeviceType
+        source: "$monitors.other_device.discovery.sources.source(4)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(2)"
+          device_type: "$column(4)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(3)"
+          name: "sprintf(\"%s: %s\", $column(4), $column(2))"
+    collect:
+      # Collect type is multiinstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = HITACHI_StorageProcessorSystem
+          # DeviceID;OperationalStatus;healthstate
+          type: "wbem"
+          query: "SELECT Name,OperationalStatus,HealthState FROM HITACHI_StorageProcessorSystem"
+          namespace: "HITACHI_NAMESPACE"
+        source(2):
+          # Source (2) = Joint of 1 and the Enclosure 9 table
+          # DeviceID;OperationalStatus;healthstate;DeviceID;StorageSystemName;
+          type: "tableJoin"
+          leftTable: "$monitors.other_device.collect.sources.source(1)$"
+          rightTable: "$monitors.enclosure.discovery.sources.source(9)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          computes:
+            # Keep only useful columns
+            # DeviceID;OperationalStatus;healthstate;StorageSystemName;
+          - type: "keepColumns"
+            columnNumbers: "1,2,3,4"
+        source(3):
+          # Source(3) = HITACHI_StorageProcessorSystem
+          # DeviceID;OperationalStatus;HealthState;StorageSystemName;
+          type: "wbem"
+          query: "SELECT DeviceID,OperationalStatus,HealthState,SystemName FROM HITACHI_SCSIArbitraryLogicalUnit"
+          namespace: "HITACHI_NAMESPACE"
+          computes:
+            # Remove Hitachi from the Device ID
+            # DeviceID;OperationalStatus;healthstate;StorageSystemName;
+          - type: "replace"
+            column: 1
+            existingValue: "HITACHI "
+            newValue: ""
+        source(4):
+          # Source 4 = Union of 2 & 3
+          # DeviceID;OperationalStatus;healthstate;StorageSystemName;
+          type: "tableUnion"
+          tables:
+          - "$monitors.other_device.collect.sources.source(2)$"
+          - "$monitors.other_device.collect.sources.source(3)$"
+          computes:
+            # Duplicate the "OperationalStatus" column
+            # DeviceID;OperationalStatus;healthstate;StorageSystemName;
+          - type: "leftConcat"
+            column: 4
+            value: "Health"
+            # add HealthState to operationalStatus
+            # Duplicate the "OperationalStatus" column
+            # DeviceID;OperationalStatus;healthstate;StorageSystemName;
+          - type: "rightConcat"
+            column: 3
+            value: "Column(4)"
+            # Duplicate the "OperationalStatus" column
+            # DeviceID;patrolStatus;statusinformation;healthstate;StorageSystemName;
+          - type: "duplicateColumn"
+            column: 3
+            # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
+            # DeviceID,PATROLStatusArray,OperationalStatus,healthstate,StorageSystemName
+          - type: "arrayTranslate"
+            column: 2
+            translationTable: "DMTFOperationStatusTranslationTable"
+            # And finally, we translate DMTF's OperationalStatus code into a more readable status string
+            # DeviceID,PATROLStatusArray,StatusInformation,healthstate,SystemName
+          - type: "arrayTranslate"
+            column: 3
+            translationTable: "DMTFOperationStatusInformationTranslationTable"
+            resultSeparator: " - "
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+            # DeviceID,PATROLStatus,StatusInformation,healthstate,SystemName
+          - type: "convert"
+            column: 2
+            conversion: "array2SimpleStatus"
+      mapping:
+        # ValueTable = Source(1)
+        # DeviceID,PATROLStatus,StatusDescriptions,healthstate,SystemName
+        source: "$monitors.other_device.collect.sources.source(4)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="other_device"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"

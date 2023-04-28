@@ -1,0 +1,1469 @@
+---
+translations:
+  TemperatureStatusTranslationTable:
+    "0": "ok"
+    "1": "failed"
+    default: "UNKNOWN"
+  BladeStatusTranslationTable:
+    "0_0": "ok"
+    "0_1": "ok"
+    default: "UNKNOWN"
+    "0_2": "degraded"
+    "1_1": "ok"
+    "0_3": "degraded"
+    "1_2": "degraded"
+    "1_3": "failed"
+  FanStatusTranslationTable:
+    "0": "failed"
+    "1": "ok"
+    default: "UNKNOWN"
+  ManagementModuleTranslationTable:
+    "1": "ok"
+    "2": "degraded"
+    default: "UNKNOWN"
+    "3": "failed"
+  PowerSupplyStatusTranslationTable:
+    "0": "failed"
+    "1": "ok"
+    default: "UNKNOWN"
+  FanControllerStatusTranslationTable:
+    "0": "UNKNOWN"
+    "1": "ok"
+    "2": "degraded"
+    default: "UNKNOWN"
+    "3": "failed"
+  SwitchModuleTranslationTable:
+    "1": "ok"
+    "2": "degraded"
+    default: "UNKNOWN"
+    "3": "failed"
+  LEDSwitchModuleTranslationTable:
+    "0": "ok"
+    "1": "failed"
+    default: "UNKNOWN"
+  BladePowerStateTranslationTable:
+    "0": "off"
+    "1": "on"
+    "255": ""
+    default: ""
+    "3": "off"
+    "4": "off"
+  SwitchTypeTranslationTable:
+    "1": "Ethernet"
+    "2": "Fibre"
+    default: "UNKNOWN"
+    "3": "Opm"
+    "4": "SerialCM"
+    "5": "CopperPassThrough"
+    "6": "Infiniband"
+    "40": "SAS"
+    "30": "PassThrough"
+    "20": "HighSpeed"
+  BladeStatusInformationTranslationTable:
+    "0_0": "Spare - Unknown"
+    "0_1": "Spare"
+    default: "Unknown Status"
+    "0_2": "Spare - Warning"
+    "1_1": ""
+    "0_3": "Spare - Bad"
+    "1_2": "Warning"
+    "1_3": "Bad"
+  PowerSupplyStatusInformationTranslationTable:
+    "0": "Not functional"
+    "1": ""
+    default: "Unknown Status"
+connector:
+  displayName: "IBM BladeCenter Management Module"
+  platforms: "IBM BladeCenter"
+  reliesOn: "IBM BladeCenter Management Module"
+  version: "1.1"
+  information: "This connector provides hardware monitoring of the IBM BladeCenter chassis through the IBM BladeCenter Management Module (SNMP-based). Needs to run remotely."
+  detection:
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "OOB"
+    criteria:
+    - type: "snmpGetNext"
+      oid: "1.3.6.1.4.1.2.3.51.2.2.1.1.2"
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Get the model name and manufacturer of the blade server
+          # Model;ModelSuffix;SerialNumber;Vendor;FRU;PartNumber;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.21.1.1"
+          selectColumns: "1,2,3,5,7,9"
+          computes:
+            # Assume that if the vendor is SLRM (?), it is an IBM BladeCenter, in fact
+            # Model;ModelSuffix;SerialNumber;Vendor;FRU;PartNumber;
+          - type: "replace"
+            column: 4
+            existingValue: "SLRM"
+            newValue: "IBM BladeCenter"
+            # RightConcat the Model Suffix
+            # Model;ModelSuffix;SerialNumber;Vendor;FRU;PartNumber;
+          - type: "rightConcat"
+            column: 1
+            value: "-"
+          - type: "rightConcat"
+            column: 1
+            value: "Column(2)"
+            # Identify the FRU and Part Number
+          - type: "leftConcat"
+            column: 5
+            value: "Alternate Part Number: "
+          - type: "leftConcat"
+            column: 6
+            value: "Part Number: "
+      mapping:
+        # Instance Table
+        # Model;ModelSuffix;SerialNumber;Vendor;FRU;PartNumber;
+        source: "$monitors.enclosure.discovery.sources.source(1)$"
+        attributes:
+          id: "BladeCenter"
+          serial_number: "$column(3)"
+          vendor: "$column(4)"
+          model: "$column(1)"
+          type: "Chassis"
+          info: "join($column(5), $column(6), \" \")"
+          name: "sprintf(\"%s (%s %s - %s)\", \"BladeCenter\", $column(4), $column(1), \"Chassis\")"
+    collect:
+      # Collect
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Get a list of Enclosures
+          # ServerID
+          type: "static"
+          value: "BladeCenter;"
+        source(2):
+          # Get the Power Consumption
+          # PowerConsumption
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.10.5.1.2.0"
+          computes:
+            # Add the Server ID
+            # ServerID;PowerConsumption;
+          - type: "leftConcat"
+            column: 1
+            value: "BladeCenter;"
+            # Keep only the first column
+            # ServerID;PowerConsumption;
+          - type: "extract"
+            column: 2
+            subColumn: 1
+            subSeparators: " "
+            # Remove the "W"
+            # ServerID;PowerConsumption;
+          - type: "replace"
+            column: 2
+            existingValue: "W"
+            newValue: ""
+        source(3):
+          # Source(3) = Table joint between Source(1) and Source(2)
+          # This is because the PowerMeter Table does not exist in early versions of the chassis, so we collect a list of IDs from the main table to avoid "no collect value errors"
+          # ServerID;ServerID;Power Consumption;
+          type: "tableJoin"
+          leftTable: "$monitors.enclosure.collect.sources.source(1)$"
+          rightTable: "$monitors.enclosure.collect.sources.source(2)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ";;"
+      mapping:
+        # Value Table
+        # ServerID;ServerID;Power Consumption;
+        source: "$monitors.enclosure.collect.sources.source(3)$"
+        deviceId: "BladeCenter"
+        metrics:
+          hw.enclosure.power: "$column(3)"
+          hw.enclosure.energy: "fakeCounter($column(3))"
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = mmTemp
+          # Temperature
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.1.1.2.0"
+          computes:
+            # Add an identifier and thresholds
+            # ID;DisplayID;WarningThreshold;AlarmThreshold;Status;Temperature;
+          - type: "leftConcat"
+            column: 1
+            value: "ManagementModule;Management Module;65;75;;"
+        source(2):
+          # Source(2) = frontPanelTemp
+          # Temperature
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.1.5.1.0"
+          computes:
+            # Add an identifier and thresholds
+            # ID;DisplayID;WarningThreshold;AlarmThreshold;Status;Temperature;
+          - type: "leftConcat"
+            column: 1
+            value: "FrontPanel;Front Panel;45;55;;"
+        source(3):
+          # Source(3) = frontPanel2Temp (only for for BladeCenter HT)
+          # Temperature
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.1.5"
+          selectColumns: "2"
+          computes:
+            # Add an identifier and thresholds
+            # ID;DisplayID;WarningThreshold;AlarmThreshold;Status;Temperature;
+          - type: "leftConcat"
+            column: 1
+            value: "FrontPanel2;Front Panel 2;45;55;;"
+        source(4):
+          # Source(4) = rearLEDCardTempMax (only for Pureflex?)
+          # Temperature
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.1.5"
+          selectColumns: "3"
+          computes:
+            # Add an identifier and thresholds
+            # ID;DisplayID;WarningThreshold;AlarmThreshold;Status;Temperature;
+          - type: "leftConcat"
+            column: 1
+            value: "RearLEDCard;Rear LED Card;45;55;;"
+        source(5):
+          # Source(5) = hotAirRecircStatus Table(only for Pureflex)
+          # ID;DisplayID;Status;Temperature;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.1.9.7.1"
+          selectColumns: "2,4,7,6"
+          computes:
+            # Add empty thresholds
+            # ID;DisplayID;WarningThreshold;AlarmThreshold;Status;Temperature;
+          - type: "leftConcat"
+            column: 3
+            value: ";;"
+        source(6):
+          # Union the three sensor tables together
+          # ID;DisplayID;WarningThreshold;AlarmThreshold;Status;Temperature;
+          type: "tableUnion"
+          tables:
+          - "$monitors.temperature.discovery.sources.source(1)$"
+          - "$monitors.temperature.discovery.sources.source(2)$"
+          - "$monitors.temperature.discovery.sources.source(3)$"
+          - "$monitors.temperature.discovery.sources.source(4)$"
+          - "$monitors.temperature.discovery.sources.source(5)$"
+          computes:
+            # Keep only sensors with a valid temperature
+            # ID;DisplayID;WarningThreshold;AlarmThreshold;Status;Temperature;
+          - type: "keepOnlyMatchingLines"
+            column: 6
+            regExp: "^[0-9]"
+      mapping:
+        # InstanceTable = Source(1)
+        source: "$monitors.temperature.discovery.sources.source(6)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(2)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "BladeCenter"
+          name: "$column(2)"
+        metrics:
+          hw.temperature.limit{limit_type="high.degraded"}: "$column(3)"
+          hw.temperature.limit{limit_type="high.critical"}: "$column(4)"
+    collect:
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = mmTemp
+          # Temperature
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.1.1.2.0"
+          computes:
+            # Add an identifier and thresholds
+            # ID;Status;Temperature;
+          - type: "leftConcat"
+            column: 1
+            value: "ManagementModule;;"
+        source(2):
+          # Source(2) = frontPanelTemp
+          # Temperature;
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.1.5.1.0"
+          computes:
+            # Add an identifier and thresholds
+            # ID;Status;Temperature;
+          - type: "leftConcat"
+            column: 1
+            value: "FrontPanel;;"
+        source(3):
+          # Source(3) = frontPanel2Temp (only for for BladeCenter HT)
+          # Temperature
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.1.5.2.0"
+          computes:
+            # Add an identifier and thresholds
+            # ID;Status;Temperature;
+          - type: "leftConcat"
+            column: 1
+            value: "FrontPanel2;;"
+        source(4):
+          # Source(4) = rearLEDCardTempMax (only for pureflex?)
+          # Temperature
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.1.5.3.0"
+          computes:
+            # Add an identifier and thresholds
+            # ID;Status;Temperature;
+          - type: "leftConcat"
+            column: 1
+            value: "RearLEDCard;;"
+        source(5):
+          # Source(5) = hotAirRecircStatus Table(only for Pureflex)
+          # ID;Status;Temperature;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.1.9.7.1"
+          selectColumns: "2,7,6"
+          computes:
+            # Now translate the Status to a PATROL Status
+            # ID;PatrolStatus;Temperature;
+          - type: "translate"
+            column: 2
+            translationTable: "TemperatureStatusTranslationTable"
+        source(6):
+          # Union the three sensor tables together
+          # ID;PatrolStatus;Temperature;
+          type: "tableUnion"
+          tables:
+          - "$monitors.temperature.collect.sources.source(1)$"
+          - "$monitors.temperature.collect.sources.source(2)$"
+          - "$monitors.temperature.collect.sources.source(3)$"
+          - "$monitors.temperature.collect.sources.source(4)$"
+          - "$monitors.temperature.collect.sources.source(5)$"
+          computes:
+            # Take only the first value (ignore the Degrees C string)
+            # ID;PatrolStatus;Temperature;
+          - type: "extract"
+            column: 3
+            subColumn: 1
+            subSeparators: " "
+      mapping:
+        # Instance Table
+        # ID;PatrolStatus;Temperature;
+        source: "$monitors.temperature.collect.sources.source(6)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.temperature: "$column(3)"
+          hw.status{hw.type="temperature"}: "$column(2)"
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = blower1speed
+          # FanSpeed;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.3"
+          selectColumns: "1"
+          computes:
+            # Add an identifier and thresholds
+            # ID;DisplayID;WarningThreshold;FanSpeed;
+          - type: "leftConcat"
+            column: 1
+            value: "Blower1;Blower 1;10;"
+        source(2):
+          # Source(2) = blower2speed
+          # FanSpeed;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.3"
+          selectColumns: "2"
+          computes:
+            # Add an identifier and thresholds
+            # ID;DisplayID;WarningThreshold;FanSpeed;
+          - type: "leftConcat"
+            column: 1
+            value: "Blower2;Blower 2;10;"
+        source(3):
+          # Source(3) = blower3speed
+          # FanSpeed
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.3"
+          selectColumns: "3"
+          computes:
+            # Add an identifier and thresholds
+            # ID;DisplayID;WarningThreshold;FanSpeed;
+          - type: "leftConcat"
+            column: 1
+            value: "Blower3;Blower 3;10;"
+        source(4):
+          # Source(4) = blower4speed
+          # FanSpeed;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.3"
+          selectColumns: "4"
+          computes:
+            # Add an identifier and thresholds
+            # ID;DisplayID;WarningThreshold;FanSpeed;
+          - type: "leftConcat"
+            column: 1
+            value: "Blower4;Blower 4;10;"
+        source(5):
+          # Union the four sensor tables together
+          # ID;DisplayID;WarningThreshold;FanSpeed;
+          type: "tableUnion"
+          tables:
+          - "$monitors.fan.discovery.sources.source(1)$"
+          - "$monitors.fan.discovery.sources.source(2)$"
+          - "$monitors.fan.discovery.sources.source(3)$"
+          - "$monitors.fan.discovery.sources.source(4)$"
+          computes:
+            # Keep only sensors with a valid Fan Speed Percent
+            # ID;DisplayID;WarningThreshold;FanSpeed;
+          - type: "keepOnlyMatchingLines"
+            column: 4
+            regExp: "^[0-9]"
+        source(6):
+          # Source(6) = blower1State
+          # FanState;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.3"
+          selectColumns: "10"
+          computes:
+            # Add an identifier and thresholds
+            # ID;FanState;
+          - type: "leftConcat"
+            column: 1
+            value: "Blower1;"
+        source(7):
+          # Source(7) = blower2State
+          # FanState;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.3"
+          selectColumns: "11"
+          computes:
+            # Add an identifier and thresholds
+            # ID;FanState;
+          - type: "leftConcat"
+            column: 1
+            value: "Blower2;"
+        source(8):
+          # Source(8) = blower3State
+          # FanState
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.3"
+          selectColumns: "12"
+          computes:
+            # Add an identifier and thresholds
+            # ID;FanState;
+          - type: "leftConcat"
+            column: 1
+            value: "Blower3;"
+        source(9):
+          # Source(9) = blower4State
+          # FanState;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.3"
+          selectColumns: "13"
+          computes:
+            # Add an identifier and thresholds
+            # ID;FanState;
+          - type: "leftConcat"
+            column: 1
+            value: "Blower4;"
+        source(10):
+          # Source(10) = Union the four sensor tables together
+          # ID;FanState;
+          type: "tableUnion"
+          tables:
+          - "$monitors.fan.discovery.sources.source(6)$"
+          - "$monitors.fan.discovery.sources.source(7)$"
+          - "$monitors.fan.discovery.sources.source(8)$"
+          - "$monitors.fan.discovery.sources.source(9)$"
+          computes:
+            # Keep only sensors with a valid Fan State
+            # ID;FanState;
+          - type: "keepOnlyMatchingLines"
+            column: 2
+            regExp: "^[013]"
+        source(11):
+          # Source(11) = snmp get on the bistBlowersFunctional
+          # which gives something like "11" where each digit represents a blower
+          # and "1" means functional and "0" failed
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.5.2"
+          selectColumns: "73"
+        source(12):
+          # Copy Source (11) to get Blower 1
+          type: "copy"
+          from: "$monitors.fan.discovery.sources.source(11)$"
+          computes:
+            # Add an identifier
+          - type: "leftConcat"
+            column: 1
+            value: "Blower1;"
+            # Extract the digit which we are interested in
+          - type: "substring"
+            column: 2
+            start: "1"
+            length: "1"
+        source(13):
+          # Copy Source (11) to get Blower 2
+          type: "copy"
+          from: "$monitors.fan.discovery.sources.source(11)$"
+          computes:
+            # Add an identifier
+          - type: "leftConcat"
+            column: 1
+            value: "Blower2;"
+            # Extract the digit which we are interested in
+          - type: "substring"
+            column: 2
+            start: "2"
+            length: "1"
+        source(14):
+          # Copy Source (11) to get Blower 3
+          type: "copy"
+          from: "$monitors.fan.discovery.sources.source(11)$"
+          computes:
+            # Add an identifier
+          - type: "leftConcat"
+            column: 1
+            value: "Blower3;"
+            # Extract the digit which we are interested in
+          - type: "substring"
+            column: 2
+            start: "3"
+            length: "1"
+        source(15):
+          # Copy Source (11) to get Blower 4
+          type: "copy"
+          from: "$monitors.fan.discovery.sources.source(11)$"
+          computes:
+            # Add an identifier
+          - type: "leftConcat"
+            column: 1
+            value: "Blower4;"
+            # Extract the digit which we are interested in
+          - type: "substring"
+            column: 2
+            start: "4"
+            length: "1"
+        source(16):
+          # Source(16) = Union the four sensor tables together
+          # ID;FanState;
+          type: "tableUnion"
+          tables:
+          - "$monitors.fan.discovery.sources.source(12)$"
+          - "$monitors.fan.discovery.sources.source(13)$"
+          - "$monitors.fan.discovery.sources.source(14)$"
+          - "$monitors.fan.discovery.sources.source(15)$"
+          computes:
+            # Keep only Fans with a valid state
+            # ID;FanState;
+          - type: "keepOnlyMatchingLines"
+            column: 2
+            regExp: "^[0-1]"
+        source(17):
+          # Source(17) = Union of Controller Status Tables Source 11 and bistBlowersFunctional tables Source (16)
+          # ID;FanState;
+          type: "tableUnion"
+          tables:
+          - "$monitors.fan.discovery.sources.source(10)$"
+          - "$monitors.fan.discovery.sources.source(16)$"
+        source(18):
+          # Source 18 = Union of Fan Percent Speed and Fan Status tables
+          # ID;DisplayID;WarningThreshold;FanSpeed;ID;FanState;
+          type: "tableJoin"
+          leftTable: "$monitors.fan.discovery.sources.source(5)$"
+          rightTable: "$monitors.fan.discovery.sources.source(17)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ";;"
+        source(19):
+          # Now we move onto the PureFlex Fans
+          # ID;DisplayID;FanSpeed;FanState;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.3.50.1"
+          selectColumns: "1,2,5,6"
+          computes:
+            # Add a WarningThreshold
+            # ID;DisplayID;WarningThreshold;FanSpeed;FanState;
+          - type: "leftConcat"
+            column: 3
+            value: "10;"
+            # Add a blank second ID to match the tables
+            # ID;DisplayID;WarningThreshold;FanSpeed;ID;FanState;
+          - type: "leftConcat"
+            column: 5
+            value: ";"
+            # Add "Chassis Fan" to the Display ID
+            # ID;DisplayID;WarningThreshold;FanSpeed;ID;FanState;
+          - type: "leftConcat"
+            column: 2
+            value: "Chassis Fan "
+            # Keep Only Controllers with a valid controller status
+            # ID;DisplayID;WarningThreshold;FanSpeed;ID;FanState;
+          - type: "keepOnlyMatchingLines"
+            column: 6
+            valueList: "0,1,2,3"
+        source(20):
+          # Source(20) = Union of BladeChassis Fans and PureFlex Fans
+          # ID;DisplayID;WarningThreshold;FanSpeed;ID;FanState;
+          type: "tableUnion"
+          tables:
+          - "$monitors.fan.discovery.sources.source(18)$"
+          - "$monitors.fan.discovery.sources.source(19)$"
+          computes:
+          - type: "leftConcat"
+            column: 6
+            value: "MSHW"
+          - type: "rightConcat"
+            column: 6
+            value: "MSHW"
+          - type: "duplicateColumn"
+            column: 6
+            # If the Column is Blank, 255 or Zero, then blank status
+          - type: "replace"
+            column: 6
+            existingValue: "MSHW0MSHW"
+            newValue: ""
+          - type: "replace"
+            column: 6
+            existingValue: "MSHW255MSHW"
+            newValue: ""
+          - type: "replace"
+            column: 6
+            existingValue: "MSHWMSHW"
+            newValue: ""
+            # If 6 is still populated, blank 7
+          - type: "replace"
+            column: 7
+            existingValue: "Column(6)"
+            newValue: ""
+      mapping:
+        # Instance Table
+        # ID;DisplayID;WarningThreshold(NoActivation);FanSpeed;ID;FanState;WarningThreshold(withActivation);
+        source: "$monitors.fan.discovery.sources.source(20)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(2)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "BladeCenter"
+          name: "$column(2)"
+        metrics:
+          hw.fan.speed_ratio.limit{limit_type="low.degraded"}: "percent2Ratio($column(7))"
+    collect:
+      # Collect-type
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = blower1speed
+          # FanSpeed;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.3"
+          selectColumns: "1"
+          computes:
+            # Add an identifier and thresholds
+            # ID;WarningThreshold;FanSpeed;
+          - type: "leftConcat"
+            column: 1
+            value: "Blower1;10;"
+        source(2):
+          # Source(2) = blower2speed
+          # FanSpeed;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.3"
+          selectColumns: "2"
+          computes:
+            # Add an identifier and thresholds
+            # ID;WarningThreshold;FanSpeed;
+          - type: "leftConcat"
+            column: 1
+            value: "Blower2;10;"
+        source(3):
+          # Source(3) = blower3speed
+          # FanSpeed
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.3"
+          selectColumns: "3"
+          computes:
+            # Add an identifier and thresholds
+            # ID;WarningThreshold;FanSpeed;
+          - type: "leftConcat"
+            column: 1
+            value: "Blower3;10;"
+        source(4):
+          # Source(4) = blower4speed
+          # FanSpeed;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.3"
+          selectColumns: "4"
+          computes:
+            # Add an identifier and thresholds
+            # ID;WarningThreshold;FanSpeed;
+          - type: "leftConcat"
+            column: 1
+            value: "Blower4;10;"
+        source(5):
+          # Union the four sensor tables together
+          # ID;WarningThreshold;FanSpeed;
+          type: "tableUnion"
+          tables:
+          - "$monitors.fan.collect.sources.source(1)$"
+          - "$monitors.fan.collect.sources.source(2)$"
+          - "$monitors.fan.collect.sources.source(3)$"
+          - "$monitors.fan.collect.sources.source(4)$"
+          computes:
+            # Keep only sensors with a valid Fan Speed Percent
+            # ID;WarningThreshold;FanSpeed;
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            regExp: "^[0-9]"
+            # Keep only the number (the OID gives someting like " xx% of maximum")
+            # ID;WarningThreshold;FanSpeed;
+          - type: "extract"
+            column: 3
+            subColumn: 1
+            subSeparators: "%%"
+            # Remove unneeded spaces
+          - type: "replace"
+            column: 3
+            existingValue: " "
+            newValue: ""
+        source(6):
+          # Source(6) = blower1State
+          # FanState;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.3"
+          selectColumns: "10"
+          computes:
+            # Add an identifier and thresholds
+            # ID;FanState;
+          - type: "leftConcat"
+            column: 1
+            value: "Blower1;"
+        source(7):
+          # Source(7) = blower2State
+          # FanState;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.3"
+          selectColumns: "11"
+          computes:
+            # Add an identifier and thresholds
+            # ID;FanState;
+          - type: "leftConcat"
+            column: 1
+            value: "Blower2;"
+        source(8):
+          # Source(8) = blower3State
+          # FanState
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.3"
+          selectColumns: "12"
+          computes:
+            # Add an identifier and thresholds
+            # ID;FanState;
+          - type: "leftConcat"
+            column: 1
+            value: "Blower3;"
+        source(9):
+          # Source(9) = blower4State
+          # FanState;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.3"
+          selectColumns: "13"
+          computes:
+            # Add an identifier and thresholds
+            # ID;FanState;
+          - type: "leftConcat"
+            column: 1
+            value: "Blower4;"
+        source(10):
+          # Source(10) = Union the four sensor tables together
+          # ID;FanState;
+          type: "tableUnion"
+          tables:
+          - "$monitors.fan.collect.sources.source(6)$"
+          - "$monitors.fan.collect.sources.source(7)$"
+          - "$monitors.fan.collect.sources.source(8)$"
+          - "$monitors.fan.collect.sources.source(9)$"
+          computes:
+            # Now translate this digit to a PATROL Status
+            # ID;FanState;
+          - type: "translate"
+            column: 2
+            translationTable: "FanControllerStatusTranslationTable"
+        source(11):
+          # Source(11) = snmp get on the bistBlowersFunctional
+          # which gives something like "11" where each digit represents a blower
+          # and "1" means functional and "0" failed
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.5.2"
+          selectColumns: "72"
+        source(12):
+          # Copy Source (11) to get Blower 1
+          type: "copy"
+          from: "$monitors.fan.collect.sources.source(11)$"
+          computes:
+            # Add an identifier
+          - type: "leftConcat"
+            column: 1
+            value: "Blower1;"
+            # Extract the digit which we are interested in
+          - type: "substring"
+            column: 2
+            start: "1"
+            length: "1"
+        source(13):
+          # Copy Source (11) to get Blower 2
+          type: "copy"
+          from: "$monitors.fan.collect.sources.source(11)$"
+          computes:
+            # Add an identifier
+          - type: "leftConcat"
+            column: 1
+            value: "Blower2;"
+            # Extract the digit which we are interested in
+          - type: "substring"
+            column: 2
+            start: "2"
+            length: "1"
+        source(14):
+          # Copy Source (11) to get Blower 3
+          type: "copy"
+          from: "$monitors.fan.collect.sources.source(11)$"
+          computes:
+            # Add an identifier
+          - type: "leftConcat"
+            column: 1
+            value: "Blower3;"
+            # Extract the digit which we are interested in
+          - type: "substring"
+            column: 2
+            start: "3"
+            length: "1"
+        source(15):
+          # Copy Source (11) to get Blower 4
+          type: "copy"
+          from: "$monitors.fan.collect.sources.source(11)$"
+          computes:
+            # Add an identifier
+          - type: "leftConcat"
+            column: 1
+            value: "Blower4;"
+            # Extract the digit which we are interested in
+          - type: "substring"
+            column: 2
+            start: "4"
+            length: "1"
+        source(16):
+          # Source(16) = Union the four sensor tables together
+          # ID;FanState;
+          type: "tableUnion"
+          tables:
+          - "$monitors.fan.collect.sources.source(12)$"
+          - "$monitors.fan.collect.sources.source(13)$"
+          - "$monitors.fan.collect.sources.source(14)$"
+          - "$monitors.fan.collect.sources.source(15)$"
+          computes:
+            # Now translate this digit to a PATROL Status
+            # ID;FanState;
+          - type: "translate"
+            column: 2
+            translationTable: "FanStatusTranslationTable"
+        source(17):
+          # Source(17) = Union of Fan Percent Table (5) with First Status Table (16)
+          # ID;WarningThreshold;FanSpeed;ID;FanState;
+          type: "tableJoin"
+          leftTable: "$monitors.fan.collect.sources.source(5)$"
+          rightTable: "$monitors.fan.collect.sources.source(16)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ";;"
+        source(18):
+          # Source(17) = Union of (Fan Percent Table and First Status Table (17) with Second Status Table)
+          # ID;WarningThreshold;FanSpeed;ID;FanState1;ID;FanState2;
+          type: "tableJoin"
+          leftTable: "$monitors.fan.collect.sources.source(17)$"
+          rightTable: "$monitors.fan.collect.sources.source(10)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ";;"
+          computes:
+            # Add an array Separator to FanState1
+            # ID;WarningThreshold;FanSpeed;ID;FanState1;ID;FanState2;
+          - type: "rightConcat"
+            column: 5
+            value: "|"
+            # Add FanState2 to FanState1 to create an array
+            # ID;WarningThreshold;FanSpeed;ID;FanState1;ID;FanState2;
+          - type: "rightConcat"
+            column: 5
+            value: "Column(7)"
+            # Simplify the Array
+            # ID;WarningThreshold;FanSpeed;ID;FanState1;ID;FanState2;
+          - type: "convert"
+            column: 5
+            conversion: "array2SimpleStatus"
+        source(19):
+          # Now we move onto the PureFlex Fans
+          # ID;FanSpeed;FanState;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.3.50.1"
+          selectColumns: "1,3,4"
+          computes:
+            # Translate the Fanstate
+            # ID;FanSpeed;PatrolStatus;
+          - type: "translate"
+            column: 3
+            translationTable: "FanStatusTranslationTable"
+            # Add a WarningThreshold
+            # ID;WarningThreshold;FanSpeed;PatrolStatus;
+          - type: "leftConcat"
+            column: 2
+            value: "10;"
+            # Add a blank second ID to match the tables
+            # ID;WarningThreshold;FanSpeed;ID;PatrolStatus;
+          - type: "leftConcat"
+            column: 4
+            value: ";"
+            # Add blank "ID;Fanstate2" to the Display ID
+            # ID;WarningThreshold;FanSpeed;ID;PatrolStatus;ID;FanState2;
+          - type: "rightConcat"
+            column: 5
+            value: ";;"
+            # Keep only the number (the OID gives someting like " xx% of maximum")
+            # ID;WarningThreshold;FanSpeed;ID;PatrolStatus;ID;FanState2;
+          - type: "extract"
+            column: 3
+            subColumn: 1
+            subSeparators: "%%"
+        source(20):
+          # Source(20) = Union of BladeChassis Fans and PureFlex Fans
+          # ID;WarningThreshold;FanSpeed;ID;PatrolStatus;ID;FanState2;
+          type: "tableUnion"
+          tables:
+          - "$monitors.fan.collect.sources.source(18)$"
+          - "$monitors.fan.collect.sources.source(19)$"
+      mapping:
+        # ValueTable = Source(20)
+        source: "$monitors.fan.collect.sources.source(20)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.fan.speed_ratio: "percent2Ratio($column(3))"
+          hw.status{hw.type="fan"}: "$column(5)"
+  voltage:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the voltageThresholdsTable of the IBM-BLADE MIB
+          # ID;VoltageType;UpperThreshold;LowerThreshold
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.20.2.1.1"
+          selectColumns: "ID,2,6,10"
+          computes:
+            # Remove the \" Volts\" stenza from the Lower and UpperTreshold columns
+          - type: "replace"
+            column: 3
+            existingValue: " Volts"
+            newValue: ""
+          - type: "replace"
+            column: 4
+            existingValue: " Volts"
+            newValue: ""
+            # Remove the remaining blanks
+            # Remove the " Volts" stenza from the Lower and UpperTreshold columns
+          - type: "replace"
+            column: 3
+            existingValue: " "
+            newValue: ""
+          - type: "replace"
+            column: 4
+            existingValue: " "
+            newValue: ""
+            # Remove the unnedded '+' char
+          - type: "replace"
+            column: 3
+            existingValue: "+"
+            newValue: ""
+          - type: "replace"
+            column: 4
+            existingValue: "+"
+            newValue: ""
+            # Convert the volt values to milliVolts
+          - type: "multiply"
+            column: 3
+            value: "1000"
+          - type: "multiply"
+            column: 4
+            value: "1000"
+      mapping:
+        # InstanceTable = Source(1)
+        source: "$monitors.voltage.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          voltage_type: "$column(2)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "BladeCenter"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+        metrics:
+          hw.voltage.limit{limit_type="low.critical"}: "$column(4)"
+          hw.voltage.limit{limit_type="high.degraded"}: "$column(3)"
+    collect:
+      # Collect type is: Mono-Instance, i.e.: one collect for each instance
+      type: "monoInstance"
+      sources:
+        source(1):
+          # Source(1) = SNMP Get on the voltageThresholdsEntryCurrentValue OID
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.20.2.1.1.3.%Voltage.Collect.DeviceID%"
+          computes:
+            # Remove the \" Volts\" stanza
+          - type: "replace"
+            column: 1
+            existingValue: " Volts"
+            newValue: ""
+            # Remove the remaining spaces
+          - type: "replace"
+            column: 1
+            existingValue: " "
+            newValue: ""
+            # Remove the unneeded '+' char
+          - type: "replace"
+            column: 1
+            existingValue: "+"
+            newValue: ""
+            # Convert V to mV
+          - type: "multiply"
+            column: 1
+            value: "1000"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.voltage.collect.sources.source(1)$"
+        metrics:
+          hw.voltage: "$column(1)"
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the pmHardwareVpdTable SNMP table of the IBM-BLADE MIB
+          # DeviceID;Manufacturer;FRUNumber;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.21.8.1.1"
+          selectColumns: "1,3,4"
+          computes:
+            # Remove \"Not available\" instances
+          - type: "excludeMatchingLines"
+            column: 2
+            regExp: "^Not [Aa]vailable$"
+          - type: "leftConcat"
+            column: 3
+            value: "Part Number: "
+      mapping:
+        # InstanceTable = Source(1)
+        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(1)"
+          power_supply_type: "$column(2)"
+          info: "$column(3)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "BladeCenter"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+    collect:
+      # Collect type = Mono-Instance (one collect for each instance)
+      type: "monoInstance"
+      sources:
+        source(1):
+          # Source(1) = Snmp Get on the bistPowerModulesFunctional OID in the IBM-BLADE MIB
+          # This is formatted as 1101, with each digit representing one power module
+          # and with '1' meaning functional and '0' failed
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.5.2.89.0"
+          computes:
+            # Extract the digit that concerns our power module
+          - type: "substring"
+            column: 1
+            start: "%PowerSupply.Collect.DeviceID%"
+            length: "1"
+            # Duplicate this digit column
+          - type: "duplicateColumn"
+            column: 1
+            # Now translate this digit to a PATROL Status
+          - type: "translate"
+            column: 1
+            translationTable: "PowerSupplyStatusTranslationTable"
+          - type: "translate"
+            column: 2
+            translationTable: "PowerSupplyStatusInformationTranslationTable"
+      mapping:
+        source: "$monitors.power_supply.collect.sources.source(1)$"
+        metrics:
+          hw.status{hw.type="power_supply"}: "$column(1)"
+        legacyTextParameters:
+          StatusInformation: "$column(2)"
+  blade:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = SNMP bladeSystemStatusTable
+          # ID;Exists;Name
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.22.1.5.1.1"
+          selectColumns: "ID,3,6"
+          computes:
+            # Keep only present blades
+          - type: "keepOnlyMatchingLines"
+            column: 2
+            valueList: "1"
+        source(2):
+          # Because Pureflex doesn't use the bladeSystemStatusTable, we're going to also query the LED table
+          # Hopefully all blades will be in one of the two tables (The IDs are the same)
+          # Source(2) = SNMP bladeLEDsTable
+          # ID;Exists;Name
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.8.2.1.1"
+          selectColumns: "ID,3,6"
+          computes:
+            # Keep only present blades
+          - type: "keepOnlyMatchingLines"
+            column: 2
+            valueList: "1"
+        source(3):
+          # Union 1 & 2... There might be duplicates, but the KM/PM can deal with this.
+          # ID;Exists;Name
+          type: "tableUnion"
+          tables:
+          - "$monitors.blade.discovery.sources.source(1)$"
+          - "$monitors.blade.discovery.sources.source(2)$"
+        source(4):
+          # Source(4) = SNMP bladeHardwareVpdTable
+          # ID;Model;ModelSuffix;SerialNumber;FRU;PartNumber;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.21.4.1.1"
+          selectColumns: "ID,7,12,11,4,10"
+          computes:
+            # RightConcat the Model Suffix
+            # ID;Model;ModelSuffix;SerialNumber;FRU;PartNumber;
+          - type: "rightConcat"
+            column: 2
+            value: "-"
+          - type: "rightConcat"
+            column: 2
+            value: "Column(3)"
+            # Identify the FRU and Part Number
+          - type: "leftConcat"
+            column: 5
+            value: "Alternate Part Number: "
+          - type: "leftConcat"
+            column: 6
+            value: "Part Number: "
+        source(5):
+          # Source(3) = table joint of Source(3) and Source(4)
+          # ID;Exists;Name;ID;Model;ModelSuffix;SerialNumber;FRU;PartNumber;
+          type: "tableJoin"
+          leftTable: "$monitors.blade.discovery.sources.source(3)$"
+          rightTable: "$monitors.blade.discovery.sources.source(4)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+      mapping:
+        # InstanceTable = Source(1)
+        source: "$monitors.blade.discovery.sources.source(5)$"
+        attributes:
+          id: "$column(1)"
+          blade_name: "$column(3)"
+          model: "$column(5)"
+          serial_number: "$column(7)"
+          info: "join($column(8), $column(9), \" \")"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "BladeCenter"
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), $column(5))"
+    collect:
+      # Collect type is \"multi-instance\" (one collect for all instances)
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = SNMP bladeSystemStatusTable
+          # ID;PowerState;HealthState
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.22.1.5.1.1"
+          selectColumns: "ID,4,5"
+        source(2):
+          # Because Pureflex doesn't use the bladeSystemStatusTable, we're going to also query the LED table
+          # Hopefully all blades will be in one of the two tables (The IDs are the same)
+          # Source(2) = SNMP bladeLEDsTable
+          # ID;PowerState;Name;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.8.2.1.1"
+          selectColumns: "ID,4,5"
+        source(3):
+          # Union 1 & 2... There might be duplicates, but the KM/PM can deal with this.
+          # ID;PowerState;Name
+          type: "tableUnion"
+          tables:
+          - "$monitors.blade.collect.sources.source(1)$"
+          - "$monitors.blade.collect.sources.source(2)$"
+          computes:
+            # Add an underscore right to the PowerState column
+            # ID;PowerState;_HealthState_;
+          - type: "leftConcat"
+            column: 3
+            value: "_"
+            # Concatene the PowerState and HealthState columns
+            # ID;PowerState;PowerState_HealthState;
+          - type: "leftConcat"
+            column: 3
+            value: "Column(2)"
+            # Duplicate this Power&Health column
+            # ID;PowerState;PowerState_HealthState;PowerState_HealthState;
+          - type: "duplicateColumn"
+            column: 3
+            # Translate the first Power&Health column into a PATROL Status
+            # ID;PowerState;PATROLStatus;PowerState_HealthState;
+          - type: "translate"
+            column: 3
+            translationTable: "BladeStatusTranslationTable"
+            # Translate the second status column into a more readable string
+            # ID;PowerState;PATROLStatus;StatusInformation;
+          - type: "translate"
+            column: 4
+            translationTable: "BladeStatusInformationTranslationTable"
+            # Translate the PowerState
+            # ID;PowerState;PATROLStatus;PowerState_HealthState;
+          - type: "translate"
+            column: 2
+            translationTable: "BladePowerStateTranslationTable"
+      mapping:
+        # ValueTable = Source(3)
+        source: "$monitors.blade.collect.sources.source(3)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="blade"}: "$column(3)"
+          hw.blade.power_state: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = smControlEntry SNMP table
+          # ID;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.22.3.1.1.1"
+          selectColumns: "ID"
+        source(2):
+          # Source(2) = smPowerRestartEntry SNMP table
+          # ID;SwitchType;MAC;IPAddress;Manufacturer;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.22.3.1.7.1"
+          selectColumns: "ID,4,5,6,22"
+          computes:
+            # Translate the SwitchType
+            # ID;SwitchType;MAC;IPAddress;Manufacturer;
+          - type: "translate"
+            column: 2
+            translationTable: "SwitchTypeTranslationTable"
+        source(3):
+          # Join the status table (1) with the FRU table (2)
+          # ID;ID;SwitchType;MAC;IPAddress;Manufacturer;
+          type: "tableJoin"
+          leftTable: "$monitors.other_device.discovery.sources.source(1)$"
+          rightTable: "$monitors.other_device.discovery.sources.source(2)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ";;;;;"
+          computes:
+            # Trim unwanted columns
+            # ID;SwitchType;MAC;IPAddress;Manufacturer;
+          - type: "keepColumns"
+            columnNumbers: "1,3,4,5,6"
+            # Add "SwitchModule" before the switch ID (so that we won't get confused with switch objects)
+            # ID;Present;IPAddress;
+          - type: "leftConcat"
+            column: 1
+            value: "Module-"
+        source(4):
+          # Source(2) = smPowerRestartEntry SNMP table
+          # ID;Present;IPAddress;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.22.5.1.1"
+          selectColumns: "ID,2,3"
+          computes:
+            # Keep only present management modules
+            # ID;Present;IPAddress;
+          - type: "keepOnlyMatchingLines"
+            column: 2
+            valueList: "1"
+            # Trim unwanted columns
+            # ID;IPAddress;
+          - type: "keepColumns"
+            columnNumbers: "1,3"
+            # Add Columns
+            # ID;SwitchType;MAC;IPAddress;
+          - type: "leftConcat"
+            column: 2
+            value: "Management Module;;"
+            # Add Columns
+            # ID;SwitchType;MAC;IPAddress;Manufacturer;
+          - type: "rightConcat"
+            column: 4
+            value: ";"
+        source(5):
+          # Union Switches and Management Module
+          # ID;SwitchType;MAC;IPAddress;Manufacturer;
+          type: "tableUnion"
+          tables:
+          - "$monitors.other_device.discovery.sources.source(3)$"
+          - "$monitors.other_device.discovery.sources.source(4)$"
+        source(6):
+          # Now let's discovery PureFlex Switches from their LEDs
+          # ID;Label;State;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.8.4.2.1"
+          selectColumns: "2,3,4"
+        source(7):
+          # Make a copy of the Switch LEDs
+          # ID;Label;State;
+          type: "copy"
+          from: "$monitors.other_device.discovery.sources.source(6)$"
+          computes:
+            # Keep only FRU Faults
+            # ID;Label;State;
+          - type: "keepOnlyMatchingLines"
+            column: 2
+            regExp: "FRU Fault"
+        source(8):
+          # Make a copy of the Switch LEDs
+          # ID;Label;State;
+          type: "copy"
+          from: "$monitors.other_device.discovery.sources.source(6)$"
+          computes:
+            # Keep only Power
+            # ID;Label;State;
+          - type: "keepOnlyMatchingLines"
+            column: 2
+            regExp: "Power"
+            # Keep only Switches with Power "On"
+            # ID;Label;State;
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            valueList: "1"
+        source(9):
+          # Join the Fault LEDs with the Power LEDs.  Which will keep only Powered On Switches
+          # ID;Label;State;ID;Label;State;
+          type: "tableJoin"
+          leftTable: "$monitors.other_device.discovery.sources.source(7)$"
+          rightTable: "$monitors.other_device.discovery.sources.source(8)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          computes:
+            # Trim unwanted columns
+            # ID;
+          - type: "keepColumns"
+            columnNumbers: "1"
+            # Add Columns
+            # ID;SwitchType;MAC;IPAddress;Manufacturer;
+          - type: "rightConcat"
+            column: 1
+            value: ";Switch Module;;;"
+            # Add "Switch Module" to ID
+            # ID;SwitchType;MAC;IPAddress;Manufacturer;
+          - type: "leftConcat"
+            column: 1
+            value: "SM-"
+        source(10):
+          # Union BladeChassis and Pureflex
+          # ID;SwitchType;MAC;IPAddress;Manufacturer;
+          type: "tableUnion"
+          tables:
+          - "$monitors.other_device.discovery.sources.source(5)$"
+          - "$monitors.other_device.discovery.sources.source(9)$"
+          computes:
+          - type: "leftConcat"
+            column: 3
+            value: "MAC: "
+          - type: "leftConcat"
+            column: 4
+            value: "IP: "
+          - type: "leftConcat"
+            column: 5
+            value: "Manufacturer: "
+      mapping:
+        # InstanceTable = Source(10)
+        # ID;SwitchType;MAC;IPAddress;Manufacturer;
+        source: "$monitors.other_device.discovery.sources.source(10)$"
+        attributes:
+          id: "$column(1)"
+          device_type: "$column(2)"
+          info: "join($column(3), $column(4), $column(5), \" \")"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s: %s\", $column(2), $column(1))"
+    collect:
+      # Collect type is \"multi-instance\"
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = smControlEntry SNMP table
+          # ID;Status;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.22.3.1.1.1"
+          selectColumns: "ID,15"
+          computes:
+            # Add module to the deviceID
+            # ID;Status;
+          - type: "leftConcat"
+            column: 1
+            value: "Module-"
+            # Translate Condition into a PATROL Status
+            # ID;PatrolStatus;
+          - type: "translate"
+            column: 2
+            translationTable: "SwitchModuleTranslationTable"
+        source(2):
+          # Source(2) = smControlEntry SNMP table
+          # ID;Status;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.22.5.1.1"
+          selectColumns: "ID,4"
+          computes:
+            # Translate Condition into a PATROL Status
+            # ID;PatrolStatus;
+          - type: "translate"
+            column: 2
+            translationTable: "ManagementModuleTranslationTable"
+        source(3):
+          # Now let's collect PureFlex Switches from their LEDs
+          # ID;Label;State;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.8.4.2.1"
+          selectColumns: "2,3,4"
+          computes:
+            # Keep only FRU Faults
+            # ID;Label;State;
+          - type: "keepOnlyMatchingLines"
+            column: 2
+            regExp: "FRU Fault"
+            # Attach an indentifier to the ID
+            # ID;Label;State;
+          - type: "leftConcat"
+            column: 1
+            value: "SM-"
+            # Trim unwanted columns
+            # ID;State;
+          - type: "keepColumns"
+            columnNumbers: "1,3"
+            # Translate State into a PATROL Status
+            # ID;PatrolStatus;
+          - type: "translate"
+            column: 2
+            translationTable: "LEDSwitchModuleTranslationTable"
+        source(4):
+          # join Switch to Management Module
+          # ID;PatrolStatus;
+          type: "tableUnion"
+          tables:
+          - "$monitors.other_device.collect.sources.source(1)$"
+          - "$monitors.other_device.collect.sources.source(2)$"
+          - "$monitors.other_device.collect.sources.source(3)$"
+      mapping:
+        source: "$monitors.other_device.collect.sources.source(4)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="other_device"}: "$column(2)"

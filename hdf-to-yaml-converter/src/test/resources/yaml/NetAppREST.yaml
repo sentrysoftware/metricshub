@@ -1,0 +1,1314 @@
+---
+embedded:
+  EmbeddedFile(15): "BEGIN{\n\t# Set the name for each object level\n  InstanceLevel = \"nodes\"\n\tParentLevel = \"aggr-attributes\"\n\tGrandParentLevel = \"\"\n\n  # Set the Properties to Extract\n  # The number indicates which column that property will be put in\n  # If you specify property[1] and property[3], you will end up with:\n  # MSHW;propertyvalue1;;propertyvalue3;\n\tproperty[1] = \"node-name\"\n\tproperty[2] = \"../aggregate-uuid\"\n\n  # The rest of this script is standardized\n  # and does not need to be edited\n  #\n  #\n  # System Constants\n  Level = \"Unknown\"\n  FS=\"[<>]\"\n  skip = \"0\"\n  InstanceEnum = \"0\"\n  ParentEnum = \"0\"\n  GrandParentEnum = \"0\"\n  InstanceLevelEnd = \"/\" InstanceLevel\n  ParentLevelEnd = \"/\" ParentLevel\n  GrandParentLevelEnd = \"/\" GrandParentLevel\n  }\n(NF == 3 ) && ($2 == GrandParentLevel) {\n  GrandParentEnum = GrandParentEnum + 1\n  Level = \"GrandParent\"\n  }\n(NF == 3 ) && ($2 == GrandParentLevelEnd) {\n  Level = \"Unknown\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevel) {\n  ParentEnum = ParentEnum + 1\n  Level = \"Parent\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevelEnd) {\n  Level = \"GrandParent\"\n  }\n(NF == 3) && ($2 == InstanceLevel) {\n  InstanceEnum = InstanceEnum + 1\n  InstanceParentID[InstanceEnum] = ParentEnum\n  InstanceGrandParentID[InstanceEnum] = GrandParentEnum\n  Level = \"Instance\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == InstanceLevelEnd) {\n  Level = \"Parent\"\n  }\n\n# Skip unknown subsections\nNF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != \"Unknown\" && $2 !~ /\\// {\n  skip = \"1\"\n  skipTo = \"/\" $2\n  }\nskip == \"1\" {\n  if ( $2 == skipTo ) { skip = \"0\"}\n    else { next }\n  }\n\n# Values\n# When we get a property, we search through the \"property\" array to see if it matches something we are looking for\n# We then stick the value in the \"outputArray\" for the right ID (instance / parent / grandparent\"\nNF == 5 {\n  currentProperty = $2\n  value = $3\n  propertyID = InstanceEnum\n  if ( Level == \"Parent\" ) { currentProperty = \"\\.\\.\\/\" currentProperty ; propertyID = ParentEnum }\n  if ( Level == \"GrandParent\" ) { currentProperty = \"\\.\\.\\/\\.\\.\\/\" currentProperty ; propertyID = GrandParentEnum }\n  for ( pID in property) {\n    if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }\n    }\n  }\n\nEND {\n  # figure out highest property value\n  highestProperty = \"0\"\n  for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }\n  for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {\n    printf(\"%s\",\"MSHW;\")\n    for ( pID = 1 ; pID <= highestProperty ; pID++) {\n      if ( property[pID] ~ \"\\.\\.\\/\\.\\.\\/\" ) { printID = InstanceGrandParentID[instanceID] ; Level = \"GrandParent\" }\n      else if ( property[pID] ~ \"\\.\\.\\/\" ) { printID = InstanceParentID[instanceID] ; Level = \"Parent\" }\n      else { printID = instanceID ; Level = \"Instance\" }\n      printf(\"%s\",outputArray[Level,printID,pID] \";\" )\n      }\n    print \" \"\n    }\n  }"
+  EmbeddedFile(16): "BEGIN{\n\t# Set the name for each object level\n  InstanceLevel = \"environment-sensors-info\"\n\tParentLevel = \"\"\n\tGrandParentLevel = \"\"\n\n  # Set the Properties to Extract\n  # The number indicates which column that property will be put in\n  # If you specify property[1] and property[3], you will end up with:\n  # MSHW;propertyvalue1;;propertyvalue3;\n\tproperty[1] = \"node-name\"\n\tproperty[2] = \"sensor-name\"\n\tproperty[3] = \"discrete-sensor-state\"\n\tproperty[4] = \"discrete-sensor-value\"\n\n  # The rest of this script is standardized\n  # and does not need to be edited\n  #\n  #\n  # System Constants\n  Level = \"Unknown\"\n  FS=\"[<>]\"\n  skip = \"0\"\n  InstanceEnum = \"0\"\n  ParentEnum = \"0\"\n  GrandParentEnum = \"0\"\n  InstanceLevelEnd = \"/\" InstanceLevel\n  ParentLevelEnd = \"/\" ParentLevel\n  GrandParentLevelEnd = \"/\" GrandParentLevel\n  }\n(NF == 3 ) && ($2 == GrandParentLevel) {\n  GrandParentEnum = GrandParentEnum + 1\n  Level = \"GrandParent\"\n  }\n(NF == 3 ) && ($2 == GrandParentLevelEnd) {\n  Level = \"Unknown\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevel) {\n  ParentEnum = ParentEnum + 1\n  Level = \"Parent\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevelEnd) {\n  Level = \"GrandParent\"\n  }\n(NF == 3) && ($2 == InstanceLevel) {\n  InstanceEnum = InstanceEnum + 1\n  InstanceParentID[InstanceEnum] = ParentEnum\n  InstanceGrandParentID[InstanceEnum] = GrandParentEnum\n  Level = \"Instance\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == InstanceLevelEnd) {\n  Level = \"Parent\"\n  }\n\n# Skip unknown subsections\nNF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != \"Unknown\" && $2 !~ /\\// {\n  skip = \"1\"\n  skipTo = \"/\" $2\n  }\nskip == \"1\" {\n  if ( $2 == skipTo ) { skip = \"0\"}\n    else { next }\n  }\n\n# Values\n# When we get a property, we search through the \"property\" array to see if it matches something we are looking for\n# We then stick the value in the \"outputArray\" for the right ID (instance / parent / grandparent\"\nNF == 5 {\n  currentProperty = $2\n  value = $3\n  propertyID = InstanceEnum\n  if ( Level == \"Parent\" ) { currentProperty = \"\\.\\.\\/\" currentProperty ; propertyID = ParentEnum }\n  if ( Level == \"GrandParent\" ) { currentProperty = \"\\.\\.\\/\\.\\.\\/\" currentProperty ; propertyID = GrandParentEnum }\n  for ( pID in property) {\n    if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }\n    }\n  }\n\nEND {\n  # figure out highest property value\n  highestProperty = \"0\"\n  for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }\n  for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {\n    printf(\"%s\",\"MSHW;\")\n    for ( pID = 1 ; pID <= highestProperty ; pID++) {\n      if ( property[pID] ~ \"\\.\\.\\/\\.\\.\\/\" ) { printID = InstanceGrandParentID[instanceID] ; Level = \"GrandParent\" }\n      else if ( property[pID] ~ \"\\.\\.\\/\" ) { printID = InstanceParentID[instanceID] ; Level = \"Parent\" }\n      else { printID = instanceID ; Level = \"Instance\" }\n      printf(\"%s\",outputArray[Level,printID,pID] \";\" )\n      }\n    print \" \"\n    }\n  }"
+  EmbeddedFile(17): "BEGIN{\n\t# Set the name for each object level\n  InstanceLevel = \"fcp-config-adapter-info\"\n\tParentLevel = \"\"\n\tGrandParentLevel = \"\"\n\n  # Set the Properties to Extract\n  # The number indicates which column that property will be put in\n  # If you specify property[1] and property[3], you will end up with:\n  # MSHW;propertyvalue1;;propertyvalue3;\n\tproperty[1] = \"node\"\n\tproperty[2] = \"adapter\"\n\tproperty[3] = \"state\"\n\tproperty[4] = \"status-extended\"\n  property[5] = \"port-name\"\n  property[6] = \"data-link-rate\"\n\n  # The rest of this script is standardized\n  # and does not need to be edited\n  #\n  #\n  # System Constants\n  Level = \"Unknown\"\n  FS=\"[<>]\"\n  skip = \"0\"\n  InstanceEnum = \"0\"\n  ParentEnum = \"0\"\n  GrandParentEnum = \"0\"\n  InstanceLevelEnd = \"/\" InstanceLevel\n  ParentLevelEnd = \"/\" ParentLevel\n  GrandParentLevelEnd = \"/\" GrandParentLevel\n  }\n(NF == 3 ) && ($2 == GrandParentLevel) {\n  GrandParentEnum = GrandParentEnum + 1\n  Level = \"GrandParent\"\n  }\n(NF == 3 ) && ($2 == GrandParentLevelEnd) {\n  Level = \"Unknown\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevel) {\n  ParentEnum = ParentEnum + 1\n  Level = \"Parent\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevelEnd) {\n  Level = \"GrandParent\"\n  }\n(NF == 3) && ($2 == InstanceLevel) {\n  InstanceEnum = InstanceEnum + 1\n  InstanceParentID[InstanceEnum] = ParentEnum\n  InstanceGrandParentID[InstanceEnum] = GrandParentEnum\n  Level = \"Instance\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == InstanceLevelEnd) {\n  Level = \"Parent\"\n  }\n\n# Skip unknown subsections\nNF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != \"Unknown\" && $2 !~ /\\// {\n  skip = \"1\"\n  skipTo = \"/\" $2\n  }\nskip == \"1\" {\n  if ( $2 == skipTo ) { skip = \"0\"}\n    else { next }\n  }\n\n# Values\n# When we get a property, we search through the \"property\" array to see if it matches something we are looking for\n# We then stick the value in the \"outputArray\" for the right ID (instance / parent / grandparent\"\nNF == 5 {\n  currentProperty = $2\n  value = $3\n  propertyID = InstanceEnum\n  if ( Level == \"Parent\" ) { currentProperty = \"\\.\\.\\/\" currentProperty ; propertyID = ParentEnum }\n  if ( Level == \"GrandParent\" ) { currentProperty = \"\\.\\.\\/\\.\\.\\/\" currentProperty ; propertyID = GrandParentEnum }\n  for ( pID in property) {\n    if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }\n    }\n  }\n\nEND {\n  # figure out highest property value\n  highestProperty = \"0\"\n  for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }\n  for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {\n    printf(\"%s\",\"MSHW;\")\n    for ( pID = 1 ; pID <= highestProperty ; pID++) {\n      if ( property[pID] ~ \"\\.\\.\\/\\.\\.\\/\" ) { printID = InstanceGrandParentID[instanceID] ; Level = \"GrandParent\" }\n      else if ( property[pID] ~ \"\\.\\.\\/\" ) { printID = InstanceParentID[instanceID] ; Level = \"Parent\" }\n      else { printID = instanceID ; Level = \"Instance\" }\n      printf(\"%s\",outputArray[Level,printID,pID] \";\" )\n      }\n    print \" \"\n    }\n  }"
+  EmbeddedFile(18): "{\n\t# the line contains multiple objects\n\tif ($0 ~ />.*>.*>.*>/) {\n    line = $0\n    xmlArraySize = split(line,xmlArray,\">\")\n    for ( objectNumber = 1; objectNumber <= xmlArraySize ; objectNumber++ ) {\n      name = xmlArray[objectNumber]\n      gsub(/.*</,\"\",name)\n      nextobjectNumber = objectNumber + 1\n      nextname = xmlArray[nextobjectNumber]\n      gsub(/.*</,\"\",nextname)\n      # if the object is blank, or its the second part of an array ( data</objectname ), then skip\n      if ( name != \"\" || xmlArray[objectNumber] ~ /^</ ) {\n        # if the next object contains the same object name (basically it's the </object>) , then print both objects\n        if ( nextname ~ name && xmlArray[objectNumber] ) {\n          print xmlArray[objectNumber] \">\" xmlArray[nextobjectNumber] \">\" }\n        # else just print the current object\n        else { print xmlArray[objectNumber] \">\" }\n        }\n      }\n    }\n  # else if it's in the header, just print the line\n  else { print $0 }\n}"
+  EmbeddedFile(1): "BEGIN{\n  # Set the name for each object level\n\tInstanceLevel = \"node-details-info\"\n\tParentLevel = \"\"\n\tGrandParentLevel = \"\"\n\n  # Set the Properties to Extract\n  # The number indicates which column that property will be put in\n  # If you specify property[1] and property[3], you will end up with:\n  # MSHW;propertyvalue1;;propertyvalue3;\n\tproperty[1] = \"node\"\n\tproperty[2] = \"node-model\"\n\tproperty[3] = \"node-serial-number\"\n\tproperty[4] = \"product-version\"\n\tproperty[5] = \"cpu-firmware-version\"\n\tproperty[6] = \"is-node-healthy\"\n\n  # The rest of this script is standardized\n  # and does not need to be edited\n  #\n  #\n  # System Constants\n  Level = \"Unknown\"\n  FS=\"[<>]\"\n  skip = \"0\"\n  InstanceEnum = \"0\"\n  ParentEnum = \"0\"\n  GrandParentEnum = \"0\"\n  InstanceLevelEnd = \"/\" InstanceLevel\n  ParentLevelEnd = \"/\" ParentLevel\n  GrandParentLevelEnd = \"/\" GrandParentLevel\n  }\n(NF == 3 ) && ($2 == GrandParentLevel) {\n  GrandParentEnum = GrandParentEnum + 1\n  Level = \"GrandParent\"\n  }\n(NF == 3 ) && ($2 == GrandParentLevelEnd) {\n  Level = \"Unknown\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevel) {\n  ParentEnum = ParentEnum + 1\n  Level = \"Parent\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevelEnd) {\n  Level = \"GrandParent\"\n  }\n(NF == 3) && ($2 == InstanceLevel) {\n  InstanceEnum = InstanceEnum + 1\n  InstanceParentID[InstanceEnum] = ParentEnum\n  InstanceGrandParentID[InstanceEnum] = GrandParentEnum\n  Level = \"Instance\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == InstanceLevelEnd) {\n  Level = \"Parent\"\n  }\n\n# Skip unknown subsections\nNF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != \"Unknown\" && $2 !~ /\\// {\n  skip = \"1\"\n  skipTo = \"/\" $2\n  }\nskip == \"1\" {\n  if ( $2 == skipTo ) { skip = \"0\"}\n    else { next }\n  }\n\n# Values\n# When we get a property, we search through the \"property\" array to see if it matches something we are looking for\n# We then stick the value in the \"outputArray\" for the right ID (instance / parent / grandparent\"\nNF == 5 {\n  currentProperty = $2\n  value = $3\n  propertyID = InstanceEnum\n  if ( Level == \"Parent\" ) { currentProperty = \"\\.\\.\\/\" currentProperty ; propertyID = ParentEnum }\n  if ( Level == \"GrandParent\" ) { currentProperty = \"\\.\\.\\/\\.\\.\\/\" currentProperty ; propertyID = GrandParentEnum }\n  for ( pID in property) {\n    if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }\n    }\n  }\n\nEND {\n  # figure out highest property value\n  highestProperty = \"0\"\n  for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }\n  for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {\n    printf(\"%s\",\"MSHW;\")\n    for ( pID = 1 ; pID <= highestProperty ; pID++) {\n      if ( property[pID] ~ \"\\.\\.\\/\\.\\.\\/\" ) { printID = InstanceGrandParentID[instanceID] ; Level = \"GrandParent\" }\n      else if ( property[pID] ~ \"\\.\\.\\/\" ) { printID = InstanceParentID[instanceID] ; Level = \"Parent\" }\n      else { printID = instanceID ; Level = \"Instance\" }\n      printf(\"%s\",outputArray[Level,printID,pID] \";\" )\n      }\n    print \" \"\n    }\n  }"
+  EmbeddedFile(11): "BEGIN{\n\t# Set the name for each object level\n  InstanceLevel = \"storage-shelf-bay-info\"\n\tParentLevel = \"shelf-bays\"\n\tGrandParentLevel = \"storage-shelf-info\"\n\n  # Set the Properties to Extract\n  # The number indicates which column that property will be put in\n  # If you specify property[1] and property[3], you will end up with:\n  # MSHW;propertyvalue1;;propertyvalue3;\n\tproperty[1] = \"../../shelf\"\n\tproperty[2] = \"bay-id\"\n\tproperty[3] = \"bay-has-disk\"\n\tproperty[4] = \"bay-type\"\n\tproperty[5] = \"bay-op-status\"\n\n  # The rest of this script is standardized\n  # and does not need to be edited\n  #\n  #\n  # System Constants\n  Level = \"Unknown\"\n  FS=\"[<>]\"\n  skip = \"0\"\n  InstanceEnum = \"0\"\n  ParentEnum = \"0\"\n  GrandParentEnum = \"0\"\n  InstanceLevelEnd = \"/\" InstanceLevel\n  ParentLevelEnd = \"/\" ParentLevel\n  GrandParentLevelEnd = \"/\" GrandParentLevel\n  }\n(NF == 3 ) && ($2 == GrandParentLevel) {\n  GrandParentEnum = GrandParentEnum + 1\n  Level = \"GrandParent\"\n  }\n(NF == 3 ) && ($2 == GrandParentLevelEnd) {\n  Level = \"Unknown\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevel) {\n  ParentEnum = ParentEnum + 1\n  Level = \"Parent\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevelEnd) {\n  Level = \"GrandParent\"\n  }\n(NF == 3) && ($2 == InstanceLevel) {\n  InstanceEnum = InstanceEnum + 1\n  InstanceParentID[InstanceEnum] = ParentEnum\n  InstanceGrandParentID[InstanceEnum] = GrandParentEnum\n  Level = \"Instance\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == InstanceLevelEnd) {\n  Level = \"Parent\"\n  }\n\n# Skip unknown subsections\nNF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != \"Unknown\" && $2 !~ /\\// {\n  skip = \"1\"\n  skipTo = \"/\" $2\n  }\nskip == \"1\" {\n  if ( $2 == skipTo ) { skip = \"0\"}\n    else { next }\n  }\n\n# Values\n# When we get a property, we search through the \"property\" array to see if it matches something we are looking for\n# We then stick the value in the \"outputArray\" for the right ID (instance / parent / grandparent\"\nNF == 5 {\n  currentProperty = $2\n  value = $3\n  propertyID = InstanceEnum\n  if ( Level == \"Parent\" ) { currentProperty = \"\\.\\.\\/\" currentProperty ; propertyID = ParentEnum }\n  if ( Level == \"GrandParent\" ) { currentProperty = \"\\.\\.\\/\\.\\.\\/\" currentProperty ; propertyID = GrandParentEnum }\n  for ( pID in property) {\n    if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }\n    }\n  }\n\nEND {\n  # figure out highest property value\n  highestProperty = \"0\"\n  for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }\n  for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {\n    printf(\"%s\",\"MSHW;\")\n    for ( pID = 1 ; pID <= highestProperty ; pID++) {\n      if ( property[pID] ~ \"\\.\\.\\/\\.\\.\\/\" ) { printID = InstanceGrandParentID[instanceID] ; Level = \"GrandParent\" }\n      else if ( property[pID] ~ \"\\.\\.\\/\" ) { printID = InstanceParentID[instanceID] ; Level = \"Parent\" }\n      else { printID = instanceID ; Level = \"Instance\" }\n      printf(\"%s\",outputArray[Level,printID,pID] \";\" )\n      }\n    print \" \"\n    }\n  }"
+  EmbeddedFile(12): "BEGIN{\n\t# Set the name for each object level\n  InstanceLevel = \"disk-inventory-info\"\n\tParentLevel = \"storage-disk-info\"\n\tGrandParentLevel = \"storage-shelf-info\"\n\n  # Set the Properties to Extract\n  # The number indicates which column that property will be put in\n  # If you specify property[1] and property[3], you will end up with:\n  # MSHW;propertyvalue1;;propertyvalue3;\n\tproperty[1] = \"disk-cluster-name\"\n\tproperty[2] = \"shelf-bay\"\n\tproperty[3] = \"model\"\n\tproperty[4] = \"serial-number\"\n\tproperty[5] = \"bytes-per-sector\"\n\tproperty[6] = \"capacity-sectors\"\n  property[7] = \"rpm\"\n  property[8] = \"disk-type\"\n\n  # The rest of this script is standardized\n  # and does not need to be edited\n  #\n  #\n  # System Constants\n  Level = \"Unknown\"\n  FS=\"[<>]\"\n  skip = \"0\"\n  InstanceEnum = \"0\"\n  ParentEnum = \"0\"\n  GrandParentEnum = \"0\"\n  InstanceLevelEnd = \"/\" InstanceLevel\n  ParentLevelEnd = \"/\" ParentLevel\n  GrandParentLevelEnd = \"/\" GrandParentLevel\n  }\n(NF == 3 ) && ($2 == GrandParentLevel) {\n  GrandParentEnum = GrandParentEnum + 1\n  Level = \"GrandParent\"\n  }\n(NF == 3 ) && ($2 == GrandParentLevelEnd) {\n  Level = \"Unknown\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevel) {\n  ParentEnum = ParentEnum + 1\n  Level = \"Parent\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevelEnd) {\n  Level = \"GrandParent\"\n  }\n(NF == 3) && ($2 == InstanceLevel) {\n  InstanceEnum = InstanceEnum + 1\n  InstanceParentID[InstanceEnum] = ParentEnum\n  InstanceGrandParentID[InstanceEnum] = GrandParentEnum\n  Level = \"Instance\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == InstanceLevelEnd) {\n  Level = \"Parent\"\n  }\n\n# Skip unknown subsections\nNF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != \"Unknown\" && $2 !~ /\\// {\n  skip = \"1\"\n  skipTo = \"/\" $2\n  }\nskip == \"1\" {\n  if ( $2 == skipTo ) { skip = \"0\"}\n    else { next }\n  }\n\n# Values\n# When we get a property, we search through the \"property\" array to see if it matches something we are looking for\n# We then stick the value in the \"outputArray\" for the right ID (instance / parent / grandparent\"\nNF == 5 {\n  currentProperty = $2\n  value = $3\n  propertyID = InstanceEnum\n  if ( Level == \"Parent\" ) { currentProperty = \"\\.\\.\\/\" currentProperty ; propertyID = ParentEnum }\n  if ( Level == \"GrandParent\" ) { currentProperty = \"\\.\\.\\/\\.\\.\\/\" currentProperty ; propertyID = GrandParentEnum }\n  for ( pID in property) {\n    if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }\n    }\n  }\n\nEND {\n  # figure out highest property value\n  highestProperty = \"0\"\n  for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }\n  for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {\n    printf(\"%s\",\"MSHW;\")\n    for ( pID = 1 ; pID <= highestProperty ; pID++) {\n      if ( property[pID] ~ \"\\.\\.\\/\\.\\.\\/\" ) { printID = InstanceGrandParentID[instanceID] ; Level = \"GrandParent\" }\n      else if ( property[pID] ~ \"\\.\\.\\/\" ) { printID = InstanceParentID[instanceID] ; Level = \"Parent\" }\n      else { printID = instanceID ; Level = \"Instance\" }\n      printf(\"%s\",outputArray[Level,printID,pID] \";\" )\n      }\n    print \" \"\n    }\n  }"
+  EmbeddedFile(3): "BEGIN{\n  # Set the name for each object level\n\tInstanceLevel = \"node-details-info\"\n\tParentLevel = \"\"\n\tGrandParentLevel = \"\"\n\n  # Set the Properties to Extract\n  # The number indicates which column that property will be put in\n  # If you specify property[1] and property[3], you will end up with:\n  # MSHW;propertyvalue1;;propertyvalue3;\n\n  property[1] = \"node\"\n\tproperty[2] = \"env-failed-power-supply-count\"\n\tproperty[3] = \"env-failed-power-supply-message\"\n\n  # The rest of this script is standardized\n  # and does not need to be edited\n  #\n  #\n  # System Constants\n  Level = \"Unknown\"\n  FS=\"[<>]\"\n  skip = \"0\"\n  InstanceEnum = \"0\"\n  ParentEnum = \"0\"\n  GrandParentEnum = \"0\"\n  InstanceLevelEnd = \"/\" InstanceLevel\n  ParentLevelEnd = \"/\" ParentLevel\n  GrandParentLevelEnd = \"/\" GrandParentLevel\n  }\n(NF == 3 ) && ($2 == GrandParentLevel) {\n  GrandParentEnum = GrandParentEnum + 1\n  Level = \"GrandParent\"\n  }\n(NF == 3 ) && ($2 == GrandParentLevelEnd) {\n  Level = \"Unknown\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevel) {\n  ParentEnum = ParentEnum + 1\n  Level = \"Parent\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevelEnd) {\n  Level = \"GrandParent\"\n  }\n(NF == 3) && ($2 == InstanceLevel) {\n  InstanceEnum = InstanceEnum + 1\n  InstanceParentID[InstanceEnum] = ParentEnum\n  InstanceGrandParentID[InstanceEnum] = GrandParentEnum\n  Level = \"Instance\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == InstanceLevelEnd) {\n  Level = \"Parent\"\n  }\n\n# Skip unknown subsections\nNF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != \"Unknown\" && $2 !~ /\\// {\n  skip = \"1\"\n  skipTo = \"/\" $2\n  }\nskip == \"1\" {\n  if ( $2 == skipTo ) { skip = \"0\"}\n    else { next }\n  }\n\n# Values\n# When we get a property, we search through the \"property\" array to see if it matches something we are looking for\n# We then stick the value in the \"outputArray\" for the right ID (instance / parent / grandparent\"\nNF == 5 {\n  currentProperty = $2\n  value = $3\n  propertyID = InstanceEnum\n  if ( Level == \"Parent\" ) { currentProperty = \"\\.\\.\\/\" currentProperty ; propertyID = ParentEnum }\n  if ( Level == \"GrandParent\" ) { currentProperty = \"\\.\\.\\/\\.\\.\\/\" currentProperty ; propertyID = GrandParentEnum }\n  for ( pID in property) {\n    if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }\n    }\n  }\n\nEND {\n  # figure out highest property value\n  highestProperty = \"0\"\n  for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }\n  for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {\n    printf(\"%s\",\"MSHW;\")\n    for ( pID = 1 ; pID <= highestProperty ; pID++) {\n      if ( property[pID] ~ \"\\.\\.\\/\\.\\.\\/\" ) { printID = InstanceGrandParentID[instanceID] ; Level = \"GrandParent\" }\n      else if ( property[pID] ~ \"\\.\\.\\/\" ) { printID = InstanceParentID[instanceID] ; Level = \"Parent\" }\n      else { printID = instanceID ; Level = \"Instance\" }\n      printf(\"%s\",outputArray[Level,printID,pID] \";\" )\n      }\n    print \" \"\n    }\n  }"
+  EmbeddedFile(13): "BEGIN{\n\t# Set the name for each object level\n  InstanceLevel = \"net-port-info\"\n\tParentLevel = \"\"\n\tGrandParentLevel = \"\"\n\n  # Set the Properties to Extract\n  # The number indicates which column that property will be put in\n  # If you specify property[1] and property[3], you will end up with:\n  # MSHW;propertyvalue1;;propertyvalue3;\n\tproperty[1] = \"node\"\n\tproperty[2] = \"port\"\n\tproperty[3] = \"link-status\"\n\tproperty[4] = \"health-status\"\n\tproperty[5] = \"mac-address\"\n\tproperty[6] = \"operational-speed\"\n\n  # The rest of this script is standardized\n  # and does not need to be edited\n  #\n  #\n  # System Constants\n  Level = \"Unknown\"\n  FS=\"[<>]\"\n  skip = \"0\"\n  InstanceEnum = \"0\"\n  ParentEnum = \"0\"\n  GrandParentEnum = \"0\"\n  InstanceLevelEnd = \"/\" InstanceLevel\n  ParentLevelEnd = \"/\" ParentLevel\n  GrandParentLevelEnd = \"/\" GrandParentLevel\n  }\n(NF == 3 ) && ($2 == GrandParentLevel) {\n  GrandParentEnum = GrandParentEnum + 1\n  Level = \"GrandParent\"\n  }\n(NF == 3 ) && ($2 == GrandParentLevelEnd) {\n  Level = \"Unknown\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevel) {\n  ParentEnum = ParentEnum + 1\n  Level = \"Parent\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevelEnd) {\n  Level = \"GrandParent\"\n  }\n(NF == 3) && ($2 == InstanceLevel) {\n  InstanceEnum = InstanceEnum + 1\n  InstanceParentID[InstanceEnum] = ParentEnum\n  InstanceGrandParentID[InstanceEnum] = GrandParentEnum\n  Level = \"Instance\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == InstanceLevelEnd) {\n  Level = \"Parent\"\n  }\n\n# Skip unknown subsections\nNF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != \"Unknown\" && $2 !~ /\\// {\n  skip = \"1\"\n  skipTo = \"/\" $2\n  }\nskip == \"1\" {\n  if ( $2 == skipTo ) { skip = \"0\"}\n    else { next }\n  }\n\n# Values\n# When we get a property, we search through the \"property\" array to see if it matches something we are looking for\n# We then stick the value in the \"outputArray\" for the right ID (instance / parent / grandparent\"\nNF == 5 {\n  currentProperty = $2\n  value = $3\n  propertyID = InstanceEnum\n  if ( Level == \"Parent\" ) { currentProperty = \"\\.\\.\\/\" currentProperty ; propertyID = ParentEnum }\n  if ( Level == \"GrandParent\" ) { currentProperty = \"\\.\\.\\/\\.\\.\\/\" currentProperty ; propertyID = GrandParentEnum }\n  for ( pID in property) {\n    if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }\n    }\n  }\n\nEND {\n  # figure out highest property value\n  highestProperty = \"0\"\n  for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }\n  for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {\n    printf(\"%s\",\"MSHW;\")\n    for ( pID = 1 ; pID <= highestProperty ; pID++) {\n      if ( property[pID] ~ \"\\.\\.\\/\\.\\.\\/\" ) { printID = InstanceGrandParentID[instanceID] ; Level = \"GrandParent\" }\n      else if ( property[pID] ~ \"\\.\\.\\/\" ) { printID = InstanceParentID[instanceID] ; Level = \"Parent\" }\n      else { printID = instanceID ; Level = \"Instance\" }\n      printf(\"%s\",outputArray[Level,printID,pID] \";\" )\n      }\n    print \" \"\n    }\n  }"
+  EmbeddedFile(2): "BEGIN{\n# Set the name for each object level\n\n  \tInstanceLevel = \"storage-shelf-info\"\n\t\tParentLevel = \"\"\n\t\tGrandParentLevel = \"\"\n\n# Set the Properties to Extract\n# The number indicates which column that property will be put in\n# If you specify property[1] and property[3], you will end up with:\n# MSHW;propertyvalue1;;propertyvalue3;\n\n\t#storage-shelf-info\n\tproperty[1] = \"shelf\"\n\tproperty[2] = \"shelf-model\"\n\tproperty[3] = \"serial-number\"\n\tproperty[6] = \"op-status\"\n\n# The rest of this script is standardized\n# and does not need to be edited\n#\n#\n# System Constants\n  Level = \"Unknown\"\n  FS=\"[<>]\"\n  skip = \"0\"\n  InstanceEnum = \"0\"\n  ParentEnum = \"0\"\n  GrandParentEnum = \"0\"\n  InstanceLevelEnd = \"/\" InstanceLevel\n  ParentLevelEnd = \"/\" ParentLevel\n  GrandParentLevelEnd = \"/\" GrandParentLevel\n  }\n(NF == 3 ) && ($2 == GrandParentLevel) {\n  GrandParentEnum = GrandParentEnum + 1\n  Level = \"GrandParent\"\n  }\n(NF == 3 ) && ($2 == GrandParentLevelEnd) {\n  Level = \"Unknown\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevel) {\n  ParentEnum = ParentEnum + 1\n  Level = \"Parent\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevelEnd) {\n  Level = \"GrandParent\"\n  }\n(NF == 3) && ($2 == InstanceLevel) {\n  InstanceEnum = InstanceEnum + 1\n  InstanceParentID[InstanceEnum] = ParentEnum\n  InstanceGrandParentID[InstanceEnum] = GrandParentEnum\n  Level = \"Instance\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == InstanceLevelEnd) {\n  Level = \"Parent\"\n  }\n\n# Skip unknown subsections\nNF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != \"Unknown\" && $2 !~ /\\// {\n  skip = \"1\"\n  skipTo = \"/\" $2\n  }\nskip == \"1\" {\n  if ( $2 == skipTo ) { skip = \"0\"}\n    else { next }\n  }\n\n# Values\n# When we get a property, we search through the \"property\" array to see if it matches something we are looking for\n# We then stick the value in the \"outputArray\" for the right ID (instance / parent / grandparent\"\nNF == 5 {\n  currentProperty = $2\n  value = $3\n  propertyID = InstanceEnum\n  if ( Level == \"Parent\" ) { currentProperty = \"\\.\\.\\/\" currentProperty ; propertyID = ParentEnum }\n  if ( Level == \"GrandParent\" ) { currentProperty = \"\\.\\.\\/\\.\\.\\/\" currentProperty ; propertyID = GrandParentEnum }\n  for ( pID in property) {\n    if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }\n    }\n  }\n\nEND {\n  # figure out highest property value\n  highestProperty = \"0\"\n  for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }\n  for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {\n    printf(\"%s\",\"MSHW;\")\n    for ( pID = 1 ; pID <= highestProperty ; pID++) {\n      if ( property[pID] ~ \"\\.\\.\\/\\.\\.\\/\" ) { printID = InstanceGrandParentID[instanceID] ; Level = \"GrandParent\" }\n      else if ( property[pID] ~ \"\\.\\.\\/\" ) { printID = InstanceParentID[instanceID] ; Level = \"Parent\" }\n      else { printID = instanceID ; Level = \"Instance\" }\n      printf(\"%s\",outputArray[Level,printID,pID] \";\" )\n      }\n    print \" \"\n    }\n  }"
+  EmbeddedFile(14): "BEGIN{\n\t# Set the name for each object level\n  InstanceLevel = \"aggr-raid-attributes\"\n\tParentLevel = \"aggr-attributes\"\n\tGrandParentLevel = \"\"\n\n  # Set the Properties to Extract\n  # The number indicates which column that property will be put in\n  # If you specify property[1] and property[3], you will end up with:\n  # MSHW;propertyvalue1;;propertyvalue3;\n\tproperty[2] = \"../aggregate-uuid\"\n\tproperty[3] = \"../aggregate-name\"\n\tproperty[4] = \"raid-type\"\n\tproperty[5] = \"raid-status\"\n\n  # The rest of this script is standardized\n  # and does not need to be edited\n  #\n  #\n  # System Constants\n  Level = \"Unknown\"\n  FS=\"[<>]\"\n  skip = \"0\"\n  InstanceEnum = \"0\"\n  ParentEnum = \"0\"\n  GrandParentEnum = \"0\"\n  InstanceLevelEnd = \"/\" InstanceLevel\n  ParentLevelEnd = \"/\" ParentLevel\n  GrandParentLevelEnd = \"/\" GrandParentLevel\n  }\n(NF == 3 ) && ($2 == GrandParentLevel) {\n  GrandParentEnum = GrandParentEnum + 1\n  Level = \"GrandParent\"\n  }\n(NF == 3 ) && ($2 == GrandParentLevelEnd) {\n  Level = \"Unknown\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevel) {\n  ParentEnum = ParentEnum + 1\n  Level = \"Parent\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevelEnd) {\n  Level = \"GrandParent\"\n  }\n(NF == 3) && ($2 == InstanceLevel) {\n  InstanceEnum = InstanceEnum + 1\n  InstanceParentID[InstanceEnum] = ParentEnum\n  InstanceGrandParentID[InstanceEnum] = GrandParentEnum\n  Level = \"Instance\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == InstanceLevelEnd) {\n  Level = \"Parent\"\n  }\n\n# Skip unknown subsections\nNF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != \"Unknown\" && $2 !~ /\\// {\n  skip = \"1\"\n  skipTo = \"/\" $2\n  }\nskip == \"1\" {\n  if ( $2 == skipTo ) { skip = \"0\"}\n    else { next }\n  }\n\n# Values\n# When we get a property, we search through the \"property\" array to see if it matches something we are looking for\n# We then stick the value in the \"outputArray\" for the right ID (instance / parent / grandparent\"\nNF == 5 {\n  currentProperty = $2\n  value = $3\n  propertyID = InstanceEnum\n  if ( Level == \"Parent\" ) { currentProperty = \"\\.\\.\\/\" currentProperty ; propertyID = ParentEnum }\n  if ( Level == \"GrandParent\" ) { currentProperty = \"\\.\\.\\/\\.\\.\\/\" currentProperty ; propertyID = GrandParentEnum }\n  for ( pID in property) {\n    if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }\n    }\n  }\n\nEND {\n  # figure out highest property value\n  highestProperty = \"0\"\n  for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }\n  for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {\n    printf(\"%s\",\"MSHW;\")\n    for ( pID = 1 ; pID <= highestProperty ; pID++) {\n      if ( property[pID] ~ \"\\.\\.\\/\\.\\.\\/\" ) { printID = InstanceGrandParentID[instanceID] ; Level = \"GrandParent\" }\n      else if ( property[pID] ~ \"\\.\\.\\/\" ) { printID = InstanceParentID[instanceID] ; Level = \"Parent\" }\n      else { printID = instanceID ; Level = \"Instance\" }\n      printf(\"%s\",outputArray[Level,printID,pID] \";\" )\n      }\n    print \" \"\n    }\n  }"
+  EmbeddedFile(5): "BEGIN{\n  # Set the name for each object level\n  InstanceLevel = \"node-details-info\"\n\tParentLevel = \"\"\n\tGrandParentLevel = \"\"\n\n  # Set the Properties to Extract\n  # The number indicates which column that property will be put in\n  # If you specify property[1] and property[3], you will end up with:\n  # MSHW;propertyvalue1;;propertyvalue3;\n\tproperty[1] = \"node\"\n\tproperty[2] = \"env-failed-fan-count\"\n\tproperty[3] = \"env-failed-fan-message\"\n\n  # The rest of this script is standardized\n  # and does not need to be edited\n  #\n  #\n  # System Constants\n  Level = \"Unknown\"\n  FS=\"[<>]\"\n  skip = \"0\"\n  InstanceEnum = \"0\"\n  ParentEnum = \"0\"\n  GrandParentEnum = \"0\"\n  InstanceLevelEnd = \"/\" InstanceLevel\n  ParentLevelEnd = \"/\" ParentLevel\n  GrandParentLevelEnd = \"/\" GrandParentLevel\n  }\n(NF == 3 ) && ($2 == GrandParentLevel) {\n  GrandParentEnum = GrandParentEnum + 1\n  Level = \"GrandParent\"\n  }\n(NF == 3 ) && ($2 == GrandParentLevelEnd) {\n  Level = \"Unknown\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevel) {\n  ParentEnum = ParentEnum + 1\n  Level = \"Parent\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevelEnd) {\n  Level = \"GrandParent\"\n  }\n(NF == 3) && ($2 == InstanceLevel) {\n  InstanceEnum = InstanceEnum + 1\n  InstanceParentID[InstanceEnum] = ParentEnum\n  InstanceGrandParentID[InstanceEnum] = GrandParentEnum\n  Level = \"Instance\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == InstanceLevelEnd) {\n  Level = \"Parent\"\n  }\n\n# Skip unknown subsections\nNF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != \"Unknown\" && $2 !~ /\\// {\n  skip = \"1\"\n  skipTo = \"/\" $2\n  }\nskip == \"1\" {\n  if ( $2 == skipTo ) { skip = \"0\"}\n    else { next }\n  }\n\n# Values\n# When we get a property, we search through the \"property\" array to see if it matches something we are looking for\n# We then stick the value in the \"outputArray\" for the right ID (instance / parent / grandparent\"\nNF == 5 {\n  currentProperty = $2\n  value = $3\n  propertyID = InstanceEnum\n  if ( Level == \"Parent\" ) { currentProperty = \"\\.\\.\\/\" currentProperty ; propertyID = ParentEnum }\n  if ( Level == \"GrandParent\" ) { currentProperty = \"\\.\\.\\/\\.\\.\\/\" currentProperty ; propertyID = GrandParentEnum }\n  for ( pID in property) {\n    if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }\n    }\n  }\n\nEND {\n  # figure out highest property value\n  highestProperty = \"0\"\n  for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }\n  for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {\n    printf(\"%s\",\"MSHW;\")\n    for ( pID = 1 ; pID <= highestProperty ; pID++) {\n      if ( property[pID] ~ \"\\.\\.\\/\\.\\.\\/\" ) { printID = InstanceGrandParentID[instanceID] ; Level = \"GrandParent\" }\n      else if ( property[pID] ~ \"\\.\\.\\/\" ) { printID = InstanceParentID[instanceID] ; Level = \"Parent\" }\n      else { printID = instanceID ; Level = \"Instance\" }\n      printf(\"%s\",outputArray[Level,printID,pID] \";\" )\n      }\n    print \" \"\n    }\n  }"
+  EmbeddedFile(4): "BEGIN{\n\t# Set the name for each object level\n  InstanceLevel = \"storage-shelf-power-supply-unit-info\"\n\tParentLevel = \"power-supply-units\"\n\tGrandParentLevel = \"storage-shelf-info\"\n\n  # Set the Properties to Extract\n  # The number indicates which column that property will be put in\n  # If you specify property[1] and property[3], you will end up with:\n  # MSHW;propertyvalue1;;propertyvalue3;\n\tproperty[1] = \"../../shelf\"\n\tproperty[2] = \"psu-id\"\n\tproperty[3] = \"psu-op-status\"\n\n  # The rest of this script is standardized\n  # and does not need to be edited\n  #\n  #\n  # System Constants\n  Level = \"Unknown\"\n  FS=\"[<>]\"\n  skip = \"0\"\n  InstanceEnum = \"0\"\n  ParentEnum = \"0\"\n  GrandParentEnum = \"0\"\n  InstanceLevelEnd = \"/\" InstanceLevel\n  ParentLevelEnd = \"/\" ParentLevel\n  GrandParentLevelEnd = \"/\" GrandParentLevel\n  }\n(NF == 3 ) && ($2 == GrandParentLevel) {\n  GrandParentEnum = GrandParentEnum + 1\n  Level = \"GrandParent\"\n  }\n(NF == 3 ) && ($2 == GrandParentLevelEnd) {\n  Level = \"Unknown\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevel) {\n  ParentEnum = ParentEnum + 1\n  Level = \"Parent\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevelEnd) {\n  Level = \"GrandParent\"\n  }\n(NF == 3) && ($2 == InstanceLevel) {\n  InstanceEnum = InstanceEnum + 1\n  InstanceParentID[InstanceEnum] = ParentEnum\n  InstanceGrandParentID[InstanceEnum] = GrandParentEnum\n  Level = \"Instance\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == InstanceLevelEnd) {\n  Level = \"Parent\"\n  }\n\n# Skip unknown subsections\nNF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != \"Unknown\" && $2 !~ /\\// {\n  skip = \"1\"\n  skipTo = \"/\" $2\n  }\nskip == \"1\" {\n  if ( $2 == skipTo ) { skip = \"0\"}\n    else { next }\n  }\n\n# Values\n# When we get a property, we search through the \"property\" array to see if it matches something we are looking for\n# We then stick the value in the \"outputArray\" for the right ID (instance / parent / grandparent\"\nNF == 5 {\n  currentProperty = $2\n  value = $3\n  propertyID = InstanceEnum\n  if ( Level == \"Parent\" ) { currentProperty = \"\\.\\.\\/\" currentProperty ; propertyID = ParentEnum }\n  if ( Level == \"GrandParent\" ) { currentProperty = \"\\.\\.\\/\\.\\.\\/\" currentProperty ; propertyID = GrandParentEnum }\n  for ( pID in property) {\n    if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }\n    }\n  }\n\nEND {\n  # figure out highest property value\n  highestProperty = \"0\"\n  for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }\n  for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {\n    printf(\"%s\",\"MSHW;\")\n    for ( pID = 1 ; pID <= highestProperty ; pID++) {\n      if ( property[pID] ~ \"\\.\\.\\/\\.\\.\\/\" ) { printID = InstanceGrandParentID[instanceID] ; Level = \"GrandParent\" }\n      else if ( property[pID] ~ \"\\.\\.\\/\" ) { printID = InstanceParentID[instanceID] ; Level = \"Parent\" }\n      else { printID = instanceID ; Level = \"Instance\" }\n      printf(\"%s\",outputArray[Level,printID,pID] \";\" )\n      }\n    print \" \"\n    }\n  }"
+  EmbeddedFile(7): "BEGIN{\n  # Set the name for each object level\n\tInstanceLevel = \"node-details-info\"\n\tParentLevel = \"\"\n\tGrandParentLevel = \"\"\n\n  # Set the Properties to Extract\n  # The number indicates which column that property will be put in\n  # If you specify property[1] and property[3], you will end up with:\n  # MSHW;propertyvalue1;;propertyvalue3;\n\tproperty[1] = \"node\"\n\tproperty[2] = \"nvram-battery-status\"\n\n  # The rest of this script is standardized\n  # and does not need to be edited\n  #\n  #\n  # System Constants\n  Level = \"Unknown\"\n  FS=\"[<>]\"\n  skip = \"0\"\n  InstanceEnum = \"0\"\n  ParentEnum = \"0\"\n  GrandParentEnum = \"0\"\n  InstanceLevelEnd = \"/\" InstanceLevel\n  ParentLevelEnd = \"/\" ParentLevel\n  GrandParentLevelEnd = \"/\" GrandParentLevel\n  }\n(NF == 3 ) && ($2 == GrandParentLevel) {\n  GrandParentEnum = GrandParentEnum + 1\n  Level = \"GrandParent\"\n  }\n(NF == 3 ) && ($2 == GrandParentLevelEnd) {\n  Level = \"Unknown\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevel) {\n  ParentEnum = ParentEnum + 1\n  Level = \"Parent\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevelEnd) {\n  Level = \"GrandParent\"\n  }\n(NF == 3) && ($2 == InstanceLevel) {\n  InstanceEnum = InstanceEnum + 1\n  InstanceParentID[InstanceEnum] = ParentEnum\n  InstanceGrandParentID[InstanceEnum] = GrandParentEnum\n  Level = \"Instance\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == InstanceLevelEnd) {\n  Level = \"Parent\"\n  }\n\n# Skip unknown subsections\nNF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != \"Unknown\" && $2 !~ /\\// {\n  skip = \"1\"\n  skipTo = \"/\" $2\n  }\nskip == \"1\" {\n  if ( $2 == skipTo ) { skip = \"0\"}\n    else { next }\n  }\n\n# Values\n# When we get a property, we search through the \"property\" array to see if it matches something we are looking for\n# We then stick the value in the \"outputArray\" for the right ID (instance / parent / grandparent\"\nNF == 5 {\n  currentProperty = $2\n  value = $3\n  propertyID = InstanceEnum\n  if ( Level == \"Parent\" ) { currentProperty = \"\\.\\.\\/\" currentProperty ; propertyID = ParentEnum }\n  if ( Level == \"GrandParent\" ) { currentProperty = \"\\.\\.\\/\\.\\.\\/\" currentProperty ; propertyID = GrandParentEnum }\n  for ( pID in property) {\n    if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }\n    }\n  }\n\nEND {\n  # figure out highest property value\n  highestProperty = \"0\"\n  for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }\n  for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {\n    printf(\"%s\",\"MSHW;\")\n    for ( pID = 1 ; pID <= highestProperty ; pID++) {\n      if ( property[pID] ~ \"\\.\\.\\/\\.\\.\\/\" ) { printID = InstanceGrandParentID[instanceID] ; Level = \"GrandParent\" }\n      else if ( property[pID] ~ \"\\.\\.\\/\" ) { printID = InstanceParentID[instanceID] ; Level = \"Parent\" }\n      else { printID = instanceID ; Level = \"Instance\" }\n      printf(\"%s\",outputArray[Level,printID,pID] \";\" )\n      }\n    print \" \"\n    }\n  }"
+  EmbeddedFile(6): "BEGIN{\n\t# Set the name for each object level\n  InstanceLevel = \"storage-shelf-cooling-fan-info\"\n\tParentLevel = \"cooling-fans\"\n\tGrandParentLevel = \"storage-shelf-info\"\n\n  # Set the Properties to Extract\n  # The number indicates which column that property will be put in\n  # If you specify property[1] and property[3], you will end up with:\n  # MSHW;propertyvalue1;;propertyvalue3;\n\tproperty[1] = \"../../shelf\"\n\tproperty[2] = \"fan-id\"\n\tproperty[3] = \"fan-op-status\"\n\n  # The rest of this script is standardized\n  # and does not need to be edited\n  #\n  #\n  # System Constants\n  Level = \"Unknown\"\n  FS=\"[<>]\"\n  skip = \"0\"\n  InstanceEnum = \"0\"\n  ParentEnum = \"0\"\n  GrandParentEnum = \"0\"\n  InstanceLevelEnd = \"/\" InstanceLevel\n  ParentLevelEnd = \"/\" ParentLevel\n  GrandParentLevelEnd = \"/\" GrandParentLevel\n  }\n(NF == 3 ) && ($2 == GrandParentLevel) {\n  GrandParentEnum = GrandParentEnum + 1\n  Level = \"GrandParent\"\n  }\n(NF == 3 ) && ($2 == GrandParentLevelEnd) {\n  Level = \"Unknown\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevel) {\n  ParentEnum = ParentEnum + 1\n  Level = \"Parent\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevelEnd) {\n  Level = \"GrandParent\"\n  }\n(NF == 3) && ($2 == InstanceLevel) {\n  InstanceEnum = InstanceEnum + 1\n  InstanceParentID[InstanceEnum] = ParentEnum\n  InstanceGrandParentID[InstanceEnum] = GrandParentEnum\n  Level = \"Instance\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == InstanceLevelEnd) {\n  Level = \"Parent\"\n  }\n\n# Skip unknown subsections\nNF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != \"Unknown\" && $2 !~ /\\// {\n  skip = \"1\"\n  skipTo = \"/\" $2\n  }\nskip == \"1\" {\n  if ( $2 == skipTo ) { skip = \"0\"}\n    else { next }\n  }\n\n# Values\n# When we get a property, we search through the \"property\" array to see if it matches something we are looking for\n# We then stick the value in the \"outputArray\" for the right ID (instance / parent / grandparent\"\nNF == 5 {\n  currentProperty = $2\n  value = $3\n  propertyID = InstanceEnum\n  if ( Level == \"Parent\" ) { currentProperty = \"\\.\\.\\/\" currentProperty ; propertyID = ParentEnum }\n  if ( Level == \"GrandParent\" ) { currentProperty = \"\\.\\.\\/\\.\\.\\/\" currentProperty ; propertyID = GrandParentEnum }\n  for ( pID in property) {\n    if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }\n    }\n  }\n\nEND {\n  # figure out highest property value\n  highestProperty = \"0\"\n  for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }\n  for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {\n    printf(\"%s\",\"MSHW;\")\n    for ( pID = 1 ; pID <= highestProperty ; pID++) {\n      if ( property[pID] ~ \"\\.\\.\\/\\.\\.\\/\" ) { printID = InstanceGrandParentID[instanceID] ; Level = \"GrandParent\" }\n      else if ( property[pID] ~ \"\\.\\.\\/\" ) { printID = InstanceParentID[instanceID] ; Level = \"Parent\" }\n      else { printID = instanceID ; Level = \"Instance\" }\n      printf(\"%s\",outputArray[Level,printID,pID] \";\" )\n      }\n    print \" \"\n    }\n  }"
+  EmbeddedFile(10): "BEGIN{\n\t# Set the name for each object level\n  InstanceLevel = \"storage-shelf-voltage-sensor-info\"\n\tParentLevel = \"voltage-sensors\"\n\tGrandParentLevel = \"storage-shelf-info\"\n\n  # Set the Properties to Extract\n  # The number indicates which column that property will be put in\n  # If you specify property[1] and property[3], you will end up with:\n  # MSHW;propertyvalue1;;propertyvalue3;\n\tproperty[1] = \"../../shelf\"\n\tproperty[2] = \"voltage-sensor-id\"\n\tproperty[3] = \"voltage-op-status\"\n\n  # The rest of this script is standardized\n  # and does not need to be edited\n  #\n  #\n  # System Constants\n  Level = \"Unknown\"\n  FS=\"[<>]\"\n  skip = \"0\"\n  InstanceEnum = \"0\"\n  ParentEnum = \"0\"\n  GrandParentEnum = \"0\"\n  InstanceLevelEnd = \"/\" InstanceLevel\n  ParentLevelEnd = \"/\" ParentLevel\n  GrandParentLevelEnd = \"/\" GrandParentLevel\n  }\n(NF == 3 ) && ($2 == GrandParentLevel) {\n  GrandParentEnum = GrandParentEnum + 1\n  Level = \"GrandParent\"\n  }\n(NF == 3 ) && ($2 == GrandParentLevelEnd) {\n  Level = \"Unknown\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevel) {\n  ParentEnum = ParentEnum + 1\n  Level = \"Parent\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevelEnd) {\n  Level = \"GrandParent\"\n  }\n(NF == 3) && ($2 == InstanceLevel) {\n  InstanceEnum = InstanceEnum + 1\n  InstanceParentID[InstanceEnum] = ParentEnum\n  InstanceGrandParentID[InstanceEnum] = GrandParentEnum\n  Level = \"Instance\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == InstanceLevelEnd) {\n  Level = \"Parent\"\n  }\n\n# Skip unknown subsections\nNF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != \"Unknown\" && $2 !~ /\\// {\n  skip = \"1\"\n  skipTo = \"/\" $2\n  }\nskip == \"1\" {\n  if ( $2 == skipTo ) { skip = \"0\"}\n    else { next }\n  }\n\n# Values\n# When we get a property, we search through the \"property\" array to see if it matches something we are looking for\n# We then stick the value in the \"outputArray\" for the right ID (instance / parent / grandparent\"\nNF == 5 {\n  currentProperty = $2\n  value = $3\n  propertyID = InstanceEnum\n  if ( Level == \"Parent\" ) { currentProperty = \"\\.\\.\\/\" currentProperty ; propertyID = ParentEnum }\n  if ( Level == \"GrandParent\" ) { currentProperty = \"\\.\\.\\/\\.\\.\\/\" currentProperty ; propertyID = GrandParentEnum }\n  for ( pID in property) {\n    if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }\n    }\n  }\n\nEND {\n  # figure out highest property value\n  highestProperty = \"0\"\n  for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }\n  for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {\n    printf(\"%s\",\"MSHW;\")\n    for ( pID = 1 ; pID <= highestProperty ; pID++) {\n      if ( property[pID] ~ \"\\.\\.\\/\\.\\.\\/\" ) { printID = InstanceGrandParentID[instanceID] ; Level = \"GrandParent\" }\n      else if ( property[pID] ~ \"\\.\\.\\/\" ) { printID = InstanceParentID[instanceID] ; Level = \"Parent\" }\n      else { printID = instanceID ; Level = \"Instance\" }\n      printf(\"%s\",outputArray[Level,printID,pID] \";\" )\n      }\n    print \" \"\n    }\n  }"
+  EmbeddedFile(9): "BEGIN{\n\t# Set the name for each object level\n  InstanceLevel = \"storage-shelf-temperature-sensor-info\"\n\tParentLevel = \"temperature-sensors\"\n\tGrandParentLevel = \"storage-shelf-info\"\n\n  # Set the Properties to Extract\n  # The number indicates which column that property will be put in\n  # If you specify property[1] and property[3], you will end up with:\n  # MSHW;propertyvalue1;;propertyvalue3;\n\tproperty[1] = \"../../shelf\"\n\tproperty[2] = \"temp-sensor-id\"\n\tproperty[3] = \"temp-sens-op-status\"\n\n  # The rest of this script is standardized\n  # and does not need to be edited\n  #\n  #\n  # System Constants\n  Level = \"Unknown\"\n  FS=\"[<>]\"\n  skip = \"0\"\n  InstanceEnum = \"0\"\n  ParentEnum = \"0\"\n  GrandParentEnum = \"0\"\n  InstanceLevelEnd = \"/\" InstanceLevel\n  ParentLevelEnd = \"/\" ParentLevel\n  GrandParentLevelEnd = \"/\" GrandParentLevel\n  }\n(NF == 3 ) && ($2 == GrandParentLevel) {\n  GrandParentEnum = GrandParentEnum + 1\n  Level = \"GrandParent\"\n  }\n(NF == 3 ) && ($2 == GrandParentLevelEnd) {\n  Level = \"Unknown\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevel) {\n  ParentEnum = ParentEnum + 1\n  Level = \"Parent\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevelEnd) {\n  Level = \"GrandParent\"\n  }\n(NF == 3) && ($2 == InstanceLevel) {\n  InstanceEnum = InstanceEnum + 1\n  InstanceParentID[InstanceEnum] = ParentEnum\n  InstanceGrandParentID[InstanceEnum] = GrandParentEnum\n  Level = \"Instance\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == InstanceLevelEnd) {\n  Level = \"Parent\"\n  }\n\n# Skip unknown subsections\nNF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != \"Unknown\" && $2 !~ /\\// {\n  skip = \"1\"\n  skipTo = \"/\" $2\n  }\nskip == \"1\" {\n  if ( $2 == skipTo ) { skip = \"0\"}\n    else { next }\n  }\n\n# Values\n# When we get a property, we search through the \"property\" array to see if it matches something we are looking for\n# We then stick the value in the \"outputArray\" for the right ID (instance / parent / grandparent\"\nNF == 5 {\n  currentProperty = $2\n  value = $3\n  propertyID = InstanceEnum\n  if ( Level == \"Parent\" ) { currentProperty = \"\\.\\.\\/\" currentProperty ; propertyID = ParentEnum }\n  if ( Level == \"GrandParent\" ) { currentProperty = \"\\.\\.\\/\\.\\.\\/\" currentProperty ; propertyID = GrandParentEnum }\n  for ( pID in property) {\n    if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }\n    }\n  }\n\nEND {\n  # figure out highest property value\n  highestProperty = \"0\"\n  for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }\n  for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {\n    printf(\"%s\",\"MSHW;\")\n    for ( pID = 1 ; pID <= highestProperty ; pID++) {\n      if ( property[pID] ~ \"\\.\\.\\/\\.\\.\\/\" ) { printID = InstanceGrandParentID[instanceID] ; Level = \"GrandParent\" }\n      else if ( property[pID] ~ \"\\.\\.\\/\" ) { printID = InstanceParentID[instanceID] ; Level = \"Parent\" }\n      else { printID = instanceID ; Level = \"Instance\" }\n      printf(\"%s\",outputArray[Level,printID,pID] \";\" )\n      }\n    print \" \"\n    }\n  }"
+  EmbeddedFile(8): "BEGIN{\n  # Set the name for each object level\n\tInstanceLevel = \"node-details-info\"\n\tParentLevel = \"\"\n\tGrandParentLevel = \"\"\n\n  # Set the Properties to Extract\n  # The number indicates which column that property will be put in\n  # If you specify property[1] and property[3], you will end up with:\n  # MSHW;propertyvalue1;;propertyvalue3;\n\tproperty[1] = \"node\"\n\tproperty[2] = \"env-over-temperature\"\n\n  # The rest of this script is standardized\n  # and does not need to be edited\n  #\n  #\n  # System Constants\n  Level = \"Unknown\"\n  FS=\"[<>]\"\n  skip = \"0\"\n  InstanceEnum = \"0\"\n  ParentEnum = \"0\"\n  GrandParentEnum = \"0\"\n  InstanceLevelEnd = \"/\" InstanceLevel\n  ParentLevelEnd = \"/\" ParentLevel\n  GrandParentLevelEnd = \"/\" GrandParentLevel\n  }\n(NF == 3 ) && ($2 == GrandParentLevel) {\n  GrandParentEnum = GrandParentEnum + 1\n  Level = \"GrandParent\"\n  }\n(NF == 3 ) && ($2 == GrandParentLevelEnd) {\n  Level = \"Unknown\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevel) {\n  ParentEnum = ParentEnum + 1\n  Level = \"Parent\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == ParentLevelEnd) {\n  Level = \"GrandParent\"\n  }\n(NF == 3) && ($2 == InstanceLevel) {\n  InstanceEnum = InstanceEnum + 1\n  InstanceParentID[InstanceEnum] = ParentEnum\n  InstanceGrandParentID[InstanceEnum] = GrandParentEnum\n  Level = \"Instance\"\n  skip = \"0\"\n  }\n(NF == 3) && ($2 == InstanceLevelEnd) {\n  Level = \"Parent\"\n  }\n\n# Skip unknown subsections\nNF == 3 && $2 != GrandParentLevel && $2 != ParentLevel && $2 != InstanceLevel && Level != \"Unknown\" && $2 !~ /\\// {\n  skip = \"1\"\n  skipTo = \"/\" $2\n  }\nskip == \"1\" {\n  if ( $2 == skipTo ) { skip = \"0\"}\n    else { next }\n  }\n\n# Values\n# When we get a property, we search through the \"property\" array to see if it matches something we are looking for\n# We then stick the value in the \"outputArray\" for the right ID (instance / parent / grandparent\"\nNF == 5 {\n  currentProperty = $2\n  value = $3\n  propertyID = InstanceEnum\n  if ( Level == \"Parent\" ) { currentProperty = \"\\.\\.\\/\" currentProperty ; propertyID = ParentEnum }\n  if ( Level == \"GrandParent\" ) { currentProperty = \"\\.\\.\\/\\.\\.\\/\" currentProperty ; propertyID = GrandParentEnum }\n  for ( pID in property) {\n    if ( property[pID] == currentProperty ) { outputArray[Level,propertyID,pID] = value }\n    }\n  }\n\nEND {\n  # figure out highest property value\n  highestProperty = \"0\"\n  for (pID in property) { if ( pID > highestProperty) { highestProperty = pID} }\n  for ( instanceID = 1 ; instanceID <= InstanceEnum ; instanceID++ ) {\n    printf(\"%s\",\"MSHW;\")\n    for ( pID = 1 ; pID <= highestProperty ; pID++) {\n      if ( property[pID] ~ \"\\.\\.\\/\\.\\.\\/\" ) { printID = InstanceGrandParentID[instanceID] ; Level = \"GrandParent\" }\n      else if ( property[pID] ~ \"\\.\\.\\/\" ) { printID = InstanceParentID[instanceID] ; Level = \"Parent\" }\n      else { printID = instanceID ; Level = \"Instance\" }\n      printf(\"%s\",outputArray[Level,printID,pID] \";\" )\n      }\n    print \" \"\n    }\n  }"
+translations:
+  PhysicalDiskTranslationTable:
+    normal: "ok"
+    default: "failed"
+  BatteryStatusInformationTranslationTable:
+    battery_ok: "Battery OK"
+    default: ""
+  TemperatureStatusTranslationTable:
+    normal: "ok"
+    default: "failed"
+    "false": "ok"
+  FanStatusTranslationTable:
+    "0": "ok"
+    normal: "ok"
+    default: "failed"
+  VoltageStatusTranslationTable:
+    normal: "ok"
+    default: "failed"
+  BatteryStatusTranslationTable:
+    battery_ok: "ok"
+    default: "failed"
+  PowerSupplyStatusTranslationTable:
+    "0": "ok"
+    normal: "ok"
+    default: "failed"
+  RaidStatusTranslationTable:
+    mixed_raid_type: "UNKNOWN"
+    normal: "ok"
+    raid_dp: "UNKNOWN"
+    default: "failed"
+    hybrid: "UNKNOWN"
+  NetworkCardStatusTranslationTable:
+    no carrier: "ok"
+    default: "failed"
+    inactive: "ok"
+    online: "ok"
+    link not connected: "ok"
+    up: "ok"
+  DiskControllerStatusTranslationTable:
+    normal: "ok"
+    default: "failed"
+  EnclosureHealthTranslationTable:
+    normal: "ok"
+    default: "failed"
+    "true": "ok"
+  LinkStatusTranslationTable:
+    no carrier: "degraded"
+    default: "degraded"
+    inactive: "degraded"
+    online: "ok"
+    link not connected: "degraded"
+    up: "ok"
+  EnclosureStatusInformationTable:
+    normal: ""
+    default: ""
+    "false": "Node is not healthy."
+    "true": "Node is healthy."
+connector:
+  displayName: "NetApp Filer (REST)"
+  platforms: "NetApp"
+  reliesOn: "NetApp REST API"
+  version: "1.0"
+  information: "This connector discovers the enclosure and the disks of NetApp disk arrays (filer) as well as the various environment sensors (temperatures, fans, power supplies, etc.). It relies on the REST API protocol."
+  detection:
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "Storage"
+    criteria:
+      # Check that system-get-vendor-info at least contains \"NetApp\"
+    - type: "http"
+      method: "POST"
+      url: "/servlets/netapp.servlets.admin.XMLrequest_filer"
+      body: "<?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><system-node-get-iter/></netapp>"
+      expectedResult: "<product-version>NetApp"
+      errorMessage: "Credentials Incorrect / Not a NetApp Filer system"
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Nodes
+          # Get XML from REST API Call <system-node-get-iter/>
+          type: "http"
+          method: "POST"
+          url: "/servlets/netapp.servlets.admin.XMLrequest_filer"
+          body: "<?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><system-node-get-iter/></netapp>"
+          computes:
+            # Convert xml output to multiLine
+          - type: "awk"
+            script: "EmbeddedFile(18)"
+        source(2):
+          # Source(2) = Multi-line XML for Nodes
+          # Preserve Enclosure Discovery Source 1 for use elsewhere
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          computes:
+            # Convert xml output to CSV
+            # MSHW;node;node-model;node-serial;product-version;cup-firmware-version;is-node-healthy
+          - type: "awk"
+            script: "EmbeddedFile(1)"
+            # Add Node column to act as type
+          - type: "rightConcat"
+            column: 1
+            value: ";Node"
+        source(3):
+          # Source(3) = Storage Shelves
+          # Get XML from REST API Call <storage-shelf-info-get-iter/>
+          type: "http"
+          method: "POST"
+          url: "/servlets/netapp.servlets.admin.XMLrequest_filer"
+          body: "<?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><storage-shelf-info-get-iter/></netapp>"
+          computes:
+            # Convert xml output to multiLine
+          - type: "awk"
+            script: "EmbeddedFile(18)"
+        source(4):
+          # Source(4) = Multi-line XML for Shelves
+          # Preserve Enclosure Discovery Source 3 for use elsewhere
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(3)$"
+          computes:
+            # Convert xml output to CSV
+            # MSHW;shelf;shelf-model;serial-number;;;op-status
+          - type: "awk"
+            script: "EmbeddedFile(2)"
+            # Concat ";Shelf" to Column for type
+            # MSHW;type;shelf;shelf-model;serial-number;;;op-status
+          - type: "rightConcat"
+            column: 1
+            value: ";Shelf"
+        source(5):
+          # Source(5) = All enclosures (Nodes + Shelves)\nUnion the Nodes and Shelves tables\nTable 1 // MSHW;type;node; node-model; node-serial;  product-version;cpu-firmware-version;is-node-healthy\nTable 2 // MSHW;type;shelf;shelf-model;serial-number;\t\t\t\t\t\t   ;\t\t\t\t\t\t\t\t\t  ;op-status\nindex   //    1;   2;    3;          4;            5;              6;                   7;\t\t   \t\t\t\t8
+          type: "tableUnion"
+          tables:
+          - "$monitors.enclosure.discovery.sources.source(2)$"
+          - "$monitors.enclosure.discovery.sources.source(4)$"
+          computes:
+          - type: "leftConcat"
+            column: 6
+            value: "Firmware Version: "
+      mapping:
+        # Enclosure Instance Table
+        # MSHW;type;node;model;serial;product-version;firmware;status
+        source: "$monitors.enclosure.discovery.sources.source(5)$"
+        attributes:
+          type: "$column(2)"
+          id: "$column(3)"
+          __display_id: "$column(3)"
+          vendor: "NetApp"
+          model: "$column(4)"
+          serial_number: "$column(5)"
+          info: "$column(6)"
+          name: "sprintf(\"%s (%s %s - %s)\", $column(3), \"NetApp\", $column(4), $column(2))"
+    collect:
+      # Collection Type (Multi-instance)
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = Nodes
+          # Get XML from REST API Call <system-node-get-iter/>
+          type: "http"
+          method: "POST"
+          url: "/servlets/netapp.servlets.admin.XMLrequest_filer"
+          body: "<?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><system-node-get-iter/></netapp>"
+          computes:
+            # Convert xml output to multiLine
+          - type: "awk"
+            script: "EmbeddedFile(18)"
+        source(2):
+          # Source(2) = Multi-line XML for Nodes
+          # Preserve Enclosure Discovery Source 1 for use elsewhere
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(1)$"
+          computes:
+            # Convert xml output to CSV
+            # MSHW;node;node-model;node-serial;product-version;cup-firmware-version;is-node-healthy
+          - type: "awk"
+            script: "EmbeddedFile(1)"
+        source(3):
+          # Source(3) = Shelves
+          # Get XML from REST API Call <storage-shelf-info-get-iter/>
+          type: "http"
+          method: "POST"
+          url: "/servlets/netapp.servlets.admin.XMLrequest_filer"
+          body: "<?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><storage-shelf-info-get-iter/></netapp>"
+          computes:
+            # Convert xml output to multiLine
+          - type: "awk"
+            script: "EmbeddedFile(18)"
+        source(4):
+          # Source(4) = Multi-line XML for Nodes
+          # Preserve Enclosure Discovery Source 3 for use elsewhere
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(3)$"
+          computes:
+            # Convert xml output to CSV
+            # MSHW;shelf;shelf-model;serial-number;;;op-status
+          - type: "awk"
+            script: "EmbeddedFile(2)"
+        source(5):
+          # Union the Nodes and Shelves tables\nSource(5) = All enclosures (Nodes + Shelves)\nTable 1 // MSHW; node; node-model; node-serial;  product-version;cpu-firmware-version;is-node-healthy\nTable 2 // MSHW;shelf;shelf-model;serial-number;\t\t\t\t\t\t    ;\t\t\t\t\t\t\t\t\t   ;op-status\nindex   //    1;   2;    3;          4;            5;              6;                   7;
+          type: "tableUnion"
+          tables:
+          - "$monitors.enclosure.collect.sources.source(2)$"
+          - "$monitors.enclosure.collect.sources.source(4)$"
+          computes:
+          - type: "duplicateColumn"
+            column: 7
+            # Translate is-node-healthy to PatrolStatus
+            # MSHW;node;node-model;node-serial;product-version;cup-firmware-version;is-node-healthy
+          - type: "translate"
+            column: 7
+            translationTable: "EnclosureHealthTranslationTable"
+          - type: "translate"
+            column: 8
+            translationTable: "EnclosureStatusInformationTable"
+      mapping:
+        # Enclosure Value Table
+        # MSHW;node;node-model;node-serial;product-version;cup-firmware-version;is-node-healthy
+        source: "$monitors.enclosure.collect.sources.source(5)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="enclosure"}: "$column(7)"
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Nodes
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          computes:
+            # Xml2Cvs using AWK
+            # MSHW;node;env-failed-power-supply-count;env-failed-power-supply-message;
+          - type: "awk"
+            script: "EmbeddedFile(3)"
+            # Add "Global" as name
+            # MSHW;node;Name;env-failed-power-supply-count;env-failed-power-supply-message;
+          - type: "rightConcat"
+            column: 2
+            value: ";Global"
+            # Duplicate node to align with second source table and provide unique ID.
+            # MSHW;node;node;Name;env-failed-power-supply-count;env-failed-power-supply-message;
+          - type: "duplicateColumn"
+            column: 2
+        source(2):
+          # Source(3) = Storage Shelves
+          # Use XML from AWK after it's been multi-lined
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(3)$"
+          computes:
+            # Xml2Cvs using AWK
+            # MSHW;shelf;psu-id;op-status;
+          - type: "awk"
+            script: "EmbeddedFile(4)"
+            # Duplicate psu-id for use in uniqueId and DisplayID
+          - type: "duplicateColumn"
+            column: 3
+            # Create unique-id by concating shelf and psu-id (computes 3-4)
+          - type: "leftConcat"
+            column: 3
+            value: "."
+            # MSHW;shelf;psu-id;psu-id;op-status;
+          - type: "leftConcat"
+            column: 3
+            value: "Column(2)"
+            # Append \"PSU - \" to ID to create displayID
+          - type: "leftConcat"
+            column: 4
+            value: "PSU - "
+        source(3):
+          # Source(3) = All PSUs
+          # Union Node and Shelf PSUs
+          # Combine both node and shelve power supplies.
+          # If the nodes report on the status of the shelf power supplies. We will get duplicate events.
+          # table 1 // MSHW; node;     node;       name;env-failed-power-supply-count;env-failed-power-supply-message;
+          # table 2 // MSHW;shelf;unique-id;displayname;op-status;
+          # index   //    1    2          3           4
+          type: "tableUnion"
+          tables:
+          - "$monitors.power_supply.discovery.sources.source(1)$"
+          - "$monitors.power_supply.discovery.sources.source(2)$"
+      mapping:
+        # Powersupply Instance Table
+        source: "$monitors.power_supply.discovery.sources.source(3)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(2)"
+          name: "sprintf(\"%s, $column(4))"
+    collect:
+      # Collection Type (Multi-instance)
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = Nodes
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(1)$"
+          computes:
+            # Convert XML to CSV
+            # MSHW;node;env-failed-power-supply-count;env-failed-power-supply-message;
+          - type: "awk"
+            script: "EmbeddedFile(3)"
+        source(2):
+          # Source(2) = Shelves
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(3)$"
+          computes:
+            # Convert XML to CSV
+            # MSHW;shelf;psu-id;op-status;
+          - type: "awk"
+            script: "EmbeddedFile(4)"
+            # Create unique-id (computes 2-3)
+            # MSHW;shelf;unique-id;op-status;
+          - type: "leftConcat"
+            column: 3
+            value: "."
+          - type: "leftConcat"
+            column: 3
+            value: "Column(2)"
+            # Drop columns to align with Nodes
+            # MSHW;unique-id;op-status;
+          - type: "keepColumns"
+            columnNumbers: "1,3,4"
+            # Duplicate status to be used as StatusInformation
+            # MSHW;unique-id;op-status;op-status
+          - type: "duplicateColumn"
+            column: 3
+        source(3):
+          # Source(3) = All PSUs
+          # Union Nodes and Shelves
+          # Combine both node and shelve power supplies.
+          # If the nodes report on the status of the shelf power supplies. We will get duplicate events.
+          # table 1 // MSHW;node;     PatrolStatus;env-failed-power-supply-message;
+          # table 2 // MSHW;unique-id;PatrolStatus;op-status
+          type: "tableUnion"
+          tables:
+          - "$monitors.power_supply.collect.sources.source(1)$"
+          - "$monitors.power_supply.collect.sources.source(2)$"
+          computes:
+            # Translate status to PatrolStatus
+            # MSHW;unique-id;PatrolStatus;StatusInformation
+          - type: "translate"
+            column: 3
+            translationTable: "PowerSupplyStatusTranslationTable"
+      mapping:
+        # PowerSupply Value Table
+        # MSHW;unique-id;PatrolStatus;StatusInformation
+        source: "$monitors.power_supply.collect.sources.source(3)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="power_supply"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Nodes
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          computes:
+            # Xml2Cvs using AWK
+            # MSHW;node;env-failed-fan-count;env-failed-fan-message;
+          - type: "awk"
+            script: "EmbeddedFile(5)"
+            # Add "Global" as name
+            # MSHW;node;name;env-failed-fan-count;env-failed-fan-message;
+          - type: "rightConcat"
+            column: 2
+            value: ";Global"
+            # Duplicate column 2 to use as uniqueID
+            # MSHW;node;node;name;env-failed-fan-count;env-failed-fan-message;
+          - type: "duplicateColumn"
+            column: 2
+        source(2):
+          # Source(2) = Storage Shelves
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(3)$"
+          computes:
+            # Xml2Cvs using AWK
+            # MSHW;shelf;fan-id;op-status;
+          - type: "awk"
+            script: "EmbeddedFile(6)"
+            # Duplicate fan-id since we need it for uniqueId and displayID
+            # MSHW;shelf;fan-id;fan-id;op-status;
+          - type: "duplicateColumn"
+            column: 3
+            # Combine shelf and fan-id to create uniqueID (Computes 3-4)
+          - type: "leftConcat"
+            column: 3
+            value: "."
+            # MSHW;shelf;unique-id;fan-id;op-status;
+          - type: "leftConcat"
+            column: 3
+            value: "Column(2)"
+            # Add "Fan - " to ID for display name
+            # MSHW;shelf;unique-id;name;op-status;
+          - type: "leftConcat"
+            column: 4
+            value: "Fan - "
+        source(3):
+          # Source(3) = All Fans
+          # Union Node and Shelf PSUs
+          # Table 1 // MSHW;node; node;     name;env-failed-fan-count;env-failed-fan-message;
+          # Table 2 // MSHW;shelf;unique-id;name;op-status;
+          type: "tableUnion"
+          tables:
+          - "$monitors.fan.discovery.sources.source(1)$"
+          - "$monitors.fan.discovery.sources.source(2)$"
+      mapping:
+        # Fan Instance Table
+        # MSHW;node;uniqueId;name;env-failed-fan-count;env-failed-fan-message;
+        source: "$monitors.fan.discovery.sources.source(3)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(2)"
+          name: "$column(4)"
+    collect:
+      # Collection Type (Multi-instance)
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = Nodes
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(1)$"
+          computes:
+            # Xml2Cvs using AWK
+            # MSHW;node;env-failed-fan-count;env-failed-fan-message;
+          - type: "awk"
+            script: "EmbeddedFile(5)"
+        source(2):
+          # Source(2) = Shelves
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(3)$"
+          computes:
+            # Xml2Cvs using AWK
+            # MSHW;shelf;psu-id;op-status;
+          - type: "awk"
+            script: "EmbeddedFile(6)"
+            # Concat Shelf and fan-id to create uniqueID (computes 2-3)
+            # MSHW;shelf;psu-id;op-status;
+          - type: "leftConcat"
+            column: 3
+            value: "."
+            # MSHW;shelf;unique-id;op-status;
+          - type: "leftConcat"
+            column: 3
+            value: "Column(2)"
+            # drop "shelf" (Column(2)) to align with node table
+            # MSHW;unique-id;op-status;
+          - type: "keepColumns"
+            columnNumbers: "1,3,4"
+            # Duplicate Column 3 for StatusInformation
+            # MSHW;unique-id;op-status;op-status
+          - type: "duplicateColumn"
+            column: 3
+        source(3):
+          # Source(3) = All Fans
+          # Table Union
+          # Table 1 // MSHW;node;     env-failed-fans-count;env-failed-power-supply-message;
+          # Table 2 // MSHW;unique-id;op-status;          # op-status
+          type: "tableUnion"
+          tables:
+          - "$monitors.fan.collect.sources.source(1)$"
+          - "$monitors.fan.collect.sources.source(2)$"
+          computes:
+            # Translate Fan status into PatrolStatus
+            # MSHW;unique-id;PatrolStatus;StatusInformation
+          - type: "translate"
+            column: 3
+            translationTable: "FanStatusTranslationTable"
+      mapping:
+        # Fan Value Table
+        # MSHW;unique-id;PatrolStatus;StatusInformation
+        source: "$monitors.fan.collect.sources.source(3)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="fan"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  battery:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Nodes
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          computes:
+            # Xml2Cvs using AWK
+            # MSHW;node;nvram-battery-status
+          - type: "awk"
+            script: "EmbeddedFile(7)"
+            # Add "NV RAM" as battery name (Column 2)
+            # MSHW;node;name;nvram-battery-status
+          - type: "rightConcat"
+            column: 2
+            value: ";NV RAM"
+      mapping:
+        # Battery Instance Table
+        source: "$monitors.battery.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(2)"
+          __display_id: "$column(3)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(2)"
+          name: "$column(3)"
+    collect:
+      sources:
+        source(1):
+          # Source(1) = Nodes
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(1)$"
+          computes:
+            # Xml2Cvs using AWK
+            # MSHW;node;nvram-battery-status
+          - type: "awk"
+            script: "EmbeddedFile(7)"
+            # Duplicate status column for StatusInformation
+            # MSHW;node;nvram-battery-status;battery-status
+          - type: "duplicateColumn"
+            column: 3
+            # Translate nvram-battery-status to PatrolStatus
+            # MSHW;node;PatrolStatus;battery-status
+          - type: "translate"
+            column: 3
+            translationTable: "BatteryStatusTranslationTable"
+            # Translate battery-status into StatusInformation
+            # MSHW;node;PatrolStatus;StatusInformation
+          - type: "translate"
+            column: 4
+            translationTable: "BatteryStatusInformationTranslationTable"
+      mapping:
+        # Battery Value Table
+        # MSHW;node;PatrolStatus;StatusInformation
+        source: "$monitors.battery.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="battery"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Nodes
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          computes:
+            # Xml2Cvs using AWK
+            # MSHW;node;env-over-temperature
+          - type: "awk"
+            script: "EmbeddedFile(8)"
+            # Add "Global" as bettery name (Column 2)
+            # MSHW;node;name;env-over-temperature
+          - type: "rightConcat"
+            column: 2
+            value: ";Global"
+            # Duplicate node as uniqueID
+            # MSHW;node;node;name;env-over-temperature
+          - type: "duplicateColumn"
+            column: 2
+        source(2):
+          # Source(3) = Shelves
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(3)$"
+          computes:
+            # Xml2Cvs using AWK
+            # MSHW;shelf;Temperature-id;op-status;
+          - type: "awk"
+            script: "EmbeddedFile(9)"
+            # Duplicate temperature-id for use in uniqueID and name
+            # MSHW;shelf;Temperature-id;Temperature-id;op-status;
+          - type: "duplicateColumn"
+            column: 3
+            # Create uniqueID (computes 3-4)
+          - type: "leftConcat"
+            column: 3
+            value: "."
+            # MSHW;shelf;unique-id;Temperature-id;op-status;
+          - type: "leftConcat"
+            column: 3
+            value: "Column(2)"
+            # MSHW;shelf;unique-id;name;op-status;
+          - type: "leftConcat"
+            column: 4
+            value: "Temperature - "
+        source(3):
+          # Source(3) = All Temperatures
+          # Union Node and Shelf Temperatures
+          # Table 1 // MSHW;node;name;env-over-temperature
+          # Table 2 // MSHW;shelf;unique-id;name;status;
+          type: "tableUnion"
+          tables:
+          - "$monitors.temperature.discovery.sources.source(1)$"
+          - "$monitors.temperature.discovery.sources.source(2)$"
+      mapping:
+        # Temperature Instance Table
+        # MSHW;node;uniqueID;name;env-over-temperature
+        source: "$monitors.temperature.discovery.sources.source(3)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(2)"
+          name: "$column(4)"
+    collect:
+      # Collection Type (Multi-instance)
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = Nodes
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(1)$"
+          computes:
+            # Xml2Cvs using AWK
+            # MSHW;node;env-over-temperature
+          - type: "awk"
+            script: "EmbeddedFile(8)"
+        source(2):
+          # Source(2) = Shelves
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(3)$"
+          computes:
+            # Xml2Cvs using AWK
+            # MSHW;shelf;temp-sensor-id;temp-sens-op-status
+          - type: "awk"
+            script: "EmbeddedFile(9)"
+            # Create unique ID
+          - type: "leftConcat"
+            column: 3
+            value: "."
+            # MSHW;shelf;uniqueID;temp-sensor-id;temp-sens-op-status
+          - type: "leftConcat"
+            column: 3
+            value: "Column(2)"
+            # Drop "shelf" (Column(2)) to align tables
+            # MSHW;unique-id;op-status;
+          - type: "keepColumns"
+            columnNumbers: "1,3,4"
+            # Duplicate op-status for StatusInformation
+            # MSHW;unique-id;op-status;op-status
+          - type: "duplicateColumn"
+            column: 3
+        source(3):
+          # Source(3) = All Temperatures
+          # Table Union
+          # MSHW;node;env-over-temperature
+          # MSHW;unique-id;PatrolStatus;op-status
+          type: "tableUnion"
+          tables:
+          - "$monitors.temperature.collect.sources.source(1)$"
+          - "$monitors.temperature.collect.sources.source(2)$"
+          computes:
+            # Translate status information into PatrolStatus
+          - type: "translate"
+            column: 3
+            translationTable: "TemperatureStatusTranslationTable"
+      mapping:
+        # Temperature Value Table
+        # MSHW;unique-id;PatrolStatus;StatusInformation
+        source: "$monitors.temperature.collect.sources.source(3)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="temperature"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  voltage:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Shelves
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(3)$"
+          computes:
+            # Xml2Cvs using AWK
+            # MSHW;shelf;Voltage-id;voltage-op-status;
+          - type: "awk"
+            script: "EmbeddedFile(10)"
+            # Duplicate voltage-id for use in uniqueID and name
+            # MSHW;shelf;voltage-sensor-id;voltage-sensor-id;voltage-op-status
+          - type: "duplicateColumn"
+            column: 3
+            # Create uniqueID (computes 3-4)
+          - type: "leftConcat"
+            column: 3
+            value: "."
+            # MSHW;shelf;unique-id;Voltage-id;op-status;
+          - type: "leftConcat"
+            column: 3
+            value: "Column(2)"
+            # Append Voltage to id to create name
+            # MSHW;shelf;unique-id;Voltage-name;op-status;
+          - type: "leftConcat"
+            column: 4
+            value: "Voltage - "
+      mapping:
+        # Voltage Instance Table
+        # MSHW;shelf;uniqueID;name;env-over-Voltage
+        source: "$monitors.voltage.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(2)"
+          name: "$column(4)"
+    collect:
+      # Collection Type (Multi-Instance)
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = Shelves
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(3)$"
+          computes:
+            # Xml2Cvs using AWK
+            # MSHW;shelf;Voltage-id;voltage-op-status;
+          - type: "awk"
+            script: "EmbeddedFile(10)"
+            # create uniqueID
+          - type: "leftConcat"
+            column: 3
+            value: "."
+            # MSHW;shelf;unique-id;voltage-op-status;
+          - type: "leftConcat"
+            column: 3
+            value: "Column(2)"
+            # MSHW;shelf;unique-id;voltage-id;op-status;
+          - type: "duplicateColumn"
+            column: 4
+            # MSHW;shelf;unique-id;voltage-id;op-status;
+          - type: "translate"
+            column: 4
+            translationTable: "VoltageStatusTranslationTable"
+      mapping:
+        # Voltage value Table
+        # MSHW;shelf;unique-id;voltage-id;op-status;
+        source: "$monitors.voltage.collect.sources.source(1)$"
+        deviceId: "$column(3)"
+        metrics:
+          hw.status{hw.type="voltage"}: "$column(4)"
+        legacyTextParameters:
+          StatusInformation: "$column(5)"
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Storage Shelf Info
+          # Get XML from REST API Call <storage-shelf-info-get-iter/>
+          type: "http"
+          method: "POST"
+          url: "/servlets/netapp.servlets.admin.XMLrequest_filer"
+          body: "<?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><storage-shelf-info-get-iter/></netapp>"
+          computes:
+            # Convert xml output to multiLine
+          - type: "awk"
+            script: "EmbeddedFile(18)"
+        source(2):
+          # Source(2) = Storage Shelf Info
+          type: "copy"
+          from: "$monitors.physical_disk.discovery.sources.source(1)$"
+          computes:
+            # Xml2Cvs using AWK
+            # MSHW;shelf;bay-id;bay-has-disk;bay-type;bay-op-status;
+          - type: "awk"
+            script: "EmbeddedFile(11)"
+            # create uniqueID (Computes 2-3)
+          - type: "leftConcat"
+            column: 3
+            value: "."
+            # MSHW;shelf;unique-id;bay-has-disk;bay-type;bay-op-status;
+          - type: "leftConcat"
+            column: 3
+            value: "Column(2)"
+            # Exclude bays that report no drive
+          - type: "excludeMatchingLines"
+            column: 4
+            regExp: "false"
+        source(3):
+          # Source(3) = Disks
+          # Get XML from REST API Call <storage-disk-get-iter/>
+          type: "http"
+          method: "POST"
+          url: "/servlets/netapp.servlets.admin.XMLrequest_filer"
+          body: "<?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><storage-disk-get-iter/></netapp>"
+          computes:
+            # Convert xml to multi-line
+          - type: "awk"
+            script: "EmbeddedFile(18)"
+        source(4):
+          # Source(4) = Disks
+          type: "copy"
+          from: "$monitors.physical_disk.discovery.sources.source(3)$"
+          computes:
+            # Xml2Cvs using AWK
+            # MSHW;disk-cluster-name;shelf-bay;model;serial-number;bytes-per-sector;capacity-sector;rpm;disk-type
+          - type: "awk"
+            script: "EmbeddedFile(12)"
+            # multiply bytes-per-sector (column 6) by capacity-sector (column 7) for size
+            # MSHW;uniqueID;shelf-bay;model;serial-number;size;capacity-sector;rpm;disk-type
+          - type: "multiply"
+            column: 6
+            value: "Column(7)"
+            # MSHW;uniqueID;shelf-bay;model;serial-number;size;capacity-sector;rpm;disk-type
+          - type: "leftConcat"
+            column: 8
+            value: "RPM: "
+        source(5):
+          # Source(5) = Table joint of Source(2) and Source(4)
+          # Left  // MSHW;shelf;unique-id;bay-has-disk;bay-type;bay-op-status;
+          # right // MSHW;uniqueID;shelf-bay;model;serial-number;size;capacity-sector;rpm;disk-type
+          # results;
+          # MSHW;shelf;uniqueID;bay-has-disk;bay-type;bay-op-status;MSHW;uniqueID;shelf-bay;model;serial-number;size;capacity-sector;rpm;disk-type
+          #  1      2        3      4          #  5       6           7     8         9      10    11          # 12      13           14      15
+          type: "tableJoin"
+          leftTable: "$monitors.physical_disk.discovery.sources.source(2)$"
+          rightTable: "$monitors.physical_disk.discovery.sources.source(4)$"
+          leftKeyColumn: 3
+          rightKeyColumn: 2
+          defaultRightLine: ";;;;;;;;;;;"
+          computes:
+          - type: "leftConcat"
+            column: 4
+            value: "Type: "
+      mapping:
+        # PhysicalDisk Instancce
+        # MSHW;shelf-id;bay-id;bay-has-disk;bay-type;bay-op-status;MSHW;shelf-bay;model;serial-number;size;capacity-sector;rpm;disk-type
+        source: "$monitors.physical_disk.discovery.sources.source(5)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(3)"
+          model: "$column(10)"
+          serial_number: "$column(11)"
+          info: "join($column(14), $column(15), \" \")"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(2)"
+          name: "sprintf(\"%s (%s - %s)\", $column(3), $column(10), $column(12))"
+        metrics:
+          hw.physical_disk.size: "$column(12)"
+    collect:
+      # Collect
+      # Collect type: MultiInstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = PhysicalDisks
+          # Get XML from REST API Call
+          type: "http"
+          method: "POST"
+          url: "/servlets/netapp.servlets.admin.XMLrequest_filer"
+          body: "<?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><storage-shelf-info-get-iter/></netapp>"
+          computes:
+          - type: "awk"
+            script: "EmbeddedFile(18)"
+        source(2):
+          # Source(2) = PhysicalDisks
+          type: "copy"
+          from: "$monitors.physical_disk.collect.sources.source(1)$"
+          computes:
+            # Xml2Cvs with Awk
+            # MSHW;shelf-id;bay-id;bay-has-disk;bay-type;bay-op-status;
+          - type: "awk"
+            script: "EmbeddedFile(11)"
+            # Translate bay-op-status into PatrolStatus
+            # MSHW;shelf-id;bay-id;bay-has-disk;bay-type;PatrolStatus;
+          - type: "translate"
+            column: 6
+            translationTable: "PhysicalDiskTranslationTable"
+            # create uniqueID (Computes 3-4)
+          - type: "leftConcat"
+            column: 3
+            value: "."
+            # MSHW;shelf;unique-id;bay-has-disk;bay-type;PatrolStatus;
+          - type: "leftConcat"
+            column: 3
+            value: "Column(2)"
+      mapping:
+        # PhysicalDisk Value Table
+        # MSHW;shelf;unique-id;bay-has-disk;bay-type;PatrolStatus;
+        source: "$monitors.physical_disk.collect.sources.source(2)$"
+        deviceId: "$column(3)"
+        metrics:
+          hw.status{hw.type="physical_disk"}: "$column(6)"
+  network:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = NetworkCards
+          # Get XML from REST API Call
+          type: "http"
+          method: "POST"
+          url: "/servlets/netapp.servlets.admin.XMLrequest_filer"
+          body: "<?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><net-port-get-iter/></netapp>"
+          computes:
+            # multi-line the xml response
+          - type: "awk"
+            script: "EmbeddedFile(18)"
+        source(2):
+          # Source(2) = NetworkCards
+          type: "copy"
+          from: "$monitors.network.discovery.sources.source(1)$"
+          computes:
+            # Xml2Cvs with Awk
+            # MSHW;node;port;link-status;health-status;mac-address;operational-speed
+          - type: "awk"
+            script: "EmbeddedFile(13)"
+            # Add port identifying information for this source (always MAC and "Ethernet Port")
+            # MSHW;node;port;link-status;health-status;mac-address;operational-speed;physical-address-type;device-type
+          - type: "rightConcat"
+            column: 7
+            value: ";MAC;Ethernet Port"
+        source(3):
+          # Fiber ports
+          type: "http"
+          method: "POST"
+          url: "/servlets/netapp.servlets.admin.XMLrequest_filer"
+          body: "<?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><fcp-adapter-get-iter/></netapp>"
+          computes:
+            # multi-line the xml response
+          - type: "awk"
+            script: "EmbeddedFile(18)"
+        source(4):
+          # Source(4) = Fiber Channels
+          type: "copy"
+          from: "$monitors.network.discovery.sources.source(3)$"
+          computes:
+            # Xml2Cvs with Awk
+            # MSHW;node;adapter;link-status;status-description;mac;max-speed
+          - type: "awk"
+            script: "EmbeddedFile(17)"
+            # Multiply column 8 to convert gbit/s to mbit/s
+          - type: "multiply"
+            column: 7
+            value: "1000"
+            # Add port identifying information for this source (always WWN and "FC Port")
+            # MSHW;node;adapter;link-status;status-description;mac;max-speed;physical-address-type;device-type
+          - type: "rightConcat"
+            column: 7
+            value: ";WWN;FC Port"
+            # Replace \"0\" with \"\" (computes 4-6)
+          - type: "leftConcat"
+            column: 7
+            value: "MSHW"
+          - type: "replace"
+            column: 7
+            existingValue: "MSHW0"
+            newValue: ""
+          - type: "replace"
+            column: 7
+            existingValue: "MSHW"
+            newValue: ""
+        source(5):
+          # Source(5) Union of all Network Cards (Ethernet + FCs)
+          # Table1   // MSHW;node;port;link-status;health-status;mac-address;operational-speed;physical-address-type;device-type
+          # Table2   // MSHW;node;adapter;link-status;status-description;mac;max-speed;physical-address-type;device-type
+          type: "tableUnion"
+          tables:
+          - "$monitors.network.discovery.sources.source(2)$"
+          - "$monitors.network.discovery.sources.source(4)$"
+          computes:
+            # Create uniqueID (computes 2-4)
+            # MSHW;node;port;port;link-status;health-status;mac-address;speed;physical-address-type;device-type
+          - type: "duplicateColumn"
+            column: 3
+          - type: "leftConcat"
+            column: 3
+            value: "."
+            # MSHW;node;uniqueId;port;link-status;health-status;mac-address;speed;physical-address-type;device-type
+          - type: "leftConcat"
+            column: 3
+            value: "Column(2)"
+      mapping:
+        # NetworkCard Instance Table
+        # MSHW;node;uniqueId;port;link-status;health-status;mac-address;link-speed;physical-address-type;device-type
+        source: "$monitors.network.discovery.sources.source(5)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          physical_address: "$column(7)"
+          physical_address_type: "$column(9)"
+          device_type: "$column(10)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(2)"
+          name: "sprintf(\"%s (%s)\", $column(4), $column(10))"
+    collect:
+      # Collection type (Multi-instance)
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = NetworkCards
+          # Get XML from REST API Call
+          type: "http"
+          method: "POST"
+          url: "/servlets/netapp.servlets.admin.XMLrequest_filer"
+          body: "<?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><net-port-get-iter/></netapp>"
+          computes:
+            # xml to multi-line
+          - type: "awk"
+            script: "EmbeddedFile(18)"
+        source(2):
+          # Source(2) = NetworkCards
+          type: "copy"
+          from: "$monitors.network.collect.sources.source(1)$"
+          computes:
+            # Xml2Cvs using AWK
+            # MSHW;node;port;link-status;health-status;mac-address;operational-speed
+          - type: "awk"
+            script: "EmbeddedFile(13)"
+        source(3):
+          # Source(1) = NetworkCards
+          # Get XML from REST API Call
+          type: "http"
+          method: "POST"
+          url: "/servlets/netapp.servlets.admin.XMLrequest_filer"
+          body: "<?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><fcp-adapter-get-iter/></netapp>"
+          computes:
+            # xml to multi-line
+          - type: "awk"
+            script: "EmbeddedFile(18)"
+        source(4):
+          # Source(4) = Fiber Channels
+          type: "copy"
+          from: "$monitors.network.collect.sources.source(3)$"
+          computes:
+            # Xml2Cvs using AWK
+            # MSHW;node;adapter;link-status;status-description;mac;max-speed
+          - type: "awk"
+            script: "EmbeddedFile(17)"
+          - type: "multiply"
+            column: 7
+            value: "1000"
+        source(5):
+          # Source(5) Union of all Network Cards (Ethernet + FCs)
+          # Table1   // MSHW;node;uniqueId;port;   link-status;health-status;     mac;speed
+          # Table2   // MSHW;node;uniqueID;adapter;link-status;status-description;mac;speed
+          type: "tableUnion"
+          tables:
+          - "$monitors.network.collect.sources.source(2)$"
+          - "$monitors.network.collect.sources.source(4)$"
+          computes:
+            # Duplicate status column (link status)
+            # MSHW;node;port;link-status;link-status;health-status;mac-address;operational-speed
+          - type: "duplicateColumn"
+            column: 4
+            # Duplicate status column (status information)
+            # MSHW;node;port;link-status;link-status;link-status;health-status;mac-address;operational-speed
+          - type: "duplicateColumn"
+            column: 4
+            # Translate NetworkCardStatus into PatrolStatus
+            # MSHW;node;port;PatrolStatus;link-status;link-status;health-status;mac-address;operational-speed
+          - type: "translate"
+            column: 4
+            translationTable: "NetworkCardStatusTranslationTable"
+            # Translate link-status status into LinkStatus
+            # MSHW;node;port;PatrolStatus;link-status;link-status;health-status;mac-address;operational-speed
+          - type: "translate"
+            column: 5
+            translationTable: "LinkStatusTranslationTable"
+            # Create uniqueID (computes 5-6)
+            # MSHW;node;unique-id;PatrolStatus;link-status;health-status;mac-address;operational-speed
+          - type: "leftConcat"
+            column: 3
+            value: "."
+          - type: "leftConcat"
+            column: 3
+            value: "Column(2)"
+      mapping:
+        # NetworkCard Value Table
+        # MSHW;node;unique-id;PatrolStatus;link-status;health-status;mac-address;operational-speed
+        source: "$monitors.network.collect.sources.source(5)$"
+        deviceId: "$column(3)"
+        metrics:
+          hw.status{hw.type="network"}: "$column(4)"
+          hw.network.up: "legacyLinkStatus($column(5))"
+          hw.network.bandwidth.limit: "megaBit2Bit($column(9))"
+        legacyTextParameters:
+          StatusInformation: "$column(6)"
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Aggregate (raid) information
+          # Get XML from REST API Call
+          type: "http"
+          method: "POST"
+          url: "/servlets/netapp.servlets.admin.XMLrequest_filer"
+          body: "<?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><aggr-get-iter/></netapp>"
+          computes:
+            # XML to multi-line xml
+          - type: "awk"
+            script: "EmbeddedFile(18)"
+        source(2):
+          # Source(2) = Aggregate (raid) inforamtion
+          type: "copy"
+          from: "$monitors.logical_disk.discovery.sources.source(1)$"
+          computes:
+            # Xml2Cvs using Awk
+            # MSHW;;aggregate-uuid;aggregate-name;raid-type;raid-status;
+          - type: "awk"
+            script: "EmbeddedFile(14)"
+        source(3):
+          # Source(3) = Aggregate (raid) information (node)
+          type: "copy"
+          from: "$monitors.logical_disk.discovery.sources.source(1)$"
+          computes:
+            # Xml2Cvs using Awk
+            # MSHW;node-name;aggregate-uuid;
+          - type: "awk"
+            script: "EmbeddedFile(15)"
+        source(4):
+          # Source (4) Join Raid and Node information
+          # table1 // MSHW;         ;aggregate-uuid;aggregate-name;raid-type;raid-status;
+          # table2 // MSHW;node-name;aggregate-uuid;
+          type: "tableJoin"
+          leftTable: "$monitors.logical_disk.discovery.sources.source(2)$"
+          rightTable: "$monitors.logical_disk.discovery.sources.source(3)$"
+          leftKeyColumn: 3
+          rightKeyColumn: 3
+          defaultRightLine: ";;;;;;;"
+          computes:
+            # Move AttachedToDeviceID to column 2
+          - type: "replace"
+            column: 2
+            existingValue: "Column(2)"
+            newValue: "Column(8)"
+      mapping:
+        # LogicalDisk Instance Table
+        # MSHW;node-name;aggregate-uuid;aggregate-name;raid-type;raid-status;
+        source: "$monitors.logical_disk.discovery.sources.source(4)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          raid_level: "$column(5)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(2)"
+          name: "sprintf(\"%s (%s)\", $column(4), $column(5))"
+    collect:
+      # CollectionType (Multi-instance)
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = Aggregate (raid) information
+          # Get XML from REST API Call
+          type: "http"
+          method: "POST"
+          url: "/servlets/netapp.servlets.admin.XMLrequest_filer"
+          body: "<?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><aggr-get-iter/></netapp>"
+          computes:
+            # XML to multi-line XML
+          - type: "awk"
+            script: "EmbeddedFile(18)"
+        source(2):
+          # Source(2) = Aggregate (raid) information
+          type: "copy"
+          from: "$monitors.logical_disk.collect.sources.source(1)$"
+          computes:
+            # Xml2Cvs using Awk
+            # MSHW;;aggregate-uuid;aggregate-name;raid-type;raid-status;
+          - type: "awk"
+            script: "EmbeddedFile(14)"
+            # Duplicate Raid Status for StatusInformation
+            # MSHW;node-name;aggregate-uuid;aggregate-name;raid-type;raid-status;StatusInformation;
+          - type: "duplicateColumn"
+            column: 6
+            # Array Translate Column(7) for raid-status1
+            # Replace "," with "|"
+          - type: "replace"
+            column: 6
+            existingValue: ","
+            newValue: "|"
+          - type: "replace"
+            column: 6
+            existingValue: " "
+            newValue: ""
+        source(3):
+          # To see what I'm inputting into array translate.
+          type: "copy"
+          from: "$monitors.logical_disk.collect.sources.source(2)$"
+          computes:
+          - type: "arrayTranslate"
+            column: 6
+            translationTable: "RaidStatusTranslationTable"
+            # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+          - type: "convert"
+            column: 6
+            conversion: "array2SimpleStatus"
+            # Remove temporary work Column (and unneeded)
+            # MSHW;aggregate-uuid;raid-status;StatusInformation
+          - type: "keepColumns"
+            columnNumbers: "1,3,6,7"
+      mapping:
+        # LogicalDisk Value Table
+        # MSHW;aggregate-uuid;PatrolStatus;StatusInformation;
+        source: "$monitors.logical_disk.collect.sources.source(3)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="logical_disk"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  disk_controller:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Environment Sensors
+          # Get XML from REST API Call
+          type: "http"
+          method: "POST"
+          url: "/servlets/netapp.servlets.admin.XMLrequest_filer"
+          body: "<?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><environment-sensors-get-iter/></netapp>"
+          computes:
+            # xml to multi-line xml
+          - type: "awk"
+            script: "EmbeddedFile(18)"
+        source(2):
+          # Source(2) = Environment Sensors
+          type: "copy"
+          from: "$monitors.disk_controller.discovery.sources.source(1)$"
+          computes:
+            # Xml2Cvs using awk
+            # MSHW;node-name;sensor-name;discrete-sensor-state;discrete-sensor-value;
+          - type: "awk"
+            script: "EmbeddedFile(16)"
+            # Keep only \"SP Status\" sensor-names (DiskController)
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            regExp: "SP Status"
+            # Create uniqueID (computes 3-5)
+            # MSHW;node-name;sensor-name;sensor-name;discrete-sensor-state;discrete-sensor-value;
+          - type: "duplicateColumn"
+            column: 3
+          - type: "leftConcat"
+            column: 3
+            value: "."
+            # MSHW;node-name;unique-id;sensor-name;discrete-sensor-state;discrete-sensor-value;
+          - type: "leftConcat"
+            column: 3
+            value: "Column(2)"
+      mapping:
+        # DiskController Instance Table
+        # MSHW;node-name;unique-id;sensor-name;discrete-sensor-state;discrete-sensor-value;
+        source: "$monitors.disk_controller.discovery.sources.source(2)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(2)"
+          name: "sprintf(\"%s %s\"), \"Disk Controller\", $column(4))"
+    collect:
+      # Collection Type (Multi-instance)
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = Environment Sensors
+          type: "http"
+          method: "POST"
+          url: "/servlets/netapp.servlets.admin.XMLrequest_filer"
+          body: "<?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><environment-sensors-get-iter/></netapp>"
+          computes:
+            # XML to multi-line XML
+          - type: "awk"
+            script: "EmbeddedFile(18)"
+        source(2):
+          # Source(2) = Environment sensors
+          type: "copy"
+          from: "$monitors.disk_controller.collect.sources.source(1)$"
+          computes:
+            # Xml2Cvs using awk
+            # MSHW;node-name;sensor-name;discrete-sensor-state;discrete-sensor-value;
+          - type: "awk"
+            script: "EmbeddedFile(16)"
+            # Translate discrete-sensor-state to PatrolStatus
+            # MSHW;node-name;sensor-name;PatrolStatus;discrete-sensor-value;
+          - type: "translate"
+            column: 4
+            translationTable: "DiskControllerStatusTranslationTable"
+            # Create uniqueID (computes 3-4)
+          - type: "leftConcat"
+            column: 3
+            value: "."
+            # MSHW;node-name;unique-id;discrete-sensor-state;discrete-sensor-value;
+          - type: "leftConcat"
+            column: 3
+            value: "Column(2)"
+      mapping:
+        # DiskController Value Table
+        source: "$monitors.disk_controller.collect.sources.source(2)$"
+        deviceId: "$column(3)"
+        metrics:
+          hw.status{hw.type="disk_controller"}: "$column(4)"
+        legacyTextParameters:
+          StatusInformation: "$column(5)"

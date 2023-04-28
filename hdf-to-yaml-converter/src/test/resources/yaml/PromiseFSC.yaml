@@ -1,0 +1,254 @@
+---
+translations:
+  RAIDLevelTranslationTable:
+    "0": "0"
+    "1": "1"
+    "2": "0+1"
+    default: ""
+    "3": "3"
+    "-1": ""
+    "4": "4"
+    "5": "5"
+  PhysicalDiskStatusInformationTranslationTable:
+    "0": ""
+    "1": "Offline"
+    "2": "Rebuild Needed"
+    default: "Unknown Status"
+  DiskControllerStatusInformationTranslationTable:
+    "0": "No battery"
+    "1": ""
+    "2": "Temperature Out of Range"
+    default: "Unknown Battery Status"
+    "3": "Unstable Temperature"
+    "-1": ""
+    "4": "Voltage Out of Range"
+    "5": "Unstable Voltage"
+    "6": "Communication Error"
+  PhysicalDiskSMARTTranslationTable:
+    "0": "true"
+    default: "false"
+  LogicalDiskStatusInformationTranslationTable:
+    "0": ""
+    "1": "Critical"
+    "2": "Offline"
+    default: "Unknown Status"
+  LogicalDiskStatusTranslationTable:
+    "0": "ok"
+    "1": "failed"
+    "2": "degraded"
+    default: "UNKNOWN"
+  PhysicalDiskStatusTranslationTable:
+    "0": "ok"
+    "1": "failed"
+    "2": "degraded"
+    default: "UNKNOWN"
+  DiskControllerBatteryStatusTranslationTable:
+    "0": "ok"
+    "1": "ok"
+    "2": "degraded"
+    default: "UNKNOWN"
+    "3": "degraded"
+    "-1": "ok"
+    "4": "failed"
+    "5": "failed"
+    "6": "degraded"
+connector:
+  displayName: "Promise FastTrack"
+  platforms: "Fujitsu-Siemens PRIMERGY"
+  reliesOn: "Promise FastTrack SNMP Agent"
+  version: "1.0"
+  information: "This connector provides disk monitoring through the Promise FastTrack SNMP agent."
+  detection:
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "NT"
+    - "Linux"
+    criteria:
+      # Must have a physical disk in Promise's SNMP tree
+    - type: "snmpGetNext"
+      oid: "1.3.6.1.4.1.7933.4.1.5.1"
+monitors:
+  disk_controller:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = promiseControllerTable SNMP table
+          # deviceID;controllerNumber;model
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.7933.4.1.6.1"
+          selectColumns: "ID,1,2"
+      mapping:
+        # InstanceTable = Source(1)
+        source: "$monitors.disk_controller.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          controller_number: "$column(2)"
+          model: "$column(3)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(1), $column(3))"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = promiseControllerTable SNMP table
+          # deviceID;BatteryStatus
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.7933.4.1.6.1"
+          selectColumns: "ID,10"
+          computes:
+            # Duplicate the BatteryStatus column
+            # deviceID;BatteryStatus;BatteryStatus
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the first BatteryStatus into a valid PATROL status
+            # deviceID;BatteryStatus;BatteryStatus
+          - type: "translate"
+            column: 2
+            translationTable: "DiskControllerBatteryStatusTranslationTable"
+            # Translate the second BatteryStatus into a more readable string
+            # deviceID;BatteryStatus;statusInformation
+          - type: "translate"
+            column: 3
+            translationTable: "DiskControllerStatusInformationTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.disk_controller.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = promiseDiskTable SNMP table
+          # ID;Model;SizeMB;controllerNumber
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.7933.4.1.5.1"
+          selectColumns: "ID,4,6,16"
+          computes:
+            # Convert SizeMB to SizeBytes
+            # ID;Model;SizeBytes;controllerNumber
+          - type: "multiply"
+            column: 3
+            value: "1000000"
+            # If diskControllerNumber is '0', replace it by '1'
+            # ID;Model;SizeBytes;controllerNumber
+          - type: "replace"
+            column: 4
+            existingValue: "0"
+            newValue: "1"
+      mapping:
+        # Instance Table = Source(1)
+        source: "$monitors.physical_disk.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          vendor: "$column(2)"
+          hw.parent.type: "disk_controller"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(4))"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+        metrics:
+          hw.physical_disk.size: "$column(3)"
+    collect:
+      # Collect type is: multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = the promiseDiskTable SNMP table
+          # DeviceID;SmartStatus;Status
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.7933.4.1.5.1"
+          selectColumns: "ID,5,10"
+          computes:
+            # Duplicate the Status column
+            # DeviceID;SMARTStatus;Status;Status
+          - type: "duplicateColumn"
+            column: 3
+            # Translate the first status value into a PATROL Status
+            # DeviceID;SMARTStatus;PATROLStatus;Status
+          - type: "translate"
+            column: 3
+            translationTable: "PhysicalDiskStatusTranslationTable"
+            # Translate the second status value into a more readable information
+            # DeviceID;SMARTStatus;PATROLStatus;InformationStatus
+          - type: "translate"
+            column: 4
+            translationTable: "PhysicalDiskStatusInformationTranslationTable"
+            # Translate the original SMARTStatus into a true/false value that says if a failure is predicted
+            # DeviceID;PredictedFailure;PATROLStatus;InformationStatus
+          - type: "translate"
+            column: 2
+            translationTable: "PhysicalDiskSMARTTranslationTable"
+      mapping:
+        # The collect table = Source(1)
+        source: "$monitors.physical_disk.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="physical_disk"}: "$column(3)"
+          hw.status{hw.type="physical_disk", state="predicted_failure"}: "boolean($column(2))"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = promiseArrayTable SNMP table
+          # ID;raidTypeCode;arraySizeMB
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.7933.4.1.4.1"
+          selectColumns: "ID,3,6"
+          computes:
+            # Multiply the arraySizeMB column (in MB) by 1048576 to obtain the disk size in bytes
+            # ID;raidTypeCode;arraySizeBytes
+          - type: "multiply"
+            column: 3
+            value: "1048576"
+            # Translate raidTypeCode into raidLevel
+            # ID;raidLevel;arraySizeBytes
+          - type: "translate"
+            column: 2
+            translationTable: "RAIDLevelTranslationTable"
+      mapping:
+        # Instance Table = Source(1)
+        source: "$monitors.logical_disk.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          hw.logical_disk.limit: "$column(3)"
+          raid_level: "$column(2)"
+          hw.parent.type: "disk_controller"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", \"1\")"
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(2), $column(3))"
+    collect:
+      # Collect type is: multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = the promiseArrayTable SNMP table
+          # DeviceID;Status
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.7933.4.1.4.1"
+          selectColumns: "ID,5"
+          computes:
+            # Duplicate the Status column
+            # DeviceID;Status;Status
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the first status value into a PATROL Status
+            # DeviceID;PATROLStatus;Status
+          - type: "translate"
+            column: 2
+            translationTable: "LogicalDiskStatusTranslationTable"
+            # Translate the second status value into a more readable information
+            # DeviceID;PATROLStatus;InformationStatus
+          - type: "translate"
+            column: 3
+            translationTable: "LogicalDiskStatusInformationTranslationTable"
+      mapping:
+        # The collect table = Source(1)
+        source: "$monitors.logical_disk.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="logical_disk"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"

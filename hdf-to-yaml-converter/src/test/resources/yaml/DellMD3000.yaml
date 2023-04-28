@@ -1,0 +1,18 @@
+---
+extends:
+- "LSIStorageSystem-header"
+constants:
+  _COMMAND: "StorageArray"
+connector:
+  displayName: "DELL MD3000 (LSI) Disk Arrays (smcli)"
+  platforms: "DELL MD3000"
+  reliesOn: "The SMcli utility, which is part of Dell PowerVault Modular Disk Storage Manager.  The version must be compatible with the system being monitored.  Multiple versions of SMcli on the same system is not supported."
+  version: "1.0"
+  information: "This connector provides hardware monitoring for Dell MD3000 Storage Systems through the the SMCli utility."
+  detection:
+    appliesTo:
+    - "Storage"
+    connectionTypes:
+    - "remote"
+    supersedes:
+    - "smcli"

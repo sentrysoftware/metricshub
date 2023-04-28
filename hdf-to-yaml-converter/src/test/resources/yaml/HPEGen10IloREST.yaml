@@ -1,0 +1,386 @@
+---
+extends:
+- "RedfishREST-header"
+constants:
+  _MEMORY_STATUS_PATH: "Status/Health"
+  _POWER_CONSUMPTION_PATH: "PowerControl[0]/PowerMetrics/AverageConsumedWatts"
+  _PS_ID: "@odata.id"
+  _REF: "@odata.id"
+  _FAN_ID: "Name"
+  _TEMP_ID: "@odata.id"
+  _MEMORY_SIZE_PARAMETER: "VolatileSizeMiB"
+  _OEM_SPECIFIC: "\"\""
+  _FAN_LOCATION: "Oem/Hpe/Location"
+translations:
+  EthernetInterfacesLinkSpeedDeactivationTable:
+    standbyoffline: ""
+    default: "True"
+    "null": ""
+  LinkSpeedDeactivationTranslationTable:
+    "0": ""
+    default: "True"
+connector:
+  displayName: "HP iLO Gen 10 (REST)"
+  platforms: "HP iLO Gen 10 REST"
+  version: "1.0"
+  information: "This connector discovers the status of an HPE Proliant Gen 10 system using iLO 5, as well as the various environment sensors (temperatures, fans, power supplies, etc.). Requires iLO 5."
+  detection:
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "OOB"
+    criteria:
+      # Hardware Sentry v10.3.00+
+    - type: "productRequirements"
+      kmVersion: "10.3.00"
+    - type: "http"
+      method: "GET"
+      url: "/redfish/v1/"
+      header: "EmbeddedFile(1)"
+      expectedResult: "iLO 5"
+      errorMessage: "Invalid credentials / not an HP iLO 5"
+monitors:
+  battery:
+    discovery:
+      sources:
+        source(1):
+          # Query /Systems/?/
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(2)$"
+          computes:
+          - type: "json2csv"
+            entryKey: "/Entry/Value/Oem/Hpe/SmartStorageBattery"
+            properties: "../../../../Column(2);/Index;/SerialNumber;/ProductName;/Model;/SparePartNumber;"
+          - type: "leftConcat"
+            column: 7
+            value: "Part Number: "
+          - type: "leftConcat"
+            column: 4
+            value: "Serial Number: "
+      mapping:
+        # Battery Instance Table
+        # JSONid;ChassisID;SerialNumber;ElementName;Id;
+        source: "$monitors.battery.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(5)"
+          model: "$column(6)"
+          info: "join($column(4), $column(7), \" \")"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s)\", $column(5), $column(6))"
+    collect:
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Query /Chassis/?/
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(1)$"
+          computes:
+            # Extract Data
+            # JSONId;SerialNumber;Health;health;
+          - type: "json2csv"
+            entryKey: "/Oem/Hpe/SmartStorageBattery"
+            properties: "/Index;/Status/Health;/Status/Health;/ChargeLevelPercent;"
+          - type: "translate"
+            column: 3
+            translationTable: "StatusTranslationTable"
+          - type: "translate"
+            column: 4
+            translationTable: "StatusInformationTranslationTable"
+      mapping:
+        # Battery Value Table
+        # JsonID;PatrolStatus;StatusInformation
+        source: "$monitors.battery.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="battery"}: "$column(3)"
+          hw.battery.charge: "percent2Ratio($column(5))"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  network:
+    discovery:
+      sources:
+        source(1):
+          # EthernetInterfaces
+          # Discovery
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(3)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(3)$EthernetInterfaces/"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+            # JSONID;ChassisID;EthernetURL;
+          - type: "json2csv"
+            entryKey: "/Entry/Value/Members"
+            properties: "../../Column(2);/@odata.id;"
+            separator: ";"
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            regExp: "."
+        source(2):
+          # Query each EthernetURL
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.network.discovery.sources.source(1)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(3)$"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+            # Extract data
+            # JSONID;ChassisID;EthernetID;Name;blank;blank;Speed;MACAddress;Name;
+          - type: "json2csv"
+            entryKey: "/Entry/Value"
+            properties: "../Column(2);/@odata.id;/null;/null;/null;/SpeedMbps;/MACAddress;/Name;"
+          - type: "translate"
+            column: 7
+            translationTable: "EthernetInterfacesLinkSpeedDeactivationTable"
+            # JSONID;ChassisID;EthernetID;Name;blank;blank;Speed;MAC;MACAddress;Name;
+          - type: "leftConcat"
+            column: 8
+            value: "MAC;"
+        source(3):
+          # iLO 5
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(1)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(2)$NetworkAdapters/"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+            # JSONID;ChassisID;NetworkAdapterURL;
+          - type: "json2csv"
+            entryKey: "/Entry/Value/Members"
+            properties: "../../Column(2);/@odata.id;"
+            separator: ";"
+            # Remove empty network url to avoid errors
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            regExp: "."
+        source(4):
+          # Query /Chassis/?/NetworkAdapters/?/
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.network.discovery.sources.source(3)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(3)$"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+            # JsonID;ChassisID;NetworkPorts;Manufacturer;Model;PartNumber;SerialNumber;
+          - type: "json2csv"
+            entryKey: "/Entry/Value/NetworkPorts"
+            properties: "../../Column(2);/@odata.id;../Manufacturer;../Model;../PartNumber;../SerialNumber;;;/Name;"
+        source(5):
+          # NetworkPorts
+          # Query /Chassis/?/NetworkAdapters/?/NetworkPorts/?/
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.network.discovery.sources.source(4)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(3)$"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+            # JsonID;ChassisID;NetworkPort;Manufacturer;Model;PartNumber;SerialNumber;
+          - type: "json2csv"
+            entryKey: "/Entry/Value/Members"
+            properties: "../../Column(2);/@odata.id;../../Column(4);../../Column(5);../../Column(7);"
+            separator: ";"
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            regExp: "."
+        source(6):
+          # PhysicalPortAssignment
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.network.discovery.sources.source(5)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(3)$"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+            # PhysicalPortAssignment
+            # JsonID;ChassisID;ID;Model;SerialNumber;Manufacturer;LinkSpeed;(FC/Eth);Address;Name;
+          - type: "json2csv"
+            entryKey: "/Entry/Value"
+            properties: "../Column(2);/Id;../Column(6);../Column(7);../Column(4);/SupportedLinkCapabilities[0]/CapableLinkSpeedMbps;/ActiveLinkTechnology;/AssociatedNetworkAddresses[0];/Name;"
+            separator: ";"
+          - type: "translate"
+            column: 7
+            translationTable: "LinkSpeedDeactivationTranslationTable"
+        source(7):
+          # iLO 5
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(3)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(3)$BaseNetworkAdapters/"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+            # JSONID;ChassisID;NetworkAdapterURL;
+          - type: "json2csv"
+            entryKey: "/Entry/Value/Members"
+            properties: "../../Column(2);/@odata.id;"
+            separator: ";"
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            regExp: "."
+        source(8):
+          # Query /Chassis/?/NetworkAdapters/?/
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.network.discovery.sources.source(7)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(3)$"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+            # JsonID;ChassisID;ID;null;PartNumber;SerialNumber;null;null;null;WWPN;Name
+          - type: "json2csv"
+            entryKey: "/Entry/Value/FcPorts"
+            properties: "../../Column(2);/WWPN;/null;../PartNumber;../SerialNumber;/null;/WWPN;../Name;"
+            # JsonID;ChassisID;ID;null;PartNumber;SerialNumber;null;null;Type;WWPN;Name
+            # NetworkSpeed not available for FCPorts
+          - type: "rightConcat"
+            column: 7
+            value: ";WWPN"
+            # Keep only FC
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            regExp: "."
+            # Make unique name
+          - type: "rightConcat"
+            column: 10
+            value: " "
+          - type: "rightConcat"
+            column: 10
+            value: "Column(3)"
+        source(9):
+          # Left   // JsonID;ChassisID;ID;null;PartNumber;SerialNumber;null;Type;WWPN;Name
+          # Right  // JsonID;ChassisID;ID;Model;SerialNumber;Manufacturer;LinkSpeed;(FC/Eth);Address;Name;
+          type: "tableJoin"
+          leftTable: "$monitors.network.discovery.sources.source(8)$"
+          rightTable: "$monitors.network.discovery.sources.source(6)$"
+          leftKeyColumn: 9
+          rightKeyColumn: 9
+          defaultRightLine: "Something to eliminate duplicates"
+          computes:
+            # Json;ChassisId;Id;Model;SerialNumber;Vendor;LinkSpeedActivation;
+          - type: "keepColumns"
+            columnNumbers: "1,2,3,5,6,7,8,9,10,16"
+            # ColumnNumbers does not respect the order you specify, so move things around.
+          - type: "duplicateColumn"
+            column: 5
+          - type: "replace"
+            column: 6
+            existingValue: "Column(6)"
+            newValue: "Column(11)"
+        source(10):
+          # JSONID;ChassisID;ID;blank;blank;       blank;       Speed;          #    MAC;     Address;Name;
+          # JsonID;ChassisID;ID;Model;SerialNumber;Manufacturer;CapableLinkSpeedMbps;(FC/Eth);Address;Name
+          type: "tableUnion"
+          tables:
+          - "$monitors.network.discovery.sources.source(9)$"
+          - "$monitors.network.discovery.sources.source(2)$"
+      mapping:
+        # NetworkCard Instance Table
+        # JsondId;<System>;Id;Manufacturer;Model;SerialNumber;LinkSpeed;Ethernet/FC;MACAddress/WWPN;
+        source: "$monitors.network.discovery.sources.source(10)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(10)"
+          model: "$column(4)"
+          serial_number: "$column(5)"
+          physical_address_type: "$column(8)"
+          physical_address: "$column(9)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s)\", $column(10), $column(4))"
+    collect:
+      # Collect
+      # EthernetInterfaces
+      type: "multiInstance"
+      sources:
+        source(1):
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.network.discovery.sources.source(1)$"
+            concatMethod: "json_array"
+          url: "$entry.column(3)$"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+            # JSONID;EthernetID;LinkStatus;Health;Health;Speed;
+          - type: "json2csv"
+            entryKey: "/"
+            properties: "/@odata.id;/LinkStatus;/Status/Health;/Status/Health;/SpeedMbps;"
+        source(2):
+          # NetworkAdapters
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.network.discovery.sources.source(5)$"
+            concatMethod: "json_array"
+          url: "$entry.column(3)$"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+            # PhysicalPortAssignment
+          - type: "json2csv"
+            entryKey: "/"
+            properties: "/Id;/LinkStatus;/LinkStatus;/LinkStatus;/CurrentLinkSpeedMbps;"
+            separator: ";"
+        source(3):
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.network.discovery.sources.source(7)$"
+            concatMethod: "json_array"
+          url: "$entry.column(3)$"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+          - type: "json2csv"
+            entryKey: "/FcPorts"
+            properties: "/WWPN;../Status/Health;../Status/Health;../Status/Health;"
+            separator: ";"
+        source(4):
+          type: "tableUnion"
+          tables:
+          - "$monitors.network.collect.sources.source(1)$"
+          - "$monitors.network.collect.sources.source(2)$"
+          - "$monitors.network.collect.sources.source(3)$"
+          computes:
+          - type: "translate"
+            column: 3
+            translationTable: "LinkStatusTranslationTable"
+          - type: "translate"
+            column: 4
+            translationTable: "NetworkCardStatusTranslationTable"
+          - type: "translate"
+            column: 5
+            translationTable: "NetworkCardStatusInformationTranslationTable"
+      mapping:
+        # NetworkCard Value Table
+        # JSON/ID/NetworkCardStatus/LinkStatus/StatusInformation;Speed;
+        source: "$monitors.network.collect.sources.source(4)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.network.up: "legacyLinkStatus($column(3))"
+          hw.status{hw.type="network"}: "$column(4)"
+          hw.network.bandwidth.limit: "megaBit2Bit($column(6))"
+        legacyTextParameters:
+          StatusInformation: "$column(5)"

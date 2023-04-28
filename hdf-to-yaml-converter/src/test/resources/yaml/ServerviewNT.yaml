@@ -1,0 +1,690 @@
+---
+translations:
+  FanStatusTranslationTable:
+    default: "UNKNOWN"
+    "3": "ok"
+    "4": "failed"
+    "5": "degraded"
+    "6": "degraded"
+    "7": "ok"
+    "8": "failed"
+  EnclosureTypeTranslationTable:
+    "2": "Computer"
+    default: "Computer"
+    "3": "Computer"
+    "4": "Enclosure"
+    "5": "Storage"
+  PowerSupplyStatusTranslationTable:
+    "2": "ok"
+    default: "UNKNOWN"
+    "3": "ok"
+    "4": "degraded"
+    "5": "degraded"
+    "6": "degraded"
+    "7": "failed"
+    "8": "failed"
+  VoltageStrongestBitCheckTranslationTable:
+    "15,1": "65536"
+    "15,0": "0"
+  MemoryBitTranslationTable:
+    "4,1": "EDO"
+    "5,1": "Parity"
+    "6,1": "ECC"
+    "7,1": "SIMM"
+    "8,1": "DIMM"
+    "9,1": "RIMM"
+  CPUStatusTranslationTable:
+    "2": "degraded"
+    default: "UNKNOWN"
+    "3": "ok"
+    "5": "failed"
+    "6": "failed"
+    "7": "degraded"
+  MemoryModuleStatusInformationTranslationTable:
+    "2": "Error (Disabled)"
+    default: "Unknown Status"
+    "3": ""
+    "4": "Empty Socket"
+    "5": "Failed (Disabled)"
+    "6": "Failing!"
+    "7": "Hot Spare"
+  TemperatureTypeTranslationTable:
+    "1": ""
+    "2": "Disabled"
+    default: ""
+    "3": "CPU"
+    "4": "Ambient"
+    "5": "Housing"
+    "6": "Not available"
+    "7": "I/O Board"
+    "8": "Power Backplane"
+  FanStatusInformationTranslationTable:
+    default: "Unknown Status"
+    "3": ""
+    "4": "Failed"
+    "5": "Predicted Failure"
+    "6": "Failed Redundancy"
+    "7": "Not available"
+    "8": "Removed"
+  FanTypeTranslationTable:
+    "2": "Disabled"
+    default: ""
+    "3": "CPU"
+    "4": "Component"
+    "5": "Housing"
+    "6": "Power-Supply"
+  PowerSupplyStatusInformationTranslationTable:
+    "2": "Not Present"
+    default: "Unknown Status"
+    "3": ""
+    "4": "Failed"
+    "5": "AC Failure"
+    "6": "DC Failure"
+    "7": "Critical Temperature"
+    "8": "Not Manageable"
+  MemoryModuleStatusTranslationTable:
+    "2": "failed"
+    default: "UNKNOWN"
+    "3": "ok"
+    "5": "failed"
+    "6": "degraded"
+    "7": "ok"
+  IntrusionCodeTranslationTable:
+    "11": "degraded"
+    "2": "degraded"
+    default: "ok"
+    "14": "degraded"
+    "6": "degraded"
+    "8": "degraded"
+    "9": "degraded"
+    "10": "degraded"
+  CPUStatusInformationTranslationTable:
+    "2": "Disabled"
+    default: "Unknown Status"
+    "3": ""
+    "4": "Empty Socket"
+    "5": "Error"
+    "6": "Failed"
+    "7": "Missing Termination"
+connector:
+  displayName: "Fujitsu-Siemens Serverview"
+  platforms: "Fujitsu-Siemens PRIMERGY"
+  reliesOn: "Fujitsu-Siemens Serveview Agent"
+  version: "1.2"
+  information: "This connector provides hardware monitoring through the Fujitsu-Siemens Serverview Agent which supports almost all Fujitsu-Siemens PRIMERGY servers."
+  detection:
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "NT"
+    - "Linux"
+    supersedes:
+    - "IpmiTool"
+    - "ServerviewWMI"
+    criteria:
+    - type: "snmpGetNext"
+      oid: "1.3.6.1.4.1.231.2.10.2"
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Get the model name from the model code
+          # ID;Model;chassisCode;serialNumber
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.231.2.10.2.2.5.10.3.1"
+          selectColumns: "1,4,16,3"
+          computes:
+            # Convert the chassis code into an enclosure type
+            # ID;Model;EnclosureType;serialNumber
+          - type: "translate"
+            column: 3
+            translationTable: "EnclosureTypeTranslationTable"
+      mapping:
+        # InstanceTable = Source(1)
+        source: "$monitors.enclosure.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          vendor: "Fujitsu-Siemens"
+          model: "$column(2)"
+          type: "$column(3)"
+          serial_number: "$column(4)"
+          name: "sprintf(\"%s (%s %s - %s)\", $column(1), \"Fujitsu-Siemens\", $column(2), $column(3))"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = the cabinetInfosTable SNMP table (like discovery)
+          # ID;cabinetFrontDoorStatus;cabinetHousingOpenStatus
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.231.2.10.2.2.5.10.3.1"
+          selectColumns: "1,25,26"
+          computes:
+            # Multiply cabinetFrontDoorStatus by 4
+          - type: "multiply"
+            column: 2
+            value: "4"
+            # Add cabinetHousingOpenStatus to cabinetFrontDoorStatus
+            # ID;intrusionCode;cabinetHousingOpenStatus
+          - type: "add"
+            column: 2
+            value: "Column(3)"
+            # Translate intrusionCode into IntrusionStatus
+            # ID;intrusionStatus;cabinetHousingOpenStatus
+          - type: "translate"
+            column: 2
+            translationTable: "IntrusionCodeTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.enclosure.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="enclosure", state="open"}: "legacyIntrusionStatus($column(2))"
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = temperatureSensorsTable SNMP table
+          # ID;enclosureID;Status;Purpose;warningThreshold;alarmThreshold;currentValue;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.231.2.10.2.2.5.2.1.1"
+          selectColumns: "ID,1,3,4,6,8,11"
+          computes:
+            # Keep only really available sensors
+            # ID;enclosureID;Status;Purpose;warningThreshold;alarmThreshold;currentValue;
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            valueList: "3,5,6,7"
+            # Translate the purpose code into a more readable string
+            # ID;enclosureID;Status;temperatureLocation;warningThreshold;alarmThreshold;currentValue;
+          - type: "translate"
+            translationTable: "TemperatureTypeTranslationTable"
+            column: 4
+            # Replace "-1" by an empty string to remove bad thresholds
+            # ID;enclosureID;Status;temperatureLocation;warningThreshold;alarmThreshold;currentValue;
+          - type: "replace"
+            column: 5
+            existingValue: "-1"
+            newValue: ""
+          - type: "replace"
+            column: 6
+            existingValue: "-1"
+            newValue: ""
+      mapping:
+        # InstanceTable = Source(1)
+        source: "$monitors.temperature.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          temperature_type: "$column(4)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(2)"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(4))"
+        metrics:
+          hw.temperature.limit{limit_type="high.degraded"}: "$column(5)"
+          hw.temperature.limit{limit_type="high.critical"}: "$column(6)"
+    collect:
+      # Collect type is mono-instance
+      type: "monoInstance"
+      sources:
+        source(1):
+          # Source(1) = snmp get directly on the tempCurrentValue OID
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.231.2.10.2.2.5.2.1.1.11.%Temperature.Collect.DeviceID%"
+          computes:
+            # Replaces collect values of 4294967295 with blank.  This will result in a no collect value, but will not generate any alarms
+          - type: "replace"
+            column: 1
+            existingValue: "4294967295"
+            newValue: ""
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.temperature.collect.sources.source(1)$"
+        metrics:
+          hw.temperature: "$column(1)"
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = The fansTable SNMP table
+          # DeviceID;fanStatus;fanPurpose;enclosureID;fanSpeed;fanDesignation;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.231.2.10.2.2.5.2.2.1"
+          selectColumns: "ID,3,4,1,8,16"
+          computes:
+            # Keep only fans that are present (status = 3 (ok), 4 (failed), 5 (pred fail), 6 (redundant fan failed))
+            # DeviceID;fanStatus;fanPurpose;enclosureID;fanSpeed;fanDesignation;
+          - type: "keepOnlyMatchingLines"
+            column: 2
+            valueList: "3,4,5,6"
+            # Keep only known fan types
+            # DeviceID;fanStatus;fanPurpose;enclosureID;fanSpeed;fanDesignation;
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            valueList: "2,3,4,5,6"
+            # Translate fanPurpose into fanType
+            # DeviceID;fanStatus;fanType;enclosureID;fanSpeed;fanDesignation;
+          - type: "translate"
+            column: 3
+            translationTable: "FanTypeTranslationTable"
+            # Concat fanStatus to fanSpeed
+            # DeviceID;fanStatus;fanType;enclosureID;|fanStatus|fanSpeed;fanDesignation;
+          - type: "leftConcat"
+            column: 5
+            value: "|"
+          - type: "leftConcat"
+            column: 5
+            value: "Column(2)"
+          - type: "leftConcat"
+            column: 5
+            value: "|"
+            # Replace "|3|0" by empty string because it means that the zero speed is a false one
+            # DeviceID;fanStatus;fanType;enclosureID;|fanStatus|fanSpeed;fanDesignation;
+          - type: "replace"
+            column: 5
+            existingValue: "|3|0"
+            newValue: ""
+            # Now, extract the fanSpeed again
+            # DeviceID;fanStatus;fanType;enclosureID;|fanStatus|fanSpeed;fanDesignation;
+          - type: "extract"
+            column: 5
+            subColumn: 3
+            subSeparators: "|"
+            # And replace the false 65535 value by empty string
+            # DeviceID;fanStatus;fanType;enclosureID;|fanStatus|fanSpeed;fanDesignation;
+          - type: "replace"
+            column: 5
+            existingValue: "65535"
+            newValue: ""
+          - type: "leftConcat"
+            column: 6
+            value: "Location: "
+      mapping:
+        # InstanceTable = Source(1)
+        # DeviceID;fanStatus;fanType;enclosureID;|fanStatus|fanSpeed;fanDesignation;
+        source: "$monitors.fan.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          info: "$column(6)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(4)"
+          name: "$column(1)"
+    collect:
+      # Collect type is \"multi-instance\"
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = The fansTable SNMP table
+          # DeviceID;fanStatus;fanSpeed
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.231.2.10.2.2.5.2.2.1"
+          selectColumns: "ID,3,8"
+          computes:
+            # Duplicate the fanStatus column
+            # DeviceID;fanStatus;fanStatus;fanSpeed
+          - type: "duplicateColumn"
+            column: 2
+            # Translate fanStatus into PATROLStatus
+            # DeviceID;status;fanStatus;fanSpeed
+          - type: "translate"
+            column: 2
+            translationTable: "FanStatusTranslationTable"
+            # Translate the second fanStatus into a more readable string
+            # DeviceID;status;statusInformation;fanSpeed
+          - type: "translate"
+            column: 3
+            translationTable: "FanStatusInformationTranslationTable"
+            # Remove fan speeds of 65535 (obviously invalid value)
+            # DeviceID;status;statusInformation;fanSpeed
+          - type: "replace"
+            column: 4
+            existingValue: "65535"
+            newValue: ""
+            # Concatenate "|status" to the speed
+            # DeviceID;status;statusInformation;fanSpeed|
+          - type: "rightConcat"
+            column: 4
+            value: "|"
+            # DeviceID;status;statusInformation;fanSpeed|status
+          - type: "rightConcat"
+            column: 4
+            value: "Column(2)"
+            # Add | to the left of fanSpeed to ensure that we'll be removing only
+            # "0|OK" and not "0|OK" from "1250|OK"...
+            # DeviceID;status;statusInformation;|fanSpeed|status
+          - type: "leftConcat"
+            column: 4
+            value: "|"
+            # Now, replace fanSpeed|status by an empty string if equals to 0|OK
+            # DeviceID;status;statusInformation;|fanSpeed|status
+          - type: "replace"
+            column: 4
+            existingValue: "|0|OK"
+            newValue: ""
+            # Now, re-extract fanSpeed from the |fanSpeed|status column
+            # DeviceID;status;statusInformation;fanSpeed
+          - type: "extract"
+            column: 4
+            subColumn: 2
+            subSeparators: "|"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.fan.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="fan"}: "$column(2)"
+          hw.fan.speed: "$column(4)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  voltage:
+    discovery:
+      sources:
+        source(1):
+          # Source(1)
+          # ID;Status;VoltageType;CurrentValue;LowerThreshold;UpperThreshold;cabinetID
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.231.2.10.2.2.5.11.4.1"
+          selectColumns: "ID,3,4,7,5,6,1"
+          computes:
+            # Remove voltages that are equal to -1
+          - type: "excludeMatchingLines"
+            column: 4
+            valueList: "-1"
+            # Exclude voltages whose status is 1 (unknown) or 2 (not-available)
+          - type: "excludeMatchingLines"
+            column: 2
+            valueList: "1,2"
+            # Duplicate the thresholds value
+            # ID;Status;VoltageType;CurrentValue;LowerThreshold;LowerThreshold;UpperThreshold;UpperThreshold;cabinetID
+          - type: "duplicateColumn"
+            column: 5
+          - type: "duplicateColumn"
+            column: 7
+            # Remove the "minus" sign if any to check if the bit 15 is set
+            # ID;Status;VoltageType;CurrentValue;LowerThreshold;ABSOLUTELowerThreshold;UpperThreshold;ABSOLUTEUpperThreshold;cabinetID
+          - type: "replace"
+            column: 6
+            existingValue: "-"
+            newValue: ""
+          - type: "replace"
+            column: 8
+            existingValue: "-"
+            newValue: ""
+            # Check if the 16th strongest bit is set (bit 15)
+            # ID;Status;VoltageType;CurrentValue;LowerThreshold;LowerThresholdOffset;UpperThreshold;UpperThresholdOffset;cabinetID
+          - type: "perBitTranslation"
+            column: 6
+            bitList: "15"
+            translationTable: "VoltageStrongestBitCheckTranslationTable"
+          - type: "perBitTranslation"
+            column: 8
+            bitList: "15"
+            translationTable: "VoltageStrongestBitCheckTranslationTable"
+            # Now convert the value from the unsigned integer to a signed integer
+          - type: "subtract"
+            column: 5
+            value: "Column(6)"
+          - type: "subtract"
+            column: 7
+            value: "Column(8)"
+            # Convert the voltage values from 100th of volts to milli-volts
+          - type: "multiply"
+            column: 5
+            value: "10"
+          - type: "multiply"
+            column: 7
+            value: "10"
+      mapping:
+        # InstanceTable = Source(1)
+        source: "$monitors.voltage.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          voltage_type: "$column(3)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(9)"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+        metrics:
+          hw.voltage.limit{limit_type="low.critical"}: "$column(5)"
+          hw.voltage.limit{limit_type="high.degraded"}: "$column(7)"
+    collect:
+      # Collect type = \"multi instance\"
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = voltage table
+          # DeviceID;Voltage
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.231.2.10.2.2.5.11.4.1"
+          selectColumns: "ID,7"
+          computes:
+            # Duplicate the voltage value
+            # DeviceID;Voltage;Voltage
+          - type: "duplicateColumn"
+            column: 2
+            # Remove the "minus" sign if any to check if the bit 15 is set
+            # DeviceID;Voltage;ABSOLUTEVoltage
+          - type: "replace"
+            column: 3
+            existingValue: "-"
+            newValue: ""
+            # Check if the 16th strongest bit is set
+          - type: "perBitTranslation"
+            column: 3
+            bitList: "15"
+            translationTable: "VoltageStrongestBitCheckTranslationTable"
+            # Now convert the value from the unsigned integer to a signed integer
+          - type: "subtract"
+            column: 2
+            value: "Column(3)"
+            # Convert the voltage value from 100th of volts to millivolts
+          - type: "multiply"
+            column: 2
+            value: "10"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.voltage.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.voltage: "$column(2)"
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = powerSupplyUnitsTable SNMP table
+          # DeviceID;cabinetID;KindOfName
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.231.2.10.2.2.5.11.2.1"
+          selectColumns: "ID,1,4"
+      mapping:
+        # InstanceTable = Source(1) (that was an easy one!)
+        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          power_supply_type: "$column(3)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(2)"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+    collect:
+      # Collect type is \"mono-instance\"
+      type: "monoInstance"
+      sources:
+        source(1):
+          # Source(1) = SNMP get on the powerSupplyUnitStatus OID
+          # powerSupplyUnitStatus
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.231.2.10.2.2.5.11.2.1.3.%PowerSupply.Collect.DeviceID%"
+          computes:
+            # Duplicate the powerSupplyUnitStatus
+            # powerSupplyUnitStatus;powerSupplyUnitStatus
+          - type: "duplicateColumn"
+            column: 1
+            # Translate the first powerSupplyUnitStatus into a PATROL statuss
+            # status;powerSupplyUnitStatus
+          - type: "translate"
+            column: 1
+            translationTable: "PowerSupplyStatusTranslationTable"
+            # Translate the second powerSupplyUnitStatus into a more readable string
+            # status;statusInformation
+          - type: "translate"
+            column: 2
+            translationTable: "PowerSupplyStatusInformationTranslationTable"
+      mapping:
+        # Collect table = source(1)
+        source: "$monitors.power_supply.collect.sources.source(1)$"
+        metrics:
+          hw.status{hw.type="power_supply"}: "$column(1)"
+        legacyTextParameters:
+          StatusInformation: "$column(2)"
+  memory:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = SNMP memoryTable
+          # ID;Status;Size;TypeCode;Socket;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.231.2.10.2.2.5.4.10.1"
+          selectColumns: "ID,3,6,8,9"
+          computes:
+            # Keep only lines where status is not "not-available (4)" and not "unknown (1)"
+            # ID;Status;Size;TypeCode;Socket;
+          - type: "excludeMatchingLines"
+            column: 2
+            valueList: "1,4"
+            # convert the size from bytes to megabytes
+            # ID;Status;SizeMB;TypeCode;Socket;
+          - type: "divide"
+            column: 3
+            value: "1048576"
+            # Memory type
+            # ID;Status;SizeMB;Type;Socket;
+          - type: "perBitTranslation"
+            column: 4
+            bitList: "4,5,6,7,8,9"
+            translationTable: "MemoryBitTranslationTable"
+          - type: "leftConcat"
+            column: 5
+            value: "Location: "
+      mapping:
+        # InstanceTable = Source(1)
+        source: "$monitors.memory.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          type: "$column(4)"
+          info: "$column(5)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(4), $column(3))"
+        metrics:
+          hw.memory.limit: "mebiByte2Byte($column(3))"
+    collect:
+      # Collect type is \"multi-instance\"
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = SNMP Get of the memModuleStatus of the SNMP memModulesTable table
+          # ID;Status;ErrorCount
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.231.2.10.2.2.5.4.10.1"
+          selectColumns: "ID,3,10"
+          computes:
+            # Duplicate the status column
+            # ID;Status;Status;ErrorCount
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the first status column into a PATROL Status
+            # ID;PATROLStatus;Status;ErrorCount
+          - type: "translate"
+            column: 2
+            translationTable: "MemoryModuleStatusTranslationTable"
+            # Translate the second status column into a more readable string
+            # ID;PATROLStatus;StatusInformation;ErrorCount
+          - type: "translate"
+            column: 3
+            translationTable: "MemoryModuleStatusInformationTranslationTable"
+            # ErrorCount: Replace 2^32 by 0
+          - type: "replace"
+            column: 4
+            existingValue: "4294967295"
+            newValue: "0"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.memory.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="memory"}: "$column(2)"
+          hw.errors{hw.type="memory"}: "$column(4)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  cpu:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = SNMP cpuTable
+          # ID;Speed;Status;Model;Socket;Vendor;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.231.2.10.2.2.5.4.1.1"
+          selectColumns: "ID,3,6,8,9,10"
+          computes:
+            # Keep only lines where status is not "not-available (4)" and not "unknown (1)"
+            # ID;Speed;Status;Model;Socket;Vendor;
+          - type: "excludeMatchingLines"
+            column: 3
+            valueList: "1,4"
+            # Remove Genuine from manufacturer's name
+            # ID;Speed;Status;Model;Socket;Vendor;
+          - type: "replace"
+            column: 6
+            existingValue: "Genuine"
+            newValue: ""
+            # Replace "-1" by nothing: that's in case the CPU is disabled and its speed N/A
+            # ID;Speed;Status;Model;Socket;Vendor;
+          - type: "replace"
+            column: 2
+            existingValue: "-1"
+            newValue: ""
+            # Add \"Socket: \" to the Socket column
+          - type: "leftConcat"
+            column: 5
+            value: "Socket: "
+      mapping:
+        # InstanceTable = Source(1)
+        source: "$monitors.cpu.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          model: "$column(4)"
+          vendor: "$column(6)"
+          info: "$column(5)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s - %s - %mhhf.s)\", $column(1), $column(6), $column(4), $column(2))"
+        metrics:
+          hw.cpu.speed.limit{limit_type="max"}: "megaHertz2Hertz($column(2))"
+    collect:
+      # Collect type is \"mono-instance\" (one collect for each instance)
+      type: "monoInstance"
+      sources:
+        source(1):
+          # Source(1) = SNMP Get of the memModuleStatus of the SNMP memModulesTable table
+          # Status;
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.231.2.10.2.2.5.4.1.1.6.%CPU.Collect.DeviceID%"
+          computes:
+            # Duplicate the status column
+            # Status;Status
+          - type: "duplicateColumn"
+            column: 1
+            # Translate the first status column into a PATROL Status
+            # PATROLStatus;Status
+          - type: "translate"
+            column: 1
+            translationTable: "CPUStatusTranslationTable"
+            # Translate the second status column into a more readable string
+            # PATROLStatus;StatusInformation
+          - type: "translate"
+            column: 2
+            translationTable: "CPUStatusInformationTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.cpu.collect.sources.source(1)$"
+        metrics:
+          hw.status{hw.type="cpu"}: "$column(1)"
+        legacyTextParameters:
+          StatusInformation: "$column(2)"

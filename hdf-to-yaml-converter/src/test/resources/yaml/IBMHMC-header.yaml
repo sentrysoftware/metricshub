@@ -1,0 +1,141 @@
+---
+translations:
+  LEDStatusTranslationTable:
+    default: "Off"
+    "on": "On"
+connector:
+  detection:
+    criteria:
+      # OS should be Linux (yes, the HMC is actually a Linux PC!)
+    - type: "deviceType"
+      keep:
+      - "Linux"
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = lssyscfg's output
+          # Name;ModelType;SerialNumber;IPAddress;
+          type: "osCommand"
+          commandLine: "lssyscfg -r sys -F name,type_model,serial_num,ipaddr"
+          keep: ",[0-9\\.]+$"
+          separators: ","
+          selectColumns: "1,2,3,4"
+          computes:
+          - type: "leftConcat"
+            column: 4
+            value: "IP: "
+      mapping:
+        # InstanceTable = Source(1)
+        source: "$monitors.enclosure.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(1)"
+          vendor: "IBM"
+          model: "$column(2)"
+          serial_number: "$column(3)"
+          info: "$column(4)"
+          name: "sprintf(\"%s (%s %s)\", $column(1), \"IBM\", $column(2))"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = lssvcevents output
+          # SystemName;EventStatus;Description;RefCode;EventTime;
+          type: "osCommand"
+          commandLine: "lssvcevents -t hardware -d 0 -F _EVENTFIELDS"
+          keep: ",Open,"
+          separators: ","
+          computes:
+            # Make sure we keep only "Open" events
+            # v7 // SystemName;Open;Description;RefCode;EventTime;
+            # v8 // SystemName;Open;Description;RefCode;EventTime;FRUDetails;
+          - type: "keepOnlyMatchingLines"
+            column: 2
+            valueList: "Open"
+            # Replace "Open" by "ALARM"
+            # v7 //  SystemName;Status;Description;RefCode;EventTime;
+            # v8 //  SystemName;Status;Description;RefCode;EventTime;FRUDetails;
+          - type: "replace"
+            column: 2
+            existingValue: "Open"
+            newValue: "ALARM"
+            # Add the RefCode and EventTime to the Description
+          - type: "rightConcat"
+            column: 3
+            value: " - RefCode: "
+          - type: "rightConcat"
+            column: 3
+            value: "Column(4)"
+          - type: "rightConcat"
+            column: 3
+            value: " - EventTime: "
+          - type: "rightConcat"
+            column: 3
+            value: "Column(5)"
+        source(2):
+          # Source(2) = Table joint of Enclosure.Discovery.Source(1) and Collect.Source(1)
+          # The idea is to get one error per system, and show "OK" if nothing is found
+          # v7 // Name;ModelType;SerialNumber;IPAddress;SystemName;Status;Description;RefCode;EventTime;
+          # v8 // Name;ModelType;SerialNumber;IPAddress;SystemName;Status;Description;RefCode;EventTime;FRUDetails;
+          type: "tableJoin"
+          leftTable: "$monitors.enclosure.discovery.sources.source(1)$"
+          rightTable: "$monitors.enclosure.collect.sources.source(1)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: "SystemName;OK;No error reported by lssvcevents as of today;;"
+      mapping:
+        # ValueTable = Source(2)
+        source: "$monitors.enclosure.collect.sources.source(2)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="enclosure"}: "$column(6)"
+        legacyTextParameters:
+          StatusInformation: "$column(7)"
+  led:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Enclosure(1).Discovery.Source(1), because there is statically one System Attention LED for each system
+          # Name;ModelType;SerialNumber;IPAddress;
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(1)$"
+      mapping:
+        # The discovery table
+        source: "$monitors.led.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "System Attention"
+          color: "Amber"
+          __on_status: "ALARM"
+          __blinking_status: "ALARM"
+          __off_status: "OK"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(1)"
+          name: "sprintf(\"%s (%s)\", \"System Attention\", \"Amber\")"
+    collect:
+      # Collect type = multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = result of lsled for each monitored physical system
+          # LEDID;ledStatus
+          type: "osCommand"
+          commandLine: "for machine in $(lssyscfg -r sys -F name); do status=`lsled -r sa -t phys -m $machine -F state`; echo \"MSHW;$machine;$status\" ; done"
+          keep: "^MSHW;"
+          selectColumns: "2,3"
+          separators: ";"
+          computes:
+            # Translate the first status column into a PATROL status
+            # LEDID;ledStatus
+          - type: "translate"
+            column: 2
+            translationTable: "LEDStatusTranslationTable"
+      mapping:
+        # CollectTable = Source(1)
+        source: "$monitors.led.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="led"}: "legacyLedStatus($column(2))"

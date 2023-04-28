@@ -1,0 +1,259 @@
+---
+translations:
+  DriveStatusInformationTranslationTable:
+    "0": "Unknown"
+    "11": "Not Unloadable"
+    "1": "Initializing"
+    "2": "Empty"
+    "3": "Cartridge Present"
+    "4": "Loading"
+    "5": "Loaded"
+    "6": "Cleaning"
+    "7": "Rewinding"
+    "8": "Unloading"
+    "9": "Inoperative"
+    "10": "Not Loadable"
+  LibraryStatusTranslationTable:
+    "0": "ok"
+    "1": "degraded"
+    "2": "failed"
+    default: "UNKNOWN"
+  DriveStatusTranslationTable:
+    "0": "UNKNOWN"
+    "11": "failed"
+    "1": "ok"
+    "2": "ok"
+    "3": "ok"
+    "4": "ok"
+    "5": "ok"
+    "6": "ok"
+    "7": "ok"
+    "8": "ok"
+    "9": "failed"
+    "10": "failed"
+  RoboticStatusTranslationTable:
+    "0": "ok"
+    "1": "degraded"
+    "2": "failed"
+    default: "UNKNOWN"
+    "3": "ok"
+    "4": "ok"
+  RoboticStatusInformationTranslationTable:
+    "0": ""
+    "1": "Degraded"
+    "2": "Not Operative"
+    default: "Unknown Status"
+    "3": "Info"
+    "4": "Trace"
+  LibraryStatusInformationTranslationTable:
+    "0": ""
+    "1": "Degraded"
+    "2": "Not Operative"
+    default: "Unknown Status"
+connector:
+  displayName: "StorageTek StreamLine Tape Library"
+  platforms: "StorageTek StreamLine"
+  reliesOn: "StorageTek StreamLine SNMP Agent"
+  version: "1.1"
+  information: "This connector provides basic hardware monitoring of the StorageTek StreamLine tape libraries through their built-in SNMP agent. Needs to run remotely."
+  detection:
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "Storage"
+    criteria:
+    - type: "snmpGetNext"
+      oid: "1.3.6.1.4.1.1211.1.15.3.1"
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Get the model name and manufacturer of the tape library
+          # Model;SerialNumber
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.1211.1.15.3"
+          selectColumns: "1,2"
+      mapping:
+        # InstanceTable = Source(1)
+        source: "$monitors.enclosure.discovery.sources.source(1)$"
+        attributes:
+          id: "STKStreamLine"
+          vendor: "StorageTek"
+          model: "$column(1)"
+          serial_number: "$column(2)"
+          type: "Storage"
+          name: "sprintf(\"%s (%s %s - %s)\", \"STKStreamLine\", \"StorageTek\", $column(1), \"Storage\")"
+    collect:
+      # Collect
+      type: "monoInstance"
+      sources:
+        source(1):
+          # Retrieve the slTapeLibraryTopLevelCondition
+          # slTapeLibraryTopLevelCondition
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.1211.1.15.3.4.0"
+          computes:
+            # Duplicate the slTapeLibraryTopLevelCondition column
+            # slTapeLibraryTopLevelCondition;slTapeLibraryTopLevelCondition
+          - type: "duplicateColumn"
+            column: 1
+            # Translate the first slTapeLibraryTopLevelCondition into a PATROL status
+            # PATROLStatus;slTapeLibraryTopLevelCondition
+          - type: "translate"
+            column: 1
+            translationTable: "LibraryStatusTranslationTable"
+            # Translate the second slTapeLibraryTopLevelCondition into a PATROL status
+            # PATROLStatus;statusInformation
+          - type: "translate"
+            column: 2
+            translationTable: "LibraryStatusInformationTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.enclosure.collect.sources.source(1)$"
+        metrics:
+          hw.status{hw.type="enclosure"}: "$column(1)"
+        legacyTextParameters:
+          StatusInformation: "$column(2)"
+  tape_drive:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = slDriveTable
+          # ID;ElementID;Model;Vendor;SerialNumber;HardwareVersion;FibreNodeName
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.1211.1.15.4.18.1"
+          selectColumns: "ID,2,3,4,5,12,22"
+          computes:
+          - type: "leftConcat"
+            column: 2
+            value: "Element ID: "
+          - type: "leftConcat"
+            column: 6
+            value: "Version: "
+          - type: "leftConcat"
+            column: 7
+            value: "Fibre Node: "
+      mapping:
+        # InstanceTable = Source(1)
+        source: "$monitors.tape_drive.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          model: "$column(3)"
+          serial_number: "$column(5)"
+          info: "join($column(2), $column(7), $column(6), \" \")"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "STKStreamLine"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+    collect:
+      # Collect type is \"multi-instance\"
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = slDriveTable
+          # ID;slDriveStateEnum;MountCount
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.1211.1.15.4.18.1"
+          selectColumns: "ID,10,21"
+          computes:
+            # Duplicate the slDriveState column
+            # ID;slDriveStateEnum;slDriveStateEnum;MountCount
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the first slDriveStateEnum into a PATROLStatus
+            # ID;PATROLStatus;slDriveStateEnum;MountCount
+          - type: "translate"
+            column: 2
+            translationTable: "DriveStatusTranslationTable"
+            # Translate the second slDriveStateEnum into a StatusInformation
+            # ID;PATROLStatus;StatusInformation;MountCount
+          - type: "translate"
+            column: 3
+            translationTable: "DriveStatusInformationTranslationTable"
+      mapping:
+        # ValueTable = Source(3)
+        source: "$monitors.tape_drive.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="tape_drive"}: "$column(2)"
+          hw.tape_drive.operations{type="mount"}: "$column(4)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  robotics:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = lserDriveTable
+          # ElementID;Position;SerialNumber;FirmwareVersion;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.1211.1.15.4.10.1"
+          selectColumns: "2,3,5,11"
+          computes:
+            # Add Position string
+            # ElementID;Position;SerialNumber;FirmwareVersion;
+          - type: "leftConcat"
+            column: 2
+            value: "Location: "
+            # Add firmware version string
+            # ElementID;Position;SerialNumber;FirmwareVersion;
+          - type: "leftConcat"
+            column: 4
+            value: "Firmware Version: "
+            # Delete a Location of -1 as these are single-robot libraries and position has no relevance
+            # ElementID;Position;SerialNumber;FirmwareVersion;
+          - type: "replace"
+            column: 2
+            existingValue: "Location: -1"
+            newValue: ""
+            # Delete a Firmware Version of N/A
+            # ElementID;Position;SerialNumber;FirmwareVersion;
+          - type: "replace"
+            column: 4
+            existingValue: "Firmware Version: <N/A>"
+            newValue: ""
+      mapping:
+        # InstanceTable = Source(1)
+        # ElementID;Position;SerialNumber;FirmwareVersion;
+        source: "$monitors.robotics.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          serial_number: "$column(3)"
+          info: "join($column(2), $column(4), \" \")"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "STKStreamLine"
+          name: "sprintf(\"%s, $column(1))"
+    collect:
+      # Collect
+      # Collect-type = mono-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Robotic Status Table
+          # ElementID;Status;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.1211.1.15.4.10.1"
+          selectColumns: "2,8"
+          computes:
+            # Duplicate the slTapeLibraryTopLevelCondition column
+            # ElementID;Status;Status;
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the first slTapeLibraryTopLevelCondition into a PATROL status
+            # ElementID;PatrolStatus;Status;
+          - type: "translate"
+            column: 2
+            translationTable: "RoboticStatusTranslationTable"
+            # Translate the second slTapeLibraryTopLevelCondition into a PATROL status
+            # ElementID;PatrolStatus;StatusInformation;
+          - type: "translate"
+            column: 3
+            translationTable: "RoboticStatusInformationTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        # ElementID;PatrolStatus;StatusInformation;
+        source: "$monitors.robotics.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="robotics"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"

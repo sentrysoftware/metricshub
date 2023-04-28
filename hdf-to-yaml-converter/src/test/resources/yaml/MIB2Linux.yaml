@@ -1,0 +1,35 @@
+---
+extends:
+- "MIB2-header"
+connector:
+  displayName: "MIB-2 Standard SNMP Agent - Network Interfaces - Linux"
+  platforms: "Any system with SNMP"
+  detection:
+    appliesTo:
+    - "Linux"
+    supersedes:
+    - "LinuxIPNetwork"
+    - "LinuxIfConfigNetwork"
+monitors:
+  network:
+    discovery:
+      sources:
+        source(1):
+          computes:
+            # Keep only eth[0-9] and vmnic[0-9] cards
+            # PortID;Description;PortType;MacAddress;AdminStatus;
+          - type: "keepOnlyMatchingLines"
+            column: 2
+            regExp: "\\(^eth[0-9]+$\\)\\|\\(^vmnic[0-9]+$\\)\\|\\(^em[0-9]+$\\)\\|\\(^[Pp][0-9]+[Pp][0-9]+$\\)\\|\\(^en[ospx]\\)"
+      mapping:
+        # InstanceTable = Source(1)
+        # PortID;Description;PortType;MacAddress;AdminStatus;
+        source: "$monitors.network.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(2)"
+          physical_address: "$column(4)"
+          physical_address_type: "MAC"
+          device_type: "$column(3)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s)\", $column(2), $column(3))"

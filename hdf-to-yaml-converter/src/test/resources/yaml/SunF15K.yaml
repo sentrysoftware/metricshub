@@ -1,0 +1,542 @@
+---
+embedded:
+  EmbeddedFile(1): "(NF > 4) {\n\tif ($(NF-3) ~ /^[ACV]$/)\n\t{\n\t\tunit = $(NF-3)\n\t\tvalue = $(NF-4)\n\t\tstatus = $NF\n\n\t\tif (unit == \"A\")\n\t\t{\n\t\t\tdeviceType = \"Current\"\n\t\t}\n\t\telse if (unit == \"C\")\n\t\t{\n\t\t\tdeviceType = \"Temperature\"\n\t\t}\n\t\telse if (unit == \"V\")\n\t\t{\n\t\t\tdeviceType = \"Voltage\"\n\t\t}\n\t\telse\n\t\t{\n\t\t\tdeviceType = \"\"\n\t\t}\n\n\t\tif (value == \"--\")\n\t\t{\n\t\t\tvalue = \"\"\n\t\t}\n\n\t\tDeviceID = $1 \" \" $2 \" \" $3 \" / \" $4 \" /\"\n\t\tfor (i = 5 ; i<=NF - 5 ; i++)\n\t\t{\n\t\t\tif ($i != \"Temp\" && $i != \"Volt\" && $i != \"VDC\")\n\t\t\t{\n\t\t\t\tDeviceID = DeviceID \" \" $i\n\t\t\t}\n\t\t}\n\n\t\tprint \"MSHW;\" deviceType \";\" DeviceID \";\" value \";\" status\n\t}\n}\n\n/^PS[0-9] +/ {\n\tif (NF == 8)\n\t{\n\t\tprint \"MSHW;Current;\" $1 \" / AC0;;\" $3\n\t\tprint \"MSHW;Current;\" $1 \" / AC1;;\" $4\n\t}\n}\n\n($2 == \"at\" && $3 ~ /^PS[0-9]+/) {\n\tif (NF == 10)\n\t{\n\t\tprint \"MSHW;Current;\" $3 \" / AC0;;\" $5\n\t\tprint \"MSHW;Current;\" $3 \" / AC1;;\" $6\n\t}\n}"
+  EmbeddedFile(3): "/^PS[0-9] +/ {\n\tif (NF == 8)\n\t{\n\t\tprint \"MSHW;PowerSupply;\" $1 \";\" $2\n\t}\n}\n($2 == \"at\" && $3 ~ /^PS[0-9]+/) {\n\tif (NF == 10)\n\t{\n\t\tprint \"MSHW;PowerSupply;\" $3 \";\" $4\n\t}\n}"
+  EmbeddedFile(2): "BEGIN { fanCountPerTray = 0 }\n/^FANTRAY +POWER +SPEED +FAN0/ {\n\tfanCountPerTray = NF - 3\n}\n\n/^FT[0-9] +/ {\n\tfor (i=0 ; i<fanCountPerTray ; i++)\n\t{\n\t\tprint \"MSHW;Fan;Tray \" substr($0, 3, 1) \" / Fan \" i \";\" $(i+4)\n\t}\n}\n\n/^PS[0-9] +/ {\n\tif (NF == 8)\n\t{\n\t\tprint \"MSHW;Fan;\" $1 \" / Fan 0;\" $7\n\t\tprint \"MSHW;Fan;\" $1 \" / Fan 1;\" $8\n\t}\n\n}\n\n($2 == \"at\" && $3 ~ /^PS[0-9]+/) {\n\tif (NF == 10)\n\t{\n\t\tprint \"MSHW;Fan;\" $3 \" / Fan 0;\" $9\n\t\tprint \"MSHW;Fan;\" $3 \" / Fan 1;\" $10\n\t}\n}"
+  EmbeddedFile(5): "/^SB[0-9]+|^IO[0-9]+/ {\n\tif ($3 != \"Empty\" && $4 != \"Slot\" && NF > 3)\n\t{\n\t\tdomain = $NF\n\t\tboardType = $3 \" Board\"\n\t\tboardID = $1\n\t\tstatus = $(NF-1)\n\t\tactive = $(NF-2)\n\t\tonOff = $2\n\n\t\tif (domain == \"Isolated\")\n\t\t{\n\t\t\tadditionalLabel = onOff \" - \" active\n\t\t}\n\t\telse\n\t\t{\n\t\t\tif (active == \"Assigned\")\n\t\t\t{\n\t\t\t\tadditionalLabel = onOff \" - \" active \" to domain \" domain\n\t\t\t}\n\t\t\telse if (active == \"Active\")\n\t\t\t{\n\t\t\t\tadditionalLabel = onOff \" - \" active \" in domain \" domain\n\t\t\t}\n\t\t\telse\n\t\t\t{\n\t\t\t\tadditionalLabel = onOff \" - \" active\n\t\t\t}\n\t\t}\n\n\t\tprint \"MSHW;\" boardType \";\" boardID \";\" additionalLabel \";\" status\n\t}\n}"
+  EmbeddedFile(4): "BEGIN { capture = 0 }\n{\n\tif ($1 == \"Domain\" && $2 == \"Configurations:\")\n\t{\n\t\tcapture = 1\n\t}\n\n\tif (NF == 0)\n\t{\n\t\tcapture = 0\n\t}\n\n\tif (capture == 1 && substr($0, 1, 2) ~ /^[A-Z] $/)\n\t{\n\t\tdomainTag = $2\n\t\tif (domainTag == \"-\")\n\t\t{\n\t\t\tdomainTag = \"\"\n\t\t}\n\n\t\tnodeName = $3\n\t\tif (nodeName == \"-\")\n\t\t{\n\t\t\tnodeName = \"\"\n\t\t}\n\n\t\tif (domainTag != \"\" && nodeName != \"\")\n\t\t{\n\t\t\tlabel = domainTag \" - \" nodeName\n\t\t}\n\t\telse if (domainTag != \"\" && nodeName == \"\")\n\t\t{\n\t\t\tlabel = domainTag\n\t\t}\n\t\telse if (domainTag == \"\" && nodeName != \"\")\n\t\t{\n\t\t\tlabel = nodeName\n\t\t}\n\t\telse\n\t\t{\n\t\t\tlabel = \"\"\n\t\t}\n\n\t\tstatus = $4\n\t\tfor (i=5 ; i<=NF ; i++)\n\t\t{\n\t\t\tstatus = status \" \" $i\n\t\t}\n\t\tprint \"MSHW;Domain;\" $1 \";\" label \";\" status\n\t}\n}"
+  EmbeddedFile(6): "BEGIN { totalPower = 0; }\n($1 == \"Current0\") { current0 = $2; }\n($1 == \"Current1\") { current1 = $2; }\n($1 == \"48VDC\") {\n\tif (current0 != \"\" && current1 != \"\")\n\t{\n\t\tvdc = $2;\n\t\ttotalPower = totalPower + (current0 + current1) * vdc;\n\t}\n\tcurrent0 = \"\";\n\tcurrent1 = \"\";\n}\nEND { print \"MSHW;PowerConsumption;\" totalPower }"
+translations:
+  BoardStatusTranslationTable:
+    default: "UNKNOWN"
+    ipost: "degraded"
+    passed: "ok"
+    failed: "failed"
+    degraded: "degraded"
+  ShowEnvironmentStatusTranslationTable:
+    overlimit: "failed"
+    fail: "failed"
+    default: "failed"
+    low_min: "failed"
+    low_warn: "degraded"
+    bad: "failed"
+    high_max: "failed"
+    high_warn: "degraded"
+    invalid: "ok"
+    low_crit: "failed"
+    ok: "ok"
+    high_crit: "failed"
+  DomainStatusTranslationTable:
+    loading solaris: "ok"
+    solaris panic continue: "failed"
+    booting solaris: "ok"
+    solaris panic debug: "failed"
+    domain down: "failed"
+    in obp callback: "degraded"
+    debugging solaris: "degraded"
+    powered off: "ok"
+    obp debugging: "degraded"
+    loading obp: "ok"
+    unknown: "failed"
+    solaris resume in-progress: "degraded"
+    environmental domain halt: "failed"
+    loading solaris failed: "failed"
+    default: "UNKNOWN"
+    solaris halt: "degraded"
+    solaris quiesce in-progress: "ok"
+    in obp error reset: "failed"
+    environmental emergency: "failed"
+    solaris panic exit: "failed"
+    solaris quiesced: "ok"
+    solaris panic: "failed"
+    obp in sync callback to os: "degraded"
+    booting solaris failed: "failed"
+    domain exited obp: "degraded"
+    keyswitch standby: "ok"
+    running obp: "ok"
+    obp failed: "failed"
+    solaris panic dump: "failed"
+    booting obp: "ok"
+    solaris halted, in obp: "degraded"
+    running domain post: "ok"
+    solaris exited: "failed"
+    in recovery: "failed"
+    exited obp: "degraded"
+    running solaris: "ok"
+connector:
+  displayName: "Oracle/Sun Fire F12K/F15K/F20K/F25K (SMS)"
+  platforms: "Oracle/Sun Fire F15K"
+  reliesOn: "Sun SMS utilities installed on the System Controller (SC on F15K, etc.)"
+  information: "Gives environmental information (temperatures, fans, etc.) and boards status on Sun Fire F12K, F15K, F20K and F25K servers."
+  version: "1.1"
+  detection:
+    connectionTypes:
+    - "remote"
+    - "local"
+    appliesTo:
+    - "Solaris"
+    - "OOB"
+    criteria:
+      # Must be running on the SC (Solaris machine)
+    - type: "deviceType"
+      keep:
+      - "SunOS"
+      - "Solaris"
+      - "OOB"
+      # Must find the showplatform utility (meaning that SMS is installed)
+    - type: "osCommand"
+      commandLine: "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;which showplatform"
+      expectedResult: "/showplatform$"
+      errorMessage: "Unable to find the platform program"
+      # showplatform must return platform's type
+    - type: "osCommand"
+      commandLine: "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showplatform"
+      errorMessage: "This System Controller does not appear to be connected to a Sun Fire system"
+      expectedResult: "^Platform Type: Sun Fire"
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Output of the showplatform command
+          # ComputerModel;
+          type: "osCommand"
+          commandLine: "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showplatform"
+          keep: "^Platform Type: Sun Fire"
+          separators: " "
+          selectColumns: "5"
+          computes:
+            # Add "Fire" to the model
+            # ComputerModel
+          - type: "leftConcat"
+            column: 1
+            value: "Fire "
+      mapping:
+        # The discovery table
+        source: "$monitors.enclosure.discovery.sources.source(1)$"
+        attributes:
+          id: "SunF15K"
+          vendor: "Sun"
+          model: "$column(1)"
+          type: "Computer"
+          name: "sprintf(\"%s (%s %s - %s)\", \"SunF15K\", \"Sun\", $column(1), \"Computer\")"
+    collect:
+      # Collect type is mono-instance
+      type: "monoInstance"
+      sources:
+        source(1):
+          # Source(1) = output of showenvironment
+          type: "osCommand"
+          commandLine: "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment"
+          timeout: 90
+          computes:
+            # Pipe showenvironment's output into the %EmbeddedFile(1)% awk script
+            # PowerConsumption;
+          - type: "awk"
+            script: "EmbeddedFile(6)"
+            keep: "^MSHW;PowerConsumption;"
+            separators: ";"
+            selectColumns: "3"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.enclosure.collect.sources.source(1)$"
+        metrics:
+          hw.enclosure.power: "$column(1)"
+          hw.enclosure.energy: "fakeCounter($column(1))"
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = output of showenvironment
+          type: "osCommand"
+          commandLine: "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment"
+          timeout: 90
+          computes:
+            # Send showenvironnment's output into the %EmbeddedFile(2)% awk script
+            # DeviceID;
+          - type: "awk"
+            script: "EmbeddedFile(2)"
+            keep: "^MSHW;Fan;"
+            separators: ";"
+            selectColumns: "3"
+      mapping:
+        # Instance Table = Source(1)
+        source: "$monitors.fan.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "SunF15K"
+          name: "$column(1)"
+    collect:
+      # Collect type is \"all instances in one shot\"
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = output of showenvironment
+          type: "osCommand"
+          commandLine: "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment"
+          timeout: 90
+          computes:
+            # Pipe the output of showenvironment into the %EmbeddedFile(2)% awk script
+            # DeviceID;Status
+          - type: "awk"
+            script: "EmbeddedFile(2)"
+            keep: "^MSHW;Fan;"
+            separators: ";"
+            selectColumns: "3,4"
+            # Duplicate the status column
+            # DeviceID;status;status
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the first column into a PATROL Status
+            # DeviceID;PATROLStatus;status
+          - type: "translate"
+            column: 3
+            translationTable: "ShowEnvironmentStatusTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.fan.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="fan"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = output of showenvironment
+          type: "osCommand"
+          commandLine: "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment"
+          timeout: 90
+          computes:
+            # Pipe showenvironment's output into the %EmbeddedFile(1)% awk script
+            # DeviceID;
+          - type: "awk"
+            script: "EmbeddedFile(1)"
+            keep: "^MSHW;Temperature;"
+            separators: ";"
+            selectColumns: "3"
+      mapping:
+        # Instance Table = Source(1)
+        source: "$monitors.temperature.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          temperature_type: "$column(1)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "SunF15K"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(1))"
+    collect:
+      # Collect type is \"all instances in one shot\"
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = output of showenvironment
+          type: "osCommand"
+          commandLine: "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment"
+          timeout: 90
+          computes:
+            # Pipe showenvironment's output into the %EmbeddedFile(1)% awk script
+            # DeviceID;Temperature;Status
+          - type: "awk"
+            script: "EmbeddedFile(1)"
+            keep: "^MSHW;Temperature;"
+            separators: ";"
+            selectColumns: "3,4,5"
+            # Duplicate the status column
+            # DeviceID;Temperature;status;status
+          - type: "duplicateColumn"
+            column: 3
+            # Translate the first column into a PATROL Status
+            # DeviceID;Temperature;PATROLStatus;status
+          - type: "translate"
+            column: 3
+            translationTable: "ShowEnvironmentStatusTranslationTable"
+      mapping:
+        # ValueTable = Source(3)
+        source: "$monitors.temperature.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="temperature"}: "$column(3)"
+          hw.temperature: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  voltage:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = output of showenvironment
+          type: "osCommand"
+          commandLine: "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment"
+          timeout: 90
+          computes:
+            # Pipe showenvironment's output into the %EmbeddedFile(1)% awk script
+            # DeviceID;
+          - type: "awk"
+            script: "EmbeddedFile(1)"
+            keep: "^MSHW;Voltage;"
+            separators: ";"
+            selectColumns: "3"
+      mapping:
+        # Instance Table = Source(1)
+        source: "$monitors.voltage.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          voltage_type: "$column(1)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "SunF15K"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(1))"
+    collect:
+      # Collect type is \"all instances in one shot\"
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = output of showenvironment
+          type: "osCommand"
+          commandLine: "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment"
+          timeout: 90
+          computes:
+            # Piped showenvironment's output into the %EmbeddedFile(1)% awk script
+            # DeviceID;Voltage;Status
+          - type: "awk"
+            script: "EmbeddedFile(1)"
+            keep: "^MSHW;Voltage;"
+            separators: ";"
+            selectColumns: "3,4,5"
+            # Duplicate the status column
+            # DeviceID;Voltage;Status;Status
+          - type: "duplicateColumn"
+            column: 3
+            # Translate the first column into a PATROL Status
+            # DeviceID;Voltage;PATROLStatus;Status
+          - type: "translate"
+            column: 3
+            translationTable: "ShowEnvironmentStatusTranslationTable"
+            # Multiply voltage value by 1000 (convert from V to mV)
+            # DeviceID;VoltageMilliVolts;PATROLstatus;status
+          - type: "multiply"
+            column: 2
+            value: "1000"
+      mapping:
+        # ValueTable = Source(3)
+        source: "$monitors.voltage.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="voltage"}: "$column(3)"
+          hw.voltage: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = output of showenvironment piped into the %EmbeddedFile(3)% awk script
+          # DeviceID
+          type: "osCommand"
+          commandLine: "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment"
+          timeout: 90
+          computes:
+            # Pipe showenvironment's output into the %EmbeddedFile(3)% awk script
+            # DeviceID
+          - type: "awk"
+            script: "EmbeddedFile(3)"
+            keep: "^MSHW;PowerSupply;"
+            separators: ";"
+            selectColumns: "3"
+      mapping:
+        # Instance Table = Source(1)
+        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "SunF15K"
+          name: "sprintf(\"%s, $column(1))"
+    collect:
+      # Collect type is \"all instances in one shot\"
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = output of showenvironment
+          type: "osCommand"
+          commandLine: "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment"
+          timeout: 90
+          computes:
+            # Pipe showenvironment's output into the %EmbeddedFile(3)% awk script
+            # DeviceID;Status
+          - type: "awk"
+            script: "EmbeddedFile(3)"
+            keep: "^MSHW;PowerSupply;"
+            separators: ";"
+            selectColumns: "3,4"
+            # Duplicate the status column
+            # DeviceID;Status;Status
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the first column into a PATROL Status
+            # DeviceID;Current;PATROLStatus;Status
+          - type: "translate"
+            column: 2
+            translationTable: "ShowEnvironmentStatusTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.power_supply.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="power_supply"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = output of showenvironment
+          type: "osCommand"
+          commandLine: "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment"
+          timeout: 90
+          computes:
+            # Pipe showenvironment's output into the %EmbeddedFile(1)% awk script
+            # Source(1) is the list of currents
+            # DeviceType;DeviceID;
+          - type: "awk"
+            script: "EmbeddedFile(1)"
+            keep: "^MSHW;Current;"
+            separators: ";"
+            selectColumns: "2,3"
+            # Duplicate DeviceID because it will be used as AdditionalLabel
+            # DeviceType;DeviceID;DeviceID
+          - type: "duplicateColumn"
+            column: 2
+        source(2):
+          # Source(2) = output of showplatform
+          type: "osCommand"
+          commandLine: "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showplatform"
+          timeout: 90
+          computes:
+            # Pipe showplatform's output into the %EmbeddedFile(4)% awk script
+            # Source(2) is the list of domains
+            # DeviceType;DeviceID;AdditionalLabel
+          - type: "awk"
+            script: "EmbeddedFile(4)"
+            keep: "^MSHW;Domain;"
+            separators: ";"
+            selectColumns: "2,3,4"
+        source(3):
+          # Source(3) = output of showboards
+          type: "osCommand"
+          commandLine: "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showboards"
+          timeout: 90
+          computes:
+            # Pipe showboards' output into the %EmbeddedFile(5)% awk script
+            # Source(3) is the list of boards
+            # DeviceType;DeviceID;AdditionalLabel
+          - type: "awk"
+            script: "EmbeddedFile(5)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3,4"
+        source(4):
+          # Source(4) = union of Source(1), Source(2) and Source(3)
+          # DeviceType;DeviceID;AdditionalLabel
+          type: "tableUnion"
+          tables:
+          - "$monitors.other_device.discovery.sources.source(1)$"
+          - "$monitors.other_device.discovery.sources.source(2)$"
+          - "$monitors.other_device.discovery.sources.source(3)$"
+      mapping:
+        # Instance Table = Source(1)
+        source: "$monitors.other_device.discovery.sources.source(4)$"
+        attributes:
+          id: "$column(2)"
+          additional_label: "$column(3)"
+          device_type: "$column(1)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "SunF15K"
+          name: "sprintf(\"%s: %s (%s)\", $column(1), $column(2), $column(3))"
+    collect:
+      # Collect type is \"all instances in one shot\"
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = output of showenvironment
+          type: "osCommand"
+          commandLine: "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment"
+          timeout: 90
+          computes:
+            # Pipe showenvironment's output into the %EmbeddedFile(1)% awk script
+            # DeviceID;Status
+          - type: "awk"
+            script: "EmbeddedFile(1)"
+            keep: "^MSHW;Current;"
+            separators: ";"
+            selectColumns: "3,5"
+            # Duplicate the status column
+            # DeviceID;Status;Status
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the first column into a PATROL Status
+            # DeviceID;Current;PATROLStatus;Status
+          - type: "translate"
+            column: 2
+            translationTable: "ShowEnvironmentStatusTranslationTable"
+        source(2):
+          # Source(2) = output of showplatform
+          type: "osCommand"
+          commandLine: "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showplatform"
+          timeout: 90
+          computes:
+            # Pipe showplatform's output into the %EmbeddedFile(4)% awk script
+            # Source(2) is the list of domains
+            # DeviceID;Status
+          - type: "awk"
+            script: "EmbeddedFile(4)"
+            keep: "^MSHW;Domain;"
+            separators: ";"
+            selectColumns: "3,5"
+            # Duplicate the status column
+            # DeviceID;Status;Status
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the first column into a PATROL Status
+            # DeviceID;PATROLStatus;Status
+          - type: "translate"
+            column: 2
+            translationTable: "DomainStatusTranslationTable"
+        source(3):
+          # Source(3) = output of showboards
+          type: "osCommand"
+          commandLine: "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showboards"
+          timeout: 90
+          computes:
+            # Pipe showboards' output into the %EmbeddedFile(5)% awk script
+            # Source(3) is the list of boards
+            # DeviceID;Status
+          - type: "awk"
+            script: "EmbeddedFile(5)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "3,5"
+            # Duplicate the status column
+            # DeviceID;Status;Status
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the first column into a PATROL Status
+            # DeviceID;PATROLStatus;Status
+          - type: "translate"
+            column: 2
+            translationTable: "BoardStatusTranslationTable"
+        source(4):
+          # Source(4) = union of Source(1), Source(2) and Source(3)
+          # DeviceType;DeviceID;AdditionalLabel
+          type: "tableUnion"
+          tables:
+          - "$monitors.other_device.collect.sources.source(1)$"
+          - "$monitors.other_device.collect.sources.source(2)$"
+          - "$monitors.other_device.collect.sources.source(3)$"
+      mapping:
+        # ValueTable = Source(3)
+        source: "$monitors.other_device.collect.sources.source(4)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="other_device"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"

@@ -1,0 +1,268 @@
+---
+translations:
+  PhysicalDiskSmartStatusTranslationTable:
+    "1": "0"
+    "2": "1"
+    default: "0"
+    "3": "0"
+    "4": "0"
+  RAIDLevelTranslationTable:
+    "11": "5e"
+    "12": "5ee"
+    "13": "6"
+    "14": ""
+    "15": ""
+    "16": "60"
+    "1": ""
+    "2": "0"
+    default: ""
+    "3": "0+1"
+    "4": "1"
+    "5": "1e"
+    "6": "10"
+    "7": "3"
+    "8": "4"
+    "9": "5"
+    "10": "50"
+  PhysicalDiskStatusInformationTranslationTable:
+    "11": "Formatting"
+    "12": "Dead"
+    "2": "Not a hard disk"
+    default: "Unknown Status"
+    "3": ""
+    "4": "Ready"
+    "5": "Failed"
+    "6": "Rebuilding"
+    "7": "Hotspare"
+    "8": "Hotspare"
+    "9": "Offline"
+    "10": "Failed (Unconfigured)"
+  BatteryStatusTranslationTable:
+    default: "ok"
+    "7": "failed"
+  LogicalDiskStatusInformationTranslationTable:
+    "2": ""
+    default: "Unknown Status"
+    "3": "Degraded"
+    "4": "Offline"
+    "5": "Rebuilding"
+    "6": "Verifying"
+    "7": "Initializing"
+    "8": "Morphing"
+    "9": "Partially Degraded"
+  LogicalDiskStatusTranslationTable:
+    "2": "ok"
+    default: "UNKNOWN"
+    "3": "degraded"
+    "4": "failed"
+    "5": "degraded"
+    "6": "degraded"
+    "7": "ok"
+    "8": "degraded"
+    "9": "degraded"
+  PhysicalDiskStatusTranslationTable:
+    "11": "ok"
+    "12": "failed"
+    "2": "failed"
+    default: "UNKNOWN"
+    "3": "ok"
+    "4": "ok"
+    "5": "failed"
+    "6": "degraded"
+    "7": "ok"
+    "8": "ok"
+    "9": "failed"
+    "10": "degraded"
+connector:
+  displayName: "Fujitsu-Siemens ServerView RAID Agent"
+  platforms: "Fujitsu-Siemens PRIMERGY"
+  reliesOn: "Fujitsu-Siemens Serverview RAID Agent"
+  version: "1.0"
+  information: "This connector provides disk monitoring through the Fujitsu-Siemens Serverview RAID SNMP sub-agent which supports many RAID controllers in Primergy servers."
+  detection:
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "NT"
+    - "Linux"
+    supersedes:
+    - "Director52ServeRAIDNT"
+    criteria:
+      # Simply check that the FSC RAID MIB is populated with some disks
+    - type: "snmpGetNext"
+      oid: "1.3.6.1.4.1.231.2.49.1.5.2.1"
+monitors:
+  disk_controller:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = svrCtrlTable controllers table
+          # DeviceID;ControllerNumber;Model;Manufacturer;FirmwareVersion;BIOSVersion
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.231.2.49.1.4.2.1"
+          selectColumns: "ID,1,2,3,7,8"
+      mapping:
+        # The Instance table...
+        source: "$monitors.disk_controller.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          controller_number: "$column(2)"
+          model: "$column(3)"
+          firmware_version: "$column(5)"
+          bios_version: "$column(6)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(1), $column(3))"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = svrCtrlTable controllers table
+          # DeviceID;BBUStatus
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.231.2.49.1.4.2.1"
+          selectColumns: "ID,14"
+          computes:
+            # Translate the BBUStatus into a BatteryStatus
+            # DeviceID;BatteryStatus
+          - type: "translate"
+            column: 2
+            translationTable: "BatteryStatusTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.disk_controller.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = svrPhysicalDevice SNMP table
+          # DeviceID;ControllerNumber;Vendor;SizeGB;DeviceType;SerialNumber
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.231.2.49.1.5.2.1"
+          selectColumns: "ID,1,6,7,9,17"
+          computes:
+            # Keep only disks
+            # DeviceID;ControllerNumber;Vendor;SizeGB;DeviceType;SerialNumber
+          - type: "keepOnlyMatchingLines"
+            column: 5
+            valueList: "2"
+            # Convert size from GB to bytes
+            # DeviceID;ControllerNumber;Vendor;Size;DeviceType;SerialNumber
+          - type: "multiply"
+            column: 4
+            value: "1073741824"
+      mapping:
+        # InstanceTable = Source(1)
+        source: "$monitors.physical_disk.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          vendor: "$column(3)"
+          serial_number: "$column(6)"
+          hw.parent.type: "disk_controller"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(4))"
+        metrics:
+          hw.physical_disk.size: "$column(4)"
+    collect:
+      # This is a multi-instance collect (execute the collect for each disk)
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = svrPhysicalDevice SNMP table
+          # ID;errors;SmartStatus;Status
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.231.2.49.1.5.2.1"
+          selectColumns: "ID,12,14,15"
+          computes:
+            # Duplicate the Status column
+            # ID;errors;SmartStatus;Status;Status
+          - type: "duplicateColumn"
+            column: 4
+            # translate the first Status into PATROL status
+            # ID;errors;SmartStatus;PATROLStatus;Status
+          - type: "translate"
+            column: 4
+            translationTable: "PhysicalDiskStatusTranslationTable"
+            # translate the snmp state into a more readable string
+            # ID;errors;SmartStatus;PATROLStatus;StatusInformation
+          - type: "translate"
+            column: 5
+            translationTable: "PhysicalDiskStatusInformationTranslationTable"
+            # Translate SmartStatus into PredictedFailure
+            # ID;errors;PredictedFailure;PATROLStatus;StatusInformation
+          - type: "translate"
+            column: 3
+            translationTable: "PhysicalDiskSmartStatusTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.physical_disk.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="physical_disk"}: "$column(4)"
+          hw.status{hw.type="physical_disk", state="predicted_failure"}: "boolean($column(3))"
+        legacyTextParameters:
+          StatusInformation: "$column(5)"
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the svrLogicalDrive SNMP table
+          # DeviceID;ControllerNumber;SizeGB;RAIDCode
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.231.2.49.1.6.2.1"
+          selectColumns: "ID,1,3,5"
+          computes:
+            # Convert size in bytes
+            # DeviceID;ControllerNumber;SizeGB;RAIDCode
+          - type: "multiply"
+            column: 3
+            value: "1073741824"
+            # Translate RAIDCode into RAIDLevel
+            # DeviceID;ControllerNumber;SizeGB;RAIDLevel
+          - type: "translate"
+            column: 4
+            translationTable: "RAIDLevelTranslationTable"
+      mapping:
+        # The instance table
+        source: "$monitors.logical_disk.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          hw.logical_disk.limit: "$column(3)"
+          raid_level: "$column(4)"
+          hw.parent.type: "disk_controller"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(4), $column(3))"
+    collect:
+      # Type = MultiInstance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = the svrLogicalDrive SNMP table
+          # DeviceID;Status
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.231.2.49.1.6.2.1"
+          selectColumns: "ID,10"
+          computes:
+            # Duplicate the status column
+            # DeviceID;Status;Status
+          - type: "duplicateColumn"
+            column: 2
+            # translate the snmp status into PATROL status
+            # DeviceID;PATROLStatus;Status
+          - type: "translate"
+            column: 2
+            translationTable: "LogicalDiskStatusTranslationTable"
+            # translate the snmp status into a more readable string
+            # DeviceID;PATROLStatus;StatusInformation
+          - type: "translate"
+            column: 3
+            translationTable: "LogicalDiskStatusInformationTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.logical_disk.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="logical_disk"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"

@@ -1,0 +1,39 @@
+---
+extends:
+- "EMCIsilon-header"
+constants:
+  _IsiDevicesCommand: "/usr/bin/isi devices"
+  _IsiDrivesCommand: "/usr/bin/isi devices"
+  _IsiNetworkCommand: "/usr/bin/isi networks list interfaces --verbose --wide --show-inactive"
+  _IsiBatteryCommand: "/usr/bin/isi batterystatus"
+  _IsiStatusCommand: "/usr/bin/isi status -w"
+embedded:
+  EmbeddedFile(3): "{nodeName = $1 ; gsub (/:/,\"\",nodeName);}\nNF > 4 {\n\tif ($2 ~ /battery/ && $(NF-2) ~ /:/) {ID = $0; gsub (/ :[^:]*$/,\"\",ID); gsub (/^[^:]*: /,\"\",ID);\n                            status = $(NF-1)\n                            print \"MSHW_BATTERY;\" nodeName \";\" nodeName\"-\"ID \";\" ID \";\" status\";\"status\";\"\n                           }\n\t}"
+  EmbeddedFile(5): "{nodeName = $1 ; gsub (/:/,\"\",nodeName);}\n\n$2 ~ /^Node$/ { nodeNumber = $3 ; gsub (/,/,\"\",nodeNumber);\n\t              print \"MSHW_Node;\" nodeName \";\" nodeNumber \";\"\n\t            }\n\n$2 ~ /^Bay$/  { Location = $3 ; Location = \"Bay-\" Location\n\t              Lnum = $5 ; Lnum = \"Lnum-\" Lnum\n\t              Status = $6 ; gsub(/\\].*$/,\"\",Status);gsub(/^.*\\[/,\"\",Status);\n\t              SerialNumber = $7 ; gsub (/^SN:/,\"\",SerialNumber)\n\t              if ( Status != \"EMPTY\" ) {\n\t                 print \"MSHW_PhysicalDisk;\" nodeName \";\" nodeName \"-\" Location \";\" Location \";\" Lnum \";\" SerialNumber \";\" Status \";\" Status \";\"\n\t                }\n\t            }"
+  EmbeddedFile(6): "$1 ~ /^Node/ {NodeNumber = $NF}\n$1 ~ /^Interface/ {Interface = $NF }\n$1 ~ /^NIC/ && $2 ~ /Name/ {NICName = $NF}\n$1 ~ /^Status/ {Status = $0 ; gsub (/^.*Status: /,\"\",Status) ; gsub (/ +$/,\"\",Status) }\n$1 ~ /^IP/ && $2 ~ /Addrs/ {IPAddress = $NF\n\t                          print \"MSHW;\" NodeNumber \";\" NICName \";\" NICName \";\" Interface \";\" IPAddress \";\" Status \";\"\n\t                         }"
+  EmbeddedFile(9): |-
+    BEGIN { FS="[,]" }
+    NF >= 8 &&  $(NF-1) ~ /^[0-9]/ && $(NF-4) ~ /^[0-9]/ {
+        ID = $1
+        HDDSize = $(NF-4)
+        SSDSize = $(NF-1)
+        TotalSize = (HDDSize + SSDSize) / 1000000000
+        print "MSHW;" ID ";" TotalSize ";"
+        }
+connector:
+  displayName: "EMC Isilon (SSH)"
+  platforms: "EMC Isilon"
+  reliesOn: "EMC Isilon SSH interface"
+  version: "1.0"
+  information: "This connector discovers the status of an EMC Isilon Storage Cluster"
+  detection:
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "Storage"
+    criteria:
+      # Check that sudo is working by running /usr/bin/isi status -w
+    - type: "osCommand"
+      commandLine: "/bin/zsh -c \"%{SUDO:/usr/bin/isi_for_array} /usr/bin/isi_for_array /usr/bin/isi status -w\" "
+      errorMessage: "Unable to run /usr/bin/isi status -w.  Check rights / sudo status."
+      expectedResult: "Cluster Name:"

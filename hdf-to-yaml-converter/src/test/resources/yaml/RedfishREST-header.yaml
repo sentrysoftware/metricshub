@@ -1,0 +1,861 @@
+---
+embedded:
+  EmbeddedFile(1): |-
+    authorization: Basic %{BASIC_AUTH_BASE64}
+    Accept:application/json
+translations:
+  NetworkCardStatusInformationTranslationTable:
+    standbyoffline: "StandbyOffline"
+    offline: "Offline"
+    default: "Unknown Status"
+    "null": "None"
+    critical: "Failed"
+    none: "None"
+    up: "Up"
+    failed: "Failed"
+    ok: "ok"
+    down: "Administratively Down"
+    enabled: "Enabled"
+  LinkStatusTranslationTable:
+    ? ""
+    : "degraded"
+    offline: "degraded"
+    standbyoffline: "degraded"
+    default: "UNKNOWN"
+    linkup: "ok"
+    "null": "degraded"
+    none: "degraded"
+    up: "ok"
+    failed: "failed"
+    down: "degraded"
+    enabled: "ok"
+  StatusInformationTranslationTable:
+    optimal: "The device is running normal."
+    critical: "The device is in critical state."
+    degraded: "The device needs attention."
+    error: "The device is in a critical state."
+    good: "The device is running normal."
+    unknown: "The device is not reporting a status."
+    needsattn: "The device needs attention."
+    default: "The device is not reporting a status"
+    "null": "The device is not reporting a status."
+    warning: "The device is in a warning state."
+    goodinuse: "The device is running normal."
+    ok: "The device is running normal."
+    maintenancecharging: "The device is performing routine maintenance."
+  StatusTranslationTable:
+    needsattn: "degraded"
+    default: "UNKNOWN"
+    optimal: "ok"
+    "null": "UNKNOWN"
+    critical: "failed"
+    warning: "degraded"
+    goodinuse: "ok"
+    ok: "ok"
+    degraded: "degraded"
+    error: "failed"
+    maintenancecharging: "ok"
+    unknown: "degraded"
+  NetworkCardStatusTranslationTable:
+    standbyoffline: "ok"
+    offline: "ok"
+    default: "UNKNOWN"
+    "null": "UNKNOWN"
+    critical: "failed"
+    none: "ok"
+    up: "ok"
+    failed: "failed"
+    ok: "ok"
+    down: "ok"
+    enabled: "ok"
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          type: "http"
+          method: "GET"
+          url: "redfish/v1/Chassis/"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+            # Extract data
+            # JSONID;@odata.id;
+          - type: "json2csv"
+            entryKey: "/Members"
+            properties: "/@odata.id;"
+            # remove empty URLs to avoid empty redirection
+          - type: "keepOnlyMatchingLines"
+            column: 2
+            regExp: "."
+        source(2):
+          # Query /Chassis/?/
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(1)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(2)$"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+        source(3):
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(2)$"
+          computes:
+            # Extract data
+            #   1      2         3            4            #   5            #     6            # 7            #  8
+            # JSONID;ChassisID;SystemId;ChassisName;ChassisModel;ChassisSerialNumber;ChassisManufacturer;PowerMetrics;ThermalMetrics;
+          - type: "json2csv"
+            entryKey: "Entry/Value/links/ComputerSystems"
+            properties: "../../../Column(2);/_REF;../../Name;../../Model;../../SerialNumber;../../Manufacturer;../../Power/@odata.id;../../Thermal/@odata.id;"
+        source(4):
+          # Query
+          # Systems/?/SmartStorage/ArrayControllers/
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(3)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(3)$SmartStorage/ArrayControllers/"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+            # Extract data
+            # JSONID;ChassisID;DiskControllerID;
+          - type: "json2csv"
+            entryKey: "/Entry/Value/Members"
+            properties: "../../Column(2);/@odata.id;"
+            # remove empty URLs to avoid empty redirection
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            regExp: "."
+        source(5):
+          # Query
+          # /Systems/?/SmartStorage/ArrayControllers/?/
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(4)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(3)$"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+            # Extract data
+            # JSONID;ChassisID;ControllerID;LogicalDiskURL;PhysicalDiskURL;Name;Model;SerialNumber;FirmwareVersion;
+          - type: "json2csv"
+            entryKey: "/Entry/Value"
+            properties: "../Column(2);/@odata.id;/Links/LogicalDrives/_REF;/Links/PhysicalDrives/_REF;/Name;/Model;/SerialNumber;/FirmwareVersion/Current/VersionString;"
+        source(6):
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(3)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(9)$"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+      mapping:
+        # Enclosure Instance Table
+        # JSONID;ChassisID;SystemId;ChassisName;ChassisModel;ChassisSerialNumber;ChassisManufacturer;PowerMetrics;ThermalMetrics;
+        source: "$monitors.enclosure.discovery.sources.source(3)$"
+        attributes:
+          id: "$column(2)"
+          __display_id: "$column(4)"
+          model: "$column(5)"
+          serial_number: "$column(6)"
+          vendor: "$column(7)"
+          type: "Server"
+          name: "sprintf(\"%s (%s %s - %s)\", $column(4), $column(7), $column(5), \"Server\")"
+    collect:
+      type: "multiInstance"
+      sources:
+        source(1):
+          # For each Chassis found; Query it's specific address.
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(1)$"
+            concatMethod: "json_array"
+          url: "$entry.column(2)$"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+        source(2):
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(1)$"
+          computes:
+            # Collect @odata.id, StatusHealth from Chassis
+          - type: "json2csv"
+            entryKey: "/"
+            properties: "@odata.id;/Status/Health;/Status/Health;"
+            separator: ";"
+          - type: "translate"
+            column: 3
+            translationTable: "StatusTranslationTable"
+          - type: "translate"
+            column: 4
+            translationTable: "StatusInformationTranslationTable"
+        source(3):
+          # For each Chassis found; Query it's Power address.
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(3)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(8)$"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+          - type: "json2csv"
+            entryKey: "/Entry/Value/PowerSupplies"
+            properties: "../../Column(2);../_POWER_CONSUMPTION_PATH;/_PS_ID;/Status/Health;/Status/Health;"
+            separator: ";"
+        source(4):
+          # JSONID;ChassisID;Status;Status;JSONID;ChassisID;PowerConsumption;
+          type: "tableJoin"
+          leftTable: "$monitors.enclosure.collect.sources.source(2)$"
+          rightTable: "$monitors.enclosure.collect.sources.source(3)$"
+          leftKeyColumn: 2
+          rightKeyColumn: 2
+        source(5):
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(3)$"
+            concatMethod: "json_array"
+          url: "$entry.column(9)$"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+      mapping:
+        # Enclosure Value Table
+        # JSONID;ChassisID;Status;Status;JSONID;ChassisID;PowerConsumption;
+        source: "$monitors.enclosure.collect.sources.source(4)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="enclosure"}: "$column(3)"
+          hw.enclosure.power: "$column(7)"
+          hw.enclosure.energy: "fakeCounter($column(7))"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  memory:
+    discovery:
+      sources:
+        source(1):
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(3)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(3)$Memory/"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+            # extract odata.id for each instance
+            # JSONID;ChassisID;MemoryID;
+          - type: "json2csv"
+            entryKey: "/Entry/Value/Members"
+            properties: "../../Column(2);/@odata.id;"
+            separator: ";"
+            # remove empty URLs to avoid empty redirection
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            regExp: "."
+        source(2):
+          # query odata.id from previous results
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.memory.discovery.sources.source(1)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(3)$"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+            # extract data
+            # JSONID;ChassisId;MemoryID;Name;PartNumber;Manufacturer;Size;
+          - type: "json2csv"
+            entryKey: "/Entry/Value"
+            properties: "../Column(2);/@odata.id;/Name;/SerialNumber;/PartNumber;/Manufacturer;/_MEMORY_SIZE_PARAMETER;/Status/State;"
+          - type: "excludeMatchingLines"
+            column: 9
+            regExp: "Absent"
+            # Exclude entries where Manufacturer is empty
+          - type: "keepOnlyMatchingLines"
+            column: 7
+            regExp: "."
+      mapping:
+        # Memory Instance Table
+        # JsonId;ChassisID;MemoryID;Name;SerialNumber;PartNumber;Manufacturer;sizeParameter;
+        source: "$monitors.memory.discovery.sources.source(2)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          serial_number: "$column(5)"
+          model: "$column(6)"
+          vendor: "$column(7)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(2)"
+          name: "sprintf(\"%s (%s (%s) - %s)\", $column(4), $column(7), $column(6), $column(8))"
+        metrics:
+          hw.memory.limit: "mebiByte2Byte($column(8))"
+    collect:
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Query /Systems/?/Memory/?
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.memory.discovery.sources.source(1)$"
+            concatMethod: "json_array"
+          url: "$entry.column(3)$"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+            # Extract odata.id
+          - type: "json2csv"
+            entryKey: "/"
+            properties: "/@odata.id;_MEMORY_STATUS_PATH;_MEMORY_STATUS_PATH;"
+          - type: "translate"
+            column: 3
+            translationTable: "StatusTranslationTable"
+          - type: "translate"
+            column: 4
+            translationTable: "StatusInformationTranslationTable"
+      mapping:
+        source: "$monitors.memory.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="memory"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  disk_controller:
+    discovery:
+      mapping:
+        # DiskController Instance Table
+        # JSONID;ChassisID;ControllerID;LogicalDiskURL;PhysicalDiskURL;Name;Model;SerialNumber;FirmwareVersion;
+        source: "$monitors.enclosure.discovery.sources.source(5)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(6)"
+          model: "$column(7)"
+          serial_number: "$column(8)"
+          firmware_version: "$column(9)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(2)"
+          name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(6), $column(7))"
+    collect:
+      type: "multiInstance"
+      sources:
+        source(1):
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(4)$"
+            concatMethod: "json_array"
+          url: "$entry.column(3)$"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+            # Extract data
+            # JSONID;id;Health;Health;
+          - type: "json2csv"
+            entryKey: "/"
+            properties: "/@odata.id;/Status/Health;/Status/Health;"
+          - type: "translate"
+            column: 3
+            translationTable: "StatusTranslationTable"
+          - type: "translate"
+            column: 4
+            translationTable: "StatusInformationTranslationTable"
+      mapping:
+        # DiskController Value Table
+        # JsonID;Id;PatrolStatus;StatusInformation;
+        source: "$monitors.disk_controller.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="disk_controller"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Query /Systems/?/SmartStorage/ArrayControllers/?/PhysicalDrives
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(5)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(5)$"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+            # Extract data
+            # JSONID;ControllerID;odata.id
+          - type: "json2csv"
+            entryKey: "/Entry/Value/Members"
+            properties: "../../Column(3);/@odata.id;"
+            # remove empty URLs to avoid empty redirection
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            regExp: "."
+        source(2):
+          # Query /Systems/?/SmartStorage/ArrayControllers/?/DiskDrives/?
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.physical_disk.discovery.sources.source(1)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(3)$"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+            # Extract data
+            # JSONID;Controller;DiskID;Name;Model;SerialNumber;FirmwareVersion;MediaType;CapacityMiB;
+          - type: "json2csv"
+            entryKey: "/Entry/Value"
+            properties: "../Column(2);/@odata.id;/Name;/Model;/SerialNumber;/FirmwareVersion/Current/VersionString;/MediaType;/CapacityMiB;/Id;"
+            separator: ";"
+            # Add label for DiskType
+          - type: "leftConcat"
+            column: 8
+            value: "Disk Type: "
+            # Convert from MiB to Bytes
+          - type: "multiply"
+            column: 9
+            value: "1048576"
+            # PhysicalDisk Name fix.
+          - type: "rightConcat"
+            column: 4
+            value: " "
+          - type: "rightConcat"
+            column: 4
+            value: "Column(10)"
+      mapping:
+        # PhysicalDisk Instance Table
+        # JSONID;Controller;DiskID;Name;Model;SerialNumber;FirmwareVersion;MediaType;CapacityMiB;
+        source: "$monitors.physical_disk.discovery.sources.source(2)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          model: "$column(5)"
+          serial_number: "$column(6)"
+          firmware_version: "$column(7)"
+          info: "$column(8)"
+          hw.parent.type: "disk_controller"
+          hw.parent.id: "$column(2)"
+          name: "sprintf(\"%s (%s - %s)\", $column(4), $column(5), $column(9))"
+        metrics:
+          hw.physical_disk.size: "$column(9)"
+    collect:
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Query /Systems/?/SmartStorage/ArrayControllers/?/DiskDrives
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.physical_disk.discovery.sources.source(1)$"
+            concatMethod: "json_array"
+          url: "$entry.column(3)$"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+            # Extract data
+            # JSONID;DiskID;Health;Health;SSDEnduranceUtilizationPercentage
+          - type: "json2csv"
+            entryKey: "/"
+            properties: "/@odata.id;/Status/Health;/Status/Health;/SSDEnduranceUtilizationPercentage;"
+          - type: "translate"
+            column: 3
+            translationTable: "StatusTranslationTable"
+          - type: "translate"
+            column: 4
+            translationTable: "StatusInformationTranslationTable"
+            # JSONID;DiskID;Health;Health;SSDEnduranceUtilizationPercentage;100
+          - type: "rightConcat"
+            column: 5
+            value: ";100"
+            # JSONID;DiskID;Health;Health;SSDEnduranceUtilizationPercentage;EnduranceRemaining
+          - type: "subtract"
+            column: 6
+            value: "Column(5)"
+      mapping:
+        # PhysicalDisk Value Table
+        # JsonID;Name;PatrolStatus;StatusInformation;
+        source: "$monitors.physical_disk.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="physical_disk"}: "$column(3)"
+          hw.physical_disk.endurance_utilization{state="remaining"}: "percent2Ratio($column(6))"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Query /Systems/?/SmartStorage/ArrayControllers/?/LogicalDrives
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(5)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(4)$"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+            # Extract data
+            # JSONID;ControllerID;odata.id
+          - type: "json2csv"
+            entryKey: "/Entry/Value/Members"
+            properties: "../../Column(3);/@odata.id;"
+            # remove empty URLs to avoid empty redirection
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            regExp: "."
+        source(2):
+          # Query /Systems/?/SmartStorage/ArrayControllers/?/DiskDrives/?
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.logical_disk.discovery.sources.source(1)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(3)$"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+            # Extract data
+            # JSONID;Controller;Name;Model;SerialNumber;FirmwareVersion;MediaType;
+          - type: "json2csv"
+            entryKey: "/Entry/Value"
+            properties: "../Column(2);/@odata.id;/Name;/Raid;/CapacityMiB;"
+          - type: "multiply"
+            column: 6
+            value: "1048576"
+      mapping:
+        # LogicalDisk Instance Table
+        # JSONID;Controller;Name;RaidLevel;CapacityMiB;
+        source: "$monitors.logical_disk.discovery.sources.source(2)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          raid_level: "$column(5)"
+          hw.logical_disk.limit: "$column(6)"
+          hw.parent.type: "disk_controller"
+          hw.parent.id: "$column(2)"
+          name: "sprintf(\"%s (%s - %s)\", $column(4), $column(5), $column(6))"
+    collect:
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Query /Systems/?/SmartStorage/ArrayControllers/?/DiskDrives/?
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.logical_disk.discovery.sources.source(1)$"
+            concatMethod: "json_array"
+          url: "$entry.column(3)$"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+            # Extract data
+            # JSONID;Controller;Name;Model;SerialNumber;FirmwareVersion;MediaType;
+          - type: "json2csv"
+            entryKey: "/"
+            properties: "/@odata.id;/Status/Health;/Status/Health;"
+          - type: "translate"
+            column: 3
+            translationTable: "StatusTranslationTable"
+          - type: "translate"
+            column: 4
+            translationTable: "StatusInformationTranslationTable"
+      mapping:
+        # LogicalDisk Value Table
+        # JsonID;Name;PatrolStatus;StatusInformation;
+        source: "$monitors.logical_disk.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="logical_disk"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  cpu:
+    discovery:
+      sources:
+        source(1):
+          # Query each instance of Systems/?/Processors
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(3)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(3)$Processors/"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+            # Extract odata.id
+            # JSONID;ChassisID;ProcessorURL
+          - type: "json2csv"
+            entryKey: "/Entry/Value/Members"
+            properties: "../../Column(2);/@odata.id;"
+            # remove empty URLs to avoid empty redirection
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            regExp: "."
+        source(2):
+          # Query each odata.id
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.cpu.discovery.sources.source(1)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(3)$"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+            # Extract data
+            # ChassisID, Id, Manufacturer, Model, Name, MaxSpeedMHz
+          - type: "json2csv"
+            entryKey: "/Entry/Value"
+            properties: "../Column(2);/@odata.id;/Manufacturer;/Model;/Name;/MaxSpeedMHz;"
+      mapping:
+        # CPU Instance Table
+        # JsonID;<System>;Manufacturer;Model;Name;CurrentClockSpeedMhz;
+        source: "$monitors.cpu.discovery.sources.source(2)$"
+        attributes:
+          id: "$column(3)"
+          vendor: "$column(4)"
+          model: "$column(5)"
+          __display_id: "$column(6)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(2)"
+          name: "sprintf(\"%s (%s - %s - %mhhf.s)\", $column(6), $column(4), $column(5), $column(7))"
+        metrics:
+          hw.cpu.speed.limit{limit_type="max"}: "megaHertz2Hertz($column(7))"
+    collect:
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Query Systems/?/Processors
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.cpu.discovery.sources.source(1)$"
+            concatMethod: "json_array"
+          url: "$entry.column(3)$"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+            # Extract data
+            # Id, StatusHealth
+          - type: "json2csv"
+            entryKey: "/"
+            properties: "/@odata.id;/Status/Health;/Status/Health;"
+            separator: ";"
+          - type: "translate"
+            column: 3
+            translationTable: "StatusTranslationTable"
+          - type: "translate"
+            column: 4
+            translationTable: "StatusInformationTranslationTable"
+      mapping:
+        # CPU collect value table
+        # JsonId;Id;PatrolStatus;StatusInformation;
+        source: "$monitors.cpu.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="cpu"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  fan:
+    discovery:
+      sources:
+        source(1):
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(6)$"
+          computes:
+            # Extract data
+            # JSONID;ChassisID;MemberId;Name;Location;State;
+          - type: "json2csv"
+            entryKey: "/Entry/Value/Fans"
+            properties: "../../Column(2);/_FAN_ID;/_FAN_LOCATION;/Status/State;"
+          - type: "excludeMatchingLines"
+            column: 5
+            regExp: "Absent"
+            # Add Location label
+          - type: "leftConcat"
+            column: 4
+            value: "Location: "
+      mapping:
+        # Fan Instance Table
+        # JsonID;ChassisID;FanName;Location;
+        source: "$monitors.fan.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(3)"
+          info: "$column(4)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(2)"
+          name: "$column(3)"
+    collect:
+      type: "multiInstance"
+      sources:
+        source(1):
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(5)$"
+          computes:
+            # Extract data
+            # JSONID;MemberId;Health;Health;
+          - type: "json2csv"
+            entryKey: "/Fans"
+            properties: "/_FAN_ID;/Status/Health;/Status/Health;"
+            separator: ";"
+          - type: "translate"
+            column: 3
+            translationTable: "StatusTranslationTable"
+          - type: "translate"
+            column: 4
+            translationTable: "StatusInformationTranslationTable"
+      mapping:
+        # Fan Value Table
+        # JsonID;PatrolStatus;StatusInformation
+        source: "$monitors.fan.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="fan"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(6)$"
+          computes:
+            # Extract data
+            # JSONID;ChassisID;MemberId;Name;Location;State;
+          - type: "json2csv"
+            entryKey: "/Entry/Value/Temperatures"
+            properties: "../../Column(2);/_TEMP_ID;/Name;/PhysicalContext;/Status/State;/UpperThresholdCritical;/UpperThresholdFatal;/UpperThresholdCritical;"
+          - type: "excludeMatchingLines"
+            column: 6
+            regExp: "Absent"
+            # Add Location label
+          - type: "leftConcat"
+            column: 5
+            value: "Location: "
+            # When threshold is 0, deactivate Temperature reading
+          - type: "replace"
+            column: 8
+            existingValue: "0"
+            newValue: ""
+      mapping:
+        # Temperature Instance Table
+        # JSONID;ChassisID;MemberId;Name;Location;State;
+        source: "$monitors.temperature.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          info: "$column(5)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(2)"
+          name: "$column(4)"
+        metrics:
+          hw.temperature.limit{limit_type="high.degraded"}: "$column(6)"
+          hw.temperature.limit{limit_type="high.critical"}: "$column(7)"
+    collect:
+      type: "multiInstance"
+      sources:
+        source(1):
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(5)$"
+          computes:
+            # Extract data
+            # JSONID;MemberId;Health;Health;
+          - type: "json2csv"
+            entryKey: "/Temperatures"
+            properties: "/_TEMP_ID;/Status/Health;/Status/Health;/ReadingCelsius;"
+            separator: ";"
+          - type: "translate"
+            column: 3
+            translationTable: "StatusTranslationTable"
+          - type: "translate"
+            column: 4
+            translationTable: "StatusInformationTranslationTable"
+      mapping:
+        # Temperature Value Table
+        # JsonID;PatrolStatus;StatusInformation
+        source: "$monitors.temperature.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="temperature"}: "$column(3)"
+          hw.temperature: "$column(5)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Query /Chassis/?/Power/
+          type: "http"
+          method: "GET"
+          executeForEachEntryOf:
+            source: "$monitors.enclosure.discovery.sources.source(3)$"
+            concatMethod: "json_array_extended"
+          url: "$entry.column(8)$"
+          header: "EmbeddedFile(1)"
+          resultContent: "body"
+          computes:
+            # Extract Data
+            # JSONID;ChassisID;Name;Model;SerialNumber;PowerSupplyType;PowerSupplyPower;Part Number;
+          - type: "json2csv"
+            entryKey: "/Entry/Value/PowerSupplies"
+            properties: "../../Column(2);/_PS_ID;/Name;/Model;/SerialNumber;/PowerSupplyType;/PowerCapacityWatts;/SparePartNumber;"
+            separator: ";"
+            # Add Model label
+          - type: "leftConcat"
+            column: 5
+            value: "Model: "
+            # Add Part Number label
+          - type: "leftConcat"
+            column: 9
+            value: "Part Number: "
+            # Add Serial Number label
+          - type: "leftConcat"
+            column: 6
+            value: "Serial Number: "
+      mapping:
+        # PowerSupply Instance Table
+        # JsonID;<System>;Name;SerialNumber;PowerCapacityWatts;InputType;"
+        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(3)"
+          __display_id: "$column(4)"
+          power_supply_type: "$column(7)"
+          info: "join($column(5), $column(6), $column(9), \" \")"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s - %s)\", $column(4), $column(7), $column(8))"
+        metrics:
+          hw.power_supply.limit: "$column(8)"
+    collect:
+      type: "multiInstance"
+      sources:
+        source(1):
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(3)$"
+          computes:
+          - type: "translate"
+            column: 5
+            translationTable: "StatusTranslationTable"
+          - type: "translate"
+            column: 6
+            translationTable: "StatusInformationTranslationTable"
+      mapping:
+        # Power Supply Value Table
+        # JsonID;PatrolStatus;StatusInformation;
+        source: "$monitors.power_supply.collect.sources.source(1)$"
+        deviceId: "$column(4)"
+        metrics:
+          hw.status{hw.type="power_supply"}: "$column(5)"
+        legacyTextParameters:
+          StatusInformation: "$column(6)"

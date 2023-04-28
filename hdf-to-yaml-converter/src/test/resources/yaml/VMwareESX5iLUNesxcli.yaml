@@ -1,0 +1,22 @@
+---
+extends:
+- "VMwareESX5iLUN-header"
+constants:
+  _ExecuteLocally: "\"1\""
+  _EsxcliConstant: "esxcli -s %{SUDO:vcenter} %{HOSTNAME} -u %{USERNAME} -p %{PASSWORD}"
+connector:
+  detection:
+    supersedes:
+    - "VMwareESX5iLUNSSH"
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "Linux"
+    - "OOB"
+  displayName: "VMware ESXi 5 LUN (esxcli)"
+  platforms: "VMware ESXi"
+  reliesOn: "ESX excli utility (installed on PATROL Agent host)"
+  version: "1.0"
+  information: "This connector discovers the LUNs of an VMware ESX5i server. It requires HTTPS access to the ESX host."
+sudoCommands:
+- "vcenter"

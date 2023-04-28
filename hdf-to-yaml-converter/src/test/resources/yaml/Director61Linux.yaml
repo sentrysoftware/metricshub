@@ -1,0 +1,523 @@
+---
+translations:
+  cpuStatusInformationTranslationTable:
+    "1": ""
+    "2": "Disabled by User"
+    default: "Unknown Status"
+    "3": "Disabled by BIOS (POST Error)"
+    "4": "Idle"
+    ok: ""
+  PowerSupplyStatusTranslationTable:
+    stopped: "ok"
+    error: "failed"
+    degraded: "degraded"
+    default: "UNKNOWN"
+    stressed: "degraded"
+    nonrecover: "failed"
+    stopping: "degraded"
+    service: "degraded"
+    no contact: "degraded"
+    lost comm: "degraded"
+    ok: "ok"
+    starting: "degraded"
+    pred fail: "degraded"
+  cpuStatusTranslationTable:
+    "1": "ok"
+    "2": "ok"
+    default: "UNKNOWN"
+    "3": "failed"
+    "4": "ok"
+    ok: "ok"
+  memoryStatusTranslationTable:
+    "0": "ok"
+    "1": "failed"
+    default: "UNKNOWN"
+    "false": "ok"
+    "true": "failed"
+  PowerSupplyStatusInformationTranslationTable:
+    stopped: "Stopped"
+    error: "Error"
+    degraded: "Degraded"
+    default: "Unknown Status"
+    stressed: "Stressed"
+    nonrecover: "Non Recover"
+    stopping: "Stopping"
+    service: "Service"
+    no contact: "No Contact"
+    lost comm: "Lost Communication"
+    ok: ""
+    starting: "Starting"
+    pred fail: "Predicted Failure"
+connector:
+  displayName: "IBM Director Agent 6 - Linux"
+  platforms: "IBM xSeries"
+  reliesOn: "IBM Director Agent 6.1.x"
+  version: "1.1"
+  information: "This connector provides hardware monitoring through the IBM Director Agent version 6.1."
+  detection:
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "Linux"
+    supersedes:
+    - "IpmiTool"
+    - "VMwareESX4i"
+    - "VMwareESXi"
+    - "VMwareESXiDisksIPMI"
+    - "VMwareESXiDisksStorage"
+    criteria:
+      # OS must be Linux
+    - type: "deviceType"
+      keep:
+      - "Linux"
+      # The WBEM layer (cimserver) must be running
+    - type: "process"
+      commandLine: "cimserver"
+      # The IBM Director Agent must be in version 6.x
+    - type: "wbem"
+      query: "SELECT Version FROM IBMPSG_DirectorAgent"
+      namespace: "root/ibmsd"
+      expectedResult: "\\(^6\\.1\\.[2-9].*\\)\\|\\(^6\\.[2-9].*\\)"
+      # The IBMPSG_ComputerSystemDetails WBEM class must be instanciated
+    - type: "wbem"
+      query: "SELECT ProductName FROM IBMPSG_ComputerSystemDetails"
+      namespace: "root/ibmsd"
+      errorMessage: "The IBM Director Agent seems to not be working properly. Please reinstall the IBM Director Agent."
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the IBMPSG_ComputerSystemDetails WBEM class
+          type: "wbem"
+          query: "SELECT Model,SerialNumber FROM IBMPSG_ComputerSystemDetails"
+          namespace: "root/ibmsd"
+      mapping:
+        # InstanceTable = Source(1)
+        # Note: InstanceTable must contain only one line!
+        source: "$monitors.enclosure.discovery.sources.source(1)$"
+        attributes:
+          id: "DIR6"
+          vendor: "IBM"
+          model: "$column(1)"
+          serial_number: "$column(2)"
+          type: "Computer"
+          name: "sprintf(\"%s (%s %s - %s)\", \"DIR6\", \"IBM\", $column(1), \"Computer\")"
+  cpu:
+    discovery:
+      sources:
+        source(1):
+          # CurrentClockSpeed,DeviceID,Manufacturer,Family
+          # IBMPSG_Processor was changed to CIM_Processor due to XML issues Case - W18152
+          type: "wbem"
+          query: "SELECT CurrentClockSpeed,DeviceID,Version FROM CIM_Processor"
+          namespace: "root/ibmsd"
+          computes:
+            # Replace GenuineIntel by Intel and AuthenticAMD by AMD
+          - type: "replace"
+            column: 3
+            existingValue: "(R)"
+            newValue: ""
+          - type: "replace"
+            column: 3
+            existingValue: "cpu"
+            newValue: ""
+            # Exclude lines that have a CPU Speed in the six digits as these are not real CPUs
+          - type: "excludeMatchingLines"
+            column: 1
+            regExp: "......"
+            # Keep only entries with non-empty model information (MSHW-2464: probably fake entries)
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            regExp: "....."
+      mapping:
+        # InstanceTable = Source(1)
+        source: "$monitors.cpu.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(2)"
+          __display_id: "$column(2)"
+          model: "$column(3)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "DIR6"
+          name: "sprintf(\"%s (%s - %mhhf.s)\", $column(2), $column(3), $column(1))"
+        metrics:
+          hw.cpu.speed.limit{limit_type="max"}: "megaHertz2Hertz($column(1))"
+    collect:
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = The IBMPSG_Processor WBEM class
+          type: "wbem"
+          query: "SELECT CPUStatus,DeviceID FROM CIM_Processor"
+          namespace: "root/ibmsd"
+          computes:
+          - type: "duplicateColumn"
+            column: 1
+          - type: "translate"
+            column: 1
+            translationTable: "cpuStatusTranslationTable"
+          - type: "translate"
+            column: 2
+            translationTable: "cpuStatusInformationTranslationTable"
+      mapping:
+        source: "$monitors.cpu.collect.sources.source(1)$"
+        deviceId: "$column(3)"
+        metrics:
+          hw.status{hw.type="cpu"}: "$column(1)"
+        legacyTextParameters:
+          StatusInformation: "$column(2)"
+  memory:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          type: "wbem"
+          query: "SELECT Capacity,Name,Speed,Tag FROM IBMPSG_PhysicalMemory"
+          namespace: "root/ibmsd"
+          computes:
+            # Convert size to MB
+          - type: "divide"
+            column: 1
+            value: "1048576"
+            # Add Mhz to Speed
+          - type: "rightConcat"
+            column: 3
+            value: " MHz"
+          - type: "leftConcat"
+            column: 2
+            value: "Label: "
+          - type: "leftConcat"
+            column: 3
+            value: "Speed: "
+      mapping:
+        # InstanceTable = Source(1)
+        source: "$monitors.memory.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(4)"
+          __display_id: "$column(4)"
+          info: "join($column(2), $column(3), \" \")"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "DIR6"
+          name: "sprintf(\"%s (%s)\", $column(4), $column(1))"
+        metrics:
+          hw.memory.limit: "mebiByte2Byte($column(1))"
+    collect:
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = The IBMPSG_Processor WBEM class
+          type: "wbem"
+          query: "SELECT HasError,Tag FROM IBMPSG_PhysicalMemory"
+          namespace: "root/ibmsd"
+          computes:
+          - type: "translate"
+            column: 1
+            translationTable: "memoryStatusTranslationTable"
+      mapping:
+        source: "$monitors.memory.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.status{hw.type="memory"}: "$column(1)"
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = the IBMPSG_Fan WBEM class
+          type: "wbem"
+          query: "SELECT DeviceID,ElementName,LowerThresholdCritical FROM IBMPSG_Tachometer"
+          namespace: "root/ibmsd"
+          computes:
+          - type: "replace"
+            column: 2
+            existingValue: " Tach"
+            newValue: ""
+      mapping:
+        # InstanceTable = Source(1)
+        source: "$monitors.fan.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(1)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "DIR6"
+          name: "$column(1)"
+        metrics:
+          hw.fan.speed.limit{limit_type="low.degraded"}: "$column(3)"
+          hw.fan.speed.limit{limit_type="low.critical"}: "0"
+    collect:
+      # The collect (as all WBEM-based collects) is \"MultiInstance\"
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = The IBMPSG_Tachometer WBEM class
+          type: "wbem"
+          query: "SELECT CurrentReading,DeviceID FROM IBMPSG_Tachometer"
+          namespace: "root/ibmsd"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.fan.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.fan.speed: "$column(1)"
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = The IBMPSG_TemperatureSensor WBEM class
+          type: "wbem"
+          query: "SELECT DeviceID,ElementName,LowerThresholdCritical,LowerThresholdNonCritical,UpperThresholdCritical,UpperThresholdNonCritical FROM IBMPSG_TemperatureSensor"
+          namespace: "root/ibmsd"
+          computes:
+            # Replace a blank or zeo "Lower" thereshold with an "Upper" threshold
+            # Version 6.3 of director uses upper, earlier versions used lower.
+            # ID;Name;LowerThresholdCritical;LowerThresholdNonCritical;UpperThresholdCritical;UpperThresholdNonCritical;
+          - type: "leftConcat"
+            column: 3
+            value: "_MSHW_"
+          - type: "rightConcat"
+            column: 3
+            value: "_MSHW_"
+          - type: "leftConcat"
+            column: 4
+            value: "_MSHW_"
+          - type: "rightConcat"
+            column: 4
+            value: "_MSHW_"
+            # Replace _MSHW__MSHW_ the field was originally blank with \"Upper\" values
+          - type: "replace"
+            column: 3
+            existingValue: "_MSHW__MSHW_"
+            newValue: "Column(5)"
+          - type: "replace"
+            column: 4
+            existingValue: "_MSHW__MSHW_"
+            newValue: "Column(6)"
+            # Replace _MSHW_0_MSHW_ the field was originally zero with \"Upper\" values
+          - type: "replace"
+            column: 3
+            existingValue: "_MSHW_0_MSHW_"
+            newValue: "Column(5)"
+          - type: "replace"
+            column: 4
+            existingValue: "_MSHW_0_MSHW_"
+            newValue: "Column(6)"
+            # Now if the threshold is STILL zero, we remove it.
+            # ID;Name;LowerThresholdCritical;LowerThresholdNonCritical;UpperThresholdCritical;UpperThresholdNonCritical;
+          - type: "leftConcat"
+            column: 3
+            value: "_MSHW_"
+          - type: "leftConcat"
+            column: 4
+            value: "_MSHW_"
+          - type: "replace"
+            column: 3
+            existingValue: "_MSHW_0"
+            newValue: ""
+          - type: "replace"
+            column: 4
+            existingValue: "_MSHW_0"
+            newValue: ""
+            # Remove _MSHW_ for non blank / non zero values
+          - type: "replace"
+            column: 3
+            existingValue: "_MSHW_"
+            newValue: ""
+          - type: "replace"
+            column: 4
+            existingValue: "_MSHW_"
+            newValue: ""
+          - type: "leftConcat"
+            column: 2
+            value: "Label: "
+      mapping:
+        # InstanceTable = Source(1)
+        source: "$monitors.temperature.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(1)"
+          info: "$column(2)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "DIR6"
+          name: "$column(1)"
+        metrics:
+          hw.temperature.limit{limit_type="high.degraded"}: "$column(4)"
+          hw.temperature.limit{limit_type="high.critical"}: "$column(3)"
+    collect:
+      # Like all WBEM collects, this one is \"MultiInstance\"
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = the IBMPSG_TemperatureSensor WBEM class
+          type: "wbem"
+          query: "SELECT CurrentReading,DeviceID FROM IBMPSG_TemperatureSensor"
+          namespace: "root/ibmsd"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.temperature.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.temperature: "$column(1)"
+  voltage:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = all the instances of the IBMPSG_VoltageSensor class
+          type: "wbem"
+          query: "SELECT DeviceID,LowerThresholdNonCritical,Name,UpperThresholdNonCritical,LowerThresholdCritical,UpperThresholdCritical FROM IBMPSG_VoltageSensor"
+          namespace: "root/ibmsd"
+          computes:
+            # Replace a blank "NonCritical" thereshold with an "Critical" threshold
+            # Version 6.3 of director uses Critical, earlier versions used NonCritical.
+            # DeviceID,LowerThresholdNonCritical,Name,UpperThresholdNonCritical,LowerThresholdCritical,UpperThresholdCritical
+          - type: "leftConcat"
+            column: 2
+            value: "_MSHW_"
+          - type: "rightConcat"
+            column: 2
+            value: "_MSHW_"
+          - type: "leftConcat"
+            column: 4
+            value: "_MSHW_"
+          - type: "rightConcat"
+            column: 4
+            value: "_MSHW_"
+            # Replace _MSHW__MSHW_ the field was originally blank with \"Upper\" values
+          - type: "replace"
+            column: 2
+            existingValue: "_MSHW__MSHW_"
+            newValue: "Column(5)"
+          - type: "replace"
+            column: 4
+            existingValue: "_MSHW__MSHW_"
+            newValue: "Column(6)"
+            # Replace _MSHW_0_MSHW_ the field was originally zero with \"Upper\" values
+          - type: "replace"
+            column: 2
+            existingValue: "_MSHW_0_MSHW_"
+            newValue: "Column(5)"
+          - type: "replace"
+            column: 4
+            existingValue: "_MSHW_0_MSHW_"
+            newValue: "Column(6)"
+            # Remove _MSHW_ for non blank values
+          - type: "replace"
+            column: 2
+            existingValue: "_MSHW_"
+            newValue: ""
+          - type: "replace"
+            column: 4
+            existingValue: "_MSHW_"
+            newValue: ""
+            # Thresholds for voltages are sometimes reported as "0" by the agent.  Replacing these "0" by no value to prevent incorrect thresholds.
+            # Add a MSHW_ string to our value and then remove MSHW_0. This should remove a 0 value and only that value
+            # DeviceID,LowerThreshold,Name,UpperThreshold,LowerThresholdCritical,UpperThresholdCritical
+          - type: "leftConcat"
+            column: 2
+            value: "MSHW_"
+          - type: "leftConcat"
+            column: 4
+            value: "MSHW_"
+            # Remove 0 value
+          - type: "replace"
+            column: 2
+            existingValue: "MSHW_0"
+            newValue: ""
+          - type: "replace"
+            column: 4
+            existingValue: "MSHW_0"
+            newValue: ""
+            # Remove MSHW_ for non 0 values
+          - type: "replace"
+            column: 2
+            existingValue: "MSHW_"
+            newValue: ""
+          - type: "replace"
+            column: 4
+            existingValue: "MSHW_"
+            newValue: ""
+      mapping:
+        # Here is the instance table = source(1)
+        source: "$monitors.voltage.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(1)"
+          voltage_type: "$column(3)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "DIR6"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+        metrics:
+          hw.voltage.limit{limit_type="high.degraded"}: "$column(4)"
+          hw.voltage.limit{limit_type="low.critical"}: "$column(2)"
+    collect:
+      # It's a \"MultiInstance\" collect
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = the IBMPSG_VoltageSensor class
+          type: "wbem"
+          query: "SELECT CurrentReading,DeviceID FROM IBMPSG_VoltageSensor"
+          namespace: "root/ibmsd"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.voltage.collect.sources.source(1)$"
+        deviceId: "$column(2)"
+        metrics:
+          hw.voltage: "$column(1)"
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = The IBMPSG_PowerSupply table
+          type: "wbem"
+          query: "SELECT DeviceID,Name FROM IBMPSG_PowerSupply"
+          namespace: "root/ibmsd"
+          computes:
+          - type: "replace"
+            column: 2
+            existingValue: " Status"
+            newValue: ""
+          - type: "leftConcat"
+            column: 2
+            value: "Label: "
+      mapping:
+        # The instance table:
+        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(1)"
+          info: "$column(2)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "DIR6"
+          name: "sprintf(\"%s, $column(1))"
+    collect:
+      # Collect type : multi instance (one source for several instances)
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = the simple IBMPSG_PowerSupply table/class
+          # DeviceID;WBEMStatus
+          type: "wbem"
+          query: "SELECT DeviceID,Status FROM IBMPSG_PowerSupply"
+          namespace: "root/ibmsd"
+          computes:
+            # Duplicate the status column
+            # DeviceID;WBEMStatus;WBEMStatus
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the first WBEM status column into a PATROL status
+            # DeviceID;PatrolStatus;WBEMStatus
+          - type: "translate"
+            column: 2
+            translationTable: "PowerSupplyStatusTranslationTable"
+            # Translate the second WBEM status column into a PATROL status
+            # DeviceID;PatrolStatus;StatusInformation
+          - type: "translate"
+            column: 3
+            translationTable: "PowerSupplyStatusInformationTranslationTable"
+      mapping:
+        # The ValueTable = Source(1)
+        source: "$monitors.power_supply.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="power_supply"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"

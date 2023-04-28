@@ -1,0 +1,75 @@
+---
+embedded:
+  EmbeddedFile(1): "#!/bin/sh\n\n# First, check that cediag is actually installed\nif /bin/test ! -f /opt/SUNWcest/bin/cediag ; then\n\t/bin/echo \"ERROR: cediag is not installed\"\n\texit 1\nfi\n\n# Check that we got cestat command (with maybe sudo) in $1 and cediag in $2\nCESTATCOMMAND=\"%{SUDO:/opt/SUNWcest/bin/cediag}/opt/SUNWcest/bin/cestat\"\nCEDIAGCOMMAND=\"%{SUDO:/opt/SUNWcest/bin/cediag}/opt/SUNWcest/bin/cediag\"\nCESTATOPTION=\"-v\"\nCEDIAGOPTION=\"-v\"\n\n# Debug settings\n#CESTATCOMMAND=\"cat /tmp/cestatexample\"\n#CEDIAGCOMMAND=\"cat /tmp/cediagexample\"\n#CESTATOPTION=\"\"\n#CEDIAGOPTION=\"\"\n\n# Accept the cediag license\nLICENSEFILE=$HOME/.cediag.licence.accepted\nif /bin/test \"$LOGNAME\" = \"root\" ; then\n\tif /bin/test ! -d /var/opt/SUNWcest/conf ; then\n\t\tif /bin/test ! -d /var/opt/SUNWcest ; then\n\t\t\tmkdir /var/opt/SUNWcest\n\t\tfi\n\t\t/bin/mkdir /var/opt/SUNWcest/conf\n\tfi\n\tLICENSEFILE=/var/opt/SUNWcest/conf/licence.accepted.for.root\nfi\n\nif /bin/test ! -f $LICENSEFILE ; then\n\t$CEDIAGCOMMAND -V|/usr/bin/awk '{ print(substr($0, 9)); }'>$LICENSEFILE\nfi\n\n# Parse cestat to show the discovered DIMMs\nDIMMLIST=`$CESTATCOMMAND $CESTATOPTION|/usr/bin/awk '{\n\tif ($NF == \"no\" || $NF == \"YES\")\n\t{\n\t\tdimmID = $1;\n\t\tfor (i=2 ; i<= NF-6 ; i++)\n\t\t{\n\t\t\tdimmID = dimmID \"_\" $i\n\t\t}\n\t\tprint dimmID;\n\t}\n}'`\n\n# Add 'Overall' as an object to be monitored, corresponding to the whole memory system\nDIMMLIST=\"$DIMMLIST Overall\"\n\n# Execute cediag and store its output in a temporary file\nCEDIAGOUTPUTFILE=/tmp/MS_HW_cediagoutput_$$\n\n$CEDIAGCOMMAND $CEDIAGOPTION|/usr/bin/awk 'BEGIN {\n\toverallPagesRetired = 0;\n\toverallPagesRetiredLimit = 1000000;\n\toverallDatapathFaults = 0;\n\toverallUE = 0;\n\toverallRule4 = 0;\n\toverallRule5 = 0;\n\toverallRule6 = 0;\n\tquoteChar = sprintf(\"%c\", 39);\n}\n/^cediag: / {\n\n\n\tif ($2 == \"Pages\" && $3 == \"Retired:\")\n\t{\n\t\toverallPagesRetired = $4;\n\t}\n\n\tif ($0 ~ /info: MPR \\(deduced\\) PRL pages:/)\n\t{\n\t\toverallPagesRetiredLimit = $7;\n\t}\n\n\tif ($0 ~ /info: MPR PRL pages:/)\n\t{\n\t\toverallPagesRetiredLimit = $6;\n\t}\n\n\tif ($2 == \"findings:\" && $4 == \"datapath\" && $5 == \"fault\")\n\t{\n\t\toverallDatapathFaults = $3;\n\t}\n\n\tif ($2 == \"findings:\" && $4 == \"UE(s)\")\n\t{\n\t\toverallUE = $3;\n\t}\n\n\tif ($2 == \"findings:\" && $0 ~ /DIMMs with a failure pattern matching rule#4$/)\n\t{\n\t\toverallRule4 = $3;\n\t}\n\n\tif ($2 == \"findings:\" && $0 ~ /DIMMs with a failure pattern matching rule#5$/)\n\t{\n\t\toverallRule5 = $3;\n\t}\n\n\tif ($2 == \"findings:\" && $0 ~ /DIMMs with a failure pattern matching rule#6$/)\n\t{\n\t\toverallRule6 = $3;\n\t}\n\n\tif ($2 ~ /advice:.*:/ && $3 == \"replace\" && $4 == \"DIMM\")\n\t{\n\t\tdimmID = \"\";\n\t\tstatus = \"OK\";\n\t\tstatusInformation = \"\";\n\t\tpredictedFailure = \"false\";\n\n\t\tquotePos = index($0, quoteChar);\n\t\tif (quotePos > 0)\n\t\t{\n\t\t\ttempID = substr($0, quotePos + 1);\n\t\t\tquotePos = index(tempID, quoteChar);\n\t\t\tif (quotePos > 0)\n\t\t\t{\n\t\t\t\ttempID = substr(tempID, 1, quotePos - 1);\n\t\t\t\tfor (i=1 ; i<=split(tempID, tempIDsplitted, \" \") ; i++)\n\t\t\t\t{\n\t\t\t\t\tdimmID = dimmID \"_\" tempIDsplitted[i]\n\t\t\t\t}\n\t\t\t\tdimmID = substr(dimmID, 2, length(dimmID) - 1);\n\t\t\t}\n\t\t}\n\n\t\tif ($2 == \"advice:HIGH:\")\n\t\t{\n\t\t\tstatus = \"ALARM\";\n\t\t\tstatusInformation = \"Replacement needed\";\n\t\t\tpredictedFailure = \"true\";\n\t\t}\n\t\telse if ($2 == \"advice:MEDIUM:\")\n\t\t{\n\t\t\tstatus = \"OK\";\n\t\t\tstatusInformation = \"Replacement advised\";\n\t\t\tpredictedFailure = \"true\";\n\t\t}\n\n\t\tif (dimmID != \"\")\n\t\t{\n\t\t\tprint \"MSHW;\" dimmID \";\" predictedFailure \";\" status \";\" statusInformation\n\t\t}\n\t}\n\n}\nEND {\n\tif (overallPagesRetired > overallPagesRetiredLimit)\n\t{\n\t\tprint \"MSHW;Overall;false;ALARM;Too many pages retired\";\n\t}\n\telse if (overallDatapathFaults > 0)\n\t{\n\t\tprint \"MSHW;Overall;false;ALARM;Datapath faults detected\";\n\t}\n\telse if (overallUE > 0)\n\t{\n\t\tprint \"MSHW;Overall;false;ALARM;Uncorrectable errors detected\";\n\t}\n\telse if (overallRule4 > 0)\n\t{\n\t\tprint \"MSHW;Overall;false;ALARM;Module replacement needed\";\n\t}\n\telse if (overallRule5 + overallRule6 > 0)\n\t{\n\t\tprint \"MSHW;Overall;true;OK;Module replacement advised\";\n\t}\n\n}'>$CEDIAGOUTPUTFILE\n\n# For each DIMM found with cestat, show its status found in cediag, or OK if nothing in cediag\nfor DIMM in $DIMMLIST\ndo\n\nDIMMRESULT=`/usr/bin/grep \"^MSHW;$DIMM;\" $CEDIAGOUTPUTFILE`\nif /bin/test \"$DIMMRESULT\" = \"\" ; then\n\t/bin/echo \"MSHW;$DIMM;false;OK;\"\nelse\n\t/bin/echo $DIMMRESULT\nfi\n\ndone\n\n# Remove the temporary file\n/bin/rm -f $CEDIAGOUTPUTFILE\n"
+connector:
+  displayName: "Oracle/Sun Solaris - Memory Modules (cediag)"
+  platforms: "Oracle/Sun"
+  reliesOn: "Sun Solaris system commands (cediag, cestat)"
+  information: "Provides memory modules monitoring on Sun Solaris 8 and 9 SPARC systems. Requires root privileges."
+  version: "1.0"
+  detection:
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "Solaris"
+    criteria:
+      # OS should be SunOS,SOLARIS (Solaris on SPARC)
+    - type: "deviceType"
+      keep:
+      - "SunOS"
+      - "SOLARIS"
+      # The various following tools have to be present
+    - type: "osCommand"
+      commandLine: "/bin/ls /opt/SUNWcest/bin/cestat"
+      expectedResult: "^/opt/SUNWcest/bin/cestat$"
+    - type: "osCommand"
+      commandLine: "/bin/ls /opt/SUNWcest/bin/cediag"
+      expectedResult: "^/opt/SUNWcest/bin/cediag$"
+      # Cestat should work (it won't if not as superuser)
+    - type: "osCommand"
+      commandLine: "%{SUDO:/opt/SUNWcest/bin/cediag}/opt/SUNWcest/bin/cestat -v"
+      expectedResult: "^Page Retirement Statistics Tool"
+sudoCommands:
+- "/opt/SUNWcest/bin/cediag"
+monitors:
+  memory:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = output of EmbeddedFile(1)
+          # deviceID;predictedFailure;status;statusInformation
+          type: "osCommand"
+          commandLine: "/bin/sh %EmbeddedFile(1)%"
+          keep: "^MSHW;"
+          separators: ";"
+          selectColumns: "2,3,4,5"
+      mapping:
+        # InstanceTable = Source(3)
+        source: "$monitors.memory.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          vendor: "$column(1)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(1))"
+    collect:
+      # Collect type is \"multi-instance\"
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = Memory.Discovery.Source(1)
+          # Because actually, we're not going to collect every 2 minutes. Collect will rely on
+          # discovery results (which got status and statusInformation) every hour.
+          # So, parameters will still be refreshed every 2 minutes but will reflect values collected
+          # every hour. This is sufficient because Sun recommends running cediag/cestat once a day, so...
+          # deviceID;predictedFailure;status;statusInformation
+          type: "copy"
+          from: "$monitors.memory.discovery.sources.source(1)$"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.memory.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="memory", state="predicted_failure"}: "boolean($column(2))"
+          hw.status{hw.type="memory"}: "$column(3)"
+        legacyTextParameters:
+          StatusInformation: "$column(4)"

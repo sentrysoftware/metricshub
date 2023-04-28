@@ -1,0 +1,145 @@
+---
+embedded:
+  EmbeddedFile(1): "{\n\tif ($0 ~ /^c[0-9]+t[0-9A-Z]+d[0-9]+/ || $0 ~ /^s+d[0-9]+/)\n\t{\n\t\tif ($1 ~ /^c[0-9]+t[0-9A-Z]+d[0-9]+/)\n\t\t{\n\t\t\ttargetIndex = index($1, \"t\")\n\t\t\tcontroller = substr($1, 1, targetIndex - 1)\n\t\t}\n\t\telse\n\t\t{\n\t\t\tcontroller = \"Other\"\n\t\t}\n\t}\n\n\tif ($0 ~/Illegal Request:/)\n\t{\n\t\tprint \"MSHW;\" controller\n\t}\n}"
+  EmbeddedFile(3): "{\n\tif ($0 ~ /^c[0-9]+t[0-9A-Z]+d[0-9]+/ || $0 ~ /^s+d[0-9]+/)\n\t{\n\t\tdisk = $1\n\t\tproduct = \"\"\n\t\ttransporterror = 0\n\t\thardwareerror = 0\n\t\tmediaerror = 0\n\t\tdevicenotready = 0\n\t\tnodevice = 0\n\t\trecoverable = 0\n\t\tillegalrequests = 0\n\t\tpredictivefailureanalysis = 0\n\t\tstatusinformation = \"\"\n\t\ttotalerror = 0\n\t\tvendor = \"\"\n\t\tsize = 0\n\t}\n\n\tif ($0 ~ /Product: /)\n\t{\n\t\tindex1 = index($0, \"Product: \" ) + length(\"Product: \")\n\t\tproduct = substr($0, index1, length-index1)\n\t\tindex1 = index(product, \":\")\n\t\tif (index1 > 0)\n\t\t{\n\t\t\tproduct = substr(product, 1, index1-1)\n\t\t\tn = split(product, a, \" \")\n\t\t\tproduct = \"\"\n\t\t\tfor (i=1 ; i<n ; i++)\n\t\t\t{\n\t\t\t\tproduct = product a[i]\n\t\t\t\tif (i < n-1)\n\t\t\t\t\tproduct = product \" \"\n\t\t\t}\n\t\t}\n\t}\n\tif ($0 ~ /Size: /)\n\t{\n\t\tindex1 = index($0, \"<\") + 1\n\t\tindex2 = index($0, \" bytes>\")\n\t\tsize = substr($0, index1, index2-index1)\n\t}\n\n\tif ($8 == \"Transport\" && ($9 == \"Errors:\" || $9 == \"errors:\"))\n\t{\n\t\ttransporterror = $10\n\t}\n\n\tif ($5 == \"Hard\" && ($6 == \"Errors:\" || $6 == \"errors:\"))\n\t{\n\t\thardwareerror = $7\n\t}\n\n\tif ($1 == \"Media\" && ($2 == \"Error:\" || $2 == \"error:\"))\n\t{\n\t\tmediaerror = $3\n\t}\n\n\tif ($4 == \"Device\" && $5 == \"Not\" && $6 == \"Ready:\")\n\t{\n\t\tdevicenotready = $7\n\t}\n\n\tif ($8 == \"No\" && $9 == \"Device:\")\n\t{\n\t\tnodevice = $10\n\t}\n\n\tif ($11 == \"Recoverable:\")\n\t{\n\t\trecoverable = $12\n\t}\n\n\tif ($1 == \"Illegal\" && $2 == \"Request:\")\n\t{\n\t\tillegalrequests = $3\n\t}\n\n\tif ($4 == \"Predictive\" && $5 == \"Failure\" && $6 == \"Analysis:\")\n\t{\n\t\tpredictivefailureanalysis = $7\n\t}\n\n\tif ($0 ~/Illegal Request:/)\n\t{\n\t\thardwareerror = hardwareerror - mediaerror - devicenotready - nodevice\n\t\tif (hardwareerror < 0)\n\t\t{\n\t\t\thardwareerror = 0\n\t\t}\n\n\t\tif (predictivefailureanalysis > 0)\n\t\t{\n\t\t\tpredictivefailureanalysis = \"TRUE\"\n\t\t}\n\t\telse\n\t\t{\n\t\t\tpredictivefailureanalysis = \"FALSE\"\n\t\t}\n\n\t\ttotalerror = recoverable + transporterror + mediaerror + devicenotready + nodevice + hardwareerror\n\n\t\tif (disk != \"\" && product ~ /SUN[0-9\\.]+[GT]/ && size > 10)\n\t\t{\n\t\t\tprint \"MSHW;\" disk \";\" totalerror \";\" hardwareerror \";\" mediaerror \";\" devicenotready \";\" nodevice \";\" transporterror \";\" recoverable \";\" illegalrequests \";\" predictivefailureanalysis\n\t\t}\n\n\t\tproduct = \"\"\n\t\ttransporterror = 0\n\t\thardwareerror = 0\n\t\tmediaerror = 0\n\t\tdevicenotready = 0\n\t\tnodevice = 0\n\t\trecoverable = 0\n\t\tillegalrequests = 0\n\t\tpredictivefailureanalysis = 0\n\t\tstatusinformation = \"\"\n\t\ttotalerror = 0\n\t\tvendor = \"\"\n\t\tsize = 0\n\n\t}\n\n}"
+  EmbeddedFile(2): "{\n\tif ($0 ~ /^c[0-9]+t[0-9A-Z]+d[0-9]+/ || $0 ~ /^s+d[0-9]+/)\n\t{\n\t\tdisk = $1\n\t\tsize = \"0\"\n\t\tvendor = \"\"\n\t\tproduct = \"\"\n\t\tmodel = \"\"\n\t\tproductmodel = \"\"\n\t\tserial = \"\"\n\t\tif (disk ~ /^c[0-9]+t[0-9A-Z]+d[0-9]+/)\n\t\t{\n\t\t\ttargetIndex = index(disk, \"t\")\n\t\t\tcontroller = substr(disk, 1, targetIndex - 1)\n\t\t}\n\t\telse\n\t\t{\n\t\t\tcontroller = \"Other\"\n\t\t}\n\t}\n\n\tif ($0 ~ /Size: /)\n\t{\n\t\tindex1 = index($0, \"<\") + 1\n\t\tindex2 = index($0, \" bytes>\")\n\t\tsize = substr($0, index1, index2-index1)\n\t}\n\n\tif ($0 ~ /Vendor: /)\n\t{\n\t\tindex1 = index($0, \"Vendor: \" ) + length(\"Vendor: \")\n\t\tvendor = substr($0, index1, length-index1)\n\t\tindex1 = index(vendor, \":\")\n\t\tif (index1 > 0)\n\t\t{\n\t\t\tvendor = substr(vendor, 1, index1-1)\n\t\t\tn = split(vendor, a, \" \")\n\t\t\tvendor = \"\"\n\t\t\tfor (i=1 ; i<n ; i++)\n\t\t\t{\n\t\t\t\tvendor = vendor a[i]\n\t\t\t\tif (i < n-1)\n\t\t\t\t\tvendor = vendor \" \"\n\t\t\t}\n\t\t}\n\t}\n\n\tif ($0 ~ /Model: /)\n\t{\n\t\tindex1 = index($0, \"Model: \" ) + length(\"Model: \")\n\t\tmodel = substr($0, index1, length-index1)\n\t\tindex1 = index(model, \":\")\n\t\tif (index1 > 0)\n\t\t{\n\t\t\tmodel = substr(model, 1, index1-1)\n\t\t\tn = split(model, a, \" \")\n\t\t\tmodel = \"\"\n\t\t\tfor (i=1 ; i<n ; i++)\n\t\t\t{\n\t\t\t\tmodel = model a[i]\n\t\t\t\tif (i < n-1)\n\t\t\t\t\tmodel = model \" \"\n\t\t\t}\n\t\t}\n\t}\n\n\tif ($0 ~ /Product: /)\n\t{\n\t\tindex1 = index($0, \"Product: \" ) + length(\"Product: \")\n\t\tproduct = substr($0, index1, length-index1)\n\t\tindex1 = index(product, \":\")\n\t\tif (index1 > 0)\n\t\t{\n\t\t\tproduct = substr(product, 1, index1-1)\n\t\t\tn = split(product, a, \" \")\n\t\t\tproduct = \"\"\n\t\t\tfor (i=1 ; i<n ; i++)\n\t\t\t{\n\t\t\t\tproduct = product a[i]\n\t\t\t\tif (i < n-1)\n\t\t\t\t\tproduct = product \" \"\n\t\t\t}\n\t\t}\n\t}\n\n\tif ($0 ~ /Serial No: /)\n\t{\n\t\tindex1 = index($0, \"Serial No: \" ) + length(\"Serial No: \")\n\t\tserial = substr($0, index1, length-index1)\n\t\tindex1 = index(serial, \":\")\n\t\tif (index1 > 0)\n\t\t{\n\t\t\tserial = substr(serial, 1, index1-1)\n\t\t\tn = split(serial, a, \" \")\n\t\t\tserial = \"\"\n\t\t\tfor (i=1 ; i<n ; i++)\n\t\t\t{\n\t\t\t\tserial = serial a[i]\n\t\t\t\tif (i < n-1)\n\t\t\t\t\tserial = serial \" \"\n\t\t\t}\n\t\t}\n\n\t}\n\n\tif ($0 ~/Illegal Request:/)\n\t{\n\t\tif (product != \"\" && model != \"\")\n\t\t{\n\t\t\tproductmodel = product \" \" model\n\t\t}\n\t\telse\n\t\t{\n\t\t\tproductmodel = product model\n\t\t}\n\n\t\tif (disk != \"\" && product ~ /SUN[0-9\\.]+[GT]/ && size > 10)\n\t\t{\n\t\t\tprint \"MSHW;\" disk \";\" controller \";\" size \";\" vendor \" \" productmodel \";\" serial\n\t\t}\n\n\t\tdisk = \"\"\n\t\tsize = \"0\"\n\t\tvendor = \"\"\n\t\tproduct = \"\"\n\t\tmodel = \"\"\n\t\tproductmodel = \"\"\n\t\tserial = \"\"\n\n\t}\n\n}"
+  EmbeddedFile(4): "DISKLIST=`/usr/bin/iostat -En|/usr/bin/awk '{\n\tif ($0 ~ /^c[0-9]+t[0-9A-Z]+d[0-9]+/ || $0 ~ /^s+d[0-9]+/)\n\t{\n\t\tdisk = $1\n\t\tproduct = \"\"\n\t}\n\n\tif ($0 ~ /Product: /)\n\t{\n\t\tindex1 = index($0, \"Product: \" ) + length(\"Product: \")\n\t\tproduct = substr($0, index1, length-index1)\n\t\tindex1 = index(product, \":\")\n\t\tif (index1 > 0)\n\t\t{\n\t\t\tproduct = substr(product, 1, index1-1)\n\t\t\tn = split(product, a, \" \")\n\t\t\tproduct = \"\"\n\t\t\tfor (i=1 ; i<n ; i++)\n\t\t\t{\n\t\t\t\tproduct = product a[i]\n\t\t\t\tif (i < n-1)\n\t\t\t\t\tproduct = product \" \"\n\t\t\t}\n\t\t}\n\t}\n\tif ($0 ~ /Size: /)\n\t{\n\t\tindex1 = index($0, \"<\") + 1\n\t\tindex2 = index($0, \" bytes>\")\n\t\tsize = substr($0, index1, index2-index1)\n\t}\n\tif ($0 ~/Illegal Request:/)\n\t{\n\t\tif (disk != \"\" && product ~ /SUN[0-9\\.]+[GT]/ && size > 10)\n\t\t{\n\t\t\tprint disk\n\t\t}\n\n\t\tdisk = \"\"\n\t\tproduct = \"\"\n\t}\n}'|/usr/bin/head -30`\n\nLANG=C\nexport LANG\n\nfor DISK in $DISKLIST\ndo\n\n\tif /usr/bin/echo $DISK|/usr/bin/grep \"^c[0-9][0-9]*t[0-9A-Z][0-9A-Z]*d[0-9][0-9]*\" 2>/dev/null >/dev/null; then\n\t\tCTDSLIST=`/usr/bin/ls /dev/rdsk/$DISK\"s\"* 2>/dev/null`\n\telse\n\t\tDRIVERNAME=`/usr/bin/echo $DISK|/usr/bin/tr -d [:digit:]`\n\t\tINSTANCENUMBER=`/usr/bin/echo $DISK|/usr/bin/tr -d [:alpha:]`\n\t\tDEVICEPATH=`/usr/xpg4/bin/awk -v instanceNumber=$INSTANCENUMBER -v driverName=$DRIVERNAME '($(NF-1) == instanceNumber) && ($NF == \"\\\"\"driverName\"\\\"\") { print $1 }' /etc/path_to_inst|/usr/bin/tr -d \\\"`\n\t\tCTDSLIST=`/usr/bin/ls -l /dev/rdsk/c*|/usr/xpg4/bin/awk -v devicePath=\"$DEVICEPATH\" '($NF ~ devicePath && devicePath != \"\") { print $(NF-2); }'`\n\tfi\n\n\tif /usr/bin/test -z \"$CTDSLIST\" ; then\n\t\t/usr/bin/echo \"MSHW;$DISK;UNKNOWN;Couldn't find corresponding block device\";\n\telse\n\t\tFOUNDWORKINGCTDS=0\n\t\tfor CTDS in $CTDSLIST\n\t\tdo\n\t\t\tERRORMESSAGE=`%{SUDO:/usr/bin/dd}/usr/bin/dd if=$CTDS of=/dev/null count=20 2>&1`\n\t\t\tif /usr/bin/test \"$?\" = \"0\" ; then\n\t\t\t\t/usr/bin/echo \"MSHW;$DISK;OK;Working\"\n\t\t\t\tFOUNDWORKINGCTDS=1\n\t\t\t\tbreak\n\t\t\tfi\n\t\tdone\n\t\tif /usr/bin/test \"$FOUNDWORKINGCTDS\" == \"0\" ; then\n\t\t\tERRORMESSAGE=`/usr/bin/echo $ERRORMESSAGE|/usr/bin/awk -F: '($4 !~ /denied/ && $4 !~ /[Nn]o such file/) {print $4}'`\n\t\t\tif /usr/bin/test -z \"$ERRORMESSAGE\" ; then\n\t\t\t\t/usr/bin/echo \"MSHW;$DISK;UNKNOWN;Unknown Status\";\n\t\t\telse\n\t\t\t\t/usr/bin/echo \"MSHW;$DISK;ALARM;$ERRORMESSAGE\";\n\t\t\tfi\n\t\tfi\n\tfi\ndone"
+connector:
+  displayName: "Oracle/Sun Solaris - Sun Disks"
+  platforms: "Oracle/Sun"
+  reliesOn: "Sun Solaris system commands (iostat, dd)"
+  information: "Gives physical disk information (status and error count) on Sun Solaris systems through the iostat -En utility. Supports only official Sun disks."
+  version: "1.7"
+  detection:
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "Solaris"
+    supersedes:
+    - "SunIostatNonSun"
+    criteria:
+    - type: "deviceType"
+      keep:
+      - "SunOS"
+      - "Solaris"
+    - type: "osCommand"
+      commandLine: "/usr/bin/iostat -En"
+      expectedResult: "Soft [Ee]rrors.*Hard [Ee]rrors.*Transport [Ee]rrors"
+      errorMessage: "iostat seems to not work as expected. Please check the output of 'iostat -En'"
+    - type: "osCommand"
+      commandLine: "/usr/bin/iostat -En"
+      expectedResult: "Product:.*SUN[0-9\\.]+[GT]"
+      errorMessage: "There is no 'Sun' stamped disk in this system."
+sudoCommands:
+- "/usr/bin/dd"
+monitors:
+  disk_controller:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = output of iostat reformatted by the awk (see EmbeddedFile(1))
+          # DeviceID
+          type: "osCommand"
+          commandLine: "/usr/bin/iostat -En|/usr/bin/awk -f %EmbeddedFile(1)%|/usr/bin/uniq"
+          keep: "^MSHW;"
+          separators: ";"
+          selectColumns: "2"
+        source(2):
+          # Source(2) = output of iostat
+          type: "osCommand"
+          commandLine: "iostat -En"
+          computes:
+            # Reformat iostat's output through awk (see EmbeddedFile(2))
+            # DeviceID;ControllerNumber;Size;VendorModel;SerialNumber
+          - type: "awk"
+            script: "EmbeddedFile(2)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3,4,5,6"
+        source(3):
+          # Source(3) = Table Joint of source(1) and source(2)
+          # this is to remove disk controllers which don't have physical disks attached to
+          # DeviceID;DiskDeviceID;ControllerNumber;Size;VendorModel;SerialNumber
+          type: "tableJoin"
+          leftTable: "$monitors.disk_controller.discovery.sources.source(1)$"
+          rightTable: "$monitors.disk_controller.discovery.sources.source(2)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 2
+      mapping:
+        # InstanceTable = Source(3)
+        source: "$monitors.disk_controller.discovery.sources.source(3)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(1)"
+          controller_number: "$column(1)"
+          model: ""
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(1), \"\")"
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of DiskController.Discovery.Source(2)
+          type: "copy"
+          from: "$monitors.disk_controller.discovery.sources.source(2)$"
+      mapping:
+        # InstanceTable = Source(1)
+        source: "$monitors.physical_disk.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(1)"
+          vendor: "$column(4)"
+          serial_number: "$column(5)"
+          hw.parent.type: "disk_controller"
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
+        metrics:
+          hw.physical_disk.size: "$column(3)"
+    collect:
+      # Collect type is \"all instances in one shot\"
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = output of iostat
+          type: "osCommand"
+          commandLine: "/usr/bin/iostat -En"
+          computes:
+            # Source(1) = output of iostat reformatted by awk (see EmbeddedFile(3))
+            # DeviceID;ErrorCount;HardErrorCount;MediaErrorCount;DeviceNotReadyErrorCount;NoDeviceErrorCount;TransportErrorCount;RecoverableErrorCount;IllegalRequestErrorCount;PredictedFailure
+          - type: "awk"
+            script: "EmbeddedFile(3)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3,4,5,6,7,8,9,10,11"
+        source(2):
+          # Source(2) = output of the shell script based on the format command
+          # DeviceID;Status;StatusInformation
+          type: "osCommand"
+          commandLine: "/usr/bin/sh %EmbeddedFile(4)%"
+          keep: "^MSHW;"
+          separators: ";"
+          selectColumns: "2,3,4"
+        source(3):
+          # Source(3) = Table joint of Source(1) and Source(2)
+          # DeviceID;ErrorCount;HardErrorCount;MediaErrorCount;DeviceNotReadyErrorCount;NoDeviceErrorCount;TransportErrorCount;RecoverableErrorCount;IllegalRequestErrorCount;PredictedFailure;DeviceID;Status;StatusInformation
+          type: "tableJoin"
+          leftTable: "$monitors.physical_disk.collect.sources.source(1)$"
+          rightTable: "$monitors.physical_disk.collect.sources.source(2)$"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+      mapping:
+        # ValueTable = Source(3)
+        source: "$monitors.physical_disk.collect.sources.source(3)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.errors{hw.type="physical_disk", hw.error.type="hard"}: "$column(3)"
+          hw.errors{hw.type="physical_disk", hw.error.type="media"}: "$column(4)"
+          hw.errors{hw.type="physical_disk", hw.error.type="device_not_ready"}: "$column(5)"
+          hw.errors{hw.type="physical_disk", hw.error.type="no_device"}: "$column(6)"
+          hw.errors{hw.type="physical_disk", hw.error.type="transport"}: "$column(7)"
+          hw.errors{hw.type="physical_disk", hw.error.type="recoverable"}: "$column(8)"
+          hw.errors{hw.type="physical_disk", hw.error.type="illegal_request"}: "$column(9)"
+          hw.status{hw.type="physical_disk", state="predicted_failure"}: "boolean($column(10))"
+          hw.status{hw.type="physical_disk"}: "$column(12)"
+        legacyTextParameters:
+          StatusInformation: "$column(13)"

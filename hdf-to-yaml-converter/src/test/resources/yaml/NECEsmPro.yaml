@@ -1,0 +1,342 @@
+---
+translations:
+  memoryTypeTranslationTable:
+    "1": ""
+    "2": ""
+    "3": "SIMM"
+    "4": "DIMM"
+  GenericStatusTranslationTable:
+    default: "UNKNOWN"
+    "3": "ok"
+    "4": "degraded"
+    "5": "failed"
+    "6": "failed"
+    "7": "ok"
+    "8": "degraded"
+    "9": "ok"
+    "10": "failed"
+  GenericStatusInformationTranslationTable:
+    default: "UNKNOWN"
+    "3": ""
+    "4": "Warning"
+    "5": "Fatal"
+    "6": "Non-recoverable"
+    "7": "In test"
+    "8": "Degraded"
+    "9": "Disabled"
+    "10": "Down"
+  cpuVendorTranslationTable:
+    "1": ""
+    "2": ""
+    default: ""
+    "3": "Intel"
+    "4": "Mips"
+connector:
+  displayName: "NEC ESMPRO Agent"
+  platforms: "NEC Express5800"
+  reliesOn: "NEC ESMPRO Agent"
+  version: "1.0"
+  information: "This connector provides hardware monitoring through the NEC ESMPRO Agent which supports almost all NEC Express5800 and some BULL NovaScale servers running Windows and Linux."
+  detection:
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "NT"
+    - "Linux"
+    criteria:
+    - type: "snmpGetNext"
+      oid: "1.3.6.1.4.1.119.2.2.4.4.1.2"
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Get the model name
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.119.2.2.4.4.1.2"
+          selectColumns: "1,3"
+      mapping:
+        source: "$monitors.enclosure.discovery.sources.source(1)$"
+        attributes:
+          id: "Computer01"
+          vendor: "$column(2)"
+          model: "$column(1)"
+          type: "Computer"
+          name: "sprintf(\"%s (%s %s - %s)\", \"Computer01\", $column(2), $column(1), \"Computer\")"
+  cpu:
+    discovery:
+      sources:
+        source(1):
+          # CPU discovery
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.119.2.2.4.4.2.2.1.22.1"
+          selectColumns: "ID,2,3,4"
+          computes:
+            # Translate memory vendor
+          - type: "translate"
+            column: 2
+            translationTable: "cpuVendorTranslationTable"
+      mapping:
+        source: "$monitors.cpu.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          vendor: "$column(2)"
+          model: "$column(3)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s - %s - %mhhf.s)\", $column(1), $column(2), $column(3), $column(4))"
+        metrics:
+          hw.cpu.speed.limit{limit_type="max"}: "megaHertz2Hertz($column(4))"
+    collect:
+      # CPU collect
+      type: "monoInstance"
+      sources:
+        source(1):
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.119.2.2.4.4.2.2.1.22.1.12.%CPU.Collect.DeviceID%"
+          computes:
+            # Duplicate this status, because we will translate it two times
+          - type: "duplicateColumn"
+            column: 1
+          - type: "translate"
+            column: 1
+            translationTable: "GenericStatusTranslationTable"
+          - type: "translate"
+            column: 2
+            translationTable: "GenericStatusInformationTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.cpu.collect.sources.source(1)$"
+        metrics:
+          hw.status{hw.type="cpu"}: "$column(1)"
+        legacyTextParameters:
+          StatusInformation: "$column(2)"
+  memory:
+    discovery:
+      sources:
+        source(1):
+          # Memory discovery
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.119.2.2.4.4.4.2.1.9.1"
+          selectColumns: "ID,3,4"
+          computes:
+            # Remove modules for which we have no size
+          - type: "excludeMatchingLines"
+            column: 3
+            regExp: "^0$"
+            # Convert memory size to MB
+          - type: "divide"
+            column: 3
+            value: "1024"
+            # Translate memory type
+          - type: "translate"
+            column: 2
+            translationTable: "memoryTypeTranslationTable"
+      mapping:
+        source: "$monitors.memory.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          type: "$column(2)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(2), $column(3))"
+        metrics:
+          hw.memory.limit: "mebiByte2Byte($column(3))"
+    collect:
+      # Memory collect
+      type: "monoInstance"
+      sources:
+        source(1):
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.119.2.2.4.4.4.2.1.9.1.5.%Memory.Collect.DeviceID%"
+          computes:
+          - type: "duplicateColumn"
+            column: 1
+          - type: "translate"
+            column: 1
+            translationTable: "GenericStatusTranslationTable"
+          - type: "translate"
+            column: 2
+            translationTable: "GenericStatusInformationTranslationTable"
+      mapping:
+        source: "$monitors.memory.collect.sources.source(1)$"
+        metrics:
+          hw.status{hw.type="memory"}: "$column(1)"
+        legacyTextParameters:
+          StatusInformation: "$column(2)"
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Temperature discovery
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.119.2.2.4.4.10.2.1.2.1"
+          selectColumns: "ID,2,6,11,15"
+          computes:
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            valueList: "3"
+            # Remove \"-1\" thresholds
+          - type: "replace"
+            column: 4
+            existingValue: "-1"
+            newValue: ""
+          - type: "replace"
+            column: 5
+            existingValue: "-1"
+            newValue: ""
+      mapping:
+        source: "$monitors.temperature.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          temperature_type: "$column(2)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+        metrics:
+          hw.temperature.limit{limit_type="high.degraded"}: "$column(4)"
+          hw.temperature.limit{limit_type="high.critical"}: "$column(5)"
+    collect:
+      # Temperature collect
+      type: "monoInstance"
+      sources:
+        source(1):
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.119.2.2.4.4.10.2.1.2.1.3.%Temperature.Collect.DeviceID%"
+      mapping:
+        source: "$monitors.temperature.collect.sources.source(1)$"
+        metrics:
+          hw.temperature: "$column(1)"
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Fan discovery
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.119.2.2.4.4.10.2.3.2.1"
+          selectColumns: "ID,2,4"
+          computes:
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            valueList: "3"
+      mapping:
+        source: "$monitors.fan.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          hw.parent.type: "enclosure"
+          name: "$column(1)"
+    collect:
+      # Fan collect
+      type: "monoInstance"
+      sources:
+        source(1):
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.119.2.2.4.4.10.2.3.2.1.3.%Fan.Collect.DeviceID%"
+          computes:
+          - type: "duplicateColumn"
+            column: 1
+          - type: "duplicateColumn"
+            column: 1
+          - type: "translate"
+            column: 2
+            translationTable: "GenericStatusTranslationTable"
+          - type: "translate"
+            column: 3
+            translationTable: "GenericStatusInformationTranslationTable"
+      mapping:
+        source: "$monitors.fan.collect.sources.source(1)$"
+        metrics:
+          hw.status{hw.type="fan"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  voltage:
+    discovery:
+      sources:
+        source(1):
+          # Voltage discovery
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.119.2.2.4.4.10.2.2.2.1"
+          selectColumns: "ID,2,5,11,19"
+          computes:
+          - type: "keepOnlyMatchingLines"
+            column: 3
+            valueList: "3"
+            # Remove \"-1\" thresholds
+          - type: "rightConcat"
+            column: 4
+            value: "A"
+          - type: "rightConcat"
+            column: 5
+            value: "A"
+          - type: "replace"
+            column: 4
+            existingValue: "-1A"
+            newValue: ""
+          - type: "replace"
+            column: 5
+            existingValue: "-1A"
+            newValue: ""
+          - type: "replace"
+            column: 4
+            existingValue: "A"
+            newValue: ""
+          - type: "replace"
+            column: 5
+            existingValue: "A"
+            newValue: ""
+      mapping:
+        source: "$monitors.voltage.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          voltage_type: "$column(2)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+        metrics:
+          hw.voltage.limit{limit_type="high.degraded"}: "$column(4)"
+          hw.voltage.limit{limit_type="low.critical"}: "$column(5)"
+    collect:
+      # Voltage collect
+      type: "monoInstance"
+      sources:
+        source(1):
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.119.2.2.4.4.10.2.2.2.1.3.%Voltage.Collect.DeviceID%"
+      mapping:
+        source: "$monitors.voltage.collect.sources.source(1)$"
+        metrics:
+          hw.voltage: "$column(1)"
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Power supply discovery
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.119.2.2.4.4.11.2.3.3.1"
+          selectColumns: "1"
+      mapping:
+        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s, $column(1))"
+    collect:
+      # Power supply collect
+      type: "monoInstance"
+      sources:
+        source(1):
+          type: "snmpGet"
+          oid: "1.3.6.1.4.1.119.2.2.4.4.11.2.3.3.1.2.%PowerSupply.Collect.DeviceID%"
+          computes:
+          - type: "duplicateColumn"
+            column: 1
+          - type: "duplicateColumn"
+            column: 1
+          - type: "translate"
+            column: 2
+            translationTable: "GenericStatusTranslationTable"
+          - type: "translate"
+            column: 3
+            translationTable: "GenericStatusInformationTranslationTable"
+      mapping:
+        source: "$monitors.power_supply.collect.sources.source(1)$"
+        metrics:
+          hw.status{hw.type="power_supply"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"

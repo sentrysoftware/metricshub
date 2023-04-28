@@ -1,0 +1,27 @@
+---
+extends:
+- "CpqNetwork-header"
+constants:
+  Collect_source: "%NetworkCard.Collect.Source(3)%"
+  Discovery_source: "%NetworkCard.Discovery.Source(3)%"
+connector:
+  displayName: "HP Integrated Lights-Out Management Card - Network"
+  platforms: "HP ProLiant"
+  reliesOn: "HP Integrated Lights-Out Management Card"
+  version: "1.0"
+  information: "This connector discovers enclosures, Ethernet ports, Physical network port and aggregations through the HP Integrated Lights-Out Management Card. This connector requires an Agentless Management Service and in some cases, the System Management Assistant."
+  detection:
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "OOB"
+    supersedes:
+    - "MIB2"
+    - "MIB2Linux"
+    - "MIB2NT"
+    - "MIB2Solaris"
+    - "WBEMGenNetwork"
+    - "LinuxIfConfigNetwork"
+    - "LinuxIPNetwork"
+    - "HPUXNetwork"
+    - "SunNetwork"

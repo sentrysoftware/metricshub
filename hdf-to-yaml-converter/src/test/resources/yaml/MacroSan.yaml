@@ -1,0 +1,533 @@
+---
+translations:
+  batteryStatusInformationTranslationTable:
+    "0": ""
+    "1": "Faulty"
+    "2": "Warning"
+    default: "Unknown Status"
+    "3": "Absent"
+    "4": "Unknown"
+  lunStatusInformationTranslationTable:
+    "0": ""
+    "1": "Warning"
+    "2": "Faulty"
+    default: "Unknown Status"
+    "3": "Unknown"
+    "4": "Status N/A"
+  diskTypeTranslationTable:
+    "0": ""
+    "1": "SATA"
+    "2": "SAS"
+    default: ""
+    "3": "SSD"
+  diskRoleTranslationTable:
+    "0": "Blank"
+    "1": "Global Spare"
+    "2": "Data"
+    default: ""
+    "3": "Raid Spare"
+    "4": "Conflict"
+    "5": "Unknown"
+  otherdeviceStatusInformationTranslationTable:
+    default: "UNKNOWN"
+    "0_0": "HA Status Normal"
+    "0_1": "HA A Takeover B"
+    "1_0": "HA Status Normal (Single)"
+    "0_2": "HA B Takeover A"
+    "1_1": "HA A Takeover B (Single)"
+    "2_0": "HA Status Normal (Double)"
+    "0_3": "HA Status Abnormal"
+    "1_2": "HA B Takeover A (Single)"
+    "2_1": "HA A Takeover B (Double)"
+    "3_0": "HA Status Abnormal (Single)"
+    "1_3": "HA Status Abnormal (Single)"
+    "2_2": "HA B Takeover A (Double)"
+    "3_1": "HA Status Abnormal (Single)"
+    "4_0": "HA Status Abnormal (Double)"
+    "2_3": "HA Status Abnormal (Double)"
+    "3_2": "HA Status Abnormal (Single)"
+    "4_1": "HA Status Abnormal (Double)"
+    "5_0": "HA Status Normal (Idle)"
+    "3_3": "HA Status Abnormal (Single)"
+    "4_2": "HA Status Abnormal (Double)"
+    "5_1": "HA A Takeover B (Idle)"
+    "6_0": "HA Status Normal (PowerOff)"
+    "4_3": "HA Status Abnormal (Double)"
+    "5_2": "HA B Takeover A (Idle)"
+    "6_1": "HA A Takeover B (PowerOff)"
+    "5_3": "HA Status Abnormal (Idle)"
+    "6_2": "HA B Takeover A (PowerOff)"
+    "6_3": "HA Status Abnormal (PowerOff)"
+  moduleStatusTranslationTable:
+    "0": "ok"
+    "1": "failed"
+    "2": "failed"
+    default: "UNKNOWN"
+    "3": "UNKNOWN"
+  batteryStatusTranslationTable:
+    "0": "ok"
+    "1": "failed"
+    "2": "degraded"
+    default: "UNKNOWN"
+    "3": "failed"
+    "4": "UNKNOWN"
+  diskStatusInformationTranslationTable:
+    "0": ""
+    "1": "Repairing"
+    "2": "Warning"
+    default: "Unknown Status"
+    "3": "Failed"
+    "4": "Missing"
+  diskStatusTranslationTable:
+    "0": "ok"
+    "1": "degraded"
+    "2": "degraded"
+    default: "UNKNOWN"
+    "3": "failed"
+    "4": "failed"
+  moduleStatusInformationTranslationTable:
+    "0": ""
+    "1": "Faulty"
+    "2": "Absent"
+    default: "Unknown Status"
+    "3": "Unknown"
+  otherdeviceStatusTranslationTable:
+    default: "UNKNOWN"
+    "0_0": "ok"
+    "0_1": "degraded"
+    "1_0": "ok"
+    "0_2": "degraded"
+    "1_1": "degraded"
+    "2_0": "ok"
+    "0_3": "failed"
+    "1_2": "degraded"
+    "2_1": "degraded"
+    "3_0": "ok"
+    "1_3": "failed"
+    "2_2": "degraded"
+    "3_1": "degraded"
+    "4_0": "ok"
+    "2_3": "failed"
+    "3_2": "degraded"
+    "4_1": "degraded"
+    "5_0": "ok"
+    "3_3": "failed"
+    "4_2": "degraded"
+    "5_1": "degraded"
+    "6_0": "ok"
+    "4_3": "failed"
+    "5_2": "degraded"
+    "6_1": "degraded"
+    "5_3": "failed"
+    "6_2": "degraded"
+    "6_3": "failed"
+  lunStatusTranslationTable:
+    "0": "ok"
+    "1": "degraded"
+    "2": "failed"
+    default: "UNKNOWN"
+    "3": "UNKNOWN"
+    "4": "ok"
+connector:
+  displayName: "MacroSan Storage System (SNMP)"
+  platforms: "MacroSan"
+  reliesOn: "MacroSan SNMP Agent"
+  version: "1.0"
+  information: "This connector discovers the enclosure and the disks of MacroSan disk arrays as well as the various environment sensors (batteries, fans, power supplies). It relies on the SNMP protocol."
+  detection:
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "Storage"
+    criteria:
+      # Verify that there are MacroSan Storage Processors
+    - type: "snmpGetNext"
+      oid: "1.3.6.1.4.1.35904.1.2.2.1.2.1"
+monitors:
+  enclosure:
+    discovery:
+      mapping:
+        source: "MacroSan StorageDevice"
+        attributes:
+          id: "MacroSan StorageDevice"
+          vendor: "MacroSan"
+          type: "Storage"
+          name: "sprintf(\"%s (%s - %s)\", \"MacroSan StorageDevice\", \"MacroSan\", \"Storage\")"
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = diskStateTable
+          # DeviceID,Name,Type,Speed,Capacity,Role
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.35904.1.2.2.5.2.1"
+          selectColumns: "1,2,3,4,5,7"
+          computes:
+            # Translate The Disk Type
+            # DeviceID,Name,Type,Speed,Capacity,Role
+          - type: "translate"
+            column: 3
+            translationTable: "diskTypeTranslationTable"
+            # Translate The Disk Type
+            # DeviceID,Name,Type,Speed,Capacity,Role
+          - type: "translate"
+            column: 6
+            translationTable: "diskRoleTranslationTable"
+            # Remove MB/GB/TB and replace with appropriate number of zeroes.
+            # DeviceID,Name,Type,Speed,Capacity,Role
+          - type: "replace"
+            column: 5
+            existingValue: "MB"
+            newValue: "000000"
+          - type: "replace"
+            column: 5
+            existingValue: "GB"
+            newValue: "000000000"
+          - type: "replace"
+            column: 5
+            existingValue: "TB"
+            newValue: "000000000000"
+          - type: "leftConcat"
+            column: 6
+            value: "Role: "
+          - type: "leftConcat"
+            column: 4
+            value: "Speed: "
+      mapping:
+        # InstanceTable = Source(1)
+        # DeviceID,Name,Type,Speed,Capacity,Role
+        source: "$monitors.physical_disk.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(2)"
+          model: "$column(3)"
+          info: "join($column(6), $column(4), \" \")"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s - %s)\", $column(2), $column(3), $column(5))"
+        metrics:
+          hw.physical_disk.size: "$column(5)"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = diskStateTable
+          # DeviceID;Status;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.35904.1.2.2.5.2.1"
+          selectColumns: "1,6"
+          computes:
+            # Duplicate the Status column
+            # DiskID;Status;Status;
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the first status column into a PATROLStatus
+            # DiskID;PATROLStatus;Status;
+          - type: "translate"
+            column: 2
+            translationTable: "diskStatusTranslationTable"
+            # Translate the second status column into a more readable string
+            # DiskID;PATROLStatus;StatusInformation;
+          - type: "translate"
+            column: 3
+            translationTable: "diskStatusInformationTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.physical_disk.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="physical_disk"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = diskPropertiesTable
+          # DeviceID,Name,Capacity
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.35904.1.2.2.4.2.1"
+          selectColumns: "1,2,3"
+          computes:
+            # Remove MB/GB/TB and create the Multiplier
+            # DeviceID,Name,Capacity,Multiplier
+          - type: "replace"
+            column: 3
+            existingValue: "MB"
+            newValue: ";1048576"
+          - type: "replace"
+            column: 3
+            existingValue: "GB"
+            newValue: ";1073741824"
+          - type: "replace"
+            column: 3
+            existingValue: "TB"
+            newValue: ";1099511627776"
+            # Multiply the Capacity by the Multiplier
+            # DeviceID,Name,Capacity,Multiplier
+          - type: "multiply"
+            column: 3
+            value: "Column(4)"
+      mapping:
+        # InstanceTable = Source(1)
+        # DeviceID,Name,Capacity,Multiplier
+        source: "$monitors.logical_disk.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(2)"
+          hw.logical_disk.limit: "$column(3)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s (%s)\", $column(2), $column(3))"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = diskPropertiesTable
+          # DeviceID;Status;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.35904.1.2.2.4.2.1"
+          selectColumns: "1,4"
+          computes:
+            # Duplicate the Status column
+            # DiskID;Status;Status;
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the first status column into a PATROLStatus
+            # DiskID;PATROLStatus;Status;
+          - type: "translate"
+            column: 2
+            translationTable: "lunStatusTranslationTable"
+            # Translate the second status column into a more readable string
+            # DiskID;PATROLStatus;StatusInformation;
+          - type: "translate"
+            column: 3
+            translationTable: "lunStatusInformationTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.logical_disk.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="logical_disk"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = diskPropertiesTable
+          # DeviceID
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.35904.1.2.2.7.2.1"
+          selectColumns: "1"
+      mapping:
+        # InstanceTable = Source(1)
+        # DeviceID
+        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(1)"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s, $column(1))"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = diskPropertiesTable
+          # DeviceID;Status;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.35904.1.2.2.7.2.1"
+          selectColumns: "1,2"
+          computes:
+            # Duplicate the Status column
+            # DeviceID;Status;Status;
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the first status column into a PATROLStatus
+            # DeviceID;PATROLStatus;Status;
+          - type: "translate"
+            column: 2
+            translationTable: "moduleStatusTranslationTable"
+            # Translate the second status column into a more readable string
+            # DeviceID;PATROLStatus;StatusInformation;
+          - type: "translate"
+            column: 3
+            translationTable: "moduleStatusInformationTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.power_supply.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="power_supply"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = diskPropertiesTable
+          # DeviceID
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.35904.1.2.2.3.2.1"
+          selectColumns: "1"
+      mapping:
+        # InstanceTable = Source(1)
+        # DeviceID
+        source: "$monitors.fan.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(1)"
+          hw.parent.type: "enclosure"
+          name: "$column(1)"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = diskPropertiesTable
+          # DeviceID;Status;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.35904.1.2.2.3.2.1"
+          selectColumns: "1,2"
+          computes:
+            # Duplicate the Status column
+            # DeviceID;Status;Status;
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the first status column into a PATROLStatus
+            # DeviceID;PATROLStatus;Status;
+          - type: "translate"
+            column: 2
+            translationTable: "moduleStatusTranslationTable"
+            # Translate the second status column into a more readable string
+            # DeviceID;PATROLStatus;StatusInformation;
+          - type: "translate"
+            column: 3
+            translationTable: "moduleStatusInformationTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.fan.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="fan"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  battery:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = batPropertiesTable
+          # DeviceID;FirstPowerTime;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.35904.1.2.2.2.1.1"
+          selectColumns: "1,2"
+          computes:
+            # Exclude Batteries with a power on time of 0 (battery not present)
+            # DeviceID;FirstPowerTime;
+          - type: "excludeMatchingLines"
+            column: 2
+            valueList: "0"
+      mapping:
+        # InstanceTable = Source(1)
+        # DeviceID;FirstPowerTime;
+        source: "$monitors.battery.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(1)"
+          hw.parent.type: "enclosure"
+          name: "$column(1)"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = diskPropertiesTable
+          # DeviceID;Status;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.35904.1.2.2.2.1.1"
+          selectColumns: "1,5"
+          computes:
+            # Duplicate the Status column
+            # DeviceID;Status;Status;
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the first status column into a PATROLStatus
+            # DeviceID;PATROLStatus;Status;
+          - type: "translate"
+            column: 2
+            translationTable: "batteryStatusTranslationTable"
+            # Translate the second status column into a more readable string
+            # DeviceID;PATROLStatus;StatusInformation;
+          - type: "translate"
+            column: 3
+            translationTable: "batteryStatusInformationTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.battery.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="battery"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = spHaStatTable
+          # DeviceID,Name
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.35904.1.2.2.1.2.1"
+          selectColumns: "1,2"
+      mapping:
+        # InstanceTable = Source(1)
+        # DeviceID,Name
+        source: "$monitors.other_device.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          __display_id: "$column(2)"
+          device_type: "Controller"
+          hw.parent.type: "enclosure"
+          name: "sprintf(\"%s: %s\", \"Controller\", $column(2))"
+    collect:
+      # Collect type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = diskPropertiesTable
+          # DeviceID;spHaState;sysHaState;
+          type: "snmpTable"
+          oid: "1.3.6.1.4.1.35904.1.2.2.1.2.1"
+          selectColumns: "1,3,4"
+          computes:
+            # Concat the two status together
+            # DeviceID;spHaState;sysHaState;
+          - type: "rightConcat"
+            column: 2
+            value: "_"
+          - type: "rightConcat"
+            column: 2
+            value: "Column(3)"
+            # Duplicate the Status column
+            # DeviceID;Status;Status;sysHaState;
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the first status column into a PATROLStatus
+            # DeviceID;PATROLStatus;Status;sysHaState;
+          - type: "translate"
+            column: 2
+            translationTable: "otherdeviceStatusTranslationTable"
+            # Translate the second status column into a more readable string
+            # DeviceID;PATROLStatus;StatusInformation;sysHaState;
+          - type: "translate"
+            column: 3
+            translationTable: "otherdeviceStatusInformationTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        # DeviceID;PATROLStatus;StatusInformation;sysHaState;
+        source: "$monitors.other_device.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="other_device"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"

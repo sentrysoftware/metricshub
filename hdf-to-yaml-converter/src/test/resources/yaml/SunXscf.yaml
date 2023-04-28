@@ -1,0 +1,595 @@
+---
+embedded:
+  EmbeddedFile(1): "BEGIN {\n\tpath = \"\";\n}\n{\n\tgsub(\"[ ;:\\*]\", \" \");\n\n\tif ($1 == \"SPARC\" || $1 == \"+\")\n\t{\n\t\tgsub(\" +\", \" \");\n\t\tprint $0;\n\t}\n\telse if (NF > 0)\n\t{\n\t\tname = $1;\n\n\t\tdepth = (index($0, name) - 1) / 4;\n\t\tif (depth < 0) { indent = 0; }\n\n\t\tsplit(path, pathArray, \"/\");\n\t\tpath = \"\";\n\t\tfor (i=1 ; i<depth ; i++)\n\t\t{\n\t\t\tpath = path pathArray[i] \"/\";\n\t\t}\n\t\tpath = path name;\n\n\t\tgsub(\" +\", \" \");\n\n\t\tioxIndex = index(path, \"IOX@\");\n\t\tif (ioxIndex > 0)\n\t\t{\n\t\t\tprint substr(path, ioxIndex, length(path) - ioxIndex + 1) \" \" $0\n\t\t}\n\t\telse\n\t\t{\n\t\t\tprint path \" \" $0 \" \"\n\t\t}\n\t}\n}"
+  EmbeddedFile(3): "BEGIN { MotherBoardID = \"\"; }\n($2 ~ /^CPUM#[0-9]+-CHIP#[0-9]+$/) {\n\tcpuID = $1;\n\tstatus = $4;\n\tSerialNumber = $8;\n\tgetline;\n\tFruPartNumber = $3;\n\tgetline;\n\tSpeed = $3 * 1000;\n\tgetline;\n\tCoreCount = $3;\n\tif (CoreCount == 4)\n\t{\n\t\tPowerConsumption = 135;\n\t}\n\telse\n\t{\n\t\tPowerConsumption = 120;\n\t}\n\tprint \"MSHW;\" cpuID \";\" cpuID \" - \" CoreCount \"-core SPARC64;\" Speed \";\" SerialNumber \";\" FruPartNumber \";\" status \";\" PowerConsumption\n}"
+  EmbeddedFile(2): "BEGIN { ioxList = \";\"; }\n(NR == 1) { ServerModel = $0 }\n(NR == 2) { SerialNumber = $3 ; print \"MSHW;Main;Computer;;\" ServerModel \";\" SerialNumber \";;;\" ; }\n($2 ~ /^IOX@/ && $3 == \"Status\") {\n\tDeviceID = $2;\n\tif (index(ioxList, \";\" DeviceID \";\") == 0)\n\t{\n\t\tioxList = ioxList DeviceID \";\";\n\t\tName = DeviceID \" I/O Expansion Unit\";\n\t\tstatus = $4;\n\t\tSerialNumber = $6;\n\t\tgetline;\n\t\tFruNumber = $3 \" \" $4;\n\t\tprint \"MSHW;\" DeviceID \";Enclosure;;\" Name \";\" SerialNumber \";\" FruNumber \";\" status ;\n\t}\n}"
+  EmbeddedFile(5): "($2 ~ /^PSU#[0-9]+$/) {\n\tpowersupplyID = $1;\n\tstatus = $4;\n\tSerialNumber = $6;\n\tgetline;\n\tFruPartNumber = $3 \" \" $4 \" \" $5;\n\tgetline;\n\tif ($2 ~ /Power_Status/ && $3 ~ /[Ii]nput/ && $4 ~ /[Ff]ail/ && status == \"Normal\") {status = \"Input Fail\"};\n\tprint \"MSHW;\" powersupplyID \";;\" SerialNumber \";FRU: \" FruPartNumber \";\" status\n}\n($2 ~ /^PS[0-9]$/ && $3 == \"Status\") {\n\tpowersupplyID = $1;\n\tstatus = $4;\n\tSerialNumber = $6;\n\tgetline;\n\tFruPartNumber = $3 \" \" $4 \" \" $5;\n\tif (index(powersupplyID, \"/\") > 0)\n\t{\n\t\tparentID = substr(powersupplyID, 1, index(powersupplyID, \"/\") - 1)\n\t}\n\telse\n\t{\n\t\tparentID = \"Main\";\n\t}\n\tprint \"MSHW;\" powersupplyID \";\" parentID \";\" SerialNumber \";\" FruPartNumber \";\" status\n}"
+  EmbeddedFile(4): "($2 ~ /^MEM#[0-9A-Za-z]+$/) {\n\tmemoryID = $1;\n\tstatus = $4;\n\tgetline;\n\tSerialNumber = $3;\n\tgetline;\n\tSize = $5\n\tSizeUnit = $6\n\tif (SizeUnit == \"GB\") { Size = Size * 1024; }\n\tprint \"MSHW;\" memoryID \";\" memoryID \";\" Size \";\" SerialNumber \";\" status\n}"
+  EmbeddedFile(7): "($2 ~ /^FAN_[0-9A-Za-z#_]+$/) {\n\tfanID = $1;\n\tstatus = $4;\n\tprint \"MSHW;\" fanID \";\" fanID \";\" status\n}"
+  EmbeddedFile(6): "BEGIN { GroupID = \"\"; SubDeviceID = \"\"; }\n{\n\tif ($1 ~ /^CPUM/ || $1 ~ /^MEMB/)\n\t{\n\t\tSubDeviceID = $1;\n\t}\n\telse if ($1 !~ /^-?[0-9\\.]+V[#L]?[0-9]?$/)\n\t{\n\t\tGroupID = $1;\n\t\tif (GroupID !~ /^MBU_[A-Z0-9a-z]+$/ && GroupID !~ /^CMU#[0-9]+$/)\n\t\t{\n\t\t\tSubDeviceID = \"\";\n\t\t}\n\t}\n\telse if ($0 ~ /[0-9\\.]+V#?[0-9]? Power Supply Group:-?[0-9\\.]+V/)\n\t{\n\t\tif ((GroupID ~ /^MBU_[A-Z0-9a-z]+$/ || GroupID ~ /^CMU#[0-9]+$/) && SubDeviceID != \"\")\n\t\t{\n\t\t\tVoltageID = GroupID \"/\" SubDeviceID \"/\" $1\n\t\t\tVoltageType = GroupID \"/\" SubDeviceID \" - \" $1\n\t\t}\n\t\telse\n\t\t{\n\t\t\tVoltageID = GroupID \"/\" $1\n\t\t\tVoltageType = GroupID \" - \" $1\n\t\t}\n\t\tgsub(\"[.]\",\"_\",VoltageID)\n\t\tNominalVoltage = substr($1, 1, length($1) - 1)\n\t\tUpperThreshold = NominalVoltage * 1.1 * 1000;\n\t\tLowerThreshold = NominalVoltage * 0.9 * 1000;\n\t\tCurrentVoltage = substr($4, 7, length($4) - 7);\n\t\tCurrentVoltage = CurrentVoltage * 1000;\n\t\tprint \"MSHW;\" VoltageID \";\" VoltageType \";\" LowerThreshold \";\" UpperThreshold \";\" CurrentVoltage\n\t}\n}"
+  EmbeddedFile(10): "BEGIN { GroupID = \"\"; SensorID = \"\"; FS=\":\";}\n$1 ~ /Temperature/ {\n\t                  Temp = $2 ; gsub(/[^0-9\\.]/,\"\",Temp);\n\t                  Warn = \"40\"; Alarm = \"45\" ;\n\t                  print (\"MSHW;Ambient Temperature;\" Temp \";\" Warn \";\" Alarm \";\")\n\t                 }\n$1 ~ /CMU#[0-9]/ {\n\t                GroupID = $1; gsub(/ /,\"\",GroupID);\n                  Temp = $2 ; gsub(/[^0-9\\.]/,\"\",Temp);\n                  Warn = \"55\"; Alarm = \"60\" ;\n\t                print (\"MSHW;\" GroupID \";\" Temp \";\" Warn \";\" Alarm \";\")\n\t               }\n\n$1 ~ /CPUM#[0-9]/ {\n\t                SensorID = $1; gsub(/ /,\"\",SensorID); SensorID = GroupID \"/\" SensorID ;\n\t                Temp = $2 ; gsub(/[^0-9\\.]/,\"\",Temp);\n                  Warn = \"85\"; Alarm = \"100\" ;\n\t                print (\"MSHW;\" SensorID \";\" Temp \";\" Warn \";\" Alarm \";\")\n\t               }"
+  EmbeddedFile(9): "BEGIN {\n\tXSCFUList = \";\";\n\tIOUList = \"\";\n}\n($2 ~ /^IOU#[0-9]+$/) {\n\tDeviceID = $1;\n\tstatus = $4;\n\tSerialNumber = $8;\n\tgetline;\n\tFruPartNumber = $3 \" \" $4 \" \" $5;\n\tIOUList = IOUList \"�MSHW;I/O Unit;\" DeviceID \";Main;;\" SerialNumber \";\" FruPartNumber \";\" status \";Power:\"\n}\n($1 ~ \"^IOU#[0-9]+/PCI#[0-9]+$\" && $NF != \"DownLink\") {\n\tIOUList = IOUList \"W\";\n}\n($2 ~ /^XSCFU$/ || $2 ~ /^XSCFU_[A-Z]#[0-9]$/) {\n\tDeviceID = $1;\n\tif (index(XSCFUList, \";\" DeviceID \";\") > 0)\n\t{\n\t\tDeviceID = DeviceID \"b\";\n\t}\n\telse\n\t{\n\t\tXSCFUList = XSCFUList DeviceID \";\";\n\t}\n\tstatus = $4;\n\tif (index(status, \",\") > 1) { status = substr(status, 1, index(status, \",\") - 1); }\n\tSerialNumber = $8;\n\tgetline;\n\tFruPartNumber = $3 \" \" $4 \" \" $5;\n\tprint \"MSHW;XSCF Unit;\" DeviceID \";Main;;\" SerialNumber \";\" FruPartNumber \";\" status \";30\"\n}\n($2 ~ /^OPNL$/ || $2 ~ /^OPNL#[0-9]+$/) {\n\tDeviceID = $1;\n\tstatus = $4;\n\tSerialNumber = $8;\n\tgetline;\n\tFruPartNumber = $3 \" \" $4 \" \" $5;\n\tprint \"MSHW;Operator Panel;\" DeviceID \";Main;;\" SerialNumber \";\" FruPartNumber \";\" status \";2\"\n}\n($2 ~ /^CMU#[0-9]+$/) {\n\tDeviceID = $1;\n\tstatus = $4;\n\tSerialNumber = $8;\n\tgetline;\n\tFruPartNumber = $3 \" \" $4 \" \" $5;\n\tprint \"MSHW;CPU/Memory Board Unit;\" DeviceID \";Main;;\" SerialNumber \";\" FruPartNumber \";\" status \";80\"\n}\n($2 ~ /^MEMB#[0-9]+$/) {\n\tDeviceID = $1;\n\tstatus = $4;\n\tSerialNumber = $8;\n\tgetline;\n\tFruPartNumber = $3 \" \" $4 \" \" $5;\n\tprint \"MSHW;Memory Board;\" DeviceID \";Main;\" DeviceID \";\" SerialNumber \";\" FruPartNumber \";\" status \";50\"\n}\n($2 ~ /^MBU_[A-Z0-9]$/) {\n\tDeviceID = $1;\n\tstatus = $4;\n\tSerialNumber = $8;\n\tgetline;\n\tFruPartNumber = $3 \" \" $4 \" \" $5;\n\tprint \"MSHW;Motherboard Unit;\" DeviceID \";Main;;\" SerialNumber \";\" FruPartNumber \";\" status \";80\"\n}\n($2 ~ /BP_[A-Z]#[0-9]$/ || $2 ~ /BP#[0-9]+$/) {\n\tDeviceID = $1;\n\tstatus = $4;\n\tSerialNumber = $8;\n\tgetline;\n\tFruPartNumber = $3 \" \" $4 \" \" $5;\n\tprint \"MSHW;Backplane;\" DeviceID \";Main;;\" SerialNumber \";\" FruPartNumber \";\" status \";25\"\n}\n($2 ~ /^DDC_[A-Z]#[0-9]+$/) {\n\tDeviceID = $1;\n\tstatus = $4;\n\tSerialNumber = $8;\n\tprint \"MSHW;DC-to-DC Converter;\" DeviceID \";Main;\" DeviceID \";\" SerialNumber \";;\" status \";5\"\n}\n($2 ~ /^DDCR$/) {\n\tDeviceID = $1;\n\tstatus = $4;\n\tSerialNumber = $8;\n\tprint \"MSHW;DC-to-DC Converter;\" DeviceID \";Main;\" DeviceID \";\" SerialNumber \";;\" status \";5\"\n}\n($NF == \"DownLink\" && $3 == \"Status\") {\n\tDeviceID = $1;\n\tstatus = $4;\n\tgetline;\n\tSerialNumber = $5;\n\tgetline;\n\tConnection = $3;\n\tgetline;\n\tFruPartNumber = $3 \" \" $4 \" \" $5;\n\tprint \"MSHW;DownLink Card;\" DeviceID \";Main;to \" Connection \";\" SerialNumber \";\" FruPartNumber \";\" status \";35\"\n}\n($2 ~ /^IOB[0-9]+$/ && $3 == \"Status\") {\n\tDeviceID = $1;\n\tShortName = $2;\n\tstatus = $4;\n\tSerialNumber = $6;\n\tgetline;\n\tFruPartNumber = $3 \" \" $4 \" \" $5\n\tif (index(DeviceID, \"/\") > 0)\n\t{\n\t\tparentID = substr(DeviceID, 1, index(DeviceID, \"/\") - 1);\n\t}\n\telse\n\t{\n\t\tparentID = \"Main\";\n\t}\n\tIOBList = IOBList \"�MSHW;I/O Board;\" DeviceID \";\" parentID \";\" ShortName \";\" SerialNumber \";\" FruPartNumber \";\" status \";Power:\"\n}\n($1 ~ \"^IOX@[A-Z0-9]+/IOB[0-9]+/SLOT[0-9]+$\") {\n\tIOBList = IOBList \"w\";\n}\n($2 == \"LINK\" && $3 == \"Status\") {\n\tDeviceID = $1;\n\tstatus = $4;\n\tSerialNumber = $8;\n\tgetline;\n\tFruPartNumber = $3 \" \" $4 \" \" $5;\n\tsplit(DeviceID, PathArray, \"/\");\n\tparentID = PathArray[1];\n\tShortName = PathArray[2];\n\tprint \"MSHW;UpLink Card;\" DeviceID \";\" parentID \";\" ShortName \";\" SerialNumber \";\" FruPartNumber \";\" status \";35\"\n}\n($2 ~ /^XBU_[A-Z]#[0-9]+$/) {\n\tDeviceID = $1;\n\tstatus = $4;\n\tSerialNumber = $8;\n\tgetline;\n\tFruPartNumber = $3 \" \" $4 \" \" $5;\n\tprint \"MSHW;Crossbar Unit;\" DeviceID \";Main;;\" SerialNumber \";\" FruPartNumber \";\" status \";80\"\n}\n($2 ~ /^CLKU_[A-Z]#[0-9]+$/) {\n\tDeviceID = $1;\n\tstatus = $4;\n\tSerialNumber = $8;\n\tgetline;\n\tFruPartNumber = $3 \" \" $4 \" \" $5;\n\tprint \"MSHW;Clock Control Unit;\" DeviceID \";Main;;\" SerialNumber \";\" FruPartNumber \";\" status \";4\"\n}\nEND {\n\tIOUCount = split(IOUList, IOUArray, \"�\");\n\tfor (i=2; i<=IOUCount; i++)\n\t{\n\t\tpowerIndex = index(IOUArray[i], \";Power:\");\n\t\tPowerConsumption = (length(IOUArray[i]) - powerIndex - 6) * 20;\n\t\tif (PowerConsumption < 0) { PowerConsumption = 20; }\n\t\tPowerConsumption = PowerConsumption + 40;\n\t\tprint substr(IOUArray[i], 1, powerIndex) PowerConsumption\n\t}\n\tIOBCount = split(IOBList, IOBArray, \"�\");\n\tfor (i=2; i<=IOBCount; i++)\n\t{\n\t\tpowerIndex = index(IOBArray[i], \";Power:\");\n\t\tPowerConsumption = (length(IOBArray[i]) - powerIndex - 6) * 20;\n\t\tif (PowerConsumption < 0) { PowerConsumption = 20; }\n\t\tPowerConsumption = PowerConsumption + 40;\n\t\tprint substr(IOBArray[i], 1, powerIndex) PowerConsumption\n\t}\n}"
+  EmbeddedFile(8): "/^ *[0-9A-Z]+ / {\n\tif ($1 != \"DID\" && $2 != \"-\")\n\t{\n\t\tprintf(\"MSHW;Domain;%s;Main;;;;\", $1);\n\t\tfor (i=2 ; i<NF ; i++)\n\t\t{\n\t\t\tprintf(\"%s \", $i);\n\t\t}\n\t\tif (NF > 1)\n\t\t{\n\t\t\tprintf(\"%s\\n\", $NF);\n\t\t}\n\t}\n}"
+translations:
+  ShowHardConfStatusTranslationTable:
+    deconfigured: "degraded"
+    normal: "ok"
+    default: "UNKNOWN"
+    faulted: "failed"
+    degraded: "degraded"
+    input fail: "failed"
+    maintenance: "ok"
+  DomainStatusTranslationTable:
+    openboot execution completed: "ok"
+    running: "ok"
+    initialization phase: "ok"
+    default: "UNKNOWN"
+    booting/openboot prom prompt: "ok"
+    shutdown started: "ok"
+    panic state: "failed"
+    powered off: "ok"
+connector:
+  displayName: "Oracle/Sun Enterprise Mx000 (XSCF)"
+  platforms: "Oracle/Sun Enterprise Mx000"
+  reliesOn: "Sun XSCF utilities installed on the System Controller"
+  information: "Gives environmental information (temperatures, fans, etc.) and boards status on SPARC Enterprise M4000, M5000, M8000 and M9000 servers."
+  version: "1.5"
+  detection:
+    connectionTypes:
+    - "remote"
+    appliesTo:
+    - "Solaris"
+    - "OOB"
+    criteria:
+      # showhardconf must return platform's type
+    - type: "osCommand"
+      commandLine: "showhardconf"
+      errorMessage: "This system does not appear to be an XSCF connected to a SPARC Enterprise Mx000 system"
+      expectedResult: "Serial:"
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = Output of the showhardconf command
+          type: "osCommand"
+          commandLine: "showhardconf"
+          computes:
+            # Remove all colons and semicolons
+          - type: "awk"
+            script: "EmbeddedFile(1)"
+        source(2):
+          # Source(2) = copy of Source(1)
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          computes:
+            # Process the showhardconf command throug an AWK script that lists the enclosures
+            # (the main enclosure as well as the I/O expansion units)
+            # EnclosureID;EnclosureType;Vendor;Model;Serial;Fru;Status;
+          - type: "awk"
+            script: "EmbeddedFile(2)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3,4,5,6,7,8"
+            # Add "FRU: " in front of the Fru column
+            # EnclosureID;EnclosureType;Vendor;Model;Serial;Fru
+          - type: "leftConcat"
+            column: 6
+            value: "Part Number: "
+      mapping:
+        # The discovery table
+        source: "$monitors.enclosure.discovery.sources.source(2)$"
+        attributes:
+          id: "$column(1)"
+          type: "$column(2)"
+          vendor: "$column(3)"
+          model: "$column(4)"
+          serial_number: "$column(5)"
+          info: "$column(6)"
+          name: "sprintf(\"%s (%s %s - %s)\", $column(1), $column(3), $column(4), $column(2))"
+    collect:
+      # Collect type is multi-instance (of course)
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = output of hte showhardconf command
+          type: "osCommand"
+          commandLine: "showhardconf"
+          computes:
+            # Remove all colons and semicolons
+          - type: "awk"
+            script: "EmbeddedFile(1)"
+        source(2):
+          # Source(2) = copy of Source(1)
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(1)$"
+          computes:
+            # Process the showhardconf command throug an AWK script that lists the enclosures
+            # (the main enclosure as well as the I/O expansion units)
+            # EnclosureID;Status;
+          - type: "awk"
+            script: "EmbeddedFile(2)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,8"
+            # Duplicate Status
+            # EnclosureID;Status;Status;
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the first State column into a PATROL Status
+            # EnclosureID;PATROLStatus;Status;
+          - type: "translate"
+            column: 2
+            translationTable: "ShowHardConfStatusTranslationTable"
+      mapping:
+        # The ValueTable
+        source: "$monitors.enclosure.collect.sources.source(2)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="enclosure"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  cpu:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of enclosure.discovery.source(1) (output of the the showhardconf command)
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          computes:
+            # AWK script that keeps only the CPUs
+            # CpuID;Model;Speed;SerialNumber;Fru;PowerConsumption;
+          - type: "awk"
+            script: "EmbeddedFile(3)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3,4,5,6,8"
+            # Add "FRU: " in front of the Fru column
+            # CpuID;Model;Speed;SerialNumber;Fru;PowerConsumption;
+          - type: "leftConcat"
+            column: 5
+            value: "Part Number: "
+          - type: "leftConcat"
+            column: 4
+            value: "Serial Number: "
+      mapping:
+        # InstanceTable = Source(1)
+        source: "$monitors.cpu.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          model: "$column(2)"
+          info: "join($column(5), $column(4), \" \")"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "Main"
+          name: "sprintf(\"%s (%s - %mhhf.s)\", $column(1), $column(2), $column(3))"
+        metrics:
+          hw.cpu.speed.limit{limit_type="max"}: "megaHertz2Hertz($column(3))"
+    collect:
+      # Collet type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = copy of enclosure.collect.source(1) (output of the showhardconf command)
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(1)$"
+          computes:
+            # AWK script that keeps only the CPUs
+            # CpuID;State;
+          - type: "awk"
+            script: "EmbeddedFile(3)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,7"
+            # Duplicate 'State'
+            # CpuID;State;State;
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the first State column into a PATROL Status
+            # CpuID;PATROLStatus;State;
+          - type: "translate"
+            column: 2
+            translationTable: "ShowHardConfStatusTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.cpu.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="cpu"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  memory:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of enclosure.discovery.source(1) (output of the the showhardconf command)
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          computes:
+            # AWK script that keeps only the memory modules
+            # MemoryID;Model;Size;SerialNumber;
+          - type: "awk"
+            script: "EmbeddedFile(4)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3,4,5"
+      mapping:
+        # InstanceTable = Source(1)
+        source: "$monitors.memory.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          type: "$column(2)"
+          serial_number: "$column(4)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "Main"
+          name: "sprintf(\"%s (%s - %s)\", $column(1), $column(2), $column(3))"
+        metrics:
+          hw.memory.limit: "mebiByte2Byte($column(3))"
+    collect:
+      # Collet type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = copy of enclosure.collect.source(1) (output of the showhardconf command)
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(1)$"
+          computes:
+            # AWK script that keeps only the CPUs
+            # MemoryID;State
+          - type: "awk"
+            script: "EmbeddedFile(4)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,6"
+            # Duplicate 'State'
+            # MemoryID;State;State;
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the first State column into a PATROL Status
+            # MemoryID;PATROLStatus;State;
+          - type: "translate"
+            column: 2
+            translationTable: "ShowHardConfStatusTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.memory.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="memory"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of enclosure.discovery.source(1) (output of the the showhardconf command)
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          computes:
+            # AWK script that keeps only the power supplies
+            # PowerSupplyID;ParentID;SerialNumber;FRU;
+          - type: "awk"
+            script: "EmbeddedFile(5)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3,4,5"
+            # Add "FRU: " to the left of the FRU column
+            # PowerSupplyID;ParentID;SerialNumber;FRU;
+          - type: "leftConcat"
+            column: 4
+            value: "Part Number: "
+          - type: "leftConcat"
+            column: 3
+            value: "Serial Number: "
+      mapping:
+        # InstanceTable = Source(1)
+        source: "$monitors.power_supply.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          info: "join($column(4), $column(3), \" \")"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(2)"
+          name: "sprintf(\"%s, $column(1))"
+    collect:
+      # Collet type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = copy of enclosure.collect.source(1) (output of the showhardconf command)
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(1)$"
+          computes:
+            # AWK script that keeps only the power supplies
+            # PowerSupplyID;State
+          - type: "awk"
+            script: "EmbeddedFile(5)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,6"
+            # Duplicate 'State'
+            # MemoryID;State;State;
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the first State column into a PATROL Status
+            # MemoryID;PATROLStatus;State;
+          - type: "translate"
+            column: 2
+            translationTable: "ShowHardConfStatusTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.power_supply.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="power_supply"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  fan:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = copy of enclosure.discovery.source(1) (output of the the showhardconf command)
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          computes:
+            # AWK script that keeps only the fans
+            # FanID;FanType;
+          - type: "awk"
+            script: "EmbeddedFile(7)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3"
+      mapping:
+        # InstanceTable = Source(1)
+        source: "$monitors.fan.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "Main"
+          name: "$column(1)"
+    collect:
+      # Collet type is multi-instance
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = copy of enclosure.collect.source(1) (output of the showhardconf command)
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(1)$"
+          computes:
+            # AWK script that keeps only the CPUs
+            # FanID;State
+          - type: "awk"
+            script: "EmbeddedFile(7)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,4"
+            # Duplicate 'State'
+            # FanID;State;State;
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the first State column into a PATROL Status
+            # FanID;PATROLStatus;State;
+          - type: "translate"
+            column: 2
+            translationTable: "ShowHardConfStatusTranslationTable"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.fan.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="fan"}: "$column(2)"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
+  voltage:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = output of showenvironment
+          type: "osCommand"
+          commandLine: "showenvironment volt"
+          computes:
+            # Pipe showenvironment's output into the %EmbeddedFile(6)% awk script
+            # DeviceID;VoltageType;LowerThreshold;UpperThreshold
+          - type: "awk"
+            script: "EmbeddedFile(6)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3,4,5"
+      mapping:
+        # Instance Table = Source(1)
+        source: "$monitors.voltage.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          voltage_type: "$column(2)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "Main"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
+        metrics:
+          hw.voltage.limit{limit_type="low.critical"}: "$column(3)"
+          hw.voltage.limit{limit_type="high.degraded"}: "$column(4)"
+    collect:
+      # Collect type is \"all instances in one shot\"
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = output of showenvironment
+          type: "osCommand"
+          commandLine: "showenvironment volt"
+          computes:
+            # Piped showenvironment's output into the %EmbeddedFile(6)% awk script
+            # DeviceID;Voltage;
+          - type: "awk"
+            script: "EmbeddedFile(6)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,6"
+      mapping:
+        # ValueTable = Source(1)
+        source: "$monitors.voltage.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.voltage: "$column(2)"
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = output of showenvironment
+          type: "osCommand"
+          commandLine: "showenvironment temp"
+          computes:
+            # Pipe showenvironment's output into the %EmbeddedFile(10)% awk script
+            # MSHW;SensorID;Temperature;Warning;Alarm;
+          - type: "awk"
+            script: "EmbeddedFile(10)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3,4,5"
+      mapping:
+        # Instance Table = Source(1)
+        source: "$monitors.temperature.discovery.sources.source(1)$"
+        attributes:
+          id: "$column(1)"
+          temperature_type: "$column(1)"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "Main"
+          name: "sprintf(\"%s (%s)\", $column(1), $column(1))"
+        metrics:
+          hw.temperature.limit{limit_type="high.degraded"}: "$column(3)"
+          hw.temperature.limit{limit_type="high.critical"}: "$column(4)"
+    collect:
+      # Collect type is \"all instances in one shot\"
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = output of showenvironment
+          type: "osCommand"
+          commandLine: "showenvironment temp"
+          computes:
+            # Piped showenvironment's output into the %EmbeddedFile(10)% awk script
+            # MSHW;SensorID;Temperature;Warning;Alarm;
+          - type: "awk"
+            script: "EmbeddedFile(10)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3"
+      mapping:
+        # ValueTable = Source(1)
+        # SensorID;Temperature
+        source: "$monitors.temperature.collect.sources.source(1)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.temperature: "$column(2)"
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = output of showdomains -a
+          type: "osCommand"
+          commandLine: "showdomainstatus -a"
+          computes:
+            # Pipe showdomainsm's output into the %EmbeddedFile(8)% awk script
+            # DeviceType;DeviceID;ParentID;AdditionalLabel;SerialNumber;FruPartNumber;
+          - type: "awk"
+            script: "EmbeddedFile(8)"
+            keep: "^MSHW;Domain;"
+            separators: ";"
+            selectColumns: "2,3,4,5,6,7"
+        source(2):
+          # Source(2) = copy of enclosure.discovery.source(1) (output of the the showhardconf command)
+          type: "copy"
+          from: "$monitors.enclosure.discovery.sources.source(1)$"
+          computes:
+            # AWK script that keeps only the IO Units, XSCF units, and other stuff
+            # DeviceType;DeviceID;ParentID;AdditionalLabel;SerialNumber;FruPartNumber;
+          - type: "awk"
+            script: "EmbeddedFile(9)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "2,3,4,5,6,7"
+            # Add "FRU: " on the left of the FruPartNumber column
+            # DeviceType;DeviceID;ParentID;AdditionalLabel;SerialNumber;FruPartNumber;
+          - type: "leftConcat"
+            column: 6
+            value: "Part Number: "
+          - type: "leftConcat"
+            column: 5
+            value: "Serial Number: "
+        source(3):
+          # Source(3) = union of Source(1) and Source(2)
+          # DeviceType;DeviceID;ParentID;AdditionalLabel;SerialNumber;FruPartNumber;
+          type: "tableUnion"
+          tables:
+          - "$monitors.other_device.discovery.sources.source(1)$"
+          - "$monitors.other_device.discovery.sources.source(2)$"
+      mapping:
+        # Instance Table = Source(1)
+        source: "$monitors.other_device.discovery.sources.source(3)$"
+        attributes:
+          device_type: "$column(1)"
+          id: "$column(2)"
+          additional_label: "$column(4)"
+          info: "join($column(6), $column(5), \" \")"
+          hw.parent.type: "enclosure"
+          hw.parent.id: "$column(3)"
+          name: "sprintf(\"%s: %s (%s)\", $column(1), $column(2), $column(4))"
+    collect:
+      # Collect type is \"all instances in one shot\"
+      type: "multiInstance"
+      sources:
+        source(1):
+          # Source(1) = output of showdomains -a
+          type: "osCommand"
+          commandLine: "showdomainstatus -a"
+          computes:
+            # Pipe showdomains' output into the %EmbeddedFile(8)% awk script
+            # DeviceID;State
+          - type: "awk"
+            script: "EmbeddedFile(8)"
+            keep: "^MSHW;Domain;"
+            separators: ";"
+            selectColumns: "3,8"
+            # Duplicate 'State'
+            # DeviceID;State;State;
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the first State column into a PATROL Status
+            # DeviceID;PATROLStatus;State;
+          - type: "translate"
+            column: 2
+            translationTable: "DomainStatusTranslationTable"
+        source(2):
+          # Source(2) = copy of enclosure.discovery.source(1) (output of the the showhardconf command)
+          type: "copy"
+          from: "$monitors.enclosure.collect.sources.source(1)$"
+          computes:
+            # AWK script that keeps only the IO Units, XSCF units, and other stuff
+            # DeviceID;State;PowerConsumption;
+          - type: "awk"
+            script: "EmbeddedFile(9)"
+            keep: "^MSHW;"
+            separators: ";"
+            selectColumns: "3,8,9"
+            # Duplicate 'State'
+            # DeviceID;State;State;PowerConsumption;
+          - type: "duplicateColumn"
+            column: 2
+            # Translate the first State column into a PATROL Status
+            # DeviceID;PATROLStatus;State;PowerConsumption;
+          - type: "translate"
+            column: 2
+            translationTable: "ShowHardConfStatusTranslationTable"
+        source(3):
+          # Source(3) = union of Source(1) and Source(2)
+          # DeviceID;PATROLStatus;State;PowerConsumption;
+          type: "tableUnion"
+          tables:
+          - "$monitors.other_device.collect.sources.source(1)$"
+          - "$monitors.other_device.collect.sources.source(2)$"
+      mapping:
+        # ValueTable = Source(3)
+        source: "$monitors.other_device.collect.sources.source(3)$"
+        deviceId: "$column(1)"
+        metrics:
+          hw.status{hw.type="other_device"}: "$column(2)"
+          hw.power{hw.type="other_device"}: "$column(4)"
+          hw.energy{hw.type="other_device"}: "fakeCounter($column(4))"
+        legacyTextParameters:
+          StatusInformation: "$column(3)"
