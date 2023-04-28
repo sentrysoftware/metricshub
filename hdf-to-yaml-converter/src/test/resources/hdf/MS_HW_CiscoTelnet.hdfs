@@ -30,36 +30,8 @@ hdf.AppliesToOS="Storage"
 hdf.Supersedes="MS_HW_SMISSwitch.hdf,MS_HW_FibreAllianceSwitch.hdf"
 
 // host should respond to telnet the way described below
-Detection.Criteria(1).Type="TelnetInteractive"
-
-Detection.Criteria(1).Step(1).Type="Sleep"
-Detection.Criteria(1).Step(1).Duration=1
-
-Detection.Criteria(1).Step(2).Type="WaitFor"
-Detection.Criteria(1).Step(2).TelnetOnly=1
-Detection.Criteria(1).Step(2).Text="ogin:"
-Detection.Criteria(1).Step(2).TimeOut=60
-
-Detection.Criteria(1).Step(3).Type="SendUsername"
-Detection.Criteria(1).Step(3).TelnetOnly=1
-
-Detection.Criteria(1).Step(4).Type="WaitFor"
-Detection.Criteria(1).Step(4).TelnetOnly=1
-Detection.Criteria(1).Step(4).Text="assword:"
-Detection.Criteria(1).Step(4).TimeOut=30
-
-Detection.Criteria(1).Step(5).Type="SendPassword"
-Detection.Criteria(1).Step(5).TelnetOnly=1
-
-Detection.Criteria(1).Step(6).Type="WaitFor"
-Detection.Criteria(1).Step(6).Text="#"
-Detection.Criteria(1).Step(6).TimeOut=60
-Detection.Criteria(1).Step(6).Capture="True"
-
-Detection.Criteria(1).Step(7).Type="SendText"
-Detection.Criteria(1).Step(7).Text="exit\nlogout\nquit\n"
-Detection.Criteria(1).Step(7).Capture="False"
-
+Detection.Criteria(1).Type="OSCommand"
+Detection.Criteria(1).CommandLine="show version"
 Detection.Criteria(1).ExpectedResult="Cisco"
 
 
@@ -73,52 +45,8 @@ Detection.Criteria(1).ExpectedResult="Cisco"
 // Source(1) = Output of show switchname
 
 
-Enclosure.Discovery.Source(1).Type="TelnetInteractive"
-Enclosure.Discovery.Source(1).Step(1).Type="Sleep"
-Enclosure.Discovery.Source(1).Step(1).Duration=1
-Enclosure.Discovery.Source(1).Step(1).TelnetOnly=1
-
-Enclosure.Discovery.Source(1).Step(2).Type="WaitFor"
-Enclosure.Discovery.Source(1).Step(2).Text="ogin:"
-Enclosure.Discovery.Source(1).Step(2).Timeout=60
-Enclosure.Discovery.Source(1).Step(2).TelnetOnly=1
-
-Enclosure.Discovery.Source(1).Step(3).Type="SendUsername"
-Enclosure.Discovery.Source(1).Step(3).TelnetOnly=1
-
-Enclosure.Discovery.Source(1).Step(4).Type="WaitFor"
-Enclosure.Discovery.Source(1).Step(4).Text="assword:"
-Enclosure.Discovery.Source(1).Step(4).TimeOut=30
-Enclosure.Discovery.Source(1).Step(4).TelnetOnly=1
-
-Enclosure.Discovery.Source(1).Step(5).Type="SendPassword"
-Enclosure.Discovery.Source(1).Step(5).TelnetOnly=1
-
-Enclosure.Discovery.Source(1).Step(6).Type="WaitForPrompt"
-Enclosure.Discovery.Source(1).Step(6).TimeOut=60
-
-Enclosure.Discovery.Source(1).Step(7).Type="SendText"
-Enclosure.Discovery.Source(1).Step(7).Text="terminal length 0\n"
-
-Enclosure.Discovery.Source(1).Step(8).Type="WaitForPrompt"
-Enclosure.Discovery.Source(1).Step(8).TimeOut=60
-
-Enclosure.Discovery.Source(1).Step(9).Type="SendText"
-Enclosure.Discovery.Source(1).Step(9).Text="terminal no monitor\n"
-
-Enclosure.Discovery.Source(1).Step(10).Type="WaitForPrompt"
-Enclosure.Discovery.Source(1).Step(10).TimeOut=60
-
-Enclosure.Discovery.Source(1).Step(11).Type="SendText"
-Enclosure.Discovery.Source(1).Step(11).Text="show hardware\n"
-
-Enclosure.Discovery.Source(1).Step(12).Type="GetUntilPrompt"
-Enclosure.Discovery.Source(1).Step(12).TimeOut=150
-Enclosure.Discovery.Source(1).Step(12).Capture="True"
-
-Enclosure.Discovery.Source(1).Step(13).Type="SendText"
-Enclosure.Discovery.Source(1).Step(13).Text="exit\nlogout\nquit\n"
-Enclosure.Discovery.Source(1).Step(13).Capture="False"
+Enclosure.Discovery.Source(1).Type="OSCommand"
+Enclosure.Discovery.Source(1).CommandLine="show hardware"
 
 // Now, extract the switchname thanks to a smart AWK script
 //  RETURNS switchname
@@ -140,55 +68,15 @@ Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(2)
 // Source(2) = Output of the show module
 //
 
-Enclosure.Discovery.Source(2).Type="TelnetInteractive"
-Enclosure.Discovery.Source(2).Step(1).Type="Sleep"
-Enclosure.Discovery.Source(2).Step(1).Duration=1
-Enclosure.Discovery.Source(2).Step(1).TelnetOnly=1
+Enclosure.Discovery.Source(2).Type="OSCommand"
+Enclosure.Discovery.Source(2).CommandLine="show module"
 
-Enclosure.Discovery.Source(2).Step(2).Type="WaitFor"
-Enclosure.Discovery.Source(2).Step(2).Text="ogin:"
-Enclosure.Discovery.Source(2).Step(2).Timeout=60
-Enclosure.Discovery.Source(2).Step(2).TelnetOnly=1
+Enclosure.Discovery.Source(3).Type="OSCommand"
+Enclosure.Discovery.Source(3).CommandLine="show environment"
 
-Enclosure.Discovery.Source(2).Step(3).Type="SendUsername"
-Enclosure.Discovery.Source(2).Step(3).TelnetOnly=1
-
-Enclosure.Discovery.Source(2).Step(4).Type="WaitFor"
-Enclosure.Discovery.Source(2).Step(4).Text="assword:"
-Enclosure.Discovery.Source(2).Step(4).TimeOut=30
-Enclosure.Discovery.Source(2).Step(4).TelnetOnly=1
-
-Enclosure.Discovery.Source(2).Step(5).Type="SendPassword"
-Enclosure.Discovery.Source(2).Step(5).TelnetOnly=1
-
-Enclosure.Discovery.Source(2).Step(6).Type="WaitForPrompt"
-Enclosure.Discovery.Source(2).Step(6).TimeOut=60
-
-Enclosure.Discovery.Source(2).Step(7).Type="SendText"
-Enclosure.Discovery.Source(2).Step(7).Text="terminal length 0\n"
-
-Enclosure.Discovery.Source(2).Step(8).Type="WaitForPrompt"
-Enclosure.Discovery.Source(2).Step(8).TimeOut=60
-
-Enclosure.Discovery.Source(2).Step(9).Type="SendText"
-Enclosure.Discovery.Source(2).Step(9).Text="terminal no monitor\n"
-
-Enclosure.Discovery.Source(2).Step(10).Type="WaitForPrompt"
-Enclosure.Discovery.Source(2).Step(10).TimeOut=60
-
-Enclosure.Discovery.Source(2).Step(11).Type="SendText"
-Enclosure.Discovery.Source(2).Step(11).Text="show module\n"
-
-Enclosure.Discovery.Source(2).Step(12).Type="GetUntilPrompt"
-Enclosure.Discovery.Source(2).Step(12).TimeOut=150
-Enclosure.Discovery.Source(2).Step(12).Capture="True"
-
-Enclosure.Discovery.Source(2).Step(13).Type="SendText"
-Enclosure.Discovery.Source(2).Step(13).Text="show environment\n"
-
-Enclosure.Discovery.Source(2).Step(14).Type="GetUntilPrompt"
-Enclosure.Discovery.Source(2).Step(14).TimeOut=150
-Enclosure.Discovery.Source(2).Step(14).Capture="True"
+Enclosure.Discovery.Source(4).Type="TableUnion"
+Enclosure.Discovery.Source(4).Table1=%Enclosure.Discovery.Source(2)%
+Enclosure.Discovery.Source(4).Table2=%Enclosure.Discovery.Source(3)%
 
 // Isolated from main discovery as this command can take forever (10 minutes+)
 // Enclosure.Discovery.Source(2).Step(15).Type="SendText"
@@ -198,64 +86,15 @@ Enclosure.Discovery.Source(2).Step(14).Capture="True"
 // Enclosure.Discovery.Source(2).Step(16).TimeOut=600
 // Enclosure.Discovery.Source(2).Step(16).Capture="True"
 
-Enclosure.Discovery.Source(2).Step(17).Type="SendText"
-Enclosure.Discovery.Source(2).Step(17).Text="exit\nlogout\nquit\n"
-Enclosure.Discovery.Source(2).Step(17).Capture="False"
 
 //
 // Collect
 
 Enclosure.Collect.Type="MultiInstance"
 
-Enclosure.Collect.Source(1).Type="TelnetInteractive"
-Enclosure.Collect.Source(1).Step(1).Type="Sleep"
-Enclosure.Collect.Source(1).Step(1).Duration=1
-Enclosure.Collect.Source(1).Step(1).TelnetOnly=1
+Enclosure.Collect.Source(1).Type="OSCommand"
+Enclosure.Collect.Source(1).CommandLine="show environment"
 
-Enclosure.Collect.Source(1).Step(2).Type="WaitFor"
-Enclosure.Collect.Source(1).Step(2).Text="ogin:"
-Enclosure.Collect.Source(1).Step(2).Timeout=30
-Enclosure.Collect.Source(1).Step(2).TelnetOnly=1
-
-Enclosure.Collect.Source(1).Step(3).Type="SendUsername"
-Enclosure.Collect.Source(1).Step(3).TelnetOnly=1
-
-Enclosure.Collect.Source(1).Step(4).Type="WaitFor"
-Enclosure.Collect.Source(1).Step(4).Text="assword:"
-Enclosure.Collect.Source(1).Step(4).TimeOut=30
-Enclosure.Collect.Source(1).Step(4).TelnetOnly=1
-
-Enclosure.Collect.Source(1).Step(5).Type="SendPassword"
-Enclosure.Collect.Source(1).Step(5).TelnetOnly=1
-
-Enclosure.Collect.Source(1).Step(6).Type="WaitForPrompt"
-Enclosure.Collect.Source(1).Step(6).TimeOut=60
-
-Enclosure.Collect.Source(1).Step(7).Type="SendText"
-Enclosure.Collect.Source(1).Step(7).Text="terminal length 0\n"
-
-Enclosure.Collect.Source(1).Step(8).Type="WaitForPrompt"
-Enclosure.Collect.Source(1).Step(8).TimeOut=60
-
-Enclosure.Collect.Source(1).Step(9).Type="SendText"
-Enclosure.Collect.Source(1).Step(9).Text="terminal no monitor\n"
-
-Enclosure.Collect.Source(1).Step(10).Type="WaitForPrompt"
-Enclosure.Collect.Source(1).Step(10).TimeOut=60
-
-Enclosure.Collect.Source(1).Step(11).Type="SendText"
-Enclosure.Collect.Source(1).Step(11).Text="show module\n"
-
-Enclosure.Collect.Source(1).Step(12).Type="GetUntilPrompt"
-Enclosure.Collect.Source(1).Step(12).TimeOut=150
-Enclosure.Collect.Source(1).Step(12).Capture="True"
-
-Enclosure.Collect.Source(1).Step(13).Type="SendText"
-Enclosure.Collect.Source(1).Step(13).Text="show environment\n"
-
-Enclosure.Collect.Source(1).Step(14).Type="GetUntilPrompt"
-Enclosure.Collect.Source(1).Step(14).TimeOut=150
-Enclosure.Collect.Source(1).Step(14).Capture="True"
 
 // Isolated from main discovery as this command can take forever (10 minutes+)
 // Enclosure.Collect.Source(1).Step(15).Type="SendText"
@@ -265,9 +104,6 @@ Enclosure.Collect.Source(1).Step(14).Capture="True"
 // Enclosure.Collect.Source(1).Step(16).TimeOut=600
 // Enclosure.Collect.Source(1).Step(16).Capture="True"
 
-Enclosure.Collect.Source(1).Step(17).Type="SendText"
-Enclosure.Collect.Source(1).Step(17).Text="exit\nlogout\nquit\n"
-Enclosure.Collect.Source(1).Step(17).Capture="False"
 
 // Source(2) = copy of Enclosure.Collect.Source(1)
 Enclosure.Collect.Source(2)=%Enclosure.Collect.Source(1)%
@@ -295,7 +131,7 @@ Enclosure.Collect.PowerConsumption=ValueTable.Column(1)
 // Discovery
 
 // Source(1) = copy of Enclosure.Discovery.Source(2)
-Blade.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+Blade.Discovery.Source(1)=%Enclosure.Discovery.Source(4)%
 
 // Now, extract the blades thanks to a smart AWK script
 //  RETURNS module number;port number -port module type ; model number ; status
@@ -406,52 +242,8 @@ Blade.Collect.StatusInformation=ValueTable.Column(3)
 // Source(1) = Output of the show interface
 //
 
-NetworkCard.Discovery.Source(1).Type="TelnetInteractive"
-NetworkCard.Discovery.Source(1).Step(1).Type="Sleep"
-NetworkCard.Discovery.Source(1).Step(1).Duration=1
-NetworkCard.Discovery.Source(1).Step(1).TelnetOnly=1
-
-NetworkCard.Discovery.Source(1).Step(2).Type="WaitFor"
-NetworkCard.Discovery.Source(1).Step(2).Text="ogin:"
-NetworkCard.Discovery.Source(1).Step(2).Timeout=60
-NetworkCard.Discovery.Source(1).Step(2).TelnetOnly=1
-
-NetworkCard.Discovery.Source(1).Step(3).Type="SendUsername"
-NetworkCard.Discovery.Source(1).Step(3).TelnetOnly=1
-
-NetworkCard.Discovery.Source(1).Step(4).Type="WaitFor"
-NetworkCard.Discovery.Source(1).Step(4).Text="assword:"
-NetworkCard.Discovery.Source(1).Step(4).TimeOut=30
-NetworkCard.Discovery.Source(1).Step(4).TelnetOnly=1
-
-NetworkCard.Discovery.Source(1).Step(5).Type="SendPassword"
-NetworkCard.Discovery.Source(1).Step(5).TelnetOnly=1
-
-NetworkCard.Discovery.Source(1).Step(6).Type="WaitForPrompt"
-NetworkCard.Discovery.Source(1).Step(6).TimeOut=60
-
-NetworkCard.Discovery.Source(1).Step(7).Type="SendText"
-NetworkCard.Discovery.Source(1).Step(7).Text="terminal length 0\n"
-
-NetworkCard.Discovery.Source(1).Step(8).Type="WaitForPrompt"
-NetworkCard.Discovery.Source(1).Step(8).TimeOut=60
-
-NetworkCard.Discovery.Source(1).Step(9).Type="SendText"
-NetworkCard.Discovery.Source(1).Step(9).Text="terminal no monitor\n"
-
-NetworkCard.Discovery.Source(1).Step(10).Type="WaitForPrompt"
-NetworkCard.Discovery.Source(1).Step(10).TimeOut=60
-
-NetworkCard.Discovery.Source(1).Step(11).Type="SendText"
-NetworkCard.Discovery.Source(1).Step(11).Text="show interface\n"
-
-NetworkCard.Discovery.Source(1).Step(12).Type="GetUntilPrompt"
-NetworkCard.Discovery.Source(1).Step(12).TimeOut=1200
-NetworkCard.Discovery.Source(1).Step(12).Capture="True"
-
-NetworkCard.Discovery.Source(1).Step(13).Type="SendText"
-NetworkCard.Discovery.Source(1).Step(13).Text="exit\nlogout\nquit\n"
-NetworkCard.Discovery.Source(1).Step(13).Capture="False"
+NetworkCard.Discovery.Source(1).Type="OSCommand"
+NetworkCard.Discovery.Source(1).CommandLine="show interface"
 
 // Now, extract the NICs thanks to a smart AWK script
 //  RETURNS RETURNS MSHW ; attachToType ; module ; port ; statusInformation ; wwn ; portDesc portMode ; speed ; linkStatus ; duplexMode ; transmitPackets ; receivePackets ; transmitBytes ; receiveBytes ; totalErrors ; status ; portDescription ;
@@ -480,52 +272,8 @@ NetworkCard.Discovery.Source(1).Compute(3).RegExp="(SFP not inserted)"
 // This is done seperately as we don't have much experience with the commnd, it doesn't work on all switches
 // and isn't important enough to take the risk that it'll affect the main FC port discovery.
 
-NetworkCard.Discovery.Source(2).Type="TelnetInteractive"
-NetworkCard.Discovery.Source(2).Step(1).Type="Sleep"
-NetworkCard.Discovery.Source(2).Step(1).Duration=1
-NetworkCard.Discovery.Source(2).Step(1).TelnetOnly=1
-
-NetworkCard.Discovery.Source(2).Step(2).Type="WaitFor"
-NetworkCard.Discovery.Source(2).Step(2).Text="ogin:"
-NetworkCard.Discovery.Source(2).Step(2).Timeout=60
-NetworkCard.Discovery.Source(2).Step(2).TelnetOnly=1
-
-NetworkCard.Discovery.Source(2).Step(3).Type="SendUsername"
-NetworkCard.Discovery.Source(2).Step(3).TelnetOnly=1
-
-NetworkCard.Discovery.Source(2).Step(4).Type="WaitFor"
-NetworkCard.Discovery.Source(2).Step(4).Text="assword:"
-NetworkCard.Discovery.Source(2).Step(4).TimeOut=30
-NetworkCard.Discovery.Source(2).Step(4).TelnetOnly=1
-
-NetworkCard.Discovery.Source(2).Step(5).Type="SendPassword"
-NetworkCard.Discovery.Source(2).Step(5).TelnetOnly=1
-
-NetworkCard.Discovery.Source(2).Step(6).Type="WaitForPrompt"
-NetworkCard.Discovery.Source(2).Step(6).TimeOut=60
-
-NetworkCard.Discovery.Source(2).Step(7).Type="SendText"
-NetworkCard.Discovery.Source(2).Step(7).Text="terminal length 0\n"
-
-NetworkCard.Discovery.Source(2).Step(8).Type="WaitForPrompt"
-NetworkCard.Discovery.Source(2).Step(8).TimeOut=60
-
-NetworkCard.Discovery.Source(2).Step(9).Type="SendText"
-NetworkCard.Discovery.Source(2).Step(9).Text="terminal no monitor\n"
-
-NetworkCard.Discovery.Source(2).Step(10).Type="WaitForPrompt"
-NetworkCard.Discovery.Source(2).Step(10).TimeOut=60
-
-NetworkCard.Discovery.Source(2).Step(11).Type="SendText"
-NetworkCard.Discovery.Source(2).Step(11).Text="show interface detail-counters | grep '\(fc[0-9]\)\|\(waits due to lack of transmit credits\)'\n"
-
-NetworkCard.Discovery.Source(2).Step(12).Type="GetUntilPrompt"
-NetworkCard.Discovery.Source(2).Step(12).TimeOut=300
-NetworkCard.Discovery.Source(2).Step(12).Capture="True"
-
-NetworkCard.Discovery.Source(2).Step(13).Type="SendText"
-NetworkCard.Discovery.Source(2).Step(13).Text="exit\nlogout\nquit\n"
-NetworkCard.Discovery.Source(2).Step(13).Capture="False"
+NetworkCard.Discovery.Source(2).Type="OSCommand"
+NetworkCard.Discovery.Source(2).CommandLine="show interface detail-counters | grep '\(fc[0-9]\)\|\(waits due to lack of transmit credits\)'"
 
 // Now, extract the NICs ZeroBufferCreditCount
 //  port;ZeroBufferCreditCount;
@@ -537,52 +285,8 @@ NetworkCard.Discovery.Source(2).Compute(1).SelectColumns="2,3"
 
 
 //Take into account the new Command "show interface counters detailed | grep '\(fc[0-9]\)\|\(waits due to lack of transmit credits\)'\n"
-NetworkCard.Discovery.Source(3).Type="TelnetInteractive"
-NetworkCard.Discovery.Source(3).Step(1).Type="Sleep"
-NetworkCard.Discovery.Source(3).Step(1).Duration=1
-NetworkCard.Discovery.Source(3).Step(1).TelnetOnly=1
-
-NetworkCard.Discovery.Source(3).Step(2).Type="WaitFor"
-NetworkCard.Discovery.Source(3).Step(2).Text="ogin:"
-NetworkCard.Discovery.Source(3).Step(2).Timeout=60
-NetworkCard.Discovery.Source(3).Step(2).TelnetOnly=1
-
-NetworkCard.Discovery.Source(3).Step(3).Type="SendUsername"
-NetworkCard.Discovery.Source(3).Step(3).TelnetOnly=1
-
-NetworkCard.Discovery.Source(3).Step(4).Type="WaitFor"
-NetworkCard.Discovery.Source(3).Step(4).Text="assword:"
-NetworkCard.Discovery.Source(3).Step(4).TimeOut=30
-NetworkCard.Discovery.Source(3).Step(4).TelnetOnly=1
-
-NetworkCard.Discovery.Source(3).Step(5).Type="SendPassword"
-NetworkCard.Discovery.Source(3).Step(5).TelnetOnly=1
-
-NetworkCard.Discovery.Source(3).Step(6).Type="WaitForPrompt"
-NetworkCard.Discovery.Source(3).Step(6).TimeOut=60
-
-NetworkCard.Discovery.Source(3).Step(7).Type="SendText"
-NetworkCard.Discovery.Source(3).Step(7).Text="terminal length 0\n"
-
-NetworkCard.Discovery.Source(3).Step(8).Type="WaitForPrompt"
-NetworkCard.Discovery.Source(3).Step(8).TimeOut=60
-
-NetworkCard.Discovery.Source(3).Step(9).Type="SendText"
-NetworkCard.Discovery.Source(3).Step(9).Text="terminal no monitor\n"
-
-NetworkCard.Discovery.Source(3).Step(10).Type="WaitForPrompt"
-NetworkCard.Discovery.Source(3).Step(10).TimeOut=60
-
-NetworkCard.Discovery.Source(3).Step(11).Type="SendText"
-NetworkCard.Discovery.Source(3).Step(11).Text="show interface counters detailed | grep '\(fc[0-9]\)\|\(waits due to lack of transmit credits\)'\n"
-
-NetworkCard.Discovery.Source(3).Step(12).Type="GetUntilPrompt"
-NetworkCard.Discovery.Source(3).Step(12).TimeOut=300
-NetworkCard.Discovery.Source(3).Step(12).Capture="True"
-
-NetworkCard.Discovery.Source(3).Step(13).Type="SendText"
-NetworkCard.Discovery.Source(3).Step(13).Text="exit\nlogout\nquit\n"
-NetworkCard.Discovery.Source(3).Step(13).Capture="False"
+NetworkCard.Discovery.Source(3).Type="OSCommand"
+NetworkCard.Discovery.Source(3).CommandLine="show interface counters detailed | grep '\(fc[0-9]\)\|\(waits due to lack of transmit credits\)'"
 
 // Now, extract the NICs ZeroBufferCreditCount
 //  port;ZeroBufferCreditCount;
@@ -632,52 +336,8 @@ NetworkCard.Collect.Type="MultiInstance"
 // Source(1) = Output of the show interface
 //
 
-NetworkCard.Collect.Source(1).Type="TelnetInteractive"
-NetworkCard.Collect.Source(1).Step(1).Type="Sleep"
-NetworkCard.Collect.Source(1).Step(1).Duration=1
-NetworkCard.Collect.Source(1).Step(1).TelnetOnly=1
-
-NetworkCard.Collect.Source(1).Step(2).Type="WaitFor"
-NetworkCard.Collect.Source(1).Step(2).Text="ogin:"
-NetworkCard.Collect.Source(1).Step(2).Timeout=60
-NetworkCard.Collect.Source(1).Step(2).TelnetOnly=1
-
-NetworkCard.Collect.Source(1).Step(3).Type="SendUsername"
-NetworkCard.Collect.Source(1).Step(3).TelnetOnly=1
-
-NetworkCard.Collect.Source(1).Step(4).Type="WaitFor"
-NetworkCard.Collect.Source(1).Step(4).Text="assword:"
-NetworkCard.Collect.Source(1).Step(4).TimeOut=30
-NetworkCard.Collect.Source(1).Step(4).TelnetOnly=1
-
-NetworkCard.Collect.Source(1).Step(5).Type="SendPassword"
-NetworkCard.Collect.Source(1).Step(5).TelnetOnly=1
-
-NetworkCard.Collect.Source(1).Step(6).Type="WaitForPrompt"
-NetworkCard.Collect.Source(1).Step(6).TimeOut=60
-
-NetworkCard.Collect.Source(1).Step(7).Type="SendText"
-NetworkCard.Collect.Source(1).Step(7).Text="terminal length 0\n"
-
-NetworkCard.Collect.Source(1).Step(8).Type="WaitForPrompt"
-NetworkCard.Collect.Source(1).Step(8).TimeOut=60
-
-NetworkCard.Collect.Source(1).Step(9).Type="SendText"
-NetworkCard.Collect.Source(1).Step(9).Text="terminal no monitor\n"
-
-NetworkCard.Collect.Source(1).Step(10).Type="WaitForPrompt"
-NetworkCard.Collect.Source(1).Step(10).TimeOut=60
-
-NetworkCard.Collect.Source(1).Step(11).Type="SendText"
-NetworkCard.Collect.Source(1).Step(11).Text="show interface\n"
-
-NetworkCard.Collect.Source(1).Step(12).Type="GetUntilPrompt"
-NetworkCard.Collect.Source(1).Step(12).TimeOut=1200
-NetworkCard.Collect.Source(1).Step(12).Capture="True"
-
-NetworkCard.Collect.Source(1).Step(13).Type="SendText"
-NetworkCard.Collect.Source(1).Step(13).Text="exit\nlogout\nquit\n"
-NetworkCard.Collect.Source(1).Step(13).Capture="False"
+NetworkCard.Collect.Source(1).Type="OSCommand"
+NetworkCard.Collect.Source(1).CommandLine="show interface"
 
 // Now, extract the NICs thanks to a smart AWK script
 //  RETURNS MSHW ; attachToType ; module ; port ; statusInformation ; wwn ; portDesc portMode ; speed ; linkStatus ; duplexMode ; transmitPackets ; receivePackets ; transmitBytes ; receiveBytes ; totalErrors ; status ;
@@ -745,52 +405,8 @@ networkStatusTranslationTable(Default)="UNKNOWN"
 
 // Reconnect to switch to collect zero buffer TX Credits parameter is to be activated.
 
-NetworkCard.Collect.Source(2).Type="TelnetInteractive"
-NetworkCard.Collect.Source(2).Step(1).Type="Sleep"
-NetworkCard.Collect.Source(2).Step(1).Duration=1
-NetworkCard.Collect.Source(2).Step(1).TelnetOnly=1
-
-NetworkCard.Collect.Source(2).Step(2).Type="WaitFor"
-NetworkCard.Collect.Source(2).Step(2).Text="ogin:"
-NetworkCard.Collect.Source(2).Step(2).Timeout=60
-NetworkCard.Collect.Source(2).Step(2).TelnetOnly=1
-
-NetworkCard.Collect.Source(2).Step(3).Type="SendUsername"
-NetworkCard.Collect.Source(2).Step(3).TelnetOnly=1
-
-NetworkCard.Collect.Source(2).Step(4).Type="WaitFor"
-NetworkCard.Collect.Source(2).Step(4).Text="assword:"
-NetworkCard.Collect.Source(2).Step(4).TimeOut=30
-NetworkCard.Collect.Source(2).Step(4).TelnetOnly=1
-
-NetworkCard.Collect.Source(2).Step(5).Type="SendPassword"
-NetworkCard.Collect.Source(2).Step(5).TelnetOnly=1
-
-NetworkCard.Collect.Source(2).Step(6).Type="WaitForPrompt"
-NetworkCard.Collect.Source(2).Step(6).TimeOut=60
-
-NetworkCard.Collect.Source(2).Step(7).Type="SendText"
-NetworkCard.Collect.Source(2).Step(7).Text="terminal length 0\n"
-
-NetworkCard.Collect.Source(2).Step(8).Type="WaitForPrompt"
-NetworkCard.Collect.Source(2).Step(8).TimeOut=60
-
-NetworkCard.Collect.Source(2).Step(9).Type="SendText"
-NetworkCard.Collect.Source(2).Step(9).Text="terminal no monitor\n"
-
-NetworkCard.Collect.Source(2).Step(10).Type="WaitForPrompt"
-NetworkCard.Collect.Source(2).Step(10).TimeOut=60
-
-NetworkCard.Collect.Source(2).Step(11).Type="SendText"
-NetworkCard.Collect.Source(2).Step(11).Text="show interface detail-counters | grep '\(fc[0-9]\)\|\(waits due to lack of transmit credits\)'\n"
-
-NetworkCard.Collect.Source(2).Step(12).Type="GetUntilPrompt"
-NetworkCard.Collect.Source(2).Step(12).TimeOut=300
-NetworkCard.Collect.Source(2).Step(12).Capture="True"
-
-NetworkCard.Collect.Source(2).Step(13).Type="SendText"
-NetworkCard.Collect.Source(2).Step(13).Text="exit\nlogout\nquit\n"
-NetworkCard.Collect.Source(2).Step(13).Capture="False"
+NetworkCard.Collect.Source(2).Type="OSCommand"
+NetworkCard.Collect.Source(2).CommandLine="show interface detail-counters | grep '\(fc[0-9]\)\|\(waits due to lack of transmit credits\)'"
 
 // Now, extract the NICs ZeroBufferCreditCount
 //  port;ZeroBufferCreditCount;
@@ -802,52 +418,8 @@ NetworkCard.Collect.Source(2).Compute(1).SelectColumns="2,3"
 
 
 //Take into account the new Command "show interface counters detailed | grep '\(fc[0-9]\)\|\(waits due to lack of transmit credits\)'\n"
-NetworkCard.Collect.Source(3).Type="TelnetInteractive"
-NetworkCard.Collect.Source(3).Step(1).Type="Sleep"
-NetworkCard.Collect.Source(3).Step(1).Duration=1
-NetworkCard.Collect.Source(3).Step(1).TelnetOnly=1
-
-NetworkCard.Collect.Source(3).Step(2).Type="WaitFor"
-NetworkCard.Collect.Source(3).Step(2).Text="ogin:"
-NetworkCard.Collect.Source(3).Step(2).Timeout=60
-NetworkCard.Collect.Source(3).Step(2).TelnetOnly=1
-
-NetworkCard.Collect.Source(3).Step(3).Type="SendUsername"
-NetworkCard.Collect.Source(3).Step(3).TelnetOnly=1
-
-NetworkCard.Collect.Source(3).Step(4).Type="WaitFor"
-NetworkCard.Collect.Source(3).Step(4).Text="assword:"
-NetworkCard.Collect.Source(3).Step(4).TimeOut=30
-NetworkCard.Collect.Source(3).Step(4).TelnetOnly=1
-
-NetworkCard.Collect.Source(3).Step(5).Type="SendPassword"
-NetworkCard.Collect.Source(3).Step(5).TelnetOnly=1
-
-NetworkCard.Collect.Source(3).Step(6).Type="WaitForPrompt"
-NetworkCard.Collect.Source(3).Step(6).TimeOut=60
-
-NetworkCard.Collect.Source(3).Step(7).Type="SendText"
-NetworkCard.Collect.Source(3).Step(7).Text="terminal length 0\n"
-
-NetworkCard.Collect.Source(3).Step(8).Type="WaitForPrompt"
-NetworkCard.Collect.Source(3).Step(8).TimeOut=60
-
-NetworkCard.Collect.Source(3).Step(9).Type="SendText"
-NetworkCard.Collect.Source(3).Step(9).Text="terminal no monitor\n"
-
-NetworkCard.Collect.Source(3).Step(10).Type="WaitForPrompt"
-NetworkCard.Collect.Source(3).Step(10).TimeOut=60
-
-NetworkCard.Collect.Source(3).Step(11).Type="SendText"
-NetworkCard.Collect.Source(3).Step(11).Text="show interface counters detailed | grep '\(fc[0-9]\)\|\(waits due to lack of transmit credits\)'\n"
-
-NetworkCard.Collect.Source(3).Step(12).Type="GetUntilPrompt"
-NetworkCard.Collect.Source(3).Step(12).TimeOut=300
-NetworkCard.Collect.Source(3).Step(12).Capture="True"
-
-NetworkCard.Collect.Source(3).Step(13).Type="SendText"
-NetworkCard.Collect.Source(3).Step(13).Text="exit\nlogout\nquit\n"
-NetworkCard.Collect.Source(3).Step(13).Capture="False"
+NetworkCard.Collect.Source(3).Type="OSCommand"
+NetworkCard.Collect.Source(3).CommandLine="show interface counters detailed | grep '\(fc[0-9]\)\|\(waits due to lack of transmit credits\)'"
 
 // Now, extract the NICs ZeroBufferCreditCount
 //  port;ZeroBufferCreditCount;
@@ -896,7 +468,7 @@ NetworkCard.Collect.ZeroBufferCreditCount=ValueTable.Column(13)
 // Discovery
 
 // Source(1) = copy of Enclosure.Discovery.Source(2)
-OtherDevice.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+OtherDevice.Discovery.Source(1)=%Enclosure.Discovery.Source(4)%
 
 // Now, extract the other devices information to a smart AWK script
 //  RETURNS MSHW;Clock;ID;status;status
@@ -960,7 +532,7 @@ OtherDevice.Collect.StatusInformation=ValueTable.Column(3)
 // Discovery
 
 // Source(1) = copy of Enclosure.Discovery.Source(2)
-Temperature.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+Temperature.Discovery.Source(1)=%Enclosure.Discovery.Source(4)%
 
 // Now, extract the power supplies thanks to a smart AWK script
 //  RETURNS MSHW;module;module/sensor;status;status;temp;tempWarn;tempAlarm;attachToType;
@@ -1025,7 +597,7 @@ Temperature.Collect.Temperature=ValueTable.Column(4)
 // Discovery
 
 // Source(1) = copy of Enclosure.Discovery.Source(2)
-Fan.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+Fan.Discovery.Source(1)=%Enclosure.Discovery.Source(4)%
 
 // Now, extract the power supplies thanks to a smart AWK script
 //  RETURNS MSHW;fanID;status;status;
@@ -1095,7 +667,7 @@ Fan.Collect.StatusInformation=ValueTable.Column(3)
 // Discovery
 
 // Source(1) = copy of Enclosure.Discovery.Source(2)
-PowerSupply.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+PowerSupply.Discovery.Source(1)=%Enclosure.Discovery.Source(4)%
 
 // Now, extract the power supplies thanks to a smart AWK script
 //  RETURNS  MSHW;powerSupply;status;status;
@@ -1166,9 +738,6 @@ PowerSupply.Collect.StatusInformation=ValueTable.Column(3)
 /////////////////////////////////////////////////////////
 EmbeddedFile(1):
 BEGIN  {section = "" ; module = ""}
-{skip=1}
-/show module/,/show environment/ {skip = 0}
-skip == 1 {next}
 $1 ~ /^(Xbar)|(Mod)$/ && $2 ~ "^Ports" {section=$1 ; offset2 = index($0,"Ports") ; offset3 = index ($0,"Module-Type") ; offset4 = index ($0,"Model") ; offset5 = index ($0,"Status") }
 ($1 ~ /^[0-9]/ && section ~ /^(Xbar)|(Mod)$/ ){
 	             if (section == "Mod")  {module = $1}
@@ -1210,9 +779,6 @@ EmbeddedFile(2).End
 /////////////////////////////////////////////////////////
 
 EmbeddedFile(3):
-{skip=1}
-/show environment/,/#/ {skip = 0}
-skip == 1 {next}
 $0 ~ /Total Power Capacity/ { print ("MSHW;"$(NF-1)) }
 
 EmbeddedFile(3).End
@@ -1310,9 +876,6 @@ EmbeddedFile(4).End
 /////////////////////////////////////////////////////////
 EmbeddedFile(5):
 BEGIN { offsetStatus = "" ; section = ""}
-{skip=1}
-/show environment/,/#/ {skip = 0}
-skip == 1 {next}
 (length($0) < 3) { section = "" ; offsetStatus = "" ; next }
 
 (section == "Clock" && offsetStatus > 1) {status = substr ($0,offsetStatus) ;
@@ -1337,9 +900,6 @@ EmbeddedFile(5).End
 /////////////////////////////////////////////////////////
 EmbeddedFile(6):
 BEGIN { offsetStatus = "" ; section = ""}
-{skip=1}
-/show environment/,/#/ {skip = 0}
-skip == 1 {next}
 (length($0) < 3) { section = ""; offsetStatus = "" ; next }
 (section == "Fan" && offsetStatus > 1) {if ($NF ~ /NotSupported/) { next}
                                         status = substr ($0,offsetStatus) ;
@@ -1364,9 +924,6 @@ EmbeddedFile(6).End
 /////////////////////////////////////////////////////////
 EmbeddedFile(7):
 BEGIN { offsetStatus = "" ; section = ""}
-{skip=1}
-/show environment/,/(Power Supply:)|(show interface)/ {skip = 0}
-skip == 1 {next}
 (length($0) < 3) { Outlet=0 ; Intake=0 ; next }
 (section == "Temperature" && offsetStatus > 1 && NF > 5) {
 	                                      status = substr ($0,offsetStatus) ; gsub(/ /,"",status);
@@ -1406,9 +963,6 @@ EmbeddedFile(7).End
 /////////////////////////////////////////////////////////
 EmbeddedFile(8):
 BEGIN { offsetStatus = "" ; section = ""}
-{skip=1}
-/show environment/,/#/ {skip = 0}
-skip == 1 {next}
 (length($0) < 3) { section = ""; offsetStatus = "" ; Outlet=0 ; Intake=0 ; next }
 (section == "Power Supply" && offsetStatus > 1 && NF > 3) {
 	                                      status = substr ($0,offsetStatus) ; gsub(/ /,"",status);

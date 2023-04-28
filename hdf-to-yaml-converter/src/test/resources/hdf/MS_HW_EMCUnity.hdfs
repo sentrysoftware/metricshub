@@ -93,7 +93,7 @@ Enclosure.Discovery.Source(5).DefaultRightLine=";;;;"
 // InstanceTable = Source()
 // EMC_ArrayChassis;Model;SerialNumber;EMC_ArrayChassis;EMC_StorageSystem;EMC_StorageSystem;ElementName;OtherIdentifyingInfo;HealthState;
 Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(5)%
-Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(3)
+Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(6)
 Enclosure.Discovery.Instance.DisplayID=InstanceTable.Column(7)
 Enclosure.Discovery.Instance.Vendor="EMC"
 Enclosure.Discovery.Instance.Model=InstanceTable.Column(2)
@@ -107,12 +107,10 @@ Enclosure.Discovery.Instance.ParameterActivation.Status=InstanceTable.Column(9)
 // Collect type is multiinstance
 Enclosure.Collect.Type="MultiInstance"
 
-
-// Source(1) = EMC_VNXe_StorageSystemLeaf
-//name is the serial number so using it for the serial number
-// Name;HealthState;
+// Source(1) = CIM_ComputerSystem
+// EMC_StorageSystem;HealthState;
 Enclosure.Collect.Source(1).Type="Wbem"
-Enclosure.Collect.Source(1).WbemQuery="SELECT Name,HealthState FROM EMC_VNXe_StorageSystemLeaf"
+Enclosure.Collect.Source(1).WbemQuery="SELECT __PATH,HealthState FROM EMC_VNXe_StorageSystemLeaf"
 Enclosure.Collect.Source(1).WbemNamespace="root/emc/smis"
 
 // Duplicate the "HealthStateArray" column
@@ -146,7 +144,7 @@ Enclosure.Collect.StatusInformation=ValueTable.Column(3)
 // Source(1) = CIM_FCPort
 // PortID;PortTypeCode;Speed;PermanentAddress;EnabledState;ElementName;
 NetworkCard.Discovery.Source(1).Type="WBEM"
-NetworkCard.Discovery.Source(1).WbemQuery="SELECT DeviceID,PortType,Speed,PermanentAddress,EnabledState,ElementName FROM CIM_FCPort"
+NetworkCard.Discovery.Source(1).WbemQuery="SELECT __PATH,PortType,Speed,PermanentAddress,EnabledState,ElementName FROM CIM_FCPort"
 NetworkCard.Discovery.Source(1).WbemNameSpace=root/emc/smis
 
 // Keep only "internal" ports (no ports that actually are remote ports of servers or disk arrays)
@@ -188,7 +186,7 @@ NetworkCard.Discovery.Source(1).Compute(4).DivideBy=1000000
 
 // PortID;PortTypeCode;Speed;PermanentAddress;EnabledState;ElementName;
 NetworkCard.Discovery.Source(2).Type="WBEM"
-NetworkCard.Discovery.Source(2).WbemQuery="SELECT DeviceID,PortType,Speed,PermanentAddress,EnabledState,ElementName FROM CIM_EthernetPort"
+NetworkCard.Discovery.Source(2).WbemQuery="SELECT __PATH,PortType,Speed,PermanentAddress,EnabledState,ElementName FROM CIM_EthernetPort"
 NetworkCard.Discovery.Source(2).WbemNameSpace=root/emc/smis
 
 // Keep only activated ports
@@ -242,7 +240,7 @@ NetworkCard.Collect.Type="MultiInstance"
 // Source(1) = CIM_FCPort
 // PortID;PortTypeCode;EnabledState;Speed;HealthStateArray
 NetworkCard.Collect.Source(1).Type="WBEM"
-NetworkCard.Collect.Source(1).WbemQuery="SELECT DeviceID,PortType,EnabledState,Speed,HealthState FROM CIM_FCPort"
+NetworkCard.Collect.Source(1).WbemQuery="SELECT __PATH,PortType,EnabledState,Speed,HealthState FROM CIM_FCPort"
 NetworkCard.Collect.Source(1).WbemNameSpace=root/emc/smis
 
 // Keep only "internal" ports (no ports that actually are remote ports of servers or disk arrays)
@@ -300,7 +298,7 @@ SpeedToLinkStatusTranslationTable(Default)="OK"
 // Source(2) = CIM_EthernetPort
 // PortID;PortTypeCode;EnabledState;Speed;HealthStateArray
 NetworkCard.Collect.Source(2).Type="WBEM"
-NetworkCard.Collect.Source(2).WbemQuery="SELECT DeviceID,PortType,EnabledState,Speed,HealthState FROM CIM_EthernetPort"
+NetworkCard.Collect.Source(2).WbemQuery="SELECT __PATH,PortType,EnabledState,Speed,HealthState FROM CIM_EthernetPort"
 NetworkCard.Collect.Source(2).WbemNameSpace=root/emc/smis
 
 
@@ -374,7 +372,7 @@ NetworkCard.Collect.LinkStatus=ValueTable.Column(5)
 // FanID;ElementName
 Fan.Discovery.Source(1).Type="Wbem"
 Fan.Discovery.Source(1).WbemNameSpace=root/emc/smis
-Fan.Discovery.Source(1).WbemQuery="SELECT DeviceID, ElementName FROM CIM_Fan"
+Fan.Discovery.Source(1).WbemQuery="SELECT __PATH, ElementName FROM CIM_Fan"
 
 
 // InstanceTable = Source(2)
@@ -393,7 +391,7 @@ Fan.Collect.Type="MultiInstance"
 // FanID;HealthState;
 Fan.Collect.Source(1).Type="Wbem"
 Fan.Collect.Source(1).WbemNameSpace=root/emc/smis
-Fan.Collect.Source(1).WbemQuery="SELECT DeviceID,HealthState FROM CIM_Fan"
+Fan.Collect.Source(1).WbemQuery="SELECT __PATH,HealthState FROM CIM_Fan"
 
 // Duplicate the "HealthStateArray" column
 // FanID;HealthStateArray;HealthStateArray;
@@ -431,7 +429,7 @@ Fan.Collect.StatusInformation=ValueTable.Column(3)
 // PowerSupplyID;ElementName
 PowerSupply.Discovery.Source(1).Type="Wbem"
 PowerSupply.Discovery.Source(1).WbemNameSpace=root/emc/smis
-PowerSupply.Discovery.Source(1).WbemQuery="SELECT DeviceID, ElementName FROM CIM_PowerSupply"
+PowerSupply.Discovery.Source(1).WbemQuery="SELECT __PATH, ElementName FROM CIM_PowerSupply"
 
 // InstanceTable = Source(2)
 PowerSupply.Discovery.InstanceTable=%PowerSupply.Discovery.Source(1)%
@@ -449,7 +447,7 @@ PowerSupply.Collect.Type="MultiInstance"
 // PowerSupplyID;HealthState;
 PowerSupply.Collect.Source(1).Type="Wbem"
 PowerSupply.Collect.Source(1).WbemNameSpace=root/emc/smis
-PowerSupply.Collect.Source(1).WbemQuery="SELECT DeviceID,HealthState FROM CIM_PowerSupply"
+PowerSupply.Collect.Source(1).WbemQuery="SELECT __PATH,HealthState FROM CIM_PowerSupply"
 
 // Duplicate the "HealthStateArray" column
 // PowerSupplyID;HealthStateArray;HealthStateArray;
@@ -486,9 +484,8 @@ PowerSupply.Collect.StatusInformation=ValueTable.Column(3)
 
 // Source(1) = CIM_ComputerSystem
 // ComputerID;ClassName;ElementName;
-//replace with the controller name
 OtherDevice.Discovery.Source(1).Type="Wbem"
-OtherDevice.Discovery.Source(1).WbemQuery="SELECT Name,ElementName FROM EMC_VNXe_StorageProcessorSystemLeaf"
+OtherDevice.Discovery.Source(1).WbemQuery="SELECT __PATH,ElementName FROM EMC_VNXe_StorageProcessorSystemLeaf"
 OtherDevice.Discovery.Source(1).WbemNameSpace=root/emc/smis
 
 
@@ -508,7 +505,7 @@ OtherDevice.Collect.Type="MultiInstance"
 // Source(1) = CIM_ComputerSystem
 // ComputerID;HealthState;
 OtherDevice.Collect.Source(1).Type="Wbem"
-OtherDevice.Collect.Source(1).WbemQuery="SELECT Name,HealthState FROM CIM_ComputerSystem"
+OtherDevice.Collect.Source(1).WbemQuery="SELECT __PATH,HealthState FROM CIM_ComputerSystem"
 OtherDevice.Collect.Source(1).WbemNameSpace=root/emc/smis
 
 // Duplicate the "HealthStateArray" column
@@ -553,9 +550,9 @@ PhysicalDisk.Discovery.Source(2).WbemQuery="SELECT __PATH,SerialNumber,Model,Man
 PhysicalDisk.Discovery.Source(2).WbemNameSpace=root/emc/smis
 
 ////Source(3) = EMC_VNXe_DiskExtentLeaf
-// DiskExtentID;blocksize;consumableBlocks,DeviceID
+// DiskExtentID;blocksize;consumableBlocks
 PhysicalDisk.Discovery.Source(3).Type="WBEM"
-PhysicalDisk.Discovery.Source(3).WbemQuery="SELECT __PATH,blockSize,NumberOfBlocks,DeviceID FROM EMC_VNXe_DiskExtentLeaf"
+PhysicalDisk.Discovery.Source(3).WbemQuery="SELECT __PATH,blockSize,NumberOfBlocks FROM EMC_VNXe_DiskExtentLeaf"
 PhysicalDisk.Discovery.Source(3).WbemNameSpace=root/emc/smis
 
 //calculate the size of the disk
@@ -609,7 +606,7 @@ PhysicalDisk.Discovery.Source(8).KeyType="Wbem"
 PhysicalDisk.Discovery.Source(8).DefaultRightLine=";;"
 
 //let's do the tablejoint between source(8) and source(3)
-//DiskID;DiskName;DiskmoduleID;DiskID;DiskModuleID;SN;Model;Manufacturer;DiskID;DiskExtentID;DiskExtentID;size;consumableBlocks;DeviceID
+//DiskID;DiskName;DiskmoduleID;DiskID;DiskModuleID;SN;Model;Manufacturer;DiskID;DiskExtentID;DiskExtentID;size;consumableBlocks
 PhysicalDisk.Discovery.Source(9).Type="TableJoint"
 PhysicalDisk.Discovery.Source(9).LeftTable=%PhysicalDisk.Discovery.Source(8)%
 PhysicalDisk.Discovery.Source(9).RightTable=%PhysicalDisk.Discovery.Source(3)%
@@ -620,9 +617,9 @@ PhysicalDisk.Discovery.Source(9).DefaultRightLine=";;;"
 
 
 // Finally here is the instance table...
-//DiskID;DiskName;DiskmoduleID;DiskID;DiskModuleID;SN;Model;Manufacturer;DiskID;DiskExtentID;DiskExtentID;size;consumableBlocks;DeviceID
+//DiskID;DiskName;DiskmoduleID;DiskID;DiskModuleID;SN;Model;Manufacturer;DiskID;DiskExtentID;DiskExtentID;size;consumableBlocks
 PhysicalDisk.Discovery.InstanceTable=%PhysicalDisk.Discovery.Source(9)%
-PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(14)
+PhysicalDisk.Discovery.Instance.DeviceID=InstanceTable.Column(1)
 PhysicalDisk.Discovery.Instance.DisplayID=InstanceTable.Column(2)
 PhysicalDisk.Discovery.Instance.Model=InstanceTable.Column(7)
 PhysicalDisk.Discovery.Instance.Vendor=InstanceTable.Column(8)
@@ -639,7 +636,7 @@ PhysicalDisk.Collect.Type="MultiInstance"
 // Source(1) = the only source = CIM_DiskDrive
 // DiskID;HealthStateArray
 PhysicalDisk.Collect.Source(1).Type="WBEM"
-PhysicalDisk.Collect.Source(1).WbemQuery="SELECT DeviceID,HealthState FROM EMC_VNXe_DiskDriveLeaf"
+PhysicalDisk.Collect.Source(1).WbemQuery="SELECT __PATH,HealthState FROM EMC_VNXe_DiskDriveLeaf"
 PhysicalDisk.Collect.Source(1).WbemNameSpace=root/emc/smis
 
 // Duplicate the "HealthStateArray" column

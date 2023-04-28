@@ -34,7 +34,7 @@ Enclosure.Collect.PowerConsumption=ValueTable.Column(3)
 // Discovery
 
 // Source(1) = copy of Enclosure.Discovery.Source(2)
-Blade.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+Blade.Discovery.Source(1)=ENCLO_SOURCE_DISCO
 
 // Now, extract the blades thanks to a smart AWK script
 // BladeID;BladeModel;
@@ -59,7 +59,7 @@ Blade.Discovery.Source(2).Compute(1).SelectColumns="2,3,4"
 Blade.Collect.Type="MultiInstance"
 
 // Source(1) = copy of Enclosure.Collect.Source(1)
-Blade.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+Blade.Collect.Source(1)=ENCLO_SOURCE_COL
 
 // Now, extract the power supplies status thanks to a smart AWK script
 // PowerSupplyID;Status;StatusInformation;PowerState
@@ -84,7 +84,7 @@ Blade.Collect.PowerState=ValueTable.Column(4)
 // Discovery
 
 // Source(1) = copy of Enclosure.Discovery.Source(2)
-Temperature.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+Temperature.Discovery.Source(1)=ENCLO_SOURCE_DISCO
 
 // Now, extract the temperatures thanks to a smart AWK script
 // TemperatureID;Location;WarningThreshold;AlarmThreshold;Temperature;Status;
@@ -118,7 +118,7 @@ Temperature.Discovery.Instance.AttachedToDeviceID="DellBladeChassis"
 Temperature.Collect.Type="MultiInstance"
 
 // Source(1) = copy of Enclosure.Collect.Source(1)
-Temperature.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+Temperature.Collect.Source(1)=ENCLO_SOURCE_COL
 
 // Now, extract the temperatures thanks to a smart AWK script
 // TemperatureID;Temperature;Status;StatusInformation;
@@ -143,7 +143,7 @@ Temperature.Collect.StatusInformation=ValueTable.Column(4)
 // Discovery
 
 // Source(1) = copy of Enclosure.Discovery.Source(2)
-Fan.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+Fan.Discovery.Source(1)=ENCLO_SOURCE_DISCO
 
 // Now, extract the fans thanks to a smart AWK script
 // FanID;Location;WarningThreshold;AlarmThreshold
@@ -169,7 +169,7 @@ Fan.Discovery.Instance.AttachedToDeviceID="DellBladeChassis"
 Fan.Collect.Type="MultiInstance"
 
 // Source(1) = copy of Enclosure.Collect.Source(1)
-Fan.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+Fan.Collect.Source(1)=ENCLO_SOURCE_COL
 
 // Now, extract the fans thanks to a smart AWK script
 // FanID;Speed;Status;StatusInformation;
@@ -194,7 +194,7 @@ Fan.Collect.StatusInformation=ValueTable.Column(4)
 // Discovery
 
 // Source(1) = copy of Enclosure.Discovery.Source(2)
-PowerSupply.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+PowerSupply.Discovery.Source(1)=ENCLO_SOURCE_DISCO
 
 // Now, extract the power supplies thanks to a smart AWK script
 // PowerSupplyID;
@@ -217,7 +217,7 @@ PowerSupply.Discovery.Instance.AttachedToDeviceID="DellBladeChassis"
 PowerSupply.Collect.Type="MultiInstance"
 
 // Source(1) = copy of Enclosure.Collect.Source(1)
-PowerSupply.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+PowerSupply.Collect.Source(1)=ENCLO_SOURCE_COL
 
 // Now, extract the power supplies status thanks to a smart AWK script
 // PowerSupplyID;Status;StatusInformation
@@ -242,7 +242,7 @@ PowerSupply.Collect.StatusInformation=ValueTable.Column(3)
 // Discovery
 
 // Source(1) = copy of Enclosure.Discovery.Source(2)
-OtherDevice.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+OtherDevice.Discovery.Source(1)=ENCLO_SOURCE_DISCO
 
 // Now, extract the switches, DRAC and KVM modules thanks to a smart AWK script
 // OtherDeviceID;DeviceType;
@@ -267,7 +267,7 @@ OtherDevice.Discovery.Instance.AttachedToDeviceID="DellBladeChassis"
 OtherDevice.Collect.Type="MultiInstance"
 
 // Source(1) = copy of Enclosure.Collect.Source(1)
-OtherDevice.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+OtherDevice.Collect.Source(1)=ENCLO_SOURCE_COL
 
 // Now, extract the switches, DRAC and KVM status thanks to a smart AWK script
 // OtherDeviceID;Status;StatusInformation
@@ -291,7 +291,7 @@ OtherDevice.Collect.StatusInformation=ValueTable.Column(3)
 // Discovery
 
 // Source(1) = copy of Enclosure.Discovery.Source(2)
-Blade.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+Blade.Discovery.Source(1)=ENCLO_SOURCE_DISCO
 
 // Now, extract the blades thanks to a smart AWK script
 // BladeID;BladeModel;
@@ -337,7 +337,7 @@ Blade.Discovery.Instance.BladeModel=InstanceTable.Column(2)
 Blade.Collect.Type="MultiInstance"
 
 // Source(1) = copy of Enclosure.Collect.Source(1)
-Blade.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+Blade.Collect.Source(1)=ENCLO_SOURCE_COL
 
 // Now, extract the power supplies status thanks to a smart AWK script
 // PowerSupplyID;Status;StatusInformation;PowerState
@@ -362,7 +362,7 @@ Blade.Collect.PowerState=ValueTable.Column(4)
 // Discovery
 
 // Source(1) = copy of Enclosure.Discovery.Source(2)
-PhysicalDisk.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+PhysicalDisk.Discovery.Source(1)=ENCLO_SOURCE_DISCO
 
 // Now, extract the power supplies thanks to a smart AWK script
 // MSHW;DeviceID;DisplayID;Status;StatusInformation;size;failurepredicted;Model;SerialNumber;
@@ -396,7 +396,7 @@ PhysicalDisk.Discovery.Instance.SerialNumber=InstanceTable.Column(5)
 PhysicalDisk.Collect.Type="MultiInstance"
 
 // Source(1) = copy of Enclosure.Collect.Source(1)
-PhysicalDisk.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+PhysicalDisk.Collect.Source(1)=ENCLO_SOURCE_COL
 
 // Now, extract the power supplies status thanks to a smart AWK script
 // MSHW;DeviceID;DisplayID;Status;StatusInformation;size;failurepredicted;Model;SerialNumber;
@@ -422,7 +422,7 @@ PhysicalDisk.Collect.PredictedFailure=ValueTable.Column(4)
 // Discovery
 
 // Source(1) = copy of Enclosure.Discovery.Source(2)
-DiskController.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+DiskController.Discovery.Source(1)=ENCLO_SOURCE_DISCO
 
 // Now, extract the power supplies thanks to a smart AWK script
 // MSHW;DeviceID;status;statusInformation;Model;Firmware;
@@ -447,7 +447,7 @@ DiskController.Discovery.Instance.FirmwareVersion.InstanceTable.Column(3)
 DiskController.Collect.Type="MultiInstance"
 
 // Source(1) = copy of Enclosure.Collect.Source(1)
-DiskController.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+DiskController.Collect.Source(1)=ENCLO_SOURCE_COL
 
 // Now, extract the power supplies status thanks to a smart AWK script
 // MSHW;DeviceID;status;statusInformation;Model;Firmware;
@@ -472,7 +472,7 @@ DiskController.Collect.StatusInformation=ValueTable.Column(3)
 // Discovery
 
 // Source(1) = copy of Enclosure.Discovery.Source(2)
-Battery.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+Battery.Discovery.Source(1)=ENCLO_SOURCE_DISCO
 
 // Now, extract the power supplies thanks to a smart AWK script
 // DeviceID;Status;StatusInformation;
@@ -496,7 +496,7 @@ Battery.Discovery.Instance.AttachedToDeviceID="DellBladeChassis"
 Battery.Collect.Type="MultiInstance"
 
 // Source(1) = copy of Enclosure.Collect.Source(1)
-Battery.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+Battery.Collect.Source(1)=ENCLO_SOURCE_COL
 
 // Now, extract the power supplies status thanks to a smart AWK script
 // DeviceID;Status;StatusInformation;
@@ -520,7 +520,7 @@ Battery.Collect.StatusInformation=ValueTable.Column(3)
 // Discovery
 
 // Source(1) = copy of Enclosure.Discovery.Source(2)
-LogicalDisk.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+LogicalDisk.Discovery.Source(1)=ENCLO_SOURCE_DISCO
 
 // Now, extract the power supplies thanks to a smart AWK script
 // MSHW;DeviceID;Status;StatusInformation;Name;RaidLevel;Size;
@@ -552,7 +552,7 @@ LogicalDisk.Discovery.Instance.RAIDLevel=InstanceTable.Column(3)
 LogicalDisk.Collect.Type="MultiInstance"
 
 // Source(1) = copy of Enclosure.Collect.Source(1)
-LogicalDisk.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+LogicalDisk.Collect.Source(1)=ENCLO_SOURCE_COL
 
 // Now, extract the power supplies status thanks to a smart AWK script
 // DeviceID;Status;StatusInformation;

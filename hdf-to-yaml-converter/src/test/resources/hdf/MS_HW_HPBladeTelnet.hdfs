@@ -38,37 +38,9 @@ hdf.Supersedes="MS_HW_HPBladeSystem.hdf"
 //
 
 // host should respond to Telnet/SSH the way described below
-Detection.Criteria(1).Type="TelnetInteractive"
-
-Detection.Criteria(1).Step(1).Type="Sleep"
-Detection.Criteria(1).Step(1).Duration=1
-
-Detection.Criteria(1).Step(2).Type="WaitFor"
-Detection.Criteria(1).Step(2).TelnetOnly=1
-Detection.Criteria(1).Step(2).Text="ogin:"
-Detection.Criteria(1).Step(2).TimeOut=20
-
-Detection.Criteria(1).Step(3).Type="SendUsername"
-Detection.Criteria(1).Step(3).TelnetOnly=1
-
-Detection.Criteria(1).Step(4).Type="WaitFor"
-Detection.Criteria(1).Step(4).TelnetOnly=1
-Detection.Criteria(1).Step(4).Text="assword:"
-Detection.Criteria(1).Step(4).TimeOut=20
-
-Detection.Criteria(1).Step(5).Type="SendPassword"
-Detection.Criteria(1).Step(5).TelnetOnly=1
-
-Detection.Criteria(1).Step(6).Type="WaitFor"
-Detection.Criteria(1).Step(6).Text=">"
-Detection.Criteria(1).Step(6).TimeOut=30
-Detection.Criteria(1).Step(6).Capture="True"
-
-Detection.Criteria(1).Step(7).Type="SendText"
-Detection.Criteria(1).Step(7).Text="quit\n"
-Detection.Criteria(1).Step(7).Capture="False"
-
-Detection.Criteria(1).ExpectedResult="HP.* BladeSystem Onboard Administrator"
+Detection.Criteria(1).Type="OSCommand"
+Detection.Criteria(1).CommandLine="SHOW OA INFO"
+Detection.Criteria(1).ExpectedResult="Onboard Administrator"
 
 //
 // COMPUTER
@@ -80,47 +52,8 @@ Detection.Criteria(1).ExpectedResult="HP.* BladeSystem Onboard Administrator"
 // Source(1) = Output of the show enclosure info command through Telnet/SSH
 // ComputerModel;SerialNumber
 
-Enclosure.Discovery.Source(1).Type="TelnetInteractive"
-
-Enclosure.Discovery.Source(1).Step(1).Type="Sleep"
-Enclosure.Discovery.Source(1).Step(1).Duration=1
-
-Enclosure.Discovery.Source(1).Step(2).Type="WaitFor"
-Enclosure.Discovery.Source(1).Step(2).Text="ogin:"
-Enclosure.Discovery.Source(1).Step(2).Timeout=20
-Enclosure.Discovery.Source(1).Step(2).TelnetOnly=1
-
-Enclosure.Discovery.Source(1).Step(3).Type="Sleep"
-Enclosure.Discovery.Source(1).Step(3).Duration=3
-
-Enclosure.Discovery.Source(1).Step(4).Type="SendUsername"
-Enclosure.Discovery.Source(1).Step(4).TelnetOnly=1
-
-Enclosure.Discovery.Source(1).Step(5).Type="WaitFor"
-Enclosure.Discovery.Source(1).Step(5).Text="assword:"
-Enclosure.Discovery.Source(1).Step(5).TelnetOnly=1
-Enclosure.Discovery.Source(1).Step(5).TimeOut=20
-
-Enclosure.Discovery.Source(1).Step(6).Type="Sleep"
-Enclosure.Discovery.Source(1).Step(6).Duration=3
-
-Enclosure.Discovery.Source(1).Step(7).Type="SendPassword"
-Enclosure.Discovery.Source(1).Step(7).TelnetOnly=1
-
-Enclosure.Discovery.Source(1).Step(8).Type="WaitForPrompt"
-Enclosure.Discovery.Source(1).Step(8).TimeOut=30
-
-Enclosure.Discovery.Source(1).Step(9).Type="SendText"
-Enclosure.Discovery.Source(1).Step(9).Text="show enclosure info\n"
-
-Enclosure.Discovery.Source(1).Step(10).Type="GetUntilPrompt"
-Enclosure.Discovery.Source(1).Step(10).TimeOut=30
-Enclosure.Discovery.Source(1).Step(10).Capture="True"
-
-Enclosure.Discovery.Source(1).Step(11).Type="SendText"
-Enclosure.Discovery.Source(1).Step(11).Text="quit\n"
-Enclosure.Discovery.Source(1).Step(11).Capture="False"
-
+Enclosure.Discovery.Source(1).Type="OSCommand"
+Enclosure.Discovery.Source(1).CommandLine="show enclosure info"
 // Now, extract the power supplies thanks to a smart AWK script
 // powerSupplyID - Part Number; powerCapacity
 //  RETURNS MSHW;model;serialNumber;
@@ -139,67 +72,28 @@ Enclosure.Discovery.Instance.Model=InstanceTable.Column(1)
 Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(2)
 Enclosure.Discovery.Instance.Type="Blade"
 
-Enclosure.Discovery.Source(2).Type="TelnetInteractive"
+Enclosure.Discovery.Source(2).Type="OSCommand"
+Enclosure.Discovery.Source(2).CommandLine="show interconnect info all"
 
-Enclosure.Discovery.Source(2).Step(1).Type="Sleep"
-Enclosure.Discovery.Source(2).Step(1).Duration=10
+Enclosure.Discovery.Source(3).Type="OSCommand"
+Enclosure.Discovery.Source(3).CommandLine="show server info all"
 
-Enclosure.Discovery.Source(2).Step(2).Type="WaitFor"
-Enclosure.Discovery.Source(2).Step(2).TelnetOnly=1
-Enclosure.Discovery.Source(2).Step(2).Text="ogin:"
-Enclosure.Discovery.Source(2).Step(2).Timeout=20
+Enclosure.Discovery.Source(4).Type="OSCommand"
+Enclosure.Discovery.Source(4).CommandLine="show enclosure powersupply all"
 
-Enclosure.Discovery.Source(2).Step(3).Type="SendUsername"
-Enclosure.Discovery.Source(2).Step(3).TelnetOnly=1
+Enclosure.Discovery.Source(5).Type="OSCommand"
+Enclosure.Discovery.Source(5).CommandLine="show enclosure fan all"
 
-Enclosure.Discovery.Source(2).Step(4).Type="WaitFor"
-Enclosure.Discovery.Source(2).Step(4).TelnetOnly=1
-Enclosure.Discovery.Source(2).Step(4).Text="assword:"
-Enclosure.Discovery.Source(2).Step(4).TimeOut=20
+Enclosure.Discovery.Source(6).Type="OSCommand"
+Enclosure.Discovery.Source(6).CommandLine="show enclosure temp"
 
-Enclosure.Discovery.Source(2).Step(5).Type="SendPassword"
-Enclosure.Discovery.Source(2).Step(5).TelnetOnly=1
+Enclosure.Discovery.Source(7).Type="TableUnion"
+Enclosure.Discovery.Source(7).Table1=%Enclosure.Discovery.Source(2)%
+Enclosure.Discovery.Source(7).Table2=%Enclosure.Discovery.Source(3)%
+Enclosure.Discovery.Source(7).Table3=%Enclosure.Discovery.Source(4)%
+Enclosure.Discovery.Source(7).Table4=%Enclosure.Discovery.Source(5)%
+Enclosure.Discovery.Source(7).Table5=%Enclosure.Discovery.Source(6)%
 
-Enclosure.Discovery.Source(2).Step(6).Type="WaitForPrompt"
-Enclosure.Discovery.Source(2).Step(6).TimeOut=30
-
-Enclosure.Discovery.Source(2).Step(7).Type="SendText"
-Enclosure.Discovery.Source(2).Step(7).Text="show interconnect info all\n"
-
-Enclosure.Discovery.Source(2).Step(8).Type="GetUntilPrompt"
-Enclosure.Discovery.Source(2).Step(8).TimeOut=30
-Enclosure.Discovery.Source(2).Step(8).Capture="True"
-
-Enclosure.Discovery.Source(2).Step(9).Type="SendText"
-Enclosure.Discovery.Source(2).Step(9).Text="show server info all\n"
-
-Enclosure.Discovery.Source(2).Step(10).Type="GetUntilPrompt"
-Enclosure.Discovery.Source(2).Step(10).TimeOut=30
-
-Enclosure.Discovery.Source(2).Step(11).Type="SendText"
-Enclosure.Discovery.Source(2).Step(11).Text="show enclosure powersupply all\n"
-
-Enclosure.Discovery.Source(2).Step(12).Type="GetUntilPrompt"
-Enclosure.Discovery.Source(2).Step(12).TimeOut=30
-
-Enclosure.Discovery.Source(2).Step(13).Type="SendText"
-Enclosure.Discovery.Source(2).Step(13).Text="show enclosure fan all\n"
-
-Enclosure.Discovery.Source(2).Step(14).Type="GetUntilPrompt"
-Enclosure.Discovery.Source(2).Step(14).TimeOut=30
-
-Enclosure.Discovery.Source(2).Step(15).Type="SendText"
-Enclosure.Discovery.Source(2).Step(15).Text="show enclosure temp\n"
-
-Enclosure.Discovery.Source(2).Step(16).Type="GetUntilPrompt"
-Enclosure.Discovery.Source(2).Step(16).TimeOut=30
-
-Enclosure.Discovery.Source(2).Step(17).Type="Sleep"
-Enclosure.Discovery.Source(2).Step(17).Duration=3
-
-Enclosure.Discovery.Source(2).Step(18).Type="SendText"
-Enclosure.Discovery.Source(2).Step(18).Text="quit\n"
-Enclosure.Discovery.Source(2).Step(18).Capture=False
 
 //
 // Collect
@@ -208,111 +102,8 @@ Enclosure.Collect.Type="MonoInstance"
 
 // Source(1) = Output of show enclosure status
 
-Enclosure.Collect.Source(1).Type="TelnetInteractive"
-
-Enclosure.Collect.Source(1).Step(1).Type="Sleep"
-Enclosure.Collect.Source(1).Step(1).Duration=1
-
-Enclosure.Collect.Source(1).Step(2).Type="WaitFor"
-Enclosure.Collect.Source(1).Step(2).Text="ogin:"
-Enclosure.Collect.Source(1).Step(2).Timeout=20
-Enclosure.Collect.Source(1).Step(2).TelnetOnly=1
-
-Enclosure.Collect.Source(1).Step(3).Type="Sleep"
-Enclosure.Collect.Source(1).Step(3).Duration=3
-
-Enclosure.Collect.Source(1).Step(4).Type="SendUsername"
-Enclosure.Collect.Source(1).Step(4).TelnetOnly=1
-
-Enclosure.Collect.Source(1).Step(5).Type="WaitFor"
-Enclosure.Collect.Source(1).Step(5).Text="assword:"
-Enclosure.Collect.Source(1).Step(5).TimeOut=20
-Enclosure.Collect.Source(1).Step(5).TelnetOnly=1
-
-Enclosure.Collect.Source(1).Step(6).Type="Sleep"
-Enclosure.Collect.Source(1).Step(6).Duration=3
-
-Enclosure.Collect.Source(1).Step(7).Type="SendPassword"
-Enclosure.Collect.Source(1).Step(7).TelnetOnly=1
-
-Enclosure.Collect.Source(1).Step(8).Type="WaitForPrompt"
-Enclosure.Collect.Source(1).Step(8).TimeOut=30
-
-Enclosure.Collect.Source(1).Step(9).Type="SendText"
-Enclosure.Collect.Source(1).Step(9).Text="show enclosure status\n"
-
-Enclosure.Collect.Source(1).Step(10).Type="GetUntilPrompt"
-Enclosure.Collect.Source(1).Step(10).TimeOut=30
-Enclosure.Collect.Source(1).Step(10).Capture="True"
-
-Enclosure.Collect.Source(1).Step(11).Type="SendText"
-Enclosure.Collect.Source(1).Step(11).Text="quit\n"
-Enclosure.Collect.Source(1).Step(11).Capture="False"
-
-// Source(2) = Output of show show interconnect status all, show server status all, enclosure powersupply all, show enclosure fan all, show enclosure temp
-// Not actually used for enclosure, but a group collect for all other parameters (to reduce the number of telnet connections)
-
-Enclosure.Collect.Source(2).Type="TelnetInteractive"
-
-Enclosure.Collect.Source(2).Step(1).Type="Sleep"
-Enclosure.Collect.Source(2).Step(1).Duration=10
-
-Enclosure.Collect.Source(2).Step(2).Type="WaitFor"
-Enclosure.Collect.Source(2).Step(2).TelnetOnly=1
-Enclosure.Collect.Source(2).Step(2).Text="ogin:"
-Enclosure.Collect.Source(2).Step(2).Timeout=20
-
-Enclosure.Collect.Source(2).Step(3).Type="SendUsername"
-Enclosure.Collect.Source(2).Step(3).TelnetOnly=1
-
-Enclosure.Collect.Source(2).Step(4).Type="WaitFor"
-Enclosure.Collect.Source(2).Step(4).TelnetOnly=1
-Enclosure.Collect.Source(2).Step(4).Text="assword:"
-Enclosure.Collect.Source(2).Step(4).TimeOut=20
-
-Enclosure.Collect.Source(2).Step(5).Type="SendPassword"
-Enclosure.Collect.Source(2).Step(5).TelnetOnly=1
-
-Enclosure.Collect.Source(2).Step(6).Type="WaitForPrompt"
-Enclosure.Collect.Source(2).Step(6).TimeOut=30
-
-Enclosure.Collect.Source(2).Step(7).Type="SendText"
-Enclosure.Collect.Source(2).Step(7).Text="show interconnect status all\n"
-
-Enclosure.Collect.Source(2).Step(8).Type="GetUntilPrompt"
-Enclosure.Collect.Source(2).Step(8).TimeOut=30
-Enclosure.Collect.Source(2).Step(8).Capture="True"
-
-Enclosure.Collect.Source(2).Step(9).Type="SendText"
-Enclosure.Collect.Source(2).Step(9).Text="show server status all\n"
-
-Enclosure.Collect.Source(2).Step(10).Type="GetUntilPrompt"
-Enclosure.Collect.Source(2).Step(10).TimeOut=30
-
-Enclosure.Collect.Source(2).Step(11).Type="SendText"
-Enclosure.Collect.Source(2).Step(11).Text="show enclosure powersupply all\n"
-
-Enclosure.Collect.Source(2).Step(12).Type="GetUntilPrompt"
-Enclosure.Collect.Source(2).Step(12).TimeOut=30
-
-Enclosure.Collect.Source(2).Step(13).Type="SendText"
-Enclosure.Collect.Source(2).Step(13).Text="show enclosure fan all\n"
-
-Enclosure.Collect.Source(2).Step(14).Type="GetUntilPrompt"
-Enclosure.Collect.Source(2).Step(14).TimeOut=30
-
-Enclosure.Collect.Source(2).Step(15).Type="SendText"
-Enclosure.Collect.Source(2).Step(15).Text="show enclosure temp\n"
-
-Enclosure.Collect.Source(2).Step(16).Type="GetUntilPrompt"
-Enclosure.Collect.Source(2).Step(16).TimeOut=30
-
-Enclosure.Collect.Source(2).Step(17).Type="Sleep"
-Enclosure.Collect.Source(2).Step(17).Duration=3
-
-Enclosure.Collect.Source(2).Step(18).Type="SendText"
-Enclosure.Collect.Source(2).Step(18).Text="quit\n"
-Enclosure.Collect.Source(2).Step(18).Capture=False
+Enclosure.Collect.Source(1).Type="OSCommand"
+Enclosure.Collect.Source(1).CommandLine="show enclosure status"
 
 // Retrieve the overall status of the chassis and its power consumption with a smart AWK script
 //  RETURNS MSHW;status;powerConsumption
@@ -344,6 +135,32 @@ OKDegradedFailedStatusInformationTranslationTable("Failed")="Failed"
 OKDegradedFailedStatusInformationTranslationTable("N/A")=""
 OKDegradedFailedStatusInformationTranslationTable(Default)="Unknown Status"
 
+
+// Source(2) = Output of show show interconnect status all, show server status all, enclosure powersupply all, show enclosure fan all, show enclosure temp
+// Not actually used for enclosure, but a group collect for all other parameters (to reduce the number of telnet connections)
+
+Enclosure.Collect.Source(2).Type="OSCommand"
+Enclosure.Collect.Source(2).CommandLine="show interconnect status all"
+
+Enclosure.Collect.Source(3).Type="OSCommand"
+Enclosure.Collect.Source(3).CommandLine="show server status all"
+
+Enclosure.Collect.Source(4).Type="OSCommand"
+Enclosure.Collect.Source(4).CommandLine="show enclosure powersupply all"
+
+Enclosure.Collect.Source(5).Type="OSCommand"
+Enclosure.Collect.Source(5).CommandLine="show enclosure fan all"
+
+Enclosure.Collect.Source(6).Type="OSCommand"
+Enclosure.Collect.Source(6).CommandLine="show enclosure temp"
+
+Enclosure.Collect.Source(7).Type="TableUnion"
+Enclosure.Collect.Source(7).Table1=%Enclosure.Collect.Source(2)%
+Enclosure.Collect.Source(7).Table2=%Enclosure.Collect.Source(3)%
+Enclosure.Collect.Source(7).Table3=%Enclosure.Collect.Source(4)%
+Enclosure.Collect.Source(7).Table4=%Enclosure.Collect.Source(5)%
+Enclosure.Collect.Source(7).Table5=%Enclosure.Collect.Source(6)%
+
 // ValueTable = Source(1)
 Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(1)%
 Enclosure.Collect.Status=ValueTable.Column(1)
@@ -357,7 +174,7 @@ Enclosure.Collect.PowerConsumption=ValueTable.Column(2)
 // Discovery
 
 // Source(1) = copy of Enclosure.Discovery.Source(2)
-PowerSupply.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+PowerSupply.Discovery.Source(1)=%Enclosure.Discovery.Source(7)%
 
 // Now, extract the power supplies thanks to a smart AWK script
 //  RETURNS MSHW;powerSupplyID;status;powerCapacity;powerCurrent
@@ -382,7 +199,7 @@ PowerSupply.Discovery.Instance.AttachedToDeviceID="HPBladeChassis"
 PowerSupply.Collect.Type="MultiInstance"
 
 // Source(1) = copy of Enclosure.Collect.Source(1)
-PowerSupply.Collect.Source(1)=%Enclosure.Collect.Source(2)%
+PowerSupply.Collect.Source(1)=%Enclosure.Collect.Source(7)%
 
 // Now, extract the power supplies status thanks to a smart AWK script
 //  RETURNS MSHW;powerSupplyID;status;powerCapacity;powerCurrent
@@ -426,7 +243,7 @@ PowerSupply.Collect.UsedWatts=ValueTable.Column(4)
 // Discovery
 
 // Source(1) = copy of Enclosure.Discovery.Source(2)
-Fan.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+Fan.Discovery.Source(1)=%Enclosure.Discovery.Source(7)%
 
 // Now, extract the power supplies thanks to a smart AWK script
 //  RETURNS MSHW;FanID; status ; fan Speed Percent ; fan Min ; fan Max ;
@@ -439,7 +256,7 @@ Fan.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
 Fan.Discovery.Source(1).Compute(1).SelectColumns="2"
 
 // InstanceTable = Source(1)
-Fan.Discovery.InstanceTable=%Fan.Discovery.Source(1)%
+Fan.Discovery.InstanceTable=%Fan.Discovery.Source(7)%
 Fan.Discovery.Instance.DeviceID=InstanceTable.Column(1)
 Fan.Discovery.Instance.AttachedToDeviceID="HPBladeChassis"
 
@@ -449,7 +266,7 @@ Fan.Discovery.Instance.AttachedToDeviceID="HPBladeChassis"
 // Collect type is multi-instance
 Fan.Collect.Type="MultiInstance"
 
-Fan.Collect.Source(1)=%Enclosure.Collect.Source(2)%
+Fan.Collect.Source(1)=%Enclosure.Collect.Source(7)%
 
 // Now, extract the power supplies status thanks to a smart AWK script
 //  RETURNS MSHW; FanID; status ; fan Speed Percent ; fan Min ; fan Max ;
@@ -482,7 +299,7 @@ Fan.Collect.SpeedPercent=ValueTable.Column(3)
 // Discovery
 
 // Source(1) = copy of Enclosure.Discovery.Source(2)
-Temperature.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+Temperature.Discovery.Source(1)=%Enclosure.Discovery.Source(7)%
 
 // Now, extract the power supplies thanks to a smart AWK script
 //  RETURNS MSHW; ID, status, temperature, high caution value, high critical value, statusActivate, temperatureActivate
@@ -509,7 +326,7 @@ Temperature.Discovery.Instance.AttachedToDeviceID="HPBladeChassis"
 Temperature.Collect.Type="MultiInstance"
 
 // Source(1) = copy of Enclosure.Collect.Source(2)
-Temperature.Collect.Source(1)=%Enclosure.Collect.Source(2)%
+Temperature.Collect.Source(1)=%Enclosure.Collect.Source(7)%
 
 // Now, extract the power supplies status thanks to a smart AWK script
 //  RETURNS MSHW; ID, status, temperature, high caution value, high critical value, statusActivate, temperatureActivate
@@ -541,7 +358,7 @@ Temperature.Collect.Temperature=ValueTable.Column(3)
 // Discovery
 
 // Source(1) = copy of Enclosure.Discovery.Source(2)
-Blade.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+Blade.Discovery.Source(1)=%Enclosure.Discovery.Source(7)%
 
 // Now, extract the blades thanks to a smart AWK script
 //  RETURNS MSHW; bladeID;bladeName;bladeModel;serialNumber
@@ -569,7 +386,7 @@ Blade.Discovery.Instance.AttachedToDeviceID="HPBladeChassis"
 Blade.Collect.Type="MultiInstance"
 
 // Source(1) = copy of Enclosure.Collect.Source(2)
-Blade.Collect.Source(1)=%Enclosure.Collect.Source(2)%
+Blade.Collect.Source(1)=%Enclosure.Collect.Source(7)%
 
 // Now, extract the blade status thanks to a smart AWK script
 //  RETURNS MSHW; bladeID;bladeHealth;bladeInformation
@@ -603,7 +420,7 @@ Blade.Collect.PowerState=ValueTable.Column(4)
 // Discovery
 
 // Source(1) = copy of Enclosure.Discovery.Source(2)
-OtherDevice.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+OtherDevice.Discovery.Source(1)=%Enclosure.Discovery.Source(7)%
 
 // Now, extract the switches, DRAC and KVM modules thanks to a smart AWK script
 //  RETURNS MSHW; otherDeviceID;deviceType;deviceName
@@ -629,7 +446,7 @@ OtherDevice.Discovery.Instance.AttachedToDeviceID="HPBladeChassis"
 OtherDevice.Collect.Type="MultiInstance"
 
 // Source(1) = copy of Enclosure.Collect.Source(1)
-OtherDevice.Collect.Source(1)=%Enclosure.Collect.Source(2)%
+OtherDevice.Collect.Source(1)=%Enclosure.Collect.Source(7)%
 
 // Now, extract the switches, DRAC and KVM status thanks to a smart AWK script
 //  RETURNS MSHW; otherDeviceID; status ; status (same as column 3);

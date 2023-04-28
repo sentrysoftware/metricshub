@@ -54,36 +54,27 @@ Enclosure.Discovery.Instance.Vendor=InstanceTable.Column(1)
 Enclosure.Discovery.Instance.Model=InstanceTable.Column(2)
 
 //
-// Voltages
-//
-
-//
 // Discovery
-
 // Source 1 = Voltage Sensor
-// Identifier, Name, SensorType, Parent, SensorValue
+// Identifier, Name, SensorType, Parent
 Voltage.Discovery.Source(1).Type="WMI"
-Voltage.Discovery.Source(1).WbemQuery="SELECT Identifier, Name, Parent, Value FROM Sensor WHERE SensorType = 'Voltage'"
+Voltage.Discovery.Source(1).WbemQuery="SELECT Identifier, Name, Parent FROM Sensor WHERE SensorType = 'Voltage'"
 Voltage.Discovery.Source(1).WbemNameSpace="root\LibreHardwareMonitor"
 
-// Remove voltage sensors reporting zero
-Voltage.Discovery.Source(1).Compute(1).Type="ExcludeMatchingLines"
-Voltage.Discovery.Source(1).Compute(1).Column=4
-Voltage.Discovery.Source(1).Compute(1).RegExp="^[0.]+$"
 
 // Source 2 = Merge source 1 (voltage) and enclosure Hardware source
-// SensorIdentifier, SensorName, SensorParent, SensorValue, HardwareIdentifier, HardwareName, HardwareType
+// SensorIdentifier, SensorName,SensorParent, HardwareIdentifier, HardwareName, HardwareType
 Voltage.Discovery.Source(2).Type="TableJoint"
 Voltage.Discovery.Source(2).LeftTable=%Voltage.Discovery.Source(1)%
 Voltage.Discovery.Source(2).RightTable=%Enclosure.Discovery.Source(1)%
-Voltage.Discovery.Source(2).LeftKeyColumn=3
-Voltage.Discovery.Source(2).RightKeyColumn=1
+Voltage.Discovery.Source(2).LeftKeyColumn="3"
+Voltage.Discovery.Source(2).RightKeyColumn="1"
 
 // Instance table
-// SensorIdentifier, SensorName, SensorParent, SensorValue, HardwareIdentifier, HardwareName, HardwareType
+// SensorIdentifier, SensorName, SensorParent, HardwareIdentifier, HardwareName, HardwareType
 Voltage.Discovery.InstanceTable=%Voltage.Discovery.Source(2)%
 Voltage.Discovery.Instance.DeviceID=InstanceTable.Column(1)
-Voltage.Discovery.Instance.DisplayID=InstanceTable.Column(6)
+Voltage.Discovery.Instance.DisplayID=InstanceTable.Column(5)
 Voltage.Discovery.Instance.VoltageType=InstanceTable.Column(2)
 Voltage.Discovery.Instance.AttachedToDeviceID="PC"
 Voltage.Discovery.Instance.AttachedToDeviceType="Computer"
@@ -112,12 +103,7 @@ Voltage.Collect.DeviceID=ValueTable.Column(1)
 Voltage.Collect.Voltage=ValueTable.Column(2)
 
 //
-// Temperatures
-//
-
-//
 // Discovery
-
 // Source 1 = Temperature Sensor
 // Identifier, Name, Parent, Value
 Temperature.Discovery.Source(1).Type="WMI"
@@ -129,8 +115,8 @@ Temperature.Discovery.Source(1).WbemNameSpace="root\LibreHardwareMonitor"
 Temperature.Discovery.Source(2).Type="TableJoint"
 Temperature.Discovery.Source(2).LeftTable=%Temperature.Discovery.Source(1)%
 Temperature.Discovery.Source(2).RightTable=%Enclosure.Discovery.Source(1)%
-Temperature.Discovery.Source(2).LeftKeyColumn=3
-Temperature.Discovery.Source(2).RightKeyColumn=1
+Temperature.Discovery.Source(2).LeftKeyColumn="3"
+Temperature.Discovery.Source(2).RightKeyColumn="1"
 
 // Perform some computation to exclude non-real sensors, and calculate alarm thresholds when possible
 // SensorId;Name;WarningThreshold;AlarmThreshold;
@@ -236,41 +222,34 @@ PhysicalDisk.Collect.EnduranceRemaining=ValueTable.Column(3)
 
 // Source 1 = Fan Sensor
 // Identifier, Name, Parent
-// SensorIdentifier, SensorName, SensorParent, SensorValue
 Fan.Discovery.Source(1).Type="WMI"
-Fan.Discovery.Source(1).WbemQuery="SELECT Identifier, Name, Parent, Value FROM Sensor WHERE SensorType = 'Fan'"
+Fan.Discovery.Source(1).WbemQuery="SELECT Identifier, Name, Parent FROM Sensor WHERE SensorType = 'Fan'"
 Fan.Discovery.Source(1).WbemNameSpace="root\LibreHardwareMonitor"
 
-// Remove fans that are not spinning
-// SensorIdentifier, SensorName, SensorParent, SensorValue
-Fan.Discovery.Source(1).Compute(1).Type="ExcludeMatchingLines"
-Fan.Discovery.Source(1).Compute(1).Column=4
-Fan.Discovery.Source(1).Compute(1).RegExp="^[0.]+$"
-
 // Source 3 = Merge Source 1 and 2 Together
-// SensorIdentifier, SensorName, SensorParent, SensorValue, HardwareIdentifier, HardwareName, HardwareType
+// SensorIdentifier, SensorName, SensorParent, HardwareIdentifier, HardwareName, HardwareType
 Fan.Discovery.Source(2).Type="TableJoint"
 Fan.Discovery.Source(2).LeftTable=%Fan.Discovery.Source(1)%
 Fan.Discovery.Source(2).RightTable=%Enclosure.Discovery.Source(1)%
-Fan.Discovery.Source(2).LeftKeyColumn=3
-Fan.Discovery.Source(2).RightKeyColumn=1
+Fan.Discovery.Source(2).LeftKeyColumn="3"
+Fan.Discovery.Source(2).RightKeyColumn="1"
 
-// SensorIdentifier, SensorName, SensorParent, SensorValue, HardwareIdentifier, HardwareName, HardwareType
+// SensorIdentifier, SensorName, SensorParent, HardwareIdentifier, HardwareName, HardwareType
 Fan.Discovery.Source(2).Compute(1).Type="LeftConcat"
-Fan.Discovery.Source(2).Compute(1).Column=6
+Fan.Discovery.Source(2).Compute(1).Column=5
 Fan.Discovery.Source(2).Compute(1).String=" - "
 
-// Concatenate SensorName and HardwareName
-// SensorIdentifier, SensorName, SensorParent, SensorValue, HardwareIdentifier, HardwareName, HardwareType
+// Concatene SensorName and HardwareName
+// SensorIdentifier, SensorName, SensorParent, HardwareIdentifier, HardwareName, HardwareType
 Fan.Discovery.Source(2).Compute(2).Type="LeftConcat"
-Fan.Discovery.Source(2).Compute(2).Column=6
+Fan.Discovery.Source(2).Compute(2).Column=5
 Fan.Discovery.Source(2).Compute(2).String=Column(2)
 
 // Instance table
 // SensorIdentifier, SensorName, SensorParent, HardwareIdentifier, HardwareName, HardwareType
 Fan.Discovery.InstanceTable=%Fan.Discovery.Source(2)%
 Fan.Discovery.Instance.DeviceID=InstanceTable.Column(1)
-Fan.Discovery.Instance.DisplayID=InstanceTable.Column(6)
+Fan.Discovery.Instance.DisplayID=InstanceTable.Column(5)
 Fan.Discovery.Instance.AttachedToDeviceID="PC"
 Fan.Discovery.Instance.AttachedToDeviceType="Computer"
 
@@ -534,7 +513,7 @@ GPU.Collect.DecoderUsedTimePercent=ValueTable.Column(2)
 GPU.Collect.EncoderUsedTimePercent=ValueTable.Column(3)
 GPU.Collect.MemoryUtilization=ValueTable.Column(4)
 GPU.Collect.PowerConsumption=ValueTable.Column(5)
-GPU.Collect.ReceivedBytesRate=ValueTable.Column(6)
+Gpu.Collect.ReceivedBytesRate=ValueTable.Column(6)
 GPU.Collect.TransmittedBytesRate=ValueTable.Column(7)
 GPU.Collect.UsedTimePercent=ValueTable.Column(8)
 
@@ -542,7 +521,7 @@ GPU.Collect.UsedTimePercent=ValueTable.Column(8)
 ///
 ///    E M B E D D E D   F I L E ! ! !
 ///
-///    EmbeddedFile(1) = Find Sensors
+///    EmbeddedFile(3) = Find Sensors
 ///
 ///    gpuID, VideoDecode, VideoEncode, Memory, PowerConsumption, TransmittedBytes, ReveivedBytes
 ///    Description : Compute parameters for multiple GPU
@@ -590,9 +569,6 @@ BEGIN { FS = ";" }
 
 # Skip sensors that mention "Max" or "Average" (they are not real sensors anyway)
 ($2 ~ " Max" || $2 ~ " Average") { next; }
-
-# Skip sensors from it8721f, because this chip is known to provide false values
-($3 ~ "it8721f") { next; }
 
 # Distance to TjMax sensors value are stored in an array to be retrieved later
 ($2 ~ / Distance to TjMax$/) {
@@ -643,11 +619,11 @@ END {
 				wThres = 85;
 				aThres = 100;
 			} else if (parentDeviceId ~ "^/(ssd|nvme)") {
-				wThres = 50;
+				wThres = 65;
 				aThres = 70;
 			} else if (parentDeviceId ~ "^/hdd") {
-				wThres = 45;
-				aThres = 60;
+				wThres = 41;
+				aThres = 50;
 			} else if (deviceType == "Motherboard") {
 				wThres = 40;
 				aThres = 45;

@@ -5,12 +5,14 @@ import java.io.InputStream;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.TreeNode;
+import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature;
 
 public class JsonHelper {
 
@@ -113,7 +115,7 @@ public class JsonHelper {
 	 */
 	public static ObjectMapper buildYamlMapper() {
 		return JsonMapper
-			.builder(new YAMLFactory())
+			.builder(new YAMLFactory().disable(Feature.SPLIT_LINES))
 			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
 			.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
 			.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)

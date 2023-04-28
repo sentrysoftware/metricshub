@@ -37,100 +37,17 @@ hdf.AppliesToOS="OOB"
 //
 
 // Host should respond to telnet the way described below
-Detection.Criteria(1).Type="TelnetInteractive"
-
-Detection.Criteria(1).Step(1).Type="Sleep"
-Detection.Criteria(1).Step(1).Duration=1
-
-Detection.Criteria(1).Step(2).Type="WaitFor"
-Detection.Criteria(1).Step(2).Text="ogin:"
-Detection.Criteria(1).Step(2).TimeOut=20
-Detection.Criteria(1).Step(2).TelnetOnly=1
-
-Detection.Criteria(1).Step(3).Type="Sleep"
-Detection.Criteria(1).Step(3).Duration=3
-
-Detection.Criteria(1).Step(4).Type="SendUsername"
-Detection.Criteria(1).Step(4).TelnetOnly=1
-
-Detection.Criteria(1).Step(5).Type="Sleep"
-Detection.Criteria(1).Step(5).Duration=3
-
-Detection.Criteria(1).Step(6).Type="WaitFor"
-Detection.Criteria(1).Step(6).Text="assword:"
-Detection.Criteria(1).Step(6).TimeOut=10
-Detection.Criteria(1).Step(6).TelnetOnly=1
-
-Detection.Criteria(1).Step(7).Type="SendPassword"
-Detection.Criteria(1).Step(7).TelnetOnly=1
-
-Detection.Criteria(1).Step(8).Type="WaitFor"
-Detection.Criteria(1).Step(8).Text="DRAC/MC:"
-Detection.Criteria(1).Step(8).TimeOut=10
-Detection.Criteria(1).Step(8).Capture=True
-
-Detection.Criteria(1).Step(9).Type="Sleep"
-Detection.Criteria(1).Step(9).Duration=3
-
-Detection.Criteria(1).Step(10).Type="SendText"
-Detection.Criteria(1).Step(10).Text="quit\nlogout\n"
-Detection.Criteria(1).Step(10).Capture=False
-
-Detection.Criteria(1).ExpectedResult="DRAC/MC:"
+Detection.Criteria(1).Type="OSCommand"
+Detection.Criteria(1).CommandLine="getsysinfo"
+Detection.Criteria(1).ExpectedResult="RAC"
 
 //
 // Discovery
 
 // Source(1) = Output of the getsysinfo command through telnet
 // Look for the "System Model=" line
-Enclosure.Discovery.Source(1).Type="TelnetInteractive"
-
-Enclosure.Discovery.Source(1).Step(1).Type="Sleep"
-Enclosure.Discovery.Source(1).Step(1).Duration=1
-
-Enclosure.Discovery.Source(1).Step(2).Type="WaitFor"
-Enclosure.Discovery.Source(1).Step(2).Text="ogin:"
-Enclosure.Discovery.Source(1).Step(2).Timeout=20
-Enclosure.Discovery.Source(1).Step(2).TelnetOnly=1
-
-Enclosure.Discovery.Source(1).Step(3).Type="Sleep"
-Enclosure.Discovery.Source(1).Step(3).Duration=3
-
-Enclosure.Discovery.Source(1).Step(4).Type="SendUsername"
-Enclosure.Discovery.Source(1).Step(4).TelnetOnly=1
-
-Enclosure.Discovery.Source(1).Step(5).Type="WaitFor"
-Enclosure.Discovery.Source(1).Step(5).Text="assword:"
-Enclosure.Discovery.Source(1).Step(5).TimeOut=10
-Enclosure.Discovery.Source(1).Step(5).TelnetOnly=1
-
-Enclosure.Discovery.Source(1).Step(6).Type="Sleep"
-Enclosure.Discovery.Source(1).Step(6).Duration=3
-
-Enclosure.Discovery.Source(1).Step(7).Type="SendPassword"
-Enclosure.Discovery.Source(1).Step(7).TelnetOnly=1
-
-Enclosure.Discovery.Source(1).Step(8).Type="WaitFor"
-Enclosure.Discovery.Source(1).Step(8).Text="DRAC/MC:"
-Enclosure.Discovery.Source(1).Step(8).TimeOut=15
-
-Enclosure.Discovery.Source(1).Step(9).Type="Sleep"
-Enclosure.Discovery.Source(1).Step(9).Duration=3
-
-Enclosure.Discovery.Source(1).Step(10).Type="SendText"
-Enclosure.Discovery.Source(1).Step(10).Text="getsysinfo -c\n"
-
-Enclosure.Discovery.Source(1).Step(11).Type="WaitFor"
-Enclosure.Discovery.Source(1).Step(11).Text="DRAC/MC:"
-Enclosure.Discovery.Source(1).Step(11).TimeOut=15
-Enclosure.Discovery.Source(1).Step(11).Capture=True
-
-Enclosure.Discovery.Source(1).Step(12).Type="Sleep"
-Enclosure.Discovery.Source(1).Step(12).Duration=3
-
-Enclosure.Discovery.Source(1).Step(13).Type="SendText"
-Enclosure.Discovery.Source(1).Step(13).Text="quit\nlogout\n"
-Enclosure.Discovery.Source(1).Step(13).Capture=False
+Enclosure.Discovery.Source(1).Type="OSCommand"
+Enclosure.Discovery.Source(1).CommandLine="getsysinfo -c"
 
 //Enclosure.Discovery.Source(1).Separators="�"
 
@@ -144,75 +61,19 @@ Enclosure.Discovery.Source(1).Compute(1).SelectColumns="2,3"
 
 
 // Source(2) = Output of getsensorinfo, getmodinfo and getpbinfo
-Enclosure.Discovery.Source(2).Type="TelnetInteractive"
+Enclosure.Discovery.Source(2).Type="OSCommand"
+Enclosure.Discovery.Source(2).CommandLine="getsensorinfo"
 
-Enclosure.Discovery.Source(2).Step(1).Type="Sleep"
-Enclosure.Discovery.Source(2).Step(1).Duration=1
+Enclosure.Discovery.Source(3).Type="OSCommand"
+Enclosure.Discovery.Source(3).CommandLine="getmodinfo -A"
 
-Enclosure.Discovery.Source(2).Step(2).Type="WaitFor"
-Enclosure.Discovery.Source(2).Step(2).Text="ogin:"
-Enclosure.Discovery.Source(2).Step(2).Timeout=20
-Enclosure.Discovery.Source(2).Step(2).TelnetOnly=1
+Enclosure.Discovery.Source(4).Type="OSCommand"
+Enclosure.Discovery.Source(4).CommandLine="getpbinfo"
 
-Enclosure.Discovery.Source(2).Step(3).Type="Sleep"
-Enclosure.Discovery.Source(2).Step(3).Duration=3
-
-Enclosure.Discovery.Source(2).Step(4).Type="SendUsername"
-Enclosure.Discovery.Source(2).Step(4).TelnetOnly=1
-
-Enclosure.Discovery.Source(2).Step(5).Type="WaitFor"
-Enclosure.Discovery.Source(2).Step(5).Text="assword:"
-Enclosure.Discovery.Source(2).Step(5).TimeOut=10
-Enclosure.Discovery.Source(2).Step(5).TelnetOnly=1
-
-Enclosure.Discovery.Source(2).Step(6).Type="Sleep"
-Enclosure.Discovery.Source(2).Step(6).Duration=3
-
-Enclosure.Discovery.Source(2).Step(7).Type="SendPassword"
-Enclosure.Discovery.Source(2).Step(7).TelnetOnly=1
-
-Enclosure.Discovery.Source(2).Step(8).Type="WaitFor"
-Enclosure.Discovery.Source(2).Step(8).Text="DRAC/MC:"
-Enclosure.Discovery.Source(2).Step(8).TimeOut=15
-
-Enclosure.Discovery.Source(2).Step(9).Type="Sleep"
-Enclosure.Discovery.Source(2).Step(9).Duration=3
-
-Enclosure.Discovery.Source(2).Step(10).Type="SendText"
-Enclosure.Discovery.Source(2).Step(10).Text="getsensorinfo\n"
-
-Enclosure.Discovery.Source(2).Step(11).Type="WaitFor"
-Enclosure.Discovery.Source(2).Step(11).Text="DRAC/MC:"
-Enclosure.Discovery.Source(2).Step(11).TimeOut=15
-Enclosure.Discovery.Source(2).Step(11).Capture=True
-
-Enclosure.Discovery.Source(2).Step(12).Type="Sleep"
-Enclosure.Discovery.Source(2).Step(12).Duration=3
-
-Enclosure.Discovery.Source(2).Step(13).Type="SendText"
-Enclosure.Discovery.Source(2).Step(13).Text="getmodinfo -A\n"
-
-Enclosure.Discovery.Source(2).Step(14).Type="WaitFor"
-Enclosure.Discovery.Source(2).Step(14).Text="DRAC/MC:"
-Enclosure.Discovery.Source(2).Step(14).TimeOut=15
-
-Enclosure.Discovery.Source(2).Step(15).Type="Sleep"
-Enclosure.Discovery.Source(2).Step(15).Duration=3
-
-Enclosure.Discovery.Source(2).Step(16).Type="SendText"
-Enclosure.Discovery.Source(2).Step(16).Text="getpbinfo\n"
-
-Enclosure.Discovery.Source(2).Step(17).Type="WaitFor"
-Enclosure.Discovery.Source(2).Step(17).Text="DRAC/MC:"
-Enclosure.Discovery.Source(2).Step(17).TimeOut=15
-
-Enclosure.Discovery.Source(2).Step(18).Type="Sleep"
-Enclosure.Discovery.Source(2).Step(18).Duration=3
-
-Enclosure.Discovery.Source(2).Step(19).Type="SendText"
-Enclosure.Discovery.Source(2).Step(19).Text="quit\nlogout\n"
-Enclosure.Discovery.Source(2).Step(19).Capture=False
-
+Enclosure.Discovery.Source(5).Type="TableUnion"
+Enclosure.Discovery.Source(5).Table1=%Enclosure.Discovery.Source(2)%
+Enclosure.Discovery.Source(5).Table2=%Enclosure.Discovery.Source(3)%
+Enclosure.Discovery.Source(5).Table3=%Enclosure.Discovery.Source(4)%
 
 // The discovery table = source(1)
 Enclosure.Discovery.InstanceTable=%Enclosure.Discovery.Source(1)%
@@ -227,95 +88,40 @@ Enclosure.Discovery.Instance.Type="Blade"
 Enclosure.Collect.Type="MonoInstance"
 
 // Source(2) = Output of getsensorinfo, getmodinfo and getpbinfo
-Enclosure.Collect.Source(1).Type="TelnetInteractive"
+Enclosure.Collect.Source(1).Type="OSCommand"
+Enclosure.Collect.Source(1).Compute.CommandLine="getsensorinfo"
 
-Enclosure.Collect.Source(1).Step(1).Type="Sleep"
-Enclosure.Collect.Source(1).Step(1).Duration=1
+Enclosure.Collect.Source(2).Type="OSCommand"
+Enclosure.Collect.Source(2).CommandLine="getmodinfo -A"
 
-Enclosure.Collect.Source(1).Step(2).Type="WaitFor"
-Enclosure.Collect.Source(1).Step(2).Text="ogin:"
-Enclosure.Collect.Source(1).Step(2).Timeout=20
-Enclosure.Collect.Source(1).Step(2).TelnetOnly=1
+Enclosure.Collect.Source(3).Type="OSCommand"
+Enclosure.Collect.Source(3).CommandLine="getpbinfo"
 
-Enclosure.Collect.Source(1).Step(3).Type="Sleep"
-Enclosure.Collect.Source(1).Step(3).Duration=3
-
-Enclosure.Collect.Source(1).Step(4).Type="SendUsername"
-Enclosure.Collect.Source(1).Step(4).TelnetOnly=1
-
-Enclosure.Collect.Source(1).Step(5).Type="WaitFor"
-Enclosure.Collect.Source(1).Step(5).Text="assword:"
-Enclosure.Collect.Source(1).Step(5).TimeOut=10
-Enclosure.Collect.Source(1).Step(5).TelnetOnly=1
-
-Enclosure.Collect.Source(1).Step(6).Type="Sleep"
-Enclosure.Collect.Source(1).Step(6).Duration=3
-
-Enclosure.Collect.Source(1).Step(7).Type="SendPassword"
-Enclosure.Collect.Source(1).Step(7).TelnetOnly=1
-
-Enclosure.Collect.Source(1).Step(8).Type="WaitFor"
-Enclosure.Collect.Source(1).Step(8).Text="DRAC/MC:"
-Enclosure.Collect.Source(1).Step(8).TimeOut=15
-
-Enclosure.Collect.Source(1).Step(9).Type="Sleep"
-Enclosure.Collect.Source(1).Step(9).Duration=3
-
-Enclosure.Collect.Source(1).Step(10).Type="SendText"
-Enclosure.Collect.Source(1).Step(10).Text="getsensorinfo\n"
-
-Enclosure.Collect.Source(1).Step(11).Type="WaitFor"
-Enclosure.Collect.Source(1).Step(11).Text="DRAC/MC:"
-Enclosure.Collect.Source(1).Step(11).TimeOut=15
-Enclosure.Collect.Source(1).Step(11).Capture=True
-
-Enclosure.Collect.Source(1).Step(12).Type="Sleep"
-Enclosure.Collect.Source(1).Step(12).Duration=3
-
-Enclosure.Collect.Source(1).Step(13).Type="SendText"
-Enclosure.Collect.Source(1).Step(13).Text="getmodinfo -A\n"
-
-Enclosure.Collect.Source(1).Step(14).Type="WaitFor"
-Enclosure.Collect.Source(1).Step(14).Text="DRAC/MC:"
-Enclosure.Collect.Source(1).Step(14).TimeOut=15
-
-Enclosure.Collect.Source(1).Step(15).Type="Sleep"
-Enclosure.Collect.Source(1).Step(15).Duration=3
-
-Enclosure.Collect.Source(1).Step(16).Type="SendText"
-Enclosure.Collect.Source(1).Step(16).Text="getpbinfo\n"
-
-Enclosure.Collect.Source(1).Step(17).Type="WaitFor"
-Enclosure.Collect.Source(1).Step(17).Text="DRAC/MC:"
-Enclosure.Collect.Source(1).Step(17).TimeOut=15
-
-Enclosure.Collect.Source(1).Step(18).Type="Sleep"
-Enclosure.Collect.Source(1).Step(18).Duration=3
-
-Enclosure.Collect.Source(1).Step(19).Type="SendText"
-Enclosure.Collect.Source(1).Step(19).Text="quit\nlogout\n"
-Enclosure.Collect.Source(1).Step(19).Capture=False
+Enclosure.Collect.Source(4).Type="TableUnion"
+Enclosure.Collect.Source(4).Table1=%Enclosure.Collect.Source(1)%
+Enclosure.Collect.Source(4).Table2=%Enclosure.Collect.Source(2)%
+Enclosure.Collect.Source(4).Table3=%Enclosure.Collect.Source(3)%
 
 // Source(2) = copy of Enclosure.Collect.Source(1)
-Enclosure.Collect.Source(2)=%Enclosure.Collect.Source(1)%
+Enclosure.Collect.Source(5)=%Enclosure.Collect.Source(4)%
 
 // Retrieve the overall status of the chassis and its power consumption with a smart AWK script
 // Status;StatusInformation;PowerConsumption
-Enclosure.Collect.Source(2).Compute(1).Type="Awk"
-Enclosure.Collect.Source(2).Compute(1).AwkScript=EmbeddedFile(2)
-Enclosure.Collect.Source(2).Compute(1).KeepOnlyRegExp="MSHW;"
-Enclosure.Collect.Source(2).Compute(1).Separators=";"
-Enclosure.Collect.Source(2).Compute(1).SelectColumns="2,3,4"
+Enclosure.Collect.Source(5).Compute(1).Type="Awk"
+Enclosure.Collect.Source(5).Compute(1).AwkScript=EmbeddedFile(2)
+Enclosure.Collect.Source(5).Compute(1).KeepOnlyRegExp="MSHW;"
+Enclosure.Collect.Source(5).Compute(1).Separators=";"
+Enclosure.Collect.Source(5).Compute(1).SelectColumns="2,3,4"
 
 // Remove the trailing "W" in the PowerConsumption value
 // Status;StatusInformation;PowerConsumption
-Enclosure.Collect.Source(2).Compute(2).Type="Replace"
-Enclosure.Collect.Source(2).Compute(2).Column=3
-Enclosure.Collect.Source(2).Compute(2).Replace="W"
-Enclosure.Collect.Source(2).Compute(2).ReplaceBy=""
+Enclosure.Collect.Source(5).Compute(2).Type="Replace"
+Enclosure.Collect.Source(5).Compute(2).Column=3
+Enclosure.Collect.Source(5).Compute(2).Replace="W"
+Enclosure.Collect.Source(5).Compute(2).ReplaceBy=""
 
 // ValueTable = Source(1)
-Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(2)%
+Enclosure.Collect.ValueTable=%Enclosure.Collect.Source(5)%
 Enclosure.Collect.Status=ValueTable.Column(1)
 Enclosure.Collect.StatusInformation=ValueTable.Column(2)
 Enclosure.Collect.PowerConsumption=ValueTable.Column(3)
@@ -330,7 +136,7 @@ Enclosure.Collect.PowerConsumption=ValueTable.Column(3)
 // Discovery
 
 // Source(1) = copy of Enclosure.Discovery.Source(2)
-Temperature.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+Temperature.Discovery.Source(1)=%Enclosure.Discovery.Source(5)%
 
 // Now, extract the temperatures thanks to a smart AWK script
 // TemperatureID;Location;WarningThreshold;AlarmThreshold
@@ -354,7 +160,7 @@ Temperature.Discovery.Instance.AlarmThreshold=InstanceTable.Column(4)
 Temperature.Collect.Type="MultiInstance"
 
 // Source(1) = copy of Enclosure.Collect.Source(1)
-Temperature.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+Temperature.Collect.Source(1)=%Enclosure.collect.Source(4)%
 
 // Now, extract the temperatures thanks to a smart AWK script
 // TemperatureID;Temperature;Status;
@@ -400,7 +206,7 @@ Temperature.Collect.StatusInformation=ValueTable.Column(4)
 // Discovery
 
 // Source(1) = copy of Enclosure.Discovery.Source(2)
-Fan.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+Fan.Discovery.Source(1)=%Enclosure.Discovery.Source(5)%
 
 // Now, extract the fans thanks to a smart AWK script
 // FanID;Location;WarningThreshold;AlarmThreshold
@@ -424,7 +230,7 @@ Fan.Discovery.Instance.AlarmThreshold=InstanceTable.Column(4)
 Fan.Collect.Type="MultiInstance"
 
 // Source(1) = copy of Enclosure.Collect.Source(1)
-Fan.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+Fan.Collect.Source(1)=%Enclosure.collect.Source(4)%
 
 // Now, extract the fans thanks to a smart AWK script
 // FanID;Speed;Status;
@@ -461,7 +267,7 @@ Fan.Collect.StatusInformation=ValueTable.Column(4)
 // Discovery
 
 // Source(1) = copy of Enclosure.Discovery.Source(2)
-PowerSupply.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+PowerSupply.Discovery.Source(1)=%Enclosure.Discovery.Source(5)%
 
 // Now, extract the power supplies thanks to a smart AWK script
 // PowerSupplyID;PowerCapacity
@@ -490,7 +296,7 @@ PowerSupply.Discovery.Instance.PowerSupplyPower=InstanceTable.Column(2)
 PowerSupply.Collect.Type="MultiInstance"
 
 // Source(1) = copy of Enclosure.Collect.Source(1)
-PowerSupply.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+PowerSupply.Collect.Source(1)=%Enclosure.collect.Source(4)%
 
 // Now, extract the power supplies status thanks to a smart AWK script
 // PowerSupplyID;Status;StatusInformation
@@ -521,7 +327,7 @@ PowerSupply.Collect.StatusInformation=ValueTable.Column(3)
 // Discovery
 
 // Source(1) = copy of Enclosure.Discovery.Source(2)
-Blade.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+Blade.Discovery.Source(1)=%Enclosure.Discovery.Source(5)%
 
 // Now, extract the blades thanks to a smart AWK script
 // BladeID;BladeName;SerialNumber
@@ -532,7 +338,7 @@ Blade.Discovery.Source(1).Compute(1).KeepOnlyRegExp="^MSHW;"
 Blade.Discovery.Source(1).Compute(1).SelectColumns="2,3,4"
 
 // Source(1) = copy of Enclosure.Discovery.Source(2) (again)
-Blade.Discovery.Source(2)=%Enclosure.Discovery.Source(2)%
+Blade.Discovery.Source(2)=%Enclosure.Discovery.Source(5)%
 
 // But now, extract the model of the blades, always thanks to a smart AWK script
 // BladeName;Model
@@ -566,7 +372,7 @@ Blade.Discovery.Instance.SerialNumber=InstanceTable.Column(3)
 Blade.Collect.Type="MultiInstance"
 
 // Source(1) = copy of Enclosure.Collect.Source(1)
-Blade.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+Blade.Collect.Source(1)=%Enclosure.collect.Source(4)%
 
 // Now, extract the blade status thanks to a smart AWK script
 // BladeID;Status;StatusInformation;PowerState;
@@ -592,7 +398,7 @@ Blade.Collect.PowerState=ValueTable.Column(4)
 // Discovery
 
 // Source(1) = copy of Enclosure.Discovery.Source(2)
-OtherDevice.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+OtherDevice.Discovery.Source(1)=%Enclosure.Discovery.Source(5)%
 
 // Now, extract the switches, DRAC and KVM modules thanks to a smart AWK script
 // OtherDeviceID;DeviceType;DeviceName
@@ -615,7 +421,7 @@ OtherDevice.Discovery.Instance.AdditionalLabel=InstanceTable.Column(3)
 OtherDevice.Collect.Type="MultiInstance"
 
 // Source(1) = copy of Enclosure.Collect.Source(1)
-OtherDevice.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+OtherDevice.Collect.Source(1)=%Enclosure.collect.Source(4)%
 
 // Now, extract the switches, DRAC and KVM status thanks to a smart AWK script
 // OtherDeviceID;Status;StatusInformation
@@ -818,5 +624,3 @@ EmbeddedFile(9):
 }
 EmbeddedFile(9).End
 /////////////////////////////////////////////////////////////////////
-
-

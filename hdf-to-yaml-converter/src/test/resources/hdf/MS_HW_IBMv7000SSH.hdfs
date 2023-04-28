@@ -25,39 +25,8 @@ hdf.LocalSupport="false"
 hdf.AppliesToOS="Storage"
 
 // Run lsstoragesystem to see if it's a V7000
-Detection.Criteria(1).Type="TelnetInteractive"
-Detection.Criteria(1).Step(1).Type="Sleep"
-Detection.Criteria(1).Step(1).Duration=1
-
-Detection.Criteria(1).Step(2).Type="WaitFor"
-Detection.Criteria(1).Step(2).TelnetOnly=1
-Detection.Criteria(1).Step(2).Text="ogin:"
-Detection.Criteria(1).Step(2).TimeOut=20
-
-Detection.Criteria(1).Step(3).Type="SendUsername"
-Detection.Criteria(1).Step(3).TelnetOnly=1
-
-Detection.Criteria(1).Step(4).Type="WaitFor"
-Detection.Criteria(1).Step(4).TelnetOnly=1
-Detection.Criteria(1).Step(4).Text="assword:"
-Detection.Criteria(1).Step(4).TimeOut=20
-
-Detection.Criteria(1).Step(5).Type="SendPassword"
-Detection.Criteria(1).Step(5).TelnetOnly=1
-
-Detection.Criteria(1).Step(6).Type="WaitForPrompt"
-Detection.Criteria(1).Step(6).TimeOut=60
-
-Detection.Criteria(1).Step(7).Type="SendText"
-Detection.Criteria(1).Step(7).Text="lsenclosure -delim :\n"
-
-Detection.Criteria(1).Step(8).Type="GetUntilPrompt"
-Detection.Criteria(1).Step(8).TimeOut=30
-Detection.Criteria(1).Step(8).Capture="True"
-
-Detection.Criteria(1).Step(9).Type="SendText"
-Detection.Criteria(1).Step(9).Text="exit\n"
-
+Detection.Criteria.Type="OSCommand"
+Detection.Criteria.CommandLine="lsenclosure -delim :"
 Detection.Criteria(1).ExpectedResult="id:status:type:managed:IO_group_id:IO_group_name:product_MTM:serial_number"
 Detection.Criteria(1).ForceSerialization=1
 
@@ -69,47 +38,9 @@ Detection.Criteria(1).ForceSerialization=1
 // Discovery
 
 // Source(1) = lsenclosure
-Enclosure.Discovery.Source(1).Type="TelnetInteractive"
 
-Enclosure.Discovery.Source(1).Step(1).Type="Sleep"
-Enclosure.Discovery.Source(1).Step(1).Duration=1
-
-Enclosure.Discovery.Source(1).Step(2).Type="WaitFor"
-Enclosure.Discovery.Source(1).Step(2).Text="ogin:"
-Enclosure.Discovery.Source(1).Step(2).Timeout=20
-Enclosure.Discovery.Source(1).Step(2).TelnetOnly=1
-
-Enclosure.Discovery.Source(1).Step(3).Type="Sleep"
-Enclosure.Discovery.Source(1).Step(3).Duration=3
-
-Enclosure.Discovery.Source(1).Step(4).Type="SendUsername"
-Enclosure.Discovery.Source(1).Step(4).TelnetOnly=1
-
-Enclosure.Discovery.Source(1).Step(5).Type="WaitFor"
-Enclosure.Discovery.Source(1).Step(5).Text="assword:"
-Enclosure.Discovery.Source(1).Step(5).TelnetOnly=1
-Enclosure.Discovery.Source(1).Step(5).TimeOut=20
-
-Enclosure.Discovery.Source(1).Step(6).Type="Sleep"
-Enclosure.Discovery.Source(1).Step(6).Duration=3
-
-Enclosure.Discovery.Source(1).Step(7).Type="SendPassword"
-Enclosure.Discovery.Source(1).Step(7).TelnetOnly=1
-
-Enclosure.Discovery.Source(1).Step(8).Type="WaitForPrompt"
-Enclosure.Discovery.Source(1).Step(8).TimeOut=60
-
-Enclosure.Discovery.Source(1).Step(9).Type="SendText"
-Enclosure.Discovery.Source(1).Step(9).Text="lsenclosure -delim :\n"
-
-Enclosure.Discovery.Source(1).Step(10).Type="GetUntilPrompt"
-Enclosure.Discovery.Source(1).Step(10).TimeOut=60
-Enclosure.Discovery.Source(1).Step(10).Capture="True"
-
-Enclosure.Discovery.Source(1).Step(11).Type="SendText"
-Enclosure.Discovery.Source(1).Step(11).Text="exit\n"
-Enclosure.Discovery.Source(1).Step(11).Capture="False"
-
+Enclosure.Discovery.Source(1).Type="OSCommand"
+Enclosure.Discovery.Source(1).CommandLine="lsenclosure -delim :"
 Enclosure.Discovery.Source(1).Separators=":"
 Enclosure.Discovery.Source(1).SelectColumns="1,7,8"
 Enclosure.Discovery.Source(1).ForceSerialization=1
@@ -137,60 +68,24 @@ Enclosure.Discovery.Instance.SerialNumber=InstanceTable.Column(3)
 Enclosure.Discovery.Instance.Type="Enclosure"
 
 // Source(2) = lsenclosure & lsenclosurecanister
-Enclosure.Discovery.Source(2).Type="TelnetInteractive"
-
-Enclosure.Discovery.Source(2).Step(1).Type="Sleep"
-Enclosure.Discovery.Source(2).Step(1).Duration=1
-
-Enclosure.Discovery.Source(2).Step(2).Type="WaitFor"
-Enclosure.Discovery.Source(2).Step(2).Text="ogin:"
-Enclosure.Discovery.Source(2).Step(2).Timeout=20
-Enclosure.Discovery.Source(2).Step(2).TelnetOnly=1
-
-Enclosure.Discovery.Source(2).Step(3).Type="Sleep"
-Enclosure.Discovery.Source(2).Step(3).Duration=3
-
-Enclosure.Discovery.Source(2).Step(4).Type="SendUsername"
-Enclosure.Discovery.Source(2).Step(4).TelnetOnly=1
-
-Enclosure.Discovery.Source(2).Step(5).Type="WaitFor"
-Enclosure.Discovery.Source(2).Step(5).Text="assword:"
-Enclosure.Discovery.Source(2).Step(5).TelnetOnly=1
-Enclosure.Discovery.Source(2).Step(5).TimeOut=20
-
-Enclosure.Discovery.Source(2).Step(6).Type="Sleep"
-Enclosure.Discovery.Source(2).Step(6).Duration=3
-
-Enclosure.Discovery.Source(2).Step(7).Type="SendPassword"
-Enclosure.Discovery.Source(2).Step(7).TelnetOnly=1
-
-Enclosure.Discovery.Source(2).Step(8).Type="WaitForPrompt"
-Enclosure.Discovery.Source(2).Step(8).TimeOut=30
-
-Enclosure.Discovery.Source(2).Step(9).Type="SendText"
-Enclosure.Discovery.Source(2).Step(9).Text="lsenclosure -nohdr | while read encID OtherOutput; do echo MS_HW_ENCLOSURE_START;lsenclosure $encID; echo MS_HW_ENCLOSURE_END; done; \n"
-
-Enclosure.Discovery.Source(2).Step(10).Type="GetUntilPrompt"
-Enclosure.Discovery.Source(2).Step(10).TimeOut=60
-Enclosure.Discovery.Source(2).Step(10).Capture="True"
-
-Enclosure.Discovery.Source(2).Step(11).Type="SendText"
-Enclosure.Discovery.Source(2).Step(11).Text="lsenclosurecanister -nohdr | while read encID canisterID status;do echo MS_HW_CANISTER_START;lsenclosurecanister -canister $canisterID $encID; echo MS_HW_CANISTER_END; done; \n"
-
-Enclosure.Discovery.Source(2).Step(12).Type="GetUntilPrompt"
-Enclosure.Discovery.Source(2).Step(12).TimeOut=30
-Enclosure.Discovery.Source(2).Step(12).Capture="True"
-
-Enclosure.Discovery.Source(2).Step(13).Type="SendText"
-Enclosure.Discovery.Source(2).Step(13).Text="exit\n"
-Enclosure.Discovery.Source(2).Step(13).Capture="False"
-
+Enclosure.Discovery.Source(2).Type="OSCommand"
+Enclosure.Discovery.Source(2).CommandLine="lsenclosure -nohdr | while read encID OtherOutput; do echo MS_HW_ENCLOSURE_START;lsenclosure $encID; echo MS_HW_ENCLOSURE_END; done;"
 Enclosure.Discovery.Source(2).ForceSerialization=1
+
+Enclosure.Discovery.Source(3).Type="OSCommand"
+Enclosure.Discovery.Source(3).CommandLine="lsenclosurecanister -nohdr | while read encID canisterID status;do echo MS_HW_CANISTER_START;lsenclosurecanister -canister $canisterID $encID; echo MS_HW_CANISTER_END; done;"
+Enclosure.Discovery.Source(3).ForceSerialization=1
+
+
 
 // Parse the output of lsenclosure and lsenclosurecanister with an AWK script to get LEDs and Temperatures (to be used later)
 // DeviceID;Class;DevicePath;
-Enclosure.Discovery.Source(2).Compute(1).Type="Awk"
-Enclosure.Discovery.Source(2).Compute(1).AwkScript=EmbeddedFile(1)
+
+Enclosure.Discovery.Source(4).Type="TableUnion"
+Enclosure.Discovery.Source(4).Table1=%Enclosure.Discovery.Source(2)%
+Enclosure.Discovery.Source(4).Table2=%Enclosure.Discovery.Source(3)%
+Enclosure.Discovery.Source(4).Compute(1).Type="Awk"
+Enclosure.Discovery.Source(4).Compute(1).AwkScript=EmbeddedFile(1)
 
 
 
@@ -198,60 +93,22 @@ Enclosure.Discovery.Source(2).Compute(1).AwkScript=EmbeddedFile(1)
 Enclosure.Collect.Type="MultiInstance"
 
 // Source(2) = lsenclosure & lsenclosurecanister
-Enclosure.Collect.Source(1).Type="TelnetInteractive"
-
-Enclosure.Collect.Source(1).Step(1).Type="Sleep"
-Enclosure.Collect.Source(1).Step(1).Duration=1
-
-Enclosure.Collect.Source(1).Step(2).Type="WaitFor"
-Enclosure.Collect.Source(1).Step(2).Text="ogin:"
-Enclosure.Collect.Source(1).Step(2).Timeout=20
-Enclosure.Collect.Source(1).Step(2).TelnetOnly=1
-
-Enclosure.Collect.Source(1).Step(3).Type="Sleep"
-Enclosure.Collect.Source(1).Step(3).Duration=3
-
-Enclosure.Collect.Source(1).Step(4).Type="SendUsername"
-Enclosure.Collect.Source(1).Step(4).TelnetOnly=1
-
-Enclosure.Collect.Source(1).Step(5).Type="WaitFor"
-Enclosure.Collect.Source(1).Step(5).Text="assword:"
-Enclosure.Collect.Source(1).Step(5).TelnetOnly=1
-Enclosure.Collect.Source(1).Step(5).TimeOut=20
-
-Enclosure.Collect.Source(1).Step(6).Type="Sleep"
-Enclosure.Collect.Source(1).Step(6).Duration=3
-
-Enclosure.Collect.Source(1).Step(7).Type="SendPassword"
-Enclosure.Collect.Source(1).Step(7).TelnetOnly=1
-
-Enclosure.Collect.Source(1).Step(8).Type="WaitForPrompt"
-Enclosure.Collect.Source(1).Step(8).TimeOut=60
-
-Enclosure.Collect.Source(1).Step(9).Type="SendText"
-Enclosure.Collect.Source(1).Step(9).Text="lsenclosure -nohdr | while read encID OtherOutput; do echo MS_HW_ENCLOSURE_START;lsenclosure $encID; echo MS_HW_ENCLOSURE_END; done; \n"
-
-Enclosure.Collect.Source(1).Step(10).Type="GetUntilPrompt"
-Enclosure.Collect.Source(1).Step(10).TimeOut=30
-Enclosure.Collect.Source(1).Step(10).Capture="True"
-
-Enclosure.Collect.Source(1).Step(11).Type="SendText"
-Enclosure.Collect.Source(1).Step(11).Text="lsenclosurecanister -nohdr | while read encID canisterID status;do echo MS_HW_CANISTER_START;lsenclosurecanister -canister $canisterID $encID; echo MS_HW_CANISTER_END; done; \n"
-
-Enclosure.Collect.Source(1).Step(12).Type="GetUntilPrompt"
-Enclosure.Collect.Source(1).Step(12).TimeOut=30
-Enclosure.Collect.Source(1).Step(12).Capture="True"
-
-Enclosure.Collect.Source(1).Step(13).Type="SendText"
-Enclosure.Collect.Source(1).Step(13).Text="exit\n"
-Enclosure.Collect.Source(1).Step(13).Capture="False"
-
+Enclosure.Collect.Source(1).Type="OSCommand"
+Enclosure.Collect.Source(1).CommandLine="lsenclosure -nohdr | while read encID OtherOutput; do echo MS_HW_ENCLOSURE_START;lsenclosure $encID; echo MS_HW_ENCLOSURE_END; done;"
 Enclosure.Collect.Source(1).ForceSerialization=1
+
+Enclosure.Collect.Source(2).Type="OSCommand"
+Enclosure.Collect.Source(2).CommandLine="lsenclosurecanister -nohdr | while read encID canisterID status;do echo MS_HW_CANISTER_START;lsenclosurecanister -canister $canisterID $encID; echo MS_HW_CANISTER_END; done;"
+Enclosure.Collect.Source(2).ForceSerialization=1
+
 
 // Parse the output of lsenclosure and lsenclosurecanister with an AWK script to get LEDs and Temperatures (to be used later)
 // DeviceID;Class;DevicePath;
-Enclosure.Collect.Source(1).Compute(1).Type="Awk"
-Enclosure.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
+Enclosure.Collect.Source(3).Type="TableUnion"
+Enclosure.Collect.Source(3).Table1=%Enclosure.Discovery.Source(2)%
+Enclosure.Collect.Source(3).Table2=%Enclosure.Discovery.Source(3)%
+Enclosure.Collect.Source(3).Compute(1).Type="Awk"
+Enclosure.Collect.Source(3).Compute(1).AwkScript=EmbeddedFile(1)
 
 //
 // Battery
@@ -261,48 +118,8 @@ Enclosure.Collect.Source(1).Compute(1).AwkScript=EmbeddedFile(1)
 // Discovery
 
 // Source(1) = lsenclosurebattery
-Battery.Discovery.Source(1).Type="TelnetInteractive"
-
-
-Battery.Discovery.Source(1).Step(1).Type="Sleep"
-Battery.Discovery.Source(1).Step(1).Duration=1
-
-Battery.Discovery.Source(1).Step(2).Type="WaitFor"
-Battery.Discovery.Source(1).Step(2).Text="ogin:"
-Battery.Discovery.Source(1).Step(2).Timeout=20
-Battery.Discovery.Source(1).Step(2).TelnetOnly=1
-
-Battery.Discovery.Source(1).Step(3).Type="Sleep"
-Battery.Discovery.Source(1).Step(3).Duration=3
-
-Battery.Discovery.Source(1).Step(4).Type="SendUsername"
-Battery.Discovery.Source(1).Step(4).TelnetOnly=1
-
-Battery.Discovery.Source(1).Step(5).Type="WaitFor"
-Battery.Discovery.Source(1).Step(5).Text="assword:"
-Battery.Discovery.Source(1).Step(5).TelnetOnly=1
-Battery.Discovery.Source(1).Step(5).TimeOut=20
-
-Battery.Discovery.Source(1).Step(6).Type="Sleep"
-Battery.Discovery.Source(1).Step(6).Duration=3
-
-Battery.Discovery.Source(1).Step(7).Type="SendPassword"
-Battery.Discovery.Source(1).Step(7).TelnetOnly=1
-
-Battery.Discovery.Source(1).Step(8).Type="WaitForPrompt"
-Battery.Discovery.Source(1).Step(8).TimeOut=60
-
-Battery.Discovery.Source(1).Step(9).Type="SendText"
-Battery.Discovery.Source(1).Step(9).Text="lsenclosurebattery -delim :\n"
-
-Battery.Discovery.Source(1).Step(10).Type="GetUntilPrompt"
-Battery.Discovery.Source(1).Step(10).TimeOut=30
-Battery.Discovery.Source(1).Step(10).Capture="True"
-
-Battery.Discovery.Source(1).Step(11).Type="SendText"
-Battery.Discovery.Source(1).Step(11).Text="exit\n"
-Battery.Discovery.Source(1).Step(11).Capture="False"
-
+Battery.Discovery.Source(1).Type="OSCommand"
+Battery.Discovery.Source(1).CommandLine="lsenclosurebattery -delim :"
 Battery.Discovery.Source(1).Separators=":"
 Battery.Discovery.Source(1).SelectColumns="1,2,3"
 Battery.Discovery.Source(1).ForceSerialization=1
@@ -360,47 +177,8 @@ Battery.Collect.Type="MultiInstance"
 // Collect
 
 // Source(1) = lsenclosurebattery
-Battery.Collect.Source(1).Type="TelnetInteractive"
-
-Battery.Collect.Source(1).Step(1).Type="Sleep"
-Battery.Collect.Source(1).Step(1).Duration=1
-
-Battery.Collect.Source(1).Step(2).Type="WaitFor"
-Battery.Collect.Source(1).Step(2).Text="ogin:"
-Battery.Collect.Source(1).Step(2).Timeout=20
-Battery.Collect.Source(1).Step(2).TelnetOnly=1
-
-Battery.Collect.Source(1).Step(3).Type="Sleep"
-Battery.Collect.Source(1).Step(3).Duration=3
-
-Battery.Collect.Source(1).Step(4).Type="SendUsername"
-Battery.Collect.Source(1).Step(4).TelnetOnly=1
-
-Battery.Collect.Source(1).Step(5).Type="WaitFor"
-Battery.Collect.Source(1).Step(5).Text="assword:"
-Battery.Collect.Source(1).Step(5).TelnetOnly=1
-Battery.Collect.Source(1).Step(5).TimeOut=20
-
-Battery.Collect.Source(1).Step(6).Type="Sleep"
-Battery.Collect.Source(1).Step(6).Duration=3
-
-Battery.Collect.Source(1).Step(7).Type="SendPassword"
-Battery.Collect.Source(1).Step(7).TelnetOnly=1
-
-Battery.Collect.Source(1).Step(8).Type="WaitForPrompt"
-Battery.Collect.Source(1).Step(8).TimeOut=60
-
-Battery.Collect.Source(1).Step(9).Type="SendText"
-Battery.Collect.Source(1).Step(9).Text="lsenclosurebattery -delim :\n"
-
-Battery.Collect.Source(1).Step(10).Type="GetUntilPrompt"
-Battery.Collect.Source(1).Step(10).TimeOut=30
-Battery.Collect.Source(1).Step(10).Capture="True"
-
-Battery.Collect.Source(1).Step(11).Type="SendText"
-Battery.Collect.Source(1).Step(11).Text="exit\n"
-Battery.Collect.Source(1).Step(11).Capture="False"
-
+Battery.Collect.Source(1).Type="OSCommand"
+Battery.Collect.Source(1).CommandLine="lsenclosurebattery -delim :"
 Battery.Collect.Source(1).Separators=":"
 Battery.Collect.Source(1).SelectColumns="1,2,3,5,7"
 Battery.Collect.Source(1).ForceSerialization=1
@@ -564,48 +342,8 @@ Battery.Collect.StatusInformation=ValueTable.Column(4)
 // Discovery
 
 // Source(1) = lsdrive
-PhysicalDisk.Discovery.Source(1).Type="TelnetInteractive"
-
-
-PhysicalDisk.Discovery.Source(1).Step(1).Type="Sleep"
-PhysicalDisk.Discovery.Source(1).Step(1).Duration=1
-
-PhysicalDisk.Discovery.Source(1).Step(2).Type="WaitFor"
-PhysicalDisk.Discovery.Source(1).Step(2).Text="ogin:"
-PhysicalDisk.Discovery.Source(1).Step(2).Timeout=20
-PhysicalDisk.Discovery.Source(1).Step(2).TelnetOnly=1
-
-PhysicalDisk.Discovery.Source(1).Step(3).Type="Sleep"
-PhysicalDisk.Discovery.Source(1).Step(3).Duration=3
-
-PhysicalDisk.Discovery.Source(1).Step(4).Type="SendUsername"
-PhysicalDisk.Discovery.Source(1).Step(4).TelnetOnly=1
-
-PhysicalDisk.Discovery.Source(1).Step(5).Type="WaitFor"
-PhysicalDisk.Discovery.Source(1).Step(5).Text="assword:"
-PhysicalDisk.Discovery.Source(1).Step(5).TelnetOnly=1
-PhysicalDisk.Discovery.Source(1).Step(5).TimeOut=20
-
-PhysicalDisk.Discovery.Source(1).Step(6).Type="Sleep"
-PhysicalDisk.Discovery.Source(1).Step(6).Duration=3
-
-PhysicalDisk.Discovery.Source(1).Step(7).Type="SendPassword"
-PhysicalDisk.Discovery.Source(1).Step(7).TelnetOnly=1
-
-PhysicalDisk.Discovery.Source(1).Step(8).Type="WaitForPrompt"
-PhysicalDisk.Discovery.Source(1).Step(8).TimeOut=60
-
-PhysicalDisk.Discovery.Source(1).Step(9).Type="SendText"
-PhysicalDisk.Discovery.Source(1).Step(9).Text="lsdrive -bytes -delim :\n"
-
-PhysicalDisk.Discovery.Source(1).Step(10).Type="GetUntilPrompt"
-PhysicalDisk.Discovery.Source(1).Step(10).TimeOut=30
-PhysicalDisk.Discovery.Source(1).Step(10).Capture="True"
-
-PhysicalDisk.Discovery.Source(1).Step(11).Type="SendText"
-PhysicalDisk.Discovery.Source(1).Step(11).Text="exit\n"
-PhysicalDisk.Discovery.Source(1).Step(11).Capture="False"
-
+PhysicalDisk.Discovery.Source(1).Type="OSCommand"
+PhysicalDisk.Discovery.Source(1).OSCommand="lsdrive -bytes -delim"
 // id:status:error_sequence_number:use:tech_type:capacity:mdisk_id:mdisk_name:member_id:enclosure_id:slot_id:node_id:node_name
 // id;tech_type;capacity;mdisk_name;enclosure_id;slot_id;
 PhysicalDisk.Discovery.Source(1).Separators=":"
@@ -648,47 +386,8 @@ PhysicalDisk.Discovery.Source(1).Compute(6).String="Drive ID: "
 
 
 // Now let's collect the FRU information for each disk
-PhysicalDisk.Discovery.Source(2).Type="TelnetInteractive"
-
-PhysicalDisk.Discovery.Source(2).Step(1).Type="Sleep"
-PhysicalDisk.Discovery.Source(2).Step(1).Duration=1
-
-PhysicalDisk.Discovery.Source(2).Step(2).Type="WaitFor"
-PhysicalDisk.Discovery.Source(2).Step(2).Text="ogin:"
-PhysicalDisk.Discovery.Source(2).Step(2).Timeout=20
-PhysicalDisk.Discovery.Source(2).Step(2).TelnetOnly=1
-
-PhysicalDisk.Discovery.Source(2).Step(3).Type="Sleep"
-PhysicalDisk.Discovery.Source(2).Step(3).Duration=3
-
-PhysicalDisk.Discovery.Source(2).Step(4).Type="SendUsername"
-PhysicalDisk.Discovery.Source(2).Step(4).TelnetOnly=1
-
-PhysicalDisk.Discovery.Source(2).Step(5).Type="WaitFor"
-PhysicalDisk.Discovery.Source(2).Step(5).Text="assword:"
-PhysicalDisk.Discovery.Source(2).Step(5).TelnetOnly=1
-PhysicalDisk.Discovery.Source(2).Step(5).TimeOut=20
-
-PhysicalDisk.Discovery.Source(2).Step(6).Type="Sleep"
-PhysicalDisk.Discovery.Source(2).Step(6).Duration=3
-
-PhysicalDisk.Discovery.Source(2).Step(7).Type="SendPassword"
-PhysicalDisk.Discovery.Source(2).Step(7).TelnetOnly=1
-
-PhysicalDisk.Discovery.Source(2).Step(8).Type="WaitForPrompt"
-PhysicalDisk.Discovery.Source(2).Step(8).TimeOut=60
-
-PhysicalDisk.Discovery.Source(2).Step(9).Type="SendText"
-PhysicalDisk.Discovery.Source(2).Step(9).Text="lsdrive -nohdr | while read driveID OtherOutput; do echo MS_HW_DRIVE_START;lsdrive -delim : $driveID; echo MS_HW_DRIVE_END; done;\n"
-
-PhysicalDisk.Discovery.Source(2).Step(10).Type="GetUntilPrompt"
-PhysicalDisk.Discovery.Source(2).Step(10).TimeOut=30
-PhysicalDisk.Discovery.Source(2).Step(10).Capture="True"
-
-PhysicalDisk.Discovery.Source(2).Step(11).Type="SendText"
-PhysicalDisk.Discovery.Source(2).Step(11).Text="exit\n"
-PhysicalDisk.Discovery.Source(2).Step(11).Capture="False"
-
+PhysicalDisk.Discovery.Source(2).Type="OSCommand"
+PhysicalDisk.Discovery.Source(2).CommandLine="lsdrive -nohdr | while read driveID OtherOutput; do echo MS_HW_DRIVE_START;lsdrive -delim : $driveID; echo MS_HW_DRIVE_END; done;"
 // Process Through an Awk Script
 // id;Vendor;Model;SerialNumber;Firmware;AdditionalFRUInformation;
 PhysicalDisk.Discovery.Source(2).Compute(1).Type="Awk"
@@ -750,47 +449,8 @@ PhysicalDisk.Discovery.Instance.Vendor=InstanceTable.Column(8)
 PhysicalDisk.Collect.Type="MultiInstance"
 
 // Source(1) = lsdrive
-PhysicalDisk.Collect.Source(1).Type="TelnetInteractive"
-
-PhysicalDisk.Collect.Source(1).Step(1).Type="Sleep"
-PhysicalDisk.Collect.Source(1).Step(1).Duration=1
-
-PhysicalDisk.Collect.Source(1).Step(2).Type="WaitFor"
-PhysicalDisk.Collect.Source(1).Step(2).Text="ogin:"
-PhysicalDisk.Collect.Source(1).Step(2).Timeout=20
-PhysicalDisk.Collect.Source(1).Step(2).TelnetOnly=1
-
-PhysicalDisk.Collect.Source(1).Step(3).Type="Sleep"
-PhysicalDisk.Collect.Source(1).Step(3).Duration=3
-
-PhysicalDisk.Collect.Source(1).Step(4).Type="SendUsername"
-PhysicalDisk.Collect.Source(1).Step(4).TelnetOnly=1
-
-PhysicalDisk.Collect.Source(1).Step(5).Type="WaitFor"
-PhysicalDisk.Collect.Source(1).Step(5).Text="assword:"
-PhysicalDisk.Collect.Source(1).Step(5).TelnetOnly=1
-PhysicalDisk.Collect.Source(1).Step(5).TimeOut=20
-
-PhysicalDisk.Collect.Source(1).Step(6).Type="Sleep"
-PhysicalDisk.Collect.Source(1).Step(6).Duration=3
-
-PhysicalDisk.Collect.Source(1).Step(7).Type="SendPassword"
-PhysicalDisk.Collect.Source(1).Step(7).TelnetOnly=1
-
-PhysicalDisk.Collect.Source(1).Step(8).Type="WaitForPrompt"
-PhysicalDisk.Collect.Source(1).Step(8).TimeOut=60
-
-PhysicalDisk.Collect.Source(1).Step(9).Type="SendText"
-PhysicalDisk.Collect.Source(1).Step(9).Text="lsdrive -delim :\n"
-
-PhysicalDisk.Collect.Source(1).Step(10).Type="GetUntilPrompt"
-PhysicalDisk.Collect.Source(1).Step(10).TimeOut=30
-PhysicalDisk.Collect.Source(1).Step(10).Capture="True"
-
-PhysicalDisk.Collect.Source(1).Step(11).Type="SendText"
-PhysicalDisk.Collect.Source(1).Step(11).Text="exit\n"
-PhysicalDisk.Collect.Source(1).Step(11).Capture="False"
-
+PhysicalDisk.Collect.Source(1).Type="OSCommand"
+PhysicalDisk.Collect.Source(1).CommandLine="lsdrive -delim :"
 // id:status:error_sequence_number:use:tech_type:capacity:mdisk_id:mdisk_name:member_id:enclosure_id:slot_id:node_id:node_name
 // id;status;error_sequence_number;enclosure_id;slot_id;
 PhysicalDisk.Collect.Source(1).Separators=":"
@@ -847,48 +507,8 @@ PhysicalDisk.Collect.StatusInformation=ValueTable.Column(3)
 // Discovery
 
 // Source(1) = lsenclosurepsu
-PowerSupply.Discovery.Source(1).Type="TelnetInteractive"
-
-
-PowerSupply.Discovery.Source(1).Step(1).Type="Sleep"
-PowerSupply.Discovery.Source(1).Step(1).Duration=1
-
-PowerSupply.Discovery.Source(1).Step(2).Type="WaitFor"
-PowerSupply.Discovery.Source(1).Step(2).Text="ogin:"
-PowerSupply.Discovery.Source(1).Step(2).Timeout=20
-PowerSupply.Discovery.Source(1).Step(2).TelnetOnly=1
-
-PowerSupply.Discovery.Source(1).Step(3).Type="Sleep"
-PowerSupply.Discovery.Source(1).Step(3).Duration=3
-
-PowerSupply.Discovery.Source(1).Step(4).Type="SendUsername"
-PowerSupply.Discovery.Source(1).Step(4).TelnetOnly=1
-
-PowerSupply.Discovery.Source(1).Step(5).Type="WaitFor"
-PowerSupply.Discovery.Source(1).Step(5).Text="assword:"
-PowerSupply.Discovery.Source(1).Step(5).TelnetOnly=1
-PowerSupply.Discovery.Source(1).Step(5).TimeOut=20
-
-PowerSupply.Discovery.Source(1).Step(6).Type="Sleep"
-PowerSupply.Discovery.Source(1).Step(6).Duration=3
-
-PowerSupply.Discovery.Source(1).Step(7).Type="SendPassword"
-PowerSupply.Discovery.Source(1).Step(7).TelnetOnly=1
-
-PowerSupply.Discovery.Source(1).Step(8).Type="WaitForPrompt"
-PowerSupply.Discovery.Source(1).Step(8).TimeOut=60
-
-PowerSupply.Discovery.Source(1).Step(9).Type="SendText"
-PowerSupply.Discovery.Source(1).Step(9).Text="lsenclosurepsu -delim :\n"
-
-PowerSupply.Discovery.Source(1).Step(10).Type="GetUntilPrompt"
-PowerSupply.Discovery.Source(1).Step(10).TimeOut=30
-PowerSupply.Discovery.Source(1).Step(10).Capture="True"
-
-PowerSupply.Discovery.Source(1).Step(11).Type="SendText"
-PowerSupply.Discovery.Source(1).Step(11).Text="exit\n"
-PowerSupply.Discovery.Source(1).Step(11).Capture="False"
-
+PowerSupply.Discovery.Source(1).Type="OSCommand"
+PowerSupply.Discovery.Source(1).CommandLine="lsenclosurepsu -delim :"
 // enclosure_id:PSU_id:status
 // enclosure_id:PSU_id:status
 PowerSupply.Discovery.Source(1).Separators=":"
@@ -945,47 +565,8 @@ PowerSupply.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(1)
 PowerSupply.Collect.Type="MultiInstance"
 
 // Source(1) = lsdrive
-PowerSupply.Collect.Source(1).Type="TelnetInteractive"
-
-PowerSupply.Collect.Source(1).Step(1).Type="Sleep"
-PowerSupply.Collect.Source(1).Step(1).Duration=1
-
-PowerSupply.Collect.Source(1).Step(2).Type="WaitFor"
-PowerSupply.Collect.Source(1).Step(2).Text="ogin:"
-PowerSupply.Collect.Source(1).Step(2).Timeout=20
-PowerSupply.Collect.Source(1).Step(2).TelnetOnly=1
-
-PowerSupply.Collect.Source(1).Step(3).Type="Sleep"
-PowerSupply.Collect.Source(1).Step(3).Duration=3
-
-PowerSupply.Collect.Source(1).Step(4).Type="SendUsername"
-PowerSupply.Collect.Source(1).Step(4).TelnetOnly=1
-
-PowerSupply.Collect.Source(1).Step(5).Type="WaitFor"
-PowerSupply.Collect.Source(1).Step(5).Text="assword:"
-PowerSupply.Collect.Source(1).Step(5).TelnetOnly=1
-PowerSupply.Collect.Source(1).Step(5).TimeOut=20
-
-PowerSupply.Collect.Source(1).Step(6).Type="Sleep"
-PowerSupply.Collect.Source(1).Step(6).Duration=3
-
-PowerSupply.Collect.Source(1).Step(7).Type="SendPassword"
-PowerSupply.Collect.Source(1).Step(7).TelnetOnly=1
-
-PowerSupply.Collect.Source(1).Step(8).Type="WaitForPrompt"
-PowerSupply.Collect.Source(1).Step(8).TimeOut=60
-
-PowerSupply.Collect.Source(1).Step(9).Type="SendText"
-PowerSupply.Collect.Source(1).Step(9).Text="lsenclosurepsu -delim :\n"
-
-PowerSupply.Collect.Source(1).Step(10).Type="GetUntilPrompt"
-PowerSupply.Collect.Source(1).Step(10).TimeOut=30
-PowerSupply.Collect.Source(1).Step(10).Capture="True"
-
-PowerSupply.Collect.Source(1).Step(11).Type="SendText"
-PowerSupply.Collect.Source(1).Step(11).Text="exit\n"
-PowerSupply.Collect.Source(1).Step(11).Capture="False"
-
+PowerSupply.Collect.Source(1).Type="OSCommand"
+PowerSupply.Collect.Source(1).CommandLine="lsenclosurepsu -delim :"
 // enclosure_id:PSU_id:status
 PowerSupply.Collect.Source(1).Separators=":"
 PowerSupply.Collect.Source(1).SelectColumns="1,2,3"
@@ -1034,47 +615,8 @@ PowerSupply.Collect.Status=ValueTable.Column(3)
 // Discovery
 
 // Source(1) = lsenclosurepsu
-OtherDevice.Discovery.Source(1).Type="TelnetInteractive"
-
-OtherDevice.Discovery.Source(1).Step(1).Type="Sleep"
-OtherDevice.Discovery.Source(1).Step(1).Duration=1
-
-OtherDevice.Discovery.Source(1).Step(2).Type="WaitFor"
-OtherDevice.Discovery.Source(1).Step(2).Text="ogin:"
-OtherDevice.Discovery.Source(1).Step(2).Timeout=20
-OtherDevice.Discovery.Source(1).Step(2).TelnetOnly=1
-
-OtherDevice.Discovery.Source(1).Step(3).Type="Sleep"
-OtherDevice.Discovery.Source(1).Step(3).Duration=3
-
-OtherDevice.Discovery.Source(1).Step(4).Type="SendUsername"
-OtherDevice.Discovery.Source(1).Step(4).TelnetOnly=1
-
-OtherDevice.Discovery.Source(1).Step(5).Type="WaitFor"
-OtherDevice.Discovery.Source(1).Step(5).Text="assword:"
-OtherDevice.Discovery.Source(1).Step(5).TelnetOnly=1
-OtherDevice.Discovery.Source(1).Step(5).TimeOut=20
-
-OtherDevice.Discovery.Source(1).Step(6).Type="Sleep"
-OtherDevice.Discovery.Source(1).Step(6).Duration=3
-
-OtherDevice.Discovery.Source(1).Step(7).Type="SendPassword"
-OtherDevice.Discovery.Source(1).Step(7).TelnetOnly=1
-
-OtherDevice.Discovery.Source(1).Step(8).Type="WaitForPrompt"
-OtherDevice.Discovery.Source(1).Step(8).TimeOut=60
-
-OtherDevice.Discovery.Source(1).Step(9).Type="SendText"
-OtherDevice.Discovery.Source(1).Step(9).Text="lsenclosurecanister -delim :\n"
-
-OtherDevice.Discovery.Source(1).Step(10).Type="GetUntilPrompt"
-OtherDevice.Discovery.Source(1).Step(10).TimeOut=30
-OtherDevice.Discovery.Source(1).Step(10).Capture="True"
-
-OtherDevice.Discovery.Source(1).Step(11).Type="SendText"
-OtherDevice.Discovery.Source(1).Step(11).Text="exit\n"
-OtherDevice.Discovery.Source(1).Step(11).Capture="False"
-
+OtherDevice.Discovery.Source(1).Type="OSCommand"
+OtherDevice.Discovery.Source(1).CommandLine="lsenclosurecanister -delim :"
 // enclosure_id:Canister_id:status
 // enclosure_id:Canister_id:status
 OtherDevice.Discovery.Source(1).Separators=":"
@@ -1130,47 +672,8 @@ OtherDevice.Discovery.Instance.DeviceType="Canister"
 OtherDevice.Collect.Type="MultiInstance"
 
 // Source(1) = lsdrive
-OtherDevice.Collect.Source(1).Type="TelnetInteractive"
-
-OtherDevice.Collect.Source(1).Step(1).Type="Sleep"
-OtherDevice.Collect.Source(1).Step(1).Duration=1
-
-OtherDevice.Collect.Source(1).Step(2).Type="WaitFor"
-OtherDevice.Collect.Source(1).Step(2).Text="ogin:"
-OtherDevice.Collect.Source(1).Step(2).Timeout=20
-OtherDevice.Collect.Source(1).Step(2).TelnetOnly=1
-
-OtherDevice.Collect.Source(1).Step(3).Type="Sleep"
-OtherDevice.Collect.Source(1).Step(3).Duration=3
-
-OtherDevice.Collect.Source(1).Step(4).Type="SendUsername"
-OtherDevice.Collect.Source(1).Step(4).TelnetOnly=1
-
-OtherDevice.Collect.Source(1).Step(5).Type="WaitFor"
-OtherDevice.Collect.Source(1).Step(5).Text="assword:"
-OtherDevice.Collect.Source(1).Step(5).TelnetOnly=1
-OtherDevice.Collect.Source(1).Step(5).TimeOut=20
-
-OtherDevice.Collect.Source(1).Step(6).Type="Sleep"
-OtherDevice.Collect.Source(1).Step(6).Duration=3
-
-OtherDevice.Collect.Source(1).Step(7).Type="SendPassword"
-OtherDevice.Collect.Source(1).Step(7).TelnetOnly=1
-
-OtherDevice.Collect.Source(1).Step(8).Type="WaitForPrompt"
-OtherDevice.Collect.Source(1).Step(8).TimeOut=60
-
-OtherDevice.Collect.Source(1).Step(9).Type="SendText"
-OtherDevice.Collect.Source(1).Step(9).Text="lsenclosurecanister -delim :\n"
-
-OtherDevice.Collect.Source(1).Step(10).Type="GetUntilPrompt"
-OtherDevice.Collect.Source(1).Step(10).TimeOut=30
-OtherDevice.Collect.Source(1).Step(10).Capture="True"
-
-OtherDevice.Collect.Source(1).Step(11).Type="SendText"
-OtherDevice.Collect.Source(1).Step(11).Text="exit\n"
-OtherDevice.Collect.Source(1).Step(11).Capture="False"
-
+OtherDevice.Collect.Source(1).Type="OSCommand"
+OtherDevice.Collect.Source(1).CommandLine="lsenclosurecanister -delim :"
 // enclosure_id:Canister_id:status
 OtherDevice.Collect.Source(1).Separators=":"
 OtherDevice.Collect.Source(1).SelectColumns="1,2,3"
@@ -1218,7 +721,7 @@ OtherDevice.Collect.Status=ValueTable.Column(3)
 // Discovery
 
 // Source (1) = Enclosure Discovery Source (2)
-LED.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+LED.Discovery.Source(1)=%Enclosure.Discovery.Source(4)%
 
 // Keep Only LEDs
 // MS_HW_LED;ID;Status;OnStatus;BlinkingStatus;OffStatus;AttachToDeviceID;
@@ -1244,7 +747,7 @@ LED.Discovery.Instance.OffStatus=InstanceTable.Column(6)
 LED.Collect.Type="MultiInstance"
 
 // Source (1) = Enclosure Collect Source (1)
-LED.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+LED.Collect.Source(1)=%Enclosure.Collect.Source(3)%
 
 // Keep Only LEDs
 // MS_HW_LED;ID;Status;OnStatus;BlinkingStatus;OffStatus;AttachToDeviceID;
@@ -1302,7 +805,7 @@ LED.Collect.StatusInformation=ValueTable.Column(4)
 // Discovery
 
 // Source (1) = Enclosure Discovery Source (2)
-Temperature.Discovery.Source(1)=%Enclosure.Discovery.Source(2)%
+Temperature.Discovery.Source(1)=%Enclosure.Discovery.Source(4)%
 
 // Keep Only LEDs
 // MS_HW_TEMPERATURE;ID;Temperature;AttachToDeviceID
@@ -1322,7 +825,7 @@ Temperature.Discovery.Instance.DisplayID=InstanceTable.Column(2)
 Temperature.Collect.Type="MultiInstance"
 
 // Source (1) = Enclosure Collect Source (1)
-Temperature.Collect.Source(1)=%Enclosure.Collect.Source(1)%
+Temperature.Collect.Source(1)=%Enclosure.Collect.Source(3)%
 
 // Keep Only LEDs
 // MS_HW_TEMPERATURE;ID;Temperature;AttachToDeviceID

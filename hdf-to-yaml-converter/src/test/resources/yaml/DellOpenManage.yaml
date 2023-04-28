@@ -237,8 +237,7 @@ connector:
   platforms: "Dell PowerEdge"
   reliesOn: "Dell OpenManage Server Administrator"
   version: "1.0"
-  information: "This connector provides hardware monitoring through the Dell OpenManage\
-    \ Server Administrator SNMP agent which supports almost all Dell PowerEdge servers."
+  information: "This connector provides hardware monitoring through the Dell OpenManage Server Administrator SNMP agent which supports almost all Dell PowerEdge servers."
   detection:
     connectionTypes:
     - "remote"
@@ -305,8 +304,7 @@ monitors:
           model: "$column(2)"
           type: "Computer"
           info: "join($column(3), $column(4), \" \")"
-          name: "sprintf(\"%s (%s %s - %s)\", $column(1), \"Dell\", $column(2), \"\
-            Computer\")"
+          name: "sprintf(\"%s (%s %s - %s)\", $column(1), \"Dell\", $column(2), \"Computer\")"
     collect:
       # Collect
       type: "multiInstance"
@@ -714,8 +712,7 @@ monitors:
           serial_number: "$column(7)"
           info: "join($column(3), $column(6), $column(8), \" \")"
           hw.parent.type: "enclosure"
-          name: "sprintf(\"%s (%s - %s - %s)\", $column(1), $column(5), $column(2),\
-            \ $column(4))"
+          name: "sprintf(\"%s (%s - %s - %s)\", $column(1), $column(5), $column(2), $column(4))"
         metrics:
           hw.memory.limit: "mebiByte2Byte($column(4))"
     collect:
@@ -838,8 +835,7 @@ monitors:
           model: "$column(5)"
           info: "$column(7)"
           hw.parent.type: "enclosure"
-          name: "sprintf(\"%s (%s - %s - %mhhf.s)\", $column(1), $column(2), $column(5),\
-            \ $column(4))"
+          name: "sprintf(\"%s (%s - %s - %mhhf.s)\", $column(1), $column(2), $column(5), $column(4))"
         metrics:
           hw.cpu.speed.limit{limit_type="max"}: "megaHertz2Hertz($column(4))"
     collect:

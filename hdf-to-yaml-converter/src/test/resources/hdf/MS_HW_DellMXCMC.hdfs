@@ -34,52 +34,18 @@ hdf.AppliesToOS="OOB"
 // Define
 #define _Command racadm
 
+#define ENCLO_SOURCE_DISCO "%Enclosure.Discovery.Source(11)%"
+#define ENCLO_SOURCE_COL "%Enclosure.Collect.Source(10)%"
+
 //
 // DETECTION
 //
 
 // Host should respond to telnet the way described below
-Detection.Criteria(1).Type="TelnetInteractive"
-Detection.Criteria(1).ForceSerialization=1
+Detection.Criteria(1).Type="OSCommand"
+Detection.Criteria(1).CommandLine="getsysinfo"
+Detection.Criteria(1).ExpectedResult="RAC"
 
-Detection.Criteria(1).Step(1).Type="Sleep"
-Detection.Criteria(1).Step(1).Duration=1
-
-Detection.Criteria(1).Step(2).Type="WaitFor"
-Detection.Criteria(1).Step(2).Text="ogin:"
-Detection.Criteria(1).Step(2).TimeOut=20
-Detection.Criteria(1).Step(2).TelnetOnly=1
-
-Detection.Criteria(1).Step(3).Type="Sleep"
-Detection.Criteria(1).Step(3).Duration=3
-
-Detection.Criteria(1).Step(4).Type="SendUsername"
-Detection.Criteria(1).Step(4).TelnetOnly=1
-
-Detection.Criteria(1).Step(5).Type="Sleep"
-Detection.Criteria(1).Step(5).Duration=3
-
-Detection.Criteria(1).Step(6).Type="WaitFor"
-Detection.Criteria(1).Step(6).Text="assword:"
-Detection.Criteria(1).Step(6).TimeOut=10
-Detection.Criteria(1).Step(6).TelnetOnly=1
-
-Detection.Criteria(1).Step(7).Type="SendPassword"
-Detection.Criteria(1).Step(7).TelnetOnly=1
-
-Detection.Criteria(1).Step(8).Type="WaitFor"
-Detection.Criteria(1).Step(8).Text="$"
-Detection.Criteria(1).Step(8).TimeOut=30
-Detection.Criteria(1).Step(8).Capture=True
-
-Detection.Criteria(1).Step(9).Type="Sleep"
-Detection.Criteria(1).Step(9).Duration=3
-
-Detection.Criteria(1).Step(10).Type="SendText"
-Detection.Criteria(1).Step(10).Text="quit\nlogout\nexit\n"
-Detection.Criteria(1).Step(10).Capture=False
-
-Detection.Criteria(1).ExpectedResult="Welcome to the RACADM Shell"
 
 
 //
@@ -87,55 +53,8 @@ Detection.Criteria(1).ExpectedResult="Welcome to the RACADM Shell"
 
 // Source(1) = Output of the getsysinfo command through telnet
 // Look for the "System Model=" line
-Enclosure.Discovery.Source(1).Type="TelnetInteractive"
-Enclosure.Discovery.Source(1).ForceSerialization=1
-
-Enclosure.Discovery.Source(1).Step(1).Type="Sleep"
-Enclosure.Discovery.Source(1).Step(1).Duration=1
-
-Enclosure.Discovery.Source(1).Step(2).Type="WaitFor"
-Enclosure.Discovery.Source(1).Step(2).Text="ogin:"
-Enclosure.Discovery.Source(1).Step(2).Timeout=20
-Enclosure.Discovery.Source(1).Step(2).TelnetOnly=1
-
-Enclosure.Discovery.Source(1).Step(3).Type="Sleep"
-Enclosure.Discovery.Source(1).Step(3).Duration=3
-
-Enclosure.Discovery.Source(1).Step(4).Type="SendUsername"
-Enclosure.Discovery.Source(1).Step(4).TelnetOnly=1
-
-Enclosure.Discovery.Source(1).Step(5).Type="WaitFor"
-Enclosure.Discovery.Source(1).Step(5).Text="assword:"
-Enclosure.Discovery.Source(1).Step(5).TimeOut=10
-Enclosure.Discovery.Source(1).Step(5).TelnetOnly=1
-
-Enclosure.Discovery.Source(1).Step(6).Type="Sleep"
-Enclosure.Discovery.Source(1).Step(6).Duration=3
-
-Enclosure.Discovery.Source(1).Step(7).Type="SendPassword"
-Enclosure.Discovery.Source(1).Step(7).TelnetOnly=1
-
-Enclosure.Discovery.Source(1).Step(8).Type="WaitFor"
-Enclosure.Discovery.Source(1).Step(8).Text="$"
-Enclosure.Discovery.Source(1).Step(8).TimeOut=30
-
-Enclosure.Discovery.Source(1).Step(9).Type="Sleep"
-Enclosure.Discovery.Source(1).Step(9).Duration=3
-
-Enclosure.Discovery.Source(1).Step(10).Type="SendText"
-Enclosure.Discovery.Source(1).Step(10).Text="_Command getsysinfo -c\n"
-
-Enclosure.Discovery.Source(1).Step(11).Type="WaitFor"
-Enclosure.Discovery.Source(1).Step(11).Text="$"
-Enclosure.Discovery.Source(1).Step(11).TimeOut=360
-Enclosure.Discovery.Source(1).Step(11).Capture=True
-
-Enclosure.Discovery.Source(1).Step(12).Type="Sleep"
-Enclosure.Discovery.Source(1).Step(12).Duration=3
-
-Enclosure.Discovery.Source(1).Step(13).Type="SendText"
-Enclosure.Discovery.Source(1).Step(13).Text="quit\nlogout\nexit\n"
-Enclosure.Discovery.Source(1).Step(13).Capture=False
+Enclosure.Discovery.Source(1).Type="OSCommand"
+Enclosure.Discovery.Source(1).CommandLine="_Command getsysinfo -c"
 
 //Enclosure.Discovery.Source(1).Separators="�"
 
@@ -149,135 +68,43 @@ Enclosure.Discovery.Source(1).Compute(1).SelectColumns="2,3"
 
 
 // Source(2) = Output of getsensorinfo, getmodinfo and getpbinfo
-Enclosure.Discovery.Source(2).Type="TelnetInteractive"
-Enclosure.Discovery.Source(2).ForceSerialization=1
+Enclosure.Discovery.Source(2).Type="OSCommand"
+Enclosure.Discovery.Source(2).CommandLine="_Command getsensorinfo"
 
-Enclosure.Discovery.Source(2).Step(1).Type="Sleep"
-Enclosure.Discovery.Source(2).Step(1).Duration=1
+Enclosure.Discovery.Source(3).Type="OSCommand"
+Enclosure.Discovery.Source(3).CommandLine="_Command getmodinfo"
 
-Enclosure.Discovery.Source(2).Step(2).Type="WaitFor"
-Enclosure.Discovery.Source(2).Step(2).Text="ogin:"
-Enclosure.Discovery.Source(2).Step(2).Timeout=20
-Enclosure.Discovery.Source(2).Step(2).TelnetOnly=1
+Enclosure.Discovery.Source(4).Type="OSCommand"
+Enclosure.Discovery.Source(4).CommandLine="_Command getpbinfo"
 
-Enclosure.Discovery.Source(2).Step(3).Type="Sleep"
-Enclosure.Discovery.Source(2).Step(3).Duration=3
+Enclosure.Discovery.Source(5).Type="OSCommand"
+Enclosure.Discovery.Source(5).CommandLine="_Command raid get vdisks -o"
 
-Enclosure.Discovery.Source(2).Step(4).Type="SendUsername"
-Enclosure.Discovery.Source(2).Step(4).TelnetOnly=1
+Enclosure.Discovery.Source(6).Type="OSCommand"
+Enclosure.Discovery.Source(6).CommandLine="_Command raid get pdisks -o"
 
-Enclosure.Discovery.Source(2).Step(5).Type="WaitFor"
-Enclosure.Discovery.Source(2).Step(5).Text="assword:"
-Enclosure.Discovery.Source(2).Step(5).TimeOut=10
-Enclosure.Discovery.Source(2).Step(5).TelnetOnly=1
+Enclosure.Discovery.Source(7).Type="OSCommand"
+Enclosure.Discovery.Source(7).CommandLine="_Command raid get tempprobes -o"
 
-Enclosure.Discovery.Source(2).Step(6).Type="Sleep"
-Enclosure.Discovery.Source(2).Step(6).Duration=3
+Enclosure.Discovery.Source(8).Type="OSCommand"
+Enclosure.Discovery.Source(8).CommandLine="_Command raid get controllers -o"
 
-Enclosure.Discovery.Source(2).Step(7).Type="SendPassword"
-Enclosure.Discovery.Source(2).Step(7).TelnetOnly=1
+Enclosure.Discovery.Source(9).Type="OSCommand"
+Enclosure.Discovery.Source(9).CommandLine="_Command raid get batteries -o"
 
-Enclosure.Discovery.Source(2).Step(8).Type="WaitFor"
-Enclosure.Discovery.Source(2).Step(8).Text="$"
-Enclosure.Discovery.Source(2).Step(8).TimeOut=30
+Enclosure.Discovery.Source(10).Type="OSCommand"
+Enclosure.Discovery.Source(10).CommandLine="_Command chassislog view -s critical"
 
-Enclosure.Discovery.Source(2).Step(9).Type="Sleep"
-Enclosure.Discovery.Source(2).Step(9).Duration=3
-
-Enclosure.Discovery.Source(2).Step(10).Type="SendText"
-Enclosure.Discovery.Source(2).Step(10).Text="_Command getsensorinfo\n"
-
-Enclosure.Discovery.Source(2).Step(11).Type="WaitFor"
-Enclosure.Discovery.Source(2).Step(11).Text="$"
-Enclosure.Discovery.Source(2).Step(11).TimeOut=360
-Enclosure.Discovery.Source(2).Step(11).Capture=True
-
-Enclosure.Discovery.Source(2).Step(12).Type="Sleep"
-Enclosure.Discovery.Source(2).Step(12).Duration=3
-
-Enclosure.Discovery.Source(2).Step(13).Type="SendText"
-Enclosure.Discovery.Source(2).Step(13).Text="_Command getmodinfo\n"
-
-Enclosure.Discovery.Source(2).Step(14).Type="WaitFor"
-Enclosure.Discovery.Source(2).Step(14).Text="$"
-Enclosure.Discovery.Source(2).Step(14).TimeOut=360
-
-Enclosure.Discovery.Source(2).Step(15).Type="Sleep"
-Enclosure.Discovery.Source(2).Step(15).Duration=3
-
-Enclosure.Discovery.Source(2).Step(16).Type="SendText"
-Enclosure.Discovery.Source(2).Step(16).Text="_Command getpbinfo\n"
-
-Enclosure.Discovery.Source(2).Step(17).Type="WaitFor"
-Enclosure.Discovery.Source(2).Step(17).Text="$"
-Enclosure.Discovery.Source(2).Step(17).TimeOut=360
-
-Enclosure.Discovery.Source(2).Step(18).Type="Sleep"
-Enclosure.Discovery.Source(2).Step(18).Duration=3
-
-Enclosure.Discovery.Source(2).Step(19).Type="SendText"
-Enclosure.Discovery.Source(2).Step(19).Text="_Command raid get vdisks -o\n"
-
-Enclosure.Discovery.Source(2).Step(20).Type="WaitFor"
-Enclosure.Discovery.Source(2).Step(20).Text="$"
-Enclosure.Discovery.Source(2).Step(20).TimeOut=360
-
-Enclosure.Discovery.Source(2).Step(21).Type="Sleep"
-Enclosure.Discovery.Source(2).Step(21).Duration=3
-
-Enclosure.Discovery.Source(2).Step(22).Type="SendText"
-Enclosure.Discovery.Source(2).Step(22).Text="_Command raid get pdisks -o\n"
-
-Enclosure.Discovery.Source(2).Step(23).Type="WaitFor"
-Enclosure.Discovery.Source(2).Step(23).Text="$"
-Enclosure.Discovery.Source(2).Step(23).TimeOut=360
-
-Enclosure.Discovery.Source(2).Step(24).Type="Sleep"
-Enclosure.Discovery.Source(2).Step(24).Duration=3
-
-Enclosure.Discovery.Source(2).Step(25).Type="SendText"
-Enclosure.Discovery.Source(2).Step(25).Text="_Command raid get tempprobes -o\n"
-
-Enclosure.Discovery.Source(2).Step(26).Type="WaitFor"
-Enclosure.Discovery.Source(2).Step(26).Text="$"
-Enclosure.Discovery.Source(2).Step(26).TimeOut=360
-
-Enclosure.Discovery.Source(2).Step(27).Type="Sleep"
-Enclosure.Discovery.Source(2).Step(27).Duration=3
-
-Enclosure.Discovery.Source(2).Step(28).Type="SendText"
-Enclosure.Discovery.Source(2).Step(28).Text="_Command raid get controllers -o\n"
-
-Enclosure.Discovery.Source(2).Step(29).Type="WaitFor"
-Enclosure.Discovery.Source(2).Step(29).Text="$"
-Enclosure.Discovery.Source(2).Step(29).TimeOut=360
-
-Enclosure.Discovery.Source(2).Step(30).Type="Sleep"
-Enclosure.Discovery.Source(2).Step(30).Duration=3
-
-Enclosure.Discovery.Source(2).Step(31).Type="SendText"
-Enclosure.Discovery.Source(2).Step(31).Text="_Command raid get batteries -o\n"
-
-Enclosure.Discovery.Source(2).Step(32).Type="WaitFor"
-Enclosure.Discovery.Source(2).Step(32).Text="$"
-Enclosure.Discovery.Source(2).Step(32).TimeOut=360
-
-Enclosure.Discovery.Source(2).Step(33).Type="Sleep"
-Enclosure.Discovery.Source(2).Step(33).Duration=3
-
-Enclosure.Discovery.Source(2).Step(34).Type="SendText"
-Enclosure.Discovery.Source(2).Step(34).Text="_Command chassislog view -s critical\n"
-
-Enclosure.Discovery.Source(2).Step(35).Type="WaitFor"
-Enclosure.Discovery.Source(2).Step(35).Text="$"
-Enclosure.Discovery.Source(2).Step(35).TimeOut=360
-
-Enclosure.Discovery.Source(2).Step(36).Type="Sleep"
-Enclosure.Discovery.Source(2).Step(36).Duration=3
-
-Enclosure.Discovery.Source(2).Step(37).Type="SendText"
-Enclosure.Discovery.Source(2).Step(37).Text="quit\nlogout\nexit\n"
-Enclosure.Discovery.Source(2).Step(37).Capture=False
+Enclosure.Discovery.Source(11).Type="TableUnion"
+Enclosure.Discovery.Source(11).Table1=%Enclosure.Discovery.Source(2)%
+Enclosure.Discovery.Source(11).Table2=%Enclosure.Discovery.Source(3)%
+Enclosure.Discovery.Source(11).Table3=%Enclosure.Discovery.Source(4)%
+Enclosure.Discovery.Source(11).Table4=%Enclosure.Discovery.Source(5)%
+Enclosure.Discovery.Source(11).Table5=%Enclosure.Discovery.Source(6)%
+Enclosure.Discovery.Source(11).Table6=%Enclosure.Discovery.Source(7)%
+Enclosure.Discovery.Source(11).Table7=%Enclosure.Discovery.Source(8)%
+Enclosure.Discovery.Source(11).Table7=%Enclosure.Discovery.Source(9)%
+Enclosure.Discovery.Source(11).Table9=%Enclosure.Discovery.Source(10)%
 
 
 //
@@ -286,135 +113,43 @@ Enclosure.Discovery.Source(2).Step(37).Capture=False
 Enclosure.Collect.Type="MonoInstance"
 
 // Source(2) = Output of getsensorinfo, getmodinfo and getpbinfo
-Enclosure.Collect.Source(1).Type="TelnetInteractive"
-Enclosure.Collect.Source(1).ForceSerialization=1
+Enclosure.Collect.Source(1).Type="OSCommand"
+Enclosure.Collect.Source(1).CommandLine="_Command getsensorinfo"
 
-Enclosure.Collect.Source(1).Step(1).Type="Sleep"
-Enclosure.Collect.Source(1).Step(1).Duration=1
+Enclosure.Collect.Source(2).Type="OSCommand"
+Enclosure.Collect.Source(2).CommandLine="_Command getmodinfo"
 
-Enclosure.Collect.Source(1).Step(2).Type="WaitFor"
-Enclosure.Collect.Source(1).Step(2).Text="ogin:"
-Enclosure.Collect.Source(1).Step(2).Timeout=20
-Enclosure.Collect.Source(1).Step(2).TelnetOnly=1
+Enclosure.Collect.Source(3).Type="OSCommand"
+Enclosure.Collect.Source(3).CommandLine="_Command getpbinfo"
 
-Enclosure.Collect.Source(1).Step(3).Type="Sleep"
-Enclosure.Collect.Source(1).Step(3).Duration=3
+Enclosure.Collect.Source(4).Type="OSCommand"
+Enclosure.Collect.Source(4).CommandLine="_Command raid get vdisks -o"
 
-Enclosure.Collect.Source(1).Step(4).Type="SendUsername"
-Enclosure.Collect.Source(1).Step(4).TelnetOnly=1
+Enclosure.Collect.Source(5).Type="OSCommand"
+Enclosure.Collect.Source(5).CommandLine="_Command raid get pdisks -o"
 
-Enclosure.Collect.Source(1).Step(5).Type="WaitFor"
-Enclosure.Collect.Source(1).Step(5).Text="assword:"
-Enclosure.Collect.Source(1).Step(5).TimeOut=10
-Enclosure.Collect.Source(1).Step(5).TelnetOnly=1
+Enclosure.Collect.Source(6).Type="OSCommand"
+Enclosure.Collect.Source(6).CommandLine="_Command raid get tempprobes -o"
 
-Enclosure.Collect.Source(1).Step(6).Type="Sleep"
-Enclosure.Collect.Source(1).Step(6).Duration=3
+Enclosure.Collect.Source(7).Type="OSCommand"
+Enclosure.Collect.Source(7).CommandLine="_Command raid get controllers -o"
 
-Enclosure.Collect.Source(1).Step(7).Type="SendPassword"
-Enclosure.Collect.Source(1).Step(7).TelnetOnly=1
+Enclosure.Collect.Source(8).Type="OSCommand"
+Enclosure.Collect.Source(8).CommandLine="_Command raid get batteries -o"
 
-Enclosure.Collect.Source(1).Step(8).Type="WaitFor"
-Enclosure.Collect.Source(1).Step(8).Text="$"
-Enclosure.Collect.Source(1).Step(8).TimeOut=30
+Enclosure.Collect.Source(9).Type="OSCommand"
+Enclosure.Collect.Source(9).CommandLine="_Command chassislog view -s critical"
 
-Enclosure.Collect.Source(1).Step(9).Type="Sleep"
-Enclosure.Collect.Source(1).Step(9).Duration=3
-
-Enclosure.Collect.Source(1).Step(10).Type="SendText"
-Enclosure.Collect.Source(1).Step(10).Text="_Command getsensorinfo\n"
-
-Enclosure.Collect.Source(1).Step(11).Type="WaitFor"
-Enclosure.Collect.Source(1).Step(11).Text="$"
-Enclosure.Collect.Source(1).Step(11).TimeOut=360
-Enclosure.Collect.Source(1).Step(11).Capture=True
-
-Enclosure.Collect.Source(1).Step(12).Type="Sleep"
-Enclosure.Collect.Source(1).Step(12).Duration=3
-
-Enclosure.Collect.Source(1).Step(13).Type="SendText"
-Enclosure.Collect.Source(1).Step(13).Text="_Command getmodinfo\n"
-
-Enclosure.Collect.Source(1).Step(14).Type="WaitFor"
-Enclosure.Collect.Source(1).Step(14).Text="$"
-Enclosure.Collect.Source(1).Step(14).TimeOut=360
-
-Enclosure.Collect.Source(1).Step(15).Type="Sleep"
-Enclosure.Collect.Source(1).Step(15).Duration=3
-
-Enclosure.Collect.Source(1).Step(16).Type="SendText"
-Enclosure.Collect.Source(1).Step(16).Text="_Command getpbinfo\n"
-
-Enclosure.Collect.Source(1).Step(17).Type="WaitFor"
-Enclosure.Collect.Source(1).Step(17).Text="$"
-Enclosure.Collect.Source(1).Step(17).TimeOut=360
-
-Enclosure.Collect.Source(1).Step(18).Type="Sleep"
-Enclosure.Collect.Source(1).Step(18).Duration=3
-
-Enclosure.Collect.Source(1).Step(19).Type="SendText"
-Enclosure.Collect.Source(1).Step(19).Text="_Command raid get vdisks -o\n"
-
-Enclosure.Collect.Source(1).Step(20).Type="WaitFor"
-Enclosure.Collect.Source(1).Step(20).Text="$"
-Enclosure.Collect.Source(1).Step(20).TimeOut=360
-
-Enclosure.Collect.Source(1).Step(21).Type="Sleep"
-Enclosure.Collect.Source(1).Step(21).Duration=3
-
-Enclosure.Collect.Source(1).Step(22).Type="SendText"
-Enclosure.Collect.Source(1).Step(22).Text="_Command raid get pdisks -o\n"
-
-Enclosure.Collect.Source(1).Step(23).Type="WaitFor"
-Enclosure.Collect.Source(1).Step(23).Text="$"
-Enclosure.Collect.Source(1).Step(23).TimeOut=360
-
-Enclosure.Collect.Source(1).Step(24).Type="Sleep"
-Enclosure.Collect.Source(1).Step(24).Duration=3
-
-Enclosure.Collect.Source(1).Step(25).Type="SendText"
-Enclosure.Collect.Source(1).Step(25).Text="_Command raid get tempprobes -o\n"
-
-Enclosure.Collect.Source(1).Step(26).Type="WaitFor"
-Enclosure.Collect.Source(1).Step(26).Text="$"
-Enclosure.Collect.Source(1).Step(26).TimeOut=360
-
-Enclosure.Collect.Source(1).Step(27).Type="Sleep"
-Enclosure.Collect.Source(1).Step(27).Duration=3
-
-Enclosure.Collect.Source(1).Step(28).Type="SendText"
-Enclosure.Collect.Source(1).Step(28).Text="_Command raid get controllers -o\n"
-
-Enclosure.Collect.Source(1).Step(29).Type="WaitFor"
-Enclosure.Collect.Source(1).Step(29).Text="$"
-Enclosure.Collect.Source(1).Step(29).TimeOut=360
-
-Enclosure.Collect.Source(1).Step(30).Type="Sleep"
-Enclosure.Collect.Source(1).Step(30).Duration=3
-
-Enclosure.Collect.Source(1).Step(31).Type="SendText"
-Enclosure.Collect.Source(1).Step(31).Text="_Command raid get batteries -o\n"
-
-Enclosure.Collect.Source(1).Step(32).Type="WaitFor"
-Enclosure.Collect.Source(1).Step(32).Text="$"
-Enclosure.Collect.Source(1).Step(32).TimeOut=360
-
-Enclosure.Collect.Source(1).Step(33).Type="Sleep"
-Enclosure.Collect.Source(1).Step(33).Duration=3
-
-Enclosure.Collect.Source(1).Step(34).Type="SendText"
-Enclosure.Collect.Source(1).Step(34).Text="_Command chassislog view -s critical\n"
-
-Enclosure.Collect.Source(1).Step(35).Type="WaitFor"
-Enclosure.Collect.Source(1).Step(35).Text="$"
-Enclosure.Collect.Source(1).Step(35).TimeOut=360
-
-Enclosure.Collect.Source(1).Step(36).Type="Sleep"
-Enclosure.Collect.Source(1).Step(36).Duration=3
-
-Enclosure.Collect.Source(1).Step(37).Type="SendText"
-Enclosure.Collect.Source(1).Step(37).Text="quit\nlogout\nexit\n"
-Enclosure.Collect.Source(1).Step(37).Capture=False
+Enclosure.Collect.Source(10).Type="TableUnion"
+Enclosure.Collect.Source(10).Table1=%Enclosure.Collect.Source(1)%
+Enclosure.Collect.Source(10).Table2=%Enclosure.Collect.Source(2)%
+Enclosure.Collect.Source(10).Table3=%Enclosure.Collect.Source(3)%
+Enclosure.Collect.Source(10).Table4=%Enclosure.Collect.Source(4)%
+Enclosure.Collect.Source(10).Table5=%Enclosure.Collect.Source(5)%
+Enclosure.Collect.Source(10).Table6=%Enclosure.Collect.Source(6)%
+Enclosure.Collect.Source(10).Table7=%Enclosure.Collect.Source(7)%
+Enclosure.Collect.Source(10).Table8=%Enclosure.Collect.Source(8)%
+Enclosure.Collect.Source(10).Table9=%Enclosure.Collect.Source(9)%
 
 
 
