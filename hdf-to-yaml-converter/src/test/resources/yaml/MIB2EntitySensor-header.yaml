@@ -29,6 +29,13 @@ translations:
     default: "1"
     "2": "100"
     "3": "1000"
+connector:
+  detection:
+    criteria:
+      # Detection Criteria 1
+      # Must have ENTITY-SENSOR-MIB
+    - type: "snmpGetNext"
+      oid: "1.3.6.1.2.1.99"
 monitors:
   enclosure:
     discovery:

@@ -170,6 +170,12 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 			return null;
 		}
 
+		if(sources.get(sourceName) == null) {
+			sources.set(sourceName, 
+				JsonNodeFactory.instance.objectNode().set(COMPUTES, 
+					JsonNodeFactory.instance.arrayNode().add(JsonNodeFactory.instance.objectNode())));
+		}
+
 		return (ObjectNode) sources.get(sourceName);
 	}
 

@@ -89,7 +89,7 @@ Enclosure.Collect.Type="MonoInstance"
 
 // Source(2) = Output of getsensorinfo, getmodinfo and getpbinfo
 Enclosure.Collect.Source(1).Type="OSCommand"
-Enclosure.Collect.Source(1).Compute.CommandLine="getsensorinfo"
+Enclosure.Collect.Source(1).CommandLine="getsensorinfo"
 
 Enclosure.Collect.Source(2).Type="OSCommand"
 Enclosure.Collect.Source(2).CommandLine="getmodinfo -A"

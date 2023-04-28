@@ -359,7 +359,7 @@ Memory.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(9)
 Memory.Collect.Type="MultiInstance"
 
 Memory.Collect.Source(1).Type="OSCommand"
-Memory.Collect.Source(1).Step(7).Text="syscli --getstatus storagearray"
+Memory.Collect.Source(1).CommandLine="syscli --getstatus storagearray"
 
 Memory.Collect.Source(2).Type="OSCommand"
 Memory.Collect.Source(2).CommandLine="syscli --getstatus systemboard"
@@ -368,7 +368,7 @@ Memory.Collect.Source(3).Type="OSCommand"
 Memory.Collect.Source(3).CommandLine="for array in `syscli --getstatus storagearray | grep -oP '(?<=Name = )[\w\d]+'`; do echo MSHW_START $array;syscli --getstatus storagearraydetails --name $array ; echo MSHW_END $array; done"
 
 Memory.Collect.Source(4).Type="OSCommand"
-Memory.Collect.Source(4).Compute="syscli --getstatus hostbusadapter"
+Memory.Collect.Source(4).CommandLine="syscli --getstatus hostbusadapter"
 
 Memory.Collect.Source(5).Type="TableUnion"
 Memory.Collect.Source(5).Table1=%Memory.Collect.Source(1)%
@@ -731,7 +731,7 @@ PhysicalDisk.Discovery.Instance.AttachedToDeviceID=InstanceTable.Column(9)
 PhysicalDisk.Collect.Type="MultiInstance"
 
 PhysicalDisk.Collect.Source(1).Type="OSCommand"
-PhysicalDisk.Collect.Source(1).Step(7).Text="syscli --getstatus storagearray"
+PhysicalDisk.Collect.Source(1).CommandLine="syscli --getstatus storagearray"
 
 PhysicalDisk.Collect.Source(2).Type="OSCommand"
 PhysicalDisk.Collect.Source(2).CommandLine="syscli --getstatus systemboard"
@@ -978,7 +978,7 @@ NetworkCard.Collect.Type="MultiInstance"
 
 // Source(1)
 NetworkCard.Collect.Source(1).Type="OSCommand"
-NetworkCard.Collect.Source(1).Step(7).Text="syscli --getstatus commoncomponent --storagearray"
+NetworkCard.Collect.Source(1).CommandLine="syscli --getstatus commoncomponent --storagearray"
 
 NetworkCard.Collect.Source(2).Type="OSCommand"
 NetworkCard.Collect.Source(2).CommandLine="syscli --getstatus networkport"

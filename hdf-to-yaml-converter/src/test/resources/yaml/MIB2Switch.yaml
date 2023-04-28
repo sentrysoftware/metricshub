@@ -4,7 +4,6 @@ extends:
 - "MIB2EntitySensor-header"
 constants:
   _ENCLOSURE_TYPE: "Switch"
-  _DETECTION_INDEX: "2"
   _DEVICE_ID: "EthernetSwitch"
 connector:
   displayName: "Ethernet Switch with Sensors (SNMP)"

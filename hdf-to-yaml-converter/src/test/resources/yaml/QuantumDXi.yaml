@@ -437,6 +437,7 @@ monitors:
       sources:
         source(1):
           type: "osCommand"
+          commandLine: "syscli --getstatus storagearray"
         source(2):
           type: "osCommand"
           commandLine: "syscli --getstatus systemboard"
@@ -445,6 +446,7 @@ monitors:
           commandLine: "for array in `syscli --getstatus storagearray | grep -oP '(?<=Name = )[\\w\\d]+'`; do echo MSHW_START $array;syscli --getstatus storagearraydetails --name $array ; echo MSHW_END $array; done"
         source(4):
           type: "osCommand"
+          commandLine: "syscli --getstatus hostbusadapter"
         source(5):
           type: "tableUnion"
           tables:
@@ -798,6 +800,7 @@ monitors:
       sources:
         source(1):
           type: "osCommand"
+          commandLine: "syscli --getstatus storagearray"
         source(2):
           type: "osCommand"
           commandLine: "syscli --getstatus systemboard"
@@ -1033,6 +1036,7 @@ monitors:
         source(1):
           # Source(1)
           type: "osCommand"
+          commandLine: "syscli --getstatus commoncomponent --storagearray"
         source(2):
           type: "osCommand"
           commandLine: "syscli --getstatus networkport"

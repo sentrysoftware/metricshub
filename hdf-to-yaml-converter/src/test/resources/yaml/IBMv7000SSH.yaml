@@ -64,6 +64,12 @@ connector:
     - "remote"
     appliesTo:
     - "Storage"
+    criteria:
+      # Run lsstoragesystem to see if it's a V7000
+    - type: "osCommand"
+      commandLine: "lsenclosure -delim :"
+      expectedResult: "id:status:type:managed:IO_group_id:IO_group_name:product_MTM:serial_number"
+      forceSerialization: true
 monitors:
   enclosure:
     discovery:
@@ -311,6 +317,7 @@ monitors:
         source(1):
           # Source(1) = lsdrive
           type: "osCommand"
+          commandLine: "lsdrive -bytes -delim"
           separators: ":"
           selectColumns: "1,5,6,8,10,11"
           forceSerialization: true

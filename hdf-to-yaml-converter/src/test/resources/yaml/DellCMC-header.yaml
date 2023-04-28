@@ -65,6 +65,12 @@ monitors:
             separators: ";"
             keep: "^MSHW;"
             selectColumns: "2,6"
+        source(2):
+          computes:
+          - script: "EmbeddedFile(12)"
+            separators: ";"
+            keep: "^MSHW;"
+            selectColumns: "2,3,4"
         source(3):
           # Source 3 = Join of Blade info and host info
           # BladeID;BladeModel;BladeID;SlotName;HostName;

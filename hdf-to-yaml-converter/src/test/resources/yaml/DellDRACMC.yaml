@@ -85,6 +85,7 @@ monitors:
         source(1):
           # Source(2) = Output of getsensorinfo, getmodinfo and getpbinfo
           type: "osCommand"
+          commandLine: "getsensorinfo"
         source(2):
           type: "osCommand"
           commandLine: "getmodinfo -A"

@@ -5,8 +5,8 @@
 
 // Detection Criteria 1
 // Must have ENTITY-SENSOR-MIB
-Detection.Criteria(_DETECTION_INDEX).Type="SNMP"
-Detection.Criteria(_DETECTION_INDEX).SnmpGetNext="1.3.6.1.2.1.99"
+Detection.Criteria(2).Type="SNMP"
+Detection.Criteria(2).SnmpGetNext="1.3.6.1.2.1.99"
 
 
 

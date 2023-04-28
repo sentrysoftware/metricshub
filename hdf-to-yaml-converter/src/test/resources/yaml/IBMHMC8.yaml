@@ -25,6 +25,11 @@ monitors:
     collect:
       sources:
         source(1):
+          type: "osCommand"
+          commandLine: "lssvcevents -t hardware -d 0 -F _EVENTFIELDS"
+          keep: ",Open,"
+          separators: ","
+          selectColumns: "1,2,3,4,5,6"
           computes:
             # Add Fru information for v8 systems
             # v8 //  SystemName;Status;Description;RefCode;EventTime;FRUDetails;

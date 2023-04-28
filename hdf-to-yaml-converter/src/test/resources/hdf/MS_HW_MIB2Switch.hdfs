@@ -29,11 +29,6 @@ hdf.AppliesToOS="Network"
 
 hdf.Supersedes="MS_HW_GenericSwitchEnclosure.hdf"
 
-// _DETECTION_INDEX
-// Required by MS_HW_EntitySensorMIB
-// defines the number to use for a detection index (next available)
-#define _DETECTION_INDEX 2
-
 // _ENCLOSURE_TYPE
 // Required by MS_HW_EntitySensorMIB
 // defines the enclosure type to use

@@ -25,8 +25,8 @@ hdf.LocalSupport="false"
 hdf.AppliesToOS="Storage"
 
 // Run lsstoragesystem to see if it's a V7000
-Detection.Criteria.Type="OSCommand"
-Detection.Criteria.CommandLine="lsenclosure -delim :"
+Detection.Criteria(1).Type="OSCommand"
+Detection.Criteria(1).CommandLine="lsenclosure -delim :"
 Detection.Criteria(1).ExpectedResult="id:status:type:managed:IO_group_id:IO_group_name:product_MTM:serial_number"
 Detection.Criteria(1).ForceSerialization=1
 
@@ -343,7 +343,7 @@ Battery.Collect.StatusInformation=ValueTable.Column(4)
 
 // Source(1) = lsdrive
 PhysicalDisk.Discovery.Source(1).Type="OSCommand"
-PhysicalDisk.Discovery.Source(1).OSCommand="lsdrive -bytes -delim"
+PhysicalDisk.Discovery.Source(1).CommandLine="lsdrive -bytes -delim"
 // id:status:error_sequence_number:use:tech_type:capacity:mdisk_id:mdisk_name:member_id:enclosure_id:slot_id:node_id:node_name
 // id;tech_type;capacity;mdisk_name;enclosure_id;slot_id;
 PhysicalDisk.Discovery.Source(1).Separators=":"
