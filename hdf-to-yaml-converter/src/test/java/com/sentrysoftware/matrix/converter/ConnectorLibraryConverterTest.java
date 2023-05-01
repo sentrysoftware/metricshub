@@ -18,6 +18,7 @@ import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 
 class ConnectorLibraryConverterTest {
 
+	private static final String YAML_IS_INVALID_FORMAT = "YAML is invalid! %s, %s";
 	private static final String HDF_DIRECTORY = "src/test/resources/hdf";
 	private static final String YAML_DIRECTORY = "src/test/resources/yaml";
 
@@ -33,7 +34,7 @@ class ConnectorLibraryConverterTest {
 		for (File yamlFile : List.of(processor.getOutputDirectory().toFile().list()).stream()
 				.map(x -> new File(processor.getOutputDirectory().toAbsolutePath() + "/" + x)).toList()) {
 
-			final File expected = new File("src/test/resources/yaml/" + yamlFile.getName());
+			final File expected = Path.of(YAML_DIRECTORY, yamlFile.getName()).toFile();
 
 			assertTrue(expected.exists());
 			assertTrue(yamlFile.exists());
@@ -44,13 +45,13 @@ class ConnectorLibraryConverterTest {
 			try {
 				yaml = mapper.readTree(yamlFile);
 			} catch (Exception e) {
-				Assertions.fail(String.format("YAML is invalid! %s, %s", yamlFile, yaml));
+				Assertions.fail(String.format(YAML_IS_INVALID_FORMAT, yamlFile, yaml));
 			}
 
 			try {
 				expectedNode = mapper.readTree(expected);
 			} catch (Exception e) {
-				Assertions.fail(String.format("YAML is invalid! %s, %s", expected, expectedNode));
+				Assertions.fail(String.format(YAML_IS_INVALID_FORMAT, expected, expectedNode));
 			}
 
 			assertEquals(expectedNode, yaml);
@@ -62,18 +63,19 @@ class ConnectorLibraryConverterTest {
 		final ConnectorLibraryConverter processor = new ConnectorLibraryConverter(Path.of(HDF_DIRECTORY), tempDir);
 		processor.process();
 
-		final Path expectedPath = Path.of(YAML_DIRECTORY, "DellOpenManage.yaml");
+		for (File inputFile : List.of(processor.getOutputDirectory().toFile().list()).stream()
+				.map(x -> new File(processor.getOutputDirectory().toAbsolutePath() + "/" + x)).toList()) {
 
-		final File inputFile = tempDir.resolve("DellOpenManage.yaml").toFile();
-		final File expectedFile = expectedPath.toFile();
+			final File expectedFile = Path.of(YAML_DIRECTORY, inputFile.getName()).toFile();
 
-		assertTrue(inputFile.exists());
-		assertTrue(expectedFile.exists());
+			assertTrue(expectedFile.exists());
+			assertTrue(inputFile.exists());
 
-		final List<String> inputLines = Files.readAllLines(Path.of(inputFile.getAbsolutePath()));
-		final List<String> expectedLines = Files.readAllLines(expectedPath);
+			final List<String> inputLines = Files.readAllLines(inputFile.toPath());
+			final List<String> expectedLines = Files.readAllLines(expectedFile.toPath());
 
-		// compares line by line. includes comments
-		assertEquals(expectedLines, inputLines);
+			// compares line by line. includes comments
+			assertEquals(expectedLines, inputLines);
+		}
 	}
 }
