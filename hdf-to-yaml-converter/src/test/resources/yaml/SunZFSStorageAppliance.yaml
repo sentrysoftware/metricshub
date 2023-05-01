@@ -168,11 +168,11 @@ monitors:
           type: Chassis
           name: "sprintf(\"%s (%s %s - %s)\", $column(4), $column(7), $column(8), \"Chassis\")"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: Run the maintenance hardware show command
+          # Run the maintenance hardware show command
           type: osCommand
           forceSerialization: true
           commandLine: maintenance hardware show
@@ -245,7 +245,7 @@ monitors:
           hw.parent.id: $column(2)
           name: $column(4)
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -315,7 +315,7 @@ monitors:
           hw.parent.id: $column(2)
           name: "sprintf(\"%s, $column(4))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -384,7 +384,7 @@ monitors:
           hw.parent.id: $column(2)
           name: "sprintf(\"%s: %s (%s)\", \"Slot\", $column(4), $column(8))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -444,7 +444,7 @@ monitors:
           hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s - %s)\", $column(4), $column(7), $column(8))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -505,7 +505,7 @@ monitors:
           hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s (%s))\", $column(4), $column(7), $column(8))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -579,7 +579,7 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(11)
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -630,7 +630,7 @@ monitors:
             column: 2
             value: 1073741824
         source(2):
-          _comment: Run the configuration storage show command
+          # Run the configuration storage show command
           type: osCommand
           forceSerialization: true
           commandLine: Configuration storage show
@@ -679,11 +679,11 @@ monitors:
           hw.parent.id: $column(8)
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(4), $column(2))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: Run the maintenance hardware show command
+          # Run the maintenance hardware show command
           type: osCommand
           forceSerialization: true
           commandLine: status storage show
@@ -734,7 +734,7 @@ monitors:
             separators: ;
             selectColumns: "2,3,5,6,8"
         source(2):
-          _comment: Run the configuration net devices list
+          # Run the configuration net devices list
           type: osCommand
           forceSerialization: true
           commandLine: configuration net devices list
@@ -782,11 +782,11 @@ monitors:
           hw.parent.id: $column(9)
           name: "sprintf(\"%s (%s)\", $column(3), $column(4))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: Run the configuration san targets fc list command
+          # Run the configuration san targets fc list command
           type: osCommand
           forceSerialization: true
           commandLine: configuration san targets fc list
@@ -804,7 +804,7 @@ monitors:
             column: 3
             translationTable: FCspeedTranslationTable
         source(2):
-          _comment: Run the configuration net devices list command
+          # Run the configuration net devices list command
           type: osCommand
           forceSerialization: true
           commandLine: configuration net devices list

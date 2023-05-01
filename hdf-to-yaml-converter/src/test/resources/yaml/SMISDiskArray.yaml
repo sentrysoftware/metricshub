@@ -28,8 +28,8 @@ connector:
       namespace: Automatic
       query: "SELECT Name,Dedicated FROM CIM_ComputerSystem"
       expectedResult: "[;|]3|[0-9|]*;$"
-    - _comment: There also must be disk drives declared in this namespace
-      type: wbem
+    # There also must be disk drives declared in this namespace
+    - type: wbem
       query: SELECT DeviceID FROM CIM_DiskDrive
       namespace: Automatic
 monitors:
@@ -67,15 +67,15 @@ monitors:
           keyType: Wbem
           defaultRightLine: ;;;;;
           computes:
-            # Add \"Disk Device ID: \" to label AdditionalInformation1
+          # Add \"Disk Device ID: \" to label AdditionalInformation1
           - type: leftConcat
             column: 3
             value: "Disk Device ID: "
-            # Add \"Caption: \" to label AdditionalInformation2
+          # Add \"Caption: \" to label AdditionalInformation2
           - type: leftConcat
             column: 4
             value: "Caption: "
-            # Add \"Address: \" to label AdditionalInformation3
+          # Add \"Address: \" to label AdditionalInformation3
           - type: leftConcat
             column: 5
             value: "Address: "
@@ -95,7 +95,7 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(2)
     collect:
-      _comment: The physical disk collect is a "MultiInstance" collect
+      # The physical disk collect is a "MultiInstance" collect
       type: multiInstance
       sources:
         source(1):
@@ -263,12 +263,12 @@ monitors:
           - type: leftConcat
             column: 13
             value: Column(14)
-            # Add \"Replication Source: \" as label for AdditionalInformation1
+          # Add \"Replication Source: \" as label for AdditionalInformation1
           - type: leftConcat
             column: 13
             value: "Replication Source: "
       mapping:
-        _comment: Here is the instance table
+        # Here is the instance table
         source: $monitors.logical_disk.discovery.sources.source(10)$
         attributes:
           id: $column(1)
@@ -280,7 +280,7 @@ monitors:
           hw.parent.id: $column(8)
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), $column(2))"
     collect:
-      _comment: The LogicalDisk  collect is a "MultiInstance" collect
+      # The LogicalDisk  collect is a "MultiInstance" collect
       type: multiInstance
       sources:
         source(1):

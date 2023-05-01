@@ -91,8 +91,8 @@ connector:
     supersedes:
     - SMISDiskArray
     criteria:
-    - _comment: Verify that there is an TPD_StorageSystem instance
-      type: wbem
+    # Verify that there is an TPD_StorageSystem instance
+    - type: wbem
       namespace: root/tpd
       query: SELECT Name FROM TPD_StorageSystem
 monitors:
@@ -168,8 +168,8 @@ monitors:
           - type: rightConcat
             column: 2
             value: ;;;;;
-          - _comment: Add identifiers
-            type: leftConcat
+          # Add identifiers
+          - type: leftConcat
             column: 11
             value: "Alternative Part Number: "
           - type: leftConcat
@@ -204,7 +204,7 @@ monitors:
           info: "join($column(11), $column(12), $column(13), \" \")"
           name: "sprintf(\"%s (%s %s - %s)\", $column(1), \"HP\", $column(8), \"Storage\")"
     collect:
-      _comment: Collect type is mono-instance
+      # Collect type is mono-instance
       type: multiInstance
       sources:
         source(1):
@@ -412,7 +412,7 @@ monitors:
           hw.parent.id: $column(12)
           name: "sprintf(\"%s (%s)\", $column(2), $column(6))"
     collect:
-      _comment: Collect type is multiinstance
+      # Collect type is multiinstance
       type: multiInstance
       sources:
         source(1):
@@ -465,8 +465,8 @@ monitors:
             # DeviceID,DeviceID,Manufacturer,SystemName,TPD_Battery
           - type: duplicateColumn
             column: 1
-          - _comment: Add a dash to the left of the systemname
-            type: rightConcat
+          # Add a dash to the left of the systemname
+          - type: rightConcat
             column: 4
             value: '-'
             # Remove the SystemName from the DisplayID
@@ -475,13 +475,13 @@ monitors:
             column: 2
             existingValue: Column(4)
             newValue: ""
-          - _comment: Remove the dash from the systemname
-            type: replace
+          # Remove the dash from the systemname
+          - type: replace
             column: 4
             existingValue: '-'
             newValue: ""
-          - _comment: Add a descriptions
-            type: leftConcat
+          # Add a descriptions
+          - type: leftConcat
             column: 3
             value: "Manufacturer: "
         source(2):
@@ -555,7 +555,7 @@ monitors:
           hw.parent.id: $column(4)
           name: $column(2)
     collect:
-      _comment: Collect type is multiinstance
+      # Collect type is multiinstance
       type: multiInstance
       sources:
         source(1):
@@ -604,8 +604,8 @@ monitors:
           query: "SELECT DeviceID,ElementName,Model,SystemName FROM TPD_NodeCPU"
           namespace: root/tpd
           computes:
-          - _comment: Remove (R)
-            type: replace
+          # Remove (R)
+          - type: replace
             column: 3
             existingValue: (R)
             newValue: ""
@@ -621,7 +621,7 @@ monitors:
           hw.parent.id: $column(4)
           name: $column(2)
     collect:
-      _comment: Collect type is multiinstance
+      # Collect type is multiinstance
       type: multiInstance
       sources:
         source(1):
@@ -675,8 +675,8 @@ monitors:
           - type: leftConcat
             column: 7
             value: "Location: "
-          - _comment: Convert Memory to MB
-            type: divide
+          # Convert Memory to MB
+          - type: divide
             column: 2
             value: 1048576
         source(2):
@@ -733,7 +733,7 @@ monitors:
         metrics:
           hw.memory.limit: mebiByte2Byte($column(2))
     collect:
-      _comment: Collect type is multiinstance
+      # Collect type is multiinstance
       type: multiInstance
       sources:
         source(1):
@@ -848,7 +848,7 @@ monitors:
           hw.parent.id: $column(3)
           name: "sprintf(\"%s, $column(2))"
     collect:
-      _comment: Collect type is multiinstance
+      # Collect type is multiinstance
       type: multiInstance
       sources:
         source(1):
@@ -941,12 +941,12 @@ monitors:
             column: 2
             existingValue: Column(3)
             newValue: ""
-          - _comment: Add a MSHW to the left of the DisplayID
-            type: leftConcat
+          # Add a MSHW to the left of the DisplayID
+          - type: leftConcat
             column: 2
             value: MSHW
-          - _comment: Remove the MSHW dash from the DisplayID
-            type: replace
+          # Remove the MSHW dash from the DisplayID
+          - type: replace
             column: 2
             existingValue: MSHW-
             newValue: ""
@@ -1026,7 +1026,7 @@ monitors:
           hw.parent.id: $column(3)
           name: $column(2)
     collect:
-      _comment: Collect type is multiinstance
+      # Collect type is multiinstance
       type: multiInstance
       sources:
         source(1):
@@ -1119,7 +1119,7 @@ monitors:
           hw.voltage.limit{limit_type="high.degraded"}: $column(4)
           hw.voltage.limit{limit_type="low.critical"}: $column(5)
     collect:
-      _comment: Collect type is multiinstance
+      # Collect type is multiinstance
       type: multiInstance
       sources:
         source(1):
@@ -1280,7 +1280,7 @@ monitors:
           - type: rightConcat
             column: 2
             value: ;;;
-            # DeviceID,DisplayID,(RPM),(InterConnectType),(DeviceType),Manufacturer,Model,SerialNumber,Capacity,(DeviceID),EnclosureID
+          # DeviceID,DisplayID,(RPM),(InterConnectType),(DeviceType),Manufacturer,Model,SerialNumber,Capacity,(DeviceID),EnclosureID
           - type: rightConcat
             column: 9
             value: ;;EnclosureID
@@ -1326,7 +1326,7 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(9)
     collect:
-      _comment: Collect type is multiinstance
+      # Collect type is multiinstance
       type: multiInstance
       sources:
         source(1):
@@ -1486,7 +1486,7 @@ monitors:
           hw.parent.id: $column(8)
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(5), $column(3))"
     collect:
-      _comment: Collect type is multiinstance
+      # Collect type is multiinstance
       type: multiInstance
       sources:
         source(1):
@@ -1682,7 +1682,7 @@ monitors:
           hw.parent.id: $column(5)
           name: "sprintf(\"%s: %s\", $column(2), $column(3))"
     collect:
-      _comment: Collect type is multiinstance
+      # Collect type is multiinstance
       type: multiInstance
       sources:
         source(1):
@@ -1770,7 +1770,7 @@ monitors:
           hw.parent.id: $column(3)
           name: "sprintf(\"%s (%s)\", $column(2), $column(4))"
     collect:
-      _comment: Collect type is multiinstance
+      # Collect type is multiinstance
       type: multiInstance
       sources:
         source(1):
@@ -2026,7 +2026,7 @@ monitors:
           hw.temperature.limit{limit_type="high.degraded"}: $column(5)
           hw.temperature.limit{limit_type="high.critical"}: $column(4)
     collect:
-      _comment: Collect type is multiinstance
+      # Collect type is multiinstance
       type: multiInstance
       sources:
         source(1):

@@ -33,18 +33,18 @@ sudoCommands:
 connector:
   detection:
     criteria:
-    - _comment: Only for type storage
-      type: deviceType
+    # Only for type storage
+    - type: deviceType
       keep:
       - Storage
-    - _comment: Checks that SMCLI is on the local machine - in Portal smcli is run from the RSM
-      type: osCommand
+    # Checks that SMCLI is on the local machine - in Portal smcli is run from the RSM
+    - type: osCommand
       commandLine: SMcli
       executeLocally: true
       expectedResult: Incorrect
       errorMessage: SMCLI not installed or not in path.
-    - _comment: Checks that SMCLI returns a physical disk
-      type: osCommand
+    # Checks that SMCLI returns a physical disk
+    - type: osCommand
       commandLine: "SMcli %{HOSTNAME} %{SUDO:Second_Address} -c \"show _COMMAND;\""
       executeLocally: true
       expectedResult: drive
@@ -54,14 +54,14 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = the output of smcli "show enclosure / show storage array"
+          # Source(1) = the output of smcli "show enclosure / show storage array
           type: osCommand
           commandLine: "SMcli %{HOSTNAME} %{SUDO:Second_Address} -c \"show _COMMAND;\""
           executeLocally: true
           timeout: 360
           computes:
-          - _comment: Process smcli's output through awk EmbeddedFile(1)
-            type: awk
+          # Process smcli's output through awk EmbeddedFile(1)
+          - type: awk
             script: EmbeddedFile(1)
             keep: ^MSHW;
             # Exclude StatusInformation that contain Not Present
@@ -83,7 +83,7 @@ monitors:
             column: 2
             valueList: enclosure
       mapping:
-        _comment: The discovery table
+        # The discovery table
         source: $monitors.enclosure.discovery.sources.source(2)$
         attributes:
           id: $column(3)
@@ -98,14 +98,14 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = the output of smcli "show enclosure / show storage array"
+          # Source(1) = the output of smcli "show enclosure / show storage array
           type: osCommand
           commandLine: "SMcli %{HOSTNAME} %{SUDO:Second_Address} -c \"show _COMMAND;\""
           executeLocally: true
           timeout: 360
           computes:
-          - _comment: Process smcli's output through awk EmbeddedFile(1)
-            type: awk
+          # Process smcli's output through awk EmbeddedFile(1)
+          - type: awk
             script: EmbeddedFile(1)
             keep: ^MSHW;
             # Trim down the table to make it easier to understand
@@ -151,7 +151,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Make a copy of Enclosure(1)
+          # Make a copy of Enclosure(1)
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -162,7 +162,7 @@ monitors:
             column: 2
             valueList: Controller
       mapping:
-        _comment: Instance Table
+        # Instance Table
         source: $monitors.blade.discovery.sources.source(1)$
         attributes:
           id: $column(3)
@@ -178,7 +178,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Make a copy of Enclosure Source(2)
+          # Make a copy of Enclosure Source(2)
           type: copy
           from: $monitors.enclosure.collect.sources.source(2)$
           computes:
@@ -200,7 +200,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Make a copy of Enclosure(1)
+          # Make a copy of Enclosure(1)
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -211,7 +211,7 @@ monitors:
             column: 2
             valueList: battery
       mapping:
-        _comment: Instance Table
+        # Instance Table
         source: $monitors.battery.discovery.sources.source(1)$
         attributes:
           id: $column(3)
@@ -225,7 +225,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Make a copy of Enclosure Source(2)
+          # Make a copy of Enclosure Source(2)
           type: copy
           from: $monitors.enclosure.collect.sources.source(2)$
           computes:
@@ -247,7 +247,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Make a copy of Enclosure(1)
+          # Make a copy of Enclosure(1)
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -258,7 +258,7 @@ monitors:
             column: 2
             valueList: fan
       mapping:
-        _comment: Instance Table
+        # Instance Table
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           id: $column(3)
@@ -272,7 +272,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Make a copy of Enclosure Source(2)
+          # Make a copy of Enclosure Source(2)
           type: copy
           from: $monitors.enclosure.collect.sources.source(2)$
           computes:
@@ -294,7 +294,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Make a copy of Enclosure(1)
+          # Make a copy of Enclosure(1)
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -305,7 +305,7 @@ monitors:
             column: 2
             valueList: power_supply
       mapping:
-        _comment: Instance Table
+        # Instance Table
         source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
           id: $column(3)
@@ -319,7 +319,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Make a copy of Enclosure Source(2)
+          # Make a copy of Enclosure Source(2)
           type: copy
           from: $monitors.enclosure.collect.sources.source(2)$
           computes:
@@ -341,7 +341,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Make a copy of Enclosure(1)
+          # Make a copy of Enclosure(1)
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -352,7 +352,7 @@ monitors:
             column: 2
             valueList: temperature
       mapping:
-        _comment: Instance Table
+        # Instance Table
         source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
           id: $column(3)
@@ -366,7 +366,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Make a copy of Enclosure Source(2)
+          # Make a copy of Enclosure Source(2)
           type: copy
           from: $monitors.enclosure.collect.sources.source(2)$
           computes:
@@ -388,7 +388,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Make a copy of Enclosure(1)
+          # Make a copy of Enclosure(1)
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -404,7 +404,7 @@ monitors:
             column: 10
             value: 1000000000
       mapping:
-        _comment: Instance Table
+        # Instance Table
         source: $monitors.physical_disk.discovery.sources.source(1)$
         attributes:
           id: $column(3)
@@ -423,7 +423,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Make a copy of Enclosure Source(2)
+          # Make a copy of Enclosure Source(2)
           type: copy
           from: $monitors.enclosure.collect.sources.source(2)$
           computes:
@@ -445,7 +445,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Make a copy of Enclosure(1)
+          # Make a copy of Enclosure(1)
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -461,7 +461,7 @@ monitors:
             column: 10
             value: 1000000000
       mapping:
-        _comment: Instance Table
+        # Instance Table
         source: $monitors.logical_disk.discovery.sources.source(1)$
         attributes:
           id: $column(3)
@@ -476,7 +476,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Make a copy of Enclosure Source(2)
+          # Make a copy of Enclosure Source(2)
           type: copy
           from: $monitors.enclosure.collect.sources.source(2)$
           computes:
@@ -498,7 +498,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Make a copy of Enclosure(1)
+          # Make a copy of Enclosure(1)
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -509,7 +509,7 @@ monitors:
             column: 2
             valueList: "EthernetPort,HostInterface,PhysicalDiskInterface"
       mapping:
-        _comment: Instance Table
+        # Instance Table
         source: $monitors.network.discovery.sources.source(1)$
         attributes:
           id: $column(3)
@@ -525,7 +525,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Make a copy of Enclosure Source(1) (Not 2 as we need raw data)
+          # Make a copy of Enclosure Source(1) (Not 2 as we need raw data)
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -551,7 +551,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Make a copy of Enclosure(1)
+          # Make a copy of Enclosure(1)
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -562,7 +562,7 @@ monitors:
             column: 2
             valueList: "ERROR;Enclosure,Controller,Battery,PhysicalDisk,PowerSupply,Fan,Temperature,DiskGroup,EthernetPort,HostInterface,PhysicalDiskInterface"
       mapping:
-        _comment: Instance Table
+        # Instance Table
         source: $monitors.other_device.discovery.sources.source(1)$
         attributes:
           id: $column(3)
@@ -577,7 +577,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Make a copy of Enclosure Source(2)
+          # Make a copy of Enclosure Source(2)
           type: copy
           from: $monitors.enclosure.collect.sources.source(2)$
           computes:

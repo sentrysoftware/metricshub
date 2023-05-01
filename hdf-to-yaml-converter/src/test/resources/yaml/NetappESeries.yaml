@@ -63,7 +63,7 @@ monitors:
             column: 1
             value: MSHW;
         source(2):
-          _comment: Trays
+          # Trays
           type: http
           method: GET
           url: /devmgr/v2/storage-systems/1/hardware-inventory
@@ -72,8 +72,8 @@ monitors:
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
-          - _comment: Transform JSON to CSV to extract information
-            type: json2csv
+          # Transform JSON to CSV to extract information
+          - type: json2csv
             entryKey: /trays
             properties: /trayRef;/trayId;/partNumber;/serialNumber;
             separator: ;
@@ -92,15 +92,15 @@ monitors:
           - type: leftConcat
             column: 10
             value: E
-            # Add \"Chassis Serial Number: \" to AdditionalInformation2
+          # Add \"Chassis Serial Number: \" to AdditionalInformation2
           - type: leftConcat
             column: 11
             value: "Chassis Serial Number: "
-            # Add \"Storage System: \"
+          # Add \"Storage System: \"
           - type: leftConcat
             column: 9
             value: "Storage System: "
-            # Add \"Tray: \" to DisplayID
+          # Add \"Tray: \" to DisplayID
           - type: leftConcat
             column: 4
             value: "Tray: "
@@ -121,11 +121,11 @@ monitors:
           info: "join($column(9), $column(11), $column(5), \" \")"
           name: "sprintf(\"%s (%s %s - %s)\", $column(4), \"NetApp\", $column(10), \"Storage\")"
     collect:
-      _comment: Collection Type
+      # Collection Type
       type: multiInstance
       sources:
         source(1):
-          _comment: Queries the REST interface for Enclosure information
+          # Queries the REST interface for Enclosure information
           type: http
           method: GET
           url: /devmgr/v2/storage-systems/1
@@ -137,8 +137,8 @@ monitors:
             entryKey: /
             properties: /status;/status
             separator: ;
-          - _comment: Translate API status to PatrolStatus
-            type: translate
+          # Translate API status to PatrolStatus
+          - type: translate
             column: 2
             translationTable: StatusTranslationTable
           - type: leftConcat
@@ -155,8 +155,8 @@ monitors:
           type: copy
           from: $monitors.enclosure.collect.sources.source(2)$
           computes:
-          - _comment: Transform JSON to CSV to extract information
-            type: json2csv
+          # Transform JSON to CSV to extract information
+          - type: json2csv
             entryKey: /trays
             properties: /trayRef;
             separator: ;
@@ -182,7 +182,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: PhysicalDisk Source(1) = HardwareInventory
+          # PhysicalDisk Source(1) = HardwareInventory
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
@@ -192,8 +192,8 @@ monitors:
             entryKey: drives
             properties: /manufacturer;/productID;/serialNumber;/physicalLocation/label;/firmwareVersion;/rawCapacity;/maxSpeed;/phyDriveTypeData/phyDriveType;../physicalLocation/trayRef;
             separator: ;
-          - _comment: Label column 8 with speed for additional information
-            type: replace
+          # Label column 8 with speed for additional information
+          - type: replace
             column: 8
             existingValue: speed
             newValue: "Speed: "
@@ -221,11 +221,11 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(7)
     collect:
-      _comment: Collect type = multi-instance
+      # Collect type = multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: PhysicalDisk Source(1) = HardwareInventory
+          # PhysicalDisk Source(1) = HardwareInventory
           type: copy
           from: $monitors.enclosure.collect.sources.source(2)$
           computes:
@@ -235,8 +235,8 @@ monitors:
             entryKey: drives
             properties: /status;/status;/ssdWearLife/spareBlocksRemainingPercent;
             separator: ;
-          - _comment: Translate API status to PatrolStatus
-            type: translate
+          # Translate API status to PatrolStatus
+          - type: translate
             column: 2
             translationTable: StatusTranslationTable
       mapping:
@@ -253,7 +253,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: PowerSupply Source(1) = HardwareInventory
+          # PowerSupply Source(1) = HardwareInventory
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
@@ -287,11 +287,11 @@ monitors:
           hw.parent.id: $column(6)
           name: "sprintf(\"%s, $column(2))"
     collect:
-      _comment: Collection Type
+      # Collection Type
       type: multiInstance
       sources:
         source(1):
-          _comment: PowerSupply Source(1) = HardwareInventory
+          # PowerSupply Source(1) = HardwareInventory
           type: copy
           from: $monitors.enclosure.collect.sources.source(2)$
           computes:
@@ -301,8 +301,8 @@ monitors:
             entryKey: powerSupplies
             properties: /status;/status;
             separator: ;
-          - _comment: Translate API Status into PatrolStatus
-            type: translate
+          # Translate API Status into PatrolStatus
+          - type: translate
             column: 2
             translationTable: StatusTranslationTable
       mapping:
@@ -318,7 +318,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Fan Source(1) = HardwareInventory
+          # Fan Source(1) = HardwareInventory
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
@@ -342,11 +342,11 @@ monitors:
           hw.parent.id: $column(3)
           name: $column(2)
     collect:
-      _comment: Collection type
+      # Collection type
       type: multiInstance
       sources:
         source(1):
-          _comment: Fan Source(1) = HardwareInventory
+          # Fan Source(1) = HardwareInventory
           type: copy
           from: $monitors.enclosure.collect.sources.source(2)$
           computes:
@@ -356,8 +356,8 @@ monitors:
             entryKey: fans
             properties: /status;/status;
             separator: ;
-          - _comment: Translate API Status into PatrolStatus
-            type: translate
+          # Translate API Status into PatrolStatus
+          - type: translate
             column: 2
             translationTable: StatusTranslationTable
       mapping:
@@ -373,7 +373,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Battery Source(1) = HardwareInventory
+          # Battery Source(1) = HardwareInventory
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
@@ -400,11 +400,11 @@ monitors:
           hw.parent.id: $column(6)
           name: "sprintf(\"%s (%s - %s)\", $column(2), $column(3), $column(5))"
     collect:
-      _comment: Collection type
+      # Collection type
       type: multiInstance
       sources:
         source(1):
-          _comment: Battery Source(1) = HardwareInventory
+          # Battery Source(1) = HardwareInventory
           type: copy
           from: $monitors.enclosure.collect.sources.source(2)$
           computes:
@@ -414,8 +414,8 @@ monitors:
             entryKey: batteries
             properties: /status;/status;
             separator: ;
-          - _comment: Translate API status into PatrolStatus
-            type: translate
+          # Translate API status into PatrolStatus
+          - type: translate
             column: 2
             translationTable: StatusTranslationTable
       mapping:
@@ -431,7 +431,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: DiskController Source(1) = HardwareInventory
+          # DiskController Source(1) = HardwareInventory
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
@@ -458,11 +458,11 @@ monitors:
           hw.parent.id: $column(8)
           name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(2), $column(4))"
     collect:
-      _comment: Collection type
+      # Collection type
       type: multiInstance
       sources:
         source(1):
-          _comment: DiskController Source(1) = HardwareInventory
+          # DiskController Source(1) = HardwareInventory
           type: copy
           from: $monitors.enclosure.collect.sources.source(2)$
           computes:
@@ -472,12 +472,12 @@ monitors:
             entryKey: controllers
             properties: /status;/status;
             separator: ;
-          - _comment: Translate API status into PatrolStatus
-            type: translate
+          # Translate API status into PatrolStatus
+          - type: translate
             column: 2
             translationTable: StatusTranslationTable
       mapping:
-        _comment: DiskController Value Table
+        # DiskController Value Table
         source: $monitors.disk_controller.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -488,12 +488,12 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Temperature Source(1) = HardwareInventory
+          # Temperature Source(1) = HardwareInventory
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
-          - _comment: Use Json2Csv to process HTTP Response
-            type: json2csv
+          # Use Json2Csv to process HTTP Response
+          - type: json2csv
             entryKey: thermalSensors
             properties: /physicalLocation/slot;../physicalLocation/trayRef
             separator: ;
@@ -510,11 +510,11 @@ monitors:
           hw.parent.type: enclosure
           name: $column(2)
     collect:
-      _comment: Collection Type
+      # Collection Type
       type: multiInstance
       sources:
         source(1):
-          _comment: Temperature Source(1) = HardwareInventory
+          # Temperature Source(1) = HardwareInventory
           type: copy
           from: $monitors.enclosure.collect.sources.source(2)$
           computes:
@@ -524,8 +524,8 @@ monitors:
             entryKey: thermalSensors
             properties: /status;/status;
             separator: ;
-          - _comment: Translate API status into PatrolStatus
-            type: translate
+          # Translate API status into PatrolStatus
+          - type: translate
             column: 2
             translationTable: StatusTranslationTable
       mapping:
@@ -541,7 +541,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Memory Source(1) = HardwareInventory
+          # Memory Source(1) = HardwareInventory
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
@@ -568,11 +568,11 @@ monitors:
         metrics:
           hw.memory.limit: mebiByte2Byte($column(6))
     collect:
-      _comment: Collection type
+      # Collection type
       type: multiInstance
       sources:
         source(1):
-          _comment: Memory Source(1) = HardwareInventory
+          # Memory Source(1) = HardwareInventory
           type: copy
           from: $monitors.enclosure.collect.sources.source(2)$
           computes:
@@ -582,8 +582,8 @@ monitors:
             entryKey: cacheMemoryDimms
             properties: /status;/status;
             separator: ;
-          - _comment: Translate API status into PatrolStatus
-            type: translate
+          # Translate API status into PatrolStatus
+          - type: translate
             column: 2
             translationTable: StatusTranslationTable
       mapping:
@@ -608,8 +608,8 @@ monitors:
           - type: json2csv
             entryKey: "/controllers[0]/netInterfaces"
             properties: /ethernet/physicalLocation/trayRef;/ethernet/physicalLocation/label;/ethernet/macAddr;/ethernet/linkStatus;
-          - _comment: add "eth - A-" to label
-            type: leftConcat
+          # add "eth - A-" to label
+          - type: leftConcat
             column: 3
             value: eth - A-
         source(2):
@@ -622,8 +622,8 @@ monitors:
           - type: json2csv
             entryKey: "controllers[1]/netInterfaces"
             properties: /ethernet/physicalLocation/trayRef;/ethernet/physicalLocation/label;/ethernet/macAddr;/ethernet/linkStatus;
-          - _comment: add "eth - B-" to label
-            type: leftConcat
+          # add "eth - B-" to label
+          - type: leftConcat
             column: 3
             value: eth - B-
         source(3):
@@ -640,7 +640,7 @@ monitors:
             column: 4
             value: ;MAC;;
         source(4):
-          _comment: Source(4) =  Fibre (hardware-inventory)
+          # Source(4) =  Fibre (hardware-inventory)
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
@@ -660,7 +660,7 @@ monitors:
             column: 6
             value: "Location: "
         source(5):
-          _comment: Source(5) = Controllers (hardware-inventory)
+          # Source(5) = Controllers (hardware-inventory)
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
@@ -680,11 +680,11 @@ monitors:
           leftKeyColumn: 2
           rightKeyColumn: 2
           computes:
-          - _comment: move tray ref to column 2 to match Ethernet table. (computes 1-3)
-            type: duplicateColumn
+          # move tray ref to column 2 to match Ethernet table. (computes 1-3)
+          - type: duplicateColumn
             column: 2
-          - _comment: jsonid;controllerID;controllerID;portname;portname;channel;Location;linkStatus;jsonid;controllerref;trayref;
-            type: replace
+          # jsonid;controllerID;controllerID;portname;portname;channel;Location;linkStatus;jsonid;controllerref;trayref;
+          - type: replace
             column: 3
             existingValue: Column(3)
             newValue: Column(12)
@@ -711,8 +711,8 @@ monitors:
           - $monitors.network.discovery.sources.source(3)$
           - $monitors.network.discovery.sources.source(6)$
           computes:
-          - _comment: JSONID;controller;tray;portname;WWN;portname;addresstype;linkStatus
-            type: translate
+          # JSONID;controller;tray;portname;WWN;portname;addresstype;linkStatus
+          - type: translate
             column: 8
             translationTable: LinkSpeedParameterTranslationTable
       mapping:
@@ -730,7 +730,7 @@ monitors:
           hw.parent.id: $column(2)
           name: $column(3)
     collect:
-      _comment: Collection type
+      # Collection type
       type: multiInstance
       sources:
         source(1):
@@ -754,13 +754,13 @@ monitors:
             entryKey: "controllers[1]/netInterfaces"
             properties: /ethernet/linkStatus;/ethernet/linkStatus;/ethernet/linkStatus;/ethernet/speed;
         source(3):
-          _comment: Source(3) = Union of Controller A and Controller B Ethernet devices.
+          # Source(3) = Union of Controller A and Controller B Ethernet devices.
           type: tableUnion
           tables:
           - $monitors.network.collect.sources.source(1)$
           - $monitors.network.collect.sources.source(2)$
         source(4):
-          _comment: Source(4) = fibrePorts (hardware-inventory)
+          # Source(4) = fibrePorts (hardware-inventory)
           type: copy
           from: $monitors.enclosure.collect.sources.source(2)$
           computes:
@@ -770,18 +770,18 @@ monitors:
             entryKey: /fibrePorts
             properties: /linkStatus;/linkStatus;/linkStatus;/speed;
         source(5):
-          _comment: Source(5) = Join Ethernet and Fibre tables
+          # Source(5) = Join Ethernet and Fibre tables
           type: tableUnion
           tables:
           - $monitors.network.collect.sources.source(3)$
           - $monitors.network.collect.sources.source(4)$
           computes:
-          - _comment: JSONID;PatrolStatus;linkStatus
-            type: translate
+          # JSONID;PatrolStatus;linkStatus
+          - type: translate
             column: 2
             translationTable: NetworkCardStatusTranslationTable
-          - _comment: JSONID;PatrolStatus;linkStatus
-            type: translate
+          # JSONID;PatrolStatus;linkStatus
+          - type: translate
             column: 3
             translationTable: LinkStatusTranslationTable
       mapping:
@@ -802,13 +802,13 @@ monitors:
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
-          - _comment: Use Json2Csv to process HTTP Response
-            type: json2csv
+          # Use Json2Csv to process HTTP Response
+          - type: json2csv
             entryKey: sfps
             properties: /physicalLocation/slot;/sfpType/vendorName;/sfpType/vendorPN;/sfpType/vendorSN;sfpType/sfpIdentType;../physicalLocation/trayRef;
             separator: ;
-          - _comment: Label with 'SFPS'
-            type: leftConcat
+          # Label with 'SFPS'
+          - type: leftConcat
             column: 2
             value: 'SFP - '
           - type: leftConcat
@@ -833,7 +833,7 @@ monitors:
           hw.parent.id: $column(7)
           name: "sprintf(\"%s: %s\", $column(6), $column(2))"
     collect:
-      _comment: Collection type
+      # Collection type
       type: multiInstance
       sources:
         source(1):
@@ -846,8 +846,8 @@ monitors:
             entryKey: sfps
             properties: /status;/status;
             separator: ;
-          - _comment: Translate API status into PatrolStatus
-            type: translate
+          # Translate API status into PatrolStatus
+          - type: translate
             column: 2
             translationTable: StatusTranslationTable
       mapping:
@@ -876,8 +876,8 @@ monitors:
             entryKey: /
             properties: /name;/raidLevel;/capacity;/currentControllerId;
             separator: ;
-          - _comment: strip raid from raidlevel
-            type: replace
+          # strip raid from raidlevel
+          - type: replace
             column: 3
             existingValue: raid
             newValue: ""
@@ -885,7 +885,7 @@ monitors:
             column: 1
             value: MSHW;
         source(2):
-          _comment: Source(2) = HardwareInventory
+          # Source(2) = HardwareInventory
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
@@ -915,11 +915,11 @@ monitors:
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(6))"
           name: "sprintf(\"%s (%s - %s)\", $column(3), $column(4), $column(5))"
     collect:
-      _comment: Collection type
+      # Collection type
       type: multiInstance
       sources:
         source(1):
-          _comment: Queries the REST interface for volume information
+          # Queries the REST interface for volume information
           type: http
           method: GET
           url: /devmgr/v2/storage-systems/1/volumes
@@ -931,8 +931,8 @@ monitors:
             entryKey: /
             properties: /name;/status;/status;
             separator: ;
-          - _comment: Translate API status into PatrolStatus
-            type: translate
+          # Translate API status into PatrolStatus
+          - type: translate
             column: 3
             translationTable: StatusTranslationTable
       mapping:

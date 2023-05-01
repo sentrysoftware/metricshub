@@ -62,8 +62,8 @@ connector:
     appliesTo:
     - OOB
     criteria:
-    - _comment: host should respond to Telnet/SSH the way described below
-      type: osCommand
+    # host should respond to Telnet/SSH the way described below
+    - type: osCommand
       commandLine: show /SYS -d properties
       expectedResult: product_name
 monitors:
@@ -82,7 +82,7 @@ monitors:
             separators: ;
             selectColumns: "2,3,4,5,6,7,8,9,10,11"
         source(2):
-          _comment: Take a copy for the enclosure instance table
+          # Take a copy for the enclosure instance table
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -91,8 +91,8 @@ monitors:
           - type: keepOnlyMatchingLines
             column: 1
             regExp: SYS$
-          - _comment: Replace SUN MICROSYSTEMS and SUN in vendor and model
-            type: replace
+          # Replace SUN MICROSYSTEMS and SUN in vendor and model
+          - type: replace
             column: 3
             existingValue: SUN MICROSYSTEMS
             newValue: SUN
@@ -100,8 +100,8 @@ monitors:
             column: 2
             existingValue: 'SUN '
             newValue: ""
-          - _comment: Replace Oracle Corporation and Oracle in vendor and model
-            type: replace
+          # Replace Oracle Corporation and Oracle in vendor and model
+          - type: replace
             column: 3
             existingValue: Oracle Corporation
             newValue: Oracle
@@ -132,7 +132,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Main Collect via SSH
+          # Main Collect via SSH
           type: osCommand
           commandLine: show /SYS -d properties -l all
           computes:
@@ -144,7 +144,7 @@ monitors:
             separators: ;
             selectColumns: "2,5,6,11"
         source(2):
-          _comment: Take a copy for the enclosure value table
+          # Take a copy for the enclosure value table
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -191,7 +191,7 @@ monitors:
             column: 5
             regExp: .
         source(2):
-          _comment: Temperature discovery (Numerical Sensors)
+          # Temperature discovery (Numerical Sensors)
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -230,7 +230,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Take a copy for the enclosure value table
+          # Take a copy for the enclosure value table
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -277,8 +277,8 @@ monitors:
           - type: keepOnlyMatchingLines
             column: 10
             regExp: .
-          - _comment: Thresholds  Volts  to  Millivolts
-            type: multiply
+          # Thresholds  Volts  to  Millivolts
+          - type: multiply
             column: 6
             value: 1000
           - type: multiply
@@ -291,7 +291,7 @@ monitors:
             column: 9
             value: 1000
         source(2):
-          _comment: Temperature discovery (Numerical Sensors)
+          # Temperature discovery (Numerical Sensors)
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -330,7 +330,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Take a copy for the enclosure value table
+          # Take a copy for the enclosure value table
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -382,8 +382,8 @@ monitors:
           - type: keepOnlyMatchingLines
             column: 3
             regExp: .
-          - _comment: Replace A and SUN in vendor and model
-            type: replace
+          # Replace A and SUN in vendor and model
+          - type: replace
             column: 3
             existingValue: ADVANCED MICRO DEVICES
             newValue: AMD
@@ -407,7 +407,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Take a copy for the Enclosure value table
+          # Take a copy for the Enclosure value table
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -469,7 +469,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Take a copy for the Enclosure value table
+          # Take a copy for the Enclosure value table
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -517,7 +517,7 @@ monitors:
             existingValue: /SERVICE
             newValue: ""
         source(2):
-          _comment: Take a copy for the Enclosure value table
+          # Take a copy for the Enclosure value table
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -560,7 +560,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Take a copy for the Enclosure value table
+          # Take a copy for the Enclosure value table
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -581,7 +581,7 @@ monitors:
             existingValue: /FAIL
             newValue: ""
         source(2):
-          _comment: Take another copy of the Enclosure value table
+          # Take another copy of the Enclosure value table
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:

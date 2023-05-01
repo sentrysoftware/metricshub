@@ -24,16 +24,16 @@ connector:
     appliesTo:
     - RS6000
     criteria:
-      # OS should be RS6000 (for AIX, whatever version)
+    # OS should be RS6000 (for AIX, whatever version)
     - type: deviceType
       keep:
       - RS6000
-    - _comment: The uesensor utility have to be present
-      type: osCommand
+    # The uesensor utility have to be present
+    - type: osCommand
       commandLine: /bin/ls /usr/lpp/diagnostics/bin/uesensor
       expectedResult: ^/usr/lpp/diagnostics/bin/uesensor$
-    - _comment: And uesensor must be returning something interesting
-      type: osCommand
+    # And uesensor must be returning something interesting
+    - type: osCommand
       commandLine: /usr/lpp/diagnostics/bin/uesensor -a
       expectedResult: '^3 \|^9001 \|^9002 \|^9004 '
 monitors:
@@ -41,14 +41,14 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = uesensor -a|grep "^3 " (keep only temperatures)
+          # Source(1) = uesensor -a|grep "^3 " (keep only temperatures)
           type: osCommand
           commandLine: /usr/lpp/diagnostics/bin/uesensor -a
           keep: '^3 '
           separators: ' '
           selectColumns: "2,5"
       mapping:
-        _comment: Instance Table = Source(1)
+        # Instance Table = Source(1)
         source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -59,7 +59,7 @@ monitors:
           hw.temperature.limit{limit_type="high.degraded"}: 55
           hw.temperature.limit{limit_type="high.critical"}: 65
     collect:
-      _comment: Collect type = multi-instance (one pass for all temperatures)
+      # Collect type = multi-instance (one pass for all temperatures)
       type: multiInstance
       sources:
         source(1):
@@ -70,7 +70,7 @@ monitors:
           separators: ' '
           selectColumns: "2,4"
       mapping:
-        _comment: ValueTable = Source(1) (easy enough)
+        # ValueTable = Source(1) (easy enough)
         source: $monitors.temperature.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -79,14 +79,14 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = uesensor -a|grep "^9001 " (keep only fans)
+          # Source(1) = uesensor -a|grep "^9001 " (keep only fans)
           type: osCommand
           commandLine: /usr/lpp/diagnostics/bin/uesensor -a
           keep: '^9001 '
           separators: ' '
           selectColumns: "2,5"
       mapping:
-        _comment: Instance Table = Source(1)
+        # Instance Table = Source(1)
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -96,7 +96,7 @@ monitors:
           hw.fan.speed.limit{limit_type="low.degraded"}: 1000
           hw.fan.speed.limit{limit_type="low.critical"}: 100
     collect:
-      _comment: Collect type = multi-instance (one pass for all fans)
+      # Collect type = multi-instance (one pass for all fans)
       type: multiInstance
       sources:
         source(1):
@@ -107,7 +107,7 @@ monitors:
           separators: ' '
           selectColumns: "2,4"
       mapping:
-        _comment: ValueTable = Source(1) (easy enough)
+        # ValueTable = Source(1) (easy enough)
         source: $monitors.fan.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -116,14 +116,14 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = uesensor -a|grep "^9002 " (keep only voltages)
+          # Source(1) = uesensor -a|grep "^9002 " (keep only voltages)
           type: osCommand
           commandLine: /usr/lpp/diagnostics/bin/uesensor -a
           keep: '^9002 '
           separators: ' '
           selectColumns: "2,5"
       mapping:
-        _comment: Instance Table = Source(1)
+        # Instance Table = Source(1)
         source: $monitors.voltage.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -131,7 +131,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
     collect:
-      _comment: Collect type = multi-instance (one pass for all voltages)
+      # Collect type = multi-instance (one pass for all voltages)
       type: multiInstance
       sources:
         source(1):
@@ -158,7 +158,7 @@ monitors:
             column: 3
             translationTable: VoltageStatusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1) (easy enough)
+        # ValueTable = Source(1) (easy enough)
         source: $monitors.voltage.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -170,14 +170,14 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = uesensor -a|grep "^9004 " (keep only power supplies)
+          # Source(1) = uesensor -a|grep "^9004 " (keep only power supplies)
           type: osCommand
           commandLine: /usr/lpp/diagnostics/bin/uesensor -a
           keep: '^9004 '
           separators: ' '
           selectColumns: "2,5"
       mapping:
-        _comment: Instance Table = Source(1)
+        # Instance Table = Source(1)
         source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -185,7 +185,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
     collect:
-      _comment: Collect type = multi-instance (one pass for all power supplies)
+      # Collect type = multi-instance (one pass for all power supplies)
       type: multiInstance
       sources:
         source(1):
@@ -212,7 +212,7 @@ monitors:
             column: 3
             translationTable: PowerSupplyStatusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1) (easy enough)
+        # ValueTable = Source(1) (easy enough)
         source: $monitors.power_supply.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:

@@ -19,8 +19,8 @@ connector:
     - type: deviceType
       keep:
       - NT
-    - _comment: The root\LibreHardwareMonitor must be available
-      type: wmi
+    # The root\LibreHardwareMonitor must be available
+    - type: wmi
       query: SELECT Name FROM WMINET_InstrumentedAssembly
       namespace: root\LibreHardwareMonitor
 monitors:
@@ -196,7 +196,7 @@ monitors:
           hw.parent.id: PC
           name: "sprintf(\"%s, $column(1))"
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -240,7 +240,7 @@ monitors:
           leftKeyColumn: 3
           rightKeyColumn: 1
           computes:
-            # SensorIdentifier, SensorName, SensorParent, HardwareIdentifier, HardwareName, HardwareType
+          # SensorIdentifier, SensorName, SensorParent, HardwareIdentifier, HardwareName, HardwareType
           - type: leftConcat
             column: 5
             value: ' - '
@@ -306,12 +306,12 @@ monitors:
           rightKeyColumn: 2
           defaultRightLine: ;;;;
           computes:
-          - _comment: If CPUPowerConsumption < 1 then disable PowerConsumption parameter
-            type: extract
+          # If CPUPowerConsumption < 1 then disable PowerConsumption parameter
+          - type: extract
             column: 6
             subColumn: 1
             subSeparators: .
-            # Replace 0 by empty: ParameterActivation must be empty to be disabled
+          # Replace 0 by empty: ParameterActivation must be empty to be disabled
           - type: replace
             column: 6
             existingValue: 0
@@ -346,7 +346,7 @@ monitors:
             separators: ;
             selectColumns: "2,3"
         source(2):
-          _comment: SensorName;CpuDeviceID;CPUPowerConsumption
+          # SensorName;CpuDeviceID;CPUPowerConsumption
           type: wmi
           query: "SELECT Name, Parent, Value FROM Sensor where SensorType='Power' and Name = 'CPU Package' or Name ='Package'"
           namespace: root\LibreHardwareMonitor
@@ -513,7 +513,7 @@ monitors:
           query: "SELECT Name, Parent, Value, SensorType FROM Sensor"
           namespace: root\LibreHardwareMonitor
           computes:
-            # Name, gpuId, Value, SensorType
+          # Name, gpuId, Value, SensorType
           - type: awk
             script: EmbeddedFile(1)
             keep: ^MSHW;

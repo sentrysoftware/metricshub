@@ -175,8 +175,8 @@ connector:
       # We are sure to have a cisco
     - type: snmpGetNext
       oid: 1.3.6.1.4.1.9.9.719.1.41.9
-    - _comment: Now make sure it's a C series
-      type: snmpGet
+    # Now make sure it's a C series
+    - type: snmpGet
       oid: 1.3.6.1.2.1.1.1.0
       expectedResult: Cisco Integrated Management Controller
 monitors:
@@ -219,8 +219,8 @@ monitors:
           oid: 1.3.6.1.4.1.9.9.719.1.9.35.1
           selectColumns: "2,32,47,42,51,45"
           computes:
-          - _comment: Remove lines where cucsComputeRackUnitPresence = 1(Empty) and 11 (Missing)
-            type: excludeMatchingLines
+          # Remove lines where cucsComputeRackUnitPresence = 1(Empty) and 11 (Missing)
+          - type: excludeMatchingLines
             column: 6
             valueList: "1,11"
             # Remove SYS/
@@ -299,7 +299,7 @@ monitors:
           vendor: Cisco
           name: "sprintf(\"%s (%s %s)\", \"CiscoUCS-Server\", \"Cisco\", $column(5))"
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
@@ -387,12 +387,12 @@ monitors:
           oid: 1.3.6.1.4.1.9.9.719.1.15.12.1
           selectColumns: "2,13"
           computes:
-          - _comment: Remove lines where cucsEquipmentFanPresence = empty string
-            type: keepOnlyMatchingLines
+          # Remove lines where cucsEquipmentFanPresence = empty string
+          - type: keepOnlyMatchingLines
             column: 2
             regExp: .
-          - _comment: Remove lines where cucsEquipmentFanPresence = 1(Empty) and 11 (Missing)
-            type: excludeMatchingLines
+          # Remove lines where cucsEquipmentFanPresence = 1(Empty) and 11 (Missing)
+          - type: excludeMatchingLines
             column: 2
             valueList: "1,11"
             # Remove SYS/
@@ -402,7 +402,7 @@ monitors:
             existingValue: sys/
             newValue: ""
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -410,7 +410,7 @@ monitors:
           hw.parent.type: enclosure
           name: $column(1)
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
@@ -420,8 +420,8 @@ monitors:
           oid: 1.3.6.1.4.1.9.9.719.1.15.12.1
           selectColumns: "2,9"
           computes:
-          - _comment: Do not collect for removed devices
-            type: excludeMatchingLines
+          # Do not collect for removed devices
+          - type: excludeMatchingLines
             column: 2
             valueList: 6
             # Remove SYS/
@@ -445,7 +445,7 @@ monitors:
             column: 3
             translationTable: statusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.fan.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -462,12 +462,12 @@ monitors:
           oid: 1.3.6.1.4.1.9.9.719.1.15.56.1
           selectColumns: "2,6,13,12,11"
           computes:
-          - _comment: Remove lines where cucsEquipmentPresence = empty string
-            type: keepOnlyMatchingLines
+          # Remove lines where cucsEquipmentPresence = empty string
+          - type: keepOnlyMatchingLines
             column: 5
             regExp: .
-          - _comment: Remove lines where cucsEquipmentPsuPresence = 1(Empty) and 11 (Missing)
-            type: excludeMatchingLines
+          # Remove lines where cucsEquipmentPsuPresence = 1(Empty) and 11 (Missing)
+          - type: excludeMatchingLines
             column: 5
             valueList: "1,11"
             # Remove SYS/
@@ -488,7 +488,7 @@ monitors:
             column: 4
             value: "Revision: "
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -497,7 +497,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s, $column(1))"
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
@@ -507,8 +507,8 @@ monitors:
           oid: 1.3.6.1.4.1.9.9.719.1.15.56.1
           selectColumns: "2,7"
           computes:
-          - _comment: Do not collect for removed devices
-            type: excludeMatchingLines
+          # Do not collect for removed devices
+          - type: excludeMatchingLines
             column: 2
             valueList: 6
             # Remove SYS/
@@ -532,7 +532,7 @@ monitors:
             column: 3
             translationTable: statusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.power_supply.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -549,8 +549,8 @@ monitors:
           oid: 1.3.6.1.4.1.9.9.719.1.45.4.1
           selectColumns: "2,12,13,14,10,7"
           computes:
-          - _comment: Remove lines where cucsStorageLocalDiskPresence = empty string
-            type: keepOnlyMatchingLines
+          # Remove lines where cucsStorageLocalDiskPresence = empty string
+          - type: keepOnlyMatchingLines
             column: 5
             regExp: .
           - type: excludeMatchingLines
@@ -582,7 +582,7 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(3)
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
@@ -592,8 +592,8 @@ monitors:
           oid: 1.3.6.1.4.1.9.9.719.1.45.4.1
           selectColumns: "2,9"
           computes:
-          - _comment: Do not collect for removed devices
-            type: excludeMatchingLines
+          # Do not collect for removed devices
+          - type: excludeMatchingLines
             column: 2
             valueList: 6
             # Remove SYS/
@@ -617,7 +617,7 @@ monitors:
             column: 3
             translationTable: statusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.physical_disk.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -634,12 +634,12 @@ monitors:
           oid: 1.3.6.1.4.1.9.9.719.1.41.9.1
           selectColumns: "2,8,17,21,13"
           computes:
-          - _comment: Remove lines where Device Presence = empty string
-            type: keepOnlyMatchingLines
+          # Remove lines where Device Presence = empty string
+          - type: keepOnlyMatchingLines
             column: 5
             regExp: .
-          - _comment: Remove lines where cucsProcessorUnitPresence = 1(Empty) and 11 (Missing)
-            type: excludeMatchingLines
+          # Remove lines where cucsProcessorUnitPresence = 1(Empty) and 11 (Missing)
+          - type: excludeMatchingLines
             column: 5
             valueList: "1,11"
             # Remove SYS/
@@ -649,7 +649,7 @@ monitors:
             existingValue: sys/
             newValue: ""
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.cpu.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -661,7 +661,7 @@ monitors:
         metrics:
           hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(3))
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
@@ -671,8 +671,8 @@ monitors:
           oid: 1.3.6.1.4.1.9.9.719.1.41.9.1
           selectColumns: "2,9"
           computes:
-          - _comment: Do not collect for removed devices
-            type: excludeMatchingLines
+          # Do not collect for removed devices
+          - type: excludeMatchingLines
             column: 2
             valueList: 6
             # Remove SYS/
@@ -696,7 +696,7 @@ monitors:
             column: 3
             translationTable: statusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.cpu.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -713,8 +713,8 @@ monitors:
           oid: 1.3.6.1.4.1.9.9.719.1.30.11.1
           selectColumns: "2,11,17,6,19,21,23"
           computes:
-          - _comment: Remove lines where cucsStorageLocalDiskPresence = empty string
-            type: keepOnlyMatchingLines
+          # Remove lines where cucsStorageLocalDiskPresence = empty string
+          - type: keepOnlyMatchingLines
             column: 3
             regExp: .
             # Exclude  "Missing" memory modules
@@ -756,7 +756,7 @@ monitors:
         metrics:
           hw.memory.limit: mebiByte2Byte($column(4))
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
@@ -766,8 +766,8 @@ monitors:
           oid: 1.3.6.1.4.1.9.9.719.1.30.11.1
           selectColumns: "2,13"
           computes:
-          - _comment: Do not collect for removed devices
-            type: excludeMatchingLines
+          # Do not collect for removed devices
+          - type: excludeMatchingLines
             column: 2
             valueList: 6
             # Remove SYS/
@@ -791,7 +791,7 @@ monitors:
             column: 3
             translationTable: statusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.memory.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -808,12 +808,12 @@ monitors:
           oid: 1.3.6.1.4.1.9.9.719.1.45.11.1
           selectColumns: "2,7,14,10"
           computes:
-          - _comment: Remove lines where cucsStorageRaidBatteryPresence = empty string
-            type: keepOnlyMatchingLines
+          # Remove lines where cucsStorageRaidBatteryPresence = empty string
+          - type: keepOnlyMatchingLines
             column: 4
             regExp: .
-          - _comment: Remove lines where cucsStorageRaidBatteryPresence = 1(Empty) and 11 (Missing)
-            type: excludeMatchingLines
+          # Remove lines where cucsStorageRaidBatteryPresence = 1(Empty) and 11 (Missing)
+          - type: excludeMatchingLines
             column: 4
             valueList: "1,11"
             # Remove SYS/
@@ -834,7 +834,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s %s)\", $column(1), $column(3), $column(2))"
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
@@ -844,8 +844,8 @@ monitors:
           oid: 1.3.6.1.4.1.9.9.719.1.45.11.1
           selectColumns: "2,9"
           computes:
-          - _comment: Do not collect for removed devices
-            type: excludeMatchingLines
+          # Do not collect for removed devices
+          - type: excludeMatchingLines
             column: 2
             valueList: 6
             # Remove SYS/
@@ -869,7 +869,7 @@ monitors:
             column: 3
             translationTable: statusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.battery.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -886,12 +886,12 @@ monitors:
           oid: 1.3.6.1.4.1.9.9.719.1.45.1.1
           selectColumns: "2,5,14,18,13,12"
           computes:
-          - _comment: Remove lines where DevicePresence = empty string
-            type: keepOnlyMatchingLines
+          # Remove lines where DevicePresence = empty string
+          - type: keepOnlyMatchingLines
             column: 6
             regExp: .
-          - _comment: Remove lines where cucsStorageControllerPresence = 1(Empty) and 11 (Missing)
-            type: excludeMatchingLines
+          # Remove lines where cucsStorageControllerPresence = 1(Empty) and 11 (Missing)
+          - type: excludeMatchingLines
             column: 6
             valueList: "1,11"
             # Remove SYS/
@@ -913,7 +913,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(1), $column(2))"
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
@@ -923,8 +923,8 @@ monitors:
           oid: 1.3.6.1.4.1.9.9.719.1.45.1.1
           selectColumns: "2,6"
           computes:
-          - _comment: Do not collect for removed devices
-            type: excludeMatchingLines
+          # Do not collect for removed devices
+          - type: excludeMatchingLines
             column: 2
             valueList: 6
             # Remove SYS/
@@ -948,7 +948,7 @@ monitors:
             column: 3
             translationTable: statusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.disk_controller.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -965,12 +965,12 @@ monitors:
           oid: 1.3.6.1.4.1.9.9.719.1.45.35.1
           selectColumns: "2,17"
           computes:
-          - _comment: Remove lines where Device Presence = empty string
-            type: keepOnlyMatchingLines
+          # Remove lines where Device Presence = empty string
+          - type: keepOnlyMatchingLines
             column: 2
             regExp: .
-          - _comment: Remove lines where cucsStorageControllerPresence = 1(Empty) and 11 (Missing)
-            type: excludeMatchingLines
+          # Remove lines where cucsStorageControllerPresence = 1(Empty) and 11 (Missing)
+          - type: excludeMatchingLines
             column: 2
             valueList: "1,11"
             # Remove SYS/
@@ -980,7 +980,7 @@ monitors:
             existingValue: sys/
             newValue: ""
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.other_device.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -989,7 +989,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s: %s\", \"FlexFlash\", $column(1))"
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
@@ -999,8 +999,8 @@ monitors:
           oid: 1.3.6.1.4.1.9.9.719.1.45.35.1
           selectColumns: "2,10"
           computes:
-          - _comment: Do not collect for removed devices
-            type: excludeMatchingLines
+          # Do not collect for removed devices
+          - type: excludeMatchingLines
             column: 2
             valueList: 6
             # Remove SYS/
@@ -1024,7 +1024,7 @@ monitors:
             column: 3
             translationTable: statusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.other_device.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -1116,7 +1116,7 @@ monitors:
           hw.temperature.limit{limit_type="high.degraded"}: $column(3)
           hw.temperature.limit{limit_type="high.critical"}: $column(4)
     collect:
-      _comment: Collect type = mono-instance
+      # Collect type = mono-instance
       type: monoInstance
       sources:
         source(1):

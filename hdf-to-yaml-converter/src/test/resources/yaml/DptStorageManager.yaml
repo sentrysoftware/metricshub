@@ -72,7 +72,7 @@ monitors:
           oid: 1.3.6.1.4.1.1597.1.2.1.1
           selectColumns: "ID,1,2,3,4,32"
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.disk_controller.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -105,11 +105,11 @@ monitors:
             column: 2
             subColumn: 1
             subSeparators: .
-          - _comment: Keep only device type = 1 (disk)
-            type: keepOnlyMatchingLines
+          # Keep only device type = 1 (disk)
+          - type: keepOnlyMatchingLines
             column: 8
             valueList: 1
-            # Keep only device level 0 (= physical disks, not logical)
+          # Keep only device level 0 (= physical disks, not logical)
           - type: keepOnlyMatchingLines
             column: 3
             valueList: 0
@@ -119,7 +119,7 @@ monitors:
             column: 7
             value: 1048576
       mapping:
-        _comment: Instance Table = Source(1)
+        # Instance Table = Source(1)
         source: $monitors.physical_disk.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -161,7 +161,7 @@ monitors:
             column: 4
             translationTable: PhysicalDiskSMARTTranslationTable
       mapping:
-        _comment: The collect table = Source(1)
+        # The collect table = Source(1)
         source: $monitors.physical_disk.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -192,11 +192,11 @@ monitors:
             column: 2
             subColumn: 1
             subSeparators: .
-          - _comment: Keep only device type = 1 (disk)
-            type: keepOnlyMatchingLines
+          # Keep only device type = 1 (disk)
+          - type: keepOnlyMatchingLines
             column: 5
             valueList: 1
-            # Keep only device level 1 and 2 (= logical disks, not physical)
+          # Keep only device level 1 and 2 (= logical disks, not physical)
           - type: keepOnlyMatchingLines
             column: 3
             valueList: "1,2"
@@ -212,12 +212,12 @@ monitors:
           oid: 1.3.6.1.4.1.1597.1.5.1.1
           selectColumns: "ID,1"
           computes:
-          - _comment: Keep only valid RAIDType values
-            type: keepOnlyMatchingLines
+          # Keep only valid RAIDType values
+          - type: keepOnlyMatchingLines
             column: 2
             valueList: "3,4,5,6,7,8"
-          - _comment: Translate the RAIDType into a RAID Level number
-            type: translate
+          # Translate the RAIDType into a RAID Level number
+          - type: translate
             column: 2
             translationTable: RAIDLevelTranslationTable
         source(3):
@@ -229,7 +229,7 @@ monitors:
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
-        _comment: Instance Table = Source(3)
+        # Instance Table = Source(3)
         source: $monitors.logical_disk.discovery.sources.source(3)$
         attributes:
           id: $column(1)
@@ -264,7 +264,7 @@ monitors:
             column: 3
             translationTable: DiskStatusInformationTranslationTable
       mapping:
-        _comment: The collect table = Source(1)
+        # The collect table = Source(1)
         source: $monitors.logical_disk.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:

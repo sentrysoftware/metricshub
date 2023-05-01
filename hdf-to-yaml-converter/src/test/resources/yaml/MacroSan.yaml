@@ -140,8 +140,8 @@ connector:
     appliesTo:
     - Storage
     criteria:
-    - _comment: Verify that there are MacroSan Storage Processors
-      type: snmpGetNext
+    # Verify that there are MacroSan Storage Processors
+    - type: snmpGetNext
       oid: 1.3.6.1.4.1.35904.1.2.2.1.2.1
 monitors:
   enclosure:
@@ -207,7 +207,7 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(5)
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -232,7 +232,7 @@ monitors:
             column: 3
             translationTable: diskStatusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.physical_disk.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -279,7 +279,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(2), $column(3))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -304,7 +304,7 @@ monitors:
             column: 3
             translationTable: lunStatusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.logical_disk.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -330,7 +330,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s, $column(1))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -355,7 +355,7 @@ monitors:
             column: 3
             translationTable: moduleStatusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.power_supply.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -381,7 +381,7 @@ monitors:
           hw.parent.type: enclosure
           name: $column(1)
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -406,7 +406,7 @@ monitors:
             column: 3
             translationTable: moduleStatusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.fan.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -438,7 +438,7 @@ monitors:
           hw.parent.type: enclosure
           name: $column(1)
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -463,7 +463,7 @@ monitors:
             column: 3
             translationTable: batteryStatusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.battery.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -490,7 +490,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s: %s\", \"Controller\", $column(2))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):

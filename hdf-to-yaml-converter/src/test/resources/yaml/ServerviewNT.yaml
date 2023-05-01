@@ -141,7 +141,7 @@ monitors:
             column: 3
             translationTable: EnclosureTypeTranslationTable
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.enclosure.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -151,7 +151,7 @@ monitors:
           serial_number: $column(4)
           name: "sprintf(\"%s (%s %s - %s)\", $column(1), \"Fujitsu-Siemens\", $column(2), $column(3))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -161,8 +161,8 @@ monitors:
           oid: 1.3.6.1.4.1.231.2.10.2.2.5.10.3.1
           selectColumns: "1,25,26"
           computes:
-          - _comment: Multiply cabinetFrontDoorStatus by 4
-            type: multiply
+          # Multiply cabinetFrontDoorStatus by 4
+          - type: multiply
             column: 2
             value: 4
             # Add cabinetHousingOpenStatus to cabinetFrontDoorStatus
@@ -176,7 +176,7 @@ monitors:
             column: 2
             translationTable: IntrusionCodeTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.enclosure.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -212,7 +212,7 @@ monitors:
             existingValue: -1
             newValue: ""
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -224,21 +224,21 @@ monitors:
           hw.temperature.limit{limit_type="high.degraded"}: $column(5)
           hw.temperature.limit{limit_type="high.critical"}: $column(6)
     collect:
-      _comment: Collect type is mono-instance
+      # Collect type is mono-instance
       type: monoInstance
       sources:
         source(1):
-          _comment: Source(1) = snmp get directly on the tempCurrentValue OID
+          # Source(1) = snmp get directly on the tempCurrentValue OID
           type: snmpGet
           oid: 1.3.6.1.4.1.231.2.10.2.2.5.2.1.1.11.%Temperature.Collect.DeviceID%
           computes:
-            # Replaces collect values of 4294967295 with blank.  This will result in a no collect value, but will not generate any alarms
+          # Replaces collect values of 4294967295 with blank.  This will result in a no collect value, but will not generate any alarms
           - type: replace
             column: 1
             existingValue: 4294967295
             newValue: ""
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.temperature.collect.sources.source(1)$
         metrics:
           hw.temperature: $column(1)
@@ -310,7 +310,7 @@ monitors:
           hw.parent.id: $column(4)
           name: $column(1)
     collect:
-      _comment: Collect type is "multi-instance"
+      # Collect type is "multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -345,8 +345,8 @@ monitors:
           - type: rightConcat
             column: 4
             value: '|'
-          - _comment: DeviceID;status;statusInformation;fanSpeed|status
-            type: rightConcat
+          # DeviceID;status;statusInformation;fanSpeed|status
+          - type: rightConcat
             column: 4
             value: Column(2)
             # Add | to the left of fanSpeed to ensure that we'll be removing only
@@ -368,7 +368,7 @@ monitors:
             subColumn: 2
             subSeparators: '|'
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.fan.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -386,12 +386,12 @@ monitors:
           oid: 1.3.6.1.4.1.231.2.10.2.2.5.11.4.1
           selectColumns: "ID,3,4,7,5,6,1"
           computes:
-          - _comment: Remove voltages that are equal to -1
-            type: excludeMatchingLines
+          # Remove voltages that are equal to -1
+          - type: excludeMatchingLines
             column: 4
             valueList: -1
-          - _comment: Exclude voltages whose status is 1 (unknown) or 2 (not-available)
-            type: excludeMatchingLines
+          # Exclude voltages whose status is 1 (unknown) or 2 (not-available)
+          - type: excludeMatchingLines
             column: 2
             valueList: "1,2"
             # Duplicate the thresholds value
@@ -420,22 +420,22 @@ monitors:
             column: 8
             bitList: 15
             translationTable: VoltageStrongestBitCheckTranslationTable
-          - _comment: Now convert the value from the unsigned integer to a signed integer
-            type: subtract
+          # Now convert the value from the unsigned integer to a signed integer
+          - type: subtract
             column: 5
             value: Column(6)
           - type: subtract
             column: 7
             value: Column(8)
-          - _comment: Convert the voltage values from 100th of volts to milli-volts
-            type: multiply
+          # Convert the voltage values from 100th of volts to milli-volts
+          - type: multiply
             column: 5
             value: 10
           - type: multiply
             column: 7
             value: 10
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.voltage.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -447,7 +447,7 @@ monitors:
           hw.voltage.limit{limit_type="low.critical"}: $column(5)
           hw.voltage.limit{limit_type="high.degraded"}: $column(7)
     collect:
-      _comment: Collect type = "multi instance"
+      # Collect type = "multi instance
       type: multiInstance
       sources:
         source(1):
@@ -467,21 +467,21 @@ monitors:
             column: 3
             existingValue: '-'
             newValue: ""
-          - _comment: Check if the 16th strongest bit is set
-            type: perBitTranslation
+          # Check if the 16th strongest bit is set
+          - type: perBitTranslation
             column: 3
             bitList: 15
             translationTable: VoltageStrongestBitCheckTranslationTable
-          - _comment: Now convert the value from the unsigned integer to a signed integer
-            type: subtract
+          # Now convert the value from the unsigned integer to a signed integer
+          - type: subtract
             column: 2
             value: Column(3)
-          - _comment: Convert the voltage value from 100th of volts to millivolts
-            type: multiply
+          # Convert the voltage value from 100th of volts to millivolts
+          - type: multiply
             column: 2
             value: 10
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.voltage.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -496,7 +496,7 @@ monitors:
           oid: 1.3.6.1.4.1.231.2.10.2.2.5.11.2.1
           selectColumns: "ID,1,4"
       mapping:
-        _comment: InstanceTable = Source(1) (that was an easy one!)
+        # InstanceTable = Source(1) (that was an easy one!)
         source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -505,7 +505,7 @@ monitors:
           hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
     collect:
-      _comment: Collect type is "mono-instance"
+      # Collect type is "mono-instance
       type: monoInstance
       sources:
         source(1):
@@ -529,7 +529,7 @@ monitors:
             column: 2
             translationTable: PowerSupplyStatusInformationTranslationTable
       mapping:
-        _comment: Collect table = source(1)
+        # Collect table = source(1)
         source: $monitors.power_supply.collect.sources.source(1)$
         metrics:
           hw.status{hw.type="power_supply"}: $column(1)
@@ -565,7 +565,7 @@ monitors:
             column: 5
             value: "Location: "
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.memory.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -576,7 +576,7 @@ monitors:
         metrics:
           hw.memory.limit: mebiByte2Byte($column(3))
     collect:
-      _comment: Collect type is "multi-instance"
+      # Collect type is "multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -600,13 +600,13 @@ monitors:
           - type: translate
             column: 3
             translationTable: MemoryModuleStatusInformationTranslationTable
-            # ErrorCount: Replace 2^32 by 0
+          # ErrorCount: Replace 2^32 by 0
           - type: replace
             column: 4
             existingValue: 4294967295
             newValue: 0
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.memory.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -641,12 +641,12 @@ monitors:
             column: 2
             existingValue: -1
             newValue: ""
-            # Add \"Socket: \" to the Socket column
+          # Add \"Socket: \" to the Socket column
           - type: leftConcat
             column: 5
             value: "Socket: "
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.cpu.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -658,7 +658,7 @@ monitors:
         metrics:
           hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(2))
     collect:
-      _comment: Collect type is "mono-instance" (one collect for each instance)
+      # Collect type is "mono-instance" (one collect for each instance)
       type: monoInstance
       sources:
         source(1):
@@ -682,7 +682,7 @@ monitors:
             column: 2
             translationTable: CPUStatusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.cpu.collect.sources.source(1)$
         metrics:
           hw.status{hw.type="cpu"}: $column(1)

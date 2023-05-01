@@ -95,7 +95,7 @@ monitors:
           - $monitors.enclosure.discovery.sources.source(3)$
           - $monitors.enclosure.discovery.sources.source(5)$
         source(7):
-          _comment: SensorID;SensorType;SensorClass;SensorID;Status;SensorID;CurrentValue;LowerNC;UpperNC;LowerC;UpperC;
+          # SensorID;SensorType;SensorClass;SensorID;Status;SensorID;CurrentValue;LowerNC;UpperNC;LowerC;UpperC;
           type: tableJoin
           leftTable: $monitors.enclosure.discovery.sources.source(6)$
           rightTable: $monitors.enclosure.discovery.sources.source(4)$
@@ -157,7 +157,7 @@ monitors:
           info: "join($column(10), $column(4), \" \")"
           name: "sprintf(\"%s (%s %s)\", $column(3), $column(6), $column(7))"
     collect:
-      _comment: Collect type is mono-instance
+      # Collect type is mono-instance
       type: multiInstance
       sources:
         source(1):
@@ -216,7 +216,7 @@ monitors:
           - $monitors.enclosure.collect.sources.source(3)$
           - $monitors.enclosure.collect.sources.source(5)$
         source(7):
-          _comment: SensorID;SensorType;SensorClass;SensorID;Status;SensorID;CurrentValue;LowerNC;UpperNC;LowerC;UpperC;Exponent;
+          # SensorID;SensorType;SensorClass;SensorID;Status;SensorID;CurrentValue;LowerNC;UpperNC;LowerC;UpperC;Exponent;
           type: tableJoin
           leftTable: $monitors.enclosure.collect.sources.source(6)$
           rightTable: $monitors.enclosure.collect.sources.source(4)$
@@ -287,7 +287,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: copy
           from: $monitors.enclosure.discovery.sources.source(9)$
           computes:
@@ -310,7 +310,7 @@ monitors:
           hw.temperature.limit{limit_type="high.degraded"}: $column(5)
           hw.temperature.limit{limit_type="high.critical"}: $column(6)
     collect:
-      _comment: Collect type is mono-instance
+      # Collect type is mono-instance
       type: multiInstance
       sources:
         source(1):
@@ -348,7 +348,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: copy
           from: $monitors.enclosure.discovery.sources.source(9)$
           computes:
@@ -371,7 +371,7 @@ monitors:
           hw.fan.speed.limit{limit_type="low.degraded"}: $column(8)
           hw.fan.speed.limit{limit_type="low.critical"}: $column(9)
     collect:
-      _comment: Collect type is mono-instance
+      # Collect type is mono-instance
       type: multiInstance
       sources:
         source(1):
@@ -409,7 +409,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: copy
           from: $monitors.enclosure.discovery.sources.source(9)$
           computes:
@@ -418,11 +418,11 @@ monitors:
           - type: keepOnlyMatchingLines
             column: 1
             valueList: MSHW_PSU
-            # MSHW_PSU;SensorID;Name;SerialNumber: <serialNumber>;Manufacturer;Model;Status;StatusInformation;SensorList;
+          # MSHW_PSU;SensorID;Name;SerialNumber: <serialNumber>;Manufacturer;Model;Status;StatusInformation;SensorList;
           - type: leftConcat
             column: 4
             value: "Serial Number: "
-            # MSHW_PSU;SensorID;Name;SerialNumber: <serialNumber>;Manufacturer;Model: <Model>;Status;StatusInformation;SensorList;
+          # MSHW_PSU;SensorID;Name;SerialNumber: <serialNumber>;Manufacturer;Model: <Model>;Status;StatusInformation;SensorList;
           - type: leftConcat
             column: 6
             value: "Model: "
@@ -437,7 +437,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s, $column(3))"
     collect:
-      _comment: Collect type is mono-instance
+      # Collect type is mono-instance
       type: multiInstance
       sources:
         source(1):
@@ -474,7 +474,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: copy
           from: $monitors.enclosure.discovery.sources.source(9)$
           computes:
@@ -497,7 +497,7 @@ monitors:
           hw.voltage.limit{limit_type="high.degraded"}: $column(6)
           hw.voltage.limit{limit_type="low.critical"}: $column(5)
     collect:
-      _comment: Collect type is mono-instance
+      # Collect type is mono-instance
       type: multiInstance
       sources:
         source(1):
@@ -535,7 +535,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: copy
           from: $monitors.enclosure.discovery.sources.source(9)$
           computes:
@@ -560,7 +560,7 @@ monitors:
         metrics:
           hw.memory.limit: mebiByte2Byte($column(4))
     collect:
-      _comment: Collect type is mono-instance
+      # Collect type is mono-instance
       type: multiInstance
       sources:
         source(1):
@@ -597,7 +597,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: copy
           from: $monitors.enclosure.discovery.sources.source(9)$
           computes:
@@ -617,7 +617,7 @@ monitors:
           hw.parent.type: enclosure
           name: $column(3)
     collect:
-      _comment: Collect type is mono-instance
+      # Collect type is mono-instance
       type: multiInstance
       sources:
         source(1):
@@ -654,7 +654,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: copy
           from: $monitors.enclosure.discovery.sources.source(9)$
           computes:
@@ -675,7 +675,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s: %s\", $column(2), $column(4))"
     collect:
-      _comment: Collect type is mono-instance
+      # Collect type is mono-instance
       type: multiInstance
       sources:
         source(1):
@@ -712,7 +712,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: copy
           from: $monitors.enclosure.discovery.sources.source(9)$
           computes:
@@ -734,7 +734,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(3), $column(6))"
     collect:
-      _comment: Collect type is mono-instance
+      # Collect type is mono-instance
       type: multiInstance
       sources:
         source(1):

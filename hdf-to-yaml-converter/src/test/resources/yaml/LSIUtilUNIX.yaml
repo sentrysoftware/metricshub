@@ -43,7 +43,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = output of lsiutil
+          # Source(1) = output of lsiutil
           type: osCommand
           commandLine: "for CONTROLLERID in 1 2 3 4 5 6 7 8 9; do /bin/echo MSHW_Controller $CONTROLLERID;%{SUDO:lsiutil}lsiutil -p$CONTROLLERID -a 1,2,0 21; done"
           computes:
@@ -55,7 +55,7 @@ monitors:
             separators: ;
             selectColumns: "2,3,4,5"
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.disk_controller.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -68,7 +68,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = lsiutil output
+          # Source(1) = lsiutil output
           type: osCommand
           commandLine: "for CONTROLLERID in 1 2 3 4 5 6 7 8 9; do /bin/echo MSHW_Controller $CONTROLLERID;%{SUDO:lsiutil}lsiutil -p$CONTROLLERID -a 1,2,0 21; done"
           computes:
@@ -80,7 +80,7 @@ monitors:
             separators: ;
             selectColumns: "2,3,4,5"
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.physical_disk.discovery.sources.source(1)$
         attributes:
           id: $column(2)
@@ -91,11 +91,11 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(4)
     collect:
-      _comment: Collect type is "all instances in one shot"
+      # Collect type is "all instances in one shot
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = lsiutil output
+          # Source(1) = lsiutil output
           type: osCommand
           commandLine: "for CONTROLLERID in 1 2 3 4 5 6 7 8 9; do /bin/echo MSHW_Controller $CONTROLLERID;%{SUDO:lsiutil}lsiutil -p$CONTROLLERID -a 1,2,0 21; done"
           computes:
@@ -122,7 +122,7 @@ monitors:
             column: 2
             translationTable: DiskStatusTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.physical_disk.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -133,7 +133,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = lsiutil output
+          # Source(1) = lsiutil output
           type: osCommand
           commandLine: "for CONTROLLERID in 1 2 3 4 5 6 7 8 9; do /bin/echo MSHW_Controller $CONTROLLERID;%{SUDO:lsiutil}lsiutil -p$CONTROLLERID -a 1,2,0 21; done"
           computes:
@@ -145,7 +145,7 @@ monitors:
             separators: ;
             selectColumns: "2,3,4,5"
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.logical_disk.discovery.sources.source(1)$
         attributes:
           id: $column(2)
@@ -155,11 +155,11 @@ monitors:
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(1))"
           name: "sprintf(\"%s (%s - %s)\", $column(2), $column(4), $column(3))"
     collect:
-      _comment: Collect type is "all instances in one shot"
+      # Collect type is "all instances in one shot
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = lsiutil output
+          # Source(1) = lsiutil output
           type: osCommand
           commandLine: "for CONTROLLERID in 1 2 3 4 5 6 7 8 9; do /bin/echo MSHW_Controller $CONTROLLERID;%{SUDO:lsiutil}lsiutil -p$CONTROLLERID -a 1,2,0 21; done"
           computes:
@@ -186,7 +186,7 @@ monitors:
             column: 2
             translationTable: DiskStatusTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.logical_disk.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:

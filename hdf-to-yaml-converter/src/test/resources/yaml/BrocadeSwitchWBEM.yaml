@@ -106,8 +106,8 @@ connector:
     - BrocadeSwitch
     - SMISSwitch
     criteria:
-    - _comment: There must be a Brocade_Switch
-      type: wbem
+    # There must be a Brocade_Switch
+    - type: wbem
       namespace: root/brocade1
       query: SELECT Name FROM Brocade_Switch
 monitors:
@@ -217,12 +217,12 @@ monitors:
           - $monitors.enclosure.discovery.sources.source(1)$
           - $monitors.enclosure.discovery.sources.source(9)$
           computes:
-          - _comment: ChassisID;ChassisName;Model;SerialNumber;Chassis__PATH;EnclosureType;
-            type: rightConcat
+          # ChassisID;ChassisName;Model;SerialNumber;Chassis__PATH;EnclosureType;
+          - type: rightConcat
             column: 5
             value: ;Storage
         source(11):
-          _comment: Let's make a copy of the results so that we can device a Enclosure ID to Enclosure PATH mapping for later use
+          # Let's make a copy of the results so that we can device a Enclosure ID to Enclosure PATH mapping for later use
           type: copy
           from: $monitors.enclosure.discovery.sources.source(10)$
           computes:
@@ -263,8 +263,8 @@ monitors:
             # SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;            # ChassisID;
           - type: keepColumns
             columnNumbers: "1,2,3,4,5,6,8"
-          - _comment: SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;ChassisID;
-            type: rightConcat
+          # SwitchID;Hostname;Model;Vendor;SerialNumber;FRUNumber;ChassisID;
+          - type: rightConcat
             column: 7
             value: ";Type: Switch"
         source(2):
@@ -296,7 +296,7 @@ monitors:
           hw.parent.id: $column(7)
           name: "sprintf(\"%s (%s)\", $column(2), $column(3))"
     collect:
-      _comment: The Temperature collect is a "MultiInstance" collect
+      # The Temperature collect is a "MultiInstance" collect
       type: multiInstance
       sources:
         source(1):
@@ -754,7 +754,7 @@ monitors:
           leftKeyColumn: 15
           rightKeyColumn: 1
         source(29):
-          _comment: ' Trim it down to use in the Collect'
+          # ' Trim it down to use in the Collect'
           type: copy
           from: $monitors.network.discovery.sources.source(28)$
           computes:
@@ -779,7 +779,7 @@ monitors:
           hw.parent.id: $column(15)
           name: "sprintf(\"%s (%s)\", $column(14), $column(3))"
     collect:
-      _comment: The NetworkCard collect is a "MultiInstance" collect
+      # The NetworkCard collect is a "MultiInstance" collect
       type: multiInstance
       sources:
         source(1):
@@ -1038,7 +1038,7 @@ monitors:
           hw.parent.id: $column(1)
           name: "sprintf(\"%s: %s\", $column(6), $column(3))"
     collect:
-      _comment: The Temperature collect is a "MultiInstance" collect
+      # The Temperature collect is a "MultiInstance" collect
       type: multiInstance
       sources:
         source(1):
@@ -1141,7 +1141,7 @@ monitors:
           hw.parent.id: $column(1)
           name: $column(3)
     collect:
-      _comment: The Temperature collect is a "MultiInstance" collect
+      # The Temperature collect is a "MultiInstance" collect
       type: multiInstance
       sources:
         source(1):
@@ -1222,7 +1222,7 @@ monitors:
           hw.parent.id: $column(1)
           name: "sprintf(\"%s, $column(3))"
     collect:
-      _comment: The Temperature collect is a "MultiInstance" collect
+      # The Temperature collect is a "MultiInstance" collect
       type: multiInstance
       sources:
         source(1):
@@ -1302,7 +1302,7 @@ monitors:
           hw.parent.id: $column(1)
           name: $column(3)
     collect:
-      _comment: The Temperature collect is a "MultiInstance" collect
+      # The Temperature collect is a "MultiInstance" collect
       type: multiInstance
       sources:
         source(1):

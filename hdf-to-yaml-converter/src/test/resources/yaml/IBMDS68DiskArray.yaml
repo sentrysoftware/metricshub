@@ -72,8 +72,8 @@ connector:
     - type: wbem
       namespace: root/ibm
       query: "SELECT Name,Dedicated FROM IBMTSDS_StorageSystem"
-    - _comment: There also must be disk drives declared in this namespace
-      type: wbem
+    # There also must be disk drives declared in this namespace
+    - type: wbem
       query: SELECT DeviceID FROM IBMTSDS_DiskDrive
       namespace: root/ibm
 monitors:
@@ -98,7 +98,7 @@ monitors:
           type: Storage
           name: "sprintf(\"%s (%s %s - %s)\", $column(1), \"IBM\", \"DS6000/8000\", \"Storage\")"
     collect:
-      _comment: Collect type is multiinstance
+      # Collect type is multiinstance
       type: multiInstance
       sources:
         source(1):
@@ -253,7 +253,7 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(9)
     collect:
-      _comment: Collect type is multiinstance
+      # Collect type is multiinstance
       type: multiInstance
       sources:
         source(1):
@@ -472,7 +472,7 @@ monitors:
           hw.parent.id: $column(6)
           name: "sprintf(\"%s (%s - %s)\", $column(3), $column(5), $column(1))"
     collect:
-      _comment: Collect type is multiinstance
+      # Collect type is multiinstance
       type: multiInstance
       sources:
         source(1):
@@ -635,7 +635,7 @@ monitors:
           hw.parent.id: $column(3)
           name: "sprintf(\"%s: %s\", $column(4), $column(2))"
     collect:
-      _comment: Collect type is multiinstance
+      # Collect type is multiinstance
       type: multiInstance
       sources:
         source(1):
@@ -763,7 +763,7 @@ monitors:
           hw.parent.id: $column(6)
           name: $column(2)
     collect:
-      _comment: Collect type is multiinstance
+      # Collect type is multiinstance
       type: multiInstance
       sources:
         source(1):

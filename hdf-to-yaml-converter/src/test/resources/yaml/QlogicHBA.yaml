@@ -25,8 +25,8 @@ connector:
     supersedes:
     - QlogicSCLI
     criteria:
-    - _comment: There must be FC Ports declared in the QLogic/cimv2 namespace
-      type: wbem
+    # There must be FC Ports declared in the QLogic/cimv2 namespace
+    - type: wbem
       query: SELECT PortType FROM QLogicFC_Port
       namespace: qlogic/cimv2
       expectedResult: \(0\)\|\(1\)\|\(10\)\|\(11\)\|\(12\);
@@ -61,7 +61,7 @@ monitors:
             column: 4
             existingValue: '-'
             newValue: ""
-            # Add \"VPD Data: \" for AdditionalInformation1
+          # Add \"VPD Data: \" for AdditionalInformation1
           - type: leftConcat
             column: 8
             value: "VPD Data: "
@@ -80,7 +80,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s - %s)\", $column(4), $column(2), $column(7))"
     collect:
-      _comment: The NetworkCard collect is a "MultiInstance" collect
+      # The NetworkCard collect is a "MultiInstance" collect
       type: multiInstance
       sources:
         source(1):

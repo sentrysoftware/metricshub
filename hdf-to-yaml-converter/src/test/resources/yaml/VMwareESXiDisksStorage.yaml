@@ -34,13 +34,13 @@ connector:
     supersedes:
     - VMwareESXiDisksIPMI
     criteria:
-    - _comment: Checking the version of ESXi
-      type: wbem
+    # Checking the version of ESXi
+    - type: wbem
       namespace: root/cimv2
       query: SELECT MajorVersion FROM VMware_HypervisorSoftwareIdentity
       expectedResult: "^[34567]"
-    - _comment: Check that there are ESX Disks (Storage Extents)
-      type: wbem
+    # Check that there are ESX Disks (Storage Extents)
+    - type: wbem
       namespace: root/cimv2
       query: "SELECT DeviceID,Caption,NumberOfBlocks,BlockSize FROM VMware_StorageExtent"
 monitors:
@@ -61,7 +61,7 @@ monitors:
             column: 2
             valueList: "5,15,20,25,30"
       mapping:
-        _comment: The Instance table
+        # The Instance table
         source: $monitors.disk_controller.discovery.sources.source(1)$
         attributes:
           id: $column(3)
@@ -83,19 +83,19 @@ monitors:
           query: "SELECT HealthState,Name FROM VMware_Controller"
           namespace: root/cimv2
           computes:
-            # HeathState,Name
+          # HeathState,Name
           - type: duplicateColumn
             column: 1
-            # PatrolStatus,StatusInformation,Name
+          # PatrolStatus,StatusInformation,Name
           - type: translate
             column: 1
             translationTable: statusTranslationTable
-            # PatrolStatus,StatusInformation,Name
+          # PatrolStatus,StatusInformation,Name
           - type: translate
             column: 2
             translationTable: statusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.disk_controller.collect.sources.source(1)$
         deviceId: $column(3)
         metrics:
@@ -143,14 +143,14 @@ monitors:
           query: "SELECT DeviceID,HealthState FROM VMware_StorageExtent"
           namespace: root/cimv2
           computes:
-            # DeviceID,HealthState,HealthState
+          # DeviceID,HealthState,HealthState
           - type: duplicateColumn
             column: 2
-            # DeviceID,PatrolStatus,HealthState
+          # DeviceID,PatrolStatus,HealthState
           - type: translate
             column: 2
             translationTable: statusTranslationTable
-            # DeviceID,PatrolStatus,StatusInformation
+          # DeviceID,PatrolStatus,StatusInformation
           - type: translate
             column: 3
             translationTable: statusInformationTranslationTable
@@ -203,14 +203,14 @@ monitors:
           query: "SELECT DeviceID,HealthState FROM VMware_StorageVolume"
           namespace: root/cimv2
           computes:
-            # DeviceID,HealthState,HealthState
+          # DeviceID,HealthState,HealthState
           - type: duplicateColumn
             column: 2
-            # DeviceID,PatrolStatus,HealthState
+          # DeviceID,PatrolStatus,HealthState
           - type: translate
             column: 2
             translationTable: statusTranslationTable
-            # DeviceID,PatrolStatus,StatusInformation
+          # DeviceID,PatrolStatus,StatusInformation
           - type: translate
             column: 3
             translationTable: statusInformationTranslationTable

@@ -77,19 +77,19 @@ connector:
     - Solaris
     - OOB
     criteria:
-    - _comment: Must be running on the SC (Solaris machine)
-      type: deviceType
+    # Must be running on the SC (Solaris machine)
+    - type: deviceType
       keep:
       - SunOS
       - Solaris
       - OOB
-    - _comment: Must find the showplatform utility (meaning that SMS is installed)
-      type: osCommand
+    # Must find the showplatform utility (meaning that SMS is installed)
+    - type: osCommand
       commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;which showplatform
       expectedResult: /showplatform$
       errorMessage: Unable to find the platform program
-    - _comment: showplatform must return platform's type
-      type: osCommand
+    # showplatform must return platform's type
+    - type: osCommand
       commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showplatform
       errorMessage: This System Controller does not appear to be connected to a Sun Fire system
       expectedResult: "^Platform Type: Sun Fire"
@@ -112,7 +112,7 @@ monitors:
             column: 1
             value: 'Fire '
       mapping:
-        _comment: The discovery table
+        # The discovery table
         source: $monitors.enclosure.discovery.sources.source(1)$
         attributes:
           id: SunF15K
@@ -121,11 +121,11 @@ monitors:
           type: Computer
           name: "sprintf(\"%s (%s %s - %s)\", \"SunF15K\", \"Sun\", $column(1), \"Computer\")"
     collect:
-      _comment: Collect type is mono-instance
+      # Collect type is mono-instance
       type: monoInstance
       sources:
         source(1):
-          _comment: Source(1) = output of showenvironment
+          # Source(1) = output of showenvironment
           type: osCommand
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment
           timeout: 90
@@ -138,7 +138,7 @@ monitors:
             separators: ;
             selectColumns: 3
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.enclosure.collect.sources.source(1)$
         metrics:
           hw.enclosure.power: $column(1)
@@ -147,7 +147,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = output of showenvironment
+          # Source(1) = output of showenvironment
           type: osCommand
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment
           timeout: 90
@@ -160,7 +160,7 @@ monitors:
             separators: ;
             selectColumns: 3
       mapping:
-        _comment: Instance Table = Source(1)
+        # Instance Table = Source(1)
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -168,11 +168,11 @@ monitors:
           hw.parent.id: SunF15K
           name: $column(1)
     collect:
-      _comment: Collect type is "all instances in one shot"
+      # Collect type is "all instances in one shot
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = output of showenvironment
+          # Source(1) = output of showenvironment
           type: osCommand
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment
           timeout: 90
@@ -194,7 +194,7 @@ monitors:
             column: 3
             translationTable: ShowEnvironmentStatusTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.fan.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -205,7 +205,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = output of showenvironment
+          # Source(1) = output of showenvironment
           type: osCommand
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment
           timeout: 90
@@ -218,7 +218,7 @@ monitors:
             separators: ;
             selectColumns: 3
       mapping:
-        _comment: Instance Table = Source(1)
+        # Instance Table = Source(1)
         source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -227,11 +227,11 @@ monitors:
           hw.parent.id: SunF15K
           name: "sprintf(\"%s (%s)\", $column(1), $column(1))"
     collect:
-      _comment: Collect type is "all instances in one shot"
+      # Collect type is "all instances in one shot
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = output of showenvironment
+          # Source(1) = output of showenvironment
           type: osCommand
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment
           timeout: 90
@@ -253,7 +253,7 @@ monitors:
             column: 3
             translationTable: ShowEnvironmentStatusTranslationTable
       mapping:
-        _comment: ValueTable = Source(3)
+        # ValueTable = Source(3)
         source: $monitors.temperature.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -265,7 +265,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = output of showenvironment
+          # Source(1) = output of showenvironment
           type: osCommand
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment
           timeout: 90
@@ -278,7 +278,7 @@ monitors:
             separators: ;
             selectColumns: 3
       mapping:
-        _comment: Instance Table = Source(1)
+        # Instance Table = Source(1)
         source: $monitors.voltage.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -287,11 +287,11 @@ monitors:
           hw.parent.id: SunF15K
           name: "sprintf(\"%s (%s)\", $column(1), $column(1))"
     collect:
-      _comment: Collect type is "all instances in one shot"
+      # Collect type is "all instances in one shot
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = output of showenvironment
+          # Source(1) = output of showenvironment
           type: osCommand
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment
           timeout: 90
@@ -318,7 +318,7 @@ monitors:
             column: 2
             value: 1000
       mapping:
-        _comment: ValueTable = Source(3)
+        # ValueTable = Source(3)
         source: $monitors.voltage.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -344,7 +344,7 @@ monitors:
             separators: ;
             selectColumns: 3
       mapping:
-        _comment: Instance Table = Source(1)
+        # Instance Table = Source(1)
         source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -352,11 +352,11 @@ monitors:
           hw.parent.id: SunF15K
           name: "sprintf(\"%s, $column(1))"
     collect:
-      _comment: Collect type is "all instances in one shot"
+      # Collect type is "all instances in one shot
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = output of showenvironment
+          # Source(1) = output of showenvironment
           type: osCommand
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment
           timeout: 90
@@ -378,7 +378,7 @@ monitors:
             column: 2
             translationTable: ShowEnvironmentStatusTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.power_supply.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -389,7 +389,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = output of showenvironment
+          # Source(1) = output of showenvironment
           type: osCommand
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment
           timeout: 90
@@ -407,7 +407,7 @@ monitors:
           - type: duplicateColumn
             column: 2
         source(2):
-          _comment: Source(2) = output of showplatform
+          # Source(2) = output of showplatform
           type: osCommand
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showplatform
           timeout: 90
@@ -421,7 +421,7 @@ monitors:
             separators: ;
             selectColumns: "2,3,4"
         source(3):
-          _comment: Source(3) = output of showboards
+          # Source(3) = output of showboards
           type: osCommand
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showboards
           timeout: 90
@@ -443,7 +443,7 @@ monitors:
           - $monitors.other_device.discovery.sources.source(2)$
           - $monitors.other_device.discovery.sources.source(3)$
       mapping:
-        _comment: Instance Table = Source(1)
+        # Instance Table = Source(1)
         source: $monitors.other_device.discovery.sources.source(4)$
         attributes:
           id: $column(2)
@@ -453,11 +453,11 @@ monitors:
           hw.parent.id: SunF15K
           name: "sprintf(\"%s: %s (%s)\", $column(1), $column(2), $column(3))"
     collect:
-      _comment: Collect type is "all instances in one shot"
+      # Collect type is "all instances in one shot
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = output of showenvironment
+          # Source(1) = output of showenvironment
           type: osCommand
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showenvironment
           timeout: 90
@@ -479,7 +479,7 @@ monitors:
             column: 2
             translationTable: ShowEnvironmentStatusTranslationTable
         source(2):
-          _comment: Source(2) = output of showplatform
+          # Source(2) = output of showplatform
           type: osCommand
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showplatform
           timeout: 90
@@ -502,7 +502,7 @@ monitors:
             column: 2
             translationTable: DomainStatusTranslationTable
         source(3):
-          _comment: Source(3) = output of showboards
+          # Source(3) = output of showboards
           type: osCommand
           commandLine: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/SUNWSMS/lib;export LD_LIBRARY_PATH;PATH=$PATH:/opt/SUNWSMS/bin;export PATH;showboards
           timeout: 90
@@ -533,7 +533,7 @@ monitors:
           - $monitors.other_device.collect.sources.source(2)$
           - $monitors.other_device.collect.sources.source(3)$
       mapping:
-        _comment: ValueTable = Source(3)
+        # ValueTable = Source(3)
         source: $monitors.other_device.collect.sources.source(4)$
         deviceId: $column(1)
         metrics:

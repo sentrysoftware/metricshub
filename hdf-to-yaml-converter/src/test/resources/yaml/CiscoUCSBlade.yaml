@@ -36,12 +36,12 @@ connector:
     connectionTypes:
     - remote
     criteria:
-    - _comment: Only for type storage
-      type: deviceType
+    # Only for type storage
+    - type: deviceType
       keep:
       - OOB
-    - _comment: Checks that Cisco UCS Manager responds
-      type: ucs
+    # Checks that Cisco UCS Manager responds
+    - type: ucs
       query: SELECT dn FROM networkElement
       expectedResult: ^networkElement;sys/
       errorMessage: Couldn't connect to UCS Manager on the Fabric Interconnect Switch.
@@ -130,7 +130,7 @@ monitors:
           - type: keepColumns
             columnNumbers: "2,3"
       mapping:
-        _comment: The discovery table = Source(4)
+        # The discovery table = Source(4)
         source: $monitors.enclosure.discovery.sources.source(4)$
         attributes:
           id: $column(1)
@@ -253,7 +253,7 @@ monitors:
           rightKeyColumn: 1
           defaultRightLine: ;;
       mapping:
-        _comment: ValueTable=Source(7)
+        # ValueTable=Source(7)
         source: $monitors.enclosure.collect.sources.source(7)$
         deviceId: $column(1)
         metrics:
@@ -392,7 +392,7 @@ monitors:
           hw.parent.id: $column(3)
           name: $column(2)
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -431,7 +431,7 @@ monitors:
           rightKeyColumn: 1
           defaultRightLine: ;;
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.fan.collect.sources.source(3)$
         deviceId: $column(1)
         metrics:
@@ -511,7 +511,7 @@ monitors:
             column: 1
             regExp: ^sys/rack-unit
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -521,7 +521,7 @@ monitors:
           hw.parent.id: $column(3)
           name: "sprintf(\"%s (%s)\", $column(2), $column(5))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -534,7 +534,7 @@ monitors:
           rightKeyColumn: 1
           defaultRightLine: ;OK;;
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.power_supply.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -593,7 +593,7 @@ monitors:
             column: 1
             regExp: ^sys/rack-unit
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.temperature.discovery.sources.source(3)$
         attributes:
           id: $column(1)
@@ -644,7 +644,7 @@ monitors:
             separators: ;
             selectColumns: "2,6"
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.temperature.collect.sources.source(3)$
         deviceId: $column(1)
         metrics:
@@ -742,7 +742,7 @@ monitors:
           hw.parent.id: $column(3)
           name: "sprintf(\"%s (%s - %s)\", $column(2), $column(8), $column(10))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -755,7 +755,7 @@ monitors:
           rightKeyColumn: 1
           defaultRightLine: ;OK;
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.blade.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -903,7 +903,7 @@ monitors:
           hw.parent.id: $column(3)
           name: "sprintf(\"%s (%s - %s)\", $column(2), $column(5), $column(10))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -1048,7 +1048,7 @@ monitors:
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
-        _comment: ValueTable = Source(9)
+        # ValueTable = Source(9)
         source: $monitors.network.collect.sources.source(9)$
         deviceId: $column(1)
         metrics:

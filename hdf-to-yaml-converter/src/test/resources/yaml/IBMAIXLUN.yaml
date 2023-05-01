@@ -14,12 +14,12 @@ connector:
     appliesTo:
     - RS6000
     criteria:
-    - _comment: OS should be AIX (whatever version)
-      type: deviceType
+    # OS should be AIX (whatever version)
+    - type: deviceType
       keep:
       - RS6000
-    - _comment: Test the lspath command
-      type: osCommand
+    # Test the lspath command
+    - type: osCommand
       commandLine: /usr/sbin/lspath
       timeout: 300
       expectedResult: fscsi
@@ -47,7 +47,7 @@ monitors:
             column: 2
             value: 1
         source(2):
-          _comment: Source(2) = lsdev/lscfg on disks (which includes LUNs)
+          # Source(2) = lsdev/lscfg on disks (which includes LUNs)
           type: osCommand
           commandLine: for DISK in `/usr/sbin/lsdev -C -c disk -F 'name'`; do /usr/sbin/lscfg -vp -l $DISK; done
           computes:
@@ -86,11 +86,11 @@ monitors:
         metrics:
           hw.lun.paths.limit{limit_type="low.degraded"}: $column(2)
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: Get the list of Ports from multipath -l
+          # Get the list of Ports from multipath -l
           type: osCommand
           commandLine: /usr/sbin/lspath
           timeout: 300

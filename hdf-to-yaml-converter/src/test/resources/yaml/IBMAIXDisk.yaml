@@ -20,12 +20,12 @@ connector:
     appliesTo:
     - RS6000
     criteria:
-      # OS should be RS6000 (for AIX, whatever version)
+    # OS should be RS6000 (for AIX, whatever version)
     - type: deviceType
       keep:
       - RS6000
-    - _comment: The various following tools have to be present
-      type: osCommand
+    # The various following tools have to be present
+    - type: osCommand
       commandLine: which lsdev
       expectedResult: /lsdev$
 sudoCommands:
@@ -79,7 +79,7 @@ monitors:
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
-        _comment: InstanceTable = Source(5)
+        # InstanceTable = Source(5)
         source: $monitors.disk_controller.discovery.sources.source(3)$
         attributes:
           id: $column(2)
@@ -89,7 +89,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(2), $column(4))"
     collect:
-      _comment: Collect type is "mono-instance"
+      # Collect type is "mono-instance
       type: monoInstance
       sources:
         source(1):
@@ -107,7 +107,7 @@ monitors:
             column: 1
             translationTable: ErrorcounttoStatusTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.disk_controller.collect.sources.source(1)$
         metrics:
           hw.status{hw.type="disk_controller"}: $column(1)
@@ -203,7 +203,7 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(8)
     collect:
-      _comment: Collect type is "mono-instance"
+      # Collect type is "mono-instance
       type: monoInstance
       sources:
         source(1):
@@ -215,7 +215,7 @@ monitors:
           separators: ;
           selectColumns: "2,3,4,5"
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.physical_disk.collect.sources.source(1)$
         metrics:
           hw.status{hw.type="physical_disk"}: $column(1)

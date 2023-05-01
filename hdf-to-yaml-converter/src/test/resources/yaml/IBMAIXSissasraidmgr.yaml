@@ -34,13 +34,13 @@ connector:
     appliesTo:
     - RS6000
     criteria:
-    - _comment: Check the utility exists
-      type: osCommand
+    # Check the utility exists
+    - type: osCommand
       commandLine: "cd /etc/objrepos;%{SUDO:/usr/bin/sissasraidmgr}/usr/bin/sissasraidmgr"
       expectedResult: 0940-002 Invalid or no command specified
       errorMessage: sissasraidmgr not installed on this server / insufficient rights
-    - _comment: Check there are appropriate controllers installed
-      type: osCommand
+    # Check there are appropriate controllers installed
+    - type: osCommand
       commandLine: ls /dev/sissas*
       expectedResult: "/dev/sissas[0-9]"
       errorMessage: No sissas controllers found
@@ -55,17 +55,17 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Output of sas2ircu script
+          # Source(1) = Output of sas2ircu script
           type: osCommand
           commandLine: "for CTRL in `ls /dev/sissas* | sed s:/dev/::`;do cd /etc/objrepos;%{SUDO:/usr/bin/sissasraidmgr} /usr/bin/sissasraidmgr -Ll $CTRL;done;"
           computes:
-          - _comment: Reformat Source(1) output via EmbeddedFile(2)
-            type: awk
+          # Reformat Source(1) output via EmbeddedFile(2)
+          - type: awk
             script: EmbeddedFile(1)
             keep: ^MSHW
             separators: ;
         source(2):
-          _comment: Make a copy of DiskController Source 1 so that it can be used by other discoveries
+          # Make a copy of DiskController Source 1 so that it can be used by other discoveries
           type: copy
           from: $monitors.disk_controller.discovery.sources.source(1)$
           computes:
@@ -89,21 +89,21 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(2), $column(4))"
     collect:
-      _comment: Collect type is "all instances in one shot"
+      # Collect type is "all instances in one shot
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Output of sas2ircu script
+          # Source(1) = Output of sas2ircu script
           type: osCommand
           commandLine: "for CTRL in `ls /dev/sissas* | sed s:/dev/::`;do cd /etc/objrepos;%{SUDO:/usr/bin/sissasraidmgr} /usr/bin/sissasraidmgr -Ll $CTRL;done;"
           computes:
-          - _comment: Reformat Source(1) output via EmbeddedFile(2)
-            type: awk
+          # Reformat Source(1) output via EmbeddedFile(2)
+          - type: awk
             script: EmbeddedFile(1)
             keep: ^MSHW
             separators: ;
         source(2):
-          _comment: Make a copy of DiskController Source 1 so that it can be used by other discoveries
+          # Make a copy of DiskController Source 1 so that it can be used by other discoveries
           type: copy
           from: $monitors.disk_controller.discovery.sources.source(1)$
           computes:
@@ -121,7 +121,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Discovery Instance Table
+          # Source(1) = Discovery Instance Table
           type: copy
           from: $monitors.disk_controller.discovery.sources.source(1)$
           computes:
@@ -149,11 +149,11 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(5)
     collect:
-      _comment: Collect type is "all instances in one shot"
+      # Collect type is "all instances in one shot
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Collect Instance Table
+          # Source(1) = Collect Instance Table
           type: copy
           from: $monitors.disk_controller.collect.sources.source(1)$
           computes:
@@ -181,7 +181,7 @@ monitors:
             column: 3
             translationTable: PhysicalDiskStatusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.physical_disk.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -192,7 +192,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Discovery Instance Table
+          # Source(1) = Discovery Instance Table
           type: copy
           from: $monitors.disk_controller.discovery.sources.source(1)$
           computes:
@@ -219,11 +219,11 @@ monitors:
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(6))"
           name: "sprintf(\"%s (%s)\", $column(2), $column(5))"
     collect:
-      _comment: Collect type is "all instances in one shot"
+      # Collect type is "all instances in one shot
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Collect Instance Table
+          # Source(1) = Collect Instance Table
           type: copy
           from: $monitors.disk_controller.collect.sources.source(1)$
           computes:
@@ -246,7 +246,7 @@ monitors:
             column: 2
             translationTable: LogicalDiskStatusTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.logical_disk.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -257,7 +257,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Output of sas2ircu script
+          # Source(1) = Output of sas2ircu script
           type: osCommand
           commandLine: "for CTRL in `ls /dev/sissas* | sed s:/dev/::`;do cd /etc/objrepos;%{SUDO:/usr/bin/sissasraidmgr} /usr/bin/sissasraidmgr -M -o0 -l $CTRL;done;"
           computes:
@@ -277,11 +277,11 @@ monitors:
           hw.parent.id: $column(2)
           name: $column(2)
     collect:
-      _comment: Collect type is "all instances in one shot"
+      # Collect type is "all instances in one shot
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Output of sas2ircu script
+          # Source(1) = Output of sas2ircu script
           type: osCommand
           commandLine: "for CTRL in `ls /dev/sissas* | sed s:/dev/::`;do cd /etc/objrepos;%{SUDO:/usr/bin/sissasraidmgr} /usr/bin/sissasraidmgr -M -o0 -l $CTRL;done;"
           computes:
@@ -305,7 +305,7 @@ monitors:
             column: 2
             translationTable: BatteryStatusTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.battery.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:

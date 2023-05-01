@@ -38,11 +38,11 @@ connector:
     supersedes:
     - CiscoUCSBlade
     criteria:
-    - _comment: Only for Hardware KM 11.3.00+
-      type: productRequirements
+    # Only for Hardware KM 11.3.00+
+    - type: productRequirements
       kmVersion: 11.3.00
-    - _comment: check if it's an ucs
-      type: http
+    # check if it's an ucs
+    - type: http
       method: POST
       url: /nuova
       header: "Content-Type: application/xml"
@@ -83,7 +83,7 @@ monitors:
             column: 3
             value: ;Blade
         source(3):
-          _comment: Source(3) = SELECT dn;model;serial FROM networkElement
+          # Source(3) = SELECT dn;model;serial FROM networkElement
           type: http
           method: POST
           url: /nuova
@@ -95,7 +95,7 @@ monitors:
             recordTag: /configResolveClass/outConfigs
             properties: networkElement>dn;networkElement>model;networkElement>serial
         source(4):
-          _comment: now discover equipmentfex
+          # now discover equipmentfex
           type: http
           method: POST
           url: /nuova
@@ -107,7 +107,7 @@ monitors:
             recordTag: /configResolveClass/outConfigs
             properties: equipmentFex>dn;equipmentFex>model;equipmentFex>serial
         source(5):
-          _comment: now union both switches
+          # now union both switches
           type: tableUnion
           tables:
           - $monitors.enclosure.discovery.sources.source(3)$
@@ -137,7 +137,7 @@ monitors:
             existingValue: sys/
             newValue: ""
         source(7):
-          _comment: Use the bottom source for each discovery sources
+          # Use the bottom source for each discovery sources
           type: http
           method: POST
           url: /nuova
@@ -145,7 +145,7 @@ monitors:
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           body: "<configResolveClass classId=\"equipmentFan\" cookie=\"%{AUTHENTICATIONTOKEN}\" inHierarchical=\"false\" />"
         source(8):
-          _comment: Fan Discovery source 1
+          # Fan Discovery source 1
           type: http
           method: POST
           url: /nuova
@@ -153,7 +153,7 @@ monitors:
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           body: "<configResolveClass classId=\"equipmentFanStats\" cookie=\"%{AUTHENTICATIONTOKEN}\" inHierarchical=\"false\" />"
         source(9):
-          _comment: Power Supply Discovery source 1
+          # Power Supply Discovery source 1
           type: http
           method: POST
           url: /nuova
@@ -161,7 +161,7 @@ monitors:
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           body: "<configResolveClass classId=\"equipmentPsu\" cookie=\"%{AUTHENTICATIONTOKEN}\" inHierarchical=\"false\" />"
         source(10):
-          _comment: Temperature Discovery source 1
+          # Temperature Discovery source 1
           type: http
           method: POST
           url: /nuova
@@ -169,7 +169,7 @@ monitors:
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           body: "<configResolveClass classId=\"swEnvStats\" cookie=\"%{AUTHENTICATIONTOKEN}\" inHierarchical=\"false\" />"
         source(11):
-          _comment: Temperature Discovery Source 2
+          # Temperature Discovery Source 2
           type: http
           method: POST
           url: /nuova
@@ -177,7 +177,7 @@ monitors:
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           body: "<configResolveClass classId=\"computeMbTempStats\" cookie=\"%{AUTHENTICATIONTOKEN}\" inHierarchical=\"false\" />"
         source(12):
-          _comment: Blade Discovery source 1
+          # Blade Discovery source 1
           type: http
           method: POST
           url: /nuova
@@ -185,7 +185,7 @@ monitors:
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           body: "<configResolveClass classId=\"computeBlade\" cookie=\"%{AUTHENTICATIONTOKEN}\" inHierarchical=\"false\" />"
         source(13):
-          _comment: Blade Discovery source 2
+          # Blade Discovery source 2
           type: http
           method: POST
           url: /nuova
@@ -193,7 +193,7 @@ monitors:
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           body: "<configResolveClass classId=\"equipmentBladeBiosCapProvider\" cookie=\"%{AUTHENTICATIONTOKEN}\" inHierarchical=\"false\" />"
         source(14):
-          _comment: NetworkCard Discovery Source 1
+          # NetworkCard Discovery Source 1
           type: http
           method: POST
           url: /nuova
@@ -201,7 +201,7 @@ monitors:
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           body: "<configResolveClass classId=\"etherPIo\" cookie=\"%{AUTHENTICATIONTOKEN}\" inHierarchical=\"false\" />"
         source(15):
-          _comment: NetworkCard Discovery Source 2
+          # NetworkCard Discovery Source 2
           type: http
           method: POST
           url: /nuova
@@ -209,7 +209,7 @@ monitors:
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           body: "<configResolveClass classId=\"fcPIo\" cookie=\"%{AUTHENTICATIONTOKEN}\" inHierarchical=\"false\" />"
         source(16):
-          _comment: Release the cookie
+          # Release the cookie
           type: http
           method: POST
           url: /nuova
@@ -217,7 +217,7 @@ monitors:
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           body: "<aaaLogout inCookie=\"%{AUTHENTICATIONTOKEN}\" />"
       mapping:
-        _comment: The discovery table = Source(6)
+        # The discovery table = Source(6)
         source: $monitors.enclosure.discovery.sources.source(6)$
         attributes:
           id: $column(1)
@@ -246,7 +246,7 @@ monitors:
             recordTag: /
             properties: aaaLogin>outCookie
         source(2):
-          _comment: Collect for Enclosure
+          # Collect for Enclosure
           type: http
           method: POST
           url: /nuova
@@ -347,7 +347,7 @@ monitors:
           authenticationToken: $monitors.enclosure.collect.sources.source(1)$
           body: "<configResolveClass classId=\"equipmentFanStats\" cookie=\"%{AUTHENTICATIONTOKEN}\" inHierarchical=\"false\" />"
         source(9):
-          _comment: Temperature collect Source 1
+          # Temperature collect Source 1
           type: http
           method: POST
           url: /nuova
@@ -355,7 +355,7 @@ monitors:
           authenticationToken: $monitors.enclosure.collect.sources.source(1)$
           body: "<configResolveClass classId=\"swEnvStats\" cookie=\"%{AUTHENTICATIONTOKEN}\" inHierarchical=\"false\" />"
         source(10):
-          _comment: Temperature collect Source 2
+          # Temperature collect Source 2
           type: http
           method: POST
           url: /nuova
@@ -363,7 +363,7 @@ monitors:
           authenticationToken: $monitors.enclosure.collect.sources.source(1)$
           body: "<configResolveClass classId=\"computeMbTempStats\" cookie=\"%{AUTHENTICATIONTOKEN}\" inHierarchical=\"false\" />"
         source(11):
-          _comment: NetworkCard collect Source 2
+          # NetworkCard collect Source 2
           type: http
           method: POST
           url: /nuova
@@ -371,7 +371,7 @@ monitors:
           authenticationToken: $monitors.enclosure.collect.sources.source(1)$
           body: "<configResolveClass classId=\"fcPIo\" cookie=\"%{AUTHENTICATIONTOKEN}\" inHierarchical=\"false\" />"
         source(12):
-          _comment: NetworkCard collect Source 3
+          # NetworkCard collect Source 3
           type: http
           method: POST
           url: /nuova
@@ -379,7 +379,7 @@ monitors:
           authenticationToken: $monitors.enclosure.collect.sources.source(1)$
           body: "<configResolveClass classId=\"etherPIo\" cookie=\"%{AUTHENTICATIONTOKEN}\" inHierarchical=\"false\" />"
         source(13):
-          _comment: NetworkCard collect Source 9
+          # NetworkCard collect Source 9
           type: http
           method: POST
           url: /nuova
@@ -387,7 +387,7 @@ monitors:
           authenticationToken: $monitors.enclosure.collect.sources.source(1)$
           body: "<configResolveClass classId=\"fcStats\" cookie=\"%{AUTHENTICATIONTOKEN}\" inHierarchical=\"false\" />"
         source(14):
-          _comment: NetworkCard collect Source 6
+          # NetworkCard collect Source 6
           type: http
           method: POST
           url: /nuova
@@ -395,7 +395,7 @@ monitors:
           authenticationToken: $monitors.enclosure.collect.sources.source(1)$
           body: "<configResolveClass classId=\"etherRxStats\" cookie=\"%{AUTHENTICATIONTOKEN}\" inHierarchical=\"false\" />"
         source(15):
-          _comment: NetworkCard collect Source 7
+          # NetworkCard collect Source 7
           type: http
           method: POST
           url: /nuova
@@ -403,7 +403,7 @@ monitors:
           authenticationToken: $monitors.enclosure.collect.sources.source(1)$
           body: "<configResolveClass classId=\"etherTxStats\" cookie=\"%{AUTHENTICATIONTOKEN}\" inHierarchical=\"false\" />"
         source(16):
-          _comment: remove the cookie
+          # remove the cookie
           type: http
           method: POST
           url: /nuova
@@ -411,7 +411,7 @@ monitors:
           authenticationToken: $monitors.enclosure.collect.sources.source(1)$
           body: "<aaaLogout inCookie=\"%{AUTHENTICATIONTOKEN}\" />"
       mapping:
-        _comment: ValueTable=Source(7)
+        # ValueTable=Source(7)
         source: $monitors.enclosure.collect.sources.source(7)$
         deviceId: $column(1)
         metrics:
@@ -551,7 +551,7 @@ monitors:
           hw.parent.id: $column(3)
           name: $column(2)
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -586,7 +586,7 @@ monitors:
           rightKeyColumn: 1
           defaultRightLine: ;;
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.fan.collect.sources.source(3)$
         deviceId: $column(1)
         metrics:
@@ -669,7 +669,7 @@ monitors:
             column: 7
             value: "SerialNumber: "
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -680,7 +680,7 @@ monitors:
           hw.parent.id: $column(3)
           name: "sprintf(\"%s (%s)\", $column(2), $column(5))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -693,7 +693,7 @@ monitors:
           rightKeyColumn: 1
           defaultRightLine: ;OK;;
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.power_supply.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -750,7 +750,7 @@ monitors:
             column: 1
             regExp: ^sys/rack-unit
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.temperature.discovery.sources.source(3)$
         attributes:
           id: $column(1)
@@ -803,7 +803,7 @@ monitors:
             separators: ;
             selectColumns: "2,6"
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.temperature.collect.sources.source(3)$
         deviceId: $column(1)
         metrics:
@@ -908,7 +908,7 @@ monitors:
           hw.parent.id: $column(3)
           name: "sprintf(\"%s (%s - %s)\", $column(2), $column(8), $column(10))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -921,7 +921,7 @@ monitors:
           rightKeyColumn: 1
           defaultRightLine: ;OK;
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.blade.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -944,8 +944,8 @@ monitors:
           - type: excludeMatchingLines
             column: 5
             valueList: sfp-not-present
-          - _comment: Keep Column
-            type: keepColumns
+          # Keep Column
+          - type: keepColumns
             columnNumbers: "2,3,4,5,6,7,8,9"
             # Add "MAC" as the PhysicalAddressType
             # NetworkCardID;DeviceType;PhysicalAddress;PhysicalAddressType;State;RemotePhysicalAddress;PortNumber;SlotNumber;Speed;
@@ -964,8 +964,8 @@ monitors:
           - type: xml2csv
             recordTag: /configResolveClass/outConfigs
             properties: fcPIo>ifType;fcPIo>dn;fcPIo>ifRole;fcPIo>wwn;fcPIo>operState;fcPIo>peerDn;fcPIo>portId;fcPIo>slotId;fcPIo>operSpeed
-          - _comment: mber;SlotNumber;Speed;
-            type: translate
+          # mber;SlotNumber;Speed;
+          - type: translate
             column: 3
             translationTable: FCTypeTranslationTable
             # Add "WWN" as the PhysicalAddressType
@@ -979,8 +979,8 @@ monitors:
           - type: excludeMatchingLines
             column: 6
             valueList: sfp-not-present
-          - _comment: Keep Column
-            type: keepColumns
+          # Keep Column
+          - type: keepColumns
             columnNumbers: "2,3,4,5,6,7,8,9,10"
         source(3):
           # Source(3) = Union of Source(1) and Source(2)
@@ -1066,7 +1066,7 @@ monitors:
           hw.parent.id: $column(3)
           name: "sprintf(\"%s (%s - %s)\", $column(2), $column(5), $column(10))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -1084,7 +1084,7 @@ monitors:
           - type: keepColumns
             columnNumbers: "1,14,15"
         source(2):
-          _comment: collect status for fcs
+          # collect status for fcs
           type: copy
           from: $monitors.enclosure.collect.sources.source(11)$
           computes:
@@ -1092,7 +1092,7 @@ monitors:
             recordTag: /configResolveClass/outConfigs
             properties: fcPIo>dn;fcPIo>operState;fcPIo>operSpeed
         source(3):
-          _comment: collect status for Ethernet
+          # collect status for Ethernet
           type: copy
           from: $monitors.enclosure.collect.sources.source(12)$
           computes:
@@ -1100,7 +1100,7 @@ monitors:
             recordTag: /configResolveClass/outConfigs
             properties: etherPIo>dn;etherPIo>operState;etherPIo>operSpeed
         source(4):
-          _comment: now union
+          # now union
           type: tableUnion
           tables:
           - $monitors.network.collect.sources.source(2)$
@@ -1212,7 +1212,7 @@ monitors:
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
-        _comment: ValueTable = Source(9)
+        # ValueTable = Source(9)
         source: $monitors.network.collect.sources.source(11)$
         deviceId: $column(1)
         metrics:

@@ -18,8 +18,8 @@ connector:
     - VMwareESXi
     - IpmiTool
     criteria:
-    - _comment: Checking the version of ESXi
-      type: wbem
+    # Checking the version of ESXi
+    - type: wbem
       namespace: root/cimv2
       query: SELECT MajorVersion FROM VMware_HypervisorSoftwareIdentity
       expectedResult: "^[4567]"

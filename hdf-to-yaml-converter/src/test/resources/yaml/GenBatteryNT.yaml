@@ -70,13 +70,13 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: wmi
           namespace: root\cimv2
           query: "SELECT Chemistry, DeviceID, Name FROM Win32_Battery"
           computes:
-          - _comment: Translate Chemistry
-            type: translate
+          # Translate Chemistry
+          - type: translate
             column: 1
             translationTable: ChemistryTranslationTable
       mapping:
@@ -90,7 +90,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s %s)\", $column(2), \"\", $column(3))"
     collect:
-      _comment: COLLECT
+      # COLLECT
       type: multiInstance
       sources:
         source(1):
@@ -99,27 +99,27 @@ monitors:
           namespace: root\cimv2
           query: "SELECT BatteryStatus, DeviceID, EstimatedChargeRemaining, EstimatedRunTime, Status FROM Win32_Battery"
           computes:
-          - _comment: Duplicate Status to translate it
-            type: duplicateColumn
+          # Duplicate Status to translate it
+          - type: duplicateColumn
             column: 5
-            # Translate Status in an OK, WARN, ALARM status
+          # Translate Status in an OK, WARN, ALARM status
           - type: translate
             column: 5
             translationTable: StatusTranslationTable
-          - _comment: Translate Status column 3 into a StatusInformation
-            type: translate
+          # Translate Status column 3 into a StatusInformation
+          - type: translate
             column: 6
             translationTable: StatusInformationTranslationTable
-          - _comment: Translate BatteryStatus into a StatusInformation
-            type: translate
+          # Translate BatteryStatus into a StatusInformation
+          - type: translate
             column: 1
             translationTable: BatteryStatusTranslationTable
-          - _comment: Merge Status StatusInformation and BatteryStatus StatusInformation
-            type: rightConcat
+          # Merge Status StatusInformation and BatteryStatus StatusInformation
+          - type: rightConcat
             column: 6
             value: Column(1)
-          - _comment: A time left of 71582788 indicates that it is charging. Ignore it.
-            type: replace
+          # A time left of 71582788 indicates that it is charging. Ignore it.
+          - type: replace
             column: 4
             existingValue: 71582788
             newValue: ""

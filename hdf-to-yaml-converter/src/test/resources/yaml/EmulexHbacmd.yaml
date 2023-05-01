@@ -50,8 +50,8 @@ connector:
     - CpqHBA
     - SMISHBA
     criteria:
-    - _comment: Test the hbacmd command for ports
-      type: osCommand
+    # Test the hbacmd command for ports
+    - type: osCommand
       commandLine: "%{SUDO:hbacmd} hbacmd ListHBAs"
       expectedResult: Port WWN
       timeout: 120
@@ -62,7 +62,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Get the list of Ports from hbacmd ListHBAs
+          # Get the list of Ports from hbacmd ListHBAs
           type: osCommand
           commandLine: "%{SUDO:hbacmd} hbacmd ListHBAs"
           timeout: 120
@@ -75,7 +75,7 @@ monitors:
             separators: ;
             selectColumns: "2,3"
         source(2):
-          _comment: Get the list of Ports from hbacmd PortAttrib
+          # Get the list of Ports from hbacmd PortAttrib
           type: osCommand
           commandLine: "for HBA in `%{SUDO:hbacmd} hbacmd ListHBAs | /usr/bin/awk '($1 == \"Port\" && $2 == \"WWN\") {print $4}'`;do %{SUDO:hbacmd} hbacmd PortAttrib $HBA;done;"
           timeout: 120
@@ -113,11 +113,11 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s - %s)\", $column(2), \"HBA FC Port\", $column(1))"
     collect:
-      _comment: The NetworkCard collect is a "MultiInstance" collect
+      # The NetworkCard collect is a "MultiInstance" collect
       type: multiInstance
       sources:
         source(1):
-          _comment: Get the list of Ports from hbacmd PortAttrib
+          # Get the list of Ports from hbacmd PortAttrib
           type: osCommand
           commandLine: "for HBA in `%{SUDO:hbacmd} hbacmd ListHBAs | /usr/bin/awk '($1 == \"Port\" && $2 == \"WWN\") {print $4}'`;do %{SUDO:hbacmd} hbacmd PortAttrib $HBA;done;"
           timeout: 120
@@ -156,7 +156,7 @@ monitors:
             column: 1
             value: 1000
         source(2):
-          _comment: Get the list of Ports from hbacmd PortStat
+          # Get the list of Ports from hbacmd PortStat
           type: osCommand
           commandLine: "for HBA in `%{SUDO:hbacmd} hbacmd ListHBAs | /usr/bin/awk '($1 == \"Port\" && $2 == \"WWN\") {print $4}'`;do %{SUDO:hbacmd} hbacmd PortStat $HBA;done;"
           timeout: 120

@@ -87,16 +87,16 @@ connector:
     appliesTo:
     - HP
     criteria:
-      # OS should be HP (for HP-UX, whatever version)
+    # OS should be HP (for HP-UX, whatever version)
     - type: deviceType
       keep:
       - HP
-      # STM should not be present, because in this case, we will use the HPUX-CSTM connector
+    # STM should not be present, because in this case, we will use the HPUX-CSTM connector
     - type: osCommand
       commandLine: /bin/ls /opt/sas/bin/sasmgr
       expectedResult: sasmgr$
-    - _comment: The various following tools have to be present
-      type: osCommand
+    # The various following tools have to be present
+    - type: osCommand
       commandLine: /bin/sh %EmbeddedFile(1)%
       expectedResult: Info for PHY ID
 sudoCommands:
@@ -106,7 +106,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = /opt/sas/bin/sasmgr get_info -D $dev
+          # Source(1) = /opt/sas/bin/sasmgr get_info -D $dev
           type: osCommand
           commandLine: /bin/sh %EmbeddedFile(3)%
           computes:
@@ -118,7 +118,7 @@ monitors:
             keep: ^MSHW;
             selectColumns: "2,3,4"
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.disk_controller.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -148,7 +148,7 @@ monitors:
             column: 2
             translationTable: ControllerTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.disk_controller.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -157,7 +157,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = /opt/sas/bin/sasmgr get_info -D $dev
+          # Source(1) = /opt/sas/bin/sasmgr get_info -D $dev
           type: osCommand
           commandLine: /bin/sh %EmbeddedFile(1)%
           computes:
@@ -169,7 +169,7 @@ monitors:
             keep: ^MSHW;
             selectColumns: "2,4"
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.physical_disk.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -197,7 +197,7 @@ monitors:
             column: 2
             translationTable: PhysicalDiskTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.physical_disk.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -206,7 +206,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = /opt/sas/bin/sasmgr get_info -D $dev
+          # Source(1) = /opt/sas/bin/sasmgr get_info -D $dev
           type: osCommand
           commandLine: /bin/sh %EmbeddedFile(5)%
           computes:
@@ -218,7 +218,7 @@ monitors:
             keep: ^MSHW;
             selectColumns: "2,4,5,6"
       mapping:
-        _comment: The InstanceTable
+        # The InstanceTable
         source: $monitors.logical_disk.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -248,7 +248,7 @@ monitors:
             column: 2
             translationTable: LogicalDiskTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.logical_disk.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:

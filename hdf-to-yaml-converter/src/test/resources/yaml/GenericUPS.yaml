@@ -275,7 +275,7 @@ monitors:
           hw.voltage.limit{limit_type="high.degraded"}: $column(4)
           hw.voltage.limit{limit_type="low.critical"}: $column(5)
     collect:
-      _comment: Voltage Collect
+      # Voltage Collect
       type: multiInstance
       sources:
         source(1):
@@ -357,7 +357,7 @@ monitors:
           hw.temperature.limit{limit_type="high.degraded"}: 35
           hw.temperature.limit{limit_type="high.critical"}: 45
     collect:
-      _comment: Temperature Collect
+      # Temperature Collect
       type: multiInstance
       sources:
         source(1):

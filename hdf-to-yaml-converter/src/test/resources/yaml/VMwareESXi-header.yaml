@@ -145,17 +145,17 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) CIM_ComputerSystem class
+          # Source(1) CIM_ComputerSystem class
           type: wbem
           namespace: root/cimv2
           query: "SELECT Manufacturer,Model,SerialNumber FROM CIM_Chassis"
           computes:
-          - _comment: Add a Fake ID to our table so we can join it with Source(2)
-            type: leftConcat
+          # Add a Fake ID to our table so we can join it with Source(2)
+          - type: leftConcat
             column: 1
             value: MSHW_TableID;
         source(2):
-          _comment: Source(2) CIM_Chassis to get the manufacturer
+          # Source(2) CIM_Chassis to get the manufacturer
           type: wbem
           namespace: root/cimv2
           query: "SELECT BaseUnits,CurrentReading FROM CIM_NumericSensor"
@@ -165,8 +165,8 @@ monitors:
           - type: keepOnlyMatchingLines
             column: 1
             valueList: 7
-          - _comment: Add a Fake ID to our table so we can join it with Source(1)
-            type: leftConcat
+          # Add a Fake ID to our table so we can join it with Source(1)
+          - type: leftConcat
             column: 1
             value: MSHW_TableID;
         source(3):
@@ -187,7 +187,7 @@ monitors:
           leftKeyColumn: 1
           rightKeyColumn: 1
         source(5):
-          _comment: Make a copy of the discovery in the enclosure section
+          # Make a copy of the discovery in the enclosure section
           type: copy
           from: $monitors.memory.discovery.sources.source(6)$
       mapping:
@@ -215,8 +215,8 @@ monitors:
           - type: keepOnlyMatchingLines
             column: 1
             valueList: 7
-          - _comment: Divide by 100
-            type: divide
+          # Divide by 100
+          - type: divide
             column: 2
             value: 100
       mapping:
@@ -260,14 +260,14 @@ monitors:
           query: "SELECT DeviceID,HealthState FROM CIM_Processor"
           namespace: root/cimv2
           computes:
-            # Caption,HealthState,HealthState
+          # Caption,HealthState,HealthState
           - type: duplicateColumn
             column: 2
-            # Caption,PatrolStatus,HealthState
+          # Caption,PatrolStatus,HealthState
           - type: translate
             column: 2
             translationTable: statusTranslationTable
-            # Caption,PatrolStatus,StatusInformation
+          # Caption,PatrolStatus,StatusInformation
           - type: translate
             column: 3
             translationTable: statusInformationTranslationTable
@@ -609,8 +609,8 @@ monitors:
           - type: leftConcat
             column: 7
             value: MSHW_
-          - _comment: Remove 0 value
-            type: replace
+          # Remove 0 value
+          - type: replace
             column: 6
             existingValue: MSHW_0
             newValue: ""
@@ -618,8 +618,8 @@ monitors:
             column: 7
             existingValue: MSHW_0
             newValue: ""
-          - _comment: Remove MSHW_ for non 0 values
-            type: replace
+          # Remove MSHW_ for non 0 values
+          - type: replace
             column: 6
             existingValue: MSHW_
             newValue: ""
@@ -672,7 +672,7 @@ monitors:
           - $monitors.temperature.discovery.sources.source(1)$
           - $monitors.temperature.discovery.sources.source(2)$
           computes:
-            # MSHW;BaseUnits,Caption,CurrentReading,DeviceID,HealthState,UpperThresholdNonCritical,UpperThresholdCritical, SensorType
+          # MSHW;BaseUnits,Caption,CurrentReading,DeviceID,HealthState,UpperThresholdNonCritical,UpperThresholdCritical, SensorType
           - type: awk
             script: EmbeddedFile(3)
           - type: keepOnlyMatchingLines
@@ -735,14 +735,14 @@ monitors:
           - $monitors.temperature.collect.sources.source(1)$
           - $monitors.temperature.collect.sources.source(2)$
           computes:
-            # BaseUnits,DeviceID,CurrentReading,HealthState,HealthState
+          # BaseUnits,DeviceID,CurrentReading,HealthState,HealthState
           - type: duplicateColumn
             column: 4
-            # BaseUnits,DeviceID,CurrentReading,PatrolStatus,HealthState
+          # BaseUnits,DeviceID,CurrentReading,PatrolStatus,HealthState
           - type: translate
             column: 4
             translationTable: statusTranslationTable
-            # BaseUnits,DeviceID,CurrentReading,PatrolStatus,StatusInformation
+          # BaseUnits,DeviceID,CurrentReading,PatrolStatus,StatusInformation
           - type: translate
             column: 5
             translationTable: statusInformationTranslationTable
@@ -845,18 +845,18 @@ monitors:
           - type: rightConcat
             column: 7
             value: MSHW
-          - _comment: Change MSHWMSHW to Activate as there is no valid HealthState
-            type: replace
+          # Change MSHWMSHW to Activate as there is no valid HealthState
+          - type: replace
             column: 7
             existingValue: MSHWMSHW
             newValue: Activate
-          - _comment: Remove MSHW
-            type: replace
+          # Remove MSHW
+          - type: replace
             column: 7
             existingValue: MSHW
             newValue: ""
-          - _comment: Remove The original Healthstate so that the activation is blank for sensors with valid HealthStates
-            type: replace
+          # Remove The original Healthstate so that the activation is blank for sensors with valid HealthStates
+          - type: replace
             column: 7
             existingValue: Column(6)
             newValue: ""
@@ -877,8 +877,8 @@ monitors:
             column: 4
             existingValue: ActivateActivate
             newValue: ""
-          - _comment: Now remove the original value
-            type: replace
+          # Now remove the original value
+          - type: replace
             column: 4
             existingValue: Column(5)
             newValue: ""
@@ -898,8 +898,8 @@ monitors:
             column: 3
             existingValue: ActivateActivate
             newValue: ""
-          - _comment: Now remove the original value
-            type: replace
+          # Now remove the original value
+          - type: replace
             column: 3
             existingValue: Column(4)
             newValue: ""
@@ -970,14 +970,14 @@ monitors:
           - $monitors.fan.collect.sources.source(1)$
           - $monitors.fan.collect.sources.source(2)$
           computes:
-            # BaseUnits,DeviceID,FanPercent,Speed,HealthStatus
+          # BaseUnits,DeviceID,FanPercent,Speed,HealthStatus
           - type: duplicateColumn
             column: 5
-            # BaseUnits,DeviceID,FanPercent,Speed,PatrolStatus,HealthStatus
+          # BaseUnits,DeviceID,FanPercent,Speed,PatrolStatus,HealthStatus
           - type: translate
             column: 5
             translationTable: statusTranslationTable
-            # BaseUnits,DeviceID,FanPercent,Speed,PatrolStatus,StatusInformation
+          # BaseUnits,DeviceID,FanPercent,Speed,PatrolStatus,StatusInformation
           - type: translate
             column: 6
             translationTable: statusInformationTranslationTable
@@ -1029,8 +1029,8 @@ monitors:
           - type: leftConcat
             column: 7
             value: MSHW_
-          - _comment: Remove 0 value
-            type: replace
+          # Remove 0 value
+          - type: replace
             column: 6
             existingValue: MSHW_0
             newValue: ""
@@ -1038,8 +1038,8 @@ monitors:
             column: 7
             existingValue: MSHW_0
             newValue: ""
-          - _comment: Remove MSHW_ for non 0 values
-            type: replace
+          # Remove MSHW_ for non 0 values
+          - type: replace
             column: 6
             existingValue: MSHW_
             newValue: ""
@@ -1135,14 +1135,14 @@ monitors:
           - $monitors.voltage.collect.sources.source(1)$
           - $monitors.voltage.collect.sources.source(2)$
           computes:
-            # BaseUnits,DeviceID,CurrentReading,HealthState,HealthState
+          # BaseUnits,DeviceID,CurrentReading,HealthState,HealthState
           - type: duplicateColumn
             column: 4
-            # BaseUnits,DeviceID,CurrentReading,PatrolStatus,HealthState
+          # BaseUnits,DeviceID,CurrentReading,PatrolStatus,HealthState
           - type: translate
             column: 4
             translationTable: statusTranslationTable
-            # BaseUnits,DeviceID,CurrentReading,PatrolStatus,StatusInformation
+          # BaseUnits,DeviceID,CurrentReading,PatrolStatus,StatusInformation
           - type: translate
             column: 5
             translationTable: statusInformationTranslationTable
@@ -1199,7 +1199,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
     collect:
-      _comment: The NetworkCard collect is a "MultiInstance" collect
+      # The NetworkCard collect is a "MultiInstance" collect
       type: multiInstance
       sources:
         source(1):
@@ -1313,7 +1313,7 @@ monitors:
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,4,5"
-            # DeviceID,PatrolStatus,StatusInformation
+          # DeviceID,PatrolStatus,StatusInformation
           - type: translate
             column: 2
             translationTable: statusTranslationTable

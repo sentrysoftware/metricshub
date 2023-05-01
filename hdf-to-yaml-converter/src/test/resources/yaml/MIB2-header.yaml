@@ -44,7 +44,7 @@ connector:
     connectionTypes:
     - remote
     criteria:
-      # Criteria(1): there must be something in the ifTable SNMP Table
+    # Criteria(1): there must be something in the ifTable SNMP Table
     - type: snmpGetNext
       oid: 1.3.6.1.2.1.2.2.1
 monitors:
@@ -89,7 +89,7 @@ monitors:
           rightKeyColumn: 1
           defaultRightLine: ;;;
     collect:
-      _comment: Collect type = multi-instance
+      # Collect type = multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -197,7 +197,7 @@ monitors:
             existingValue: MSHW
             newValue: ""
         source(4):
-          _comment: Make a copy of Source(3)
+          # Make a copy of Source(3)
           type: copy
           from: $monitors.network.collect.sources.source(3)$
           computes:
@@ -214,23 +214,23 @@ monitors:
             column: 7
             existingValue: Column(7)
             newValue: Column(17)
-          - _comment: ReceivedPackets
-            type: replace
+          # ReceivedPackets
+          - type: replace
             column: 8
             existingValue: Column(8)
             newValue: Column(18)
-          - _comment: TransmittedBytes
-            type: replace
+          # TransmittedBytes
+          - type: replace
             column: 11
             existingValue: Column(11)
             newValue: Column(19)
-          - _comment: TransmittedPackets
-            type: replace
+          # TransmittedPackets
+          - type: replace
             column: 12
             existingValue: Column(12)
             newValue: Column(20)
         source(5):
-          _comment: Make a copy of Source(3)
+          # Make a copy of Source(3)
           type: copy
           from: $monitors.network.collect.sources.source(3)$
           computes:
@@ -248,7 +248,7 @@ monitors:
           - $monitors.network.collect.sources.source(4)$
           - $monitors.network.collect.sources.source(5)$
       mapping:
-        _comment: ValueTable = Source(6)
+        # ValueTable = Source(6)
         source: $monitors.network.collect.sources.source(6)$
         deviceId: $column(1)
         metrics:

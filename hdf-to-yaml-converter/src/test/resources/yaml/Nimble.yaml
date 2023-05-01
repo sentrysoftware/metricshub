@@ -47,15 +47,15 @@ connector:
     - type: deviceType
       keep:
       - Storage
-    - _comment: Check that the address / port is correct
-      type: http
+    # Check that the address / port is correct
+    - type: http
       method: GET
       url: /versions
       header: "Content-Type: application/json"
       expectedResult: "\"name\": *\"v1\""
       errorMessage: Unable to connect to Nimble System.  Check port (default port is 5392) and IP/Address.
-    - _comment: Try and get a token
-      type: http
+    # Try and get a token
+    - type: http
       method: POST
       url: /v1/tokens
       body: "{\"data\":{\"password\":\"%{PASSWORD}\",\"username\":\"%{USERNAME}\"}}"
@@ -109,7 +109,7 @@ monitors:
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           header: "X-Auth-Token: %{AUTHENTICATIONTOKEN}"
         source(4):
-          _comment: Make a copy to keep (3) for use in other classes
+          # Make a copy to keep (3) for use in other classes
           type: copy
           from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
@@ -187,7 +187,7 @@ monitors:
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           header: "X-Auth-Token: %{AUTHENTICATIONTOKEN}"
         source(2):
-          _comment: Make a copy to keep (2) for use in other classes
+          # Make a copy to keep (2) for use in other classes
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -293,8 +293,8 @@ monitors:
             entryKey: data/ctrlrs/ctrlr_sensors
             properties: ../ctrlr_side;/type;/display_name;/location
             separator: ;
-          - _comment: Keep Only Temperature
-            type: keepOnlyMatchingLines
+          # Keep Only Temperature
+          - type: keepOnlyMatchingLines
             column: 3
             valueList: temperature
             # Duplicate the ID
@@ -324,7 +324,7 @@ monitors:
           hw.parent.id: $column(2)
           name: $column(5)
     collect:
-      _comment: Collect is multi-instance (all instances in one shot)
+      # Collect is multi-instance (all instances in one shot)
       type: multiInstance
       sources:
         source(1):
@@ -337,8 +337,8 @@ monitors:
             entryKey: data/ctrlrs/ctrlr_sensors
             properties: ../ctrlr_side;/type;/display_name;/status;/value
             separator: ;
-          - _comment: Keep Only Temperature
-            type: keepOnlyMatchingLines
+          # Keep Only Temperature
+          - type: keepOnlyMatchingLines
             column: 3
             valueList: temperature
             # Concat the CtrlAddress to the DeviceID
@@ -381,8 +381,8 @@ monitors:
             entryKey: data/ctrlrs/ctrlr_sensors
             properties: ../ctrlr_side;/type;/display_name;/location
             separator: ;
-          - _comment: Keep Only Fan
-            type: keepOnlyMatchingLines
+          # Keep Only Fan
+          - type: keepOnlyMatchingLines
             column: 3
             valueList: fan
             # Duplicate the ID
@@ -412,7 +412,7 @@ monitors:
           hw.parent.id: $column(2)
           name: $column(5)
     collect:
-      _comment: Collect is multi-instance (all instances in one shot)
+      # Collect is multi-instance (all instances in one shot)
       type: multiInstance
       sources:
         source(1):
@@ -425,8 +425,8 @@ monitors:
             entryKey: data/ctrlrs/ctrlr_sensors
             properties: ../ctrlr_side;/type;/display_name;/status;/value
             separator: ;
-          - _comment: Keep Only Fan
-            type: keepOnlyMatchingLines
+          # Keep Only Fan
+          - type: keepOnlyMatchingLines
             column: 3
             valueList: fan
             # Concat the CtrlAddress to the DeviceID
@@ -469,8 +469,8 @@ monitors:
             entryKey: data/chassis_sensors
             properties: ../id;/type;/display_name;/location
             separator: ;
-          - _comment: Keep Only PowerSupply
-            type: keepOnlyMatchingLines
+          # Keep Only PowerSupply
+          - type: keepOnlyMatchingLines
             column: 3
             valueList: Power Supply
             # Duplicate the ID
@@ -500,7 +500,7 @@ monitors:
           hw.parent.id: $column(2)
           name: "sprintf(\"%s, $column(5))"
     collect:
-      _comment: Collect is multi-instance (all instances in one shot)
+      # Collect is multi-instance (all instances in one shot)
       type: multiInstance
       sources:
         source(1):
@@ -513,8 +513,8 @@ monitors:
             entryKey: data/chassis_sensors
             properties: ../id;/type;/display_name;/status;/value
             separator: ;
-          - _comment: Keep Only PowerSupply
-            type: keepOnlyMatchingLines
+          # Keep Only PowerSupply
+          - type: keepOnlyMatchingLines
             column: 3
             valueList: Power Supply
             # Concat the CtrlAddress to the DeviceID
@@ -640,8 +640,8 @@ monitors:
             column: 4
             existingValue: Column(4)
             newValue: Column(3)
-          - _comment: Built Status Information
-            type: replace
+          # Built Status Information
+          - type: replace
             column: 4
             existingValue: '|'
             newValue: " - Raid State: "
@@ -680,8 +680,8 @@ monitors:
             entryKey: data/ctrlrs/port_info
             properties: ../ctrlr_side;/port_status;/port_name;/port_type
             separator: ;
-          - _comment: Exclude Disconnected Devices
-            type: excludeMatchingLines
+          # Exclude Disconnected Devices
+          - type: excludeMatchingLines
             column: 3
             valueList: disconnected
             # Duplicate the ID
@@ -712,7 +712,7 @@ monitors:
           hw.parent.id: $column(2)
           name: "sprintf(\"%s: %s\", \"SASPort\", $column(5))"
     collect:
-      _comment: Collect is multi-instance (all instances in one shot)
+      # Collect is multi-instance (all instances in one shot)
       type: multiInstance
       sources:
         source(1):
@@ -829,7 +829,7 @@ monitors:
           hw.parent.id: $column(2)
           name: $column(4)
     collect:
-      _comment: Collect is multi-instance (all instances in one shot)
+      # Collect is multi-instance (all instances in one shot)
       type: multiInstance
       sources:
         source(1):

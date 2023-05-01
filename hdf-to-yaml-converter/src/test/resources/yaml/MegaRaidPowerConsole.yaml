@@ -43,20 +43,20 @@ connector:
     - NT
     - Linux
     criteria:
-    - _comment: Simply check that the megaRaid MIB is populated
-      type: snmpGetNext
+    # Simply check that the megaRaid MIB is populated
+    - type: snmpGetNext
       oid: 1.3.6.1.4.1.3582.1.1.1.1
 monitors:
   disk_controller:
     discovery:
       sources:
         source(1):
-          _comment: HP NetRAID controllers table
+          # HP NetRAID controllers table
           type: snmpTable
           oid: 1.3.6.1.4.1.3582.1.1.1.1
           selectColumns: "ID,1,3,4,23"
         source(2):
-          _comment: Physical disk table
+          # Physical disk table
           type: snmpTable
           oid: 1.3.6.1.4.1.3582.1.1.3.1
           selectColumns: 1
@@ -69,7 +69,7 @@ monitors:
           leftKeyColumn: 2
           rightKeyColumn: 1
       mapping:
-        _comment: The Instance table...
+        # The Instance table...
         source: $monitors.disk_controller.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -111,7 +111,7 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(4)
     collect:
-      _comment: This is a multi-instance collect (execute the collect for each disk)
+      # This is a multi-instance collect (execute the collect for each disk)
       type: multiInstance
       sources:
         source(1):
@@ -125,16 +125,16 @@ monitors:
             # ID;status;status
           - type: duplicateColumn
             column: 2
-          - _comment: translate the snmp state into PATROL status
-            type: translate
+          # translate the snmp state into PATROL status
+          - type: translate
             column: 2
             translationTable: PhysicalDiskStatusTranslationTable
-          - _comment: translate the snmp state into a more readable string
-            type: translate
+          # translate the snmp state into a more readable string
+          - type: translate
             column: 3
             translationTable: PhysicalDiskStatusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.physical_disk.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -145,7 +145,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = the snmp logical drive table
+          # Source(1) = the snmp logical drive table
           type: snmpTable
           oid: 1.3.6.1.4.1.3582.1.1.2.1
           selectColumns: "ID,1,4,5"
@@ -154,7 +154,7 @@ monitors:
             column: 3
             value: 1048576
       mapping:
-        _comment: The instance table
+        # The instance table
         source: $monitors.logical_disk.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -164,28 +164,28 @@ monitors:
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(4), $column(3))"
     collect:
-      _comment: Type = MultiInstance
+      # Type = MultiInstance
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = the status of the drive in the logical drive snmp table
+          # Source(1) = the status of the drive in the logical drive snmp table
           type: snmpTable
           oid: 1.3.6.1.4.1.3582.1.1.2.1
           selectColumns: "ID,3"
           computes:
-          - _comment: Duplicate the status column
-            type: duplicateColumn
+          # Duplicate the status column
+          - type: duplicateColumn
             column: 2
-          - _comment: translate the snmp status into PATROL status
-            type: translate
+          # translate the snmp status into PATROL status
+          - type: translate
             column: 2
             translationTable: LogicalDiskStatusTranslationTable
-          - _comment: translate the snmp status into a more readable string
-            type: translate
+          # translate the snmp status into a more readable string
+          - type: translate
             column: 3
             translationTable: LogicalDiskStatusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.logical_disk.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:

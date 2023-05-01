@@ -62,12 +62,12 @@ connector:
     - CpqHBA
     - SMISHBA
     criteria:
-    - _comment: SCLI should be in the path
-      type: osCommand
+    # SCLI should be in the path
+    - type: osCommand
       commandLine: which scli
       expectedResult: /scli$
-    - _comment: Test the scli command
-      type: osCommand
+    # Test the scli command
+    - type: osCommand
       commandLine: "%{SUDO:scli} scli -g"
       expectedResult: "Total QLogic HBA(s) : [1-9]"
 sudoCommands:
@@ -77,7 +77,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Get the list of Ports from SCLI -i -x2
+          # Get the list of Ports from SCLI -i -x2
           type: osCommand
           commandLine: "%{SUDO:scli} scli -i -x2"
           computes:
@@ -112,11 +112,11 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(5), $column(2))"
     collect:
-      _comment: The NetworkCard collect is a "MultiInstance" collect
+      # The NetworkCard collect is a "MultiInstance" collect
       type: multiInstance
       sources:
         source(1):
-          _comment: Get the list of Ports and Status from SCLI -i -x2
+          # Get the list of Ports and Status from SCLI -i -x2
           type: osCommand
           commandLine: "%{SUDO:scli} scli -i -x2"
           computes:

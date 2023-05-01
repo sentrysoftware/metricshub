@@ -332,13 +332,13 @@ monitors:
           - type: leftConcat
             column: 2
             value: MSHW_
-          - _comment: Remove 0 value
-            type: replace
+          # Remove 0 value
+          - type: replace
             column: 2
             existingValue: MSHW_0
             newValue: ""
-          - _comment: Remove MSHW_ for non 0 values
-            type: replace
+          # Remove MSHW_ for non 0 values
+          - type: replace
             column: 2
             existingValue: MSHW_
             newValue: ""

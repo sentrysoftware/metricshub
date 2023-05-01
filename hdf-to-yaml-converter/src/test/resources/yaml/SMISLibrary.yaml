@@ -27,8 +27,8 @@ connector:
       namespace: Automatic
       query: "SELECT Name,Dedicated FROM CIM_ComputerSystem"
       expectedResult: "[;|]\\(22\\|35\\)|[0-9|]*;$"
-    - _comment: There also must be disk drives declared in this namespace
-      type: wbem
+    # There also must be disk drives declared in this namespace
+    - type: wbem
       query: SELECT DeviceID FROM CIM_TapeDrive
       namespace: Automatic
 monitors:
@@ -52,7 +52,7 @@ monitors:
           keyType: Wbem
           defaultRightLine: ;;;;;
       mapping:
-        _comment: InstanceTable = Source(2)
+        # InstanceTable = Source(2)
         source: $monitors.tape_drive.discovery.sources.source(2)$
         attributes:
           id: $column(1)
@@ -62,7 +62,7 @@ monitors:
           hw.parent.id: $column(5)
           name: "sprintf(\"%s (%s)\", $column(1), $column(7))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -128,7 +128,7 @@ monitors:
           keyType: Wbem
           defaultRightLine: ;;;;;
       mapping:
-        _comment: InstanceTable = Source(2)
+        # InstanceTable = Source(2)
         source: $monitors.robotics.discovery.sources.source(2)$
         attributes:
           id: $column(1)
@@ -139,7 +139,7 @@ monitors:
           hw.parent.id: $column(3)
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(5), \"Media Transfer\")"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):

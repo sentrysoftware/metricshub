@@ -122,12 +122,12 @@ public class ConnectorLibraryConverter {
 		while (iterator.hasNext()) {
 			String maybeComment = iterator.next();
 
-			if (maybeComment.contains("_comment: \"")) {
-				treatSingleLineComment(yamlWithComments, iterator, maybeComment);
-			} else if (maybeComment.contains("_comment: |-")) {
+			if (maybeComment.contains("_comment: |-")) {
 				treatMultiLineComment(yamlWithComments, iterator, maybeComment);
 			} else if (maybeComment.contains("_comment: |2-")) {
 				treatMultiLineComment(yamlWithComments, iterator, maybeComment);
+			} else if (maybeComment.contains("_comment: ")) {
+				treatSingleLineComment(yamlWithComments, iterator, maybeComment);
 			} else {
 				yamlWithComments.add(maybeComment);
 			}
@@ -148,15 +148,18 @@ public class ConnectorLibraryConverter {
 	 */
 	private void treatSingleLineComment(List<String> yamlWithComments, final Iterator<String> iterator, String maybeComment) {
 		// remove yaml formatting and key and replace with #
-		String comment = maybeComment.replace("_comment: \"", "# ");
-		comment = comment.replace("- #", "  #");
-		comment = comment.substring(0, comment.length() - 1);
+		String comment = maybeComment.replace("_comment: ", "# ");
+		comment = comment.replace("- #", "#");
+		comment = comment.replace("# \"", "# ");
+		if(comment.lastIndexOf("\"") == comment.length() -1) {
+			comment = comment.substring(0, comment.length() -1);
+		}
 
 		yamlWithComments.add(comment);
 
 		String node = iterator.next();
 
-		moveDashToPosition(yamlWithComments, maybeComment, node, "- _comment: \"");
+		moveDashToPosition(yamlWithComments, maybeComment, node, "- _comment: ");
 	}
 
 	/**

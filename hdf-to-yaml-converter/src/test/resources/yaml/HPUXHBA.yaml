@@ -61,8 +61,8 @@ connector:
     - CpqHBA
     - SMISHBA
     criteria:
-    - _comment: Test the hbacmd command for ports
-      type: osCommand
+    # Test the hbacmd command for ports
+    - type: osCommand
       commandLine: "%{SUDO:/usr/sbin/ioscan} /usr/sbin/ioscan -fnC fc"
       expectedResult: /dev/
       timeout: 60
@@ -74,7 +74,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Get the outputs of ioscan and fcmsutil for all ports using EmbeddedFile 1
+          # Get the outputs of ioscan and fcmsutil for all ports using EmbeddedFile 1
           type: osCommand
           commandLine: /bin/sh %EmbeddedFile(1)%
           timeout: 90
@@ -98,11 +98,11 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: monoInstance
       sources:
         source(1):
-          _comment: Source(1) = output of fcmsutil %hbaID%
+          # Source(1) = output of fcmsutil %hbaID%
           type: osCommand
           commandLine: "%{SUDO:/opt/fcms/bin/fcmsutil} /opt/fcms/bin/fcmsutil /dev/%NetworkCard.Collect.DeviceID%"
           computes:

@@ -65,8 +65,8 @@ connector:
     appliesTo:
     - Storage
     criteria:
-    - _comment: Run lsstoragesystem to see if it's a V7000
-      type: osCommand
+    # Run lsstoragesystem to see if it's a V7000
+    - type: osCommand
       commandLine: 'lsenclosure -delim :'
       expectedResult: id:status:type:managed:IO_group_id:IO_group_name:product_MTM:serial_number
       forceSerialization: true
@@ -92,7 +92,7 @@ monitors:
             column: 1
             valueList: 'lsenclosure -delim '
         source(2):
-          _comment: Source(2) = lsenclosure & lsenclosurecanister
+          # Source(2) = lsenclosure & lsenclosurecanister
           type: osCommand
           commandLine: lsenclosure -nohdr | while read encID OtherOutput; do echo MS_HW_ENCLOSURE_START;lsenclosure $encID; echo MS_HW_ENCLOSURE_END; done;
           forceSerialization: true
@@ -125,7 +125,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(2) = lsenclosure & lsenclosurecanister
+          # Source(2) = lsenclosure & lsenclosurecanister
           type: osCommand
           commandLine: lsenclosure -nohdr | while read encID OtherOutput; do echo MS_HW_ENCLOSURE_START;lsenclosure $encID; echo MS_HW_ENCLOSURE_END; done;
           forceSerialization: true
@@ -147,7 +147,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = lsenclosurebattery
+          # Source(1) = lsenclosurebattery
           type: osCommand
           commandLine: 'lsenclosurebattery -delim :'
           separators: ':'
@@ -198,7 +198,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = lsenclosurebattery
+          # Source(1) = lsenclosurebattery
           type: osCommand
           commandLine: 'lsenclosurebattery -delim :'
           separators: ':'
@@ -315,7 +315,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = lsdrive
+          # Source(1) = lsdrive
           type: osCommand
           commandLine: lsdrive -bytes -delim
           separators: ':'
@@ -351,7 +351,7 @@ monitors:
             column: 1
             value: "Drive ID: "
         source(2):
-          _comment: Now let's collect the FRU information for each disk
+          # Now let's collect the FRU information for each disk
           type: osCommand
           commandLine: "lsdrive -nohdr | while read driveID OtherOutput; do echo MS_HW_DRIVE_START;lsdrive -delim : $driveID; echo MS_HW_DRIVE_END; done;"
           computes:
@@ -407,11 +407,11 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(3)
     collect:
-      _comment: Collect type is multiinstance
+      # Collect type is multiinstance
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = lsdrive
+          # Source(1) = lsdrive
           type: osCommand
           commandLine: 'lsdrive -delim :'
           separators: ':'
@@ -459,7 +459,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = lsenclosurepsu
+          # Source(1) = lsenclosurepsu
           type: osCommand
           commandLine: 'lsenclosurepsu -delim :'
           separators: ':'
@@ -505,11 +505,11 @@ monitors:
           hw.parent.id: $column(1)
           name: "sprintf(\"%s, $column(2))"
     collect:
-      _comment: Collect type is multiinstance
+      # Collect type is multiinstance
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = lsdrive
+          # Source(1) = lsdrive
           type: osCommand
           commandLine: 'lsenclosurepsu -delim :'
           separators: ':'
@@ -550,7 +550,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = lsenclosurepsu
+          # Source(1) = lsenclosurepsu
           type: osCommand
           commandLine: 'lsenclosurecanister -delim :'
           separators: ':'
@@ -597,11 +597,11 @@ monitors:
           hw.parent.id: $column(1)
           name: "sprintf(\"%s: %s\", \"Canister\", $column(2))"
     collect:
-      _comment: Collect type is multiinstance
+      # Collect type is multiinstance
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = lsdrive
+          # Source(1) = lsdrive
           type: osCommand
           commandLine: 'lsenclosurecanister -delim :'
           separators: ':'
@@ -642,7 +642,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source (1) = Enclosure Discovery Source (2)
+          # Source (1) = Enclosure Discovery Source (2)
           type: copy
           from: $monitors.enclosure.discovery.sources.source(4)$
           computes:
@@ -665,11 +665,11 @@ monitors:
           hw.parent.id: $column(7)
           name: $column(2)
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: Source (1) = Enclosure Collect Source (1)
+          # Source (1) = Enclosure Collect Source (1)
           type: copy
           from: $monitors.enclosure.collect.sources.source(3)$
           computes:
@@ -705,7 +705,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source (1) = Enclosure Discovery Source (2)
+          # Source (1) = Enclosure Discovery Source (2)
           type: copy
           from: $monitors.enclosure.discovery.sources.source(4)$
           computes:
@@ -725,11 +725,11 @@ monitors:
           hw.parent.id: $column(4)
           name: $column(2)
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: Source (1) = Enclosure Collect Source (1)
+          # Source (1) = Enclosure Collect Source (1)
           type: copy
           from: $monitors.enclosure.collect.sources.source(3)$
           computes:

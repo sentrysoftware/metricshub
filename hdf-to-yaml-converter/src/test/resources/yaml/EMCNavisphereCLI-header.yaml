@@ -100,13 +100,13 @@ monitors:
       sources:
         source(3):
           computes:
-          - _comment: Process the naviseccli command through an AWK script
-            type: awk
+          # Process the naviseccli command through an AWK script
+          - type: awk
             script: EmbeddedFile(1)
             keep: ^MSHW
             separators: ;
         source(4):
-          _comment: Enclosure Source 2 = Copy of Source 1
+          # Enclosure Source 2 = Copy of Source 1
           type: copy
           from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
@@ -133,13 +133,13 @@ monitors:
       sources:
         source(3):
           computes:
-          - _comment: Process the naviseccli command through an AWK script
-            type: awk
+          # Process the naviseccli command through an AWK script
+          - type: awk
             script: EmbeddedFile(1)
             keep: ^MSHW
             separators: ;
         source(4):
-          _comment: Enclosure Source 2 = Copy of Source 1
+          # Enclosure Source 2 = Copy of Source 1
           type: copy
           from: $monitors.enclosure.collect.sources.source(3)$
           computes:
@@ -163,11 +163,11 @@ monitors:
             column: 6
             translationTable: systemStatusInformationTranslationTable
         source(5):
-          _comment: Take a copy of the last discovery for the next discovery to use
+          # Take a copy of the last discovery for the next discovery to use
           type: copy
           from: $monitors.enclosure.discovery.sources.source(3)$
       mapping:
-        _comment: ValueTable = Source(2)
+        # ValueTable = Source(2)
         source: $monitors.enclosure.collect.sources.source(4)$
         deviceId: $column(3)
         metrics:
@@ -178,7 +178,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Discovery 1
+          # Source(1) = Enclosure Discovery 1
           type: copy
           from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
@@ -243,7 +243,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Discovery 1
+          # Source(1) = Enclosure Discovery 1
           type: copy
           from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
@@ -308,7 +308,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Discovery 1
+          # Source(1) = Enclosure Discovery 1
           type: copy
           from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
@@ -383,7 +383,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Discovery 1
+          # Source(1) = Enclosure Discovery 1
           type: copy
           from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
@@ -451,7 +451,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Discovery 1
+          # Source(1) = Enclosure Discovery 1
           type: copy
           from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
@@ -522,7 +522,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Discovery 1
+          # Source(1) = Enclosure Discovery 1
           type: copy
           from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
@@ -532,7 +532,7 @@ monitors:
             column: 1
             regExp: ^MSHW_LOGICALDISK$
       mapping:
-        _comment: Discovery Table
+        # Discovery Table
         source: $monitors.logical_disk.discovery.sources.source(1)$
         attributes:
           id: $column(2)
@@ -545,16 +545,16 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Split LogicalDisks into NaviSphereCLI Warnings (From Celerra Connector and Real Logical Disks)
+          # Split LogicalDisks into NaviSphereCLI Warnings (From Celerra Connector and Real Logical Disks)
           type: copy
           from: $monitors.enclosure.collect.sources.source(3)$
           computes:
-          - _comment: Keep only NaviSphereCLI Warnings.  These are pre-translated
-            type: keepOnlyMatchingLines
+          # Keep only NaviSphereCLI Warnings.  These are pre-translated
+          - type: keepOnlyMatchingLines
             column: 2
             regExp: ^NaviSphere CLI Failure$
         source(2):
-          _comment: Split LogicalDisks into NaviSphereCLI Warnings (From Celerra Connector and Real Logical Disks)
+          # Split LogicalDisks into NaviSphereCLI Warnings (From Celerra Connector and Real Logical Disks)
           type: copy
           from: $monitors.enclosure.collect.sources.source(3)$
           computes:
@@ -580,7 +580,7 @@ monitors:
             column: 3
             conversion: array2SimpleStatus
         source(3):
-          _comment: Split LogicalDisks into NaviSphereCLI Warnings (From Celerra Connector and Real Logical Disks)
+          # Split LogicalDisks into NaviSphereCLI Warnings (From Celerra Connector and Real Logical Disks)
           type: copy
           from: $monitors.enclosure.collect.sources.source(3)$
           computes:
@@ -605,7 +605,7 @@ monitors:
             column: 3
             translationTable: StatusTT
         source(4):
-          _comment: Union 1 and 2 and 3
+          # Union 1 and 2 and 3
           type: tableUnion
           tables:
           - $monitors.logical_disk.collect.sources.source(1)$
@@ -624,7 +624,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Discovery 1
+          # Source(1) = Enclosure Discovery 1
           type: copy
           from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
@@ -662,7 +662,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Collect 1
+          # Source(1) = Enclosure Collect 1
           type: copy
           from: $monitors.enclosure.collect.sources.source(3)$
           computes:
@@ -676,8 +676,8 @@ monitors:
           - type: translate
             column: 3
             translationTable: SPLinkStatusTT
-          - _comment: Add SPPortStatus to Status Information
-            type: leftConcat
+          # Add SPPortStatus to Status Information
+          - type: leftConcat
             column: 5
             value: Column(4)
             # Translate the Port Status
@@ -685,16 +685,16 @@ monitors:
           - type: translate
             column: 4
             translationTable: SPPortStatusTT
-          - _comment: Add Port Status to Status Information
-            type: leftConcat
+          # Add Port Status to Status Information
+          - type: leftConcat
             column: 5
             value: "Port Status: "
-          - _comment: Add SFP State to Status Information
-            type: rightConcat
+          # Add SFP State to Status Information
+          - type: rightConcat
             column: 5
             value: " - SFP State: "
-          - _comment: Add SFState value to the Status Information
-            type: rightConcat
+          # Add SFState value to the Status Information
+          - type: rightConcat
             column: 5
             value: Column(6)
             # Translate the Port Status
@@ -714,7 +714,7 @@ monitors:
             column: 4
             conversion: array2SimpleStatus
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.network.collect.sources.source(1)$
         deviceId: $column(2)
         metrics:

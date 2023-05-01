@@ -105,18 +105,18 @@ connector:
     - SmartMonLinux
     - LSIUtilUNIX
     criteria:
-    - _comment: Check the utility exists
-      type: osCommand
+    # Check the utility exists
+    - type: osCommand
       commandLine: "%{SUDO:/opt/lsi/bin/sas2ircu} /opt/lsi/bin/sas2ircu"
       expectedResult: "SAS2IRCU: No command specified"
       errorMessage: sas2ircu not installed on this server.
-    - _comment: Check there are appropriate controllers installed
-      type: osCommand
+    # Check there are appropriate controllers installed
+    - type: osCommand
       commandLine: "%{SUDO:/opt/lsi/bin/sas2ircu} /opt/lsi/bin/sas2ircu LIST"
       expectedResult: "^[0-9].*SAS.*:.*:.*:"
       errorMessage: No sas2ircu managed controllers found / insufficient rights.
-    - _comment: We should find disks attached to one controller
-      type: osCommand
+    # We should find disks attached to one controller
+    - type: osCommand
       commandLine: /bin/sh %EmbeddedFile(1)%
       expectedResult: Device is a
       errorMessage: No sas2ircu managed physical disks found.
@@ -127,17 +127,17 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Output of sas2ircu script
+          # Source(1) = Output of sas2ircu script
           type: osCommand
           commandLine: /bin/sh %EmbeddedFile(1)%
           computes:
-          - _comment: Reformat Source(1) output via EmbeddedFile(2)
-            type: awk
+          # Reformat Source(1) output via EmbeddedFile(2)
+          - type: awk
             script: EmbeddedFile(2)
             keep: ^MSHW
             separators: ;
         source(2):
-          _comment: Make a copy of DiskController Source 1 so that it can be used by other discoveries
+          # Make a copy of DiskController Source 1 so that it can be used by other discoveries
           type: copy
           from: $monitors.disk_controller.discovery.sources.source(1)$
           computes:
@@ -162,21 +162,21 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(2), $column(3))"
     collect:
-      _comment: Collect type is "all instances in one shot"
+      # Collect type is "all instances in one shot
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Output of sas2ircu script
+          # Source(1) = Output of sas2ircu script
           type: osCommand
           commandLine: /bin/sh %EmbeddedFile(1)%
           computes:
-          - _comment: Reformat Source(1) output via EmbeddedFile(2)
-            type: awk
+          # Reformat Source(1) output via EmbeddedFile(2)
+          - type: awk
             script: EmbeddedFile(2)
             keep: ^MSHW
             separators: ;
         source(2):
-          _comment: Make a copy of DiskController Source 1 so that it can be used by other discoveries
+          # Make a copy of DiskController Source 1 so that it can be used by other discoveries
           type: copy
           from: $monitors.disk_controller.discovery.sources.source(1)$
           computes:
@@ -194,7 +194,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Discovery Instance Table
+          # Source(1) = Discovery Instance Table
           type: copy
           from: $monitors.disk_controller.discovery.sources.source(1)$
           computes:
@@ -234,11 +234,11 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(4)
     collect:
-      _comment: Collect type is "all instances in one shot"
+      # Collect type is "all instances in one shot
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Collect Instance Table
+          # Source(1) = Collect Instance Table
           type: copy
           from: $monitors.disk_controller.collect.sources.source(1)$
           computes:
@@ -266,7 +266,7 @@ monitors:
             column: 3
             translationTable: PhysicalDiskStatusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.physical_disk.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -277,7 +277,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Discovery Instance Table
+          # Source(1) = Discovery Instance Table
           type: copy
           from: $monitors.disk_controller.discovery.sources.source(1)$
           computes:
@@ -308,11 +308,11 @@ monitors:
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(8))"
           name: "sprintf(\"%s (%s - %s)\", $column(2), $column(6), $column(7))"
     collect:
-      _comment: Collect type is "all instances in one shot"
+      # Collect type is "all instances in one shot
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Collect Instance Table
+          # Source(1) = Collect Instance Table
           type: copy
           from: $monitors.disk_controller.collect.sources.source(1)$
           computes:
@@ -340,7 +340,7 @@ monitors:
             column: 3
             translationTable: LogicalDiskStatusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.logical_disk.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:

@@ -84,12 +84,12 @@ monitors:
           - type: json2csv
             entryKey: /Members
             properties: /@odata.id;
-          - _comment: remove empty URLs to avoid empty redirection
-            type: keepOnlyMatchingLines
+          # remove empty URLs to avoid empty redirection
+          - type: keepOnlyMatchingLines
             column: 2
             regExp: .
         source(2):
-          _comment: Query /Chassis/?/
+          # Query /Chassis/?/
           type: http
           method: GET
           executeForEachEntryOf:
@@ -125,8 +125,8 @@ monitors:
           - type: json2csv
             entryKey: /Entry/Value/Members
             properties: ../../Column(2);/@odata.id;
-          - _comment: remove empty URLs to avoid empty redirection
-            type: keepOnlyMatchingLines
+          # remove empty URLs to avoid empty redirection
+          - type: keepOnlyMatchingLines
             column: 3
             regExp: .
         source(5):
@@ -171,7 +171,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: For each Chassis found; Query it's specific address.
+          # For each Chassis found; Query it's specific address.
           type: http
           method: GET
           executeForEachEntryOf:
@@ -184,7 +184,7 @@ monitors:
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
-            # Collect @odata.id, StatusHealth from Chassis
+          # Collect @odata.id, StatusHealth from Chassis
           - type: json2csv
             entryKey: /
             properties: '@odata.id;/Status/Health;/Status/Health;'
@@ -196,7 +196,7 @@ monitors:
             column: 4
             translationTable: StatusInformationTranslationTable
         source(3):
-          _comment: For each Chassis found; Query it's Power address.
+          # For each Chassis found; Query it's Power address.
           type: http
           method: GET
           executeForEachEntryOf:
@@ -211,7 +211,7 @@ monitors:
             properties: ../../Column(2);../_POWER_CONSUMPTION_PATH;/_PS_ID;/Status/Health;/Status/Health;
             separator: ;
         source(4):
-          _comment: JSONID;ChassisID;Status;Status;JSONID;ChassisID;PowerConsumption;
+          # JSONID;ChassisID;Status;Status;JSONID;ChassisID;PowerConsumption;
           type: tableJoin
           leftTable: $monitors.enclosure.collect.sources.source(2)$
           rightTable: $monitors.enclosure.collect.sources.source(3)$
@@ -256,12 +256,12 @@ monitors:
             entryKey: /Entry/Value/Members
             properties: ../../Column(2);/@odata.id;
             separator: ;
-          - _comment: remove empty URLs to avoid empty redirection
-            type: keepOnlyMatchingLines
+          # remove empty URLs to avoid empty redirection
+          - type: keepOnlyMatchingLines
             column: 3
             regExp: .
         source(2):
-          _comment: query odata.id from previous results
+          # query odata.id from previous results
           type: http
           method: GET
           executeForEachEntryOf:
@@ -279,8 +279,8 @@ monitors:
           - type: excludeMatchingLines
             column: 9
             regExp: Absent
-          - _comment: Exclude entries where Manufacturer is empty
-            type: keepOnlyMatchingLines
+          # Exclude entries where Manufacturer is empty
+          - type: keepOnlyMatchingLines
             column: 7
             regExp: .
       mapping:
@@ -302,7 +302,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Query /Systems/?/Memory/?
+          # Query /Systems/?/Memory/?
           type: http
           method: GET
           executeForEachEntryOf:
@@ -312,8 +312,8 @@ monitors:
           header: EmbeddedFile(1)
           resultContent: body
           computes:
-          - _comment: Extract odata.id
-            type: json2csv
+          # Extract odata.id
+          - type: json2csv
             entryKey: /
             properties: /@odata.id;_MEMORY_STATUS_PATH;_MEMORY_STATUS_PATH;
           - type: translate
@@ -381,7 +381,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Query /Systems/?/SmartStorage/ArrayControllers/?/PhysicalDrives
+          # Query /Systems/?/SmartStorage/ArrayControllers/?/PhysicalDrives
           type: http
           method: GET
           executeForEachEntryOf:
@@ -396,12 +396,12 @@ monitors:
           - type: json2csv
             entryKey: /Entry/Value/Members
             properties: ../../Column(3);/@odata.id;
-          - _comment: remove empty URLs to avoid empty redirection
-            type: keepOnlyMatchingLines
+          # remove empty URLs to avoid empty redirection
+          - type: keepOnlyMatchingLines
             column: 3
             regExp: .
         source(2):
-          _comment: Query /Systems/?/SmartStorage/ArrayControllers/?/DiskDrives/?
+          # Query /Systems/?/SmartStorage/ArrayControllers/?/DiskDrives/?
           type: http
           method: GET
           executeForEachEntryOf:
@@ -417,16 +417,16 @@ monitors:
             entryKey: /Entry/Value
             properties: ../Column(2);/@odata.id;/Name;/Model;/SerialNumber;/FirmwareVersion/Current/VersionString;/MediaType;/CapacityMiB;/Id;
             separator: ;
-          - _comment: Add label for DiskType
-            type: leftConcat
+          # Add label for DiskType
+          - type: leftConcat
             column: 8
             value: "Disk Type: "
-          - _comment: Convert from MiB to Bytes
-            type: multiply
+          # Convert from MiB to Bytes
+          - type: multiply
             column: 9
             value: 1048576
-          - _comment: PhysicalDisk Name fix.
-            type: rightConcat
+          # PhysicalDisk Name fix.
+          - type: rightConcat
             column: 4
             value: ' '
           - type: rightConcat
@@ -452,7 +452,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Query /Systems/?/SmartStorage/ArrayControllers/?/DiskDrives
+          # Query /Systems/?/SmartStorage/ArrayControllers/?/DiskDrives
           type: http
           method: GET
           executeForEachEntryOf:
@@ -473,12 +473,12 @@ monitors:
           - type: translate
             column: 4
             translationTable: StatusInformationTranslationTable
-          - _comment: JSONID;DiskID;Health;Health;SSDEnduranceUtilizationPercentage;100
-            type: rightConcat
+          # JSONID;DiskID;Health;Health;SSDEnduranceUtilizationPercentage;100
+          - type: rightConcat
             column: 5
             value: ;100
-          - _comment: JSONID;DiskID;Health;Health;SSDEnduranceUtilizationPercentage;EnduranceRemaining
-            type: subtract
+          # JSONID;DiskID;Health;Health;SSDEnduranceUtilizationPercentage;EnduranceRemaining
+          - type: subtract
             column: 6
             value: Column(5)
       mapping:
@@ -495,7 +495,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Query /Systems/?/SmartStorage/ArrayControllers/?/LogicalDrives
+          # Query /Systems/?/SmartStorage/ArrayControllers/?/LogicalDrives
           type: http
           method: GET
           executeForEachEntryOf:
@@ -510,12 +510,12 @@ monitors:
           - type: json2csv
             entryKey: /Entry/Value/Members
             properties: ../../Column(3);/@odata.id;
-          - _comment: remove empty URLs to avoid empty redirection
-            type: keepOnlyMatchingLines
+          # remove empty URLs to avoid empty redirection
+          - type: keepOnlyMatchingLines
             column: 3
             regExp: .
         source(2):
-          _comment: Query /Systems/?/SmartStorage/ArrayControllers/?/DiskDrives/?
+          # Query /Systems/?/SmartStorage/ArrayControllers/?/DiskDrives/?
           type: http
           method: GET
           executeForEachEntryOf:
@@ -549,7 +549,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Query /Systems/?/SmartStorage/ArrayControllers/?/DiskDrives/?
+          # Query /Systems/?/SmartStorage/ArrayControllers/?/DiskDrives/?
           type: http
           method: GET
           executeForEachEntryOf:
@@ -583,7 +583,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Query each instance of Systems/?/Processors
+          # Query each instance of Systems/?/Processors
           type: http
           method: GET
           executeForEachEntryOf:
@@ -598,12 +598,12 @@ monitors:
           - type: json2csv
             entryKey: /Entry/Value/Members
             properties: ../../Column(2);/@odata.id;
-          - _comment: remove empty URLs to avoid empty redirection
-            type: keepOnlyMatchingLines
+          # remove empty URLs to avoid empty redirection
+          - type: keepOnlyMatchingLines
             column: 3
             regExp: .
         source(2):
-          _comment: Query each odata.id
+          # Query each odata.id
           type: http
           method: GET
           executeForEachEntryOf:
@@ -636,7 +636,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Query Systems/?/Processors
+          # Query Systems/?/Processors
           type: http
           method: GET
           executeForEachEntryOf:
@@ -682,8 +682,8 @@ monitors:
           - type: excludeMatchingLines
             column: 5
             regExp: Absent
-          - _comment: Add Location label
-            type: leftConcat
+          # Add Location label
+          - type: leftConcat
             column: 4
             value: "Location: "
       mapping:
@@ -740,11 +740,11 @@ monitors:
           - type: excludeMatchingLines
             column: 6
             regExp: Absent
-          - _comment: Add Location label
-            type: leftConcat
+          # Add Location label
+          - type: leftConcat
             column: 5
             value: "Location: "
-            # When threshold is 0, deactivate Temperature reading
+          # When threshold is 0, deactivate Temperature reading
           - type: replace
             column: 8
             existingValue: 0
@@ -796,7 +796,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Query /Chassis/?/Power/
+          # Query /Chassis/?/Power/
           type: http
           method: GET
           executeForEachEntryOf:
@@ -812,16 +812,16 @@ monitors:
             entryKey: /Entry/Value/PowerSupplies
             properties: ../../Column(2);/_PS_ID;/Name;/Model;/SerialNumber;/PowerSupplyType;/PowerCapacityWatts;/SparePartNumber;
             separator: ;
-          - _comment: Add Model label
-            type: leftConcat
+          # Add Model label
+          - type: leftConcat
             column: 5
             value: "Model: "
-          - _comment: Add Part Number label
-            type: leftConcat
+          # Add Part Number label
+          - type: leftConcat
             column: 9
             value: "Part Number: "
-          - _comment: Add Serial Number label
-            type: leftConcat
+          # Add Serial Number label
+          - type: leftConcat
             column: 6
             value: "Serial Number: "
       mapping:

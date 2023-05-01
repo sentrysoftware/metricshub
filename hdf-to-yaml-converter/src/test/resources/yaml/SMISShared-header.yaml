@@ -279,7 +279,7 @@ monitors:
           - type: keepColumns
             columnNumbers: "1,2,6,7,8"
       mapping:
-        _comment: InstanceTable = Source(9)
+        # InstanceTable = Source(9)
         source: $monitors.enclosure.discovery.sources.source(9)$
         attributes:
           id: $column(1)
@@ -289,7 +289,7 @@ monitors:
           type: Storage
           name: "sprintf(\"%s (%s %s - %s)\", $column(1), $column(3), $column(4), \"Storage\")"
     collect:
-      _comment: Collect type is multiinstance
+      # Collect type is multiinstance
       type: multiInstance
       sources:
         source(1):
@@ -321,7 +321,7 @@ monitors:
             column: 2
             conversion: array2SimpleStatus
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.enclosure.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -370,7 +370,7 @@ monitors:
           defaultRightLine: ;;;;
           keyType: Wbem
           computes:
-            # Add 'Element ID: ' Label to ElementName
+          # Add 'Element ID: ' Label to ElementName
           - type: leftConcat
             column: 6
             value: "Element ID: "
@@ -390,7 +390,7 @@ monitors:
           hw.parent.id: $column(8)
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(2), $column(10))"
     collect:
-      _comment: The NetworkCard collect is a "MultiInstance" collect
+      # The NetworkCard collect is a "MultiInstance" collect
       type: multiInstance
       sources:
         source(1):
@@ -437,7 +437,7 @@ monitors:
             column: 4
             translationTable: SpeedToLinkStatusTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.network.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -471,7 +471,7 @@ monitors:
           keyType: Wbem
           defaultRightLine: ;;;;
       mapping:
-        _comment: InstanceTable = Source(2)
+        # InstanceTable = Source(2)
         source: $monitors.temperature.discovery.sources.source(2)$
         attributes:
           id: $column(1)
@@ -482,7 +482,7 @@ monitors:
           hw.temperature.limit{limit_type="high.degraded"}: $column(3)
           hw.temperature.limit{limit_type="high.critical"}: $column(4)
     collect:
-      _comment: The Temperature collect is a "MultiInstance" collect
+      # The Temperature collect is a "MultiInstance" collect
       type: multiInstance
       sources:
         source(1):
@@ -518,7 +518,7 @@ monitors:
             column: 4
             conversion: array2SimpleStatus
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.temperature.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -546,7 +546,7 @@ monitors:
           defaultRightLine: ;;;;
           keyType: Wbem
       mapping:
-        _comment: InstanceTable = Source(2)
+        # InstanceTable = Source(2)
         source: $monitors.fan.discovery.sources.source(2)$
         attributes:
           id: $column(1)
@@ -554,7 +554,7 @@ monitors:
           hw.parent.id: $column(3)
           name: $column(1)
     collect:
-      _comment: The Fan collect is a "MultiInstance" collect
+      # The Fan collect is a "MultiInstance" collect
       type: multiInstance
       sources:
         source(1):
@@ -585,7 +585,7 @@ monitors:
             column: 2
             conversion: array2SimpleStatus
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.fan.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -612,7 +612,7 @@ monitors:
           defaultRightLine: ;;;;
           keyType: Wbem
       mapping:
-        _comment: InstanceTable = Source(2)
+        # InstanceTable = Source(2)
         source: $monitors.power_supply.discovery.sources.source(2)$
         attributes:
           id: $column(1)
@@ -620,7 +620,7 @@ monitors:
           hw.parent.id: $column(3)
           name: "sprintf(\"%s, $column(1))"
     collect:
-      _comment: The PowerSupply collect is a "MultiInstance" collect
+      # The PowerSupply collect is a "MultiInstance" collect
       type: multiInstance
       sources:
         source(1):
@@ -651,7 +651,7 @@ monitors:
             column: 2
             conversion: array2SimpleStatus
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.power_supply.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -690,20 +690,20 @@ monitors:
           - type: rightConcat
             column: 2
             value: ;
-          - _comment: ComputerID;ElementType;ChassisID;ElementName;LogicalDeviceID;ComputerSystemID;Manufacturer;Model;SerialNumber;
-            type: rightConcat
+          # ComputerID;ElementType;ChassisID;ElementName;LogicalDeviceID;ComputerSystemID;Manufacturer;Model;SerialNumber;
+          - type: rightConcat
             column: 3
             value: Column(6)
             # Keep only useful columns for this special type of devices
             # ComputerID;ElementType;ChassisID;ElementName;SerialNumber;
           - type: keepColumns
             columnNumbers: "1,2,3,4,9"
-            # Add \"Serial Number: \" for AdditionalInformation1
+          # Add \"Serial Number: \" for AdditionalInformation1
           - type: leftConcat
             column: 5
             value: "Serial Number: "
       mapping:
-        _comment: InstanceTable = Source(2)
+        # InstanceTable = Source(2)
         source: $monitors.other_device.discovery.sources.source(2)$
         attributes:
           id: $column(1)
@@ -714,7 +714,7 @@ monitors:
           hw.parent.id: $column(3)
           name: "sprintf(\"%s: %s (%s)\", $column(2), $column(1), $column(4))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):

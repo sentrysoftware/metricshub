@@ -21,8 +21,8 @@ connector:
     appliesTo:
     - Storage
     criteria:
-    - _comment: Make sure it's a controller
-      type: http
+    # Make sure it's a controller
+    - type: http
       method: POST
       url: /api/rest/ApiConnection/Login
       header: EmbeddedFile(1)

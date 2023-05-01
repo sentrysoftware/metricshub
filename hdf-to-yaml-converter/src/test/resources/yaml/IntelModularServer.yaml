@@ -37,8 +37,8 @@ connector:
     appliesTo:
     - OOB
     criteria:
-    - _comment: The Enclosure information is rather limited as not all OEMs populate that table.  But the OID should at least be there.
-      type: snmpGetNext
+    # The Enclosure information is rather limited as not all OEMs populate that table.  But the OID should at least be there.
+    - type: snmpGetNext
       oid: 1.3.6.1.4.1.343.2.19.1.2.10.1
 monitors:
   enclosure:
@@ -52,7 +52,7 @@ monitors:
           type: snmpGet
           oid: 1.3.6.1.4.1.343.2.19.1.2.10.1.0
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.enclosure.discovery.sources.source(1)$
         attributes:
           id: IntelChassis
@@ -69,21 +69,21 @@ monitors:
           oid: 1.3.6.1.4.1.343.2.19.1.2.10.202.1.1
           selectColumns: "ID,2,7"
           computes:
-            # Keep only present blades (1=Present, -4=Identify,; -2=Timedout-which we will report as a fault rather than missing)
+          # Keep only present blades (1=Present, -4=Identify,; -2=Timedout-which we will report as a fault rather than missing)
           - type: keepOnlyMatchingLines
             column: 2
             valueList: "1,-4,-2"
-          - _comment: Translating the LED Fault Status (as in collect)
-            type: translate
+          # Translating the LED Fault Status (as in collect)
+          - type: translate
             column: 3
             translationTable: LEDStatusTranslationTable
-          - _comment: Now replace UNKNOWN LED status (Not applicable etc..) with blank so that the parameter does not appear.
-            type: replace
+          # Now replace UNKNOWN LED status (Not applicable etc..) with blank so that the parameter does not appear.
+          - type: replace
             column: 3
             existingValue: UNKNOWN
             newValue: ""
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.blade.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -91,7 +91,7 @@ monitors:
           hw.parent.id: IntelChassis
           name: $column(1)
     collect:
-      _comment: Collect type is "multi-instance" (one collect for all instances)
+      # Collect type is "multi-instance" (one collect for all instances)
       type: multiInstance
       sources:
         source(1):
@@ -151,7 +151,7 @@ monitors:
           hw.parent.id: IntelChassis
           name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(1), $column(4))"
     collect:
-      _comment: Collect type is "multi-instance" (one collect for all instances)
+      # Collect type is "multi-instance" (one collect for all instances)
       type: multiInstance
       sources:
         source(1):
@@ -207,7 +207,7 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(6)
     collect:
-      _comment: Collect type is "multi-instance" (one collect for all instances)
+      # Collect type is "multi-instance" (one collect for all instances)
       type: multiInstance
       sources:
         source(1):
@@ -314,7 +314,7 @@ monitors:
         metrics:
           hw.fan.speed.limit{limit_type="low.critical"}: $column(5)
     collect:
-      _comment: Collect type is "multi-instance" (one collect for all instances)
+      # Collect type is "multi-instance" (one collect for all instances)
       type: multiInstance
       sources:
         source(1):
@@ -414,7 +414,7 @@ monitors:
           hw.parent.id: IntelChassis
           name: "sprintf(\"%s, $column(1))"
     collect:
-      _comment: Collect type is "multi-instance" (one collect for all instances)
+      # Collect type is "multi-instance" (one collect for all instances)
       type: multiInstance
       sources:
         source(1):
@@ -497,7 +497,7 @@ monitors:
           hw.parent.id: IntelChassis
           name: "sprintf(\"%s: %s\", $column(1), $column(2))"
     collect:
-      _comment: Collect type is "multi-instance" (one collect for all instances)
+      # Collect type is "multi-instance" (one collect for all instances)
       type: multiInstance
       sources:
         source(1):
@@ -586,7 +586,7 @@ monitors:
           hw.parent.type: enclosure
           name: $column(2)
     collect:
-      _comment: Collect type is "multi-instance" (one collect for all instances)
+      # Collect type is "multi-instance" (one collect for all instances)
       type: multiInstance
       sources:
         source(1):
@@ -601,8 +601,8 @@ monitors:
           - type: add
             column: 6
             value: Column(7)
-          - _comment: ID;Speed;receivedbytes;transmittedbytes;operationalStatus;linkStatus;ErrorCount;outErrorCount
-            type: duplicateColumn
+          # ID;Speed;receivedbytes;transmittedbytes;operationalStatus;linkStatus;ErrorCount;outErrorCount
+          - type: duplicateColumn
             column: 5
             # Translate the Link Status
             # ID;Speed;receivedbytes;transmittedbytes;operationalStatus;linkStatus;ErrorCount;outErrorCount

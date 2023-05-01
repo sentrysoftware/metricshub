@@ -103,7 +103,7 @@ monitors:
           leftKeyColumn: 2
           rightKeyColumn: 1
       mapping:
-        _comment: The InstanceTable
+        # The InstanceTable
         source: $monitors.disk_controller.discovery.sources.source(3)$
         attributes:
           id: $column(1)
@@ -136,7 +136,7 @@ monitors:
             column: 7
             value: "Location: "
       mapping:
-        _comment: The instance table = Source(1)
+        # The instance table = Source(1)
         source: $monitors.physical_disk.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -183,7 +183,7 @@ monitors:
             column: 4
             translationTable: PhysicalDiskSMARTStatusTranslationTable
       mapping:
-        _comment: The ValueTable = source(1)
+        # The ValueTable = source(1)
         source: $monitors.physical_disk.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -217,7 +217,7 @@ monitors:
             column: 5
             value: 'Seen by the OS as '
       mapping:
-        _comment: The InstanceTable
+        # The InstanceTable
         source: $monitors.logical_disk.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -228,7 +228,7 @@ monitors:
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), $column(4))"
     collect:
-      _comment: Collect type = MultiInstance
+      # Collect type = MultiInstance
       type: multiInstance
       sources:
         source(1):
@@ -253,7 +253,7 @@ monitors:
             column: 3
             translationTable: LogicalDiskStatusInformationTranslationTable
       mapping:
-        _comment: The ValueTable = source(1)
+        # The ValueTable = source(1)
         source: $monitors.logical_disk.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:

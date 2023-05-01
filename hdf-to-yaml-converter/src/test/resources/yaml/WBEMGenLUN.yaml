@@ -17,15 +17,15 @@ connector:
     appliesTo:
     - NT
     criteria:
-    - _comment: OS must be Windows NT-derivative
-      type: deviceType
+    # OS must be Windows NT-derivative
+    - type: deviceType
       keep:
       - NT
-    - _comment: WMI must be available
-      type: service
+    # WMI must be available
+    - type: service
       name: WINMGMT
-    - _comment: The root\wmi namespace must have the MPIO_DISK_INFO
-      type: wmi
+    # The root\wmi namespace must have the MPIO_DISK_INFO
+    - type: wmi
       query: "SELECT NumberDrives,DriveInfo.Name FROM MPIO_DISK_INFO"
       namespace: root\wmi
       expectedResult: "^[1-9][0-9]*;[^;].*;$"
@@ -174,7 +174,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(3), $column(1))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):

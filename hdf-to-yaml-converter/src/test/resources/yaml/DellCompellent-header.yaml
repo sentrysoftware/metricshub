@@ -77,18 +77,18 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Eclosure Discovery
+          # Eclosure Discovery
           type: http
           method: POST
           url: /api/rest/ApiConnection/Login
           header: EmbeddedFile(1)
           resultContent: all
           computes:
-          - _comment: collect AuthenticationToken
-            type: awk
+          # collect AuthenticationToken
+          - type: awk
             script: EmbeddedFile(2)
         source(2):
-          _comment: Now we have the token let's perform the StorageCenter Discovery
+          # Now we have the token let's perform the StorageCenter Discovery
           type: http
           method: GET
           url: /api/rest/StorageCenter/StorageCenter
@@ -121,7 +121,7 @@ monitors:
           device_hostname: $column(5)
           name: "sprintf(\"%s (%s %s - %s)\", $column(3), \"Dell\", $column(6), \"Storage\")"
     collect:
-      _comment: Collect type = multi-instance
+      # Collect type = multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -155,7 +155,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Now we have the token let's perform the controller's Discovery
+          # Now we have the token let's perform the controller's Discovery
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScController
@@ -180,7 +180,7 @@ monitors:
             column: 1
             valueList: /
       mapping:
-        _comment: tableID;ID;DisplayName;serialNumber;model;enclosureID;serviceTag
+        # tableID;ID;DisplayName;serialNumber;model;enclosureID;serviceTag
         source: $monitors.blade.discovery.sources.source(1)$
         attributes:
           id: $column(2)
@@ -192,7 +192,7 @@ monitors:
           hw.parent.id: $column(6)
           name: "sprintf(\"%s (%s)\", $column(3), $column(5))"
     collect:
-      _comment: Collect type = multi-instance
+      # Collect type = multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -210,8 +210,8 @@ monitors:
             entryKey: /
             properties: instanceId;status;status
             separator: ;
-          - _comment: ID;PatrolStatus;Value;
-            type: translate
+          # ID;PatrolStatus;Value;
+          - type: translate
             column: 3
             translationTable: statusTranslationTable
       mapping:
@@ -227,7 +227,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Now we have the token let's perform the PhysicalDisk's Discovery
+          # Now we have the token let's perform the PhysicalDisk's Discovery
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScDisk
@@ -249,7 +249,7 @@ monitors:
             existingValue: ' Bytes'
             newValue: ""
         source(2):
-          _comment: let's collect serialnumber vendor
+          # let's collect serialnumber vendor
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScDiskConfiguration
@@ -295,7 +295,7 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(4)
     collect:
-      _comment: Collect type = multi-instance
+      # Collect type = multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -313,8 +313,8 @@ monitors:
             entryKey: /
             properties: instanceId;status;status
             separator: ;
-          - _comment: tableid;ID;PatrolStatus;Value;
-            type: translate
+          # tableid;ID;PatrolStatus;Value;
+          - type: translate
             column: 3
             translationTable: statusTranslationTable
       mapping:
@@ -346,7 +346,7 @@ monitors:
             properties: instanceId;name;objectType
             separator: ;
         source(2):
-          _comment: source 2 is the controllers powersupplies.
+          # source 2 is the controllers powersupplies.
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScControllerPowerSupply
@@ -395,8 +395,8 @@ monitors:
             # tableID;ID;DisplayName;objectType;enclosure/controllerID;deviceType
           - type: awk
             script: EmbeddedFile(4)
-          - _comment: remove phantoms
-            type: keepOnlyMatchingLines
+          # remove phantoms
+          - type: keepOnlyMatchingLines
             column: 2
             regExp: .
       mapping:
@@ -410,11 +410,11 @@ monitors:
           hw.parent.id: $column(5)
           name: "sprintf(\"%s, $column(3))"
     collect:
-      _comment: Collect type = multi-instance
+      # Collect type = multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: collect enclosure's power supplies
+          # collect enclosure's power supplies
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScEnclosurePowerSupply
@@ -429,7 +429,7 @@ monitors:
             properties: instanceId;status;status
             separator: ;
         source(2):
-          _comment: collect controllers' power supplies
+          # collect controllers' power supplies
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScControllerPowerSupply
@@ -467,8 +467,8 @@ monitors:
           - $monitors.power_supply.collect.sources.source(2)$
           - $monitors.power_supply.collect.sources.source(3)$
           computes:
-          - _comment: tableid;ID;PatrolStatus;Value;
-            type: translate
+          # tableid;ID;PatrolStatus;Value;
+          - type: translate
             column: 3
             translationTable: statusTranslationTable
       mapping:
@@ -500,7 +500,7 @@ monitors:
             properties: instanceId;name;objectType;currentRpm;lowerNormalThreshold;lowerWarningThreshold
             separator: ;
         source(2):
-          _comment: source 2 is the controllers fans
+          # source 2 is the controllers fans
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScControllerFanSensor
@@ -515,7 +515,7 @@ monitors:
             properties: instanceId;name;objectType;currentRpm;lowerNormalThreshold;lowerWarningThreshold
             separator: ;
         source(3):
-          _comment: now collect from new source
+          # now collect from new source
           type: http
           method: GET
           executeForEachEntryOf:
@@ -551,8 +551,8 @@ monitors:
             # tableID;ID;DisplayName;objectType;enclosure/controllerID;devicetype
           - type: awk
             script: EmbeddedFile(8)
-          - _comment: remove phantoms
-            type: keepOnlyMatchingLines
+          # remove phantoms
+          - type: keepOnlyMatchingLines
             column: 2
             regExp: .
       mapping:
@@ -569,11 +569,11 @@ monitors:
           hw.fan.speed.limit{limit_type="low.degraded"}: $column(6)
           hw.fan.speed.limit{limit_type="low.critical"}: $column(7)
     collect:
-      _comment: Collect type = multi-instance
+      # Collect type = multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: collect enclosure's fans
+          # collect enclosure's fans
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScEnclosureCoolingFanSensor
@@ -588,7 +588,7 @@ monitors:
             properties: instanceId;status;status;currentRpm
             separator: ;
         source(2):
-          _comment: collect controllers' fans
+          # collect controllers' fans
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScControllerFanSensor
@@ -603,7 +603,7 @@ monitors:
             properties: instanceId;status;status;currentRpm
             separator: ;
         source(3):
-          _comment: now collect from new source
+          # now collect from new source
           type: http
           method: GET
           executeForEachEntryOf:
@@ -627,8 +627,8 @@ monitors:
           - $monitors.fan.collect.sources.source(2)$
           - $monitors.fan.collect.sources.source(3)$
           computes:
-          - _comment: tableid;ID;PatrolStatus;Value;speed
-            type: translate
+          # tableid;ID;PatrolStatus;Value;speed
+          - type: translate
             column: 3
             translationTable: statusTranslationTable
       mapping:
@@ -662,7 +662,7 @@ monitors:
             properties: instanceId;name;objectType;currentTemperature;location;lowerCriticalThreshold;lowerWarningThreshold;upperWarningThreshold;upperCriticalThreshold
             separator: ;
         source(2):
-          _comment: source 2 is the controllers temperature sensors.
+          # source 2 is the controllers temperature sensors.
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScControllerTemperatureSensor
@@ -710,11 +710,11 @@ monitors:
           hw.temperature.limit{limit_type="high.critical"}: $column(10)
           hw.temperature.limit{limit_type="high.degraded"}: $column(9)
     collect:
-      _comment: Collect type = multi-instance
+      # Collect type = multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: collect enclosure's temperature
+          # collect enclosure's temperature
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScEnclosureTemperatureSensor
@@ -729,7 +729,7 @@ monitors:
             properties: instanceId;name;objectType;currentTemperature;location;lowerCriticalThreshold;lowerWarningThreshold;upperNormalThreshold;upperWarningThreshold
             separator: ;
         source(2):
-          _comment: collect controllers' temperature sensors
+          # collect controllers' temperature sensors
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScControllerTemperatureSensor
@@ -751,8 +751,8 @@ monitors:
           - $monitors.temperature.collect.sources.source(1)$
           - $monitors.temperature.collect.sources.source(2)$
           computes:
-          - _comment: tableID;ID;DisplayName;objectType;currentTemperature;location;lowerCriticalThreshold;lowerWarningThreshold;upperNormalThreshold;upperWarningThresholdD
-            type: awk
+          # tableID;ID;DisplayName;objectType;currentTemperature;location;lowerCriticalThreshold;lowerWarningThreshold;upperNormalThreshold;upperWarningThresholdD
+          - type: awk
             script: EmbeddedFile(5)
       mapping:
         # ValueTable = Source(1)
@@ -790,7 +790,7 @@ monitors:
             column: 1
             valueList: /
       mapping:
-        _comment: tableID;instanceId;name;objectType;currentVoltage;status;upperNormalThreshold;lowerNormalThreshold;controllerID;devicetype
+        # tableID;instanceId;name;objectType;currentVoltage;status;upperNormalThreshold;lowerNormalThreshold;controllerID;devicetype
         source: $monitors.voltage.discovery.sources.source(1)$
         attributes:
           id: $column(2)
@@ -802,11 +802,11 @@ monitors:
           hw.voltage.limit{limit_type="low.critical"}: $column(8)
           hw.voltage.limit{limit_type="high.degraded"}: $column(7)
     collect:
-      _comment: Collect type = multi-instance
+      # Collect type = multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: source 1 is controller voltage sensors
+          # source 1 is controller voltage sensors
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScControllerVoltageSensor
@@ -820,8 +820,8 @@ monitors:
             entryKey: /
             properties: instanceId;status;status;currentVoltage
             separator: ;
-          - _comment: tableid;ID;PatrolStatus;Value;currentVoltage
-            type: translate
+          # tableid;ID;PatrolStatus;Value;currentVoltage
+          - type: translate
             column: 3
             translationTable: statusTranslationTable
             # pass the value from volt to mv
@@ -859,7 +859,7 @@ monitors:
             properties: instanceId;name;objectType
             separator: ;
         source(2):
-          _comment: source 2 is the controllers cache cards
+          # source 2 is the controllers cache cards
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScControllerCacheCard
@@ -874,7 +874,7 @@ monitors:
             properties: instanceId;name;objectType
             separator: ;
         source(3):
-          _comment: source 2 is the enclosure audible alarms
+          # source 2 is the enclosure audible alarms
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScEnclosureAudibleAlarm
@@ -918,11 +918,11 @@ monitors:
           hw.parent.id: $column(5)
           name: "sprintf(\"%s: %s\", $column(4), $column(3))"
     collect:
-      _comment: Collect type = multi-instance
+      # Collect type = multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: collect enclosure's IoModules
+          # collect enclosure's IoModules
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScEnclosureIoModule
@@ -937,7 +937,7 @@ monitors:
             properties: instanceId;status;status
             separator: ;
         source(2):
-          _comment: collect controllers' Cache cards
+          # collect controllers' Cache cards
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScControllerCacheCard
@@ -952,7 +952,7 @@ monitors:
             properties: instanceId;status;status
             separator: ;
         source(3):
-          _comment: collect audible alarms
+          # collect audible alarms
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScEnclosureAudibleAlarm
@@ -976,20 +976,20 @@ monitors:
           - type: rightConcat
             column: 4
             value: '-'
-          - _comment: tableID;ID;status;status;mutedvalue
-            type: rightConcat
+          # tableID;ID;status;status;mutedvalue
+          - type: rightConcat
             column: 4
             value: Column(5)
         source(4):
-          _comment: now join 3 sources
+          # now join 3 sources
           type: tableUnion
           tables:
           - $monitors.other_device.collect.sources.source(1)$
           - $monitors.other_device.collect.sources.source(2)$
           - $monitors.other_device.collect.sources.source(3)$
           computes:
-          - _comment: tableid;ID;PatrolStatus;Value;
-            type: translate
+          # tableid;ID;PatrolStatus;Value;
+          - type: translate
             column: 3
             translationTable: statusTranslationTable
       mapping:
@@ -1061,7 +1061,7 @@ monitors:
             column: 1
             valueList: /
       mapping:
-        _comment: tableID;instanceId;name;transportType;virtual;wwn;cabled;controller/instanceId;tableID;instanceId;speed;description
+        # tableID;instanceId;name;transportType;virtual;wwn;cabled;controller/instanceId;tableID;instanceId;speed;description
         source: $monitors.network.discovery.sources.source(3)$
         attributes:
           id: $column(2)
@@ -1139,8 +1139,8 @@ monitors:
           type: copy
           from: $monitors.network.collect.sources.source(3)$
           computes:
-          - _comment: tableID;instanceId;cabled;status;statusMessage;tableID;instanceId;speed;description;
-            type: keepOnlyMatchingLines
+          # tableID;instanceId;cabled;status;statusMessage;tableID;instanceId;speed;description;
+          - type: keepOnlyMatchingLines
             column: 3
             valueList: WARN
           - type: replace
@@ -1151,8 +1151,8 @@ monitors:
           type: copy
           from: $monitors.network.collect.sources.source(3)$
           computes:
-          - _comment: tableID;instanceId;cabled;status;statusMessage;tableID;instanceId;speed;description;
-            type: keepOnlyMatchingLines
+          # tableID;instanceId;cabled;status;statusMessage;tableID;instanceId;speed;description;
+          - type: keepOnlyMatchingLines
             column: 3
             valueList: OK
         source(6):
@@ -1175,7 +1175,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Now we have the token let's perform the UPS' Discovery
+          # Now we have the token let's perform the UPS' Discovery
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScUps
@@ -1194,8 +1194,8 @@ monitors:
           - type: rightConcat
             column: 5
             value: enclosure
-          - _comment: Exclude Empty IDs
-            type: excludeMatchingLines
+          # Exclude Empty IDs
+          - type: excludeMatchingLines
             column: 1
             valueList: /
       mapping:
@@ -1212,7 +1212,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: collect UPS
+          # collect UPS
           type: http
           method: GET
           url: /api/rest/StorageCenter/ScUps

@@ -56,8 +56,8 @@ connector:
     - HPUXSAUtil
     - HPUXStm
     criteria:
-    - _comment: Checking the version of ESXi
-      type: wbem
+    # Checking the version of ESXi
+    - type: wbem
       namespace: root/cimv2
       query: SELECT DeviceID FROM HPUX_Processor
 monitors:
@@ -85,7 +85,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: ID;MaxClockSpeed;Description;CurrentClockSpeed
+          # ID;MaxClockSpeed;Description;CurrentClockSpeed
           type: wbem
           query: "SELECT DeviceID,OperationalStatus,Name,CurrentClockSpeed FROM HPUX_Processor"
           namespace: root/cimv2
@@ -120,7 +120,7 @@ monitors:
           query: "SELECT DeviceID,CurrentClockSpeed,OperationalStatus FROM HPUX_Processor"
           namespace: root/cimv2
           computes:
-            # DeviceID,OperationalStatus,OperationalStatus
+          # DeviceID,OperationalStatus,OperationalStatus
           - type: duplicateColumn
             column: 3
             # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
@@ -181,7 +181,7 @@ monitors:
           rightKeyColumn: 1
           defaultRightLine: ;;
           computes:
-            # ID,PartNumber,Capacity,ID,Label,Location,
+          # ID,PartNumber,Capacity,ID,Label,Location,
           - type: duplicateColumn
             column: 5
           - type: replace
@@ -217,7 +217,7 @@ monitors:
           query: "SELECT Tag,OperationalStatus FROM HP_PhysicalMemory"
           namespace: root/cimv2
           computes:
-            # DeviceID,OperationalStatus,OperationalStatus
+          # DeviceID,OperationalStatus,OperationalStatus
           - type: duplicateColumn
             column: 2
             # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
@@ -249,7 +249,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: ID;DisplayName;PartNumber;Location;
+          # ID;DisplayName;PartNumber;Location;
           type: wbem
           query: "SELECT Tag,ElementName,PartNumber,Description FROM HP_PowerSupplyModule"
           namespace: root/cimv2
@@ -291,7 +291,7 @@ monitors:
           query: "SELECT Tag,OperationalStatus FROM HP_PowerSupplyModule"
           namespace: root/cimv2
           computes:
-            # DeviceID,OperationalStatus,OperationalStatus
+          # DeviceID,OperationalStatus,OperationalStatus
           - type: duplicateColumn
             column: 2
             # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
@@ -341,8 +341,8 @@ monitors:
           - type: leftConcat
             column: 7
             value: MSHW_
-          - _comment: Remove 0 value
-            type: replace
+          # Remove 0 value
+          - type: replace
             column: 6
             existingValue: MSHW_0
             newValue: ""
@@ -350,8 +350,8 @@ monitors:
             column: 7
             existingValue: MSHW_0
             newValue: ""
-          - _comment: Remove MSHW_ for non 0 values
-            type: replace
+          # Remove MSHW_ for non 0 values
+          - type: replace
             column: 6
             existingValue: MSHW_
             newValue: ""
@@ -391,7 +391,7 @@ monitors:
           - type: keepOnlyMatchingLines
             column: 4
             valueList: 2
-            # DeviceID,CurrentReading,OperationalStatus,OperationalStatus,SensorType
+          # DeviceID,CurrentReading,OperationalStatus,OperationalStatus,SensorType
           - type: duplicateColumn
             column: 3
             # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
@@ -446,7 +446,7 @@ monitors:
           query: "SELECT InstanceID,GroupOperationalStatus FROM HP_SystemVoltageCollection"
           namespace: root/cimv2
           computes:
-            # DeviceID,OperationalStatus,OperationalStatus
+          # DeviceID,OperationalStatus,OperationalStatus
           - type: duplicateColumn
             column: 2
             # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
@@ -478,7 +478,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: ID;Location;Display;
+          # ID;Location;Display;
           type: wbem
           query: "SELECT DeviceID,Description,Caption FROM HP_Fan"
           namespace: root/cimv2
@@ -488,8 +488,8 @@ monitors:
           - type: rightConcat
             column: 3
             value: ' '
-          - _comment: ID;Location;Display;
-            type: rightConcat
+          # ID;Location;Display;
+          - type: rightConcat
             column: 3
             value: Column(1)
           - type: replace
@@ -526,7 +526,7 @@ monitors:
           query: "SELECT DeviceID,OperationalStatus FROM HP_Fan"
           namespace: root/cimv2
           computes:
-            # DeviceID,OperationalStatus,OperationalStatus
+          # DeviceID,OperationalStatus,OperationalStatus
           - type: duplicateColumn
             column: 2
             # Then we translate DMTF's OperationStatus code into OK/WARN/ALARM (for the Status parameter)
@@ -596,7 +596,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(1), $column(3))"
     collect:
-      _comment: The DiskController collect is a "MultiInstance" collect
+      # The DiskController collect is a "MultiInstance" collect
       type: multiInstance
       sources:
         source(1):
@@ -607,23 +607,23 @@ monitors:
           query: "SELECT OperationalStatus,DeviceID FROM CIM_PortController"
           namespace: root/cimv2
           computes:
-            # OperationalStatus,OperationalStatus,DeviceID
+          # OperationalStatus,OperationalStatus,DeviceID
           - type: duplicateColumn
             column: 1
-            # PatrolStatusArray,OperationalStatus,DeviceID
+          # PatrolStatusArray,OperationalStatus,DeviceID
           - type: arrayTranslate
             column: 1
             translationTable: DMTFOperationStatusTranslationTable
-            # PatrolStatusArray,StatusInformation,DeviceID
+          # PatrolStatusArray,StatusInformation,DeviceID
           - type: arrayTranslate
             column: 2
             translationTable: DMTFOperationStatusInformationTranslationTable
-            # PatrolStatus,OperationalStatus,DeviceID
+          # PatrolStatus,OperationalStatus,DeviceID
           - type: convert
             column: 1
             conversion: array2SimpleStatus
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.disk_controller.collect.sources.source(1)$
         deviceId: $column(3)
         metrics:
@@ -668,7 +668,7 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(2)
     collect:
-      _comment: The DiskController collect is a "MultiInstance" collect
+      # The DiskController collect is a "MultiInstance" collect
       type: multiInstance
       sources:
         source(1):
@@ -678,18 +678,18 @@ monitors:
           query: "SELECT DeviceID,OperationalStatus FROM HP_DiskDrive"
           namespace: root/cimv2
           computes:
-            # DeviceID,OperationalStatus,OperationalStatus
+          # DeviceID,OperationalStatus,OperationalStatus
           - type: duplicateColumn
             column: 2
-            # DeviceID,PatrolStatusArray,OperationalStatus
+          # DeviceID,PatrolStatusArray,OperationalStatus
           - type: arrayTranslate
             column: 2
             translationTable: DMTFOperationStatusTranslationTable
-            # DeviceID,PatrolStatusArray,StatusInformation
+          # DeviceID,PatrolStatusArray,StatusInformation
           - type: arrayTranslate
             column: 3
             translationTable: DMTFOperationStatusInformationTranslationTable
-            # DeviceID,PatrolStatus,OperationalStatus
+          # DeviceID,PatrolStatus,OperationalStatus
           - type: convert
             column: 2
             conversion: array2SimpleStatus
@@ -721,7 +721,7 @@ monitors:
           hw.parent.type: enclosure
           name: $column(1)
     collect:
-      _comment: The DiskController collect is a "MultiInstance" collect
+      # The DiskController collect is a "MultiInstance" collect
       type: multiInstance
       sources:
         source(1):
@@ -731,18 +731,18 @@ monitors:
           query: "SELECT DeviceID,OperationalStatus FROM HPUX_PhysicalVolume"
           namespace: root/cimv2
           computes:
-            # DeviceID,OperationalStatus,OperationalStatus
+          # DeviceID,OperationalStatus,OperationalStatus
           - type: duplicateColumn
             column: 2
-            # DeviceID,PatrolStatusArray,OperationalStatus
+          # DeviceID,PatrolStatusArray,OperationalStatus
           - type: arrayTranslate
             column: 2
             translationTable: DMTFOperationStatusTranslationTable
-            # DeviceID,PatrolStatusArray,StatusInformation
+          # DeviceID,PatrolStatusArray,StatusInformation
           - type: arrayTranslate
             column: 3
             translationTable: DMTFOperationStatusInformationTranslationTable
-            # DeviceID,PatrolStatus,OperationalStatus
+          # DeviceID,PatrolStatus,OperationalStatus
           - type: convert
             column: 2
             conversion: array2SimpleStatus

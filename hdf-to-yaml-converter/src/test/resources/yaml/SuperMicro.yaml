@@ -33,11 +33,11 @@ connector:
     appliesTo:
     - OOB
     criteria:
-    - _comment: Hardware Sentry v10.2.00+
-      type: productRequirements
+    # Hardware Sentry v10.2.00+
+    - type: productRequirements
       kmVersion: 10.2.00
-    - _comment: DETECTION
-      type: http
+    # DETECTION
+    - type: http
       method: GET
       header: "Authorization: Basic %{BASIC_AUTH_BASE64}"
       url: /redfish/v1/Systems/1
@@ -48,7 +48,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: http
           method: GET
           url: /redfish/v1/Systems
@@ -63,7 +63,7 @@ monitors:
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
         source(3):
-          _comment: Enclosure.Discovery.Source(2).Column(2) = Systems
+          # Enclosure.Discovery.Source(2).Column(2) = Systems
           type: http
           method: GET
           header: "Authorization: Basic %{BASIC_AUTH_BASE64}"
@@ -78,7 +78,7 @@ monitors:
             properties: /@odata.id;/Name;/SerialNumber;/PartNumber;/Manufacturer;/Model;
             separator: ;
         source(4):
-          _comment: For use in other Discoveries
+          # For use in other Discoveries
           type: http
           method: GET
           header: "Authorization: Basic %{BASIC_AUTH_BASE64}"
@@ -116,7 +116,7 @@ monitors:
           type: enclosure
           name: "sprintf(\"%s (%s %s - %s)\", $column(3), $column(6), $column(7), \"enclosure\")"
     collect:
-      _comment: Collection Type
+      # Collection Type
       type: multiInstance
       sources:
         source(1):
@@ -154,7 +154,7 @@ monitors:
             column: 4
             translationTable: StatusInformationTranslationTable
         source(4):
-          _comment: For use in other Collects
+          # For use in other Collects
           type: http
           method: GET
           header: "Authorization: Basic %{BASIC_AUTH_BASE64}"
@@ -192,7 +192,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: http
           method: GET
           header: "Authorization: Basic %{BASIC_AUTH_BASE64}"
@@ -207,7 +207,7 @@ monitors:
             properties: ../../Column(2);/@odata.id;
             separator: ;
         source(2):
-          _comment: JsonID;<System>;@odata.id
+          # JsonID;<System>;@odata.id
           type: http
           method: GET
           header: "Authorization: Basic %{BASIC_AUTH_BASE64}"
@@ -222,7 +222,7 @@ monitors:
             properties: ../Column(2);/Id;/Socket;/Manufacturer;/Model;/MaxSpeedMHz;
             separator: ;
       mapping:
-        _comment: JSONID;<system>;Id;Socket;Manufacturer;Model;MaxSpeedMHz
+        # JSONID;<system>;Id;Socket;Manufacturer;Model;MaxSpeedMHz
         source: $monitors.cpu.discovery.sources.source(2)$
         attributes:
           id: $column(3)
@@ -235,7 +235,7 @@ monitors:
         metrics:
           hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(7))
     collect:
-      _comment: COLLECTION
+      # COLLECTION
       type: multiInstance
       sources:
         source(1):
@@ -313,7 +313,7 @@ monitors:
             properties: ../Column(2);/Id;/DeviceLocator;/CapacityMiB;/Manufacturer;/PartNumber;/SerialNumber;/MemoryDeviceType;
             separator: ;
       mapping:
-        _comment: JSON;<System>;Id;DeviceLocator;CapacityMiB;Manufacturer;PartNumber;SerialNumber;MemoryDeviceType;
+        # JSON;<System>;Id;DeviceLocator;CapacityMiB;Manufacturer;PartNumber;SerialNumber;MemoryDeviceType;
         source: $monitors.memory.discovery.sources.source(2)$
         attributes:
           id: $column(3)
@@ -328,7 +328,7 @@ monitors:
         metrics:
           hw.memory.limit: mebiByte2Byte($column(5))
     collect:
-      _comment: COLLECTION
+      # COLLECTION
       type: multiInstance
       sources:
         source(1):
@@ -391,8 +391,8 @@ monitors:
             entryKey: /Entry/Value/Fans
             properties: ../../Column(3);/MemberId;/FanName;/Status/State;LowerThresholdNonCritical;LowerThresholdCritical;
             separator: ;
-          - _comment: Remove Fans that are not populated
-            type: keepOnlyMatchingLines
+          # Remove Fans that are not populated
+          - type: keepOnlyMatchingLines
             column: 5
             regExp: Enabled
       mapping:
@@ -409,7 +409,7 @@ monitors:
           hw.fan.speed.limit{limit_type="low.degraded"}: $column(6)
           hw.fan.speed.limit{limit_type="low.critical"}: $column(7)
     collect:
-      _comment: Collection
+      # Collection
       type: multiInstance
       sources:
         source(1):
@@ -432,8 +432,8 @@ monitors:
           - type: translate
             column: 4
             translationTable: StatusInformationTranslationTable
-          - _comment: Compute 4 - 5 (Get RPM range and convert to Speed Percentage)
-            type: subtract
+          # Compute 4 - 5 (Get RPM range and convert to Speed Percentage)
+          - type: subtract
             column: 8
             value: Column(7)
           - type: divide
@@ -497,7 +497,7 @@ monitors:
           hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s)\", $column(3), $column(5))"
     collect:
-      _comment: Collection
+      # Collection
       type: multiInstance
       sources:
         source(1):
@@ -560,8 +560,8 @@ monitors:
             entryKey: Entry/Value/PowerSupplies
             properties: ../../Column(3);/MemberId;/Name;/Status/State;/PowerSupplyType;/LineInputVoltage;/Model;/firmwareVersion;/SerialNumber;
             separator: ;
-          - _comment: Exclude PowerSupplies that are marked as "Absent" at discovery
-            type: excludeMatchingLines
+          # Exclude PowerSupplies that are marked as "Absent" at discovery
+          - type: excludeMatchingLines
             column: 5
             regExp: Absent
           - type: leftConcat
@@ -574,7 +574,7 @@ monitors:
             column: 10
             value: "Serial Number: "
       mapping:
-        _comment: PowerSupply Instance Table
+        # PowerSupply Instance Table
         source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
           id: $column(3)
@@ -587,7 +587,7 @@ monitors:
         metrics:
           hw.power_supply.limit: $column(7)
     collect:
-      _comment: Collection
+      # Collection
       type: multiInstance
       sources:
         source(1):
@@ -636,8 +636,8 @@ monitors:
             entryKey: /Entry/Value/Temperatures
             properties: ../../Column(3);/MemberId;/Name;/Status/State;/UpperThresholdNoncritical;/UpperThresholdCritical;
             separator: ;
-          - _comment: Keep only Temperature Sensors marked as "Enabled"
-            type: keepOnlyMatchingLines
+          # Keep only Temperature Sensors marked as "Enabled
+          - type: keepOnlyMatchingLines
             column: 5
             regExp: Enabled
       mapping:
@@ -651,7 +651,7 @@ monitors:
           hw.parent.id: $column(2)
           name: $column(4)
     collect:
-      _comment: Collection Type
+      # Collection Type
       type: multiInstance
       sources:
         source(1):
@@ -701,8 +701,8 @@ monitors:
             entryKey: /Entry/Value/Voltages
             properties: ../../Column(3);/MemberId;/Name;/Status/State;/UpperThresholdNoncritical;/UpperThresholdCritical;
             separator: ;
-          - _comment: Keep only Voltage Sensors marked as "Enabled"
-            type: keepOnlyMatchingLines
+          # Keep only Voltage Sensors marked as "Enabled
+          - type: keepOnlyMatchingLines
             column: 5
             regExp: Enabled
       mapping:
@@ -716,7 +716,7 @@ monitors:
           hw.parent.id: $column(2)
           name: $column(4)
     collect:
-      _comment: Collection Type
+      # Collection Type
       type: multiInstance
       sources:
         source(1):
@@ -798,7 +798,7 @@ monitors:
           hw.parent.id: $column(2)
           name: $column(4)
     collect:
-      _comment: Collection Type
+      # Collection Type
       type: multiInstance
       sources:
         source(1):

@@ -32,13 +32,13 @@ connector:
     supersedes:
     - SunPsrinfo
     criteria:
-    - _comment: OS should be SunOS or Solaris
-      type: deviceType
+    # OS should be SunOS or Solaris
+    - type: deviceType
       keep:
       - SunOS
       - Solaris
-    - _comment: psrinfo should return that we have more than one virtual processor
-      type: osCommand
+    # psrinfo should return that we have more than one virtual processor
+    - type: osCommand
       commandLine: /usr/sbin/psrinfo -vp
       expectedResult: "physical processor has [0-9]+.* virtual processors"
 monitors:
@@ -46,7 +46,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = psrinfo -vp
+          # Source(1) = psrinfo -vp
           type: osCommand
           commandLine: /usr/sbin/psrinfo -vp
           computes:
@@ -58,7 +58,7 @@ monitors:
             separators: ;
             selectColumns: "2,3,4"
       mapping:
-        _comment: Instance table = source(1)
+        # Instance table = source(1)
         source: $monitors.cpu.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -68,11 +68,11 @@ monitors:
         metrics:
           hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(3))
     collect:
-      _comment: Collect type = multi-instance
+      # Collect type = multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = psrinfo -vp
+          # Source(1) = psrinfo -vp
           type: osCommand
           commandLine: /usr/sbin/psrinfo -vp
           computes:
@@ -84,14 +84,14 @@ monitors:
             separators: ;
             selectColumns: "2,3,4"
       mapping:
-        _comment: ValueTable = source(1)
+        # ValueTable = source(1)
         source: $monitors.cpu.collect.sources.source(1)$
         deviceId: $column(1)
   cpu_core:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = psrinfo -vp
+          # Source(1) = psrinfo -vp
           type: osCommand
           commandLine: /usr/sbin/psrinfo -vp
           computes:
@@ -163,11 +163,11 @@ monitors:
           additionalinformation1: $column(3)
           parameteractivation.currentspeed: $column(5)
     collect:
-      _comment: Collect type = multi-instance
+      # Collect type = multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = psrinfo -v
+          # Source(1) = psrinfo -v
           type: osCommand
           commandLine: /usr/sbin/psrinfo
           keep: "^[0-9]+ "

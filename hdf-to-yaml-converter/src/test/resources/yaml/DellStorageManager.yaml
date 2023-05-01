@@ -197,7 +197,7 @@ monitors:
           oid: 1.3.6.1.4.1.674.10893.1.20.130.1.1
           selectColumns: "ID,1,2,8,41"
       mapping:
-        _comment: The InstanceTable
+        # The InstanceTable
         source: $monitors.disk_controller.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -208,7 +208,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(1), $column(2))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -233,7 +233,7 @@ monitors:
             column: 3
             translationTable: GenericStatusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.disk_controller.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -312,7 +312,7 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(7)
     collect:
-      _comment: Collect type = mono-instance
+      # Collect type = mono-instance
       type: multiInstance
       sources:
         source(1):
@@ -420,7 +420,7 @@ monitors:
           rightKeyColumn: 1
           defaultRightLine: ;1;
       mapping:
-        _comment: The InstanceTable
+        # The InstanceTable
         source: $monitors.logical_disk.discovery.sources.source(7)$
         attributes:
           id: $column(1)
@@ -431,7 +431,7 @@ monitors:
           hw.parent.id: $column(10)
           name: "sprintf(\"%s (%s - %s)\", $column(3), $column(6), $column(5))"
     collect:
-      _comment: Collect type = mono-instance
+      # Collect type = mono-instance
       type: monoInstance
       sources:
         source(1):
@@ -455,7 +455,7 @@ monitors:
             column: 2
             translationTable: LogicalDiskStatusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.logical_disk.collect.sources.source(1)$
         metrics:
           hw.status{hw.type="logical_disk"}: $column(1)
@@ -486,7 +486,7 @@ monitors:
           rightKeyColumn: 1
           defaultRightLine: ;1;
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.battery.discovery.sources.source(3)$
         attributes:
           id: $column(1)
@@ -496,7 +496,7 @@ monitors:
           hw.parent.id: $column(6)
           name: "sprintf(\"%s (%s %s)\", $column(1), $column(4), $column(3))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -517,7 +517,7 @@ monitors:
             column: 3
             translationTable: GenericStatusTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.battery.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -569,7 +569,7 @@ monitors:
           info: "join($column(4), $column(5), $column(7), \" \")"
           name: "sprintf(\"%s (%s %s - %s)\", $column(6), \"Dell\", $column(3), \"External Storage\")"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -600,7 +600,7 @@ monitors:
             existingValue: \\
             newValue: \
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.enclosure.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -647,7 +647,7 @@ monitors:
           hw.parent.id: $column(1)
           name: $column(3)
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -678,7 +678,7 @@ monitors:
             existingValue: \\
             newValue: \
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.fan.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -726,7 +726,7 @@ monitors:
           hw.parent.id: $column(1)
           name: "sprintf(\"%s, $column(3))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -757,7 +757,7 @@ monitors:
             existingValue: \\
             newValue: \
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.power_supply.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -798,7 +798,7 @@ monitors:
           hw.parent.id: $column(1)
           name: $column(3)
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -829,7 +829,7 @@ monitors:
             existingValue: \\
             newValue: \
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.temperature.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -883,7 +883,7 @@ monitors:
           hw.parent.id: $column(1)
           name: "sprintf(\"%s: %s\", $column(5), $column(3))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -914,7 +914,7 @@ monitors:
             existingValue: \\
             newValue: \
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.other_device.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:

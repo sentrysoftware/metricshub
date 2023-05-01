@@ -139,7 +139,7 @@ monitors:
           type: $column(6)
           name: "sprintf(\"%s (%s %s - %s)\", $column(1), \"Dell\", $column(2), $column(6))"
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
@@ -169,7 +169,7 @@ monitors:
             column: 3
             translationTable: GenericStatusInformationTranslationTable
       mapping:
-        _comment: The ValueTable = Source(1)
+        # The ValueTable = Source(1)
         source: $monitors.enclosure.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -198,11 +198,11 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(1), $column(2))"
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
-          _comment: ControllerID;Status;
+          # ControllerID;Status;
           type: snmpTable
           oid: 1.3.6.1.4.1.674.10892.5.5.1.20.130.1.1
           selectColumns: "ID,38"
@@ -222,7 +222,7 @@ monitors:
             column: 3
             translationTable: GenericStatusInformationTranslationTable
       mapping:
-        _comment: The ValueTable = Source(1)
+        # The ValueTable = Source(1)
         source: $monitors.disk_controller.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -292,11 +292,11 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(5)
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
-          _comment: PhysicalDiskID;State;Status;
+          # PhysicalDiskID;State;Status;
           type: snmpTable
           oid: 1.3.6.1.4.1.674.10892.5.5.1.20.130.4.1
           selectColumns: "2,4,24"
@@ -360,11 +360,11 @@ monitors:
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(5))"
           name: "sprintf(\"%s (%s - %s)\", $column(7), $column(4), $column(3))"
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
-          _comment: LogicalDiskID;Status;
+          # LogicalDiskID;Status;
           type: snmpTable
           oid: 1.3.6.1.4.1.674.10892.5.5.1.20.140.1.1
           selectColumns: "ID,20"
@@ -384,7 +384,7 @@ monitors:
             column: 3
             translationTable: GenericStatusInformationTranslationTable
       mapping:
-        _comment: The ValueTable = Source(1)
+        # The ValueTable = Source(1)
         source: $monitors.logical_disk.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -426,11 +426,11 @@ monitors:
           hw.parent.id: $column(4)
           name: $column(1)
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
-          _comment: FanID;Status;
+          # FanID;Status;
           type: snmpTable
           oid: 1.3.6.1.4.1.674.10892.5.5.1.20.130.7.1
           selectColumns: "1,15"
@@ -450,7 +450,7 @@ monitors:
             column: 3
             translationTable: GenericStatusInformationTranslationTable
       mapping:
-        _comment: The ValueTable = Source(1)
+        # The ValueTable = Source(1)
         source: $monitors.fan.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -497,11 +497,11 @@ monitors:
           hw.parent.id: $column(5)
           name: "sprintf(\"%s, $column(1))"
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
-          _comment: PSUID;Status;
+          # PSUID;Status;
           type: snmpTable
           oid: 1.3.6.1.4.1.674.10892.5.5.1.20.130.9.1
           selectColumns: "1,9"
@@ -521,7 +521,7 @@ monitors:
             column: 3
             translationTable: GenericStatusInformationTranslationTable
       mapping:
-        _comment: The ValueTable = Source(1)
+        # The ValueTable = Source(1)
         source: $monitors.power_supply.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -569,11 +569,11 @@ monitors:
           hw.parent.id: $column(6)
           name: "sprintf(\"%s: %s\", $column(2), $column(1))"
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
-          _comment: OtherDeviceID;Status;
+          # OtherDeviceID;Status;
           type: snmpTable
           oid: 1.3.6.1.4.1.674.10892.5.5.1.20.130.13.1
           selectColumns: "1,11"
@@ -593,7 +593,7 @@ monitors:
             column: 3
             translationTable: GenericStatusInformationTranslationTable
       mapping:
-        _comment: The ValueTable = Source(1)
+        # The ValueTable = Source(1)
         source: $monitors.other_device.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -635,11 +635,11 @@ monitors:
           hw.parent.id: $column(4)
           name: $column(1)
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
-          _comment: BatteryID;Status;
+          # BatteryID;Status;
           type: snmpTable
           oid: 1.3.6.1.4.1.674.10892.5.5.1.20.130.15.1
           selectColumns: "1,6"
@@ -659,7 +659,7 @@ monitors:
             column: 3
             translationTable: GenericStatusInformationTranslationTable
       mapping:
-        _comment: The ValueTable = Source(1)
+        # The ValueTable = Source(1)
         source: $monitors.battery.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:

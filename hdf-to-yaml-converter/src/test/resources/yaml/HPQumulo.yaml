@@ -73,8 +73,8 @@ connector:
     - NT
     - Linux
     criteria:
-    - _comment: Checks that QQ CLI is present on target host
-      type: osCommand
+    # Checks that QQ CLI is present on target host
+    - type: osCommand
       commandLine: qq --help
       expectedResult: Qumulo CLI
       errorMessage: QQ CLI not found on local host.
@@ -96,7 +96,7 @@ monitors:
           - type: awk
             script: EmbeddedFile(1)
       mapping:
-        _comment: ID;displayId;model;serial;uuid;status;status
+        # ID;displayId;model;serial;uuid;status;status
         source: $monitors.enclosure.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -126,7 +126,7 @@ monitors:
             column: 6
             translationTable: EnclosureStatusTranslationTable
       mapping:
-        _comment: ID;displayId;model;serial;uuid;status;statusInformation
+        # ID;displayId;model;serial;uuid;status;statusInformation
         source: $monitors.enclosure.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -149,7 +149,7 @@ monitors:
           - type: awk
             script: EmbeddedFile(2)
       mapping:
-        _comment: ID;nodeId;model;serial;slot;slotType;size;status;status
+        # ID;nodeId;model;serial;slot;slotType;size;status;status
         source: $monitors.physical_disk.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -182,7 +182,7 @@ monitors:
             column: 8
             translationTable: PhysicalDiskStatusTranslationTable
       mapping:
-        _comment: ID;nodeId;model;serial;slot;slotType;size;status;statusInformation
+        # ID;nodeId;model;serial;slot;slotType;size;status;statusInformation
         source: $monitors.physical_disk.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -205,7 +205,7 @@ monitors:
           - type: awk
             script: EmbeddedFile(3)
       mapping:
-        _comment: ID;nodeId;ip;mac;speed;bytesSent;bytesReceived;linkStatus;status;status
+        # ID;nodeId;ip;mac;speed;bytesSent;bytesReceived;linkStatus;status;status
         source: $monitors.network.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -243,7 +243,7 @@ monitors:
             column: 8
             translationTable: LinkStatusTranslationTable
       mapping:
-        _comment: ID;nodeId;ip;mac;speed;bytesSent;bytesReceived;linkStatus;status;status
+        # ID;nodeId;ip;mac;speed;bytesSent;bytesReceived;linkStatus;status;status
         source: $monitors.network.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:

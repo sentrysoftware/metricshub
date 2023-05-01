@@ -128,19 +128,19 @@ connector:
     supersedes:
     - SMISDiskArray
     criteria:
-    - _comment: Only for type storage
-      type: deviceType
+    # Only for type storage
+    - type: deviceType
       keep:
       - Storage
-    - _comment: Checks that xcli is on the local machine - in Portal smcli is run from the RSM
-      type: osCommand
+    # Checks that xcli is on the local machine - in Portal smcli is run from the RSM
+    - type: osCommand
       commandLine: xcli -v
       forceSerialization: true
       executeLocally: true
       expectedResult: 'xcli version:'
       errorMessage: xcli not installed or not in path.
-    - _comment: Checks that xcli returns a system name
-      type: osCommand
+    # Checks that xcli returns a system name
+    - type: osCommand
       commandLine: "xcli -u %{USERNAME} -p %{PASSWORD} -m %{HOSTNAME} -x -t all cod_list"
       forceSerialization: true
       executeLocally: true
@@ -151,7 +151,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = list of components
+          # Source(1) = list of components
           type: osCommand
           commandLine: "xcli -u %{USERNAME} -p %{PASSWORD} -m %{HOSTNAME} -t \"component_id\" component_list"
           executeLocally: true
@@ -170,63 +170,63 @@ monitors:
             column: 1
             valueList: ComponentID
         source(2):
-          _comment: Source(2) = ATS XML
+          # Source(2) = ATS XML
           type: osCommand
           commandLine: "xcli -u %{USERNAME} -p %{PASSWORD} -m %{HOSTNAME} -x -t all ats_list"
           executeLocally: true
           timeout: 60
           forceSerialization: true
         source(3):
-          _comment: Source(3) = Module XML
+          # Source(3) = Module XML
           type: osCommand
           commandLine: "xcli -u %{USERNAME} -p %{PASSWORD} -m %{HOSTNAME} -x -t all module_list"
           executeLocally: true
           timeout: 60
           forceSerialization: true
         source(4):
-          _comment: Source(4) = Disk XML
+          # Source(4) = Disk XML
           type: osCommand
           commandLine: "xcli -u %{USERNAME} -p %{PASSWORD} -m %{HOSTNAME} -x -t all disk_list"
           executeLocally: true
           timeout: 60
           forceSerialization: true
         source(5):
-          _comment: Source(5) = MM XML
+          # Source(5) = MM XML
           type: osCommand
           commandLine: "xcli -u %{USERNAME} -p %{PASSWORD} -m %{HOSTNAME} -x -t all mm_list"
           executeLocally: true
           timeout: 60
           forceSerialization: true
         source(6):
-          _comment: Source(6) = UPS XML
+          # Source(6) = UPS XML
           type: osCommand
           commandLine: "xcli -u %{USERNAME} -p %{PASSWORD} -m %{HOSTNAME} -x -t all ups_list"
           executeLocally: true
           timeout: 60
           forceSerialization: true
         source(7):
-          _comment: Source(7) = Fan XML
+          # Source(7) = Fan XML
           type: osCommand
           commandLine: "xcli -u %{USERNAME} -p %{PASSWORD} -m %{HOSTNAME} -x -t all fan_list"
           executeLocally: true
           timeout: 60
           forceSerialization: true
         source(8):
-          _comment: Source(8) = PSU XML
+          # Source(8) = PSU XML
           type: osCommand
           commandLine: "xcli -u %{USERNAME} -p %{PASSWORD} -m %{HOSTNAME} -x -t all psu_list"
           executeLocally: true
           timeout: 60
           forceSerialization: true
         source(9):
-          _comment: Source(9) = DIMM XML
+          # Source(9) = DIMM XML
           type: osCommand
           commandLine: "xcli -u %{USERNAME} -p %{PASSWORD} -m %{HOSTNAME} -x -t all dimm_list"
           executeLocally: true
           timeout: 60
           forceSerialization: true
         source(10):
-          _comment: Source(10) = CF XML
+          # Source(10) = CF XML
           type: osCommand
           commandLine: "xcli -u %{USERNAME} -p %{PASSWORD} -m %{HOSTNAME} -x -t all cf_list"
           executeLocally: true
@@ -319,11 +319,11 @@ monitors:
           info: "join($column(9), $column(10), $column(11), \" \")"
           name: "sprintf(\"%s (%s %s - %s)\", $column(5), \"IBM\", $column(7), \"Storage\")"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = list of components
+          # Source(1) = list of components
           type: osCommand
           commandLine: "xcli -u %{USERNAME} -p %{PASSWORD} -m %{HOSTNAME} -x -t all component_list"
           executeLocally: true
@@ -343,7 +343,7 @@ monitors:
             column: 2
             translationTable: statusTranslationTable
         source(2):
-          _comment: Copy the table
+          # Copy the table
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -359,7 +359,7 @@ monitors:
             subColumn: 3
             subSeparators: ':'
         source(3):
-          _comment: Copy the Table Again
+          # Copy the Table Again
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -369,7 +369,7 @@ monitors:
             column: 1
             regExp: \(:Switch:\)\|\(:UPS:\)
         source(4):
-          _comment: Union 2 and 3
+          # Union 2 and 3
           type: tableUnion
           tables:
           - $monitors.enclosure.collect.sources.source(2)$
@@ -419,11 +419,11 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(6)
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: Copy Enclosure Collect
+          # Copy Enclosure Collect
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
       mapping:
@@ -465,11 +465,11 @@ monitors:
         metrics:
           hw.memory.limit: mebiByte2Byte($column(11))
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: Copy Enclosure Collect
+          # Copy Enclosure Collect
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
       mapping:
@@ -506,11 +506,11 @@ monitors:
           hw.parent.id: $column(4)
           name: $column(1)
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: Copy Enclosure Collect
+          # Copy Enclosure Collect
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
       mapping:
@@ -548,11 +548,11 @@ monitors:
           hw.parent.id: $column(4)
           name: "sprintf(\"%s, $column(1))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: Copy Enclosure Collect
+          # Copy Enclosure Collect
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
       mapping:
@@ -632,11 +632,11 @@ monitors:
           hw.parent.id: $column(4)
           name: "sprintf(\"%s: %s\", $column(6), $column(1))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: Copy Enclosure Collect
+          # Copy Enclosure Collect
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
       mapping:
@@ -660,14 +660,14 @@ monitors:
           timeout: 60
           forceSerialization: true
         source(2):
-          _comment: Source(2) = FC XML
+          # Source(2) = FC XML
           type: osCommand
           commandLine: "xcli -u %{USERNAME} -p %{PASSWORD} -m %{HOSTNAME} -x -t all fc_port_list"
           executeLocally: true
           timeout: 60
           forceSerialization: true
         source(3):
-          _comment: Source(3) = IB XML
+          # Source(3) = IB XML
           type: osCommand
           commandLine: "xcli -u %{USERNAME} -p %{PASSWORD} -m %{HOSTNAME} -x -t all ib_port_list"
           executeLocally: true
@@ -705,7 +705,7 @@ monitors:
           hw.parent.id: $column(4)
           name: "sprintf(\"%s (%s - %s)\", $column(3), $column(2), $column(11))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -717,14 +717,14 @@ monitors:
           timeout: 60
           forceSerialization: true
         source(2):
-          _comment: Source(2) = FC XML
+          # Source(2) = FC XML
           type: osCommand
           commandLine: "xcli -u %{USERNAME} -p %{PASSWORD} -m %{HOSTNAME} -x -t all fc_port_list"
           executeLocally: true
           timeout: 60
           forceSerialization: true
         source(3):
-          _comment: Source(3) = IB XML
+          # Source(3) = IB XML
           type: osCommand
           commandLine: "xcli -u %{USERNAME} -p %{PASSWORD} -m %{HOSTNAME} -x -t all ib_port_list"
           executeLocally: true

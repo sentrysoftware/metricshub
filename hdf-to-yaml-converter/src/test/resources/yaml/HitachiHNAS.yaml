@@ -159,8 +159,8 @@ connector:
     appliesTo:
     - Storage
     criteria:
-    - _comment: Check that there are BlueArc OIDs
-      type: snmpGetNext
+    # Check that there are BlueArc OIDs
+    - type: snmpGetNext
       oid: 1.3.6.1.4.1.11096.6.1.1.1.2
 monitors:
   enclosure:
@@ -211,7 +211,7 @@ monitors:
           info: $column(3)
           name: "sprintf(\"%s (%s %s - %s)\", $column(2), \"Hitachi\", \"HNAS\", \"Storage\")"
     collect:
-      _comment: Collect type is multi-instance (execute once)
+      # Collect type is multi-instance (execute once)
       type: multiInstance
       sources:
         source(1):
@@ -236,7 +236,7 @@ monitors:
             column: 3
             translationTable: nodeStatusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.enclosure.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -263,7 +263,7 @@ monitors:
           hw.parent.id: $column(2)
           name: $column(3)
     collect:
-      _comment: Collect type is multi-instance (execute once)
+      # Collect type is multi-instance (execute once)
       type: multiInstance
       sources:
         source(1):
@@ -323,7 +323,7 @@ monitors:
           hw.parent.id: $column(2)
           name: $column(3)
     collect:
-      _comment: Collect type is multi-instance (execute once)
+      # Collect type is multi-instance (execute once)
       type: multiInstance
       sources:
         source(1):
@@ -415,7 +415,7 @@ monitors:
           hw.parent.id: $column(2)
           name: "sprintf(\"%s, $column(3))"
     collect:
-      _comment: Collect type is multi-instance (execute once)
+      # Collect type is multi-instance (execute once)
       type: multiInstance
       sources:
         source(1):
@@ -474,7 +474,7 @@ monitors:
           hw.parent.id: $column(2)
           name: $column(3)
     collect:
-      _comment: Collect type is multi-instance (execute once)
+      # Collect type is multi-instance (execute once)
       type: multiInstance
       sources:
         source(1):
@@ -517,12 +517,12 @@ monitors:
           oid: 1.3.6.1.4.1.11096.6.1.1.1.2.1.15.1
           selectColumns: "ID,1,2,3,6"
           computes:
-          - _comment: Translate the Type
-            type: translate
+          # Translate the Type
+          - type: translate
             column: 4
             translationTable: physicalDiskTranslationTable
-          - _comment: Multiply the Size by 4096
-            type: multiply
+          # Multiply the Size by 4096
+          - type: multiply
             column: 5
             value: 4096
       mapping:
@@ -539,7 +539,7 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(5)
     collect:
-      _comment: Collect type is multi-instance (execute once)
+      # Collect type is multi-instance (execute once)
       type: multiInstance
       sources:
         source(1):
@@ -597,7 +597,7 @@ monitors:
           hw.parent.id: $column(3)
           name: $column(1)
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -664,12 +664,12 @@ monitors:
           oid: 1.3.6.1.4.1.11096.6.1.1.1.3.4.2.1
           selectColumns: "ID,2,3,4,5,6,7"
           computes:
-          - _comment: Translate the RaidLevel
-            type: translate
+          # Translate the RaidLevel
+          - type: translate
             column: 6
             translationTable: raidLevelTranslationTable
-          - _comment: Translate the CacheMode
-            type: translate
+          # Translate the CacheMode
+          - type: translate
             column: 7
             translationTable: cacheLevelTranslationTable
             # Exclude Logical Disks that are "Not Present"
@@ -702,7 +702,7 @@ monitors:
           hw.parent.id: 1
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(6), $column(5))"
     collect:
-      _comment: Collect type is multi-instance (execute once)
+      # Collect type is multi-instance (execute once)
       type: multiInstance
       sources:
         source(1):

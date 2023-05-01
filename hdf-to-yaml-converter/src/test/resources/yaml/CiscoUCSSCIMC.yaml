@@ -180,8 +180,8 @@ connector:
       # We are sure to have a cisco
     - type: snmpGetNext
       oid: 1.3.6.1.4.1.9.9.719.1.41.9
-    - _comment: Now make sure it's a S series
-      type: snmpGet
+    # Now make sure it's a S series
+    - type: snmpGet
       oid: 1.3.6.1.2.1.1.1.0
       expectedResult: UCS S
 monitors:
@@ -223,8 +223,8 @@ monitors:
           type: snmpGet
           oid: 1.3.6.1.4.1.9.9.719.1.9.35.1.2.1
           computes:
-          - _comment: '"Enclosure";DN'
-            type: leftConcat
+          # '"Enclosure";DN'
+          - type: leftConcat
             column: 1
             value: Enclosure;
           - type: awk
@@ -260,16 +260,16 @@ monitors:
           oid: 1.3.6.1.4.1.9.9.719.1.9.35.1
           selectColumns: "3,32,47,42,51,45,2"
           computes:
-          - _comment: Remove lines where cucsComputeRackUnitPresence = 1(Empty) and 11 (Missing)
-            type: excludeMatchingLines
+          # Remove lines where cucsComputeRackUnitPresence = 1(Empty) and 11 (Missing)
+          - type: excludeMatchingLines
             column: 6
             valueList: "1,11"
-          - _comment: '"Blade";Name;Model;Serial;OperState;Vendor;EnclosurePresence;DN;'
-            type: leftConcat
+          # '"Blade";Name;Model;Serial;OperState;Vendor;EnclosurePresence;DN;'
+          - type: leftConcat
             column: 1
             value: Blade;
-          - _comment: Name;Model;Serial;OperState;Vendor;EnclosurePresence;DN;name_truncated;
-            type: awk
+          # Name;Model;Serial;OperState;Vendor;EnclosurePresence;DN;name_truncated;
+          - type: awk
             script: EmbeddedFile(1)
             separators: ;
             selectColumns: "3,4,5,6,7,8,9,10"
@@ -290,7 +290,7 @@ monitors:
           hw.parent.id: $column(8)
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
@@ -324,7 +324,7 @@ monitors:
           rightKeyColumn: 1
           defaultRightLine: ;;;;;;
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.blade.collect.sources.source(2)$
         deviceId: $column(7)
         metrics:
@@ -341,24 +341,24 @@ monitors:
           oid: 1.3.6.1.4.1.9.9.719.1.15.12.1
           selectColumns: "13,2"
           computes:
-          - _comment: Remove lines where cucsEquipmentFanPresence = 1(Empty) and 11 (Missing)
-            type: excludeMatchingLines
+          # Remove lines where cucsEquipmentFanPresence = 1(Empty) and 11 (Missing)
+          - type: excludeMatchingLines
             column: 1
             valueList: "1,11"
-          - _comment: '"Fan";FanPresence;DN;'
-            type: leftConcat
+          # '"Fan";FanPresence;DN;'
+          - type: leftConcat
             column: 1
             value: Fan;
-          - _comment: '"Fan";FanPresence;DN;DN'
-            type: duplicateColumn
+          # '"Fan";FanPresence;DN;DN'
+          - type: duplicateColumn
             column: 3
-          - _comment: FanPresence;DN;DN_truncated
-            type: awk
+          # FanPresence;DN;DN_truncated
+          - type: awk
             script: EmbeddedFile(1)
             separators: ;
             selectColumns: "3,4,6"
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           id: $column(2)
@@ -366,7 +366,7 @@ monitors:
           hw.parent.type: enclosure
           name: $column(3)
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
@@ -391,7 +391,7 @@ monitors:
             column: 3
             translationTable: statusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.fan.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -408,8 +408,8 @@ monitors:
           oid: 1.3.6.1.4.1.9.9.719.1.15.56.1
           selectColumns: "2,3,6,13,12,11"
           computes:
-          - _comment: Remove lines where cucsEquipmentPsuPresence = 1(Empty) and 11 (Missing)
-            type: excludeMatchingLines
+          # Remove lines where cucsEquipmentPsuPresence = 1(Empty) and 11 (Missing)
+          - type: excludeMatchingLines
             column: 5
             valueList: "1,11"
             # Add Identifiers
@@ -424,7 +424,7 @@ monitors:
             column: 5
             value: "Revision: "
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -433,7 +433,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s, $column(2))"
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
@@ -458,7 +458,7 @@ monitors:
             column: 3
             translationTable: statusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.power_supply.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -475,21 +475,21 @@ monitors:
           oid: 1.3.6.1.4.1.9.9.719.1.41.9.1
           selectColumns: "3,8,17,21,13,2"
           computes:
-          - _comment: Remove lines where cucsProcessorUnitPresence = 1(Empty) and 11 (Missing)
-            type: excludeMatchingLines
+          # Remove lines where cucsProcessorUnitPresence = 1(Empty) and 11 (Missing)
+          - type: excludeMatchingLines
             column: 5
             valueList: "1,11"
-          - _comment: '"CPU";Name;Model;Speed;Vendor;CPUPresence;DN;'
-            type: leftConcat
+          # '"CPU";Name;Model;Speed;Vendor;CPUPresence;DN;'
+          - type: leftConcat
             column: 1
             value: CPU;
-          - _comment: Name;Model;Speed;Vendor;CPUPresence;DN;DN_truncated
-            type: awk
+          # Name;Model;Speed;Vendor;CPUPresence;DN;DN_truncated
+          - type: awk
             script: EmbeddedFile(1)
             separators: ;
             selectColumns: "3,4,5,6,7,8,9"
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.cpu.discovery.sources.source(1)$
         attributes:
           id: $column(6)
@@ -502,7 +502,7 @@ monitors:
         metrics:
           hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(3))
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
@@ -527,7 +527,7 @@ monitors:
             column: 3
             translationTable: statusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.cpu.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -549,12 +549,12 @@ monitors:
           - type: excludeMatchingLines
             column: 3
             valueList: "1,11"
-          - _comment: '"Memory";Name;Location;Presence;CapacityMB;Serial;Speed;Model;Type;Vendor;DN;'
-            type: leftConcat
+          # '"Memory";Name;Location;Presence;CapacityMB;Serial;Speed;Model;Type;Vendor;DN;'
+          - type: leftConcat
             column: 1
             value: Memory;
-          - _comment: Name;Location;Presence;CapacityMB;Serial;Speed;Model;Type;Vendor;DN;DN_truncated
-            type: awk
+          # Name;Location;Presence;CapacityMB;Serial;Speed;Model;Type;Vendor;DN;DN_truncated
+          - type: awk
             script: EmbeddedFile(1)
             separators: ;
             selectColumns: "3,4,5,6,7,8,9,10,11,12,13"
@@ -589,7 +589,7 @@ monitors:
         metrics:
           hw.memory.limit: mebiByte2Byte($column(4))
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
@@ -614,7 +614,7 @@ monitors:
             column: 3
             translationTable: statusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.memory.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -631,16 +631,16 @@ monitors:
           oid: 1.3.6.1.4.1.9.9.719.1.45.11.1
           selectColumns: "3,7,14,10,2"
           computes:
-          - _comment: Remove lines where cucsStorageRaidBatteryPresence = 1(Empty) and 11 (Missing)
-            type: excludeMatchingLines
+          # Remove lines where cucsStorageRaidBatteryPresence = 1(Empty) and 11 (Missing)
+          - type: excludeMatchingLines
             column: 4
             valueList: "1,11"
-          - _comment: '"Battery";Name;Model;Vendor;RaidBatteryPresence;DN;'
-            type: leftConcat
+          # '"Battery";Name;Model;Vendor;RaidBatteryPresence;DN;'
+          - type: leftConcat
             column: 1
             value: Battery;
-          - _comment: '"Battery";Name;Model;Vendor;RaidBatteryPresence;DN;DN_truncated'
-            type: awk
+          # '"Battery";Name;Model;Vendor;RaidBatteryPresence;DN;DN_truncated'
+          - type: awk
             script: EmbeddedFile(1)
             separators: ;
             selectColumns: "3,4,5,6,7,8"
@@ -658,7 +658,7 @@ monitors:
           hw.parent.id: $column(6)
           name: "sprintf(\"%s (%s %s)\", $column(1), $column(3), $column(2))"
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
@@ -683,7 +683,7 @@ monitors:
             column: 3
             translationTable: statusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.battery.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -700,16 +700,16 @@ monitors:
           oid: 1.3.6.1.4.1.9.9.719.1.45.1.1
           selectColumns: "3,5,14,18,13,12,2"
           computes:
-          - _comment: Remove lines where cucsStorageControllerPresence = 1(Empty) and 11 (Missing)
-            type: excludeMatchingLines
+          # Remove lines where cucsStorageControllerPresence = 1(Empty) and 11 (Missing)
+          - type: excludeMatchingLines
             column: 6
             valueList: "1,11"
-          - _comment: '"DiskController";Name;Model;SerialNumber;Vendor;Revision;DiskControllerPresence;DN;'
-            type: leftConcat
+          # '"DiskController";Name;Model;SerialNumber;Vendor;Revision;DiskControllerPresence;DN;'
+          - type: leftConcat
             column: 1
             value: DiskController;
-          - _comment: Name;Model;SerialNumber;Vendor;Revision;DiskControllerPresence;DN;DN_truncated
-            type: awk
+          # Name;Model;SerialNumber;Vendor;Revision;DiskControllerPresence;DN;DN_truncated
+          - type: awk
             script: EmbeddedFile(1)
             separators: ;
             selectColumns: "3,4,5,6,7,8,9,10"
@@ -727,7 +727,7 @@ monitors:
           hw.parent.id: $column(8)
           name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(1), $column(2))"
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
@@ -752,7 +752,7 @@ monitors:
             column: 3
             translationTable: statusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.disk_controller.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -769,8 +769,8 @@ monitors:
           oid: 1.3.6.1.4.1.9.9.719.1.45.4.1
           selectColumns: "3,12,13,14,10,7,2"
           computes:
-          - _comment: Remove lines where cucsStorageLocalDiskPresence = 1(Empty) and 11 (Missing)
-            type: excludeMatchingLines
+          # Remove lines where cucsStorageLocalDiskPresence = 1(Empty) and 11 (Missing)
+          - type: excludeMatchingLines
             column: 5
             valueList: "1,11"
             # Convert the size into bytes
@@ -778,12 +778,12 @@ monitors:
           - type: multiply
             column: 3
             value: 1048576
-          - _comment: '"PhysicalDisk";Name;SerialNumber;Size;Vendor;DiskPresence;Model;DN;'
-            type: leftConcat
+          # '"PhysicalDisk";Name;SerialNumber;Size;Vendor;DiskPresence;Model;DN;'
+          - type: leftConcat
             column: 1
             value: PhysicalDisk;
-          - _comment: Name;SerialNumber;Size;Vendor;DiskPresence;Model;DN;DN_truncated
-            type: awk
+          # Name;SerialNumber;Size;Vendor;DiskPresence;Model;DN;DN_truncated
+          - type: awk
             script: EmbeddedFile(1)
             separators: ;
             selectColumns: "3,4,5,6,7,8,9,10"
@@ -803,7 +803,7 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(3)
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
@@ -828,7 +828,7 @@ monitors:
             column: 3
             translationTable: statusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.physical_disk.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -845,8 +845,8 @@ monitors:
           oid: 1.3.6.1.4.1.9.9.719.1.45.35.1
           selectColumns: "3,17,2"
           computes:
-          - _comment: Remove lines where cucsStorageControllerPresence = 1(Empty) and 11 (Missing)
-            type: excludeMatchingLines
+          # Remove lines where cucsStorageControllerPresence = 1(Empty) and 11 (Missing)
+          - type: excludeMatchingLines
             column: 2
             valueList: "1,11"
       mapping:
@@ -860,7 +860,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s: %s\", \"FlexFlash\", $column(1))"
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
@@ -885,7 +885,7 @@ monitors:
             column: 3
             translationTable: statusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.other_device.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:

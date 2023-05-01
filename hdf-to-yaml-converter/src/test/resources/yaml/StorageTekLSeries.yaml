@@ -56,30 +56,30 @@ monitors:
           oid: 1.3.6.1.4.1.1211.1.12.3.16
           selectColumns: "1,2"
           computes:
-          - _comment: Add "LSeries" to the model name
-            type: leftConcat
+          # Add "LSeries" to the model name
+          - type: leftConcat
             column: 2
             value: LSeries ;
         source(2):
-          _comment: Get the serial number the tape library
+          # Get the serial number the tape library
           type: snmpGet
           oid: 1.3.6.1.4.1.1211.1.12.3.4.0
         source(3):
-          _comment: Get the IP address of the library
+          # Get the IP address of the library
           type: snmpGet
           oid: 1.3.6.1.4.1.1211.1.12.3.13.1.0
           computes:
-          - _comment: Add IP Address title
-            type: leftConcat
+          # Add IP Address title
+          - type: leftConcat
             column: 1
             value: "IP Address: "
         source(4):
-          _comment: Get the Ethernet address of the library
+          # Get the Ethernet address of the library
           type: snmpGet
           oid: 1.3.6.1.4.1.1211.1.12.3.13.3.0
           computes:
-          - _comment: Add Ethernet Address title
-            type: leftConcat
+          # Add Ethernet Address title
+          - type: leftConcat
             column: 1
             value: "Ethernet Address: "
             # Start the process of concatenating our information sources together
@@ -87,12 +87,12 @@ monitors:
           - type: leftConcat
             column: 1
             value: $monitors.enclosure.discovery.sources.source(3)$
-          - _comment: SerialNumber;IPAddress;EthernetAddress
-            type: leftConcat
+          # SerialNumber;IPAddress;EthernetAddress
+          - type: leftConcat
             column: 1
             value: $monitors.enclosure.discovery.sources.source(2)$
-          - _comment: Vendor;Model;SerialNumber;IPAddress;EthernetAddress
-            type: leftConcat
+          # Vendor;Model;SerialNumber;IPAddress;EthernetAddress
+          - type: leftConcat
             column: 1
             value: $monitors.enclosure.discovery.sources.source(1)$
       mapping:
@@ -106,7 +106,7 @@ monitors:
           info: "join($column(4), $column(5), \" \")"
           name: "sprintf(\"%s (%s %s - %s)\", \"STKLSeries\", $column(1), $column(2), \"Storage\")"
     collect:
-      _comment: Collect
+      # Collect
       type: monoInstance
       sources:
         source(1):
@@ -122,7 +122,7 @@ monitors:
             column: 1
             translationTable: LibraryStatusTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.enclosure.collect.sources.source(1)$
         metrics:
           hw.status{hw.type="enclosure"}: $column(1)
@@ -138,7 +138,7 @@ monitors:
           oid: 1.3.6.1.4.1.1211.1.12.10.2.1
           selectColumns: "ID,2,5,6"
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -176,7 +176,7 @@ monitors:
           hw.parent.id: STKLSeries
           name: $column(1)
     collect:
-      _comment: Collect-type = multi-instance
+      # Collect-type = multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -201,7 +201,7 @@ monitors:
             column: 3
             translationTable: FanStatusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.fan.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -224,7 +224,7 @@ monitors:
             column: 3
             valueList: 2
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -233,7 +233,7 @@ monitors:
           hw.parent.id: STKLSeries
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
     collect:
-      _comment: Collect type = Mono-Instance (one collect for each instance)
+      # Collect type = Mono-Instance (one collect for each instance)
       type: multiInstance
       sources:
         source(1):
@@ -247,16 +247,16 @@ monitors:
             # DeviceID;psStatus;psStatus
           - type: duplicateColumn
             column: 2
-          - _comment: Now translate the 1st psStatus into a PATROL Status
-            type: translate
+          # Now translate the 1st psStatus into a PATROL Status
+          - type: translate
             column: 2
             translationTable: PowerSupplyStatusTranslationTable
-          - _comment: Translate the 2nd psStatus into a more readable string
-            type: translate
+          # Translate the 2nd psStatus into a more readable string
+          - type: translate
             column: 3
             translationTable: PowerSupplyStatusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.power_supply.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -284,7 +284,7 @@ monitors:
           - type: leftConcat
             column: 1
             value: CAP
-            # Activate Status parameter, deactivate UsageCount parameter
+          # Activate Status parameter, deactivate UsageCount parameter
           - type: rightConcat
             column: 4
             value: ;1;;
@@ -300,16 +300,16 @@ monitors:
           - type: leftConcat
             column: 2
             value: ' - '
-          - _comment: ID;Type - Label;Type;LocationElementID
-            type: leftConcat
+          # ID;Type - Label;Type;LocationElementID
+          - type: leftConcat
             column: 2
             value: Column(3)
-          - _comment: ID; - Type - Label;Type;LocationElementID
-            type: leftConcat
+          # ID; - Type - Label;Type;LocationElementID
+          - type: leftConcat
             column: 2
             value: ' - '
-          - _comment: ID;LocationElementID - Type - Label;Type;LocationElementID
-            type: leftConcat
+          # ID;LocationElementID - Type - Label;Type;LocationElementID
+          - type: leftConcat
             column: 2
             value: Column(4)
             # Now add the device type: "Cleaning Cartridge", as a 4th column
@@ -328,13 +328,13 @@ monitors:
             column: 4
             value: ;;1
         source(3):
-          _comment: Union of the CAP and Cleaning Cartridge table
+          # Union of the CAP and Cleaning Cartridge table
           type: tableUnion
           tables:
           - $monitors.other_device.discovery.sources.source(1)$
           - $monitors.other_device.discovery.sources.source(2)$
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.other_device.discovery.sources.source(3)$
         attributes:
           id: $column(1)
@@ -344,7 +344,7 @@ monitors:
           hw.parent.id: STKLSeries
           name: "sprintf(\"%s: %s (%s)\", $column(4), $column(1), $column(2))"
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -371,7 +371,7 @@ monitors:
           oid: 1.3.6.1.4.1.1211.1.12.3.17.5.1
           selectColumns: "ID,6"
           computes:
-            # Now add the \"CleaningCartridge\" mention to the ID, to help us distinguish CAPs from Cleaning Cartridges, during the collect
+          # Now add the \"CleaningCartridge\" mention to the ID, to help us distinguish CAPs from Cleaning Cartridges, during the collect
           - type: leftConcat
             column: 1
             value: CleaningCartridge
@@ -389,7 +389,7 @@ monitors:
           - $monitors.other_device.collect.sources.source(1)$
           - $monitors.other_device.collect.sources.source(2)$
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.other_device.collect.sources.source(3)$
         deviceId: $column(1)
         metrics:
@@ -407,16 +407,16 @@ monitors:
           oid: 1.3.6.1.4.1.1211.1.12.6.2.1
           selectColumns: "ID,4,5,6"
           computes:
-          - _comment: Add Part number string to the part number
-            type: leftConcat
+          # Add Part number string to the part number
+          - type: leftConcat
             column: 3
             value: "Part Number: "
-          - _comment: Add firmware version string to the firmware version
-            type: leftConcat
+          # Add firmware version string to the firmware version
+          - type: leftConcat
             column: 4
             value: "Firmware Version: "
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.robotics.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -431,7 +431,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: ID;StatusInformation;StatusEnum;GoodEmptyMotionCount;FailedEmptyMotionCount;GoodPartMotion;FailedPartMotion;GoodFullMotionCount;FailedFullMotionCount
+          # ID;StatusInformation;StatusEnum;GoodEmptyMotionCount;FailedEmptyMotionCount;GoodPartMotion;FailedPartMotion;GoodFullMotionCount;FailedFullMotionCount
           type: snmpTable
           oid: 1.3.6.1.4.1.1211.1.12.6.2.1
           selectColumns: "ID,2,3,14,15,16,17,18,19"
@@ -441,8 +441,8 @@ monitors:
           - type: translate
             column: 3
             translationTable: LibraryStatusTranslationTable
-          - _comment: Add all motions (good and failed ones) together in column 4
-            type: add
+          # Add all motions (good and failed ones) together in column 4
+          - type: add
             column: 4
             value: Column(5)
           - type: add
@@ -457,8 +457,8 @@ monitors:
           - type: add
             column: 4
             value: Column(9)
-          - _comment: Add failed motions (only!) to column 5
-            type: add
+          # Add failed motions (only!) to column 5
+          - type: add
             column: 5
             value: Column(7)
           - type: add
@@ -496,7 +496,7 @@ monitors:
             column: 4
             value: "Physical Column No: "
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.tape_drive.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -507,7 +507,7 @@ monitors:
           hw.parent.id: STKLSeries
           name: "sprintf(\"%s (%s)\", $column(1), $column(5))"
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -523,7 +523,7 @@ monitors:
             column: 2
             translationTable: TapeDriveStatusTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.tape_drive.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:

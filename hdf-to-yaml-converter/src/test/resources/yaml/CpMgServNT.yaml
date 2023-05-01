@@ -293,7 +293,7 @@ monitors:
           info: "join($column(5), $column(4), \" \")"
           name: "sprintf(\"%s (%s %s - %s)\", $column(1), \"HP\", $column(2), \"Computer\")"
     collect:
-      _comment: Collect type is mono-instance
+      # Collect type is mono-instance
       type: multiInstance
       sources:
         source(1):
@@ -403,7 +403,7 @@ monitors:
             existingValue: "Location: Socket Number 0"
             newValue: ""
       mapping:
-        _comment: Instance Table
+        # Instance Table
         source: $monitors.cpu.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -415,7 +415,7 @@ monitors:
         metrics:
           hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(3))
     collect:
-      _comment: Collect is multi-instance (all instances in one shot)
+      # Collect is multi-instance (all instances in one shot)
       type: multiInstance
       sources:
         source(1):
@@ -445,7 +445,7 @@ monitors:
             column: 5
             translationTable: cpuPredictedFailureTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.cpu.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -625,7 +625,7 @@ monitors:
           - type: duplicateColumn
             column: 4
         source(6):
-          _comment: ID;SensorLocationCode;Temperature;WarnThreshold;AlarmThreshold;ThresholdType;Condition
+          # ID;SensorLocationCode;Temperature;WarnThreshold;AlarmThreshold;ThresholdType;Condition
           type: tableUnion
           tables:
           - $monitors.temperature.discovery.sources.source(2)$
@@ -645,7 +645,7 @@ monitors:
           hw.temperature.limit{limit_type="high.degraded"}: $column(4)
           hw.temperature.limit{limit_type="high.critical"}: $column(5)
     collect:
-      _comment: Collect is multi-instance (all instances in one shot)
+      # Collect is multi-instance (all instances in one shot)
       type: multiInstance
       sources:
         source(1):
@@ -670,7 +670,7 @@ monitors:
             column: 4
             translationTable: TemperatureStatusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.temperature.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -699,14 +699,14 @@ monitors:
             column: 2
             translationTable: FanTypeTranslationTable
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           id: $column(1)
           hw.parent.type: enclosure
           name: $column(1)
     collect:
-      _comment: Collect type is mono-instance
+      # Collect type is mono-instance
       type: monoInstance
       sources:
         source(1):
@@ -730,7 +730,7 @@ monitors:
             column: 2
             translationTable: FanStatusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.fan.collect.sources.source(1)$
         metrics:
           hw.status{hw.type="fan"}: $column(1)
@@ -767,7 +767,7 @@ monitors:
             column: 6
             value: "SerialNumber: "
       mapping:
-        _comment: InstanceTable...
+        # InstanceTable...
         source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -810,7 +810,7 @@ monitors:
           - type: awk
             script: EmbeddedFile(2)
       mapping:
-        _comment: ValueTable
+        # ValueTable
         source: $monitors.power_supply.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:

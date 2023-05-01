@@ -64,7 +64,7 @@ monitors:
             column: 3
             translationTable: FanTypeTranslationTable
       mapping:
-        _comment: Instance table = source(1)
+        # Instance table = source(1)
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -95,7 +95,7 @@ monitors:
             column: 2
             translationTable: FanStatusInformationTranslationTable
       mapping:
-        _comment: Collect table = source(1)
+        # Collect table = source(1)
         source: $monitors.fan.collect.sources.source(1)$
         metrics:
           hw.status{hw.type="fan"}: $column(1)
@@ -117,14 +117,14 @@ monitors:
             column: 2
             valueList: "2,3,4"
       mapping:
-        _comment: InstanceTable = source(1)
+        # InstanceTable = source(1)
         source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
           id: $column(1)
           hw.parent.type: enclosure
           name: "sprintf(\"%s, $column(1))"
     collect:
-      _comment: Power Supply collect (mono-instance)
+      # Power Supply collect (mono-instance)
       type: monoInstance
       sources:
         source(1):
@@ -148,7 +148,7 @@ monitors:
             column: 2
             translationTable: PowerSupplyStatusInformationTranslationTable
       mapping:
-        _comment: ValueTable = source(1)
+        # ValueTable = source(1)
         source: $monitors.power_supply.collect.sources.source(1)$
         metrics:
           hw.status{hw.type="power_supply"}: $column(1)

@@ -67,17 +67,17 @@ connector:
     appliesTo:
     - HP
     criteria:
-      # OS should be HP (for HP-UX, whatever version)
+    # OS should be HP (for HP-UX, whatever version)
     - type: deviceType
       keep:
       - HP
-    - _comment: The sautil should exist
-      type: osCommand
+    # The sautil should exist
+    - type: osCommand
       commandLine: ls /opt/raidsa/bin/sautil
       expectedResult: sautil$
       errorMessage: The Smart Array RAID Controller Utility is not present on this system.
-    - _comment: We should find disks attached to one controller
-      type: osCommand
+    # We should find disks attached to one controller
+    - type: osCommand
       commandLine: /bin/sh %EmbeddedFile(1)%
       expectedResult: "[GgTtMm][Bb]"
       forceSerialization: true
@@ -262,7 +262,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Collect type = Source(1) = Runs /opt/raidsa/bin/sautil /dev/cissx -s
+          # Collect type = Source(1) = Runs /opt/raidsa/bin/sautil /dev/cissx -s
           type: osCommand
           commandLine: /bin/sh %EmbeddedFile(1)%
           forceSerialization: true
@@ -302,7 +302,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Disk Controller Source (1)
+          # Source(1) = Disk Controller Source (1)
           type: copy
           from: $monitors.disk_controller.discovery.sources.source(1)$
           computes:

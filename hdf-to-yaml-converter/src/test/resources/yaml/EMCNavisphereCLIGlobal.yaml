@@ -16,14 +16,14 @@ connector:
     - EMCuemcli
     - EMCNavisphereCLILDAP
     criteria:
-    - _comment: naviseccli Should Exist
-      type: osCommand
+    # naviseccli Should Exist
+    - type: osCommand
       commandLine: naviseccli -help
       errorMessage: naviseccli Does not appear to be installed on this system
       expectedResult: Navisphere
       executeLocally: true
-    - _comment: naviseccli Should be able to connect and list systems
-      type: osCommand
+    # naviseccli Should be able to connect and list systems
+    - type: osCommand
       commandLine: "naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 0 getagent"
       errorMessage: Unable to connect using Navisphere
       expectedResult: 'Agent Rev:'

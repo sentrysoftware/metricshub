@@ -98,8 +98,8 @@ connector:
     appliesTo:
     - Storage
     criteria:
-    - _comment: Try and get a token
-      type: http
+    # Try and get a token
+    - type: http
       method: POST
       url: /api/1.13/auth/session
       header: EmbeddedFile(1)
@@ -121,8 +121,8 @@ monitors:
           body: "{\"api_token\": \"%{PASSWORD}\"}"
           resultContent: all
           computes:
-          - _comment: Parse Cookie
-            type: awk
+          # Parse Cookie
+          - type: awk
             script: EmbeddedFile(2)
         source(2):
           # For use in Fan, Temperature, PowerSupply
@@ -138,11 +138,11 @@ monitors:
           - type: json2csv
             entryKey: /
             properties: /status;/slot;/name;/temperature;/index;/identify;/voltage;/model;/speed;/serial;/details;
-          - _comment: Parse Hardware query results
-            type: awk
+          # Parse Hardware query results
+          - type: awk
             script: EmbeddedFile(4)
         source(3):
-          _comment: For use in other discoveries
+          # For use in other discoveries
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
@@ -152,7 +152,7 @@ monitors:
             column: 4
             regExp: MSHW_Enclosure
         source(4):
-          _comment: Get drive for otherdevice and PhysicalDisk
+          # Get drive for otherdevice and PhysicalDisk
           type: http
           method: GET
           url: /api/1.13/drive
@@ -246,7 +246,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
@@ -297,8 +297,8 @@ monitors:
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
-          - _comment: name;enclosure;displayID;MSHW_Temperature;DeviceType
-            type: keepOnlyMatchingLines
+          # name;enclosure;displayID;MSHW_Temperature;DeviceType
+          - type: keepOnlyMatchingLines
             column: 4
             regExp: MSHW_Temperature
       mapping:
@@ -334,8 +334,8 @@ monitors:
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
-          - _comment: name;enclosure;displayID;MSHW_FAN;DeviceType
-            type: keepOnlyMatchingLines
+          # name;enclosure;displayID;MSHW_FAN;DeviceType
+          - type: keepOnlyMatchingLines
             column: 4
             regExp: MSHW_FAN
       mapping:
@@ -370,8 +370,8 @@ monitors:
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
-          - _comment: name;enclosure;displayID;model;serial;MSHW_PWR;DeviceType
-            type: keepOnlyMatchingLines
+          # name;enclosure;displayID;model;serial;MSHW_PWR;DeviceType
+          - type: keepOnlyMatchingLines
             column: 6
             regExp: MSHW_PWR
           - type: leftConcat
@@ -406,12 +406,12 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
-          - _comment: name;enclosure;displayID;MSHW_NetworkCard;DeviceType
-            type: keepOnlyMatchingLines
+          # name;enclosure;displayID;MSHW_NetworkCard;DeviceType
+          - type: keepOnlyMatchingLines
             column: 4
             regExp: MSHW_NetworkCard
         source(2):
@@ -421,8 +421,8 @@ monitors:
           header: EmbeddedFile(3)
           authenticationToken: $monitors.enclosure.discovery.sources.source(1)$
           computes:
-          - _comment: json;name;hwaddr;enabled;
-            type: json2csv
+          # json;name;hwaddr;enabled;
+          - type: json2csv
             entryKey: /
             properties: /name;/hwaddr;/enabled
             # Extract Name
@@ -442,8 +442,8 @@ monitors:
           leftKeyColumn: 3
           rightKeyColumn: 2
           computes:
-          - _comment: Translate "enabled" to Link Speed Activation
-            type: translate
+          # Translate "enabled" to Link Speed Activation
+          - type: translate
             column: 9
             translationTable: LinkSpeedActivationTable
       mapping:
@@ -464,15 +464,15 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: JSONID;status;status;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
+          # JSONID;status;status;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
-          - _comment: status;status;name;speed;
-            type: keepColumns
+          # status;status;name;speed;
+          - type: keepColumns
             columnNumbers: "2,3,5"
         source(2):
-          _comment: Get Network information
+          # Get Network information
           type: http
           method: GET
           url: /api/1.13/network
@@ -499,8 +499,8 @@ monitors:
           leftKeyColumn: 3
           rightKeyColumn: 2
           computes:
-          - _comment: PatrolStatus;StatusInformation;name;json;name;speed;enabled;
-            type: translate
+          # PatrolStatus;StatusInformation;name;json;name;speed;enabled;
+          - type: translate
             column: 7
             translationTable: LinkStatusTranslationTable
       mapping:
@@ -518,7 +518,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: name;enclosure;displayID;capacity;type;status;MSHW_Type;DeviceType
+          # name;enclosure;displayID;capacity;type;status;MSHW_Type;DeviceType
           type: copy
           from: $monitors.enclosure.discovery.sources.source(4)$
           computes:

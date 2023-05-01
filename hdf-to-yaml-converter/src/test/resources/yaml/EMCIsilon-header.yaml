@@ -140,8 +140,8 @@ sudoCommands:
 connector:
   detection:
     criteria:
-    - _comment: Check that /usr/bin/isi exists
-      type: osCommand
+    # Check that /usr/bin/isi exists
+    - type: osCommand
       commandLine: "if [ -f /usr/bin/isi ] ; then echo ms_hw_isi_found ; fi"
       errorMessage: /usr/bin/isi not found
       expectedResult: ms_hw_isi_found
@@ -150,7 +150,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Run isi_hw_check
+          # Source(1) = Run isi_hw_check
           type: osCommand
           commandLine: "/bin/zsh -c \"%{SUDO:/usr/bin/isi_for_array} /usr/bin/isi_for_array /usr/bin/isi_hwtools/isi_hw_check -l /tmp/MS_HW_isi_hw_check\" "
           timeout: 1200
@@ -179,7 +179,7 @@ monitors:
             keep: ^MSHW
             separators: ;
         source(3):
-          _comment: Source(3) = Run isi devices
+          # Source(3) = Run isi devices
           type: osCommand
           commandLine: "/bin/zsh -c \"%{SUDO:/usr/bin/isi_for_array} /usr/bin/isi_for_array _IsiDevicesCommand \" "
           timeout: 60
@@ -249,7 +249,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Run isi status -w
+          # Source(1) = Run isi status -w
           type: osCommand
           commandLine: "/bin/zsh -c \"%{SUDO:/usr/bin/isi} _IsiStatusCommand\" "
           timeout: 60
@@ -348,7 +348,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Discovery 1
+          # Source(1) = Enclosure Discovery 1
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -375,7 +375,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Collect 1
+          # Source(1) = Enclosure Collect 1
           type: copy
           from: $monitors.enclosure.collect.sources.source(5)$
           computes:
@@ -395,7 +395,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Discovery 1
+          # Source(1) = Enclosure Discovery 1
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -431,7 +431,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Collect 1
+          # Source(1) = Enclosure Collect 1
           type: copy
           from: $monitors.enclosure.collect.sources.source(5)$
           computes:
@@ -456,7 +456,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Discovery 1
+          # Source(1) = Enclosure Discovery 1
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -483,7 +483,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Collect 1
+          # Source(1) = Enclosure Collect 1
           type: copy
           from: $monitors.enclosure.collect.sources.source(5)$
           computes:
@@ -503,7 +503,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Discovery 1
+          # Source(1) = Enclosure Discovery 1
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -528,7 +528,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Collect 1
+          # Source(1) = Enclosure Collect 1
           type: copy
           from: $monitors.enclosure.collect.sources.source(5)$
           computes:
@@ -559,7 +559,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Discovery 1
+          # Source(1) = Enclosure Discovery 1
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -584,7 +584,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Collect 1
+          # Source(1) = Enclosure Collect 1
           type: copy
           from: $monitors.enclosure.collect.sources.source(5)$
           computes:
@@ -615,7 +615,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Run isi batterystatus
+          # Source(1) = Run isi batterystatus
           type: osCommand
           commandLine: "/bin/zsh -c \"%{SUDO:/usr/bin/isi_for_array} /usr/bin/isi_for_array _IsiBatteryCommand \" "
           timeout: 60
@@ -641,11 +641,11 @@ monitors:
           hw.parent.id: $column(2)
           name: $column(4)
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Run isi batterystatus
+          # Source(1) = Run isi batterystatus
           type: osCommand
           commandLine: "/bin/zsh -c \"%{SUDO:/usr/bin/isi_for_array} /usr/bin/isi_for_array _IsiBatteryCommand \" "
           timeout: 60
@@ -678,7 +678,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Discovery 3
+          # Source(1) = Enclosure Discovery 3
           type: copy
           from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
@@ -688,7 +688,7 @@ monitors:
             column: 1
             regExp: ^MSHW_PhysicalDisk$
         source(2):
-          _comment: Source(2) = Enclosure Discovery 1
+          # Source(2) = Enclosure Discovery 1
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -729,11 +729,11 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(14)
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Run isi devices
+          # Source(1) = Run isi devices
           type: osCommand
           commandLine: "/bin/zsh -c \"%{SUDO:/usr/bin/isi_for_array} /usr/bin/isi_for_array _IsiDrivesCommand \" "
           timeout: 60
@@ -771,7 +771,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Run isi networks list interfaces --verbose --wide --show-inactive
+          # Source(1) = Run isi networks list interfaces --verbose --wide --show-inactive
           type: osCommand
           commandLine: "/bin/zsh -c \"%{SUDO:/usr/bin/isi} _IsiNetworkCommand \" "
           timeout: 60
@@ -810,11 +810,11 @@ monitors:
           hw.parent.id: $column(9)
           name: $column(4)
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Run isi networks list interfaces --verbose --wide --show-inactive
+          # Source(1) = Run isi networks list interfaces --verbose --wide --show-inactive
           type: osCommand
           commandLine: "/bin/zsh -c \"%{SUDO:/usr/bin/isi} _IsiNetworkCommand \" "
           timeout: 60
@@ -876,7 +876,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Run isi storagepool health --verbose
+          # Source(1) = Run isi storagepool health --verbose
           type: osCommand
           commandLine: "/bin/zsh -c \"%{SUDO:/usr/bin/isi} /usr/bin/isi storagepool health --verbose\" "
           timeout: 60
@@ -938,11 +938,11 @@ monitors:
           hw.parent.id: Cluster
           name: "sprintf(\"%s (%s)\", $column(2), $column(7))"
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Run isi devices
+          # Source(1) = Run isi devices
           type: osCommand
           commandLine: "/bin/zsh -c \"%{SUDO:/usr/bin/isi} /usr/bin/isi storagepool health --verbose\" "
           timeout: 60

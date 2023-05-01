@@ -54,7 +54,7 @@ monitors:
           oid: 1.3.6.1.4.1.3764.1.10.10.1
           selectColumns: "4,5,7,11"
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.enclosure.discovery.sources.source(1)$
         attributes:
           id: Quantum Library
@@ -270,7 +270,7 @@ monitors:
             column: 3
             translationTable: StatusInformationTranslationTable
       mapping:
-        _comment: Value Table
+        # Value Table
         source: $monitors.disk_controller.collect.sources.source(3)$
         deviceId: $column(1)
         metrics:
@@ -308,7 +308,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Get the Robotics status
+          # Get the Robotics status
           type: snmpGet
           oid: 1.3.6.1.4.1.3764.1.10.10.12.5.0
           computes:
@@ -327,7 +327,7 @@ monitors:
             column: 2
             translationTable: StatusInformationTranslationTable
       mapping:
-        _comment: Value Table
+        # Value Table
         source: $monitors.robotics.collect.sources.source(1)$
         deviceId: Overall Cassette Robotics Status
         metrics:
@@ -343,7 +343,7 @@ monitors:
           oid: 1.3.6.1.4.1.3764.1.10.10.11.3.1
           selectColumns: "17,3,4,6"
       mapping:
-        _comment: phDriveSerialNumber;phDriveModel;phDriveVendor;phDriveLocation;
+        # phDriveSerialNumber;phDriveModel;phDriveVendor;phDriveLocation;
         source: $monitors.tape_drive.discovery.sources.source(1)$
         attributes:
           id: $column(4)

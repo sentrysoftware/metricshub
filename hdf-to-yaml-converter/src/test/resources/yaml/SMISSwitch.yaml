@@ -16,13 +16,13 @@ connector:
     appliesTo:
     - Storage
     criteria:
-    - _comment: There must be ComputerSystem of type Switch (5)
-      type: wbem
+    # There must be ComputerSystem of type Switch (5)
+    - type: wbem
       namespace: Automatic
       query: SELECT Dedicated FROM CIM_ComputerSystem
       expectedResult: ^5|;*$
-    - _comment: There must be FC Ports declared in the automatically discovered namespace
-      type: wbem
+    # There must be FC Ports declared in the automatically discovered namespace
+    - type: wbem
       query: SELECT PortType FROM CIM_FCPort
       namespace: Automatic
       expectedResult: ^\(14\)\|\(15\)\|\(16\)\|\(17\)\|\(18\);$

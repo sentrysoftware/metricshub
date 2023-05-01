@@ -143,11 +143,11 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Retrieve the path were the hpnst.exe CGI is installed
+          # Retrieve the path were the hpnst.exe CGI is installed
           type: osCommand
           commandLine: CSCRIPT.EXE //E:VBScript //NoLogo %EmbeddedFile(2)%
         source(2):
-          _comment: Execute hpnst.exe to get the computer model
+          # Execute hpnst.exe to get the computer model
           type: osCommand
           commandLine: COPY %EmbeddedFile(3)% "$monitors.enclosure.discovery.sources.source(1)$\MSHW_ComputerModel.html"&&SET QUERY_STRING=c=p+i=MSHW_ComputerModel.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
           keep: ^MSHW;ComputerModel;
@@ -165,34 +165,34 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Memory discovery
+          # Memory discovery
           type: osCommand
           commandLine: COPY %EmbeddedFile(8)% "$monitors.enclosure.discovery.sources.source(1)$\MSHW_MemoryModules.html"&&SET QUERY_STRING=c=p+i=MSHW_MemoryModules.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
           keep: ^MSHW;Memory;
           separators: ;
           selectColumns: "3,4,5,6"
           computes:
-          - _comment: Keep only the memory modules for which we have a status
-            type: keepOnlyMatchingLines
+          # Keep only the memory modules for which we have a status
+          - type: keepOnlyMatchingLines
             column: 2
             valueList: "1,2,8,0"
-          - _comment: Remove MB for the memory size
-            type: replace
+          # Remove MB for the memory size
+          - type: replace
             column: 3
             existingValue: MB
             newValue: ""
-          - _comment: Remove spaces from memory size
-            type: replace
+          # Remove spaces from memory size
+          - type: replace
             column: 3
             existingValue: ' '
             newValue: ""
-          - _comment: Remove spaces from memory size
-            type: replace
+          # Remove spaces from memory size
+          - type: replace
             column: 3
             existingValue: "\t"
             newValue: ""
-          - _comment: Separate the different types by " - "
-            type: replace
+          # Separate the different types by " - 
+          - type: replace
             column: 4
             existingValue: ","
             newValue: ' - '
@@ -206,7 +206,7 @@ monitors:
         metrics:
           hw.memory.limit: mebiByte2Byte($column(3))
     collect:
-      _comment: Memory collect
+      # Memory collect
       type: multiInstance
       sources:
         source(1):
@@ -216,8 +216,8 @@ monitors:
           separators: ;
           selectColumns: "3,4"
           computes:
-          - _comment: Keep only the memory modules for which we have a status
-            type: keepOnlyMatchingLines
+          # Keep only the memory modules for which we have a status
+          - type: keepOnlyMatchingLines
             column: 2
             valueList: "1,2,8,0"
           - type: duplicateColumn
@@ -239,7 +239,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Temperature discovery
+          # Temperature discovery
           type: osCommand
           commandLine: COPY %EmbeddedFile(4)% "$monitors.enclosure.discovery.sources.source(1)$\MSHW_TemperatureSensors.html"&&SET QUERY_STRING=c=p+i=MSHW_TemperatureSensors.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
           keep: ^MSHW;Temperature;
@@ -256,7 +256,7 @@ monitors:
           hw.temperature.limit{limit_type="high.degraded"}: 65
           hw.temperature.limit{limit_type="high.critical"}: 75
     collect:
-      _comment: Temperature collect
+      # Temperature collect
       type: multiInstance
       sources:
         source(1):
@@ -278,19 +278,19 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Fan discovery
+          # Fan discovery
           type: osCommand
           commandLine: COPY %EmbeddedFile(5)% "$monitors.enclosure.discovery.sources.source(1)$\MSHW_FanSensors.html"&&SET QUERY_STRING=c=p+i=MSHW_FanSensors.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
           keep: ^MSHW;Fan;
           separators: ;
           selectColumns: "3,4,5"
           computes:
-          - _comment: Remove the fan that are not present
-            type: keepOnlyMatchingLines
+          # Remove the fan that are not present
+          - type: keepOnlyMatchingLines
             column: 2
             valueList: "20,21,22"
       mapping:
-        _comment: Instancetable = source(1)
+        # Instancetable = source(1)
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -300,7 +300,7 @@ monitors:
           hw.fan.speed.limit{limit_type="low.degraded"}: 2000
           hw.fan.speed.limit{limit_type="low.critical"}: 1
     collect:
-      _comment: Fan collect
+      # Fan collect
       type: multiInstance
       sources:
         source(1):
@@ -338,8 +338,8 @@ monitors:
           separators: ;
           selectColumns: "3,4,5"
           computes:
-          - _comment: Remove bad voltages (status = 21 or 23)
-            type: keepOnlyMatchingLines
+          # Remove bad voltages (status = 21 or 23)
+          - type: keepOnlyMatchingLines
             column: 2
             valueList: "20,21,22"
             # Duplicate the "type" status
@@ -359,7 +359,7 @@ monitors:
             column: 5
             translationTable: VoltageUpperThresholdTranslationTable
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.voltage.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -370,7 +370,7 @@ monitors:
           hw.voltage.limit{limit_type="low.critical"}: $column(4)
           hw.voltage.limit{limit_type="high.degraded"}: $column(5)
     collect:
-      _comment: Voltage collect
+      # Voltage collect
       type: multiInstance
       sources:
         source(1):
@@ -380,12 +380,12 @@ monitors:
           separators: ;
           selectColumns: "3,4,6"
           computes:
-          - _comment: Convert Volts to milliVolts
-            type: multiply
+          # Convert Volts to milliVolts
+          - type: multiply
             column: 3
             value: 1000
-          - _comment: Duplicate the status column
-            type: duplicateColumn
+          # Duplicate the status column
+          - type: duplicateColumn
             column: 2
           - type: translate
             column: 2
@@ -394,7 +394,7 @@ monitors:
             column: 3
             translationTable: VoltageStatusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.voltage.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -406,26 +406,26 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Power supply discovery
+          # Power supply discovery
           type: osCommand
           commandLine: COPY %EmbeddedFile(7)% "$monitors.enclosure.discovery.sources.source(1)$\MSHW_PowerSupply.html"&&SET QUERY_STRING=c=p+i=MSHW_PowerSupply.html&&"$monitors.enclosure.discovery.sources.source(1)$\hpnst.exe"
           keep: ^MSHW;PowerSupply;
           separators: ;
           selectColumns: "3,5"
           computes:
-          - _comment: Keep only power supplies that are present
-            type: keepOnlyMatchingLines
+          # Keep only power supplies that are present
+          - type: keepOnlyMatchingLines
             column: 2
             valueList: 1
       mapping:
-        _comment: Instance Table = Source(1)
+        # Instance Table = Source(1)
         source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
           id: $column(1)
           hw.parent.type: enclosure
           name: "sprintf(\"%s, $column(1))"
     collect:
-      _comment: Power supply collect
+      # Power supply collect
       type: multiInstance
       sources:
         source(1):
@@ -435,18 +435,18 @@ monitors:
           separators: ;
           selectColumns: "3,4"
           computes:
-          - _comment: Duplicate the status column
-            type: duplicateColumn
+          # Duplicate the status column
+          - type: duplicateColumn
             column: 2
-          - _comment: Translate the status
-            type: translate
+          # Translate the status
+          - type: translate
             column: 2
             translationTable: PowerSupplyStatusTranslationTable
           - type: translate
             column: 3
             translationTable: PowerSupplyStatusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.power_supply.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -457,22 +457,22 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: CPU discovery
+          # CPU discovery
           type: wmi
           query: "SELECT CurrentClockSpeed,DeviceID,Family,Manufacturer FROM Win32_Processor"
           namespace: root\cimv2
           computes:
-          - _comment: Translate CPU family
-            type: translate
+          # Translate CPU family
+          - type: translate
             column: 3
             translationTable: cpuFamilyTranslationTable
-          - _comment: Remove Genuine from manufacturer's name
-            type: replace
+          # Remove Genuine from manufacturer's name
+          - type: replace
             column: 4
             existingValue: Genuine
             newValue: ""
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.cpu.discovery.sources.source(1)$
         attributes:
           id: $column(2)
@@ -483,11 +483,11 @@ monitors:
         metrics:
           hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(1))
     collect:
-      _comment: CPU supply collect
+      # CPU supply collect
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = The IBMPSG_Processor WBEM class
+          # Source(1) = The IBMPSG_Processor WBEM class
           type: wmi
           query: "SELECT DeviceID,Status FROM Win32_Processor"
           namespace: root\cimv2

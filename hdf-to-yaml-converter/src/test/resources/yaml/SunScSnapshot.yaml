@@ -39,13 +39,13 @@ connector:
     supersedes:
     - IpmiTool
     criteria:
-    - _comment: DETECTION
-      type: deviceType
+    # DETECTION
+    - type: deviceType
       keep:
       - SunOS
       - Solaris
-    - _comment: Only on sun4v systems
-      type: osCommand
+    # Only on sun4v systems
+    - type: osCommand
       commandLine: /bin/uname -m
       expectedResult: ^sun4v$
     - type: osCommand
@@ -86,7 +86,7 @@ monitors:
             existingValue: '-'
             newValue: ' '
         source(2):
-          _comment: Source(2) = Output of the showenvironment command
+          # Source(2) = Output of the showenvironment command
           type: osCommand
           forceSerialization: true
           commandLine: "while /bin/pgrep \"^snapshot$\">/dev/null; do /bin/sleep 1; done;%{SUDO:/opt/SUNWexplo/bin/snapshot}/opt/SUNWexplo/bin/snapshot -c %EmbeddedFile(2)%|/bin/dos2unix -ascii -437"
@@ -101,18 +101,18 @@ monitors:
             existingValue: .
             newValue: /
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.enclosure.discovery.sources.source(1)$
         attributes:
           id: sun4v
           model: $column(1)
           name: "sprintf(\"%s (%s)\", \"sun4v\", $column(1))"
     collect:
-      _comment: Collect type is multi-instance (execute once)
+      # Collect type is multi-instance (execute once)
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Output of the showenvironment command
+          # Source(1) = Output of the showenvironment command
           type: osCommand
           forceSerialization: true
           commandLine: "while /bin/pgrep \"^snapshot$\">/dev/null; do /bin/sleep 1; done;%{SUDO:/opt/SUNWexplo/bin/snapshot}/opt/SUNWexplo/bin/snapshot -c %EmbeddedFile(2)%|/bin/dos2unix -ascii -437"
@@ -127,14 +127,14 @@ monitors:
             existingValue: .
             newValue: /
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: sun4v
         deviceId: $column(1)
   fan:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = copy of Enclosure.Discovery.Source(2)
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
@@ -159,7 +159,7 @@ monitors:
             existingValue: '-'
             newValue: ""
       mapping:
-        _comment: Instance Table = Source(1)
+        # Instance Table = Source(1)
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -169,7 +169,7 @@ monitors:
           hw.fan.speed.limit{limit_type="low.degraded"}: $column(4)
           hw.fan.speed.limit{limit_type="low.critical"}: $column(5)
     collect:
-      _comment: Collect type is "all instances in one shot"
+      # Collect type is "all instances in one shot
       type: multiInstance
       sources:
         source(1):
@@ -199,7 +199,7 @@ monitors:
             column: 2
             translationTable: FanStatusTranslationTable
       mapping:
-        _comment: ValueTable = Source(3)
+        # ValueTable = Source(3)
         source: $monitors.fan.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -211,7 +211,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = copy of Enclosure.Discovery.Source(2)
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
@@ -231,7 +231,7 @@ monitors:
             existingValue: '-'
             newValue: ""
       mapping:
-        _comment: Instance Table = Source(1)
+        # Instance Table = Source(1)
         source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -242,7 +242,7 @@ monitors:
           hw.temperature.limit{limit_type="high.degraded"}: $column(7)
           hw.temperature.limit{limit_type="high.critical"}: $column(8)
     collect:
-      _comment: Collect type is "all instances in one shot"
+      # Collect type is "all instances in one shot
       type: multiInstance
       sources:
         source(1):
@@ -267,7 +267,7 @@ monitors:
             column: 2
             translationTable: TemperatureStatusTranslationTable
       mapping:
-        _comment: ValueTable = Source(3)
+        # ValueTable = Source(3)
         source: $monitors.temperature.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -279,7 +279,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = copy of Enclosure.Discovery.Source(2)
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
@@ -303,7 +303,7 @@ monitors:
             column: 6
             value: 1000
       mapping:
-        _comment: Instance Table = Source(1)
+        # Instance Table = Source(1)
         source: $monitors.voltage.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -314,7 +314,7 @@ monitors:
           hw.voltage.limit{limit_type="low.critical"}: $column(5)
           hw.voltage.limit{limit_type="high.degraded"}: $column(6)
     collect:
-      _comment: Collect type is "all instances in one shot"
+      # Collect type is "all instances in one shot
       type: multiInstance
       sources:
         source(1):
@@ -344,7 +344,7 @@ monitors:
             column: 4
             value: 1000
       mapping:
-        _comment: ValueTable = Source(3)
+        # ValueTable = Source(3)
         source: $monitors.voltage.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -356,7 +356,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = copy of Enclosure.Discovery.Source(2)
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
@@ -370,7 +370,7 @@ monitors:
             column: 5
             regExp: "^O[NF]+$"
         source(2):
-          _comment: Source(2) = copy of Enclosure.Discovery.Source(2)
+          # Source(2) = copy of Enclosure.Discovery.Source(2)
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
@@ -391,14 +391,14 @@ monitors:
           - $monitors.power_supply.discovery.sources.source(1)$
           - $monitors.power_supply.discovery.sources.source(2)$
       mapping:
-        _comment: Instance Table = Source(3)
+        # Instance Table = Source(3)
         source: $monitors.power_supply.discovery.sources.source(3)$
         attributes:
           id: $column(1)
           hw.parent.type: enclosure
           name: "sprintf(\"%s, $column(1))"
     collect:
-      _comment: Collect type is "all instances in one shot"
+      # Collect type is "all instances in one shot
       type: multiInstance
       sources:
         source(1):
@@ -422,7 +422,7 @@ monitors:
           - type: keepColumns
             columnNumbers: "1,2"
         source(2):
-          _comment: Source(2) = copy of Enclosure.Discovery.Source(2)
+          # Source(2) = copy of Enclosure.Discovery.Source(2)
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -463,7 +463,7 @@ monitors:
             existingValue: "No"
             newValue: No input source
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.power_supply.collect.sources.source(3)$
         deviceId: $column(1)
         metrics:
@@ -474,7 +474,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = copy of Enclosure.Discovery.Source(2)
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
@@ -484,7 +484,7 @@ monitors:
             column: 1
             regExp: \(/I_\)\|\(/FF_\)
       mapping:
-        _comment: Instance Table = Source(1)
+        # Instance Table = Source(1)
         source: $monitors.other_device.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -493,7 +493,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s: %s (%s)\", \"Current\", $column(1), $column(1))"
     collect:
-      _comment: Collect type is "all instances in one shot"
+      # Collect type is "all instances in one shot
       type: multiInstance
       sources:
         source(1):
@@ -518,7 +518,7 @@ monitors:
             column: 2
             translationTable: OtherDeviceStatusTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.other_device.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:

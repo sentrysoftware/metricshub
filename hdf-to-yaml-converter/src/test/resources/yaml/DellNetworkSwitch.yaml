@@ -73,7 +73,7 @@ monitors:
             existingValue: ' switch/router'
             newValue: ""
         source(2):
-          _comment: EnclosureID;SerialNumber;ServiceTag;
+          # EnclosureID;SerialNumber;ServiceTag;
           type: snmpTable
           oid: 1.3.6.1.4.1.674.10895.3000.1.2.100.8.1
           selectColumns: "ID,2,4"
@@ -99,15 +99,15 @@ monitors:
           oid: 1.3.6.1.4.1.674.10895.3000.1.2.110.7.2.1
           selectColumns: "ID,5"
           computes:
-          - _comment: MSHW;ID;CurrentPower;
-            type: leftConcat
+          # MSHW;ID;CurrentPower;
+          - type: leftConcat
             column: 1
             value: MSHW;
-          - _comment: Sum up the power consumption values from all PSes
-            type: awk
+          # Sum up the power consumption values from all PSes
+          - type: awk
             script: EmbeddedFile(1)
         source(5):
-          _comment: MSHW;EnclosureID;SerialNumber;ServiceTag;MSHW;Model;Vendor;Firmware;MSHW;PowerConsumption;
+          # MSHW;EnclosureID;SerialNumber;ServiceTag;MSHW;Model;Vendor;Firmware;MSHW;PowerConsumption;
           type: tableJoin
           leftTable: $monitors.enclosure.discovery.sources.source(3)$
           rightTable: $monitors.enclosure.discovery.sources.source(4)$
@@ -150,8 +150,8 @@ monitors:
           - type: translate
             column: 3
             translationTable: EnclosureStatusInformationTranslationTable
-          - _comment: MSHW;EnclosureID;PATROLStatus;StatusInformation;
-            type: leftConcat
+          # MSHW;EnclosureID;PATROLStatus;StatusInformation;
+          - type: leftConcat
             column: 1
             value: MSHW;
         source(2):
@@ -167,7 +167,7 @@ monitors:
           - type: awk
             script: EmbeddedFile(1)
         source(3):
-          _comment: MSHW;EnclosureID;PATROLStatus;StatusInformation;MSHW;PowerConsumption;
+          # MSHW;EnclosureID;PATROLStatus;StatusInformation;MSHW;PowerConsumption;
           type: tableJoin
           leftTable: $monitors.enclosure.collect.sources.source(1)$
           rightTable: $monitors.enclosure.collect.sources.source(2)$
@@ -195,8 +195,8 @@ monitors:
           oid: 1.3.6.1.4.1.674.10895.3000.1.2.110.7.1.1
           selectColumns: "ID,2,4,3"
           computes:
-          - _comment: Exclude fans whose status = notPresent(5)
-            type: excludeMatchingLines
+          # Exclude fans whose status = notPresent(5)
+          - type: excludeMatchingLines
             column: 4
             valueList: 5
       mapping:
@@ -250,8 +250,8 @@ monitors:
           oid: 1.3.6.1.4.1.674.10895.3000.1.2.110.7.2.1
           selectColumns: "ID,2,3,5"
           computes:
-          - _comment: Exclude fans whose status = notPresent(5)
-            type: excludeMatchingLines
+          # Exclude fans whose status = notPresent(5)
+          - type: excludeMatchingLines
             column: 3
             valueList: 5
       mapping:

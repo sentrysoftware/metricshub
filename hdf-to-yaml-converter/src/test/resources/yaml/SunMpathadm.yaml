@@ -41,8 +41,8 @@ connector:
     appliesTo:
     - Solaris
     criteria:
-    - _comment: Test the mpathadm command
-      type: osCommand
+    # Test the mpathadm command
+    - type: osCommand
       commandLine: "%{SUDO:/usr/sbin/mpathadm} /usr/sbin/mpathadm list lu"
       expectedResult: /dev/rdsk
 sudoCommands:
@@ -52,7 +52,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Get the list of Ports and attributes from EF1
+          # Get the list of Ports and attributes from EF1
           type: osCommand
           commandLine: /bin/sh %EmbeddedFile(1)%
           computes:
@@ -74,11 +74,11 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(2), $column(1))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: Get the list of Ports from multipath -l
+          # Get the list of Ports from multipath -l
           type: osCommand
           commandLine: "%{SUDO:/usr/sbin/mpathadm} /usr/sbin/mpathadm list lu"
           computes:

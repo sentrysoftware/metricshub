@@ -100,12 +100,12 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery Enclosure
+          # Discovery Enclosure
           type: osCommand
           commandLine: "%{SUDO:/usr/sbin/dmidecode} /usr/sbin/dmidecode -t system"
           computes:
-          - _comment: '"MSHW;"Manufacturer";"Type";"SN";"'
-            type: awk
+          # '"MSHW;"Manufacturer";"Type";"SN";"'
+          - type: awk
             script: EmbeddedFile(1)
             keep: ^MSHW;
             separators: ;
@@ -113,13 +113,13 @@ monitors:
           type: osCommand
           commandLine: "%{SUDO:/usr/sbin/dmidecode} /usr/sbin/dmidecode -t bios"
           computes:
-          - _comment: '"MSHW;"Bios Info"'
-            type: awk
+          # '"MSHW;"Bios Info"'
+          - type: awk
             script: EmbeddedFile(2)
             keep: ^MSHW;
             separators: ;
         source(3):
-          _comment: '"MSHW;"Manufacturer";"Type";"SN";"'
+          # '"MSHW;"Manufacturer";"Type";"SN";"'
           type: tableJoin
           leftTable: $monitors.enclosure.discovery.sources.source(1)$
           rightTable: $monitors.enclosure.discovery.sources.source(2)$
@@ -141,7 +141,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery Temperature
+          # Discovery Temperature
           type: osCommand
           commandLine: "%{SUDO:/usr/bin/sensors} /usr/bin/sensors -u -A"
           computes:
@@ -163,7 +163,7 @@ monitors:
           hw.temperature.limit{limit_type="high.degraded"}: $column(5)
           hw.temperature.limit{limit_type="high.critical"}: $column(6)
     collect:
-      _comment: Collection Type
+      # Collection Type
       type: multiInstance
       sources:
         source(1):
@@ -185,7 +185,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery Voltage
+          # Discovery Voltage
           type: osCommand
           commandLine: "%{SUDO:/usr/bin/sensors} /usr/bin/sensors -A"
           computes:
@@ -208,7 +208,7 @@ monitors:
           hw.voltage.limit{limit_type="low.critical"}: $column(5)
           hw.voltage.limit{limit_type="high.degraded"}: $column(6)
     collect:
-      _comment: Collection Type
+      # Collection Type
       type: multiInstance
       sources:
         source(1):
@@ -230,7 +230,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery FAN
+          # Discovery FAN
           type: osCommand
           commandLine: "%{SUDO:/usr/bin/sensors} /usr/bin/sensors -u -A"
           computes:
@@ -252,7 +252,7 @@ monitors:
           hw.fan.speed.limit{limit_type="low.degraded"}: $column(5)
           hw.fan.speed.limit{limit_type="low.critical"}: $column(6)
     collect:
-      _comment: Collection Type
+      # Collection Type
       type: multiInstance
       sources:
         source(1):

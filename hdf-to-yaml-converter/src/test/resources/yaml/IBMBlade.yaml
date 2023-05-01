@@ -111,8 +111,8 @@ monitors:
           - type: rightConcat
             column: 1
             value: Column(2)
-          - _comment: Identify the FRU and Part Number
-            type: leftConcat
+          # Identify the FRU and Part Number
+          - type: leftConcat
             column: 5
             value: "Alternate Part Number: "
           - type: leftConcat
@@ -131,7 +131,7 @@ monitors:
           info: "join($column(5), $column(6), \" \")"
           name: "sprintf(\"%s (%s %s - %s)\", \"BladeCenter\", $column(4), $column(1), \"Chassis\")"
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -258,7 +258,7 @@ monitors:
             column: 6
             regExp: "^[0-9]"
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.temperature.discovery.sources.source(6)$
         attributes:
           id: $column(1)
@@ -490,58 +490,58 @@ monitors:
           oid: 1.3.6.1.4.1.2.3.51.2.2.5.2
           selectColumns: 73
         source(12):
-          _comment: Copy Source (11) to get Blower 1
+          # Copy Source (11) to get Blower 1
           type: copy
           from: $monitors.fan.discovery.sources.source(11)$
           computes:
-          - _comment: Add an identifier
-            type: leftConcat
+          # Add an identifier
+          - type: leftConcat
             column: 1
             value: Blower1;
-          - _comment: Extract the digit which we are interested in
-            type: substring
+          # Extract the digit which we are interested in
+          - type: substring
             column: 2
             start: 1
             length: 1
         source(13):
-          _comment: Copy Source (11) to get Blower 2
+          # Copy Source (11) to get Blower 2
           type: copy
           from: $monitors.fan.discovery.sources.source(11)$
           computes:
-          - _comment: Add an identifier
-            type: leftConcat
+          # Add an identifier
+          - type: leftConcat
             column: 1
             value: Blower2;
-          - _comment: Extract the digit which we are interested in
-            type: substring
+          # Extract the digit which we are interested in
+          - type: substring
             column: 2
             start: 2
             length: 1
         source(14):
-          _comment: Copy Source (11) to get Blower 3
+          # Copy Source (11) to get Blower 3
           type: copy
           from: $monitors.fan.discovery.sources.source(11)$
           computes:
-          - _comment: Add an identifier
-            type: leftConcat
+          # Add an identifier
+          - type: leftConcat
             column: 1
             value: Blower3;
-          - _comment: Extract the digit which we are interested in
-            type: substring
+          # Extract the digit which we are interested in
+          - type: substring
             column: 2
             start: 3
             length: 1
         source(15):
-          _comment: Copy Source (11) to get Blower 4
+          # Copy Source (11) to get Blower 4
           type: copy
           from: $monitors.fan.discovery.sources.source(11)$
           computes:
-          - _comment: Add an identifier
-            type: leftConcat
+          # Add an identifier
+          - type: leftConcat
             column: 1
             value: Blower4;
-          - _comment: Extract the digit which we are interested in
-            type: substring
+          # Extract the digit which we are interested in
+          - type: substring
             column: 2
             start: 4
             length: 1
@@ -619,7 +619,7 @@ monitors:
             value: MSHW
           - type: duplicateColumn
             column: 6
-            # If the Column is Blank, 255 or Zero, then blank status
+          # If the Column is Blank, 255 or Zero, then blank status
           - type: replace
             column: 6
             existingValue: MSHW0MSHW
@@ -632,7 +632,7 @@ monitors:
             column: 6
             existingValue: MSHWMSHW
             newValue: ""
-            # If 6 is still populated, blank 7
+          # If 6 is still populated, blank 7
           - type: replace
             column: 7
             existingValue: Column(6)
@@ -650,7 +650,7 @@ monitors:
         metrics:
           hw.fan.speed_ratio.limit{limit_type="low.degraded"}: percent2Ratio($column(7))
     collect:
-      _comment: Collect-type
+      # Collect-type
       type: multiInstance
       sources:
         source(1):
@@ -722,8 +722,8 @@ monitors:
             column: 3
             subColumn: 1
             subSeparators: '%%'
-          - _comment: Remove unneeded spaces
-            type: replace
+          # Remove unneeded spaces
+          - type: replace
             column: 3
             existingValue: ' '
             newValue: ""
@@ -798,58 +798,58 @@ monitors:
           oid: 1.3.6.1.4.1.2.3.51.2.2.5.2
           selectColumns: 72
         source(12):
-          _comment: Copy Source (11) to get Blower 1
+          # Copy Source (11) to get Blower 1
           type: copy
           from: $monitors.fan.collect.sources.source(11)$
           computes:
-          - _comment: Add an identifier
-            type: leftConcat
+          # Add an identifier
+          - type: leftConcat
             column: 1
             value: Blower1;
-          - _comment: Extract the digit which we are interested in
-            type: substring
+          # Extract the digit which we are interested in
+          - type: substring
             column: 2
             start: 1
             length: 1
         source(13):
-          _comment: Copy Source (11) to get Blower 2
+          # Copy Source (11) to get Blower 2
           type: copy
           from: $monitors.fan.collect.sources.source(11)$
           computes:
-          - _comment: Add an identifier
-            type: leftConcat
+          # Add an identifier
+          - type: leftConcat
             column: 1
             value: Blower2;
-          - _comment: Extract the digit which we are interested in
-            type: substring
+          # Extract the digit which we are interested in
+          - type: substring
             column: 2
             start: 2
             length: 1
         source(14):
-          _comment: Copy Source (11) to get Blower 3
+          # Copy Source (11) to get Blower 3
           type: copy
           from: $monitors.fan.collect.sources.source(11)$
           computes:
-          - _comment: Add an identifier
-            type: leftConcat
+          # Add an identifier
+          - type: leftConcat
             column: 1
             value: Blower3;
-          - _comment: Extract the digit which we are interested in
-            type: substring
+          # Extract the digit which we are interested in
+          - type: substring
             column: 2
             start: 3
             length: 1
         source(15):
-          _comment: Copy Source (11) to get Blower 4
+          # Copy Source (11) to get Blower 4
           type: copy
           from: $monitors.fan.collect.sources.source(11)$
           computes:
-          - _comment: Add an identifier
-            type: leftConcat
+          # Add an identifier
+          - type: leftConcat
             column: 1
             value: Blower4;
-          - _comment: Extract the digit which we are interested in
-            type: substring
+          # Extract the digit which we are interested in
+          - type: substring
             column: 2
             start: 4
             length: 1
@@ -943,7 +943,7 @@ monitors:
           - $monitors.fan.collect.sources.source(18)$
           - $monitors.fan.collect.sources.source(19)$
       mapping:
-        _comment: ValueTable = Source(20)
+        # ValueTable = Source(20)
         source: $monitors.fan.collect.sources.source(20)$
         deviceId: $column(1)
         metrics:
@@ -959,8 +959,8 @@ monitors:
           oid: 1.3.6.1.4.1.2.3.51.2.2.20.2.1.1
           selectColumns: "ID,2,6,10"
           computes:
-          - _comment: Remove the " Volts" stenza from the Lower and UpperTreshold columns
-            type: replace
+          # Remove the " Volts" stenza from the Lower and UpperTreshold columns
+          - type: replace
             column: 3
             existingValue: ' Volts'
             newValue: ""
@@ -978,8 +978,8 @@ monitors:
             column: 4
             existingValue: ' '
             newValue: ""
-          - _comment: Remove the unnedded '+' char
-            type: replace
+          # Remove the unnedded '+' char
+          - type: replace
             column: 3
             existingValue: +
             newValue: ""
@@ -987,15 +987,15 @@ monitors:
             column: 4
             existingValue: +
             newValue: ""
-          - _comment: Convert the volt values to milliVolts
-            type: multiply
+          # Convert the volt values to milliVolts
+          - type: multiply
             column: 3
             value: 1000
           - type: multiply
             column: 4
             value: 1000
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.voltage.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -1011,31 +1011,31 @@ monitors:
       type: monoInstance
       sources:
         source(1):
-          _comment: Source(1) = SNMP Get on the voltageThresholdsEntryCurrentValue OID
+          # Source(1) = SNMP Get on the voltageThresholdsEntryCurrentValue OID
           type: snmpGet
           oid: 1.3.6.1.4.1.2.3.51.2.2.20.2.1.1.3.%Voltage.Collect.DeviceID%
           computes:
-          - _comment: Remove the " Volts" stanza
-            type: replace
+          # Remove the " Volts" stanza
+          - type: replace
             column: 1
             existingValue: ' Volts'
             newValue: ""
-          - _comment: Remove the remaining spaces
-            type: replace
+          # Remove the remaining spaces
+          - type: replace
             column: 1
             existingValue: ' '
             newValue: ""
-          - _comment: Remove the unneeded '+' char
-            type: replace
+          # Remove the unneeded '+' char
+          - type: replace
             column: 1
             existingValue: +
             newValue: ""
-          - _comment: Convert V to mV
-            type: multiply
+          # Convert V to mV
+          - type: multiply
             column: 1
             value: 1000
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.voltage.collect.sources.source(1)$
         metrics:
           hw.voltage: $column(1)
@@ -1049,15 +1049,15 @@ monitors:
           oid: 1.3.6.1.4.1.2.3.51.2.2.21.8.1.1
           selectColumns: "1,3,4"
           computes:
-          - _comment: Remove "Not available" instances
-            type: excludeMatchingLines
+          # Remove "Not available" instances
+          - type: excludeMatchingLines
             column: 2
             regExp: "^Not [Aa]vailable$"
           - type: leftConcat
             column: 3
             value: "Part Number: "
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -1068,7 +1068,7 @@ monitors:
           hw.parent.id: BladeCenter
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
     collect:
-      _comment: Collect type = Mono-Instance (one collect for each instance)
+      # Collect type = Mono-Instance (one collect for each instance)
       type: monoInstance
       sources:
         source(1):
@@ -1078,16 +1078,16 @@ monitors:
           type: snmpGet
           oid: 1.3.6.1.4.1.2.3.51.2.2.5.2.89.0
           computes:
-          - _comment: Extract the digit that concerns our power module
-            type: substring
+          # Extract the digit that concerns our power module
+          - type: substring
             column: 1
             start: '%PowerSupply.Collect.DeviceID%'
             length: 1
-          - _comment: Duplicate this digit column
-            type: duplicateColumn
+          # Duplicate this digit column
+          - type: duplicateColumn
             column: 1
-          - _comment: Now translate this digit to a PATROL Status
-            type: translate
+          # Now translate this digit to a PATROL Status
+          - type: translate
             column: 1
             translationTable: PowerSupplyStatusTranslationTable
           - type: translate
@@ -1109,8 +1109,8 @@ monitors:
           oid: 1.3.6.1.4.1.2.3.51.2.22.1.5.1.1
           selectColumns: "ID,3,6"
           computes:
-          - _comment: Keep only present blades
-            type: keepOnlyMatchingLines
+          # Keep only present blades
+          - type: keepOnlyMatchingLines
             column: 2
             valueList: 1
         source(2):
@@ -1122,8 +1122,8 @@ monitors:
           oid: 1.3.6.1.4.1.2.3.51.2.2.8.2.1.1
           selectColumns: "ID,3,6"
           computes:
-          - _comment: Keep only present blades
-            type: keepOnlyMatchingLines
+          # Keep only present blades
+          - type: keepOnlyMatchingLines
             column: 2
             valueList: 1
         source(3):
@@ -1148,8 +1148,8 @@ monitors:
           - type: rightConcat
             column: 2
             value: Column(3)
-          - _comment: Identify the FRU and Part Number
-            type: leftConcat
+          # Identify the FRU and Part Number
+          - type: leftConcat
             column: 5
             value: "Alternate Part Number: "
           - type: leftConcat
@@ -1164,7 +1164,7 @@ monitors:
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.blade.discovery.sources.source(5)$
         attributes:
           id: $column(1)
@@ -1176,7 +1176,7 @@ monitors:
           hw.parent.id: BladeCenter
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), $column(5))"
     collect:
-      _comment: Collect type is "multi-instance" (one collect for all instances)
+      # Collect type is "multi-instance" (one collect for all instances)
       type: multiInstance
       sources:
         source(1):
@@ -1231,7 +1231,7 @@ monitors:
             column: 2
             translationTable: BladePowerStateTranslationTable
       mapping:
-        _comment: ValueTable = Source(3)
+        # ValueTable = Source(3)
         source: $monitors.blade.collect.sources.source(3)$
         deviceId: $column(1)
         metrics:
@@ -1396,7 +1396,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s: %s\", $column(2), $column(1))"
     collect:
-      _comment: Collect type is "multi-instance"
+      # Collect type is "multi-instance
       type: multiInstance
       sources:
         source(1):

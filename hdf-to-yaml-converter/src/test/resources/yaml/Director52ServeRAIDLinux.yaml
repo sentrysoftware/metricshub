@@ -82,18 +82,18 @@ connector:
     - LSIMegaRaidSAS
     - LSIUtilUNIX
     criteria:
-    - _comment: OS must be Linux
-      type: deviceType
+    # OS must be Linux
+    - type: deviceType
       keep:
       - Linux
       - OOB
-    - _comment: Verify that there is a WBEM namespace with a CIM_ComputerSystem.Dedicated == 3
-      type: wbem
+    # Verify that there is a WBEM namespace with a CIM_ComputerSystem.Dedicated == 3
+    - type: wbem
       namespace: Automatic
       query: SELECT Dedicated FROM CIM_ComputerSystem
       expectedResult: \(^30|\)\|\(|30|\)\|\(^3|\)\|\(|3|\)\|\(^2|\)\|\(|2|\)
-    - _comment: There must be disk drives declared int he root/LSI_IR_1_2_0 namespace
-      type: wbem
+    # There must be disk drives declared int he root/LSI_IR_1_2_0 namespace
+    - type: wbem
       query: SELECT Name FROM CIM_DiskDrive
       namespace: Automatic
 monitors:
@@ -305,8 +305,8 @@ monitors:
           rightKeyColumn: 1
           keyType: Wbem
           computes:
-          - _comment: PartComponent;DiskControllerID;Name;
-            type: keepColumns
+          # PartComponent;DiskControllerID;Name;
+          - type: keepColumns
             columnNumbers: "2,3,4"
         source(21):
           # Let's see if there's a computer system with a controller battery.
@@ -429,7 +429,7 @@ monitors:
           rightKeyColumn: 1
           defaultRightLine: ;;
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.disk_controller.collect.sources.source(3)$
         deviceId: $column(1)
         metrics:
@@ -568,18 +568,18 @@ monitors:
           - type: rightConcat
             column: 2
             value: _MSHW_
-          - _comment: Replace the Blank Value with Column 13
-            type: replace
+          # Replace the Blank Value with Column 13
+          - type: replace
             column: 2
             existingValue: _MSHW__MSHW_
             newValue: Column(14)
-          - _comment: Replace the zero Value with Column 13
-            type: replace
+          # Replace the zero Value with Column 13
+          - type: replace
             column: 2
             existingValue: _MSHW_0_MSHW_
             newValue: Column(14)
-          - _comment: Remove the unwanted _MSHW_
-            type: replace
+          # Remove the unwanted _MSHW_
+          - type: replace
             column: 2
             existingValue: _MSHW_
             newValue: ""
@@ -631,7 +631,7 @@ monitors:
             column: 2
             conversion: array2SimpleStatus
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.physical_disk.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -798,7 +798,7 @@ monitors:
             column: 2
             conversion: array2SimpleStatus
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.logical_disk.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -909,7 +909,7 @@ monitors:
             column: 2
             conversion: array2SimpleStatus
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.battery.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:

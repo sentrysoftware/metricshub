@@ -40,12 +40,12 @@ connector:
     supersedes:
     - HPUXWBEMNetwork
     criteria:
-      # OS should be HP (for HP-UX, whatever version)
+    # OS should be HP (for HP-UX, whatever version)
     - type: deviceType
       keep:
       - HP
-    - _comment: The various following tools have to be present
-      type: osCommand
+    # The various following tools have to be present
+    - type: osCommand
       commandLine: /usr/sbin/lanscan
       expectedResult: "^[0-9]+/[0-9]+/[0-9]+"
 monitors:
@@ -53,7 +53,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = output of EmbeddedFile(1)
+          # Source(1) = output of EmbeddedFile(1)
           type: osCommand
           commandLine: "for IF in `/usr/sbin/lanscan|/usr/bin/awk '($3 ~ /[0-9]+/) && ($1 ~ \"[0-9]+/[0-9]+/[0-9]+\") { print $3 }'`; do /usr/sbin/lanadmin -g mibstats $IF; done"
           computes:
@@ -65,7 +65,7 @@ monitors:
             separators: ;
             selectColumns: "2,3,8"
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.network.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -75,11 +75,11 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Ouput of lanadmin for all lan adapters listed by lanscan
+          # Source(1) = Ouput of lanadmin for all lan adapters listed by lanscan
           type: osCommand
           commandLine: "for IF in `/usr/sbin/lanscan|/usr/bin/awk '($3 ~ /[0-9]+/) && ($1 ~ \"[0-9]+/[0-9]+/[0-9]+\") { print $3 }'`; do /usr/sbin/lanadmin -g mibstats $IF; done"
           computes:

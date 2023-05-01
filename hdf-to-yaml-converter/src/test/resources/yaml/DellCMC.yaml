@@ -16,8 +16,8 @@ connector:
     appliesTo:
     - OOB
     criteria:
-    - _comment: Host should respond to telnet the way described below
-      type: osCommand
+    # Host should respond to telnet the way described below
+    - type: osCommand
       commandLine: getsysinfo
       expectedResult: 'CMC Information:'
 monitors:
@@ -123,6 +123,6 @@ monitors:
     discovery:
       sources:
         source(2):
-          _comment: Source(2) = Getslotname
+          # Source(2) = Getslotname
           type: osCommand
           commandLine: getslotname

@@ -61,7 +61,7 @@ monitors:
           oid: 1.3.6.1.4.1.674.1.2.1.2.1
           selectColumns: "ID,1,4,5,8,9"
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.disk_controller.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -93,7 +93,7 @@ monitors:
             column: 3
             value: 1048576
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.physical_disk.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -104,7 +104,7 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(3)
     collect:
-      _comment: Collect type = mono-instance (one polling per instance)
+      # Collect type = mono-instance (one polling per instance)
       type: monoInstance
       sources:
         source(1):
@@ -128,7 +128,7 @@ monitors:
             column: 2
             translationTable: PhysicalDiskStatusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.physical_disk.collect.sources.source(1)$
         metrics:
           hw.status{hw.type="physical_disk"}: $column(1)
@@ -155,7 +155,7 @@ monitors:
             column: 3
             value: 1048576
       mapping:
-        _comment: Instance Table = Source(1)
+        # Instance Table = Source(1)
         source: $monitors.logical_disk.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -189,7 +189,7 @@ monitors:
             column: 2
             translationTable: LogicalDiskStatusInformationTranslationTable
       mapping:
-        _comment: The value table = source(1)
+        # The value table = source(1)
         source: $monitors.logical_disk.collect.sources.source(1)$
         metrics:
           hw.status{hw.type="logical_disk"}: $column(1)

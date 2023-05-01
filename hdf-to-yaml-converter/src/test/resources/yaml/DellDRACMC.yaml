@@ -33,8 +33,8 @@ connector:
     appliesTo:
     - OOB
     criteria:
-    - _comment: Host should respond to telnet the way described below
-      type: osCommand
+    # Host should respond to telnet the way described below
+    - type: osCommand
       commandLine: getsysinfo
       expectedResult: RAC
 monitors:
@@ -71,7 +71,7 @@ monitors:
           - $monitors.enclosure.discovery.sources.source(3)$
           - $monitors.enclosure.discovery.sources.source(4)$
       mapping:
-        _comment: The discovery table = source(1)
+        # The discovery table = source(1)
         source: $monitors.enclosure.discovery.sources.source(1)$
         attributes:
           id: DellBladeChassis
@@ -99,7 +99,7 @@ monitors:
           - $monitors.enclosure.collect.sources.source(2)$
           - $monitors.enclosure.collect.sources.source(3)$
         source(5):
-          _comment: Source(2) = copy of Enclosure.Collect.Source(1)
+          # Source(2) = copy of Enclosure.Collect.Source(1)
           type: copy
           from: $monitors.enclosure.collect.sources.source(4)$
           computes:
@@ -117,7 +117,7 @@ monitors:
             existingValue: W
             newValue: ""
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.enclosure.collect.sources.source(5)$
         metrics:
           hw.status{hw.type="enclosure"}: $column(1)
@@ -129,7 +129,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = copy of Enclosure.Discovery.Source(2)
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
           type: copy
           from: $monitors.enclosure.discovery.sources.source(5)$
           computes:
@@ -141,7 +141,7 @@ monitors:
             keep: ^MSHW;
             selectColumns: "2,3,4,5"
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -152,11 +152,11 @@ monitors:
           hw.temperature.limit{limit_type="high.degraded"}: $column(3)
           hw.temperature.limit{limit_type="high.critical"}: $column(4)
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = copy of Enclosure.Collect.Source(1)
+          # Source(1) = copy of Enclosure.Collect.Source(1)
           type: copy
           from: $monitors.enclosure.collect.sources.source(4)$
           computes:
@@ -177,7 +177,7 @@ monitors:
             column: 3
             translationTable: DRACStatusTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.temperature.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -189,7 +189,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = copy of Enclosure.Discovery.Source(2)
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
           type: copy
           from: $monitors.enclosure.discovery.sources.source(5)$
           computes:
@@ -201,7 +201,7 @@ monitors:
             keep: ^MSHW;
             selectColumns: "2,3,4,5"
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -211,11 +211,11 @@ monitors:
           hw.fan.speed.limit{limit_type="low.degraded"}: $column(3)
           hw.fan.speed.limit{limit_type="low.critical"}: $column(4)
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = copy of Enclosure.Collect.Source(1)
+          # Source(1) = copy of Enclosure.Collect.Source(1)
           type: copy
           from: $monitors.enclosure.collect.sources.source(4)$
           computes:
@@ -236,7 +236,7 @@ monitors:
             column: 3
             translationTable: DRACStatusTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.fan.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -248,7 +248,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = copy of Enclosure.Discovery.Source(2)
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
           type: copy
           from: $monitors.enclosure.discovery.sources.source(5)$
           computes:
@@ -266,7 +266,7 @@ monitors:
             existingValue: W
             newValue: ""
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -275,11 +275,11 @@ monitors:
         metrics:
           hw.power_supply.limit: $column(2)
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = copy of Enclosure.Collect.Source(1)
+          # Source(1) = copy of Enclosure.Collect.Source(1)
           type: copy
           from: $monitors.enclosure.collect.sources.source(4)$
           computes:
@@ -296,7 +296,7 @@ monitors:
             column: 2
             translationTable: DRACStatusTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.power_supply.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -307,7 +307,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = copy of Enclosure.Discovery.Source(2)
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
           type: copy
           from: $monitors.enclosure.discovery.sources.source(5)$
           computes:
@@ -319,7 +319,7 @@ monitors:
             keep: ^MSHW;
             selectColumns: "2,3,4"
         source(2):
-          _comment: Source(1) = copy of Enclosure.Discovery.Source(2) (again)
+          # Source(1) = copy of Enclosure.Discovery.Source(2) (again)
           type: copy
           from: $monitors.enclosure.discovery.sources.source(5)$
           computes:
@@ -340,7 +340,7 @@ monitors:
           rightKeyColumn: 1
           defaultRightLine: ;;
       mapping:
-        _comment: InstanceTable = Source(3)
+        # InstanceTable = Source(3)
         source: $monitors.blade.discovery.sources.source(3)$
         attributes:
           id: $column(1)
@@ -350,11 +350,11 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(2), $column(5))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = copy of Enclosure.Collect.Source(1)
+          # Source(1) = copy of Enclosure.Collect.Source(1)
           type: copy
           from: $monitors.enclosure.collect.sources.source(4)$
           computes:
@@ -366,7 +366,7 @@ monitors:
             keep: ^MSHW;
             selectColumns: "2,5,6,7"
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.blade.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -378,7 +378,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = copy of Enclosure.Discovery.Source(2)
+          # Source(1) = copy of Enclosure.Discovery.Source(2)
           type: copy
           from: $monitors.enclosure.discovery.sources.source(5)$
           computes:
@@ -390,7 +390,7 @@ monitors:
             keep: ^MSHW;
             selectColumns: "2,3,4"
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.other_device.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -399,11 +399,11 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s: %s (%s)\", $column(2), $column(1), $column(3))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = copy of Enclosure.Collect.Source(1)
+          # Source(1) = copy of Enclosure.Collect.Source(1)
           type: copy
           from: $monitors.enclosure.collect.sources.source(4)$
           computes:
@@ -415,7 +415,7 @@ monitors:
             keep: ^MSHW;
             selectColumns: "2,5,6"
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.other_device.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:

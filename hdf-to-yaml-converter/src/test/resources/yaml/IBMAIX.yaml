@@ -32,11 +32,11 @@ connector:
     appliesTo:
     - RS6000
     criteria:
-    - _comment: OS should be AIX (whatever version)
-      type: deviceType
+    # OS should be AIX (whatever version)
+    - type: deviceType
       keep:
       - RS6000
-      # Check for the ability to run lsdev, at least
+    # Check for the ability to run lsdev, at least
     - type: osCommand
       commandLine: /usr/bin/ls /usr/sbin/lsdev
       expectedResult: ^/usr/sbin/lsdev$
@@ -137,7 +137,7 @@ monitors:
           info: "join($column(1), $column(5), $column(4), \" \")"
           name: "sprintf(\"%s (%s %s - %s)\", $column(7), \"IBM\", $column(3), \"Computer\")"
     collect:
-      _comment: Collect type is mono-instance (as there is only one instance anyway)
+      # Collect type is mono-instance (as there is only one instance anyway)
       type: monoInstance
       sources:
         source(1):
@@ -155,7 +155,7 @@ monitors:
             separators: ;
             selectColumns: "2,3"
       mapping:
-        _comment: ValueTable = source(1)
+        # ValueTable = source(1)
         source: $monitors.enclosure.collect.sources.source(1)$
         metrics:
           hw.status{hw.type="enclosure"}: $column(1)
@@ -185,7 +185,7 @@ monitors:
             column: 2
             value: 1000000
       mapping:
-        _comment: Instance table = source(1)
+        # Instance table = source(1)
         source: $monitors.cpu.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -195,7 +195,7 @@ monitors:
         metrics:
           hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(2))
     collect:
-      _comment: Collect type = multi-instance
+      # Collect type = multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -222,7 +222,7 @@ monitors:
             column: 3
             translationTable: cpuStatusInformationTranslationTable
       mapping:
-        _comment: ValueTable = source(1)
+        # ValueTable = source(1)
         source: $monitors.cpu.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -233,7 +233,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = output of EmbeddedFile(6) (mix of lsdev and lscfg)
+          # Source(1) = output of EmbeddedFile(6) (mix of lsdev and lscfg)
           type: osCommand
           commandLine: /bin/sh %EmbeddedFile(6)%
           computes:
@@ -245,7 +245,7 @@ monitors:
             separators: ;
             selectColumns: "2,3,4,5,6"
         source(2):
-          _comment: Source(2) = output of embedded script 3
+          # Source(2) = output of embedded script 3
           type: osCommand
           commandLine: /bin/sh %EmbeddedFile(2)%
           computes:
@@ -279,11 +279,11 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), $column(2))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = output of entstat -d for each card
+          # Source(1) = output of entstat -d for each card
           type: osCommand
           commandLine: /bin/sh %EmbeddedFile(2)%
           computes:
@@ -322,7 +322,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = output of lscfg -vp -l sysplanar0
+          # Source(1) = output of lscfg -vp -l sysplanar0
           type: osCommand
           commandLine: /usr/sbin/lscfg -vp -l sysplanar0
           computes:
@@ -348,7 +348,7 @@ monitors:
             column: 2
             value: ;1;
         source(2):
-          _comment: Source(2) = Static table to represent the global memory stuff
+          # Source(2) = Static table to represent the global memory stuff
           type: static
           value: Memory Controller;;;1;;;
         source(3):
@@ -359,7 +359,7 @@ monitors:
           - $monitors.memory.discovery.sources.source(1)$
           - $monitors.memory.discovery.sources.source(2)$
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.memory.discovery.sources.source(3)$
         attributes:
           id: $column(1)
@@ -370,11 +370,11 @@ monitors:
         metrics:
           hw.memory.limit: mebiByte2Byte($column(5))
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = output of lscfg -vp -l sysplanar0
+          # Source(1) = output of lscfg -vp -l sysplanar0
           type: osCommand
           commandLine: /usr/sbin/lscfg -vp -l sysplanar0
           computes:
@@ -405,13 +405,13 @@ monitors:
             column: 1
             value: Memory Controller;;;
         source(3):
-          _comment: Source(3) = Union of Source(1) and Source(2)
+          # Source(3) = Union of Source(1) and Source(2)
           type: tableUnion
           tables:
           - $monitors.memory.collect.sources.source(1)$
           - $monitors.memory.collect.sources.source(2)$
       mapping:
-        _comment: Value table = Source(1)
+        # Value table = Source(1)
         source: $monitors.memory.collect.sources.source(3)$
         deviceId: $column(1)
         metrics:

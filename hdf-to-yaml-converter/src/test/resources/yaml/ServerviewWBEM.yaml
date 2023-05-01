@@ -87,13 +87,13 @@ connector:
     - VMwareESXiDisksIPMI
     - VMwareESXiDisksStorage
     criteria:
-    - _comment: OS must be Linux or ESX
-      type: deviceType
+    # OS must be Linux or ESX
+    - type: deviceType
       keep:
       - Linux
       - OOB
-    - _comment: The HP_ComputerSystemChassis WBEM class must be instanciated
-      type: wbem
+    # The HP_ComputerSystemChassis WBEM class must be instanciated
+    - type: wbem
       query: SELECT Caption FROM SVS_PGYComputerSystem
       namespace: root/SVS
       errorMessage: The Fujitsu Agent seems to not be not accessible or not working properly. Please check connectivity installation of the Fujitsu Agent.
@@ -102,7 +102,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = the IBMPSG_ComputerSystemDetails WBEM class
+          # Source(1) = the IBMPSG_ComputerSystemDetails WBEM class
           type: wbem
           query: "SELECT Manufacturer,Model,SerialNumber FROM SVS_PGYChassis"
           namespace: root/SVS
@@ -200,7 +200,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) SVS_PGYPhysicalMemory
+          # Source(1) SVS_PGYPhysicalMemory
           type: wbem
           query: "SELECT Capacity,MemoryType,ElementName,SerialNumber,PartNumber,Manufacturer FROM SVS_PGYPhysicalMemory"
           namespace: root/SVS
@@ -280,14 +280,14 @@ monitors:
           query: "SELECT Caption,DeviceID FROM SVS_PGYFan"
           namespace: root/SVS
           computes:
-            # Caption,DeviceID
+          # Caption,DeviceID
           - type: leftConcat
             column: 1
             value: MSHW
           - type: rightConcat
             column: 1
             value: MSHW
-            # Replace \"MSHWMSHW\", i.e. a blank column with the DeviceID value.
+          # Replace \"MSHWMSHW\", i.e. a blank column with the DeviceID value.
           - type: replace
             column: 1
             existingValue: MSHWMSHW
@@ -299,7 +299,7 @@ monitors:
             existingValue: MSHW
             newValue: ""
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -337,14 +337,14 @@ monitors:
           - type: convert
             column: 2
             conversion: array2SimpleStatus
-            # Caption,PATROLStatus,StatusInformation,DeviceID
+          # Caption,PATROLStatus,StatusInformation,DeviceID
           - type: leftConcat
             column: 1
             value: MSHW
           - type: rightConcat
             column: 1
             value: MSHW
-            # Replace \"MSHWMSHW\", i.e. a blank column with the DeviceID value.
+          # Replace \"MSHWMSHW\", i.e. a blank column with the DeviceID value.
           - type: replace
             column: 1
             existingValue: MSHWMSHW
@@ -368,19 +368,19 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = the SVS_PGYFan WBEM class
+          # Source(1) = the SVS_PGYFan WBEM class
           type: wbem
           query: "SELECT Caption,DeviceID FROM SVS_PGYPowerSupply"
           namespace: root/SVS
           computes:
-            # Caption,DeviceID
+          # Caption,DeviceID
           - type: leftConcat
             column: 1
             value: MSHW
           - type: rightConcat
             column: 1
             value: MSHW
-            # Replace \"MSHWMSHW\", i.e. a blank column with the DeviceID value.
+          # Replace \"MSHWMSHW\", i.e. a blank column with the DeviceID value.
           - type: replace
             column: 1
             existingValue: MSHWMSHW
@@ -392,7 +392,7 @@ monitors:
             existingValue: MSHW
             newValue: ""
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -430,14 +430,14 @@ monitors:
           - type: convert
             column: 2
             conversion: array2SimpleStatus
-            # Caption,PATROLStatus,StatusInformation,DeviceID
+          # Caption,PATROLStatus,StatusInformation,DeviceID
           - type: leftConcat
             column: 1
             value: MSHW
           - type: rightConcat
             column: 1
             value: MSHW
-            # Replace \"MSHWMSHW\", i.e. a blank column with the DeviceID value.
+          # Replace \"MSHWMSHW\", i.e. a blank column with the DeviceID value.
           - type: replace
             column: 1
             existingValue: MSHWMSHW
@@ -466,14 +466,14 @@ monitors:
           query: "SELECT Caption,DeviceID,UpperThresholdCritical FROM SVS_PGYTemperatureSensor"
           namespace: root/SVS
           computes:
-            # Caption,DeviceID,UpperThresholdCritical
+          # Caption,DeviceID,UpperThresholdCritical
           - type: leftConcat
             column: 1
             value: MSHW
           - type: rightConcat
             column: 1
             value: MSHW
-            # Replace \"MSHWMSHW\", i.e. a blank column with the DeviceID value.
+          # Replace \"MSHWMSHW\", i.e. a blank column with the DeviceID value.
           - type: replace
             column: 1
             existingValue: MSHWMSHW
@@ -485,7 +485,7 @@ monitors:
             existingValue: MSHW
             newValue: ""
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -500,19 +500,19 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = the SVS_PGYTemperatureSensor WBEM class
+          # Source(1) = the SVS_PGYTemperatureSensor WBEM class
           type: wbem
           query: "SELECT CurrentReading,Caption,DeviceID FROM SVS_PGYTemperatureSensor"
           namespace: root/SVS
           computes:
-            # CurrentReading,Caption,DeviceID
+          # CurrentReading,Caption,DeviceID
           - type: leftConcat
             column: 2
             value: MSHW
           - type: rightConcat
             column: 2
             value: MSHW
-            # Replace \"MSHWMSHW\", i.e. a blank column with the DeviceID value.
+          # Replace \"MSHWMSHW\", i.e. a blank column with the DeviceID value.
           - type: replace
             column: 2
             existingValue: MSHWMSHW
@@ -524,7 +524,7 @@ monitors:
             existingValue: MSHW
             newValue: ""
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.temperature.collect.sources.source(1)$
         deviceId: $column(2)
         metrics:
@@ -538,14 +538,14 @@ monitors:
           query: "SELECT Caption,DeviceID FROM SVS_PGYVoltageSensor"
           namespace: root/SVS
           computes:
-            # Caption,DeviceID
+          # Caption,DeviceID
           - type: leftConcat
             column: 1
             value: MSHW
           - type: rightConcat
             column: 1
             value: MSHW
-            # Replace \"MSHWMSHW\", i.e. a blank column with the DeviceID value.
+          # Replace \"MSHWMSHW\", i.e. a blank column with the DeviceID value.
           - type: replace
             column: 1
             existingValue: MSHWMSHW
@@ -557,7 +557,7 @@ monitors:
             existingValue: MSHW
             newValue: ""
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.voltage.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -570,7 +570,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = the HP_NumericSensor WBEM class
+          # Source(1) = the HP_NumericSensor WBEM class
           type: wbem
           query: "SELECT CurrentReading,Caption,OperationalStatus,DeviceID FROM SVS_PGYVoltageSensor"
           namespace: root/SVS
@@ -595,14 +595,14 @@ monitors:
           - type: convert
             column: 3
             conversion: array2SimpleStatus
-            # CurrentReading,Caption,PATROLStatus,StatusInformation,DeviceID
+          # CurrentReading,Caption,PATROLStatus,StatusInformation,DeviceID
           - type: leftConcat
             column: 2
             value: MSHW
           - type: rightConcat
             column: 2
             value: MSHW
-            # Replace \"MSHWMSHW\", i.e. a blank column with the DeviceID value.
+          # Replace \"MSHWMSHW\", i.e. a blank column with the DeviceID value.
           - type: replace
             column: 2
             existingValue: MSHWMSHW
@@ -614,7 +614,7 @@ monitors:
             existingValue: MSHW
             newValue: ""
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.voltage.collect.sources.source(1)$
         deviceId: $column(2)
         metrics:

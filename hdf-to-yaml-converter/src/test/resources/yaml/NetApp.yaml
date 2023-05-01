@@ -239,8 +239,8 @@ connector:
     supersedes:
     - NetAppREST7Mode
     criteria:
-    - _comment: Verify that the NetApp SNMP agent responds to our requests
-      type: snmpGetNext
+    # Verify that the NetApp SNMP agent responds to our requests
+    - type: snmpGetNext
       oid: 1.3.6.1.4.1.789.1.1
 monitors:
   enclosure:
@@ -267,7 +267,7 @@ monitors:
             column: 6
             value: Column(2)
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.enclosure.discovery.sources.source(1)$
         attributes:
           id: NetApp
@@ -347,8 +347,8 @@ monitors:
           - type: multiply
             column: 4
             value: 1048576
-          - _comment: Add a Blank PredictiveFailure
-            type: rightConcat
+          # Add a Blank PredictiveFailure
+          - type: rightConcat
             column: 10
             value: ;
         source(6):
@@ -364,7 +364,7 @@ monitors:
           - type: awk
             script: EmbeddedFile(11)
         source(7):
-          _comment: now union source(5) and source (6)
+          # now union source(5) and source (6)
           type: tableUnion
           tables:
           - $monitors.physical_disk.discovery.sources.source(5)$
@@ -396,8 +396,8 @@ monitors:
             # Don't want to change how IDs work.
           - type: duplicateColumn
             column: 1
-          - _comment: AdditionalInformation formatting
-            type: leftConcat
+          # AdditionalInformation formatting
+          - type: leftConcat
             column: 2
             value: "Location: "
       mapping:
@@ -417,7 +417,7 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(5)
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -657,13 +657,13 @@ monitors:
             column: 4
             value: 1048576
         source(5):
-          _comment: Source(5) = Source(3) + Source(4)
+          # Source(5) = Source(3) + Source(4)
           type: tableUnion
           tables:
           - $monitors.logical_disk.discovery.sources.source(3)$
           - $monitors.logical_disk.discovery.sources.source(4)$
       mapping:
-        _comment: InstanceTable = source(3)
+        # InstanceTable = source(3)
         source: $monitors.logical_disk.discovery.sources.source(5)$
         attributes:
           id: $column(1)
@@ -674,7 +674,7 @@ monitors:
           hw.parent.id: NetApp
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(2), $column(4))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -795,7 +795,7 @@ monitors:
           - $monitors.logical_disk.collect.sources.source(3)$
           - $monitors.logical_disk.collect.sources.source(4)$
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.logical_disk.collect.sources.source(5)$
         deviceId: $column(1)
         metrics:
@@ -841,7 +841,7 @@ monitors:
             column: 1
             value: FC
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.network.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -853,7 +853,7 @@ monitors:
           hw.parent.id: NetApp
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(6), $column(2))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -890,7 +890,7 @@ monitors:
             column: 1
             value: FC
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.network.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -964,7 +964,7 @@ monitors:
             column: 2
             value: "Serial Number: "
       mapping:
-        _comment: Instance Table = Source(1)
+        # Instance Table = Source(1)
         source: $monitors.power_supply.discovery.sources.source(3)$
         attributes:
           id: $column(1)
@@ -973,7 +973,7 @@ monitors:
           hw.parent.id: $column(5)
           name: "sprintf(\"%s, $column(1))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -1050,7 +1050,7 @@ monitors:
           - $monitors.power_supply.collect.sources.source(1)$
           - $monitors.power_supply.collect.sources.source(4)$
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.power_supply.collect.sources.source(5)$
         deviceId: $column(1)
         metrics:
@@ -1107,7 +1107,7 @@ monitors:
             column: 3
             value: "Location: "
       mapping:
-        _comment: Instance Table = Source(1)
+        # Instance Table = Source(1)
         source: $monitors.fan.discovery.sources.source(3)$
         attributes:
           id: $column(1)
@@ -1116,7 +1116,7 @@ monitors:
           hw.parent.id: $column(4)
           name: $column(1)
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -1193,7 +1193,7 @@ monitors:
           - $monitors.fan.collect.sources.source(1)$
           - $monitors.fan.collect.sources.source(4)$
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.fan.collect.sources.source(5)$
         deviceId: $column(1)
         metrics:
@@ -1271,7 +1271,7 @@ monitors:
           hw.temperature.limit{limit_type="high.degraded"}: $column(3)
           hw.temperature.limit{limit_type="high.critical"}: $column(4)
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -1324,7 +1324,7 @@ monitors:
           - $monitors.temperature.collect.sources.source(1)$
           - $monitors.temperature.collect.sources.source(2)$
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.temperature.collect.sources.source(3)$
         deviceId: $column(1)
         metrics:
@@ -1396,8 +1396,8 @@ monitors:
           oid: 1.3.6.1.4.1.789.1.21.1.2.1
           selectColumns: "1,4,6,7,8,9"
           computes:
-          - _comment: Add Labels
-            type: leftConcat
+          # Add Labels
+          - type: leftConcat
             column: 5
             value: "Version: "
         source(2):
@@ -1477,8 +1477,8 @@ monitors:
           - type: rightConcat
             column: 4
             value: ;EnclosureID;Blade
-          - _comment: Replace Column 5 with the DeviceID
-            type: replace
+          # Replace Column 5 with the DeviceID
+          - type: replace
             column: 5
             existingValue: Column(5)
             newValue: Column(1)
@@ -1495,7 +1495,7 @@ monitors:
             column: 2
             value: "Serial Number: "
       mapping:
-        _comment: Instance Table = Source(1)
+        # Instance Table = Source(1)
         source: $monitors.other_device.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -1505,7 +1505,7 @@ monitors:
           hw.parent.id: $column(5)
           name: "sprintf(\"%s: %s\", \"Service Electronics\", $column(1))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -1582,7 +1582,7 @@ monitors:
           - $monitors.other_device.collect.sources.source(1)$
           - $monitors.other_device.collect.sources.source(4)$
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.other_device.collect.sources.source(5)$
         deviceId: $column(1)
         metrics:

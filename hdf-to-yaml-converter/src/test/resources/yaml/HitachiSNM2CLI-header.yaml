@@ -31,7 +31,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Run auunitinfo through EF1
+          # Source(1) = Run auunitinfo through EF1
           type: osCommand
           commandLine: _EF1_COMMAND_PART1 auunitinfo _EF1_COMMAND_PART2
           executeLocally: true
@@ -98,7 +98,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) =  audrive -vendor
+          # Source(1) =  audrive -vendor
           type: osCommand
           commandLine: _EF1_COMMAND_PART1 audrive -vendor _EF1_COMMAND_PART2
           executeLocally: true
@@ -142,7 +142,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = audrive -status
+          # Source(1) = audrive -status
           type: osCommand
           commandLine: _EF1_COMMAND_PART1 audrive -status _EF1_COMMAND_PART2
           executeLocally: true
@@ -173,7 +173,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) =  auluref -m
+          # Source(1) =  auluref -m
           type: osCommand
           commandLine: _EF1_COMMAND_PART1 auluref -m _EF1_COMMAND_PART2
           executeLocally: true
@@ -187,7 +187,7 @@ monitors:
             keep: ^MSHW
             separators: ;
         source(2):
-          _comment: Source(1) =  aurgref -m
+          # Source(1) =  aurgref -m
           type: osCommand
           commandLine: _EF1_COMMAND_PART1 aurgref -m _EF1_COMMAND_PART2
           executeLocally: true
@@ -239,7 +239,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = auluref -m
+          # Source(1) = auluref -m
           type: osCommand
           commandLine: _EF1_COMMAND_PART1 auluref -m _EF1_COMMAND_PART2
           executeLocally: true
@@ -253,7 +253,7 @@ monitors:
             keep: ^MSHW
             separators: ;
         source(2):
-          _comment: Source(2) = aurgref -m
+          # Source(2) = aurgref -m
           type: osCommand
           commandLine: _EF1_COMMAND_PART1 aurgref -m _EF1_COMMAND_PART2
           executeLocally: true
@@ -294,7 +294,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Discovery 1
+          # Source(1) = Enclosure Discovery 1
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
@@ -319,7 +319,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Collect 1
+          # Source(1) = Enclosure Collect 1
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -346,7 +346,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Discovery 1
+          # Source(1) = Enclosure Discovery 1
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
@@ -371,7 +371,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Collect 1
+          # Source(1) = Enclosure Collect 1
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -398,7 +398,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Discovery 1
+          # Source(1) = Enclosure Discovery 1
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
@@ -423,7 +423,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Collect 1
+          # Source(1) = Enclosure Collect 1
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -450,7 +450,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Discovery 1
+          # Source(1) = Enclosure Discovery 1
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
@@ -475,7 +475,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Collect 1
+          # Source(1) = Enclosure Collect 1
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -502,7 +502,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Discovery 1
+          # Source(1) = Enclosure Discovery 1
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
@@ -527,7 +527,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Collect 1
+          # Source(1) = Enclosure Collect 1
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -554,7 +554,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Discovery 1
+          # Source(1) = Enclosure Discovery 1
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
@@ -579,7 +579,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Collect 1
+          # Source(1) = Enclosure Collect 1
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:

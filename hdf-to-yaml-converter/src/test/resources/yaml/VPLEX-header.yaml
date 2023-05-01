@@ -103,8 +103,8 @@ monitors:
           resultContent: body
           forceSerialization: true
           computes:
-          - _comment: JSON Status
-            type: json2csv
+          # JSON Status
+          - type: json2csv
             entryKey: response/context/attributes
             properties: /name;/value
             separator: ;
@@ -130,7 +130,7 @@ monitors:
           type: Storage
           name: "sprintf(\"%s (%s %s - %s)\", $column(9), \"EMC\", $column(4), \"Storage\")"
     collect:
-      _comment: Collect type = multi-instance
+      # Collect type = multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -142,8 +142,8 @@ monitors:
           url: /vplex/engines/*
           resultContent: body
           computes:
-          - _comment: JSON Status
-            type: json2csv
+          # JSON Status
+          - type: json2csv
             entryKey: response/context/attributes
             properties: /name;/value
             separator: ;
@@ -180,8 +180,8 @@ monitors:
           url: /vplex/engines/*/fans/*
           resultContent: body
           computes:
-          - _comment: JSON Status
-            type: json2csv
+          # JSON Status
+          - type: json2csv
             entryKey: response/context/attributes
             properties: /name;/value;../parent
             separator: ;
@@ -193,7 +193,7 @@ monitors:
             keep: ^MSHW;
             separators: ;
       mapping:
-        _comment: The discovery table
+        # The discovery table
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           __display_id: $column(2)
@@ -213,8 +213,8 @@ monitors:
           url: /vplex/engines/*/fans/*
           resultContent: body
           computes:
-          - _comment: JSON Status
-            type: json2csv
+          # JSON Status
+          - type: json2csv
             entryKey: response/context/attributes
             properties: /name;/value
             separator: ;
@@ -231,7 +231,7 @@ monitors:
             column: 4
             translationTable: FansTranslateTable
       mapping:
-        _comment: The Collect table
+        # The Collect table
         source: $monitors.fan.collect.sources.source(1)$
         deviceId: $column(2)
         metrics:
@@ -250,8 +250,8 @@ monitors:
           url: /vplex/engines/*/*power*/*
           resultContent: body
           computes:
-          - _comment: JSON Status
-            type: json2csv
+          # JSON Status
+          - type: json2csv
             entryKey: response/context/attributes
             properties: /name;/value;../parent
             separator: ;
@@ -269,7 +269,7 @@ monitors:
             column: 8
             value: "Serial Number: "
       mapping:
-        _comment: The discovery table
+        # The discovery table
         source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
           __display_id: $column(3)
@@ -288,8 +288,8 @@ monitors:
           url: /vplex/engines/*/*power*/*
           resultContent: body
           computes:
-          - _comment: JSON Status
-            type: json2csv
+          # JSON Status
+          - type: json2csv
             entryKey: response/context/attributes
             properties: /name;/value
             separator: ;
@@ -311,7 +311,7 @@ monitors:
             column: 5
             translationTable: PowerSupplyTranslationTable
       mapping:
-        _comment: The Collect table
+        # The Collect table
         source: $monitors.power_supply.collect.sources.source(1)$
         deviceId: $column(3)
         metrics:
@@ -330,8 +330,8 @@ monitors:
           url: /vplex/engines/*/directors/*/
           resultContent: body
           computes:
-          - _comment: JSON Status
-            type: json2csv
+          # JSON Status
+          - type: json2csv
             entryKey: response/context/attributes
             properties: /name;/value;../parent
             separator: ;
@@ -342,12 +342,12 @@ monitors:
             script: EmbeddedFile(4)
             keep: ^MSHW;
             separators: ;
-          - _comment: 'AdditionalInformation adding Serial Number:'
-            type: leftConcat
+          # 'AdditionalInformation adding Serial Number:'
+          - type: leftConcat
             column: 4
             value: "Serial Number: "
       mapping:
-        _comment: The discovery table
+        # The discovery table
         source: $monitors.other_device.discovery.sources.source(1)$
         attributes:
           __display_id: $column(3)
@@ -368,8 +368,8 @@ monitors:
           url: /vplex/engines/*/directors/*/
           resultContent: body
           computes:
-          - _comment: JSON Status
-            type: json2csv
+          # JSON Status
+          - type: json2csv
             entryKey: response/context/attributes
             properties: /name;/value
             separator: ;
@@ -388,7 +388,7 @@ monitors:
             column: 2
             translationTable: OtherStatusTranslationTable
       mapping:
-        _comment: The Collect table
+        # The Collect table
         source: $monitors.other_device.collect.sources.source(1)$
         deviceId: $column(4)
         metrics:
@@ -407,8 +407,8 @@ monitors:
           url: /vplex/*/*/directors/*/hardware/dimms/*
           resultContent: body
           computes:
-          - _comment: JSON Status
-            type: json2csv
+          # JSON Status
+          - type: json2csv
             entryKey: response/context/attributes
             properties: /name;/value;../parent
             separator: ;
@@ -420,7 +420,7 @@ monitors:
             keep: ^MSHW;
             separators: ;
       mapping:
-        _comment: The discovery table
+        # The discovery table
         source: $monitors.memory.discovery.sources.source(1)$
         attributes:
           __display_id: $column(2)
@@ -441,8 +441,8 @@ monitors:
           url: /vplex/*/*/directors/*/hardware/dimms/*
           resultContent: body
           computes:
-          - _comment: JSON Status
-            type: json2csv
+          # JSON Status
+          - type: json2csv
             entryKey: response/context/attributes
             properties: /name;/value
             separator: ;
@@ -462,7 +462,7 @@ monitors:
             column: 3
             translationTable: MemoryTranslationTable
       mapping:
-        _comment: The Collect table
+        # The Collect table
         source: $monitors.memory.collect.sources.source(1)$
         deviceId: $column(2)
         metrics:
@@ -473,15 +473,15 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = NetworkCard Table
+          # Source(1) = NetworkCard Table
           type: http
           forceSerialization: true
           method: GET
           url: /vplex/*/*/directors/*/hardware/ports/*
           resultContent: body
           computes:
-          - _comment: JSON Status
-            type: json2csv
+          # JSON Status
+          - type: json2csv
             entryKey: response/context/attributes
             properties: /name;/value;../parent
             separator: ;
@@ -492,8 +492,8 @@ monitors:
             script: EmbeddedFile(6)
             keep: ^MSHW;
             separators: ;
-          - _comment: keep only enabled fc's
-            type: keepOnlyMatchingLines
+          # keep only enabled fc's
+          - type: keepOnlyMatchingLines
             column: 3
             valueList: "true"
           - type: leftConcat
@@ -524,8 +524,8 @@ monitors:
           url: /vplex/*/*/directors/*/hardware/ports/*
           resultContent: body
           computes:
-          - _comment: JSON Status
-            type: json2csv
+          # JSON Status
+          - type: json2csv
             entryKey: response/context/attributes
             properties: /name;/value
             separator: ;
@@ -540,12 +540,12 @@ monitors:
           - type: translate
             column: 5
             translationTable: NetworkCardTranslationTable
-          - _comment: Translate the Link Status
-            type: translate
+          # Translate the Link Status
+          - type: translate
             column: 7
             translationTable: LinkTranslationTable
       mapping:
-        _comment: The Collect table
+        # The Collect table
         source: $monitors.network.collect.sources.source(1)$
         deviceId: $column(4)
         metrics:
@@ -557,15 +557,15 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) =  Table
+          # Source(1) =  Table
           type: http
           forceSerialization: true
           method: GET
           url: /vplex/*/*/directors/*/hardware/internal-disks/*
           resultContent: body
           computes:
-          - _comment: JSON Status
-            type: json2csv
+          # JSON Status
+          - type: json2csv
             entryKey: response/context/attributes
             properties: /name;/value;../parent
             separator: ;
@@ -578,7 +578,7 @@ monitors:
             keep: ^MSHW;
             separators: ;
       mapping:
-        _comment: The discovery table
+        # The discovery table
         source: $monitors.physical_disk.discovery.sources.source(1)$
         attributes:
           __display_id: $column(2)
@@ -599,8 +599,8 @@ monitors:
           url: /vplex/*/*/directors/*/hardware/internal-disks/*
           resultContent: body
           computes:
-          - _comment: JSON Status
-            type: json2csv
+          # JSON Status
+          - type: json2csv
             entryKey: response/context/attributes
             properties: /name;/value
             separator: ;
@@ -620,7 +620,7 @@ monitors:
             column: 3
             translationTable: PhysicalDiskTranslationTable
       mapping:
-        _comment: The Collect table
+        # The Collect table
         source: $monitors.physical_disk.collect.sources.source(1)$
         deviceId: $column(2)
         metrics:

@@ -65,7 +65,7 @@ monitors:
             column: 2
             regExp: "[Vv]irtual"
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.physical_disk.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -74,11 +74,11 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s, $column(1))"
     collect:
-      _comment: Collect type is "one instance per instance"
+      # Collect type is "one instance per instance
       type: monoInstance
       sources:
         source(1):
-          _comment: Source(1) = output of smartctl
+          # Source(1) = output of smartctl
           type: osCommand
           commandLine: "%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartctl -H %PhysicalDisk.Collect.DeviceID%"
           computes:
@@ -111,7 +111,7 @@ monitors:
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.physical_disk.collect.sources.source(3)$
         metrics:
           hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($column(2))
@@ -130,7 +130,7 @@ monitors:
           separators: ;
           selectColumns: "2,3"
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -140,11 +140,11 @@ monitors:
         metrics:
           hw.temperature.limit{limit_type="high.degraded"}: $column(2)
     collect:
-      _comment: Collect type is mono-instance (one instance per collect)
+      # Collect type is mono-instance (one instance per collect)
       type: monoInstance
       sources:
         source(1):
-          _comment: Source(1) = output of smartctl
+          # Source(1) = output of smartctl
           type: osCommand
           commandLine: "%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartctl -a %PhysicalDisk.Collect.DeviceID%"
           computes:
@@ -156,7 +156,7 @@ monitors:
             separators: ;
             selectColumns: 2
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.temperature.collect.sources.source(1)$
         metrics:
           hw.temperature: $column(1)

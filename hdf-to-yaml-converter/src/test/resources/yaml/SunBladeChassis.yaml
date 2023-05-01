@@ -61,7 +61,7 @@ monitors:
             existingValue: /SPEED
             newValue: ""
       mapping:
-        _comment: The InstanceTable - Faked as we just want a chassis of any description.
+        # The InstanceTable - Faked as we just want a chassis of any description.
         source: /CH
         attributes:
           id: /CH
@@ -344,7 +344,7 @@ monitors:
             column: 5
             translationTable: StatusInformationTranslationTable
         source(5):
-          _comment: Source (4) Union of Source(2) Fans and Source(3) Fan Modules
+          # Source (4) Union of Source(2) Fans and Source(3) Fan Modules
           type: tableUnion
           tables:
           - $monitors.fan.collect.sources.source(2)$
@@ -426,8 +426,8 @@ monitors:
           oid: 1.3.6.1.4.1.42.2.70.101.1.1.2.1
           selectColumns: "ID,5,3"
           computes:
-          - _comment: Getting rid of tags we don't want
-            type: replace
+          # Getting rid of tags we don't want
+          - type: replace
             column: 2
             existingValue: /CH/
             newValue: ""
@@ -532,7 +532,7 @@ monitors:
       type: monoInstance
       sources:
         source(1):
-          _comment: Getting each Voltage's Status
+          # Getting each Voltage's Status
           type: snmpGet
           oid: 1.3.6.1.4.1.42.2.70.101.1.1.2.1.3.%Voltage.Collect.DeviceID%
           computes:
@@ -542,7 +542,7 @@ monitors:
             column: 1
             value: ;ID
         source(2):
-          _comment: Getting each Voltage's Voltage
+          # Getting each Voltage's Voltage
           type: snmpGet
           oid: 1.3.6.1.4.1.42.2.70.101.1.1.8.1.4.%Voltage.Collect.DeviceID%
           computes:

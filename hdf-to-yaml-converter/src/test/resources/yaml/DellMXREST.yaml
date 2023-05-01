@@ -41,8 +41,8 @@ connector:
     appliesTo:
     - OOB
     criteria:
-    - _comment: Hardware Sentry v10.2.00+
-      type: productRequirements
+    # Hardware Sentry v10.2.00+
+    - type: productRequirements
       kmVersion: 10.2.00
     - type: http
       method: GET
@@ -68,7 +68,7 @@ monitors:
             properties: /@odata.id;/DeviceName;/Identifier;/Model;/Type;/SlotConfiguration/ChassisName;/SlotConfiguration/SlotNumber;
             separator: ;
         source(2):
-          _comment: keep only chassis and blades
+          # keep only chassis and blades
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -79,7 +79,7 @@ monitors:
             column: 6
             translationTable: TypeTranslationTable
       mapping:
-        _comment: Enclosure Instance Table
+        # Enclosure Instance Table
         source: $monitors.enclosure.discovery.sources.source(2)$
         attributes:
           id: $column(3)
@@ -90,7 +90,7 @@ monitors:
           type: $column(6)
           name: "sprintf(\"%s (%s %s - %s)\", $column(3), \"Dell\", $column(5), $column(6))"
     collect:
-      _comment: Collection
+      # Collection
       type: multiInstance
       sources:
         source(1):
@@ -111,7 +111,7 @@ monitors:
             column: 4
             translationTable: StatusInformationTranslationTable
       mapping:
-        _comment: Enclosure Value Table
+        # Enclosure Value Table
         source: $monitors.enclosure.collect.sources.source(1)$
         deviceId: $column(2)
         metrics:
@@ -130,13 +130,13 @@ monitors:
           - type: keepOnlyMatchingLines
             column: 6
             regExp: 1000
-          - _comment: '"jsonid;/@odata.id;/DeviceName;/Identifier;/Model;/Type;/SlotConfiguration/ChassisName;/SlotConfiguration/SlotNumber;"'
-            type: replace
+          # '"jsonid;/@odata.id;/DeviceName;/Identifier;/Model;/Type;/SlotConfiguration/ChassisName;/SlotConfiguration/SlotNumber;"'
+          - type: replace
             column: 6
             existingValue: 1000
             newValue: blade
       mapping:
-        _comment: Enclosure Instance Table
+        # Enclosure Instance Table
         source: $monitors.blade.discovery.sources.source(1)$
         attributes:
           id: $column(3)
@@ -196,7 +196,7 @@ monitors:
             column: 7
             regExp: 2000
         source(4):
-          _comment: now attach the other device to the chassis
+          # now attach the other device to the chassis
           type: tableJoin
           leftTable: $monitors.other_device.discovery.sources.source(2)$
           rightTable: $monitors.other_device.discovery.sources.source(3)$
@@ -208,7 +208,7 @@ monitors:
             existingValue: Column(2)
             newValue: Column(10)
         source(5):
-          _comment: add the chassis controllers (CMC)
+          # add the chassis controllers (CMC)
           type: http
           method: GET
           executeForEachEntryOf:
@@ -246,7 +246,7 @@ monitors:
     collect:
       sources:
         source(1):
-          _comment: Collect
+          # Collect
           type: http
           method: GET
           url: /api/DeviceService/Devices
@@ -289,7 +289,7 @@ monitors:
           - $monitors.other_device.collect.sources.source(1)$
           - $monitors.other_device.collect.sources.source(2)$
       mapping:
-        _comment: Blade Value Table
+        # Blade Value Table
         source: $monitors.other_device.collect.sources.source(3)$
         deviceId: $column(2)
         metrics:
@@ -300,7 +300,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: http
           method: GET
           executeForEachEntryOf:
@@ -321,19 +321,19 @@ monitors:
           - type: keepOnlyMatchingLines
             column: 3
             regExp: .
-          - _comment: compute now the disk ID
-            type: rightConcat
+          # compute now the disk ID
+          - type: rightConcat
             column: 2
             value: ;
-          - _comment: compute now the disk ID
-            type: leftConcat
+          # compute now the disk ID
+          - type: leftConcat
             column: 3
             value: Column(2)
           - type: rightConcat
             column: 3
             value: Column(4)
       mapping:
-        _comment: CPU Instance Table
+        # CPU Instance Table
         source: $monitors.cpu.discovery.sources.source(1)$
         attributes:
           id: $column(3)
@@ -345,7 +345,7 @@ monitors:
         metrics:
           hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(7))
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -372,7 +372,7 @@ monitors:
             column: 2
             value: Column(3)
       mapping:
-        _comment: CPU Value Table
+        # CPU Value Table
         source: $monitors.cpu.collect.sources.source(1)$
         deviceId: $column(2)
         metrics:
@@ -383,7 +383,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: http
           method: GET
           executeForEachEntryOf:
@@ -401,12 +401,12 @@ monitors:
             column: 4
             existingValue: DIMM.
             newValue: ""
-          - _comment: Exclude memory with empty names
-            type: keepOnlyMatchingLines
+          # Exclude memory with empty names
+          - type: keepOnlyMatchingLines
             column: 3
             regExp: .
       mapping:
-        _comment: Memory Instance Table
+        # Memory Instance Table
         source: $monitors.memory.discovery.sources.source(1)$
         attributes:
           id: $column(8)
@@ -419,7 +419,7 @@ monitors:
         metrics:
           hw.memory.limit: mebiByte2Byte($column(5))
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -443,7 +443,7 @@ monitors:
             column: 4
             translationTable: StatusInformationTranslationTable
       mapping:
-        _comment: Memory Value Table
+        # Memory Value Table
         source: $monitors.memory.collect.sources.source(1)$
         deviceId: $column(5)
         metrics:
@@ -454,7 +454,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: http
           method: GET
           executeForEachEntryOf:
@@ -474,13 +474,13 @@ monitors:
           - type: leftConcat
             column: 3
             value: Column(2)
-          - _comment: remove /entry/value from jsonid to use it in the above tablejoint
-            type: replace
+          # remove /entry/value from jsonid to use it in the above tablejoint
+          - type: replace
             column: 1
             existingValue: /Entry/Value
             newValue: ""
       mapping:
-        _comment: Fan Instance Table
+        # Fan Instance Table
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           id: $column(3)
@@ -489,7 +489,7 @@ monitors:
           hw.parent.id: $column(2)
           name: $column(4)
     collect:
-      _comment: Collection
+      # Collection
       type: multiInstance
       sources:
         source(1):
@@ -523,7 +523,7 @@ monitors:
             column: 2
             value: Column(8)
       mapping:
-        _comment: Fan Value Table
+        # Fan Value Table
         source: $monitors.fan.collect.sources.source(2)$
         deviceId: $column(2)
         metrics:
@@ -569,7 +569,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s %s\"), \"Disk Controller\", $column(4))"
     collect:
-      _comment: Collection
+      # Collection
       type: multiInstance
       sources:
         source(1):
@@ -598,7 +598,7 @@ monitors:
             column: 3
             value: Column(4)
       mapping:
-        _comment: DiskController Value Table
+        # DiskController Value Table
         source: $monitors.disk_controller.collect.sources.source(1)$
         deviceId: $column(3)
         metrics:
@@ -642,7 +642,7 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(8)
     collect:
-      _comment: Collection
+      # Collection
       type: multiInstance
       sources:
         source(1):
@@ -670,7 +670,7 @@ monitors:
             existingValue: 255
             newValue: ""
       mapping:
-        _comment: PhysicalDisk Value Table
+        # PhysicalDisk Value Table
         source: $monitors.physical_disk.collect.sources.source(1)$
         deviceId: $column(2)
         metrics:
@@ -682,7 +682,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: http
           method: GET
           executeForEachEntryOf:
@@ -700,7 +700,7 @@ monitors:
             column: 2
             value: Column(8)
       mapping:
-        _comment: LogicalDisk Instance Table
+        # LogicalDisk Instance Table
         source: $monitors.logical_disk.discovery.sources.source(1)$
         attributes:
           id: $column(3)
@@ -712,7 +712,7 @@ monitors:
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(2))"
           name: "sprintf(\"%s (%s - %s)\", $column(4), $column(5), $column(7))"
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -736,7 +736,7 @@ monitors:
             column: 4
             translationTable: StatusInformationTranslationTable
       mapping:
-        _comment: LogicalDisk Value Table
+        # LogicalDisk Value Table
         source: $monitors.logical_disk.collect.sources.source(1)$
         deviceId: $column(2)
         metrics:
@@ -747,7 +747,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: http
           method: GET
           executeForEachEntryOf:
@@ -775,7 +775,7 @@ monitors:
             existingValue: /Entry/Value
             newValue: ""
       mapping:
-        _comment: PowerSupply Instance Table
+        # PowerSupply Instance Table
         source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
           id: $column(3)
@@ -787,7 +787,7 @@ monitors:
         metrics:
           hw.power_supply.limit: $column(5)
     collect:
-      _comment: Collection
+      # Collection
       type: multiInstance
       sources:
         source(1):
@@ -817,12 +817,12 @@ monitors:
           leftKeyColumn: 1
           rightKeyColumn: 1
           computes:
-          - _comment: jsonid;/MemberId;/HealthState;/HealthState;jsonid;../../Column(3);/MemberId;/Name;/CapacityWatts;/PowerSupplyType;/EnableState;/MemberId
-            type: leftConcat
+          # jsonid;/MemberId;/HealthState;/HealthState;jsonid;../../Column(3);/MemberId;/Name;/CapacityWatts;/PowerSupplyType;/EnableState;/MemberId
+          - type: leftConcat
             column: 2
             value: Column(6)
       mapping:
-        _comment: PowerSupply Value Table
+        # PowerSupply Value Table
         source: $monitors.power_supply.collect.sources.source(2)$
         deviceId: $column(2)
         metrics:
@@ -833,7 +833,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: http
           method: GET
           executeForEachEntryOf:
@@ -854,7 +854,7 @@ monitors:
             column: 3
             value: Column(4)
       mapping:
-        _comment: Battery Instance Table
+        # Battery Instance Table
         source: $monitors.battery.discovery.sources.source(1)$
         attributes:
           id: $column(3)
@@ -862,7 +862,7 @@ monitors:
           hw.parent.type: enclosure
           name: battery
     collect:
-      _comment: Collection
+      # Collection
       type: multiInstance
       sources:
         source(1):
@@ -889,7 +889,7 @@ monitors:
             column: 2
             value: Column(5)
       mapping:
-        _comment: Battery Value Table
+        # Battery Value Table
         source: $monitors.battery.collect.sources.source(1)$
         deviceId: $column(2)
         metrics:
@@ -900,7 +900,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: http
           method: GET
           executeForEachEntryOf:
@@ -923,8 +923,8 @@ monitors:
           - type: leftConcat
             column: 3
             value: Column(2)
-          - _comment: remove /entry/value from jsonid to use it in the above tablejoint
-            type: replace
+          # remove /entry/value from jsonid to use it in the above tablejoint
+          - type: replace
             column: 1
             existingValue: /Entry/Value
             newValue: ""
@@ -939,7 +939,7 @@ monitors:
           hw.parent.id: $column(2)
           name: $column(4)
     collect:
-      _comment: Collection
+      # Collection
       type: multiInstance
       sources:
         source(1):
@@ -975,7 +975,7 @@ monitors:
             column: 2
             value: Column(7)
       mapping:
-        _comment: Temperature Value Table
+        # Temperature Value Table
         source: $monitors.temperature.collect.sources.source(2)$
         deviceId: $column(2)
         metrics:
@@ -987,7 +987,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: http
           method: GET
           executeForEachEntryOf:
@@ -1041,7 +1041,7 @@ monitors:
             column: 3
             regExp: .
       mapping:
-        _comment: NetworkCard Instance Table
+        # NetworkCard Instance Table
         source: $monitors.network.discovery.sources.source(3)$
         attributes:
           id: $column(4)
@@ -1053,7 +1053,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s - %s)\", $column(3), $column(7), $column(5))"
     collect:
-      _comment: Collection
+      # Collection
       type: multiInstance
       sources:
         source(1):
@@ -1108,7 +1108,7 @@ monitors:
           - $monitors.network.collect.sources.source(1)$
           - $monitors.network.collect.sources.source(2)$
       mapping:
-        _comment: NetworkCard Value Table
+        # NetworkCard Value Table
         source: $monitors.network.collect.sources.source(3)$
         deviceId: $column(2)
         legacyTextParameters:

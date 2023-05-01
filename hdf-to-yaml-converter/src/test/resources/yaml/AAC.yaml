@@ -80,7 +80,7 @@ monitors:
           oid: 1.3.6.1.4.1.795.10.1.1.3.1
           selectColumns: "ID,1,3,7,8"
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.disk_controller.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -100,8 +100,8 @@ monitors:
           oid: 1.3.6.1.4.1.795.10.1.1.5.1
           selectColumns: "ID,2,6,7,8,10,11"
           computes:
-          - _comment: Keep only device type = 1 (disk)
-            type: keepOnlyMatchingLines
+          # Keep only device type = 1 (disk)
+          - type: keepOnlyMatchingLines
             column: 3
             valueList: 0
             # Multiply the number of blocks by the number of bytes per block to obtain the size in bytes
@@ -110,7 +110,7 @@ monitors:
             column: 6
             value: Column(7)
       mapping:
-        _comment: Instance Table = Source(1)
+        # Instance Table = Source(1)
         source: $monitors.physical_disk.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -151,7 +151,7 @@ monitors:
             column: 4
             translationTable: PhysicalDiskSMARTTranslationTable
       mapping:
-        _comment: The collect table = Source(1)
+        # The collect table = Source(1)
         source: $monitors.physical_disk.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -175,7 +175,7 @@ monitors:
             column: 3
             value: 1048576
       mapping:
-        _comment: Instance Table = Source(1)
+        # Instance Table = Source(1)
         source: $monitors.logical_disk.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -210,7 +210,7 @@ monitors:
             column: 3
             translationTable: LogicalDiskStatusInformationTranslationTable
       mapping:
-        _comment: The collect table = Source(1)
+        # The collect table = Source(1)
         source: $monitors.logical_disk.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:

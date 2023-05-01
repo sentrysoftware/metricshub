@@ -62,7 +62,7 @@ connector:
     appliesTo:
     - OOB
     criteria:
-      # Criteria 1: Must have a chassisConfigSystem entry
+    # Criteria 1: Must have a chassisConfigSystem entry
     - type: snmpGetNext
       oid: 1.3.6.1.4.1.116.5.39.1.10
 monitors:
@@ -101,7 +101,7 @@ monitors:
             column: 1
             value: 100
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.enclosure.collect.sources.source(1)$
         deviceId: Hitachi Blade Chassis
         metrics:
@@ -160,32 +160,32 @@ monitors:
           type: copy
           from: $monitors.blade.discovery.sources.source(4)$
           computes:
-          - _comment: ParitionNum;Slot1;
-            type: keepColumns
+          # ParitionNum;Slot1;
+          - type: keepColumns
             columnNumbers: "1,2"
         source(6):
           # Now make a table for slot1, then slot2, etc..
           type: copy
           from: $monitors.blade.discovery.sources.source(4)$
           computes:
-          - _comment: ParitionNum;Slot2;
-            type: keepColumns
+          # ParitionNum;Slot2;
+          - type: keepColumns
             columnNumbers: "1,3"
         source(7):
           # Now make a table for slot1, then slot2, etc..
           type: copy
           from: $monitors.blade.discovery.sources.source(4)$
           computes:
-          - _comment: ParitionNum;Slot3;
-            type: keepColumns
+          # ParitionNum;Slot3;
+          - type: keepColumns
             columnNumbers: "1,4"
         source(8):
           # Now make a table for slot1, then slot2, etc..
           type: copy
           from: $monitors.blade.discovery.sources.source(4)$
           computes:
-          - _comment: ParitionNum;Slot4;
-            type: keepColumns
+          # ParitionNum;Slot4;
+          - type: keepColumns
             columnNumbers: "1,5"
         source(9):
           # Now union all the tables together
@@ -215,7 +215,7 @@ monitors:
           hw.parent.id: Hitachi Blade Chassis
           name: "sprintf(\"%s (%s)\", $column(1), $column(4))"
     collect:
-      _comment: Collect type is "multi-instance"
+      # Collect type is "multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -264,7 +264,7 @@ monitors:
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.blade.collect.sources.source(4)$
         deviceId: $column(1)
         metrics:
@@ -363,7 +363,7 @@ monitors:
         metrics:
           hw.fan.speed.limit{limit_type="low.critical"}: 100
     collect:
-      _comment: Collect type is "multi-instance"
+      # Collect type is "multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -480,7 +480,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(5))"
     collect:
-      _comment: Collect type is "multi-instance"
+      # Collect type is "multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -650,7 +650,7 @@ monitors:
         metrics:
           hw.temperature.limit{limit_type="high.critical"}: $column(4)
     collect:
-      _comment: Collect type is "multi-instance"
+      # Collect type is "multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -1008,7 +1008,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s: %s (%s)\", $column(1), $column(2), $column(3))"
     collect:
-      _comment: Collect type is "multi-instance"
+      # Collect type is "multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -1075,7 +1075,7 @@ monitors:
             column: 2
             translationTable: OtherDeviceTT
       mapping:
-        _comment: The ValueTable
+        # The ValueTable
         source: $monitors.other_device.collect.sources.source(5)$
         deviceId: $column(1)
         metrics:
@@ -1084,7 +1084,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source (1) = Node LED OID
+          # Source (1) = Node LED OID
           type: snmpGet
           oid: 1.3.6.1.4.1.116.5.39.6.1.9.0
           computes:
@@ -1094,7 +1094,7 @@ monitors:
             column: 1
             value: Node;Node Failure;
         source(2):
-          _comment: Source (2) = Switch LED OID
+          # Source (2) = Switch LED OID
           type: snmpGet
           oid: 1.3.6.1.4.1.116.5.39.6.1.10.0
           computes:
@@ -1104,7 +1104,7 @@ monitors:
             column: 1
             value: SW;Switch Failure;
         source(3):
-          _comment: Source (3) = Power Supply LED OID
+          # Source (3) = Power Supply LED OID
           type: snmpGet
           oid: 1.3.6.1.4.1.116.5.39.6.1.11.0
           computes:
@@ -1114,7 +1114,7 @@ monitors:
             column: 1
             value: PS;Power Supply Module Failure;
         source(4):
-          _comment: Source (4) = Fan LED OID
+          # Source (4) = Fan LED OID
           type: snmpGet
           oid: 1.3.6.1.4.1.116.5.39.6.1.12.0
           computes:
@@ -1124,7 +1124,7 @@ monitors:
             column: 1
             value: FM;Fan Module Failure;
         source(5):
-          _comment: Source (5) = Temp LED OID
+          # Source (5) = Temp LED OID
           type: snmpGet
           oid: 1.3.6.1.4.1.116.5.39.6.1.13.0
           computes:
@@ -1134,12 +1134,12 @@ monitors:
             column: 1
             value: Temp;Thermal Issue;
         source(6):
-          _comment: Source (6) = Device LED OID
+          # Source (6) = Device LED OID
           type: snmpGet
           oid: 1.3.6.1.4.1.116.5.39.6.1.14.0
           computes:
-          - _comment: ID;Name;Value
-            type: leftConcat
+          # ID;Name;Value
+          - type: leftConcat
             column: 1
             value: Device;Device in Server Blade Error;
         source(7):
@@ -1177,11 +1177,11 @@ monitors:
           hw.parent.type: enclosure
           name: $column(2)
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: Source (1) = Node LED OID
+          # Source (1) = Node LED OID
           type: snmpGet
           oid: 1.3.6.1.4.1.116.5.39.6.1.9.0
           computes:
@@ -1191,7 +1191,7 @@ monitors:
             column: 1
             value: Node;
         source(2):
-          _comment: Source (2) = Switch LED OID
+          # Source (2) = Switch LED OID
           type: snmpGet
           oid: 1.3.6.1.4.1.116.5.39.6.1.10.0
           computes:
@@ -1201,7 +1201,7 @@ monitors:
             column: 1
             value: SW;
         source(3):
-          _comment: Source (3) = Power Supply LED OID
+          # Source (3) = Power Supply LED OID
           type: snmpGet
           oid: 1.3.6.1.4.1.116.5.39.6.1.11.0
           computes:
@@ -1211,7 +1211,7 @@ monitors:
             column: 1
             value: PS;
         source(4):
-          _comment: Source (4) = Fan LED OID
+          # Source (4) = Fan LED OID
           type: snmpGet
           oid: 1.3.6.1.4.1.116.5.39.6.1.12.0
           computes:
@@ -1221,7 +1221,7 @@ monitors:
             column: 1
             value: FM;
         source(5):
-          _comment: Source (5) = Temp LED OID
+          # Source (5) = Temp LED OID
           type: snmpGet
           oid: 1.3.6.1.4.1.116.5.39.6.1.13.0
           computes:
@@ -1231,12 +1231,12 @@ monitors:
             column: 1
             value: Temp;
         source(6):
-          _comment: Source (6) = Device LED OID
+          # Source (6) = Device LED OID
           type: snmpGet
           oid: 1.3.6.1.4.1.116.5.39.6.1.14.0
           computes:
-          - _comment: ID;Value
-            type: leftConcat
+          # ID;Value
+          - type: leftConcat
             column: 1
             value: Device;
         source(7):
@@ -1263,7 +1263,7 @@ monitors:
             column: 2
             translationTable: LEDStateTranslationTable
       mapping:
-        _comment: ValueTable = Source(8)
+        # ValueTable = Source(8)
         source: $monitors.led.collect.sources.source(8)$
         deviceId: $column(1)
         metrics:

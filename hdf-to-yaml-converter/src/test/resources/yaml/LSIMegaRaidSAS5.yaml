@@ -45,8 +45,8 @@ connector:
     supersedes:
     - LSIMegaCliWindows
     criteria:
-    - _comment: Simply check that the LSI MegaRaid SAS MIB is populated with some disks
-      type: snmpGetNext
+    # Simply check that the LSI MegaRaid SAS MIB is populated with some disks
+    - type: snmpGetNext
       oid: 1.3.6.1.4.1.3582.5.1.4.2.1.2.1
 monitors:
   disk_controller:
@@ -65,7 +65,7 @@ monitors:
             column: 3
             value: 'MegaRaid '
       mapping:
-        _comment: The Instance table...
+        # The Instance table...
         source: $monitors.disk_controller.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -96,7 +96,7 @@ monitors:
             column: 3
             value: 1048576
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.physical_disk.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -107,7 +107,7 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(3)
     collect:
-      _comment: This is a multi-instance collect (execute the collect for each disk)
+      # This is a multi-instance collect (execute the collect for each disk)
       type: multiInstance
       sources:
         source(1):
@@ -140,7 +140,7 @@ monitors:
             column: 2
             value: Column(4)
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.physical_disk.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -163,7 +163,7 @@ monitors:
             column: 2
             value: 1048576
       mapping:
-        _comment: The instance table
+        # The instance table
         source: $monitors.logical_disk.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -173,7 +173,7 @@ monitors:
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(4))"
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), $column(2))"
     collect:
-      _comment: Type = MultiInstance
+      # Type = MultiInstance
       type: multiInstance
       sources:
         source(1):
@@ -198,7 +198,7 @@ monitors:
             column: 3
             translationTable: LogicalDiskStatusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.logical_disk.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:

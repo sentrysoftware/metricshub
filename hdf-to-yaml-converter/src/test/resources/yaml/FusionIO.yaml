@@ -37,11 +37,11 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Output of fio-status
+          # Source(1) = Output of fio-status
           type: osCommand
           commandLine: "%{SUDO:fio-status} fio-status -a"
         source(2):
-          _comment: Make a copy of the output of fio-status
+          # Make a copy of the output of fio-status
           type: copy
           from: $monitors.disk_controller.discovery.sources.source(1)$
           computes:
@@ -64,14 +64,14 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(1), $column(2))"
     collect:
-      _comment: Collect type is "all instances in one shot"
+      # Collect type is "all instances in one shot
       type: multiInstance
       sources:
         source(1):
           type: osCommand
           commandLine: "%{SUDO:fio-status} fio-status -a"
         source(2):
-          _comment: Make a copy of the output of fio-status
+          # Make a copy of the output of fio-status
           type: copy
           from: $monitors.disk_controller.collect.sources.source(1)$
           computes:
@@ -108,7 +108,7 @@ monitors:
             separators: ;
             selectColumns: "2,3,4,5,6"
         source(2):
-          _comment: Make a copy of the output of disk controller discover (fio-status -a)
+          # Make a copy of the output of disk controller discover (fio-status -a)
           type: copy
           from: $monitors.disk_controller.discovery.sources.source(1)$
           computes:
@@ -128,7 +128,7 @@ monitors:
           leftKeyColumn: 1
           rightKeyColumn: 1
           computes:
-            # Block Device: <blockDeviceID>
+          # Block Device: <blockDeviceID>
           - type: leftConcat
             column: 2
             value: "Block Device: "
@@ -139,21 +139,21 @@ monitors:
             column: 4
             existingValue: 'Product Number:'
             newValue: "Part Number: "
-            # Part Number: <productNumber>,<serialNumber>
+          # Part Number: <productNumber>,<serialNumber>
           - type: replace
             column: 4
             existingValue: ' SN:'
             newValue: ","
-            # ioDriveID;blockDeviceID;model;Part Number <productNumber>,SerialNumber;Part Number <productNumber>MSHW_SerialNumber;physicalSize;ioDriveID;adapterID;
+          # ioDriveID;blockDeviceID;model;Part Number <productNumber>,SerialNumber;Part Number <productNumber>MSHW_SerialNumber;physicalSize;ioDriveID;adapterID;
           - type: duplicateColumn
             column: 4
-            # ioDriveID;blockDeviceID;model;Part Number <productNumber>;Part Number <productNumber>,SerialNumber;physicalSize;ioDriveID;adapterID;
+          # ioDriveID;blockDeviceID;model;Part Number <productNumber>;Part Number <productNumber>,SerialNumber;physicalSize;ioDriveID;adapterID;
           - type: extract
             column: 4
             subSeparators: ","
             subColumn: 1
-          - _comment: ioDriveID;blockDeviceID;model;Part Number <productNumber>;SerialNumber;physicalSize;ioDriveID;adapterID;
-            type: extract
+          # ioDriveID;blockDeviceID;model;Part Number <productNumber>;SerialNumber;physicalSize;ioDriveID;adapterID;
+          - type: extract
             column: 5
             subSeparators: ","
             subColumn: 2
@@ -173,11 +173,11 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(6)
     collect:
-      _comment: Collect type is "all instances in one shot"
+      # Collect type is "all instances in one shot
       type: multiInstance
       sources:
         source(1):
-          _comment: Make a copy of the output of disk controller collect (fio-status -a)
+          # Make a copy of the output of disk controller collect (fio-status -a)
           type: copy
           from: $monitors.disk_controller.collect.sources.source(1)$
           computes:
@@ -225,11 +225,11 @@ monitors:
         metrics:
           hw.temperature.limit{limit_type="high.critical"}: $column(3)
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: Make a copy of the output of disk controller discover (fio-status -a)
+          # Make a copy of the output of disk controller discover (fio-status -a)
           type: copy
           from: $monitors.disk_controller.collect.sources.source(1)$
           computes:
@@ -241,7 +241,7 @@ monitors:
             separators: ;
             selectColumns: "2,3,4"
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.temperature.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -272,11 +272,11 @@ monitors:
           hw.parent.type: enclosure
           name: $column(1)
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: Make a copy of the output of disk controller discover (fio-status -a)
+          # Make a copy of the output of disk controller discover (fio-status -a)
           type: copy
           from: $monitors.disk_controller.collect.sources.source(1)$
           computes:
@@ -293,7 +293,7 @@ monitors:
             column: 2
             value: 1000
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.voltage.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:

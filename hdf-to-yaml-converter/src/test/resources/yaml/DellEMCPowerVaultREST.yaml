@@ -62,7 +62,7 @@ connector:
     appliesTo:
     - Storage
     criteria:
-      # requires %{SHA256_AUTH} replacement macro
+    # requires %{SHA256_AUTH} replacement macro
     - type: productRequirements
       kmVersion: 11.3.01
     - type: http
@@ -75,23 +75,23 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Login
+          # Login
           type: http
           method: GET
           authenticationToken: "%{USERNAME}_%{PASSWORD}"
           url: "api/login/%{SHA256_AUTH}"
           header: "datatype: json"
           computes:
-          - _comment: extract sessionKey from response
-            type: json2csv
+          # extract sessionKey from response
+          - type: json2csv
             entryKey: /status
             properties: /response;
-          - _comment: append header <key> portion to sessionKey
-            type: leftConcat
+          # append header <key> portion to sessionKey
+          - type: leftConcat
             column: 2
             value: "sessionKey: "
-          - _comment: keep only our header string
-            type: keepColumns
+          # keep only our header string
+          - type: keepColumns
             columnNumbers: 2
         source(2):
           # join together sessionKey: <key> and datatype header
@@ -107,12 +107,12 @@ monitors:
           url: /api/show/configuration
           method: GET
         source(4):
-          _comment: 'Keep a copy for system '
+          # 'Keep a copy for system '
           type: copy
           from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
-          - _comment: JSON;name;vendor;model;
-            type: json2csv
+          # JSON;name;vendor;model;
+          - type: json2csv
             entryKey: /system
             properties: /system-name;/vendor-name;/product-id;
           - type: replace
@@ -120,12 +120,12 @@ monitors:
             existingValue: Column(1)
             newValue: MSHW
         source(5):
-          _comment: Keep a copy for enclosures
+          # Keep a copy for enclosures
           type: copy
           from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
-          - _comment: JSON;id;serial-number;
-            type: json2csv
+          # JSON;id;serial-number;
+          - type: json2csv
             entryKey: /enclosures
             properties: /enclosure-id;/midplane-serial-number;/product-id;
           - type: replace
@@ -142,25 +142,25 @@ monitors:
           rightKeyColumn: 1
           defaultRightLine: ;;;;
         source(7):
-          _comment: show frus
+          # show frus
           type: http
           header: $monitors.enclosure.discovery.sources.source(2)$
           url: /api/show/sensor-status
           method: GET
           computes:
-          - _comment: JSON;id;sensor-type;container;enclosure;controller;name;
-            type: json2csv
+          # JSON;id;sensor-type;container;enclosure;controller;name;
+          - type: json2csv
             entryKey: /sensors
             properties: /durable-id;/sensor-type;/container;/enclosure-id;/controller-id-numeric;/sensor-name;
-          - _comment: Translate container into AttachedToDeviceType
-            type: translate
+          # Translate container into AttachedToDeviceType
+          - type: translate
             column: 4
             translationTable: AttachedToDeviceTypeTranslationTable
-          - _comment: Duplicate our new found knowledge
-            type: duplicateColumn
+          # Duplicate our new found knowledge
+          - type: duplicateColumn
             column: 4
-          - _comment: place in column 5 the true id of the AttachedToDeviceID (2 computes)
-            type: replace
+          # place in column 5 the true id of the AttachedToDeviceID (2 computes)
+          - type: replace
             column: 5
             existingValue: enclosure
             newValue: Column(6)
@@ -169,7 +169,7 @@ monitors:
             existingValue: disk_controller
             newValue: Column(7)
       mapping:
-        _comment: Enclosure Instance Table
+        # Enclosure Instance Table
         source: $monitors.enclosure.discovery.sources.source(6)$
         attributes:
           id: $column(2)
@@ -180,27 +180,27 @@ monitors:
           type: Storage
           name: "sprintf(\"%s (%s %s - %s)\", $column(6), $column(7), $column(8), \"Storage\")"
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
-          _comment: Login
+          # Login
           type: http
           method: GET
           authenticationToken: "%{USERNAME}_%{PASSWORD}"
           url: "api/login/%{SHA256_AUTH}"
           header: "datatype: json"
           computes:
-          - _comment: extract sessionKey from response
-            type: json2csv
+          # extract sessionKey from response
+          - type: json2csv
             entryKey: /status
             properties: /response;
-          - _comment: append header <key> portion to sessionKey
-            type: leftConcat
+          # append header <key> portion to sessionKey
+          - type: leftConcat
             column: 2
             value: "sessionKey: "
-          - _comment: keep only our header string
-            type: keepColumns
+          # keep only our header string
+          - type: keepColumns
             columnNumbers: 2
         source(2):
           # join together sessionKey: <key> and datatype header
@@ -209,14 +209,14 @@ monitors:
           - $monitors.enclosure.collect.sources.source(1)$
           - "datatype: json"
         source(3):
-          _comment: show frus
+          # show frus
           type: http
           header: $monitors.enclosure.collect.sources.source(2)$
           url: /api/show/sensor-status
           method: GET
           computes:
-          - _comment: durable-id;value;status;status-numeric;container;enclosure-id;
-            type: json2csv
+          # durable-id;value;status;status-numeric;container;enclosure-id;
+          - type: json2csv
             entryKey: /sensors
             properties: /durable-id;/sensor-type;/value;/status-numeric;/status-numeric;/container;/enclosure-id;
           - type: translate
@@ -225,13 +225,13 @@ monitors:
           - type: translate
             column: 6
             translationTable: StatusInformationTranslationTable
-          - _comment: SubSeparate the numerical value only
-            type: extract
+          # SubSeparate the numerical value only
+          - type: extract
             column: 4
             subColumn: 1
             subSeparators: ' '
         source(4):
-          _comment: Keep a copy to return enclosure statuses
+          # Keep a copy to return enclosure statuses
           type: copy
           from: $monitors.enclosure.collect.sources.source(3)$
           computes:
@@ -239,7 +239,7 @@ monitors:
             column: 7
             regExp: enclosures
         source(5):
-          _comment: the big show command (show configuration)
+          # the big show command (show configuration)
           type: http
           header: $monitors.enclosure.collect.sources.source(2)$
           url: /api/show/configuration
@@ -248,12 +248,12 @@ monitors:
           type: copy
           from: $monitors.enclosure.collect.sources.source(5)$
           computes:
-          - _comment: JSON;id;serial-number;
-            type: json2csv
+          # JSON;id;serial-number;
+          - type: json2csv
             entryKey: /enclosures
             properties: /enclosure-id;/enclosure-power;
         source(7):
-          _comment: JSON;id;watts;JSON;durable-id;value;status;status-numeric;container;enclosure-id
+          # JSON;id;watts;JSON;durable-id;value;status;status-numeric;container;enclosure-id
           type: tableJoin
           leftTable: $monitors.enclosure.collect.sources.source(6)$
           rightTable: $monitors.enclosure.collect.sources.source(4)$
@@ -267,7 +267,7 @@ monitors:
             column: 5
             translationTable: StatusInformationTranslationTable
       mapping:
-        _comment: Value Table
+        # Value Table
         source: $monitors.enclosure.collect.sources.source(7)$
         deviceId: $column(2)
         metrics:
@@ -280,12 +280,12 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: JSON;id;sensor-type;container;enclosure;controller;name;
+          # JSON;id;sensor-type;container;enclosure;controller;name;
           type: copy
           from: $monitors.enclosure.discovery.sources.source(7)$
           computes:
-          - _comment: keep types "Temperature"
-            type: keepOnlyMatchingLines
+          # keep types "Temperature
+          - type: keepOnlyMatchingLines
             column: 3
             regExp: temperature
       mapping:
@@ -307,7 +307,7 @@ monitors:
             column: 3
             regExp: temperature
       mapping:
-        _comment: JSON;id;value;status;StatusInformation
+        # JSON;id;value;status;StatusInformation
         source: $monitors.temperature.collect.sources.source(1)$
         deviceId: $column(2)
         metrics:
@@ -319,12 +319,12 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: JSON;id;sensor-type;container;enclosure;controller;name;
+          # JSON;id;sensor-type;container;enclosure;controller;name;
           type: copy
           from: $monitors.enclosure.discovery.sources.source(7)$
           computes:
-          - _comment: keep types "Voltage"
-            type: keepOnlyMatchingLines
+          # keep types "Voltage
+          - type: keepOnlyMatchingLines
             column: 3
             regExp: voltage
       mapping:
@@ -345,12 +345,12 @@ monitors:
           - type: keepOnlyMatchingLines
             column: 3
             regExp: voltage
-          - _comment: engine expects voltage in mV
-            type: multiply
+          # engine expects voltage in mV
+          - type: multiply
             column: 4
             value: 1000
       mapping:
-        _comment: JSON;id;value;status;StatusInformation
+        # JSON;id;value;status;StatusInformation
         source: $monitors.voltage.collect.sources.source(1)$
         deviceId: $column(2)
         metrics:
@@ -362,7 +362,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Keep a copy for controllers
+          # Keep a copy for controllers
           type: copy
           from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
@@ -449,8 +449,8 @@ monitors:
           - type: multiply
             column: 9
             value: Column(10)
-          - _comment: endurance of 255 means it is not an SSD
-            type: replace
+          # endurance of 255 means it is not an SSD
+          - type: replace
             column: 11
             existingValue: 255
             newValue: "False"
@@ -469,7 +469,7 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(9)
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -507,7 +507,7 @@ monitors:
             column: 6
             value: "Serial Number: "
       mapping:
-        _comment: PowerSupply Instance Table
+        # PowerSupply Instance Table
         source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
           id: $column(2)
@@ -517,7 +517,7 @@ monitors:
           hw.parent.id: $column(4)
           name: "sprintf(\"%s, $column(3))"
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -531,7 +531,7 @@ monitors:
             column: 3
             translationTable: StatusTranslationTable
       mapping:
-        _comment: PowerSupply Value Table
+        # PowerSupply Value Table
         source: $monitors.power_supply.collect.sources.source(1)$
         deviceId: $column(2)
         metrics:
@@ -542,24 +542,24 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: FC Ports
+          # FC Ports
           type: copy
           from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
-          - _comment: json;id;name;controller-id;vendor;model;
-            type: json2csv
+          # json;id;name;controller-id;vendor;model;
+          - type: json2csv
             entryKey: /port/fc-port
             properties: ../durable-id;../port;../controller-numeric;/sfp-vendor;/sfp-part-number;/port-type;/mac-address;/ip-address;../actual-speed-numeric;
           - type: rightConcat
             column: 8
             value: ;WWN;
         source(2):
-          _comment: ISCSI Ports
+          # ISCSI Ports
           type: copy
           from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
-          - _comment: json;id;name;controller-id;vendor;model;mac-address;ip-address;
-            type: json2csv
+          # json;id;name;controller-id;vendor;model;mac-address;ip-address;
+          - type: json2csv
             entryKey: /port/iscsi-port
             properties: ../durable-id;../port;../controller-numeric;/sfp-vendor;/sfp-part-number;/port-type;/mac-address;/ip-address;../actual-speed-numeric;
           - type: rightConcat
@@ -589,7 +589,7 @@ monitors:
           hw.parent.id: $column(4)
           name: "sprintf(\"%s (%s - %s)\", $column(3), $column(7), $column(6))"
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -609,7 +609,7 @@ monitors:
             column: 5
             translationTable: LinkStatusTranslationTable
       mapping:
-        _comment: NetworkCard Value Table
+        # NetworkCard Value Table
         source: $monitors.network.collect.sources.source(1)$
         deviceId: $column(2)
         metrics:

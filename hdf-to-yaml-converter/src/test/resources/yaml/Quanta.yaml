@@ -121,19 +121,19 @@ monitors:
           oid: 1.3.6.1.4.1.7244.1.2.1.3.6.1
           selectColumns: "2,7,4,6,12,13"
           computes:
-          - _comment: Excluding Lines without Serial Number
-            type: rightConcat
+          # Excluding Lines without Serial Number
+          - type: rightConcat
             column: 4
             value: MSHW_
           - type: rightConcat
             column: 4
             value: _n
-          - _comment: Exclude Lines that do not contain serial numbers so that we take the enclosure unit with serial number
-            type: excludeMatchingLines
+          # Exclude Lines that do not contain serial numbers so that we take the enclosure unit with serial number
+          - type: excludeMatchingLines
             column: 4
             valueList: MSHW__n
-          - _comment: ID;Model;ChassisType;SerialNumber;Vendor;FRU;PartNumber;
-            type: replace
+          # ID;Model;ChassisType;SerialNumber;Vendor;FRU;PartNumber;
+          - type: replace
             column: 4
             existingValue: MSHW_
             newValue: ""
@@ -141,8 +141,8 @@ monitors:
             column: 4
             existingValue: _n
             newValue: ""
-          - _comment: ID;Model - ;ChassisType;SerialNumber;Vendor;FRU;PartNumber;
-            type: rightConcat
+          # ID;Model - ;ChassisType;SerialNumber;Vendor;FRU;PartNumber;
+          - type: rightConcat
             column: 2
             value: ' - '
             # Identify the FRU and Part Number
@@ -150,12 +150,12 @@ monitors:
           - type: rightConcat
             column: 2
             value: Column(3)
-            # Add \"Part Number: \" to AdditionalInformation2
+          # Add \"Part Number: \" to AdditionalInformation2
           - type: leftConcat
             column: 6
             value: "Part Number: "
         source(2):
-          _comment: Collect BIOS Version
+          # Collect BIOS Version
           type: snmpGet
           oid: 1.3.6.1.4.1.7244.1.2.1.1.8.0
       mapping:
@@ -172,18 +172,18 @@ monitors:
           info: $column(6)
           name: "sprintf(\"%s (%s - %s)\", $column(2), $column(5), $column(3))"
     collect:
-      _comment: Collect
+      # Collect
       type: monoInstance
       sources:
         source(1):
-          _comment: Get the Corresponding Chassis Unit Status
+          # Get the Corresponding Chassis Unit Status
           type: snmpGet
           oid: 1.3.6.1.4.1.7244.1.2.1.1.4.0
           computes:
           - type: duplicateColumn
             column: 1
-          - _comment: PATROLStatus;OperState;
-            type: translate
+          # PATROLStatus;OperState;
+          - type: translate
             column: 1
             translationTable: enclosureStatusTranslationTable
             # Translate second StatusCode into a more readable string
@@ -226,7 +226,7 @@ monitors:
             column: 6
             value: Column(3)
       mapping:
-        _comment: Instance Table
+        # Instance Table
         source: $monitors.cpu.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -238,11 +238,11 @@ monitors:
         metrics:
           hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(3))
     collect:
-      _comment: Collect is multi-instance (all instances in one shot)
+      # Collect is multi-instance (all instances in one shot)
       type: multiInstance
       sources:
         source(1):
-          _comment: ID;Speed;Status
+          # ID;Speed;Status
           type: snmpTable
           oid: 1.3.6.1.4.1.7244.1.2.1.3.1.1
           selectColumns: "1,6,2"
@@ -251,8 +251,8 @@ monitors:
             # ID;Speed;Status;Status
           - type: duplicateColumn
             column: 3
-          - _comment: Convert Speed to a number and keep only first column
-            type: extract
+          # Convert Speed to a number and keep only first column
+          - type: extract
             column: 2
             subColumn: 1
             # Translate Status into PATROLStatus
@@ -266,7 +266,7 @@ monitors:
             column: 4
             translationTable: cpuStatusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.cpu.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -278,13 +278,13 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: ID;Location;Presence;CapacityMB;MemoryType;Frequency
+          # ID;Location;Presence;CapacityMB;MemoryType;Frequency
           type: snmpTable
           oid: 1.3.6.1.4.1.7244.1.2.1.3.2.1
           selectColumns: "1,3,2,6,4,5"
           computes:
-          - _comment: Map only memory modules that are Present
-            type: excludeMatchingLines
+          # Map only memory modules that are Present
+          - type: excludeMatchingLines
             column: 3
             valueList: 0
             # Add Identifiers
@@ -312,11 +312,11 @@ monitors:
         metrics:
           hw.memory.limit: mebiByte2Byte($column(4))
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
-          _comment: ID;memoryStatus;
+          # ID;memoryStatus;
           type: snmpTable
           oid: 1.3.6.1.4.1.7244.1.2.1.3.2.1
           selectColumns: "1,2"
@@ -336,7 +336,7 @@ monitors:
             column: 3
             translationTable: memoryStatusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.memory.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -347,7 +347,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: ispresence
+          # ispresence
           type: snmpGet
           oid: 1.3.6.1.4.1.7244.1.2.1.2.8.0
           computes:
@@ -357,7 +357,7 @@ monitors:
             column: 2
             value: PowerSupply 0
         source(2):
-          _comment: ispresence
+          # ispresence
           type: snmpGet
           oid: 1.3.6.1.4.1.7244.1.2.1.2.9.0
           computes:
@@ -372,8 +372,8 @@ monitors:
           - $monitors.power_supply.discovery.sources.source(1)$
           - $monitors.power_supply.discovery.sources.source(2)$
           computes:
-          - _comment: Keep only the lines/power-supplies with a value for their presence and Omit all lines with "" as isPrsence
-            type: excludeMatchingLines
+          # Keep only the lines/power-supplies with a value for their presence and Omit all lines with "" as isPrsence
+          - type: excludeMatchingLines
             column: 1
             regExp: ^$
       mapping:
@@ -386,11 +386,11 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s, $column(2))"
     collect:
-      _comment: Collect type is mono-instance
+      # Collect type is mono-instance
       type: monoInstance
       sources:
         source(1):
-          _comment: Status
+          # Status
           type: snmpGet
           oid: 1.3.6.1.4.1.7244.1.2.1.2.8.0
           computes:
@@ -414,7 +414,7 @@ monitors:
             column: 2
             translationTable: PowerSupplyStatusInformationTranslationTable
         source(2):
-          _comment: Status
+          # Status
           type: snmpGet
           oid: 1.3.6.1.4.1.7244.1.2.1.2.9.0
           computes:
@@ -476,7 +476,7 @@ monitors:
           hw.temperature.limit{limit_type="high.degraded"}: $column(4)
           hw.temperature.limit{limit_type="high.critical"}: $column(3)
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
@@ -535,7 +535,7 @@ monitors:
           hw.fan.speed.limit{limit_type="low.degraded"}: $column(4)
           hw.fan.speed.limit{limit_type="low.critical"}: $column(3)
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
@@ -594,7 +594,7 @@ monitors:
           hw.voltage.limit{limit_type="low.critical"}: $column(4)
           hw.voltage.limit{limit_type="high.degraded"}: $column(3)
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):

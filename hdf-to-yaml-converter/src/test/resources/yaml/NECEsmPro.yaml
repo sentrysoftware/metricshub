@@ -51,7 +51,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Get the model name
+          # Get the model name
           type: snmpTable
           oid: 1.3.6.1.4.1.119.2.2.4.4.1.2
           selectColumns: "1,3"
@@ -67,13 +67,13 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: CPU discovery
+          # CPU discovery
           type: snmpTable
           oid: 1.3.6.1.4.1.119.2.2.4.4.2.2.1.22.1
           selectColumns: "ID,2,3,4"
           computes:
-          - _comment: Translate memory vendor
-            type: translate
+          # Translate memory vendor
+          - type: translate
             column: 2
             translationTable: cpuVendorTranslationTable
       mapping:
@@ -87,14 +87,14 @@ monitors:
         metrics:
           hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(4))
     collect:
-      _comment: CPU collect
+      # CPU collect
       type: monoInstance
       sources:
         source(1):
           type: snmpGet
           oid: 1.3.6.1.4.1.119.2.2.4.4.2.2.1.22.1.12.%CPU.Collect.DeviceID%
           computes:
-            # Duplicate this status, because we will translate it two times
+          # Duplicate this status, because we will translate it two times
           - type: duplicateColumn
             column: 1
           - type: translate
@@ -104,7 +104,7 @@ monitors:
             column: 2
             translationTable: GenericStatusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.cpu.collect.sources.source(1)$
         metrics:
           hw.status{hw.type="cpu"}: $column(1)
@@ -114,21 +114,21 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Memory discovery
+          # Memory discovery
           type: snmpTable
           oid: 1.3.6.1.4.1.119.2.2.4.4.4.2.1.9.1
           selectColumns: "ID,3,4"
           computes:
-          - _comment: Remove modules for which we have no size
-            type: excludeMatchingLines
+          # Remove modules for which we have no size
+          - type: excludeMatchingLines
             column: 3
             regExp: ^0$
-          - _comment: Convert memory size to MB
-            type: divide
+          # Convert memory size to MB
+          - type: divide
             column: 3
             value: 1024
-          - _comment: Translate memory type
-            type: translate
+          # Translate memory type
+          - type: translate
             column: 2
             translationTable: memoryTypeTranslationTable
       mapping:
@@ -141,7 +141,7 @@ monitors:
         metrics:
           hw.memory.limit: mebiByte2Byte($column(3))
     collect:
-      _comment: Memory collect
+      # Memory collect
       type: monoInstance
       sources:
         source(1):
@@ -166,7 +166,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Temperature discovery
+          # Temperature discovery
           type: snmpTable
           oid: 1.3.6.1.4.1.119.2.2.4.4.10.2.1.2.1
           selectColumns: "ID,2,6,11,15"
@@ -174,8 +174,8 @@ monitors:
           - type: keepOnlyMatchingLines
             column: 3
             valueList: 3
-          - _comment: Remove "-1" thresholds
-            type: replace
+          # Remove "-1" thresholds
+          - type: replace
             column: 4
             existingValue: -1
             newValue: ""
@@ -194,7 +194,7 @@ monitors:
           hw.temperature.limit{limit_type="high.degraded"}: $column(4)
           hw.temperature.limit{limit_type="high.critical"}: $column(5)
     collect:
-      _comment: Temperature collect
+      # Temperature collect
       type: monoInstance
       sources:
         source(1):
@@ -208,7 +208,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Fan discovery
+          # Fan discovery
           type: snmpTable
           oid: 1.3.6.1.4.1.119.2.2.4.4.10.2.3.2.1
           selectColumns: "ID,2,4"
@@ -223,7 +223,7 @@ monitors:
           hw.parent.type: enclosure
           name: $column(1)
     collect:
-      _comment: Fan collect
+      # Fan collect
       type: monoInstance
       sources:
         source(1):
@@ -250,7 +250,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Voltage discovery
+          # Voltage discovery
           type: snmpTable
           oid: 1.3.6.1.4.1.119.2.2.4.4.10.2.2.2.1
           selectColumns: "ID,2,5,11,19"
@@ -258,8 +258,8 @@ monitors:
           - type: keepOnlyMatchingLines
             column: 3
             valueList: 3
-          - _comment: Remove "-1" thresholds
-            type: rightConcat
+          # Remove "-1" thresholds
+          - type: rightConcat
             column: 4
             value: A
           - type: rightConcat
@@ -292,7 +292,7 @@ monitors:
           hw.voltage.limit{limit_type="high.degraded"}: $column(4)
           hw.voltage.limit{limit_type="low.critical"}: $column(5)
     collect:
-      _comment: Voltage collect
+      # Voltage collect
       type: monoInstance
       sources:
         source(1):
@@ -306,7 +306,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Power supply discovery
+          # Power supply discovery
           type: snmpTable
           oid: 1.3.6.1.4.1.119.2.2.4.4.11.2.3.3.1
           selectColumns: 1
@@ -317,7 +317,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s, $column(1))"
     collect:
-      _comment: Power supply collect
+      # Power supply collect
       type: monoInstance
       sources:
         source(1):

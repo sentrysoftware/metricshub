@@ -25,13 +25,13 @@ connector:
     - OOB
     - Linux
     criteria:
-    - _comment: Checking the version of ESXi
-      type: wbem
+    # Checking the version of ESXi
+    - type: wbem
       namespace: root/cimv2
       query: SELECT MajorVersion FROM VMware_HypervisorSoftwareIdentity
       expectedResult: "^[34567]"
-    - _comment: Check that there are sensors of IPMI Type 13 and SensorType 11 (Presence)
-      type: wbem
+    # Check that there are sensors of IPMI Type 13 and SensorType 11 (Presence)
+    - type: wbem
       namespace: root/cimv2
       query: "SELECT IpmiSensorType,SensorType,CurrentState FROM OMC_DiscreteSensor"
       expectedResult: ^13;11;Assert;
@@ -80,7 +80,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s, $column(2))"
     collect:
-      _comment: The DiskController collect is a "MultiInstance" collect
+      # The DiskController collect is a "MultiInstance" collect
       type: multiInstance
       sources:
         source(1):

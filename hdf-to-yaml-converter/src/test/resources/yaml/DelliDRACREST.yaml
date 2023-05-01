@@ -65,8 +65,8 @@ connector:
     appliesTo:
     - OOB
     criteria:
-    - _comment: Hardware Sentry v10.2.00+
-      type: productRequirements
+    # Hardware Sentry v10.2.00+
+    - type: productRequirements
       kmVersion: 10.2.00
     - type: http
       method: GET
@@ -79,7 +79,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: http
           method: GET
           url: /redfish/v1/Systems
@@ -154,7 +154,7 @@ monitors:
           type: Server
           name: "sprintf(\"%s (%s %s - %s)\", $column(3), $column(6), $column(4), \"Server\")"
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -219,7 +219,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: http
           method: GET
           executeForEachEntryOf:
@@ -262,7 +262,7 @@ monitors:
         metrics:
           hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(7))
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -298,7 +298,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: http
           method: GET
           executeForEachEntryOf:
@@ -342,7 +342,7 @@ monitors:
         metrics:
           hw.memory.limit: mebiByte2Byte($column(7))
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -378,7 +378,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: copy
           from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
@@ -414,7 +414,7 @@ monitors:
           hw.parent.id: $column(2)
           name: $column(3)
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -450,7 +450,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: copy
           from: $monitors.enclosure.discovery.sources.source(6)$
           computes:
@@ -472,12 +472,12 @@ monitors:
             entryKey: /Entry/Value/StorageControllers
             properties: ../../Column(4);/MemberId;/Name;/Model;/Manufacturer;/Status/State;../Drives@odata.count;../Oem/Dell/DellController/ControllerFirmwareVersion;
             separator: ;
-          - _comment: Keep only Controllers marked as Enabled
-            type: keepOnlyMatchingLines
+          # Keep only Controllers marked as Enabled
+          - type: keepOnlyMatchingLines
             column: 7
             regExp: Enabled
-          - _comment: Exclude diskControllers with no drives
-            type: excludeMatchingLines
+          # Exclude diskControllers with no drives
+          - type: excludeMatchingLines
             column: 8
             regExp: 0
       mapping:
@@ -494,7 +494,7 @@ monitors:
           hw.parent.id: $column(2)
           name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(4), $column(5))"
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -530,7 +530,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: copy
           from: $monitors.enclosure.discovery.sources.source(6)$
           computes:
@@ -591,7 +591,7 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(8)
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -627,7 +627,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: http
           method: GET
           executeForEachEntryOf:
@@ -659,7 +659,7 @@ monitors:
         metrics:
           hw.power_supply.limit: $column(5)
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -685,7 +685,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: copy
           from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
@@ -707,8 +707,8 @@ monitors:
             entryKey: /Entry/Value/Members
             properties: ../../Column(2);/ElementName;Id
             separator: ;
-          - _comment: Keep only Batteries
-            type: keepOnlyMatchingLines
+          # Keep only Batteries
+          - type: keepOnlyMatchingLines
             column: 3
             regExp: battery
       mapping:
@@ -722,7 +722,7 @@ monitors:
           hw.parent.id: $column(2)
           name: $column(3)
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -758,7 +758,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: copy
           from: $monitors.enclosure.discovery.sources.source(6)$
           computes:
@@ -795,7 +795,7 @@ monitors:
           hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s)\", $column(4), $column(5))"
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -832,7 +832,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: http
           method: GET
           executeForEachEntryOf:
@@ -856,12 +856,12 @@ monitors:
           header: EmbeddedFile(1)
           resultContent: body
           computes:
-          - _comment: JsonID;<System>;NetworkDeviceFunctions;Manufacturer;Model;PartNumber;SerialNumber;
-            type: json2csv
+          # JsonID;<System>;NetworkDeviceFunctions;Manufacturer;Model;PartNumber;SerialNumber;
+          - type: json2csv
             entryKey: /Entry/Value
             properties: ../Column(2);/NetworkDeviceFunctions/@odata.id;/Manufacturer;/Model;/PartNumber;/SerialNumber;
         source(3):
-          _comment: NetworkDeviceFunctions
+          # NetworkDeviceFunctions
           type: http
           method: GET
           executeForEachEntryOf:
@@ -871,13 +871,13 @@ monitors:
           header: EmbeddedFile(1)
           resultContent: body
           computes:
-          - _comment: JsonID;<System>;NetworkDeviceFunction;Manufacturer;Model;PartNumber;SerialNumber;
-            type: json2csv
+          # JsonID;<System>;NetworkDeviceFunction;Manufacturer;Model;PartNumber;SerialNumber;
+          - type: json2csv
             entryKey: /Entry/Value/Members
             properties: ../../Column(2);/@odata.id;../../Column(4);../../Column(5);../../Column(6);../../Column(7);
             separator: ;
         source(4):
-          _comment: NetworkDeviceFunctions
+          # NetworkDeviceFunctions
           type: http
           method: GET
           executeForEachEntryOf:
@@ -887,13 +887,13 @@ monitors:
           header: EmbeddedFile(1)
           resultContent: body
           computes:
-          - _comment: jsonid;<system>;PhysicalPortAssignment/@odata.id;NetDevFuncType;MACAddress;PermanentWWPN;Manufacturer;Model;PartNumber;SerialNumber;
-            type: json2csv
+          # jsonid;<system>;PhysicalPortAssignment/@odata.id;NetDevFuncType;MACAddress;PermanentWWPN;Manufacturer;Model;PartNumber;SerialNumber;
+          - type: json2csv
             entryKey: /Entry/Value
             properties: ../Column(2);/PhysicalPortAssignment/@odata.id;/NetDevFuncType;/Ethernet/PermanentMACAddress;/FibreChannel/PermanentWWPN;../Column(4);../Column(5);../Column(7);
             separator: ;
         source(5):
-          _comment: PhysicalPortAssignment
+          # PhysicalPortAssignment
           type: http
           method: GET
           executeForEachEntryOf:
@@ -909,12 +909,12 @@ monitors:
             entryKey: /Entry/Value
             properties: "../Column(2);/Id;../Column(7);../Column(8);../Column(9);/SupportedLinkCapabilities[0]/LinkSpeedMbps;../Column(4);../Column(5);../Column(6);"
             separator: ;
-            # If Column 8 is Ethernet, replace column 9 with MACAddress
+          # If Column 8 is Ethernet, replace column 9 with MACAddress
           - type: replace
             column: 8
             existingValue: Ethernet
             newValue: Ethernet;%Column(9)%
-            # If Column 8 is FiberChannelOverEthernet, replace column 9 with WWPN
+          # If Column 8 is FiberChannelOverEthernet, replace column 9 with WWPN
           - type: replace
             column: 8
             existingValue: FibreChannelOverEthernet
@@ -976,7 +976,7 @@ monitors:
           hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s)\", $column(3), $column(5))"
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -989,8 +989,8 @@ monitors:
           header: EmbeddedFile(1)
           resultContent: body
           computes:
-          - _comment: PhysicalPortAssignment
-            type: json2csv
+          # PhysicalPortAssignment
+          - type: json2csv
             entryKey: /Entry/Value
             properties: "/Id;/LinkStatus;/LinkStatus;/LinkStatus;/SupportedLinkCapabilities[0]/LinkSpeedMbps;"
             separator: ;

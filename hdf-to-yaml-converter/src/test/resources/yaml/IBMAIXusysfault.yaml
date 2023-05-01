@@ -16,12 +16,12 @@ connector:
     appliesTo:
     - RS6000
     criteria:
-    - _comment: OS should be AIX (whatever version)
-      type: deviceType
+    # OS should be AIX (whatever version)
+    - type: deviceType
       keep:
       - RS6000
-    - _comment: usysfault has to return either normal or fault
-      type: osCommand
+    # usysfault has to return either normal or fault
+    - type: osCommand
       commandLine: "%{SUDO:/usr/lpp/diagnostics/bin/usysfault}/usr/lpp/diagnostics/bin/usysfault"
       expectedResult: ^\(normal\)\|\(fault\)$
 sudoCommands:
@@ -36,7 +36,7 @@ monitors:
           type: static
           value: SystemAttention;System Attention;Amber;ALARM;ALARM;OK;
       mapping:
-        _comment: The discovery table
+        # The discovery table
         source: $monitors.led.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -47,7 +47,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), $column(2))"
     collect:
-      _comment: Collect type = mono-instance
+      # Collect type = mono-instance
       type: monoInstance
       sources:
         source(1):
@@ -63,7 +63,7 @@ monitors:
             column: 1
             translationTable: LEDStatusTranslationTable
       mapping:
-        _comment: CollectTable = Source(1)
+        # CollectTable = Source(1)
         source: $monitors.led.collect.sources.source(1)$
         metrics:
           hw.status{hw.type="led"}: legacyLedStatus($column(1))

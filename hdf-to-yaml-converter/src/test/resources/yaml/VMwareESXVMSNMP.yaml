@@ -16,11 +16,11 @@ connector:
     - OOB
     - Linux
     criteria:
-    - _comment: Hardware Sentry v11.3.00+
-      type: productRequirements
+    # Hardware Sentry v11.3.00+
+    - type: productRequirements
       kmVersion: 11.3.00
-    - _comment: Checking if we have VM
-      type: snmpGetNext
+    # Checking if we have VM
+    - type: snmpGetNext
       oid: 1.3.6.1.4.1.6876.2.1.1
 monitors:
   vm:
@@ -33,7 +33,7 @@ monitors:
           oid: 1.3.6.1.4.1.6876.2.1.1
           selectColumns: "ID,2,9"
       mapping:
-        _comment: The Instance table
+        # The Instance table
         source: $monitors.vm.discovery.sources.source(1)$
         attributes:
           id: $column(1)

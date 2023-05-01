@@ -156,7 +156,7 @@ monitors:
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(4))"
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(3), $column(2))"
     collect:
-      _comment: Collect type = MultiInstance
+      # Collect type = MultiInstance
       type: multiInstance
       sources:
         source(1):
@@ -185,7 +185,7 @@ monitors:
             column: 3
             translationTable: LogicalDiskStatusInformationTranslationTable
       mapping:
-        _comment: The ValueTable = source(1)
+        # The ValueTable = source(1)
         source: $monitors.logical_disk.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -220,7 +220,7 @@ monitors:
           leftKeyColumn: 1
           rightKeyColumn: 3
       mapping:
-        _comment: The InstanceTable
+        # The InstanceTable
         source: $monitors.physical_disk.discovery.sources.source(2)$
         attributes:
           id: $column(1)
@@ -230,7 +230,7 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(2)
     collect:
-      _comment: Collect type = MultiInstance
+      # Collect type = MultiInstance
       type: multiInstance
       sources:
         source(1):
@@ -259,7 +259,7 @@ monitors:
             column: 4
             translationTable: PhysicalDiskStatusInformationTranslationTable
       mapping:
-        _comment: The ValueTable = source(1)
+        # The ValueTable = source(1)
         source: $monitors.physical_disk.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:

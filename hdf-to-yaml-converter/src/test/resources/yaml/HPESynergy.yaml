@@ -78,8 +78,8 @@ connector:
     appliesTo:
     - OOB
     criteria:
-    - _comment: Hardware Sentry v10.2.00+
-      type: productRequirements
+    # Hardware Sentry v10.2.00+
+    - type: productRequirements
       kmVersion: 10.2.00
     - type: http
       method: GET
@@ -108,8 +108,8 @@ monitors:
             entryKey: /
             properties: /sessionID
             separator: ;
-          - _comment: exclude jsonID
-            type: keepColumns
+          # exclude jsonID
+          - type: keepColumns
             columnNumbers: 2
         source(3):
           type: http
@@ -127,11 +127,11 @@ monitors:
             column: 6
             value: "Part Number: "
         source(4):
-          _comment: now copy enclosure 2 to get a copy of the token for closing the session at the next Discovery
+          # now copy enclosure 2 to get a copy of the token for closing the session at the next Discovery
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
       mapping:
-        _comment: Enclosure Instance Table
+        # Enclosure Instance Table
         source: $monitors.enclosure.discovery.sources.source(3)$
         attributes:
           id: $column(2)
@@ -143,7 +143,7 @@ monitors:
           info: $column(6)
           name: "sprintf(\"%s (%s %s - %s)\", $column(5), \"HP Enterprise\", $column(3), \"Chassis\")"
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -177,7 +177,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: http
           method: GET
           url: /rest/enclosures
@@ -215,15 +215,15 @@ monitors:
           - type: rightConcat
             column: 6
             value: ' - '
-          - _comment: Blade.Discovery.Source(3).Compute(4).Type="RightConcat"
-            type: leftConcat
+          # Blade.Discovery.Source(3).Compute(4).Type="RightConcat
+          - type: leftConcat
             column: 4
             value: Column(6)
           - type: leftConcat
             column: 8
             value: "FirmwareVersion: "
       mapping:
-        _comment: Enclosure Instance Table
+        # Enclosure Instance Table
         source: $monitors.blade.discovery.sources.source(3)$
         attributes:
           id: $column(3)
@@ -235,7 +235,7 @@ monitors:
           hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s)\", $column(4), $column(6))"
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -288,7 +288,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Physical disks
+          # Physical disks
           type: copy
           from: $monitors.blade.discovery.sources.source(1)$
           computes:
@@ -317,7 +317,7 @@ monitors:
             column: 2
             regExp: .
       mapping:
-        _comment: Enclosure Instance Table
+        # Enclosure Instance Table
         source: $monitors.physical_disk.discovery.sources.source(3)$
         attributes:
           id: $column(2)
@@ -330,7 +330,7 @@ monitors:
           hw.parent.id: $column(11)
           name: "sprintf(\"%s (%s)\", $column(2), $column(3))"
     collect:
-      _comment: collect
+      # collect
       type: multiInstance
       sources:
         source(1):
@@ -397,7 +397,7 @@ monitors:
             existingValue: (R)
             newValue: ""
       mapping:
-        _comment: CPU Instance Table
+        # CPU Instance Table
         source: $monitors.cpu.discovery.sources.source(1)$
         attributes:
           id: $column(3)
@@ -409,7 +409,7 @@ monitors:
         metrics:
           hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(6))
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -439,7 +439,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: http
           method: GET
           executeForEachEntryOf:
@@ -476,7 +476,7 @@ monitors:
         metrics:
           hw.memory.limit: mebiByte2Byte($column(6))
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -516,7 +516,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: http
           method: GET
           executeForEachEntryOf:
@@ -560,7 +560,7 @@ monitors:
           hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s %s)\", $column(5), $column(7), $column(11))"
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -597,7 +597,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: http
           method: GET
           executeForEachEntryOf:
@@ -642,7 +642,7 @@ monitors:
           hw.parent.id: $column(2)
           name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(5), $column(6))"
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -679,7 +679,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: http
           method: GET
           url: /rest/enclosures
@@ -721,7 +721,7 @@ monitors:
           hw.parent.id: $column(2)
           name: $column(7)
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -758,7 +758,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: http
           method: GET
           url: /rest/enclosures
@@ -808,7 +808,7 @@ monitors:
         metrics:
           hw.power_supply.limit: $column(9)
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -845,7 +845,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: http
           method: GET
           url: /rest/interconnects
@@ -918,7 +918,7 @@ monitors:
             column: 12
             value: "firmwareVersion: "
       mapping:
-        _comment: NetworkCard Instance Table
+        # NetworkCard Instance Table
         source: $monitors.network.discovery.sources.source(5)$
         attributes:
           id: $column(17)
@@ -931,7 +931,7 @@ monitors:
           hw.parent.id: $column(9)
           name: "sprintf(\"%s (%s)\", $column(21), $column(15))"
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -958,7 +958,7 @@ monitors:
             column: 6
             translationTable: SpeedTranslationTable
       mapping:
-        _comment: NetworkCard Value Table
+        # NetworkCard Value Table
         source: $monitors.network.collect.sources.source(1)$
         deviceId: $column(2)
         metrics:

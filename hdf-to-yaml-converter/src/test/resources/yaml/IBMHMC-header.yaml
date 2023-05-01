@@ -6,7 +6,7 @@ translations:
 connector:
   detection:
     criteria:
-      # OS should be Linux (yes, the HMC is actually a Linux PC!)
+    # OS should be Linux (yes, the HMC is actually a Linux PC!)
     - type: deviceType
       keep:
       - Linux
@@ -27,7 +27,7 @@ monitors:
             column: 4
             value: "IP: "
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.enclosure.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -38,7 +38,7 @@ monitors:
           info: $column(4)
           name: "sprintf(\"%s (%s %s)\", $column(1), \"IBM\", $column(2))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -62,8 +62,8 @@ monitors:
             column: 2
             existingValue: Open
             newValue: ALARM
-          - _comment: Add the RefCode and EventTime to the Description
-            type: rightConcat
+          # Add the RefCode and EventTime to the Description
+          - type: rightConcat
             column: 3
             value: " - RefCode: "
           - type: rightConcat
@@ -87,7 +87,7 @@ monitors:
           rightKeyColumn: 1
           defaultRightLine: SystemName;OK;No error reported by lssvcevents as of today;;
       mapping:
-        _comment: ValueTable = Source(2)
+        # ValueTable = Source(2)
         source: $monitors.enclosure.collect.sources.source(2)$
         deviceId: $column(1)
         metrics:
@@ -103,7 +103,7 @@ monitors:
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
       mapping:
-        _comment: The discovery table
+        # The discovery table
         source: $monitors.led.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -116,7 +116,7 @@ monitors:
           hw.parent.id: $column(1)
           name: "sprintf(\"%s (%s)\", \"System Attention\", \"Amber\")"
     collect:
-      _comment: Collect type = multi-instance
+      # Collect type = multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -134,7 +134,7 @@ monitors:
             column: 2
             translationTable: LEDStatusTranslationTable
       mapping:
-        _comment: CollectTable = Source(1)
+        # CollectTable = Source(1)
         source: $monitors.led.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:

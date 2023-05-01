@@ -52,8 +52,8 @@ connector:
     appliesTo:
     - HP
     criteria:
-    - _comment: Checking the version of ESXi
-      type: wbem
+    # Checking the version of ESXi
+    - type: wbem
       namespace: root/cimv2
       query: SELECT DeviceID FROM HPUX_Processor
 monitors:
@@ -84,7 +84,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
     collect:
-      _comment: The NetworkCard collect is a "MultiInstance" collect
+      # The NetworkCard collect is a "MultiInstance" collect
       type: multiInstance
       sources:
         source(1):
@@ -129,7 +129,7 @@ monitors:
             column: 5
             translationTable: OperationsStatusToLinkStatusTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.network.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:

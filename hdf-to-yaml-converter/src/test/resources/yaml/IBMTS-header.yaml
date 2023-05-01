@@ -126,7 +126,7 @@ monitors:
             column: 2
             translationTable: RoboticStatusTranslationTable
       mapping:
-        _comment: Value Table
+        # Value Table
         source: $monitors.robotics.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:

@@ -111,7 +111,7 @@ monitors:
         metrics:
           hw.temperature.limit{limit_type="high.degraded"}: $column(3)
     collect:
-      _comment: Collect type = multi-instance
+      # Collect type = multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -196,7 +196,7 @@ monitors:
         metrics:
           hw.fan.speed.limit{limit_type="low.degraded"}: $column(4)
     collect:
-      _comment: Collect type = multi-instance
+      # Collect type = multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -262,7 +262,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s, $column(1))"
     collect:
-      _comment: Collect type = multi-instance
+      # Collect type = multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -304,7 +304,7 @@ monitors:
           hw.parent.type: enclosure
           name: $column(1)
     collect:
-      _comment: Collect type = multi-instance
+      # Collect type = multi-instance
       type: multiInstance
       sources:
         source(1):

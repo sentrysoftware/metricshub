@@ -82,14 +82,14 @@ translations:
 connector:
   detection:
     criteria:
-    - _comment: SSSU should exist and be in Path
-      type: osCommand
+    # SSSU should exist and be in Path
+    - type: osCommand
       commandLine: sssu help
       errorMessage: SSSU Does not appear to be installed on this system
       expectedResult: SSSU for HP
       executeLocally: true
-    - _comment: SSSU Should be able to connect and list systems
-      type: osCommand
+    # SSSU Should be able to connect and list systems
+    - type: osCommand
       commandLine: "sssu \"SELECT Manager %{HOSTNAME} username=%{USERNAME} password=%{PASSWORD}\" \"LS SYSTEM\""
       errorMessage: Unable to connect using SSSU
       expectedResult: Systems available on this Manager
@@ -100,13 +100,13 @@ monitors:
       sources:
         source(1):
           computes:
-          - _comment: Process the sssu command throug an AWK script
-            type: awk
+          # Process the sssu command throug an AWK script
+          - type: awk
             script: EmbeddedFile(2)
             keep: ^MSHW
             separators: ;
         source(2):
-          _comment: Enclosure Source 2 = Copy of Source 1
+          # Enclosure Source 2 = Copy of Source 1
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -132,8 +132,8 @@ monitors:
       sources:
         source(1):
           computes:
-          - _comment: Process the sssu command throug an AWK script
-            type: awk
+          # Process the sssu command throug an AWK script
+          - type: awk
             script: EmbeddedFile(2)
             keep: ^MSHW
             separators: ;
@@ -145,7 +145,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Discovery 1
+          # Source(1) = Enclosure Discovery 1
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -173,7 +173,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Collect 1
+          # Source(1) = Enclosure Collect 1
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -193,7 +193,7 @@ monitors:
             column: 6
             translationTable: opStatusInfoTT
       mapping:
-        _comment: The value table
+        # The value table
         source: $monitors.blade.collect.sources.source(1)$
         deviceId: $column(3)
         metrics:
@@ -204,7 +204,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Discovery 1
+          # Source(1) = Enclosure Discovery 1
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -239,7 +239,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Collect 1
+          # Source(1) = Enclosure Collect 1
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -274,7 +274,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Discovery 1
+          # Source(1) = Enclosure Discovery 1
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -304,7 +304,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Collect 1
+          # Source(1) = Enclosure Collect 1
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -444,7 +444,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Discovery 1
+          # Source(1) = Enclosure Discovery 1
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -453,8 +453,8 @@ monitors:
           - type: keepOnlyMatchingLines
             column: 1
             regExp: ^MSHW_MEMORY$
-          - _comment: exclude not installed
-            type: excludeMatchingLines
+          # exclude not installed
+          - type: excludeMatchingLines
             column: 5
             valueList: "not installed,not_installed,not present,not_present,notinstalled,notpresent,Not Present"
       mapping:
@@ -472,7 +472,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Collect 1
+          # Source(1) = Enclosure Collect 1
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -508,7 +508,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Discovery 1
+          # Source(1) = Enclosure Discovery 1
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -517,8 +517,8 @@ monitors:
           - type: keepOnlyMatchingLines
             column: 1
             regExp: ^MSHW_NETWORKCARD$
-          - _comment: exclude not installed
-            type: excludeMatchingLines
+          # exclude not installed
+          - type: excludeMatchingLines
             column: 6
             valueList: "not installed,not_installed,not present,not_present,notinstalled,notpresent,Not Present"
       mapping:
@@ -538,7 +538,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Collect 1
+          # Source(1) = Enclosure Collect 1
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -569,7 +569,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Discovery 1
+          # Source(1) = Enclosure Discovery 1
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -584,7 +584,7 @@ monitors:
             column: 9
             value: 1000000000
         source(2):
-          _comment: Source(2) = Enclosure Discovery 1
+          # Source(2) = Enclosure Discovery 1
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -604,8 +604,8 @@ monitors:
           rightKeyColumn: 3
           defaultRightLine: ;;;
           computes:
-          - _comment: exclude not installed
-            type: excludeMatchingLines
+          # exclude not installed
+          - type: excludeMatchingLines
             column: 5
             valueList: "not installed,not_installed,not present,not_present,notinstalled,notpresent,Not Present"
       mapping:
@@ -629,7 +629,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Collect 1
+          # Source(1) = Enclosure Collect 1
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -668,7 +668,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Discovery 1
+          # Source(1) = Enclosure Discovery 1
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -697,7 +697,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Collect 1
+          # Source(1) = Enclosure Collect 1
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -722,7 +722,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Discovery 1
+          # Source(1) = Enclosure Discovery 1
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -746,7 +746,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Collect 1
+          # Source(1) = Enclosure Collect 1
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -772,7 +772,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Enclosure Discovery 1
+          # Source(1) = Enclosure Discovery 1
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -781,8 +781,8 @@ monitors:
           - type: keepOnlyMatchingLines
             column: 1
             regExp: ^MSHW_OTHERDEVICE$
-          - _comment: Exclude not installed
-            type: excludeMatchingLines
+          # Exclude not installed
+          - type: excludeMatchingLines
             column: 5
             valueList: "not installed,not_installed,not present,not_present,notinstalled,notpresent,Not Present"
       mapping:

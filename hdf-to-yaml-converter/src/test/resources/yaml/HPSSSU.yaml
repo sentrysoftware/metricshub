@@ -149,8 +149,8 @@ connector:
     supersedes:
     - SMISDiskArray
     criteria:
-    - _comment: The Patrol Agent should be on a server running Windows
-      type: osCommand
+    # The Patrol Agent should be on a server running Windows
+    - type: osCommand
       commandLine: echo %OS%
       errorMessage: Connector only works when the Patrol Agent is installed on a server running Windows
       expectedResult: Windows_NT
@@ -167,7 +167,7 @@ monitors:
     collect:
       sources:
         source(1):
-          _comment: Source(1) = the output of "%EmbeddedFile(1)%
+          # Source(1) = the output of "%EmbeddedFile(1)%
           type: osCommand
           commandLine: "copy %EmbeddedFile(1)% %EmbeddedFile(1)%.bat > NUL & %EmbeddedFile(1)%.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q %EmbeddedFile(1)%.bat"
           executeLocally: true

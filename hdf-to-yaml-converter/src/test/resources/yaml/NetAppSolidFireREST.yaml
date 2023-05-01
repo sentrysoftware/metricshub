@@ -108,8 +108,8 @@ connector:
     appliesTo:
     - Storage
     criteria:
-    - _comment: Check that GetClusterInfo is in the expected format for SolidFire systems
-      type: http
+    # Check that GetClusterInfo is in the expected format for SolidFire systems
+    - type: http
       method: POST
       url: /json-rpc/9.0
       header: Content-Type:text/plain
@@ -121,15 +121,15 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: http
           method: POST
           url: /json-rpc/9.0
           header: Content-Type:text/plain
           body: "{ \"method\" : \"GetClusterInfo\" }"
           computes:
-          - _comment: JSON;Name;UUID
-            type: json2csv
+          # JSON;Name;UUID
+          - type: json2csv
             entryKey: /result/clusterInfo
             properties: /name;/uuid;
         source(2):
@@ -145,7 +145,7 @@ monitors:
           header: Content-Type:text/plain
           body: "{ \"method\": \"GetIpmiInfo\", \"params\" : { \"force\" : true } }"
         source(4):
-          _comment: Hardware Info
+          # Hardware Info
           type: http
           method: POST
           url: /json-rpc/9.0
@@ -164,25 +164,25 @@ monitors:
           serial_number: $column(3)
           name: "sprintf(\"%s (%s %s - %s)\", $column(2), \"NetApp\", \"Solid Fire\", \"enclosure\")"
     collect:
-      _comment: Collection Type (Multi-instance)
+      # Collection Type (Multi-instance)
       type: multiInstance
       sources:
         source(1):
-          _comment: Services Table
+          # Services Table
           type: http
           method: POST
           url: /json-rpc/9.0
           header: Content-Type:text/plain
           body: "{ \"method\" : \"ListServices\" }"
         source(2):
-          _comment: Hardware Info
+          # Hardware Info
           type: http
           method: POST
           url: /json-rpc/9.0
           header: Content-Type:text/plain
           body: "{ \"method\": \"GetHardwareInfo\", \"params\" : { \"force\" : true } }"
         source(3):
-          _comment: Sensor Information
+          # Sensor Information
           type: http
           method: POST
           url: /json-rpc/9.0
@@ -192,16 +192,16 @@ monitors:
           type: copy
           from: $monitors.enclosure.collect.sources.source(3)$
           computes:
-          - _comment: JSON;nodeID;sensorID;sensorName;sensorReading
-            type: json2csv
+          # JSON;nodeID;sensorID;sensorName;sensorReading
+          - type: json2csv
             entryKey: /result/nodes/result/ipmiInfo/sensors
             properties: ../../../nodeID;/sensorID;/sensorName;/sensorReading;
-          - _comment: JSON;nodeID;sensorID;sensorName;sensorReading
-            type: keepOnlyMatchingLines
+          # JSON;nodeID;sensorID;sensorName;sensorReading
+          - type: keepOnlyMatchingLines
             column: 4
             regExp: PW Consumption
-          - _comment: JSON;nodeID;nodeID-sensorID;sensorName;sensorReading
-            type: leftConcat
+          # JSON;nodeID;nodeID-sensorID;sensorName;sensorReading
+          - type: leftConcat
             column: 3
             value: Column(2)
             # Extract value from sensorReading;
@@ -224,12 +224,12 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
-          - _comment: JSON;nodeid;servicetype;Name;SoftwareVersion;nodeType;
-            type: json2csv
+          # JSON;nodeid;servicetype;Name;SoftwareVersion;nodeType;
+          - type: json2csv
             entryKey: /result/services/service
             properties: /nodeId;/serviceType;../node/name;../node/softwareVersion;../node/platformInfo/nodeType;
             # Keep only "master" servicetype
@@ -241,8 +241,8 @@ monitors:
           type: copy
           from: $monitors.enclosure.discovery.sources.source(4)$
           computes:
-          - _comment: JSON;nodeid;servicetype;Name;SoftwareVersion;nodeType;
-            type: json2csv
+          # JSON;nodeid;servicetype;Name;SoftwareVersion;nodeType;
+          - type: json2csv
             entryKey: /result/nodes
             properties: /nodeId;/result/hardwareInfo/boardSerial;
         source(3):
@@ -265,15 +265,15 @@ monitors:
           hw.parent.id: Cluster
           name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(4), $column(6))"
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
-          - _comment: JSON;nodeid;servicetype;status;status;
-            type: json2csv
+          # JSON;nodeid;servicetype;status;status;
+          - type: json2csv
             entryKey: /result/services/service
             properties: /nodeId;/serviceType;/status;/status;
             # Keep only "master" servicetype
@@ -302,8 +302,8 @@ monitors:
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
-          - _comment: JSON;nodeid;servicetype;MEMORY_GB
-            type: json2csv
+          # JSON;nodeid;servicetype;MEMORY_GB
+          - type: json2csv
             entryKey: /result/services/service
             properties: /nodeId;/serviceType;../node/platformInfo/nodeMemoryGB;
             # Keep only "master" servicetype
@@ -335,12 +335,12 @@ monitors:
           type: copy
           from: $monitors.enclosure.collect.sources.source(2)$
           computes:
-          - _comment: JSON;DeviceID;Status;StatusInformation;
-            type: json2csv
+          # JSON;DeviceID;Status;StatusInformation;
+          - type: json2csv
             entryKey: /result/nodes
             properties: /nodeId;/result/hardwareConfig/MEMORY_GB/Passed;/result/hardwareConfig/MEMORY_GB/Passed;
-          - _comment: JSON;DeviceID;PatrolStatus;StatusInformation;
-            type: translate
+          # JSON;DeviceID;PatrolStatus;StatusInformation;
+          - type: translate
             column: 3
             translationTable: HardwareConfigTranslationTable
       mapping:
@@ -364,12 +364,12 @@ monitors:
           - type: json2csv
             entryKey: /result/nodes
             properties: /nodeId;/nodeId;/result/hardwareInfo/hardwareConfig/CPU_MODEL_00/actual;/result/hardwareInfo/hardwareConfig/CPU_MODEL_00/actual;/result/hardwareInfo/hardwareConfig/CPU_MODEL_00/actual;/result/hardwareInfo/hardwareConfig/CPU_MODEL_00/actual;
-          - _comment: JSON;nodeid;CPU1-nodeID;actual;actual;actual;actual;
-            type: leftConcat
+          # JSON;nodeid;CPU1-nodeID;actual;actual;actual;actual;
+          - type: leftConcat
             column: 3
             value: CPU1-
-          - _comment: JSON;nodeid;CPU1-nodeID;CPU 1;actual;actual;actual;actual;
-            type: rightConcat
+          # JSON;nodeid;CPU1-nodeID;CPU 1;actual;actual;actual;actual;
+          - type: rightConcat
             column: 3
             value: ';CPU1 '
         source(2):
@@ -384,8 +384,8 @@ monitors:
           - type: leftConcat
             column: 3
             value: CPU2-
-          - _comment: JSON;nodeid;CPU1-nodeID;CPU 1;actual;actual;actual;actual;
-            type: rightConcat
+          # JSON;nodeid;CPU1-nodeID;CPU 1;actual;actual;actual;actual;
+          - type: rightConcat
             column: 3
             value: ';CPU2 '
         source(3):
@@ -418,8 +418,8 @@ monitors:
             column: 8
             subColumn: 2
             subSeparators: '@'
-          - _comment: JSON;nodeid;CPU-nodeID;DisplayName;Vendor;Model;Name;Speed;
-            type: rightConcat
+          # JSON;nodeid;CPU-nodeID;DisplayName;Vendor;Model;Name;Speed;
+          - type: rightConcat
             column: 4
             value: Column(7)
           - type: replace
@@ -448,15 +448,15 @@ monitors:
         metrics:
           hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(8))
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
           type: copy
           from: $monitors.enclosure.collect.sources.source(2)$
           computes:
-          - _comment: JSON;NodeID;CPU_MODEL_00_Status;CPU_MODEL_00_Status;
-            type: json2csv
+          # JSON;NodeID;CPU_MODEL_00_Status;CPU_MODEL_00_Status;
+          - type: json2csv
             entryKey: /result/nodes
             properties: /nodeId;/result/hardwareInfo/hardwareConfig/CPU_MODEL_00/Passed;/result/hardwareInfo/hardwareConfig/CPU_MODEL_00/Passed;/result/hardwareInfo/hardwareConfig/CPU_MODEL_00/actual;
           - type: leftConcat
@@ -466,8 +466,8 @@ monitors:
           type: copy
           from: $monitors.enclosure.collect.sources.source(2)$
           computes:
-          - _comment: JSON;NodeID;CPU_MODEL_00_Status;CPU_MODEL_00_Status;
-            type: json2csv
+          # JSON;NodeID;CPU_MODEL_00_Status;CPU_MODEL_00_Status;
+          - type: json2csv
             entryKey: /result/nodes
             properties: /nodeId;/result/hardwareInfo/hardwareConfig/CPU_MODEL_01/Passed;/result/hardwareInfo/hardwareConfig/CPU_MODEL_01/Passed;/result/hardwareInfo/hardwareConfig/CPU_MODEL_01/actual;
           - type: leftConcat
@@ -479,8 +479,8 @@ monitors:
           - $monitors.cpu.collect.sources.source(1)$
           - $monitors.cpu.collect.sources.source(2)$
           computes:
-          - _comment: JSON;NodeID;PatrolStatus;
-            type: translate
+          # JSON;NodeID;PatrolStatus;
+          - type: translate
             column: 3
             translationTable: HardwareConfigTranslationTable
       mapping:
@@ -502,8 +502,8 @@ monitors:
           header: Content-Type:text/plain
           body: "{\"method\" : \"ListDrives\"}"
           computes:
-          - _comment: JSON;NodeID;DriveID;
-            type: json2csv
+          # JSON;NodeID;DriveID;
+          - type: json2csv
             entryKey: /result/drives
             properties: /nodeId;/driveId;
         source(2):
@@ -516,8 +516,8 @@ monitors:
             source: $monitors.physical_disk.discovery.sources.source(1)$
             concatMethod: json_array_extended
           computes:
-          - _comment: JSON;NodeID;UUID;logicalName;product;product;serial;size;description;
-            type: json2csv
+          # JSON;NodeID;UUID;logicalName;product;product;serial;size;description;
+          - type: json2csv
             entryKey: /Entry/value/result/driveHardwareInfo
             properties: ../../../Column(2);../../../Column(3);/product;/product;/serial;/size;/description;
             # Extract Vendor value from product
@@ -566,8 +566,8 @@ monitors:
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
-          - _comment: JSON;driveId;driveStatus;driveStatus;
-            type: json2csv
+          # JSON;driveId;driveStatus;driveStatus;
+          - type: json2csv
             entryKey: /result/services/drive
             properties: /driveId;/driveStatus;/driveStatus;
             # Translate PatrolStatus
@@ -588,15 +588,15 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: http
           method: POST
           url: /json-rpc/9.0
           header: Content-Type:text/plain
           body: "{\"method\" : \"ListVolumes\", \"id\" : \"Cluster\" }"
           computes:
-          - _comment: JSON;SystemID;UUID;Name;Size
-            type: json2csv
+          # JSON;SystemID;UUID;Name;Size
+          - type: json2csv
             entryKey: /result/volumes
             properties: ../../id;/volumeUUID;/name;/totalSize;
       mapping:
@@ -611,7 +611,7 @@ monitors:
           hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s)\", $column(4), $column(5))"
     collect:
-      _comment: CollectionType (Multi-instance)
+      # CollectionType (Multi-instance)
       type: multiInstance
       sources:
         source(1):
@@ -621,8 +621,8 @@ monitors:
           header: Content-Type:text/plain
           body: "{\"method\" : \"ListVolumes\", \"id\" : \"Cluster\" }"
           computes:
-          - _comment: JSON;volumeUUID;Status;Status
-            type: json2csv
+          # JSON;volumeUUID;Status;Status
+          - type: json2csv
             entryKey: /result/volumes
             properties: /volumeUUID;/status;/status;
             # Translate PatrolStatus
@@ -643,12 +643,12 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: copy
           from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
-          - _comment: JSON;NodeID;SensorID;SensorName;SensorType;statesAsserted
-            type: json2csv
+          # JSON;NodeID;SensorID;SensorName;SensorType;statesAsserted
+          - type: json2csv
             entryKey: /result/nodes/result/ipmiInfo/sensors
             properties: "../../../nodeID;/sensorID;/sensorName;/sensorType;/statesAsserted[0];"
             # Keep only "master" servicetype
@@ -656,8 +656,8 @@ monitors:
           - type: keepOnlyMatchingLines
             column: 5
             regExp: Power Supply
-          - _comment: JSON;NodeID;NodeID-SensorID;SensorName;SensorType;statesAsserted
-            type: leftConcat
+          # JSON;NodeID;NodeID-SensorID;SensorName;SensorType;statesAsserted
+          - type: leftConcat
             column: 3
             value: Column(2)
       mapping:
@@ -671,23 +671,23 @@ monitors:
           hw.parent.id: $column(2)
           name: "sprintf(\"%s, $column(4))"
     collect:
-      _comment: Collection Type (Multi-instance)
+      # Collection Type (Multi-instance)
       type: multiInstance
       sources:
         source(1):
           type: copy
           from: $monitors.enclosure.collect.sources.source(3)$
           computes:
-          - _comment: JSON;sensorID;statesAsserted;statesAsserted;nodeID
-            type: json2csv
+          # JSON;sensorID;statesAsserted;statesAsserted;nodeID
+          - type: json2csv
             entryKey: /result/nodes/result/ipmiInfo/sensors
             properties: "/sensorID;/statesAsserted[0];/statesAsserted[0];../../../nodeID;"
-          - _comment: JSON;sensorID;PatrolStatus;statesAsserted;nodeID
-            type: translate
+          # JSON;sensorID;PatrolStatus;statesAsserted;nodeID
+          - type: translate
             column: 3
             translationTable: PowerSupplyStatusTranslationTable
-          - _comment: JSON;NodeID-sensorID;PatrolStatus;statesAsserted;nodeID
-            type: leftConcat
+          # JSON;NodeID-sensorID;PatrolStatus;statesAsserted;nodeID
+          - type: leftConcat
             column: 2
             value: Column(5)
       mapping:
@@ -706,20 +706,20 @@ monitors:
           type: copy
           from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
-          - _comment: JSON;NodeID;sensorID;sensorName;sensorType;status;
-            type: json2csv
+          # JSON;NodeID;sensorID;sensorName;sensorType;status;
+          - type: json2csv
             entryKey: /result/nodes/result/ipmiInfo/sensors
             properties: ../../../nodeID;/sensorID;/sensorName;/sensorType;/status;/lowerNonCritical;/upperNonCritical;/normalMinimum;/normalMaximum;
-          - _comment: JSON;NodeID;sensorID;sensorName;sensorType;status;
-            type: keepOnlyMatchingLines
+          # JSON;NodeID;sensorID;sensorName;sensorType;status;
+          - type: keepOnlyMatchingLines
             column: 5
             regExp: fan
-          - _comment: JSON;NodeID;sensorID;sensorName;sensorType;status;
-            type: excludeMatchingLines
+          # JSON;NodeID;sensorID;sensorName;sensorType;status;
+          - type: excludeMatchingLines
             column: 6
             valueList: Not Available
-          - _comment: JSON;NodeID;nodeID-sensorID;sensorName;sensorType;status;
-            type: leftConcat
+          # JSON;NodeID;nodeID-sensorID;sensorName;sensorType;status;
+          - type: leftConcat
             column: 3
             value: Column(2)
       mapping:
@@ -736,23 +736,23 @@ monitors:
           hw.fan.speed.limit{limit_type="low.degraded"}: $column(9)
           hw.fan.speed.limit{limit_type="low.critical"}: $column(7)
     collect:
-      _comment: Collection Type (Multi-instance)
+      # Collection Type (Multi-instance)
       type: multiInstance
       sources:
         source(1):
           type: copy
           from: $monitors.enclosure.collect.sources.source(3)$
           computes:
-          - _comment: JSON;SensorID;status;status;nodeID;
-            type: json2csv
+          # JSON;SensorID;status;status;nodeID;
+          - type: json2csv
             entryKey: /result/nodes/result/ipmiInfo/sensors
             properties: /sensorID;/status;/status;../../../nodeID;/sensorReading;
-          - _comment: JSON;SensorID;PatrolStatus;status;nodeID;
-            type: translate
+          # JSON;SensorID;PatrolStatus;status;nodeID;
+          - type: translate
             column: 3
             translationTable: SensorStatusTranslationTable
-          - _comment: JSON;nodeID-SensorID;PatrolStatus;status;nodeID;
-            type: leftConcat
+          # JSON;nodeID-SensorID;PatrolStatus;status;nodeID;
+          - type: leftConcat
             column: 2
             value: Column(5)
           - type: replace
@@ -776,24 +776,24 @@ monitors:
           type: copy
           from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
-          - _comment: JSON;nodeID;sensorID;sensorName;sensorType;status;
-            type: json2csv
+          # JSON;nodeID;sensorID;sensorName;sensorType;status;
+          - type: json2csv
             entryKey: /result/nodes/result/ipmiInfo/sensors
             properties: ../../../nodeID;/sensorID;/sensorName;/sensorType;/status;/lowerNonCritical;/upperNonCritical;/normalMinimum;/normalMaximum;
-          - _comment: JSON;nodeID;sensorID;sensorName;sensorType;status;
-            type: keepOnlyMatchingLines
+          # JSON;nodeID;sensorID;sensorName;sensorType;status;
+          - type: keepOnlyMatchingLines
             column: 5
             regExp: temperature
-          - _comment: JSON;nodeID;sensorID;sensorName;sensorType;status;
-            type: excludeMatchingLines
+          # JSON;nodeID;sensorID;sensorName;sensorType;status;
+          - type: excludeMatchingLines
             column: 6
             valueList: Not Available
-          - _comment: JSON;nodeID;nodeID-sensorID;sensorName;sensorType;status;
-            type: leftConcat
+          # JSON;nodeID;nodeID-sensorID;sensorName;sensorType;status;
+          - type: leftConcat
             column: 3
             value: Column(2)
-          - _comment: normalMaximum and normalMinimum tempertures are negative for unknown reason.
-            type: replace
+          # normalMaximum and normalMinimum tempertures are negative for unknown reason.
+          - type: replace
             column: 9
             existingValue: '-'
             newValue: ""
@@ -815,23 +815,23 @@ monitors:
           hw.temperature.limit{limit_type="high.degraded"}: $column(10)
           hw.temperature.limit{limit_type="high.critical"}: $column(8)
     collect:
-      _comment: Collection Type (Multi-instance)
+      # Collection Type (Multi-instance)
       type: multiInstance
       sources:
         source(1):
           type: copy
           from: $monitors.enclosure.collect.sources.source(3)$
           computes:
-          - _comment: JSON;sensorID;status;status;nodeID
-            type: json2csv
+          # JSON;sensorID;status;status;nodeID
+          - type: json2csv
             entryKey: /result/nodes/result/ipmiInfo/sensors
             properties: /sensorID;/status;/status;../../../nodeID;/sensorReading;
-          - _comment: JSON;sensorID;PatrolStatus;status;nodeID
-            type: translate
+          # JSON;sensorID;PatrolStatus;status;nodeID
+          - type: translate
             column: 3
             translationTable: SensorStatusTranslationTable
-          - _comment: JSON;NodeID-sensorID;PatrolStatus;status;nodeID
-            type: leftConcat
+          # JSON;NodeID-sensorID;PatrolStatus;status;nodeID
+          - type: leftConcat
             column: 2
             value: Column(5)
           - type: replace
@@ -855,20 +855,20 @@ monitors:
           type: copy
           from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
-          - _comment: JSON;NodeID;SensorID;SensorName;SensorType;Status;
-            type: json2csv
+          # JSON;NodeID;SensorID;SensorName;SensorType;Status;
+          - type: json2csv
             entryKey: /result/nodes/result/ipmiInfo/sensors
             properties: ../../../nodeID;/sensorID;/sensorName;/sensorType;/status;/lowerNonCritical;/upperNonCritical;/normalMinimum;/normalMaximum;
-          - _comment: JSON;NodeID;SensorID;SensorName;SensorType;Status;
-            type: keepOnlyMatchingLines
+          # JSON;NodeID;SensorID;SensorName;SensorType;Status;
+          - type: keepOnlyMatchingLines
             column: 5
             regExp: voltage
-          - _comment: JSON;NodeID;SensorID;SensorName;SensorType;Status;
-            type: excludeMatchingLines
+          # JSON;NodeID;SensorID;SensorName;SensorType;Status;
+          - type: excludeMatchingLines
             column: 6
             valueList: Not Available
-          - _comment: JSON;NodeID;NodeID-SensorID;SensorName;SensorType;Status;
-            type: leftConcat
+          # JSON;NodeID;NodeID-SensorID;SensorName;SensorType;Status;
+          - type: leftConcat
             column: 3
             value: Column(2)
           - type: multiply
@@ -891,15 +891,15 @@ monitors:
           hw.voltage.limit{limit_type="low.critical"}: $column(9)
           hw.voltage.limit{limit_type="high.degraded"}: $column(10)
     collect:
-      _comment: Collection Type (Multi-instance)
+      # Collection Type (Multi-instance)
       type: multiInstance
       sources:
         source(1):
           type: copy
           from: $monitors.enclosure.collect.sources.source(3)$
           computes:
-          - _comment: JSON;SystemID;UUID;Name;Size
-            type: json2csv
+          # JSON;SystemID;UUID;Name;Size
+          - type: json2csv
             entryKey: /result/nodes/result/ipmiInfo/sensors
             properties: /sensorID;/status;/status;../../../nodeID;/sensorReading;
           - type: translate
@@ -929,15 +929,15 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: http
           method: POST
           url: /json-rpc/9.0
           header: Content-Type:text/plain
           body: "{ \"method\": \"GetNetworkConfig\", \"params\": { \"force\" : true } }"
           computes:
-          - _comment: NodeID ; CardID ; CardDisplayID ; Family ; Speed ; MAC ; Status ;
-            type: awk
+          # NodeID ; CardID ; CardDisplayID ; Family ; Speed ; MAC ; Status ;
+          - type: awk
             script: EmbeddedFile(1)
       mapping:
         # NetworkCard Instance Table
@@ -955,7 +955,7 @@ monitors:
           hw.parent.id: $column(1)
           name: "sprintf(\"%s (%s)\", $column(3), $column(4))"
     collect:
-      _comment: Collection type (Multi-instance)
+      # Collection type (Multi-instance)
       type: multiInstance
       sources:
         source(1):
@@ -965,14 +965,14 @@ monitors:
           header: Content-Type:text/plain
           body: "{ \"method\": \"GetNetworkConfig\", \"params\": { \"force\" : true } }"
           computes:
-          - _comment: NodeID ; CardID ; CardDisplayID ; Family ; Speed ; MAC ; Status ;
-            type: awk
+          # NodeID ; CardID ; CardDisplayID ; Family ; Speed ; MAC ; Status ;
+          - type: awk
             script: EmbeddedFile(1)
-          - _comment: NodeID ; CardID ; CardDisplayID ; Family ; Speed ; MAC ; Status ; Status ;
-            type: duplicateColumn
+          # NodeID ; CardID ; CardDisplayID ; Family ; Speed ; MAC ; Status ; Status ;
+          - type: duplicateColumn
             column: 7
-          - _comment: NodeID ; CardID ; CardDisplayID ; Family ; Speed ; MAC ; Status ; Status ; Status ; StatusInformation
-            type: duplicateColumn
+          # NodeID ; CardID ; CardDisplayID ; Family ; Speed ; MAC ; Status ; Status ; Status ; StatusInformation
+          - type: duplicateColumn
             column: 7
             # Translate NetworkCardStatus into PatrolStatus
             # NodeID ; CardID ; CardDisplayID ; Family ; Speed ; MAC ; PatrolStatus ; Status ; Status ; StatusInformation

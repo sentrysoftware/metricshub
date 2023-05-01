@@ -28,8 +28,8 @@ connector:
     appliesTo:
     - OOB
     criteria:
-    - _comment: Hardware Sentry v10.3.00+
-      type: productRequirements
+    # Hardware Sentry v10.3.00+
+    - type: productRequirements
       kmVersion: 10.3.00
     - type: http
       method: GET
@@ -42,7 +42,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Query /Systems/?/
+          # Query /Systems/?/
           type: http
           method: GET
           executeForEachEntryOf:
@@ -76,7 +76,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Query /Chassis/?/
+          # Query /Chassis/?/
           type: http
           method: GET
           executeForEachEntryOf:
@@ -121,13 +121,13 @@ monitors:
           header: EmbeddedFile(1)
           resultContent: body
           computes:
-          - _comment: JSONID;ChassisID;NetworkAdapterURL;
-            type: json2csv
+          # JSONID;ChassisID;NetworkAdapterURL;
+          - type: json2csv
             entryKey: /Entry/Value/Members
             properties: ../../Column(2);/@odata.id;
             separator: ;
         source(2):
-          _comment: Query /Chassis/?/NetworkAdapters/?/
+          # Query /Chassis/?/NetworkAdapters/?/
           type: http
           method: GET
           executeForEachEntryOf:
@@ -168,7 +168,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: NetworkAdapters
+          # NetworkAdapters
           type: http
           method: GET
           executeForEachEntryOf:
@@ -178,8 +178,8 @@ monitors:
           header: EmbeddedFile(1)
           resultContent: body
           computes:
-          - _comment: PhysicalPortAssignment
-            type: json2csv
+          # PhysicalPortAssignment
+          - type: json2csv
             entryKey: /PhysicalPorts
             properties: /MacAddress;/Status/State;/Status/Health;/Status/Health;/SpeedMbps;
             separator: ;

@@ -96,7 +96,7 @@ monitors:
           vendor: Lenovo
           name: "sprintf(\"%s (%s %s)\", $column(5), \"Lenovo\", $column(2))"
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -108,8 +108,8 @@ monitors:
           computes:
           - type: duplicateColumn
             column: 2
-          - _comment: ID;PATROLStatus;OperState
-            type: translate
+          # ID;PATROLStatus;OperState
+          - type: translate
             column: 2
             translationTable: enclosureStatusTranslationTable
             # Translate second StatusCode into a more readable string
@@ -147,7 +147,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Description;Status;CapacityGB;MemoryType;Frequency;SerialNumber;PartNumber
+          # Description;Status;CapacityGB;MemoryType;Frequency;SerialNumber;PartNumber
           type: snmpTable
           oid: 1.3.6.1.4.1.19046.11.1.1.5.21.1
           selectColumns: "2,8,7,6,9,4,3"
@@ -190,7 +190,7 @@ monitors:
         metrics:
           hw.memory.limit: mebiByte2Byte($column(3))
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
@@ -209,7 +209,7 @@ monitors:
             column: 2
             translationTable: statusTranslationTable
       mapping:
-        _comment: The ValueTable = Source(1)
+        # The ValueTable = Source(1)
         source: $monitors.memory.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -233,7 +233,7 @@ monitors:
             existingValue: ' Tach'
             newValue: ""
       mapping:
-        _comment: Instance table = Source(1)
+        # Instance table = Source(1)
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -241,7 +241,7 @@ monitors:
           hw.parent.type: enclosure
           name: $column(1)
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
@@ -267,7 +267,7 @@ monitors:
             existingValue: ' Tach'
             newValue: ""
       mapping:
-        _comment: The ValueTable = Source(1)
+        # The ValueTable = Source(1)
         source: $monitors.fan.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -284,12 +284,12 @@ monitors:
           oid: 1.3.6.1.4.1.19046.11.1.1.2.2.1
           selectColumns: "2,9,6,3,11"
           computes:
-          - _comment: Convert Volt to mV
-            type: multiply
+          # Convert Volt to mV
+          - type: multiply
             column: 2
             value: 1000
-          - _comment: Convert Volt to mV
-            type: multiply
+          # Convert Volt to mV
+          - type: multiply
             column: 3
             value: 1000
             # awk everything to have status activated if sensors!=null and deduct controller id
@@ -314,7 +314,7 @@ monitors:
           hw.voltage.limit{limit_type="high.degraded"}: $column(3)
           hw.voltage.limit{limit_type="low.critical"}: $column(2)
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
@@ -324,8 +324,8 @@ monitors:
           oid: 1.3.6.1.4.1.19046.11.1.1.2.2.1
           selectColumns: "2,3,11"
           computes:
-          - _comment: Convert Volt to mV
-            type: multiply
+          # Convert Volt to mV
+          - type: multiply
             column: 2
             value: 1000
             # Translate Status into PATROLStatus
@@ -373,7 +373,7 @@ monitors:
         metrics:
           hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(2))
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
@@ -393,7 +393,7 @@ monitors:
             column: 2
             translationTable: statusTranslationTable
       mapping:
-        _comment: The ValueTable = Source(1)
+        # The ValueTable = Source(1)
         source: $monitors.cpu.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -432,7 +432,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s, $column(1))"
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
@@ -452,7 +452,7 @@ monitors:
             column: 2
             translationTable: statusTranslationTable
       mapping:
-        _comment: The ValueTable = Source(1)
+        # The ValueTable = Source(1)
         source: $monitors.power_supply.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -496,7 +496,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(1), $column(4))"
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
@@ -516,7 +516,7 @@ monitors:
             column: 2
             translationTable: statusTranslationTable
       mapping:
-        _comment: The ValueTable = Source(1)
+        # The ValueTable = Source(1)
         source: $monitors.disk_controller.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -560,7 +560,7 @@ monitors:
           hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s)\", $column(1), $column(3))"
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
@@ -580,7 +580,7 @@ monitors:
             column: 2
             translationTable: statusTranslationTable
       mapping:
-        _comment: The ValueTable = Source(1)
+        # The ValueTable = Source(1)
         source: $monitors.logical_disk.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -630,28 +630,28 @@ monitors:
           - type: leftConcat
             column: 4
             value: ", "
-            # <hdd/ssd>,<type>
+          # <hdd/ssd>,<type>
           - type: leftConcat
             column: 4
             value: Column(5)
-            # Disk Type: <hdd/ssd>,<type>
+          # Disk Type: <hdd/ssd>,<type>
           - type: leftConcat
             column: 4
             value: "Disk Type: "
-            # - Disk Type: <hdd/ssd>,<type>
+          # - Disk Type: <hdd/ssd>,<type>
           - type: leftConcat
             column: 4
             value: ' - '
-            # <speed> - Disk Type: <hdd/ssd>,<type>
+          # <speed> - Disk Type: <hdd/ssd>,<type>
           - type: leftConcat
             column: 4
             value: Column(6)
-            # Speed: <speed> - Disk Type: <hdd/ssd>,<type>
+          # Speed: <speed> - Disk Type: <hdd/ssd>,<type>
           - type: leftConcat
             column: 4
             value: "Speed: "
-          - _comment: Create the Model/FRU Number
-            type: leftConcat
+          # Create the Model/FRU Number
+          - type: leftConcat
             column: 11
             value: " - Alternative Part Number: "
           - type: leftConcat
@@ -676,7 +676,7 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(13)
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
@@ -696,7 +696,7 @@ monitors:
             column: 2
             translationTable: statusTranslationTable
       mapping:
-        _comment: The ValueTable = Source(1)
+        # The ValueTable = Source(1)
         source: $monitors.physical_disk.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -741,7 +741,7 @@ monitors:
           hw.parent.id: $column(1)
           name: $column(1)
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
@@ -761,7 +761,7 @@ monitors:
             column: 2
             translationTable: statusTranslationTable
       mapping:
-        _comment: The ValueTable = Source(1)
+        # The ValueTable = Source(1)
         source: $monitors.battery.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -801,7 +801,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(2))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -861,7 +861,7 @@ monitors:
           hw.temperature.limit{limit_type="high.degraded"}: $column(3)
           hw.temperature.limit{limit_type="high.critical"}: $column(2)
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):

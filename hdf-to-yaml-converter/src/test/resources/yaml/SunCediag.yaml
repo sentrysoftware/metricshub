@@ -13,20 +13,20 @@ connector:
     appliesTo:
     - Solaris
     criteria:
-      # OS should be SunOS,SOLARIS (Solaris on SPARC)
+    # OS should be SunOS,SOLARIS (Solaris on SPARC)
     - type: deviceType
       keep:
       - SunOS
       - SOLARIS
-    - _comment: The various following tools have to be present
-      type: osCommand
+    # The various following tools have to be present
+    - type: osCommand
       commandLine: /bin/ls /opt/SUNWcest/bin/cestat
       expectedResult: ^/opt/SUNWcest/bin/cestat$
     - type: osCommand
       commandLine: /bin/ls /opt/SUNWcest/bin/cediag
       expectedResult: ^/opt/SUNWcest/bin/cediag$
-    - _comment: Cestat should work (it won't if not as superuser)
-      type: osCommand
+    # Cestat should work (it won't if not as superuser)
+    - type: osCommand
       commandLine: "%{SUDO:/opt/SUNWcest/bin/cediag}/opt/SUNWcest/bin/cestat -v"
       expectedResult: ^Page Retirement Statistics Tool
 sudoCommands:
@@ -44,7 +44,7 @@ monitors:
           separators: ;
           selectColumns: "2,3,4,5"
       mapping:
-        _comment: InstanceTable = Source(3)
+        # InstanceTable = Source(3)
         source: $monitors.memory.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -52,7 +52,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(1), $column(1))"
     collect:
-      _comment: Collect type is "multi-instance"
+      # Collect type is "multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -65,7 +65,7 @@ monitors:
           type: copy
           from: $monitors.memory.discovery.sources.source(1)$
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.memory.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:

@@ -220,24 +220,24 @@ connector:
     appliesTo:
     - Linux
     criteria:
-    - _comment: OS must be Windows
-      type: deviceType
+    # OS must be Windows
+    - type: deviceType
       keep:
       - Linux
-    - _comment: The WBEM layer (cimserver) must be running
-      type: process
+    # The WBEM layer (cimserver) must be running
+    - type: process
       commandLine: cimserver
-    - _comment: The cimcli utility must be present
-      type: osCommand
+    # The cimcli utility must be present
+    - type: osCommand
       commandLine: ls /opt/IBM/director/CIMOM/bin/cimcli
       expectedResult: ^/opt/IBM/director/CIMOM/bin/cimcli$
-    - _comment: Verify that the root/ibmsd WBEM namespace actually exists
-      type: wbem
+    # Verify that the root/ibmsd WBEM namespace actually exists
+    - type: wbem
       namespace: root
       query: SELECT Name FROM __NAMESPACE
       expectedResult: ^ibmsd;$
-    - _comment: The IBMPSG_ComputerSystemDetails WBEM class must be instantiated
-      type: wbem
+    # The IBMPSG_ComputerSystemDetails WBEM class must be instantiated
+    - type: wbem
       namespace: root/ibmsd
       query: SELECT Name FROM IBMPSG_ComputerSystemDetails
       errorMessage: The IBM Director Agent seems to not be working properly. Please reinstall the IBM Director Agent.
@@ -248,18 +248,18 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = the IBMPSG_ComputerSystemDetails WBEM class
+          # Source(1) = the IBMPSG_ComputerSystemDetails WBEM class
           type: wbem
           namespace: root/ibmsd
           query: "SELECT Vendor, Model, SerialNumber FROM IBMPSG_ComputerSystemDetails"
           computes:
-          - _comment: Extract the first 4 chars of the Model field (which is actually a number)
-            type: substring
+          # Extract the first 4 chars of the Model field (which is actually a number)
+          - type: substring
             column: 2
             start: 1
             length: 4
-          - _comment: Translate the model number into a more readable string
-            type: translate
+          # Translate the model number into a more readable string
+          - type: translate
             column: 2
             translationTable: ModelTranslationTable
       mapping:
@@ -277,7 +277,7 @@ monitors:
       type: monoInstance
       sources:
         source(1):
-          _comment: Source(1) = The IBMPSG_SystemEnclosure WBEM class
+          # Source(1) = The IBMPSG_SystemEnclosure WBEM class
           type: wbem
           query: "SELECT IntrusionStatus,Tag FROM IBMPSG_SystemEnclosure"
           namespace: root/ibmsd
@@ -301,12 +301,12 @@ monitors:
           query: "SELECT CurrentClockSpeed,DeviceID,Family,Manufacturer FROM IBMPSG_Processor"
           namespace: root/ibmsd
           computes:
-          - _comment: Translate the Family number into a model name
-            type: translate
+          # Translate the Family number into a model name
+          - type: translate
             column: 3
             translationTable: cpuFamilyTranslationTable
-          - _comment: Replace GenuineIntel by Intel and AuthenticAMD by AMD
-            type: replace
+          # Replace GenuineIntel by Intel and AuthenticAMD by AMD
+          - type: replace
             column: 4
             existingValue: GenuineIntel
             newValue: Intel
@@ -315,7 +315,7 @@ monitors:
             existingValue: AuthenticAMD
             newValue: AMD
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.cpu.discovery.sources.source(1)$
         attributes:
           id: $column(2)
@@ -330,7 +330,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = The IBMPSG_Processor WBEM class
+          # Source(1) = The IBMPSG_Processor WBEM class
           type: wbem
           query: "SELECT DeviceID,CPUStatus FROM IBMPSG_Processor"
           namespace: root/ibmsd
@@ -354,22 +354,22 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: wbem
           query: "SELECT Capacity,BankLabel,SerialNumber,Tag,TypeDetail FROM IBMPSG_PhysicalMemory"
           namespace: root/ibmsd
           computes:
-          - _comment: Convert size to MB
-            type: divide
+          # Convert size to MB
+          - type: divide
             column: 1
             value: 1048576
-          - _comment: Translate memory type
-            type: perBitTranslation
+          # Translate memory type
+          - type: perBitTranslation
             column: 5
             bitList: "1,2,3,4,5,6,7,8,9,10,11,12,13"
             translationTable: MemoryBitTranslationTable
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.memory.discovery.sources.source(1)$
         attributes:
           id: $column(4)
@@ -385,7 +385,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = The IBMPSG_Processor WBEM class
+          # Source(1) = The IBMPSG_Processor WBEM class
           type: wbem
           query: "SELECT HasError,Tag FROM IBMPSG_PhysicalMemory"
           namespace: root/ibmsd
@@ -402,7 +402,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = the IBMPSG_Fan WBEM class
+          # Source(1) = the IBMPSG_Fan WBEM class
           type: wbem
           query: "SELECT DeviceID, FanType, UpperThresholdCritical FROM IBMPSG_Tachometer"
           namespace: root/ibmsd
@@ -411,7 +411,7 @@ monitors:
             column: 2
             translationTable: FanTypeTranslationTable
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -422,16 +422,16 @@ monitors:
           hw.fan.speed.limit{limit_type="low.degraded"}: $column(3)
           hw.fan.speed.limit{limit_type="low.critical"}: 0
     collect:
-      _comment: The collect (as all WBEM-based collects) is "MultiInstance"
+      # The collect (as all WBEM-based collects) is "MultiInstance
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = The IBMPSG_Tachometer WBEM class
+          # Source(1) = The IBMPSG_Tachometer WBEM class
           type: wbem
           query: "SELECT CurrentReading,DeviceID FROM IBMPSG_Tachometer"
           namespace: root/ibmsd
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.fan.collect.sources.source(1)$
         deviceId: $column(2)
         metrics:
@@ -440,7 +440,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = The IBMPSG_TemperatureSensor WBEM class
+          # Source(1) = The IBMPSG_TemperatureSensor WBEM class
           type: wbem
           query: "SELECT DeviceID, LowerThresholdCritical, LowerThresholdNonCritical, TempLocation FROM IBMPSG_TemperatureSensor"
           namespace: root/ibmsd
@@ -449,7 +449,7 @@ monitors:
             column: 4
             translationTable: TemperatureTypeTranslationTable
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -465,12 +465,12 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = the IBMPSG_TemperatureSensor WBEM class
+          # Source(1) = the IBMPSG_TemperatureSensor WBEM class
           type: wbem
           query: "SELECT CurrentReading,DeviceID FROM IBMPSG_TemperatureSensor"
           namespace: root/ibmsd
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.temperature.collect.sources.source(1)$
         deviceId: $column(2)
         metrics:
@@ -479,17 +479,17 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = all the instances of the IBMPSG_VoltageSensor class
+          # Source(1) = all the instances of the IBMPSG_VoltageSensor class
           type: wbem
           query: "SELECT DeviceID,LowerThresholdNonCritical,UpperThresholdNonCritical,VoltageType FROM IBMPSG_VoltageSensor"
           namespace: root/ibmsd
           computes:
-          - _comment: Translate the voltage type into a more readable string
-            type: translate
+          # Translate the voltage type into a more readable string
+          - type: translate
             column: 4
             translationTable: VoltageTypeTranslationTable
       mapping:
-        _comment: Here is the instance table = source(1)
+        # Here is the instance table = source(1)
         source: $monitors.voltage.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -501,16 +501,16 @@ monitors:
           hw.voltage.limit{limit_type="high.degraded"}: $column(3)
           hw.voltage.limit{limit_type="low.critical"}: $column(2)
     collect:
-      _comment: It's a "MultiInstance" collect
+      # It's a "MultiInstance" collect
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = the IBMPSG_VoltageSensor class
+          # Source(1) = the IBMPSG_VoltageSensor class
           type: wbem
           query: "SELECT CurrentReading,DeviceID FROM IBMPSG_VoltageSensor"
           namespace: root/ibmsd
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.voltage.collect.sources.source(1)$
         deviceId: $column(2)
         metrics:
@@ -519,12 +519,12 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = The IBMPSG_PowerSupply table
+          # Source(1) = The IBMPSG_PowerSupply table
           type: wbem
           query: SELECT DeviceID FROM IBMPSG_PowerSupply
           namespace: root/ibmsd
       mapping:
-        _comment: 'The instance table:'
+        # 'The instance table:'
         source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -557,7 +557,7 @@ monitors:
             column: 3
             translationTable: PowerSupplyStatusInformationTranslationTable
       mapping:
-        _comment: The ValueTable = Source(1)
+        # The ValueTable = Source(1)
         source: $monitors.power_supply.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -590,18 +590,18 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = IBMPSG_RAIDDiskDrive table
+          # Source(1) = IBMPSG_RAIDDiskDrive table
           type: wbem
           query: "SELECT ControllerID,DeviceID,DiskDriveID FROM IBMPSG_RAIDDiskDrive"
           namespace: root/ibmsd
           computes:
-            # Replace :DiskDriveID: by :DeviceID: in the IBMPSG_RAIDDiskDrive table
+          # Replace :DiskDriveID: by :DeviceID: in the IBMPSG_RAIDDiskDrive table
           - type: replace
             column: 2
             existingValue: ':DeviceID:'
             newValue: ':DiskDriveID:'
         source(2):
-          _comment: Source(2) = IBMPSG_PhysicalDiskDrive table
+          # Source(2) = IBMPSG_PhysicalDiskDrive table
           type: wbem
           query: "SELECT Capacity,Manufacturer,Model,SerialNumber,Tag FROM IBMPSG_PhysicalDiskDrive"
           namespace: root/ibmsd
@@ -614,7 +614,7 @@ monitors:
             existingValue: ':DeviceID:'
             newValue: ':DiskDriveID:'
         source(3):
-          _comment: Source(3) = The jointure
+          # Source(3) = The jointure
           type: tableJoin
           leftTable: $monitors.physical_disk.discovery.sources.source(1)$
           rightTable: $monitors.physical_disk.discovery.sources.source(2)$
@@ -641,19 +641,19 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = the only source = the IBMPSG_RAIDDiskDrive table
+          # Source(1) = the only source = the IBMPSG_RAIDDiskDrive table
           type: wbem
           query: "SELECT DeviceID,State FROM IBMPSG_RAIDDiskDrive"
           namespace: root/ibmsd
           computes:
-          - _comment: We must duplicate the "State" column
-            type: duplicateColumn
+          # We must duplicate the "State" column
+          - type: duplicateColumn
             column: 2
-          - _comment: Then we translate the IBMPSG status code into OK/WARN/ALARM (for the Status parameter)
-            type: translate
+          # Then we translate the IBMPSG status code into OK/WARN/ALARM (for the Status parameter)
+          - type: translate
             column: 2
             translationTable: PhysicalDiskStatusTranslationTable
-            # And finally, we translate the IBMPSG status code into a more readable status string
+          # And finally, we translate the IBMPSG status code into a more readable status string
           - type: translate
             column: 3
             translationTable: PhysicalDiskStatusInformationTranslationTable
@@ -669,17 +669,17 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = the only source = the IBMPSG_RAIDLogicalDrive table
+          # Source(1) = the only source = the IBMPSG_RAIDLogicalDrive table
           type: wbem
           query: "SELECT ControllerID,DataSpace,DeviceID,RAIDLevel FROM IBMPSG_RAIDLogicalDrive"
           namespace: root/ibmsd
           computes:
-          - _comment: Convert the DataSpace column (MB) in bytes
-            type: multiply
+          # Convert the DataSpace column (MB) in bytes
+          - type: multiply
             column: 2
             value: 1048576
       mapping:
-        _comment: Here is the instance table
+        # Here is the instance table
         source: $monitors.logical_disk.discovery.sources.source(1)$
         attributes:
           id: $column(3)
@@ -695,20 +695,20 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = the only source = the IBMPSG_RAIDLogicalDrive table
+          # Source(1) = the only source = the IBMPSG_RAIDLogicalDrive table
           type: wbem
           query: "SELECT DeviceID,State FROM IBMPSG_RAIDLogicalDrive"
           namespace: root/ibmsd
           computes:
-          - _comment: Duplicate the State column (because it'll be translated two times)
-            type: duplicateColumn
+          # Duplicate the State column (because it'll be translated two times)
+          - type: duplicateColumn
             column: 2
-          - _comment: Translate the IBMPSG State column (the first one) into OK/WARN/ALARM
-            type: translate
+          # Translate the IBMPSG State column (the first one) into OK/WARN/ALARM
+          - type: translate
             column: 2
             translationTable: LogicalDiskStatusTranslationTable
-          - _comment: Translate the IBMPSG State column (the second one) into a more readable status information string
-            type: translate
+          # Translate the IBMPSG State column (the second one) into a more readable status information string
+          - type: translate
             column: 3
             translationTable: LogicalDiskStatusInformationTranslationTable
       mapping:

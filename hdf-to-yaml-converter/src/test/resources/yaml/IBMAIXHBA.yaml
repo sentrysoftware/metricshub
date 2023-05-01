@@ -59,8 +59,8 @@ connector:
     appliesTo:
     - RS6000
     criteria:
-    - _comment: OS should be AIX (whatever version)
-      type: deviceType
+    # OS should be AIX (whatever version)
+    - type: deviceType
       keep:
       - RS6000
       # The command fcstat must be installed
@@ -69,8 +69,8 @@ connector:
     - type: osCommand
       commandLine: /bin/ls /usr/sbin/fcstat
       expectedResult: ^/usr/sbin/fcstat$
-    - _comment: The system must have some fcsX devices
-      type: osCommand
+    # The system must have some fcsX devices
+    - type: osCommand
       commandLine: /usr/sbin/lsdev -Cc adapter
       expectedResult: "^fcs[0-9] "
 monitors:
@@ -86,15 +86,15 @@ monitors:
           separators: ;
           selectColumns: "2,3,4,5,6,7"
           computes:
-          - _comment: Add "HBA FC Port (" on the left of PortType and ")" on its right
-            type: leftConcat
+          # Add "HBA FC Port (" on the left of PortType and ")" on its right
+          - type: leftConcat
             column: 5
             value: HBA FC Port (
           - type: rightConcat
             column: 5
             value: )
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.network.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -106,7 +106,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(5), $column(2))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: monoInstance
       sources:
         source(1):
@@ -119,7 +119,7 @@ monitors:
           separators: ;
           selectColumns: "2,3,4,5,6,7,8,9"
       mapping:
-        _comment: Value table = Source(1)
+        # Value table = Source(1)
         source: $monitors.network.collect.sources.source(1)$
         metrics:
           hw.network.up: legacyLinkStatus($column(1))

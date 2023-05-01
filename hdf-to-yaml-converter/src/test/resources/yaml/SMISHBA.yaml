@@ -74,8 +74,8 @@ connector:
     - Solaris
     - OOB
     criteria:
-    - _comment: There must be FC Ports declared in the automatically discovered namespace
-      type: wbem
+    # There must be FC Ports declared in the automatically discovered namespace
+    - type: wbem
       query: SELECT PortType FROM CIM_FCPort
       namespace: Automatic
       expectedResult: \(0\)\|\(1\)\|\(10\)\|\(11\)\|\(12\);
@@ -267,7 +267,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s - %s)\", $column(1), $column(2), $column(11))"
     collect:
-      _comment: The NetworkCard collect is a "MultiInstance" collect
+      # The NetworkCard collect is a "MultiInstance" collect
       type: multiInstance
       sources:
         source(1):
@@ -380,7 +380,7 @@ monitors:
             column: 5
             value: 1000000
         source(3):
-          _comment: Switch to Source (3) for debugging purposes
+          # Switch to Source (3) for debugging purposes
           type: copy
           from: $monitors.network.collect.sources.source(2)$
           computes:

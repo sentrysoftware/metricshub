@@ -117,8 +117,8 @@ connector:
     supersedes:
     - SMISDiskArray
     criteria:
-    - _comment: The Patrol Agent should be on a server running Linux
-      type: osCommand
+    # The Patrol Agent should be on a server running Linux
+    - type: osCommand
       commandLine: uname
       errorMessage: Connector only works when the Patrol Agent is installed on a server running Linux
       expectedResult: Linux
@@ -135,7 +135,7 @@ monitors:
     collect:
       sources:
         source(1):
-          _comment: Source(1) = the output of "%EmbeddedFile(1)%
+          # Source(1) = the output of "%EmbeddedFile(1)%
           type: osCommand
           commandLine: "/bin/sh %EmbeddedFile(1)% %{USERNAME} %{PASSWORD} %{HOSTNAME}"
           executeLocally: true

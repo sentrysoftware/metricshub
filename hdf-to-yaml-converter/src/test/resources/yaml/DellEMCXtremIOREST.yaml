@@ -67,11 +67,11 @@ connector:
     appliesTo:
     - Storage
     criteria:
-    - _comment: Hardware Sentry v10.3.00+
-      type: productRequirements
+    # Hardware Sentry v10.3.00+
+    - type: productRequirements
       kmVersion: 10.3.00
-    - _comment: Check for expected response from target system
-      type: http
+    # Check for expected response from target system
+    - type: http
       method: GET
       url: /api/json/v2/types/clusters
       header: EmbeddedFile(1)
@@ -83,7 +83,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: http
           method: GET
           url: /api/json/v2/types/clusters?full=1
@@ -97,7 +97,7 @@ monitors:
             properties: /name;/sys-psnt-serial-number;
             separator: ;
         source(2):
-          _comment: This table is here to ensure it is available to all other classes
+          # This table is here to ensure it is available to all other classes
           type: http
           method: GET
           header: EmbeddedFile(1)
@@ -110,7 +110,7 @@ monitors:
             entryKey: storage-controllers
             properties: /sys-name;/node-name;/name;/bios-fw-version;/hw-model;/serial-number;/fan-health-state;/temperature-health-state;/dimm-health-state;
       mapping:
-        _comment: Enclosure Instance Table
+        # Enclosure Instance Table
         source: $monitors.enclosure.discovery.sources.source(1)$
         attributes:
           id: $column(2)
@@ -121,7 +121,7 @@ monitors:
           type: enclosure
           name: "sprintf(\"%s (%s %s - %s)\", $column(2), \"EMC\", \"X-Brick Cluster\", \"enclosure\")"
     collect:
-      _comment: Collection
+      # Collection
       type: multiInstance
       sources:
         source(1):
@@ -137,12 +137,12 @@ monitors:
             entryKey: clusters
             properties: /name;/sys-psnt-serial-number;/sys-health-state;/sys-health-state;
             separator: ;
-          - _comment: JSON;name;sys-psnt-serial-number;PatrolStatus;sys-health-state
-            type: translate
+          # JSON;name;sys-psnt-serial-number;PatrolStatus;sys-health-state
+          - type: translate
             column: 4
             translationTable: StatusTranslationTable
         source(2):
-          _comment: This table is here to ensure it is available to all other classes
+          # This table is here to ensure it is available to all other classes
           type: http
           method: GET
           header: EmbeddedFile(1)
@@ -155,7 +155,7 @@ monitors:
             entryKey: storage-controllers
             properties: /node-name;/fru-lifecycle-state;/fru-lifecycle-state;/fan-health-state;/temperature-health-state;/dimm-health-state;
       mapping:
-        _comment: Enclosure Value Table
+        # Enclosure Value Table
         source: $monitors.enclosure.collect.sources.source(1)$
         deviceId: $column(2)
         metrics:
@@ -166,11 +166,11 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
       mapping:
-        _comment: DiskController Instance Table
+        # DiskController Instance Table
         source: $monitors.disk_controller.discovery.sources.source(1)$
         attributes:
           id: $column(3)
@@ -182,19 +182,19 @@ monitors:
           hw.parent.id: $column(2)
           name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(4), $column(6))"
     collect:
-      _comment: Collection
+      # Collection
       type: multiInstance
       sources:
         source(1):
           type: copy
           from: $monitors.enclosure.collect.sources.source(2)$
           computes:
-          - _comment: JSON;guid;PatrolStatus;fru-lifecycle-state;
-            type: translate
+          # JSON;guid;PatrolStatus;fru-lifecycle-state;
+          - type: translate
             column: 3
             translationTable: StatusTranslationTable
       mapping:
-        _comment: DiskController Value Table
+        # DiskController Value Table
         source: $monitors.disk_controller.collect.sources.source(1)$
         deviceId: $column(2)
         metrics:
@@ -210,21 +210,21 @@ monitors:
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
-          - _comment: node-name;dimm-health-state;
-            type: keepColumns
+          # node-name;dimm-health-state;
+          - type: keepColumns
             columnNumbers: "3,10"
           - type: excludeMatchingLines
             column: 2
             valueList: "unknown,null"
-          - _comment: node-name;node-name;dimm-health-state;
-            type: duplicateColumn
+          # node-name;node-name;dimm-health-state;
+          - type: duplicateColumn
             column: 1
-          - _comment: node-name;node-name-Memory;dimm-health-state;
-            type: rightConcat
+          # node-name;node-name-Memory;dimm-health-state;
+          - type: rightConcat
             column: 2
             value: -Memory
       mapping:
-        _comment: Memory Instance Table
+        # Memory Instance Table
         source: $monitors.memory.discovery.sources.source(1)$
         attributes:
           id: $column(2)
@@ -233,33 +233,33 @@ monitors:
           hw.parent.id: $column(1)
           name: $column(2)
     collect:
-      _comment: Collection
+      # Collection
       type: multiInstance
       sources:
         source(1):
-          _comment: JSON;node-name;fru-lifecycle-state;fru-lifecycle-state;fan-health-state;temperature-health-state;dimm-health-state
+          # JSON;node-name;fru-lifecycle-state;fru-lifecycle-state;fan-health-state;temperature-health-state;dimm-health-state
           type: copy
           from: $monitors.enclosure.collect.sources.source(2)$
           computes:
-          - _comment: node-name;dimm-health-state
-            type: keepColumns
+          # node-name;dimm-health-state
+          - type: keepColumns
             columnNumbers: "2,7"
           - type: excludeMatchingLines
             column: 2
             valueList: "unknown,null"
-          - _comment: node-name-Memory;dimm-health-state;
-            type: rightConcat
+          # node-name-Memory;dimm-health-state;
+          - type: rightConcat
             column: 1
             value: -Memory
-          - _comment: node-name-Memory;dimm-health-state;dimm-health-state;
-            type: duplicateColumn
+          # node-name-Memory;dimm-health-state;dimm-health-state;
+          - type: duplicateColumn
             column: 2
-          - _comment: node-name-Memory;PatrolStatus;dimm-health-state;
-            type: translate
+          # node-name-Memory;PatrolStatus;dimm-health-state;
+          - type: translate
             column: 2
             translationTable: StatusTranslationTable
       mapping:
-        _comment: Memory Value Table
+        # Memory Value Table
         source: $monitors.memory.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -275,21 +275,21 @@ monitors:
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
-          - _comment: node-name;fan-health-state;
-            type: keepColumns
+          # node-name;fan-health-state;
+          - type: keepColumns
             columnNumbers: "3,8"
           - type: excludeMatchingLines
             column: 2
             valueList: "unknown,null"
-          - _comment: node-name;node-name;fan-health-state;
-            type: duplicateColumn
+          # node-name;node-name;fan-health-state;
+          - type: duplicateColumn
             column: 1
-          - _comment: node-name;node-name-Fan;fan-health-state;
-            type: rightConcat
+          # node-name;node-name-Fan;fan-health-state;
+          - type: rightConcat
             column: 2
             value: -Fan
       mapping:
-        _comment: Fan Instance Table
+        # Fan Instance Table
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           id: $column(2)
@@ -298,33 +298,33 @@ monitors:
           hw.parent.id: $column(1)
           name: $column(2)
     collect:
-      _comment: Collection
+      # Collection
       type: multiInstance
       sources:
         source(1):
-          _comment: JSON;node-name;fru-lifecycle-state;fru-lifecycle-state;fan-health-state;temperature-health-state;dimm-health-state
+          # JSON;node-name;fru-lifecycle-state;fru-lifecycle-state;fan-health-state;temperature-health-state;dimm-health-state
           type: copy
           from: $monitors.enclosure.collect.sources.source(2)$
           computes:
-          - _comment: node-name;fan-health-state;
-            type: keepColumns
+          # node-name;fan-health-state;
+          - type: keepColumns
             columnNumbers: "2,5"
           - type: excludeMatchingLines
             column: 2
             valueList: "unknown,null"
-          - _comment: node-name-Fan;fan-health-state;
-            type: rightConcat
+          # node-name-Fan;fan-health-state;
+          - type: rightConcat
             column: 1
             value: -Fan
-          - _comment: node-name-Fan;fan-health-state;fan-health-state;
-            type: duplicateColumn
+          # node-name-Fan;fan-health-state;fan-health-state;
+          - type: duplicateColumn
             column: 2
-          - _comment: node-name-Fan;PatrolStatus;fan-health-state;
-            type: translate
+          # node-name-Fan;PatrolStatus;fan-health-state;
+          - type: translate
             column: 2
             translationTable: StatusTranslationTable
       mapping:
-        _comment: Fan Value Table
+        # Fan Value Table
         source: $monitors.fan.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -335,25 +335,25 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: JSON;sys-name;node-name;name;bios-fw-version;hw-model;serial-number;fan-health-state;temperature-health-state;dimm-health-state;
+          # JSON;sys-name;node-name;name;bios-fw-version;hw-model;serial-number;fan-health-state;temperature-health-state;dimm-health-state;
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
-          - _comment: node-name;temperature-health-state;
-            type: keepColumns
+          # node-name;temperature-health-state;
+          - type: keepColumns
             columnNumbers: "3,9"
           - type: excludeMatchingLines
             column: 2
             valueList: "unknown,null"
-          - _comment: node-name;node-name;temperature-health-state;
-            type: duplicateColumn
+          # node-name;node-name;temperature-health-state;
+          - type: duplicateColumn
             column: 1
-          - _comment: node-name;node-name-Temperature;temperature-health-state;
-            type: rightConcat
+          # node-name;node-name-Temperature;temperature-health-state;
+          - type: rightConcat
             column: 2
             value: -Temperature
       mapping:
-        _comment: Temperature Instance Table
+        # Temperature Instance Table
         source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
           id: $column(2)
@@ -362,33 +362,33 @@ monitors:
           hw.parent.id: $column(1)
           name: $column(2)
     collect:
-      _comment: Collection
+      # Collection
       type: multiInstance
       sources:
         source(1):
-          _comment: JSON;node-name;fru-lifecycle-state;fru-lifecycle-state;fan-health-state;temperature-health-state;dimm-health-state
+          # JSON;node-name;fru-lifecycle-state;fru-lifecycle-state;fan-health-state;temperature-health-state;dimm-health-state
           type: copy
           from: $monitors.enclosure.collect.sources.source(2)$
           computes:
-          - _comment: node-name;temperature-health-state;
-            type: keepColumns
+          # node-name;temperature-health-state;
+          - type: keepColumns
             columnNumbers: "2,6"
           - type: excludeMatchingLines
             column: 2
             valueList: "unknown,null"
-          - _comment: node-name-Temperature;temperature-health-state;
-            type: rightConcat
+          # node-name-Temperature;temperature-health-state;
+          - type: rightConcat
             column: 1
             value: -Temperature
-          - _comment: node-name-Temperature;temperature-health-state;temperature-health-state;
-            type: duplicateColumn
+          # node-name-Temperature;temperature-health-state;temperature-health-state;
+          - type: duplicateColumn
             column: 2
-          - _comment: node-name-Temperature;PatrolStatus;temperature-health-state;
-            type: translate
+          # node-name-Temperature;PatrolStatus;temperature-health-state;
+          - type: translate
             column: 2
             translationTable: StatusTranslationTable
       mapping:
-        _comment: Temperature Value Table
+        # Temperature Value Table
         source: $monitors.temperature.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -399,7 +399,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: http
           method: GET
           header: EmbeddedFile(1)
@@ -411,18 +411,18 @@ monitors:
           - type: json2csv
             entryKey: local-disks
             properties: /index;/node-name;/name;/fw-version;/model-name;/model-name;/serial-number;/local-disk-type;
-          - _comment: Extract Vendor value from model-name
-            type: extract
+          # Extract Vendor value from model-name
+          - type: extract
             column: 7
             subColumn: 1
             subSeparators: ' '
-          - _comment: Remove Vendor value from model-name
-            type: replace
+          # Remove Vendor value from model-name
+          - type: replace
             column: 6
             existingValue: Column(7)
             newValue: ""
-          - _comment: Add DiskController for AttachedToDeviceType
-            type: rightConcat
+          # Add DiskController for AttachedToDeviceType
+          - type: rightConcat
             column: 9
             value: ;DiskController
         source(2):
@@ -454,12 +454,12 @@ monitors:
           - type: rightConcat
             column: 8
             value: ;SSD;Enclosure
-          - _comment: JSON;guid;sys-name;SSD-index;fw-version;Model;Vendor;serial-number;SSD;Enclosure;ssd-size;
-            type: leftConcat
+          # JSON;guid;sys-name;SSD-index;fw-version;Model;Vendor;serial-number;SSD;Enclosure;ssd-size;
+          - type: leftConcat
             column: 4
             value: SSD-
-          - _comment: JSON;guid;sys-name;SSD-index;fw-version;Model;Vendor;serial-number;SSD;Enclosure;ssd-size(bytes);
-            type: multiply
+          # JSON;guid;sys-name;SSD-index;fw-version;Model;Vendor;serial-number;SSD;Enclosure;ssd-size(bytes);
+          - type: multiply
             column: 11
             value: 1024
         source(3):
@@ -468,7 +468,7 @@ monitors:
           - $monitors.physical_disk.discovery.sources.source(1)$
           - $monitors.physical_disk.discovery.sources.source(2)$
       mapping:
-        _comment: PhysicalDisk Instance Table
+        # PhysicalDisk Instance Table
         source: $monitors.physical_disk.discovery.sources.source(3)$
         attributes:
           id: $column(2)
@@ -484,7 +484,7 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(11)
     collect:
-      _comment: Collection
+      # Collection
       type: multiInstance
       sources:
         source(1):
@@ -521,7 +521,7 @@ monitors:
             column: 3
             translationTable: StatusTranslationTable
       mapping:
-        _comment: PhysicalDisk Value Table
+        # PhysicalDisk Value Table
         source: $monitors.physical_disk.collect.sources.source(3)$
         deviceId: $column(2)
         metrics:
@@ -532,7 +532,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: http
           method: GET
           header: EmbeddedFile(1)
@@ -544,12 +544,12 @@ monitors:
           - type: json2csv
             entryKey: /volumes
             properties: /sys-name;/guid;/name;/vol-size;/vol-type;
-          - _comment: JSON;sys-name;guid;name;Size;vol-type
-            type: multiply
+          # JSON;sys-name;guid;name;Size;vol-type
+          - type: multiply
             column: 5
             value: 1024
       mapping:
-        _comment: LogicalDisk Instance Table
+        # LogicalDisk Instance Table
         source: $monitors.logical_disk.discovery.sources.source(1)$
         attributes:
           id: $column(3)
@@ -560,7 +560,7 @@ monitors:
           hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s)\", $column(4), $column(5))"
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -575,12 +575,12 @@ monitors:
           - type: json2csv
             entryKey: /volumes
             properties: /guid;/obj-severity;/obj-severity;
-          - _comment: JSON;guid;PatrolStatus;obj-severity
-            type: translate
+          # JSON;guid;PatrolStatus;obj-severity
+          - type: translate
             column: 3
             translationTable: StatusTranslationTable
       mapping:
-        _comment: LogicalDisk Value Table
+        # LogicalDisk Value Table
         source: $monitors.logical_disk.collect.sources.source(1)$
         deviceId: $column(2)
         metrics:
@@ -591,7 +591,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: http
           method: GET
           header: EmbeddedFile(1)
@@ -603,8 +603,8 @@ monitors:
           - type: json2csv
             entryKey: storage-controller-psus
             properties: /node-name;/guid;/name;/model-name;/serial-number;
-          - _comment: JSON;node-name;guid;name;model-name;serial-number;DiskController;
-            type: rightConcat
+          # JSON;node-name;guid;name;model-name;serial-number;DiskController;
+          - type: rightConcat
             column: 6
             value: ;DiskController;
         source(2):
@@ -619,8 +619,8 @@ monitors:
           - type: json2csv
             entryKey: dae-psus
             properties: /sys-name;/guid;/name;/model-name;/serial-number;
-          - _comment: JSON;sys-name;guid;name;model-name;serial-number;Enclosure;
-            type: rightConcat
+          # JSON;sys-name;guid;name;model-name;serial-number;Enclosure;
+          - type: rightConcat
             column: 6
             value: ;Enclosure;
         source(3):
@@ -629,7 +629,7 @@ monitors:
           - $monitors.power_supply.discovery.sources.source(1)$
           - $monitors.power_supply.discovery.sources.source(1)$
       mapping:
-        _comment: PowerSupply Instance Table
+        # PowerSupply Instance Table
         source: $monitors.power_supply.discovery.sources.source(3)$
         attributes:
           id: $column(3)
@@ -641,7 +641,7 @@ monitors:
         metrics:
           hw.power_supply.limit: $column(5)
     collect:
-      _comment: Collection
+      # Collection
       type: multiInstance
       sources:
         source(1):
@@ -674,12 +674,12 @@ monitors:
           - $monitors.power_supply.collect.sources.source(1)$
           - $monitors.power_supply.collect.sources.source(2)$
           computes:
-          - _comment: JSON;guid;PatrolStatus;fru-lifecycle-state
-            type: translate
+          # JSON;guid;PatrolStatus;fru-lifecycle-state
+          - type: translate
             column: 3
             translationTable: StatusTranslationTable
       mapping:
-        _comment: PowerSupply Value Table
+        # PowerSupply Value Table
         source: $monitors.power_supply.collect.sources.source(3)$
         deviceId: $column(2)
         metrics:
@@ -690,7 +690,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: http
           method: GET
           header: EmbeddedFile(1)
@@ -709,7 +709,7 @@ monitors:
             column: 6
             value: "SerialNumber: "
       mapping:
-        _comment: Battery Instance Table
+        # Battery Instance Table
         source: $monitors.battery.discovery.sources.source(1)$
         attributes:
           id: $column(3)
@@ -720,7 +720,7 @@ monitors:
           hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s)\", $column(4), $column(5))"
     collect:
-      _comment: Collection
+      # Collection
       type: multiInstance
       sources:
         source(1):
@@ -735,12 +735,12 @@ monitors:
           - type: json2csv
             entryKey: bbus
             properties: /guid;/fru-lifecycle-state;/fru-lifecycle-state;/ups-battery-charge-in-percent;
-          - _comment: JSON;guid;PatrolStatus;fru-lifecycle-state;ups-battery-charge-in-percent
-            type: translate
+          # JSON;guid;PatrolStatus;fru-lifecycle-state;ups-battery-charge-in-percent
+          - type: translate
             column: 3
             translationTable: StatusTranslationTable
       mapping:
-        _comment: Battery Value Table
+        # Battery Value Table
         source: $monitors.battery.collect.sources.source(1)$
         deviceId: $column(2)
         metrics:
@@ -752,7 +752,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: http
           method: GET
           header: EmbeddedFile(1)
@@ -764,15 +764,15 @@ monitors:
           - type: json2csv
             entryKey: targets
             properties: /node-name;/guid;/name;/fw-version;/port-address;/port-state;/port-type;
-          - _comment: JSON;node-name;guid;name;fw-version;port-address;LinkSpeedDeactivation;port-type
-            type: translate
+          # JSON;node-name;guid;name;fw-version;port-address;LinkSpeedDeactivation;port-type
+          - type: translate
             column: 7
             translationTable: LinkSpeedDeactivationTranslationTable
           - type: leftConcat
             column: 5
             value: "FirmwareVersion: "
       mapping:
-        _comment: NetworkCard Instance Table
+        # NetworkCard Instance Table
         source: $monitors.network.discovery.sources.source(1)$
         attributes:
           id: $column(3)
@@ -785,7 +785,7 @@ monitors:
           hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s)\", $column(4), $column(8))"
     collect:
-      _comment: Collection
+      # Collection
       type: multiInstance
       sources:
         source(1):
@@ -800,20 +800,20 @@ monitors:
           - type: json2csv
             entryKey: targets
             properties: /guid;/port-state;/obj-severity;/port-speed;
-          - _comment: JSON;guid;LinkStatus;obj-severity;port-speed
-            type: translate
+          # JSON;guid;LinkStatus;obj-severity;port-speed
+          - type: translate
             column: 3
             translationTable: LinkStatusTranslationTable
-          - _comment: JSON;guid;LinkStatus;PatrolStatus;port-speed
-            type: translate
+          # JSON;guid;LinkStatus;PatrolStatus;port-speed
+          - type: translate
             column: 4
             translationTable: StatusTranslationTable
-          - _comment: JSON;guid;LinkStatus;PatrolStatus;LinkSpeed
-            type: translate
+          # JSON;guid;LinkStatus;PatrolStatus;LinkSpeed
+          - type: translate
             column: 5
             translationTable: LinkSpeedTranslationTable
       mapping:
-        _comment: NetworkCard Value Table
+        # NetworkCard Value Table
         source: $monitors.network.collect.sources.source(1)$
         deviceId: $column(2)
         metrics:

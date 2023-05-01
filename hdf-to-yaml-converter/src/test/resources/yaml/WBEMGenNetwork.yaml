@@ -27,19 +27,19 @@ connector:
     appliesTo:
     - NT
     criteria:
-    - _comment: OS must be Windows NT-derivative
-      type: deviceType
+    # OS must be Windows NT-derivative
+    - type: deviceType
       keep:
       - NT
-    - _comment: WMI must be available
-      type: service
+    # WMI must be available
+    - type: service
       name: WINMGMT
-    - _comment: The root\wmi namespace must have the MSNdis_MediaConnectStatus
-      type: wmi
+    # The root\wmi namespace must have the MSNdis_MediaConnectStatus
+    - type: wmi
       query: SELECT InstanceName FROM MSNdis_MediaConnectStatus
       namespace: root\wmi
-    - _comment: There must be at least one Ethernet network adapter
-      type: wmi
+    # There must be at least one Ethernet network adapter
+    - type: wmi
       query: SELECT AdapterType FROM Win32_NetworkAdapter
       namespace: root\cimv2
       expectedResult: ^Ethernet 802\.3;$
@@ -108,7 +108,7 @@ monitors:
             column: 3
             value: "PnP Device Id: "
       mapping:
-        _comment: InstanceTable = Source(3)
+        # InstanceTable = Source(3)
         source: $monitors.network.discovery.sources.source(3)$
         attributes:
           id: $column(4)
@@ -119,7 +119,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(4), $column(2))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -129,15 +129,15 @@ monitors:
           namespace: root\wmi
           query: "SELECT InstanceName,NdisHardwareStatus FROM MSNdis_HardwareStatus"
           computes:
-          - _comment: DeviceID;HardwareStatus;HardwareStatus
-            type: duplicateColumn
+          # DeviceID;HardwareStatus;HardwareStatus
+          - type: duplicateColumn
             column: 2
-          - _comment: DeviceID;PATROLStatus;HardwareStatus
-            type: translate
+          # DeviceID;PATROLStatus;HardwareStatus
+          - type: translate
             column: 2
             translationTable: GenericStatusTranslationTable
-          - _comment: DeviceID;PATROLStatus;StatusInformation
-            type: translate
+          # DeviceID;PATROLStatus;StatusInformation
+          - type: translate
             column: 3
             translationTable: GenericStatusInformationTranslationTable
         source(2):
@@ -147,8 +147,8 @@ monitors:
           namespace: root\wmi
           query: "SELECT InstanceName,NdisMediaConnectStatus FROM MSNdis_MediaConnectStatus"
           computes:
-          - _comment: DeviceID;LinkStatus
-            type: translate
+          # DeviceID;LinkStatus
+          - type: translate
             column: 2
             translationTable: GenericLinkStatusTranslationTable
         source(3):
@@ -273,7 +273,7 @@ monitors:
           namespace: root\cimv2
           query: "SELECT Name,BytesReceivedPersec,BytesSentPersec FROM Win32_PerfRawData_Tcpip_NetworkInterface"
           computes:
-            # Replace [] with () (weird difference between these 2 WMI classes)
+          # Replace [] with () (weird difference between these 2 WMI classes)
           - type: replace
             column: 1
             existingValue: "["
@@ -292,7 +292,7 @@ monitors:
           rightKeyColumn: 1
           defaultRightLine: ;;;
       mapping:
-        _comment: And here is the ValueTable (at last!)
+        # And here is the ValueTable (at last!)
         source: $monitors.network.collect.sources.source(15)$
         deviceId: $column(1)
         metrics:

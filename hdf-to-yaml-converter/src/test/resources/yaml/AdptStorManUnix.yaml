@@ -75,8 +75,8 @@ connector:
       - Solaris
       - SunOS
       - Linux
-    - _comment: We should find disks attached to one controller
-      type: osCommand
+    # We should find disks attached to one controller
+    - type: osCommand
       commandLine: /bin/sh %EmbeddedFile(1)%
       expectedResult: Hard drive
       errorMessage: No Adaptec Controller with Physical Disks attached or not enough rights to execute arcconf.
@@ -112,11 +112,11 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(1), $column(2))"
     collect:
-      _comment: Collect type is "all instances in one shot"
+      # Collect type is "all instances in one shot
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = EF4
+          # Source(1) = EF4
           type: osCommand
           commandLine: /bin/sh %EmbeddedFile(3)%
           computes:
@@ -179,11 +179,11 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(8)
     collect:
-      _comment: Collect type is "all instances in one shot"
+      # Collect type is "all instances in one shot
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = EF1
+          # Source(1) = EF1
           type: osCommand
           commandLine: /bin/sh %EmbeddedFile(1)%
           computes:
@@ -210,7 +210,7 @@ monitors:
             column: 2
             translationTable: DiskStatusTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.physical_disk.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -249,11 +249,11 @@ monitors:
           hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $column(1))"
           name: "sprintf(\"%s (%s - %s)\", $column(3), $column(5), $column(4))"
     collect:
-      _comment: Collect type is "all instances in one shot"
+      # Collect type is "all instances in one shot
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = EF5
+          # Source(1) = EF5
           type: osCommand
           commandLine: /bin/sh %EmbeddedFile(5)%
           computes:

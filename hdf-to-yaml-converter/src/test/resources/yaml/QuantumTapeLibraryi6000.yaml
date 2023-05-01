@@ -104,7 +104,7 @@ monitors:
           rightKeyColumn: 1
           defaultRightLine: ;;;;;;
           computes:
-            # Add \"Role: \" to AdditionalInformation1
+          # Add \"Role: \" to AdditionalInformation1
           - type: leftConcat
             column: 4
             value: "Role: "
@@ -541,8 +541,8 @@ monitors:
             column: 2
             existingValue: ' Sensor'
             newValue: ""
-          - _comment: DeviceID;Type;WarningLow;WarningHigh;location
-            type: awk
+          # DeviceID;Type;WarningLow;WarningHigh;location
+          - type: awk
             script: EmbeddedFile(2)
       mapping:
         # Here is the instance table = source(1)
@@ -580,7 +580,7 @@ monitors:
             column: 3
             translationTable: StatusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.voltage.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -618,8 +618,8 @@ monitors:
             column: 6
             existingValue: MSHW_0
             newValue: ""
-          - _comment: Remove MSHW_ for non blank / non zero values
-            type: replace
+          # Remove MSHW_ for non blank / non zero values
+          - type: replace
             column: 5
             existingValue: MSHW_
             newValue: ""
@@ -681,7 +681,7 @@ monitors:
             column: 3
             translationTable: StatusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.temperature.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -719,8 +719,8 @@ monitors:
             column: 6
             existingValue: MSHW_0
             newValue: ""
-          - _comment: Remove MSHW_ for non blank / non zero values
-            type: replace
+          # Remove MSHW_ for non blank / non zero values
+          - type: replace
             column: 5
             existingValue: MSHW_
             newValue: ""
@@ -782,7 +782,7 @@ monitors:
             column: 3
             translationTable: StatusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.fan.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:

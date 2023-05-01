@@ -204,13 +204,13 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: JSON Output
+          # JSON Output
           type: http
           method: GET
           url: /platform/3/cluster/nodes
           resultContent: body
         source(2):
-          _comment: Preserve original source for re-use by other classes
+          # Preserve original source for re-use by other classes
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -220,7 +220,7 @@ monitors:
             entryKey: nodes/hardware
             properties: ../lnn;/serial_number;/product;/nvram;
         source(3):
-          _comment: Adding Cluster Enclosure to attach disks to
+          # Adding Cluster Enclosure to attach disks to
           type: tableUnion
           tables:
           - $monitors.enclosure.discovery.sources.source(2)$
@@ -256,17 +256,17 @@ monitors:
           info: $column(5)
           name: "sprintf(\"%s (%s %s - %s)\", $column(6), \"EMC\", $column(4), \"Storage\")"
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
-          _comment: JSON Output
+          # JSON Output
           type: http
           method: GET
           url: /platform/3/cluster/nodes
           resultContent: body
         source(2):
-          _comment: Preserve original Source for re-use
+          # Preserve original Source for re-use
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -277,8 +277,8 @@ monitors:
             entryKey: nodes/state/smartfail
             properties: ../../lnn;/smartfailed;/dead;/down;/readonly;/in_cluster;/shutdown_readonly;
             separator: ;
-          - _comment: Translate the Various Boolean Status
-            type: translate
+          # Translate the Various Boolean Status
+          - type: translate
             column: 3
             translationTable: SmartFailedTranslateTable
           - type: translate
@@ -359,7 +359,7 @@ monitors:
             column: 4
             translationTable: NodeStatusInformationTranslationTable
         source(4):
-          _comment: Adding Cluster collect so not to generate system output errors
+          # Adding Cluster collect so not to generate system output errors
           type: tableUnion
           tables:
           - $monitors.enclosure.collect.sources.source(3)$
@@ -387,8 +387,8 @@ monitors:
           - type: json2csv
             entryKey: nodes/sensors/sensors/values
             properties: ../../../lnn;../name;/name;
-          - _comment: Keep only fans
-            type: keepOnlyMatchingLines
+          # Keep only fans
+          - type: keepOnlyMatchingLines
             column: 3
             regExp: Fans
             # Duplicate Name Column
@@ -419,7 +419,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Json Output
+          # Json Output
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -429,7 +429,7 @@ monitors:
             entryKey: nodes/sensors/sensors/values
             properties: /value;
       mapping:
-        _comment: Value Table
+        # Value Table
         source: $monitors.fan.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -438,7 +438,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Json Output
+          # Json Output
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -447,12 +447,12 @@ monitors:
           - type: json2csv
             entryKey: nodes/sensors/sensors/values
             properties: ../../../lnn;../name;/name;/value;
-          - _comment: Keep only Voltages
-            type: keepOnlyMatchingLines
+          # Keep only Voltages
+          - type: keepOnlyMatchingLines
             column: 3
             regExp: Volts
-          - _comment: remove discovered instances with no values
-            type: excludeMatchingLines
+          # remove discovered instances with no values
+          - type: excludeMatchingLines
             column: 5
             regExp: na
             # Duplacate name column
@@ -483,7 +483,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Json Ouput
+          # Json Ouput
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -500,7 +500,7 @@ monitors:
             column: 2
             value: 1000
       mapping:
-        _comment: Value Table
+        # Value Table
         source: $monitors.voltage.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -509,7 +509,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -518,8 +518,8 @@ monitors:
           - type: json2csv
             entryKey: nodes/sensors/sensors/values
             properties: ../../../lnn;../name;/name;
-          - _comment: Keep only Temperatures
-            type: keepOnlyMatchingLines
+          # Keep only Temperatures
+          - type: keepOnlyMatchingLines
             column: 3
             regExp: Temps
             # Duplicate name column
@@ -532,7 +532,7 @@ monitors:
             column: 5
             translationTable: TemperatureThresholdTranslationTable
       mapping:
-        _comment: Instance Table
+        # Instance Table
         source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -549,7 +549,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: JSON Output
+          # JSON Output
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -567,7 +567,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -576,12 +576,12 @@ monitors:
           - type: json2csv
             entryKey: nodes/status/powersupplies/supplies
             properties: ../../../lnn;/name;/type;
-          - _comment: AdditionalInformation Vendor
-            type: leftConcat
+          # AdditionalInformation Vendor
+          - type: leftConcat
             column: 4
             value: "Vendor: "
       mapping:
-        _comment: The Instance table
+        # The Instance table
         source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -599,8 +599,8 @@ monitors:
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
-          - _comment: Transform JSON to CSV to extract information
-            type: json2csv
+          # Transform JSON to CSV to extract information
+          - type: json2csv
             entryKey: nodes/status/powersupplies/supplies
             properties: /status;/status
             # Fixing some power supply status to be translatable
@@ -611,7 +611,7 @@ monitors:
             column: 2
             translationTable: PowerSupplyStatusTranslationTable
       mapping:
-        _comment: The Value table
+        # The Value table
         source: $monitors.power_supply.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -622,7 +622,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -632,7 +632,7 @@ monitors:
             entryKey: nodes/status/cpu
             properties: ../../lnn;/model;
       mapping:
-        _comment: The instance table
+        # The instance table
         source: $monitors.cpu.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -650,15 +650,15 @@ monitors:
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
-          - _comment: Transform JSON to CSV to extract information
-            type: json2csv
+          # Transform JSON to CSV to extract information
+          - type: json2csv
             entryKey: nodes/status/cpu
             properties: /overtemp;
           - type: translate
             column: 2
             translationTable: CPUStatusTranslationTable
       mapping:
-        _comment: The value table
+        # The value table
         source: $monitors.cpu.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -667,7 +667,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -721,15 +721,15 @@ monitors:
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
-          - _comment: Transform JSON to CSV to extract information
-            type: json2csv
+          # Transform JSON to CSV to extract information
+          - type: json2csv
             entryKey: nodes/drives
             properties: /ui_state;/serial
-          - _comment: JSonID;ui_state;ui_state;serial
-            type: duplicateColumn
+          # JSonID;ui_state;ui_state;serial
+          - type: duplicateColumn
             column: 2
-          - _comment: JsonID;patrolStatus;ui_state;serial
-            type: translate
+          # JsonID;patrolStatus;ui_state;serial
+          - type: translate
             column: 2
             translationTable: PhysicalDiskStatusTranslationTable
       mapping:
@@ -757,8 +757,8 @@ monitors:
           - type: json2csv
             entryKey: interfaces
             properties: /lnn;/name;/status;
-          - _comment: JsonID;lnn;name;status;
-            type: excludeMatchingLines
+          # JsonID;lnn;name;status;
+          - type: excludeMatchingLines
             column: 4
             regExp: Not Available
       mapping:
@@ -772,11 +772,11 @@ monitors:
           hw.parent.id: $column(2)
           name: $column(3)
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
-          _comment: Json Output
+          # Json Output
           type: http
           method: GET
           url: /platform/3/network/interfaces
@@ -819,7 +819,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: ' Discovery'
+          # ' Discovery'
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -829,12 +829,12 @@ monitors:
             entryKey: nodes/status/batterystatus
             properties: ../../lnn;
         source(2):
-          _comment: Copy Source(1) into new Source(2)
+          # Copy Source(1) into new Source(2)
           type: copy
           from: $monitors.battery.discovery.sources.source(1)$
           computes:
-          - _comment: Add " - 1" to JsonID
-            type: rightConcat
+          # Add " - 1" to JsonID
+          - type: rightConcat
             column: 1
             value: -1
             # Duplicate lnn;
@@ -848,12 +848,12 @@ monitors:
             existingValue: Column(3)
             newValue: Battery 1
         source(3):
-          _comment: Copy Source(1) into new Source(3)
+          # Copy Source(1) into new Source(3)
           type: copy
           from: $monitors.battery.discovery.sources.source(1)$
           computes:
-          - _comment: Add " - 2" to JsonID
-            type: rightConcat
+          # Add " - 2" to JsonID
+          - type: rightConcat
             column: 1
             value: -2
             # Duplicate lnn;
@@ -885,11 +885,11 @@ monitors:
           hw.parent.id: $column(2)
           name: $column(3)
     collect:
-      _comment: ' Collect'
+      # ' Collect'
       type: multiInstance
       sources:
         source(1):
-          _comment: Json Output
+          # Json Output
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -925,7 +925,7 @@ monitors:
             column: 1
             value: -2
         source(4):
-          _comment: Union Source(2) and Source(3) to get proper number of collection instances
+          # Union Source(2) and Source(3) to get proper number of collection instances
           type: tableUnion
           tables:
           - $monitors.battery.collect.sources.source(2)$
@@ -949,7 +949,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: http
           method: GET
           url: /platform/3/storagepool/storagepools
@@ -976,11 +976,11 @@ monitors:
           hw.parent.id: Cluster
           name: "sprintf(\"%s (%s)\", $column(2), $column(3))"
     collect:
-      _comment: Collect type is MultiInstance
+      # Collect type is MultiInstance
       type: multiInstance
       sources:
         source(1):
-          _comment: Json Output
+          # Json Output
           type: http
           method: GET
           url: /platform/3/storagepool/storagepools
@@ -994,29 +994,29 @@ monitors:
           - type: rightConcat
             column: 2
             value: '|'
-          - _comment: missing_drives
-            type: rightConcat
+          # missing_drives
+          - type: rightConcat
             column: 2
             value: Column(3)
           - type: rightConcat
             column: 2
             value: '|'
-          - _comment: devices_down
-            type: rightConcat
+          # devices_down
+          - type: rightConcat
             column: 2
             value: Column(4)
           - type: rightConcat
             column: 2
             value: '|'
-          - _comment: devices_smartfailed
-            type: rightConcat
+          # devices_smartfailed
+          - type: rightConcat
             column: 2
             value: Column(5)
           - type: rightConcat
             column: 2
             value: '|'
-          - _comment: waiting_repair
-            type: rightConcat
+          # waiting_repair
+          - type: rightConcat
             column: 2
             value: Column(6)
             # Adding default case if no other statuses

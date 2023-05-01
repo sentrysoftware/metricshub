@@ -62,7 +62,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = output of ifconfig -a
+          # Source(1) = output of ifconfig -a
           type: osCommand
           commandLine: /usr/sbin/ifconfig -a
           computes:
@@ -177,7 +177,7 @@ monitors:
             column: 2
             conversion: array2SimpleStatus
         source(2):
-          _comment: Source(2) = output of embedded script 4 (complicated shell script)
+          # Source(2) = output of embedded script 4 (complicated shell script)
           type: osCommand
           commandLine: /bin/sh %EmbeddedFile(2)% %NetworkCard.Collect.DeviceID%
           computes:
@@ -198,7 +198,7 @@ monitors:
           rightKeyColumn: 1
           defaultRightLine: ;;;;;;;;;
       mapping:
-        _comment: And here is the ValueTable
+        # And here is the ValueTable
         source: $monitors.network.collect.sources.source(3)$
         metrics:
           hw.status{hw.type="network"}: $column(2)

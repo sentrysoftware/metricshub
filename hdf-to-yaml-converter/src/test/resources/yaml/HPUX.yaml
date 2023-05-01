@@ -30,12 +30,12 @@ connector:
     appliesTo:
     - HP
     criteria:
-      # OS should be HP (for HP-UX, whatever version)
+    # OS should be HP (for HP-UX, whatever version)
     - type: deviceType
       keep:
       - HP
-    - _comment: The various following tools have to be present
-      type: osCommand
+    # The various following tools have to be present
+    - type: osCommand
       commandLine: /bin/ls /usr/bin/model
       expectedResult: ^/usr/bin/model$
 sudoCommands:
@@ -53,7 +53,7 @@ monitors:
 
           selectColumns: 1-
       mapping:
-        _comment: The discovery table
+        # The discovery table
         source: $monitors.enclosure.discovery.sources.source(1)$
         attributes:
           id: HPUX
@@ -73,7 +73,7 @@ monitors:
           separators: ;
           selectColumns: "3,5,6"
       mapping:
-        _comment: Instance table = source(1)
+        # Instance table = source(1)
         source: $monitors.cpu.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -84,7 +84,7 @@ monitors:
         metrics:
           hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(2))
     collect:
-      _comment: Collect type = multi-instance
+      # Collect type = multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -111,7 +111,7 @@ monitors:
             column: 3
             translationTable: cpuStatusInformationTranslationTable
       mapping:
-        _comment: ValueTable = source(1)
+        # ValueTable = source(1)
         source: $monitors.cpu.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:

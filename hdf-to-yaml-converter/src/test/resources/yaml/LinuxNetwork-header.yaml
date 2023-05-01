@@ -6,8 +6,8 @@ sudoCommands:
 connector:
   detection:
     criteria:
-    - _comment: DETECTION
-      type: deviceType
+    # DETECTION
+    - type: deviceType
       keep:
       - Linux
     - type: osCommand
@@ -31,7 +31,7 @@ monitors:
             separators: ;
             selectColumns: "2,3,4"
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.network.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -47,7 +47,7 @@ monitors:
       type: monoInstance
       sources:
         source(1):
-          _comment: Source(1) = output of the ipconfig or ip command for this interface
+          # Source(1) = output of the ipconfig or ip command for this interface
           type: osCommand
           commandLine: COLLECT_COMMAND_LINE
           computes:
@@ -59,7 +59,7 @@ monitors:
             separators: ;
             selectColumns: "2,3,4,5,6,7"
         source(2):
-          _comment: Source(2) = output of ethtool
+          # Source(2) = output of ethtool
           type: osCommand
           commandLine: "%{SUDO:ethtool}/usr/sbin/ethtool %NetworkCard.Collect.DeviceID%"
           computes:
@@ -80,7 +80,7 @@ monitors:
           rightKeyColumn: 1
           defaultRightLine: ;;;;
       mapping:
-        _comment: And here is the ValueTable
+        # And here is the ValueTable
         source: $monitors.network.collect.sources.source(3)$
         metrics:
           hw.network.packets{direction="receive"}: $column(2)

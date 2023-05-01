@@ -204,7 +204,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = eLogicalDriveInformation SNMP table
+          # Source(1) = eLogicalDriveInformation SNMP table
           type: snmpTable
           oid: 1.3.6.1.4.1.1608.1.1.1.3.1
           selectColumns: "ID,1,3,4,6"
@@ -216,7 +216,7 @@ monitors:
             column: 5
             value: 1048576
       mapping:
-        _comment: Instance Table
+        # Instance Table
         source: $monitors.logical_disk.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -230,7 +230,7 @@ monitors:
       type: monoInstance
       sources:
         source(1):
-          _comment: Source(1) = the a3OperationalState column of the eLogicalDriveInformation SNMP table
+          # Source(1) = the a3OperationalState column of the eLogicalDriveInformation SNMP table
           type: snmpGet
           oid: 1.3.6.1.4.1.1608.1.1.1.3.1.3.%LogicalDisk.Collect.DeviceID%
           computes:
@@ -238,16 +238,16 @@ monitors:
             column: 1
           - type: duplicateColumn
             column: 1
-          - _comment: translate the a3OperationalState into a PATROL status
-            type: translate
+          # translate the a3OperationalState into a PATROL status
+          - type: translate
             column: 2
             translationTable: LogicalDiskStatusTranslationTable
-          - _comment: translate the a3OperationalState into a more readable string
-            type: translate
+          # translate the a3OperationalState into a more readable string
+          - type: translate
             column: 3
             translationTable: LogicalDiskStatusInformationTranslationTable
       mapping:
-        _comment: The value table
+        # The value table
         source: $monitors.logical_disk.collect.sources.source(1)$
         metrics:
           hw.status{hw.type="logical_disk"}: $column(2)

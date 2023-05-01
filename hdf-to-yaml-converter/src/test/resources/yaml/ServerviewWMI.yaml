@@ -82,12 +82,12 @@ connector:
     supersedes:
     - IpmiTool
     criteria:
-    - _comment: OS must be Linux or ESX
-      type: deviceType
+    # OS must be Linux or ESX
+    - type: deviceType
       keep:
       - NT
-    - _comment: The HP_ComputerSystemChassis WBEM class must be instanciated
-      type: wmi
+    # The HP_ComputerSystemChassis WBEM class must be instanciated
+    - type: wmi
       query: SELECT ElementName FROM SVS_PGYComputerSystem
       namespace: root/svs
       errorMessage: The Fujitsu Agent seems to not be not accessible or not working properly. Please check connectivity installation of the Fujitsu Agent.
@@ -96,7 +96,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = the IBMPSG_ComputerSystemDetails WBEM class
+          # Source(1) = the IBMPSG_ComputerSystemDetails WBEM class
           type: wmi
           query: "SELECT Manufacturer,Model,SerialNumber FROM SVS_PGYChassis"
           namespace: root/svs
@@ -194,7 +194,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) SVS_PGYPhysicalMemory
+          # Source(1) SVS_PGYPhysicalMemory
           type: wmi
           query: "SELECT Capacity,MemoryType,ElementName,SerialNumber,PartNumber,Manufacturer FROM SVS_PGYPhysicalMemory"
           namespace: root/svs
@@ -268,12 +268,12 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = the SVS_PGYFan WBEM class
+          # Source(1) = the SVS_PGYFan WBEM class
           type: wmi
           query: SELECT ElementName FROM SVS_PGYFan
           namespace: root/svs
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -324,12 +324,12 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = the SVS_PGYFan WBEM class
+          # Source(1) = the SVS_PGYFan WBEM class
           type: wmi
           query: SELECT ElementName FROM SVS_PGYPowerSupply
           namespace: root/svs
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -385,7 +385,7 @@ monitors:
           query: "SELECT ElementName,UpperThresholdCritical FROM SVS_PGYTemperatureSensor"
           namespace: root/svs
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -399,12 +399,12 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = the HP_NumericSensor WBEM class
+          # Source(1) = the HP_NumericSensor WBEM class
           type: wmi
           query: "SELECT CurrentReading,ElementName FROM SVS_PGYTemperatureSensor"
           namespace: root/svs
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.temperature.collect.sources.source(1)$
         deviceId: $column(2)
         metrics:
@@ -418,7 +418,7 @@ monitors:
           query: SELECT ElementName FROM SVS_PGYVoltageSensor
           namespace: root/svs
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.voltage.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -431,7 +431,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = the HP_NumericSensor WBEM class
+          # Source(1) = the HP_NumericSensor WBEM class
           type: wmi
           query: "SELECT CurrentReading,ElementName,OperationalStatus FROM SVS_PGYVoltageSensor"
           namespace: root/svs
@@ -457,7 +457,7 @@ monitors:
             column: 3
             conversion: array2SimpleStatus
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.voltage.collect.sources.source(1)$
         deviceId: $column(2)
         metrics:

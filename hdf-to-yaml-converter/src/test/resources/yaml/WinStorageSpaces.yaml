@@ -130,12 +130,12 @@ connector:
     - WBEMGenDiskNT
     - DiskPart
     criteria:
-    - _comment: Must be Windows
-      type: deviceType
+    # Must be Windows
+    - type: deviceType
       keep:
       - NT
-    - _comment: Must be Hardware Sentry KM 11.3 at least
-      type: productRequirements
+    # Must be Hardware Sentry KM 11.3 at least
+    - type: productRequirements
       kmVersion: 11.3.00
       # Having something in MSFT_Volume is enough to consider that the WMI provider
       # for Windows Storage Spaces is working
@@ -309,7 +309,7 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(6)
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -330,8 +330,8 @@ monitors:
           - type: arrayTranslate
             column: 3
             translationTable: OperationalStatusTranslationTable
-          - _comment: Convert the array of status to a simple status (keep the worse one)
-            type: convert
+          # Convert the array of status to a simple status (keep the worse one)
+          - type: convert
             column: 3
             conversion: array2SimpleStatus
             # Translate the 2nd OperationalStatus field into a more readable string
@@ -413,7 +413,7 @@ monitors:
             separators: ;
             selectColumns: "2,3,4,5"
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.logical_disk.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -424,7 +424,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(2), $column(4))"
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -456,7 +456,7 @@ monitors:
             separators: ;
             selectColumns: "2,3,4,5"
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.logical_disk.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -501,7 +501,7 @@ monitors:
             separators: ;
             selectColumns: "2,3,4,5"
       mapping:
-        _comment: InstanceTable = Source(2)
+        # InstanceTable = Source(2)
         source: $monitors.temperature.discovery.sources.source(2)$
         attributes:
           id: $column(1)
@@ -512,7 +512,7 @@ monitors:
           hw.temperature.limit{limit_type="high.degraded"}: $column(3)
           hw.temperature.limit{limit_type="high.critical"}: $column(4)
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -525,7 +525,7 @@ monitors:
           namespace: root\Microsoft\Windows\Storage
           query: "SELECT DeviceId,Temperature FROM ASSOCIATORS OF {$entry.column(1)$} WHERE ResultClass = MSFT_StorageReliabilityCounter"
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.temperature.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:

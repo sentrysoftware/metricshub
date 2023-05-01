@@ -89,21 +89,21 @@ connector:
     - SunScSnapshot
     - IpmiTool
     criteria:
-    - _comment: OS should be SunOS or Solaris
-      type: deviceType
+    # OS should be SunOS or Solaris
+    - type: deviceType
       keep:
       - SunOS
       - Solaris
-    - _comment: we should find the prtpicl utility
-      type: osCommand
+    # we should find the prtpicl utility
+    - type: osCommand
       commandLine: /bin/ls /usr/sbin/prtpicl
       expectedResult: ^/usr/sbin/prtpicl$
-    - _comment: prtpicl should return something when asked for temperatures
-      type: osCommand
+    # prtpicl should return something when asked for temperatures
+    - type: osCommand
       commandLine: /usr/sbin/prtpicl -v -c temperature-sensor;/usr/sbin/prtpicl -v -c temperature-indicator
       expectedResult: "\\(Temperature[ \t]+[0-9]\\)\\|\\(Condition[ \t]+[A-Za-z]\\)"
-    - _comment: check that prtld hasn't failed
-      type: osCommand
+    # check that prtld hasn't failed
+    - type: osCommand
       commandLine: PRTPICLCOUNT=`pgrep prtpicl|wc -l` ; if /bin/test $PRTPICLCOUNT -lt 30; then echo MSHW_prtld_OK; else echo $PRTPICLCOUNT prtpicl processes running - suspect prtld service failure; fi
       expectedResult: MSHW_prtld_OK
 monitors:
@@ -127,18 +127,18 @@ monitors:
             column: 1
             subSeparators: ","
             subColumn: 2
-          - _comment: Replace dashes with spaces
-            type: replace
+          # Replace dashes with spaces
+          - type: replace
             column: 1
             existingValue: '-'
             newValue: ' '
-          - _comment: Replace GPUS with "Fujitsu PRIMEPOWER"
-            type: replace
+          # Replace GPUS with "Fujitsu PRIMEPOWER
+          - type: replace
             column: 1
             existingValue: GPUS
             newValue: Fujitsu PRIMEPOWER
         source(2):
-          _comment: Source(2) = output of prtpicl
+          # Source(2) = output of prtpicl
           type: osCommand
           commandLine: /usr/sbin/prtpicl
           computes:
@@ -150,7 +150,7 @@ monitors:
             separators: ;
             selectColumns: "2,3,4,5"
       mapping:
-        _comment: The discovery table
+        # The discovery table
         source: $monitors.enclosure.discovery.sources.source(1)$
         attributes:
           id: SUN
@@ -217,7 +217,7 @@ monitors:
           hw.fan.speed.limit{limit_type="low.degraded"}: $column(3)
           hw.fan.speed_ratio.limit{limit_type="low.degraded"}: percent2Ratio("10")
     collect:
-      _comment: Collect type is "all instances in one shot"
+      # Collect type is "all instances in one shot
       type: multiInstance
       sources:
         source(1):
@@ -342,7 +342,7 @@ monitors:
         metrics:
           hw.temperature.limit{limit_type="high.degraded"}: $column(3)
     collect:
-      _comment: Collect type is all instances in one single shot
+      # Collect type is all instances in one single shot
       type: multiInstance
       sources:
         source(1):
@@ -397,7 +397,7 @@ monitors:
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
-        _comment: Collect table = Source(1)
+        # Collect table = Source(1)
         source: $monitors.temperature.collect.sources.source(4)$
         deviceId: $column(7)
         metrics:
@@ -479,7 +479,7 @@ monitors:
           hw.voltage.limit{limit_type="low.critical"}: $column(3)
           hw.voltage.limit{limit_type="high.degraded"}: $column(4)
     collect:
-      _comment: Collect type is all instances in one single shot
+      # Collect type is all instances in one single shot
       type: multiInstance
       sources:
         source(1):
@@ -539,7 +539,7 @@ monitors:
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
-        _comment: Collect table = Source(1)
+        # Collect table = Source(1)
         source: $monitors.voltage.collect.sources.source(4)$
         deviceId: $column(7)
         metrics:
@@ -615,7 +615,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(11), $column(3))"
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -649,7 +649,7 @@ monitors:
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.led.collect.sources.source(2)$
         deviceId: $column(6)
         metrics:

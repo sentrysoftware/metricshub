@@ -41,8 +41,8 @@ connector:
     - Solaris
     - OOB
     criteria:
-    - _comment: showhardconf must return platform's type
-      type: osCommand
+    # showhardconf must return platform's type
+    - type: osCommand
       commandLine: showhardconf
       errorMessage: This system does not appear to be an XSCF connected to a SPARC Enterprise Mx000 system
       expectedResult: 'Serial:'
@@ -51,15 +51,15 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Output of the showhardconf command
+          # Source(1) = Output of the showhardconf command
           type: osCommand
           commandLine: showhardconf
           computes:
-          - _comment: Remove all colons and semicolons
-            type: awk
+          # Remove all colons and semicolons
+          - type: awk
             script: EmbeddedFile(1)
         source(2):
-          _comment: Source(2) = copy of Source(1)
+          # Source(2) = copy of Source(1)
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -77,7 +77,7 @@ monitors:
             column: 6
             value: "Part Number: "
       mapping:
-        _comment: The discovery table
+        # The discovery table
         source: $monitors.enclosure.discovery.sources.source(2)$
         attributes:
           id: $column(1)
@@ -88,19 +88,19 @@ monitors:
           info: $column(6)
           name: "sprintf(\"%s (%s %s - %s)\", $column(1), $column(3), $column(4), $column(2))"
     collect:
-      _comment: Collect type is multi-instance (of course)
+      # Collect type is multi-instance (of course)
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = output of hte showhardconf command
+          # Source(1) = output of hte showhardconf command
           type: osCommand
           commandLine: showhardconf
           computes:
-          - _comment: Remove all colons and semicolons
-            type: awk
+          # Remove all colons and semicolons
+          - type: awk
             script: EmbeddedFile(1)
         source(2):
-          _comment: Source(2) = copy of Source(1)
+          # Source(2) = copy of Source(1)
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -122,7 +122,7 @@ monitors:
             column: 2
             translationTable: ShowHardConfStatusTranslationTable
       mapping:
-        _comment: The ValueTable
+        # The ValueTable
         source: $monitors.enclosure.collect.sources.source(2)$
         deviceId: $column(1)
         metrics:
@@ -133,7 +133,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = copy of enclosure.discovery.source(1) (output of the the showhardconf command)
+          # Source(1) = copy of enclosure.discovery.source(1) (output of the the showhardconf command)
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -153,7 +153,7 @@ monitors:
             column: 4
             value: "Serial Number: "
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.cpu.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -165,11 +165,11 @@ monitors:
         metrics:
           hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($column(3))
     collect:
-      _comment: Collet type is multi-instance
+      # Collet type is multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = copy of enclosure.collect.source(1) (output of the showhardconf command)
+          # Source(1) = copy of enclosure.collect.source(1) (output of the showhardconf command)
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -190,7 +190,7 @@ monitors:
             column: 2
             translationTable: ShowHardConfStatusTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.cpu.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -201,7 +201,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = copy of enclosure.discovery.source(1) (output of the the showhardconf command)
+          # Source(1) = copy of enclosure.discovery.source(1) (output of the the showhardconf command)
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -213,7 +213,7 @@ monitors:
             separators: ;
             selectColumns: "2,3,4,5"
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.memory.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -225,11 +225,11 @@ monitors:
         metrics:
           hw.memory.limit: mebiByte2Byte($column(3))
     collect:
-      _comment: Collet type is multi-instance
+      # Collet type is multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = copy of enclosure.collect.source(1) (output of the showhardconf command)
+          # Source(1) = copy of enclosure.collect.source(1) (output of the showhardconf command)
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -250,7 +250,7 @@ monitors:
             column: 2
             translationTable: ShowHardConfStatusTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.memory.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -261,7 +261,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = copy of enclosure.discovery.source(1) (output of the the showhardconf command)
+          # Source(1) = copy of enclosure.discovery.source(1) (output of the the showhardconf command)
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -281,7 +281,7 @@ monitors:
             column: 3
             value: "Serial Number: "
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -290,11 +290,11 @@ monitors:
           hw.parent.id: $column(2)
           name: "sprintf(\"%s, $column(1))"
     collect:
-      _comment: Collet type is multi-instance
+      # Collet type is multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = copy of enclosure.collect.source(1) (output of the showhardconf command)
+          # Source(1) = copy of enclosure.collect.source(1) (output of the showhardconf command)
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -315,7 +315,7 @@ monitors:
             column: 2
             translationTable: ShowHardConfStatusTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.power_supply.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -326,7 +326,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = copy of enclosure.discovery.source(1) (output of the the showhardconf command)
+          # Source(1) = copy of enclosure.discovery.source(1) (output of the the showhardconf command)
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -338,7 +338,7 @@ monitors:
             separators: ;
             selectColumns: "2,3"
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -346,11 +346,11 @@ monitors:
           hw.parent.id: Main
           name: $column(1)
     collect:
-      _comment: Collet type is multi-instance
+      # Collet type is multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = copy of enclosure.collect.source(1) (output of the showhardconf command)
+          # Source(1) = copy of enclosure.collect.source(1) (output of the showhardconf command)
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -371,7 +371,7 @@ monitors:
             column: 2
             translationTable: ShowHardConfStatusTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.fan.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -382,7 +382,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = output of showenvironment
+          # Source(1) = output of showenvironment
           type: osCommand
           commandLine: showenvironment volt
           computes:
@@ -394,7 +394,7 @@ monitors:
             separators: ;
             selectColumns: "2,3,4,5"
       mapping:
-        _comment: Instance Table = Source(1)
+        # Instance Table = Source(1)
         source: $monitors.voltage.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -406,11 +406,11 @@ monitors:
           hw.voltage.limit{limit_type="low.critical"}: $column(3)
           hw.voltage.limit{limit_type="high.degraded"}: $column(4)
     collect:
-      _comment: Collect type is "all instances in one shot"
+      # Collect type is "all instances in one shot
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = output of showenvironment
+          # Source(1) = output of showenvironment
           type: osCommand
           commandLine: showenvironment volt
           computes:
@@ -422,7 +422,7 @@ monitors:
             separators: ;
             selectColumns: "2,6"
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.voltage.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -431,7 +431,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = output of showenvironment
+          # Source(1) = output of showenvironment
           type: osCommand
           commandLine: showenvironment temp
           computes:
@@ -443,7 +443,7 @@ monitors:
             separators: ;
             selectColumns: "2,3,4,5"
       mapping:
-        _comment: Instance Table = Source(1)
+        # Instance Table = Source(1)
         source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -455,11 +455,11 @@ monitors:
           hw.temperature.limit{limit_type="high.degraded"}: $column(3)
           hw.temperature.limit{limit_type="high.critical"}: $column(4)
     collect:
-      _comment: Collect type is "all instances in one shot"
+      # Collect type is "all instances in one shot
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = output of showenvironment
+          # Source(1) = output of showenvironment
           type: osCommand
           commandLine: showenvironment temp
           computes:
@@ -481,7 +481,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = output of showdomains -a
+          # Source(1) = output of showdomains -a
           type: osCommand
           commandLine: showdomainstatus -a
           computes:
@@ -493,7 +493,7 @@ monitors:
             separators: ;
             selectColumns: "2,3,4,5,6,7"
         source(2):
-          _comment: Source(2) = copy of enclosure.discovery.source(1) (output of the the showhardconf command)
+          # Source(2) = copy of enclosure.discovery.source(1) (output of the the showhardconf command)
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -520,7 +520,7 @@ monitors:
           - $monitors.other_device.discovery.sources.source(1)$
           - $monitors.other_device.discovery.sources.source(2)$
       mapping:
-        _comment: Instance Table = Source(1)
+        # Instance Table = Source(1)
         source: $monitors.other_device.discovery.sources.source(3)$
         attributes:
           device_type: $column(1)
@@ -531,11 +531,11 @@ monitors:
           hw.parent.id: $column(3)
           name: "sprintf(\"%s: %s (%s)\", $column(1), $column(2), $column(4))"
     collect:
-      _comment: Collect type is "all instances in one shot"
+      # Collect type is "all instances in one shot
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = output of showdomains -a
+          # Source(1) = output of showdomains -a
           type: osCommand
           commandLine: showdomainstatus -a
           computes:
@@ -556,7 +556,7 @@ monitors:
             column: 2
             translationTable: DomainStatusTranslationTable
         source(2):
-          _comment: Source(2) = copy of enclosure.discovery.source(1) (output of the the showhardconf command)
+          # Source(2) = copy of enclosure.discovery.source(1) (output of the the showhardconf command)
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -584,7 +584,7 @@ monitors:
           - $monitors.other_device.collect.sources.source(1)$
           - $monitors.other_device.collect.sources.source(2)$
       mapping:
-        _comment: ValueTable = Source(3)
+        # ValueTable = Source(3)
         source: $monitors.other_device.collect.sources.source(3)$
         deviceId: $column(1)
         metrics:

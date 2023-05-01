@@ -37,8 +37,8 @@ connector:
     - SMISDiskArray
     - HitachiDiskArray
     criteria:
-    - _comment: Check that there are VSP OIDs
-      type: snmpGetNext
+    # Check that there are VSP OIDs
+    - type: snmpGetNext
       oid: 1.3.6.1.4.1.116.5.11.4.1.1.6.1
 monitors:
   enclosure:
@@ -96,7 +96,7 @@ monitors:
             keep: ^MSHW
             separators: ;
         source(5):
-          _comment: Take a copy of Enclosure Discovery 4
+          # Take a copy of Enclosure Discovery 4
           type: copy
           from: $monitors.enclosure.discovery.sources.source(4)$
           computes:
@@ -124,7 +124,7 @@ monitors:
           type: Storage
           name: "sprintf(\"%s (%s %s - %s)\", $column(3), \"Hitachi\", $column(5), \"Storage\")"
     collect:
-      _comment: Collect type is multi-instance (execute once)
+      # Collect type is multi-instance (execute once)
       type: multiInstance
       sources:
         source(1):
@@ -193,7 +193,7 @@ monitors:
             column: 6
             translationTable: statusInformationTranslationTable
         source(5):
-          _comment: Take a copy of Enclosure Discovery 4
+          # Take a copy of Enclosure Discovery 4
           type: copy
           from: $monitors.enclosure.collect.sources.source(4)$
           computes:
@@ -203,14 +203,14 @@ monitors:
             column: 1
             valueList: MSHW_ENC
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.enclosure.collect.sources.source(2)$
         deviceId: $column(1)
   temperature:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: copy
           from: $monitors.enclosure.discovery.sources.source(4)$
           computes:
@@ -231,7 +231,7 @@ monitors:
           hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s)\", $column(4), \"Global\")"
     collect:
-      _comment: Collect is multi-instance (all instances in one shot)
+      # Collect is multi-instance (all instances in one shot)
       type: multiInstance
       sources:
         source(1):
@@ -250,7 +250,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: copy
           from: $monitors.enclosure.discovery.sources.source(4)$
           computes:
@@ -271,7 +271,7 @@ monitors:
           hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s)\", $column(4), \"Global\")"
     collect:
-      _comment: Collect is multi-instance (all instances in one shot)
+      # Collect is multi-instance (all instances in one shot)
       type: multiInstance
       sources:
         source(1):
@@ -290,7 +290,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: copy
           from: $monitors.enclosure.discovery.sources.source(4)$
           computes:
@@ -311,7 +311,7 @@ monitors:
           hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s)\", $column(4), \"Global\")"
     collect:
-      _comment: Collect is multi-instance (all instances in one shot)
+      # Collect is multi-instance (all instances in one shot)
       type: multiInstance
       sources:
         source(1):
@@ -330,7 +330,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: copy
           from: $monitors.enclosure.discovery.sources.source(4)$
           computes:
@@ -351,7 +351,7 @@ monitors:
           hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s)\", $column(4), \"Global\")"
     collect:
-      _comment: Collect is multi-instance (all instances in one shot)
+      # Collect is multi-instance (all instances in one shot)
       type: multiInstance
       sources:
         source(1):
@@ -370,7 +370,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: copy
           from: $monitors.enclosure.discovery.sources.source(4)$
           computes:
@@ -391,7 +391,7 @@ monitors:
           hw.parent.id: $column(2)
           name: "sprintf(\"%s, $column(4))"
     collect:
-      _comment: Collect is multi-instance (all instances in one shot)
+      # Collect is multi-instance (all instances in one shot)
       type: multiInstance
       sources:
         source(1):
@@ -410,7 +410,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: copy
           from: $monitors.enclosure.discovery.sources.source(4)$
           computes:
@@ -431,7 +431,7 @@ monitors:
           hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s)\", $column(4), \"Global\")"
     collect:
-      _comment: Collect is multi-instance (all instances in one shot)
+      # Collect is multi-instance (all instances in one shot)
       type: multiInstance
       sources:
         source(1):
@@ -450,7 +450,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: copy
           from: $monitors.enclosure.discovery.sources.source(4)$
           computes:
@@ -470,7 +470,7 @@ monitors:
           hw.parent.id: $column(2)
           name: $column(4)
     collect:
-      _comment: Collect is multi-instance (all instances in one shot)
+      # Collect is multi-instance (all instances in one shot)
       type: multiInstance
       sources:
         source(1):
@@ -489,7 +489,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Discovery
+          # Discovery
           type: copy
           from: $monitors.enclosure.discovery.sources.source(4)$
           computes:
@@ -510,7 +510,7 @@ monitors:
           hw.parent.id: $column(2)
           name: "sprintf(\"%s: %s\", \"Internal Bus\", $column(4))"
     collect:
-      _comment: Collect is multi-instance (all instances in one shot)
+      # Collect is multi-instance (all instances in one shot)
       type: multiInstance
       sources:
         source(1):

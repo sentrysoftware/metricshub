@@ -138,8 +138,8 @@ connector:
     - OOB
     - Solaris
     criteria:
-    - _comment: The system must have at least one HBA
-      type: snmpGetNext
+    # The system must have at least one HBA
+    - type: snmpGetNext
       oid: 1.3.6.1.4.1.232.16.2.7.1.1
   platforms: HP ProLiant
   reliesOn: HP Insight Management Agents
@@ -159,12 +159,12 @@ monitors:
           - type: translate
             column: 2
             translationTable: HostControllerModelTranslationTable
-          - _comment: DeviceID;Model;WWNAddress;SerialNumber;HWLocation;
-            type: leftConcat
+          # DeviceID;Model;WWNAddress;SerialNumber;HWLocation;
+          - type: leftConcat
             column: 5
             value: "Location: "
       mapping:
-        _comment: InstanceTable
+        # InstanceTable
         source: $monitors.network.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -208,7 +208,7 @@ monitors:
             column: 4
             translationTable: NetworkCardLinkStatusTranslationTable
       mapping:
-        _comment: The ValueTable = source(1)
+        # The ValueTable = source(1)
         source: $monitors.network.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:

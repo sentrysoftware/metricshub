@@ -30,8 +30,8 @@ connector:
     appliesTo:
     - OOB
     criteria:
-    - _comment: Hardware Sentry v10.3.00+
-      type: productRequirements
+    # Hardware Sentry v10.3.00+
+    - type: productRequirements
       kmVersion: 10.3.00
     - type: http
       method: GET
@@ -44,7 +44,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Query /Systems/?/
+          # Query /Systems/?/
           type: copy
           from: $monitors.enclosure.discovery.sources.source(2)$
           computes:
@@ -72,7 +72,7 @@ monitors:
       type: multiInstance
       sources:
         source(1):
-          _comment: Query /Chassis/?/
+          # Query /Chassis/?/
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -112,8 +112,8 @@ monitors:
           header: EmbeddedFile(1)
           resultContent: body
           computes:
-          - _comment: JSONID;ChassisID;EthernetURL;
-            type: json2csv
+          # JSONID;ChassisID;EthernetURL;
+          - type: json2csv
             entryKey: /Entry/Value/Members
             properties: ../../Column(2);/@odata.id;
             separator: ;
@@ -121,7 +121,7 @@ monitors:
             column: 3
             regExp: .
         source(2):
-          _comment: Query each EthernetURL
+          # Query each EthernetURL
           type: http
           method: GET
           executeForEachEntryOf:
@@ -139,12 +139,12 @@ monitors:
           - type: translate
             column: 7
             translationTable: EthernetInterfacesLinkSpeedDeactivationTable
-          - _comment: JSONID;ChassisID;EthernetID;Name;blank;blank;Speed;MAC;MACAddress;Name;
-            type: leftConcat
+          # JSONID;ChassisID;EthernetID;Name;blank;blank;Speed;MAC;MACAddress;Name;
+          - type: leftConcat
             column: 8
             value: MAC;
         source(3):
-          _comment: iLO 5
+          # iLO 5
           type: http
           method: GET
           executeForEachEntryOf:
@@ -154,17 +154,17 @@ monitors:
           header: EmbeddedFile(1)
           resultContent: body
           computes:
-          - _comment: JSONID;ChassisID;NetworkAdapterURL;
-            type: json2csv
+          # JSONID;ChassisID;NetworkAdapterURL;
+          - type: json2csv
             entryKey: /Entry/Value/Members
             properties: ../../Column(2);/@odata.id;
             separator: ;
-          - _comment: Remove empty network url to avoid errors
-            type: keepOnlyMatchingLines
+          # Remove empty network url to avoid errors
+          - type: keepOnlyMatchingLines
             column: 3
             regExp: .
         source(4):
-          _comment: Query /Chassis/?/NetworkAdapters/?/
+          # Query /Chassis/?/NetworkAdapters/?/
           type: http
           method: GET
           executeForEachEntryOf:
@@ -174,8 +174,8 @@ monitors:
           header: EmbeddedFile(1)
           resultContent: body
           computes:
-          - _comment: JsonID;ChassisID;NetworkPorts;Manufacturer;Model;PartNumber;SerialNumber;
-            type: json2csv
+          # JsonID;ChassisID;NetworkPorts;Manufacturer;Model;PartNumber;SerialNumber;
+          - type: json2csv
             entryKey: /Entry/Value/NetworkPorts
             properties: ../../Column(2);/@odata.id;../Manufacturer;../Model;../PartNumber;../SerialNumber;;;/Name;
         source(5):
@@ -190,8 +190,8 @@ monitors:
           header: EmbeddedFile(1)
           resultContent: body
           computes:
-          - _comment: JsonID;ChassisID;NetworkPort;Manufacturer;Model;PartNumber;SerialNumber;
-            type: json2csv
+          # JsonID;ChassisID;NetworkPort;Manufacturer;Model;PartNumber;SerialNumber;
+          - type: json2csv
             entryKey: /Entry/Value/Members
             properties: ../../Column(2);/@odata.id;../../Column(4);../../Column(5);../../Column(7);
             separator: ;
@@ -199,7 +199,7 @@ monitors:
             column: 3
             regExp: .
         source(6):
-          _comment: PhysicalPortAssignment
+          # PhysicalPortAssignment
           type: http
           method: GET
           executeForEachEntryOf:
@@ -219,7 +219,7 @@ monitors:
             column: 7
             translationTable: LinkSpeedDeactivationTranslationTable
         source(7):
-          _comment: iLO 5
+          # iLO 5
           type: http
           method: GET
           executeForEachEntryOf:
@@ -229,8 +229,8 @@ monitors:
           header: EmbeddedFile(1)
           resultContent: body
           computes:
-          - _comment: JSONID;ChassisID;NetworkAdapterURL;
-            type: json2csv
+          # JSONID;ChassisID;NetworkAdapterURL;
+          - type: json2csv
             entryKey: /Entry/Value/Members
             properties: ../../Column(2);/@odata.id;
             separator: ;
@@ -238,7 +238,7 @@ monitors:
             column: 3
             regExp: .
         source(8):
-          _comment: Query /Chassis/?/NetworkAdapters/?/
+          # Query /Chassis/?/NetworkAdapters/?/
           type: http
           method: GET
           executeForEachEntryOf:
@@ -248,8 +248,8 @@ monitors:
           header: EmbeddedFile(1)
           resultContent: body
           computes:
-          - _comment: JsonID;ChassisID;ID;null;PartNumber;SerialNumber;null;null;null;WWPN;Name
-            type: json2csv
+          # JsonID;ChassisID;ID;null;PartNumber;SerialNumber;null;null;null;WWPN;Name
+          - type: json2csv
             entryKey: /Entry/Value/FcPorts
             properties: ../../Column(2);/WWPN;/null;../PartNumber;../SerialNumber;/null;/WWPN;../Name;
             # JsonID;ChassisID;ID;null;PartNumber;SerialNumber;null;null;Type;WWPN;Name
@@ -257,12 +257,12 @@ monitors:
           - type: rightConcat
             column: 7
             value: ;WWPN
-          - _comment: Keep only FC
-            type: keepOnlyMatchingLines
+          # Keep only FC
+          - type: keepOnlyMatchingLines
             column: 3
             regExp: .
-          - _comment: Make unique name
-            type: rightConcat
+          # Make unique name
+          - type: rightConcat
             column: 10
             value: ' '
           - type: rightConcat
@@ -278,10 +278,10 @@ monitors:
           rightKeyColumn: 9
           defaultRightLine: Something to eliminate duplicates
           computes:
-          - _comment: Json;ChassisId;Id;Model;SerialNumber;Vendor;LinkSpeedActivation;
-            type: keepColumns
+          # Json;ChassisId;Id;Model;SerialNumber;Vendor;LinkSpeedActivation;
+          - type: keepColumns
             columnNumbers: "1,2,3,5,6,7,8,9,10,16"
-            # ColumnNumbers does not respect the order you specify, so move things around.
+          # ColumnNumbers does not respect the order you specify, so move things around.
           - type: duplicateColumn
             column: 5
           - type: replace
@@ -323,12 +323,12 @@ monitors:
           header: EmbeddedFile(1)
           resultContent: body
           computes:
-          - _comment: JSONID;EthernetID;LinkStatus;Health;Health;Speed;
-            type: json2csv
+          # JSONID;EthernetID;LinkStatus;Health;Health;Speed;
+          - type: json2csv
             entryKey: /
             properties: /@odata.id;/LinkStatus;/Status/Health;/Status/Health;/SpeedMbps;
         source(2):
-          _comment: NetworkAdapters
+          # NetworkAdapters
           type: http
           method: GET
           executeForEachEntryOf:
@@ -338,8 +338,8 @@ monitors:
           header: EmbeddedFile(1)
           resultContent: body
           computes:
-          - _comment: PhysicalPortAssignment
-            type: json2csv
+          # PhysicalPortAssignment
+          - type: json2csv
             entryKey: /
             properties: /Id;/LinkStatus;/LinkStatus;/LinkStatus;/CurrentLinkSpeedMbps;
             separator: ;

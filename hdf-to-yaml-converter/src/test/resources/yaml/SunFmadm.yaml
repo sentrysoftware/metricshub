@@ -23,21 +23,21 @@ connector:
     appliesTo:
     - Solaris
     criteria:
-    - _comment: OS should be SunOS or Solaris
-      type: deviceType
+    # OS should be SunOS or Solaris
+    - type: deviceType
       keep:
       - SunOS
       - Solaris
-    - _comment: Only Solaris 10 machines
-      type: osCommand
+    # Only Solaris 10 machines
+    - type: osCommand
       commandLine: /bin/uname -r
       expectedResult: "5\\.1[0-9]"
-    - _comment: Test the fmadm command
-      type: osCommand
+    # Test the fmadm command
+    - type: osCommand
       commandLine: "%{SUDO:/usr/sbin/fmadm}/usr/sbin/fmadm faulty;/usr/bin/echo errorlevel $?"
       expectedResult: ^errorlevel 0$
-    - _comment: Ensure that the cpumem-diagnosis module is running
-      type: osCommand
+    # Ensure that the cpumem-diagnosis module is running
+    - type: osCommand
       commandLine: "%{SUDO:/usr/sbin/fmadm}/usr/sbin/fmadm config | grep cpumem"
       expectedResult: active
 sudoCommands:
@@ -47,7 +47,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = psrinfo -v
+          # Source(1) = psrinfo -v
           type: osCommand
           commandLine: "%{SUDO:/usr/sbin/fmadm}/usr/sbin/fmadm faulty;/usr/bin/echo errorlevel $?"
           computes:
@@ -59,7 +59,7 @@ monitors:
             separators: ;
             selectColumns: 2
         source(2):
-          _comment: Source (2) prtconf
+          # Source (2) prtconf
           type: osCommand
           commandLine: "/usr/sbin/prtconf | /usr/bin/egrep '^SUNW,|^Memory size'"
           computes:
@@ -71,14 +71,14 @@ monitors:
             separators: ;
             selectColumns: "2,3"
         source(3):
-          _comment: Overall;Overall;Size
+          # Overall;Overall;Size
           type: tableJoin
           leftTable: $monitors.memory.discovery.sources.source(1)$
           rightTable: $monitors.memory.discovery.sources.source(2)$
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
-        _comment: Instance table = source(1)
+        # Instance table = source(1)
         source: $monitors.memory.discovery.sources.source(3)$
         attributes:
           id: $column(1)
@@ -87,11 +87,11 @@ monitors:
         metrics:
           hw.memory.limit: mebiByte2Byte($column(3))
     collect:
-      _comment: Collect type = multi-instance
+      # Collect type = multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = fmadm faulty
+          # Source(1) = fmadm faulty
           type: osCommand
           commandLine: "%{SUDO:/usr/sbin/fmadm}/usr/sbin/fmadm faulty;/usr/bin/echo errorlevel $?"
           computes:
@@ -103,7 +103,7 @@ monitors:
             separators: ;
             selectColumns: "2,3,4"
       mapping:
-        _comment: ValueTable = source(1)
+        # ValueTable = source(1)
         source: $monitors.memory.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -114,7 +114,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = fmadm faulty
+          # Source(1) = fmadm faulty
           type: osCommand
           commandLine: "%{SUDO:/usr/sbin/fmadm}/usr/sbin/fmadm faulty;/usr/bin/echo errorlevel $?"
           computes:
@@ -126,7 +126,7 @@ monitors:
             separators: ;
             selectColumns: 2
       mapping:
-        _comment: Instance table = source(1)
+        # Instance table = source(1)
         source: $monitors.other_device.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -134,11 +134,11 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s: %s\", \"cpu\", $column(1))"
     collect:
-      _comment: Collect type = multi-instance
+      # Collect type = multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = fmadm faulty
+          # Source(1) = fmadm faulty
           type: osCommand
           commandLine: "%{SUDO:/usr/sbin/fmadm}/usr/sbin/fmadm faulty;/usr/bin/echo errorlevel $?"
           computes:
@@ -150,7 +150,7 @@ monitors:
             separators: ;
             selectColumns: "2,3,4"
       mapping:
-        _comment: ValueTable = source(1)
+        # ValueTable = source(1)
         source: $monitors.other_device.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:

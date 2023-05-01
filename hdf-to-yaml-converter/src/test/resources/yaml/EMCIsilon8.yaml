@@ -24,8 +24,8 @@ connector:
     appliesTo:
     - Storage
     criteria:
-    - _comment: Check that sudo is working by running /usr/bin/isi status -v
-      type: osCommand
+    # Check that sudo is working by running /usr/bin/isi status -v
+    - type: osCommand
       commandLine: "/bin/zsh -c \"%{SUDO:/usr/bin/isi_for_array} /usr/bin/isi_for_array /usr/bin/isi status -v\" "
       errorMessage: Unable to run /usr/bin/isi status -v.  Check rights / sudo status.
       expectedResult: 'Cluster Name:'

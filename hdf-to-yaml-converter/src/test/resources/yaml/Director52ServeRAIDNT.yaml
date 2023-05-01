@@ -74,17 +74,17 @@ connector:
     - LSIMegaCliWindows
     - LSIUtilWindows
     criteria:
-    - _comment: OS must be Windows
-      type: deviceType
+    # OS must be Windows
+    - type: deviceType
       keep:
       - NT
-    - _comment: Verify that there is a WBEM namespace with a CIM_ComputerSystem.Dedicated == 3
-      type: wmi
+    # Verify that there is a WBEM namespace with a CIM_ComputerSystem.Dedicated == 3
+    - type: wmi
       namespace: Automatic
       query: SELECT Dedicated FROM CIM_ComputerSystem
       expectedResult: \(^30|\)\|\(|30|\)\|\(^3|\)\|\(|3|\)\|\(^2|\)\|\(|2|\)
-    - _comment: There must be disk drives declared int he root/LSI_IR_1_2_0 namespace
-      type: wmi
+    # There must be disk drives declared int he root/LSI_IR_1_2_0 namespace
+    - type: wmi
       query: SELECT __PATH FROM CIM_DiskDrive
       namespace: Automatic
       # And it must be an actual RAID controller, and not just a regular ATA/SCSI controller
@@ -301,8 +301,8 @@ monitors:
           rightKeyColumn: 1
           keyType: Wbem
           computes:
-          - _comment: PartComponent;DiskControllerID;
-            type: keepColumns
+          # PartComponent;DiskControllerID;
+          - type: keepColumns
             columnNumbers: "2,3,4"
         source(21):
           # Get a list of Physical Disks
@@ -378,7 +378,7 @@ monitors:
             column: 2
             conversion: array2SimpleStatus
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.disk_controller.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -510,7 +510,7 @@ monitors:
             column: 2
             conversion: array2SimpleStatus
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.physical_disk.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -677,7 +677,7 @@ monitors:
             column: 2
             conversion: array2SimpleStatus
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.logical_disk.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -788,7 +788,7 @@ monitors:
             column: 2
             conversion: array2SimpleStatus
       mapping:
-        _comment: DeviceID = Source(1)
+        # DeviceID = Source(1)
         source: $monitors.battery.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:

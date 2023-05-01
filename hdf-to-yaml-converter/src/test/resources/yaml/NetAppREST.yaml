@@ -87,8 +87,8 @@ connector:
     appliesTo:
     - Storage
     criteria:
-    - _comment: Check that system-get-vendor-info at least contains "NetApp"
-      type: http
+    # Check that system-get-vendor-info at least contains "NetApp
+    - type: http
       method: POST
       url: /servlets/netapp.servlets.admin.XMLrequest_filer
       body: <?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><system-node-get-iter/></netapp>
@@ -106,8 +106,8 @@ monitors:
           url: /servlets/netapp.servlets.admin.XMLrequest_filer
           body: <?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><system-node-get-iter/></netapp>
           computes:
-          - _comment: Convert xml output to multiLine
-            type: awk
+          # Convert xml output to multiLine
+          - type: awk
             script: EmbeddedFile(18)
         source(2):
           # Source(2) = Multi-line XML for Nodes
@@ -119,8 +119,8 @@ monitors:
             # MSHW;node;node-model;node-serial;product-version;cup-firmware-version;is-node-healthy
           - type: awk
             script: EmbeddedFile(1)
-          - _comment: Add Node column to act as type
-            type: rightConcat
+          # Add Node column to act as type
+          - type: rightConcat
             column: 1
             value: ;Node
         source(3):
@@ -131,8 +131,8 @@ monitors:
           url: /servlets/netapp.servlets.admin.XMLrequest_filer
           body: <?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><storage-shelf-info-get-iter/></netapp>
           computes:
-          - _comment: Convert xml output to multiLine
-            type: awk
+          # Convert xml output to multiLine
+          - type: awk
             script: EmbeddedFile(18)
         source(4):
           # Source(4) = Multi-line XML for Shelves
@@ -173,7 +173,7 @@ monitors:
           info: $column(6)
           name: "sprintf(\"%s (%s %s - %s)\", $column(3), \"NetApp\", $column(4), $column(2))"
     collect:
-      _comment: Collection Type (Multi-instance)
+      # Collection Type (Multi-instance)
       type: multiInstance
       sources:
         source(1):
@@ -184,8 +184,8 @@ monitors:
           url: /servlets/netapp.servlets.admin.XMLrequest_filer
           body: <?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><system-node-get-iter/></netapp>
           computes:
-          - _comment: Convert xml output to multiLine
-            type: awk
+          # Convert xml output to multiLine
+          - type: awk
             script: EmbeddedFile(18)
         source(2):
           # Source(2) = Multi-line XML for Nodes
@@ -205,8 +205,8 @@ monitors:
           url: /servlets/netapp.servlets.admin.XMLrequest_filer
           body: <?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><storage-shelf-info-get-iter/></netapp>
           computes:
-          - _comment: Convert xml output to multiLine
-            type: awk
+          # Convert xml output to multiLine
+          - type: awk
             script: EmbeddedFile(18)
         source(4):
           # Source(4) = Multi-line XML for Nodes
@@ -246,7 +246,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Nodes
+          # Source(1) = Nodes
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -273,19 +273,19 @@ monitors:
             # MSHW;shelf;psu-id;op-status;
           - type: awk
             script: EmbeddedFile(4)
-          - _comment: Duplicate psu-id for use in uniqueId and DisplayID
-            type: duplicateColumn
+          # Duplicate psu-id for use in uniqueId and DisplayID
+          - type: duplicateColumn
             column: 3
-          - _comment: Create unique-id by concating shelf and psu-id (computes 3-4)
-            type: leftConcat
+          # Create unique-id by concating shelf and psu-id (computes 3-4)
+          - type: leftConcat
             column: 3
             value: .
-          - _comment: MSHW;shelf;psu-id;psu-id;op-status;
-            type: leftConcat
+          # MSHW;shelf;psu-id;psu-id;op-status;
+          - type: leftConcat
             column: 3
             value: Column(2)
-          - _comment: Append "PSU - " to ID to create displayID
-            type: leftConcat
+          # Append "PSU - " to ID to create displayID
+          - type: leftConcat
             column: 4
             value: 'PSU - '
         source(3):
@@ -301,7 +301,7 @@ monitors:
           - $monitors.power_supply.discovery.sources.source(1)$
           - $monitors.power_supply.discovery.sources.source(2)$
       mapping:
-        _comment: Powersupply Instance Table
+        # Powersupply Instance Table
         source: $monitors.power_supply.discovery.sources.source(3)$
         attributes:
           id: $column(3)
@@ -310,11 +310,11 @@ monitors:
           hw.parent.id: $column(2)
           name: "sprintf(\"%s, $column(4))"
     collect:
-      _comment: Collection Type (Multi-instance)
+      # Collection Type (Multi-instance)
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Nodes
+          # Source(1) = Nodes
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -323,7 +323,7 @@ monitors:
           - type: awk
             script: EmbeddedFile(3)
         source(2):
-          _comment: Source(2) = Shelves
+          # Source(2) = Shelves
           type: copy
           from: $monitors.enclosure.collect.sources.source(3)$
           computes:
@@ -377,7 +377,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Nodes
+          # Source(1) = Nodes
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -395,7 +395,7 @@ monitors:
           - type: duplicateColumn
             column: 2
         source(2):
-          _comment: Source(2) = Storage Shelves
+          # Source(2) = Storage Shelves
           type: copy
           from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
@@ -407,12 +407,12 @@ monitors:
             # MSHW;shelf;fan-id;fan-id;op-status;
           - type: duplicateColumn
             column: 3
-          - _comment: Combine shelf and fan-id to create uniqueID (Computes 3-4)
-            type: leftConcat
+          # Combine shelf and fan-id to create uniqueID (Computes 3-4)
+          - type: leftConcat
             column: 3
             value: .
-          - _comment: MSHW;shelf;unique-id;fan-id;op-status;
-            type: leftConcat
+          # MSHW;shelf;unique-id;fan-id;op-status;
+          - type: leftConcat
             column: 3
             value: Column(2)
             # Add "Fan - " to ID for display name
@@ -440,11 +440,11 @@ monitors:
           hw.parent.id: $column(2)
           name: $column(4)
     collect:
-      _comment: Collection Type (Multi-instance)
+      # Collection Type (Multi-instance)
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Nodes
+          # Source(1) = Nodes
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -453,7 +453,7 @@ monitors:
           - type: awk
             script: EmbeddedFile(5)
         source(2):
-          _comment: Source(2) = Shelves
+          # Source(2) = Shelves
           type: copy
           from: $monitors.enclosure.collect.sources.source(3)$
           computes:
@@ -466,8 +466,8 @@ monitors:
           - type: leftConcat
             column: 3
             value: .
-          - _comment: MSHW;shelf;unique-id;op-status;
-            type: leftConcat
+          # MSHW;shelf;unique-id;op-status;
+          - type: leftConcat
             column: 3
             value: Column(2)
             # drop "shelf" (Column(2)) to align with node table
@@ -506,7 +506,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Nodes
+          # Source(1) = Nodes
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -520,7 +520,7 @@ monitors:
             column: 2
             value: ;NV RAM
       mapping:
-        _comment: Battery Instance Table
+        # Battery Instance Table
         source: $monitors.battery.discovery.sources.source(1)$
         attributes:
           id: $column(2)
@@ -531,7 +531,7 @@ monitors:
     collect:
       sources:
         source(1):
-          _comment: Source(1) = Nodes
+          # Source(1) = Nodes
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -566,7 +566,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Nodes
+          # Source(1) = Nodes
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
@@ -584,7 +584,7 @@ monitors:
           - type: duplicateColumn
             column: 2
         source(2):
-          _comment: Source(3) = Shelves
+          # Source(3) = Shelves
           type: copy
           from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
@@ -596,16 +596,16 @@ monitors:
             # MSHW;shelf;Temperature-id;Temperature-id;op-status;
           - type: duplicateColumn
             column: 3
-          - _comment: Create uniqueID (computes 3-4)
-            type: leftConcat
+          # Create uniqueID (computes 3-4)
+          - type: leftConcat
             column: 3
             value: .
-          - _comment: MSHW;shelf;unique-id;Temperature-id;op-status;
-            type: leftConcat
+          # MSHW;shelf;unique-id;Temperature-id;op-status;
+          - type: leftConcat
             column: 3
             value: Column(2)
-          - _comment: MSHW;shelf;unique-id;name;op-status;
-            type: leftConcat
+          # MSHW;shelf;unique-id;name;op-status;
+          - type: leftConcat
             column: 4
             value: 'Temperature - '
         source(3):
@@ -628,11 +628,11 @@ monitors:
           hw.parent.id: $column(2)
           name: $column(4)
     collect:
-      _comment: Collection Type (Multi-instance)
+      # Collection Type (Multi-instance)
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Nodes
+          # Source(1) = Nodes
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
@@ -641,7 +641,7 @@ monitors:
           - type: awk
             script: EmbeddedFile(8)
         source(2):
-          _comment: Source(2) = Shelves
+          # Source(2) = Shelves
           type: copy
           from: $monitors.enclosure.collect.sources.source(3)$
           computes:
@@ -649,12 +649,12 @@ monitors:
             # MSHW;shelf;temp-sensor-id;temp-sens-op-status
           - type: awk
             script: EmbeddedFile(9)
-          - _comment: Create unique ID
-            type: leftConcat
+          # Create unique ID
+          - type: leftConcat
             column: 3
             value: .
-          - _comment: MSHW;shelf;uniqueID;temp-sensor-id;temp-sens-op-status
-            type: leftConcat
+          # MSHW;shelf;uniqueID;temp-sensor-id;temp-sens-op-status
+          - type: leftConcat
             column: 3
             value: Column(2)
             # Drop "shelf" (Column(2)) to align tables
@@ -675,8 +675,8 @@ monitors:
           - $monitors.temperature.collect.sources.source(1)$
           - $monitors.temperature.collect.sources.source(2)$
           computes:
-          - _comment: Translate status information into PatrolStatus
-            type: translate
+          # Translate status information into PatrolStatus
+          - type: translate
             column: 3
             translationTable: TemperatureStatusTranslationTable
       mapping:
@@ -692,7 +692,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = Shelves
+          # Source(1) = Shelves
           type: copy
           from: $monitors.enclosure.discovery.sources.source(3)$
           computes:
@@ -704,12 +704,12 @@ monitors:
             # MSHW;shelf;voltage-sensor-id;voltage-sensor-id;voltage-op-status
           - type: duplicateColumn
             column: 3
-          - _comment: Create uniqueID (computes 3-4)
-            type: leftConcat
+          # Create uniqueID (computes 3-4)
+          - type: leftConcat
             column: 3
             value: .
-          - _comment: MSHW;shelf;unique-id;Voltage-id;op-status;
-            type: leftConcat
+          # MSHW;shelf;unique-id;Voltage-id;op-status;
+          - type: leftConcat
             column: 3
             value: Column(2)
             # Append Voltage to id to create name
@@ -728,11 +728,11 @@ monitors:
           hw.parent.id: $column(2)
           name: $column(4)
     collect:
-      _comment: Collection Type (Multi-Instance)
+      # Collection Type (Multi-Instance)
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Shelves
+          # Source(1) = Shelves
           type: copy
           from: $monitors.enclosure.collect.sources.source(3)$
           computes:
@@ -740,19 +740,19 @@ monitors:
             # MSHW;shelf;Voltage-id;voltage-op-status;
           - type: awk
             script: EmbeddedFile(10)
-          - _comment: create uniqueID
-            type: leftConcat
+          # create uniqueID
+          - type: leftConcat
             column: 3
             value: .
-          - _comment: MSHW;shelf;unique-id;voltage-op-status;
-            type: leftConcat
+          # MSHW;shelf;unique-id;voltage-op-status;
+          - type: leftConcat
             column: 3
             value: Column(2)
-          - _comment: MSHW;shelf;unique-id;voltage-id;op-status;
-            type: duplicateColumn
+          # MSHW;shelf;unique-id;voltage-id;op-status;
+          - type: duplicateColumn
             column: 4
-          - _comment: MSHW;shelf;unique-id;voltage-id;op-status;
-            type: translate
+          # MSHW;shelf;unique-id;voltage-id;op-status;
+          - type: translate
             column: 4
             translationTable: VoltageStatusTranslationTable
       mapping:
@@ -775,11 +775,11 @@ monitors:
           url: /servlets/netapp.servlets.admin.XMLrequest_filer
           body: <?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><storage-shelf-info-get-iter/></netapp>
           computes:
-          - _comment: Convert xml output to multiLine
-            type: awk
+          # Convert xml output to multiLine
+          - type: awk
             script: EmbeddedFile(18)
         source(2):
-          _comment: Source(2) = Storage Shelf Info
+          # Source(2) = Storage Shelf Info
           type: copy
           from: $monitors.physical_disk.discovery.sources.source(1)$
           computes:
@@ -787,16 +787,16 @@ monitors:
             # MSHW;shelf;bay-id;bay-has-disk;bay-type;bay-op-status;
           - type: awk
             script: EmbeddedFile(11)
-          - _comment: create uniqueID (Computes 2-3)
-            type: leftConcat
+          # create uniqueID (Computes 2-3)
+          - type: leftConcat
             column: 3
             value: .
-          - _comment: MSHW;shelf;unique-id;bay-has-disk;bay-type;bay-op-status;
-            type: leftConcat
+          # MSHW;shelf;unique-id;bay-has-disk;bay-type;bay-op-status;
+          - type: leftConcat
             column: 3
             value: Column(2)
-          - _comment: Exclude bays that report no drive
-            type: excludeMatchingLines
+          # Exclude bays that report no drive
+          - type: excludeMatchingLines
             column: 4
             regExp: "false"
         source(3):
@@ -807,11 +807,11 @@ monitors:
           url: /servlets/netapp.servlets.admin.XMLrequest_filer
           body: <?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><storage-disk-get-iter/></netapp>
           computes:
-          - _comment: Convert xml to multi-line
-            type: awk
+          # Convert xml to multi-line
+          - type: awk
             script: EmbeddedFile(18)
         source(4):
-          _comment: Source(4) = Disks
+          # Source(4) = Disks
           type: copy
           from: $monitors.physical_disk.discovery.sources.source(3)$
           computes:
@@ -824,8 +824,8 @@ monitors:
           - type: multiply
             column: 6
             value: Column(7)
-          - _comment: MSHW;uniqueID;shelf-bay;model;serial-number;size;capacity-sector;rpm;disk-type
-            type: leftConcat
+          # MSHW;uniqueID;shelf-bay;model;serial-number;size;capacity-sector;rpm;disk-type
+          - type: leftConcat
             column: 8
             value: "RPM: "
         source(5):
@@ -876,7 +876,7 @@ monitors:
           - type: awk
             script: EmbeddedFile(18)
         source(2):
-          _comment: Source(2) = PhysicalDisks
+          # Source(2) = PhysicalDisks
           type: copy
           from: $monitors.physical_disk.collect.sources.source(1)$
           computes:
@@ -889,12 +889,12 @@ monitors:
           - type: translate
             column: 6
             translationTable: PhysicalDiskTranslationTable
-          - _comment: create uniqueID (Computes 3-4)
-            type: leftConcat
+          # create uniqueID (Computes 3-4)
+          - type: leftConcat
             column: 3
             value: .
-          - _comment: MSHW;shelf;unique-id;bay-has-disk;bay-type;PatrolStatus;
-            type: leftConcat
+          # MSHW;shelf;unique-id;bay-has-disk;bay-type;PatrolStatus;
+          - type: leftConcat
             column: 3
             value: Column(2)
       mapping:
@@ -915,11 +915,11 @@ monitors:
           url: /servlets/netapp.servlets.admin.XMLrequest_filer
           body: <?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><net-port-get-iter/></netapp>
           computes:
-          - _comment: multi-line the xml response
-            type: awk
+          # multi-line the xml response
+          - type: awk
             script: EmbeddedFile(18)
         source(2):
-          _comment: Source(2) = NetworkCards
+          # Source(2) = NetworkCards
           type: copy
           from: $monitors.network.discovery.sources.source(1)$
           computes:
@@ -933,17 +933,17 @@ monitors:
             column: 7
             value: ;MAC;Ethernet Port
         source(3):
-          _comment: Fiber ports
+          # Fiber ports
           type: http
           method: POST
           url: /servlets/netapp.servlets.admin.XMLrequest_filer
           body: <?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><fcp-adapter-get-iter/></netapp>
           computes:
-          - _comment: multi-line the xml response
-            type: awk
+          # multi-line the xml response
+          - type: awk
             script: EmbeddedFile(18)
         source(4):
-          _comment: Source(4) = Fiber Channels
+          # Source(4) = Fiber Channels
           type: copy
           from: $monitors.network.discovery.sources.source(3)$
           computes:
@@ -951,8 +951,8 @@ monitors:
             # MSHW;node;adapter;link-status;status-description;mac;max-speed
           - type: awk
             script: EmbeddedFile(17)
-          - _comment: Multiply column 8 to convert gbit/s to mbit/s
-            type: multiply
+          # Multiply column 8 to convert gbit/s to mbit/s
+          - type: multiply
             column: 7
             value: 1000
             # Add port identifying information for this source (always WWN and "FC Port")
@@ -960,8 +960,8 @@ monitors:
           - type: rightConcat
             column: 7
             value: ;WWN;FC Port
-          - _comment: Replace "0" with "" (computes 4-6)
-            type: leftConcat
+          # Replace "0" with "" (computes 4-6)
+          - type: leftConcat
             column: 7
             value: MSHW
           - type: replace
@@ -988,8 +988,8 @@ monitors:
           - type: leftConcat
             column: 3
             value: .
-          - _comment: MSHW;node;uniqueId;port;link-status;health-status;mac-address;speed;physical-address-type;device-type
-            type: leftConcat
+          # MSHW;node;uniqueId;port;link-status;health-status;mac-address;speed;physical-address-type;device-type
+          - type: leftConcat
             column: 3
             value: Column(2)
       mapping:
@@ -1006,7 +1006,7 @@ monitors:
           hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s)\", $column(4), $column(10))"
     collect:
-      _comment: Collection type (Multi-instance)
+      # Collection type (Multi-instance)
       type: multiInstance
       sources:
         source(1):
@@ -1017,11 +1017,11 @@ monitors:
           url: /servlets/netapp.servlets.admin.XMLrequest_filer
           body: <?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><net-port-get-iter/></netapp>
           computes:
-          - _comment: xml to multi-line
-            type: awk
+          # xml to multi-line
+          - type: awk
             script: EmbeddedFile(18)
         source(2):
-          _comment: Source(2) = NetworkCards
+          # Source(2) = NetworkCards
           type: copy
           from: $monitors.network.collect.sources.source(1)$
           computes:
@@ -1037,11 +1037,11 @@ monitors:
           url: /servlets/netapp.servlets.admin.XMLrequest_filer
           body: <?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><fcp-adapter-get-iter/></netapp>
           computes:
-          - _comment: xml to multi-line
-            type: awk
+          # xml to multi-line
+          - type: awk
             script: EmbeddedFile(18)
         source(4):
-          _comment: Source(4) = Fiber Channels
+          # Source(4) = Fiber Channels
           type: copy
           from: $monitors.network.collect.sources.source(3)$
           computes:
@@ -1109,11 +1109,11 @@ monitors:
           url: /servlets/netapp.servlets.admin.XMLrequest_filer
           body: <?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><aggr-get-iter/></netapp>
           computes:
-          - _comment: XML to multi-line xml
-            type: awk
+          # XML to multi-line xml
+          - type: awk
             script: EmbeddedFile(18)
         source(2):
-          _comment: Source(2) = Aggregate (raid) inforamtion
+          # Source(2) = Aggregate (raid) inforamtion
           type: copy
           from: $monitors.logical_disk.discovery.sources.source(1)$
           computes:
@@ -1122,7 +1122,7 @@ monitors:
           - type: awk
             script: EmbeddedFile(14)
         source(3):
-          _comment: Source(3) = Aggregate (raid) information (node)
+          # Source(3) = Aggregate (raid) information (node)
           type: copy
           from: $monitors.logical_disk.discovery.sources.source(1)$
           computes:
@@ -1141,8 +1141,8 @@ monitors:
           rightKeyColumn: 3
           defaultRightLine: ;;;;;;;
           computes:
-          - _comment: Move AttachedToDeviceID to column 2
-            type: replace
+          # Move AttachedToDeviceID to column 2
+          - type: replace
             column: 2
             existingValue: Column(2)
             newValue: Column(8)
@@ -1158,7 +1158,7 @@ monitors:
           hw.parent.id: $column(2)
           name: "sprintf(\"%s (%s)\", $column(4), $column(5))"
     collect:
-      _comment: CollectionType (Multi-instance)
+      # CollectionType (Multi-instance)
       type: multiInstance
       sources:
         source(1):
@@ -1169,11 +1169,11 @@ monitors:
           url: /servlets/netapp.servlets.admin.XMLrequest_filer
           body: <?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><aggr-get-iter/></netapp>
           computes:
-          - _comment: XML to multi-line XML
-            type: awk
+          # XML to multi-line XML
+          - type: awk
             script: EmbeddedFile(18)
         source(2):
-          _comment: Source(2) = Aggregate (raid) information
+          # Source(2) = Aggregate (raid) information
           type: copy
           from: $monitors.logical_disk.collect.sources.source(1)$
           computes:
@@ -1196,15 +1196,15 @@ monitors:
             existingValue: ' '
             newValue: ""
         source(3):
-          _comment: To see what I'm inputting into array translate.
+          # To see what I'm inputting into array translate.
           type: copy
           from: $monitors.logical_disk.collect.sources.source(2)$
           computes:
           - type: arrayTranslate
             column: 6
             translationTable: RaidStatusTranslationTable
-          - _comment: Convert PATROLStatusArray to a simple (unique) PATROLStatus
-            type: convert
+          # Convert PATROLStatusArray to a simple (unique) PATROLStatus
+          - type: convert
             column: 6
             conversion: array2SimpleStatus
             # Remove temporary work Column (and unneeded)
@@ -1231,11 +1231,11 @@ monitors:
           url: /servlets/netapp.servlets.admin.XMLrequest_filer
           body: <?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><environment-sensors-get-iter/></netapp>
           computes:
-          - _comment: xml to multi-line xml
-            type: awk
+          # xml to multi-line xml
+          - type: awk
             script: EmbeddedFile(18)
         source(2):
-          _comment: Source(2) = Environment Sensors
+          # Source(2) = Environment Sensors
           type: copy
           from: $monitors.disk_controller.discovery.sources.source(1)$
           computes:
@@ -1243,8 +1243,8 @@ monitors:
             # MSHW;node-name;sensor-name;discrete-sensor-state;discrete-sensor-value;
           - type: awk
             script: EmbeddedFile(16)
-          - _comment: Keep only "SP Status" sensor-names (DiskController)
-            type: keepOnlyMatchingLines
+          # Keep only "SP Status" sensor-names (DiskController)
+          - type: keepOnlyMatchingLines
             column: 3
             regExp: SP Status
             # Create uniqueID (computes 3-5)
@@ -1254,8 +1254,8 @@ monitors:
           - type: leftConcat
             column: 3
             value: .
-          - _comment: MSHW;node-name;unique-id;sensor-name;discrete-sensor-state;discrete-sensor-value;
-            type: leftConcat
+          # MSHW;node-name;unique-id;sensor-name;discrete-sensor-state;discrete-sensor-value;
+          - type: leftConcat
             column: 3
             value: Column(2)
       mapping:
@@ -1269,21 +1269,21 @@ monitors:
           hw.parent.id: $column(2)
           name: "sprintf(\"%s %s\"), \"Disk Controller\", $column(4))"
     collect:
-      _comment: Collection Type (Multi-instance)
+      # Collection Type (Multi-instance)
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = Environment Sensors
+          # Source(1) = Environment Sensors
           type: http
           method: POST
           url: /servlets/netapp.servlets.admin.XMLrequest_filer
           body: <?xml version='1.0' encoding='utf-8' ?><!DOCTYPE netapp SYSTEM 'file:/etc/netapp_filer.dtd'><netapp version='1.0' xmlns='http://www.netapp.com/filer/admin'><environment-sensors-get-iter/></netapp>
           computes:
-          - _comment: XML to multi-line XML
-            type: awk
+          # XML to multi-line XML
+          - type: awk
             script: EmbeddedFile(18)
         source(2):
-          _comment: Source(2) = Environment sensors
+          # Source(2) = Environment sensors
           type: copy
           from: $monitors.disk_controller.collect.sources.source(1)$
           computes:
@@ -1296,16 +1296,16 @@ monitors:
           - type: translate
             column: 4
             translationTable: DiskControllerStatusTranslationTable
-          - _comment: Create uniqueID (computes 3-4)
-            type: leftConcat
+          # Create uniqueID (computes 3-4)
+          - type: leftConcat
             column: 3
             value: .
-          - _comment: MSHW;node-name;unique-id;discrete-sensor-state;discrete-sensor-value;
-            type: leftConcat
+          # MSHW;node-name;unique-id;discrete-sensor-state;discrete-sensor-value;
+          - type: leftConcat
             column: 3
             value: Column(2)
       mapping:
-        _comment: DiskController Value Table
+        # DiskController Value Table
         source: $monitors.disk_controller.collect.sources.source(2)$
         deviceId: $column(3)
         metrics:

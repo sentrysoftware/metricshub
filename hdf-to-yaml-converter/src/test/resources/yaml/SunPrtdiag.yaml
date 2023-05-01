@@ -57,17 +57,17 @@ connector:
     appliesTo:
     - Solaris
     criteria:
-    - _comment: OS should be SunOS or Solaris
-      type: deviceType
+    # OS should be SunOS or Solaris
+    - type: deviceType
       keep:
       - SunOS
       - Solaris
-    - _comment: Only on sun4u systems
-      type: osCommand
+    # Only on sun4u systems
+    - type: osCommand
       commandLine: /bin/uname -m
       expectedResult: "^sun4u[s]?$"
-    - _comment: we should find the prtdiag utility
-      type: osCommand
+    # we should find the prtdiag utility
+    - type: osCommand
       commandLine: /bin/ls /usr/platform/`/bin/uname -i`/sbin/prtdiag
       expectedResult: ^/usr/platform/.*/sbin/prtdiag$
 sudoCommands:
@@ -86,13 +86,13 @@ monitors:
           separators: ;
           selectColumns: 3
           computes:
-          - _comment: Remove the " (TM)" in the computer model string
-            type: replace
+          # Remove the " (TM)" in the computer model string
+          - type: replace
             column: 1
             existingValue: ' (TM)'
             newValue: ""
       mapping:
-        _comment: The discovery table
+        # The discovery table
         source: $monitors.enclosure.discovery.sources.source(1)$
         attributes:
           id: SUN
@@ -122,14 +122,14 @@ monitors:
             column: 1
             value: MSHW_PRTDIAG_
       mapping:
-        _comment: The instance table
+        # The instance table
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           id: $column(1)
           hw.parent.type: enclosure
           name: $column(1)
     collect:
-      _comment: Collect type is "all instances in one shot"
+      # Collect type is "all instances in one shot
       type: multiInstance
       sources:
         source(1):
@@ -157,7 +157,7 @@ monitors:
             column: 2
             translationTable: PrtDiagStatusTranslationTable
       mapping:
-        _comment: CollectTable = Source(1)
+        # CollectTable = Source(1)
         source: $monitors.fan.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -188,7 +188,7 @@ monitors:
             column: 1
             value: MSHW_PRTDIAG_
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.temperature.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -199,7 +199,7 @@ monitors:
           hw.temperature.limit{limit_type="high.degraded"}: $column(3)
           hw.temperature.limit{limit_type="high.critical"}: $column(4)
     collect:
-      _comment: Collect type is all instances in one single shot
+      # Collect type is all instances in one single shot
       type: multiInstance
       sources:
         source(1):
@@ -227,7 +227,7 @@ monitors:
             column: 3
             translationTable: PrtDiagStatusTranslationTable
       mapping:
-        _comment: Collect table = Source(1)
+        # Collect table = Source(1)
         source: $monitors.temperature.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -258,16 +258,16 @@ monitors:
           - type: leftConcat
             column: 1
             value: MSHW_PRTDIAG_
-          - _comment: Convert the lowerThreshold from V to mV
-            type: multiply
+          # Convert the lowerThreshold from V to mV
+          - type: multiply
             column: 3
             value: 1000
-          - _comment: Convert the upperThreshold from V to mV
-            type: multiply
+          # Convert the upperThreshold from V to mV
+          - type: multiply
             column: 4
             value: 1000
       mapping:
-        _comment: The instance table = Source(1)
+        # The instance table = Source(1)
         source: $monitors.voltage.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -278,7 +278,7 @@ monitors:
           hw.voltage.limit{limit_type="low.critical"}: $column(3)
           hw.voltage.limit{limit_type="high.degraded"}: $column(4)
     collect:
-      _comment: Collect type is "all instances in one shot"
+      # Collect type is "all instances in one shot
       type: multiInstance
       sources:
         source(1):
@@ -296,20 +296,20 @@ monitors:
           - type: leftConcat
             column: 1
             value: MSHW_PRTDIAG_
-          - _comment: convert currentValue from V to mV
-            type: multiply
+          # convert currentValue from V to mV
+          - type: multiply
             column: 2
             value: 1000
             # duplicate the status column: one will be the PATROLStatus, other will be the status information
             # DeviceID;CurrentValuemV;Status;Status
           - type: duplicateColumn
             column: 3
-          - _comment: convert the first status column to a PATROLStatus
-            type: translate
+          # convert the first status column to a PATROLStatus
+          - type: translate
             column: 3
             translationTable: PrtDiagStatusTranslationTable
       mapping:
-        _comment: Collect table = Source(1)
+        # Collect table = Source(1)
         source: $monitors.voltage.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -330,14 +330,14 @@ monitors:
           separators: ;
           selectColumns: 3
       mapping:
-        _comment: Instance Table = Source(1)
+        # Instance Table = Source(1)
         source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
           id: $column(1)
           hw.parent.type: enclosure
           name: "sprintf(\"%s, $column(1))"
     collect:
-      _comment: Collect type is "all instances in one shot"
+      # Collect type is "all instances in one shot
       type: multiInstance
       sources:
         source(1):
@@ -374,7 +374,7 @@ monitors:
             existingValue: ' '
             newValue: ""
       mapping:
-        _comment: Collect table = Source(1)
+        # Collect table = Source(1)
         source: $monitors.power_supply.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -394,13 +394,13 @@ monitors:
           separators: ;
           selectColumns: "3,4"
           computes:
-          - _comment: Remove the "MB" from Size
-            type: replace
+          # Remove the "MB" from Size
+          - type: replace
             column: 2
             existingValue: MB
             newValue: ""
       mapping:
-        _comment: Instance Table = Source(1)
+        # Instance Table = Source(1)
         source: $monitors.memory.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -409,7 +409,7 @@ monitors:
         metrics:
           hw.memory.limit: mebiByte2Byte($column(2))
     collect:
-      _comment: Collect type is "all instances in one shot"
+      # Collect type is "all instances in one shot
       type: multiInstance
       sources:
         source(1):
@@ -446,7 +446,7 @@ monitors:
             existingValue: ' '
             newValue: ""
       mapping:
-        _comment: Collect table = Source(1)
+        # Collect table = Source(1)
         source: $monitors.memory.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:

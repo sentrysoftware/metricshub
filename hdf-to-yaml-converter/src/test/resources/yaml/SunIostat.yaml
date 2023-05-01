@@ -45,7 +45,7 @@ monitors:
           separators: ;
           selectColumns: 2
         source(2):
-          _comment: Source(2) = output of iostat
+          # Source(2) = output of iostat
           type: osCommand
           commandLine: iostat -En
           computes:
@@ -66,7 +66,7 @@ monitors:
           leftKeyColumn: 1
           rightKeyColumn: 2
       mapping:
-        _comment: InstanceTable = Source(3)
+        # InstanceTable = Source(3)
         source: $monitors.disk_controller.discovery.sources.source(3)$
         attributes:
           id: $column(1)
@@ -79,11 +79,11 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = copy of DiskController.Discovery.Source(2)
+          # Source(1) = copy of DiskController.Discovery.Source(2)
           type: copy
           from: $monitors.disk_controller.discovery.sources.source(2)$
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.physical_disk.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -96,11 +96,11 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(3)
     collect:
-      _comment: Collect type is "all instances in one shot"
+      # Collect type is "all instances in one shot
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = output of iostat
+          # Source(1) = output of iostat
           type: osCommand
           commandLine: /usr/bin/iostat -En
           computes:
@@ -128,7 +128,7 @@ monitors:
           leftKeyColumn: 1
           rightKeyColumn: 1
       mapping:
-        _comment: ValueTable = Source(3)
+        # ValueTable = Source(3)
         source: $monitors.physical_disk.collect.sources.source(3)$
         deviceId: $column(1)
         metrics:

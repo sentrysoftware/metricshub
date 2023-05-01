@@ -54,12 +54,12 @@ connector:
     - IBMAIXHBA
     - IBMAIXUeSensor
     criteria:
-    - _comment: OS should be AIX (whatever version)
-      type: deviceType
+    # OS should be AIX (whatever version)
+    - type: deviceType
       keep:
       - RS6000
-    - _comment: uname should return vioserver
-      type: osCommand
+    # uname should return vioserver
+    - type: osCommand
       commandLine: ioscli uname -a
       expectedResult: AIX
 monitors:
@@ -130,14 +130,14 @@ monitors:
           separators: ","
           keep: ^proc
       mapping:
-        _comment: Instance table = source(1)
+        # Instance table = source(1)
         source: $monitors.cpu.discovery.sources.source(1)$
         attributes:
           id: $column(1)
           hw.parent.type: enclosure
           name: $column(1)
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -162,7 +162,7 @@ monitors:
             column: 3
             translationTable: cpuStatusInformationTranslationTable
       mapping:
-        _comment: ' "ValueTable = source(1)'
+        # ' "ValueTable = source(1)'
         source: $monitors.cpu.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -173,7 +173,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = output of ioscli lsdev -vpd
+          # Source(1) = output of ioscli lsdev -vpd
           type: osCommand
           commandLine: ioscli lsdev -vpd
           computes:
@@ -190,7 +190,7 @@ monitors:
             column: 1
             value: ;1;
         source(2):
-          _comment: Source(2) = Static table to represent the global memory stuff
+          # Source(2) = Static table to represent the global memory stuff
           type: static
           value: Memory Controller;;1;;;
         source(3):
@@ -213,7 +213,7 @@ monitors:
             column: 1
             value: Memory Controller;;;
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.memory.discovery.sources.source(3)$
         attributes:
           id: $column(1)
@@ -223,11 +223,11 @@ monitors:
         metrics:
           hw.memory.limit: mebiByte2Byte($column(4))
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = output of ioscli lsdev -vpd
+          # Source(1) = output of ioscli lsdev -vpd
           type: osCommand
           commandLine: ioscli lsdev -vpd
           computes:
@@ -250,13 +250,13 @@ monitors:
           type: copy
           from: $monitors.memory.discovery.sources.source(4)$
         source(3):
-          _comment: Source(3) = Union of Source(1) and Source(2)
+          # Source(3) = Union of Source(1) and Source(2)
           type: tableUnion
           tables:
           - $monitors.memory.collect.sources.source(1)$
           - $monitors.memory.collect.sources.source(2)$
       mapping:
-        _comment: Value table = Source(1)
+        # Value table = Source(1)
         source: $monitors.memory.collect.sources.source(3)$
         deviceId: $column(1)
         metrics:
@@ -323,7 +323,7 @@ monitors:
             separators: ;
             selectColumns: "2,3"
       mapping:
-        _comment: InstanceTable = Source(5)
+        # InstanceTable = Source(5)
         source: $monitors.disk_controller.discovery.sources.source(3)$
         attributes:
           id: $column(2)
@@ -332,7 +332,7 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s %s (%s)\"), \"Disk Controller\", $column(2), $column(3))"
     collect:
-      _comment: Collect type = multi-instance
+      # Collect type = multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -387,7 +387,7 @@ monitors:
             start: 1
             length: 5
         source(2):
-          _comment: Source(1) = output of ioscli lsdev -vpd
+          # Source(1) = output of ioscli lsdev -vpd
           type: osCommand
           commandLine: ioscli lsdev -vpd
           computes:
@@ -427,7 +427,7 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(4)
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
@@ -471,7 +471,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Source(1) = output of fcstat (Fiber Cards)
+          # Source(1) = output of fcstat (Fiber Cards)
           type: osCommand
           commandLine: "for FCSTAT in $(for NIC in `for a in $(for i in $(ioscli lsdev -type  disk -field name -state Available && ioscli lsdev -type tape -field name |grep \"^hdisk|^rmt\"); do ioscli lsdev -dev $i -parent  ; done |grep ^fs|sort -n |uniq); do ioscli lsdev -dev $a -parent; done |grep ^fc ; ioscli lsmap -all -npiv |awk '{FS=\":\"} /name:fcs/ && /loc/  {print $2}' |awk '{print $1}' |uniq `; do echo $NIC ; done |uniq); do  fcstat $FCSTAT ; done"
           computes:
@@ -482,7 +482,7 @@ monitors:
             keep: ^MSHW;
             separators: ;
         source(2):
-          _comment: Source(2) = output of netstat (Ethernet Cards)
+          # Source(2) = output of netstat (Ethernet Cards)
           type: osCommand
           commandLine: "STR0=$(ioscli lsdev -type adapter -state Available -field name|egrep '^ent'); STR1=$(ioscli lsmap -all -npiv |awk '/FC name:/ {print $2}' |sort |uniq |cut -c '6-10'); STR2=$(ioscli viostat -adapter |awk '/fcs/ {print $1}') ;for i in $(for i in $(echo $STR0 $STR1 $STR2); do echo $i; done |sort |uniq) ; do ioscli netstat -cdlistats $i; done"
           computes:
@@ -518,11 +518,11 @@ monitors:
           hw.parent.type: enclosure
           name: "sprintf(\"%s (%s)\", $column(2), $column(12))"
     collect:
-      _comment: The NetworkCard collect is a "MultiInstance" collect
+      # The NetworkCard collect is a "MultiInstance" collect
       type: multiInstance
       sources:
         source(1):
-          _comment: Source(1) = output of fcstat (Fiber Cards)
+          # Source(1) = output of fcstat (Fiber Cards)
           type: osCommand
           commandLine: "for FCSTAT in $(for NIC in `for a in $(for i in $(ioscli lsdev -type  disk -field name -state Available && ioscli lsdev -type tape -field name |grep \"^hdisk|^rmt\"); do ioscli lsdev -dev $i -parent  ; done |grep ^fs|sort -n |uniq); do ioscli lsdev -dev $a -parent; done |grep ^fc ; ioscli lsmap -all -npiv |awk '{FS=\":\"} /name:fcs/ && /loc/  {print $2}' |awk '{print $1}' |uniq `; do echo $NIC ; done |uniq); do  fcstat $FCSTAT ; done"
           computes:
@@ -533,7 +533,7 @@ monitors:
             keep: ^MSHW;
             separators: ;
         source(2):
-          _comment: Source(2) = output of netstat (Ethernat Cards)
+          # Source(2) = output of netstat (Ethernat Cards)
           type: osCommand
           commandLine: "STR0=$(ioscli lsdev -type adapter -state Available -field name|egrep '^ent'); STR1=$(ioscli lsmap -all -npiv |awk '/FC name:/ {print $2}' |sort |uniq |cut -c '6-10'); STR2=$(ioscli viostat -adapter |awk '/fcs/ {print $1}') ;for i in $(for i in $(echo $STR0 $STR1 $STR2); do echo $i; done |sort |uniq) ; do ioscli netstat -cdlistats $i; done"
           computes:
@@ -568,7 +568,7 @@ monitors:
     discovery:
       sources:
         source(1):
-          _comment: Get the list of Ports from lspath
+          # Get the list of Ports from lspath
           type: osCommand
           commandLine: ioscli lspath
           computes:
@@ -588,11 +588,11 @@ monitors:
           hw.parent.type: enclosure
           name: $column(1)
     collect:
-      _comment: Collect type is multi-instance
+      # Collect type is multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: Get the list of Ports from multipath -l
+          # Get the list of Ports from multipath -l
           type: osCommand
           commandLine: ioscli lspath
           computes:

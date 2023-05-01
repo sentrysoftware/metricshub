@@ -81,8 +81,8 @@ monitors:
           oid: 1.3.6.1.2.1.47.1.1.1.1
           selectColumns: "ID,4,5,7,11,12,13"
           computes:
-          - _comment: Remove Container Class as they are redundant.
-            type: excludeMatchingLines
+          # Remove Container Class as they are redundant.
+          - type: excludeMatchingLines
             column: 3
             valueList: 5
         source(2):
@@ -91,8 +91,8 @@ monitors:
           type: copy
           from: $monitors.enclosure.discovery.sources.source(1)$
           computes:
-          - _comment: Keep only Chassis class for Enclosure.
-            type: keepOnlyMatchingLines
+          # Keep only Chassis class for Enclosure.
+          - type: keepOnlyMatchingLines
             column: 3
             regExp: 3
         source(3):
@@ -114,7 +114,7 @@ monitors:
           type: Chassis
           name: "sprintf(\"%s (%s %s - %s)\", $column(4), $column(6), $column(7), \"Chassis\")"
     collect:
-      _comment: Collect
+      # Collect
       type: multiInstance
       sources:
         source(1):
@@ -127,15 +127,15 @@ monitors:
           type: copy
           from: $monitors.enclosure.collect.sources.source(1)$
           computes:
-          - _comment: ID;Type;Unit;Value;Status;Status;
-            type: duplicateColumn
+          # ID;Type;Unit;Value;Status;Status;
+          - type: duplicateColumn
             column: 5
-          - _comment: ID;Type;Unit;Value;PatrolStatus;Status;
-            type: translate
+          # ID;Type;Unit;Value;PatrolStatus;Status;
+          - type: translate
             column: 5
             translationTable: SensorStatusTranslationTable
-          - _comment: ID;Type;Unit;Value;PatrolStatus;StatusInformation;
-            type: translate
+          # ID;Type;Unit;Value;PatrolStatus;StatusInformation;
+          - type: translate
             column: 6
             translationTable: SensorStatusInformationTranslationTable
         source(3):
@@ -155,19 +155,19 @@ monitors:
           leftKeyColumn: 6
           rightKeyColumn: 1
           computes:
-          - _comment: ID;Type;DisplayID;SerialNumber;Vendor;Model;AC;Amps;Status;Status;
-            type: awk
+          # ID;Type;DisplayID;SerialNumber;Vendor;Model;AC;Amps;Status;Status;
+          - type: awk
             script: EmbeddedFile(1)
-          - _comment: ID;Type;DisplayID;SerialNumber;Vendor;Model;AC;Amps;Status;Status;
-            type: translate
+          # ID;Type;DisplayID;SerialNumber;Vendor;Model;AC;Amps;Status;Status;
+          - type: translate
             column: 9
             translationTable: SensorStatusTranslationTable
-          - _comment: ID;Type;DisplayID;SerialNumber;Vendor;Model;AC;Amps;Status;Status;
-            type: translate
+          # ID;Type;DisplayID;SerialNumber;Vendor;Model;AC;Amps;Status;Status;
+          - type: translate
             column: 10
             translationTable: SensorStatusInformationTranslationTable
-          - _comment: Watts for if we find total watt capacity
-            type: multiply
+          # Watts for if we find total watt capacity
+          - type: multiply
             column: 8
             value: Column(7)
         source(5):
@@ -177,7 +177,7 @@ monitors:
           - type: awk
             script: EmbeddedFile(2)
       mapping:
-        _comment: Chassis;PowerConsumption
+        # Chassis;PowerConsumption
         source: $monitors.enclosure.collect.sources.source(5)$
         deviceId: $column(1)
         metrics:
@@ -197,15 +197,15 @@ monitors:
           leftKeyColumn: 6
           rightKeyColumn: 1
           computes:
-          - _comment: ID;Type;DisplayID;SerialNumber;Vendor;Model;AC;Amps;Status;Status;
-            type: awk
+          # ID;Type;DisplayID;SerialNumber;Vendor;Model;AC;Amps;Status;Status;
+          - type: awk
             script: EmbeddedFile(1)
-          - _comment: ID;Type;DisplayID;SerialNumber;Vendor;Model;AC;Amps;Status;Status;
-            type: keepOnlyMatchingLines
+          # ID;Type;DisplayID;SerialNumber;Vendor;Model;AC;Amps;Status;Status;
+          - type: keepOnlyMatchingLines
             column: 2
             valueList: 6
       mapping:
-        _comment: ID;Type;DisplayID;SerialNumber;Vendor;Model;AC;Amps;Status;Status;
+        # ID;Type;DisplayID;SerialNumber;Vendor;Model;AC;Amps;Status;Status;
         source: $monitors.power_supply.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -215,7 +215,7 @@ monitors:
           hw.parent.id: Chassis
           name: "sprintf(\"%s, $column(3))"
     collect:
-      _comment: Collect type = multi-instance
+      # Collect type = multi-instance
       type: multiInstance
       mapping:
         # PowerSupply Status is a rollup of all sensors associated to it.
@@ -240,8 +240,8 @@ monitors:
           leftKeyColumn: 1
           rightKeyColumn: 1
           computes:
-          - _comment: Keep only celsius sensors
-            type: keepOnlyMatchingLines
+          # Keep only celsius sensors
+          - type: keepOnlyMatchingLines
             column: 9
             valueList: 8
       mapping:
@@ -253,10 +253,10 @@ monitors:
           hw.parent.id: Chassis
           name: $column(4)
     collect:
-      _comment: Collect type = multi-instance
+      # Collect type = multi-instance
       type: multiInstance
       mapping:
-        _comment: ID;Type;Unit;Value;PatrolStatus;StatusInformation;
+        # ID;Type;Unit;Value;PatrolStatus;StatusInformation;
         source: $monitors.enclosure.collect.sources.source(2)$
         deviceId: $column(1)
         metrics:
@@ -278,12 +278,12 @@ monitors:
           leftKeyColumn: 1
           rightKeyColumn: 1
           computes:
-          - _comment: Keep only DC sensors
-            type: keepOnlyMatchingLines
+          # Keep only DC sensors
+          - type: keepOnlyMatchingLines
             column: 9
             valueList: 4
       mapping:
-        _comment: ID;Parent;Type;Name;SerialNumber;Vendor;Model;
+        # ID;Parent;Type;Name;SerialNumber;Vendor;Model;
         source: $monitors.voltage.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -293,23 +293,23 @@ monitors:
           hw.parent.id: Chassis
           name: "sprintf(\"%s (%s)\", $column(4), \"DC\")"
     collect:
-      _comment: Collect type = multi-instance
+      # Collect type = multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: ID;Type;Unit;Value;PatrolStatus;StatusInformation;
+          # ID;Type;Unit;Value;PatrolStatus;StatusInformation;
           type: copy
           from: $monitors.enclosure.collect.sources.source(2)$
           computes:
           - type: translate
             column: 3
             translationTable: SensorValueMultiplierTable
-          - _comment: ID;Type;Unit;Value;PatrolStatus;StatusInformation;
-            type: multiply
+          # ID;Type;Unit;Value;PatrolStatus;StatusInformation;
+          - type: multiply
             column: 4
             value: Column(3)
       mapping:
-        _comment: ID;Type;Value;PatrolStatus;StatusInformation;
+        # ID;Type;Value;PatrolStatus;StatusInformation;
         source: $monitors.voltage.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:
@@ -331,12 +331,12 @@ monitors:
           leftKeyColumn: 1
           rightKeyColumn: 1
           computes:
-          - _comment: Keep only RPM sensors
-            type: keepOnlyMatchingLines
+          # Keep only RPM sensors
+          - type: keepOnlyMatchingLines
             column: 9
             valueList: 10
       mapping:
-        _comment: ID;Parent;Type;Name;SerialNumber;Vendor;Model;
+        # ID;Parent;Type;Name;SerialNumber;Vendor;Model;
         source: $monitors.fan.discovery.sources.source(1)$
         attributes:
           id: $column(1)
@@ -345,15 +345,15 @@ monitors:
           hw.parent.id: Chassis
           name: $column(4)
     collect:
-      _comment: Collect type = multi-instance
+      # Collect type = multi-instance
       type: multiInstance
       sources:
         source(1):
-          _comment: ID;Type;Unit;Value;PatrolStatus;StatusInformation;
+          # ID;Type;Unit;Value;PatrolStatus;StatusInformation;
           type: copy
           from: $monitors.enclosure.collect.sources.source(2)$
       mapping:
-        _comment: ID;Type;Unit;Value;PatrolStatus;StatusInformation;
+        # ID;Type;Unit;Value;PatrolStatus;StatusInformation;
         source: $monitors.fan.collect.sources.source(1)$
         deviceId: $column(1)
         metrics:

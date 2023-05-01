@@ -34,16 +34,16 @@ connector:
     appliesTo:
     - HP
     criteria:
-      # OS should be HP (for HP-UX, whatever version)
+    # OS should be HP (for HP-UX, whatever version)
     - type: deviceType
       keep:
       - HP
-      # STM should not be present, because in this case, we will use the HPUX-CSTM connector
+    # STM should not be present, because in this case, we will use the HPUX-CSTM connector
     - type: osCommand
       commandLine: if /bin/test ! -f /usr/bin/stm ; then /bin/echo "NO STM"; fi
       expectedResult: ^NO STM$
-    - _comment: The various following tools have to be present
-      type: osCommand
+    # The various following tools have to be present
+    - type: osCommand
       commandLine: "FIRSTRAWDEVICE=`/bin/ls /dev/rdsk|/bin/head -1`; %{SUDO:/usr/sbin/diskinfo}/usr/sbin/diskinfo /dev/rdsk/$FIRSTRAWDEVICE"
       expectedResult: ^SCSI describe of /dev/rdsk/
 sudoCommands:
@@ -79,7 +79,7 @@ monitors:
           leftKeyColumn: 1
           rightKeyColumn: 2
       mapping:
-        _comment: InstanceTable = Source(3)
+        # InstanceTable = Source(3)
         source: $monitors.disk_controller.discovery.sources.source(3)$
         attributes:
           id: $column(1)
@@ -96,7 +96,7 @@ monitors:
           type: copy
           from: $monitors.disk_controller.discovery.sources.source(1)$
       mapping:
-        _comment: InstanceTable = Source(1)
+        # InstanceTable = Source(1)
         source: $monitors.physical_disk.discovery.sources.source(1)$
         attributes:
           id: $column(3)
@@ -107,11 +107,11 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(5)
     collect:
-      _comment: Collect type is "mono-instance"
+      # Collect type is "mono-instance
       type: monoInstance
       sources:
         source(1):
-          _comment: Source(1) = output of the pvdisplay command
+          # Source(1) = output of the pvdisplay command
           type: osCommand
           commandLine: /usr/sbin/pvdisplay /dev/dsk/%PhysicalDisk.Collect.DeviceID%
           computes:
@@ -137,7 +137,7 @@ monitors:
             column: 2
             translationTable: PhysicalDiskStatusInformationTranslationTable
       mapping:
-        _comment: ValueTable = Source(1)
+        # ValueTable = Source(1)
         source: $monitors.physical_disk.collect.sources.source(1)$
         metrics:
           hw.status{hw.type="physical_disk"}: $column(1)

@@ -158,7 +158,7 @@ monitors:
           leftKeyColumn: 1
           rightKeyColumn: 2
       mapping:
-        _comment: The instance table...
+        # The instance table...
         source: $monitors.physical_disk.discovery.sources.source(3)$
         attributes:
           id: $column(3)
@@ -170,7 +170,7 @@ monitors:
         metrics:
           hw.physical_disk.size: $column(10)
     collect:
-      _comment: This a multi-instance collect (please minimize the number of wbem queries...)
+      # This a multi-instance collect (please minimize the number of wbem queries...)
       type: multiInstance
       sources:
         source(1):
@@ -210,16 +210,16 @@ monitors:
             column: 2
           - type: duplicateColumn
             column: 2
-          - _comment: Translate the WBEM Status field into PATROL status
-            type: translate
+          # Translate the WBEM Status field into PATROL status
+          - type: translate
             column: 3
             translationTable: PhysicalDiskStatusTranslationTable
-          - _comment: Translate the WBEM Status field into a more readable string
-            type: translate
+          # Translate the WBEM Status field into a more readable string
+          - type: translate
             column: 4
             translationTable: PhysicalDiskInformationStatusTranslationTable
       mapping:
-        _comment: And here is the ValueTable
+        # And here is the ValueTable
         source: $monitors.physical_disk.collect.sources.source(4)$
         deviceId: $column(6)
         metrics:
